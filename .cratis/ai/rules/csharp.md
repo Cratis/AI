@@ -133,11 +133,17 @@ The framework discovers and wires dependencies by convention. Explicit registrat
 - Systems with a convention of `IFoo → Foo` do not need to be registered explicitly.
 - Command/query `Handle()` method parameters are automatically resolved from DI by type.
 
-### Service lifetimes — `[Singleton]` is a narrow choice, not the default
+### Service lifetimes — anything taking a scoped dependency is scoped or transient, never a singleton
+
+**The rule, before any of the reasoning:**
+
+> **A type that takes a scoped dependency is itself scoped or transient. If you are reaching for `[Singleton]` on something that needs the event store, a database, or a read model, the answer is to not make it a singleton.**
+
+`[Singleton]` is the exception, not the default. It is for what is genuinely process-wide *and* holds nothing belonging to a tenant, a user, or a request. Everything else takes the convention (transient) or `[Scoped]`, and inherits the resolving scope — and therefore the right tenant — for free.
 
 **Assume every application you build is multi-tenant.** Not "design for it later" — assume it now, even when the deployment ships with a single tenant and no tenant resolution configured. A single-tenant application is a multi-tenant one with one tenant in it, and the code shape that serves both is the same shape. The code shape that serves only one has to be found and rewritten later, from the far side of a data migration, under production. The same reasoning applies to the signed-in user: an application always has one, and a service that remembers *which* one will eventually answer for the wrong person.
 
-That gives one rule with two faces:
+So the rule has a second face:
 
 > **A singleton may not depend on anything that belongs to a tenant, a user, or a request.**
 
@@ -155,9 +161,9 @@ A `[Singleton]` taking one of these is a **captive dependency**: the container h
 
 **It does not throw. It returns nothing.** A query against the wrong namespace hits a database that exists and is empty, so the caller gets an empty collection, a `null` read model, or a default-valued options object, and carries on. The application starts, the pages render, the build is green, and the configuration a tenant spent an afternoon entering is simply not there. It is also invisible while there is only one tenant — every symptom appears on the day a second one arrives.
 
-**What to use instead.** Default to the convention (transient), which inherits the resolving scope's tenant for free, or `[Scoped]` when a service must be shared within one request. Reserve `[Singleton]` for things that are genuinely process-wide and hold no tenant-, user-, or request-bound state: `IInstancesOf<T>` aggregators, HTTP client wrappers, `IOptions<T>` readers, pure computation, framework plumbing.
+**What to do instead — in this order.**
 
-When something must be a singleton and still needs data — a hosted service, a dispatcher, a poller — inject `IServiceScopeFactory` and open a scope per unit of work:
+**1. Drop `[Singleton]`.** This is the answer almost every time. Delete the attribute and let the type be transient by convention, or mark it `[Scoped]` when one request should share one instance. Nothing else changes: the constructor keeps the collaborator it wanted, and now gets the caller's tenant instead of the root scope's.
 
 ```csharp
 // ❌ Wrong — IEventStore is scoped; this captures the root scope's default namespace forever.
@@ -168,18 +174,34 @@ public class DigestSources(IEventStore eventStore) : IDigestSources
         eventStore.ReadModels.GetInstanceById<DigestConfiguration>(DigestId.Default);
 }
 
-// ✅ Right — a scope per call, so the collaborators bind to the caller's tenant.
-[Singleton]
-public class DigestSources(IServiceScopeFactory scopeFactory) : IDigestSources
+// ✅ Right — no attribute at all. Transient by convention, so it resolves in the caller's scope
+// and reads that caller's tenant. There was never a reason for this to be process-wide.
+public class DigestSources(IEventStore eventStore) : IDigestSources
 {
-    public async Task<DigestConfiguration?> GetCurrent()
+    public Task<DigestConfiguration?> GetCurrent() =>
+        eventStore.ReadModels.GetInstanceById<DigestConfiguration>(DigestId.Default);
+}
+```
+
+**2. Only when the lifetime is forced on you, open a scope per unit of work.** A hosted service or `BackgroundService` is resolved once by the host, so it *is* a singleton whether or not you asked — and it runs with no request to inherit a scope from. That, and only that, is what `IServiceScopeFactory` is for:
+
+```csharp
+// ✅ Right for a hosted service — a scope per unit of work, so collaborators bind to a real scope.
+public class DigestDispatcher(IServiceScopeFactory scopeFactory) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        using var scope = scopeFactory.CreateScope();
-        var eventStore = scope.ServiceProvider.GetRequiredService<IEventStore>();
-        return await eventStore.ReadModels.GetInstanceById<DigestConfiguration>(DigestId.Default);
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            using var scope = scopeFactory.CreateScope();
+            var eventStore = scope.ServiceProvider.GetRequiredService<IEventStore>();
+            await Dispatch(eventStore, cancellationToken);
+        }
     }
 }
 ```
+
+⚠️ **`IServiceScopeFactory` is not a way to keep `[Singleton]` on a service that had no reason to be one.** It is more code, it hides the lifetime question behind a scope nobody asked for, and — because a scope with no request still resolves no tenant — it does not by itself make an off-request flow tenant-correct. Reaching for it first is how a codebase ends up with dozens of these — a sweep of a real application found several dozen singletons holding a scoped service, not one of which needed to be a singleton at all. If the type is not the host's own, the fix is the attribute, not the factory.
 
 `IChronicleClient` **is** singleton-safe, and is the right collaborator when a flow knows which namespace it means and has no scope to resolve one from — it names the event store and namespace explicitly: `await chronicleClient.GetEventStore("MyStore", tenantId.Value)`. Naming the namespace is a deliberate, readable statement that this code crosses a tenant boundary; capturing a scoped service is the same crossing made by accident.
 
@@ -189,9 +211,21 @@ public class DigestSources(IServiceScopeFactory scopeFactory) : IDigestSources
 
 **Caching.** A process-wide cache of tenant data is the same bug wearing a performance justification. If a singleton caches, the tenant (and where relevant the user) is part of the key. The same holds for `static` fields: a `static` cache of anything tenant-scoped is shared by every tenant in the process.
 
-**Enforce it, do not remember it.** This failure is silent, so review will not reliably catch it. Add an architecture spec that reflects over the assembly, finds every `[Singleton]` whose constructor takes a scope-bound service, and asserts the set is empty. It is a few dozen lines, it runs on every build, and it is the only thing that keeps the rule true a year from now.
+**Enforce it, do not remember it.** This failure is silent, so review will not reliably catch it. Two gates, and an application wants both:
 
-> .NET's own captive-dependency detection (`ServiceProviderOptions.ValidateScopes`, which Arc deliberately leaves on in Development) exists to catch exactly this. If a singleton in your codebase holds a scoped service and Development startup is not complaining, that path is not being exercised in Development — worth knowing on its own.
+**Turn .NET's own scope validation on in every environment, not just Development.** `ServiceProviderOptions.ValidateScopes` rejects resolving a scoped service from the root provider, and `ValidateOnBuild` walks every registration at startup so a captive dependency fails the host immediately rather than at whichever request first happens to need it. The host enables both in Development by default and **neither outside it** — which is exactly backwards for a failure whose whole character is that it stays quiet:
+
+```csharp
+builder.Host.UseDefaultServiceProvider(options =>
+{
+    options.ValidateScopes = true;
+    options.ValidateOnBuild = true;
+});
+```
+
+Enable it on an existing codebase in this order, or it will simply refuse to start: turn it on locally first, fix everything it names, and only then let it reach the deployed environments. Turning it on *before* the sweep converts a silent multi-tenant bug into a production outage, which is a worse trade, not a braver one.
+
+**And add an architecture spec**, because validation only catches what a run actually resolves. Reflect over the assembly, find every `[Singleton]` whose constructor takes a scope-bound service, and assert the set is empty. It is a few dozen lines, it names every offender in one pass rather than one per restart, and it holds for the types no startup path touches.
 
 ### Discovering multiple implementations — use `IInstancesOf<T>`, never `IEnumerable<T>`
 

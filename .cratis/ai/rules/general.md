@@ -258,7 +258,7 @@ Documentation-only changes use repository-supported non-release intent, ordinari
 | **Contributing to a Cratis framework repo** (framework profile) | `framework.md` |
 | Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md` |
 | C# / TypeScript style | `csharp.md`, `typescript.md` |
-| Service lifetimes — what a singleton may never hold (tenant, user, request state) | `csharp.md` |
+| Service lifetimes — why anything taking a scoped dependency is scoped or transient, never a singleton | `csharp.md` |
 | React + Arc + Cratis Components + MVVM + dialogs | `react.md`, `components.md`, `dialogs.md` |
 | Frontend engineering quality & testing | `frontend-quality.md`, `frontend-testing.md`, `storybook.md` |
 | Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md` |
