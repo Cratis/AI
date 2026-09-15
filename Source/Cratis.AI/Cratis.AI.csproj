@@ -25,6 +25,7 @@
         <PackageReference Include="Cratis.Chronicle" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Http" />
+        <PackageReference Include="Microsoft.Extensions.Options" />
         <!-- Worker/agent scheduling (Docker + Kubernetes runtimes). -->
         <PackageReference Include="KubernetesClient" />
         <PackageReference Include="Docker.DotNet.Enhanced" />
