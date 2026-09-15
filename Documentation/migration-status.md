@@ -5,19 +5,23 @@ A living record of where the consolidation actually is, against the plan's sugge
 opens - it is the fastest way for anyone (human or agent) picking this work up mid-stream to know
 what exists, what is proven, and what is still assumption.
 
-## PR stack (as of this writing)
+## Shipped
 
-All stacked on `main` in order, each individually green (`dotnet build`, `dotnet test`, `yarn ci`,
-the corpus's own `yarn verify` self-check):
+**`Cratis.AI` is a real, published NuGet package** (<https://www.nuget.org/packages/Cratis.AI>) and
+`@cratis/pi` has released several times alongside it. All 17 PRs below are merged to `main`; each was
+verified green (`dotnet build`, `dotnet test`, `yarn ci`, the corpus's own `yarn verify` self-check)
+before merging, both locally and in the repository's real required CI checks (`verify`,
+`dotnet verify`, `release-intent / verify`), and each merge triggered a real `publish.yml` run that
+published a release - nothing was batched or held back to the end.
 
 | PR | Branch | Contains |
 |---|---|---|
-| #315 | `feat/dotnet-scaffolding` | Phase 1: .NET + yarn workspace scaffolding |
+| #315 | `feat/dotnet-scaffolding` | Phase 1: .NET + yarn workspace scaffolding (plus the npm->yarn CI fix, pulled forward into this PR once caught) |
 | #316 | `feat/cratis-ai-abstractions` | `Cratis.AI` project + `Abstractions/` seams, agent identity/causation (`IAgentExecution`) |
 | #317 | `feat/usage-subsystem` | Usage subsystem: concepts, `AgentSessionUsageRecorded`, `RecordAgentSessionUsage`, read models, decision 0002 |
 | #318 | `feat/providers-core` | `ILanguageModel`, `LanguageModelResult`, `ManagedLanguageModel` |
 | #319 | `feat/workers-core` | `IWorkerRuntime`, `WorkerJob`, `WorkerRuntimeOptions`, `IKubernetesClientFactory` (interface layer only) |
-| #320 | `feat/ci-workflows` | Fixed the yarn-workspace `npm ci` regression in `publish.yml`; added `.NET` build/pack/NuGet-publish |
+| #320 | `feat/ci-workflows` | Added `.NET` build/pack/NuGet-publish jobs to `publish.yml` (this is what made the NuGet publish above possible); pinned two unpinned action references the real CI run caught |
 | #321 | `feat/providers-concepts` | Provider vocabulary: `AIProviderName/Type/ApiKey/Endpoint`, `ModelTier`, `MaxConcurrentJobs`, `Effort` |
 | #322 | `feat/root-documentation` | This `Documentation/` folder |
 | #323 | `feat/provider-client-seam` | `IAIProviderClient` + the first concrete vendor client (`OpenAICompatible`) |
@@ -25,11 +29,19 @@ the corpus's own `yarn verify` self-check):
 | #325 | `feat/openai-client` | OpenAI + Azure OpenAI vendor clients + credential classification |
 | #326 | `feat/zai-client` | ZAI vendor client (Anthropic-compatible protocol) |
 | #327 | `feat/provider-concurrency-gate` | `ProviderConcurrencyGate` + `AIProviderOptions` |
-| #328 | `feat/tier-models` | `TierModels`, `TierModelDefaults`, `TierModelResolution` |
+| #329 | `feat/tier-models` | `TierModels`, `TierModelDefaults`, `TierModelResolution` |
 | #330 | `feat/pools` | Pool concepts, `PoolMemberSelector`, `ProviderBurn` (rewired onto `IRecordedAgentSessions`) |
 | #331 | `feat/capabilities` | `AgentInvocationMode`, `AIModelCapability`/`AIProviderCapability`, `AIModelCapabilities` |
 
-Merge them in order - each is written against the previous one's tip, not against `main` directly.
+### Dependency alignment (plan Section 2.5 / risk #6)
+
+Studio was already on `Cratis`/`Cratis.Arc` 22.14.0 and `Cratis.Chronicle` 18.1.6 - the set `Cratis.AI`
+is pinned to. Direct was behind (22.13.1 / 18.1.4); a version-alignment PR
+(`Cratis/Direct#993`, `chore/align-cratis-arc-chronicle-versions`) bumps it to match, verified with a
+full `dotnet build` (clean proxy regeneration, zero output drift) and all 4,498 of Direct's own specs
+passing. **Opened for review, not merged** - Direct's own `project/deployment-is-ci-only.md` states a
+merge with a release label is the production deploy decision with no separate approval gate, which is
+a call for whoever owns that deployment, not something to do unattended.
 
 ## What exists and is tested
 
