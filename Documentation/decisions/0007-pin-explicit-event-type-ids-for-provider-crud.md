@@ -1,7 +1,10 @@
 # 0007 - Pin explicit event type ids on every provider CRUD event
 
-Status: Accepted
-Related: [Cratis/AI#341](https://github.com/Cratis/AI/issues/341), decision 0002, decision 0006.
+Status: Accepted - the id *values* chosen here (fresh guids) were wrong for Direct's actual cutover;
+see decision 0008, which corrects them to match Direct's own pre-existing implicit ids. The
+standing rule this record establishes (always pin explicitly) is unchanged and still in force.
+Related: [Cratis/AI#341](https://github.com/Cratis/AI/issues/341), decision 0002, decision 0006,
+decision 0008.
 
 ## Context
 

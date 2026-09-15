@@ -54,8 +54,12 @@ public class AddAzureOpenAIProviderValidator : CommandValidator<AddAzureOpenAIPr
 public record AzureOpenAIProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs)
 {
     /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
-    /// never changed - see decision 0002.
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - chosen once, here, and
+    /// never changed (decision 0002). Deliberately the bare type name as a string, not a fresh guid:
+    /// this is exactly the id Direct's own pre-migration same-named type already resolves to
+    /// implicitly (Chronicle's own type-name fallback, decision 0007) - matching it keeps Direct's
+    /// real, already-stored provider events readable through this type once Direct's own duplicate
+    /// is deleted, rather than orphaning them under an id nothing produces anymore.
     /// </summary>
-    public const string EventTypeId = "0c632621-e77f-46b6-b289-bf37c2ccc324";
+    public const string EventTypeId = "AzureOpenAIProviderAdded";
 }
