@@ -56,11 +56,12 @@ public record OpenAIProviderAdded(AIProviderName Name, AIProviderApiKey ApiKey, 
 {
     /// <summary>
     /// The pinned <see cref="EventTypeAttribute"/> id for this event type - chosen once, here, and
-    /// never changed (decision 0002). Deliberately the bare type name as a string, not a fresh guid:
-    /// this is exactly the id Direct's own pre-migration same-named type already resolves to
-    /// implicitly (Chronicle's own type-name fallback, decision 0007) - matching it keeps Direct's
-    /// real, already-stored provider events readable through this type once Direct's own duplicate
-    /// is deleted, rather than orphaning them under an id nothing produces anymore.
+    /// never changed (decision 0002). Deliberately <em>not</em> matching Direct's own
+    /// `OpenAIProviderAdded` the way every other sibling in this PR matches its donor (decision
+    /// 0008): Direct keeps its own OpenAI Add/Reconfigure commands for now - they raise a second,
+    /// not-yet-ported credential-kind classification event this type does not - so the two remain
+    /// genuinely different event types with a coincidentally identical name, and pinning the same id
+    /// here would recreate the exact collision decision 0007 exists to prevent, not resolve it.
     /// </summary>
-    public const string EventTypeId = "OpenAIProviderAdded";
+    public const string EventTypeId = "fad79302-e93b-4b14-87fb-bd786f8ae134";
 }

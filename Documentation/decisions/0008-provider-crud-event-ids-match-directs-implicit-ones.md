@@ -53,6 +53,20 @@ type does not change what a stored event's id means, only which assembly's CLR t
   not `AnthropicProviderAdded`) - this id choice says nothing about Studio's own eventual cutover,
   which needs its own separate mapping decision when that work starts.
 
+## Addendum: OpenAI is the one exception
+
+Found the same day, when Direct's own cutover actually deleted its duplicate Anthropic/AzureOpenAI/
+OpenAICompatible/ZAI commands but kept its own OpenAI Add/Reconfigure (Direct's OpenAI commands raise
+a second, not-yet-ported credential-kind classification event this package's do not - see decision
+0006's own carve-out for that). Matching `OpenAIProviderAdded`/`OpenAIProviderReconfigured` to
+Direct's implicit ids, the same as the other ten, would have recreated exactly the collision decision
+0007 exists to prevent - Direct's own type stays alive for these two, so the package's replacement
+never actually replaces it. `Providers/Adding/AddOpenAIProvider.cs` and
+`Providers/Reconfiguring/ReconfigureOpenAIProvider.cs` keep their original decision-0007 guids
+instead; every other sibling in the 12 matches its donor as this record describes. Revisit once the
+credential-kind classification (or the whole Codex/subscription-refresh subsystem it belongs to) is
+ported and Direct's own OpenAI commands can actually be deleted too.
+
 ## Alternatives rejected
 
 - **Leaving decision 0007's fresh guids in place and writing an explicit event-evolution mapping**
