@@ -53,5 +53,12 @@ public class ReconfigureOpenAICompatibleProviderValidator : CommandValidator<Rec
 /// </summary>
 /// <param name="Endpoint">The new endpoint.</param>
 /// <param name="ApiKey">The new API key, protected at rest.</param>
-[EventType]
-public record OpenAICompatibleProviderReconfigured(AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey);
+[EventType(EventTypeId)]
+public record OpenAICompatibleProviderReconfigured(AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "f305a4a9-249e-4710-a876-2820b670dfbd";
+}

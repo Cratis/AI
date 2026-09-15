@@ -50,5 +50,12 @@ public class AddAzureOpenAIProviderValidator : CommandValidator<AddAzureOpenAIPr
 /// <param name="Endpoint">The Azure OpenAI resource endpoint.</param>
 /// <param name="ApiKey">The Azure OpenAI API key, protected at rest.</param>
 /// <param name="MaxConcurrentJobs">How many worker sessions may run on the provider at once - zero for no limit.</param>
-[EventType]
-public record AzureOpenAIProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs);
+[EventType(EventTypeId)]
+public record AzureOpenAIProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "0c632621-e77f-46b6-b289-bf37c2ccc324";
+}

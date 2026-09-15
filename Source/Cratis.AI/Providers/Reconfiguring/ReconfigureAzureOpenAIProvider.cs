@@ -53,5 +53,12 @@ public class ReconfigureAzureOpenAIProviderValidator : CommandValidator<Reconfig
 /// </summary>
 /// <param name="Endpoint">The new endpoint.</param>
 /// <param name="ApiKey">The new API key, protected at rest.</param>
-[EventType]
-public record AzureOpenAIProviderReconfigured(AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey);
+[EventType(EventTypeId)]
+public record AzureOpenAIProviderReconfigured(AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
+{
+    /// <summary>
+    /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and
+    /// never changed - see decision 0002.
+    /// </summary>
+    public const string EventTypeId = "24f60d8e-ab43-4615-b2cb-9543d2ea8029";
+}
