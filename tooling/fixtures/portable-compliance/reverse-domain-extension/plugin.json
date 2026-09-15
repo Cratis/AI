@@ -1,9 +1,0 @@
-{
-  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "reverse-domain-extension",
-  "extensions": {
-    "com.cratis.fixture": {
-      "enabled": true
-    }
-  }
-}

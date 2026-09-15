@@ -1,2 +1,0 @@
-Copyright (c) Cratis. Licensed under the MIT license.
-Sanitized fixture asset.
