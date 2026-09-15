@@ -37,6 +37,8 @@ published a release - nothing was batched or held back to the end.
 | #339, #340 | `feat/provider-crud`, `feat/provider-reconfigure` | First real migration slice: `Providers/Adding/` and `Reconfiguring/` (all 5 vendors, including "blank keeps existing" semantics), `Renaming/`, `Removing/`, `ConfiguredAIProvider` upgraded from placeholder record to a real `[ReadModel][Passive]` projection - a complete provider CRUD surface; decision 0006 |
 | #342 | `fix/pin-provider-crud-event-ids` | [Cratis/AI#341](https://github.com/Cratis/AI/issues/341): pinned explicit `EventTypeId` on all 12 provider CRUD events - Chronicle's type-name-based default id collided with Direct's own pre-migration same-named types the moment both loaded in one process; decision 0007 |
 | #343 | `fix/match-donor-event-type-ids` | Corrected #342's chosen id *values* - matched to Direct's own pre-existing implicit type-name ids instead of fresh guids, so Direct's real, already-stored provider events stay readable once Direct's own duplicate types are deleted; decision 0008 |
+| #344 | `fix/openai-event-ids-stay-distinct` | Kept `OpenAIProviderAdded`/`OpenAIProviderReconfigured`'s ids distinct from Direct's, since Direct deliberately keeps its own OpenAI commands (credential-kind classification, not yet ported) - matching them would have recreated the exact collision decisions 0007/0008 exist to prevent |
+| #345 | `feat/studio-provider-shape` | `Providers/Configuring/` - Studio's own provider shape (one `XModelConfigured` event covers add+reconfigure, a `Model` field, `AIModelRenamed`/`AIModelRemoved`), carried alongside Direct's rather than forced into it; `ConfiguredAIProvider` gained a `Model` field; decision 0009 |
 
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
@@ -116,14 +118,16 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   real `ConfiguredAIProvider`/`AIProviderPool` projections below. Read
   `AIProviders/ProviderAwareLanguageModel.cs` in Direct before starting this - it is ~215 lines with
   real production reasoning (issue #103) behind almost every branch.
-- **Provider commands/projections** - `Adding/` (all 5 vendors), `Reconfiguring/` (all 5 vendors,
-  "blank keeps the existing value" semantics included), `Renaming/`, `Removing/` are all real now
-  (decision 0006); `ConfiguredAIProvider` is a real `[ReadModel][Passive]` projection built from all
-  of them, not the placeholder shape it used to be - provider CRUD is a complete command surface.
-  Still missing: `SettingConcurrency/`, `SettingTierModels/`, `Listing/` (the display-name-bearing
-  model a UI lists providers from - `ConfiguredAIProvider` deliberately has no name, same as
-  Direct's own donor). OpenAI's subscription-credential-kind classification event is also not yet
-  ported (belongs with Codex, below).
+- **Provider commands/projections** - complete for both real donor shapes now. Direct's:
+  `Adding/`/`Reconfiguring/` (all 5 vendors, "blank keeps the existing value" semantics included),
+  `Renaming/`, `Removing/` (decision 0006). Studio's, differently shaped (one event covers
+  add+reconfigure, a `Model` field, no concurrency bound): `Configuring/` (4 vendors - Studio has no
+  ZAI) plus its own `RenameAIProvider`/`RemoveAIProvider` (decision 0009). `ConfiguredAIProvider` is
+  a real `[ReadModel][Passive]` projection accumulating from both. Still missing for both:
+  `SettingConcurrency/`, `SettingTierModels/`, `Listing/` (the display-name-bearing model a UI lists
+  providers from - `ConfiguredAIProvider` deliberately has no name, matching both donors). OpenAI's
+  subscription-credential-kind classification event (Direct-only) is also not yet ported (belongs
+  with Codex, below).
 - **Pool CRUD/projections** (create/rename/remove pool, add/remove provider, `Listing/`) - needed
   before `AIProviderPoolMember` (#330) is populated by anything other than a consumer constructing
   it directly.
@@ -176,6 +180,10 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   `SkipOutputDeletion=false`, and the `CopyLocalLockFileAssemblies` fix proxy generation needed on a
   plain class library.
 
+- [`decisions/0009-studio-provider-shape-lives-alongside-directs.md`](./decisions/0009-studio-provider-shape-lives-alongside-directs.md) -
+  Studio's real provider events are differently *shaped* from Direct's, not just differently named -
+  one event covers add+reconfigure, carries a `Model` field Direct's has no equivalent for. Carried
+  as its own `Providers/Configuring/` namespace rather than forced into Direct's shape.
 - [`decisions/0008-provider-crud-event-ids-match-directs-implicit-ones.md`](./decisions/0008-provider-crud-event-ids-match-directs-implicit-ones.md) -
   corrects decision 0007's choice of id *value* (fresh guids) to match what Direct's own
   pre-migration same-named types already implicitly resolve to, so cutting Direct over does not

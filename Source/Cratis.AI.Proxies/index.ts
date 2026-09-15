@@ -16,3 +16,9 @@ export * from './generated/Providers/Adding';
 export * from './generated/Providers/Reconfiguring';
 export * from './generated/Providers/Renaming';
 export * from './generated/Providers/Removing';
+
+// Studio's provider commands are named identically to Direct's own above (AddAnthropicProvider,
+// RenameAIProvider, ...) - the two really are different commands with different routes and event
+// shapes (see Cratis.AI's Providers/Configuring/AnthropicProvider.cs remarks), not a naming
+// accident, so a flat re-export here would collide. Reached through a namespace instead.
+export * as Configuring from './generated/Providers/Configuring';
