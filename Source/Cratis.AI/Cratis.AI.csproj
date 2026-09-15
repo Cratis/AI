@@ -16,6 +16,10 @@
 
     <ItemGroup>
         <PackageReference Include="Cratis.Fundamentals" />
+        <!-- Commands, read models, concepts and their validators (ConceptValidator, [Command], [ReadModel] etc). -->
+        <PackageReference Include="Cratis.Arc.Core" />
+        <!-- Read models are stored in MongoDB collections read directly for on-demand aggregation (AgentUsageByWeek/Month). -->
+        <PackageReference Include="Cratis.Arc.MongoDB" />
         <!-- Chronicle is referenced directly, not transitively through Cratis.Arc.Chronicle, so central
              package management actually pins the client version (plan Section 5.3f). -->
         <PackageReference Include="Cratis.Chronicle" />
