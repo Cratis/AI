@@ -54,6 +54,35 @@ public class WorkerRuntimeOptions
     public string KubernetesNamespace { get; set; } = "default";
 
     /// <summary>
+    /// Gets or sets the path to a shared repository-cache volume, mounted read-only into every
+    /// worker container so its checkout can <c>git clone --shared</c> against it rather than
+    /// cloning fresh from GitHub every run. Unset (the default) omits the mount and
+    /// <see cref="RepositoryCacheEnvironmentVariable"/> entirely, so the specification comes out
+    /// byte-identical to before this setting existed. Host path and container path are the same for
+    /// both runtimes, which only works when the consumer's own process and the Docker daemon see the
+    /// same filesystem path.
+    /// </summary>
+    public string? RepositoryCachePath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the environment variable name a consumer's own <c>entrypoint.sh</c> reads the
+    /// mounted <see cref="RepositoryCachePath"/> from. Configurable rather than fixed - this names a
+    /// consumer-owned contract, not a package one: Direct's own harness still reads
+    /// <c>DIRECT_REPOSITORY_CACHE</c> literally (see decision 0010 on why the harness's env-var
+    /// contract was deliberately not renamed alongside the images themselves). Unset (the default)
+    /// omits the environment variable even when <see cref="RepositoryCachePath"/> is set.
+    /// </summary>
+    public string? RepositoryCacheEnvironmentVariable { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the shared repository-cache <c>PersistentVolumeClaim</c> to mount, for
+    /// the Kubernetes runtime - referenced by name only, provisioned by the consumer's own
+    /// infrastructure. Unset (the default) with <see cref="RepositoryCachePath"/> set is a
+    /// configuration error the Kubernetes runtime surfaces rather than guesses at.
+    /// </summary>
+    public string? RepositoryCacheClaimName { get; set; }
+
+    /// <summary>
     /// Gets or sets the name of the <c>kubernetes.io/dockerconfigjson</c> Secret worker jobs pull their
     /// image with. Unset (the default) omits <c>imagePullSecrets</c> from the job spec entirely, which is
     /// correct for a public worker image; a worker image served from a private registry needs this set to
