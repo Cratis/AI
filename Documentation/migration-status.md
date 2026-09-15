@@ -20,6 +20,7 @@ the corpus's own `yarn verify` self-check):
 | #320 | `feat/ci-workflows` | Fixed the yarn-workspace `npm ci` regression in `publish.yml`; added `.NET` build/pack/NuGet-publish |
 | #321 | `feat/providers-concepts` | Provider vocabulary: `AIProviderName/Type/ApiKey/Endpoint`, `ModelTier`, `MaxConcurrentJobs`, `Effort` |
 | #322 | `feat/root-documentation` | This `Documentation/` folder |
+| #323 | `feat/provider-client-seam` | `IAIProviderClient` + the first concrete vendor client (`OpenAICompatible`) |
 
 Merge them in order - each is written against the previous one's tip, not against `main` directly.
 
@@ -37,6 +38,9 @@ Merge them in order - each is written against the previous one's tip, not agains
 - `IWorkerRuntime`'s contract (no implementation yet) with Direct's incident-derived doc comments
   preserved verbatim.
 - Provider vocabulary concepts.
+- `IAIProviderClient` + `OpenAICompatible`, the first working vendor client, plus the shared
+  `OpenAIChatCompletionsProtocol`/`TransientProviderFailures` helpers OpenAI and Azure OpenAI's
+  clients will reuse when they are ported.
 - `AddCratisAI()` registration with the type-discovery ordering self-check.
 - `publish.yml` extended with `.NET` build/test/pack/NuGet-publish, and the yarn-migration
   regression in the existing npm-oriented steps fixed.
@@ -45,9 +49,10 @@ Merge them in order - each is written against the previous one's tip, not agains
 
 In roughly the order the plan's Section 10 sequence suggests tackling it:
 
-- **Vendor clients** (`Providers/Anthropic/`, `OpenAI/`, `AzureOpenAI/`, `OpenAICompatible/`, `ZAI/`,
-  `Codex/`) - `IAIProviderClient` and one implementation per vendor. Largest remaining single chunk
-  (Direct's donor folder alone is 85 production files).
+- **Remaining vendor clients** (`Providers/Anthropic/`, `OpenAI/`, `AzureOpenAI/`, `ZAI/`,
+  `Codex/`) - `OpenAICompatible` (#323) is the first and proves the seam; OpenAI/AzureOpenAI reuse
+  its shared `OpenAIChatCompletionsProtocol`, Anthropic and ZAI need their own protocol handling,
+  Codex is subscription-based rather than API-key (plan Section 5.2 step 3's credential note).
 - **Provider commands/projections** (`Adding/`, `Reconfiguring/`, `Removing/`, `Renaming/`,
   `SettingConcurrency/`, `SettingTierModels/`, `Listing/`, `Resolving/`).
 - **Pools** (`PoolMemberSelector`, `ProviderBurn`, pool CRUD, `Listing`).
