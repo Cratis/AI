@@ -21,7 +21,12 @@
         "path": ".cratis/ai"
       },
       "strict": false,
-      "skills": [],
+      "skills": [
+        {
+          "name": "skills",
+          "path": "../.cratis/ai/skills"
+        }
+      ],
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
