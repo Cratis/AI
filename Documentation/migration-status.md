@@ -148,7 +148,10 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   package does not yet own an agent model of its own.
 - **Conversational API** (`Conversations/`) - `AIChatClientFactory` (the vendor-generic
   `IChatClient` construction `ChatClient.CreateChatClientFor`/`ProviderReadiness` used to do entirely
-  in Studio - decision 0013) is done, real, and consumed by Studio for real. Still not started: the
+  in Studio - decision 0013) is done, and confirmed consumed for real: `Cratis/Studio#1402` rewrote
+  both to delegate to the package (real CI green, 4,319/4,319 specs, 118 of them exercising this
+  exact code directly). This is the first change since the whole effort started that actually alters
+  Studio's production AI call path, not just its configuration surface. Still not started: the
   actual reconciliation between this and `ProviderAwareLanguageModel`'s pool/tier/concurrency
   resolution (so a conversation benefits from failover/quota tracking the way a worker-dispatched
   session already does), `ConversationContext`/`Message`/`Request`/`Surroundings`, `Acting/`, `Mcp/`
