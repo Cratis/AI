@@ -1,6 +1,6 @@
 # Frontend identity
 
-Verified against `@cratis/arc` and `@cratis/arc.react` `22.10.4`.
+Verified against `@cratis/arc` and `@cratis/arc.react` `22.16.0`.
 
 ## `@cratis/arc/identity`
 

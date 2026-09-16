@@ -1,6 +1,6 @@
 # Injecting a read model into a command
 
-Verified against `Cratis.Arc.Core` `22.10.4` and `Cratis.Chronicle` `16.39.1`.
+Verified against `Cratis.Arc.Core` `22.16.0` and `Cratis.Chronicle` `18.3.0`.
 
 A read model can be injected into a `CommandValidator<T>` constructor, into
 `Provide()`, or into `Handle()`. Arc resolves it through an

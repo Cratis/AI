@@ -1,6 +1,6 @@
 # CommandResult and ValidationResult
 
-Verified against `Cratis.Arc.Core` `22.10.4` and `@cratis/arc` `22.10.4`.
+Verified against `Cratis.Arc.Core` `22.16.0` and `@cratis/arc` `22.16.0`.
 
 ## Server side
 
