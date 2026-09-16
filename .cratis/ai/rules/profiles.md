@@ -1,3 +1,9 @@
+---
+applyTo: "**/.cratis/**"
+paths:
+  - "**/.cratis/**"
+---
+
 # AI Corpus Profiles
 
 Profiles determine which rules and skills apply to your work. They define the scope of the AI corpus and which documentation, conventions, and skills are available.
