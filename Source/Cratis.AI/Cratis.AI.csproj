@@ -17,6 +17,7 @@
              is why they never needed this) - without it the generator crashes trying to resolve
              EventSourceId<T>'s base type from a Cratis.Chronicle it cannot find. -->
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 
         <!-- Generated command/query TypeScript proxies, published as @cratis/ai (plan Section 6.3).
              Deviates from Direct's/Studio's own CratisProxiesUseSourceFileAsOutputFile=true: that puts

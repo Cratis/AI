@@ -161,8 +161,11 @@ jobs:
       - name: Restore
         run: dotnet restore Cratis.AI.slnx
 
-      - name: Build
+      - name: Build Debug
         run: dotnet build Cratis.AI.slnx --configuration Debug --no-restore
+
+      - name: Build Release
+        run: dotnet build Cratis.AI.slnx --configuration Release --no-restore
 
       - name: Run specs
         run: dotnet test Cratis.AI.slnx --configuration Debug --no-build --logger "console;verbosity=normal"

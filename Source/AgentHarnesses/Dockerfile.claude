@@ -31,6 +31,19 @@ USER root
 ARG CLAUDE_CLI_VERSION=2.1.236
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}
 
+# Disable Claude Code subagent spawning to ensure deterministic, single-agent execution.
+# Managed settings have highest priority and cannot be overridden by anything below.
+# Denying the Agent tool prevents Claude from delegating to any subagent — nested or not.
+# This is baked into the image, so it applies to every session in every container built from it.
+RUN mkdir -p /etc/claude-code && \
+    cat <<'EOF' > /etc/claude-code/managed-settings.json
+{
+  "permissions": {
+    "deny": ["Agent"]
+  }
+}
+EOF
+
 # The report_progress MCP server — installed as its own small package next to the script rather
 # than a global add-on, since it is this image's own tool rather than a CLI the agent invokes
 # directly; entrypoint.sh wires it into the Claude CLI session with --mcp-config.
