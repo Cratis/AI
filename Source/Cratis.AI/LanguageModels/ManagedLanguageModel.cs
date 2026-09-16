@@ -118,15 +118,3 @@ public class ManagedLanguageModel(
         }
     }
 }
-
-/// <summary>
-/// Log messages for <see cref="ManagedLanguageModel"/>.
-/// </summary>
-internal static partial class ManagedLanguageModelLog
-{
-    [LoggerMessage(LogLevel.Warning, "Failed to record language model usage for {Purpose}")]
-    internal static partial void FailedToRecordUsage(this ILogger logger, Exception exception, LanguageModelPurpose purpose);
-
-    [LoggerMessage(LogLevel.Warning, "Retrying transient language model failure for {Purpose} (attempt {Attempt}), waiting {Wait}")]
-    internal static partial void RetryingTransientFailure(this ILogger logger, LanguageModelPurpose purpose, int attempt, TimeSpan wait);
-}

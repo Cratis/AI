@@ -27,6 +27,8 @@
         <PackageVersion Include="Cratis.Fundamentals" Version="7.19.2" />
 
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
+        <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.11" />
+        <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.12" />
 
         <PackageVersion Include="Cratis.Specifications" Version="4.1.0" />
         <PackageVersion Include="Cratis.Specifications.XUnit" Version="4.1.0" />

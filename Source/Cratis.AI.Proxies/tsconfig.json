@@ -1,0 +1,24 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": ".",
+        "outDir": "dist/esm",
+        "lib": [
+            "ESNext",
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ]
+    },
+    "references": [],
+    "files": [
+        "../../test.d.ts",
+        "../../global.d.ts"
+    ],
+    "include": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "dist"
+    ]
+}

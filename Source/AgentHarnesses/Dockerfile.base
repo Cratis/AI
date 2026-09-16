@@ -1,0 +1,303 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+#
+# BASE agent-harness image - everything a coding session needs that is not specific to any one
+# harness. The two harness images derive from this one:
+#   - Dockerfile.claude → cratis/ai-agents-claude (adds the Claude Code CLI + the progress MCP server)
+#   - Dockerfile.pi     → cratis/ai-agents-pi     (adds the Pi coding agent CLI)
+# Published to Docker Hub as cratis/ai-agents; a consuming product's dispatcher picks the derivative
+# by the acting agent's configured harness - nothing runs this base image directly. Ported from
+# Direct's Source/AgentHarnesses/ (ai-consolidation-plan.md Section 5.6) - shared by every Cratis
+# product's agent-harness work now, not owned by Direct alone.
+#
+# Contains the toolchain an agent needs to build and test the repositories the organization works
+# with:
+#   - .NET 10 SDK
+#   - Node.js (latest LTS) with Yarn (via corepack)
+#   - Java (Temurin LTS), Kotlin and Gradle/Maven
+#   - Elixir with Erlang/OTP
+#   - rtk - the token-optimizing CLI proxy every shell command is routed through
+#   - Headroom - a container-local context-compression proxy the session's model requests are
+#     routed through when DIRECT_HEADROOM is set, trimming what each turn sends to the provider
+#     (issue #556). Installed here, next to rtk, because the two do the same job at different
+#     layers: rtk trims what the shell hands the agent, Headroom trims what the agent hands the model
+#   - Roslyn language server - real C# semantic analysis (go-to-definition, find-references, rename)
+#     for whichever harness knows how to drive an LSP, over stdio
+#
+# and the operational tooling an agent needs to investigate a running system:
+#   - GitHub CLI (gh)
+#   - Cratis CLI - inspecting and operating a running Chronicle event store
+#   - Docker CLI with the buildx and compose plugins
+#   - Kubernetes CLI (kubectl) with helm and kustomize
+#   - Database client CLIs: postgresql-client, sqlite3, mongosh - for talking to whatever database a
+#     connection string points the agent at
+#
+# and the media tooling content-authoring work needs to illustrate what it writes (issue #223):
+#   - Playwright, with its Chromium browser - screenshots of a running web page
+#   - ffmpeg - stitching a sequence of screenshots into a GIF animation
+#   - gifsicle - shrinking the resulting GIF
+# Shared here rather than in a harness-specific derivative, so every purpose gets it, not only
+# content authoring - see WorkerPrompts.MediaCreationInstruction for how an agent is told to use it.
+#
+# The operational tools ship as clients only - no daemon, no cluster, no database. What an agent can
+# actually reach is decided entirely by the credentials/connection strings the Direct hands the
+# container, so an image with kubectl or mongosh in it is not an image with access in it.
+#
+# The shared entrypoint.sh lives here too - it drives whichever harness CLI the derivative image
+# carries, selected through DIRECT_HARNESS. The repositories the agent works on are cloned under
+# /workspace.
+#
+# ── Bump procedure ────────────────────────────────────────────────────────────────────────────────
+# Every FROM and every archive this file curls is pinned - a floating tag (`latest`, `1-slim`,
+# `10.0`) or an unverified download can change the image out from under a build with no diff to
+# review. When a pin genuinely needs to move:
+#   1. Version ARGs (HELM_VERSION, GRADLE_VERSION, KOTLIN_VERSION, ELIXIR_VERSION, OTP_VERSION,
+#      RTK_VERSION, CRATIS_CLI_VERSION, ROSLYN_LANGUAGE_SERVER_VERSION, PLAYWRIGHT_VERSION,
+#      MONGOSH_VERSION, HEADROOM_VERSION) - bump the ARG to the new version.
+#   2. Anything with a matching *_SHA256 ARG - refetch the published checksum for the new version
+#      and update the ARG alongside it (the RUN step verifies before unpacking, so a stale hash
+#      fails the build loudly rather than installing something unverified):
+#        Helm:   curl -fsSL "https://get.helm.sh/helm-<version>-linux-<amd64|arm64>.tar.gz.sha256sum"
+#        Gradle: curl -fsSL "https://services.gradle.org/distributions/gradle-<version>-bin.zip.sha256"
+#        Kotlin: curl -fsSL "https://github.com/JetBrains/kotlin/releases/download/v<version>/kotlin-compiler-<version>.zip.sha256"
+#      Elixir's install.sh has no published checksum - ELIXIR_INSTALL_SH_SHA256 pins the *script*
+#      fetched while this comment was written, not the Elixir/OTP versions it installs, so it only
+#      needs refreshing if the installer itself changes (rare):
+#        curl -fsSO https://elixir-lang.org/install.sh && sha256sum install.sh
+#   3. The two `FROM ...@sha256:...` base images (rust:1-slim, mcr.microsoft.com/dotnet/sdk:10.0) -
+#      re-resolve the tag's current digest and swap it in:
+#        docker buildx imagetools inspect rust:1-slim
+#        docker buildx imagetools inspect mcr.microsoft.com/dotnet/sdk:10.0
+#      (or `skopeo inspect --format '{{.Digest}}' docker://<image>:<tag>` where skopeo is available).
+#      This resolves the manifest-list digest, so it still pulls the right image per platform.
+#   4. Rebuild locally (`docker buildx build --file Source/AgentHarnesses/Dockerfile.base
+#      Source/AgentHarnesses`) before pushing the bump - a bad digest or checksum fails immediately.
+
+# rtk publishes a static musl binary for amd64 only - build from source elsewhere.
+# Digest resolved from the rust:1-slim tag on 2026-09-05 (docker buildx imagetools inspect).
+FROM rust:1-slim@sha256:17d1ba895198f9934c6314ec5346a0d5115372f3243390c3d731e242f35c2f27 AS rtk-build
+ARG RTK_VERSION=v0.45.0
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && cargo install --locked --git https://github.com/rtk-ai/rtk --tag ${RTK_VERSION} rtk \
+    && cp /usr/local/cargo/bin/rtk /rtk
+
+# Digest resolved from the mcr.microsoft.com/dotnet/sdk:10.0 tag on 2026-09-05 (docker buildx
+# imagetools inspect).
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e1ffd2a92ae84c1291bc1b6887501f8af98e6331e7af6d4c8d37168c5e87a64c
+
+# Tools the agent needs for cloning, diffing and interacting with GitHub, plus GNU time - used by
+# entrypoint.sh's run_claude_code() to measure the CPU time and peak memory of the Claude CLI session
+# (Cratis/Stagehand#638). /usr/bin/time -v aggregates getrusage(RUSAGE_CHILDREN), so it also picks up
+# the subprocesses Claude spawns for tool calls.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        git \
+        gnupg \
+        jq \
+        time \
+        unzip \
+        zip \
+    && rm -rf /var/lib/apt/lists/*
+
+# GitHub CLI — used by the agent to create branches, pull requests and comment on issues.
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        > /etc/apt/sources.list.d/github-cli.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends gh \
+    && rm -rf /var/lib/apt/lists/*
+
+# Cratis CLI - what an agent uses to inspect a running Chronicle store: failed partitions, why an
+# observer is stuck, replaying a partition, browsing events and read models. Installed to a shared
+# tool path rather than with `-g`, because a global install lands in the installing user's home and
+# this image runs as `agent` - the tool has to be on PATH for that user, not for root.
+ARG CRATIS_CLI_VERSION=2.18.0
+RUN dotnet tool install --tool-path /usr/local/bin --version ${CRATIS_CLI_VERSION} Cratis.Cli \
+    && rm -rf /tmp/NuGetScratch /root/.nuget/packages
+
+# Roslyn language server - a plain, MIT-licensed dotnet global tool published straight to nuget.org
+# (not the Azure DevOps `vs-impl` feed some older guidance still points at, which is the legacy,
+# frozen source for this package). Gives a harness with its own language-server-aware tooling real
+# C# semantic analysis - go-to-definition, find-references, rename - instead of grepping text. Talks
+# LSP over stdio via `--stdio`; unlike an editor extension driving it, it does not auto-open a
+# solution on its own, so whatever drives it has to pass `--autoLoadProjects` or send an explicit
+# `solution/open` request naming the .sln/.slnf to analyze. No bespoke MCP-to-LSP bridge ships in
+# this image - wiring one is a separate, larger effort - so this only guarantees the tool itself is
+# installed and on PATH for whichever harness can drive it.
+ARG ROSLYN_LANGUAGE_SERVER_VERSION=5.12.0-1.26426.8
+RUN dotnet tool install --tool-path /usr/local/bin --version ${ROSLYN_LANGUAGE_SERVER_VERSION} roslyn-language-server \
+    && rm -rf /tmp/NuGetScratch /root/.nuget/packages
+
+# Docker CLI (with buildx and compose) and Kubernetes tooling - what an agent investigating an alert
+# needs to look at a running system. Clients only: the daemon and the cluster come from whatever
+# DOCKER_HOST and kubeconfig the Direct injects, and neither is baked in here.
+ARG HELM_VERSION=v3.16.4
+# Published per-architecture checksums for HELM_VERSION (get.helm.sh/helm-<version>-linux-<arch>.tar.gz.sha256sum)
+# - refresh both alongside HELM_VERSION.
+ARG HELM_SHA256_AMD64=fc307327959aa38ed8f9f7e66d45492bb022a66c3e5da6063958254b9767d179
+ARG HELM_SHA256_ARM64=d3f8f15b3d9ec8c8678fbf3280c3e5902efabe5912e2f9fcf29107efbc8ead69
+# The distribution comes from the base image rather than being assumed: the .NET SDK image is
+# Ubuntu-based today, and Docker serves a separate repository per distribution - hard-coding one
+# fails the build with a Release-file error that reads like a network problem.
+RUN curl -fsSL "https://download.docker.com/linux/$(. /etc/os-release && echo $ID)/gpg" -o /usr/share/keyrings/docker.asc \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.asc] https://download.docker.com/linux/$(. /etc/os-release && echo $ID) $(. /etc/os-release && echo $VERSION_CODENAME) stable" \
+        > /etc/apt/sources.list.d/docker.list \
+    && curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key \
+        | gpg --dearmor -o /usr/share/keyrings/kubernetes-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /" \
+        > /etc/apt/sources.list.d/kubernetes.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        docker-ce-cli \
+        docker-buildx-plugin \
+        docker-compose-plugin \
+        kubectl \
+    && rm -rf /var/lib/apt/lists/* \
+    && ARCH="$(dpkg --print-architecture)" \
+    && curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" -o /tmp/helm.tar.gz \
+    && case "$ARCH" in \
+        amd64) echo "${HELM_SHA256_AMD64}  /tmp/helm.tar.gz" | sha256sum -c - ;; \
+        arm64) echo "${HELM_SHA256_ARM64}  /tmp/helm.tar.gz" | sha256sum -c - ;; \
+        *) echo "No pinned Helm checksum for architecture ${ARCH} - refusing to install unverified" >&2 && exit 1 ;; \
+       esac \
+    && tar -xzf /tmp/helm.tar.gz -C /tmp \
+    && mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm \
+    && rm -rf /tmp/helm.tar.gz "/tmp/linux-${ARCH}"
+
+# Database client CLIs, plain clients only, same "no server baked in" rule as Docker/Kubernetes above.
+# postgresql-client and sqlite3 both ship in Ubuntu's own `main` repository already, so no extra
+# keyring or apt source is needed for either.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        postgresql-client \
+        sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node.js (current LTS line) + Yarn through corepack. Node >=22.19 also satisfies the Pi CLI's own
+# engines requirement, so the Pi derivative needs no separate Node.
+ARG NODE_MAJOR=22
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && corepack enable \
+    && rm -rf /var/lib/apt/lists/*
+
+# Media tooling for content-authoring work (issue #223): Playwright drives a headless Chromium to
+# screenshot a running web page, ffmpeg stitches a sequence of screenshots into a GIF, and gifsicle
+# shrinks the result. `--with-deps` installs Chromium's own apt dependencies alongside the browser,
+# which is why this runs before the image drops to the non-root `agent` user.
+ARG PLAYWRIGHT_VERSION=1.49.1
+RUN npm install -g playwright@${PLAYWRIGHT_VERSION} \
+    && npx --yes playwright@${PLAYWRIGHT_VERSION} install --with-deps chromium \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg gifsicle \
+    && rm -rf /var/lib/apt/lists/*
+
+# mongosh - the MongoDB shell, installed straight from npm rather than MongoDB's own apt repository:
+# no extra keyring, no root-owned apt source to add, and npm is already how every other Node-based
+# tool in this image gets installed.
+ARG MONGOSH_VERSION=2.10.0
+RUN npm install -g mongosh@${MONGOSH_VERSION}
+
+# Java (Temurin LTS) + Maven; Gradle and Kotlin as pinned distributions. Most JVM repositories
+# bring a Gradle wrapper, but the standalone tools cover the rest.
+ARG JAVA_MAJOR=21
+ARG GRADLE_VERSION=8.14
+ARG KOTLIN_VERSION=2.1.20
+# Published checksums for the pinned versions - refresh alongside the version ARG above.
+ARG GRADLE_SHA256=61ad310d3c7d3e5da131b76bbf22b5a4c0786e9d892dae8c1658d4b484de3caa
+ARG KOTLIN_SHA256=a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a
+RUN curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public \
+        -o /usr/share/keyrings/adoptium.asc \
+    && echo "deb [signed-by=/usr/share/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(. /etc/os-release && echo $VERSION_CODENAME) main" \
+        > /etc/apt/sources.list.d/adoptium.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends temurin-${JAVA_MAJOR}-jdk maven \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o /tmp/gradle.zip \
+    && echo "${GRADLE_SHA256}  /tmp/gradle.zip" | sha256sum -c - \
+    && unzip -q /tmp/gradle.zip -d /opt \
+    && ln -s /opt/gradle-${GRADLE_VERSION}/bin/gradle /usr/local/bin/gradle \
+    && rm /tmp/gradle.zip \
+    && curl -fsSL "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip" -o /tmp/kotlin.zip \
+    && echo "${KOTLIN_SHA256}  /tmp/kotlin.zip" | sha256sum -c - \
+    && unzip -q /tmp/kotlin.zip -d /opt \
+    && ln -s /opt/kotlinc/bin/kotlinc /usr/local/bin/kotlinc \
+    && ln -s /opt/kotlinc/bin/kotlin /usr/local/bin/kotlin \
+    && rm /tmp/kotlin.zip
+
+# Elixir with Erlang/OTP through the official installer. 1.20 is Elixir's current release branch,
+# and OTP 29 is within its supported range (27-29, per hexdocs.pm/elixir/compatibility-and-deprecations.html).
+ARG ELIXIR_VERSION=1.20.4
+ARG OTP_VERSION=29.0.6
+# install.sh has no published checksum of its own - this pins the exact script fetched while these
+# versions were pinned (2026-09-05), so a tampered or unexpectedly changed installer fails the build
+# instead of running unverified. It is independent of ELIXIR_VERSION/OTP_VERSION above and normally
+# does not need to move when those do; refresh only if the installer itself is deliberately bumped:
+#   curl -fsSO https://elixir-lang.org/install.sh && sha256sum install.sh
+ARG ELIXIR_INSTALL_SH_SHA256=18859f92620d3b9eaba009e248706c5ee2067d38ccebe482333233726a99e6f8
+RUN curl -fsSO https://elixir-lang.org/install.sh \
+    && echo "${ELIXIR_INSTALL_SH_SHA256}  install.sh" | sha256sum -c - \
+    && sh install.sh elixir@${ELIXIR_VERSION} otp@${OTP_VERSION} \
+    && rm install.sh \
+    && ln -s "$(ls -d /root/.elixir-install/installs/otp/* | head -1)/bin/"* /usr/local/bin/ \
+    && ln -s "$(ls -d /root/.elixir-install/installs/elixir/* | head -1)/bin/"* /usr/local/bin/ \
+    # The installer puts the real files under /root/.elixir-install, and /root is 700 - so every
+    # elixir/erl/mix/... symlink above points somewhere the non-root `agent` user this image
+    # ultimately runs as (see USER agent below) could never traverse into, making the whole
+    # toolchain silently unusable despite `which elixir` finding the symlink. +x alone (not +r) is
+    # enough to allow traversal without making /root's own listing world-readable.
+    && chmod o+x /root
+
+# rtk — the token-optimizing proxy. `rtk init -g` (run per user in the entrypoint) installs the
+# hook that transparently prefixes the agent's shell commands with it.
+COPY --from=rtk-build /rtk /usr/local/bin/rtk
+
+# Headroom - the context-compression proxy the session's model requests are routed through when the
+# Direct sets DIRECT_HEADROOM (issue #556). entrypoint.sh starts it on container loopback and
+# points the harness CLI's base URL at it, so nothing about how a session is driven changes; see
+# start_headroom() there, including the fail-open contract when it is absent or will not start.
+#
+# A virtual environment is not stylistic here: the .NET SDK image is Ubuntu-based, and its `python3`
+# is PEP 668 externally-managed, so a plain `pip install` fails the build outright. The Python
+# version is never hard-coded for the same reason the Docker repository is not - the distribution
+# comes from whatever base image this is built on.
+#
+# The extras are deliberate: `[proxy]` is the documented proxy install and `[code]` adds tree-sitter
+# AST-aware compression. `[ml]` is not installed - it pulls torch and downloads a HuggingFace model
+# on first use, which is hundreds of megabytes and a network call at container start.
+#
+# This layer is not small, and the numbers are worth knowing before adding to it: measured on Ubuntu
+# 24.04/Python 3.12, `[proxy]` alone is ~706 MB installed (litellm, transformers, onnxruntime, numpy)
+# and `[proxy,code]` is ~897 MB - the extra ~191 MB is tree-sitter's language pack. Acceptable
+# against a base that already carries the .NET SDK, a JDK, Node, Chromium, Elixir, Kotlin and Gradle,
+# but `[code]` is the first thing to drop if the image ever needs to lose weight.
+ARG HEADROOM_VERSION=0.37.0
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 python3-venv \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /opt/headroom \
+    && /opt/headroom/bin/pip install --no-cache-dir "headroom-ai[proxy,code]==${HEADROOM_VERSION}" \
+    && ln -s /opt/headroom/bin/headroom /usr/local/bin/headroom \
+    && headroom --version
+
+# Non-root user for the agent. The harness CLIs refuse (Claude Code) or should not have (Pi)
+# root, and work performed in the container should not be privileged anyway. The UID is pinned
+# rather than left to `useradd`'s default allocation: the worker Job's pod spec sets a numeric
+# RunAsUser (KubernetesWorkerRuntime.BuildJobSpecification) to match it exactly, because the
+# kubelet cannot verify RunAsNonRoot against a named user. 1654 is already taken by this base
+# image's own `app` user, so `agent` is pinned one above it.
+RUN useradd --uid 1655 --create-home --shell /bin/bash agent \
+    && mkdir -p /workspace \
+    && chown agent:agent /workspace
+
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+
+USER agent
+WORKDIR /workspace
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
