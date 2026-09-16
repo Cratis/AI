@@ -112,7 +112,15 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         };
 
     /// <inheritdoc/>
-    public async Task Start(WorkerJob job, CancellationToken cancellationToken = default)
+    /// <remarks>
+    /// Always <see cref="WorkerLaunchOutcome.Started"/> on return - a local Docker daemon has no
+    /// equivalent of the anticipated "previous worker still around" cases <see cref="KubernetesWorkerRuntime"/>
+    /// has to account for. A genuine failure here (the daemon itself unreachable) is unrecoverable
+    /// from this runtime's own perspective and propagates as an exception rather than a
+    /// <see cref="WorkerLaunchOutcome"/> value, matching the "exceptions are for unrecoverable
+    /// state" rule this type exists to satisfy.
+    /// </remarks>
+    public async Task<WorkerLaunchOutcome> Start(WorkerJob job, CancellationToken cancellationToken = default)
     {
         using var client = CreateClient();
 
@@ -139,6 +147,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
 
         await client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(), cancellationToken);
         logger.StartedWorkerContainer(response.ID, job.Session);
+        return WorkerLaunchOutcome.Started;
     }
 
     /// <inheritdoc/>

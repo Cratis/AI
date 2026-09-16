@@ -419,21 +419,52 @@ public class KubernetesWorkerRuntime(
     }
 
     /// <inheritdoc/>
-    /// <exception cref="WorkerLaunchWasRefused">
-    /// Thrown when the launch failed for a reason that is about the cluster rather than the work, so
-    /// the scheduler leaves it queued and tries again instead of failing it.
-    /// </exception>
-    public async Task Start(WorkerJob job, CancellationToken cancellationToken = default)
+    /// <remarks>
+    /// Returns <see cref="WorkerLaunchOutcome.RefusedByCluster"/> rather than throwing when the
+    /// launch failed for a reason that is about the cluster rather than the work - the caller's
+    /// correct response (leave the work scheduled, try again next pass) is exactly the same
+    /// anticipated, recoverable branch as <see cref="WorkerLaunchOutcome.StillGoingAway"/>, not a
+    /// genuinely unrecoverable condition.
+    /// </remarks>
+    public async Task<WorkerLaunchOutcome> Start(WorkerJob job, CancellationToken cancellationToken = default)
     {
         try
         {
-            await Launch(job, cancellationToken);
+            return await Launch(job, cancellationToken);
         }
-        catch (Exception exception) when (WorkerLaunchWasRefused.IsAboutTheCluster(exception))
+        catch (Exception exception) when (IsAboutTheCluster(exception))
         {
-            throw new WorkerLaunchWasRefused(job.Session, exception);
+            logger.WorkerLaunchRefusedByCluster(exception, job.Session);
+            return WorkerLaunchOutcome.RefusedByCluster;
         }
     }
+
+    /// <summary>
+    /// Whether a failed launch says something about the cluster rather than about the work.
+    /// </summary>
+    /// <param name="exception">The exception the launch failed with.</param>
+    /// <returns><see langword="true"/> when the work should stay scheduled and be tried again.</returns>
+    /// <remarks>
+    /// Deliberately narrow: a rejection the work itself caused - a Job specification the API server
+    /// will not accept whatever happens - must still fail loudly, or it retries forever and the
+    /// reason never surfaces anywhere a person looks. Everything listed here resolves on its own or
+    /// with a configuration change somewhere else, and none of it is a statement about the work.
+    /// </remarks>
+    static bool IsAboutTheCluster(Exception exception) => exception switch
+    {
+        HttpOperationException http => http.Response?.StatusCode is
+            HttpStatusCode.Unauthorized or
+            HttpStatusCode.Forbidden or
+            HttpStatusCode.RequestTimeout or
+            HttpStatusCode.TooManyRequests or
+            HttpStatusCode.InternalServerError or
+            HttpStatusCode.BadGateway or
+            HttpStatusCode.ServiceUnavailable or
+            HttpStatusCode.GatewayTimeout,
+        HttpRequestException => true,
+        TaskCanceledException => true,
+        _ => false
+    };
 
     /// <inheritdoc/>
     public async Task Purge(AgentSessionId session, CancellationToken cancellationToken = default)
@@ -607,7 +638,7 @@ public class KubernetesWorkerRuntime(
         await webSocket.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, "done", cancellationToken);
     }
 
-    async Task Launch(WorkerJob job, CancellationToken cancellationToken)
+    async Task<WorkerLaunchOutcome> Launch(WorkerJob job, CancellationToken cancellationToken)
     {
         using var client = _clients.Create();
 
@@ -619,7 +650,10 @@ public class KubernetesWorkerRuntime(
         // work Scheduled while its worker kept running; the next pass re-dispatched it). Asking the
         // cluster directly, rather than trusting the assumption, is what makes the removal below safe
         // rather than destructive.
-        await GuardAgainstLiveWorker(client, name, job.Session, cancellationToken);
+        if (await IsLiveWorkerPresent(client, name, cancellationToken))
+        {
+            return WorkerLaunchOutcome.AlreadyRunning;
+        }
 
         // Clear anything a previous attempt at this same session left behind.
         //
@@ -692,7 +726,7 @@ public class KubernetesWorkerRuntime(
             if (!await ReleaseIfStuck(client, name, job.Session, cancellationToken))
             {
                 await DeleteSecret(client, name, cancellationToken);
-                throw new WorkerIsStillGoingAway(job.Session, conflict);
+                return WorkerLaunchOutcome.StillGoingAway;
             }
 
             try
@@ -715,30 +749,32 @@ public class KubernetesWorkerRuntime(
         }
 
         logger.CreatedKubernetesJob(name, job.Session);
+        return WorkerLaunchOutcome.Started;
     }
 
     /// <summary>
-    /// Refuses to launch a new worker over one that is still actually running - the check that makes
+    /// Whether a worker is already actually running for this session - the check that makes
     /// <see cref="RemovePreviousAttempt"/> safe to call unconditionally afterwards.
     /// </summary>
     /// <param name="client">The Kubernetes client.</param>
     /// <param name="name">The job name a new launch would reuse.</param>
-    /// <param name="session">The agent session being launched, for the exception.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
-    /// <returns>Awaitable task.</returns>
-    /// <exception cref="WorkerIsAlreadyRunning">
-    /// Thrown when the previous attempt's Job is still alive and not on its way out - deleting it here
-    /// would destroy a container that is genuinely running the work (Cratis/Stagehand#500).
-    /// </exception>
+    /// <returns>
+    /// <see langword="true"/> when the previous attempt's Job is still alive and not on its way out -
+    /// deleting it would destroy a container that is genuinely running the work
+    /// (Cratis/Stagehand#500), so the caller returns <see cref="WorkerLaunchOutcome.AlreadyRunning"/>
+    /// rather than launching over it.
+    /// </returns>
     /// <remarks>
     /// Deliberately narrow: a Job that is already being deleted is left to <see cref="ReleaseIfStuck"/>
     /// below, which knows how long "still terminating" is allowed to take before its leftovers are
     /// taken away - this only ever stops a launch over a Job nothing has asked to go anywhere. A read
     /// that fails for a reason other than "no such Job" is left to propagate rather than guessed at
-    /// here - <see cref="Start"/> already turns a cluster-side failure into <see cref="WorkerLaunchWasRefused"/>,
-    /// which is the right outcome for "cannot tell" exactly as it is for the launch itself.
+    /// here - <see cref="Start"/> already turns a cluster-side failure into
+    /// <see cref="WorkerLaunchOutcome.RefusedByCluster"/>, which is the right outcome for "cannot
+    /// tell" exactly as it is for the launch itself.
     /// </remarks>
-    async Task GuardAgainstLiveWorker(IKubernetes client, string name, AgentSessionId session, CancellationToken cancellationToken)
+    async Task<bool> IsLiveWorkerPresent(IKubernetes client, string name, CancellationToken cancellationToken)
     {
         V1Job existing;
         try
@@ -749,13 +785,10 @@ public class KubernetesWorkerRuntime(
         {
             // Nothing there - the ordinary case for a first dispatch, and for one whose only leftover
             // has already finished.
-            return;
+            return false;
         }
 
-        if (Aliveness(existing) == true && existing.Metadata?.DeletionTimestamp is null)
-        {
-            throw new WorkerIsAlreadyRunning(session);
-        }
+        return Aliveness(existing) == true && existing.Metadata?.DeletionTimestamp is null;
     }
 
     /// <summary>
