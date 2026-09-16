@@ -154,10 +154,11 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   classes (only the pure-function builder specs were ported so far), and `WorkerPrompts.cs` (823
   lines, almost entirely Direct-specific prompt text - needs its own explicit decision on whether it
   moves wholesale or stays product-owned behind a thin shared shape).
-- ~~Agent harness Docker images~~ - done (`feat/agent-harnesses`, decision 0010). Still open: the
-  `DIRECT_*` env-var contract rename (`entrypoint.sh` + `WorkerEnvironment.cs`, tracked as follow-up
-  in decisions 0010 and 0011), and `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` secrets need adding to
-  `Cratis/AI` before `publish-agent-harnesses` can actually push - it will fail loudly until then.
+- ~~Agent harness Docker images~~ - done (`feat/agent-harnesses`, decision 0010), including Docker
+  Hub publishing, which uses the pre-existing `DOCKER_USERNAME`/`DOCKER_PASSWORD` Cratis-organization
+  secrets (fixed in `fix/dockerhub-secret-names` after the workflow was first written against the
+  wrong, nonexistent repository-secret names). Still open: the `DIRECT_*` env-var contract rename
+  (`entrypoint.sh` + `WorkerEnvironment.cs`, tracked as follow-up in decisions 0010 and 0011).
 - **More of `@cratis/ai`** - the package exists and publishes for real (see above), but it only has
   what the package itself has: one command, three queries. It grows automatically as the provider/
   agent/conversational work above lands - no more proxy-workspace scaffolding needed, just more
