@@ -117,6 +117,29 @@ test('managed Pi delivers a scoped rule once per session when its file is touche
     assert.ok(touch('Source/Thing.cs'), 'a new session delivers the rules again');
 });
 
+test('managed Pi re-delivers scoped rules after the conversation is rewritten', () => {
+    for (const event of ['session_compact', 'session_before_switch']) {
+        const handlers = new Map<string, (event: unknown, context: { cwd: string }) => unknown>();
+        registerManagedRules({
+            on(name: string, handler: (event: unknown, context: { cwd: string }) => unknown) {
+                handlers.set(name, handler);
+            },
+        } as unknown as ExtensionAPI);
+        const context = { cwd: repositoryRoot };
+        const touch = () => handlers.get('tool_result')?.({ toolName: 'read', isError: false, input: { path: 'Source/Thing.cs' }, content: [] }, context) as { content: Array<{ text: string }> } | undefined;
+
+        assert.ok(touch(), `${event}: first touch delivers`);
+        assert.equal(touch(), undefined, `${event}: still delivered before the rewrite`);
+
+        // A delivered rule lives in the conversation, so compaction or a switch can remove it.
+        assert.ok(handlers.get(event), `${event} handler must be registered`);
+        handlers.get(event)?.({}, context);
+        const again = touch();
+        assert.ok(again, `${event}: the rule must be delivered again once the conversation is rewritten`);
+        assert.match(again.content.map(part => part.text).join(''), /# C# Conventions/);
+    }
+});
+
 test('managed Pi delivers scoped rules for files touched through bash', () => {
     const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
     try {

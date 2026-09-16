@@ -197,13 +197,23 @@ function touchedPaths(toolName: string, input: unknown, cwd: string): string[] {
  * context before a tool runs. In practice a file is read before it is edited, and reads through both
  * the read tool and bash are covered, so the rule is present before the edit; a file created blind by
  * `write` is the residual case, and it receives the rule with that result.
+ *
+ * A delivered rule lives in the conversation rather than the system prompt, so anything that rewrites
+ * or replaces the conversation can remove it. The delivery record is therefore reset whenever that
+ * happens, and the rule is delivered again the next time one of its files is touched.
  */
 export default function (pi: ExtensionAPI): void {
     const delivered = new Set<string>();
 
-    pi.on('session_start', () => {
+    // Compaction summarizes the conversation, which can drop an injected rule while leaving the
+    // delivery record claiming it is present; a switch replaces the conversation outright. Without
+    // this reset a long session would silently lose its scoped rules and never see them again.
+    const reset = () => {
         delivered.clear();
-    });
+    };
+    pi.on('session_start', reset);
+    pi.on('session_compact', reset);
+    pi.on('session_before_switch', reset);
 
     pi.on('before_agent_start', (event, context) => ({
         systemPrompt: `${event.systemPrompt}\n\n${universalRules(context.cwd).map(rule => rule.content).join('\n\n')}`,
