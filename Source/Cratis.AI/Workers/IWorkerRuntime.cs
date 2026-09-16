@@ -20,8 +20,14 @@ public interface IWorkerRuntime
     /// </summary>
     /// <param name="job">The worker job to launch.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
-    /// <returns>Awaitable task.</returns>
-    Task Start(WorkerJob job, CancellationToken cancellationToken = default);
+    /// <returns>
+    /// The <see cref="WorkerLaunchOutcome"/> - every anticipated outcome is a value here, not an
+    /// exception, per <c>.cratis/ai/rules/csharp.md</c>'s "Exceptions" section. A thrown exception
+    /// from this method means something genuinely unrecoverable happened - a bug, a violated
+    /// invariant - not one of the ordinary "try again later" outcomes <see cref="WorkerLaunchOutcome"/>
+    /// already names.
+    /// </returns>
+    Task<WorkerLaunchOutcome> Start(WorkerJob job, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Whether the worker for an agent session is still alive.

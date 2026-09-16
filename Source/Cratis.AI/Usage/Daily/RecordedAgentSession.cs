@@ -21,6 +21,16 @@ namespace Cratis.AI.Usage.Daily;
 /// <param name="OutputTokens">Tokens the completion produced.</param>
 /// <param name="Cost">The reported cost, in USD.</param>
 /// <param name="DurationMs">How long the session took, in milliseconds.</param>
+/// <param name="CpuSeconds">The CPU time a harness measured for the session - zero for a direct completion.</param>
+/// <param name="MemoryBytes">The peak memory a harness measured for the session - zero for a direct completion.</param>
+/// <remarks>
+/// <see cref="CpuSeconds"/>/<see cref="MemoryBytes"/> joined <see cref="Purpose"/> here rather than at
+/// the top-level <c>AgentSessionUsageRecorded</c> event, which already carried both from day one -
+/// this is the read side finally exposing what the write side had all along, so "how much CPU/memory
+/// went to investigation versus planning versus implementation" is answerable per agent, not only
+/// per-week totals with no purpose breakdown. Purely additive - both default to zero for any session
+/// recorded before this existed, exactly like every other unset figure on the event.
+/// </remarks>
 public record RecordedAgentSession(
     DateTimeOffset Occurred,
     AIProviderId? ProviderId,
@@ -30,5 +40,7 @@ public record RecordedAgentSession(
     long InputTokens,
     long OutputTokens,
     decimal Cost,
-    long DurationMs);
+    long DurationMs,
+    decimal CpuSeconds = 0m,
+    long MemoryBytes = 0L);
 

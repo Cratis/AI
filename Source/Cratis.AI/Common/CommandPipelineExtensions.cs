@@ -72,12 +72,3 @@ public static class CommandPipelineExtensions
             : "the command was refused without saying why";
     }
 }
-
-/// <summary>
-/// Log messages for <see cref="CommandPipelineExtensions"/>.
-/// </summary>
-internal static partial class CommandPipelineExtensionsLog
-{
-    [LoggerMessage(LogLevel.Warning, "Command {Command} issued by {Caller} was not successful: {Reason}")]
-    internal static partial void CommandNotSuccessful(this ILogger logger, string command, string caller, string reason);
-}

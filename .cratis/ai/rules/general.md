@@ -7,6 +7,8 @@ Cratis repositories come in **two profiles**, and the rules are scoped to them. 
 
 **How to tell:** if the repo's own package is `Cratis.*` / `@cratis/*` and it *builds* the framework, you are in the framework profile. If it *consumes* Cratis to build a product, you are in the application profile.
 
+**See [profiles.md](./profiles.md) for a complete list of all available profiles and how to configure them.**
+
 Profile-specific rules declare a **`profile:`** in their frontmatter (`application` or `framework`); a rule **without** one is **universal** and applies everywhere — C#/TypeScript style, code quality, specs (`Cratis.Specifications`), documentation, commits/PRs, American English. In this file, everything from **Project Layout** through the **Implementation Workflow** is *application profile* (skip to the Framework profile section if you're contributing to the framework); Philosophy, Authority, Verification, Quality Gates, and the closing sections are universal.
 
 > **Arc is a standalone CQRS framework — not bound to event sourcing.** Even within the application profile, Arc provides model-bound commands/queries, validation, authorization, and full-stack proxy generation, and works **without** Chronicle (Arc.Core does not depend on Chronicle). A `[Command]` `Handle()` does not *have* to append events — it can return a response, return `void`, or work through injected services. The event-sourcing behavior (a returned event gets appended; `EventForEventSourceId`; "never inject `IEventLog`") comes from the **Arc + Chronicle** integration. This application is event-sourced, so the slice guidance assumes event-sourced commands — read the event-centric rules as the *house default for this app*, not universal Arc laws.
@@ -186,6 +188,7 @@ Documentation-only changes carry non-release intent and run the documentation ch
 
 | For | Location |
 | --- | --- |
+| **AI Corpus Profiles** — what profiles exist and how to configure them | `profiles.md` |
 | **Contributing to a Cratis framework repo** (framework profile) | `framework.md`; creating a repository in the Cratis organization: `new-repository-intake.md` |
 | Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md` |
 | C# / TypeScript style | `csharp.md`, `typescript.md` |
