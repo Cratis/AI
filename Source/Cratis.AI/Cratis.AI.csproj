@@ -85,5 +85,14 @@
         <!-- Worker/agent scheduling (Docker + Kubernetes runtimes). -->
         <PackageReference Include="KubernetesClient" />
         <PackageReference Include="Docker.DotNet.Enhanced" />
+        <!-- Conversations/ (plan Section 5.4) - the IChatClient shape Studio's own conversational
+             stack (ChatClient, multi-turn tool calling) is built around, distinct from the
+             completion-in/completion-out IAIProviderClient/ILanguageModel surface the pool/quota/
+             concurrency machinery already uses. Both exist deliberately: the raw HTTP-protocol
+             clients serve Direct's worker-dispatched agent sessions, this serves an in-process
+             conversational client a caller drives turn by turn. -->
+        <PackageReference Include="Microsoft.Extensions.AI" />
+        <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
+        <PackageReference Include="Anthropic" />
     </ItemGroup>
 </Project>
