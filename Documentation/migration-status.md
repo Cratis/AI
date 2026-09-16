@@ -146,10 +146,16 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   `Settings/Agents/`), `AIConfiguration/`, and the explicit decision on Studio's legacy singleton AI
   settings (plan Section 5.5). `IAIAgents` exists as a lookup seam a consumer implements; the
   package does not yet own an agent model of its own.
-- **Conversational API** (`Conversations/`) - the generic half of Studio's 8-partial `ChatClient`,
-  `ConversationContext`/`Message`/`Request`/`Surroundings`, `Acting/`, `Mcp/` tool exposure. Not
-  started. This is flagged in the plan itself as "the largest single judgement call in the whole
-  plan" (Section 5.4) and should be budgeted accordingly.
+- **Conversational API** (`Conversations/`) - `AIChatClientFactory` (the vendor-generic
+  `IChatClient` construction `ChatClient.CreateChatClientFor`/`ProviderReadiness` used to do entirely
+  in Studio - decision 0013) is done, real, and consumed by Studio for real. Still not started: the
+  actual reconciliation between this and `ProviderAwareLanguageModel`'s pool/tier/concurrency
+  resolution (so a conversation benefits from failover/quota tracking the way a worker-dispatched
+  session already does), `ConversationContext`/`Message`/`Request`/`Surroundings`, `Acting/`, `Mcp/`
+  tool exposure, and the 7 other `ChatClient` partials. This remaining piece is flagged in the plan
+  itself as "the largest single judgement call in the whole plan" (Section 5.4) and should be
+  budgeted accordingly - decision 0013 explains explicitly why it was scoped out of the same change
+  that added the factory, rather than attempted in a rush.
 - ~~Worker runtime implementations~~ (`DockerWorkerRuntime`, `KubernetesWorkerRuntime`) - done
   (`feat/agent-harnesses`, decision 0011). Still open from the same area: the callback contract
   (`WorkerCallbackTokens`, `WorkerResults`), reconciling Direct's `Containers/` with Studio's
