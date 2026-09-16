@@ -15,9 +15,9 @@ over a list, use `DataPage.MenuItems` instead (see the
 
 | Package | Version | Verified from |
 | --- | --- | --- |
-| `@cratis/components` | `3.0.0` | its package manifest and `Toolbar` component sources |
-| `primeicons` | `^8.0.0` | peer of `@cratis/components@3.0.0` |
-| `react` | `^19.0.0` | peer of `@cratis/components@3.0.0` |
+| `@cratis/components` | `4.6.0` | its package manifest, `Source/Toolbar/*` (exports and props), `Documentation/Toolbar/*`, `Documentation/Common/icon.md` |
+| `react-icons` | `5.7.0` | dependency of `@cratis/components@4.6.0` — the icon source the examples use |
+| `react` | `^19.0.0` | peer of `@cratis/components@4.6.0` |
 
 ## Import from the subpath
 
@@ -53,19 +53,25 @@ Buttons default to a vertical layout. **`title` is the required prop and it is
 what appears in the tooltip** — there is no `tooltip` prop on `ToolbarButton`.
 
 ```tsx
+import { FaArrowPointer, FaPencil, FaVectorSquare } from 'react-icons/fa6';
 import { Toolbar, ToolbarButton } from '@cratis/components/Toolbar';
 
 export const DrawingToolbar = () => (
     <Toolbar>
-        <ToolbarButton icon='pi pi-arrow-up-left' title='Select' />
-        <ToolbarButton icon='pi pi-pencil' title='Draw' />
-        <ToolbarButton icon='pi pi-stop' title='Rectangle' />
+        <ToolbarButton icon={<FaArrowPointer />} title='Select' />
+        <ToolbarButton icon={<FaPencil />} title='Draw' />
+        <ToolbarButton icon={<FaVectorSquare />} title='Rectangle' />
     </Toolbar>
 );
 ```
 
-`icon` accepts either a PrimeIcons class string or a React node, so a custom SVG
-component works directly: `<ToolbarButton icon={<CircleIcon />} title='Circle' />`.
+`icon` is the Components `Icon` type: a **React node** (preferred — the examples
+below take theirs from `react-icons/fa6`, which Components itself depends on, and
+omit the import line after this first one) or a complete, consumer-owned
+icon-font class string. Components installs **no icon font**: a string is rendered
+on an `<i>` unchanged, so the product must load that stylesheet and pass every
+class the font needs. A custom SVG component works directly:
+`<ToolbarButton icon={<CircleIcon />} title='Circle' />`.
 
 ## Step 2 — Active state
 
@@ -73,9 +79,9 @@ component works directly: `<ToolbarButton icon={<CircleIcon />} title='Circle' /
 const [activeTool, setActiveTool] = useState('select');
 
 <Toolbar>
-    <ToolbarButton icon='pi pi-pencil' title='Draw'
+    <ToolbarButton icon={<FaPencil />} title='Draw'
         active={activeTool === 'draw'} onClick={() => setActiveTool('draw')} />
-    <ToolbarButton icon='pi pi-stop' title='Rectangle'
+    <ToolbarButton icon={<FaVectorSquare />} title='Rectangle'
         active={activeTool === 'rect'} onClick={() => setActiveTool('rect')} />
 </Toolbar>
 ```
@@ -87,11 +93,11 @@ tooltips out of the bar's way on a horizontal toolbar:
 
 ```tsx
 <Toolbar orientation='horizontal'>
-    <ToolbarButton icon='pi pi-minus' title='Zoom out' tooltipPosition='bottom' onClick={() => setZoom(z => z - 10)} />
+    <ToolbarButton icon={<FaMinus />} title='Zoom out' tooltipPosition='bottom' onClick={() => setZoom(z => z - 10)} />
     <ToolbarButton text={`${zoom}%`} title='Reset zoom' tooltipPosition='bottom' onClick={() => setZoom(100)} />
-    <ToolbarButton icon='pi pi-plus' title='Zoom in' tooltipPosition='bottom' onClick={() => setZoom(z => z + 10)} />
+    <ToolbarButton icon={<FaPlus />} title='Zoom in' tooltipPosition='bottom' onClick={() => setZoom(z => z + 10)} />
     <ToolbarSeparator orientation='horizontal' />
-    <ToolbarButton icon='pi pi-question-circle' title='Help' tooltipPosition='bottom' />
+    <ToolbarButton icon={<FaCircleQuestion />} title='Help' tooltipPosition='bottom' />
 </Toolbar>
 ```
 
@@ -108,18 +114,18 @@ unaffected.
 const [mode, setMode] = useState<'drawing' | 'text'>('drawing');
 
 <Toolbar>
-    <ToolbarButton icon='pi pi-arrow-up-left' title='Select' />
+    <ToolbarButton icon={<FaArrowPointer />} title='Select' />
     <ToolbarSection activeContext={mode}>
         <ToolbarContext name='drawing'>
-            <ToolbarButton icon='pi pi-pencil' title='Draw' />
-            <ToolbarButton icon='pi pi-stop' title='Rectangle' />
+            <ToolbarButton icon={<FaPencil />} title='Draw' />
+            <ToolbarButton icon={<FaVectorSquare />} title='Rectangle' />
         </ToolbarContext>
         <ToolbarContext name='text'>
-            <ToolbarButton icon='pi pi-align-left' title='Align left' />
-            <ToolbarButton icon='pi pi-align-center' title='Align center' />
+            <ToolbarButton icon={<FaAlignLeft />} title='Align left' />
+            <ToolbarButton icon={<FaAlignCenter />} title='Align center' />
         </ToolbarContext>
     </ToolbarSection>
-    <ToolbarButton icon='pi pi-undo' title='Undo' />
+    <ToolbarButton icon={<FaRotateLeft />} title='Undo' />
 </Toolbar>
 ```
 
@@ -130,9 +136,9 @@ the one component whose label prop **is** called `tooltip`, and both `icon` and
 `tooltip` are required.
 
 ```tsx
-<ToolbarFanOutItem icon='pi pi-th-large' tooltip='Shapes' fanOutDirection='left'>
-    <ToolbarButton icon='pi pi-stop' title='Rectangle' />
-    <ToolbarButton icon='pi pi-circle' title='Circle' />
+<ToolbarFanOutItem icon={<FaShapes />} tooltip='Shapes' fanOutDirection='left'>
+    <ToolbarButton icon={<FaVectorSquare />} title='Rectangle' />
+    <ToolbarButton icon={<FaCircle />} title='Circle' />
 </ToolbarFanOutItem>
 ```
 
@@ -142,9 +148,9 @@ away from the screen edge the toolbar sits against.
 `ToolbarFolder` opens a larger panel of buttons as a grid or a list:
 
 ```tsx
-<ToolbarFolder icon='pi pi-th-large' title='Tools' mode='list'>
-    <ToolbarButton icon='pi pi-pencil' title='Draw' />
-    <ToolbarButton icon='pi pi-eraser' title='Erase' />
+<ToolbarFolder icon={<FaShapes />} title='Tools' mode='list'>
+    <ToolbarButton icon={<FaPencil />} title='Draw' />
+    <ToolbarButton icon={<FaEraser />} title='Erase' />
 </ToolbarFolder>
 ```
 
@@ -163,7 +169,7 @@ by rendering a named `ToolbarLayout`.
     {mode === 'draw' && <ToolbarSlot slotName='tool-options' order={10}>{drawTools}</ToolbarSlot>}
     <Toolbar>
         <ToolbarGroup>
-            <ToolbarButton icon='pi pi-arrow-up-left' title='Select' />
+            <ToolbarButton icon={<FaArrowPointer />} title='Select' />
         </ToolbarGroup>
         <ToolbarGroup slotName='tool-options' />
     </Toolbar>
