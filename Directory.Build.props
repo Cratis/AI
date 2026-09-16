@@ -21,7 +21,7 @@
         <EnableNETAnalyzers>True</EnableNETAnalyzers>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
 
-        <NoWarn>NU1507;NU1608;NU1510;NU1603;NU1605;CS1705;IDE0031;IDE0032;IDE0340;CA1873;IDE0330;MA0158;MA0190;ASPDEPR002;CS8602;CS8604;CS8670;RCS1238;SA1414;CA1034;NETSDK1174;Microsoft.NET.StringTools;SA1402</NoWarn>
+        <NoWarn>NU1507;NU1608;NU1510;NU1603;NU1605;CS1705;IDE0031;IDE0032;IDE0340;CA1873;IDE0330;MA0158;MA0190;ASPDEPR002;CS8602;CS8604;CS8670;RCS1238;SA1414;CA1034;NETSDK1174;Microsoft.NET.StringTools;SA1402;SA1649;SA1202</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'==''">
@@ -38,6 +38,7 @@
 
     <PropertyGroup Condition="'$(IsTestProject)'=='true'">
         <TargetFramework>net10.0</TargetFramework>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
