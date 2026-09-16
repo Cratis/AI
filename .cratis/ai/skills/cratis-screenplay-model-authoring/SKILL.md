@@ -26,7 +26,7 @@ reality, not against the ecosystem diagram.
 | `Cratis.Screenplay.Tool` | `4.12.1` | The `screenplay` dotnet tool |
 | `Cratis.Screenplay.CanonicalCorpus` | `4.12.1` | The frozen `RegisterProject` conformance vector downstream tools verify against |
 
-Behavior below is read from the repository at revision `7e2d91d`. Reverify before
+Behavior below is read from the repository at tag `v4.12.1`. Reverify before
 claiming another version behaves the same.
 
 ## Verify a model
@@ -108,8 +108,8 @@ by dedicated parsers rather than passed through as text.
 ## A complete model
 
 This is the canonical conformance vector — the smallest complete program the
-whole toolchain is verified against, quoted from
-`Screenplay.CanonicalCorpus`'s `RegisterProject` source:
+whole toolchain is verified against, quoted in full from
+`Screenplay.CanonicalCorpus`'s `Corpus/RegisterProject/v1-legacy/source/single/RegisterProject.play`:
 
 ```screenplay
 concept ProjectId : Uuid
@@ -136,6 +136,15 @@ module Projects
         then ProjectRegistered
           projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           name = "Screenplay"
+        then readmodel ProjectSummary
+          projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          name = "Screenplay"
+        then query ProjectById
+          arguments
+            projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          result
+            projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+            name = "Screenplay"
       specification RejectingAnEmptyProjectName
         when RegisterProject
           projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -168,7 +177,7 @@ The parser accepts far more than anything can execute or render. Between the
 syntax tree and any runtime sits the **executable semantic model (ESM v1)**, and
 it fails closed.
 
-⚠️ `SemanticSliceKind` has exactly two members, `StateChange` and `StateView`.
+⚠️ `SemanticSliceKind` has three members — `Unknown = -1`, `StateChange` and `StateView` — and `Unknown` is load-bearing: the binder maps every other slice type to it and refuses to admit it.
 An `Automation` or `Translate` slice is rejected outright with
 `Slice '<name>' of type '<type>' is not admitted by ESM v1.` It parses, it
 validates, and it binds to nothing.
@@ -199,7 +208,8 @@ The language service ships two ways: the Monaco package
 file icon.
 
 ⚠️ Its keyword list has drifted from the parser. `theme`, `ui`, `form`,
-`contribute`, `dialog` and `reducer` appear nowhere in the Monaco package,
+`contribute`, `dialog` and `reducer` have no keyword, tokenizer or completion
+entry in the Monaco package (the words occur only in prose and theme names),
 although all six are real constructs the compiler accepts. They get no
 highlighting and no completion. Absent highlighting is not evidence that a
 construct is wrong — check `screenplay` instead.

@@ -1,6 +1,6 @@
 # Model-bound projection attributes
 
-Verified against `Cratis.Chronicle` `16.45.2`.
+Verified against `Cratis.Chronicle` `18.3.0`.
 
 Unless noted, every attribute below lives in
 `Cratis.Chronicle.Projections.ModelBound`. Generic arity is stated exactly:
@@ -27,7 +27,7 @@ attribute takes no generic parameter at all.
 | --- | --- | --- | --- |
 | `[FromEvent<T>]` | `<T>` | `(string? key = default, string? parentKey = default)`, plus `ConstantKey { get; init; }` | class, struct; repeatable |
 | `[RemovedWith<T>]` | `<T>` | `(string? key = default, string? parentKey = default)` | class, struct, property, parameter; repeatable |
-| `[RemovedWithJoin<T>]` | `<T>` | `(string? key = default)` | property, parameter; repeatable |
+| `[RemovedWithJoin<T>]` | `<T>` | `(string? key = default)` | class, struct, property, parameter; repeatable |
 | `[Nested]` | non-generic | none | property, parameter; single |
 | `[FromAll]` | non-generic | `(string? contextProperty = default, string? property = default)` | **property only**; single |
 | `[FromEvery]` | non-generic | `(string? property = default, string? contextProperty = default)` | property, parameter; single |

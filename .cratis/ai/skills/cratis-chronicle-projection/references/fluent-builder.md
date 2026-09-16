@@ -1,6 +1,6 @@
 # The fluent projection builder
 
-Verified against `Cratis.Chronicle` `16.45.2`, namespace
+Verified against `Cratis.Chronicle` `18.3.0`, namespace
 `Cratis.Chronicle.Projections`.
 
 ## The interfaces

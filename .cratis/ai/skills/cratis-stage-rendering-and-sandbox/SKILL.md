@@ -22,15 +22,18 @@ rendered.
 
 | Artifact | Version | What it is |
 | --- | --- | --- |
-| `Cratis.Stage.Contracts` | `3.11.0` | `ArtifactRenderPlan`, `EventModelLoader`, specification-result contracts |
-| `Cratis.Stage.Rendering.Cratis` | `3.11.0` | The one rendering target and the `CratisRendering` facade |
-| `Cratis.Stage` | `3.11.0` | The partial direct runtime engine |
-| `cratis/stage` | `3.11.0`, `latest` | Disposable HTTP host plus an in-memory Chronicle kernel |
-| `cratis/stage-specrunner` | `3.11.0`, `latest` | Run-to-completion specification job |
+| `Cratis.Stage.Contracts` | `3.15.1` | `ArtifactRenderPlan`, `EventModelLoader`, specification-result contracts |
+| `Cratis.Stage.Rendering.Cratis` | `3.15.1` | The one rendering target and the `CratisRendering` facade |
+| `Cratis.Stage.Rendering.Cratis.Scaffolding` | `3.15.1` | Scaffolds the Cratis project a rendered application is placed into |
+| `Cratis.Stage` | `3.15.1` | The partial direct runtime engine |
+| `cratis/stage` | `3.15.1`, `latest` | Disposable HTTP host plus an in-memory Chronicle kernel |
+| `cratis/stage-specrunner` | `3.15.1`, `latest` | Run-to-completion specification job |
 
-Behavior below is read from the repository at revision `4f3fc6a`. `Cratis.Stage.Host`
-and `Cratis.Stage.SpecRunner` are **not** packable — they exist only as the two
-container images.
+Behavior below is read from the repository at tag `v3.15.1`. Packing is opt-in
+per project (`<IsPackable>true</IsPackable>` on `Contracts`, `Rendering.Cratis`,
+`Rendering.Cratis.Scaffolding` and `Stage`); `Cratis.Stage.Host` and
+`Cratis.Stage.SpecRunner` never opt in and exist only as the two container
+images.
 
 ## Input
 
@@ -74,8 +77,13 @@ artifacts.**
 
 ### What it admits
 
-Every rule below is enforced, and each failure is a blocking `STAGE-ESM-00x`
-diagnostic that stops the whole plan.
+Every rule below is enforced, and each failure is a blocking `STAGE-ESM-0xx`
+diagnostic that stops the whole plan. Before these per-slice rules run, three
+admission diagnostics reject the model outright — `STAGE-ESM-001` (a slice kind
+other than `StateChange`/`StateView`), `STAGE-ESM-002` (concept values or
+validation the renderer cannot express) and `STAGE-ESM-003` (an unresolved
+property type) — and `STAGE-ESM-011` rejects a specification the runtime cannot
+execute.
 
 For a `StateChange` slice:
 
@@ -174,8 +182,9 @@ docker run --rm \
     cratis/stage:latest
 ```
 
-The image pairs the Stage host with an in-memory Chronicle kernel and takes the
-model folder as its first argument. The Stage API is on `9090`, the Chronicle
+The image pairs the Stage host with an in-memory Chronicle kernel and reads the
+model from the fixed `/eventmodel` directory (mount your folder there; the
+entrypoint takes no arguments — passing a folder is a documented override form). The Stage API is on `9090`, the Chronicle
 Workbench on `35000`. Deployment configuration is read from `cratis-stage.json`,
 overridable through the `STAGE_CONFIG` environment variable — not from
 `appsettings.json`.
@@ -183,10 +192,13 @@ overridable through the `STAGE_CONFIG` environment variable — not from
 ⚠️ It is a **partial** runtime, not a generated application. Commands evaluate
 their modeled `produces` mappings, append the facts to Chronicle and echo the
 payload; **modeled validation and authorization are not enforced on this path.**
-Modeled queries **deny by default and return no data** — the query performer's
-`IsAuthorized` returns false and `Perform` returns null or an empty array — until
-an executable query authorization contract exists in Screenplay. A sandbox query
-returning nothing is the designed behavior, not a bug in the model.
+Modeled queries are **served without authorization**: the query performer's
+`IsAuthorized` returns `true` unconditionally, and `Perform` reads the projected
+documents (by id when the query declares one, otherwise all instances). There is
+no executable query authorization contract in Screenplay yet, so a sandbox
+query answering is not evidence that the model's authorization is right —
+it is evidence that Stage does not enforce it. (Earlier Stage releases returned
+nothing from every query; that is no longer the case at 3.15.1.)
 
 ## Modeled specifications
 

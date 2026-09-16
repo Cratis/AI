@@ -25,8 +25,8 @@ This skill is verified against these exact sources:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Chronicle` | `16.45.2` | event types, event-source identities, subjects, `[PII]` |
-| `Cratis.Chronicle.CodeAnalysis` | `16.45.2` | `CHR0012`, `CHR0026`, `CHR0034`, `CHR0035` |
+| `Cratis.Chronicle` | `18.3.0` | event types, event-source identities, subjects, `[PII]` |
+| `Cratis.Chronicle.CodeAnalysis` | `18.3.0` | `CHR0012`, `CHR0026`, `CHR0034`, `CHR0035` |
 
 Reverify product sources before claiming support for another version.
 

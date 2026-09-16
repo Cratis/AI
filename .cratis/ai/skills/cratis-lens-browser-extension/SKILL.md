@@ -19,8 +19,10 @@ the developer points it at. Nothing in it is production tooling.
 
 | Source | Version | Purpose |
 | --- | --- | --- |
-| `Cratis/Lens` `Source/` | manifest `1.0.0`, repository revision `3d0df87` | The extension itself |
-| `Cratis.Arc.Core` | `22.10.4` | The `/.cratis/*` endpoints, the forwarded-identity contract, and the tenancy header Lens depends on |
+| `Cratis/Lens` `Source/` | manifest `1.0.0`, repository `HEAD` `3ee4882` (the repo has no release tag beyond `v0.0.1`) | The extension itself |
+| `Cratis.Arc.Core` | `22.16.0` | The `/.cratis/*` endpoints, the forwarded-identity contract, and the tenancy header Lens depends on |
+
+> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
 
 ⚠️ **There is no published store listing.** Nothing in the Lens repository links
 a Chrome Web Store, Edge Add-ons, AMO, or App Store entry — the only store URLs
