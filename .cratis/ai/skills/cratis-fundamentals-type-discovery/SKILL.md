@@ -18,7 +18,7 @@ removing one becomes a single-file change.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Fundamentals` | `7.18.2` | `IInstancesOf<T>`, `IImplementationsOf<T>`, `[Singleton]`, `[Scoped]`, `[IgnoreConvention]`, the convention bindings |
+| `Cratis.Fundamentals` | `7.19.2` | `IInstancesOf<T>`, `IImplementationsOf<T>`, `[Singleton]`, `[Scoped]`, `[IgnoreConvention]`, the convention bindings |
 
 Reverify against the Cratis Fundamentals repository before claiming support for
 another version.
@@ -50,7 +50,7 @@ registered implementation:
 `IInstancesOf<T>` finds types by convention across the loaded assemblies. The
 requirements are only:
 
-- Each implementation is a non-abstract `public class`.
+- Each implementation is a non-abstract, non-interface class. Discovery reads each assembly's `DefinedTypes` and filters only on `!IsInterface && !IsAbstract`, so an `internal` class is discovered too; `public` is a convention for a type meant to be reached from another assembly, not a discovery requirement. Instances are resolved from the service provider (`GetService(type)`), so each implementation must be registered as itself — `AddSelfBindings()` does that for every concrete, non-static, non-`Exception` class whose constructor is resolvable (visibility is not a criterion), honoring `[Singleton]`/`[Scoped]`/`[IgnoreConvention]`.
 - It implements the interface directly, not through a layer that hides it.
 - `T` is an interface or abstract class — the interface is declared
   `where T : class`.
