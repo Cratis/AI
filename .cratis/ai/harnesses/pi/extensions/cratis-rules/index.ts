@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
@@ -151,17 +151,52 @@ export function rulesForPath(cwd: string, relativePath: string): ManagedRule[] {
         rule.globs.some(glob => globToRegExp(glob).test(normalized)));
 }
 
-function touchedPath(toolName: string, input: unknown): string | undefined {
-    if (toolName !== 'read' && toolName !== 'write' && toolName !== 'edit') return undefined;
+/** Upper bound on files considered from one bash command, so a wide command cannot deliver the corpus. */
+const maxPathsPerCommand = 10;
+
+/**
+ * Extracts file paths a bash command refers to. `rtk.md` tells agents to run `rtk read`, `rtk grep`
+ * and `rtk find` from the terminal for bulk reads, so file access frequently arrives as a bash
+ * command rather than the read tool; without this, a session that follows that rule would never
+ * receive a path-scoped rule. A token counts only when it resolves to a file that exists inside the
+ * working directory, which keeps a filename mentioned inside a commit message from matching.
+ */
+function pathsFromCommand(command: string, cwd: string): string[] {
+    const found: string[] = [];
+    for (const raw of command.split(/[\s;|&()<>]+/)) {
+        if (found.length >= maxPathsPerCommand) break;
+        const token = raw.replace(/^['"]+|['"]+$/g, '').replace(/[,:]+$/, '');
+        if (!token || token.startsWith('-') || !/[./]/.test(token)) continue;
+        try {
+            if (statSync(resolve(cwd, token)).isFile()) found.push(token);
+        } catch {
+            /* not a path we can see; ignore */
+        }
+    }
+    return found;
+}
+
+function touchedPaths(toolName: string, input: unknown, cwd: string): string[] {
+    if (toolName === 'bash' || toolName === 'powershell') {
+        const command = (input as { command?: unknown } | undefined)?.command;
+        return typeof command === 'string' ? pathsFromCommand(command, cwd) : [];
+    }
+    if (toolName !== 'read' && toolName !== 'write' && toolName !== 'edit') return [];
     const candidate = (input as { path?: unknown; file_path?: unknown } | undefined);
     const value = candidate?.path ?? candidate?.file_path;
-    return typeof value === 'string' && value.length > 0 ? value : undefined;
+    return typeof value === 'string' && value.length > 0 ? [value] : [];
 }
 
 /**
  * Gives Pi the same rule semantics as the other harnesses: universal rules in the system prompt, and
- * path-scoped rules attached the first time a matching file is read or written in the session. Without
- * this, every rule was concatenated into every turn regardless of `applyTo`, `paths`, or `profile`.
+ * path-scoped rules attached the first time a matching file is touched in the session. Without this,
+ * every rule was concatenated into every turn regardless of `applyTo`, `paths`, or `profile`.
+ *
+ * Delivery happens on `tool_result`, so a rule arrives after the call that first touched its file.
+ * `ToolCallEventResult` carries only `block`/`reason`/`terminate`, so there is no supported way to add
+ * context before a tool runs. In practice a file is read before it is edited, and reads through both
+ * the read tool and bash are covered, so the rule is present before the edit; a file created blind by
+ * `write` is the residual case, and it receives the rule with that result.
  */
 export default function (pi: ExtensionAPI): void {
     const delivered = new Set<string>();
@@ -176,11 +211,19 @@ export default function (pi: ExtensionAPI): void {
 
     pi.on('tool_result', (event, context) => {
         if (event.isError) return;
-        const path = touchedPath(event.toolName, (event as { input?: unknown }).input);
-        if (!path) return;
-        const relativePath = relative(context.cwd, resolve(context.cwd, path));
-        if (!relativePath || relativePath.startsWith('..')) return;
-        const pending = rulesForPath(context.cwd, relativePath).filter(rule => !delivered.has(rule.name));
+        const paths = touchedPaths(event.toolName, (event as { input?: unknown }).input, context.cwd);
+        if (paths.length === 0) return;
+        const pending: ManagedRule[] = [];
+        const matched: string[] = [];
+        for (const path of paths) {
+            const relativePath = relative(context.cwd, resolve(context.cwd, path));
+            if (!relativePath || relativePath.startsWith('..')) continue;
+            for (const rule of rulesForPath(context.cwd, relativePath)) {
+                if (delivered.has(rule.name) || pending.some(candidate => candidate.name === rule.name)) continue;
+                pending.push(rule);
+                if (!matched.includes(relativePath)) matched.push(relativePath);
+            }
+        }
         if (pending.length === 0) return;
         pending.forEach(rule => delivered.add(rule.name));
         const existing = Array.isArray(event.content) ? event.content : [];
@@ -189,7 +232,7 @@ export default function (pi: ExtensionAPI): void {
                 ...existing,
                 {
                     type: 'text',
-                    text: `\n\n[cratis-rules] Rules that apply to ${relativePath.split(sep).join('/')}:\n\n${pending.map(rule => rule.content).join('\n\n')}`,
+                    text: `\n\n[cratis-rules] Rules that apply to ${matched.map(path => path.split(sep).join('/')).join(', ')}:\n\n${pending.map(rule => rule.content).join('\n\n')}`,
                 },
             ],
         };

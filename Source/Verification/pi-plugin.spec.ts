@@ -112,10 +112,42 @@ test('managed Pi delivers a scoped rule once per session when its file is touche
     assert.equal(touch('Source/Other.cs'), undefined, 'the same rules must not be delivered twice in a session');
     assert.equal(touch('README.md'), undefined);
     assert.equal(touch('../outside.cs'), undefined);
-    assert.equal(handlers.get('tool_result')?.({ toolName: 'bash', isError: false, input: { command: 'cat Source/Thing.cs' }, content: [] }, context), undefined);
 
     handlers.get('session_start')?.({}, context);
     assert.ok(touch('Source/Thing.cs'), 'a new session delivers the rules again');
+});
+
+test('managed Pi delivers scoped rules for files touched through bash', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, 'Source'), { recursive: true });
+        writeFileSync(join(project, 'Source', 'Thing.cs'), 'class Thing {}');
+        writeFileSync(join(project, 'README.md'), '# readme');
+        const handlers = new Map<string, (event: unknown, context: { cwd: string }) => unknown>();
+        registerManagedRules({
+            on(name: string, handler: (event: unknown, context: { cwd: string }) => unknown) {
+                handlers.set(name, handler);
+            },
+        } as unknown as ExtensionAPI);
+        const context = { cwd: project };
+        const bash = (command: string) => handlers.get('tool_result')?.({ toolName: 'bash', isError: false, input: { command }, content: [] }, context) as { content: Array<{ text: string }> } | undefined;
+
+        // rtk.md directs bulk reads through the terminal, so this is how many sessions read source.
+        const viaRtk = bash('rtk read Source/Thing.cs');
+        assert.ok(viaRtk, 'a bash read of a .cs file must deliver the C# rules');
+        assert.match(viaRtk.content.map(part => part.text).join(''), /# C# Conventions/);
+        assert.equal(bash('cat Source/Thing.cs'), undefined, 'already delivered this session');
+
+        handlers.get('session_start')?.({}, context);
+        assert.ok(bash('grep -n "Thing" Source/Thing.cs'), 'grep with flags still finds the path');
+
+        handlers.get('session_start')?.({}, context);
+        assert.equal(bash('npm test'), undefined, 'a command with no file path delivers nothing');
+        assert.equal(bash('git commit -m "fix Source/Missing.cs"'), undefined, 'a filename that does not exist is not a touch');
+        assert.equal(bash('cat README.md'), undefined, 'no scoped rule matches README.md');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
 });
 
 test('Pi package rules exclude owning-repository guidance and approval ceremonies', () => {
