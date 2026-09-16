@@ -58,12 +58,12 @@ public class AddAzureOpenAIProviderValidator : CommandValidator<AddAzureOpenAIPr
 /// anything already pointing at the provider keeps working. Ported from Studio's own
 /// <c>Settings.AI.Providers.Reconfiguring.ReconfigureAzureOpenAIProvider</c>.
 /// </summary>
-/// <param name="Provider">The provider to reconfigure.</param>
+/// <param name="Id">The identifier of the provider to reconfigure.</param>
 /// <param name="Name">The name the organization knows the provider by.</param>
 /// <param name="Endpoint">The new endpoint.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
-public record ReconfigureAzureOpenAIProvider(AIProviderId Provider, AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
+public record ReconfigureAzureOpenAIProvider(AIProviderId Id, AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
 {
     /// <summary>
     /// Handles the command by appending an <see cref="AzureOpenAIModelConfigured"/> event.
