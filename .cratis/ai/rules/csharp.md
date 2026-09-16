@@ -116,7 +116,56 @@ public class CommandFilters(IInstancesOf<ICommandFilter> filters) : ICommandFilt
 
 Every exception type in the codebase should communicate *what went wrong* in domain terms. Built-in types like `InvalidOperationException` tell you nothing about the problem — a custom `AuthorAlreadyRegistered` tells you everything.
 
-- Use exceptions for exceptional situations only — never for control flow.
+- **Exceptions are for exceptional, unrecoverable state only — never for control flow.** "Unrecoverable" means the caller has no correct next step to take other than to stop: a violated invariant, a bug, a dependency that is simply gone. If a caller is expected to `catch` a specific type and then do something sensible and ordinary in response — retry, record an impediment, try a different branch, return a different response to a user — that outcome is not exceptional, it is a normal result of the operation, and it belongs in the method's return type, not in its throw list.
+- **The tell: a caller-side `catch` block whose body is not "log and rethrow" or "crash louder".** A `catch (SomeException)` that goes on to do real application work — write a different event, set a different HTTP status, schedule a retry, record why something didn't happen — is exception-driven flow control wearing a `try`/`catch` costume. This applies even when the exception type is well-named and richly documented; a beautifully named exception thrown for an anticipated, recoverable outcome is still the wrong tool.
+  - **Wrong** — `IWorkerRuntime.Start` throwing `WorkerIsAlreadyRunning`/`WorkerIsStillGoingAway`/`WorkerLaunchWasRefused` for three entirely anticipated outcomes of trying to launch a worker, with the caller structured as one `try` and three `catch` blocks each doing real, different application work (recording a specific impediment, deciding whether to keep the callback token):
+
+    ```csharp
+    try
+    {
+        await workerRuntime.Start(job, cancellationToken);
+    }
+    catch (WorkerIsStillGoingAway stillGoingAway)
+    {
+        await commandPipeline.Execute(new RecordDispatchImpediment(work.Id, "The previous worker is still shutting down"));
+        return false;
+    }
+    catch (WorkerIsAlreadyRunning alreadyRunning)
+    {
+        await commandPipeline.Execute(new RecordDispatchImpediment(work.Id, "A worker for this work is already running"));
+        return false;
+    }
+    ```
+
+  - **Right** — a `Cratis.Monads` return type naming every real outcome, so the compiler forces every caller to handle each one and nothing is discoverable only by reading a `<exception>` tag or by triggering it at runtime:
+
+    ```csharp
+    public enum WorkerLaunchOutcome { Started, StillGoingAway, AlreadyRunning, RefusedByCluster }
+
+    Task<Result<WorkerLaunchOutcome, ClusterFailure>> Start(WorkerJob job, CancellationToken cancellationToken = default);
+
+    // caller:
+    var outcome = await workerRuntime.Start(job, cancellationToken);
+    if (!outcome.TryGetResult(out var launched))
+    {
+        // genuinely exceptional - the cluster itself failed in a way retry logic doesn't cover
+        throw new WorkerLaunchIrrecoverablyFailed(work.Id, outcome);
+    }
+
+    var impediment = launched switch
+    {
+        WorkerLaunchOutcome.StillGoingAway => "The previous worker is still shutting down",
+        WorkerLaunchOutcome.AlreadyRunning => "A worker for this work is already running",
+        _ => null
+    };
+    if (impediment is not null)
+    {
+        await commandPipeline.Execute(new RecordDispatchImpediment(work.Id, impediment));
+        return false;
+    }
+    ```
+
+    A single-outcome case uses `Result<TResult, TError>` directly rather than an enum; `Option<TValue>` is the equivalent for "a value, or nothing" with no error to describe. Reach for these from `Cratis.Monads` before reaching for a custom exception type whenever the "failure" is something a caller is meant to branch on rather than merely propagate.
 - Always create a custom exception type that derives from `Exception`.
 - Never use built-in exception types (`InvalidOperationException`, `ArgumentException`, etc.).
 - Never suffix exception class names with `Exception` — `AuthorNotFound` reads better than `AuthorNotFoundException`.
