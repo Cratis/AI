@@ -43,36 +43,36 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 
 ### Application Profiles
 
-| Profile ID | Description |
-|---|---|
-| `cratis/application` | Full application stack (C# + React + TypeScript) |
-| `cratis/application/csharp` | C# backend with Arc + Chronicle |
-| `cratis/application/react` | React frontend with Cratis Components |
-| `cratis/application/typescript` | TypeScript client for Chronicle |
-| `cratis/application/arc-chronicle` | Arc + Chronicle integration |
-| `cratis/application/arc-only` | Arc without Chronicle |
-| `cratis/application/chronicle-dotnet` | Chronicle .NET client |
-| `cratis/application/elixir` | Elixir Chronicle client |
-| `cratis/application/kotlin` | Kotlin Chronicle client |
+| Profile ID | Description | Automatically Includes |
+|---|---|---|
+| `cratis/application` | Full application stack (C# + React + TypeScript) | `cratis/application/csharp`, `cratis/application/elixir`, `cratis/application/kotlin`, `cratis/application/typescript`, `cratis/arc/core`, `cratis/arc/react`, `cratis/chronicle/core`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
+| `cratis/application/csharp` | C# backend with Arc + Chronicle | `cratis/arc`, `cratis/arc/react`, `cratis/chronicle`, `cratis/components`, `cratis/fundamentals`, `cratis/language/csharp`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
+| `cratis/application/react` | React frontend with Cratis Components | `cratis/arc/core`, `cratis/arc/react`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
+| `cratis/application/typescript` | TypeScript client for Chronicle | `cratis/chronicle/client-typescript`, `cratis/language/typescript`, `cratis/specifications/typescript` |
+| `cratis/application/arc-chronicle` | Arc + Chronicle integration | `cratis/arc/core`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
+| `cratis/application/arc-only` | Arc without Chronicle | `cratis/arc/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
+| `cratis/application/chronicle-dotnet` | Chronicle .NET client | `cratis/chronicle/client-dotnet`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
+| `cratis/application/elixir` | Elixir Chronicle client | `cratis/chronicle/client-elixir`, `cratis/language/elixir` |
+| `cratis/application/kotlin` | Kotlin Chronicle client | `cratis/arc/client-kotlin`, `cratis/chronicle/client-kotlin`, `cratis/language/kotlin` |
 
 ### Framework Profiles
 
-| Profile ID | Description |
-|---|---|
-| `cratis/arc` | Arc CQRS framework |
-| `cratis/chronicle` | Chronicle event sourcing engine |
-| `cratis/components` | React component library |
-| `cratis/fundamentals` | Core primitives (`ConceptAs<T>`, `EventSourceId<T>`) |
-| `cratis/specifications` | Specification framework |
+| Profile ID | Description | Automatically Includes |
+|---|---|---|
+| `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/kotlin` |
+| `cratis/chronicle` | Chronicle event sourcing engine | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
+| `cratis/components` | React component library | (no child profiles) |
+| `cratis/fundamentals` | Core primitives (`ConceptAs<T>`, `EventSourceId<T>`) | (no child profiles) |
+| `cratis/specifications` | Specification framework | (no child profiles) |
 
 ### Engineering Profiles
 
-| Profile ID | Description |
-|---|---|
-| `cratis/engineering` | Engineering conventions and workflows |
-| `cratis/engineering/csharp` | C# engineering conventions |
-| `cratis/engineering/typescript` | TypeScript engineering conventions |
-| `cratis/engineering/react` | React engineering conventions |
+| Profile ID | Description | Automatically Includes |
+|---|---|---|
+| `cratis/engineering` | Engineering conventions and workflows | `cratis/engineering/core`, `cratis/engineering/csharp`, `cratis/engineering/elixir`, `cratis/engineering/kotlin`, `cratis/engineering/react`, `cratis/engineering/typescript` |
+| `cratis/engineering/csharp` | C# engineering conventions | `cratis/engineering/core` |
+| `cratis/engineering/typescript` | TypeScript engineering conventions | `cratis/engineering/core` |
+| `cratis/engineering/react` | React engineering conventions | `cratis/engineering/core` |
 
 ### Language Profiles
 
@@ -113,12 +113,43 @@ Choose the profile that matches your current work:
 
 ### 2. Profile Composition
 
-Profiles can compose other profiles. For example:
+Profiles can compose other profiles. When you select a parent profile, all child profiles are automatically included.
 
-- `cratis/application` composes `cratis/application/csharp`, `cratis/application/react`, `cratis/application/typescript`
-- `cratis/full` composes all full-stack capabilities
+**How composition works:**
+- Selecting `cratis/application` automatically includes all its child profiles (listed in the "Automatically Includes" column above)
+- Selecting `cratis/full` includes all full-stack capabilities across C#, TypeScript, Elixir, and Kotlin
+- Selecting `cratis/engineering` automatically includes all engineering convention profiles
 
-When you select a parent profile, all child profiles are automatically included.
+**Examples:**
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "profiles": [
+    "cratis/application"  // Automatically includes all child profiles
+  ]
+}
+```
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "profiles": [
+    "cratis/application/csharp"  // Includes: arc, arc/react, chronicle, components, fundamentals, language/csharp, specifications/dotnet, specifications/typescript
+  ]
+}
+```
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "profiles": [
+    "cratis/full"  // Includes all full-stack capabilities
+  ]
+}
+```
+
+**Note:** The profile-catalog.json file defines the complete composition tree. When you select a parent profile, the system automatically resolves and includes all child profiles listed in the `composes` array.
 
 ### 3. Multi-Profile Work
 
@@ -146,6 +177,20 @@ Select language profiles when working with specific languages:
   ]
 }
 ```
+
+### 5. Agent Harnesses Exclusion
+
+**Important:** The Agent Harnesses (`.agents/` folder) should **not** include the `skills` folder from the AI corpus. The skills folder is managed separately and should be excluded from agent plugin installations.
+
+When configuring agent plugins:
+- The `skills` field in `marketplace.json` should point to an empty array or be omitted
+- The `skills` symlink in `.agents/plugins/` should not reference `../.cratis/ai/skills`
+- Agent Harnesses should only include the rules and profile-catalog.json for profile resolution
+
+This ensures that:
+1. Skills are managed independently from agent plugins
+2. The AI corpus remains the source of truth for rules and profiles
+3. Agent Harnesses don't duplicate or override the skills folder
 
 ## Profile-Specific Rules
 
