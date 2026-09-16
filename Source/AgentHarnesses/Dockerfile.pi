@@ -1,0 +1,37 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+#
+# The Pi harness worker image - the base image plus the Pi coding agent CLI
+# (@earendil-works/pi-coding-agent), driven by entrypoint.sh's run_pi() over its `--mode rpc`
+# newline-delimited JSON protocol, plus the user-level Pi packages Cratis/Stagehand#179 records as
+# needed to drive it against an Anthropic OAuth token. Requires Node >=22.19.0 (Pi 0.84.x's own
+# package.json engines field) - satisfied by the NodeSource 22.x line the base image installs, so
+# no separate Node here.
+#
+# Published to Docker Hub as cratis/ai-agents-pi; a consuming product's dispatcher launches it
+# for work whose acting agent is configured with the Pi harness.
+ARG BASE_IMAGE=cratis/ai-agents:latest
+FROM ${BASE_IMAGE}
+
+USER root
+
+# Pi CLI — pinned to the version the entrypoint's RPC handling was verified against, rather than
+# "latest".
+ARG PI_CLI_VERSION=0.84.3
+RUN npm install -g @earendil-works/pi-coding-agent@${PI_CLI_VERSION}
+
+USER agent
+
+# Reviewed user extensions are installed deterministically from their own lock file. The checkout
+# cannot add to this set: run_pi() keeps project discovery disabled and names every allowed extension
+# explicitly. Packages proposed in #894 that are unpublished (@narumitw/pi-github,
+# @narumitw/pi-browser), incompatible with Pi 0.84 (pi-rtk-optimizer), or overlap this set
+# (pi-agent-extensions and the older task/subagent packages) are deliberately absent.
+COPY --chown=agent:agent pi-extensions/package.json pi-extensions/package-lock.json /home/agent/.pi/agent/npm/
+RUN npm ci --legacy-peer-deps --prefix "${HOME}/.pi/agent/npm" \
+    && npm cache clean --force
+
+COPY --chown=agent:agent pi-extensions/allow-list.sh /usr/local/share/direct/pi-extension-allow-list.sh
+COPY --chown=agent:agent pi-extensions/self-check.sh /usr/local/bin/direct-pi-extension-self-check
+RUN chmod +x /usr/local/bin/direct-pi-extension-self-check \
+    && /usr/local/bin/direct-pi-extension-self-check

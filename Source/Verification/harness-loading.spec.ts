@@ -6,7 +6,7 @@ import { mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync } from 'no
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
-import { DefaultResourceLoader, SettingsManager } from '../Pi.Plugin/node_modules/@earendil-works/pi-coding-agent/dist/index.js';
+import { DefaultResourceLoader, SettingsManager } from '@earendil-works/pi-coding-agent';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const corpusRoot = join(repositoryRoot, '.cratis', 'ai');
