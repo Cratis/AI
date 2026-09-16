@@ -217,7 +217,7 @@ Documentation-only changes carry non-release intent and run the documentation ch
 - **Skills and rules are the authoritative answer.** If not answered there, ask. Don't infer Cratis behavior from package internals.
 - Only make high-confidence suggestions.
 - Don't change dependency manifests / lockfiles / `global.json` / NuGet config unless explicitly asked.
-- When asked to commit, push, create a PR, ship, or land changes, use the **ship-changes** prompt (`.cratis/ai/prompts/ship-changes.prompt.md`).
+- When asked to **ship** or **land** changes, use the **ship-changes** prompt (`.cratis/ai/prompts/ship-changes.prompt.md`); invoking it is what authorizes the branch → commits → push → PR → merge → cleanup chain it describes. A request to only commit, only push, or only open a PR authorizes exactly that step, under [Git commits](./git-commits.md) and [Pull requests](./pull-requests.md) — do not route it through ship-changes and do not add the later steps.
 
 ## General
 
