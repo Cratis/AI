@@ -47,4 +47,7 @@ internal static partial class WorkerRuntimeLog
 
     [LoggerMessage(LogLevel.Warning, "Could not clear the finalizers holding worker job '{JobName}' - its name stays taken until they go")]
     internal static partial void CouldNotReleaseWorkerJob(this ILogger logger, Exception exception, string jobName);
+
+    [LoggerMessage(LogLevel.Warning, "The cluster refused to launch a worker for session {Session} - this is about the cluster rather than the work, so it stays scheduled")]
+    internal static partial void WorkerLaunchRefusedByCluster(this ILogger logger, Exception exception, AgentSessionId session);
 }
