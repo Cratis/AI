@@ -182,8 +182,24 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   (deliberately kept in Direct, domain-specific), the `DIRECT_*` env-var contract rename. PR is open,
   green, mergeable - not merged, per this repository's own deployment-is-CI-only policy; merging
   Direct's `main` is a human action.
-- **Studio's migration PR** - not started. `Cratis/Studio#1402` is open with only the earlier
-  package-consumption groundwork; none of Studio's own provider/worker code has been deleted yet.
+- ~~Studio's migration PR~~ - the provider-configuration slice is done, verified via real CI (11/11
+  checks green: Backend Specs, Build Core Backend/Frontend, Onboarding Integration Specs, Solution
+  Builds Clean). `Cratis/Studio#1402` (branch `feat/consume-cratis-ai`) deleted Studio's own
+  `Adding`/`Reconfiguring`/`Renaming`/`Removing` provider commands (76 `[Fact]`s removed, confirmed by
+  diff - 4,395 → 4,319), repointed `Resolving.ConfiguredAIProvider`/`Listing.AIProvider` at
+  `Cratis.AI.Providers.Configuring`'s events via namespace alias (no consumer changed - same read
+  model type, same shape, only which events populate it changed), fixed a real reactor bug
+  (`AgentAIProviderReactor` was still typed against Studio's own deleted `AIModelRemoved`, which would
+  have silently stopped firing), and wired `@cratis/ai` as a real frontend dependency for the first
+  time. Caught and fixed a genuine naming inconsistency in the package itself along the way (PR #360,
+  merged: the four Reconfigure commands took `Provider` where `RenameAIProvider`/`RemoveAIProvider`
+  and Studio's own pre-port original both used `Id`).
+  **Deliberately narrower than Direct's cutover**: Studio's own container/worker runtime
+  (`Infrastructure/Containers/` - `IContainerRuntime`, `ContainerJob`, `DockerContainerRuntime`,
+  `KubernetesContainerRuntime`) is a different shape from what `Cratis.AI.Workers` ported out of
+  Direct (`IWorkerRuntime`/`WorkerJob`) - plan risk #3, still unreconciled, so none of that layer could
+  move for Studio yet. Studio has no agent-harness images of its own either. PR is open, green,
+  mergeable - not merged, per the same deployment-is-CI-only policy as Direct.
 - **Production cutover** - the event-evolution scale-down/MongoDB-surgery procedure in decision 0002,
   and the nine end-to-end production checks in the plan's Section 12.1. Neither can happen before a
   product actually has new code to deploy. Also out of scope for an agent session to execute

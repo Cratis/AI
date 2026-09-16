@@ -52,11 +52,11 @@ public class AddOpenAIProviderValidator : CommandValidator<AddOpenAIProvider>
 /// anything already pointing at the provider keeps working. Ported from Studio's own
 /// <c>Settings.AI.Providers.Reconfiguring.ReconfigureOpenAIProvider</c>.
 /// </summary>
-/// <param name="Provider">The provider to reconfigure.</param>
+/// <param name="Id">The identifier of the provider to reconfigure.</param>
 /// <param name="Name">The name the organization knows the provider by.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
-public record ReconfigureOpenAIProvider(AIProviderId Provider, AIProviderName Name, AIProviderApiKey ApiKey)
+public record ReconfigureOpenAIProvider(AIProviderId Id, AIProviderName Name, AIProviderApiKey ApiKey)
 {
     /// <summary>
     /// Handles the command by appending an <see cref="OpenAIModelConfigured"/> event.
