@@ -167,9 +167,23 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   agent/conversational work above lands - no more proxy-workspace scaffolding needed, just more
   commands and read models in `Cratis.AI` itself, plus one `index.ts` export line per new top-level
   namespace folder (decision 0004).
-- **Direct's migration PR** (delete the moved folders, thin adapters over the seams, swap generated
-  `.ts` for `@cratis/ai`) - blocked on everything above existing first.
-- **Studio's migration PR** (same, plus the new AI Usage page) - likewise blocked.
+- ~~Direct's migration PR~~ - real progress, not yet complete. `Cratis/Direct#998` (branch
+  `feat/consume-cratis-ai`) has actually deleted, not just referenced: the provider CRUD commands for
+  4 non-OpenAI vendors, all of `Source/AgentHarnesses/`, and the entire Docker/Kubernetes worker
+  runtime (`DockerWorkerRuntime`, `KubernetesWorkerRuntime`, `IWorkerRuntime`, `WorkerJob`, the
+  worker-launch failure types, `WorkerSecrets`, `WorkerPromptFile`, `WorkerResources`,
+  `Containers.ContainerRuntimeOptions`/`IKubernetesClientFactory`) - repointed at Cratis.AI's own
+  types throughout, `build.yml`'s `agent-harnesses` job removed, `publish.yml`/`deploy-production.yml`
+  no longer build worker images at all and instead pin the deployment to the exact Cratis.AI version
+  Direct already depends on. Verified via real GitHub Actions CI (Backend Release+Debug+specs,
+  Frontend, artifact publish - all green) at 4,360 passing specs (down from 4,472 - exactly the 112
+  `[Fact]`s that existed only for the now-deleted types, confirmed by diff). Still open: OpenAI's own
+  Add/Reconfigure (credential-kind classification dependency), `WorkerEnvironment.cs`/`WorkerPrompts`
+  (deliberately kept in Direct, domain-specific), the `DIRECT_*` env-var contract rename. PR is open,
+  green, mergeable - not merged, per this repository's own deployment-is-CI-only policy; merging
+  Direct's `main` is a human action.
+- **Studio's migration PR** - not started. `Cratis/Studio#1402` is open with only the earlier
+  package-consumption groundwork; none of Studio's own provider/worker code has been deleted yet.
 - **Production cutover** - the event-evolution scale-down/MongoDB-surgery procedure in decision 0002,
   and the nine end-to-end production checks in the plan's Section 12.1. Neither can happen before a
   product actually has new code to deploy. Also out of scope for an agent session to execute
