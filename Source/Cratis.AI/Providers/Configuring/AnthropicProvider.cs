@@ -54,11 +54,11 @@ public class AddAnthropicProviderValidator : CommandValidator<AddAnthropicProvid
 /// anything already pointing at the provider keeps working. Ported from Studio's own
 /// <c>Settings.AI.Providers.Reconfiguring.ReconfigureAnthropicProvider</c> (plan Section 5.2 step 4).
 /// </summary>
-/// <param name="Provider">The provider to reconfigure.</param>
+/// <param name="Id">The identifier of the provider to reconfigure.</param>
 /// <param name="Name">The name the organization knows the provider by.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
-public record ReconfigureAnthropicProvider(AIProviderId Provider, AIProviderName Name, AIProviderApiKey ApiKey)
+public record ReconfigureAnthropicProvider(AIProviderId Id, AIProviderName Name, AIProviderApiKey ApiKey)
 {
     /// <summary>
     /// Handles the command by appending an <see cref="AnthropicModelConfigured"/> event.

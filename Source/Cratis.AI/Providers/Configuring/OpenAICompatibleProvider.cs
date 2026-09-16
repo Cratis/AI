@@ -51,12 +51,12 @@ public class AddOpenAICompatibleProviderValidator : CommandValidator<AddOpenAICo
 /// other vendor's Reconfigure in this package; reconfiguring a provider that no longer exists is a
 /// validation failure everywhere else, and there is no reason for this one to differ.
 /// </summary>
-/// <param name="Provider">The provider to reconfigure.</param>
+/// <param name="Id">The identifier of the provider to reconfigure.</param>
 /// <param name="Name">The name the organization knows the provider by.</param>
 /// <param name="Endpoint">The new endpoint.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
-public record ReconfigureOpenAICompatibleProvider(AIProviderId Provider, AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
+public record ReconfigureOpenAICompatibleProvider(AIProviderId Id, AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
 {
     /// <summary>
     /// Handles the command by appending an <see cref="OpenAICompatibleModelConfigured"/> event.
