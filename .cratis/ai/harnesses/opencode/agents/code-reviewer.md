@@ -1,17 +1,15 @@
 ---
-name: Code Reviewer
 description: >
   Quality gate agent for Cratis-based projects. Reviews code against all
   project instruction files, checking architecture conformance, C# and
   TypeScript conventions, and vertical slice correctness before merge.
-model: claude-sonnet-4-5
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-readonly: true
+mode: subagent
+model: anthropic/claude-sonnet-4-5
+permission:
+  edit: deny
+  bash: allow
 ---
+<!-- cratis-ai: generated OpenCode adapter of agents/code-reviewer.md. Do not edit; the canonical agent is the source. -->
 
 # Code Reviewer
 

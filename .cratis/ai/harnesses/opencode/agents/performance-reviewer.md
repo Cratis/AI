@@ -1,17 +1,15 @@
 ---
-name: Performance Reviewer
 description: >
   Performance-focused review agent for Cratis-based projects. Analyzes changed
   files for projection efficiency, query patterns, unnecessary allocations,
   React render overhead, and Chronicle anti-patterns before merge.
-model: claude-sonnet-4-5
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-readonly: true
+mode: subagent
+model: anthropic/claude-sonnet-4-5
+permission:
+  edit: deny
+  bash: allow
 ---
+<!-- cratis-ai: generated OpenCode adapter of agents/performance-reviewer.md. Do not edit; the canonical agent is the source. -->
 
 # Performance Reviewer
 

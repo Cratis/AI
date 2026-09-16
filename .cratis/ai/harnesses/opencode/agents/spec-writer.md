@@ -1,18 +1,15 @@
 ---
-name: Spec Writer
 description: >
   Specialist for writing C# specs (the in-process scenario family) and
   TypeScript/React specs for vertical slices. Ensures every slice has
   comprehensive behavior coverage following the project's BDD conventions.
-model: claude-sonnet-4-5
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - Edit
-  - Write
+mode: subagent
+model: anthropic/claude-sonnet-4-5
+permission:
+  edit: allow
+  bash: allow
 ---
+<!-- cratis-ai: generated OpenCode adapter of agents/spec-writer.md. Do not edit; the canonical agent is the source. -->
 
 # Spec Writer
 

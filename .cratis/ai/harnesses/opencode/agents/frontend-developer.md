@@ -1,18 +1,15 @@
 ---
-name: Frontend Developer
 description: >
   Specialist for TypeScript/React frontend code within a vertical slice.
   Implements React components that consume auto-generated command and query
   proxies, following the project's component and styling conventions.
-model: claude-sonnet-4-5
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - Edit
-  - Write
+mode: subagent
+model: anthropic/claude-sonnet-4-5
+permission:
+  edit: allow
+  bash: allow
 ---
+<!-- cratis-ai: generated OpenCode adapter of agents/frontend-developer.md. Do not edit; the canonical agent is the source. -->
 
 # Frontend Developer
 
