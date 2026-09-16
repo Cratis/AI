@@ -1,7 +1,7 @@
 # Handler shapes and how Arc dispatches them
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc.Chronicle` `22.10.4` with
-`Cratis.Chronicle` `16.39.1`.
+Verified against `Cratis.Arc.Core` and `Cratis.Arc.Chronicle` `22.16.0` with
+`Cratis.Chronicle` `18.3.0`.
 
 ## The pipeline around `Handle`
 

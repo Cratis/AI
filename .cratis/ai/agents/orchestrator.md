@@ -10,10 +10,11 @@ description: >
   large refactors, or any goal that spans more than one concern.
 model: claude-sonnet-4-5
 tools:
-  - githubRepo
-  - codeSearch
-  - usages
-  - terminalLastCommand
+  - Read
+  - Grep
+  - Glob
+  - Bash
+  - Agent
 ---
 
 # Orchestrator

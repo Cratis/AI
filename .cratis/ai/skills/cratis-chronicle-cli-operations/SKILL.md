@@ -16,8 +16,10 @@ This skill is verified against these exact sources:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Cli` | `2.4.0` | the `cratis` command, its contexts, output formats, and command tree |
-| `Cratis.Chronicle` | `16.45.2` | the observer, partition, sequence, and job concepts the CLI reads |
+| `Cratis.Cli` | `3.2.0` | the `cratis` command, its contexts, output formats, and command tree |
+
+> Re-verified at `Cratis/cli` **v3.2.0** (originally written against 2.4.0): every command, branch, flag and output format this skill names exists there; the 2.x→3.x change is the Chronicle 17/18 wire migration plus new branches (`ai`, `arc`, `screenplay`, `prologue`, `llm`) this skill does not cover.
+| `Cratis.Chronicle` | `18.3.0` | the observer, partition, sequence, and job concepts the CLI reads |
 
 The CLI ships a **versioned machine-readable catalog of its own surface**, and
 that catalog is the authority for exact command names on the installed version:
@@ -110,7 +112,7 @@ error.
 | Is the server healthy at all? | `cratis chronicle diagnose` (exit code 3 when unhealthy) |
 | Why has this read model stopped updating? | `chronicle failed-partitions list --observer <id>` — the error is on the partition, not in the log |
 | An observer is quarantined — why? | `chronicle failed-partitions show <observer> <partition> --detailed`, with attempt history |
-| Did this event actually get appended? | `chronicle events get --event-type <type> --event-source-id <id>`, or `chronicle events tail` |
+| Did this event actually get appended? | `chronicle events get --event-type <type> --event-source-id <id>` (`events tail` returns only the highest sequence number — not a count, not the events) |
 | What is this event's shape in the store? | `chronicle event-types list`, then `chronicle event-types show <type>` |
 | Is this projection registered? | `chronicle projections list`, then `chronicle projections show <id>` |
 | What does the read model actually hold? | `chronicle read-models get <read-model> <key>`, or `read-models instances` |
@@ -165,16 +167,20 @@ Before any of them:
 
 ### Two confirmation traps
 
-**Confirmation prompts do not fire when stdout is not a terminal.** The CLI
-treats a non-interactive session as an implicit yes, so a destructive command
-run from a script, a pipeline, or an agent harness proceeds without `-y` and
-without asking. Never rely on the prompt as the safety mechanism — the
-authorization above is the safety mechanism.
+**Destructive commands fail closed outside a terminal.** Every command with a
+confirmation prompt — `observers replay`, `observers replay-partition`,
+`observers retry-partition`, `observers clear-quarantine`, `jobs stop`,
+`jobs resume`, `recommendations perform`, `recommendations ignore`,
+`users remove`, `applications remove`, `subscriptions remove` — asks
+interactively, and when the session is **not** interactive (a script, a
+pipeline, an agent harness) it does *not* proceed: it writes
+"Re-run the command with --yes to confirm the operation" and exits with the
+validation error code. `--yes` is therefore the only way a non-interactive run
+performs one of these, which makes `--yes` the authorization boundary. Declining
+the interactive prompt exits successfully having done nothing.
 
-**Not every mutating command prompts, even interactively.** `jobs stop` and
-`jobs resume` describe themselves as prompting for confirmation, but no prompt
-exists in the implementation. `users add`, `applications add`, and
-`subscriptions add` do not prompt either.
+**Additive commands do not prompt.** `users add`, `applications add` and
+`subscriptions add` run without confirmation in every mode.
 
 Reaching for `--yes` to silence a prompt you have not read is how the wrong
 store gets replayed. A failed partition you have not yet explained is not a

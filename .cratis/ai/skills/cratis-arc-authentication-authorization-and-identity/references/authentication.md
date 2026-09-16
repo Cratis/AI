@@ -1,6 +1,6 @@
 # Authentication
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.10.4`. Types are in
+Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.16.0`. Types are in
 `Cratis.Arc.Authentication` and `Cratis.Arc.Identity`.
 
 ## The contract

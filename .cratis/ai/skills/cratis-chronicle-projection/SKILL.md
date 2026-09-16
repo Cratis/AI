@@ -17,7 +17,7 @@ This skill is verified against this exact source:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Chronicle` | `16.45.2` | `Cratis.Chronicle.Projections`, `Cratis.Chronicle.Projections.ModelBound`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.EventSequences` |
+| `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Projections`, `Cratis.Chronicle.Projections.ModelBound`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.EventSequences` |
 
 Reverify product sources before claiming support for another version.
 
@@ -90,6 +90,20 @@ a read model type is not supported and is not what the API means. If a read mode
 needs a field that only another read model has, the model is missing an event —
 fix the event model rather than cross-reading at runtime.
 
+### A joined property always wins — do not latch on it
+
+A projection re-resolves its joins every time it handles one of the read model's
+own events and applies the joined values **after** the local mappings, so a
+property written both by a `From`/`[SetFrom]` and by a `Join` ends up with the
+joined value regardless of the order the events arrived. A local write can
+therefore never reset or clear a joined property. The natural latch shape — a
+local event sets `IsBlocked = false`, a joined event sets it `true` — compiles,
+reads correctly and silently sticks on the joined value. Give each fact its own
+property (`BlockedAt`, `UnblockedAt`) and derive the outcome from both at the
+query edge. Chronicle's analyzer **`CHR0042` (`JoinOverridesLocalWrite`)** reports
+the overlap; suppress it only when the join is deliberately keeping that property
+fresh.
+
 ## Selecting the source
 
 Class-level `[EventSequence("<name>")]`, `[EventLog]`, or `[EventStore("<name>")]`
@@ -121,9 +135,14 @@ or a reactor rather than annotating the projection.
   `key:` on **both** a parent and a nested or child type for the **same** event
   throws a duplicate-key exception at startup. Keep `[FromEvent<T>]` on the
   nested type only, or switch the nested type to property-level `[SetFrom<T>]`.
-- **Duplicate `[SetFromContext<T>]`.** Two properties with
-  `[SetFromContext<SameEvent>]` on one read model crash at startup. Merge them,
-  or use `[FromEvery]`.
+- **Setting the same read-model property twice for one event.** The per-event
+  builder refuses a second `Set`/`Increment`/`Decrement`/`Add`/`Subtract` on a
+  property it already wrote for that event (`DuplicatePropertyInProjection`,
+  thrown while the projection is built at startup). Model-bound, that is two
+  attributes for the same `<TEvent>` on one property that both target it — for
+  example `[SetFrom<E>]` and `[Count<E>]` together. Several `[SetFromContext<E>]`
+  on one member is a different case: it is accepted and **all but the last are
+  discarded** — analyzer `CHR0040` reports it.
 - **Chaining after `AutoMap()`/`NoAutoMap()`.** Those two return the base builder
   interface, so `.NotRewindable()`, `.Passive()`, `.ContainerName()`, and
   `.FromEventSequence()` will not compile after them. Put them last.

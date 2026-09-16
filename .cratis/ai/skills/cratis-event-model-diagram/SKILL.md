@@ -20,7 +20,7 @@ file and Mermaid disagree. Confirm the Mermaid version available to the renderer
 before relying on a construct.
 
 The Cratis artifacts a diagram refers to are verified against `Cratis.Chronicle`
-`16.45.2` and the Arc query and command surface it is used with.
+`18.3.0` and the Arc query and command surface it is used with.
 
 ## What an event model is
 

@@ -1,6 +1,6 @@
 # Authorization
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.10.4`. Everything below
+Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.16.0`. Everything below
 is in `Cratis.Arc.Authorization` unless stated.
 
 ## Default access differs by hosting model

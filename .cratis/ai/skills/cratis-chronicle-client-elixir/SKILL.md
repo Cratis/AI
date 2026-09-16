@@ -12,33 +12,37 @@ to yours, and everything after that is ordinary OTP.
 
 ## Verified product sources
 
-This skill is verified against `Cratis/Chronicle.Elixir` at tag **`v2.2.0`**,
-which is the version actually published on Hex.
+This skill was written against `Cratis/Chronicle.Elixir` at tag **`v2.2.0`** and
+re-verified at **`v3.1.0`** (published on Hex as `3.1.0`; `3.0.0` is the
+Chronicle 17/18 wire migration — gRPC request/response shapes, no public API
+removed). Every module, function and option this skill names exists at `v3.1.0`;
+the `file:line` citations below were taken at `v2.2.0` and may have shifted.
 
 | Fact | Value | Source |
 | --- | --- | --- |
 | OTP app / Hex package | `:cratis_chronicle` | `Source/chronicle/mix.exs:14` |
-| Published version | `2.2.0` | hex.pm |
-| Elixir requirement | `~> 1.14` | `Source/chronicle/mix.exs:16` |
-| Contracts dependency | `cratis_chronicle_contracts` resolved to `16.13.4` | `Source/chronicle/mix.lock` |
+| Published versions | `3.1.0`, `3.0.0`, `2.2.0`, `2.1.x`, `2.0.0`, `1.0.x`, `0.x` — **no `2.3.0`** | hex.pm |
+| Elixir requirement | `~> 1.14` | `Source/chronicle/mix.exs` |
+| Contracts dependency | `cratis_chronicle_contracts` resolved to `18.2.0` at `v3.1.0` (`16.13.4` at `v2.2.0`) | `Source/chronicle/mix.lock` |
 
 > **The `v2.3.0` git tag was never published to Hex.** `mix deps.get` cannot
-> fetch it. Anything introduced there — notably the `Chronicle.Concept` macro,
-> which does not exist at `v2.2.0` — must not be documented as available.
+> fetch it. What it introduced — notably the `Chronicle.Concept` macro
+> (`use Chronicle.Concept, type: :string`, a single-value concept that carries its
+> `pii` classification once, mirroring `ConceptAs<T>`) — **is published from
+> `3.0.0`**. On `2.2.0` it does not exist; on `3.x` it is the preferred way to
+> classify a personal value.
 
 > **The repository's `VERSION` file says `0.0.5` and is a build-time
 > placeholder** overwritten by the publish workflow. Never quote it.
 
-> **Do not copy from the repository's root `README.md`.** At `v2.2.0` it uses
-> module names that do not exist — `use Chronicle.EventType`,
-> `use Chronicle.ReadModel`, `use Chronicle.Reactor`, `use Chronicle.Reducer`,
-> `use Chronicle.Seeder` (`README.md:9-13`, `:49`, `:54`). The real modules are
-> namespaced: `Chronicle.Events.EventType`, `Chronicle.ReadModels.ReadModel`,
-> `Chronicle.Reactors.Reactor`, `Chronicle.Reducers.Reducer`,
-> `Chronicle.Seeding.Seeder`. **Copy from `Documentation/client-snippets/`
-> instead** — those are CI-validated and correct at every version.
+> **The real modules are namespaced** — `Chronicle.Events.EventType`,
+> `Chronicle.ReadModels.ReadModel`, `Chronicle.Reactors.Reactor`,
+> `Chronicle.Reducers.Reducer`, `Chronicle.Seeding.Seeder`. The `v2.2.0` root
+> `README.md` used unnamespaced names that do not exist (`use Chronicle.EventType`,
+> …); the `3.x` README is correct. When in doubt, copy from
+> `Documentation/client-snippets/` — those are CI-validated at every version.
 
-> `Documentation/get-started.md:12` pins `{:cratis_chronicle, "~> 0.1"}`, which
+> `Documentation/get-started.md:13` pins `{:cratis_chronicle, "~> 0.1"}`, which
 > does not match the published `2.2.0`. Use a `2.x` requirement.
 
 ## Adding it
@@ -211,7 +215,7 @@ the outcome.
 | `get_from_sequence_number/2` | | `:369` |
 | `get_tail_sequence_number/2` | | `:408` |
 
-Append options (`event_log.ex:79-94`): `:client`, `:namespace`,
+Append options (`event_log.ex:79-94`, plus `:occurred` read at `:720`): `:client`, `:namespace`,
 `:event_sequence_id` (default `"event-log"`), `:event_source_type` (default
 `"Default"`), `:event_stream_type` (default **`"All"`**), `:event_stream_id`
 (default `"Default"`), `:tags`, `:subject`, `:correlation_id`, `:identity`,
@@ -398,9 +402,9 @@ attempt.
 
 | Pitfall | Why it bites |
 | --- | --- |
-| Copying the root `README.md` | Its module names do not exist at `v2.2.0` |
-| Using `Chronicle.Concept` | It exists only in the unpublished `v2.3.0` tag |
-| `{:cratis_chronicle, "~> 0.1"}` from the docs | Does not match the published `2.2.0` |
+| Copying the `v2.2.0` root `README.md` | Its module names do not exist; the `3.x` README is correct |
+| Using `Chronicle.Concept` on `2.2.0` | It ships from `3.0.0`; on `2.2.0` annotate fields with `pii/1,2` instead |
+| Copying the dependency line from the README | It lags the published version; take the version from hex.pm |
 | Quoting the `VERSION` file | It is a `0.0.5` build-time placeholder |
 | Putting configuration in `config.exs` | The client reads no application env; options are child-spec keywords |
 | Omitting `:otp_app` | Discovery falls back to scanning every loaded module |

@@ -13,14 +13,20 @@ you construct a client, ask it for an event store, and append or observe.
 
 ## Verified product sources
 
-This skill is verified against this exact source:
+This skill was written against `Chronicle.Kotlin` at tag `v4.0.0` (commit
+`63ff629`) and re-verified at **`v5.1.0`**: every class, function, option and
+Spring bean this skill names exists there. The `4→5` major is the Chronicle 17/18
+wire migration (gRPC request/response shapes and `ensureSuccess` result
+envelopes — internal to the client); `5.0.0` also adds a `ChronicleCommandRejected`
+exception for a rejected server-side command. The `file:line` citations below
+were taken at `v4.0.0` and may have shifted.
 
 | Artifact | Version | Verified from |
 | --- | --- | --- |
-| `io.cratis:chronicle` | `4.0.0` | `Chronicle.Kotlin` at tag `v4.0.0` (commit `63ff629`) |
-| `io.cratis:chronicle-spring-boot-starter` | `4.0.0` | same tag, `Integrations/SpringBoot` |
-| `io.cratis:chronicle-testing` | `4.0.0` | same tag, `Testing` |
-| `io.cratis:chronicle-contracts` | `16.44.1` | `Source/build.gradle.kts:11` |
+| `io.cratis:chronicle` | `5.1.0` | `Chronicle.Kotlin` at tag `v5.1.0` |
+| `io.cratis:chronicle-spring-boot-starter` | `5.1.0` | same tag, `Integrations/SpringBoot` |
+| `io.cratis:chronicle-testing` | `5.1.0` | same tag, `Testing` |
+| `io.cratis:chronicle-contracts` | `18.2.0` | `Source/build.gradle.kts` (`chronicleContractsVersion`) |
 
 All three artifacts are published to Maven Central under `io.cratis`
 (`Source/build.gradle.kts:54`, `Testing/build.gradle.kts:32`,
@@ -35,9 +41,10 @@ All three artifacts are published to Maven Central under `io.cratis`
 > the checked-in source never carries the real number. Take it from Maven
 > Central.
 
-> **The client and the kernel version independently.** Client `4.0.0` is built
-> against `chronicle-contracts` `16.44.1`; the Chronicle server has since moved
-> to a `17.x` line. Confirm the client/server pair you intend to run is
+> **The client and the kernel version independently.** Client `5.1.0` is built
+> against `chronicle-contracts` `18.2.0` (the `4.x` line was built against
+> `16.44.1` and does not speak the 17/18 wire shapes); the Chronicle server is
+> on `18.x`. Confirm the client/server pair you intend to run is
 > supported before relying on it — do not infer compatibility from the fact that
 > both are "latest".
 
@@ -82,11 +89,11 @@ fun main() = runBlocking {
 | `fun evictEventStores()` | `:36` | drops the local cache, keeps the client |
 | `fun dispose()` | `:39` | `IChronicleClient : AutoCloseable`, `close()` delegates to it (`:41`) |
 
-**The client connects in its constructor.** `ChronicleClient.kt:13` is
+**The client connects in its constructor.** `ChronicleClient.kt:12` is
 `ChronicleConnection(options.connectionString).also { it.connect() }` — there is
 no separate `connect()` step to call, and constructing the client is the
 connecting act. Event stores are cached per `"$name/$namespace"`
-(`ChronicleClient.kt:22`), so repeated `getEventStore` calls return the same
+(`ChronicleClient.kt:21`), so repeated `getEventStore` calls return the same
 instance.
 
 The default namespace is the literal `"Default"` —
@@ -355,13 +362,15 @@ A model-bound projection puts the projection on the read model with `@FromEvent`
 (`projections/SetFrom.kt:22`); the full family also includes `SetValue`,
 `SetFromContext`, `AddFrom`, `SubtractFrom`, `Increment`, `Decrement`, `Count`,
 `Join`, `RemovedWith`, `RemovedWithJoin`, `ChildrenFrom`, `ClearWith`,
-`FromAll`, `FromEvery`, `Nested`, `NoAutoMap`, `NotRewindable`. The declarative
+`FromAll`, `FromEvery`, `FromEventSourceId`, `CountFromAll`, `IncrementFromAll`,
+`DecrementFromAll`, `Nested`, `NoAutoMap`, `NoAutoMapProperties`,
+`NotRewindable`. The declarative
 alternative is a class implementing `IProjectionFor<TReadModel>`.
 
 ## Discovery and registration
 
 `ClientArtifacts` scans the classpath with ClassGraph
-(`artifacts/ClientArtifacts.kt:44-48`), and `ClientArtifacts.default` is a
+(`artifacts/ClientArtifacts.kt:66-98`), and `ClientArtifacts.default` is a
 process-wide lazy singleton (`:156`). What it looks for (`:66-98`):
 
 | Kind | Rule |
@@ -377,6 +386,8 @@ process-wide lazy singleton (`:156`). What it looks for (`:66-98`):
 | seeders | implements `ICanSeedEvents` |
 | webhooks | implements `IWebhookDefiner` |
 | captures | implements `ICapture` |
+| reactor middlewares | implements `IReactorMiddleware` or `BlockingReactorMiddleware` |
+| reactor argument resolvers | implements `IReactorMethodArgumentResolver` or `BlockingReactorMethodArgumentResolver` |
 
 > The `FromEvent$Container` entry is not incidental: Kotlin's `@Repeatable`
 > replaces repeated annotations with a synthetic container, so a class carrying
@@ -464,7 +475,7 @@ In Spring Boot, Java injects the `Chronicle` bean instead — it already takes
 folds a reducer through the same handler-shape rules as production
 (`ReadModelScenario.kt:139-150`). Its scope is small — appends and reducer folds
 only; there is no in-process reactor, projection, or constraint scenario
-(`Testing/api/Testing.api` is 56 lines).
+(`Testing/api/Testing.api` is 57 lines).
 
 ## Common pitfalls
 
@@ -474,9 +485,9 @@ only; there is no in-process reactor, projection, or constraint scenario
 | Two `@EventType` classes sharing a simple name | The id defaults to the simple name, so they collide on the wire (`EventTypesService.kt:67`) |
 | Shipping the default connection string to production | `skipTlsValidation` defaults to **true**; certificate validation is off (`ChronicleConnectionString.kt:28`) |
 | Copying a version from the README or docs | Both are stale at `v4.0.0`; the real version comes from the release, not the source |
-| Expecting `getEventStore` to suspend | It does not — the client already connected in its constructor (`ChronicleClient.kt:13`) |
+| Expecting `getEventStore` to suspend | It does not — the client already connected in its constructor (`ChronicleClient.kt:12`) |
 | Expecting `awaitRegistration()` to mean "registered" | It completes in a `finally`, so it also returns after a failed pass (`ArtifactRegistrations.kt:47-57`) |
-| Expecting a registration failure to throw | Failures are printed to `System.err`, not raised (`EventStore.kt:236`) |
+| Expecting a registration failure to throw | Failures are printed to `System.err`, not raised (`EventStore.kt:244`) |
 | Expecting read model reactors to be discovered | `IReadModelReactor` is absent from the scan and from `IEventStore`; construct `ReadModelReactors(...)` yourself |
 | Leaving the default classpath scan on in a large app | Use `withArtifactsFrom(...)` or `artifact-packages` to narrow it (`ChronicleOptions.kt:58`) |
 | Expecting WebFlux support from the starter | The web auto-configuration is `SERVLET`-only (`ChronicleWebAutoConfiguration.kt:29`) |

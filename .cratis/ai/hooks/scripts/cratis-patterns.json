@@ -78,7 +78,7 @@
             "pattern": "from[[:space:]]+['\"]primereact/dialog['\"]",
             "paths": ["**/*.ts", "**/*.tsx"],
             "exclude_paths": ["**/node_modules/**", "**/dist/**", "**/wwwroot/**", "**/obj/**", "**/bin/**"],
-            "message": "Never import `Dialog` from `primereact/dialog` — use `CommandDialog` / `Dialog` from `@cratis/components`."
+            "message": "Cratis Components 4 has no PrimeReact underneath — a `primereact/dialog` import is a leftover from Components 3. Use `CommandDialog` from `@cratis/components/CommandDialog` or `Dialog` from `@cratis/components/Dialogs`."
         }
     ]
 }

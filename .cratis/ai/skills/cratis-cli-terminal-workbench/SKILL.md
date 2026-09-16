@@ -24,7 +24,9 @@ This skill is verified against this exact source:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Cli` | `2.4.0` | `cratis chronicle workbench`, its views, keys, and actions |
+| `Cratis.Cli` | `3.2.0` | `cratis chronicle workbench`, its views, keys, and actions |
+
+> Re-verified at `Cratis/cli` **v3.2.0**: the fifteen navigation views and every key binding below exist in `Source/Cli/Commands/Chronicle/Workbench` at that tag.
 
 Reverify before claiming a view, key binding, or action for another version.
 `cratis chronicle workbench --help` and `cratis llm-context` are the authority
@@ -61,9 +63,11 @@ The navigation pane groups fifteen views into five sections:
 | Projections | Projections · Read Models |
 | Server | Event Stores · Namespaces · Applications · Users · Identities · Subscriptions |
 
-Six further detail views — observer, failed partition, event, event type,
-projection, and read model — open from a row and never appear in the navigation
-pane.
+Every table view renders a detail for its selected row — `RenderDetail` is
+abstract on the shared `FilterableTableView`, so activating a row always
+surfaces its full detail in the detail pane or a centered overlay; the event
+and read-model views open richer overlays of their own. Detail views never
+appear in the navigation pane.
 
 Each refresh fetches one consistent snapshot of the store: version info, event
 stores, namespaces, observers, failed partitions, jobs, recommendations, event
@@ -127,8 +131,9 @@ Several views bind a key to an operation that changes the running server:
 Each has a bulk form that applies to every checked row.
 
 Every one of these opens a centered confirmation modal that states the action
-cannot be undone, confirmed with `Enter` or `Y` and cancelled with `Escape` or
-`N`. **That modal is not authorization.** A request to inspect a live store does
+cannot be undone. **Only an explicit `Y` (or the Confirm button) confirms;
+`Enter`, `Escape` and `N` all cancel** — the modal is cancel-focused on purpose,
+so a reflexive Enter never runs a destructive action. **That modal is not authorization.** A request to inspect a live store does
 not authorize replay, retry, stop, resume, perform, or ignore. Before pressing
 one of those keys:
 

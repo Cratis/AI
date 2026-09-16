@@ -18,9 +18,11 @@ change did not touch is a note, never a blocker.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Arc.Core` | `22.10.4` | Command, query, validation and analyzer surface (`ARC0001`–`ARC0015`) |
-| `Cratis.Chronicle` | `16.45.2` | Event, projection, read-model and constraint surface |
-| `Cratis.Fundamentals` | `7.18.2` | `ConceptAs<T>`, `IInstancesOf<T>`, the DI conventions |
+| `Cratis.Arc.Core` | `22.16.0` | Command, query, validation and analyzer surface (`ARC0001`–`ARC0015` in `DiagnosticDescriptors`, plus `ARC0016`–`ARC0018` from the command-operation analyzer) |
+| `Cratis.Chronicle` | `18.3.0` | Event, projection, read-model and constraint surface |
+| `Cratis.Fundamentals` | `7.19.2` | `ConceptAs<T>`, `IInstancesOf<T>`, the DI conventions |
+
+> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
 
 Reverify against the owning product repository before asserting a framework
 contract this file does not already state.
@@ -97,9 +99,9 @@ there is nothing to review under a red build.
 - No `@ts-ignore` or `@ts-expect-error` without a comment saying why.
 - Full descriptive names — never `e`, `idx`, `prev`, `dir`, `pos`.
 - `CommandDialog` from `@cratis/components/CommandDialog` for command dialogs;
-  `Dialog` from `@cratis/components/Dialogs` for data-only dialogs. **Never**
-  `Dialog` from `primereact/dialog`.
-- No hard-coded hex or rgb colors — PrimeReact CSS variables only. No
+  `Dialog` from `@cratis/components/Dialogs` for data-only dialogs. **Never** a
+  vendor or hand-rolled modal.
+- No hard-coded hex or rgb colors — `--cratis-*` tokens only. No
   `!important` without a justifying comment.
 - Components live in the slice folder. No barrel `index.ts` that re-exports one
   component, and no technical `hooks/` / `utils/` / `types/` grouping at feature

@@ -6,11 +6,11 @@ description: >
   TypeScript conventions, and vertical slice correctness before merge.
 model: claude-sonnet-4-5
 tools:
-  - githubRepo
-  - codeSearch
-  - usages
-  - rename
-  - terminalLastCommand
+  - Read
+  - Grep
+  - Glob
+  - Bash
+readonly: true
 ---
 
 # Code Reviewer
@@ -110,7 +110,7 @@ When checking unused code, references, or naming, use semantic navigation if the
 
 ## TypeScript Styling checklist
 
-- [ ] No hard-coded hex/rgb values — PrimeReact CSS variables used
+- [ ] No hard-coded hex/rgb values — `--cratis-*` tokens used
 - [ ] CSS co-located with component (`.css` file in same folder)
 - [ ] No `!important` unless absolutely required and justified with a comment
 
@@ -128,7 +128,7 @@ When checking unused code, references, or naming, use semantic navigation if the
 - [ ] README.md exists for complex component folders
 - [ ] `CommandDialog` from `@cratis/components/CommandDialog` used for command-based dialogs
 - [ ] `Dialog` from `@cratis/components/Dialogs` used for data-only dialogs
-- [ ] Never imports `Dialog` directly from `primereact/dialog`
+- [ ] Never uses a vendor or hand-rolled modal — `CommandDialog` / `Dialog` from Cratis Components
 - [ ] No monolithic components — decomposed into smaller, focused sub-components
 
 ---

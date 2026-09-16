@@ -16,12 +16,29 @@ first.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Arc.Chronicle` | `22.10.4` | `[NotAudited]` in `Cratis.Arc.Chronicle.Commands`; the `ARCCHR0009` analyzer |
-| `Cratis.Chronicle` | `16.45.2` | `[PII]`, `[Subject]`, redaction, namespace isolation |
-| `Cratis.Arc.Core` | `22.10.4` | Authorization filters, `CommandResult.Unauthorized` |
+| `Cratis.Arc.Chronicle` | `22.16.0` | `[NotAudited]` in `Cratis.Arc.Chronicle.Commands`; the `ARCCHR0009` analyzer |
+| `Cratis.Chronicle` | `18.3.0` | `[PII]`, `[Subject]`, redaction, namespace isolation |
+| `Cratis.Arc.Core` | `22.16.0` | Authorization filters, `CommandResult.Unauthorized` |
+
+> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
 
 Reverify against the owning product repository before asserting a framework
 guarantee this file does not already state.
+
+## When to run this review without being asked
+
+The orchestrating agents and the PR-review prompt run it unconditionally as the
+last gate. When you are shipping directly — one agent, one branch — run it
+yourself before committing whenever the diff **adds or removes** a line carrying
+any of: `[Roles]`, `[Authorize]`, `[AllowAnonymous]`, `[ExecuteCommandsAsSystem]`;
+`[PII]`, `[Subject]`, `[NotAudited]`; `useIdentity`; or a secret-shaped identifier
+(`ConnectionString`, `PrivateKey`, `Bearer`, `Password`, `ApiKey`, `AccessToken`).
+Added *or removed* matters: a deleted `[PII]` or `[Roles]` is the change most
+worth a second pair of eyes. Match changed lines, not whole files — every slice
+contains a `[Command]` and an `[EventType]`, and a trigger that fires on every
+commit is a trigger that gets skipped. A name-based list has the same blind spot
+as `ARCCHR0009`: a secret with an innocuous property name passes it, so read the
+command's properties as well as grepping them.
 
 ## Route near misses
 

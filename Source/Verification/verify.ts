@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto';
 import { constants } from 'node:fs';
 import { access, readFile, readdir, stat } from 'node:fs/promises';
 import { basename, join, relative, resolve } from 'node:path';
+import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
+import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 
 interface Profile {
     id: string;
@@ -146,9 +148,19 @@ for (const prompt of (await readdir(join(corpus, 'prompts'))).filter(name => nam
 }
 for (const agent of (await readdir(join(corpus, 'agents'))).filter(name => name.endsWith('.md'))) {
     const path = join(corpus, 'agents', agent);
-    const metadata = frontmatter(await readFile(path, 'utf8'));
+    const content = await readFile(path, 'utf8');
+    const metadata = frontmatter(content);
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, path)} must declare name and description.`);
+    // One canonical vocabulary, resolvable on every harness: Claude Code reads it natively, Copilot and Cursor
+    // map or ignore it, the Pi extension normalizes it, and the OpenCode adapter is generated from it.
+    const canonical = parseCanonicalAgent(agent, content);
+    const unknown = canonical.tools.filter(tool => !(canonicalToolNames as readonly string[]).includes(tool));
+    if (unknown.length > 0) failures.push(`${relative(root, path)} declares tools outside the canonical vocabulary (${unknown.join(', ')}); Claude Code would refuse to launch it and Pi would launch it unrestricted.`);
+    const piError = toolsErrorFor(canonical.name, canonical.tools);
+    if (piError) failures.push(`${relative(root, path)}: ${piError}`);
+    if (canonical.readonly && canonical.tools.some(tool => tool === 'Edit' || tool === 'Write')) failures.push(`${relative(root, path)} is readonly but declares Edit/Write.`);
 }
+for (const stale of checkOpenCodeAgents(corpus)) failures.push(`OpenCode agent adapters are out of date: ${stale}`);
 for (const script of (await files(join(corpus, 'hooks', 'scripts'))).filter(path => path.endsWith('.sh'))) {
     const mode = (await stat(script)).mode;
     if ((mode & 0o111) === 0) failures.push(`${relative(root, script)} must be executable.`);

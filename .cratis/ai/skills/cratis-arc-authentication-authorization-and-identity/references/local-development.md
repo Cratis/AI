@@ -1,6 +1,6 @@
 # Running with an identity locally
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.10.4`.
+Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.16.0`.
 
 ## What Arc does not give you
 

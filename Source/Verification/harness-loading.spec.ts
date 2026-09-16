@@ -34,11 +34,21 @@ test('Pi SDK discovers the complete managed repository resources without a model
             extensions.extensions.map(extension => extension.path.split('/').slice(-2).join('/')).sort(),
             ['cratis-hooks/index.ts', 'cratis-rules/index.ts', 'subagent/index.ts'],
         );
-        assert.equal(loader.getSkills().skills.length, 53);
+        // Pi also discovers user-level skills (~/.agents/skills, ~/.pi/agent/skills); only the repository's own
+        // skills are the managed resources under test, so an operator's personal skills must not move the count.
+        const repositoryRealPath = realpathSync(repositoryRoot);
+        const repositorySkills = loader.getSkills().skills.filter(skill => realpathSync(skill.filePath).startsWith(repositoryRealPath));
+        assert.equal(repositorySkills.length, 53);
         assert.equal(loader.getPrompts().prompts.length, 18);
         const contextFiles = loader.getAgentsFiles().agentsFiles;
         assert.equal(contextFiles.length, 1);
         assert.match(contextFiles[0].content, /# Cratis — Project Instructions/);
+        // Codex reads at most `project_doc_max_bytes` of AGENTS.md - 32 KiB by default - and silently drops the
+        // rest, so the always-loaded instructions must stay under it with room for a consumer's own additions.
+        // (https://developers.openai.com/codex/guides/agents-md)
+        const codexProjectDocMaxBytes = 32 * 1024;
+        const alwaysLoadedBytes = Buffer.byteLength(contextFiles[0].content, 'utf8');
+        assert.ok(alwaysLoadedBytes <= codexProjectDocMaxBytes - 4 * 1024, `general.md is ${alwaysLoadedBytes} bytes; keep it at least 4 KiB under Codex's ${codexProjectDocMaxBytes}-byte cap`);
     } finally {
         rmSync(agentDirectory, { recursive: true, force: true });
     }
