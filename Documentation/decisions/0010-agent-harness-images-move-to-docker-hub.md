@@ -33,7 +33,9 @@ Docker Hub. The owner has now decided: Docker Hub, as `cratis/ai-agents`, `crati
   `:latest` outside a prerelease), then both derivatives built `FROM` the tag this same run just
   pushed (never a stale `latest`), so a prerelease still produces internally-consistent derivatives.
   Uses `docker/setup-buildx-action` + `docker/login-action` (both pinned to full commit SHAs, matching
-  this repository's own policy) reading `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` secrets, and the same
+  this repository's own policy) reading the `DOCKER_USERNAME`/`DOCKER_PASSWORD` Cratis-organization
+  secrets (already provisioned, visibility: all - the same two Studio's own `publish.yml` already logs
+  in to Docker Hub with), and the same
   `docker-build-push-retry.sh` retry wrapper Direct already uses (its buildx-session-timeout reasoning
   is registry-agnostic, so it moved unchanged).
 - The PR-time `verify` job gained Direct's own harness checks verbatim: shellcheck on `entrypoint.sh`
@@ -73,12 +75,14 @@ Docker Hub. The owner has now decided: Docker Hub, as `cratis/ai-agents`, `crati
 
 ## Consequences
 
-- Docker Hub publishing needs `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` added as `Cratis/AI` repository
-  secrets before `publish-agent-harnesses` can succeed - this repository has no Docker Hub credentials
-  configured yet. Until they are added, every release run's `publish-agent-harnesses` job (and
-  therefore `verify-published`) fails loudly - the same bootstrap shape `NPM_TOKEN` went through for
-  `@cratis/ai`'s first publish (decision 0004's history), surfaced here as an explicit blocker rather
-  than silently skipped.
+- Docker Hub publishing uses the `DOCKER_USERNAME`/`DOCKER_PASSWORD` organization secrets, not a
+  repository-level pair - no `Cratis/AI`-specific secret provisioning was needed. An earlier version
+  of this PR assumed repository secrets named `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` did not exist and
+  needed bootstrapping (the same shape `NPM_TOKEN` went through for `@cratis/ai`'s first publish,
+  decision 0004's history) - that assumption was wrong. The organization secrets already exist, are
+  already proven working (Studio's own `publish.yml` logs in to Docker Hub with exactly these two
+  names), and are visible to every repository in the organization, `Cratis/AI` included. The workflow
+  was corrected to use the real names once this was discovered.
 - Direct's own `build.yml`/`publish.yml` still build and push the old `ghcr.io/cratis/direct-worker-*`
   images until Direct's own migration PR (plan Section 5.7) removes that job and repoints its
   deployment at `cratis/ai-agents-claude`/`cratis/ai-agents-pi`. Until that PR merges, the two image
