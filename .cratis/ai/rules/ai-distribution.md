@@ -1,5 +1,7 @@
 ---
-applyTo: "**/*"
+applyTo: "**/.cratis/**"
+paths:
+  - "**/.cratis/**"
 ---
 
 # Shared AI Distribution
