@@ -140,3 +140,10 @@ language. Include commands that emit no event.
 - The command-rules table covers every command, including those that emit
   nothing.
 - Cross-module flows are reflected in all three places.
+
+## Route near misses
+
+- Deciding the model rather than drawing one: `cratis-chronicle-event-modeling`
+  for a hand-written Chronicle implementation, or
+  `cratis-screenplay-event-modeling` when the model is authored as a Screenplay
+  `.play` document.

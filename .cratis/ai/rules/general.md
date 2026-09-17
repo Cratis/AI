@@ -147,6 +147,8 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Writing a scan, allowlist or destructive pass that cannot pass vacuously | `guards-and-fuses.md` |
 | How the shared corpus is installed, updated and rolled back | `ai-distribution.md` |
 | Event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |
+| Designing an information system, business process or information flow as a **Screenplay** `.play` model | the **cratis-screenplay-event-modeling** skill, then the per-surface `cratis-screenplay-*` skills |
+| Rendering a settled `.play` model into an application | the **cratis-stage-rendering-and-sandbox** skill |
 | Step-by-step recipes | `.cratis/ai/skills/` |
 
 ## Source-of-Truth Discipline

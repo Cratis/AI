@@ -1,0 +1,19 @@
+{
+  "skill": "cratis-screenplay-specifications",
+  "input": "Write given/when/then specifications for a Screenplay slice.",
+  "fixtures": [],
+  "assertions": [
+    {
+      "kind": "skill-contains",
+      "value": "**`then` contains either events or an error \u2014 never both.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Views cannot reject events"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "PLAY0268"
+    }
+  ]
+}

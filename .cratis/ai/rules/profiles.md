@@ -98,8 +98,25 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 | `cratis/studio` | Studio MCP safety guidance |
 | `cratis/cli` | CLI operations |
 | `cratis/lens` | Lens browser extension |
-| `cratis/screenplay` | Screenplay event modeling |
+| `cratis/screenplay` | Event modeling and information-system design with Screenplay — the method and the whole `.play` language |
 | `cratis/stage` | Stage rendering and sandbox |
+| `cratis/modeling/screenplay-stage` | Screenplay + Stage together |
+
+### Event modeling with Screenplay
+
+`cratis/screenplay` carries the **method** and the **language**, split one skill
+per surface so only the relevant one loads:
+
+| Skill | Covers |
+| --- | --- |
+| `cratis-screenplay-event-modeling` | Domain discovery, the nine-step workflow, the four slice types, model validation |
+| `cratis-screenplay-command-surface` | `command`, `event`, `validate`, `authorize`, `produces`, `concurrency`, `constraint`, `concept`, `$context` |
+| `cratis-screenplay-projections` | The Projection Declaration Language and the `reducer` escape hatch |
+| `cratis-screenplay-read-surface` | `readmodel`, `query`, `screen`, name resolution |
+| `cratis-screenplay-ui-composition` | `layout`, templates, `form`, `contribute`, `ui profile`, `theme`, `$strings`, `file` |
+| `cratis-screenplay-captures-and-reactions` | The Change Data Capture Language, `reaction`, `trigger` |
+| `cratis-screenplay-specifications` | Given/when/then and the reference execution |
+| `cratis-screenplay-model-authoring` | The compiler, the CLI, diagnostics, and the parsed-versus-admitted boundary |
 
 ## How to Use Profiles
 

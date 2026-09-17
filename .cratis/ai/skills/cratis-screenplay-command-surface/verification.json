@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-screenplay-command-surface",
+  "input": "Declare a Screenplay command with validation, authorization and concurrency.",
+  "fixtures": [],
+  "assertions": [
+    {
+      "kind": "skill-contains",
+      "value": "A second `identifier` on the same command is an error"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`produces` and `handler` are mutually exclusive"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Two adjacent policies synthesize an implicit `and`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`identifier` on an **event** property is an error"
+    }
+  ]
+}

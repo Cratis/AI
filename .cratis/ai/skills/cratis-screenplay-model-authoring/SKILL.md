@@ -92,7 +92,7 @@ Translate`:
 
 **Inside any slice:** `description`, `event`, `command`, `query`, `projection`,
 `capture`, `reaction`, `screen`, `constraint`, `specification`, `readmodel`,
-`reducer`. An unrecognised word here is a **warning**, not an error, and its
+`reducer`. An unrecognized word here is a **warning**, not an error, and its
 block is skipped — a typo can silently drop a whole construct, so treat slice
 warnings as failures.
 
@@ -207,16 +207,20 @@ The language service ships two ways: the Monaco package
 (marketplace id `cratis.screenplay`), which is the same service plus a `.play`
 file icon.
 
-⚠️ Its keyword list has drifted from the parser. `theme`, `ui`, `form`,
-`contribute`, `dialog` and `reducer` have no keyword, tokenizer or completion
-entry in the Monaco package (the words occur only in prose and theme names),
-although all six are real constructs the compiler accepts. They get no
-highlighting and no completion. Absent highlighting is not evidence that a
-construct is wrong — check `screenplay` instead.
+Its keyword list had drifted from the parser: `capture`, `projection`, `reducer`,
+`contribute`, `dialog`, `form`, `theme` and `ui` were constructs the compiler
+accepts with no keyword entry, so they got no highlighting and no completion.
+Fixed in `Cratis/Screenplay#199`, which also added a specification deriving the
+dispatched set from the parsers so the two cannot drift apart again silently.
+
+⚠️ The general lesson stands regardless: **absent highlighting is not evidence
+that a construct is wrong** — check `screenplay` rather than the editor.
 
 The repository's TypeScript workspaces are **not** built, linted or tested by any
-pull-request workflow; they run only inside the release job. Do not read a green
-pull request as evidence the language service still compiles.
+pull-request workflow; only `dotnet-build.yml` runs tests on a pull request. Do
+not read a green pull request as evidence the language service still compiles —
+and put any guard on the language service in the C# suite, which is the one that
+actually runs.
 
 ## Verify
 
@@ -231,6 +235,18 @@ pull request as evidence the language service still compiles.
 - Specifications express the intended behavior, including the rejection cases.
 
 ## Route near misses
+
+This skill is the language and compiler reference. For the constructs themselves:
+
+| Need | Skill |
+| --- | --- |
+| Facilitating the model and the nine-step method | `cratis-screenplay-event-modeling` |
+| `command`, `event`, `validate`, `authorize`, `produces`, `concurrency`, `$context` | `cratis-screenplay-command-surface` |
+| `projection` and the PDL, `reducer` | `cratis-screenplay-projections` |
+| `readmodel`, `query`, `screen` | `cratis-screenplay-read-surface` |
+| `layout`, templates, `form`, `contribute`, `theme`, `$strings` | `cratis-screenplay-ui-composition` |
+| `capture` and the CDL, `reaction`, `trigger` | `cratis-screenplay-captures-and-reactions` |
+| `specification` | `cratis-screenplay-specifications` |
 
 - Turning a model into an application, or the runtime sandbox:
   `cratis-stage-rendering-and-sandbox`.

@@ -234,8 +234,11 @@ runtime. A green `results.json` is not a passing integration test.
 
 ## Route near misses
 
-- Writing or verifying the `.play` model itself:
-  `cratis-screenplay-model-authoring`.
+- Writing or verifying the `.play` model itself: `cratis-screenplay-model-authoring`
+  for the compiler and the admitted set, `cratis-screenplay-event-modeling` for the
+  modeling method, and the per-surface `cratis-screenplay-*` skills for the
+  constructs — command surface, projections, read surface, UI composition,
+  captures and reactions, specifications.
 - Understanding the generated Arc command, validator or read model as C#:
   `cratis-arc-command` and the Chronicle read-model guidance.
 - Inspecting the Chronicle store the sandbox writes into: the Chronicle CLI or
