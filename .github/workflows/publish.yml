@@ -5,6 +5,13 @@ name: Publish
 
 on:
   pull_request:
+    # The default set is opened, synchronize and reopened, which does not include labeling. The
+    # release-intent gate reads github.event.pull_request.labels, so on the default set a pull request
+    # opened without a release-intent label stayed red after the label was added: labeling started no
+    # run, and re-running an existing one replays the event payload captured before the label existed.
+    # The only ways out were an empty commit or closing and reopening the pull request. Labeling is the
+    # act the gate judges, so it has to be one of the events that runs it.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [main]
   workflow_dispatch:
