@@ -8,6 +8,10 @@
  * lowercase set `read, write, edit, bash, grep, find, ls`, so this module NORMALIZES the
  * shared shape to Pi semantics — the adapter layer absorbs the tool difference, exactly
  * like every other adapter in this corpus, so `.pi/agents/*.md` can stay pure symlinks.
+ * The same goes for `model:`: the canonical agents carry bare vendor model ids
+ * (`claude-opus-5`), which Pi treats as ambiguous the moment more than one authenticated
+ * provider serves that id. This module qualifies a bare id with its provider
+ * (`anthropic/claude-opus-5`) exactly like the OpenCode adapter generator does.
  */
 
 import * as fs from "node:fs";
@@ -76,6 +80,32 @@ const TOOL_NAME_MAP: Record<string, string | null> = {
 	webfetch: null,
 	websearch: null,
 };
+
+/**
+ * Provider prefixes for the bare model ids the canonical agents use — the same table the
+ * OpenCode adapter generator applies. A bare id that matches no prefix is passed through
+ * untouched so a deliberately exotic pin keeps working.
+ */
+const PROVIDER_BY_MODEL_PREFIX: Array<[prefix: string, provider: string]> = [
+	["claude-", "anthropic"],
+];
+
+/**
+ * Qualify a bare frontmatter `model` id with its provider (`claude-x` → `anthropic/claude-x`).
+ *
+ * An already-qualified id (contains `/`) is returned unchanged, as is a bare id whose vendor
+ * this table does not know. Pi resolves a bare id only while exactly one authenticated provider
+ * serves it — the moment a second provider offers the same model, every launch fails with an
+ * ambiguity error, which is why the corpus-shipped agents must always dispatch qualified.
+ */
+export function normalizeModel(value: unknown): string | undefined {
+	if (typeof value !== "string") return undefined;
+	const model = value.trim();
+	if (!model) return undefined;
+	if (model.includes("/")) return model;
+	const provider = PROVIDER_BY_MODEL_PREFIX.find(([prefix]) => model.startsWith(prefix))?.[1];
+	return provider ? `${provider}/${model}` : model;
+}
 
 /**
  * The outcome of normalizing a frontmatter `tools` value.
@@ -164,7 +194,7 @@ function loadAgentsFromDir(dir: string, source: "package" | "user" | "project"):
 			description: frontmatter.description,
 			tools: normalizeTools(frontmatter.tools),
 			toolsError: toolsErrorFor(frontmatter.name, frontmatter.tools),
-			model: typeof frontmatter.model === "string" ? frontmatter.model.trim() : undefined,
+			model: normalizeModel(frontmatter.model),
 			systemPrompt: body,
 			source,
 			filePath,
