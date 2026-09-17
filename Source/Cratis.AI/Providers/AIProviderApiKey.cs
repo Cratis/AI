@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Chronicle.Compliance.GDPR;
+
 namespace Cratis.AI.Providers;
 
 /// <summary>
@@ -14,8 +16,31 @@ namespace Cratis.AI.Providers;
 /// caller that needs the plaintext back calls <see cref="Abstractions.ISecretRevealer.Reveal"/>.
 /// Direct and Studio each supply the vault behind those two interfaces.
 /// </summary>
+/// <remarks>
+/// <para>
+/// <b><see cref="PIIAttribute"/> is a deliberate compromise, not the semantically clean answer.</b>
+/// An API key is a secret, not personal data, so by this corpus's own vocabulary
+/// <c>Cratis.Arc.Chronicle.Commands.NotAuditedAttribute</c> is the marking greenfield code should
+/// reach for. It is not enough here: Direct's original <c>AIProviders.AIProviderApiKey</c> carried
+/// <see cref="PIIAttribute"/> (alongside its now-dropped <c>[SecurityToken]</c>) specifically because
+/// some already-stored provider events predate Direct's tenant-key protection and decrypt only
+/// through Chronicle's own GDPR crypto-shredding scheme. Dropping the marking would (a) strand those
+/// values undecryptable and (b) change this property's generated JSON schema (Chronicle's schema
+/// comparison folds compliance metadata into the exact-match it runs against the already-registered
+/// schema, per <c>JsonSchemaCompatibilityExtensions.IsCompatibleWith</c>), which the pinned event-type
+/// ids this package's provider CRUD relies on cannot tolerate. <see cref="PIIAttribute"/> alone
+/// already keeps this value off a command's causation chain too -
+/// <c>Cratis.Arc.Chronicle.Commands.CommandCausationValues</c> excludes any property Chronicle's own
+/// compliance metadata provider recognizes, which a type-level <see cref="PIIAttribute"/> satisfies -
+/// so stacking <c>[NotAudited]</c> on top would add nothing and only muddy which marking is doing the
+/// work. This is a restored regression: the port that split this type out of Direct
+/// (Cratis/Direct#998) dropped both attributes, which put every subsequent Add/Reconfigure command's
+/// plaintext key on the causation chain until this fix restored <see cref="PIIAttribute"/>.
+/// </para>
+/// </remarks>
 /// <param name="Value">The underlying value - protected once a command has called
 /// <see cref="Abstractions.ISecretProtector.Protect"/>, plaintext only in flight before that point.</param>
+[PII]
 public record AIProviderApiKey(string Value) : ConceptAs<string>(Value)
 {
     /// <summary>
