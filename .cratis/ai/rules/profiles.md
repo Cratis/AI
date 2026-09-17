@@ -59,14 +59,15 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 | `cratis/application/arc-only` | Arc without Chronicle | `cratis/arc/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
 | `cratis/application/chronicle-dotnet` | Chronicle .NET client | `cratis/chronicle/client-dotnet`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
 | `cratis/application/elixir` | Elixir Chronicle client | `cratis/chronicle/client-elixir`, `cratis/language/elixir` |
-| `cratis/application/kotlin` | Kotlin Chronicle client | `cratis/arc/client-kotlin`, `cratis/chronicle/client-kotlin`, `cratis/language/kotlin` |
+| `cratis/application/kotlin` | Kotlin Arc + Chronicle application | `cratis/arc/client-kotlin`, `cratis/chronicle/client-kotlin`, `cratis/language/kotlin` |
+| `cratis/application/java` | Java Arc + Chronicle application | `cratis/arc/client-kotlin`, `cratis/chronicle/client-java`, `cratis/language/java` |
 
 ### Framework Profiles
 
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
-| `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/kotlin` |
-| `cratis/chronicle` | Chronicle event sourcing engine | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
+| `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/java`, `cratis/arc/kotlin` |
+| `cratis/chronicle` | Chronicle event sourcing engine | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/java`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
 | `cratis/components` | React component library | (no child profiles) |
 | `cratis/fundamentals` | Core primitives (`ConceptAs<T>`, `EventSourceId<T>`) | (no child profiles) |
 | `cratis/specifications` | Specification framework | (no child profiles) |
@@ -88,6 +89,26 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 | `cratis/language/typescript` | TypeScript language conventions |
 | `cratis/language/elixir` | Elixir language conventions |
 | `cratis/language/kotlin` | Kotlin language conventions |
+| `cratis/language/java` | Java language conventions |
+
+### Arc and Chronicle on the JVM (Kotlin and Java)
+
+Arc.Kotlin (`io.cratis:arc`) and its optional Chronicle integration
+(`io.cratis:arc-chronicle-spring-boot-starter`) bring the same command/query
+model-bound shape to the JVM that Arc .NET brings to C#, for both Kotlin and
+Java application code. `cratis/arc/client-kotlin` carries the skills for both
+languages — Java application code still needs Kotlin and KSP on the build,
+since Arc generates Kotlin adapters for Java declarations.
+
+| Skill | Covers |
+| --- | --- |
+| `cratis-arc-command-kotlin` | `@Command`, `handle()`/`provide()`, Chronicle event responses, command authorization, TypeScript proxy generation |
+| `cratis-arc-query-kotlin` | `@ReadModel` queries, GET vs RFC QUERY, observable queries (`Flow`, `Flow.Publisher`, RxJava 3) over SSE/WebSocket |
+| `cratis-arc-validation-kotlin` | `FluentModelValidator` shared rules, `CommandValidator`/`QueryValidator`/`ConceptValidator`/`ModelValidator`, Jakarta constraints |
+
+Standalone Chronicle client usage (no Arc) for Kotlin and Java is
+`cratis-chronicle-client-kotlin`, reused by `cratis/chronicle/client-java`.
+JVM language conventions are `kotlin.md` and `java.md`.
 
 ### Specialized Profiles
 
