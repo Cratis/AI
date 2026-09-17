@@ -155,3 +155,11 @@ remain separately authorized; a ready model authorizes none of them.
 - Personal data has a decided subject, and the subject is person-level or the
   trade-off is surfaced.
 - The specification outline names the failures, not only the happy path.
+
+## Route near misses
+
+- Modeling the same system as a **Screenplay `.play` document** rather than as a
+  brief for hand-written C#: `cratis-screenplay-event-modeling`. The method is the
+  same; the artifact is a file that compiles, and the four behavior types above
+  map onto its `StateChange`, `StateView`, `Automation` and `Translate` slices.
+- Drawing a decided model as a diagram: `cratis-event-model-diagram`.
