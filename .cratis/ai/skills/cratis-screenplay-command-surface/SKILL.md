@@ -79,7 +79,8 @@ merely consulted. Do not use it to fetch data the caller could supply.
 
 ## `validate` — the complete rule vocabulary
 
-Fourteen rule kinds, each taking an optional `message "<text>"`:
+Fourteen rule kinds (`ValidationRuleKind`), each taking an optional
+`message "<text>"`:
 
 | Rule | Example |
 | --- | --- |
@@ -92,8 +93,9 @@ Fourteen rule kinds, each taking an optional `message "<text>"`:
 | `all > <v>` / `all >= <v>` | `lines.quantity all > 0` |
 | `rule <Name>` | `orgNumber rule BeAValidOrganizationNumber` |
 
-⚠️ `!=` is accepted by the parser but **missing from the documentation table** —
-it is real; the docs are stale.
+`matches` accepts either a named pattern (`email matches email`) or a quoted
+regex, which is why the reference lists it on two rows while the parser has one
+kind for it.
 
 A `rule <Name>` may carry an indented `file <path>` or an inline code block as its
 body. A rule with no body is a complete statement that the rule exists.
