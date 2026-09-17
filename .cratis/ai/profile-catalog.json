@@ -10,6 +10,7 @@
         "cratis/application/chronicle-dotnet",
         "cratis/application/csharp",
         "cratis/application/elixir",
+        "cratis/application/java",
         "cratis/application/kotlin",
         "cratis/application/react",
         "cratis/application/typescript",
@@ -19,6 +20,7 @@
         "cratis/arc/csharp",
         "cratis/arc/ef-core",
         "cratis/arc/identity",
+        "cratis/arc/java",
         "cratis/arc/kotlin",
         "cratis/arc/react",
         "cratis/chronicle",
@@ -32,6 +34,7 @@
         "cratis/chronicle/core",
         "cratis/chronicle/csharp",
         "cratis/chronicle/elixir",
+        "cratis/chronicle/java",
         "cratis/chronicle/kotlin",
         "cratis/chronicle/mcp",
         "cratis/chronicle/multi-tenancy",
@@ -44,12 +47,14 @@
         "cratis/full",
         "cratis/full/csharp",
         "cratis/full/elixir",
+        "cratis/full/java",
         "cratis/full/kotlin",
         "cratis/full/typescript",
         "cratis/fundamentals",
         "cratis/fundamentals/type-discovery",
         "cratis/language/csharp",
         "cratis/language/elixir",
+        "cratis/language/java",
         "cratis/language/kotlin",
         "cratis/language/typescript",
         "cratis/lens",
@@ -80,6 +85,7 @@
       "composes": [
         "cratis/application/csharp",
         "cratis/application/elixir",
+        "cratis/application/java",
         "cratis/application/kotlin",
         "cratis/application/typescript",
         "cratis/arc/core",
@@ -93,6 +99,7 @@
       "languages": [
         "csharp",
         "elixir",
+        "java",
         "kotlin",
         "react",
         "typescript"
@@ -162,6 +169,17 @@
       ]
     },
     {
+      "id": "cratis/application/java",
+      "composes": [
+        "cratis/arc/client-kotlin",
+        "cratis/chronicle/client-java",
+        "cratis/language/java"
+      ],
+      "languages": [
+        "java"
+      ]
+    },
+    {
       "id": "cratis/application/kotlin",
       "composes": [
         "cratis/arc/client-kotlin",
@@ -204,18 +222,26 @@
       "id": "cratis/arc",
       "composes": [
         "cratis/arc/csharp",
+        "cratis/arc/java",
         "cratis/arc/kotlin"
       ],
       "languages": [
         "csharp",
+        "java",
+        "kotlin",
         "react",
-        "typescript",
-        "kotlin"
+        "typescript"
       ]
     },
     {
       "id": "cratis/arc/client-kotlin",
+      "availableTargets": [
+        "cratis-arc-command-kotlin",
+        "cratis-arc-query-kotlin",
+        "cratis-arc-validation-kotlin"
+      ],
       "languages": [
+        "java",
         "kotlin"
       ]
     },
@@ -275,6 +301,16 @@
       ]
     },
     {
+      "id": "cratis/arc/java",
+      "composes": [
+        "cratis/arc/client-kotlin",
+        "cratis/language/java"
+      ],
+      "languages": [
+        "java"
+      ]
+    },
+    {
       "id": "cratis/arc/kotlin",
       "composes": [
         "cratis/arc/client-kotlin",
@@ -304,6 +340,7 @@
         "cratis/chronicle/compliance",
         "cratis/chronicle/csharp",
         "cratis/chronicle/elixir",
+        "cratis/chronicle/java",
         "cratis/chronicle/kotlin",
         "cratis/chronicle/multi-tenancy",
         "cratis/chronicle/typescript",
@@ -311,10 +348,11 @@
       ],
       "languages": [
         "csharp",
-        "kotlin",
         "elixir",
-        "typescript",
-        "language-agnostic"
+        "java",
+        "kotlin",
+        "language-agnostic",
+        "typescript"
       ]
     },
     {
@@ -337,6 +375,9 @@
     },
     {
       "id": "cratis/chronicle/client-java",
+      "composes": [
+        "cratis/chronicle/client-kotlin"
+      ],
       "languages": [
         "java"
       ]
@@ -347,6 +388,7 @@
         "cratis-chronicle-client-kotlin"
       ],
       "languages": [
+        "java",
         "kotlin"
       ]
     },
@@ -416,6 +458,16 @@
       ],
       "languages": [
         "elixir"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/java",
+      "composes": [
+        "cratis/chronicle/client-java",
+        "cratis/language/java"
+      ],
+      "languages": [
+        "java"
       ]
     },
     {
@@ -522,16 +574,18 @@
       "composes": [
         "cratis/full/csharp",
         "cratis/full/elixir",
+        "cratis/full/java",
         "cratis/full/kotlin",
         "cratis/full/typescript"
       ],
       "languages": [
         "csharp",
-        "kotlin",
         "elixir",
-        "typescript",
+        "java",
+        "kotlin",
+        "language-agnostic",
         "react",
-        "language-agnostic"
+        "typescript"
       ]
     },
     {
@@ -558,6 +612,19 @@
       ],
       "languages": [
         "elixir",
+        "language-agnostic"
+      ]
+    },
+    {
+      "id": "cratis/full/java",
+      "composes": [
+        "cratis/application/java",
+        "cratis/arc/java",
+        "cratis/chronicle/java",
+        "cratis/modeling/screenplay-stage"
+      ],
+      "languages": [
+        "java",
         "language-agnostic"
       ]
     },
@@ -618,6 +685,12 @@
       "id": "cratis/language/elixir",
       "languages": [
         "elixir"
+      ]
+    },
+    {
+      "id": "cratis/language/java",
+      "languages": [
+        "java"
       ]
     },
     {
