@@ -6,7 +6,8 @@
  * to Pi via `.pi/agents/*.md` symlinks) by spawning a fresh `pi` subprocess per agent, giving
  * each an isolated context window. It mirrors Pi's official subagent example, trimmed to the
  * essentials and taught to consume the corpus's Claude-shaped agent files through
- * `./agents.ts` (which normalizes tool names and keeps model ids as-is).
+ * `./agents.ts` (which normalizes tool names and provider-qualifies bare model ids, so a
+ * `claude-*` pin dispatches as `anthropic/claude-*` and cannot be ambiguous across providers).
  *
  * Modes:
  *   - single:   { agent, task }
