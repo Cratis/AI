@@ -1,0 +1,10 @@
+{
+  "skill": "cratis-screenplay-captures-and-reactions",
+  "input": "Translate external data into events and declare a reaction.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "cannot be mixed in one clause" },
+    { "kind": "skill-contains", "value": "`where` belongs to the reaction, not to one trigger" },
+    { "kind": "skill-contains", "value": "Startup` and `Shutdown" }
+  ]
+}
