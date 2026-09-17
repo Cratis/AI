@@ -92,7 +92,7 @@ Translate`:
 
 **Inside any slice:** `description`, `event`, `command`, `query`, `projection`,
 `capture`, `reaction`, `screen`, `constraint`, `specification`, `readmodel`,
-`reducer`. An unrecognised word here is a **warning**, not an error, and its
+`reducer`. An unrecognized word here is a **warning**, not an error, and its
 block is skipped — a typo can silently drop a whole construct, so treat slice
 warnings as failures.
 
@@ -231,6 +231,18 @@ pull request as evidence the language service still compiles.
 - Specifications express the intended behavior, including the rejection cases.
 
 ## Route near misses
+
+This skill is the language and compiler reference. For the constructs themselves:
+
+| Need | Skill |
+| --- | --- |
+| Facilitating the model and the nine-step method | `cratis-screenplay-event-modeling` |
+| `command`, `event`, `validate`, `authorize`, `produces`, `concurrency`, `$context` | `cratis-screenplay-command-surface` |
+| `projection` and the PDL, `reducer` | `cratis-screenplay-projections` |
+| `readmodel`, `query`, `screen` | `cratis-screenplay-read-surface` |
+| `layout`, templates, `form`, `contribute`, `theme`, `$strings` | `cratis-screenplay-ui-composition` |
+| `capture` and the CDL, `reaction`, `trigger` | `cratis-screenplay-captures-and-reactions` |
+| `specification` | `cratis-screenplay-specifications` |
 
 - Turning a model into an application, or the runtime sandbox:
   `cratis-stage-rendering-and-sandbox`.
