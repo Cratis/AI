@@ -28,7 +28,7 @@ public record PolicyContext(
 | --- | --- | --- | --- |
 | **Command** | a command `handler` | — | the full picture |
 | **Query** | a query `performer` | — | same, with `Arguments` instead of `Command` |
-| **Rule** | a `validate` rule body | **`Identity`** | validation answers *is this value acceptable*, not *who is asking* — that is `authorize`'s job |
+| **Rule** | a `validate` rule body | **`Identity`** | a rule *may* reject based on who sent it — "you may not approve your own request" is validation, and `CausedBy` carries the caller's identifier for it. Inspecting **roles or claims** is authorization and belongs in a `policy`; leaving those out is what keeps the two apart |
 | **Policy** | a `policy` code block | **`CausedBy`, `Causation`** | a decision about the caller, not an audit record |
 
 `RuleContext` carries `Artifact` (the whole thing under validation), `Value` (the
