@@ -3,15 +3,17 @@
 Verified against `Documentation/screenplay/projections/grammar.md` and
 `Source/DotNET/Screenplay/Parsing/ProjectionParser.cs` at commit `122eee8`.
 
-Two places below are deliberately **looser than the published EBNF**, because the
-parser accepts more than that EBNF describes and both forms were confirmed by
-compiling them:
+Three things below were once looser than the published EBNF, because the parser
+accepts more than that EBNF described. `Cratis/Screenplay#199` corrected the
+reference, so the two now agree:
 
-- `EveryBlock` accepts a bare `automap` as well as `no automap`. The published
-  grammar lists only `no automap`, but `from-every.md` shows `automap` in an
-  example and `ParseMappingBlock` handles both.
-- The braces on a composite key are **optional**. The published grammar writes
-  them as required; a composite key with and without them both compile clean.
+- `EveryBlock` accepts a bare `automap` as well as `no automap`.
+- The braces on a composite key are **optional** — a composite key with and
+  without them both compile clean.
+- `$causedBy` is a valid expression root.
+
+Against a Screenplay older than that fix the published grammar is the stricter of
+the two, and this file is the accurate one.
 
 ## Grammar
 

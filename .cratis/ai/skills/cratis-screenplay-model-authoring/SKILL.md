@@ -207,16 +207,20 @@ The language service ships two ways: the Monaco package
 (marketplace id `cratis.screenplay`), which is the same service plus a `.play`
 file icon.
 
-⚠️ Its keyword list has drifted from the parser. `theme`, `ui`, `form`,
-`contribute`, `dialog` and `reducer` have no keyword, tokenizer or completion
-entry in the Monaco package (the words occur only in prose and theme names),
-although all six are real constructs the compiler accepts. They get no
-highlighting and no completion. Absent highlighting is not evidence that a
-construct is wrong — check `screenplay` instead.
+Its keyword list had drifted from the parser: `capture`, `projection`, `reducer`,
+`contribute`, `dialog`, `form`, `theme` and `ui` were constructs the compiler
+accepts with no keyword entry, so they got no highlighting and no completion.
+Fixed in `Cratis/Screenplay#199`, which also added a specification deriving the
+dispatched set from the parsers so the two cannot drift apart again silently.
+
+⚠️ The general lesson stands regardless: **absent highlighting is not evidence
+that a construct is wrong** — check `screenplay` rather than the editor.
 
 The repository's TypeScript workspaces are **not** built, linted or tested by any
-pull-request workflow; they run only inside the release job. Do not read a green
-pull request as evidence the language service still compiles.
+pull-request workflow; only `dotnet-build.yml` runs tests on a pull request. Do
+not read a green pull request as evidence the language service still compiles —
+and put any guard on the language service in the C# suite, which is the one that
+actually runs.
 
 ## Verify
 
