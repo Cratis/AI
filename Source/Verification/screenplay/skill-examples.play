@@ -1,0 +1,409 @@
+// Exercises the constructs the cratis-screenplay-* skills teach.
+// Every fragment here is copied or minimally adapted from a SKILL.md example.
+
+concept InvoiceId : Uuid
+concept CustomerId : Uuid
+concept TenantId : String
+concept InvoiceNumber : String
+concept MemberId : Uuid
+concept LineNumber : Int
+concept DiscountPercentage : Decimal
+  validate
+    >= 0    message "A discount cannot be negative"
+    <= 100  message "A discount cannot exceed 100 percent"
+concept PersonName : String @pii
+  pii reason "Billing contact name; lawful basis: contract performance."
+concept InvoiceStatus : Enum
+  draft
+  sent
+  paid
+  cancelled
+
+type InvoiceLine
+  lineNumber LineNumber
+  quantity   Int
+
+policy IsAuthenticated
+  require authenticated
+
+policy IsAccountant
+  require role "Accountant"
+
+policy CanManageInvoice
+  require role "InvoiceManager"
+    or role "Accountant"
+
+policy OwnsInvoice
+  require claim "sub" matches subject
+
+persona Accountant
+  description "Handles invoicing and collections"
+  policy IsAccountant
+
+trigger BuildFinished
+  description "CI reported a finished build on a watched repository"
+  repository String
+  outcome    String
+
+layout AppShell
+  topbar
+  navigation contributes Navigation
+  content
+  footer
+
+  arrangement flow
+    column
+      topbar height 56
+      row
+        navigation width 240
+        content grow
+      footer height 32
+
+theme Nordic
+  compatible with Cratis.Components
+
+ui profile Desktop
+  target platform web
+  target size regular
+  layout AppShell
+  theme Nordic
+  packages
+    Cratis.Components
+
+module Invoicing
+  description "Registration, lifecycle and payment tracking of invoices"
+
+  screen template MasterDetail
+    fits slot content
+    sidebar
+    main
+    arrangement flow
+      row gap 16
+        sidebar width 280
+        main grow
+
+  dialog template RegisterInvoiceDialog
+    body
+    actions
+
+  form RegisterInvoiceForm for RegisterInvoice
+    populate via query GetInvoiceDefaults by customerId
+    field invoiceNumber label "Invoice #"
+    field customerId    from item
+    on submit navigate to InvoiceList
+
+  contribute to Navigation
+    navigate to InvoiceList
+    label "Invoices"
+    order 20
+
+  feature InvoiceManagement
+    description "Registering and managing the lifecycle of invoices"
+
+    slice StateChange RegisterInvoice
+      command RegisterInvoice
+        description "Registers a new invoice with its lines and payment terms"
+        invoiceId      InvoiceId identifier
+        customerId     CustomerId
+        invoiceNumber  InvoiceNumber
+        lines          InvoiceLine[]
+        note           String?
+        isProForma     Bool
+        reads InvoiceListReadModel by invoiceNumber
+        authorize CanManageInvoice
+                  and OwnsInvoice
+        validate
+          invoiceNumber not empty                 message "Invoice number is required"
+          invoiceNumber matches "^INV-[0-9]{6}$"  message "Must look like INV-000000"
+          lines not empty                         message "An invoice must have at least one line"
+          invoiceNumber length == 10
+          customerId != "00000000-0000-0000-0000-000000000000"
+        produces InvoiceRegistered
+          for invoiceId
+          tag invoicing
+          invoiceId     = invoiceId
+          customerId    = customerId
+          invoiceNumber = invoiceNumber
+          registeredAt  = $context.occurred
+          registeredBy  = $context.identity.id
+        produces when isProForma == true
+          ProFormaInvoiceIssued
+            invoiceId = invoiceId
+        concurrency
+          eventSource
+          sourceType Invoice
+          streamType Invoicing
+          streamId Primary
+          events InvoiceRegistered, InvoiceCancelled
+
+      event InvoiceRegistered
+        tag "billing"
+        tag $context.identity.id
+        invoiceId     InvoiceId
+        customerId    CustomerId
+        invoiceNumber InvoiceNumber
+        registeredAt  DateTime
+        registeredBy  String
+
+      event ProFormaInvoiceIssued
+        invoiceId InvoiceId
+
+      event InvoiceSent
+        invoiceId InvoiceId
+        sentAt    DateTime
+
+      event InvoiceCancelled
+        invoiceId InvoiceId
+
+      event InvoiceLineItemAdded
+        invoiceId  InvoiceId
+        lineNumber LineNumber
+        quantity   Int
+
+      event InvoiceLineItemRemoved
+        invoiceId  InvoiceId
+        lineNumber LineNumber
+
+      constraint UniqueInvoiceNumber
+        unique invoiceNumber on InvoiceRegistered
+
+      constraint OneRegistrationPerInvoice
+        unique event InvoiceRegistered
+
+      specification RegisteringADraftInvoice
+        given CustomerRegistered
+          customerId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          name       = "Acme Corp"
+        when RegisterInvoice
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          customerId    = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          invoiceNumber = "INV-000123"
+        then InvoiceRegistered
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000123"
+
+      specification RejectingAnInvoiceWithNoLines
+        when RegisterInvoice
+          invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
+        then error "An invoice must have at least one line"
+
+      specification RejectingAnInvoiceWhoseNumberIsAlreadyTaken
+        given InvoiceRegistered
+          invoiceNumber = "INV-000123"
+        when RegisterInvoice
+          invoiceNumber = "INV-000123"
+        then error
+
+    slice StateView InvoiceList
+      readmodel InvoiceListReadModel
+        description "Every invoice, as the list screen shows it"
+        invoiceNumber InvoiceNumber
+        status        InvoiceStatus
+        lastUpdatedAt DateTime
+        note          String?
+
+      readmodel InvoiceDetailsReadModel
+        invoiceNumber InvoiceNumber
+        customerName  PersonName
+        status        InvoiceStatus
+        lastUpdatedAt DateTime
+
+      projection InvoiceList => InvoiceListReadModel
+        key invoiceId
+        every
+          lastUpdatedAt = $eventContext.occurred
+          exclude children
+        from InvoiceRegistered key invoiceId
+          status = "draft"
+        from InvoiceSent
+          status = "sent"
+        remove with InvoiceCancelled
+
+      projection InvoiceDetails => InvoiceDetailsReadModel
+        key invoiceId
+        no automap
+        from InvoiceRegistered key invoiceId
+          invoiceNumber = invoiceNumber
+          status        = "draft"
+          lastUpdatedAt = $eventContext.occurred
+        join customer on customerId
+          with CustomerRegistered
+            no automap
+            customerName = name
+        children lineItems identified by lineNumber
+          from InvoiceLineItemAdded key lineNumber
+            parent invoiceId
+            quantity = quantity
+          remove with InvoiceLineItemRemoved key lineNumber
+            parent invoiceId
+        remove via join on CustomerAccountClosed
+
+      query ListInvoices => InvoiceListReadModel[]
+        description "Every invoice the caller may see, narrowed by status and customer"
+        filter status     InvoiceStatus?
+        filter customerId CustomerId?
+        filter tenantId   TenantId from $context.tenant
+        authorize IsAuthenticated
+
+      query GetInvoice => InvoiceDetailsReadModel?
+        by invoiceId InvoiceId
+        authorize IsAuthenticated
+
+      query GetInvoiceDefaults => InvoiceListReadModel?
+        by customerId CustomerId
+
+      query LiveOverdueInvoices => observable InvoiceListReadModel[]
+        description "Invoices past their due date, kept current on the collections board"
+        scoped to global
+        authorize IsAccountant
+
+      screen InvoiceList
+        title "Invoices"
+        data InvoiceListReadModel[] via query ListInvoices
+        action RegisterInvoice
+          navigate to InvoiceDetailsScreen
+        action CancelInvoice
+
+      screen InvoiceDetailsScreen
+        template MasterDetail
+          sidebar
+            data InvoiceDetailsReadModel via query GetInvoice by invoiceId
+            summary InvoiceDetailsReadModel
+              field invoiceNumber label "Invoice #"
+              field status        label "Status"
+            section actions
+              action CancelInvoice
+          main
+            section lineItems
+              table lineItems
+                column lineNumber label "#"
+                column quantity   label "Qty"
+                on row-click navigate to InvoiceList
+
+      specification SendingADraftInvoice
+        given readmodel InvoiceListReadModel
+          invoiceNumber = "INV-000123"
+          status        = "draft"
+        when ChangeInvoiceStatus
+          status = "sent"
+        then readmodel InvoiceListReadModel
+          status = "sent"
+
+      specification LookingUpARegisteredInvoice
+        when RegisterInvoice
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000123"
+        then query GetInvoice
+          arguments
+            invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          result
+            invoiceNumber = "INV-000123"
+
+    slice StateChange ChangeInvoiceStatus
+      command ChangeInvoiceStatus
+        invoiceId InvoiceId identifier
+        status    InvoiceStatus
+        authorize CanManageInvoice
+        produces InvoiceSent
+          invoiceId = invoiceId
+          sentAt    = $context.occurred
+
+    slice StateChange CancelInvoice
+      command CancelInvoice
+        invoiceId InvoiceId identifier
+        authorize CanManageInvoice
+        produces InvoiceCancelled
+          invoiceId = invoiceId
+
+    slice StateView SiteStats
+      readmodel SiteStatsReadModel
+        totalLogins       Int
+        totalSystemEvents Int
+        lastActivity      DateTime
+
+      projection SiteStats => SiteStatsReadModel
+        all
+          count totalSystemEvents
+          lastActivity = $eventContext.occurred
+        from InvoiceRegistered key literal "site-stats"
+          increment totalLogins
+
+      query GetSiteStats => SiteStatsReadModel?
+        by statsId InvoiceId
+
+    slice Automation NotifyOnBuildFailure
+      reaction NotifyOnFailure
+        description "Tells the owning team when a watched build fails"
+        when BuildFinished
+          repository
+          outcome
+          invokes CancelInvoice
+            invoiceId = repository
+        where outcome == "failed" or repository starts with "critical-"
+
+      reaction OverdueChaser
+        description "Reminds the billing contact every morning while an invoice is late"
+        at 08:00 on Monday
+          produces InvoiceCancelled
+            invoiceId = $context.tenant
+
+      reaction Sweeper
+        every 15 minutes
+          produces InvoiceCancelled
+            invoiceId = $context.tenant
+
+    slice Translate LegacyInvoiceSync
+      capture LegacyInvoiceCapture
+        source api
+          api LegacyInvoicingApi
+          route /invoices
+          poll 5m
+        key id
+        map
+          status = status translate
+            "utkast" => draft
+            "sendt"  => sent
+            "betalt" => paid
+        append InvoiceSent
+          tag legacy
+          when status
+            invoiceId = $.id
+            sentAt    = $context.occurred
+        append InvoiceCancelled
+          when status from "sent" to "cancelled"
+            invoiceId = $.id
+        children lineItems identified by lineNumber
+          map
+            quantity = qty
+          append InvoiceLineItemAdded
+            when added
+              invoiceId  = $.id
+              lineNumber = $.lineNumber
+              quantity   = $.qty
+          append InvoiceLineItemRemoved
+            when removed
+              invoiceId  = $.id
+              lineNumber = $.lineNumber
+
+module Customers
+  feature Registration
+    slice StateChange RegisterCustomer
+      command RegisterCustomer
+        customerId CustomerId identifier
+        name       PersonName
+        produces CustomerRegistered
+          customerId = customerId
+          name       = name
+
+      event CustomerRegistered
+        customerId CustomerId
+        name       PersonName
+
+      event CustomerAccountClosed
+        customerId CustomerId
+
+seed
+  for "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    CustomerRegistered
+      customerId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      name       = "Acme Corp"
