@@ -37,6 +37,31 @@ Confirm the current repository workflow contract before selecting release intent
   - **minor** — new features, new slices, non-breaking additions
   - **patch** — bug fixes, refactoring with identical behavior
 
+### A major release needs a human's explicit go-ahead
+
+A `major` label is the one release-intent label a ship request does not, by
+itself, authorize through to merge. Breaking a public API is the most
+consequential and hardest-to-reverse thing a release does — every downstream
+consumer eventually has to act on it — so it gets a checkpoint the other two
+intents do not.
+
+- Prepare the branch, commits, push, and PR carrying the `major` label exactly
+  as any other ship request would.
+- Before merging, stop and ask a human to confirm the major bump specifically:
+  name the exact breaking change(s), who is affected and how, and the
+  resulting version number. A generic "ready to ship?" is not this checkpoint —
+  say plainly that this release breaks compatibility and needs a yes.
+- Proceed to merge only on an explicit, affirmative answer to that question.
+  A prior general instruction to "ship" or "land this" does not answer it,
+  even when it named `major` as the intended label.
+- This checkpoint is per release, not per conversation — a human confirming
+  one major release does not pre-authorize the next one.
+
+This narrows the general ship-changes authorization in
+[`ship-changes.prompt.md`](../prompts/ship-changes.prompt.md) for exactly this
+label; every other step of that workflow proceeds under its existing
+authority.
+
 ### A pull request that changes nothing outward-facing carries `no-release`
 
 **If nothing in the PR can change what a consumer compiles against, runs, or observes, propose repository-supported non-release intent, ordinarily `no-release`** — not `patch`. Confirm that the current workflow supports the label, requires exactly one release-intent label, and suppresses publication as intended before applying it with authorization.
