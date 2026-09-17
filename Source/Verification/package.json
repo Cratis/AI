@@ -5,8 +5,7 @@
   "scripts": {
     "check": "tsc --noEmit",
     "test": "tsx --test *.spec.ts",
-    "verify": "tsx verify.ts ../..",
-    "verify:screenplay-examples": "node screenplay/compile-examples.mjs"
+    "verify": "tsx verify.ts ../.."
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "*",
