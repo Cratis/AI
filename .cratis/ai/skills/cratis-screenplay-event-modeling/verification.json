@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-screenplay-event-modeling",
+  "input": "Facilitate an event modeling session and land the model as .play source.",
+  "fixtures": [],
+  "assertions": [
+    {
+      "kind": "skill-contains",
+      "value": "expected StateChange, StateView, Automation or Translate"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Every read-model field must trace back to"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "references/nine-steps.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "is not admitted by ESM v1"
+    }
+  ]
+}

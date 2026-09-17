@@ -1,0 +1,11 @@
+{
+  "skill": "cratis-screenplay-projections",
+  "input": "Build a read model from events with the Projection Declaration Language.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "AutoMap is on by default" },
+    { "kind": "skill-contains", "value": "PLAY0191" },
+    { "kind": "skill-contains", "value": "every event type in the system" },
+    { "kind": "skill-contains", "value": "references/pdl-grammar.md" }
+  ]
+}
