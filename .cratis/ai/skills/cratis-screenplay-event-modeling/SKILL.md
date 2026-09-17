@@ -99,8 +99,9 @@ compile or will not be safe. Both are deliberate.
 ## Naming the primitives is the highest-value work
 
 - **Concepts before events.** `concept InvoiceId : Uuid` once, and every construct
-  using it is typed end to end. Primitives are `Uuid`, `String`, `Int`, `Decimal`,
-  `Bool`, `Date`, `DateTime`, or `Enum` with values indented beneath.
+  using it is typed end to end. The seven primitives are `Uuid`, `String`, `Int`,
+  `Decimal`, `Bool`, `Date` and `DateTime`; `Enum` is a separate concept kind,
+  with its values indented beneath.
 - **Classify personal data at the concept**, with a reason:
   `concept PersonName : String @pii` plus an indented `pii reason "..."`. Every
   usage inherits it; a reason for an attribute the concept does not declare is an

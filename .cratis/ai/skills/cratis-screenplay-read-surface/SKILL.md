@@ -93,8 +93,11 @@ exactly as it binds to a one-shot one and gets updates for free.
 ### `performer`
 
 A query is **complete without a performer** — it is realization metadata, not a
-precondition. It takes a `file` reference or an inline `csharp` or `sql` block,
-and is the query's counterpart to a command's `handler`.
+precondition. It takes a `file` reference or an inline code block, and is the
+query's counterpart to a command's `handler`. `csharp` and `sql` are the two that
+make sense here; the parser accepts any registered inline language
+(`csharp`, `typescript`, `react`, `html`, `sql` are built in) and does not
+reject a nonsensical one, so the choice is yours to get right.
 
 ## `screen` — three levels
 

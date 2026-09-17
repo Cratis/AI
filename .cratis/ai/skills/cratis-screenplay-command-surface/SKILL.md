@@ -193,8 +193,10 @@ concept InvoiceStatus : Enum
   paid
 ```
 
-Primitives: `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date`, `DateTime`, or
-`Enum`. Attributes `@pii` and `@sensitive`, each with at most one `reason`; a
+The seven primitives are `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date` and
+`DateTime`. `Enum` is **not** one of them — it is a separate concept kind, which
+is why the compiler says *expected … or Enum* rather than listing it among them.
+Attributes `@pii` and `@sensitive`, each with at most one `reason`; a
 reason for an attribute the concept does not declare is an error. **Compliance is
 inherited** — a property typed with a `@pii` concept is PII everywhere.
 

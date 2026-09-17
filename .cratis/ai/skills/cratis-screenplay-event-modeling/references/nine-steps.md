@@ -156,10 +156,13 @@ slice Automation ChaseOverdueInvoices
     when InvoiceRegistered
       invoiceId
       dueDate
+      invokes MarkInvoiceOverdue
+        invoiceId = invoiceId
     where dueDate < today
-    invokes MarkInvoiceOverdue
-      invoiceId = invoiceId
 ```
+
+`produces` and `invokes` are indented **inside** the trigger; only `description`
+and `where` sit at reaction level. Outdenting an effect gives `PLAY0137`.
 
 `produces` appends a fact nothing can refuse. `invokes` asks for a command, which
 may still validate and reject. The words are different on purpose.

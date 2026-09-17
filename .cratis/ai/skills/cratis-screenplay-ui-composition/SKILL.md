@@ -194,8 +194,9 @@ the printer emits it unquoted so a round trip preserves it.
 
 Two meanings, one word. On a construct **with an implementation body** — a command
 `handler`, a validation rule predicate, a query `performer`, a reducer rule, a
-reaction trigger, a screen directive, a constraint — `file` stands in for the
-inline body. On a **pure declaration** — `concept`, `type`, `event`, `readmodel`,
+reaction trigger, a `constraint` and a `screen` — `file` stands in for the inline
+body. It sits on the **screen itself**, not on a directive inside it: `File` is a
+member of `ScreenSyntax`, and the directive types have no such member. On a **pure declaration** — `concept`, `type`, `event`, `readmodel`,
 `projection`, `slice`, `specification`, top-level `trigger` — it only records
 which file realizes it.
 
