@@ -676,7 +676,14 @@
     {
       "id": "cratis/screenplay",
       "availableTargets": [
-        "cratis-screenplay-model-authoring"
+        "cratis-screenplay-captures-and-reactions",
+        "cratis-screenplay-command-surface",
+        "cratis-screenplay-event-modeling",
+        "cratis-screenplay-model-authoring",
+        "cratis-screenplay-projections",
+        "cratis-screenplay-read-surface",
+        "cratis-screenplay-specifications",
+        "cratis-screenplay-ui-composition"
       ],
       "languages": [
         "language-agnostic"
