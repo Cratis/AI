@@ -21,11 +21,11 @@ Read from the Screenplay repository at tag `v4.12.1` (commit `122eee8`), against
 and `Source/DotNET/Screenplay/Parsing/`. Reverify before claiming another version
 behaves the same.
 
-⚠️ **The Monaco and VS Code language service does not know these words.** `theme`,
-`ui`, `form`, `contribute`, `dialog` and `reducer` are absent from its keyword and
-tokenizer lists at this commit, so they get no highlighting and no completion.
-They are still real constructs the compiler accepts — check `screenplay`, not the
-editor.
+These constructs went unhighlighted and uncompleted by the Monaco and VS Code
+language service until `Cratis/Screenplay#199` gave every construct the parser
+dispatches on a keyword entry. On an older language-service version they still
+look unrecognized — **check `screenplay`, not the editor**, because absent
+highlighting was never evidence that a construct is wrong.
 
 ## `layout` — the application shell
 
