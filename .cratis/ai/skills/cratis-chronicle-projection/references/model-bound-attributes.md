@@ -70,6 +70,19 @@ Setting it routes every matching event into a single aggregating document at
 that key. That is a different mechanism from the fluent builder's
 `UsingConstantKey("<key>")`, even though the effect is similar.
 
+## Variants
+
+| Attribute | Arity | Parameters | Targets |
+| --- | --- | --- | --- |
+| `[VariantOf<TIdentity>]` | `<TIdentity>` | none | class, struct; single |
+| `[EntersOn<T>]` | `<T>` | `(string? key = default)` | class, struct; repeatable |
+| `[GlobalFor<TIdentity>]` | `<TIdentity>` | none | class, struct; single |
+
+Requires `Cratis.Chronicle` `19.1.0` or later. See
+[variants.md](variants.md) for the full mechanics, the update-only
+reclassification of non-entering events, and the `VariantMustDeclareEntersOnEvent`
+startup trap.
+
 ## Relationships
 
 | Attribute | Arity | Parameters | Targets |
