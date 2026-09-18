@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-client-elixir
-description: Talk to a Chronicle server from an Elixir application with the cratis_chronicle Hex package - putting Chronicle.Client in a supervision tree, connection strings, use Chronicle.Events.EventType structs, Chronicle.append returning ok or error tuples, reactors with the @handles attribute and a handle/2 callback, model-bound read models, and the connection lifecycle phases and keepalive. Use when an OTP application appends to or observes a Chronicle event store. Do not use for the .NET, TypeScript, or Kotlin clients.
+description: Talk to a Chronicle server from an Elixir application with the cratis_chronicle Hex package - putting Chronicle.Client in a supervision tree, connection strings, use Chronicle.Events.EventType structs, Chronicle.append returning ok or error tuples, reactors with the @handles attribute and a handle/2 callback, model-bound and declarative read models/projections, variant_of/enters_on/GlobalHandler for an entity with mutually exclusive lifecycle shapes, and the connection lifecycle phases and keepalive. Use when an OTP application appends to or observes a Chronicle event store. Do not use for the .NET, TypeScript, or Kotlin clients.
 license: MIT
 ---
 
@@ -100,7 +100,7 @@ All configuration is **child-spec keyword options**. There is no
 | `:namespace` | `"Default"` — capital D | `:160` |
 | `:discover` | `true` | `:161` |
 | `:otp_app` | none; falls back to scanning loaded modules | `:168` |
-| `:event_types`, `:migrations`, `:reactors`, `:reducers`, `:read_models`, `:projections`, `:seeders`, `:webhooks`, `:event_store_subscriptions` | `[]`, merged with discovered | `:186-197` |
+| `:event_types`, `:migrations`, `:reactors`, `:reducers`, `:read_models`, `:projections`, `:seeders`, `:webhooks`, `:event_store_subscriptions`, `:global_handlers` | `[]`, merged with discovered | `:186-197` |
 | `:skip_tls_validation`, `:load_balancer`, `:grpc_options`, `:retry_attempts`, `:reconnect_base_delay`, `:reconnect_max_delay` | forwarded to the connection | — |
 
 > The moduledoc at `client.ex:81` says the namespace defaults to `"default"`.
@@ -311,6 +311,78 @@ A standalone projection is `use Chronicle.Projections.Projection, model: Mod`
 `reduce(event, model_or_nil, context) :: struct()`. **Reducers run in your
 process**, so the reduction is Elixir code you own.
 
+#### Variants — mutually exclusive read models for one entity's lifecycle
+
+> Requires `cratis_chronicle` `3.4.0` or later — newer than this skill's
+> `3.1.0` baseline (`lib/chronicle/projections/variant_reclassifier.ex` and
+> siblings). Reverify before claiming support; take the version from hex.pm.
+
+Some entities do not have one shape for their whole lifetime — a work item is a
+backlog entry until a pull request exists for it, then it is a pull request
+until it merges. `variant_of/2` and `enters_on/1,2` are macros imported by
+**both** `use Chronicle.ReadModels.ReadModel` and
+`use Chronicle.Projections.Projection`, so the model-bound and declarative
+paths declare a variant identically:
+
+```elixir
+defmodule MyApp.ReadModels.WorkItem do
+end
+
+defmodule MyApp.ReadModels.BacklogItem do
+  use Chronicle.ReadModels.ReadModel
+  defstruct id: nil, title: nil
+
+  variant_of MyApp.ReadModels.WorkItem, key: :id
+  enters_on MyApp.Events.IssueCreated
+
+  from MyApp.Events.IssueCreated, set: [id: :event_source_id, title: :title]
+end
+
+defmodule MyApp.ReadModels.PullRequestItem do
+  use Chronicle.ReadModels.ReadModel
+  defstruct id: nil, pull_request_url: nil, build_status: nil
+
+  variant_of MyApp.ReadModels.WorkItem, key: :id
+  enters_on MyApp.Events.PullRequestCreated
+
+  from MyApp.Events.PullRequestCreated,
+    set: [id: :event_source_id, pull_request_url: :pull_request_url]
+
+  # not the entering event -> automatically reclassified into an update-only join
+  from MyApp.Events.BuildCompleted, set: [build_status: :build_status]
+end
+```
+
+`variant_of/2` takes `:key` — **required** — the field on this variant that
+carries the shared identity. `enters_on/1,2` is repeatable and its own `:key`
+option names an *event* property (defaults to `:event_source_id`); every
+`from`/`join` this variant declares for a non-entering event, whether declared
+locally or merged from a shared handler, is automatically reclassified into an
+update-only join keyed on `variant_of`'s `:key`.
+
+A mapping shared across every variant of an identity is a
+`Chronicle.Projections.GlobalHandler`, never registered as a projection on its
+own:
+
+```elixir
+defmodule MyApp.Projections.WorkItemTitleHandler do
+  use Chronicle.Projections.GlobalHandler, identity: MyApp.ReadModels.WorkItem
+
+  from MyApp.Events.TitleChanged, set: [title: :title]
+end
+```
+
+Register it explicitly with `global_handlers: [...]` on `Chronicle.Client`, or
+let `:otp_app` auto-discovery find it (modules exporting
+`__chronicle_global_handler__/1`). A mapping that targets a field some variant
+lacks raises `Chronicle.Projections.GlobalHandlerPropertyNotOnVariant` at
+registration, not a silently skipped mapping.
+
+**A variant with no `enters_on` raises
+`Chronicle.Projections.VariantMustDeclareEntersOnEvent`** at registration — a
+variant that could never be entered could never be written to at all, since
+every other handler on it is update-only.
+
 Querying (`lib/chronicle/read_models.ex`):
 
 ```elixir
@@ -416,6 +488,8 @@ attempt.
 | Appending from a `Task` and expecting the correlation id | Ambient context is per process |
 | Treating quiet observers as "no events" | Keepalive eviction silences observers while appends still succeed |
 | Shipping the default TLS behavior | `skip_tls_validation` defaults to `true` |
+| Forgetting `global_handlers:` or `:otp_app` discovery | A `GlobalHandler` module is never merged into its variants unless registered one way or the other |
+| A shared handler mapping a field one variant lacks | `GlobalHandlerPropertyNotOnVariant` at registration, not a silently skipped mapping |
 
 ## Verify
 
@@ -428,6 +502,8 @@ attempt.
 - Every `Chronicle.append/3` call site handles `{:error, _}` as well as `:ok`.
 - Every reactor's `@handles` list matches the clauses of its `handle/2`.
 - Read model module names have distinct final segments, or explicit ids.
+- Every variant group has at least one `enters_on` per variant, and every
+  `GlobalHandler` member exists on every variant it targets.
 - Every code example was copied from `Documentation/client-snippets/`, not from
   the README.
 - `mix compile --warnings-as-errors` and `mix test` are clean.

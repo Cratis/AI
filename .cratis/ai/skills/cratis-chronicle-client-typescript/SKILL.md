@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-client-typescript
-description: Talk to a Chronicle server from a Node.js or TypeScript application with @cratis/chronicle - reflect-metadata and decorator compiler settings, ChronicleClient and connection strings, @eventType classes, eventLog.append, reactors and reducers dispatched by camelCase method name, model-bound and declarative projections, glob-based artifact discovery, and the lazy connect and keepalive lifecycle. Use when a Node application appends to or observes a Chronicle event store. Do not use for the .NET, Kotlin, or Elixir clients, and do not use for Arc React frontends or generated Arc proxies.
+description: Talk to a Chronicle server from a Node.js or TypeScript application with @cratis/chronicle - reflect-metadata and decorator compiler settings, ChronicleClient and connection strings, @eventType classes, eventLog.append, reactors and reducers dispatched by camelCase method name, model-bound and declarative projections, variants (@variantOf/@entersOn/@globalFor or .variantOf()/.entersOn()) for an entity with mutually exclusive lifecycle shapes, glob-based artifact discovery, and the lazy connect and keepalive lifecycle. Use when a Node application appends to or observes a Chronicle event store. Do not use for the .NET, Kotlin, or Elixir clients, and do not use for Arc React frontends or generated Arc proxies.
 license: MIT
 ---
 
@@ -317,6 +317,70 @@ Constraints are `@constraint()` on a class implementing `IConstraint` with a
 model-bound constraint decorators in this client** — the class-plus-builder form
 is the only one.
 
+### Variants — mutually exclusive read models for one entity's lifecycle
+
+> Requires `@cratis/chronicle` `6.2.0` or later — newer than this skill's
+> `5.1.0` baseline (`Source/projections/VariantReclassifier.ts` and siblings).
+> Reverify before claiming support; take the version from npm.
+
+Some entities do not have one shape for their whole lifetime — a work item is a
+backlog entry until a pull request exists for it, then it is a pull request
+until it merges. **Model-bound** — `@variantOf(identity, key)` and
+`@entersOn(eventType, key?)`, alongside the ordinary `@fromEvent`/`@setFrom`
+decorators:
+
+```typescript
+class WorkItem {}   // anchors the group; not itself a read model
+
+@variantOf(WorkItem, 'id')
+@entersOn(IssueCreated)
+@fromEvent(IssueCreated)
+@readModel()
+class BacklogItem {
+    id = '';
+    @setFrom(IssueCreated, 'title') title = '';
+}
+
+@variantOf(WorkItem, 'id')
+@entersOn(PullRequestCreated)
+@fromEvent(PullRequestCreated)
+@fromEvent(BuildCompleted)          // not the entering event -> update-only join
+@readModel()
+class PullRequestItem {
+    id = '';
+    @setFrom(PullRequestCreated, 'pullRequestUrl') pullRequestUrl = '';
+    @setFrom(BuildCompleted, 'buildStatus') buildStatus = '';
+}
+```
+
+`entersOn` is repeatable (a variant may enter on more than one event) and its
+`key` argument names an *event* property, defaulting to the event source id. A
+mapping shared by every variant of an identity goes on a class decorated
+`@globalFor(identity)` instead of being repeated on each variant — every
+variant it targets must actually declare the property it maps, or
+`GlobalHandlerPropertyNotOnVariant` is thrown when the group is built. A class
+carrying only `@globalFor` is never itself registered as a projection.
+
+**Declarative** — `variantOf` and `entersOn` are members of
+`IProjectionBuilderFor<TReadModel>` itself:
+
+```typescript
+@projection()
+class PullRequestItemProjection implements IProjectionFor<PullRequestItem> {
+    define(builder: IProjectionBuilderFor<PullRequestItem>): void {
+        builder
+            .variantOf(WorkItem, m => m.id)
+            .entersOn(PullRequestCreated)
+            .from(BuildCompleted);   // update-only, same reason
+    }
+}
+```
+
+**A variant that declares no `@entersOn`/`entersOn(...)` throws
+`VariantMustDeclareEntersOnEvent`** when the group is built — a variant that
+could never be entered could never be written to at all, since every other
+handler on it is update-only.
+
 ## Discovery is a runtime file glob — this is the biggest difference
 
 `ChronicleOptions.discoveryPatterns` defaults to
@@ -382,6 +446,8 @@ not work**. Use module-scope collaborators, as the shipped sample does.
 | Constructor-injecting a dependency into a reactor | There is no DI; the client constructs it |
 | Carrying a `3.x` example forward | Tags, the reducer context parameter, and two RPC names changed in `4.0.0` |
 | Reading `result.sequenceNumber` as a number | It is a `bigint` behind `.value` |
+| A `@globalFor` mapping targeting a property one variant lacks | `GlobalHandlerPropertyNotOnVariant` when the group is built, not a silently skipped mapping |
+| Expecting a `@globalFor`-only class to appear as a projection | It is never registered on its own; it is merged into its variants |
 
 ## Verify
 
@@ -397,4 +463,6 @@ not work**. Use module-scope collaborators, as the shipped sample does.
   class, and an appended event demonstrably reaches it.
 - A production connection string carries credentials and `skipTlsValidation=false`.
 - `client.dispose()` runs on shutdown.
+- Every variant group has at least one `@entersOn`/`entersOn(...)` per variant,
+  and every `@globalFor` member exists on every variant it targets.
 - Lint, `tsc`, and the test suite are clean against the verified package version.
