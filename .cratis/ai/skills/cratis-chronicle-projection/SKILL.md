@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-projection
-description: Add Chronicle projection behavior to an existing read model - model-bound attributes first, the fluent IProjectionFor<T> builder when they cannot express the shape. Covers AutoMap, keys, children and nested types, counters, event-sequence selection, and the startup-crash traps. Use when populating a read model from events; do not use to create the read model and its query surface, and do not reach for a reducer before exhausting these options.
+description: Add Chronicle projection behavior to an existing read model - model-bound attributes first, the fluent IProjectionFor<T> builder when they cannot express the shape. Covers AutoMap, keys, children and nested types, counters, event-sequence selection, variants ([VariantOf<T>]/.VariantOf<T>() and [EntersOn<T>]/.EntersOn<T>()) for an entity with mutually exclusive lifecycle shapes such as a work item that is a backlog entry then a pull request then closed, and the startup-crash traps. Use when populating a read model from events; do not use to create the read model and its query surface, and do not reach for a reducer before exhausting these options.
 license: MIT
 ---
 
@@ -104,6 +104,64 @@ query edge. Chronicle's analyzer **`CHR0042` (`JoinOverridesLocalWrite`)** repor
 the overlap; suppress it only when the join is deliberately keeping that property
 fresh.
 
+## Variants — mutually exclusive shapes for one entity's lifecycle
+
+Some entities do not have one shape for their whole lifetime — a work item is a
+backlog entry until a pull request exists for it, then it is a pull request
+until it merges. Modeling that as one read model with a `Status` property and
+an ever-growing set of nullable columns makes every query filter on state
+before it can trust a field. **Variants** let you declare several mutually
+exclusive read models for the same logical entity instead — entering one
+variant automatically removes the entity from every other variant in the
+group, so at any point an entity exists in exactly one of them. Reach for
+variants only when the shapes genuinely diverge; a single read model with a
+`Status` flag is still right when every stage shares almost all its
+properties.
+
+> Variants require `Cratis.Chronicle` `19.1.0` or later — newer than this
+> skill's `18.3.0` baseline. Reverify before claiming support.
+
+Both approaches use the identity type only to anchor the group — it does not
+need to be a read model itself, and does not need a common CLR base type with
+any of the variants.
+
+**Model-bound:** `[VariantOf<TIdentity>]` on each variant type, `[EntersOn<TEvent>]`
+naming the event that activates it, and an optional `[GlobalFor<TIdentity>]` type
+carrying mappings shared across every variant.
+
+```csharp
+[VariantOf<WorkItem>]
+[EntersOn<IssueCreated>]
+public record BacklogItem([property: Key] Guid Id, string Title);
+
+[VariantOf<WorkItem>]
+[EntersOn<PullRequestCreated>]
+public record PullRequestItem([property: Key] Guid Id, [property: SetFrom<PullRequestCreated>] string PullRequestUrl);
+```
+
+**Fluent:** `.VariantOf<TIdentity>(keyAccessor)` and `.EntersOn<TEvent>()` are
+members of `IProjectionBuilderFor<TReadModel>` itself — there is no
+`[GlobalFor<T>]` equivalent, so a shared mapping is declared with `.From<TEvent>()`
+on each variant's builder.
+
+```csharp
+public void Define(IProjectionBuilderFor<PullRequestItem> builder) => builder
+    .VariantOf<WorkItem>(_ => _.Id)
+    .EntersOn<PullRequestCreated>();
+```
+
+Only the entering event can create or resurrect a variant. Every other event a
+variant handles — declared exactly like an ordinary `.From<TEvent>()` /
+`[SetFrom<T>]` mapping — is automatically reclassified into an update-only
+join, so an out-of-order or replayed event can never resurrect a variant the
+entity has since left. A variant that declares no entering event at all throws
+`VariantMustDeclareEntersOnEvent` at startup.
+
+Read [references/variants.md](references/variants.md) for the complete group
+declaration, the update-only reclassification in full, `[GlobalFor<T>]` rules
+and its declaration-error trap, and best practices for picking an identity
+type.
+
 ## Selecting the source
 
 Class-level `[EventSequence("<name>")]`, `[EventLog]`, or `[EventStore("<name>")]`
@@ -146,6 +204,10 @@ or a reactor rather than annotating the projection.
 - **Chaining after `AutoMap()`/`NoAutoMap()`.** Those two return the base builder
   interface, so `.NotRewindable()`, `.Passive()`, `.ContainerName()`, and
   `.FromEventSequence()` will not compile after them. Put them last.
+- **A variant with no `[EntersOn<T>]` / `.EntersOn<T>()`.** Throws
+  `VariantMustDeclareEntersOnEvent` at startup — a variant that could never be
+  entered could never be written to at all. See
+  [references/variants.md](references/variants.md).
 
 ## `[FromAll]` versus `[FromEvery]`
 
@@ -177,5 +239,7 @@ projection spans streams.
 - `ConstantKey` is written as a property initializer.
 - The same event does not carry class-level `[FromEvent<T>]` on both a parent and
   a nested or child type.
+- Every variant group has at least one `[EntersOn<T>]` / `.EntersOn<T>()` per
+  variant, and every `[GlobalFor<T>]` member exists on every variant it targets.
 - The project builds clean and the read-model specifications pass against the
   verified package version.
