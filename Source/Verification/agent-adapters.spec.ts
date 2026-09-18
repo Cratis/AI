@@ -6,7 +6,7 @@ import { existsSync, readdirSync, readFileSync, readlinkSync, realpathSync } fro
 import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { canonicalToolNames, checkOpenCodeAgents, generateOpenCodeAgent, openCodeAgentsDirectory, parseCanonicalAgent, readCanonicalAgents } from '../Harness.Setup/opencode-agents.ts';
-import { discoverAgents, normalizeTools, normalizeToolsDetailed, toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
+import { discoverAgents, normalizeModel, normalizeTools, normalizeToolsDetailed, toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const corpusRoot = join(repositoryRoot, '.cratis', 'ai');
@@ -50,7 +50,20 @@ test('Pi receives exactly the canonical allowlist, translated, for every agent',
         assert.ok(launched, `${agent.name} is not discovered by the Pi subagent extension`);
         assert.equal(launched.toolsError, undefined, agent.file);
         assert.deepEqual(launched.tools, normalizeTools(agent.tools), agent.file);
+        // A bare claude-* pin must dispatch provider-qualified, or a host with two authenticated
+        // providers serving the same model refuses every launch as ambiguous.
+        if (agent.model?.startsWith('claude-')) assert.equal(launched.model, `anthropic/${agent.model}`, agent.file);
     }
+});
+
+test('a bare model id is provider-qualified at load, a qualified or unknown one is untouched', () => {
+    assert.equal(normalizeModel('claude-opus-5'), 'anthropic/claude-opus-5');
+    assert.equal(normalizeModel('  claude-sonnet-4-5  '), 'anthropic/claude-sonnet-4-5');
+    assert.equal(normalizeModel('anthropic/claude-opus-5'), 'anthropic/claude-opus-5');
+    assert.equal(normalizeModel('github-copilot/claude-opus-5'), 'github-copilot/claude-opus-5');
+    assert.equal(normalizeModel('gpt-6-codex'), 'gpt-6-codex');
+    assert.equal(normalizeModel(''), undefined);
+    assert.equal(normalizeModel(undefined), undefined);
 });
 
 test('a tools list that resolves to no Pi tool is a launch error naming the entries, never an unrestricted launch', () => {
