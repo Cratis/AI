@@ -21,6 +21,7 @@ this documentation does not cover. See that content's own `AGENTS.md`/`CLAUDE.md
   (`ISecretProtector`, `IAIAgents`, `IAgentExecution`, `AddCratisAI()`), including the ordering
   rule that makes Chronicle's type discovery actually see the package.
 - [`anthropic-credentials.md`](./anthropic-credentials.md) - credential normalization and authentication headers.
+- [`worker-console.md`](./worker-console.md) - console readiness, cancellation, and application-owned archiving.
 - [`usage.md`](./usage.md) - the usage subsystem: concepts, `AgentSessionUsageRecorded`, the
   command, the read models, and how event-type changes are handled without migrations.
 - [`migration-status.md`](./migration-status.md) - a living record of what has moved from Direct
