@@ -578,31 +578,8 @@ public class KubernetesWorkerRuntime(
     public async IAsyncEnumerable<string> StreamLogs(AgentSessionId session, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         using var client = _clients.Create();
-        var pods = await client.CoreV1.ListNamespacedPodAsync(
-            options.Value.KubernetesNamespace,
-            labelSelector: $"job-name={DockerWorkerRuntime.NameFor(session)}",
-            cancellationToken: cancellationToken);
-        var pod = pods.Items.FirstOrDefault();
-        if (pod is null)
+        await foreach (var line in KubernetesWorkerLogs.Read(client, options.Value.KubernetesNamespace, DockerWorkerRuntime.NameFor(session), cancellationToken))
         {
-            yield break;
-        }
-
-        await using var stream = await client.CoreV1.ReadNamespacedPodLogAsync(
-            pod.Metadata.Name,
-            options.Value.KubernetesNamespace,
-            container: "worker",
-            follow: true,
-            cancellationToken: cancellationToken);
-        using var reader = new StreamReader(stream);
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            var line = await reader.ReadLineAsync(cancellationToken);
-            if (line is null)
-            {
-                yield break;
-            }
-
             yield return line;
         }
     }
