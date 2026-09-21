@@ -41,19 +41,32 @@ public static class AnthropicCredential
     /// <param name="apiKey">The stored credential, already revealed.</param>
     /// <returns><see langword="true"/> when it is an OAuth token.</returns>
     public static bool IsOAuthToken(AIProviderApiKey apiKey) =>
-        apiKey.Value.StartsWith(OAuthTokenPrefix, StringComparison.Ordinal);
+        Normalize(apiKey).Value.StartsWith(OAuthTokenPrefix, StringComparison.Ordinal);
 
     /// <summary>
     /// Gets the HTTP headers required by the configured Anthropic credential.
     /// </summary>
     /// <param name="apiKey">The configured credential.</param>
     /// <returns>The authentication headers to send to Anthropic.</returns>
-    public static IReadOnlyList<KeyValuePair<string, string>> HeadersFor(AIProviderApiKey apiKey) =>
-        IsOAuthToken(apiKey)
+    public static IReadOnlyList<KeyValuePair<string, string>> HeadersFor(AIProviderApiKey apiKey)
+    {
+        var credential = Normalize(apiKey);
+        return IsOAuthToken(credential)
             ?
             [
-                new("Authorization", $"Bearer {apiKey.Value}"),
+                new("Authorization", $"Bearer {credential.Value}"),
                 new("anthropic-beta", "oauth-2025-04-20"),
             ]
-            : [new("x-api-key", apiKey.Value)];
+            : [new("x-api-key", credential.Value)];
+    }
+
+    /// <summary>
+    /// Removes whitespace introduced when an Anthropic credential is copied from wrapped terminal
+    /// output. Anthropic keys and OAuth tokens contain no whitespace; call this after revealing a
+    /// protected credential, never on ciphertext or on another provider's credential format.
+    /// </summary>
+    /// <param name="apiKey">The revealed Anthropic credential.</param>
+    /// <returns>The credential without pasted whitespace, suitable for HTTP headers or worker secrets.</returns>
+    public static AIProviderApiKey Normalize(AIProviderApiKey apiKey) =>
+        new string([.. apiKey.Value.Where(character => !char.IsWhiteSpace(character))]);
 }
