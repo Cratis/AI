@@ -44,6 +44,7 @@ published a release - nothing was batched or held back to the end.
 | #353 | `fix/dockerhub-secret-names` | Fixed `publish-agent-harnesses` to use the real `DOCKER_USERNAME`/`DOCKER_PASSWORD` Cratis-organization secrets instead of nonexistent `DOCKERHUB_USERNAME`/`DOCKERHUB_TOKEN` repository secrets - Docker Hub publishing confirmed live end to end (v2.20.1) |
 | #354 | `docs/exceptions-not-for-flow` | Strengthened `.cratis/ai/rules/csharp.md`'s Exceptions section: exceptions are for unrecoverable state only, never anticipated control flow, with a concrete before/after using `Cratis.Monads.Result` - prompted by a real violation caught in `IWorkerRuntime.Start` (see #355/decision 0012) |
 | (pending) | `fix/worker-launch-result` | Fixed the violation #354's rule was written for: `IWorkerRuntime.Start` now returns `Task<WorkerLaunchOutcome>` (`Started`/`AlreadyRunning`/`StillGoingAway`/`RefusedByCluster`) instead of throwing `WorkerIsAlreadyRunning`/`WorkerIsStillGoingAway`/`WorkerLaunchWasRefused` for three entirely anticipated outcomes; those three exception types deleted; added spec coverage for the two branches that previously threw - decision 0012 |
+| (pending) | `feat/ai-provider-usage-reporting` | `Providers/UsageReporting/` - `ICanReportAIUsage`, `AnthropicUsageReporting`/`OpenAIUsageReporting` (Console/organization usage+cost readers), `IAIUsageReporting`/`AIUsageReporting` orchestrator, `AIProviderUsageReport` live `[Passive]` query; `Providers/UsageReporting/SettingCredential/` - `SetAIProviderUsageCredential`/`ClearAIProviderUsageCredential`; `ConfiguredAIProvider` gained `UsageApiKey`. Deliberately excludes the pool-selection snapshot/level-refresh layer (`ProviderUsageLevels` and friends stay in Direct) - decision 0014 |
 
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
@@ -140,8 +141,13 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   pieces before `ProviderAwareLanguageModel` itself. Everything else it resolves through
   (concurrency gate, tier resolution, pool selection, capability checks) now exists.
 - **Available-model discovery**, reconciled from both donors.
-- **Usage reporting** (vendor billing API readers - `ICanReportAIUsage`, OpenAI/Anthropic
-  implementations).
+- ~~Usage reporting~~ (vendor billing API readers) - done for the reporting engine itself
+  (`ICanReportAIUsage`, `AnthropicUsageReporting`/`OpenAIUsageReporting`, `AIUsageReporting`
+  orchestrator, `AIProviderUsageReport` live query, `SetAIProviderUsageCredential`/
+  `ClearAIProviderUsageCredential`) - decision 0014. Deliberately still missing: the
+  pool-selection snapshot/level-refresh layer (`ProviderUsageLevels`, `RecentUsageSnapshots`,
+  `RecordAIProviderUsageSnapshot`, `AIProviderUsageSnapshot`) and `SettingUsageCapacity/` - both
+  stay in Direct until a pool-selection migration slice gives them a package-side consumer.
 - **Agents & AI configuration** - the full agent model (Direct's `Agents/` reconciled with Studio's
   `Settings/Agents/`), `AIConfiguration/`, and the explicit decision on Studio's legacy singleton AI
   settings (plan Section 5.5). `IAIAgents` exists as a lookup seam a consumer implements; the
@@ -219,6 +225,9 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
 
 ## Decisions on record
 
+- [`decisions/0014-usage-reporting-migration-slice.md`](./decisions/0014-usage-reporting-migration-slice.md) -
+  why vendor usage reporting (the live 30-day usage/cost report and its Admin credential) is its own
+  slice, split out from the pool-selection snapshot/level-refresh layer that stays in Direct.
 - [`decisions/0001-agent-identity-and-causation.md`](./decisions/0001-agent-identity-and-causation.md) -
   why identity and causation are first-class package concerns beyond the plan's original
   `IAIIdentityProvider` sketch, and why authorization stays out of the package's `IAgentExecution`.

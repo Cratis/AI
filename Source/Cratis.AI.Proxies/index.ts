@@ -16,6 +16,8 @@ export * from './generated/Providers/Adding';
 export * from './generated/Providers/Reconfiguring';
 export * from './generated/Providers/Renaming';
 export * from './generated/Providers/Removing';
+export * from './generated/Providers/UsageReporting';
+export * from './generated/Providers/UsageReporting/SettingCredential';
 
 // Studio's provider commands are named identically to Direct's own above (AddAnthropicProvider,
 // RenameAIProvider, ...) - the two really are different commands with different routes and event
