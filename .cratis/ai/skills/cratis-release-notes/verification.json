@@ -1,0 +1,11 @@
+{
+  "skill": "cratis-release-notes",
+  "input": "Write release notes for a version with a default change and an optional migration.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Exact-version release note" },
+    { "kind": "skill-contains", "value": "old behavior → new" },
+    { "kind": "skill-contains", "value": "migration from optional cleanup" },
+    { "kind": "skill-contains", "value": "drafting never authorizes publishing" }
+  ]
+}

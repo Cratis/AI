@@ -174,9 +174,10 @@ name ownership in the registry, and exact trusted-publisher registration.
 
 ## Label release intent by outward-facing effect
 
-The version label on a pull request is not paperwork describing the change; in
-a label-driven pipeline it **is the decision to ship**. Exactly one of four
-labels belongs on every pull request:
+A version label is an input to a label-driven release pipeline, not authority
+by itself. Confirm the repository's actual workflow and the user's authorized
+scope before applying it. Where that workflow requires one release-intent
+label, choose among:
 
 - **major** — a breaking change to public API or observable behavior.
 - **minor** — new capability, backward compatible.
@@ -187,6 +188,11 @@ The test is **outward-facing effect, not file location**. A change under a
 source directory that only touches tests is not shippable; a one-line change to
 a shipped package's behavior is, however small. Documentation, CI workflows,
 test-only changes, and local tooling carry `no-release`.
+
+Follow the owning pull-request policy for breaking changes. In Cratis a
+`major` pull request requires an explicit human go-ahead for the breaking
+change and resulting version before merge; a general request to ship does not
+supply that specific confirmation.
 
 `no-release` is a decision, not an omission — leaving the label off is
 indistinguishable from forgetting it, so an unlabeled pull request stays an

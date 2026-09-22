@@ -1,0 +1,11 @@
+{
+  "skill": "cratis-documentation-writing",
+  "input": "Write a getting-started page for a developer new to Chronicle, with a code example.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "## Classify before writing" },
+    { "kind": "skill-contains", "value": "## Work from the reader outward" },
+    { "kind": "skill-contains", "value": "cratis-technical-examples" },
+    { "kind": "skill-contains", "value": "## Completion checklist" }
+  ]
+}

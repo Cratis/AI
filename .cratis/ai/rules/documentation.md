@@ -18,14 +18,14 @@ We organize documentation with the [Diátaxis framework](https://diataxis.fr/). 
 
 | Type | The reader is… | Reads like | Rule |
 |---|---|---|---|
-| **Tutorial** | learning by doing | a guided lesson | Steps that each produce a visible result. Do not explain *why* — just *do this, then this*. The reader must succeed even before they fully understand. |
+| **Tutorial** | learning by doing | a guided lesson | Steps that each produce a visible result. Briefly explain the invisible effect after a step; link out for deeper theory rather than stopping the lesson. The reader must succeed even before they fully understand. |
 | **How-to guide** | solving a specific problem | a recipe | Assume competence. Goal → prerequisites → steps → done. No teaching. |
 | **Reference** | looking something up | a dictionary | Exhaustive and terse. Tables, signatures, attributes, configuration. No narrative. |
 | **Explanation** | trying to understand | a discussion | Concepts, trade-offs, architecture, *why*. No steps. Lean on diagrams. |
 
 Diátaxis governs a page's purpose and voice, not a universal set of sidebar labels. Each product has navigation buckets suited to its domain; read `PRODUCTS[].buckets` in the Documentation site's sync script before placing a new section.
 
-For authoring a single page step by step, use the `write-documentation` skill.
+For a reader-centered writing workflow, use the **cratis-documentation-writing** skill; for source-verified snippets use **cratis-technical-examples**.
 
 ## Onboarding is the most important documentation you write
 

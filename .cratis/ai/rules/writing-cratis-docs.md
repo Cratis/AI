@@ -63,7 +63,7 @@ The exact Markdown/MDX boundary, aside semantics, component contracts, import pa
 
 - Verify every framework API in a code example against real source — see [Writing Correct Code Examples](./writing-correct-examples.md). Readers paste snippets verbatim.
 - The owning repository's local documentation gate passes when one exists; when available, the sibling Documentation site's full check has zero hard lint errors and zero broken rendered links attributable to the change.
-- For a visual page, screenshot it in light **and** dark — see the `qa-cratis-docs` skill.
+- For a visual page, preview it and inspect light **and** dark screenshots using the owning site's screenshot workflow.
 
 Study the **aspire.dev** docs for strong Starlight information architecture and tour writing.
 

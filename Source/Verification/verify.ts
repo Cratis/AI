@@ -7,6 +7,7 @@ import { access, readFile, readdir, stat } from 'node:fs/promises';
 import { basename, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
+import { unprofiledSkills } from './profiled-skills.ts';
 
 interface Profile {
     id: string;
@@ -130,6 +131,9 @@ for (const profile of manifest.profiles ?? []) {
 }
 
 const skillDirectories = (await readdir(join(corpus, 'skills'), { withFileTypes: true })).filter(entry => entry.isDirectory());
+for (const name of unprofiledSkills(skillDirectories.map(entry => entry.name), profiles)) {
+    failures.push(`Skill '${name}' is not reachable from any profile.`);
+}
 for (const directory of skillDirectories) {
     const skillFile = join(corpus, 'skills', directory.name, 'SKILL.md');
     if (!await exists(skillFile)) {

@@ -1,0 +1,11 @@
+{
+  "skill": "cratis-technical-examples",
+  "input": "Document an Arc + Chronicle feature using a runnable tutorial and TypeScript and Kotlin snippets.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "## Choose the right source" },
+    { "kind": "skill-contains", "value": "**Multi-language client example:**" },
+    { "kind": "skill-contains", "value": "## Build the example as a reader would" },
+    { "kind": "skill-contains", "value": "## Stop conditions" }
+  ]
+}
