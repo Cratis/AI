@@ -1,0 +1,13 @@
+{
+  "skill": "cratis-writing-voice-and-cadence",
+  "input": "This documentation reads like it was generated. Make it sound human without changing what it says.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Never trade a claim for a smoother sentence" },
+    { "kind": "skill-contains", "value": "The fix for a template is not a better template" },
+    { "kind": "skill-contains", "value": "every hedging word" },
+    { "kind": "skill-contains", "value": "First person is not a licence to invent" },
+    { "kind": "skill-contains", "value": "Structural sameness is the more damaging half" },
+    { "kind": "skill-contains", "value": "Rewrite a tranche, read it, and only then continue" }
+  ]
+}

@@ -43,6 +43,7 @@
         "cratis/cli",
         "cratis/cli/terminal-workbench",
         "cratis/components",
+        "cratis/content",
         "cratis/documentation",
         "cratis/full",
         "cratis/full/csharp",
@@ -560,9 +561,21 @@
       ]
     },
     {
+      "id": "cratis/content",
+      "availableTargets": [
+        "cratis-social-feed-post",
+        "cratis-writing-voice-and-cadence"
+      ],
+      "languages": [
+        "markdown",
+        "language-agnostic"
+      ]
+    },
+    {
       "id": "cratis/documentation",
       "availableTargets": [
-        "cratis-documentation-writing"
+        "cratis-documentation-writing",
+        "cratis-writing-voice-and-cadence"
       ],
       "languages": [
         "markdown",

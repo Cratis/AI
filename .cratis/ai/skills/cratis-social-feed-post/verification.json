@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-social-feed-post",
+  "input": "Draft a LinkedIn post about a framework feature and format it for the feed.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "A blank line spends the line budget without spending characters" },
+    { "kind": "skill-contains", "value": "Never use Unicode pseudo-formatting" },
+    { "kind": "skill-contains", "value": "Assistive technology cannot read them" },
+    { "kind": "skill-contains", "value": "A brief opening sentence is a hook doing its job" },
+    { "kind": "skill-contains", "value": "No external link in the body" },
+    { "kind": "skill-contains", "value": "No engagement bait" },
+    { "kind": "skill-contains", "value": "unofficial approximations" }
+  ]
+}
