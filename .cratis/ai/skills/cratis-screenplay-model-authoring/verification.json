@@ -1,6 +1,6 @@
 {
-  "skill": "cratis-screenplay-specifications",
-  "input": "Write given/when/then specifications for a Screenplay slice.",
+  "skill": "cratis-screenplay-model-authoring",
+  "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
     {
@@ -13,15 +13,15 @@
     },
     {
       "kind": "skill-contains",
-      "value": "**`then` contains either events or an error \u2014 never both.**"
+      "value": "source is the single flow model"
     },
     {
       "kind": "skill-contains",
-      "value": "Views cannot reject events"
+      "value": "Use one file per module"
     },
     {
       "kind": "skill-contains",
-      "value": "PLAY0268"
+      "value": "Use one file per slice"
     }
   ]
 }

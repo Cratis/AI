@@ -3,6 +3,8 @@
   "input": "Declare a Screenplay query and the screen that binds to it.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": ".cratis/screenplay/" },
+    { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
     { "kind": "skill-contains", "value": "The tenant is the default and stays unstated" },
     { "kind": "skill-contains", "value": "belongs on a `from` parameter, never on a `filter`" },
     { "kind": "skill-contains", "value": "warnings, not errors" }

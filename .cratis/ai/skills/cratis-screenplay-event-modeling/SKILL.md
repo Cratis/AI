@@ -17,6 +17,17 @@ assumptions. Keep asking *"and then what happens?"* after every event, every
 command, every answer. Use business language. Do not discuss databases, APIs, or
 frameworks during modeling.
 
+## Locate the model
+
+Look first in `.cratis/screenplay/` at the repository root. This is the
+conventional home for consumer-owned `.play` source; do not invent another
+location or search the whole repository before checking it.
+
+`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`. Never
+hand-copy Screenplay source between repositories. Keep Markdown that explains,
+questions or navigates the model in the repository's documentation; the `.play`
+source is the single flow model.
+
 ## Verified product sources
 
 | Package | Version | Purpose |
@@ -131,14 +142,24 @@ When one is found, ask the user to clarify, create the missing element, re-valid
    instances — ask *"can there be more than one of these at once?"* for each field.
 8. No cross-cutting infrastructure is modeled as a `Translate` slice.
 
-## One file, or a folder
+## Choose a file layout
 
-Start with one file, read top to bottom. Reach for a folder when it stops being
-navigable — the invoicing sample is 981 lines with **one** module.
+Treat `.cratis/screenplay/` as one application and choose the coarsest layout
+that keeps both the source and its diffs readable:
 
-The folder layout mirrors the language, one folder per level: `application.play`
-at the root (`domain`, `import`, `concept`, `type`, `policy`, `persona`,
-`authentication`, `seed`), then `<Module>/<Module>.play`,
+- Keep one `application.play` while it stays readable top to bottom.
+- Use one file per module when modules are simple.
+- Use one file per feature when features have sub-features.
+- Use one file per slice when the model is large enough that a change must be
+  reviewable in isolation.
+
+Reviewability, not an arbitrary line count, triggers the next split. In a large
+model, one slice per file makes a scripted edit's blast radius visible in the
+diff instead of hiding cross-reference defects in a single enormous file.
+
+At the most granular layout, folders mirror the language, one folder per level:
+`application.play` at the root (`domain`, `import`, `concept`, `type`, `policy`,
+`persona`, `authentication`, `seed`), then `<Module>/<Module>.play`,
 `<Module>/…/<Feature>/<Feature>.play`, and `<Module>/…/<Slice>/<Slice>.play` for
 one slice, whole. A slice file restates its `module` and `feature`; nothing is
 written twice.
@@ -155,7 +176,7 @@ and slices come back sorted by name. Never encode meaning in order.
 ## Verify
 
 ```shell
-screenplay path/to/model --warnaserror
+screenplay .cratis/screenplay/ --warnaserror
 ```
 
 - [ ] Zero errors **and zero warnings**. An unrecognized construct inside a slice

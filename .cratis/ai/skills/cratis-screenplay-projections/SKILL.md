@@ -10,6 +10,17 @@ A `projection` folds events into a read model. Its body is the **Projection
 Declaration Language**, an embedded sub-grammar with its own parser — not free
 text. This is half of every event model, and the half most easily got wrong.
 
+## Locate the model
+
+Look first in `.cratis/screenplay/` at the repository root. This is the
+conventional home for consumer-owned `.play` source; do not invent another
+location or search the whole repository before checking it.
+
+`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`. Never
+hand-copy Screenplay source between repositories. Keep Markdown that explains,
+questions or navigates the model in the repository's documentation; the `.play`
+source is the single flow model.
+
 ## Verified product sources
 
 | Package | Version | Purpose |

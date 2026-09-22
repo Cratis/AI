@@ -18,6 +18,17 @@ application.** Nothing in it emits C#, TypeScript or any target artifact — tha
 is Stage's job, and Stage admits less than Screenplay parses. Author against that
 reality, not against the ecosystem diagram.
 
+## Locate the model
+
+Look first in `.cratis/screenplay/` at the repository root. This is the
+conventional home for consumer-owned `.play` source; do not invent another
+location or search the whole repository before checking it.
+
+`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`. Never
+hand-copy Screenplay source between repositories. Keep Markdown that explains,
+questions or navigates the model in the repository's documentation; the `.play`
+source is the single flow model.
+
 ## Verified product sources
 
 | Package | Version | Purpose |
@@ -29,11 +40,32 @@ reality, not against the ecosystem diagram.
 Behavior below is read from the repository at tag `v4.12.1`. Reverify before
 claiming another version behaves the same.
 
+## Choose a file layout
+
+Treat `.cratis/screenplay/` as one application and choose the coarsest layout
+that keeps both the source and its diffs readable:
+
+- Keep one `application.play` while it stays readable top to bottom.
+- Use one file per module when modules are simple.
+- Use one file per feature when features have sub-features.
+- Use one file per slice when the model is large enough that a change must be
+  reviewable in isolation.
+
+Reviewability, not an arbitrary line count, triggers the next split. In a large
+model, one slice per file makes a scripted edit's blast radius visible in the
+diff instead of hiding cross-reference defects in a single enormous file.
+When files are split, restate their parent `module` and `feature`; the folder
+compiler merges declarations by name before resolving references.
+
+Always verify `.cratis/screenplay/` as a folder after a change. Verifying one
+split file alone produces false unknown-name diagnostics for declarations held
+in its siblings.
+
 ## Verify a model
 
 ```shell
 dotnet tool install -g Cratis.Screenplay.Tool
-screenplay                      # or: screenplay path/to/model
+screenplay .cratis/screenplay/ --warnaserror
 ```
 
 The tool takes **one positional argument** — a directory or a single `.play`
