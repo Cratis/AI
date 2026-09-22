@@ -38,7 +38,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
         // skills are the managed resources under test, so an operator's personal skills must not move the count.
         const repositoryRealPath = realpathSync(repositoryRoot);
         const repositorySkills = loader.getSkills().skills.filter(skill => realpathSync(skill.filePath).startsWith(repositoryRealPath));
-        assert.equal(repositorySkills.length, 63);
+        assert.equal(repositorySkills.length, 65);
         assert.equal(loader.getPrompts().prompts.length, 18);
         const contextFiles = loader.getAgentsFiles().agentsFiles;
         assert.equal(contextFiles.length, 1);
@@ -56,7 +56,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
 
 test('every supported harness resolves the canonical skill corpus', () => {
     for (const path of ['.claude/skills', '.agents/skills', '.github/skills', '.cursor/skills', '.opencode/skills', '.pi/skills']) {
-        assert.equal(skillCount(join(repositoryRoot, path)), 63, path);
+        assert.equal(skillCount(join(repositoryRoot, path)), 65, path);
         assert.equal(realpathSync(join(repositoryRoot, path)), realpathSync(join(corpusRoot, 'skills')), path);
     }
 });

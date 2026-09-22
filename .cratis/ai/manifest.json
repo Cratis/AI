@@ -50,6 +50,7 @@
     "cratis/cli",
     "cratis/cli/terminal-workbench",
     "cratis/components",
+    "cratis/content",
     "cratis/documentation",
     "cratis/engineering",
     "cratis/engineering/core",
