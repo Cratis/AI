@@ -143,6 +143,6 @@ npm run check
 
 The local gate validates the authored repository in isolation. The full site check builds and syncs every available sibling product, runs site linting and rendered-link checks, and can expose unrelated sibling failures; diagnose those separately rather than silently waiving them. Some optional local tools skip when not installed, so name what actually ran.
 
-A successful build proves syntax, not presentation. For any aside, diagram, tabs, cards, or custom component change, use the `qa-cratis-docs` skill to inspect light and dark screenshots.
+A successful build proves syntax, not presentation. For any aside, diagram, tabs, cards, or custom component change, preview the owning site and inspect light and dark screenshots using its local screenshot workflow.
 
 End every file with a single trailing newline.

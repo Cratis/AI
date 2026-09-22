@@ -1,21 +1,16 @@
 ---
 name: cratis-documentation-writing
-description: Write and structure documentation using the Diátaxis framework — decide whether a page is a Tutorial, a How-to guide, Reference, or Explanation, then draft it in that style with complete runnable examples. Use when creating or reworking documentation pages for a Cratis-based project, its product, or its samples. Do not use for code generation, release operations, or inventing API facts the code does not show.
+description: Plan, write, and improve user-centered Cratis documentation with a clear reader journey and one Diátaxis purpose per page. Use for product docs, tutorials, how-to guides, reference, explanations, and documentation reviews. For executable examples use cratis-technical-examples; for release notes use cratis-release-notes. Do not invent APIs or publish content.
 license: MIT
 ---
 
 # Documentation writing
 
-Documentation fails when it is written for the writer instead of the reader.
-The [Diátaxis framework](https://diataxis.fr/) fixes that by separating
-documentation into four types, each serving one distinct user need — and by
-refusing to mix them. A page that teaches, instructs, describes, and explains
-at once serves none of those needs well.
-
-This skill is documentation-system-agnostic: it applies to a docs site, a
-`docs/` folder in a repository, a wiki, or README files. Where a page goes and
-how navigation is wired is your project's own convention; this skill governs
-the *classification*, *structure*, and *prose* of what you write.
+A developer arrives with a job to do, not with an interest in our repository
+structure. Start from that job: what did they try, what stopped them, and what
+would let them know they succeeded? Use [Diátaxis](https://diataxis.fr/) to give
+each page one primary purpose. This skill governs content and reader journeys;
+the owning repository governs page placement, navigation, and rendering.
 
 ## Classify before writing
 
@@ -30,29 +25,47 @@ Determine which quadrant the page belongs to before drafting:
 
 Rules per type:
 
-- **Tutorial** — never explain *why*; focus on *do this, then this*. Each step
-  must produce a visible, verifiable result. The reader must succeed even
-  while not yet understanding the concepts.
+- **Tutorial** — lead a newcomer through one realistic, threaded outcome.
+  Each step has a visible result. Briefly explain the invisible effect of a
+  step, then link to an explanation for deeper theory; do not interrupt the
+  lesson with a reference dump. Show the smallest configuration that runs
+  before presenting options; put host and configuration alternatives in linked
+  how-to guides.
 - **How-to guide** — assume competence. State the goal, list prerequisites,
   give the steps, done. No teaching.
-- **Reference** — exhaustive and terse. Tables, signatures, attribute lists.
-  No narrative.
+- **Reference** — exhaustive within its declared scope and terse. For each
+  public option or API, cover type, required/optional status, default, valid
+  values, return behavior, errors and compatibility where applicable. State
+  scope and link to a working usage example; do not turn it into a lesson.
 - **Explanation** — no steps. Discuss concepts, trade-offs, and design
   decisions. Diagrams are welcome here.
 
-If a request seems to need two types at once, that is two pages linked to each
-other. If the type cannot be determined from the request, ask before writing.
+If a reader needs both a lesson and a lookup, link two pages rather than
+mixing their jobs. Resolve routine audience or type choices from the request
+and neighboring pages; ask only when the alternatives change the outcome.
 
-## Workflow
+## Work from the reader outward
 
-1. **Clarify** — decide the document type, the target audience (newcomer,
-   experienced contributor, framework consumer, operator), the reader's goal,
-   and the scope: what to include *and* what to exclude.
-2. **Propose structure** — present an outline (headings plus a one-line
-   description each) before writing full content.
-3. **Write** — produce the full page in well-formatted Markdown, following the
-   style rules below.
-4. **Verify** — run the completion checklist at the end of this skill.
+1. Find the authored source, neighboring pages, existing user entry points,
+   and current product behavior. Do not edit generated site copies. Identify
+   whether the reader is new, migrating, troubleshooting, or looking up an API.
+2. Write the question they came with and the success signal in one sentence.
+   Draft a title and first paragraph that make the problem and payoff clear;
+   avoid opening with an abstract product definition or an internal type name.
+3. Trace a short route from that page to one canonical getting-started journey,
+   targeted recipes, and exact reference. Offer task- and background-based
+   links without inventing competing quickstarts. A 'coming from X' bridge
+   should map familiar concepts to the new workflow, not replace it.
+4. Draft in workflow order. For a tutorial, use one working domain throughout,
+   show what to run and what appears, and recap before adding another concept.
+   For a how-to, keep only what the specific task needs. Link out for details.
+5. Read the rendered page as a newcomer: could they find it, begin without
+   hidden prerequisites, recover from a common mistake, and recognize success?
+   Then check claims, examples, accessibility, links, and the owning gates.
+
+Use support questions and user feedback as evidence: ask what they searched
+for, where they looked, and which step failed. Repair the entry link, wording,
+or example as appropriate; adding another FAQ entry alone may not fix discovery.
 
 ## Writing style
 
@@ -63,31 +76,48 @@ explaining something to a capable developer, confident but never condescending.
   event is appended by Chronicle."
 - **Second person.** "You configure…", not "One configures…" or "It is
   possible to configure…".
-- **Lead with the most important information.** Do not bury the key point
-  after three paragraphs of context.
+- **Lead with the reader's problem and payoff.** Explain why a capability
+  matters before its configuration, except in a terse how-to or reference.
 - Use headings, lists, and code blocks to organize content; dense paragraphs
   lose readers.
-- Focus on public APIs and features, never internal implementation.
-- Do not document third-party libraries; link to their own docs instead.
+- Focus on public behavior. Explain what happens behind an example when the
+  reader needs it to understand the result, without turning the page into an
+  internal implementation manual.
+- Teach the intended idioms: show the conventional shape of a solution and
+  explain why a tempting non-idiomatic approach causes trouble. Distinguish a
+  framework requirement from a house convention; avoid making a workaround the
+  first example a newcomer copies.
+- State limitations, maturity, compatibility, and when the simpler approach
+  is preferable. Link to third-party docs instead of retelling them.
+- Vary sentence and paragraph rhythm; avoid templated openings and filler.
+  A voice edit must never weaken a technical caveat or invent experience.
 - **American English only**: `color` not `colour`, `behavior` not `behaviour`,
   `organize` not `organise`, `initialize` not `initialise`.
 
-## Code examples
+## AI-assisted drafting
 
-Examples are where documentation credibility is won or lost.
+Use AI to find gaps, compare terminology and review a draft, but do not let
+plausible generated prose decide what problem the product solves. Ground the
+reader journey in observed use cases and have the owning maintainer review
+structural changes. A style pass cannot establish technical correctness.
+Do not rewrite an entire corpus into one repeated template.
 
-- Every example must be **complete, correct, and runnable** — no pseudo-code,
-  no `// ...` elisions. If it cannot be shown complete, show a smaller thing
-  that can.
-- Never copy code verbatim from a repository — APIs change under copied
-  examples. Write purpose-built examples that demonstrate the documented
-  behavior.
-- Prefer the framework's canonical shapes. In a Cratis context that means
-  `record` types for commands, events, and read models; attributes as the
-  framework applies them; and the vertical-slice layout the project already
-  uses.
-- Show the outcome: expected output, the state change, or the query result an
-  example produces, so the reader can verify their attempt.
+For machine-readable delivery and retrieval checks, use
+**cratis-llm-friendly-documentation**; publishing `llms-full.txt` alone does
+not prove that an assistant can find the right page or cite it accurately.
+
+## Examples and maintenance
+
+Use **cratis-technical-examples** to choose between a short verified
+illustration and a snippet extracted from compiling, tested sample source.
+Never transcribe an API from memory, hand-translate an unsupported client, or
+claim a pasted block is runnable when it requires unstated setup. Show the
+command and observable output for a substantial walkthrough.
+
+Keep the page-specific edit link aimed at the *authored* file, not a synced
+copy. Recheck examples against the supported version when that version changes.
+A review of docs is not complete just because the site builds: syntax and
+behavior are different checks.
 
 ## Diagrams
 
@@ -106,6 +136,16 @@ prose; it does not decorate one.
 - Do not fabricate URLs or version numbers — link only to resources you can
   verify exist.
 
+## Inspiration, not a template
+
+Jeremy Miller describes user-centered journeys, tutorial-to-reference links,
+source-checked snippets, and a quick edit/publish loop in his
+[OSS-community account](https://jeremydmiller.com/2026/07/08/things-that-have-worked-for-our-oss-community/)
+and [documentation essay](https://www.linkedin.com/pulse/effective-oss-documentation-jeremy-miller-bh1ac/).
+His account is experience, not evidence that a particular site generator or AI
+model causes better documentation. Borrow the reader and maintenance habits;
+do not copy Wolverine's information architecture onto a different product.
+
 ## Completion checklist
 
 A page is done when:
@@ -113,9 +153,13 @@ A page is done when:
 - The Diátaxis type is chosen deliberately and the page holds to that one
   type, linking out to the other types instead of drifting into them.
 - The audience and their goal were identified before writing, and the first
-  screen serves that goal.
-- Every code example is complete, runnable, and purpose-built.
-- Terminology is consistent with the surrounding documentation.
+  screen serves that goal. The first working path needs no unexplained setup
+  or up-front choice among configuration alternatives.
+- Examples teach intended idioms and identify relevant traps without turning
+  a tutorial into an exhaustive list of alternatives.
+- Examples are source-verified, complete at their stated scope, and show a
+  checkable result; longer examples come from compiling sample or spec source.
+- The entry point, terminology, and next-step links fit the surrounding docs.
 - All internal links resolve; all external links are real.
 - Mermaid blocks are syntactically valid.
 - The file ends with a single trailing newline.

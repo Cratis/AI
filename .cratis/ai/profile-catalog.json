@@ -563,7 +563,9 @@
     {
       "id": "cratis/content",
       "availableTargets": [
+        "cratis-release-notes",
         "cratis-social-feed-post",
+        "cratis-technical-examples",
         "cratis-writing-voice-and-cadence"
       ],
       "languages": [
@@ -575,6 +577,10 @@
       "id": "cratis/documentation",
       "availableTargets": [
         "cratis-documentation-writing",
+        "cratis-engineering-docs-authoring",
+        "cratis-llm-friendly-documentation",
+        "cratis-release-notes",
+        "cratis-technical-examples",
         "cratis-writing-voice-and-cadence"
       ],
       "languages": [
@@ -856,7 +862,9 @@
       "availableTargets": [
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
-        "cratis-engineering-effect-boundaries"
+        "cratis-engineering-effect-boundaries",
+        "cratis-release-notes",
+        "cratis-technical-examples"
       ],
       "languages": [
         "language-agnostic"
