@@ -5,6 +5,14 @@
   "assertions": [
     {
       "kind": "skill-contains",
+      "value": ".cratis/screenplay/"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`"
+    },
+    {
+      "kind": "skill-contains",
       "value": "A second `identifier` on the same command is an error"
     },
     {

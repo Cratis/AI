@@ -3,6 +3,8 @@
   "input": "Declare the application shell, a screen template and a command form.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": ".cratis/screenplay/" },
+    { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
     { "kind": "skill-contains", "value": "A form is discovered, not referenced" },
     { "kind": "skill-contains", "value": "declares no\n`fits slot`" },
     { "kind": "skill-contains", "value": "override-priority order" }

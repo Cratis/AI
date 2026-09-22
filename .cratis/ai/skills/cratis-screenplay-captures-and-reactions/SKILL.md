@@ -10,6 +10,17 @@ The two slice types that run without anyone pressing a button. A `capture` in a
 `Translate` slice turns outside data into events; a `reaction` in an `Automation`
 slice runs when something happens.
 
+## Locate the model
+
+Look first in `.cratis/screenplay/` at the repository root. This is the
+conventional home for consumer-owned `.play` source; do not invent another
+location or search the whole repository before checking it.
+
+`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`. Never
+hand-copy Screenplay source between repositories. Keep Markdown that explains,
+questions or navigates the model in the repository's documentation; the `.play`
+source is the single flow model.
+
 ## Verified product sources
 
 | Package | Version | Purpose |

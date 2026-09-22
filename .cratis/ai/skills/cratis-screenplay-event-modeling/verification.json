@@ -5,6 +5,18 @@
   "assertions": [
     {
       "kind": "skill-contains",
+      "value": ".cratis/screenplay/"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Use one file per slice"
+    },
+    {
+      "kind": "skill-contains",
       "value": "expected StateChange, StateView, Automation or Translate"
     },
     {
