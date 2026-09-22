@@ -6,6 +6,7 @@ using Cratis.AI.Providers.Adding;
 using Cratis.AI.Providers.Configuring;
 using Cratis.AI.Providers.Reconfiguring;
 using Cratis.AI.Providers.Removing;
+using Cratis.AI.Providers.UsageReporting.SettingCredential;
 
 namespace Cratis.AI.Providers;
 
@@ -36,11 +37,11 @@ namespace Cratis.AI.Providers;
 /// for why this package carries both shapes rather than forcing one onto the other.
 /// </para>
 /// <para>
-/// <b>Still narrower than either donor</b> - <c>ConfiguredAIProvider</c> there additionally
-/// accumulates a usage-reporting credential, a rate-limited-until timestamp and resolved tier
-/// models, from subsystems (usage reporting, rate limiting, tier-model configuration) that do not
-/// exist in the package yet (plan Section 5.2 steps 5-6). This record's own shape should not need to
-/// change when those land - only its <c>[FromEvent]</c>/<c>[SetFrom]</c> wiring gains more sources.
+/// <b>Narrower than either donor in one remaining respect</b> - <c>ConfiguredAIProvider</c> there
+/// additionally accumulates a rate-limited-until timestamp and resolved tier models, from subsystems
+/// (rate limiting, tier-model configuration) that do not exist in the package yet (plan Section 5.2
+/// step 6). This record's own shape should not need to change when those land - only its
+/// <c>[FromEvent]</c>/<c>[SetFrom]</c> wiring gains more sources.
 /// </para>
 /// </remarks>
 [ReadModel]
@@ -54,6 +55,8 @@ namespace Cratis.AI.Providers;
 [FromEvent<OpenAIModelConfigured>]
 [FromEvent<AzureOpenAIModelConfigured>]
 [FromEvent<OpenAICompatibleModelConfigured>]
+[FromEvent<AIProviderUsageCredentialSet>]
+[FromEvent<AIProviderUsageCredentialCleared>]
 [RemovedWith<AIProviderRemoved>]
 [RemovedWith<AIModelRemoved>]
 public record ConfiguredAIProvider(
@@ -102,4 +105,21 @@ public record ConfiguredAIProvider(
     [SetFrom<OpenAIModelConfigured>(nameof(OpenAIModelConfigured.Model))]
     [SetFrom<AzureOpenAIModelConfigured>(nameof(AzureOpenAIModelConfigured.DeploymentName))]
     [SetFrom<OpenAICompatibleModelConfigured>(nameof(OpenAICompatibleModelConfigured.Model))]
-    ModelName? Model = null);
+    ModelName? Model = null)
+{
+    /// <summary>
+    /// Gets the Admin API key this provider's vendor usage-and-cost report is read through -
+    /// <see cref="AIProviderApiKey.NotSet"/> until one is configured.
+    /// </summary>
+    /// <remarks>
+    /// A non-nullable sentinel-default property, not a nullable one, deliberately matching Direct's
+    /// own donor shape (<c>Resolving.ConfiguredAIProvider.UsageApiKey</c>): a nullable member on a
+    /// <c>[Passive]</c> read model comes back <see langword="null"/> from the running kernel no
+    /// matter what the events say, while an in-process specification populates it happily - so a
+    /// real production gap here is invisible to every specification that would otherwise catch it.
+    /// Cleared by setting the sentinel rather than by <c>[ClearWith]</c>, for the same reason.
+    /// </remarks>
+    [SetFrom<AIProviderUsageCredentialSet>(nameof(AIProviderUsageCredentialSet.UsageApiKey))]
+    [SetValue<AIProviderUsageCredentialCleared>("")]
+    public AIProviderApiKey UsageApiKey { get; init; } = AIProviderApiKey.NotSet;
+}
