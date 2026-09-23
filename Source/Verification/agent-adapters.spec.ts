@@ -20,6 +20,7 @@ test('every canonical agent declares a non-empty tools list in the canonical voc
     assert.equal(canonicalAgents.length, 12);
     for (const agent of canonicalAgents) {
         assert.ok(agent.tools.length > 0, `${agent.file} declares no tools`);
+        assert.equal(agent.model, undefined, `${agent.file} must inherit the session model`);
         for (const tool of agent.tools) assert.ok((canonicalToolNames as readonly string[]).includes(tool), `${agent.file}: ${tool}`);
     }
 });
@@ -50,6 +51,7 @@ test('Pi receives exactly the canonical allowlist, translated, for every agent',
         assert.ok(launched, `${agent.name} is not discovered by the Pi subagent extension`);
         assert.equal(launched.toolsError, undefined, agent.file);
         assert.deepEqual(launched.tools, normalizeTools(agent.tools), agent.file);
+        assert.equal(launched.model, undefined, `${agent.file} must inherit the Pi session model`);
     }
 });
 
@@ -81,7 +83,7 @@ test('the OpenCode adapters are generated from the canonical agents and are curr
         const canEdit = agent.tools.includes('Edit') || agent.tools.includes('Write');
         assert.ok(frontmatter.includes(`  edit: ${canEdit ? 'allow' : 'deny'}`), `${agent.file} edit permission`);
         assert.ok(frontmatter.includes(`  bash: ${agent.tools.includes('Bash') ? 'allow' : 'deny'}`), `${agent.file} bash permission`);
-        if (agent.model?.startsWith('claude-')) assert.ok(frontmatter.includes(`model: anthropic/${agent.model}`), `${agent.file} model`);
+        assert.ok(!frontmatter.some(line => line.startsWith('model:')), `${agent.file} must inherit the OpenCode session model`);
         assert.ok(content.endsWith(agent.body), `${agent.file} body must be the canonical body`);
     }
 });
@@ -91,6 +93,8 @@ test('the generator refuses a canonical agent it cannot express faithfully', () 
     assert.throws(() => generateOpenCodeAgent(readonlyEditor), /readonly but declares Edit\/Write/);
     const foreignVocabulary = parseCanonicalAgent('bad.md', '---\nname: Bad\ndescription: x\ntools: [githubRepo]\n---\nbody\n');
     assert.throws(() => generateOpenCodeAgent(foreignVocabulary), /outside the canonical vocabulary/);
+    const pinnedModel = parseCanonicalAgent('bad.md', '---\nname: Bad\ndescription: x\ntools: [Read]\nmodel: claude-sonnet-4-5\n---\nbody\n');
+    assert.throws(() => generateOpenCodeAgent(pinnedModel), /pins a model/);
 });
 
 test('every harness that receives agents resolves them to the intended source', () => {

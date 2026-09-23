@@ -8,7 +8,6 @@ description: >
   Use this agent as the entry point whenever multiple agents need to work together
   as a team: mixed implementation + documentation + review, multi-feature work,
   large refactors, or any goal that spans more than one concern.
-model: claude-sonnet-4-5
 tools:
   - Read
   - Grep
