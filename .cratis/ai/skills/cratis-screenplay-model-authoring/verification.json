@@ -22,6 +22,26 @@
     {
       "kind": "skill-contains",
       "value": "Use one file per slice"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Prefer the Screenplay MCP tools"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "cratis screenplay mcp .cratis/screenplay"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "propose-rename"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Only `apply` and `recover-workspace` write"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`Safe`"
     }
   ]
 }

@@ -138,7 +138,14 @@ per surface so only the relevant one loads:
 | `cratis-screenplay-ui-composition` | `layout`, templates, `form`, `contribute`, `ui profile`, `theme`, `$strings`, `file` |
 | `cratis-screenplay-captures-and-reactions` | The Change Data Capture Language, `reaction`, `trigger` |
 | `cratis-screenplay-specifications` | Given/when/then and the reference execution |
-| `cratis-screenplay-model-authoring` | The compiler, the CLI, diagnostics, and the parsed-versus-admitted boundary |
+| `cratis-screenplay-model-authoring` | Typed MCP authoring, model navigation/refactoring, compiler diagnostics, and source-versus-executable readiness |
+
+The profile also selects the corpus-owned Screenplay MCP declaration from
+`mcp-servers.json`. The Cratis CLI hosts the server as `cratis screenplay mcp`
+and registers a scoped entry for supported clients without replacing their other
+servers. Inspect install/status results for adapter support or configuration
+conflicts. The conventional model root is `.cratis/screenplay/`; project-owned
+configuration can choose another root.
 
 ## How to Use Profiles
 
