@@ -8,7 +8,6 @@ description: >
   as a team: mixed implementation + documentation + review, multi-feature work,
   large refactors, or any goal that spans more than one concern.
 mode: subagent
-model: anthropic/claude-sonnet-4-5
 permission:
   edit: deny
   bash: allow

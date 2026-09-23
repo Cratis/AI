@@ -9,8 +9,9 @@
  * VS Code Copilot and Cursor read `.claude/agents` and map or ignore what they need, and the Pi subagent
  * extension normalizes the tool names at load time. OpenCode is the one harness whose schema is
  * structurally different: it has no `tools:` allowlist (its `tools:` is a deprecated name→boolean map),
- * restriction is a `permission:` map, `mode: subagent` is required for delegation, and `model` takes the
- * `provider/id` form. A symlink to the canonical file cannot express any of that, so OpenCode receives
+ * restriction is a `permission:` map and `mode: subagent` is required for delegation. Neither the
+ * canonical agents nor the generated adapters pin a model, so they inherit the session model. A symlink
+ * to the canonical file cannot express the tool restrictions, so OpenCode receives
  * generated files under `.cratis/ai/harnesses/opencode/agents/` — derived, checked, never hand-edited.
  *
  * Every other harness keeps pointing at the canonical directory. The cratis CLI already copies and links
@@ -55,11 +56,6 @@ export const canonicalToolNames = ['Read', 'Grep', 'Glob', 'Bash', 'Edit', 'Writ
 export const generatedAgentMarkerPrefix = '<!-- cratis-ai: generated OpenCode adapter of agents/';
 const generatedMarker = (source: string) =>
     `${generatedAgentMarkerPrefix}${source}. Do not edit; the canonical agent is the source. -->`;
-
-/** Provider prefixes for the bare model ids the canonical agents use. */
-const providerByModelPrefix: Array<[prefix: string, provider: string]> = [
-    ['claude-', 'anthropic'],
-];
 
 function splitFrontmatter(file: string, text: string): { frontmatter: string[]; body: string } {
     if (!text.startsWith('---\n')) throw new Error(`${file} has no frontmatter.`);
@@ -124,6 +120,7 @@ export function generateOpenCodeAgent(agent: CanonicalAgent): GeneratedAgent {
     if (unknown.length > 0) {
         throw new Error(`${agent.file} declares tools outside the canonical vocabulary: ${unknown.join(', ')}.`);
     }
+    if (agent.model !== undefined) throw new Error(`${agent.file} pins a model; canonical agents must inherit the session model.`);
     if (agent.readonly && agent.tools.some(tool => tool === 'Edit' || tool === 'Write')) {
         throw new Error(`${agent.file} is readonly but declares Edit/Write.`);
     }
@@ -141,8 +138,6 @@ export function generateOpenCodeAgent(agent: CanonicalAgent): GeneratedAgent {
     const canEdit = agent.tools.includes('Edit') || agent.tools.includes('Write');
     const canBash = agent.tools.includes('Bash');
     const lines = ['---', ...description, 'mode: subagent'];
-    const provider = agent.model ? providerByModelPrefix.find(([prefix]) => agent.model!.startsWith(prefix))?.[1] : undefined;
-    if (agent.model && provider) lines.push(`model: ${provider}/${agent.model}`);
     lines.push('permission:', `  edit: ${canEdit ? 'allow' : 'deny'}`, `  bash: ${canBash ? 'allow' : 'deny'}`, '---');
 
     return {
