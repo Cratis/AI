@@ -18,4 +18,10 @@ public enum AIProviderCapability
     /// The provider can drive work delegated to an agent harness.
     /// </summary>
     Agentic = 1,
+
+    /// <summary>
+    /// The provider can weigh a supplied set of choices and return a probability distribution over
+    /// them. Independent of the generative capabilities - a provider may offer this and nothing else.
+    /// </summary>
+    Decision = 2,
 }

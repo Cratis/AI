@@ -52,6 +52,25 @@ public static class AIModelCapabilities
     }
 
     /// <summary>
+    /// Gets the capabilities known for a model reached through a given provider type.
+    /// </summary>
+    /// <param name="type">The provider type the model is reached through.</param>
+    /// <param name="model">The exact provider model identifier.</param>
+    /// <returns>The known capabilities.</returns>
+    /// <remarks>
+    /// The substring heuristic <see cref="For(ModelName)"/> uses cannot see a decision model: a
+    /// small open model's identifier carries no marker that distinguishes it from a chat model, and
+    /// the existing markers would happily label it conversational. For a decision provider the
+    /// capability is therefore declared by provider type, not sniffed from a string - which is also
+    /// the only honest answer, since what the model can do there is decided by the service in front
+    /// of it rather than by the weights.
+    /// </remarks>
+    public static IReadOnlySet<AIModelCapability> For(AIProviderType type, ModelName model) =>
+        type == AIProviderType.DecisionEngine
+            ? new HashSet<AIModelCapability> { AIModelCapability.Decision }
+            : For(model);
+
+    /// <summary>
     /// Produces a friendly display name without changing the provider identifier.
     /// </summary>
     /// <param name="model">The exact provider model identifier.</param>

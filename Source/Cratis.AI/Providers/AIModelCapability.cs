@@ -28,4 +28,9 @@ public enum AIModelCapability
     /// The model accepts image input.
     /// </summary>
     Vision = 3,
+
+    /// <summary>
+    /// The model can score a bounded set of choices and return a probability distribution over them.
+    /// </summary>
+    Decision = 4,
 }

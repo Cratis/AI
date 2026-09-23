@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.AI.Decisions.Adding;
+using Cratis.AI.Decisions.Reconfiguring;
 using Cratis.AI.Providers.Adding;
 using Cratis.AI.Providers.Configuring;
 using Cratis.AI.Providers.Reconfiguring;
@@ -51,6 +53,8 @@ namespace Cratis.AI.Providers;
 [FromEvent<AzureOpenAIProviderAdded>]
 [FromEvent<OpenAICompatibleProviderAdded>]
 [FromEvent<ZAIProviderAdded>]
+[FromEvent<DecisionEngineProviderAdded>]
+[FromEvent<DecisionEngineProviderReconfigured>]
 [FromEvent<AnthropicModelConfigured>]
 [FromEvent<OpenAIModelConfigured>]
 [FromEvent<AzureOpenAIModelConfigured>]
@@ -66,6 +70,7 @@ public record ConfiguredAIProvider(
     [SetValue<AzureOpenAIProviderAdded>(AIProviderType.AzureOpenAI)]
     [SetValue<OpenAICompatibleProviderAdded>(AIProviderType.OpenAICompatible)]
     [SetValue<ZAIProviderAdded>(AIProviderType.ZAI)]
+    [SetValue<DecisionEngineProviderAdded>(AIProviderType.DecisionEngine)]
     [SetValue<AnthropicModelConfigured>(AIProviderType.Anthropic)]
     [SetValue<OpenAIModelConfigured>(AIProviderType.OpenAI)]
     [SetValue<AzureOpenAIModelConfigured>(AIProviderType.AzureOpenAI)]
@@ -76,6 +81,8 @@ public record ConfiguredAIProvider(
     [SetFrom<AzureOpenAIProviderAdded>(nameof(AzureOpenAIProviderAdded.ApiKey))]
     [SetFrom<OpenAICompatibleProviderAdded>(nameof(OpenAICompatibleProviderAdded.ApiKey))]
     [SetFrom<ZAIProviderAdded>(nameof(ZAIProviderAdded.ApiKey))]
+    [SetFrom<DecisionEngineProviderAdded>(nameof(DecisionEngineProviderAdded.ApiKey))]
+    [SetFrom<DecisionEngineProviderReconfigured>(nameof(DecisionEngineProviderReconfigured.ApiKey))]
     [SetFrom<AnthropicProviderReconfigured>(nameof(AnthropicProviderReconfigured.ApiKey))]
     [SetFrom<OpenAIProviderReconfigured>(nameof(OpenAIProviderReconfigured.ApiKey))]
     [SetFrom<AzureOpenAIProviderReconfigured>(nameof(AzureOpenAIProviderReconfigured.ApiKey))]
@@ -89,6 +96,8 @@ public record ConfiguredAIProvider(
     [SetFrom<AzureOpenAIProviderAdded>(nameof(AzureOpenAIProviderAdded.Endpoint))]
     [SetFrom<OpenAICompatibleProviderAdded>(nameof(OpenAICompatibleProviderAdded.Endpoint))]
     [SetFrom<ZAIProviderAdded>(nameof(ZAIProviderAdded.Endpoint))]
+    [SetFrom<DecisionEngineProviderAdded>(nameof(DecisionEngineProviderAdded.Endpoint))]
+    [SetFrom<DecisionEngineProviderReconfigured>(nameof(DecisionEngineProviderReconfigured.Endpoint))]
     [SetFrom<AzureOpenAIProviderReconfigured>(nameof(AzureOpenAIProviderReconfigured.Endpoint))]
     [SetFrom<OpenAICompatibleProviderReconfigured>(nameof(OpenAICompatibleProviderReconfigured.Endpoint))]
     [SetFrom<ZAIProviderReconfigured>(nameof(ZAIProviderReconfigured.Endpoint))]
@@ -105,6 +114,8 @@ public record ConfiguredAIProvider(
     [SetFrom<OpenAIModelConfigured>(nameof(OpenAIModelConfigured.Model))]
     [SetFrom<AzureOpenAIModelConfigured>(nameof(AzureOpenAIModelConfigured.DeploymentName))]
     [SetFrom<OpenAICompatibleModelConfigured>(nameof(OpenAICompatibleModelConfigured.Model))]
+    [SetFrom<DecisionEngineProviderAdded>(nameof(DecisionEngineProviderAdded.Model))]
+    [SetFrom<DecisionEngineProviderReconfigured>(nameof(DecisionEngineProviderReconfigured.Model))]
     ModelName? Model = null)
 {
     /// <summary>

@@ -44,4 +44,10 @@ public enum AIProviderType
     /// does not expose the public OpenAI API's conversational completion surface.
     /// </summary>
     OpenAICodex = 5,
+
+    /// <summary>
+    /// A Cratis Decision Engine, reached at a configured endpoint. Weighs supplied choices and
+    /// returns probabilities; it generates nothing and serves no conversation.
+    /// </summary>
+    DecisionEngine = 6,
 }
