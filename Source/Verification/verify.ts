@@ -7,6 +7,7 @@ import { access, readFile, readdir, stat } from 'node:fs/promises';
 import { basename, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
+import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
 
 interface Profile {
@@ -86,7 +87,7 @@ for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/ma
         failures.push(`${marketplace} must expose the canonical .cratis/ai/skills corpus.`);
     }
 }
-const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'subagent'];
+const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'subagent', 'cratis-mcp'];
 for (const extension of requiredPiExtensions) {
     if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);
 }
@@ -100,6 +101,7 @@ for (const extension of [
     './src/index.ts',
     './package/corpus/harnesses/pi/extensions/cratis-hooks/index.ts',
     './package/corpus/harnesses/pi/extensions/subagent/index.ts',
+    './package/corpus/harnesses/pi/extensions/cratis-mcp/index.ts',
 ]) {
     if (!packagedExtensions.includes(extension)) failures.push(`@cratis/pi does not load '${extension}'.`);
 }
@@ -112,6 +114,8 @@ if (manifest.profileCatalog !== 'profile-catalog.json') failures.push("manifest 
 const catalog = JSON.parse(await readFile(join(corpus, manifest.profileCatalog), 'utf8')) as { publicProfiles: Profile[]; engineeringProfiles: Profile[] };
 const profiles = [...catalog.publicProfiles, ...catalog.engineeringProfiles];
 const profileIds = new Set(profiles.map(profile => profile.id));
+const mcpCatalogue = JSON.parse(await readFile(join(corpus, 'mcp-servers.json'), 'utf8')) as unknown;
+failures.push(...validateMcpServers(mcpCatalogue, profileIds));
 const declaredProfiles: string[] = manifest.profiles ?? [];
 const catalogProfiles = [...profileIds].sort();
 if (JSON.stringify(declaredProfiles) !== JSON.stringify(catalogProfiles)) failures.push('Manifest profiles must list every catalog profile in sorted order.');
@@ -195,4 +199,4 @@ if (failures.length > 0) {
     console.error(JSON.stringify({ passed: false, failures }, null, 2));
     process.exit(1);
 }
-console.log(JSON.stringify({ passed: true, skills: skillDirectories.length, profiles: profiles.length, scenarios: scenarioResults }, null, 2));
+console.log(JSON.stringify({ passed: true, skills: skillDirectories.length, profiles: profiles.length, mcpServers: (mcpCatalogue as { servers: unknown[] }).servers.length, scenarios: scenarioResults }, null, 2));
