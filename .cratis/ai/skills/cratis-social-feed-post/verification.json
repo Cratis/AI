@@ -9,6 +9,10 @@
     { "kind": "skill-contains", "value": "A brief opening sentence is a hook doing its job" },
     { "kind": "skill-contains", "value": "No external link in the body" },
     { "kind": "skill-contains", "value": "No engagement bait" },
-    { "kind": "skill-contains", "value": "unofficial approximations" }
+    { "kind": "skill-contains", "value": "unofficial approximations" },
+    { "kind": "skill-contains", "value": "Sound like a person talking" },
+    { "kind": "skill-contains", "value": "Open with something that happened" },
+    { "kind": "skill-contains", "value": "Put a limit where it applies" },
+    { "kind": "skill-contains", "value": "Keep the review out of the copy" }
   ]
 }

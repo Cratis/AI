@@ -42,6 +42,38 @@ a trade rather than a free improvement.
 Check the opening by reading only the first three lines and asking whether they are worth
 expanding. If the answer depends on the fourth line, the opening is wrong.
 
+## Sound like a person talking
+
+A post that reads as generated gets scrolled past as generated, however accurate it is. The
+fix is not a smoother sentence. It is writing the way someone who built the thing would
+explain it to a colleague over coffee.
+
+- **Open with something that happened.** What shipped, a real number, what you found this
+  week. A concrete, checkable event reads as a person reporting. An aphorism about the domain
+  ("A skill is just text…") reads as a slogan, however clever it is.
+- **Talk, don't announce.** Contractions, a sentence that starts with "So" or "And", a
+  parenthetical aside, a question answered straight away ("Why bother? Because…"). Use them
+  the way speech does, now and then, not as a new pattern on every line.
+- **Show the default, then the better way.** Name what the reader, or their coding agent,
+  writes today in concrete terms, then the shape you are offering, with real identifiers. A
+  before-and-after persuades; adjectives do not.
+- **Sell with specifics.** Enthusiasm is welcome and a list of real capabilities is
+  persuasive. What persuades is the command, the count, and the thing the reader can do
+  tomorrow, not "powerful", "seamless" or "game-changing".
+- **Say why in the words you would use out loud.** A reason with a stake ("we don't want the
+  good version of that to be a paid add-on") beats a principle stated in the abstract.
+- **Put a limit where it applies.** "On macOS and Linux, the installer…" carries the limit
+  inside the claim. A closing paragraph labeled "One honest limit:" reads as a disclaimer a
+  reviewer bolted on.
+- **Keep the review out of the copy.** Evidence, verification and approval language belongs
+  in the review record. A qualifier that protects the writer instead of informing the reader
+  makes the post read as noncommittal. Keep every qualification that is true and would
+  change what the reader does; drop the rest.
+- **Stop when you are done.** A plain next step ("Links in the comments") ends a post better
+  than a tidy closing maxim.
+
+The tells to remove in review are listed in the **cratis-writing-voice-and-cadence** skill.
+
 ## Never use Unicode pseudo-formatting
 
 Third-party tools offer pseudo-bold and pseudo-italic built from Mathematical Alphanumeric
@@ -66,7 +98,9 @@ said first. A point that needs visual weight belongs in an image with its own al
 
 ## Structure that survives a phone
 
-- One idea per post. A feed reader will not assemble two.
+- One thread per post. A feed reader will not assemble two arguments. An announcement may
+  still list what shipped as a plain list of short fragments inside that thread, with no
+  bolded labels and no slogan per item.
 - Short paragraphs, one to three sentences, and visibly different from each other in length.
   A column of identically sized blocks reads as a generated template before it reads as an
   argument.
