@@ -1,6 +1,6 @@
 ---
 name: cratis-engineering-docs-authoring
-description: Draft accurate Cratis documentation content after the owning repository, page placement, document type, and authoritative product sources are known. Use for tutorials, how-to guides, explanations, and references; defer placement, existing-page discovery, and visual QA to their companion workflows.
+description: Draft accurate Cratis product or engineering documentation once the reader's goal, owning source, and product evidence are known. Use for tutorials, how-to guides, explanations, and references; use the owning repository's navigation and visual QA workflows for placement and rendering.
 license: LICENSE
 ---
 
@@ -37,9 +37,9 @@ different document types, audiences, or product choices remain plausible.
 - The subject is not Cratis product or engineering documentation: do not apply
   this skill.
 
-## Write one document type
+## Write to one primary reader need
 
-Do not mix Diátaxis types on one page:
+Use Diátaxis to choose the page's main job. Include brief context needed to make the task work; link out instead of embedding a different page's full lesson or lookup:
 
 | Type | Reader need | Shape |
 | --- | --- | --- |

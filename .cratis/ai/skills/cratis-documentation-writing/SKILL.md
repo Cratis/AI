@@ -1,6 +1,6 @@
 ---
 name: cratis-documentation-writing
-description: Plan, write, and improve user-centered Cratis documentation with a clear reader journey and one Diátaxis purpose per page. Use for product docs, tutorials, how-to guides, reference, explanations, and documentation reviews. For executable examples use cratis-technical-examples; for release notes use cratis-release-notes. Do not invent APIs or publish content.
+description: Plan, write, and improve user-centered Cratis documentation with a clear reader journey and one primary Diátaxis purpose per page. Use for product docs, tutorials, how-to guides, reference, explanations, and documentation reviews. For executable examples use cratis-technical-examples; for release notes use cratis-release-notes. Do not invent APIs or publish content.
 license: MIT
 ---
 
@@ -8,9 +8,10 @@ license: MIT
 
 A developer arrives with a job to do, not with an interest in our repository
 structure. Start from that job: what did they try, what stopped them, and what
-would let them know they succeeded? Use [Diátaxis](https://diataxis.fr/) to give
-each page one primary purpose. This skill governs content and reader journeys;
-the owning repository governs page placement, navigation, and rendering.
+would let them know they succeeded? Use [Diátaxis](https://diataxis.fr/)
+as a compass for each page's primary purpose, not a purity test. This skill
+governs content and reader journeys; the owning repository governs page
+placement, navigation, and rendering.
 
 ## Classify before writing
 
@@ -40,8 +41,9 @@ Rules per type:
 - **Explanation** — no steps. Discuss concepts, trade-offs, and design
   decisions. Diagrams are welcome here.
 
-If a reader needs both a lesson and a lookup, link two pages rather than
-mixing their jobs. Resolve routine audience or type choices from the request
+A brief prerequisite or explanation may serve the main journey. If a reader
+also needs an exhaustive lookup, link a reference page rather than burying it
+in the lesson. Resolve routine audience or type choices from the request
 and neighboring pages; ask only when the alternatives change the outcome.
 
 ## Work from the reader outward
@@ -52,10 +54,11 @@ and neighboring pages; ask only when the alternatives change the outcome.
 2. Write the question they came with and the success signal in one sentence.
    Draft a title and first paragraph that make the problem and payoff clear;
    avoid opening with an abstract product definition or an internal type name.
-3. Trace a short route from that page to one canonical getting-started journey,
-   targeted recipes, and exact reference. Offer task- and background-based
-   links without inventing competing quickstarts. A 'coming from X' bridge
-   should map familiar concepts to the new workflow, not replace it.
+3. Trace a short route from that page to one clear 'start here' entry,
+   targeted recipes, and exact reference. Give different languages or hosts
+   their own procedures when a shared path cannot be run as written. A
+   'coming from X' bridge should map familiar concepts to the new workflow,
+   not replace it.
 4. Draft in workflow order. For a tutorial, use one working domain throughout,
    show what to run and what appears, and recap before adding another concept.
    For a how-to, keep only what the specific task needs. Link out for details.
@@ -114,8 +117,9 @@ Never transcribe an API from memory, hand-translate an unsupported client, or
 claim a pasted block is runnable when it requires unstated setup. Show the
 command and observable output for a substantial walkthrough.
 
-Keep the page-specific edit link aimed at the *authored* file, not a synced
-copy. Recheck examples against the supported version when that version changes.
+Edit the *authored* file, never a synced copy. The Cratis site derives each
+product page's edit link from that source path, so don't hand-author
+`editUrl` in product frontmatter. Recheck examples against the supported version when that version changes.
 A review of docs is not complete just because the site builds: syntax and
 behavior are different checks.
 
@@ -150,8 +154,8 @@ do not copy Wolverine's information architecture onto a different product.
 
 A page is done when:
 
-- The Diátaxis type is chosen deliberately and the page holds to that one
-  type, linking out to the other types instead of drifting into them.
+- The page has a deliberate primary purpose; short supporting context helps
+  the reader proceed, while substantial digressions link to their own pages.
 - The audience and their goal were identified before writing, and the first
   screen serves that goal. The first working path needs no unexplained setup
   or up-front choice among configuration alternatives.

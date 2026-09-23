@@ -16,7 +16,7 @@ The Cratis docs must **take the reader on a tour, like a teacher** — the way [
 - **Active voice, present tense, second person.** “You append the event,” not “the event is appended.”
 - **Be honest about limits.** A “when this is the wrong fit” section builds more trust than omitting the limits.
 
-## One page equals one Diátaxis type
+## One primary purpose per page
 
 | Type | Reader is… | Reads like |
 |---|---|---|
@@ -25,7 +25,7 @@ The Cratis docs must **take the reader on a tour, like a teacher** — the way [
 | **Explanation** | trying to understand | a discussion — concepts, trade-offs, *why*, a diagram |
 | **Reference** | looking something up | a dictionary — exhaustive, terse, tables/signatures |
 
-Never mix types. A tutorial padded with reference detail overwhelms; a how-to interrupted by concept digressions stops being a recipe. Diátaxis type does not imply a universal navigation bucket; bucket names are product-specific.
+Use the page's primary reader need to guide its structure, not to ban a brief prerequisite or explanation. A tutorial padded with a reference dump overwhelms; a how-to interrupted by a long conceptual detour stops being a recipe. Link out when the other material deserves sustained attention. Diátaxis does not imply a universal navigation bucket; bucket names are product-specific.
 
 ## The tour-voice checklist
 
