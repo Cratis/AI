@@ -57,4 +57,3 @@ and roll back the same way — by package version where one exists, otherwise by
 reinstalling from a known-good source commit with `--source`. Never patch managed
 files under `.cratis/ai/`, generated adapters, or marketplace wrappers by hand;
 `cratis ai status` reports such drift and `update` refuses it without `--force`.
-
