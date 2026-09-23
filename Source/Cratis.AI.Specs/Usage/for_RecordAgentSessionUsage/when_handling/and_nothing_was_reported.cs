@@ -4,6 +4,7 @@
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Usage.Daily;
 
 namespace Cratis.AI.Usage.for_RecordAgentSessionUsage.when_handling;
 
@@ -23,7 +24,7 @@ public class and_nothing_was_reported : Specification
         new ModelName("sonnet"),
         new LanguageModelPurpose("triage"));
 
-    void Because() => _result = _command.Handle(new UsagePeriod(WeekKey.NotSet, MonthKey.NotSet));
+    void Because() => _result = _command.Handle(new UsagePeriod(WeekKey.NotSet, MonthKey.NotSet, DayKey.NotSet, AgentUsageBucketKey.NotSet));
 
     [Fact] void should_default_cpu_seconds_to_not_set() => _result.Event.CpuSeconds.ShouldEqual(CpuSeconds.NotSet);
     [Fact] void should_default_memory_bytes_to_not_set() => _result.Event.MemoryBytes.ShouldEqual(MemoryBytes.NotSet);
