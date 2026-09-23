@@ -19,6 +19,13 @@ COPY app ./app
 
 # The model cache is a mounted volume in the cluster. Declaring it here means a plain `docker run`
 # behaves the same way rather than re-downloading the artifact on every container start.
+#
+# The directory is created before it is declared as a volume: VOLUME only marks a mount point and
+# does not make the path exist, so the ownership change below has nothing to act on otherwise. It
+# has to be owned by the unprivileged user too - the cluster mounts an empty volume here and the
+# service writes the downloaded model into it as that user on first start.
+RUN mkdir -p /models
+
 VOLUME ["/models"]
 
 RUN useradd --create-home --uid 10001 decision && chown -R decision /models /app
