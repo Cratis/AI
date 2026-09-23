@@ -32,7 +32,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
         assert.deepEqual(extensions.errors, []);
         assert.deepEqual(
             extensions.extensions.map(extension => extension.path.split('/').slice(-2).join('/')).sort(),
-            ['cratis-hooks/index.ts', 'cratis-rules/index.ts', 'subagent/index.ts'],
+            ['cratis-hooks/index.ts', 'cratis-mcp/index.ts', 'cratis-rules/index.ts', 'subagent/index.ts'],
         );
         // Pi also discovers user-level skills (~/.agents/skills, ~/.pi/agent/skills); only the repository's own
         // skills are the managed resources under test, so an operator's personal skills must not move the count.
