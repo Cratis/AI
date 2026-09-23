@@ -17,7 +17,7 @@ public class and_the_provider_returns_a_distribution : given.all_dependencies
 
     [Fact] void should_pick_the_highest_probability_choice() => _result.Top.Value.ShouldEqual("implement");
     [Fact] void should_carry_the_top_probability() => _result.TopProbability.ShouldEqual(0.82);
-    [Fact] void should_derive_the_margin_to_the_runner_up() => Math.Round(_result.Margin, 2).ShouldEqual(0.70);
+    [Fact] void should_derive_the_margin_to_the_runner_up() => Math.Round(_result.Margin, 2, MidpointRounding.AwayFromZero).ShouldEqual(0.70);
     [Fact] void should_order_the_outcomes_by_probability_descending() => _result.Outcomes.Select(_ => _.Choice.Value).ShouldEqual(["implement", "plan", "investigate", "ask_user"]);
     [Fact] void should_keep_every_supplied_choice() => _result.Outcomes.Count.ShouldEqual(4);
     [Fact] void should_report_the_model_that_answered() => _result.Model.ShouldEqual(_model);
