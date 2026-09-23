@@ -5,6 +5,7 @@ using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
+using MongoDB.Driver;
 
 namespace Cratis.AI.Usage.Daily;
 
@@ -19,11 +20,16 @@ namespace Cratis.AI.Usage.Daily;
 /// Direct's sources had to be combined to get.
 /// </summary>
 /// <remarks>
-/// Marked <c>[Passive]</c> because it has no accumulating projection of its own - it is computed on
-/// demand from the recorded sessions, the same treatment Direct's original gets. Rows are bucketed
-/// server-side so only the aggregates cross the wire, never a session list, no matter how far back
-/// the window reaches.
+/// A real accumulating projection, keyed on the event's precomputed
+/// <see cref="AgentSessionUsageRecorded.DailyBucketKey"/> - the same treatment
+/// <see cref="Trends.AgentUsageByWeek"/> and <see cref="Trends.AgentUsageByMonth"/> already get, and
+/// what the daily model should always have had. It was previously <c>[Passive]</c>, recomputing a
+/// year of buckets with an in-memory <c>GroupBy</c> over every session recorded in the trailing
+/// 371-day window on every single read. That cost grew without bound with the number of sessions
+/// while answering a question whose answer only ever changes by one session at a time, which is
+/// exactly what a projection is for.
 /// </remarks>
+/// <param name="BucketKey">The day/provider/agent/purpose/model bucket this row accumulates.</param>
 /// <param name="Day">The calendar day the usage falls in (UTC).</param>
 /// <param name="ProviderId">The AI provider that served the work - <see langword="null"/> when none was resolved.</param>
 /// <param name="AgentId">The agent that did the work - <see langword="null"/> when none was resolved.</param>
@@ -32,25 +38,28 @@ namespace Cratis.AI.Usage.Daily;
 /// <param name="Sessions">How many agent sessions were recorded that day.</param>
 /// <param name="InputTokens">The input tokens those sessions consumed.</param>
 /// <param name="OutputTokens">The output tokens those sessions produced.</param>
+/// <param name="CachedTokens">The prompt tokens those sessions had served from the provider's own cache.</param>
 /// <param name="Cost">The reported cost of those sessions, in USD.</param>
-/// <param name="Duration">How long those sessions ran in total.</param>
+/// <param name="DurationMs">How long those sessions ran in total, in milliseconds.</param>
 /// <param name="CpuSeconds">The CPU time those sessions consumed in total - what answers "how much CPU went to investigation versus planning versus implementation" once bucketed by <see cref="Purpose"/>.</param>
 /// <param name="MemoryBytes">The peak memory those sessions consumed, summed - the same convention <c>AgentUsageByWeek</c>/<c>AgentUsageByMonth</c> already use for a resource figure that is really a per-session peak, not a naturally additive quantity.</param>
 [ReadModel]
-[Passive]
+[FromEvent<AgentSessionUsageRecorded>(key: nameof(AgentSessionUsageRecorded.DailyBucketKey))]
 public record AgentUsageByDay(
-    DateOnly Day,
-    AIProviderId? ProviderId,
-    AgentId? AgentId,
-    LanguageModelPurpose Purpose,
-    ModelName Model,
-    int Sessions,
-    long InputTokens,
-    long OutputTokens,
-    decimal Cost,
-    TimeSpan Duration,
-    decimal CpuSeconds = 0m,
-    long MemoryBytes = 0L)
+    [Key][SetFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.DailyBucketKey))] AgentUsageBucketKey BucketKey,
+    [Index][SetFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.DayKey))] DayKey Day,
+    [SetFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.Provider))] AIProviderId? ProviderId,
+    [SetFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.Agent))] AgentId? AgentId,
+    [SetFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.Purpose))] LanguageModelPurpose Purpose,
+    [SetFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.Model))] ModelName Model,
+    [Count<AgentSessionUsageRecorded>] int Sessions,
+    [AddFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.InputTokens))] long InputTokens,
+    [AddFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.OutputTokens))] long OutputTokens,
+    [AddFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.CachedTokens))] long CachedTokens,
+    [AddFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.CostUsd))] decimal Cost,
+    [AddFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.Duration))] long DurationMs,
+    [AddFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.CpuSeconds))] decimal CpuSeconds,
+    [AddFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.MemoryBytes))] long MemoryBytes)
 {
     /// <summary>
     /// How far back a usage page's activity view typically reaches - enough for a full year of
@@ -59,42 +68,23 @@ public record AgentUsageByDay(
     public static readonly TimeSpan Window = TimeSpan.FromDays(371);
 
     /// <summary>
+    /// Gets the total time the sessions in this bucket ran for.
+    /// </summary>
+    public TimeSpan Duration => TimeSpan.FromMilliseconds(DurationMs);
+
+    /// <summary>
     /// Gets every day's usage within the trailing window, oldest day first, bucketed per
     /// provider/agent/purpose/model combination so a consumer's page can narrow by any of them.
     /// </summary>
-    /// <param name="sessions">The recorded agent sessions.</param>
+    /// <param name="collection">The MongoDB collection holding the daily buckets.</param>
     /// <param name="timeProvider">The <see cref="TimeProvider"/> for the trailing window.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
     /// <returns>The daily usage rows, oldest first.</returns>
     public static async Task<IEnumerable<AgentUsageByDay>> LastYear(
-        IRecordedAgentSessions sessions,
-        TimeProvider timeProvider,
-        CancellationToken cancellationToken = default)
+        IMongoCollection<AgentUsageByDay> collection,
+        TimeProvider timeProvider)
     {
-        var cutoff = timeProvider.GetUtcNow() - Window;
-        var recorded = await sessions.RecordedSince(cutoff, cancellationToken);
-
-        return recorded
-            .GroupBy(entry => (
-                Day: DateOnly.FromDateTime(entry.Occurred.UtcDateTime),
-                entry.ProviderId,
-                entry.AgentId,
-                entry.Purpose,
-                entry.Model))
-            .Select(group => new AgentUsageByDay(
-                group.Key.Day,
-                group.Key.ProviderId,
-                group.Key.AgentId,
-                group.Key.Purpose,
-                group.Key.Model,
-                group.Count(),
-                group.Sum(entry => entry.InputTokens),
-                group.Sum(entry => entry.OutputTokens),
-                group.Sum(entry => entry.Cost),
-                TimeSpan.FromMilliseconds(group.Sum(entry => entry.DurationMs)),
-                group.Sum(entry => entry.CpuSeconds),
-                group.Sum(entry => entry.MemoryBytes)))
-            .OrderBy(row => row.Day);
+        var cutoff = DayKey.For(timeProvider.GetUtcNow() - Window);
+        var rows = await (await collection.FindAsync(row => row.Day >= cutoff)).ToListAsync();
+        return rows.OrderBy(row => row.Day.Value);
     }
 }
-

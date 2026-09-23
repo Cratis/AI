@@ -6,6 +6,7 @@ using Cratis.AI.Common;
 using Cratis.AI.Harnesses;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
+using Cratis.AI.Usage.Daily;
 
 namespace Cratis.AI.Usage;
 
@@ -31,6 +32,8 @@ namespace Cratis.AI.Usage;
 /// <param name="Duration">How long the session took.</param>
 /// <param name="WeekKey">The calendar week the session ran in, precomputed at command time.</param>
 /// <param name="MonthKey">The calendar month the session ran in, precomputed at command time.</param>
+/// <param name="DayKey">The calendar day (UTC) the session ran in, precomputed at command time.</param>
+/// <param name="DailyBucketKey">The day/provider/agent/purpose/model bucket <see cref="Daily.AgentUsageByDay"/> accumulates under, precomputed at command time.</param>
 /// <remarks>
 /// <para>
 /// <b>No organization/tenant property, deliberately</b> - Chronicle tenant isolation answers "whose"
@@ -38,7 +41,7 @@ namespace Cratis.AI.Usage;
 /// documents. Do not add one.
 /// </para>
 /// <para>
-/// <see cref="WeekKey"/>/<see cref="MonthKey"/> are precomputed at command time rather than derived
+/// <see cref="DayKey"/>/<see cref="WeekKey"/>/<see cref="MonthKey"/> are precomputed at command time rather than derived
 /// from <c>EventContext.Occurred</c> at projection time - Chronicle's model-bound/fluent key
 /// resolution only accepts event properties, so a composite key derived from the event's own
 /// timestamp has nowhere else to come from. This is a deliberate, narrow exception to not
@@ -72,7 +75,9 @@ public record AgentSessionUsageRecorded(
     MemoryBytes MemoryBytes,
     DurationMilliseconds Duration,
     WeekKey WeekKey,
-    MonthKey MonthKey)
+    MonthKey MonthKey,
+    DayKey DayKey,
+    AgentUsageBucketKey DailyBucketKey)
 {
     /// <summary>
     /// The pinned <see cref="EventTypeAttribute"/> id for this event type. Chosen once, here, and

@@ -5,6 +5,7 @@ using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
+using Cratis.AI.Usage.Daily;
 
 namespace Cratis.AI.Usage.for_RecordAgentSessionUsage.when_handling;
 
@@ -34,7 +35,7 @@ public class and_every_figure_is_reported : Specification
         MemoryBytes: new MemoryBytes(1024),
         Duration: new DurationMilliseconds(2500));
 
-    void Because() => _result = _command.Handle(new UsagePeriod(new WeekKey("2026-W01"), new MonthKey("2026-01")));
+    void Because() => _result = _command.Handle(new UsagePeriod(new WeekKey("2026-W01"), new MonthKey("2026-01"), new DayKey("2026-01-02"), new AgentUsageBucketKey("bucket")));
 
     [Fact] void should_append_on_the_sessions_own_stream() => _result.Id.ShouldEqual(_session);
     [Fact] void should_carry_the_session() => _result.Event.Session.ShouldEqual(_session);
@@ -48,4 +49,6 @@ public class and_every_figure_is_reported : Specification
     [Fact] void should_carry_duration() => _result.Event.Duration.Value.ShouldEqual(2500L);
     [Fact] void should_carry_the_week_key() => _result.Event.WeekKey.Value.ShouldEqual("2026-W01");
     [Fact] void should_carry_the_month_key() => _result.Event.MonthKey.Value.ShouldEqual("2026-01");
+    [Fact] void should_carry_the_day_key() => _result.Event.DayKey.Value.ShouldEqual("2026-01-02");
+    [Fact] void should_carry_the_daily_bucket_key() => _result.Event.DailyBucketKey.Value.ShouldEqual("bucket");
 }

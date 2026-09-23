@@ -6,6 +6,7 @@ using Cratis.AI.Common;
 using Cratis.AI.Harnesses;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
+using Cratis.AI.Usage.Daily;
 
 namespace Cratis.AI.Usage;
 
@@ -45,23 +46,28 @@ public record RecordAgentSessionUsage(
     DurationMilliseconds? Duration = null)
 {
     /// <summary>
-    /// Resolves the calendar week/month the session's usage falls into - see
+    /// Resolves the calendar day/week/month the session's usage falls into - see
     /// <see cref="AgentSessionUsageRecorded"/>'s remarks for why this is precomputed here rather than
     /// derived from <c>EventContext.Occurred</c> at projection time.
     /// </summary>
-    /// <param name="timeProvider">The <see cref="TimeProvider"/> the week/month are computed from.</param>
-    /// <returns>The <see cref="WeekKey"/>/<see cref="MonthKey"/> pair.</returns>
+    /// <param name="timeProvider">The <see cref="TimeProvider"/> the day/week/month are computed from.</param>
+    /// <returns>The <see cref="DayKey"/>/<see cref="WeekKey"/>/<see cref="MonthKey"/> triple.</returns>
     public UsagePeriod Provide(TimeProvider timeProvider)
     {
         var now = timeProvider.GetUtcNow();
-        return new UsagePeriod(WeekKey.For(now), MonthKey.For(now));
+        var day = DayKey.For(now);
+        return new UsagePeriod(
+            WeekKey.For(now),
+            MonthKey.For(now),
+            day,
+            AgentUsageBucketKey.For(day, Provider, Agent, Purpose, Model));
     }
 
     /// <summary>
     /// Handles the command by appending an <see cref="AgentSessionUsageRecorded"/> event on the
     /// session's own stream.
     /// </summary>
-    /// <param name="period">The resolved week/month the session falls into.</param>
+    /// <param name="period">The resolved day/week/month the session falls into.</param>
     /// <returns>The session's identity, and the event to append on it.</returns>
     public (AgentSessionId, AgentSessionUsageRecorded) Handle(UsagePeriod period) =>
         (Session, new AgentSessionUsageRecorded(
@@ -79,7 +85,9 @@ public record RecordAgentSessionUsage(
             MemoryBytes ?? Usage.MemoryBytes.NotSet,
             Duration ?? DurationMilliseconds.NotSet,
             period.Week,
-            period.Month));
+            period.Month,
+            period.Day,
+            period.DailyBucket));
 }
 
 // No explicit RecordAgentSessionUsageValidator: every optional figure on this command is a
