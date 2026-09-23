@@ -6,6 +6,7 @@
     { "kind": "skill-contains", "value": "## Classify before writing" },
     { "kind": "skill-contains", "value": "## Work from the reader outward" },
     { "kind": "skill-contains", "value": "cratis-technical-examples" },
-    { "kind": "skill-contains", "value": "## Completion checklist" }
+    { "kind": "skill-contains", "value": "## Completion checklist" },
+    { "kind": "skill-contains", "value": "(references/cratis-site.md)" }
   ]
 }
