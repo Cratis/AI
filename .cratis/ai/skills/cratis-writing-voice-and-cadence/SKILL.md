@@ -27,6 +27,11 @@ recurrence.
 | **"rather than"** | The same correction carried by a different connective |
 | **Em-dash pivot** | The dash used to swing into a closing clause |
 | **"That is what X is for"** | A pointer sentence standing in for an explanation |
+| **Punchline fragment** | A two- or three-word sentence landing a slogan: "They run." |
+| **Signpost pair** | "That's the X. Here's the Y." Announcing the structure instead of having one |
+| **Labeled caveat** | "One honest limit:" A limitation parked in its own closing paragraph |
+| **Aphoristic close** | A tidy maxim as the last line, restating what the piece already said |
+| **Reflexive triplet** | Three parallel items where the thought had one or two |
 
 To measure rather than guess, count them. Searching for `, not a`, `; ` between two clauses,
 `rather than`, and an em-dash followed by a short closing clause takes a few minutes across a
@@ -48,9 +53,23 @@ Look at ten pieces together, not one at a time:
   assertion — "A screen that needs…", "A registration test can…" — is one move. Alternate it
   with a question, a direct address, a concrete moment, or a number.
 
+## Hedging that protects the writer
+
+The other common complaint is "wishy-washy": copy so qualified that it never commits to
+anything. It usually comes from review language leaking into the material: evidence,
+verification and approval wording that belongs in the review record, and qualifiers that
+protect the writer without informing the reader.
+
+The rule below protects every hedge that is true and would change what the reader does. It
+does not protect review residue. Move the evidence to the review record, state the capability
+plainly, and put a real limit inside the sentence it limits ("on macOS and Linux, …") instead
+of in a separate disclaimer.
+
 ## Address somebody
 
 - **Say "you".** Material that tells a reader what to do should address that reader.
+- **A company account is a team talking.** Write "we", the way the people who built it would
+  say it, not the company name in the third person.
 - **Attributed writing should sound attributed.** Prose published under a person's name and
   written entirely in the impersonal third person reads as documentation wearing a byline.
   Opinion, judgement and preference belong to the named author and are theirs to give.

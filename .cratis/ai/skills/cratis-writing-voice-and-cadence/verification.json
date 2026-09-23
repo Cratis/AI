@@ -8,6 +8,10 @@
     { "kind": "skill-contains", "value": "every hedging word" },
     { "kind": "skill-contains", "value": "First person is not a licence to invent" },
     { "kind": "skill-contains", "value": "Structural sameness is the more damaging half" },
-    { "kind": "skill-contains", "value": "Rewrite a tranche, read it, and only then continue" }
+    { "kind": "skill-contains", "value": "Rewrite a tranche, read it, and only then continue" },
+    { "kind": "skill-contains", "value": "Punchline fragment" },
+    { "kind": "skill-contains", "value": "Labeled caveat" },
+    { "kind": "skill-contains", "value": "Hedging that protects the writer" },
+    { "kind": "skill-contains", "value": "A company account is a team talking" }
   ]
 }
