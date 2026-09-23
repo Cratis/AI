@@ -58,7 +58,7 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 
 ## Diagrams
 
-- Use [Mermaid](https://mermaid-js.github.io/mermaid/#/) for every non-trivial concept — architecture, event and command flow, state transitions, projection and reactor pipelines. A concept page without a diagram is usually incomplete.
+- Use [Mermaid](https://mermaid-js.github.io/mermaid/#/) where a concept has structure that prose conveys poorly — architecture, event and command flow, state transitions, projection and reactor pipelines. Many strong pages carry their load in prose, real code, and real output instead; add a diagram because it explains something, not because the page type seems to require one.
 
 ## Code examples
 
@@ -76,6 +76,8 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 ## Cover the reader's needs at the product's scale
 
 - Every navigable product needs an **index** that defines it and points to a first useful outcome.
+- When a product has enough tutorials or how-to guides to warrant an index, list each by the **situation it solves**, with a one-line description (for example, "Dealing with concurrency" or "Multi-tenancy end to end"), not only by chapter number or API name. Don't add a landing page merely to satisfy this rule, or restructure navigation as a side effect of one page.
+- Document the **diagnostic surface**: the CLI commands, MCP tools, and observable state that tell a reader why the product behaves as it does. A capability with no documented way to inspect it becomes a support request, and an AI assistant helping the reader cannot use it.
 - Provide a **getting-started route**, exact reference, limitations, and recovery information where the product's complexity requires them. A small tool need not manufacture a multi-chapter tutorial, FAQ, glossary, or architecture diagram.
 - Connect related products with links instead of duplicating the same explanation. Share task-area and product indexes through the site's AI-facing exports where useful; don't require a separate full-text download per product or claim that an export alone proves answer quality.
 
