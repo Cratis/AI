@@ -40,7 +40,8 @@ test('Pi SDK discovers the complete managed repository resources without a model
         const repositorySkills = loader.getSkills().skills.filter(skill => realpathSync(skill.filePath).startsWith(repositoryRealPath));
         assert.equal(repositorySkills.length, 68);
         assert.equal(loader.getPrompts().prompts.length, 18);
-        // A nested worktree may also discover the parent checkout's AGENTS.md.
+        // A worktree nested under another checkout can also load that checkout's AGENTS.md.
+        // Assert this repository's context is present exactly once, regardless of its ancestors.
         const contextFiles = loader.getAgentsFiles().agentsFiles.filter(file => file.path === join(repositoryRoot, 'AGENTS.md'));
         assert.equal(contextFiles.length, 1);
         assert.match(contextFiles[0].content, /# Cratis — Project Instructions/);

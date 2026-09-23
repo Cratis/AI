@@ -152,6 +152,13 @@ These commands mutate the running store:
 - `chronicle users add`, `chronicle users remove`
 - `chronicle applications add`, `chronicle applications remove`
 
+Where the Cratis hooks are installed, this boundary is enforced: a `PreToolUse` guard on shell
+commands blocks every `cratis chronicle` command that is not on its read-only allowlist, unknown
+commands and the interactive `workbench` included, with or without `--yes`. When it blocks, do not
+retry or work around it; report the exact command, the target context or server, and what it
+changes and why, and ask. A person who authorizes the mutation runs it, or sets
+`CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` in the environment the agent harness starts from.
+
 Before any of them:
 
 1. Name the exact server context, event store, namespace, observer, partition,
