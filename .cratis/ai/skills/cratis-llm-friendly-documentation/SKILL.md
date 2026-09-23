@@ -42,6 +42,17 @@ an entire product will fit a model's context window.
    do not recommend it as default prompt context. Measure bytes; label token
    counts as estimates for a named tokenizer or approximation, not universal
    limits. Split oversized sets instead of silently truncating them.
+6. Let an assistant that landed on a rendered page find that page's own
+   Markdown without going back through the index, at a stable URL. Inspect
+   whether that URL carries rendered prose or raw synchronized MDX, label a
+   raw mirror honestly, and propose a rendered export as a separate site
+   change rather than claiming the current mirror provides one.
+
+Cratis's own consumers are Prompter (the Discord documentation assistant),
+Chronicle MCP, and developers' coding agents. A page that shows every client
+language serves a human switching tabs, but it multiplies the code an
+assistant must read for a one-language question; measure that before
+splitting exports per language.
 
 Plain Markdown pages can expose their existing source mirror. For MDX-heavy
 pages, prefer a rendered representation that preserves all relevant variants;

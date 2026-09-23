@@ -24,7 +24,10 @@ language-tab layout or documentation site implementation.
   snippet-equality check beside the sample and run it with the sample build in
   CI. Manual comparison alone is a one-time review, not a drift guard; name
   that limitation when automation is unavailable. Do not copy once and let
-  the page drift.
+  the page drift. Link each extracted block to its source file so a reader
+  can follow it to the fuller example; that link is navigation, not a
+  verification receipt. The Cratis site adds these links automatically to
+  client-language tabs, so don't add them by hand there.
 - **Multi-language client example:** keep one explanation; use the established
   client-owned snippet mechanism, compile each client against its own SDK, and
   offer only implementations that exist. Do not translate a C# call by guess.

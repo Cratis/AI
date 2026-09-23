@@ -33,13 +33,14 @@ Apply this checklist to tutorials, getting-started pages, and explanations:
 
 1. **Open with a concrete scenario**, not a definition of the tool.
 2. **Name the friction first**, then the feature as its relief.
-3. **Use chronological verbs** such as define → append → project → query.
-4. **After every code block, explain the invisible** — what happens under the hood and why it matters.
-5. **Recap before pivoting** to the next concept.
-6. **Anticipate the reader's doubt** with a meaningful aside.
-7. **Show the result** — output, a resulting model, or another visible success signal.
-8. **Organize by workflow**, not alphabetically.
-9. **End each substantial section with the natural next step** when one exists.
+3. **Make the first snippet the convention path.** Show the shape that works without registration or wiring a convention already handles (no manual `.AutoMap()`, no hand-registered handlers). A first example that configures what a convention does teaches the reader to distrust the convention.
+4. **Use chronological verbs** such as define → append → project → query.
+5. **After every code block, explain the invisible**: what happens under the hood and why it matters. Verify that explanation against the setup the reader actually built; a backend without Chronicle appends no events, so "the command appended an event" would be false there.
+6. **Recap before pivoting** to the next concept.
+7. **Anticipate a likely mistake** near the example it affects. Use a caution aside where the risk would otherwise be missed, such as a convention that fails silently (proxy generation, service lifetimes, AutoMap): show the working shape and a verified recovery path, and name affected versions only when the product source establishes them.
+8. **Show the result** — output, a resulting model, or another visible success signal.
+9. **Organize by workflow**, not alphabetically.
+10. **End each substantial section with the natural next step** when one exists.
 
 Read a current, well-reviewed tutorial in the product or a closely related product before writing; do not assume one product's domain vocabulary fits every other product.
 
@@ -57,7 +58,7 @@ The exact Markdown/MDX boundary, aside semantics, component contracts, import pa
 
 - **Two voices per area:** the toured/educational layer and the terse, exhaustive reference. Narrative pages link *down* into the reference; the reference stays a dictionary.
 - **Connect at the seams** rather than re-explaining. Show how neighboring products meet in the user's workflow and link to the glossary for shared terms.
-- **Coming-from-X bridges** map new concepts to what the reader already knows without organizing the whole product around a competitor.
+- **Coming-from-X bridges** map new concepts to what the reader already knows without organizing the whole product around a competitor. Give each the same shape: the reader's current code, the Cratis equivalent beside it, then a short "what changed and why" list. Write one page per source technology. Keep the other technology's code accurate at a named version, or label it illustrative; state the trade-offs fairly and say when the reader's current approach remains the better fit.
 
 ## Before you call a page done
 
