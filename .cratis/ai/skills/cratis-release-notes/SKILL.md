@@ -31,6 +31,15 @@ serialization/schema/data migrations, runtime and dependency compatibility,
 deploy ordering, deprecations/removals, and upgrade/rollback limits. Report
 'not verified' rather than guessing about a supported configuration.
 
+Cratis products move together at their seams: the Chronicle kernel and its
+clients, Arc and Chronicle, Components and Arc. When a change touches a
+seam, state the pairings you verified (for example, which kernel versions a
+client release was tested against) and say which pairings are unverified.
+There is no central compatibility matrix to defer to, so the release note may
+be the only place a reader learns it. Where a measurement drove the change,
+such as how many deployments hit a failure, give the number; never estimate
+one to add weight.
+
 ## Write for the right channel
 
 - **Exact-version release note (GitHub/PR):** start with changes requiring
@@ -38,12 +47,19 @@ deploy ordering, deprecations/removals, and upgrade/rollback limits. Report
   and the user's next action in plain language. Include an issue reference only
   when verified, and follow the owning repository's closing-keyword policy.
   Do not list internal refactors or specs that change nothing users observe.
+  For a user-visible fix, a sentence of root cause and of what now guards
+  against a regression, stated as observable behavior rather than a list of
+  specs, is user-facing: it tells the reader whether to trust the fix. Credit an external contributor by name or handle and say what
+  they did, unless they asked not to be named.
 - **Migration guide (durable product docs):** a compact *old behavior → new
   behavior → required action* table for each affected upgrade path, followed
   by source-verified before/after code or commands. Distinguish required
   migration from optional cleanup, name sequencing for schema/data changes,
   and explain escape hatches with their cost or expiry. If no action is needed,
-  state why and for whom, rather than implying it for everyone.
+  state why and for whom, rather than implying it for everyone. State the
+  table's scope and its known exclusions, so a reader who does not find their
+  API knows whether it was assessed. Do not infer backward compatibility for
+  APIs or configurations that were not assessed.
 - **Announcement or blog post:** explain the motivation and show a small
   realistic success, then link to the exact-version note and migration guide.
   It is not a second independent changelog. Do not claim personal experience
