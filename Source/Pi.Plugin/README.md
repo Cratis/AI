@@ -14,6 +14,12 @@ Cratis quality hooks. When no `.cratis/ai.json` exists, it exposes the complete
 packaged skill set. It therefore gives Pi the complete single-harness Cratis
 experience without requiring the Cratis CLI.
 
+The `subagent` tool stands down for the session when another extension already
+provides a delegation tool named `Agent` (such as pi-subagents, which lists the
+same agents). It removes itself from the active tools at session start and
+shows one notice when Pi has a UI, so the model is not offered two delegation
+tools.
+
 The managed CLI path remains the choice when one repository must configure and
 synchronize several harnesses. It writes the resolved corpus to `.cratis/ai`,
 creates every harness integration, and records hashes for safe update and

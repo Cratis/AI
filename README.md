@@ -57,6 +57,13 @@ resources and extensions are never registered twice. It does not create the
 shared corpus, configure other harnesses, or provide managed update and
 uninstall protection.
 
+The Pi `subagent` tool, whether it comes from the package or a managed
+installation, stands down for the session when another extension already
+provides a delegation tool named `Agent` (such as pi-subagents, which reads the
+same `.pi/agents`). It removes itself from the active tools at session start,
+shows one notice when Pi has a UI, and so never offers the model two tools that
+list the same agents. Without such a tool it is unchanged.
+
 OpenCode can consume the standard `.opencode` and `AGENTS.md` adapters directly.
 
 ## Maintain harness adapters
