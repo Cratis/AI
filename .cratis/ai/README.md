@@ -3,7 +3,8 @@
 This directory is the canonical source for reusable Cratis AI content:
 
 - `rules/` — persistent engineering guidance;
-- `agents/` — specialized agent definitions;
+- `agents/` — specialized agent definitions; they omit `model:` so Claude, Pi, and
+  OpenCode subagents inherit the session's model instead of pinning a provider;
 - `prompts/` — reusable commands and prompt templates;
 - `skills/` — Agent Skills packages with references and assets;
 - `hooks/` — optional runtime quality hooks;
