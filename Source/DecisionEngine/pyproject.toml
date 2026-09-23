@@ -1,0 +1,15 @@
+[tool.pytest.ini_options]
+# Specifications read as sentences here the same way they do everywhere else in the organization:
+# `describe_normalizing_scores.it_sums_to_one` rather than `TestNormalize.test_sum`.
+python_files = ["test_*.py"]
+python_classes = ["describe_*"]
+python_functions = ["it_*"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM"]
