@@ -24,7 +24,7 @@ sidebar:
 ```
 
 - Product pages should declare `title` and `description`. The title becomes the page H1; the description feeds metadata and AI-facing exports.
-- Preserve existing frontmatter when editing unless the task deliberately changes it. The converter preserves only `title`, `description`, `sidebar`, and `tableOfContents`; it drops DocFX keys and other Starlight keys. Features such as `template`, `hero`, `banner`, `head`, `prev`, `next`, `slug`, and `draft` work only on site-level pages authored directly in the Documentation repository.
+- Preserve existing frontmatter when editing unless the task deliberately changes it. The converter preserves only `title`, `description`, `sidebar`, and `tableOfContents` from authored frontmatter; it drops DocFX keys and other Starlight keys. It generates `editUrl` separately from the owning product source path, so the page's edit action does not point to the synchronized copy. Features such as `template`, `hero`, `banner`, `head`, `prev`, `next`, `slug`, and `draft` work only on site-level pages authored directly in the Documentation repository.
 - Product navigation comes from `toc.yml`, not Starlight autogeneration. `sidebar.badge` works, but `sidebar.order`, `sidebar.label`, and `sidebar.hidden` do not control product navigation.
 - A frontmatter-less page falls back to its first H1, but that loses the description and relies on converter inference. Do not add new pages that way.
 

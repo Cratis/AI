@@ -65,6 +65,21 @@ language tabs. Never hand-edit a generated proxy or a synchronized docs copy.
 6. Record the source revision and verification scope in the change summary,
    not as a permanent receipt embedded in the page.
 
+## Know what the owning gate actually checks
+
+Look for a snippet validator before designing another checker. Arc and
+Chronicle's .NET repositories use `Documentation/validate-client-snippets.py`
+for supported **C#** fences in `Documentation/client-snippets/**`; Arc's
+validator has a `--self-test` that plants a failing snippet. Other client
+repositories own their own validators and toolchains. Check the validator's
+reported count and exclusions: unsupported markers or legacy snippets are not
+proved compilable just because the run passed. Run the owning validator for
+every changed client snippet, or name a missing toolchain and rely on its
+required CI gate. These checks **do not** compile ordinary Markdown/MDX fences
+elsewhere in product documentation. For those, verify against real source and
+a runnable sample/spec or an explicit snippet comparison; do not claim
+coverage from a site build or a validator that never scans the page.
+
 A simple process beats a large unmaintained examples gallery: give the reader
 one small success first, then link to a fuller sample when they need it. Update
 examples alongside public API changes and incoming reports of copy/paste failure.
