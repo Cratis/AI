@@ -86,16 +86,25 @@ public class CratisAIBuilder(IServiceCollection services)
     /// <param name="configure">Optional callback for transport and telemetry settings.</param>
     /// <returns>The <see cref="CratisAIBuilder"/> for continuation.</returns>
     /// <remarks>
+    /// <para>
     /// The resolver is required rather than defaulted. Which provider serves decisions is a product
     /// setting, and a package that guessed one would be making a configuration decision on behalf of
     /// a host that never asked it to.
+    /// </para>
+    /// <para>
+    /// The resolver and <see cref="IDecisions"/> are registered <b>scoped</b>, not singleton. A
+    /// resolver's whole job is to answer "which provider, for this caller" - which in a multi-tenant
+    /// host means reading per-tenant configuration. Held on a singleton it would capture whatever
+    /// scope first resolved it and answer every tenant with that one's settings, silently and
+    /// forever. <see cref="IDecisions"/> follows it rather than becoming a captive dependency.
+    /// </para>
     /// </remarks>
     public CratisAIBuilder WithDecisions<TResolver>(Action<DecisionOptions>? configure = null)
         where TResolver : class, IDecisionProviderResolver
     {
-        Services.AddSingleton<IDecisionProviderResolver, TResolver>();
+        Services.AddScoped<IDecisionProviderResolver, TResolver>();
+        Services.AddScoped<IDecisions, Decisions.Decisions>();
         Services.AddSingleton<IDecisionTelemetry, DecisionTelemetry>();
-        Services.AddSingleton<IDecisions, Decisions.Decisions>();
         Services.AddTransient<IDecisionProviderClient, DecisionEngineProviderClient>();
 
         var options = Services.AddOptions<DecisionOptions>().BindConfiguration(DecisionOptions.SectionName);
