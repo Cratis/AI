@@ -860,6 +860,7 @@
     {
       "id": "cratis/engineering/core",
       "availableTargets": [
+        "cratis-documentation-writing",
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries",
