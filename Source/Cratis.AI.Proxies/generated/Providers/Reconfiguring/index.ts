@@ -1,7 +1,6 @@
 export * from './AnthropicProviderReconfigured';
 export * from './AzureOpenAIProviderReconfigured';
 export * from './OpenAICompatibleProviderReconfigured';
-export * from './OpenAIProviderReconfigured';
 export * from './ReconfigureAnthropicProvider';
 export * from './ReconfigureAzureOpenAIProvider';
 export * from './ReconfigureOpenAICompatibleProvider';

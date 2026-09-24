@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.AI.LanguageModels;
+
 namespace Cratis.AI.Agents;
 
 /// <summary>
@@ -26,4 +28,16 @@ public record AgentId(string Value) : EventSourceId<string>(Value)
     /// </summary>
     /// <param name="value">The value to convert from.</param>
     public static implicit operator AgentId(string value) => new(value);
+
+    /// <summary>
+    /// The identity of the agent that serves a purpose.
+    /// </summary>
+    /// <param name="purpose">The <see cref="LanguageModelPurpose"/> the agent is configured for.</param>
+    /// <returns>The <see cref="AgentId"/>.</returns>
+    /// <remarks>
+    /// Derived from the purpose rather than generated, so configuring the agent for a purpose is
+    /// idempotent - the same purpose always addresses the same stream, however many times it is
+    /// configured and from wherever.
+    /// </remarks>
+    public static AgentId For(LanguageModelPurpose purpose) => new(purpose.Value.ToLowerInvariant());
 }

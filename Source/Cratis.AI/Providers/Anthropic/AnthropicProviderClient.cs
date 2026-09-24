@@ -12,13 +12,17 @@ using Microsoft.Extensions.Logging;
 namespace Cratis.AI.Providers.Anthropic;
 
 /// <summary>
-/// An <see cref="IAIProviderClient"/> for the Anthropic Messages API. Ported from Direct's
-/// <c>AIProviders.Anthropic.AnthropicProviderClient</c> (plan Section 5.2 step 3).
+/// An <see cref="IAIProviderClient"/> for Anthropic, over the Messages API or a Claude subscription.
 /// </summary>
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
 /// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337).</param>
+/// <param name="claudeCode">Completes against a Claude subscription, which the messages API will not serve.</param>
 /// <param name="logger">The logger.</param>
-public class AnthropicProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<AnthropicProviderClient> logger) : IAIProviderClient
+public class AnthropicProviderClient(
+    IHttpClientFactory httpClientFactory,
+    IAIProviderQuotaTracker quotaTracker,
+    IClaudeCodeCompletion claudeCode,
+    ILogger<AnthropicProviderClient> logger) : IAIProviderClient
 {
     const string BaseUrl = "https://api.anthropic.com";
 
@@ -28,6 +32,14 @@ public class AnthropicProviderClient(IHttpClientFactory httpClientFactory, IAIPr
     /// <inheritdoc/>
     public async Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
     {
+        // A Claude subscription authenticates with an OAuth token that the messages API rejects
+        // outright - it is only accepted by the Claude Code transport, so the credential decides
+        // which way the completion goes rather than any configuration.
+        if (AnthropicCredential.IsOAuthToken(provider.ApiKey))
+        {
+            return await claudeCode.Complete(prompt, provider.ApiKey, model, effort, cancellationToken);
+        }
+
         using var httpClient = httpClientFactory.CreateClient();
         var payload = BuildPayload(model, prompt, effort).ToJsonString();
 

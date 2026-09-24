@@ -67,6 +67,6 @@ public class a_console_stream : Specification
         client.BatchV1.Returns(_batch);
         var factory = Substitute.For<IKubernetesClientFactory>();
         factory.Create().Returns(client);
-        _runtime = new(Options.Create(new WorkerRuntimeOptions()), NullLogger<KubernetesWorkerRuntime>.Instance, factory);
+        _runtime = new(Options.Create(new WorkerRuntimeOptions()), Microsoft.Extensions.Logging.Abstractions.NullLogger<KubernetesWorkerRuntime>.Instance, factory);
     }
 }

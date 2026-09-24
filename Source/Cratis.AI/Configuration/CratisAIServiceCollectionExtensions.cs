@@ -48,6 +48,7 @@ public static class CratisAIServiceCollectionExtensions
         // WithUsageAttribution call in `configure` overrides them (TryAdd* below keeps the earliest
         // registration when nothing does).
         services.AddSingleton<IAIAlerts, NoOpAIAlerts>();
+        services.AddSingleton<IDefaultAgentInvocationModes, DefaultAgentInvocationModes>();
         services.AddSingleton<IAIUsageAttribution, NoAttributionAIUsageAttribution>();
 
         configure(builder);

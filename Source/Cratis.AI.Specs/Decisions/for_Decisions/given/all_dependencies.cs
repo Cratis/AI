@@ -42,7 +42,7 @@ public class all_dependencies : Specification
 
     protected void ProviderIs(AIProviderType type) =>
         _resolver.Resolve(Arg.Any<CancellationToken>()).Returns(new DecisionProviderSelection(
-            new ConfiguredAIProvider(AIProviderId.New(), type, AIProviderApiKey.NotSet, (AIProviderEndpoint)"http://decisions"),
+            new ConfiguredAIProvider(AIProviderId.New(), type, AIProviderApiKey.NotSet) { Endpoint = (AIProviderEndpoint)"http://decisions" },
             _model));
 
     protected void NoProviderIsResolved() =>
