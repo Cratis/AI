@@ -18,7 +18,7 @@ this documentation does not cover. See that content's own `AGENTS.md`/`CLAUDE.md
 - [`architecture.md`](./architecture.md) - the layered design: what each folder under
   `Source/Cratis.AI/` owns, and the seams between them.
 - [`abstractions.md`](./abstractions.md) - the seams a consumer implements to adopt the package
-  (`ISecretProtector`, `IAIAgents`, `IAgentExecution`, `AddCratisAI()`), including the ordering
+  (`IAIAgents`, `IAgentExecution`, `AddCratisAI()`), including the ordering
   rule that makes Chronicle's type discovery actually see the package.
 - [`decision-making.md`](./decision-making.md) - the decision capability: context plus a finite set
   of choices in, a probability distribution out, with no generation and no thresholds. Covers the

@@ -76,9 +76,12 @@
         <PackageReference Include="Cratis.Arc.Core" />
         <!-- Read models are stored in MongoDB collections read directly for on-demand aggregation (AgentUsageByWeek/Month). -->
         <PackageReference Include="Cratis.Arc.MongoDB" />
-        <!-- Chronicle is referenced directly, not transitively through Cratis.Arc.Chronicle, so central
+        <!-- Chronicle is referenced directly as well as through Cratis.Arc.Chronicle, so central
              package management actually pins the client version (plan Section 5.3f). -->
         <PackageReference Include="Cratis.Chronicle" />
+        <!-- The Arc/Chronicle seam: [NotAudited], which keeps a command's credential out of the
+             causation chain. Without it Arc records every command property value, in the clear. -->
+        <PackageReference Include="Cratis.Arc.Chronicle" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Http" />
         <PackageReference Include="Microsoft.Extensions.Options" />

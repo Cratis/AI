@@ -4,18 +4,25 @@
 namespace Cratis.AI.Providers;
 
 /// <summary>
-/// The API key a configured AI provider authenticates with. Ported from Direct's
-/// <c>AIProviders.AIProviderApiKey</c> (plan Section 5.2 step 3), deliberately without Direct's
-/// original <c>[SecurityToken]</c> attribute: that attribute is tied to Direct's own
-/// <c>Tenants.Encryption</c> pipeline, which the package must never reference (plan Section 5.1's
-/// rule, and risk #10 - "the package never sees a key vault, never logs a credential"). Protection
-/// is explicit instead: a command handler that persists this value calls
-/// <see cref="Abstractions.ISecretProtector.Protect"/> itself before it reaches an event, and a
-/// caller that needs the plaintext back calls <see cref="Abstractions.ISecretRevealer.Reveal"/>.
-/// Direct and Studio each supply the vault behind those two interfaces.
+/// The API key a configured AI provider authenticates with.
 /// </summary>
-/// <param name="Value">The underlying value - protected once a command has called
-/// <see cref="Abstractions.ISecretProtector.Protect"/>, plaintext only in flight before that point.</param>
+/// <remarks>
+/// Chronicle owns the cryptography. <c language="csharp">[Encrypted]</c> encrypts the value on its
+/// way into an event and decrypts it on the way back out, so a handler stores it and a caller reads
+/// it without either one holding a key. The scope is the event store namespace, which is the same
+/// boundary the per-tenant protectors this replaced already used - Direct resolved its key by
+/// <c>EventStoreNamespaceName</c>, and Studio's organization key is the tenant id "doubling as the
+/// organization's namespace name".
+/// <para>
+/// <c language="csharp">[NotAudited]</c> is not decoration. A command's property values are written
+/// to the causation chain before <c>Handle</c> runs, so without it the plaintext key is recorded in
+/// the event log permanently - which is exactly what happened in Direct, where six real keys were
+/// found in the clear.
+/// </para>
+/// </remarks>
+/// <param name="Value">The underlying value.</param>
+[NotAudited]
+[Encrypted(EncryptionScope.Namespace)]
 public record AIProviderApiKey(string Value) : ConceptAs<string>(Value)
 {
     /// <summary>

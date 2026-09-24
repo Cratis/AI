@@ -14,7 +14,7 @@ public class and_the_reporter_throws : given.all_dependencies
 
     void Establish()
     {
-        ProviderIs(_provider, new(_provider, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "protected:sk-ant-admin01-test" });
+        ProviderIs(_provider, new(_provider, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "sk-ant-admin01-test" });
         _anthropicReporter.ReportFor(Arg.Any<ConfiguredAIProvider>()).Throws(new HttpRequestException("boom"));
     }
 

@@ -27,10 +27,9 @@ public record AddDecisionEngineProvider(AIProviderName Name, AIProviderEndpoint 
     /// Handles the command by opening a new provider stream and appending a
     /// <see cref="DecisionEngineProviderAdded"/> event, with the API key protected at rest.
     /// </summary>
-    /// <param name="protector">The <see cref="ISecretProtector"/> the key is protected through.</param>
     /// <returns>A tuple of the provider identity (event source) and the event.</returns>
-    public async Task<(AIProviderId, DecisionEngineProviderAdded)> Handle(ISecretProtector protector) =>
-        (AIProviderId.New(), new(Name, Endpoint, Model, await protector.Protect(ApiKey)));
+    public (AIProviderId, DecisionEngineProviderAdded) Handle() =>
+        (AIProviderId.New(), new(Name, Endpoint, Model, ApiKey));
 }
 
 /// <summary>
@@ -56,13 +55,5 @@ public class AddDecisionEngineProviderValidator : CommandValidator<AddDecisionEn
 /// <param name="Endpoint">The endpoint Decision API v1 requests are sent to.</param>
 /// <param name="Model">The model the engine weighs choices with.</param>
 /// <param name="ApiKey">The API key, when the endpoint requires one, protected at rest.</param>
-[EventType(EventTypeId)]
-public record DecisionEngineProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, ModelName Model, AIProviderApiKey ApiKey)
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - chosen once, here, and
-    /// never changed (decision 0002), matching the bare-type-name convention every other provider
-    /// event in this package already uses.
-    /// </summary>
-    public const string EventTypeId = "DecisionEngineProviderAdded";
-}
+[EventType]
+public record DecisionEngineProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, ModelName Model, AIProviderApiKey ApiKey);

@@ -9,7 +9,7 @@ namespace Cratis.AI.Decisions;
 /// <summary>
 /// Which configured provider and model decisions are made through - supplied by the consuming
 /// product, the same way <see cref="Abstractions.IAIAgents"/> and
-/// <see cref="Abstractions.ISecretProtector"/> are.
+/// are.
 /// </summary>
 /// <remarks>
 /// The package deliberately does not decide this for itself. Which provider serves decisions is a

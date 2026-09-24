@@ -30,7 +30,6 @@ public static class CratisAIServiceCollectionExtensions
     /// </para>
     /// <code>
     /// builder.Services.AddCratisAI(ai => ai
-    ///     .WithSecretProtection&lt;OrganizationSecretProtector&gt;()
     ///     .WithAgents&lt;OrganizationAgents&gt;());
     /// builder.AddCratisArc();
     /// builder.AddChronicle();

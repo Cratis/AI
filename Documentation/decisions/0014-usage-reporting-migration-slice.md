@@ -1,7 +1,9 @@
 # 0014 - Vendor usage reporting as its own migration slice, decoupled from pool selection
 
-Status: Accepted
-Related: `Providers/UsageReporting/`, decision 0002, decision 0006, decision 0007, decision 0008.
+Status: Accepted - its `ISecretProtector` usage is superseded by decision 0015, which moves
+credential encryption to Chronicle's `[Encrypted]`; the slicing this record is about stands.
+Related: `Providers/UsageReporting/`, decision 0002, decision 0006, decision 0007, decision 0008,
+decision 0015.
 
 ## Context
 

@@ -80,7 +80,7 @@ about before anyone else hits them:
 
 - Full .NET + yarn scaffolding; the three pre-existing TypeScript projects run as yarn workspace
   members with their own specs green.
-- `Abstractions/` seams (`ISecretProtector`/`Revealer`, `IAIAgents`, `IAIAlerts`,
+- `Abstractions/` seams (`IAIAgents`, `IAIAlerts`,
   `IAIUsageAttribution`) with no-op defaults where a safe default exists.
 - Agent identity + causation (`Agents/IAgentExecution`/`AgentExecution`/`AgentIdentity`/`AIAgentCausation`) -
   ported and generalized from Direct, closing a gap Studio had entirely. 7 specs.

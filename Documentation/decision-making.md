@@ -101,7 +101,6 @@ than by the weights.
 
 ```csharp
 builder.Services.AddCratisAI(ai => ai
-    .WithSecretProtection<OrganizationSecretProtector>()
     .WithAgents<OrganizationAgents>()
     .WithDecisions<OrganizationDecisionProvider>());
 ```

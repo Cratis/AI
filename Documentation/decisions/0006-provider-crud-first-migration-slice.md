@@ -1,6 +1,8 @@
 # 0006 - Provider CRUD as the first real migration slice
 
-Status: Accepted (Reconfigure added same day, folded into this record rather than a separate one)
+Status: Accepted (Reconfigure added same day, folded into this record rather than a separate one) -
+its `ISecretProtector` choice is superseded by decision 0015, which moves credential encryption to
+Chronicle's `[Encrypted]`; the rest of this record stands.
 Related: `Providers/Adding/`, `Providers/Renaming/RenameAIProvider.cs`,
 `Providers/Removing/RemoveAIProvider.cs`, `Providers/ConfiguredAIProvider.cs`.
 

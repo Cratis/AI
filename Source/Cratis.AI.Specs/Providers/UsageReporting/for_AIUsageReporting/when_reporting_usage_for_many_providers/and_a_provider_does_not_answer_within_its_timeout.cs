@@ -17,7 +17,7 @@ public class and_a_provider_does_not_answer_within_its_timeout : given.all_depen
 
     void Establish()
     {
-        ProviderIs(_slow, new(_slow, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "protected:sk-ant-admin01-slow" });
+        ProviderIs(_slow, new(_slow, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "sk-ant-admin01-slow" });
         _anthropicReporter.ReportFor(Arg.Any<ConfiguredAIProvider>())
             .Returns(async _ =>
             {

@@ -24,10 +24,9 @@ public record AddOpenAIProvider(AIProviderName Name, AIProviderApiKey ApiKey, Ma
     /// Handles the command by opening a new provider stream and appending an
     /// <see cref="OpenAIProviderAdded"/> event, with the API key protected at rest.
     /// </summary>
-    /// <param name="protector">The <see cref="ISecretProtector"/> the key is protected through.</param>
     /// <returns>A tuple of the provider identity (event source) and the event.</returns>
-    public async Task<(AIProviderId, OpenAIProviderAdded)> Handle(ISecretProtector protector) =>
-        (AIProviderId.New(), new(Name, await protector.Protect(ApiKey), MaxConcurrentJobs));
+    public (AIProviderId, OpenAIProviderAdded) Handle() =>
+        (AIProviderId.New(), new(Name, ApiKey, MaxConcurrentJobs));
 }
 
 /// <summary>

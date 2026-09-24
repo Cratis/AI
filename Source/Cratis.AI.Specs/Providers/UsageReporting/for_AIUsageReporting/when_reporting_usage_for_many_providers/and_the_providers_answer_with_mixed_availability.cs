@@ -22,8 +22,8 @@ public class and_the_providers_answer_with_mixed_availability : given.all_depend
 
     void Establish()
     {
-        ProviderIs(_available, new(_available, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "protected:sk-ant-admin01-available" });
-        ProviderIs(_unreachable, new(_unreachable, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "protected:sk-ant-admin01-unreachable" });
+        ProviderIs(_available, new(_available, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "sk-ant-admin01-available" });
+        ProviderIs(_unreachable, new(_unreachable, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "sk-ant-admin01-unreachable" });
         ProviderIs(_noCredential, new(_noCredential, AIProviderType.Anthropic, "completions-key"));
 
         _anthropicReporter.ReportFor(Arg.Is<ConfiguredAIProvider>(provider => provider.Id == _available))

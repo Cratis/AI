@@ -32,7 +32,6 @@ own domain is instead a seam:
 
 | Seam | Answers | Consumer supplies |
 |---|---|---|
-| `ISecretProtector` / `ISecretRevealer` | How is a credential protected at rest? | A wrapper over the consumer's own vault (Direct: `Tenants.Encryption`; Studio: `Organizations.Encryption`) |
 | `IAIAgents` | Who is this agent? | A lookup over the consumer's own agent catalog |
 | `IAIAlerts` | Who gets told when something operational goes wrong? | The consumer's alerting system, or the shipped no-op default |
 | `IAIUsageAttribution` | What does this session's usage belong to, in the consumer's own domain? | The consumer's own resolution (Direct: issues a session covered) |

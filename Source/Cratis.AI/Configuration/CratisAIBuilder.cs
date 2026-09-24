@@ -22,22 +22,6 @@ public class CratisAIBuilder(IServiceCollection services)
     public IServiceCollection Services { get; } = services;
 
     /// <summary>
-    /// Registers the <see cref="ISecretProtector"/> and <see cref="ISecretRevealer"/> the package
-    /// protects and reveals provider credentials with. Required - there is no safe default (plan
-    /// Section 5.1, risk #10).
-    /// </summary>
-    /// <typeparam name="TProtector">The implementation type, implementing both interfaces.</typeparam>
-    /// <returns>The <see cref="CratisAIBuilder"/> for continuation.</returns>
-    public CratisAIBuilder WithSecretProtection<TProtector>()
-        where TProtector : class, ISecretProtector, ISecretRevealer
-    {
-        Services.AddSingleton<TProtector>();
-        Services.AddSingleton<ISecretProtector>(_ => _.GetRequiredService<TProtector>());
-        Services.AddSingleton<ISecretRevealer>(_ => _.GetRequiredService<TProtector>());
-        return this;
-    }
-
-    /// <summary>
     /// Registers the <see cref="IAIAgents"/> lookup the package resolves agent identity and display
     /// names through. Required - <see cref="IAgentExecution"/> cannot attribute anything without it.
     /// </summary>

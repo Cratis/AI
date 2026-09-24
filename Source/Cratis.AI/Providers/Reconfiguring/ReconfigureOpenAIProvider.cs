@@ -22,9 +22,8 @@ public record ReconfigureOpenAIProvider(AIProviderId Provider, AIProviderApiKey 
     /// Handles the command by appending an <see cref="OpenAIProviderReconfigured"/> event.
     /// </summary>
     /// <param name="current">The provider as configured so far - <see langword="null"/> when there is none.</param>
-    /// <param name="protector">The <see cref="ISecretProtector"/> a newly supplied key is protected through.</param>
     /// <returns>The event, or a validation error when the provider is not configured.</returns>
-    public async Task<Result<OpenAIProviderReconfigured, ValidationResult>> Handle(ConfiguredAIProvider? current, ISecretProtector protector)
+    public Result<OpenAIProviderReconfigured, ValidationResult> Handle(ConfiguredAIProvider? current)
     {
         if (current is null)
         {
@@ -32,7 +31,7 @@ public record ReconfigureOpenAIProvider(AIProviderId Provider, AIProviderApiKey 
         }
 
         return new OpenAIProviderReconfigured(
-            ApiKey.Equals(AIProviderApiKey.NotSet) ? current.ApiKey : (AIProviderApiKey)await protector.Protect(ApiKey));
+            ApiKey.Equals(AIProviderApiKey.NotSet) ? current.ApiKey : ApiKey);
     }
 }
 
