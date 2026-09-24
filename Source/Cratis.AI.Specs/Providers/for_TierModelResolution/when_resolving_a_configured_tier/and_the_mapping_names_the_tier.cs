@@ -15,6 +15,6 @@ public class and_the_mapping_names_the_tier : Specification
                 Balanced: new ModelName("configured-balanced"),
                 Powerful: new ModelName("configured-powerful"),
                 Premier: new ModelName("configured-premier")),
-            AIProviderType.Anthropic,
+            [new ModelName("claude-sonnet-4-5")],
             ModelTier.Powerful).ShouldEqual(new ModelName("configured-powerful"));
 }
