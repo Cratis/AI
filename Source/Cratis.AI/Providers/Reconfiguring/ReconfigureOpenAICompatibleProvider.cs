@@ -21,9 +21,8 @@ public record ReconfigureOpenAICompatibleProvider(AIProviderId Provider, AIProvi
     /// Handles the command by appending an <see cref="OpenAICompatibleProviderReconfigured"/> event.
     /// </summary>
     /// <param name="current">The provider as configured so far - <see langword="null"/> when there is none.</param>
-    /// <param name="protector">The <see cref="ISecretProtector"/> a newly supplied key is protected through.</param>
     /// <returns>The event, or a validation error when the provider is not configured.</returns>
-    public async Task<Result<OpenAICompatibleProviderReconfigured, ValidationResult>> Handle(ConfiguredAIProvider? current, ISecretProtector protector)
+    public Result<OpenAICompatibleProviderReconfigured, ValidationResult> Handle(ConfiguredAIProvider? current)
     {
         if (current is null)
         {
@@ -32,7 +31,7 @@ public record ReconfigureOpenAICompatibleProvider(AIProviderId Provider, AIProvi
 
         return new OpenAICompatibleProviderReconfigured(
             Endpoint,
-            ApiKey.Equals(AIProviderApiKey.NotSet) ? current.ApiKey : (AIProviderApiKey)await protector.Protect(ApiKey));
+            ApiKey.Equals(AIProviderApiKey.NotSet) ? current.ApiKey : ApiKey);
     }
 }
 
@@ -53,16 +52,5 @@ public class ReconfigureOpenAICompatibleProviderValidator : CommandValidator<Rec
 /// </summary>
 /// <param name="Endpoint">The new endpoint.</param>
 /// <param name="ApiKey">The new API key, protected at rest.</param>
-[EventType(EventTypeId)]
-public record OpenAICompatibleProviderReconfigured(AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - chosen once, here, and
-    /// never changed (decision 0002). Deliberately the bare type name as a string, not a fresh guid:
-    /// this is exactly the id Direct's own pre-migration same-named type already resolves to
-    /// implicitly (Chronicle's own type-name fallback, decision 0007) - matching it keeps Direct's
-    /// real, already-stored provider events readable through this type once Direct's own duplicate
-    /// is deleted, rather than orphaning them under an id nothing produces anymore.
-    /// </summary>
-    public const string EventTypeId = "OpenAICompatibleProviderReconfigured";
-}
+[EventType]
+public record OpenAICompatibleProviderReconfigured(AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey);

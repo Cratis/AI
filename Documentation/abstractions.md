@@ -7,18 +7,25 @@ This is what lets Direct and Studio share one package without either leaking int
 
 ## The seams
 
-### `ISecretProtector` / `ISecretRevealer`
+### Credentials are not a seam
+
+There is nothing to implement. A provider credential is an `AIProviderApiKey`, and that type carries
+its own protection:
 
 ```csharp
-public interface ISecretProtector { Task<string> Protect(string value); }
-public interface ISecretRevealer  { Task<string> Reveal(string value); }
+[NotAudited]
+[Encrypted(EncryptionScope.Namespace)]
+public record AIProviderApiKey(string Value) : ConceptAs<string>(Value);
 ```
 
-Protects/reveals a secret (a provider API key, a subscription token) at rest. The package never
-sees a key vault and never logs a credential - it calls `Protect` at the point a secret is about to
-be persisted, and `Reveal` at the point one is about to be used. No safe default exists; a consumer
-must register one. Direct implements it over `Tenants.Encryption`; Studio over
-`Organizations.Encryption`.
+Chronicle encrypts it on the way into an event and decrypts it on the way back out, keyed per event
+store namespace. `[NotAudited]` keeps it out of the causation chain, where a command's property
+values are otherwise recorded in the clear before `Handle` even runs.
+
+The package still never sees a key vault - Chronicle holds the key. The `ISecretProtector` /
+`ISecretRevealer` seam this replaced is gone; see
+[`0015-chronicle-owns-credential-encryption.md`](./decisions/0015-chronicle-owns-credential-encryption.md),
+which also covers the credential re-recording an upgrade requires.
 
 ### `IAIAgents`
 
@@ -88,7 +95,6 @@ must never be blocked by attribution itself failing. See decision
 
 ```csharp
 services.AddCratisAI(ai => ai
-    .WithSecretProtection<OrganizationSecretProtector>()
     .WithAgents<OrganizationAgents>()
     .WithAlerts<OrganizationAlerts>()               // optional
     .WithUsageAttribution<OrganizationUsageAttribution>()); // optional

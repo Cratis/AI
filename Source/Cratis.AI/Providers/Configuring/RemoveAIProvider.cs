@@ -26,14 +26,5 @@ public record RemoveAIProvider(AIProviderId Id)
 /// Event raised when a configured AI provider has been removed, taking its credentials out of use.
 /// Ported from Studio's own <c>Settings.AI.Providers.Removing.AIModelRemoved</c>.
 /// </summary>
-[EventType(EventTypeId)]
-public record AIModelRemoved
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - the bare type name as a
-    /// string, matching exactly what Studio's own pre-migration same-named type already resolves to
-    /// implicitly (decisions 0007/0008), so Studio's real, already-stored removal events stay
-    /// readable through this type once Studio's own duplicate is deleted.
-    /// </summary>
-    public const string EventTypeId = "AIModelRemoved";
-}
+[EventType]
+public record AIModelRemoved;

@@ -30,16 +30,15 @@ public record SetAIProviderUsageCredential(AIProviderId Provider, AIProviderApiK
     /// Handles the command by appending an <see cref="AIProviderUsageCredentialSet"/> event.
     /// </summary>
     /// <param name="current">The provider as configured so far - <see langword="null"/> when there is none.</param>
-    /// <param name="protector">The <see cref="ISecretProtector"/> the key is protected through.</param>
     /// <returns>The event, or a validation error when the provider is not configured.</returns>
-    public async Task<Result<AIProviderUsageCredentialSet, ValidationResult>> Handle(ConfiguredAIProvider? current, ISecretProtector protector)
+    public Result<AIProviderUsageCredentialSet, ValidationResult> Handle(ConfiguredAIProvider? current)
     {
         if (current is null)
         {
             return ValidationResult.Error("The provider is not configured");
         }
 
-        return new AIProviderUsageCredentialSet((AIProviderApiKey)await protector.Protect(UsageApiKey));
+        return new AIProviderUsageCredentialSet(UsageApiKey);
     }
 }
 
@@ -83,32 +82,12 @@ public record ClearAIProviderUsageCredential(AIProviderId Provider)
 /// Event raised when a configured AI provider's usage report Admin API key has been set.
 /// </summary>
 /// <param name="UsageApiKey">The usage Admin API key.</param>
-[EventType(EventTypeId)]
-public record AIProviderUsageCredentialSet(AIProviderApiKey UsageApiKey)
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - chosen once, here, and
-    /// never changed (decision 0002). Deliberately the bare type name as a string, not a fresh guid:
-    /// this is exactly the id Direct's own pre-migration same-named type already resolves to
-    /// implicitly (Chronicle's own type-name fallback, decision 0007) - matching it keeps Direct's
-    /// real, already-stored usage-credential events readable through this type once Direct's own
-    /// duplicate is deleted, rather than orphaning them under an id nothing produces anymore
-    /// (decision 0008's same reasoning, applied to the usage-reporting migration slice).
-    /// </summary>
-    public const string EventTypeId = "AIProviderUsageCredentialSet";
-}
+[EventType]
+public record AIProviderUsageCredentialSet(AIProviderApiKey UsageApiKey);
 
 /// <summary>
 /// Event raised when a configured AI provider's usage report Admin API key has been removed, and its
 /// usage and cost reporting has therefore stopped.
 /// </summary>
-[EventType(EventTypeId)]
-public record AIProviderUsageCredentialCleared
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - see
-    /// <see cref="AIProviderUsageCredentialSet.EventTypeId"/> for why it matches Direct's own
-    /// pre-migration implicit id rather than a fresh guid.
-    /// </summary>
-    public const string EventTypeId = "AIProviderUsageCredentialCleared";
-}
+[EventType]
+public record AIProviderUsageCredentialCleared;

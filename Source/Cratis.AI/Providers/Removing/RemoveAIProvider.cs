@@ -23,16 +23,5 @@ public record RemoveAIProvider(AIProviderId Provider)
 /// <summary>
 /// Event raised when a configured AI provider has been removed.
 /// </summary>
-[EventType(EventTypeId)]
-public record AIProviderRemoved
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - chosen once, here, and
-    /// never changed (decision 0002). Deliberately the bare type name as a string, not a fresh guid:
-    /// this is exactly the id Direct's own pre-migration same-named type already resolves to
-    /// implicitly (Chronicle's own type-name fallback, decision 0007) - matching it keeps Direct's
-    /// real, already-stored provider events readable through this type once Direct's own duplicate
-    /// is deleted, rather than orphaning them under an id nothing produces anymore.
-    /// </summary>
-    public const string EventTypeId = "AIProviderRemoved";
-}
+[EventType]
+public record AIProviderRemoved;

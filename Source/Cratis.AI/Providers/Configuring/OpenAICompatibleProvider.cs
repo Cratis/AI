@@ -25,10 +25,9 @@ public record AddOpenAICompatibleProvider(AIProviderName Name, AIProviderEndpoin
     /// Handles the command by generating an identifier and appending an
     /// <see cref="OpenAICompatibleModelConfigured"/> event.
     /// </summary>
-    /// <param name="protector">The <see cref="ISecretProtector"/> the key is protected through.</param>
     /// <returns>A tuple of the provider identity (event source) and the event.</returns>
-    public async Task<(AIProviderId, OpenAICompatibleModelConfigured)> Handle(ISecretProtector protector) =>
-        (AIProviderId.New(), new(Name, Endpoint, await protector.Protect(ApiKey), ModelName.NotSet));
+    public (AIProviderId, OpenAICompatibleModelConfigured) Handle() =>
+        (AIProviderId.New(), new(Name, Endpoint, ApiKey, ModelName.NotSet));
 }
 
 /// <summary>
@@ -62,16 +61,15 @@ public record ReconfigureOpenAICompatibleProvider(AIProviderId Id, AIProviderNam
     /// Handles the command by appending an <see cref="OpenAICompatibleModelConfigured"/> event.
     /// </summary>
     /// <param name="current">The provider as configured so far - <see langword="null"/> when there is none.</param>
-    /// <param name="protector">The <see cref="ISecretProtector"/> a newly supplied key is protected through.</param>
     /// <returns>The event, or a validation error when the provider is not configured.</returns>
-    public async Task<Result<OpenAICompatibleModelConfigured, ValidationResult>> Handle(ConfiguredAIProvider? current, ISecretProtector protector)
+    public Result<OpenAICompatibleModelConfigured, ValidationResult> Handle(ConfiguredAIProvider? current)
     {
         if (current is null)
         {
             return ValidationResult.Error("The provider is not configured");
         }
 
-        var apiKey = ApiKey.Equals(AIProviderApiKey.NotSet) ? current.ApiKey : (AIProviderApiKey)await protector.Protect(ApiKey);
+        var apiKey = ApiKey.Equals(AIProviderApiKey.NotSet) ? current.ApiKey : ApiKey;
         return new OpenAICompatibleModelConfigured(Name, Endpoint, apiKey, ModelName.NotSet);
     }
 }
@@ -99,12 +97,5 @@ public class ReconfigureOpenAICompatibleProviderValidator : CommandValidator<Rec
 /// <param name="Endpoint">The base URL of the OpenAI-compatible service.</param>
 /// <param name="ApiKey">The API key, protected at rest, empty when the service needs no credential.</param>
 /// <param name="Model">The identifier the service knows the model by - unset until a future feature sets one.</param>
-[EventType(EventTypeId)]
-public record OpenAICompatibleModelConfigured(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, ModelName Model)
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - see
-    /// <see cref="AnthropicModelConfigured"/>'s remarks.
-    /// </summary>
-    public const string EventTypeId = "OpenAICompatibleModelConfigured";
-}
+[EventType]
+public record OpenAICompatibleModelConfigured(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, ModelName Model);

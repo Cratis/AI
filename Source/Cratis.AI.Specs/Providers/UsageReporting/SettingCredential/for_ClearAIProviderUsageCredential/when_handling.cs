@@ -12,7 +12,7 @@ public class when_handling : Specification
     ConfiguredAIProvider? _current;
     Result<AIProviderUsageCredentialCleared, Cratis.Arc.Validation.ValidationResult> _result;
 
-    void Establish() => _current = new(_id, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "protected:sk-ant-admin01-test" };
+    void Establish() => _current = new(_id, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "sk-ant-admin01-test" };
 
     Task Because()
     {

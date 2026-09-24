@@ -24,10 +24,9 @@ public record AddAzureOpenAIProvider(AIProviderName Name, AIProviderEndpoint End
     /// Handles the command by generating an identifier and appending an
     /// <see cref="AzureOpenAIModelConfigured"/> event.
     /// </summary>
-    /// <param name="protector">The <see cref="ISecretProtector"/> the key is protected through.</param>
     /// <returns>A tuple of the provider identity (event source) and the event.</returns>
-    public async Task<(AIProviderId, AzureOpenAIModelConfigured)> Handle(ISecretProtector protector) =>
-        (AIProviderId.New(), new(Name, Endpoint, await protector.Protect(ApiKey), ModelName.NotSet));
+    public (AIProviderId, AzureOpenAIModelConfigured) Handle() =>
+        (AIProviderId.New(), new(Name, Endpoint, ApiKey, ModelName.NotSet));
 }
 
 /// <summary>
@@ -69,16 +68,15 @@ public record ReconfigureAzureOpenAIProvider(AIProviderId Id, AIProviderName Nam
     /// Handles the command by appending an <see cref="AzureOpenAIModelConfigured"/> event.
     /// </summary>
     /// <param name="current">The provider as configured so far - <see langword="null"/> when there is none.</param>
-    /// <param name="protector">The <see cref="ISecretProtector"/> a newly supplied key is protected through.</param>
     /// <returns>The event, or a validation error when the provider is not configured.</returns>
-    public async Task<Result<AzureOpenAIModelConfigured, ValidationResult>> Handle(ConfiguredAIProvider? current, ISecretProtector protector)
+    public Result<AzureOpenAIModelConfigured, ValidationResult> Handle(ConfiguredAIProvider? current)
     {
         if (current is null)
         {
             return ValidationResult.Error("The provider is not configured");
         }
 
-        var apiKey = ApiKey.Equals(AIProviderApiKey.NotSet) ? current.ApiKey : (AIProviderApiKey)await protector.Protect(ApiKey);
+        var apiKey = ApiKey.Equals(AIProviderApiKey.NotSet) ? current.ApiKey : ApiKey;
         return new AzureOpenAIModelConfigured(Name, Endpoint, apiKey, ModelName.NotSet);
     }
 }
@@ -116,12 +114,5 @@ public class ReconfigureAzureOpenAIProviderValidator : CommandValidator<Reconfig
 /// <param name="Endpoint">The Azure OpenAI resource endpoint.</param>
 /// <param name="ApiKey">The Azure OpenAI API key, protected at rest.</param>
 /// <param name="DeploymentName">The name of the deployment addressing the model - unset until a future feature sets one.</param>
-[EventType(EventTypeId)]
-public record AzureOpenAIModelConfigured(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, ModelName DeploymentName)
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - see
-    /// <see cref="AnthropicModelConfigured"/>'s remarks.
-    /// </summary>
-    public const string EventTypeId = "AzureOpenAIModelConfigured";
-}
+[EventType]
+public record AzureOpenAIModelConfigured(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, ModelName DeploymentName);

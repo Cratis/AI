@@ -6,8 +6,9 @@ using NSubstitute;
 namespace Cratis.AI.Providers.UsageReporting.for_AIUsageReporting.when_reporting_usage_for_a_provider;
 
 /// <summary>
-/// Verifies the whole chain: the provider is resolved, its stored usage key reaches the vendor
-/// reporter revealed at the moment it is spent, and the reporter's answer comes back as-is.
+/// Verifies the whole chain: the provider is resolved, its usage key reaches the vendor reporter,
+/// and the reporter's answer comes back as-is. Chronicle decrypts the key on read, so what the read
+/// model hands over is already usable - there is nothing left for the orchestrator to unwrap.
 /// </summary>
 public class and_the_reporter_succeeds : given.all_dependencies
 {
@@ -19,8 +20,7 @@ public class and_the_reporter_succeeds : given.all_dependencies
 
     void Establish()
     {
-        ProviderIs(_provider, new(_provider, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "protected:sk-ant-admin01-test" });
-        _revealer.Reveal("protected:sk-ant-admin01-test").Returns("sk-ant-admin01-test");
+        ProviderIs(_provider, new(_provider, AIProviderType.Anthropic, "completions-key") { UsageApiKey = "sk-ant-admin01-test" });
         _anthropicReporter.ReportFor(Arg.Any<ConfiguredAIProvider>()).Returns(new AIProviderUsageData([_usageDay], [_costDay]));
     }
 
@@ -31,6 +31,6 @@ public class and_the_reporter_succeeds : given.all_dependencies
     [Fact] void should_answer_with_the_reporters_costs() => _result.Costs.ShouldContainOnly(_costDay);
 
     [Fact]
-    void should_hand_the_reporter_the_revealed_key() =>
+    void should_hand_the_reporter_the_usage_key() =>
         _anthropicReporter.Received(1).ReportFor(Arg.Is<ConfiguredAIProvider>(provider => provider.UsageApiKey == new AIProviderApiKey("sk-ant-admin01-test")));
 }

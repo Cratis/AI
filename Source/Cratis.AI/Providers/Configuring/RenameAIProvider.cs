@@ -39,14 +39,5 @@ public class RenameAIProviderValidator : CommandValidator<RenameAIProvider>
 /// <c>Settings.AI.Providers.Renaming.AIModelRenamed</c>.
 /// </summary>
 /// <param name="Name">The new name the organization knows the provider by.</param>
-[EventType(EventTypeId)]
-public record AIModelRenamed(AIProviderName Name)
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - the bare type name as a
-    /// string, matching exactly what Studio's own pre-migration same-named type already resolves to
-    /// implicitly (decisions 0007/0008), so Studio's real, already-stored rename events stay readable
-    /// through this type once Studio's own duplicate is deleted.
-    /// </summary>
-    public const string EventTypeId = "AIModelRenamed";
-}
+[EventType]
+public record AIModelRenamed(AIProviderName Name);

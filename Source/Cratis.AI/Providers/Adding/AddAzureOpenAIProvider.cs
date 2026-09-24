@@ -21,10 +21,9 @@ public record AddAzureOpenAIProvider(AIProviderName Name, AIProviderEndpoint End
     /// Handles the command by opening a new provider stream and appending an
     /// <see cref="AzureOpenAIProviderAdded"/> event, with the API key protected at rest.
     /// </summary>
-    /// <param name="protector">The <see cref="ISecretProtector"/> the key is protected through.</param>
     /// <returns>A tuple of the provider identity (event source) and the event.</returns>
-    public async Task<(AIProviderId, AzureOpenAIProviderAdded)> Handle(ISecretProtector protector) =>
-        (AIProviderId.New(), new(Name, Endpoint, await protector.Protect(ApiKey), MaxConcurrentJobs));
+    public (AIProviderId, AzureOpenAIProviderAdded) Handle() =>
+        (AIProviderId.New(), new(Name, Endpoint, ApiKey, MaxConcurrentJobs));
 }
 
 /// <summary>
@@ -50,16 +49,5 @@ public class AddAzureOpenAIProviderValidator : CommandValidator<AddAzureOpenAIPr
 /// <param name="Endpoint">The Azure OpenAI resource endpoint.</param>
 /// <param name="ApiKey">The Azure OpenAI API key, protected at rest.</param>
 /// <param name="MaxConcurrentJobs">How many worker sessions may run on the provider at once - zero for no limit.</param>
-[EventType(EventTypeId)]
-public record AzureOpenAIProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs)
-{
-    /// <summary>
-    /// The pinned <see cref="EventTypeAttribute"/> id for this event type - chosen once, here, and
-    /// never changed (decision 0002). Deliberately the bare type name as a string, not a fresh guid:
-    /// this is exactly the id Direct's own pre-migration same-named type already resolves to
-    /// implicitly (Chronicle's own type-name fallback, decision 0007) - matching it keeps Direct's
-    /// real, already-stored provider events readable through this type once Direct's own duplicate
-    /// is deleted, rather than orphaning them under an id nothing produces anymore.
-    /// </summary>
-    public const string EventTypeId = "AzureOpenAIProviderAdded";
-}
+[EventType]
+public record AzureOpenAIProviderAdded(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs);

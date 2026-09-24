@@ -37,20 +37,18 @@ public interface IAIUsageReporting
 }
 
 /// <summary>
-/// Represents an implementation of <see cref="IAIUsageReporting"/> - resolves the provider, reveals its
-/// stored usage Admin API key at the moment it is spent and asks the vendor's own
+/// Represents an implementation of <see cref="IAIUsageReporting"/> - resolves the provider and asks the vendor's own
 /// <see cref="ICanReportAIUsage"/>. A vendor report is allowed to throw - this orchestrator is the
 /// single place that catches it and turns it into <see cref="AIUsageReportAvailability.Unreachable"/>,
 /// so the reporters themselves stay simple. Ported from Direct's
 /// <c>AIProviders.UsageReporting.AIUsageReporting</c> (migration-status.md, "Usage reporting").
 /// </summary>
-/// <param name="eventStore">The <see cref="IEventStore"/> the provider is resolved from.</param>
-/// <param name="revealer">The <see cref="ISecretRevealer"/> the stored usage key is revealed through.</param>
+/// <param name="eventStore">The <see cref="IEventStore"/> the provider is resolved from - Chronicle decrypts
+/// <see cref="ConfiguredAIProvider.UsageApiKey"/> on read, so the key arrives usable.</param>
 /// <param name="reporters">Every discovered <see cref="ICanReportAIUsage"/>, one per <see cref="AIProviderType"/> that supports it.</param>
 /// <param name="logger">The logger.</param>
 public class AIUsageReporting(
     IEventStore eventStore,
-    ISecretRevealer revealer,
     IInstancesOf<ICanReportAIUsage> reporters,
     ILogger<AIUsageReporting> logger) : IAIUsageReporting
 {
@@ -80,8 +78,7 @@ public class AIUsageReporting(
 
         try
         {
-            var revealed = provider with { UsageApiKey = (AIProviderApiKey)await revealer.Reveal(provider.UsageApiKey.Value) };
-            var data = await reporter.ReportFor(revealed);
+            var data = await reporter.ReportFor(provider);
             return new(providerId, AIUsageReportAvailability.Available, data.TokenUsage, data.Costs);
         }
         catch (Exception exception) when (exception
