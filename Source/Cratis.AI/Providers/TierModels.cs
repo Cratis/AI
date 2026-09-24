@@ -14,7 +14,7 @@ namespace Cratis.AI.Providers;
 /// Carried as four named properties rather than a dictionary so the event, the read model and the
 /// generated proxy all stay explicit about which tiers exist - a mapping a person cannot
 /// accidentally extend with a typo. A tier left at <see cref="ModelName.NotSet"/> means "no
-/// deliberate choice" and resolves to <see cref="TierModelDefaults"/> for the provider's vendor,
+/// deliberate choice" and is derived from the models the provider published,
 /// which is also what a provider configured before this mapping existed resolves to.
 /// </remarks>
 /// <param name="Fast">The vendor's model for <see cref="ModelTier.Fast"/> - <see cref="ModelName.NotSet"/> for the vendor default.</param>
