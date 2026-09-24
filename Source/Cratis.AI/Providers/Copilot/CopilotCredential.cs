@@ -95,6 +95,30 @@ public static class CopilotCredential
         [new("Authorization", $"Bearer {AccessTokenFor(apiKey)}")];
 
     /// <summary>
+    /// When the credential expires, for the OAuth records that carry an expiry at all.
+    /// </summary>
+    /// <param name="apiKey">The stored credential, already revealed.</param>
+    /// <returns>The expiry, or <see langword="null"/> for a credential that does not expire.</returns>
+    public static DateTimeOffset? ExpiresAt(AIProviderApiKey apiKey)
+    {
+        if (!IsOAuthRecord(apiKey))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonNode.Parse(apiKey.Value) is JsonObject record && record["expires"] is { } expires
+                ? DateTimeOffset.FromUnixTimeMilliseconds(expires.GetValue<long>())
+                : null;
+        }
+        catch (Exception exception) when (exception is JsonException or FormatException or InvalidOperationException or ArgumentOutOfRangeException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
     /// Removes whitespace introduced when a token is copied out of wrapped terminal output. GitHub
     /// tokens contain none; call this after revealing a protected credential, never on ciphertext.
     /// An OAuth record is left untouched - whitespace is legal inside JSON.
