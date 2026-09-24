@@ -8,21 +8,46 @@
 // folder appears (Providers/, Agents/, Conversations/, ... as the package grows) - the CI drift gate
 // only checks ./generated, not this file, so a forgotten line here fails silently as a missing
 // export rather than a build error.
-export * from './generated/Harnesses';
-export * from './generated/Usage';
-export * from './generated/Usage/Trends';
-export * from './generated/Usage/Daily';
-export * from './generated/Providers/Adding';
-export * from './generated/Providers/Reconfiguring';
-export * from './generated/Providers/Renaming';
-export * from './generated/Providers/Removing';
-export * from './generated/Providers/UsageReporting';
-export * from './generated/Providers/UsageReporting/SettingCredential';
+//
+// ./generated/Providers/Configuring is deliberately absent: that namespace declares commands with
+// the same names as the ones in Adding, Reconfiguring, Removing and Renaming, so exporting both
+// flatly is ambiguous. Import it by path when it is needed.
+export * from './generated/Agents';
+export * from './generated/Agents/Configuring';
+export * from './generated/Agents/Listing';
+export * from './generated/Agents/Skills';
+export * from './generated/Agents/Skills/Adding';
+export * from './generated/Agents/Skills/Removing';
+export * from './generated/Agents/Skills/Updating';
 export * from './generated/Decisions/Adding';
 export * from './generated/Decisions/Reconfiguring';
-
-// Studio's provider commands are named identically to Direct's own above (AddAnthropicProvider,
-// RenameAIProvider, ...) - the two really are different commands with different routes and event
-// shapes (see Cratis.AI's Providers/Configuring/AnthropicProvider.cs remarks), not a naming
-// accident, so a flat re-export here would collide. Reached through a namespace instead.
-export * as Configuring from './generated/Providers/Configuring';
+export * from './generated/Harnesses';
+export * from './generated/Providers';
+export * from './generated/Providers/Adding';
+export * from './generated/Providers/AvailableModels';
+export * from './generated/Providers/Capabilities';
+export * from './generated/Providers/Codex';
+export * from './generated/Providers/Copilot';
+export * from './generated/Providers/Listing';
+export * from './generated/Providers/Pools/AddingProvider';
+export * from './generated/Providers/Pools/Creating';
+export * from './generated/Providers/Pools/Listing';
+export * from './generated/Providers/Pools/Removing';
+export * from './generated/Providers/Pools/RemovingProvider';
+export * from './generated/Providers/Pools/Renaming';
+export * from './generated/Providers/RateLimiting';
+export * from './generated/Providers/Reconfiguring';
+export * from './generated/Providers/Refreshing';
+export * from './generated/Providers/Removing';
+export * from './generated/Providers/Renaming';
+export * from './generated/Providers/SettingConcurrency';
+export * from './generated/Providers/SettingTierModels';
+export * from './generated/Providers/SettingUsageCapacity';
+export * from './generated/Providers/SigningIn';
+export * from './generated/Providers/UsageReporting';
+export * from './generated/Providers/UsageReporting/RecordingSnapshot';
+export * from './generated/Providers/UsageReporting/SettingCredential';
+export * from './generated/Providers/UsageReporting/Snapshots';
+export * from './generated/Usage';
+export * from './generated/Usage/Daily';
+export * from './generated/Usage/Trends';
