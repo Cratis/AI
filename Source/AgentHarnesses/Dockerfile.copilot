@@ -1,0 +1,49 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+#
+# The Copilot harness worker image - the base image plus GitHub's Copilot CLI (@github/copilot),
+# driven by entrypoint.sh's run_copilot() in the CLI's programmatic mode (`copilot -p`, JSONL
+# output). Requires Node >=22 (the CLI's own documented prerequisite) - satisfied by the NodeSource
+# 22.x line the base image installs, so no separate Node here.
+#
+# Published to Docker Hub as cratis/ai-agents-copilot; a consuming product's dispatcher launches it
+# for work whose acting agent is configured with the Copilot harness.
+ARG BASE_IMAGE=cratis/ai-agents:latest
+FROM ${BASE_IMAGE}
+
+USER root
+
+# Copilot CLI — pinned to the version run_copilot()'s flags and JSONL handling were verified
+# against, rather than "latest", for the same reason Dockerfile.pi pins Pi: a fresh publish upstream
+# must not change what this image installs out from under a build. Bump procedure: re-run
+# `npm view @github/copilot version`, update this ARG, rebuild, and re-run
+# for_entrypoint/copilot-programmatic-invocation.sh.
+ARG COPILOT_CLI_VERSION=1.0.88
+RUN npm install -g @github/copilot@${COPILOT_CLI_VERSION}
+
+# The report_progress MCP server — the same script and the same DIRECT_PROGRESS_URL /
+# DIRECT_CALLBACK_TOKEN contract the Claude image installs, wired into the session by
+# run_copilot() with --additional-mcp-config rather than reinvented for this harness. Copilot CLI is
+# an MCP client, so the server is consumed verbatim.
+COPY progress-mcp-server.mjs package.json package-lock.json /usr/local/lib/direct-progress-mcp/
+RUN cd /usr/local/lib/direct-progress-mcp && npm ci --omit=dev
+
+# Agent skills - the same authored content the Claude image vendors at ~/.claude/skills, placed at
+# Copilot CLI's own user-level skills location (~/.copilot/skills) so the same skill works under
+# either harness. Copilot CLI reads SKILL.md-shaped directories from there, from .github/skills in
+# a checkout, and from any directory named by COPILOT_SKILLS_DIRS; the user-level location is the
+# one that reaches every repository a worker is dispatched against.
+#
+# What does not map: Claude Code's ~/.claude/skills is the only location Claude reads, and Pi 0.84.x
+# has no skills loader at all (see the --no-skills comment in entrypoint.sh). Copilot additionally
+# reads custom instructions from AGENTS.md / .github/copilot-instructions.md in the checkout, which
+# the dispatching product's own repository content owns - this image deliberately ships none, so a
+# worker never inherits instructions nobody reviewed.
+COPY --chown=agent:agent skills/react-agent-skills/skills/ /home/agent/.copilot/skills/
+COPY --chown=agent:agent skills/cratis-primereact-ui-basics/ /home/agent/.copilot/skills/cratis-primereact-ui-basics/
+
+# The CLI updates itself in place by default, which would silently undo the pin above mid-session.
+# Off for every container built from this image, so what ran is what the ARG says ran.
+ENV COPILOT_AUTO_UPDATE=false
+
+USER agent
