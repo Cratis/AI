@@ -50,4 +50,12 @@ public enum AIProviderType
     /// returns probabilities; it generates nothing and serves no conversation.
     /// </summary>
     DecisionEngine = 6,
+
+    /// <summary>
+    /// GitHub Copilot, reached through a GitHub account's Copilot entitlement rather than a metered
+    /// API key. This is an agent-harness provider: the credential authenticates the Copilot CLI
+    /// (<c>@github/copilot</c>) inside a worker container, and Copilot exposes no first-party
+    /// conversational completion surface Cratis.AI's own provider clients could talk to.
+    /// </summary>
+    Copilot = 7,
 }

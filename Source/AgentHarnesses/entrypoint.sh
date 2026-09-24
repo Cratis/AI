@@ -46,7 +46,11 @@
 #   DIRECT_HARNESS          - which CLI drives the session: unset (the default) or "claude-code"
 #                               runs the Claude Code CLI exactly as before; "pi" runs the Pi coding
 #                               agent CLI (@earendil-works/pi-coding-agent) instead, over its
-#                               `--mode rpc` protocol - see run_pi() below.
+#                               `--mode rpc` protocol - see run_pi() below; "copilot" runs GitHub's
+#                               Copilot CLI (@github/copilot) in its programmatic mode - see
+#                               run_copilot() below. Anything else - including an unknown value -
+#                               still runs Claude Code, so an older runtime's containers behave
+#                               exactly as they did before either of the other two existed.
 #   DIRECT_PROVIDER         - the Pi provider id to pass as `--provider` when DIRECT_HARNESS is
 #                               "pi" - always one the Direct's own configured allow-list approved,
 #                               never an arbitrary caller-chosen value. Unused by the Claude Code path.
@@ -247,6 +251,13 @@
 #                             export it like every other secret. A Z.ai provider on the Claude
 #                             harness instead travels as ANTHROPIC_AUTH_TOKEN above - one provider
 #                             type, one credential, two slots, decided by the harness at dispatch.
+#   COPILOT_GITHUB_TOKEN     - the GitHub credential a Copilot provider's session authenticates with
+#                             on the Copilot harness. The highest-precedence of the three variables
+#                             the Copilot CLI reads (COPILOT_GITHUB_TOKEN, then GH_TOKEN, then
+#                             GITHUB_TOKEN - its own documented order), chosen so a container that
+#                             also carries a GH_TOKEN for git operations cannot accidentally decide
+#                             which account the agent reasons as. Read by the CLI natively, so this
+#                             script does nothing with it beyond letting load_secrets() export it.
 #   EXA_API_KEY              - optional. Exa's hosted web-search MCP endpoint (mcp.exa.ai) works
 #                             anonymously, rate-limited, with no key at all - this only lifts that
 #                             limit when the Direct has one to hand out. Claude Code path only, sent
@@ -1473,6 +1484,163 @@ run_pi() {
     log "Done"
 }
 
+# The Copilot path - drives GitHub's Copilot CLI (@github/copilot) in its programmatic mode
+# (`copilot -p`) instead of Claude Code or Pi. Three things about that mode shape this function, and
+# each is a deliberate difference from the two above rather than an omission:
+#
+#   1. There is no steering channel. `copilot -p` runs one prompt to completion and exits, and the
+#      CLI's own documentation states that piped stdin is ignored when -p is given. So there is no
+#      FIFO, no pipe holder and no feeder here - the shapes run_claude_code() and run_pi() need to
+#      keep a long-lived session's stdin open have nothing to hold open. stdin is closed explicitly
+#      so a container started with one attached cannot leave the CLI waiting on it.
+#
+#   2. There is no system-prompt flag. Claude takes --append-system-prompt-file and Pi takes
+#      --append-system-prompt; Copilot CLI takes neither, and its custom-instructions mechanism
+#      (AGENTS.md / .github/copilot-instructions.md) lives in the checkout, which is untrusted input
+#      this script must not write into. The reviewed AI profile prompt is therefore prepended to the
+#      prompt itself - the same content, delivered the one way this CLI accepts it.
+#
+#   3. Headroom is not wired in. The proxy speaks the first-party Anthropic and OpenAI APIs; a
+#      Copilot session talks to GitHub's own Copilot endpoints, which it cannot forward. Routing it
+#      there would break the session rather than compress it, so the session goes direct and the log
+#      says so - the same "a preset upstream wins" reasoning run_claude_code() applies to Z.ai.
+run_copilot() {
+    log "Starting Copilot CLI (model: ${DIRECT_MODEL:-default})"
+
+    if [[ "${DIRECT_HEADROOM:-}" == "1" ]]; then
+        log "DIRECT_HEADROOM is set but the Copilot harness cannot route through it - continuing without it"
+    fi
+
+    # See point 2 above. Written to a new file rather than appended to DIRECT_PROMPT_FILE, which is
+    # delivered read-only on the credentials volume.
+    COPILOT_PROMPT_FILE="$PROMPT_FILE"
+    if [[ -n "${DIRECT_AI_PROFILE_PROMPT_FILE:-}" ]]; then
+        [[ -f "$DIRECT_AI_PROFILE_PROMPT_FILE" ]] || { log "Reviewed AI profile prompt is missing"; exit 1; }
+        COPILOT_PROMPT_FILE=/tmp/copilot-prompt.md
+        cat "$DIRECT_AI_PROFILE_PROMPT_FILE" > "$COPILOT_PROMPT_FILE"
+        printf '\n\n' >> "$COPILOT_PROMPT_FILE"
+        cat "$PROMPT_FILE" >> "$COPILOT_PROMPT_FILE"
+    fi
+
+    COPILOT_MODEL_ARGS=()
+    if [[ -n "${DIRECT_MODEL:-}" ]]; then
+        COPILOT_MODEL_ARGS+=(--model "${DIRECT_MODEL}")
+    fi
+
+    # The same report_progress MCP server the Claude path wires in, with the same
+    # DIRECT_PROGRESS_URL/DIRECT_CALLBACK_TOKEN contract - Copilot CLI is an MCP client, so the
+    # server is consumed verbatim rather than reinvented. The schema is Copilot's own
+    # (~/.copilot/mcp-config.json): `type: "local"` for a stdio server, and an explicit tools list.
+    # Written even when no DIRECT_PROGRESS_URL was handed out, exactly as run_claude_code() does:
+    # the tool then reports every call as a soft failure to the agent instead of special-casing it
+    # away here. Passed with --additional-mcp-config so the checkout's own .mcp.json cannot displace
+    # it - the session-scoped option has the highest precedence in the CLI's own merge order.
+    COPILOT_MCP_CONFIG=/tmp/copilot-mcp-config.json
+    jq -cn \
+        --arg progress_url "${DIRECT_PROGRESS_URL:-}" \
+        --arg token "${DIRECT_CALLBACK_TOKEN:-}" \
+        '{
+            mcpServers: {
+                direct_progress: {
+                    type: "local",
+                    command: "node",
+                    args: ["/usr/local/lib/direct-progress-mcp/progress-mcp-server.mjs"],
+                    env: {
+                        DIRECT_PROGRESS_URL: $progress_url,
+                        DIRECT_CALLBACK_TOKEN: $token
+                    },
+                    tools: ["*"]
+                }
+            }
+        }' > "$COPILOT_MCP_CONFIG"
+
+    COPILOT_STREAM_FILE=/tmp/copilot-stream.jsonl
+    : > "$COPILOT_STREAM_FILE"
+    COPILOT_EXIT_FILE=/tmp/copilot-exit
+    rm -f "$COPILOT_EXIT_FILE"
+
+    # GNU time's own report of the wrapped command's resource usage, read back by the same two
+    # helpers the Claude path uses - `time` returns the wrapped command's status, so PIPESTATUS[0]
+    # below is still the CLI's own exit code rather than the wrapper's.
+    COPILOT_TIME_FILE=/tmp/copilot-time
+    rm -f "$COPILOT_TIME_FILE"
+
+    COPILOT_STARTED_AT=$(date +%s%3N)
+
+    # Backgrounded and waited on for the same reason run_claude_code() is: bash defers a trapped
+    # signal received during a *foreground* command until that command finishes, and Kubernetes
+    # signals only this process - so an evicted container would never run its push.
+    #
+    # --allow-all-tools/--allow-all-paths/--allow-all-urls: the CLI refuses to act non-interactively
+    # without at least the first (its own documentation calls it required for programmatic use), and
+    # this container is the sandbox - the equivalent decision to Claude's
+    # --dangerously-skip-permissions and Pi's --no-approve. --no-ask-user: there is nobody to answer.
+    # --output-format json emits JSONL, one object per line, which is what makes the stream readable
+    # below. --no-color keeps the log free of escape sequences.
+    {
+        /usr/bin/time -v -o "$COPILOT_TIME_FILE" -- copilot \
+            --prompt "$(cat "$COPILOT_PROMPT_FILE")" \
+            --allow-all-tools \
+            --allow-all-paths \
+            --allow-all-urls \
+            --no-ask-user \
+            --no-color \
+            --output-format json \
+            --additional-mcp-config "@${COPILOT_MCP_CONFIG}" \
+            "${COPILOT_MODEL_ARGS[@]}" < /dev/null |
+        while IFS= read -r event; do
+            printf '%s\n' "$event"
+            printf '%s\n' "$event" >> "$COPILOT_STREAM_FILE"
+        done
+        printf '%s' "${PIPESTATUS[0]}" > "$COPILOT_EXIT_FILE"
+    } &
+    AGENT_PID=$!
+    wait "$AGENT_PID"
+    AGENT_PID=""
+    COPILOT_EXIT=$(cat "$COPILOT_EXIT_FILE" 2>/dev/null || echo '')
+    COPILOT_EXIT=${COPILOT_EXIT:-1}
+
+    # The CLI's JSONL event names are not part of its documented interface, so nothing here depends
+    # on one: the final text is the last line carrying any of the fields the stream is observed to
+    # use for it, and a line that carries none contributes nothing. A release that renames them
+    # costs the summary text, never the work - which has already been done and pushed by this point.
+    RESULT=$(jq -rs '[.[] | (.data.text? // .text? // .content? // .response? // .message?)
+                          | select(type == "string") | select(length > 0)] | last // ""' \
+        "$COPILOT_STREAM_FILE" 2>/dev/null || echo '')
+
+    # Usage, when the stream reports any. Copilot meters premium requests rather than tokens, so a
+    # session commonly reports none at all - summed across whatever the stream did carry, and left
+    # at zero otherwise with a line in the log saying so, rather than presented as a measured zero.
+    INPUT_TOKENS=$(jq -rs '[.[] | (.usage?.input_tokens? // .usage?.prompt_tokens? // .usage?.input? // 0)] | add // 0 | floor' "$COPILOT_STREAM_FILE" 2>/dev/null || echo 0)
+    OUTPUT_TOKENS=$(jq -rs '[.[] | (.usage?.output_tokens? // .usage?.completion_tokens? // .usage?.output? // 0)] | add // 0 | floor' "$COPILOT_STREAM_FILE" 2>/dev/null || echo 0)
+    INPUT_TOKENS=${INPUT_TOKENS:-0}
+    OUTPUT_TOKENS=${OUTPUT_TOKENS:-0}
+    if [[ "$INPUT_TOKENS" == "0" && "$OUTPUT_TOKENS" == "0" ]]; then
+        log "Copilot reported no token usage for this session - Copilot meters premium requests, not tokens"
+    fi
+
+    # Copilot bills entitlement rather than per-token cost, so there is no cost to report. Reported
+    # as zero because the callback's contract has no "unknown", and stated here so a reader does not
+    # take a zero for a measurement.
+    COST=0
+    DURATION=$(( $(date +%s%3N) - COPILOT_STARTED_AT ))
+    CPU_SECONDS=$(claude_cpu_seconds_from_time_file "$COPILOT_TIME_FILE")
+    MEMORY_BYTES=$(claude_memory_bytes_from_time_file "$COPILOT_TIME_FILE")
+
+    # Before reporting anything: the dispatching product acts on the report, so the branch has to be
+    # on the remote by the time it arrives. The EXIT trap pushes too, but only after that.
+    push_workspaces
+
+    if [[ ${COPILOT_EXIT} -ne 0 ]]; then
+        log "Copilot CLI exited with ${COPILOT_EXIT}"
+        report failed "${RESULT:-Copilot CLI exited with ${COPILOT_EXIT}}" 0 0 0 0 "$CPU_SECONDS" "$MEMORY_BYTES"
+        exit 1
+    fi
+
+    report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    log "Done"
+}
+
 prepare_ai_profile_prompt() {
     local manifest="${DIRECT_AI_CONFIGURATION_MANIFEST:-}"
     local directory="${DIRECT_AI_PROFILE_DIRECTORY:-}"
@@ -1532,8 +1700,19 @@ validate_ai_configuration_manifest() {
 validate_ai_configuration_manifest
 prepare_ai_profile_prompt
 
-if [[ "${DIRECT_HARNESS:-}" == "pi" ]]; then
-    run_pi
-else
-    run_claude_code
-fi
+# The one place the harness is chosen. Deliberately a case over exact values with Claude Code as the
+# default arm rather than a chain of "not pi" tests: a mistake here does not fail loudly, it runs the
+# wrong agent against somebody's repository with somebody else's credential. An unknown value lands
+# on Claude Code, which is what every container did before DIRECT_HARNESS existed - it must never
+# silently become Copilot or Pi. Pinned by for_entrypoint/copilot-harness-selection.sh.
+case "${DIRECT_HARNESS:-}" in
+    pi)
+        run_pi
+        ;;
+    copilot)
+        run_copilot
+        ;;
+    *)
+        run_claude_code
+        ;;
+esac

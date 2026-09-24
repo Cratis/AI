@@ -23,4 +23,13 @@ public enum Harness
     /// than Claude Code's Anthropic-only support.
     /// </summary>
     Pi = 1,
+
+    /// <summary>
+    /// GitHub's Copilot CLI (<c>@github/copilot</c>), driven in its programmatic mode
+    /// (<c>copilot -p</c>, JSONL output) - see <c>Source/AgentHarnesses/entrypoint.sh</c>'s
+    /// <c>run_copilot()</c>. It authenticates against a GitHub account's Copilot entitlement only -
+    /// the credential travels as <c>COPILOT_GITHUB_TOKEN</c>, the highest-precedence variable the
+    /// CLI reads - so it runs against a Copilot provider and no other vendor.
+    /// </summary>
+    Copilot = 2,
 }

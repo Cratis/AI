@@ -315,9 +315,9 @@ jobs:
 
   # Publishes the shared agent-harness images to Docker Hub. Product-neutral names now that Direct
   # is no longer the only consumer (ai-consolidation-plan.md Section 5.6) - cratis/ai-agents is the
-  # base every harness derives from, never run directly; cratis/ai-agents-claude and
-  # cratis/ai-agents-pi are what a product's dispatcher actually launches, selected by the acting
-  # agent's configured harness.
+  # base every harness derives from, never run directly; cratis/ai-agents-claude,
+  # cratis/ai-agents-pi and cratis/ai-agents-copilot are what a product's dispatcher actually
+  # launches, selected by the acting agent's configured harness.
   publish-agent-harnesses:
     name: Publish agent-harness images (Docker Hub)
     if: needs.release.outputs.publish == 'true'
@@ -355,7 +355,7 @@ jobs:
           # shellcheck disable=SC2086
           scripts/docker-build-push-retry.sh $base_args Source/AgentHarnesses
 
-      - name: Build and push the Claude and Pi derivatives
+      - name: Build and push the Claude, Pi and Copilot derivatives
         env:
           VERSION: ${{ needs.release.outputs.version }}
           PRERELEASE: ${{ needs.release.outputs.prerelease }}
@@ -366,14 +366,19 @@ jobs:
           claude_args="$claude_args --tag cratis/ai-agents-claude:$VERSION"
           pi_args="--push --file Source/AgentHarnesses/Dockerfile.pi --build-arg BASE_IMAGE=$base"
           pi_args="$pi_args --tag cratis/ai-agents-pi:$VERSION"
+          copilot_args="--push --file Source/AgentHarnesses/Dockerfile.copilot --build-arg BASE_IMAGE=$base"
+          copilot_args="$copilot_args --tag cratis/ai-agents-copilot:$VERSION"
           if [ "$PRERELEASE" != "true" ]; then
             claude_args="$claude_args --tag cratis/ai-agents-claude:latest"
             pi_args="$pi_args --tag cratis/ai-agents-pi:latest"
+            copilot_args="$copilot_args --tag cratis/ai-agents-copilot:latest"
           fi
           # shellcheck disable=SC2086
           scripts/docker-build-push-retry.sh $claude_args Source/AgentHarnesses
           # shellcheck disable=SC2086
           scripts/docker-build-push-retry.sh $pi_args Source/AgentHarnesses
+          # shellcheck disable=SC2086
+          scripts/docker-build-push-retry.sh $copilot_args Source/AgentHarnesses
 
   # Publishes the shared Decision Engine image to Docker Hub. Infrastructure deploys this by tag
   # and nothing else builds it, so without this job a Decision Engine deployment would reference an
