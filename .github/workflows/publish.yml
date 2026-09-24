@@ -176,6 +176,7 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     permissions:
+      issues: write
       contents: write
       pull-requests: read
     outputs:
@@ -187,7 +188,7 @@ jobs:
 
       - name: Determine release
         id: release
-        uses: cratis/release-action@bdaded342eb31b52b48dca0611f0214794f8c655 # v1.2.0
+        uses: cratis/release-action@f5fc6db6adbb4db6e6c4548cd7addfc924426e69 # v1.2.0
         with:
           version: ${{ github.event.inputs.version }}
           release-notes: ${{ github.event.inputs.release-notes }}
