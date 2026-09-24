@@ -14,6 +14,7 @@
         <PackageVersion Include="Cratis.Arc.Chronicle" Version="22.23.0" />
         <PackageVersion Include="Cratis.Arc.ProxyGenerator.Build" Version="22.23.0" />
         <PackageVersion Include="Cratis.Arc.Chronicle.Testing" Version="22.23.0" />
+        <PackageVersion Include="Cratis.Arc.Testing" Version="22.23.0" />
         <PackageVersion Include="Cratis.Arc.OpenApi" Version="22.23.0" />
         <PackageVersion Include="Cratis.Arc.MongoDB" Version="22.23.0" />
 

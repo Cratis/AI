@@ -4,6 +4,7 @@
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 namespace Cratis.AI.Providers.Pools.for_AIProviderPoolDispatcher.when_completing;

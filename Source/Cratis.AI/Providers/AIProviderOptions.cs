@@ -68,4 +68,19 @@ public class AIProviderOptions
     /// session every few minutes discovering the same answer.
     /// </remarks>
     public TimeSpan RateLimitCooldown { get; set; } = TimeSpan.FromHours(1);
+
+    /// <summary>
+    /// Gets or sets how far back a provider failure still counts against it when picking a pool member.
+    /// </summary>
+    public TimeSpan RecentFailureWindow { get; set; } = TimeSpan.FromMinutes(15);
+
+    /// <summary>
+    /// Gets or sets how long a usage snapshot stays good enough to answer from without asking the vendor again.
+    /// </summary>
+    public TimeSpan UsageSnapshotFreshness { get; set; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Gets or sets how long a vendor's usage surface may take before the read is abandoned.
+    /// </summary>
+    public TimeSpan UsageReportTimeout { get; set; } = TimeSpan.FromSeconds(8);
 }

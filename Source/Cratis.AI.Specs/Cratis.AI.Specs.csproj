@@ -12,6 +12,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Cratis.Arc" />
+        <PackageReference Include="Cratis.Arc.Chronicle.Testing" />
+        <PackageReference Include="Cratis.Arc.Core" />
+        <PackageReference Include="Cratis.Arc.Testing" />
+        <PackageReference Include="Cratis.Chronicle.Testing" />
         <PackageReference Include="Cratis.Specifications" />
         <PackageReference Include="Cratis.Specifications.XUnit" />
         <PackageReference Include="FluentValidation" />

@@ -4,6 +4,7 @@
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers.Pools.Listing;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Providers.Pools;
@@ -62,7 +63,17 @@ public class AIProviderPoolDispatcher(
         CancellationToken cancellationToken = default)
     {
         var burn = await providerBurn.TrailingWeek(cancellationToken);
-        var ordered = PoolMemberSelector.Candidates(pool, burn.Tokens, burn.Sessions).ToList();
+
+        // This dispatcher knows nothing about provider failures or usage ceilings, so it ranks on
+        // burn alone. The empty maps say "no information", which the selector treats as neutral
+        // rather than as a measured zero.
+        var ordered = PoolMemberSelector.Candidates(
+            pool,
+            PoolSelectionData.Nothing with
+            {
+                RecentTokensByProvider = burn.Tokens,
+                RecentJobsByProvider = burn.Sessions
+            }).ToList();
 
         if (ordered.Count == 0)
         {

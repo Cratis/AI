@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Abstractions;
+using Cratis.AI.Providers.OpenAI;
 
 namespace Cratis.AI.Providers.Adding;
 
@@ -41,7 +42,17 @@ public class AddOpenAIProviderValidator : CommandValidator<AddOpenAIProvider>
     {
         RuleFor(_ => _.Name).NotEqual(AIProviderName.NotSet).WithMessage("A name is required");
         RuleFor(_ => _.ApiKey).NotEqual(AIProviderApiKey.NotSet).WithMessage("An API key is required");
+        RuleFor(_ => _.ApiKey)
+            .Must(BeAUsableCredential)
+            .WithMessage(
+                "That looks like a ChatGPT subscription record but is missing something needed - it must be the " +
+                "whole \"openai-codex\" object from the agent's auth file, with type, access, refresh and expires.");
     }
+
+    // A subscription record is judged as a whole or not at all: an ordinary API key is not JSON, so
+    // it must not be held to the shape a subscription record has to have.
+    static bool BeAUsableCredential(string apiKey) =>
+        !OpenAICredential.IsSubscriptionCredential(apiKey) || OpenAICredential.IsUsableSubscriptionCredential(apiKey);
 }
 
 /// <summary>

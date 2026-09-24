@@ -16,8 +16,10 @@ public class and_the_endpoint_and_key_both_change : Specification
 
     void Establish()
     {
-        _current = new ConfiguredAIProvider(
-            _providerId, AIProviderType.AzureOpenAI, new AIProviderApiKey("old"), new AIProviderEndpoint("https://old-resource.openai.azure.com"));
+        _current = new ConfiguredAIProvider(_providerId, AIProviderType.AzureOpenAI, new AIProviderApiKey("old"))
+        {
+            Endpoint = new AIProviderEndpoint("https://old-resource.openai.azure.com")
+        };
     }
 
     void Because() => _result = new ReconfigureAzureOpenAIProvider(_providerId, _newEndpoint, _newApiKey).Handle(_current);

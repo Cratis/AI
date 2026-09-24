@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
+using Cratis.AI.LanguageModels;
 using Cratis.Arc.Commands;
 using Microsoft.Extensions.Logging;
 using NSubstitute;

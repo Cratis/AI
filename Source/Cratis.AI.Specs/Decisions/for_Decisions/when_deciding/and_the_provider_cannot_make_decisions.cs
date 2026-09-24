@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Providers;
-
 using NSubstitute;
 
 namespace Cratis.AI.Decisions.for_Decisions.when_deciding;

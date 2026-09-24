@@ -16,8 +16,10 @@ public class and_an_endpoint_is_configured : given.a_stub_message_server
     void Establish() => _provider = new ConfiguredAIProvider(
         AIProviderId.New(),
         AIProviderType.ZAI,
-        new AIProviderApiKey("zai-key"),
-        new AIProviderEndpoint("https://zai.example.com/"));
+        new AIProviderApiKey("zai-key"))
+    {
+        Endpoint = new AIProviderEndpoint("https://zai.example.com/")
+    };
 
     async Task Because() => await Client.Complete("prompt", _provider, new ModelName("glm-4.6"), Effort.Medium);
 
