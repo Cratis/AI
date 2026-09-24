@@ -23,8 +23,8 @@ from .contract import (
     DecisionResponse,
     ModelInfo,
 )
-from .model import MODEL, ModelNotLoaded
-from .scoring import ENGINE, build_prompt, normalize, truncate
+from .model import MODEL, ModelNotLoaded, ScoringTask
+from .scoring import ENGINE, normalize, truncate
 from .settings import SETTINGS
 from .telemetry import CHOICES, LATENCY, MODEL_LOADED, REQUESTS, TOP_PROBABILITY
 
@@ -53,7 +53,7 @@ app = FastAPI(title="Cratis Decision Engine", version="1.0", lifespan=lifespan)
 @app.post("/v1/decisions", response_model=DecisionResponse)
 def decide(request: DecisionRequest) -> DecisionResponse:
     """Weigh one set of choices against one context."""
-    return _decide(request)
+    return _decide([request])[0]
 
 
 @app.post("/v1/decisions/batch", response_model=DecisionBatchResponse)
@@ -65,7 +65,10 @@ def decide_batch(request: DecisionBatchRequest) -> DecisionBatchResponse:
             detail=f"{len(request.decisions)} requests exceeds the batch limit of {SETTINGS.max_batch}",
         )
 
-    return DecisionBatchResponse(results=[_decide(each) for each in request.decisions])
+    # Every decision in the batch is scored in one pass over the model rather than one pass each.
+    # This endpoint exists because a caller weighing many candidates should not pay N round trips;
+    # it would be a poor trade if it then paid N forward passes on this side instead.
+    return DecisionBatchResponse(results=_decide(request.decisions))
 
 
 @app.get("/v1/model", response_model=ModelInfo)
@@ -100,42 +103,56 @@ def metrics() -> Response:
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
-def _decide(request: DecisionRequest) -> DecisionResponse:
-    if request.context.is_empty():
-        REQUESTS.labels(outcome="rejected").inc()
-        raise HTTPException(status_code=422, detail="context is empty")
+def _decide(requests: list[DecisionRequest]) -> list[DecisionResponse]:
+    for request in requests:
+        if request.context.is_empty():
+            REQUESTS.labels(outcome="rejected").inc()
+            raise HTTPException(status_code=422, detail="context is empty")
 
-    if len(request.choices) > SETTINGS.max_choices:
-        REQUESTS.labels(outcome="rejected").inc()
-        raise HTTPException(
-            status_code=422,
-            detail=f"{len(request.choices)} choices exceeds the limit of {SETTINGS.max_choices}",
-        )
+        if len(request.choices) > SETTINGS.max_choices:
+            REQUESTS.labels(outcome="rejected").inc()
+            raise HTTPException(
+                status_code=422,
+                detail=f"{len(request.choices)} choices exceeds the limit of {SETTINGS.max_choices}",
+            )
 
     started = time.perf_counter()
-    context = truncate(request.context.render(), SETTINGS.max_context_chars)
-    prompt = build_prompt(context, request.choices)
+    tasks = [
+        ScoringTask(
+            context=truncate(request.context.render(), SETTINGS.max_context_chars),
+            choices=request.choices,
+        )
+        for request in requests
+    ]
 
     forward_started = time.perf_counter()
     try:
-        scored = MODEL.score(prompt, request.choices)
+        scored = MODEL.score(tasks)
     except ModelNotLoaded as error:
         REQUESTS.labels(outcome="unavailable").inc()
         raise HTTPException(status_code=503, detail=str(error)) from error
     LATENCY.labels(phase="forward").observe(time.perf_counter() - forward_started)
 
-    distribution = normalize(scored, SETTINGS.temperature)
     elapsed = time.perf_counter() - started
+    # Attributed per decision, so the histogram means the same thing whether a caller sent one
+    # decision or thirty. Batch throughput is visible as the choices-per-request histogram.
+    per_decision = elapsed / len(requests)
 
-    LATENCY.labels(phase="total").observe(elapsed)
-    CHOICES.observe(len(request.choices))
-    TOP_PROBABILITY.observe(max(distribution.values()))
-    REQUESTS.labels(outcome="decided").inc()
+    responses: list[DecisionResponse] = []
+    for request, choice_scores in zip(requests, scored, strict=True):
+        distribution = normalize(choice_scores, SETTINGS.temperature)
 
-    return DecisionResponse(
-        requestId=request.requestId or uuid.uuid4().hex,
-        choices=distribution,
-        model=SETTINGS.model,
-        engine=ENGINE,
-        latencyMs=elapsed * 1000,
-    )
+        LATENCY.labels(phase="total").observe(per_decision)
+        CHOICES.observe(len(request.choices))
+        TOP_PROBABILITY.observe(max(distribution.values()))
+        REQUESTS.labels(outcome="decided").inc()
+
+        responses.append(DecisionResponse(
+            requestId=request.requestId or uuid.uuid4().hex,
+            choices=distribution,
+            model=SETTINGS.model,
+            engine=ENGINE,
+            latencyMs=per_decision * 1000,
+        ))
+
+    return responses

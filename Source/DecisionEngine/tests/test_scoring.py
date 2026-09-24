@@ -15,7 +15,17 @@ import math
 import pytest
 
 from app.contract import DecisionContext, DecisionRequest
-from app.scoring import ScoredChoice, build_prompt, normalize, truncate
+from app.scoring import (
+    LETTERS,
+    MAX_LETTER_CHOICES,
+    ScoredChoice,
+    build_continuation_prompt,
+    build_prompt,
+    normalize,
+    rotations_of,
+    truncate,
+)
+from app.settings import Settings
 
 
 class describe_normalizing_scores:
@@ -65,11 +75,85 @@ class describe_normalizing_scores:
 class describe_building_a_prompt:
     def it_lists_every_choice(self):
         prompt = build_prompt("something happened", ["investigate", "implement"])
+        assert "investigate" in prompt
+        assert "implement" in prompt
+
+    def it_includes_the_context(self):
+        assert "a failing build" in build_prompt("a failing build", ["retry"])
+
+    def it_indexes_the_choices_by_letter(self):
+        prompt = build_prompt("context", ["investigate", "implement", "ask_user"])
+        assert "A. investigate" in prompt
+        assert "B. implement" in prompt
+        assert "C. ask_user" in prompt
+
+    def it_indexes_in_the_order_supplied(self):
+        prompt = build_prompt("context", ["second", "first"])
+        assert prompt.index("A. second") < prompt.index("B. first")
+
+
+class describe_rotating_the_option_order:
+    def it_produces_the_requested_number_of_orders(self):
+        assert len(rotations_of(["a", "b", "c"], 2)) == 2
+
+    def it_starts_from_the_order_supplied(self):
+        assert rotations_of(["a", "b", "c"], 2)[0] == ["a", "b", "c"]
+
+    def it_rotates_each_successive_order(self):
+        assert rotations_of(["a", "b", "c"], 3) == [
+            ["a", "b", "c"], ["b", "c", "a"], ["c", "a", "b"],
+        ]
+
+    def it_covers_the_same_choices_in_every_order(self):
+        for order in rotations_of(["a", "b", "c", "d"], 4):
+            assert sorted(order) == ["a", "b", "c", "d"]
+
+    def it_never_repeats_an_order_already_asked(self):
+        # Rotating a two-choice set four times would ask the same two orders twice over, which
+        # costs forward passes and adds nothing to the average.
+        assert len(rotations_of(["a", "b"], 4)) == 2
+
+    def it_always_asks_at_least_once(self):
+        assert len(rotations_of(["a", "b"], 0)) == 1
+
+    def it_is_deterministic(self):
+        # A recorded decision has to be reproducible from its inputs, so the orders asked cannot
+        # be a shuffle.
+        assert rotations_of(["a", "b", "c"], 3) == rotations_of(["a", "b", "c"], 3)
+
+
+class describe_the_letter_alphabet:
+    def it_bounds_how_many_choices_one_pass_can_index(self):
+        assert MAX_LETTER_CHOICES == len(LETTERS) == 26
+
+    def it_starts_at_a(self):
+        assert LETTERS[0] == "A"
+
+
+class describe_the_continuation_fallback_prompt:
+    def it_lists_every_choice(self):
+        prompt = build_continuation_prompt("context", ["investigate", "implement"])
         assert "- investigate" in prompt
         assert "- implement" in prompt
 
     def it_includes_the_context(self):
-        assert "a failing build" in build_prompt("a failing build", ["retry"])
+        assert "a failing build" in build_continuation_prompt("a failing build", ["retry"])
+
+
+class describe_settings:
+    def it_defaults_to_two_rotations(self):
+        # Measured over 72 labelled decisions: one rotation scored 46% at ECE 0.208, two scored
+        # 56% at ECE 0.162. Changing this default should mean re-running that benchmark.
+        assert Settings().rotations == 2
+
+    def it_defaults_to_bfloat16(self):
+        assert Settings().dtype == "bfloat16"
+
+    def it_derives_thread_count_when_not_configured(self):
+        assert Settings(torch_threads=0).resolved_threads() >= 1
+
+    def it_honours_an_explicit_thread_count(self):
+        assert Settings(torch_threads=3).resolved_threads() == 3
 
 
 class describe_truncating_context:
