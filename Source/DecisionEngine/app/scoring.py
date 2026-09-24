@@ -3,26 +3,49 @@
 
 """Choice scoring.
 
-The approach: score each choice by the mean per-token log-likelihood the model assigns it when
-conditioned on the context, then softmax over the choices to normalize.
+The approach: put the choices to the model as a letter-indexed multiple-choice question and read
+the distribution straight off the letter tokens of a single forward pass.
 
-Why not simply ask the model to answer? Because a generated answer gives one token and no
-distribution — the caller then has a label it cannot weigh, and a 0.5B model's self-reported
-confidence is worthless. Log-likelihood scoring yields a real distribution at a cost of one short
-forward pass per choice, which is what makes a small CPU model competitive at this job.
+Why not score each choice as a continuation, which is the obvious thing to do? Two reasons, both
+measured on the production node against 72 labelled decisions:
 
-Mean rather than sum per token: a summed log-likelihood is systematically more negative for longer
-choices, so `change_approach` would lose to `retry` on length alone regardless of context.
+* Cost. Scoring choices as continuations needs one forward pass per choice, each re-reading the
+  whole prompt, so latency grows with the number of choices - 2.1s at three choices and 4.4s at
+  six. Reading letter tokens is one pass regardless: 0.19s at three choices and 0.22s at six.
+* Accuracy. A continuation score is contaminated by how likely the choice is as English. The
+  string "bug" is common and "breaking-change" is not, and that difference shows up in the score
+  whatever the context says. Single-token letters are equally likely a priori, so the only thing
+  distinguishing them is the question.
+
+What the letter form introduces is a positional bias - the model favours certain slots in the
+list. That is cancelled by asking the same question with the options rotated and averaging, which
+is why `rotations` exists. See `Settings.rotations` for the measurements behind the default.
 """
 
 from __future__ import annotations
 
 import math
+import string
 from dataclasses import dataclass
 
-ENGINE = "logprob-scoring/v1"
+ENGINE = "single-pass-mcq/v1"
+
+# The alphabet bounds how many choices can be scored in one pass. Past it the engine falls back to
+# continuation scoring, which is slower but has no such limit - see `model.py`.
+LETTERS = string.ascii_uppercase
+MAX_LETTER_CHOICES = len(LETTERS)
 
 PROMPT_TEMPLATE = (
+    "{context}\n\n"
+    "Question: which option applies?\n\n"
+    "{options}\n\n"
+    "Answer with the letter of the single best option."
+)
+
+ANSWER_PREFIX = "Answer: "
+
+# Used only by the legacy continuation path.
+CONTINUATION_TEMPLATE = (
     "You are selecting the single most appropriate option.\n\n"
     "Context:\n{context}\n\n"
     "Options:\n{options}\n\n"
@@ -32,30 +55,41 @@ PROMPT_TEMPLATE = (
 
 @dataclass(frozen=True)
 class ScoredChoice:
-    """One choice and the mean per-token log-likelihood it scored."""
+    """One choice and the score it was assigned."""
 
     choice: str
     log_likelihood: float
 
 
-def build_prompt(context: str, choices: list[str]) -> str:
-    """Build the prompt every choice is scored against.
+def rotations_of(choices: list[str], count: int) -> list[list[str]]:
+    """The option orders to ask the question in.
 
-    Every choice is listed in the prompt, not just the one being scored. Without the full option
-    set the model is scoring "how plausible is this string as a continuation", which is a different
-    and much noisier question than "which of these".
+    Rotation rather than random shuffling so the set is deterministic: the same request scored
+    twice returns the same distribution, which matters when a recorded decision is being audited.
+    Capped at the number of choices, because rotating further just repeats an order already asked.
     """
-    options = "\n".join(f"- {choice}" for choice in choices)
+    limit = max(1, min(count, len(choices)))
+    return [choices[offset:] + choices[:offset] for offset in range(limit)]
+
+
+def build_prompt(context: str, choices: list[str]) -> str:
+    """Build the multiple-choice prompt body for one option order."""
+    options = "\n".join(f"{LETTERS[index]}. {choice}" for index, choice in enumerate(choices))
     return PROMPT_TEMPLATE.format(context=context, options=options)
 
 
-def normalize(scored: list[ScoredChoice], temperature: float) -> dict[str, float]:
-    """Softmax the log-likelihoods into a distribution that sums to one.
+def build_continuation_prompt(context: str, choices: list[str]) -> str:
+    """Build the prompt for the continuation fallback used beyond 26 choices."""
+    options = "\n".join(f"- {choice}" for choice in choices)
+    return CONTINUATION_TEMPLATE.format(context=context, options=options)
 
-    Subtracting the maximum before exponentiating is the standard guard against overflow; with
-    mean log-likelihoods the magnitudes are small, but a degenerate tokenizer result can still
-    produce a large negative, and a silent `inf` here would surface as a NaN probability that a
-    caller's threshold comparison would quietly pass.
+
+def normalize(scored: list[ScoredChoice], temperature: float) -> dict[str, float]:
+    """Softmax the scores into a distribution that sums to one.
+
+    Subtracting the maximum before exponentiating is the standard guard against overflow; a
+    degenerate tokenizer result can still produce a large negative, and a silent `inf` here would
+    surface as a NaN probability that a caller's threshold comparison would quietly pass.
     """
     if not scored:
         return {}
@@ -80,7 +114,7 @@ def normalize(scored: list[ScoredChoice], temperature: float) -> dict[str, float
 def truncate(context: str, limit: int) -> str:
     """Trim an over-long context, keeping the end.
 
-    The end is kept because callers assemble context oldest-first — the most recent step outcome,
+    The end is kept because callers assemble context oldest-first - the most recent step outcome,
     the failure that just happened, is at the bottom and is the part a next-action decision turns on.
     """
     if limit <= 0 or len(context) <= limit:

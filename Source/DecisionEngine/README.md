@@ -29,8 +29,8 @@ model is loaded: replacing the model is a deployment change.
   "requestId": "0f2b",
   "choices": { "investigate": 0.05, "plan": 0.12, "implement": 0.82, "ask_user": 0.01 },
   "model": "Qwen/Qwen2.5-0.5B-Instruct",
-  "engine": "logprob-scoring/v1",
-  "latencyMs": 41.2
+  "engine": "single-pass-mcq/v1",
+  "latencyMs": 265.4
 }
 ```
 
@@ -48,6 +48,81 @@ Guarantees a caller may rely on:
 For callers scoring many candidates against one task, where a round trip each would cost more than
 the filtering saves.
 
+This endpoint saves **round trips, not model time**. Decisions inside a batch are scored one at a
+time, deliberately — see below.
+
+`latencyMs` on a batch response is the batch's total time divided across its decisions, so the
+number means the same thing whether one decision was sent or thirty.
+
+## How choices are scored
+
+The choices are put to the model as a letter-indexed multiple-choice question, and the distribution
+is read straight off the letter tokens of **one forward pass**:
+
+```
+<context>
+
+Question: which option applies?
+
+A. investigate
+B. plan
+C. implement
+D. ask_user
+
+Answer with the letter of the single best option.
+```
+
+The log-probabilities of the tokens `A`, `B`, `C`, `D` at the next position *are* the distribution,
+after a softmax at `DECISION_TEMPERATURE`.
+
+### Why not score each choice as a continuation
+
+That is the obvious design, and it is what this service originally did. It was replaced because it
+lost on both axes, measured on the deployment node (EPYC 9575F, 2 CPU, 72 labelled decisions):
+
+- **Cost.** One forward pass per choice, each re-reading the whole prompt, so latency grew with the
+  number of choices: 2114 ms at three choices, 4362 ms at six. Reading letter tokens is one pass
+  regardless — 265 ms and 290 ms.
+- **Accuracy.** A continuation score is contaminated by how likely the choice is as English. The
+  string `bug` is common and `breaking-change` is not, and that difference lands in the score
+  whatever the context says. Single-token letters are equally likely a priori, so the only thing
+  separating them is the question. Accuracy went from 43% to 56% on the same set.
+
+The continuation scorer is still in `model.py`, as the fallback for choice sets larger than the 26
+letters of the alphabet. It keeps its prompt's attention cache across choices, so it costs one
+prefill plus a short pass per choice rather than a full prefill per choice.
+
+### Why the option order is rotated
+
+The letter form introduces its own bias: the model favours certain positions in the list regardless
+of content. `DECISION_ROTATIONS` asks the same question with the options rotated and averages the
+results, which cancels it. Rotations are rows in the same forward pass, so the cost is sublinear.
+
+| Rotations | 3-choice p50 | Accuracy | ECE | Confidence separation |
+|---|---|---|---|---|
+| 1 | 193 ms | 46% | 0.208 | +0.209 |
+| **2** | **324 ms** | **56%** | **0.162** | **+0.124** |
+| 3 | 558 ms | 60% | 0.189 | +0.047 |
+
+Two is the default: the point where accuracy and calibration error are both best. Three is more
+often right but can no longer tell you *when* it is right, which makes a consumer's confidence
+threshold meaningless.
+
+Rotation rather than shuffling, so the orders asked are deterministic and a recorded decision can be
+reproduced from its inputs during an audit.
+
+### Why decisions are not batched with each other
+
+Folding several decisions into shared forward passes measured at 292 ms per decision against 290 ms
+for scoring them one at a time — at these sizes the matmuls are already compute-bound, so there is
+no per-call overhead left to recover. What it did cost was reproducibility: bfloat16 takes a
+different kernel path depending on batch shape, and 3 of 72 decisions changed their top choice
+according to nothing but what else was scored alongside them. A decision that cannot be reproduced
+from its recorded inputs is not worth a throughput gain that does not exist.
+
+`DECISION_TEMPERATURE` is the calibration knob — below 1.0 sharpens, above flattens. Tune it against
+recorded decisions rather than intuition.
+
 ### Operational routes
 
 | Route | Purpose |
@@ -60,24 +135,21 @@ the filtering saves.
 `/healthz` and `/readyz` are deliberately different. A model that takes four minutes to pull its
 artifact must not be restart-looped by a liveness probe that is really a readiness probe.
 
-## How choices are scored
+## Choosing the model
 
-Each choice is scored by the **mean per-token log-likelihood** the model assigns it when conditioned
-on a prompt containing the context *and the full option set*. The scores are then softmaxed into a
-distribution.
+`Qwen2.5-0.5B-Instruct` is the default because it was the best of the CPU-viable candidates on both
+axes at once. Measured on the deployment node, single-pass scoring, 72 labelled decisions:
 
-Three decisions worth knowing about:
+| Model | 3-choice p50 | Accuracy | Confidence separation | |
+|---|---|---|---|---|
+| **Qwen2.5-0.5B-Instruct** | **245 ms** | **46%** | **+0.209** | Default |
+| SmolLM2-360M-Instruct | 180 ms | 26% | +0.017 | At the random baseline (~28%), and its confidence carries no signal |
+| Llama-3.2-1B-Instruct | 494 ms | 47% | +0.113 | Ties within noise at 2× the latency; also a **gated** HF repo, needing a token in-cluster |
 
-- **Not generation.** Asking the model to emit the answer yields one label and no distribution, and
-  a 0.5B model's self-reported confidence is worthless. Scoring yields a real distribution for one
-  short forward pass per choice.
-- **Mean, not sum.** A summed log-likelihood is systematically more negative for longer strings, so
-  `change_approach` would lose to `retry` on length alone.
-- **All options in the prompt.** Scoring a choice without showing the alternatives answers "is this
-  a plausible continuation", which is a noisier question than "which of these".
-
-`DECISION_TEMPERATURE` is the calibration knob — below 1.0 sharpens, above flattens. Tune it against
-recorded decisions rather than intuition.
+The accuracy column is argmax against hand-labelled expectations; confidence separation is mean
+confidence when right minus mean confidence when wrong, which is the property a consumer gating on a
+threshold actually depends on. Replacing the model is a configuration change — nothing in this
+service names one.
 
 ## Configuration
 
@@ -86,12 +158,22 @@ recorded decisions rather than intuition.
 | `DECISION_MODEL` | `Qwen/Qwen2.5-0.5B-Instruct` | Hugging Face repository id |
 | `DECISION_MODEL_REVISION` | `main` | Pin to a commit sha in deployment |
 | `DECISION_RUNTIME` | `transformers` | Reported for telemetry |
+| `DECISION_DTYPE` | `bfloat16` | Weight precision. `float32` is 3.9× slower for no accuracy gain; `float16` is emulated on x86 and 10× slower; int8 was measured and rejected for becoming confidently wrong |
+| `DECISION_ROTATIONS` | `2` | Option orders averaged per decision |
 | `DECISION_TEMPERATURE` | `1.0` | Softmax temperature |
-| `DECISION_MAX_CHOICES` | `32` | Per-request choice cap |
+| `DECISION_MAX_CHOICES` | `32` | Per-request choice cap. Above 26 a request falls back to continuation scoring |
 | `DECISION_MAX_BATCH` | `32` | Batch size cap |
+| `DECISION_MAX_ROWS` | `16` | Rows per padded forward pass — bounds peak memory |
 | `DECISION_MAX_CONTEXT_CHARS` | `8000` | Context truncated keeping the **end** |
-| `DECISION_TORCH_THREADS` | unset | Pin to the pod's CPU limit to stop torch oversubscribing |
+| `DECISION_TORCH_THREADS` | unset | Threads to pin torch to. When unset it is derived from the cgroup CPU quota, which is right more often than a hard-coded number |
 | `HF_HOME` | `/models` | Artifact cache — mount it, or every restart re-downloads |
+
+### Threads
+
+Torch sizes its pool from the *node's* core count, which inside a container is not the number of
+CPUs the process may use. Measured in the pod against a 2-CPU quota: **217 GFLOPS at 2 threads,
+142 GFLOPS at 4.** Oversubscribing a quota is slower than matching it, so the service reads
+`/sys/fs/cgroup/cpu.max` and configures itself when `DECISION_TORCH_THREADS` is absent.
 
 ## Running locally
 
