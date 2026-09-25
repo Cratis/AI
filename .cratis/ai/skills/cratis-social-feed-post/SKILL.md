@@ -1,6 +1,6 @@
 ---
 name: cratis-social-feed-post
-description: Write or review a short post for a social feed such as LinkedIn, where the opening has to survive the feed's truncation, the body is plain text with no markup, and the common formatting tricks cost accessibility and reach. Use when drafting, adapting or reviewing a feed post. Do not use for documentation pages, release notes, long-form articles, or anything rendered as Markdown.
+description: Write or review a short post for a social feed such as LinkedIn, where the opening has to survive the feed's truncation, the body is plain text with no markup, media usually carries the post, every image, GIF, video and document carries the Cratis mark, and the common formatting tricks cost accessibility and reach. Use when drafting, adapting or reviewing a feed post, choosing its media, or adapting it for another channel. Do not use for documentation pages, release notes, long-form articles, or anything rendered as Markdown.
 license: MIT
 ---
 
@@ -87,11 +87,75 @@ Symbols — the characters that look like `𝗕𝗼𝗹𝗱` and `𝘐𝘵𝘢�
 Emphasis in a plain-text feed comes from sentence construction, line placement and what is
 said first. A point that needs visual weight belongs in an image with its own alt text.
 
-## Two things that cost reach outright
+## Lead with media that explains
 
-- **No external link in the body.** Current ranking suppresses posts that carry one; the
-  convention is to put the link in a comment. Verify this at review rather than repeating it
-  as folklore, and never write the convention into the copy itself.
+On LinkedIn, posts with media have higher observed engagement rates than text-only posts
+for every format that has been measured. In Buffer's 2026 analysis the median engagement rate
+was 21.77% for document carousels, 7.35% for video, 6.52% for images and 3.18% for text.
+Socialinsider's Q2 2026 averages put multi-image (6.90%) and documents (6.60%) ahead of
+video, images and text. These are engagement rates among each vendor's users. They aren't
+reach, they don't prove cause, and neither study measures GIFs or infographics separately.
+So on LinkedIn a post leads with at least one asset by default, and a text-only post is a
+choice you make on purpose. On other channels the evidence differs (see below).
+
+Pick the asset by what it has to explain:
+
+- **Code card:** one mechanism a developer can read in a few seconds.
+- **Several images:** every layer the opening names, such as a command and the event it
+  returns. Don't split one idea into two posts to fit one image.
+- **Document or carousel:** a sequence of steps, a before-and-after, or a decision walked
+  through page by page. Documents and multi-image posts lead current LinkedIn engagement
+  rates. Give it a cover that states the claim, and one idea per page.
+- **GIF or screen recording:** an interaction where the motion is the point. Keep a static
+  frame that makes sense on its own.
+- **Video:** real behavior shown end to end, captioned, with a first frame and captions
+  that work with the sound off.
+
+A stock photo or a decorated title card isn't media in this sense. It explains nothing. The
+first image is seen before the text is expanded, so it does the same job as the opening
+line: one idea, legible on a phone.
+
+## Brand every asset with the Cratis mark
+
+Every image, card, document page, GIF, video and screenshot published for Cratis carries
+the Cratis mark. There are no exceptions for small or quick assets. Media gets saved,
+reposted and screenshotted away from its post, and the mark is what still says where it came
+from.
+
+- Use the real mark with the word "Cratis", unaltered: never stretched, cropped, outlined,
+  animated, redrawn or recolored to another hue. Use white on a dark ground and near-black
+  on a light one.
+- Keep it at least 3% of the canvas width tall (36 px on a 1200 px canvas), with clear space
+  about half its height and enough contrast to read on a phone.
+- Place it by format:
+  - **Card, image or infographic:** a brand row across the top.
+  - **Document or carousel:** the full brand row on the cover, then the mark in the same
+    place on every later page.
+  - **GIF:** on every frame, because the feed can show any frame.
+  - **Designed video:** a persistent corner mark for the whole length, in a place no
+    player control or caption covers.
+  - **Screenshot or screen recording:** framed, never stamped. The capture sits unchanged
+    inside a branded frame with the brand row above it on every frame. Painting a logo
+    over captured pixels alters what the capture shows. Give a light-theme capture a frame
+    that keeps the mark readable.
+- Keep the first frame informative. The persistent mark carries the brand, so a video or
+  GIF doesn't need a branding-only title card, and its first frame should show the subject.
+- Leave the logo out of alt text. Describe the idea in the image.
+- Where an asset shows someone else's product or material, the mark belongs to the frame
+  and must not suggest endorsement or partnership.
+
+An asset without the mark isn't ready to publish. There's no evidence either way that a logo
+changes organic reach. The mark is there for recognition and attribution.
+
+## Links and bait
+
+- **On LinkedIn, keep external links out of the body by default.** The sources reviewed
+  don't establish that a body link lowers distribution, and "always put the link in the
+  first comment" is folklore. We keep the link in a comment anyway, because the post has to
+  stand on its own. Make an exception when the link is what the reader needs, such as the
+  runnable sample the post is about. On channels where the link is the post, this doesn't
+  apply. Never write the convention into the copy, and never present it as an algorithm
+  fact.
 - **No engagement bait.** "Repost if…", "Tag someone who…", "Agree?" are treated as spam
   signals rather than as engagement. A genuinely answerable question that follows from the
   argument is a different thing and is welcome.
@@ -107,15 +171,50 @@ said first. A point that needs visual weight belongs in an image with its own al
 - Blank lines separate paragraphs and nothing else. Each one costs line budget above the fold.
 - No Markdown. The feed renders none of it, so `**bold**` and `# heading` reach the reader
   as literal characters.
-- Hashtags on the last line only, never mid-sentence.
+- Hashtags on the last line only, never mid-sentence. No source supports a fixed count; one
+  or two that name the subject are enough.
 - Every image needs alt text. A post whose point lives only in an unlabeled image has no
   point for part of its audience.
 
+## After publishing
+
+Plan for the author to answer comments. In Buffer's data, LinkedIn accounts that replied to
+comments had about 30% more engagement than their own posts without replies. That's
+correlation within each account, not proof that replying causes it, but it costs nothing to
+act on. Drafting a post never includes replying on someone's behalf.
+
+## Other channels
+
+A feed post adapted for another channel is rewritten for it, not cross-posted:
+
+- **X and Bluesky:** shorter, one finding, and part of the conversation rather than a
+  broadcast. Add an image when it explains something; text led engagement on X in 2025
+  data.
+- **Mastodon:** context and hashtags in the post, alt text on every image, and the
+  server's own rules.
+- **Reddit:** answer the question the community asked, with a reproducible example, say
+  that you work on the project, and read that subreddit's current rules first.
+- **Hacker News:** don't draft or edit anything posted there. HN's guidelines say "Don't
+  post generated text or AI-edited text", so the title, text and comments must be written
+  by a person. You may help that person collect facts, links and answers to check. Show HN
+  is only for something people can try. Never ask anyone to upvote or comment.
+- **dev.to, Hashnode and blogs:** the complete tested piece with versions and a canonical
+  link, not a teaser.
+- **YouTube:** a title and thumbnail that match what the video actually shows.
+
+See [the engagement evidence](references/engagement-evidence.md) for sources, evidence grades
+and the claims that are folklore.
+
 ## Before publishing
 
+- The post leads with at least one asset that explains something, or text-only was chosen
+  on purpose.
+- Every image, document page, GIF frame and video carries the Cratis mark, and screenshots
+  are framed rather than stamped.
 - The opening thought is complete above the fold on mobile as well as desktop.
 - No pseudo-formatted characters anywhere, including the hook.
-- No link in the body and no engagement bait in the close.
+- On LinkedIn, no link in the body unless the reader needs it there, and no engagement bait
+  in the close.
 - Every image carries alt text, and the post still makes sense with the images removed.
 - Every technical claim is one the underlying source actually supports, and any limitation
   the post depends on is stated rather than implied.
@@ -123,5 +222,5 @@ said first. A point that needs visual weight belongs in an image with its own al
 ## Stop conditions
 
 Stop and ask when the account owner, the author's perspective, the evidence behind a claim,
-or an asset's permission is unresolved. Drafting a post is not authorization to publish,
-schedule, tag, mention or upload it.
+an asset's permission or its branding is unresolved. Drafting a post is not authorization to
+publish, schedule, tag, mention, upload or reply.

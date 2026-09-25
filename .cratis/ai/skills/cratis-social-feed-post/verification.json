@@ -7,12 +7,20 @@
     { "kind": "skill-contains", "value": "Never use Unicode pseudo-formatting" },
     { "kind": "skill-contains", "value": "Assistive technology cannot read them" },
     { "kind": "skill-contains", "value": "A brief opening sentence is a hook doing its job" },
-    { "kind": "skill-contains", "value": "No external link in the body" },
     { "kind": "skill-contains", "value": "No engagement bait" },
     { "kind": "skill-contains", "value": "unofficial approximations" },
     { "kind": "skill-contains", "value": "Sound like a person talking" },
     { "kind": "skill-contains", "value": "Open with something that happened" },
     { "kind": "skill-contains", "value": "Put a limit where it applies" },
-    { "kind": "skill-contains", "value": "Keep the review out of the copy" }
+    { "kind": "skill-contains", "value": "Keep the review out of the copy" },
+    { "kind": "skill-contains", "value": "keep external links out of the body by default" },
+    { "kind": "skill-contains", "value": "Lead with media that explains" },
+    { "kind": "skill-contains", "value": "Brand every asset with the Cratis mark" },
+    { "kind": "skill-contains", "value": "framed, never stamped" },
+    { "kind": "skill-contains", "value": "on every frame, because the feed can show any frame" },
+    { "kind": "skill-contains", "value": "Leave the logo out of alt text" },
+    { "kind": "skill-contains", "value": "Plan for the author to answer comments" },
+    { "kind": "skill-contains", "value": "is rewritten for it, not cross-posted" },
+    { "kind": "skill-contains", "value": "AI-edited text" }
   ]
 }
