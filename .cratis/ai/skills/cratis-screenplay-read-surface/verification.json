@@ -7,6 +7,9 @@
     { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
     { "kind": "skill-contains", "value": "The tenant is the default and stays unstated" },
     { "kind": "skill-contains", "value": "belongs on a `from` parameter, never on a `filter`" },
-    { "kind": "skill-contains", "value": "warnings, not errors" }
+    { "kind": "skill-contains", "value": "warnings, not errors" },
+    { "kind": "skill-contains", "value": "the executable model does not bind observable queries" },
+    { "kind": "skill-contains", "value": "A compiling query is not evidence that access control works" },
+    { "kind": "skill-contains", "value": "decision 0010 but **not in the language yet**" }
   ]
 }
