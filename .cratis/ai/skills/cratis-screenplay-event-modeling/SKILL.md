@@ -32,11 +32,14 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.12.1` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
-| `Cratis.Screenplay.Tool` | `4.12.1` | The `screenplay` dotnet tool |
+| `Cratis.Screenplay` | `4.30.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
+| `Cratis.Screenplay.Tool` | `4.30.0` | The `screenplay` dotnet tool |
 
-Read from the Screenplay repository at tag `v4.12.1` (commit `122eee8`). Reverify
-before claiming another version behaves the same.
+Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+`Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
+`projections/keys.md`, and decisions 0001 to 0014. The examples in
+[nine-steps.md](references/nine-steps.md) compile with that version's compiler.
+Reverify before claiming another version behaves the same.
 
 > **Method lineage.** The two-phase process, the nine steps, the four patterns and
 > the GWT discipline follow **Event Modeling** (Adam Dymitruk; Martin Dilger,
@@ -96,11 +99,14 @@ Two divergences matter, and getting them wrong produces a model that will not
 compile or will not be safe. Both are deliberate.
 
 - **A command may read state.** The generic method forbids `ReadModel → Command`
-  edges. Screenplay ships `reads <ReadModel> [by <property>]` on a command
-  precisely so a state-dependent rule can be decided under concurrency. Use it for
-  genuine consistency boundaries, and pair it with `concurrency` so the decision is
-  enforced at append time rather than merely consulted. Do not use it to fetch
-  data the command could carry as input.
+  edges. Screenplay ships `reads <ReadModel> [as <alias>] [by <property>]` so the
+  model shows what a state-dependent decision consulted. **It is not a protected
+  read today:** nothing checks at append time that the state is still current,
+  the executable model rejects `reads` and `concurrency` (`PLAY0271`), and adding
+  `concurrency` does not make the decision safe (decision 0003, Screenplay #129).
+  Model uniqueness as a `unique` constraint; for any other state-dependent rule,
+  record that the target must enforce it consistently. Do not use `reads` to
+  fetch data the command could carry as input.
 - **Some validation *does* belong in the model.** The generic method routes format
   rules to the type system. Screenplay's type system *is* the `concept`, and a
   concept carries its own `validate` block — so a format rule lives on the concept
@@ -122,7 +128,7 @@ compile or will not be safe. Both are deliberate.
   `Created`. One purpose per event; an event needing an optional property to cover
   two situations is two events.
 - **The event-source identity is never an event property.** The command binds it
-  with `identifier` on exactly one property; marking an *event* property
+  with `identifier` on at most one property; marking an *event* property
   `identifier` is an error: *an event never carries its event source id*.
 - **Domain facts, not runtime context.** Test: would this field have the same value
   if the event were replayed on a different machine? If not, it does not belong.
@@ -170,8 +176,13 @@ produced in another resolves. Compiling files individually reports unknown types
 events and policies (`PLAY0165`, `PLAY0166`, `PLAY0167`) that are not missing.
 Duplicates *across* files are real errors naming both ends (`PLAY0172`, `PLAY0173`).
 
-Round-tripping a folder does not preserve **declaration order** — modules, features
-and slices come back sorted by name. Never encode meaning in order.
+Round-tripping a folder does not preserve the order of **modules, features and
+slices**: they come back sorted by name, and members of one module or feature
+that come from different files print in canonical kind order. Order *within* one
+file is kept, and some order carries meaning: `authorize` gates and policy
+operands evaluate left to right, and specification events compare in authored
+order unless `then events in any order` is stated. Never encode meaning in the
+order of modules, features or slices.
 
 ## Verify
 
@@ -188,26 +199,42 @@ screenplay .cratis/screenplay/ --warnaserror
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
 - [ ] If the model must reach a runtime, every slice is `StateChange` or
-      `StateView` and stays inside the admitted vertical (below).
+      `StateView` and binds to the executable model (below).
 
 ## Parsed is not runnable
 
 The compiler accepts far more than anything executes. Between the syntax tree and
-any runtime sits the **executable semantic model (ESM v1)**, and it fails closed.
-`SemanticSliceKind` has exactly three members — `Unknown = -1`, `StateChange`,
-`StateView` — so an `Automation` or `Translate` slice is rejected outright:
-*Slice '<name>' of type '<type>' is not admitted by ESM v1.*
+any runtime sits the **executable semantic model (ESM)**, and it fails closed:
+what it cannot represent reports `PLAY0268` or `PLAY0271` and the model does not
+bind. Keep four states apart when you report on a model: **parsed** (the
+`screenplay` tool), **bound** (ESM), **reference-executed** (specifications pass
+the reference runner) and **target-executed** (Stage or a rendered application).
 
-**Exactly 40 constructs** bind to `UnsupportedSemanticSyntax` (`PLAY0268`) rather
-than to a weaker model — imports, policies, personas, triggers, `authorize`, event
-and produced-event tags, conditional `produces … when`, code-backed validation,
-query filters/scope/performers, `@pii` concepts, projection parent keys, reducers,
-reactions, captures and constraints among them.
+The ESM version follows from what the model uses: v1 by default, v2 for typed
+event-source facts (`produces … for`, `for` in specifications, `$context.occurred`
+and caller identity), v3 for code the model hands off (bodied reducers, code
+validation, code policies). Code binds as an opaque requirement; the reference
+runner reports any specification that needs it as unsupported.
 
-Model the wider language freely when the `.play` file **is** the deliverable —
-documentation, review, a shared description of a system. Stay inside the admitted
-vertical when it must reach a runtime. Never read a clean `screenplay` run as
-evidence a construct works downstream.
+For event modeling, the consequential boundaries today are:
+
+- `Automation` and `Translate` slices, reactions, captures and triggers do not
+  bind: *Slice '<name>' of type '<type>' is not admitted by ESM v1.*
+- `reads` and `concurrency` do not bind (`PLAY0271`), so no decision is protected
+  against stale state.
+- `persona` and `@pii`/`@sensitive` concepts do not bind yet. Keep them: the
+  classification is part of the model.
+- UI constructs are deferred with information `PLAY0269`; they never block.
+
+The full disposition table is in the `cratis-screenplay-model-authoring` language
+reference. Model the wider language freely when the `.play` file **is** the
+deliverable — documentation, review, a shared description of a system. Never
+read a clean `screenplay` run as evidence a construct works downstream.
+
+Screenplay decisions 0006 to 0014 (reaction `reads`, affected read-model
+instances, one data subject per event, external event origin, query paging and
+live change sets, event generations, typed context descriptors) are accepted but
+**not available**. Do not write their syntax; note the need in prose instead.
 
 ## Route near misses
 

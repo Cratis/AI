@@ -30,6 +30,18 @@
     {
       "kind": "skill-contains",
       "value": "is not admitted by ESM v1"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "It is not a protected"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**reference-executed**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "are accepted but\n**not available**"
     }
   ]
 }

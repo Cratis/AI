@@ -18,7 +18,8 @@ module Invoicing
 ```
 
 `description` is the optional **first body line** of a module, feature, slice,
-persona or command; at most one. Use a fenced ``` block when one line is not enough.
+persona or command; at most one. Use a fenced block tagged ` ```text ` when one line
+is not enough (a bare fence warns with `PLAY0397`).
 
 ## Step 2 — Brainstorm events
 
@@ -39,8 +40,8 @@ does not belong in an event.
 Arrange into the timeline — the plot. *"What happens first? And then what
 happens?"* Identify the happy path **and** the alternative and error paths.
 
-**Output:** the order the slices will be written in. Note that folder round-trip
-does not preserve declaration order, so the timeline is documentation, not
+**Output:** the order the slices will be written in. A folder round-trip sorts
+modules, features and slices by name, so the timeline is documentation, not
 structure.
 
 ## Step 4 — Create wireframes
@@ -48,7 +49,7 @@ structure.
 These need not be the real UI. Their purpose is a complete accounting of what a
 user can **see** and what they can **do** at each interaction point.
 
-```
+```text
 +-------------------------------+
 |  Register Invoice             |
 +-------------------------------+
@@ -67,7 +68,11 @@ input** (something provided). If you cannot trace a field, something is missing.
 same time?"* If yes, the wireframe shows a list or table, not a single-item view.
 
 **Output:** the `screen` declarations, at Level 1 (intent) for now —
-`data <ReadModel> via query <Query>` plus `action <Command>`.
+`data <ReadModel> via query <Query>` plus `action <Command>`. When the wireframe
+says what a click, submit or screen entry *does* (confirm, refresh, navigate,
+open a dialog), capture it as an `on` block or a named `behavior` attached with
+`uses` — see `cratis-screenplay-ui-composition`. An `action` alone does not say
+what happens afterwards.
 
 ## Step 5 — Identify commands
 
@@ -77,8 +82,10 @@ did they provide? Under what circumstances would this NOT happen?"*
 Commands are imperative and present tense: `RegisterInvoice`, `ProcessPayment`.
 **Commands can fail; events cannot.**
 
-**Output:** the `command` declaration with its properties, exactly one
-`identifier` property, `authorize`, and `produces`.
+**Output:** the `command` declaration with its properties, its `identifier`
+property (at most one; leave it out only when the runtime should allocate a new
+identity), `authorize`, and `produces`. Excerpt: the concepts, the policy and the
+event are declared elsewhere in the model.
 
 ```screenplay
 slice StateChange RegisterInvoice
@@ -107,7 +114,7 @@ need to determine its next action?"*
 
 Verify **every** field traces back to an event:
 
-```
+```text
 InvoiceListReadModel:
   invoiceId      <- InvoiceRegistered.invoiceId
   invoiceNumber  <- InvoiceRegistered.invoiceNumber
@@ -121,15 +128,21 @@ a collection type, not a singular value.
 builds it. **Exactly one thing may build a read model** — two builders is a
 compile error (`PLAY0191`).
 
+Key **every** `from` on the value that identifies the instance. A `from` without a
+key routes by the event's event source id, not by the key of another `from`, and
+a `key` written directly on the projection routes nothing (`PLAY0381`). Excerpt:
+the concepts and events are declared elsewhere, and both events carry `invoiceId`.
+
 ```screenplay
 slice StateView InvoiceList
   readmodel InvoiceListReadModel
+    invoiceId     InvoiceId
     invoiceNumber InvoiceNumber
     status        InvoiceStatus
   projection InvoiceList => InvoiceListReadModel
     from InvoiceRegistered key invoiceId
       status = "draft"
-    from InvoiceSent
+    from InvoiceSent key invoiceId
       status = "sent"
   query ListInvoices => InvoiceListReadModel[]
 ```
@@ -148,7 +161,9 @@ event. **Test:** *"Can this automatic response ever be skipped or vary based on
 system state?"* If no, it is co-production — one `StateChange` slice with several
 `produces` blocks, not an `Automation` slice.
 
-**Output:** the `reaction`, in an `Automation` slice.
+**Output:** the `reaction`, in an `Automation` slice. It documents the automation;
+it does not bind to the executable model today. Excerpt: the event and the
+command are declared in their own slices.
 
 ```screenplay
 slice Automation ChaseOverdueInvoices
@@ -179,7 +194,9 @@ need it?"* If every workflow needs it, it is cross-cutting infrastructure, **not
 a `Translate` slice.
 
 **Output:** the `capture` in a `Translate` slice, and any `trigger` declaration
-for a name only an integration knows.
+for a name only an integration knows. A `trigger` is an application signal a
+reaction consumes; it is not how a button click is modeled (that is a UI `on`
+clause).
 
 ```screenplay
 trigger BuildFinished
@@ -201,8 +218,11 @@ Bad slices: *"Set up database"* (technical, no user value), *"Implement invoicin
 **Slice independence.** Slices sharing an event schema are **independent** —
 connected by the event contract, not by execution order. A `StateChange` slice is
 specified by asserting on produced events; a `StateView` slice is specified with
-synthetic `given` events. Neither needs the other implemented first. Do not build
-artificial dependency chains.
+synthetic `given` events, or with `when append <Event>` to run one event through
+constraints and projections. Neither needs the other implemented first. Do not
+build artificial dependency chains. An authorized command's specifications state
+the caller explicitly with `given caller` and assert refusals with `then denied`
+(see `cratis-screenplay-specifications`).
 
 **Output:** the complete `feature` → `slice` tree, ready for the specifications.
 
