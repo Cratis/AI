@@ -135,6 +135,12 @@ recorded decisions rather than intuition.
 `/healthz` and `/readyz` are deliberately different. A model that takes four minutes to pull its
 artifact must not be restart-looped by a liveness probe that is really a readiness probe.
 
+Ready means ready to answer at full speed, not just loaded. Before `/readyz` turns green the weights
+are copied out of the memory-mapped checkpoint into process memory, and one warm-up decision is
+scored. Without the copy the weights stay as page cache over the model volume, the node reclaims them
+whenever it wants memory back, and the next decision after an idle spell pays seconds to fault them
+back in from storage. A pod that is Ready stays warm for as long as it runs.
+
 ## Choosing the model
 
 `Qwen2.5-0.5B-Instruct` is the default because it was the best of the CPU-viable candidates on both
