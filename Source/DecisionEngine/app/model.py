@@ -3,8 +3,10 @@
 
 """Model loading and scoring.
 
-The model is loaded once, lazily, on startup. Readiness is gated on that load completing, so a pod
-never receives traffic it would answer with a cold-start stall.
+The model is loaded once, on startup. Readiness is gated on that load completing, on the weights
+being resident in process memory, and on one warm-up decision having been scored, so a pod never
+receives traffic it would answer with a cold-start stall - neither the first one after a rollout nor
+the first one after an idle spell.
 
 One decision is one padded forward pass over its rotations. Decisions are deliberately *not*
 batched with each other, even inside a batch request. Measured on the production CPU, folding
@@ -57,11 +59,12 @@ class DecisionModel:
         self._model = None
         self._loaded_at: datetime | None = None
         self._letter_ids: list[int] = []
+        self._ready = False
 
     @property
     def is_loaded(self) -> bool:
         """Whether the model is ready to score."""
-        return self._model is not None
+        return self._ready
 
     @property
     def loaded_at(self) -> datetime | None:
@@ -70,11 +73,11 @@ class DecisionModel:
 
     def load(self) -> None:
         """Load the configured model. Safe to call more than once."""
-        if self._model is not None:
+        if self._ready:
             return
 
         with self._lock:
-            if self._model is not None:
+            if self._ready:
                 return
 
             import torch
@@ -111,6 +114,7 @@ class DecisionModel:
                 dtype=getattr(torch, _DTYPES.get(SETTINGS.dtype, "bfloat16")),
             )
             model.eval()
+            _make_resident(model)
             self._model = model
 
             # The token id each option letter starts with. Resolved once: it depends only on the
@@ -120,12 +124,28 @@ class DecisionModel:
                 for letter in LETTERS
             ]
 
+            self._warm_up()
+
             self._loaded_at = datetime.now(UTC)
+            self._ready = True
             logger.info("model loaded")
+
+    def _warm_up(self) -> None:
+        """Score one throwaway decision so the first real caller does not pay for kernel setup.
+
+        The first forward pass selects and initializes the CPU kernels for these shapes and faults
+        in every allocation the pass needs - measurably slower than every pass after it. That cost
+        belongs to startup, behind the readiness probe, not to whoever happens to call first.
+        """
+        self._score_by_letters(ScoringTask(
+            context="A warm-up question asked before the service reports ready.",
+            choices=["Yes", "No"],
+        ))
+        logger.info("warm-up decision scored")
 
     def score(self, tasks: list[ScoringTask]) -> list[list[ScoredChoice]]:
         """Score every task, returning one list of scored choices per task, in order."""
-        if self._model is None or self._tokenizer is None:
+        if not self._ready:
             raise ModelNotLoaded
 
         # Choice sets the letter alphabet cannot index fall back to continuation scoring. Slower,
@@ -240,6 +260,28 @@ class DecisionModel:
                 scored.append(ScoredChoice(choice, total / choice_ids.shape[1]))
 
         return scored
+
+
+def _make_resident(model) -> None:
+    """Copy every weight out of the memory-mapped checkpoint and into process memory.
+
+    Loading from safetensors leaves the weights as views over a memory-mapped file on the model
+    cache volume. File-backed pages are page cache, and the kernel reclaims page cache whenever the
+    node wants memory back - regardless of how far this pod is from its own limit. Observed in
+    production: a pod that had been ready for sixteen hours held its weights as ~825MB of
+    file-mapped pages, and a decision after as little as five idle seconds faulted ~128k of them
+    back in from network storage, taking 1.3-2s against 0.3s warm. The model was loaded; its
+    weights simply were not in memory any more.
+
+    Anonymous memory is not reclaimable on a node without swap, so once copied the weights stay
+    put. Parameters shared between modules (tied embeddings) are one object and are copied once,
+    so ties survive. The cost is the same resident set the model needs while scoring anyway.
+    """
+    import torch
+
+    with torch.no_grad():
+        for tensor in (*model.parameters(), *model.buffers()):
+            tensor.data = tensor.data.clone()
 
 
 class ModelNotLoaded(Exception):
