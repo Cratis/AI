@@ -25,31 +25,40 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.12.1` | PDL parser, validator, diagnostics |
+| `Cratis.Screenplay` | `4.31.0` | PDL parser, validator, diagnostics, semantic binder |
 
-Read from the Screenplay repository at tag `v4.12.1` (commit `122eee8`), against
-`Documentation/screenplay/projections/` and
-`Source/DotNET/Screenplay/Parsing/ProjectionParser.cs`. Reverify before claiming
-another version behaves the same.
+Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
+`Documentation/screenplay/projections/` (including `semantic-model.md`, `keys.md`
+and `variants.md`), `readmodels.md`, `diagnostics.md` and decisions 0001 and 0002.
+Every example below compiles with that version's compiler. Reverify before
+claiming another version behaves the same.
+
+**Chronicle decides what a projection means** (Screenplay decision 0001).
+Screenplay owns the grammar; which instance an event affects, what a join may
+create and what a removal removes follow Chronicle's lowering. Syntax that
+compiles can still mean something other than it seems: read the warnings.
 
 ## The shape
 
+Excerpt: the concepts and the three events (each carrying `invoiceId`) are
+declared elsewhere in the model.
+
 ```screenplay
 readmodel InvoiceDetailsReadModel
+  invoiceId     InvoiceId
   invoiceNumber InvoiceNumber
   status        InvoiceStatus
   lastUpdatedAt DateTime
 
 projection InvoiceDetails => InvoiceDetailsReadModel
-  key invoiceId
   every
     lastUpdatedAt = $eventContext.occurred
     exclude children
   from InvoiceRegistered key invoiceId
     status = "draft"
-  from InvoiceSent
+  from InvoiceSent key invoiceId
     status = "sent"
-  remove with InvoiceCancelled
+  remove with InvoiceCancelled key invoiceId
 ```
 
 **The arrow always points the same way.** A read model never declares what builds
@@ -60,14 +69,18 @@ projections, each building a **different** read model.
 
 ## Projection-level directives
 
-`key <expr>`, `no automap`, `sequence <name>`, `file <path>`. A second `key` is
-error `PLAY0059`.
+`no automap`, `sequence <name>`, `file <path>`. `sequence` is a realization
+concern and does not bind to the executable model.
+
+⚠️ **Do not write `key` on the projection.** It parses, but neither Chronicle nor
+the executable model routes any event by it, and it is not a default for the
+`from` blocks (warning `PLAY0381`). Key each `from` instead.
 
 ## Keys — eight ways, and the default
 
 | Form | Example |
 | --- | --- |
-| Projection-level | `key invoiceId` |
+| Projection-level | `key invoiceId` — **routes nothing** (`PLAY0381`); do not use |
 | From-level inline | `from InvoiceRegistered key invoiceId` |
 | From-level block | indented `key invoiceId` inside the `from` |
 | Per event, several events | `from A key idA, B key idB, C` |
@@ -75,6 +88,12 @@ error `PLAY0059`.
 | Literal (constant) | `key literal "site-stats"` — every event updates the **same** instance |
 | Children identity | `children lines identified by lineNumber` |
 | **Default** | **the event source id** — `from X` ≡ `from X key $eventSourceId` |
+
+The key resolves from the event's inline key, then the `from` block's key, then
+the event source id. A `from` without a key does **not** inherit another
+`from`'s key: when one event is keyed by `invoiceId` and another is unkeyed, they
+update the same instance only if the event source id happens to equal
+`invoiceId`.
 
 A second key on one `from` is error `PLAY0060`. A template expression in a
 composite key is error `PLAY0073`; an empty composite key is `PLAY0074`.
@@ -84,11 +103,16 @@ composite key is error `PLAY0073`; an empty composite key is `PLAY0074`.
 | Block | Fires for | Use for |
 | --- | --- | --- |
 | `from <Event>` | that event type only | the actual mapping work |
-| `every` | **only** the types this projection subscribes to via `from` | common fields across your own events |
-| `all` | **every event type in the system** | system-wide audit logs, global counters |
+| `every` | **only** the event types its level names in `from` and `join` blocks | common fields across your own events |
+| `all` | **every event type in the system**; types no `from` names are keyed by their event source id | activity timestamps and counters per event source |
 
 ⚠️ `all` and `every` are not synonyms, and confusing them is the classic PDL
-mistake. `every` is scoped to your `from` blocks; `all` is not scoped at all.
+mistake. `every` is scoped to your level's `from` and `join` events — a joined
+event also runs the `every` mappings, so a counter in `every` counts joined
+events too. `all` is not scoped at all. Only a projection's own level can
+subscribe to every event type: `all` inside `children` or `nested` behaves as
+`every` (warning `PLAY0380`). An `all` block beside removals, `children` or
+`nested` binds, but the reference execution plan refuses it.
 
 `every` accepts `exclude children`, so child events do not bump the parent's
 `lastUpdatedAt`. The `every` block **inside** a `children` block does not accept
@@ -98,14 +122,25 @@ it — it is already in a children context.
 
 ⚠️ **AutoMap is on by default.** Matching property names are copied before your
 explicit mappings run, and explicit mappings win. Turn it off with `no automap` at
-**projection**, `every`/`all`, `join … with`, `children` or `nested` level — it
-**cannot** be toggled inside an individual `from` block.
+**projection**, `every`/`all`, `join`, `children` or `nested` level — it
+**cannot** be toggled inside an individual `from` block. An `automap`/`no automap`
+under a joined event (`with …`) parses but Chronicle replaces it with the auto-map
+of the level the join sits in (`PLAY0380`).
 
 Mapping sources: a property path (`name`, `contactInfo.email`), a literal
-(`true`, `"Pending"`, `42`, `null`), a template (`` `${first} ${last}` ``),
-`$eventSourceId`, `$eventContext.<occurred|sequenceNumber|correlationId|eventSourceId>`,
-and `$causedBy.<subject|name|userName>` (an unknown one is an error naming all
-three).
+(`true`, `"Pending"`, `42`, `null`), `$eventSourceId`, and
+`$eventContext.<path>` from the event-context catalog (for example `occurred`,
+`sequenceNumber`, `correlationId`, `causedBy.subject`; an unknown path warns with
+`PLAY0295`). Templates (`` `${first} ${last}` ``) and `$causedBy.<…>` parse but
+do not bind to the executable model; write `$eventContext.causedBy.subject`
+instead of `$causedBy.subject`.
+
+⚠️ Only the event source identity (`$eventSourceId`,
+`$eventContext.eventSourceId`) runs in the reference runner. Any other
+`$eventContext` path in a mapping or key — `occurred` in the shape above,
+`sequenceNumber`, `causedBy.subject` — binds, but the reference execution plan
+refuses it, so no specification in that model runs there. Use it when the target
+needs it, and report those specifications as needing a target.
 
 `clear <property>` removes a value and is equivalent to `= null`; prefer `clear`.
 It takes a dotted path (`clear Owner.Note`) and escapes reserved names
@@ -126,22 +161,32 @@ must be numeric.
 
 ## Joins
 
+Excerpt, inside a `projection` whose read model has `customerId` and
+`customerName`:
+
 ```screenplay
-join Customer on CustomerId
+join customer on customerId
   with CustomerCreated
-    no automap
-    CustomerName = name
+    customerName = name
   with CustomerUpdated
-    CustomerName = name
+    customerName = name
 ```
 
-`join <property> on <key>` (error `PLAY0063` otherwise), then one or more
-`with <EventType>` blocks (error `PLAY0064` otherwise), each able to toggle
-`automap` / `no automap` for itself. Joins work at projection level and inside
-`children`. A join cannot declare its own key or trigger removal — that is
+`join <label> on <property>` (error `PLAY0063` otherwise), then one or more
+`with <EventType>` blocks (error `PLAY0064` otherwise). **A join never creates an
+instance**: a joined event updates every existing instance whose `on` property
+equals the joined event's event source id. Chronicle discards the label, but
+inside `children` and `nested` the compiler's completeness check (`PLAY0284`)
+counts the label as the field the join fills, so name it after that field there.
+Joins work at a projection's own level and inside `children`. Inside `nested`,
+Chronicle's engine does not wire a join, a `children` block or a
+`remove via join`; they bind, but the reference execution plan refuses them.
+A join cannot declare its own key or trigger removal — that is
 `remove via join on`.
 
 ## Children and nested
+
+Excerpt, inside a `projection`:
 
 ```screenplay
 children lineItems identified by lineNumber
@@ -167,6 +212,8 @@ nested billingContact
 
 ## Removal
 
+Excerpt, inside a `projection`:
+
 ```screenplay
 remove with InvoiceCancelled key invoiceId
 remove via join on CustomerAccountClosed
@@ -174,48 +221,113 @@ remove via join on CustomerAccountClosed
 
 `remove with <Event> [key <expr>]` removes the instance the event identifies.
 `remove via join on <Event> [key <expr>]` removes instances reached through a
-join. Inside `children`, both take an indented `parent <expr>` — and **only**
+join. On a projection's own level, as in the second line above, it has no
+verified meaning — Chronicle's engine wires it as a child removal — so it binds
+but the reference execution plan refuses it. Use it inside `children`. Inside
+`children`, both take an indented `parent <expr>` — and **only**
 `parent`; anything else is error `PLAY0069`. Several removal conditions may
 coexist.
 
-## When PDL is not enough — the reducer
+## Variants — one identity, mutually exclusive read models
+
+Excerpt: the events and the three read models (each with a keyed query) are
+declared elsewhere. Every event about an issue is appended with the issue's
+identifier as its event source.
 
 ```screenplay
+projection WorkItem
+  from TitleChanged
+    title = title
+  variant BacklogItem
+    enters on IssueCreated
+  variant DevelopmentItem
+    enters on IssueStarted
+  variant PullRequestItem
+    enters on PullRequestCreated
+```
+
+Each variant is its own read model; only its `enters on` events create it.
+Everything else, including a projection-level shared handler, is update-only: it
+becomes a join on the variant's identifier, matched against the handler's key
+(here the event source).
+
+⚠️ **Mutual exclusion works through the event source identity.** Entering a
+variant removes the entity from its siblings, and that removal is always keyed by
+the entering event's source identity, whatever key the `enters on` line declares.
+Keep the event source equal to the entity's identifier, as above. An
+`enters on IssueStarted key issueId` whose `issueId` differs from the event
+source creates the development item under `issueId` but removes the backlog item
+keyed by the event source instead, so the issue stays in both variants.
+
+Diagnostics: no `enters on` (`PLAY0382`), a shared mapping a variant's read
+model lacks (`PLAY0383`), duplicate variant names (`PLAY0384`), an entering
+event claimed twice (`PLAY0385`). The executable model binds variants the way Chronicle's client SDK
+reclassifies them; Chronicle's hosted declaration language does not lower them
+yet (Cratis/Chronicle#4109). Use variants for genuinely different shapes, not for
+a single `status` field.
+
+## When PDL is not enough — the reducer
+
+Excerpt: the events and the `AccountBalance` read model are declared elsewhere.
+
+````screenplay
 reducer Balance => AccountBalance
   on AmountDeposited
-    csharp
-      ```
+    ```csharp
       return context.State is null
           ? new(context.Event.amount, 1)
           : context.State with { balance = context.State.balance + context.Event.amount };
       ```
   on AmountWithdrawn
     file Reducers/Withdrawn.cs
-```
+````
 
-Reach for a reducer only when the next state depends on the current one — a
-running balance, a state machine. `context.State` is **null for the first event**
-and is the only nullable member; `Event`, `Key`, `Tenant`, `Occurred`,
-`SequenceNumber` and `IsFirst` are always there.
+Inline code uses a tagged fence (` ```csharp `); a `csharp` line above a bare
+fence still parses but warns (`PLAY0397`). Reach for a reducer only when the next
+state depends on the current one — a running balance, a state machine.
+`context.State` is **null for the first event** and is the only nullable member;
+`Event`, `Key`, `Tenant`, `Occurred`, `SequenceNumber` and `IsFirst` are always
+there.
+
+What the executable model does with it (ESM v3):
+
+- Every `on` rule needs a body, inline or `file`. Mixing bodied and body-less
+  rules is `PLAY0398`; two rules for one event is `PLAY0399`; a reducer with no
+  bodies is rejected with a hint to write a projection.
+- The key is **always the event source id** — a reducer cannot route by an event
+  property. State starts at null; returning null deletes the instance.
+- The body is an opaque attachment identified by a content hash, never compiled
+  or run by Screenplay. The reference runner cannot compute reducer state, so a
+  specification that reads a reducer-built read model reports unsupported and
+  never passes. A target must supply the transition.
 
 **Prefer a projection where one will do.** A reducer is code, and code is the part
-of a document a reader cannot check at a glance. A reducer binds to
-`UnsupportedSemanticSyntax` in ESM v1, so it never reaches the reference runtime.
+of a document a reader cannot check at a glance.
 
-Read [pdl-grammar.md](references/pdl-grammar.md) for the complete EBNF, every
-diagnostic code, and the full worked examples.
+Read [pdl-grammar.md](references/pdl-grammar.md) for the syntax grammar, the
+projection diagnostic codes, and worked examples.
 
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
 - [ ] Each read model has **exactly one** builder.
+- [ ] No projection-level `key`; every `from` that must address the same
+      instance is keyed on the same identity.
 - [ ] Every read-model property traces back to an event that carries it.
 - [ ] `every` was intended where `every` is written — not `all`.
 - [ ] AutoMap's default-on behavior is intended, or `no automap` is declared at the
       right level.
 - [ ] Every `children` block's `from` declares `parent`.
 - [ ] Every `nested` block contains at least one `from`.
-- [ ] A reducer is present only because a projection genuinely could not express it.
+- [ ] No `$causedBy`, template or `sequence` where the model must run.
+- [ ] Where specifications must run in the reference runner: no `$eventContext`
+      path other than `eventSourceId`, no projection-level `remove via join`, no
+      `all` beside removals, `children` or `nested`, and no `join`, `children` or
+      `remove via join` inside `nested`.
+- [ ] Variant entering events use the event source identity as the entity's
+      identifier.
+- [ ] A reducer is present only because a projection genuinely could not express it,
+      and every rule has a body in a tagged fence or a `file`.
 
 ## Route near misses
 

@@ -32,8 +32,13 @@ public record PolicyContext(
 | **Policy** | a `policy` code block | **`CausedBy`, `Causation`** | a decision about the caller, not an audit record |
 
 `RuleContext` carries `Artifact` (the whole thing under validation), `Value` (the
-value the rule is declared on) and `Property` (where it sits — empty for a
-whole-command `require`).
+value the rule is declared on) and `Property` (where it sits — empty for a fenced
+`validate` block). A `require` condition is declarative and gets no code context.
+
+Beside every `dynamic` member there is a typed accessor so LINQ binds at compile
+time: `CommandAs<T>()`, `ArgumentsAs<T>()`, `ArtifactAs<T>()`, `ValueAs<T>()`, and
+`StateAs<T>()`/`EventAs<T>()` on the reducer context. A payload of another type
+throws `ContextPayloadTypeMismatch`.
 
 ## The values they carry
 
@@ -50,8 +55,12 @@ with an appended event.
 
 ## Reaching the context declaratively
 
-Usable wherever a mapping source is — `produces` mappings, `seed` values, capture
-`append` mappings, query `from` parameters:
+Parsed wherever a mapping source is — `produces` mappings, `seed` values, capture
+`append` mappings, query `from` parameters. **Only a narrow subset binds to the
+executable model in `produces`:** `$context.occurred` (the occurrence time, not a
+guaranteed append time) and the audit identity `$context.identity.id`/`.name`/
+`.userName` (equal to `$context.causedBy.subject`/`.name`/`.userName`). Tenant,
+roles, claims and causation report `PLAY0268`.
 
 | Path | Yields |
 | --- | --- |
@@ -76,13 +85,15 @@ An unknown `$context.` path is reported, so a typo does not silently become null
 | `$env.<VAR_NAME>` | mapping sources | an environment variable |
 | `$eventContext.<property>` | **projections only** | `occurred`, `sequenceNumber`, `correlationId`, `eventSourceId` |
 | `$eventSourceId` | **projections only** | shorthand for `$eventContext.eventSourceId` |
-| `$causedBy.<property>` | **projections only** | `subject`, `name`, `userName` — an unknown one is an error naming all three |
+| `$causedBy.<property>` | **projections only** | `subject`, `name`, `userName`; parses, but does not bind (`PLAY0268`) — write `$eventContext.causedBy.subject` instead |
 | `$.` | **captures only** | a value from the current source item |
 | `$strings.<dotted.key>` | labels, titles, messages | a localized string from a `.strings` file |
 
 ## Templates and literals
 
-A template is backticked with `${}` substitutions:
+A template is backticked with `${}` substitutions. It parses in mappings but does
+not bind to the executable model in `produces` or projections. Excerpt, one
+mapping line inside a `produces` block:
 
 ```screenplay
 fullName = `${firstName} ${lastName}`
@@ -90,11 +101,12 @@ fullName = `${firstName} ${lastName}`
 
 Literals are `true` / `false`, `"quoted text"`, numbers (`42`, `-3.14`), and
 `null`. In a projection, `literal <value>` forces a value to be read as a literal
-rather than a property path — that is how a constant key is written:
+rather than a property path — that is how a constant key is written. Excerpt,
+inside a `projection`:
 
 ```screenplay
 from UserLoggedIn key literal "site-stats"
-  count TotalLogins
+  count totalLogins
 ```
 
 ⚠️ A template expression is **not allowed in a composite key**, and a composite

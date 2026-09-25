@@ -21,7 +21,19 @@
     },
     {
       "kind": "skill-contains",
-      "value": "PLAY0268"
+      "value": "**Authorized commands and queries need `given caller`**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "only the asserted properties must match"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Unsupported is not passed."
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Bare `then error` never matches\n  a denial"
     }
   ]
 }

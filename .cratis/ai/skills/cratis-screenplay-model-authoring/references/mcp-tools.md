@@ -19,9 +19,9 @@ these short descriptions.
 | Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details` | Navigate logical hierarchy and inspect bounded details |
 | References and examples | `find-references`, `dependencies`, `find-fixtures`, `find-assertion-gaps` | Inspect declared relationships and authored examples, not executed coverage |
 | Source and validation | `diagnostics`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
-| Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace` | Obtain current identities, handles, readiness and durable-state status |
+| Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace` | Obtain current identities, handles, readiness, code attachment requirements and durable-state status |
 | Planning | `propose-ast`, `propose-rename`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
-| Review | `read-proposal`, `discard-proposal` | Inspect exact changes or abandon a connection-local proposal |
+| Review | `read-proposal`, `discard-proposal` | Inspect exact changes, dropped comments and proposed attachments, or abandon a connection-local proposal |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
 
 `propose` is the executable-only whole-document interface. Prefer `propose-ast`
@@ -62,9 +62,25 @@ expand the user's requested authority.
 
 ## Formatting and recovery limits
 
-Verified trivia patches preserve bytes outside the changed members. General AST
-replacement may require canonical printing and can remove comments in touched
-files; that choice must be explicit. Untouched files remain byte-identical.
+Verified trivia patches (`PreserveTrivia`) preserve bytes outside the changed
+identifier, literal or mapping. Structural edits require explicit
+`CanonicalizeTouchedDocuments`: attached comments and authored member order
+within a document are kept, whitespace and blank lines are normalized, and a
+comment that cannot be placed is dropped. Every proposal reports
+`droppedCommentCount`; `read-proposal` with `view: "dropped-comments"` lists each
+one with path, line, column and text. Disclose non-zero counts before applying.
+Untouched files remain byte-identical.
+
+## Code attachments
+
+`read-workspace` and `read-proposal` accept `view: "implementation-requirements"`.
+Each entry names the role, owner, requirement id, required capability,
+attachment resolution and content hash, plus `bodySpan` and `bodyLines`: a source
+map in UTF-16 offsets for a host editor's language service. The server loads
+`file` attachments from its trusted root for hashing only and warns with
+`PLAY0430` to `PLAY0434` for refused or missing files. Attachment hashes can change between
+pages without changing `expectedRevision`; re-read the view when you need a
+stable snapshot. No tool compiles or runs attached code.
 
 Apply journals its inverse before changing source/state, stages private bytes and
 verifies results. Recovery refuses unexpected third-party content. The model root

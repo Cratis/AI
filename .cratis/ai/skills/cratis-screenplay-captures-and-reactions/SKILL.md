@@ -25,22 +25,25 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.12.1` | CDL parser, reaction and trigger parsers, diagnostics |
+| `Cratis.Screenplay` | `4.31.0` | CDL parser, reaction and trigger parsers, diagnostics, semantic binder |
 
-Read from the Screenplay repository at tag `v4.12.1` (commit `122eee8`), against
-`Documentation/screenplay/{captures,captures/grammar,reactions,triggers}.md` and
-`Source/DotNET/Screenplay/Parsing/`. Reverify before claiming another version
-behaves the same.
+Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
+`Documentation/screenplay/{captures,captures/grammar,reactions,triggers,interactions,file-references,grammar,diagnostics}.md`
+and decisions 0003, 0006 and 0009. Every example below compiles with that
+version's compiler. Reverify before claiming another version behaves the same.
 
-⚠️ **Neither slice type reaches the reference runtime.** `SemanticSliceKind` admits
-only `StateChange` and `StateView`, so an `Automation` or `Translate` slice is
-rejected by ESM v1 outright. Model them when the `.play` file is the deliverable;
-do not promise they execute.
+⚠️ **Neither slice type reaches the reference runtime.** The executable model
+admits only `StateChange` and `StateView` slices, so an `Automation` or
+`Translate` slice fails binding with `PLAY0268` (*Slice '<name>' of type '<type>'
+is not admitted by ESM v1*), and so do reactions and declared triggers. A
+specification's `when append` never runs reactions either. Model them when the
+`.play` file is the deliverable; do not promise they execute.
 
 ## `capture` — the Change Data Capture Language
 
 Captures live in `Translate` slices and are the anti-corruption layer: external
-shapes in, domain events out.
+shapes in, domain events out. Excerpt: the module and feature around the slice,
+and the events it appends, are declared elsewhere.
 
 ```screenplay
 slice Translate LegacyInvoiceSync
@@ -79,6 +82,10 @@ convention, not enforcement.
 
 **`key <property>`** names the source property identifying an instance.
 
+Declaring an event's external origin on the `event` itself is accepted as
+Screenplay decision 0009 but **not in the language**; a `capture` in a
+`Translate` slice is how outside data enters a model today.
+
 **`map`** reshapes before events are appended: direct rename
 (`productName = name`), a backtick template, `translate` with indented
 `"source" => target` entries, and `split <source> by "<sep>"` with indented target
@@ -106,6 +113,9 @@ compile error. Split it into two `append` blocks.
 an optional `map` and any number of `append` blocks.
 
 ## `reaction`
+
+Excerpt: `BuildFinished` is a declared trigger and `SendFailureNotice` a command
+elsewhere in the model.
 
 ```screenplay
 slice Automation NotifyOnBuildFailure
@@ -158,6 +168,8 @@ reaction is an error; combine with `and`/`or` instead.
 
 ### Effects — `produces` vs `invokes`
 
+Excerpt, inside an `Automation` slice:
+
 ```screenplay
 reaction Provisioner
   when InvitationAccepted
@@ -174,7 +186,57 @@ refuse it. `invokes` asks for a command, which may still validate and reject.
 Using `produces` for both would say those are the same kind of consequence.
 
 Both are declarations of *what happens*, not of how — a trigger can state its
-consequences **and** carry a `file` or inline block that implements them.
+consequences **and** carry a `file` or an inline block in a tagged fence
+(` ```csharp `) that implements them. That code is an implementation attachment:
+the model lists it (role, owner, content hash) but never runs it.
+
+### What it decides from — trigger `reads`
+
+An automation decides from state. A trigger names the views it consults with
+`reads <View> [as <alias>] [by <trigger value>]` — the same word and meaning as
+a command's `reads`: the state the behavior decides from. Excerpt, inside a
+`feature`: the events, the command and the two read models (each built by a
+projection) are declared elsewhere.
+
+```screenplay
+slice Automation ChaseOverdueInvoices
+  reaction RemindOnDueDate
+    description "Reminds the customer when an invoice falls due unpaid"
+    when InvoiceFellDue
+      invoiceId
+      reads InvoiceBalance as balance by invoiceId
+      invokes SendPaymentReminder
+        invoiceId = invoiceId
+      file Reactions/RemindOnDueDate.cs
+  reaction SweepOverdueInvoices
+    description "Re-checks every overdue invoice each morning"
+    at 08:00
+      reads OverdueInvoice
+      file Reactions/SweepOverdueInvoices.cs
+```
+
+- `reads` sits **under a trigger**, beside the values it takes and its effects.
+  Each trigger declares its own.
+- **`by` names a value that trigger takes** (`invoiceId` above). Naming anything
+  else is warning `PLAY0442`.
+- **Clock triggers read whole views.** `every` and `at` take no values, so
+  `reads <View>` works under them but `by` is error `PLAY0443`.
+- **Aliases follow the command rules.** A view read more than once needs an
+  alias on every read (`PLAY0410`), aliases are unique per trigger (`PLAY0411`),
+  and an alias must not match a trigger value (`PLAY0412`). A view no projection
+  in the document produces is warning `PLAY0177`.
+- **`reads` is a directive in a trigger body.** A trigger value named `reads` is
+  written `@reads`. A bare `reads` line is error `PLAY0175`, and
+  `reads <PrimitiveType>` is warning `PLAY0444`; both messages name the escape.
+- `for each <View>` is reserved for a future view-driven trigger. It is not a
+  trigger today (`PLAY0137`).
+
+⚠️ **Declared, not enforced.** Reactions still do not bind in the executable
+model (`PLAY0268`), so trigger `reads` gives no runtime protection, and command
+`reads` give none yet either (`PLAY0271`, decision 0003). A reaction that
+`invokes` a command leaves the decision, and any protection, to that command's
+own reads. Decision 0006 leaves `where` over read paths out of scope: keep the
+logic that uses the state in the implementation, as both reactions above do.
 
 ## `trigger`
 
@@ -193,14 +255,23 @@ open. The type on a value is optional; a bare name is already a useful statement
 **Name resolution, in order:** events the document declares or imports → triggers
 the document declares → triggers registered with the compiler, plus the built-in
 host signals. A registration wins over a built-in of the same name. Only when all
-three miss is the name reported unknown — as a **warning**, like every other
-unresolved reference.
+three miss is the name reported unknown — a **warning** (`PLAY0248`), because the
+name may be known outside the document. A malformed reaction body is an error.
 
 **Built-in triggers:** `Startup` and `Shutdown`. The clock is built in too, but
 with its own syntax rather than a name.
 
-⚠️ A trigger body reserves `file`, so a trigger value named `file` is written
-`@file`.
+⚠️ **An application trigger is not a UI event.** What a button click, a form
+submit or entering a screen does is an *interaction*: an `on click` / `on submit`
+/ `on enter` clause or a named `behavior`, never a declared `trigger` (see
+`cratis-screenplay-ui-composition`). The two meet in two places: an interaction
+can observe a declared trigger with `on <Trigger>` and fire one with
+`raise <Trigger>`. A trigger named after a built-in interaction kind (`click`,
+`submit`, `enter`, …) is an error (`PLAY0326`).
+
+⚠️ Under a reaction trigger, `description`, `file`, `produces`, `invokes` and
+`reads` are directives, so a value with one of those names is written with `@`
+(`@file`, `@reads`).
 
 **Registration** (for a name only an integration knows) happens through the
 compiler's language registry, either name-only or with a shape. ⚠️ Stating **no**
@@ -232,6 +303,10 @@ something is reported. `Startup` and `Shutdown` are registered the second way.
 - [ ] No `when` clause mixes `or` and `and`.
 - [ ] Cross-cutting infrastructure is **not** modeled as a `Translate` slice.
 - [ ] Every name a reaction takes is carried by the event or trigger.
+- [ ] Each trigger `reads` the views its automation decides from; `by` names a
+      value the trigger takes, and clock triggers read without `by`.
+- [ ] Nobody reports trigger or command `reads` as protected; UI clicks are
+      interactions, not triggers.
 
 ## Route near misses
 

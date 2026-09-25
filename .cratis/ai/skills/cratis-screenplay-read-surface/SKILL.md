@@ -24,14 +24,16 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.12.1` | Parser, validator, diagnostics |
+| `Cratis.Screenplay` | `4.31.0` | Parser, validator, diagnostics, semantic binder |
 
-Read from the Screenplay repository at tag `v4.12.1` (commit `122eee8`), against
-`Documentation/screenplay/{queries,readmodels,screens}.md` and
-`Source/DotNET/Screenplay/Parsing/`. Reverify before claiming another version
-behaves the same.
+Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
+`Documentation/screenplay/{queries,readmodels,screens,policies,specifications,interactions}.md`
+and decision 0010. Every example below compiles with that version's compiler.
+Reverify before claiming another version behaves the same.
 
 ## `readmodel` — shape only
+
+Excerpt, inside a `StateView` slice:
 
 ```screenplay
 readmodel AccountBalance
@@ -45,7 +47,19 @@ A read model declares what it **is** — nothing about what builds it. Whatever
 builds it points at it with `=>`, and **exactly one thing may**: two builders is
 error `PLAY0191`. See `cratis-screenplay-projections` for the builder side.
 
+Do not mark a read-model property `identifier`. The executable model infers the
+instance identifier from the `by` property of the keyed queries that return the
+read model in its own slice
+(`query InvoiceById => InvoiceSummary? by invoiceId InvoiceId`). Several queries
+over the same `by` property are fine; each must still have the shape the
+executable model admits, `=> <ReadModel>?` with one caller-supplied `by`. A read
+model with no keyed query, or with keyed queries over different `by` properties,
+has no unambiguous identifier and does not bind (`PLAY0268`), and specifications
+cannot select an instance of it.
+
 ## `query`
+
+Excerpt: the concepts, the read model and the policy are declared elsewhere.
 
 ```screenplay
 query ListInvoices => InvoiceListReadModel[]
@@ -70,9 +84,12 @@ optionally prefixed `observable`.
 ⚠️ **Anything the caller must not be able to choose — the tenant, the caller's own
 subject — belongs on a `from` parameter, never on a `filter` the UI supplies.**
 Any mapping source works as a `from` source, so `$context.`, `$env.` and constants
-are all available.
+are all available. The `from` states the contract; the runtime that realizes the
+query enforces it. A compiling query is not evidence that access control works.
 
 ### `scoped to`
+
+Excerpt, inside a `StateView` slice:
 
 ```screenplay
 query Mine => Timesheet[]
@@ -95,22 +112,40 @@ Treat every `scoped to global` in a review as a question to answer, not a detail
 
 ### `observable`
 
-`=> observable OverdueInvoicesReadModel[]` is a live read that keeps pushing;
-without the marker a query is one-shot, which is the default and what most reads
-are. The marker qualifies only *how* the result arrives, so it composes with `[]`,
-`?`, `by`, `filter`, `authorize` and a `performer`. A screen binds to a live query
-exactly as it binds to a one-shot one and gets updates for free.
+`=> observable OverdueInvoicesReadModel[]` declares a live read that keeps
+pushing; without the marker a query is one-shot, which is the default and what
+most reads are. The marker qualifies only *how* the result arrives, so it composes
+with `[]`, `?`, `by`, `filter`, `authorize` and a `performer`, and a screen binds
+to a live query exactly as it binds to a one-shot one. The delivery itself is the
+target runtime's: the executable model does not bind observable queries.
+
+Paging, sorting and change-set delivery for queries are accepted as Screenplay
+decision 0010 but **not in the language yet**. Do not invent syntax for them.
 
 ### `performer`
 
 A query is **complete without a performer** — it is realization metadata, not a
-precondition. It takes a `file` reference or an inline code block, and is the
-query's counterpart to a command's `handler`. `csharp` and `sql` are the two that
-make sense here; the parser accepts any registered inline language
-(`csharp`, `typescript`, `react`, `html`, `sql` are built in) and does not
-reject a nonsensical one, so the choice is yours to get right.
+precondition. It takes a `file` reference or an inline block in a tagged fence
+(` ```csharp `, ` ```sql `), and is the query's counterpart to a command's
+`handler`. The parser accepts any registered inline language and does not reject
+a nonsensical one, so the choice is yours to get right. Performer code is opaque:
+Screenplay never runs it.
+
+### What runs
+
+In the executable model today, only the keyed snapshot shape binds:
+`=> <ReadModel>?` with one caller-supplied `by` argument and no `observable`,
+`filter`, `scoped to` or `performer`. Anything else, including `=> <ReadModel>`
+and `=> <ReadModel>[]`, reports `PLAY0268`. Its `authorize` gate runs before
+the lookup, ANDed with module and feature gates; a denied caller gets
+`Unauthorized`. Pin that with a `given caller` fixture and `then denied` (see
+`cratis-screenplay-specifications`). Model the richer query shapes when the
+application needs them; just do not claim the reference runner exercised them.
 
 ## `screen` — three levels
+
+The examples below are excerpts: each screen sits in a slice, and the queries,
+commands and screens it names are declared elsewhere.
 
 **Level 1 — intent.** Data and actions; the tool generates the component.
 
@@ -152,6 +187,13 @@ Constructs: `title`, `data … via query … [by <param>]`, `action <Command>` w
 `on row-click navigate to <Screen> [by <param>]`, `summary <ReadModel>` with
 `field <property> label`, and `template <Name>` with slot bodies.
 
+`on row-click navigate to …` is the one-line table navigation form. What a click,
+selection, submit or screen entry *does* beyond that — confirm, execute, refresh,
+open a dialog, branch on success or failure — is an interaction: an inline `on`
+block or a named `behavior` attached with `uses`. See
+`cratis-screenplay-ui-composition`. Screens and interactions are deferred from the
+executable model (information `PLAY0269`); they never block binding.
+
 ## How a bare name resolves
 
 **Inside out:** the slice, then the enclosing feature, then the module, then the
@@ -161,7 +203,8 @@ That rule exists because a generated document cannot make every name unique — 
 real application declares 76 queries under 37 distinct names, with `All` appearing
 21 times. Two sibling slices can each declare `All`, and each screen gets its own.
 
-Reach across slices by qualifying with **any trailing part** of the scope:
+Reach across slices by qualifying with **any trailing part** of the scope.
+Excerpt: `Queue` and `Deviations` are sibling slices that each declare `All`.
 
 ```screenplay
 screen OverviewScreen
@@ -180,6 +223,8 @@ Ambiguous query 'All' - it matches 2 declarations equally well
 ⚠️ Unresolved and ambiguous references are **warnings, not errors**, because a
 name may resolve to something outside the document. Run with `--warnaserror` or a
 screen can navigate to a screen that does not exist and the build stays green.
+This is about references only: malformed clauses, duplicate declarations and
+binding failures are errors.
 
 ## Verify
 
@@ -188,6 +233,8 @@ screen can navigate to a screen that does not exist and the build stays green.
 - [ ] Every `scoped to global` is deliberate and defensible.
 - [ ] `observable` is present exactly where the caller should see changes without
       asking again.
+- [ ] Every authorized query has a specification with `given caller`, including a
+      `then denied` case.
 - [ ] Each read model has exactly one builder and every field traces to an event.
 - [ ] No screen reference is left ambiguous or unresolved.
 
