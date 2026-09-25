@@ -9,9 +9,12 @@
 // only checks ./generated, not this file, so a forgotten line here fails silently as a missing
 // export rather than a build error.
 //
-// ./generated/Providers/Configuring is deliberately absent: that namespace declares commands with
-// the same names as the ones in Adding, Reconfiguring, Removing and Renaming, so exporting both
-// flatly is ambiguous. Import it by path when it is needed.
+// ./generated/Providers/Configuring declares commands with the same names as the ones in Adding,
+// Reconfiguring, Removing and Renaming, so exporting it flatly alongside them is ambiguous. It goes
+// out under its own namespace instead. Importing it by path is not an option: the package exports
+// map exposes only the root entry, so a deep path does not resolve at all.
+export * as Configuring from './generated/Providers/Configuring';
+
 export * from './generated/Agents';
 export * from './generated/Agents/Configuring';
 export * from './generated/Agents/Listing';
