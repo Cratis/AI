@@ -134,6 +134,11 @@ public class KubernetesWorkerRuntime(
     /// What the worker container reserves and is bounded by, from the worker-runtime options -
     /// <see langword="null"/> or <see cref="WorkerResources.None"/> declares nothing.
     /// </param>
+    /// <param name="scratch">
+    /// The per-worker volume the workspace lives on, from the worker-runtime options -
+    /// <see langword="null"/> or <see cref="WorkerScratch.None"/> keeps the workspace in the
+    /// container's writable layer.
+    /// </param>
     /// <returns>The Job specification.</returns>
     public static V1Job BuildJobSpecification(
         WorkerJob job,
@@ -142,9 +147,11 @@ public class KubernetesWorkerRuntime(
         string? repositoryCacheEnvironmentVariable = null,
         string? imagePullSecretName = null,
         string? nodePoolWorkload = null,
-        WorkerResources? resources = null)
+        WorkerResources? resources = null,
+        WorkerScratch? scratch = null)
     {
         var name = DockerWorkerRuntime.NameFor(job.Session);
+        var workspace = scratch ?? WorkerScratch.None;
 
         var volumes = new List<V1Volume>
         {
@@ -223,6 +230,14 @@ public class KubernetesWorkerRuntime(
             }
         }
 
+        List<V1Container>? initContainers = null;
+        if (workspace.IsSet)
+        {
+            volumes.Add(workspace.ToVolume());
+            volumeMounts.Add(workspace.ToWorkspaceMount());
+            initContainers = [workspace.ToInitContainer(job.Image)];
+        }
+
         return new V1Job
         {
             Metadata = new V1ObjectMeta
@@ -273,8 +288,14 @@ public class KubernetesWorkerRuntime(
                             RunAsNonRoot = true,
                             RunAsUser = AgentUid,
                             RunAsGroup = AgentUid,
-                            SeccompProfile = new V1SeccompProfile { Type = "RuntimeDefault" }
+                            SeccompProfile = new V1SeccompProfile { Type = "RuntimeDefault" },
+
+                            // Only with a scratch volume, whose root belongs to root until the agent's
+                            // group is given it - see WorkerScratch.
+                            FsGroup = workspace.IsSet ? AgentUid : null,
+                            FsGroupChangePolicy = workspace.IsSet ? "OnRootMismatch" : null
                         },
+                        InitContainers = initContainers,
                         TerminationGracePeriodSeconds = TerminationGracePeriodSeconds,
                         Volumes = volumes,
                         ImagePullSecrets = string.IsNullOrWhiteSpace(imagePullSecretName)
@@ -684,7 +705,8 @@ public class KubernetesWorkerRuntime(
                 options.Value.MemoryRequest,
                 options.Value.MemoryLimit,
                 options.Value.EphemeralStorageRequest,
-                options.Value.EphemeralStorageLimit));
+                options.Value.EphemeralStorageLimit),
+            new WorkerScratch(options.Value.ScratchStorageClassName, options.Value.ScratchSize));
 
         try
         {
