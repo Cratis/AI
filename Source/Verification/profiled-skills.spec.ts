@@ -32,6 +32,8 @@ test('writing skills are reachable from the relevant public and engineering prof
         [],
     );
     assert.ok(targets('cratis/content').includes('cratis-release-notes'));
+    assert.ok(targets('cratis/content').includes('cratis-content-length'));
+    assert.ok(targets('cratis/content').includes('cratis-developer-marketing'));
     assert.ok(targets('cratis/engineering/core').includes('cratis-release-notes'));
     assert.ok(targets('cratis/engineering/core').includes('cratis-technical-examples'));
 });

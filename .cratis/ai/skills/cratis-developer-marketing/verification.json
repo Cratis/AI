@@ -1,0 +1,19 @@
+{
+  "skill": "cratis-developer-marketing",
+  "input": "Plan how we launch and distribute a new developer tutorial across our blog, LinkedIn, community forums and Hacker News, and how we will know whether it worked.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Nothing in a plan is published, scheduled or replied to by an agent" },
+    { "kind": "skill-contains", "value": "a path the reader can run in minutes, with a visible result" },
+    { "kind": "skill-contains", "value": "Incident stories and \"I was wrong\" stories must be real, and the named author has to own" },
+    { "kind": "skill-contains", "value": "One canonical source, many entry points" },
+    { "kind": "skill-contains", "value": "Repurposing means taking the core idea into a new format" },
+    { "kind": "skill-contains", "value": "text-only is a deliberate, recorded choice" },
+    { "kind": "skill-contains", "value": "Captures are framed, never stamped" },
+    { "kind": "skill-contains", "value": "so the wider scope is Cratis's own, stricter policy" },
+    { "kind": "skill-contains", "value": "Don't assume a founder multiplier" },
+    { "kind": "skill-contains", "value": "Answer the question that was asked, in full, in the thread" },
+    { "kind": "skill-contains", "value": "There is no required frequency" },
+    { "kind": "skill-contains", "value": "A star is a bookmark. An impression is a render." }
+  ]
+}

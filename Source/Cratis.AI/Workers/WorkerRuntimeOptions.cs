@@ -170,6 +170,24 @@ public class WorkerRuntimeOptions
     public string? EphemeralStorageLimit { get; set; }
 
     /// <summary>
+    /// Gets or sets the storage class each worker's workspace volume is provisioned from. Unset (the
+    /// default) keeps the workspace in the container's writable layer. Only meaningful for the
+    /// Kubernetes runtime, and only together with <see cref="ScratchSize"/>.
+    /// </summary>
+    /// <remarks>
+    /// With a volume of its own, a worker's checkout and build output no longer count against the
+    /// node's disk, so <see cref="EphemeralStorageLimit"/> only has to cover what the worker writes
+    /// outside the workspace - its home directory's package caches. See <see cref="WorkerScratch"/>.
+    /// </remarks>
+    public string? ScratchStorageClassName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the size of each worker's workspace volume, as a Kubernetes quantity
+    /// (<c>"30Gi"</c>). Only meaningful together with <see cref="ScratchStorageClassName"/>.
+    /// </summary>
+    public string? ScratchSize { get; set; }
+
+    /// <summary>
     /// Gets or sets how long a worker that is shutting down is given to finish doing so before its
     /// leftovers are removed by force.
     /// </summary>

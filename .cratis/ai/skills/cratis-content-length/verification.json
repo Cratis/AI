@@ -1,0 +1,19 @@
+{
+  "skill": "cratis-content-length",
+  "input": "Our last ten LinkedIn posts are all about 1,200 characters. Plan the lengths for the next batch and say how long the tutorial we are linking to should be.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Choose the vehicle before the word count" },
+    { "kind": "skill-contains", "value": "Count in the unit the channel counts" },
+    { "kind": "skill-contains", "value": "Don't pad to reach a band" },
+    { "kind": "skill-contains", "value": "A procedure that breaks if you cut a step" },
+    { "kind": "skill-contains", "value": "personal profiles only, not causal" },
+    { "kind": "skill-contains", "value": "soft split trigger; the upload allowance is not a target" },
+    { "kind": "skill-contains", "value": "Fix the spread by subject" },
+    { "kind": "skill-contains", "value": "at least two short one-idea posts under about 600 characters" },
+    { "kind": "skill-contains", "value": "These are editorial targets to measure against, not optima" },
+    { "kind": "skill-contains", "value": "Canonical piece with native entry points" },
+    { "kind": "skill-contains", "value": "AI doesn't write or edit anything Cratis posts there" },
+    { "kind": "skill-contains", "value": "An agent does none of these" }
+  ]
+}
