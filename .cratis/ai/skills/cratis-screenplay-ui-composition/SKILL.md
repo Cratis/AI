@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-ui-composition
-description: Compose the user interface of a Cratis Screenplay `.play` model — `layout` and its responsive `arrangement`, `screen template` and `dialog template`, command-bound `form` declarations, navigation `contribute` blocks, `ui profile`, `theme`, localized `$strings`, and `file` realization references. Use when declaring the application shell, a reusable screen shape, a command form, a navigation entry, or theming in a `.play` model. Do not use for a screen's own data and actions.
+description: Compose the user interface of a Cratis Screenplay `.play` model — `layout` and its responsive `arrangement`, `screen template` and `dialog template`, command-bound `form` declarations, navigation `contribute` blocks, interaction `behavior`/`on`/`uses` wiring, `ui profile`, `theme`, localized `$strings`, and `file` references. Use when declaring the application shell, a reusable screen shape, a command form, a navigation entry, what a click or submit does, or theming in a `.play` model. Do not use for a screen's own data and actions.
 license: MIT
 ---
 
@@ -25,12 +25,16 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.12.1` | Layout, template, form, contribution, profile and theme parsers |
+| `Cratis.Screenplay` | `4.30.0` | Layout, template, form, contribution, interaction, profile and theme parsers |
 
-Read from the Screenplay repository at tag `v4.12.1` (commit `122eee8`), against
-`Documentation/screenplay/{templates,layout-arrangement,forms,contributions,ui-profile,theme,internationalization,file-references}.md`
-and `Source/DotNET/Screenplay/Parsing/`. Reverify before claiming another version
-behaves the same.
+Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+`Documentation/screenplay/{templates,layout-arrangement,forms,contributions,interactions,ui-profile,theme,internationalization,file-references}.md`.
+Every example below compiles with that version's compiler. Reverify before
+claiming another version behaves the same.
+
+Every construct on this page is deferred from the executable model with
+information `PLAY0269`: it never blocks binding, and it is not evidence that a
+target renders it.
 
 These constructs went unhighlighted and uncompleted by the Monaco and VS Code
 language service until `Cratis/Screenplay#199` gave every construct the parser
@@ -41,6 +45,7 @@ highlighting was never evidence that a construct is wrong.
 ## `layout` — the application shell
 
 One per application, declared at the top level and selected by a `ui profile`.
+A complete example:
 
 ```screenplay
 layout AppShell
@@ -73,7 +78,8 @@ or `regular` — phone landscape, phone portrait, desktop short, desktop tall.
 - `when width <class>[, height <class>]` or `when height <class>` **replaces the
   entire tree** for that condition — it is not a partial override.
 
-**`arrangement freeform`** declares one variant per matrix point:
+**`arrangement freeform`** declares one variant per matrix point. Excerpt, inside
+the `layout` above in place of its `arrangement flow`:
 
 ```screenplay
 arrangement freeform
@@ -90,7 +96,7 @@ arrangement freeform
 
 ## `screen template` and `dialog template`
 
-Declared at module level, referenced by screens.
+Declared at module level, referenced by screens. Excerpt, inside a `module`:
 
 ```screenplay
 screen template MasterDetail
@@ -118,6 +124,9 @@ difference. See `cratis-screenplay-read-surface` for the directives that go insi
 
 ## `form` — bound to a command
 
+Excerpt, inside a `module`; the command, query and screen are declared in its
+slices.
+
 ```screenplay
 form RegisterInvoiceForm for RegisterInvoice
   populate via query GetInvoiceDefaults by customerId
@@ -131,7 +140,8 @@ form RegisterInvoiceForm for RegisterInvoice
   `populate from item`.
 - `field <property>` takes at most one of `from <source>` or `compose using
   <Callback>`, plus an optional `label`.
-- At most one `on submit navigate to <Screen> [by <param>]`.
+- At most one `on submit navigate to <Screen> [by <param>]`, the one-line form.
+  Any other `on` in a form body is a behavior attached to the form.
 
 ⚠️ **A form is discovered, not referenced.** It never appears in a screen's
 directive tree the way a `table` or `summary` does — it is found by its
@@ -139,6 +149,9 @@ directive tree the way a `table` or `summary` does — it is found by its
 level, so it disambiguates by module rather than by feature or slice.
 
 ## `contribute` — navigation from elsewhere
+
+Excerpt, inside a `module` or `feature`; `Navigation` is the contribution point
+the layout above declares.
 
 ```screenplay
 contribute to Navigation
@@ -162,7 +175,82 @@ same typed navigate binding a screen action uses.
 flat ordered list, and an explicit override for when nearest-enclosing is not the
 point you mean, are deliberately left for later.
 
+## Interactions — what a click does
+
+A screen can say what it shows; an interaction says what happens when someone
+acts. Three words carry it:
+
+| Word | What it is |
+| --- | --- |
+| **Interaction trigger** | the `on <thing>` clause: `click`, `double click`, `select`, `submit`, `change`, `load`/`unload`, `enter`/`leave`, `event <Event>`, `interval <n> <unit>`, or a declared application trigger |
+| **Action** | a closed set: `execute`, `navigate to`/`navigate back`, `open dialog`/`close dialog`, `refresh`, `set … to`, `notify`, `confirm`, `raise` |
+| **Behavior** | a bundle of trigger-to-action bindings; inline (`on …`) or named (`behavior` + `uses`) |
+
+A complete example — a named behavior with parameters, attached with `uses`, and
+an inline `on` block with a continuation:
+
+```screenplay
+concept InvoiceId : Uuid
+
+behavior ConfirmThenExecute
+  parameter command
+  parameter message
+  on click
+    confirm message
+      on success
+        execute command
+
+module Invoicing
+  feature InvoiceManagement
+    slice StateChange CancelInvoice
+      command CancelInvoice
+        invoiceId InvoiceId identifier
+        produces InvoiceCancelled
+          invoiceId = invoiceId
+      event InvoiceCancelled
+        invoiceId InvoiceId
+      screen CancelInvoiceScreen
+        data InvoiceStatusView via query InvoiceStatusById by invoiceId
+        uses ConfirmThenExecute
+          command CancelInvoice
+          message "Cancel this invoice?"
+        on enter
+          refresh InvoiceStatusById
+            on failure
+              notify error "The invoice could not be loaded"
+    slice StateView InvoiceStatus
+      readmodel InvoiceStatusView
+        invoiceId InvoiceId
+        cancelled Bool
+      projection InvoiceStatuses => InvoiceStatusView
+        from InvoiceCancelled key invoiceId
+          cancelled = true
+      query InvoiceStatusById => InvoiceStatusView?
+        by invoiceId InvoiceId
+```
+
+- Write the one-off case inline; name it with `behavior` when several places need
+  the same wiring. A `uses` site must supply exactly the declared parameters
+  (`PLAY0337`, `PLAY0338`).
+- `on`/`uses` attach at every level — `layout`, `module`, `feature`, templates,
+  `form`, `screen`, `section`, slot, `table` — and are **additive**: outer
+  attachments run first unless a behavior declares `order`.
+- `on success`/`on failure` belong only on actions that can fail (`execute`,
+  `refresh`, `confirm`, `open dialog`, `raise`); `on result` only on `open dialog`.
+  A continuation on `navigate`, `notify`, `set` or `close dialog` is an error
+  (`PLAY0320`). Actions after an unconditional `navigate` are unreachable
+  (`PLAY0339`).
+- Unknown commands, screens, queries, dialogs and behaviors are warnings, like
+  every other reference (`PLAY0330`–`PLAY0336`).
+- **A declared `trigger` is not a UI event.** Use `on click`, not `trigger`, for a
+  button. `on <Trigger>` observes an application trigger and `raise <Trigger>`
+  fires one; that is where the two meet.
+- Interactions are a closed vocabulary, not a scripting language. Validation stays
+  on the command; the UI surfaces it.
+
 ## `ui profile` and `theme`
+
+Excerpt: `AppShell` is the layout above.
 
 ```screenplay
 ui profile Desktop
@@ -201,21 +289,31 @@ summary field `label`; a screen or section `title`; a contribution `label`; and 
 form field `label`. The value is stored as the literal text `$strings.<key>`, and
 the printer emits it unquoted so a round trip preserves it.
 
-## `file` — realization metadata, never a substitute
+## `file` — implementation or provenance, never a substitute
 
-Two meanings, one word. On a construct **with an implementation body** — a command
+Two meanings, one word. On a construct **with an implementation** — a command
 `handler`, a validation rule predicate, a query `performer`, a reducer rule, a
-reaction trigger, a `constraint` and a `screen` — `file` stands in for the inline
-body. It sits on the **screen itself**, not on a directive inside it: `File` is a
-member of `ScreenSyntax`, and the directive types have no such member. On a **pure declaration** — `concept`, `type`, `event`, `readmodel`,
-`projection`, `slice`, `specification`, top-level `trigger` — it only records
-which file realizes it.
+reaction trigger, a `constraint`, a `screen` and a `policy` — `file` stands in
+for the inline body: the implementation lives there. It sits on the **screen
+itself**, not on a directive inside it: `File` is a member of `ScreenSyntax`, and
+the directive types have no such member. On a **pure declaration** — `concept`,
+`type`, `event`, `readmodel`, `projection`, `slice`, `specification`, top-level
+`trigger` — it only records which file realizes it.
 
-The rules: **repository relative, never absolute** (an absolute path is warning
-`PLAY0264`); **never resolved** — the compiler does not look for the file, so a
-stale path does not invalidate the document; and **never replaces the
-declaration** — a `projection` still declares its blocks, an `event` still declares
-its properties.
+The rules:
+
+- **Repository relative, never absolute** (an absolute path is warning `PLAY0264`).
+- **Syntax compilation never resolves it.** The `screenplay` tool and
+  `PlayFileCompiler` do not read files, so a stale path does not invalidate the
+  document. A host that loads attachments (the MCP server, `AttachmentFiles.Load`)
+  reads **implementation** files only, resolved from the model root rather than
+  the `.play` file's directory, to hash their content; a refused or missing file
+  stays unresolved with a `PLAY0430`–`PLAY0434` warning. Declaration-only `file`
+  references are never read.
+- **It never replaces the declaration** — a `projection` still declares its
+  blocks, an `event` still declares its properties.
+- **Loaded is not run.** Screenplay hashes attached code and can map an inline
+  body back to its source for an editor, but never compiles or executes it.
 
 ⚠️ `file <Identifier>` is read as a **property** named `file`, not a directive —
 the type-reference shape wins the tie. `file Invoices/Register.cs` is a directive;
@@ -234,9 +332,12 @@ a trigger value named `file` is written `@file`.
       checks them.
 - [ ] User-visible text is `$strings.` where the application is localized.
 - [ ] No `file` reference is doing work the declaration should be doing.
+- [ ] Every click, submit and screen entry that does something has an `on` or
+      `uses`; continuations sit only on actions that can fail.
 
 ## Route near misses
 
 - A screen's own data, actions and name resolution: `cratis-screenplay-read-surface`.
+- Application triggers and reactions: `cratis-screenplay-captures-and-reactions`.
 - Deriving wireframes from the model (step 4): `cratis-screenplay-event-modeling`.
 - Building the actual React application: `cratis-arc-react-page`, `cratis-components-styling`.
