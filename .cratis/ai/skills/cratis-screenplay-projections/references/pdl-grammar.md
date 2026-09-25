@@ -1,19 +1,14 @@
-# PDL — complete grammar and diagnostics
+# PDL — syntax grammar, meaning and diagnostics
 
-Verified against `Documentation/screenplay/projections/grammar.md` and
-`Source/DotNET/Screenplay/Parsing/ProjectionParser.cs` at commit `122eee8`.
+Checked against `Documentation/screenplay/projections/{grammar,semantic-model,keys,variants}.md`
+and `Source/DotNET/Screenplay/Parsing/ProjectionParser.cs` at Screenplay tag
+`v4.30.0` (commit `969b6b7`).
 
-Three things below were once looser than the published EBNF, because the parser
-accepts more than that EBNF described. `Cratis/Screenplay#199` corrected the
-reference, so the two now agree:
-
-- `EveryBlock` accepts a bare `automap` as well as `no automap`.
-- The braces on a composite key are **optional** — a composite key with and
-  without them both compile clean.
-- `$causedBy` is a valid expression root.
-
-Against a Screenplay older than that fix the published grammar is the stricter of
-the two, and this file is the accurate one.
+The grammar says what **parses**. It does not say what an event does at runtime:
+Chronicle's lowering decides that (Screenplay decision 0001), and the
+[meaning table](#syntax-that-parses-but-means-something-else) lists the places
+where the two differ. The braces on a composite key are optional, and
+`EveryBlock` accepts a bare `automap` as well as `no automap`.
 
 ## Grammar
 
@@ -28,7 +23,14 @@ ProjDirective   = "no", "automap", NL
                 | CompositeKeyDecl ;
 
 Block           = EveryBlock | FromAllBlock | FromEventBlock | JoinBlock
-                | ChildrenBlock | NestedBlock | RemoveWithBlock | RemoveWithJoinBlock ;
+                | ChildrenBlock | NestedBlock | RemoveWithBlock | RemoveWithJoinBlock
+                | VariantBlock ;
+
+VariantBlock    = "variant", Ident, NL,
+                  INDENT, EntersOnDecl, { EntersOnDecl }, { ProjDirective | Block }, DEDENT ;
+EntersOnDecl    = "enters", "on", TypeRef, [ "key", Expr ], NL ;
+
+(* A projection-level KeyDecl parses but routes no event (PLAY0381). *)
 
 EveryBlock      = "every", NL, INDENT,
                     [ "automap" | "no", "automap", NL ], { MappingLine },
@@ -93,6 +95,9 @@ LiteralKeyword  = "literal", " ", Literal ;   (* parsed at the Expr level *)
 | Nested | `^nested\s+(@?[\w.]+)$` |
 | Remove with | `^remove\s+with\s+(@?[\w.]+)(?:\s+key\s+(.+))?$` |
 | Remove via join | `^remove\s+via\s+join\s+on\s+(@?[\w.]+)(?:\s+key\s+(.+))?$` |
+| Clear with | `^clear\s+with\s+(@?[\w.]+)$` |
+| Variant | `^variant\s+(@?[\w.]+)\s*$` |
+| Enters on | `^enters\s+on\s+(@?[\w.]+)(?:\s+key\s+(.+))?$` |
 | Counters | `^(increment\|decrement\|count\|clear)\s+(@?[$\w.]+)$` |
 | Arithmetic | `^(add\|subtract)\s+(@?[$\w.]+)\s+by\s+(.+)$` |
 | Assignment | `^(@?[$\w.@]+)\s*=(?!=\|>)\s*(.+)$` |
@@ -130,8 +135,34 @@ LiteralKeyword  = "literal", " ", Literal ;   (* parsed at the Expr level *)
 | `PLAY0190` | A reducer rule body opens with an unknown word |
 | `PLAY0191` | A read model is built by more than one projection or reducer |
 | `PLAY0192` | A read model is declared more than once |
+| `PLAY0295`–`PLAY0299` | An `$eventContext` path the event-context catalog does not have |
+| `PLAY0380` | Chronicle drops part of a construct: `all` below the top level, or `automap` on a joined event |
+| `PLAY0381` | A projection-level `key` routes no event |
+| `PLAY0382`–`PLAY0385` | Variant errors: no `enters on`, shared mapping missing on a variant, duplicate variant name, entering event claimed twice |
+| `PLAY0397` | Inline code uses a language line instead of a tagged fence |
+| `PLAY0398` / `PLAY0399` | A reducer mixes bodied and body-less rules / observes one event twice |
+
+## Syntax that parses but means something else
+
+| Syntax | What Chronicle and the executable model do |
+| --- | --- |
+| `key` on the projection | Nothing: events route by the `from` key, then the event source id (`PLAY0381`) |
+| `from X` with no key | Routes by the event source id, never by another `from`'s key |
+| `join … on …` | Updates existing instances only; never creates one; the name after `join` is discarded |
+| `automap` under a joined event | Replaced by the auto-map of the join's level (`PLAY0380`) |
+| `all` inside `children`/`nested` | Behaves as `every` (`PLAY0380`) |
+| `$causedBy.<x>` | Does not bind; use `$eventContext.causedBy.<x>` |
+| Templates in mappings or keys | Do not bind |
+| A number or Boolean literal key | Read as a property path; write `key literal "…"` |
+| `parent` outside `children` | Ignored by Chronicle; does not bind |
+| `sequence` | Realization concern; does not bind |
+| Reducer rules | Opaque ESM v3 code keyed by the event source id; not computed by the reference runner |
 
 ## Worked examples
+
+Each example is an excerpt: the events and read models it names are declared
+elsewhere in the slice or model. Read-model properties in a `.play` model are
+camelCase (a PascalCase property line is `PLAY0016`), so mapping targets are too.
 
 ### Composite key with event context
 
@@ -139,11 +170,11 @@ LiteralKeyword  = "literal", " ", Literal ;   (* parsed at the Expr level *)
 projection LineItems => LineItemReadModel
   from LineItemAdded
     key LineItemKey
-      OrderId        = orderId
-      LineNumber     = lineNumber
-      SequenceNumber = $eventContext.sequenceNumber
-      CreatedBy      = $causedBy.subject
-    Product = productName
+      orderId        = orderId
+      lineNumber     = lineNumber
+      sequenceNumber = $eventContext.sequenceNumber
+      createdBy      = $eventContext.causedBy.subject
+    product = productName
 ```
 
 ### Global counter with a literal key
@@ -151,7 +182,7 @@ projection LineItems => LineItemReadModel
 ```screenplay
 projection SiteStats => SiteStatsReadModel
   from UserLoggedIn key literal "site-stats"
-    count TotalLogins
+    count totalLogins
     lastLogin = $eventContext.occurred
 ```
 
@@ -168,23 +199,24 @@ projection ActivityFeed => ActivityFeedModel
     recentUsers = name
 ```
 
-`totalSystemEvents` counts **every** event in the system; `recentUsers` only fills
-on `UserRegistered`.
+`all` subscribes to **every** event type in the system; `recentUsers` only fills
+on `UserRegistered`. Chronicle keys the event types that only `all`
+reaches by their **event source id**, so each event source gets its own instance
+and its own count; `all` takes no key of its own.
 
 ### Children with a join and scoped removal
 
 ```screenplay
 projection Group => GroupReadModel
   from GroupCreated
-    Name = name
+    name = name
   children members identified by userId
     from UserAddedToGroup key userId
       parent groupId
-      Role = role
-    join User on UserId
+      role = role
+    join userName on userId
       with UserCreated
-        no automap
-        UserName = name
+        userName = name
     remove with UserRemovedFromGroup key userId
       parent groupId
 ```
@@ -194,29 +226,30 @@ projection Group => GroupReadModel
 ```screenplay
 projection Group => GroupReadModel
   every
-    LastActivity = $eventContext.occurred
+    lastActivity = $eventContext.occurred
     exclude children
   from GroupCreated
-    Name = name
+    name = name
   children members identified by userId
-    from UserAdded
-      Name = userName
+    from UserAdded key userId
+      parent groupId
+      name = userName
 ```
 
-Group-level events bump `LastActivity`; member events do not.
+Group-level events bump `lastActivity`; member events do not.
 
 ### Nested nullable object
 
 ```screenplay
 projection Slice => SliceReadModel
   from SliceCreated
-    Name = name
+    name = name
   nested command
     from CommandSetForSlice
-      Name   = commandName
-      Schema = schema
+      name   = commandName
+      schema = schema
     from CommandRenamed
-      Name = newName
+      name = newName
     clear with CommandClearedForSlice
 ```
 
@@ -227,6 +260,10 @@ projection Slice => SliceReadModel
 
 ```screenplay
 slice StateView CustomerPortalReport
+  readmodel PortalReportReadModel
+    invitedAt DateTime
+  readmodel RevokedPortalTokenReadModel
+    revokedAt DateTime
   query GetPortalReport => PortalReportReadModel
     by customerId CustomerId
   projection PortalReport => PortalReportReadModel
