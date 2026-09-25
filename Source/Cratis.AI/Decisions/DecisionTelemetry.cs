@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Cratis.AI.Common;
-using Cratis.AI.Providers;
 using Microsoft.Extensions.Options;
 
 namespace Cratis.AI.Decisions;
@@ -31,19 +30,19 @@ public interface IDecisionTelemetry
     /// Records a decision that produced a distribution.
     /// </summary>
     /// <param name="activity">The span the decision ran in.</param>
-    /// <param name="type">The provider type that answered.</param>
+    /// <param name="type">The engine that answered.</param>
     /// <param name="result">The result.</param>
-    void Decided(Activity? activity, AIProviderType type, DecisionResult result);
+    void Decided(Activity? activity, DecisionEngineType type, DecisionResult result);
 
     /// <summary>
     /// Records a decision that failed.
     /// </summary>
     /// <param name="activity">The span the decision ran in.</param>
-    /// <param name="type">The provider type that failed.</param>
+    /// <param name="type">The engine that failed.</param>
     /// <param name="model">The model that was asked.</param>
     /// <param name="duration">How long it took to fail.</param>
     /// <param name="reason">Why it failed.</param>
-    void Failed(Activity? activity, AIProviderType type, ModelName model, TimeSpan duration, string reason);
+    void Failed(Activity? activity, DecisionEngineType type, ModelName model, TimeSpan duration, string reason);
 }
 
 /// <summary>
@@ -100,7 +99,7 @@ public sealed class DecisionTelemetry : IDecisionTelemetry, IDisposable
     }
 
     /// <inheritdoc/>
-    public void Decided(Activity? activity, AIProviderType type, DecisionResult result)
+    public void Decided(Activity? activity, DecisionEngineType type, DecisionResult result)
     {
         activity?.SetTag("ai.decision.model", result.Model.Value);
         activity?.SetTag("ai.decision.top", result.Top.Value);
@@ -115,7 +114,7 @@ public sealed class DecisionTelemetry : IDecisionTelemetry, IDisposable
     }
 
     /// <inheritdoc/>
-    public void Failed(Activity? activity, AIProviderType type, ModelName model, TimeSpan duration, string reason)
+    public void Failed(Activity? activity, DecisionEngineType type, ModelName model, TimeSpan duration, string reason)
     {
         activity?.SetStatus(ActivityStatusCode.Error, reason);
 
@@ -127,10 +126,10 @@ public sealed class DecisionTelemetry : IDecisionTelemetry, IDisposable
     /// <inheritdoc/>
     public void Dispose() => _meter.Dispose();
 
-    static TagList TagsFor(AIProviderType type, ModelName model, string outcome) =>
+    static TagList TagsFor(DecisionEngineType type, ModelName model, string outcome) =>
         new()
         {
-            { "provider.type", type.ToString() },
+            { "decision.engine", type.ToString() },
             { "model", model.Value },
             { "outcome", outcome },
         };

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
-using Cratis.AI.Providers;
+using Cratis.AI.Decisions.Usage;
 using Cratis.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,48 +14,55 @@ public class all_dependencies : Specification
 {
     protected static readonly ModelName _model = "decision-model-for-specs";
 
-    protected IDecisionProviderResolver _resolver;
-    protected IDecisionProviderClient _client;
+    protected IDecisionEngineResolver _resolver;
+    protected IDecisionEngineClient _client;
+    protected IDecisionUsageRecorder _usage;
     protected IDecisionTelemetry _telemetry;
     protected DecisionOptions _options;
+    protected DecisionEngineConnection _connection;
     protected Decisions _decisions;
 
     void Establish()
     {
         _options = new();
 
-        _client = Substitute.For<IDecisionProviderClient>();
-        _client.Type.Returns(AIProviderType.DecisionEngine);
+        _client = Substitute.For<IDecisionEngineClient>();
+        _client.Type.Returns(DecisionEngineType.BuiltIn);
 
-        _resolver = Substitute.For<IDecisionProviderResolver>();
-        ProviderIs(AIProviderType.DecisionEngine);
+        _resolver = Substitute.For<IDecisionEngineResolver>();
+        EngineIs(DecisionEngineType.BuiltIn);
 
+        _usage = Substitute.For<IDecisionUsageRecorder>();
         _telemetry = Substitute.For<IDecisionTelemetry>();
 
         _decisions = new(
             _resolver,
-            new KnownInstancesOf<IDecisionProviderClient>(_client),
+            new KnownInstancesOf<IDecisionEngineClient>(_client),
+            _usage,
             _telemetry,
             Options.Create(_options),
             Substitute.For<ILogger<Decisions>>());
     }
 
-    protected void ProviderIs(AIProviderType type) =>
-        _resolver.Resolve(Arg.Any<CancellationToken>()).Returns(new DecisionProviderSelection(
-            new ConfiguredAIProvider(AIProviderId.New(), type, AIProviderApiKey.NotSet) { Endpoint = (AIProviderEndpoint)"http://decisions" },
-            _model));
+    protected void EngineIs(DecisionEngineType type)
+    {
+        _connection = new DecisionEngineConnection(type, "http://decisions", DecisionEngineApiKey.NotSet, _model);
+        _resolver.Resolve(Arg.Any<CancellationToken>()).Returns(_connection);
+    }
 
-    protected void NoProviderIsResolved() =>
-        _resolver.Resolve(Arg.Any<CancellationToken>()).Returns((DecisionProviderSelection?)null);
+    protected void NoEngineIsResolved() =>
+        _resolver.Resolve(Arg.Any<CancellationToken>()).Returns((DecisionEngineConnection?)null);
 
     protected void ClientAnswers(params (string Choice, double Probability)[] distribution) =>
         _client.Decide(
                 Arg.Any<IReadOnlyList<DecisionRequest>>(),
-                Arg.Any<ConfiguredAIProvider>(),
-                Arg.Any<ModelName>(),
+                Arg.Any<DecisionEngineConnection>(),
                 Arg.Any<CancellationToken>())
-            .Returns<IReadOnlyList<IReadOnlyList<DecisionOutcome>>>(
-                [[.. distribution.Select(entry => new DecisionOutcome(entry.Choice, entry.Probability))]]);
+            .Returns(new DecisionEngineAnswers(
+                [[.. distribution.Select(entry => new DecisionOutcome(entry.Choice, entry.Probability))]],
+                _model,
+                InputTokens: 42,
+                OutputTokens: 7));
 
     protected static DecisionRequest RequestFor(params string[] choices) =>
         new(DecisionContext.FromText("a bounded question"), [.. choices.Select(choice => (DecisionChoiceId)choice)]);
