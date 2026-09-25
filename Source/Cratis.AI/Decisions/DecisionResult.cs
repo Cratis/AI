@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
-using Cratis.AI.Providers;
 
 namespace Cratis.AI.Decisions;
 
@@ -15,7 +14,7 @@ namespace Cratis.AI.Decisions;
 /// <param name="TopProbability">The highest probability.</param>
 /// <param name="Margin">The distance between the highest and second-highest probability - one when there was only one choice.</param>
 /// <param name="Model">The model that produced the distribution.</param>
-/// <param name="Provider">The provider the model was reached through.</param>
+/// <param name="Engine">The kind of decision engine that answered.</param>
 /// <param name="Latency">How long the provider took.</param>
 /// <remarks>
 /// <para>
@@ -36,7 +35,7 @@ public record DecisionResult(
     double TopProbability,
     double Margin,
     ModelName Model,
-    AIProviderId Provider,
+    DecisionEngineType Engine,
     TimeSpan Latency)
 {
     /// <summary>
@@ -44,7 +43,7 @@ public record DecisionResult(
     /// </summary>
     /// <param name="outcomes">The distribution, in any order.</param>
     /// <param name="model">The model that produced it.</param>
-    /// <param name="provider">The provider it was reached through.</param>
+    /// <param name="engine">The kind of decision engine that answered.</param>
     /// <param name="latency">How long the provider took.</param>
     /// <returns>The <see cref="DecisionResult"/>.</returns>
     /// <remarks>
@@ -56,14 +55,14 @@ public record DecisionResult(
     public static DecisionResult From(
         IReadOnlyList<DecisionOutcome> outcomes,
         ModelName model,
-        AIProviderId provider,
+        DecisionEngineType engine,
         TimeSpan latency)
     {
         var ordered = outcomes.OrderByDescending(_ => _.Probability).ToList();
         var top = ordered[0];
         var margin = ordered.Count > 1 ? top.Probability - ordered[1].Probability : 1d;
 
-        return new(ordered, top.Choice, top.Probability, margin, model, provider, latency);
+        return new(ordered, top.Choice, top.Probability, margin, model, engine, latency);
     }
 
     /// <summary>

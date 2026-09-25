@@ -121,6 +121,8 @@ def _decide(requests: list[DecisionRequest]) -> list[DecisionResponse]:
         ScoringTask(
             context=truncate(request.context.render(), SETTINGS.max_context_chars),
             choices=request.choices,
+            question=request.question,
+            descriptions=request.descriptions,
         )
         for request in requests
     ]

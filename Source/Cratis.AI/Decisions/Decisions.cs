@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Diagnostics;
-using Cratis.AI.Providers;
+using Cratis.AI.Decisions.Usage;
 using Cratis.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,14 +12,16 @@ namespace Cratis.AI.Decisions;
 /// <summary>
 /// Represents an implementation of <see cref="IDecisions"/>.
 /// </summary>
-/// <param name="resolver">Resolves which provider and model decisions are made through.</param>
-/// <param name="clients">The convention-discovered vendor clients.</param>
+/// <param name="resolver">Resolves which decision engine decisions are made through.</param>
+/// <param name="clients">The convention-discovered engine clients.</param>
+/// <param name="usage">Records what each call to the engine consumed.</param>
 /// <param name="telemetry">The <see cref="IDecisionTelemetry"/>.</param>
 /// <param name="options">The <see cref="DecisionOptions"/>.</param>
 /// <param name="logger">The logger.</param>
 public class Decisions(
-    IDecisionProviderResolver resolver,
-    IInstancesOf<IDecisionProviderClient> clients,
+    IDecisionEngineResolver resolver,
+    IInstancesOf<IDecisionEngineClient> clients,
+    IDecisionUsageRecorder usage,
     IDecisionTelemetry telemetry,
     IOptions<DecisionOptions> options,
     ILogger<Decisions> logger) : IDecisions
@@ -50,52 +52,54 @@ public class Decisions(
             AssertAnswerable(request);
         }
 
-        var selection = await resolver.Resolve(cancellationToken);
-        if (selection is null)
+        var connection = await resolver.Resolve(cancellationToken);
+        if (connection is null)
         {
-            logger.NoProviderConfigured();
-            throw new DecisionProviderNotConfigured();
+            logger.NoEngineAvailable();
+            throw new DecisionEngineNotAvailable();
         }
 
-        var type = selection.Provider.Type;
-        if (!AIProviderCapabilities.Supports(type, AIProviderCapability.Decision))
-        {
-            throw new ProviderDoesNotSupportDecisions(type);
-        }
-
-        var client = clients.FirstOrDefault(_ => _.Type == type) ?? throw new ProviderDoesNotSupportDecisions(type);
+        var type = connection.Type;
+        var client = clients.FirstOrDefault(_ => _.Type == type) ?? throw new NoClientForDecisionEngine(type);
 
         using var activity = telemetry.Start(requests.Sum(_ => _.Choices.Count), requests[0].Context);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(options.Value.Timeout);
 
-        logger.Deciding(requests[0].Choices.Count, type, selection.Model.Value);
+        logger.Deciding(requests[0].Choices.Count, type, connection.Model.Value);
 
         var started = Stopwatch.GetTimestamp();
         try
         {
-            var distributions = await client.Decide(requests, selection.Provider, selection.Model, timeout.Token);
+            var answers = await client.Decide(requests, connection, timeout.Token);
             var elapsed = Stopwatch.GetElapsedTime(started);
+
+            if (answers.Distributions.Count != requests.Count)
+            {
+                logger.DistributionCountMismatch(type, answers.Distributions.Count, requests.Count);
+                throw new DecisionChoicesNotCovered(requests.SelectMany(_ => _.Choices).Distinct());
+            }
 
             var results = new List<DecisionResult>(requests.Count);
             for (var index = 0; index < requests.Count; index++)
             {
-                results.Add(ResultFor(requests[index], distributions[index], selection, elapsed, type));
+                results.Add(ResultFor(requests[index], answers.Distributions[index], answers, type, elapsed));
             }
 
             telemetry.Decided(activity, type, results[0]);
+            await usage.Record(requests, connection, answers, elapsed);
 
             return results;
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             logger.RequestTimedOut(type, options.Value.Timeout);
-            telemetry.Failed(activity, type, selection.Model, Stopwatch.GetElapsedTime(started), "timed out");
+            telemetry.Failed(activity, type, connection.Model, Stopwatch.GetElapsedTime(started), "timed out");
             throw;
         }
         catch (Exception ex)
         {
-            telemetry.Failed(activity, type, selection.Model, Stopwatch.GetElapsedTime(started), ex.Message);
+            telemetry.Failed(activity, type, connection.Model, Stopwatch.GetElapsedTime(started), ex.Message);
             throw;
         }
     }
@@ -103,11 +107,13 @@ public class Decisions(
     DecisionResult ResultFor(
         DecisionRequest request,
         IReadOnlyList<DecisionOutcome> distribution,
-        DecisionProviderSelection selection,
-        TimeSpan elapsed,
-        AIProviderType type)
+        DecisionEngineAnswers answers,
+        DecisionEngineType type,
+        TimeSpan elapsed)
     {
-        var returned = distribution.ToDictionary(_ => _.Choice, _ => _.Probability);
+        var returned = distribution
+            .GroupBy(_ => _.Choice)
+            .ToDictionary(_ => _.Key, _ => _.First().Probability);
         var missing = request.Choices.Where(choice => !returned.ContainsKey(choice)).ToList();
         if (missing.Count > 0)
         {
@@ -115,11 +121,11 @@ public class Decisions(
             throw new DecisionChoicesNotCovered(missing);
         }
 
-        // Rebuilt in the order the caller supplied the choices, not the order the provider answered
+        // Rebuilt in the order the caller supplied the choices, not the order the engine answered
         // in, so that DecisionResult.From's stable sort breaks ties the way the workflow listed them.
         var outcomes = request.Choices.Select(choice => new DecisionOutcome(choice, returned[choice])).ToList();
 
-        return DecisionResult.From(outcomes, selection.Model, selection.Provider.Id, elapsed);
+        return DecisionResult.From(outcomes, answers.Model, type, elapsed);
     }
 
     void AssertAnswerable(DecisionRequest request)

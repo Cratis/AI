@@ -91,6 +91,19 @@ class describe_building_a_prompt:
         prompt = build_prompt("context", ["second", "first"])
         assert prompt.index("A. second") < prompt.index("B. first")
 
+    def it_asks_the_generic_question_when_none_is_supplied(self):
+        assert "Question: which option applies?" in build_prompt("context", ["retry"])
+
+    def it_asks_the_callers_question(self):
+        prompt = build_prompt("context", ["bug", "feature"], question="What kind of issue is this?")
+        assert "Question: What kind of issue is this?" in prompt
+        assert "which option applies?" not in prompt
+
+    def it_describes_the_described_choices(self):
+        prompt = build_prompt("context", ["bug", "feature"], descriptions={"bug": "something is broken"})
+        assert "A. bug - something is broken" in prompt
+        assert "B. feature\n" in prompt
+
 
 class describe_rotating_the_option_order:
     def it_produces_the_requested_number_of_orders(self):
@@ -138,6 +151,16 @@ class describe_the_continuation_fallback_prompt:
 
     def it_includes_the_context(self):
         assert "a failing build" in build_continuation_prompt("a failing build", ["retry"])
+
+    def it_asks_no_question_when_none_is_supplied(self):
+        assert "Question:" not in build_continuation_prompt("context", ["retry"])
+
+    def it_asks_the_callers_question(self):
+        assert "Question: Which label?" in build_continuation_prompt("context", ["retry"], question="Which label?")
+
+    def it_describes_the_described_choices(self):
+        descriptions = {"bug": "something is broken"}
+        assert "- bug - something is broken" in build_continuation_prompt("context", ["bug"], descriptions=descriptions)
 
 
 class describe_settings:

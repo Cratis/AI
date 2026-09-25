@@ -35,9 +35,11 @@ ENGINE = "single-pass-mcq/v1"
 LETTERS = string.ascii_uppercase
 MAX_LETTER_CHOICES = len(LETTERS)
 
+DEFAULT_QUESTION = "which option applies?"
+
 PROMPT_TEMPLATE = (
     "{context}\n\n"
-    "Question: which option applies?\n\n"
+    "Question: {question}\n\n"
     "{options}\n\n"
     "Answer with the letter of the single best option."
 )
@@ -48,6 +50,7 @@ ANSWER_PREFIX = "Answer: "
 CONTINUATION_TEMPLATE = (
     "You are selecting the single most appropriate option.\n\n"
     "Context:\n{context}\n\n"
+    "{question_line}"
     "Options:\n{options}\n\n"
     "The most appropriate option is:"
 )
@@ -72,16 +75,44 @@ def rotations_of(choices: list[str], count: int) -> list[list[str]]:
     return [choices[offset:] + choices[:offset] for offset in range(limit)]
 
 
-def build_prompt(context: str, choices: list[str]) -> str:
+def describe(choice: str, descriptions: dict[str, str] | None) -> str:
+    """The option text for one choice - the choice itself, followed by what it means when the
+    caller said so. The choice identifier stays first so the answer still reads as the caller's
+    vocabulary; the description is what the model actually weighs."""
+    description = (descriptions or {}).get(choice, "").strip()
+    return f"{choice} - {description}" if description else choice
+
+
+def question_or_default(question: str | None) -> str:
+    """The caller's question, or the generic one the scorer was calibrated against."""
+    return question.strip() if question and question.strip() else DEFAULT_QUESTION
+
+
+def build_prompt(
+    context: str,
+    choices: list[str],
+    question: str | None = None,
+    descriptions: dict[str, str] | None = None,
+) -> str:
     """Build the multiple-choice prompt body for one option order."""
-    options = "\n".join(f"{LETTERS[index]}. {choice}" for index, choice in enumerate(choices))
-    return PROMPT_TEMPLATE.format(context=context, options=options)
+    options = "\n".join(
+        f"{LETTERS[index]}. {describe(choice, descriptions)}" for index, choice in enumerate(choices)
+    )
+    return PROMPT_TEMPLATE.format(context=context, question=question_or_default(question), options=options)
 
 
-def build_continuation_prompt(context: str, choices: list[str]) -> str:
+def build_continuation_prompt(
+    context: str,
+    choices: list[str],
+    question: str | None = None,
+    descriptions: dict[str, str] | None = None,
+) -> str:
     """Build the prompt for the continuation fallback used beyond 26 choices."""
-    options = "\n".join(f"- {choice}" for choice in choices)
-    return CONTINUATION_TEMPLATE.format(context=context, options=options)
+    options = "\n".join(f"- {describe(choice, descriptions)}" for choice in choices)
+    # Only a question the caller asked is added here - the fallback was never phrased around the
+    # generic one, so adding it would change how every large choice set is scored.
+    question_line = f"Question: {question.strip()}\n\n" if question and question.strip() else ""
+    return CONTINUATION_TEMPLATE.format(context=context, question_line=question_line, options=options)
 
 
 def normalize(scored: list[ScoredChoice], temperature: float) -> dict[str, float]:
