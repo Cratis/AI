@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-specifications
-description: Pin behavior in a Cratis Screenplay `.play` model with given/when/then `specification` blocks — prior events and read-model state, the command under test, expected events, read-model state, query results and rejections, plus what the reference execution actually runs. Use when writing acceptance criteria for a slice, specifying a rejection, or deciding whether a rule belongs in a specification or in the type system. Do not use for C# or TypeScript test code.
+description: Pin behavior in a Cratis Screenplay `.play` model with given/when/then `specification` blocks — prior events and read-model state, the caller, the command or appended event under test, expected events, read-model state, query results, rejections and denials, plus what the reference execution actually runs. Use when writing acceptance criteria for a slice, specifying a rejection or an authorization denial, or deciding whether a rule belongs in a specification or in the type system. Do not use for C# or TypeScript test code.
 license: MIT
 ---
 
@@ -25,106 +25,177 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.12.1` | Parser, semantic binder, reference execution |
+| `Cratis.Screenplay` | `4.30.0` | Parser, semantic binder, reference execution |
 
-Read from the Screenplay repository at tag `v4.12.1` (commit `122eee8`), against
-`Documentation/screenplay/specifications.md` and
-`Source/DotNET/Screenplay/Parsing/SpecificationParser.cs`. Reverify before
+Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+`Documentation/screenplay/{specifications,policies,constraints,readmodels,diagnostics}.md`.
+The worked example below compiles with zero diagnostics, binds to ESM v2, and
+all six specifications pass the reference runner at that tag. Reverify before
 claiming another version behaves the same.
 
 ## The vocabulary
 
 | Construct | Meaning |
 | --- | --- |
-| `given <EventType>` | prior state, established by replaying events before the command runs |
-| `given readmodel <ReadModelType>` | prior read-model state, established directly |
-| `when <CommandType>` | the command under test — **at most one**; a second is a compile error |
-| `then <EventType>` | an event expected to be produced |
-| `then readmodel <ReadModelType>` | the read-model state expected afterwards |
-| `then query <Query>` | ordered query results for explicit arguments |
-| `arguments` | the values supplied to the query |
-| `result` | one expected query result; repeat for many |
-| `then error "<message>"` | a rejection, for the named reason |
-| `then error` | a rejection, for a reason this specification does not name |
-| `<property> = <value>` | a property value, using the `produces` expression grammar |
+| `given <EventType>` | prior state, established by replaying events before the action |
+| `given readmodel <ReadModelType>` | prior read-model state, established directly — a **complete** instance including its identifier |
+| `given caller` | the caller: `authenticated`, `role "<r>"`, repeatable `claim "<type>" = "<value>"`; empty means unauthenticated |
+| `when <CommandType>` | run a command |
+| `when append <EventType>` | append one event: constraints and projections run, the command and reactions do not |
+| `then <EventType>` | an expected new event |
+| `then events in any order` | compare the new events without regard to order |
+| `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
+| `then query <Query> [exactly]` | query results for explicit `arguments`; one `result` per row; none means empty |
+| `then error "<message>"` | a validation or constraint rejection, for that reason |
+| `then error` | a validation or constraint rejection, reason unnamed |
+| `then denied` | an authorization denial (`Unauthorized`) |
+| `for <value>` | the event source of a `given`/`then` event, or of the `when` command or appended event |
+| `<property> = <value>` | a literal, `null`, or a one-line JSON-shaped object or list: `lines = [{"sku":"A-1","quantity":2}]` |
 
-`given`, `then`, `then readmodel`, `then query` and `then error` are each zero or
-more.
+Rules the binder enforces:
 
-## Command specifications
+- **At most one action** — `when` or `when append` (`PLAY0358`). Without an
+  action, assert only `then readmodel` or `then query` (`PLAY0352`).
+- **`then` contains either events or an error — never both.** A rejection
+  specification has exactly one rejection and no success outcome.
+- **`then denied` stands alone**: not with events, errors or state assertions
+  (`PLAY0388`). For a query, pair it with one `then query` that has `arguments`
+  and no `result`.
+- **Authorized commands and queries need `given caller`** (`PLAY0389`). The runner
+  never invents a caller.
+- **`null` only in optional read-model values.** A `null` in a command or event
+  value is `PLAY0350`: an optional fact is a separate event.
 
-```screenplay
-specification RegisteringADraftInvoice
-  given CustomerRegistered
-    customerId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-    name       = "Acme Corp"
-  when RegisterInvoice
-    invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
-    customerId    = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-    invoiceNumber = "INV-000123"
-  then InvoiceRegistered
-    invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
-    invoiceNumber = "INV-000123"
-```
+`PLAY0358` is a syntax error. `PLAY0350`, `PLAY0352`, `PLAY0388`, `PLAY0389` and
+the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
+`screenplay --warnaserror` does not show them. Check executable diagnostics
+(the MCP authoring tools) as well.
 
-**`then` contains either events or an error — never both.**
+## How outcomes are compared
 
-## Rejections — two forms, and they say different things
+- **Events:** the complete set of new events, in authored order, unless
+  `then events in any order` is stated. The count is always exact.
+- **Read models and query rows:** only the asserted properties must match
+  (subset); add `exactly` to require every property. Row count and order are
+  always exact. A missing property does not match an asserted `null`.
+- **Rejections:** `then error "<message>"` matches the message whatever the rule's
+  validation severity; no form asserts severity. Bare `then error` never matches
+  a denial. Quote a localized key: `then error "$strings.invoices.reasonRequired"`.
 
-```screenplay
-specification RejectingAnInvoiceWithNoLines
-  when RegisterInvoice
-    invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-  then error "An invoice must have at least one line"
-```
+## Worked example
 
-`then error "<message>"` says **rejected, for this reason** — pinning a constraint
-violation or a validation message down deliberately.
-
-```screenplay
-specification RejectingAnInvoiceWhoseNumberIsAlreadyTaken
-  given InvoiceRegistered
-    invoiceNumber = "INV-000123"
-  when RegisterInvoice
-    invoiceNumber = "INV-000123"
-  then error
-```
-
-Bare `then error` says **rejected, for a reason this specification does not name**.
-Most specifications are this kind — the reason lives in the specification's name.
-
-## View specifications
+A command with an authorization gate, a validation rule and a uniqueness
+constraint, and a read model fed by its event. The `for` values select ESM v2.
 
 ```screenplay
-specification SendingADraftInvoice
-  given readmodel InvoiceListReadModel
-    invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-    status    = "draft"
-  when ChangeInvoiceStatus
-    status = "sent"
-  then readmodel InvoiceListReadModel
-    status = "sent"
+concept InvoiceId : Uuid
+concept InvoiceNumber : String
+policy IsAccountant
+  require role "Accountant"
+module Invoicing
+  feature Registration
+    slice StateChange RegisterInvoice
+      command RegisterInvoice
+        invoiceId     InvoiceId identifier
+        invoiceNumber InvoiceNumber
+        authorize IsAccountant
+        validate
+          invoiceNumber not empty message "Invoice number is required"
+        produces InvoiceRegistered
+          for invoiceId
+          invoiceNumber = invoiceNumber
+      event InvoiceRegistered
+        invoiceNumber InvoiceNumber
+      constraint UniqueInvoiceNumber
+        unique invoiceNumber on InvoiceRegistered
+      specification RegisteringAnInvoice
+        given caller
+          authenticated
+          role "Accountant"
+        when RegisterInvoice
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000123"
+        then InvoiceRegistered
+          for "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000123"
+        then readmodel InvoiceSummary
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000123"
+      specification RejectingAnEmptyInvoiceNumber
+        given caller
+          authenticated
+          role "Accountant"
+        when RegisterInvoice
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = ""
+        then error "Invoice number is required"
+      specification RejectingANumberAnotherInvoiceHolds
+        given caller
+          authenticated
+          role "Accountant"
+        given InvoiceRegistered
+          for "0f5f5f7f-0f6f-4f47-9f39-5c1f2f0a1a9f"
+          invoiceNumber = "INV-000123"
+        when RegisterInvoice
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000123"
+        then error
+      specification DenyingACallerWithoutTheRole
+        given caller
+          authenticated
+        when RegisterInvoice
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000123"
+        then denied
+      specification ProjectingAnAppendedInvoice
+        when append InvoiceRegistered
+          for "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000123"
+        then query InvoiceById
+          arguments
+            invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          result
+            invoiceNumber = "INV-000123"
+    slice StateView InvoiceLookup
+      readmodel InvoiceSummary
+        invoiceId     InvoiceId
+        invoiceNumber InvoiceNumber
+      query InvoiceById => InvoiceSummary?
+        by invoiceId InvoiceId
+      projection InvoiceSummaries => InvoiceSummary
+        from InvoiceRegistered
+          invoiceId     = $eventSourceId
+          invoiceNumber = invoiceNumber
+      specification LookingUpAnExistingInvoice
+        given readmodel InvoiceSummary
+          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          invoiceNumber = "INV-000001"
+        then query InvoiceById
+          arguments
+            invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          result
+            invoiceNumber = "INV-000001"
 ```
 
-**Views cannot reject events.** There are no error cases for a projection.
+- `RejectingANumberAnotherInvoiceHolds` needs `for`: without it the `given`
+  event lands on the command's own event source, and re-claiming your own value
+  is not a violation.
+- `ProjectingAnAppendedInvoice` exercises the projection without running the
+  command. Put `for`-bearing specifications in the slice whose command produces
+  the event; placed in the view slice, binding fails with `PLAY0273`.
+- `LookingUpAnExistingInvoice` has no action: it checks established state only.
 
-## Query specifications
+## Rejections and denials say different things
 
-```screenplay
-specification LookingUpARegisteredProject
-  when RegisterProject
-    projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-    name      = "Screenplay"
-  then query ProjectById
-    arguments
-      projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-    result
-      projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-      name      = "Screenplay"
-```
+`then error "<message>"` says **rejected, for this reason** — pin it when the
+message is the point. Bare `then error` says **rejected, for a reason this
+specification does not name**; the reason lives in the specification's name.
+`then denied` says **this caller may not do this**, which is decided before any
+validation runs. Write the bare form rather than `then error ""`.
 
-Results are compared **in order**. `then query` with no `result` block asserts the
-query returns nothing.
+**Views cannot reject events.** A projection never refuses an event; there are no
+error cases for one. (A `when append` can still be refused by an append-time
+constraint — that is the constraint speaking, not the view.)
 
 ## Business rule or type system?
 
@@ -147,31 +218,34 @@ the concept.
 
 ## Application-boundary coverage
 
-Every slice should carry at least one specification whose `when` is the command a
-real caller issues and whose `then` is observable at that same boundary — produced
-events, read-model state, or query results. A specification satisfiable only by an
-internal function describes a unit, not a slice acceptance criterion.
+Every slice should carry at least one specification whose action is what a real
+caller does and whose `then` is observable at that same boundary — produced
+events, read-model state, query results, a rejection or a denial. A specification
+satisfiable only by an internal function describes a unit, not a slice acceptance
+criterion.
 
 ## Reference execution — what actually runs
 
-Screenplay supplies a framework-neutral reference path: no Arc, no Chronicle, no
-database, no filesystem, no network. It executes against an immutable in-memory
-world so every downstream target has one normalized behavior to match.
+Screenplay's reference runner executes specifications against an immutable
+in-memory world: no Arc, no Chronicle, no database, no network. Every downstream
+target has one normalized behavior to match.
 
-> The minimum evaluator currently admits the RegisterProject-style vertical:
-> `not empty` validation, unconditional event production, one affected read-model
-> instance, optional snapshot lookup, and exact ordered specification results.
-> Unsupported reachable capabilities **block plan creation** rather than producing
-> a partial or stubbed execution.
+- It runs what binds: declarative validation and `require` over command
+  properties, conditional production, literal tags, declarative policies,
+  `unique` constraints, and projections as Chronicle lowers them. The
+  `cratis-screenplay-model-authoring` language reference lists what binds.
+- A specification that needs **opaque code** — a bodied reducer, a rule with a
+  body, a fenced `validate` block, a code policy — returns **unsupported** and
+  never passes. Authorization is evaluated first, so a `then denied` case still
+  runs when a portable policy decides it. Other specifications in the model run
+  normally.
+- Unsupported reachable declarative constructs block the whole execution plan
+  rather than running partially.
+- Reactions never run, not even after `when append`.
+- A rejection leaves the world unchanged; an accepted action commits once, then
+  the read models and queries are compared.
 
-A rejected execution returns the unchanged world. An accepted one commits its
-facts and projected state once, then evaluates the requested queries against that
-state.
-
-⚠️ **`for <event-source-value>` is reserved for ESM v2.** The parser, printer and
-syntax tree preserve it, but ESM v1 binding reports blocking diagnostic
-`PLAY0268`. It cannot execute or render silently. Avoid it in a model that must
-run today.
+Unsupported is not passed. Report it as "needs a target", not as green.
 
 ## Quality checklist
 
@@ -183,24 +257,29 @@ For every specification:
 
 For command specifications:
 
-- [ ] `given` contains only events, each with all its fields.
-- [ ] `when` contains exactly one command with all its inputs.
+- [ ] Every `given` event and the `when` command state all required fields.
+- [ ] `given caller` is present whenever the command is authorized, with a
+      `then denied` case for a caller who must be refused.
 - [ ] `then` contains **either** events **or** an error, never both.
+- [ ] A collision between two event sources uses `for` on the `given` event.
 - [ ] Error cases test business rules, not format validation.
 
 For view specifications:
 
-- [ ] `given readmodel` is the complete state before.
-- [ ] `then readmodel` is the complete state after.
+- [ ] `given readmodel` is a complete instance with its identifier.
+- [ ] `then readmodel` states the identifier and the properties that matter; add
+      `exactly` only when extra properties must fail the assertion.
 - [ ] No error cases — views cannot reject.
 
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
+- [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
+      `PLAY0389` and `PLAY0273` are only reported at binding.
 - [ ] Every slice has at least one boundary specification.
-- [ ] The rejections are specified, not only the happy path.
+- [ ] The rejections and denials are specified, not only the happy path.
 - [ ] No `given`/`when`/`then` clause names an element the model does not declare.
-- [ ] No `for <event-source-value>` in a model that must reach a runtime.
+- [ ] An unsupported run is reported as unsupported, never as passing.
 
 ## Route near misses
 
