@@ -291,14 +291,21 @@ the printer emits it unquoted so a round trip preserves it.
 
 ## `file` — implementation or provenance, never a substitute
 
-Two meanings, one word. On a construct **with an implementation** — a command
-`handler`, a validation rule predicate, a query `performer`, a reducer rule, a
-reaction trigger, a `constraint`, a `screen` and a `policy` — `file` stands in
-for the inline body: the implementation lives there. It sits on the **screen
-itself**, not on a directive inside it: `File` is a member of `ScreenSyntax`, and
-the directive types have no such member. On a **pure declaration** — `concept`,
-`type`, `event`, `readmodel`, `projection`, `slice`, `specification`, top-level
-`trigger` — it only records which file realizes it.
+Three meanings, one word:
+
+- **Backend implementation attachment.** On a command `handler`, a validation
+  rule predicate, a query `performer`, a reducer rule, a reaction trigger, a
+  `constraint` and a `policy`, `file` stands in for the inline body: the
+  implementation lives there. These are the files a host inventories.
+- **UI realization file.** On a `screen`, `file` names the file that realizes
+  the screen. It sits on the **screen itself**, not on a directive inside it:
+  `File` is a member of `ScreenSyntax`, and the directive types have no such
+  member. Screens are deferred from the executable model (`PLAY0269`), and the
+  attachment loader does not collect screen files: they are never loaded, hashed
+  or checked, so a missing screen file gets no `PLAY0430`–`PLAY0434` warning.
+- **Provenance.** On a **pure declaration** — `concept`, `type`, `event`,
+  `readmodel`, `projection`, `slice`, `specification`, top-level `trigger` — it
+  only records which file realizes it.
 
 The rules:
 
@@ -306,10 +313,11 @@ The rules:
 - **Syntax compilation never resolves it.** The `screenplay` tool and
   `PlayFileCompiler` do not read files, so a stale path does not invalidate the
   document. A host that loads attachments (the MCP server, `AttachmentFiles.Load`)
-  reads **implementation** files only, resolved from the model root rather than
-  the `.play` file's directory, to hash their content; a refused or missing file
-  stays unresolved with a `PLAY0430`–`PLAY0434` warning. Declaration-only `file`
-  references are never read.
+  reads **backend implementation** files only, resolved from the model root
+  rather than the `.play` file's directory, to hash their content; a refused or
+  missing file stays unresolved with a `PLAY0430`–`PLAY0434` warning. Screen
+  files and declaration-only `file` references are never read; check a screen
+  file's path yourself.
 - **It never replaces the declaration** — a `projection` still declares its
   blocks, an `event` still declares its properties.
 - **Loaded is not run.** Screenplay hashes attached code and can map an inline

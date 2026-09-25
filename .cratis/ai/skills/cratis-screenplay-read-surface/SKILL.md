@@ -48,9 +48,13 @@ builds it points at it with `=>`, and **exactly one thing may**: two builders is
 error `PLAY0191`. See `cratis-screenplay-projections` for the builder side.
 
 Do not mark a read-model property `identifier`. The executable model infers the
-instance identifier from the read model's single keyed query
-(`query InvoiceById => InvoiceSummary? by invoiceId InvoiceId`). A read model
-without exactly one such query does not bind (`PLAY0268`), and specifications
+instance identifier from the `by` property of the keyed queries that return the
+read model in its own slice
+(`query InvoiceById => InvoiceSummary? by invoiceId InvoiceId`). Several queries
+over the same `by` property are fine; each must still have the shape the
+executable model admits, `=> <ReadModel>?` with one caller-supplied `by`. A read
+model with no keyed query, or with keyed queries over different `by` properties,
+has no unambiguous identifier and does not bind (`PLAY0268`), and specifications
 cannot select an instance of it.
 
 ## `query`

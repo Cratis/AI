@@ -230,17 +230,24 @@ Screenplay's reference runner executes specifications against an immutable
 in-memory world: no Arc, no Chronicle, no database, no network. Every downstream
 target has one normalized behavior to match.
 
-- It runs what binds: declarative validation and `require` over command
-  properties, conditional production, literal tags, declarative policies,
-  `unique` constraints, and projections as Chronicle lowers them. The
-  `cratis-screenplay-model-authoring` language reference lists what binds.
+- It runs the capabilities the execution plan admits: declarative validation
+  and `require` over command properties, conditional production, literal tags,
+  declarative policies, `unique` constraints, and projections as Chronicle
+  lowers them. The `cratis-screenplay-model-authoring` language reference lists
+  what binds and what the plan admits.
+- Binding is not admission. These projection constructs bind, but the plan
+  refuses them: a projection-level `remove via join`; `all` beside removals,
+  `children` or `nested`; a `join`, `children` or `remove via join` inside
+  `nested`; and any `$eventContext.<path>` other than `eventSourceId`, such as
+  `$eventContext.occurred`. The limits apply at every ESM version.
 - A specification that needs **opaque code** — a bodied reducer, a rule with a
   body, a fenced `validate` block, a code policy — returns **unsupported** and
   never passes. Authorization is evaluated first, so a `then denied` case still
   runs when a portable policy decides it. Other specifications in the model run
   normally.
 - Unsupported reachable declarative constructs block the whole execution plan
-  rather than running partially.
+  rather than running partially: no specification in the model runs, including
+  the ones that never touch the refused construct.
 - Reactions never run, not even after `when append`.
 - A rejection leaves the world unchanged; an accepted action commits once, then
   the read models and queries are compared.

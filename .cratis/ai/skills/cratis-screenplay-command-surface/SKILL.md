@@ -148,8 +148,7 @@ implication: `require isExtension == false or newEndDate > endDate`.
 **Rules whose logic is code.** A bare `rule <Name>` records that a rule exists but
 has no portable meaning (`PLAY0268`). Give it a body when the logic can live in the
 model — a `file` or a tagged ` ```csharp ` fence indented under the rule, or a
-fenced `validate` block for cross-field rules. Excerpt, inside a command's
-`validate` block:
+fenced `validate` block for cross-field rules. Excerpt, inside a command:
 
 ```screenplay
 validate

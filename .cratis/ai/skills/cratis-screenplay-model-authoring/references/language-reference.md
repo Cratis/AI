@@ -107,7 +107,7 @@ A construct can be in one of four states. Say which one you checked.
 | State | What establishes it | What it does not prove |
 | --- | --- | --- |
 | **Parsed** | `screenplay <folder> --warnaserror` or MCP authoring diagnostics: syntax plus model consistency | Binding, execution, or anything about attached code (the tool never reads `file` attachments) |
-| **Bound** | Semantic binding to the executable semantic model (ESM): MCP `executableReady`, executable diagnostics | That any specification passes |
+| **Bound** | Semantic binding to the executable semantic model (ESM): MCP `executableReady`, executable diagnostics | That the reference execution plan admits the model, or that any specification passes |
 | **Reference-executed** | The reference runner passes the specification | Target behavior; opaque code never runs here |
 | **Target-executed** | Stage or a rendered application runs it with the implementations supplied | Nothing further in Screenplay |
 
@@ -123,13 +123,20 @@ The ESM version is selected by what a model uses, never by the author:
   capability `pure`. The reference runner returns `SemanticUnsupported` whenever
   it would need one, so a specification that depends on one never passes.
 
-What binds today, what is opaque, and what blocks binding (Screenplay v4.30.0):
+Binding is not the last gate before the reference runner. The runner needs an
+execution plan, and the plan is created only when every reachable capability is
+admitted. One refused construct blocks the whole plan, so no specification in
+the model runs, including specifications that never touch it.
+
+What binds today, what the reference execution plan refuses, what is opaque, and
+what blocks binding (Screenplay v4.30.0):
 
 | Disposition | Constructs |
 | --- | --- |
-| Binds and runs in the reference runner | `StateChange`/`StateView` slices; `produces` including `when` conditions over command properties and literal tags; the portable validation rules, `matches email`, quoted `matches` patterns and `require` over command properties; declarative policies and `authorize` on modules, features, commands and keyed queries; `unique` constraints; projections as Chronicle lowers them, including variants; specifications, including `given caller`, `then denied` and `when append` |
+| Binds and runs in the reference runner | `StateChange`/`StateView` slices; `produces` including `when` conditions over command properties and literal tags; the portable validation rules, `matches email`, quoted `matches` patterns and `require` over command properties; declarative policies and `authorize` on modules, features, commands and keyed queries; `unique` constraints; projections as Chronicle lowers them, including variants, except the projection constructs in the next row; specifications, including `given caller`, `then denied` and `when append` |
+| Binds, but the reference execution plan refuses it | A projection-level `remove via join`; `all` beside removals, `children` or `nested`; a `join`, `children` or `remove via join` inside `nested`; any event-context value other than the event source identity in a projection mapping or key, such as `$eventContext.occurred`, `$eventContext.sequenceNumber` or `$eventContext.causedBy.subject` (`$eventSourceId` and `$eventContext.eventSourceId` run) |
 | Binds as opaque code (v3); reference runner reports unsupported | Bodied reducers, bodied named rules, fenced `validate` blocks, code or file policies |
-| Blocks binding (`PLAY0268`) | `Automation` and `Translate` slices, reactions, captures, top-level `trigger`, `persona`, `@pii`/`@sensitive` concepts, command `handler`, bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, a read model without exactly one keyed `=> <ReadModel>?` query, any query other than `=> <ReadModel>?` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
+| Blocks binding (`PLAY0268`) | `Automation` and `Translate` slices, reactions, captures, top-level `trigger`, `persona`, `@pii`/`@sensitive` concepts, command `handler`, bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, a read model whose keyed queries in its own slice do not share one `by` property (none, or two different properties; several queries over the same property bind), any query other than `=> <ReadModel>?` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
 | Blocks binding (`PLAY0271`, legacy meaning) | Command `reads` and `concurrency` |
 | Deferred (`PLAY0269`, information) | Screens, layouts, templates, forms, contributions, UI profiles, themes, behaviors and `on`/`uses` |
 | Metadata only (`PLAY0270`, information) | `domain`, `seed`, descriptions and `file` provenance on declarations |

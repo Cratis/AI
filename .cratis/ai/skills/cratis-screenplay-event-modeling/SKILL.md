@@ -211,8 +211,9 @@ bind. Keep four states apart when you report on a model: **parsed** (the
 the reference runner) and **target-executed** (Stage or a rendered application).
 
 The ESM version follows from what the model uses: v1 by default, v2 for typed
-event-source facts (`produces … for`, `for` in specifications, `$context.occurred`
-and caller identity), v3 for code the model hands off (bodied reducers, code
+event-source facts (`produces … for <identifier>` when the event does not repeat
+the identifier, `for` values in specifications, and `$context.occurred` or caller
+identity in `produces`), v3 for code the model hands off (bodied reducers, code
 validation, code policies). Code binds as an opaque requirement; the reference
 runner reports any specification that needs it as unsupported.
 

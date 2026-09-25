@@ -157,12 +157,19 @@ LiteralKeyword  = "literal", " ", Literal ;   (* parsed at the Expr level *)
 | `parent` outside `children` | Ignored by Chronicle; does not bind |
 | `sequence` | Realization concern; does not bind |
 | Reducer rules | Opaque ESM v3 code keyed by the event source id; not computed by the reference runner |
+| `$eventContext.<path>` other than `eventSourceId` in a mapping or key | Binds; the reference execution plan refuses it, so no specification in the model runs there |
+| `remove via join` on a projection's own level | Chronicle's engine wires it as a child removal; binds, but the reference execution plan refuses it |
+| `all` beside removals, `children` or `nested` | Binds, but the reference execution plan refuses it |
+| `join`, `children` or `remove via join` inside `nested` | Not wired by Chronicle's engine; binds, but the reference execution plan refuses it |
 
 ## Worked examples
 
 Each example is an excerpt: the events and read models it names are declared
 elsewhere in the slice or model. Read-model properties in a `.play` model are
 camelCase (a PascalCase property line is `PLAY0016`), so mapping targets are too.
+Several examples map `$eventContext.occurred`, `sequenceNumber` or
+`causedBy.subject`. Those bind, but the reference runner cannot execute a model
+that contains them; a target must run their specifications.
 
 ### Composite key with event context
 

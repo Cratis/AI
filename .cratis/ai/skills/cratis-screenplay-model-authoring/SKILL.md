@@ -137,10 +137,11 @@ for an already authorized, bounded edit; ask when target or consequence expands.
 
 ## Code attachments
 
-Policy, validation-rule, reducer, handler, performer and reaction bodies are
-*implementation attachments*: opaque code the model points at, inline in a
-tagged fence (` ```csharp `) or through `file <path>`. Screenplay never compiles
-or runs them.
+Policy, validation-rule, reducer, handler, performer and reaction bodies, and
+`file` constraints, are *implementation attachments*: opaque code the model
+points at, inline in a tagged fence (` ```csharp `) or through `file <path>`.
+Screenplay never compiles or runs them. A `screen`'s `file` is a UI realization
+file, not an attachment: nothing loads, hashes or checks it.
 
 - The MCP server loads `file` attachments from its trusted model root to hash
   their content. Paths resolve from the model root, not from the `.play` file.
