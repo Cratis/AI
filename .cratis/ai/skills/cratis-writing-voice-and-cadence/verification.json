@@ -6,12 +6,24 @@
     { "kind": "skill-contains", "value": "Never trade a claim for a smoother sentence" },
     { "kind": "skill-contains", "value": "The fix for a template is not a better template" },
     { "kind": "skill-contains", "value": "every hedging word" },
-    { "kind": "skill-contains", "value": "First person is not a licence to invent" },
+    { "kind": "skill-contains", "value": "First person is not a license to invent" },
     { "kind": "skill-contains", "value": "Structural sameness is the more damaging half" },
     { "kind": "skill-contains", "value": "Rewrite a tranche, read it, and only then continue" },
     { "kind": "skill-contains", "value": "Punchline fragment" },
     { "kind": "skill-contains", "value": "Labeled caveat" },
     { "kind": "skill-contains", "value": "Hedging that protects the writer" },
-    { "kind": "skill-contains", "value": "A company account is a team talking" }
+    { "kind": "skill-contains", "value": "A company account is a team talking" },
+    { "kind": "skill-contains", "value": "This is an editing aid, not a detector" },
+    { "kind": "skill-contains", "value": "It never means \"AI wrote this\"." },
+    { "kind": "skill-contains", "value": "Never use a flag, a count or a detector score to accuse a person" },
+    { "kind": "skill-contains", "value": "Don't push them toward an arbitrary house style" },
+    { "kind": "skill-contains", "value": "Contractions, \"I\", humor, short sentences and typos prove nothing about who wrote a text" },
+    { "kind": "skill-contains", "value": "Flag concentration in the batch, never one outlier" },
+    { "kind": "skill-contains", "value": "Fix with substance" },
+    { "kind": "skill-contains", "value": "Never fabricate one to make copy read better" },
+    { "kind": "skill-contains", "value": "Copy in the first person needs the named author's own input" },
+    { "kind": "skill-contains", "value": "lacks clear perspective" },
+    { "kind": "skill-contains", "value": "Cratis applies it, as its own stricter policy" },
+    { "kind": "skill-contains", "value": "references/ai-tells.md" }
   ]
 }
