@@ -83,14 +83,19 @@ def model_info() -> ModelInfo:
     )
 
 
+# The probes and the metrics route are `async def` on purpose. A plain `def` route runs on the
+# threadpool, and so does every decision: scoring is serialized behind the inference lock, so a burst
+# of queued decisions holds every threadpool thread while it waits. A probe that also needed a thread
+# then queued behind them, missed its deadline, and got a healthy pod killed mid-burst. On the event
+# loop they answer regardless of how deep the decision queue is - and they do nothing that blocks.
 @app.get("/healthz")
-def healthz() -> dict[str, str]:
+async def healthz() -> dict[str, str]:
     """Liveness. The process is up; says nothing about the model."""
     return {"status": "ok"}
 
 
 @app.get("/readyz")
-def readyz() -> dict[str, str]:
+async def readyz() -> dict[str, str]:
     """Readiness. False until the model can actually score."""
     if not MODEL.is_loaded:
         raise HTTPException(status_code=503, detail="model is not loaded")
@@ -98,7 +103,7 @@ def readyz() -> dict[str, str]:
 
 
 @app.get("/metrics")
-def metrics() -> Response:
+async def metrics() -> Response:
     """Prometheus exposition."""
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
