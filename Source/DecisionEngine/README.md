@@ -148,6 +148,10 @@ recorded decisions rather than intuition.
 `/healthz` and `/readyz` are deliberately different. A model that takes four minutes to pull its
 artifact must not be restart-looped by a liveness probe that is really a readiness probe.
 
+Both probes, and `/metrics`, answer on the event loop rather than the request threadpool. Decisions
+are scored one at a time, so a burst of them waits in the threadpool; the probes never wait with
+them, and a busy engine is not mistaken for a dead one.
+
 Ready means ready to answer at full speed, not just loaded. Before `/readyz` turns green the weights
 are copied out of the memory-mapped checkpoint into process memory, and one warm-up decision is
 scored. Without the copy the weights stay as page cache over the model volume, the node reclaims them
