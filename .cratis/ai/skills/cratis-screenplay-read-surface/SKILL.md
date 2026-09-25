@@ -49,8 +49,9 @@ error `PLAY0191`. See `cratis-screenplay-projections` for the builder side.
 
 Do not mark a read-model property `identifier`. The executable model infers the
 instance identifier from the read model's single keyed query
-(`query InvoiceById => InvoiceSummary? by invoiceId InvoiceId`); without one,
-specifications cannot select an instance.
+(`query InvoiceById => InvoiceSummary? by invoiceId InvoiceId`). A read model
+without exactly one such query does not bind (`PLAY0268`), and specifications
+cannot select an instance of it.
 
 ## `query`
 
