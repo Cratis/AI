@@ -1,6 +1,6 @@
 {
   "skill": "cratis-screenplay-command-surface",
-  "input": "Declare a Screenplay command with validation, authorization and concurrency.",
+  "input": "Declare a Screenplay command with validation, authorization, a uniqueness constraint and a state-dependent rule.",
   "fixtures": [],
   "assertions": [
     {
@@ -26,6 +26,38 @@
     {
       "kind": "skill-contains",
       "value": "`identifier` on an **event** property is an error"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`reads` is not a protected read"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Adding a\n`concurrency` block does not fix this"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Validation severity is not compiler severity"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Chronicle's constraints enforce **uniqueness only**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Do not use `constraint … file <Path>` for other rules"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "combine with AND, in authored"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "(`PLAY0441`)"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "never both (`PLAY0440`)"
     }
   ]
 }

@@ -8,6 +8,11 @@
     { "kind": "skill-contains", "value": "AutoMap is on by default" },
     { "kind": "skill-contains", "value": "PLAY0191" },
     { "kind": "skill-contains", "value": "every event type in the system" },
-    { "kind": "skill-contains", "value": "references/pdl-grammar.md" }
+    { "kind": "skill-contains", "value": "references/pdl-grammar.md" },
+    { "kind": "skill-contains", "value": "Do not write `key` on the projection." },
+    { "kind": "skill-contains", "value": "**routes nothing** (`PLAY0381`)" },
+    { "kind": "skill-contains", "value": "The key is **always the event source id**" },
+    { "kind": "skill-contains", "value": "**A join never creates an" },
+    { "kind": "skill-contains", "value": "Inline code uses a tagged fence" }
   ]
 }

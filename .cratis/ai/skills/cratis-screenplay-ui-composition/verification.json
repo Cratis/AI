@@ -7,6 +7,9 @@
     { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
     { "kind": "skill-contains", "value": "A form is discovered, not referenced" },
     { "kind": "skill-contains", "value": "declares no\n`fits slot`" },
-    { "kind": "skill-contains", "value": "override-priority order" }
+    { "kind": "skill-contains", "value": "override-priority order" },
+    { "kind": "skill-contains", "value": "A declared `trigger` is not a UI event" },
+    { "kind": "skill-contains", "value": "**Loaded is not run.**" },
+    { "kind": "skill-contains", "value": "belong only on actions that can fail" }
   ]
 }
