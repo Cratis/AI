@@ -47,7 +47,7 @@ members or translating names from memory.
 
 The RegisterProject conformance vector is the narrow executable example shared
 by downstream tooling. Its source is shipped in `Cratis.Screenplay.CanonicalCorpus`.
-At v4.30.0 it compiles with zero diagnostics, binds to ESM v1, and both
+At v4.31.0 it compiles with zero diagnostics, binds to ESM v1, and both
 specifications pass the reference runner.
 
 ```screenplay
@@ -129,14 +129,14 @@ admitted. One refused construct blocks the whole plan, so no specification in
 the model runs, including specifications that never touch it.
 
 What binds today, what the reference execution plan refuses, what is opaque, and
-what blocks binding (Screenplay v4.30.0):
+what blocks binding (Screenplay v4.31.0):
 
 | Disposition | Constructs |
 | --- | --- |
 | Binds and runs in the reference runner | `StateChange`/`StateView` slices; `produces` including `when` conditions over command properties and literal tags; the portable validation rules, `matches email`, quoted `matches` patterns and `require` over command properties; declarative policies and `authorize` on modules, features, commands and keyed queries; `unique` constraints; projections as Chronicle lowers them, including variants, except the projection constructs in the next row; specifications, including `given caller`, `then denied` and `when append` |
 | Binds, but the reference execution plan refuses it | A projection-level `remove via join`; `all` beside removals, `children` or `nested`; a `join`, `children` or `remove via join` inside `nested`; any event-context value other than the event source identity in a projection mapping or key, such as `$eventContext.occurred`, `$eventContext.sequenceNumber` or `$eventContext.causedBy.subject` (`$eventSourceId` and `$eventContext.eventSourceId` run) |
 | Binds as opaque code (v3); reference runner reports unsupported | Bodied reducers, bodied named rules, fenced `validate` blocks, code or file policies |
-| Blocks binding (`PLAY0268`) | `Automation` and `Translate` slices, reactions, captures, top-level `trigger`, `persona`, `@pii`/`@sensitive` concepts, command `handler`, bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, a read model whose keyed queries in its own slice do not share one `by` property (none, or two different properties; several queries over the same property bind), any query other than `=> <ReadModel>?` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
+| Blocks binding (`PLAY0268`) | `Automation` and `Translate` slices, reactions (with or without trigger `reads`), captures, top-level `trigger`, `persona`, `@pii`/`@sensitive` concepts, command `handler`, bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, a read model whose keyed queries in its own slice do not share one `by` property (none, or two different properties; several queries over the same property bind), any query other than `=> <ReadModel>?` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
 | Blocks binding (`PLAY0271`, legacy meaning) | Command `reads` and `concurrency` |
 | Deferred (`PLAY0269`, information) | Screens, layouts, templates, forms, contributions, UI profiles, themes, behaviors and `on`/`uses` |
 | Metadata only (`PLAY0270`, information) | `domain`, `seed`, descriptions and `file` provenance on declarations |
@@ -149,9 +149,13 @@ realization files. Stage owns rendering and runtime admission.
 
 ## Not in the language yet
 
-Screenplay decisions 0006 to 0014 are accepted but not implemented. Do not write
-their syntax: reaction `reads`, affected-instance declarations, per-event data
-subjects, external event origin, query paging/sorting/change-set delivery, event
+Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger may declare
+`reads <View> [as <alias>] [by <trigger value>]` (see
+`cratis-screenplay-captures-and-reactions`). Reactions still block binding, so
+those reads are declared, not enforced.
+
+Screenplay decisions 0007 to 0014 are accepted but not implemented. Do not write
+their syntax: affected-instance declarations, per-event data subjects, external event origin, query paging/sorting/change-set delivery, event
 generations, a typed context descriptor or command-handler role, code round-trip
 equivalence, or typed diagnostic repairs. Model today's syntax and record the
 gap in prose or an issue.

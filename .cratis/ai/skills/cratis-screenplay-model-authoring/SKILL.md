@@ -19,11 +19,11 @@ the executable profile and the complete canonical model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.30.0` | Compiler, executable semantic model (ESM), workspace and MCP server |
+| `Cratis.Screenplay` | `4.31.0` | Compiler, executable semantic model (ESM), workspace and MCP server |
 
-Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{ast-authoring,mcp,mcp-authoring,printing,file-references,diagnostics}.md`
-and the release notes for v4.17.0 to v4.30.0. The canonical model in the language
+and the release notes for v4.17.0 to v4.31.0. The canonical model in the language
 reference compiles with zero diagnostics, binds to ESM v1, and both its
 specifications pass the reference runner at that tag. Reverify before claiming
 another version behaves the same.
@@ -173,7 +173,7 @@ The ordinary CLI remains useful for whole-folder validation:
 cratis screenplay validate .cratis/screenplay --warnings-as-errors
 ```
 
-MCP guidance here follows the Screenplay 4.30.0 server documentation. The Cratis
+MCP guidance here follows the Screenplay 4.31.0 server documentation. The Cratis
 CLI bundles its own Screenplay version, so check the installed `tools/list`
 schemas before relying on a view or argument named here (for example
 `dropped-comments` or `implementation-requirements`). Do not invent a command,

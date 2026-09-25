@@ -8,7 +8,9 @@
     { "kind": "skill-contains", "value": "cannot be mixed in one clause" },
     { "kind": "skill-contains", "value": "`where` belongs to the reaction, not to one trigger" },
     { "kind": "skill-contains", "value": "Startup` and `Shutdown" },
-    { "kind": "skill-contains", "value": "A reaction cannot declare the state it consults yet" },
+    { "kind": "skill-contains", "value": "`reads <View> [as <alias>] [by <trigger value>]`" },
+    { "kind": "skill-contains", "value": "Clock triggers read whole views." },
+    { "kind": "skill-contains", "value": "Declared, not enforced." },
     { "kind": "skill-contains", "value": "An application trigger is not a UI event" }
   ]
 }

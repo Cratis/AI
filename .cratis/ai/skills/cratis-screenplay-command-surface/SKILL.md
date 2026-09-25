@@ -25,9 +25,9 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.30.0` | Parser, validator, diagnostics, semantic binder |
+| `Cratis.Screenplay` | `4.31.0` | Parser, validator, diagnostics, semantic binder |
 
-Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{commands,constraints,policies,context,concepts,diagnostics}.md`
 and decisions 0001 and 0003. Every example below compiles with that version's
 compiler. Reverify before claiming another version behaves the same.

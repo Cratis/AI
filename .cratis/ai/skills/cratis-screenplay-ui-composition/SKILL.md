@@ -25,9 +25,9 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.30.0` | Layout, template, form, contribution, interaction, profile and theme parsers |
+| `Cratis.Screenplay` | `4.31.0` | Layout, template, form, contribution, interaction, profile and theme parsers |
 
-Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{templates,layout-arrangement,forms,contributions,interactions,ui-profile,theme,internationalization,file-references}.md`.
 Every example below compiles with that version's compiler. Reverify before
 claiming another version behaves the same.

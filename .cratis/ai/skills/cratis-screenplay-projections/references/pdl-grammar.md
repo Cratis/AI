@@ -2,7 +2,7 @@
 
 Checked against `Documentation/screenplay/projections/{grammar,semantic-model,keys,variants}.md`
 and `Source/DotNET/Screenplay/Parsing/ProjectionParser.cs` at Screenplay tag
-`v4.30.0` (commit `969b6b7`).
+`v4.31.0` (commit `355dffb`).
 
 The grammar says what **parses**. It does not say what an event does at runtime:
 Chronicle's lowering decides that (Screenplay decision 0001), and the

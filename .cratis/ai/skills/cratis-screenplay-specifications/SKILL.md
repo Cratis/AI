@@ -25,9 +25,9 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.30.0` | Parser, semantic binder, reference execution |
+| `Cratis.Screenplay` | `4.31.0` | Parser, semantic binder, reference execution |
 
-Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{specifications,policies,constraints,readmodels,diagnostics}.md`.
 The worked example below compiles with zero diagnostics, binds to ESM v2, and
 all six specifications pass the reference runner at that tag. Reverify before

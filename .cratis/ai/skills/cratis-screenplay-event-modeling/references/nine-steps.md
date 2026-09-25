@@ -162,7 +162,9 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 `produces` blocks, not an `Automation` slice.
 
 **Output:** the `reaction`, in an `Automation` slice. It documents the automation;
-it does not bind to the executable model today. Excerpt: the event and the
+it does not bind to the executable model today. When the automation decides from
+a view, declare it under the trigger with `reads` (see
+`cratis-screenplay-captures-and-reactions`). Excerpt: the event and the
 command are declared in their own slices.
 
 ```screenplay

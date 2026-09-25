@@ -32,10 +32,10 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.30.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
-| `Cratis.Screenplay.Tool` | `4.30.0` | The `screenplay` dotnet tool |
+| `Cratis.Screenplay` | `4.31.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
+| `Cratis.Screenplay.Tool` | `4.31.0` | The `screenplay` dotnet tool |
 
-Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
 `projections/keys.md`, and decisions 0001 to 0014. The examples in
 [nine-steps.md](references/nine-steps.md) compile with that version's compiler.
@@ -86,9 +86,9 @@ Every behavior is exactly one. An unknown slice type is a compile error:
 appear as many times as the behavior needs. Only `description` is limited to one.
 
 **Automation has four required components** — a triggering occurrence, the state
-it consults, conditional logic, and a resulting command or event. If the events
-are always unconditionally co-produced, it is **not** an automation: model it as
-one `StateChange` slice with several `produces` blocks.
+it consults (the trigger's `reads`), conditional logic, and a resulting command
+or event. If the events are always unconditionally co-produced, it is **not** an
+automation: model it as one `StateChange` slice with several `produces` blocks.
 
 **Translation is workflow-specific anti-corruption.** Generic infrastructure every
 workflow needs (event persistence, message transport) is not a `Translate` slice.
@@ -106,7 +106,9 @@ compile or will not be safe. Both are deliberate.
   `concurrency` does not make the decision safe (decision 0003, Screenplay #129).
   Model uniqueness as a `unique` constraint; for any other state-dependent rule,
   record that the target must enforce it consistently. Do not use `reads` to
-  fetch data the command could carry as input.
+  fetch data the command could carry as input. A reaction trigger declares the
+  views an automation decides from with the same `reads`, and the same caveat
+  applies.
 - **Some validation *does* belong in the model.** The generic method routes format
   rules to the type system. Screenplay's type system *is* the `concept`, and a
   concept carries its own `validate` block — so a format rule lives on the concept
@@ -232,7 +234,9 @@ reference. Model the wider language freely when the `.play` file **is** the
 deliverable — documentation, review, a shared description of a system. Never
 read a clean `screenplay` run as evidence a construct works downstream.
 
-Screenplay decisions 0006 to 0014 (reaction `reads`, affected read-model
+Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger can declare the
+views it decides from with `reads` (see `cratis-screenplay-captures-and-reactions`),
+but nothing enforces them yet. Decisions 0007 to 0014 (affected read-model
 instances, one data subject per event, external event origin, query paging and
 live change sets, event generations, typed context descriptors) are accepted but
 **not available**. Do not write their syntax; note the need in prose instead.
