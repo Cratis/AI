@@ -42,6 +42,22 @@
     {
       "kind": "skill-contains",
       "value": "`Safe`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Report which of the four states you checked"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`view: \"dropped-comments\"`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`view: \"implementation-requirements\"`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Screenplay never compiles\nor runs them"
     }
   ]
 }

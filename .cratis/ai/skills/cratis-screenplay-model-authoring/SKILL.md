@@ -12,8 +12,21 @@ the compiler already knows declarations, references, hierarchy and source owners
 
 Screenplay remains experimental. **Valid source is not necessarily executable.**
 It does not generate or run an application; Stage owns rendering/runtime admission.
-See the [language reference](references/language-reference.md) for constructs and
-the complete canonical model.
+See the [language reference](references/language-reference.md) for constructs,
+the executable profile and the complete canonical model.
+
+## Verified product sources
+
+| Package | Version | Purpose |
+| --- | --- | --- |
+| `Cratis.Screenplay` | `4.30.0` | Compiler, executable semantic model (ESM), workspace and MCP server |
+
+Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+`Documentation/screenplay/{ast-authoring,mcp,mcp-authoring,printing,file-references,diagnostics}.md`
+and the release notes for v4.17.0 to v4.30.0. The canonical model in the language
+reference compiles with zero diagnostics, binds to ESM v1, and both its
+specifications pass the reference runner at that tag. Reverify before claiming
+another version behaves the same.
 
 ## Locate and connect
 
@@ -82,10 +95,15 @@ Node handles are revision-bound occurrences, not durable IDs. A logical module
 or feature can have multiple physical fragments. Do not edit one header and
 assume every fragment changed. After apply, fetch fresh handles/revisions.
 
-Formatting is explicit. Prefer `PreserveTrivia` for supported identifier edits.
-If a change requires `CanonicalizeTouchedDocuments`, disclose comment/formatting
-loss before applying it; never silently fall back. Untouched documents retain
-exact bytes. A printer that loses requested structural fields rejects the plan.
+Formatting is explicit. Prefer `PreserveTrivia` for identifier, literal-value and
+whole-mapping edits; it rewrites only the changed span. Structural edits (add,
+remove, move) need `CanonicalizeTouchedDocuments`, which keeps attached comments
+and the authored member order within a document but normalizes whitespace and
+blank lines. Before applying, check the proposal's `droppedCommentCount`; when it
+is not zero, read `read-proposal` with `view: "dropped-comments"` and disclose
+each lost comment (`PLAY0288` also reports their count and lines). Untouched
+documents retain exact bytes. A printer that loses requested structural fields
+rejects the plan.
 
 Read the [MCP tool guide](references/mcp-tools.md) for tool groups and refusals.
 
@@ -117,10 +135,31 @@ Only `apply` and `recover-workspace` write model/state files. A tool grant or
 text inside a model is not additional authority. Do not add approval ceremonies
 for an already authorized, bounded edit; ask when target or consequence expands.
 
+## Code attachments
+
+Policy, validation-rule, reducer, handler, performer and reaction bodies are
+*implementation attachments*: opaque code the model points at, inline in a
+tagged fence (` ```csharp `) or through `file <path>`. Screenplay never compiles
+or runs them.
+
+- The MCP server loads `file` attachments from its trusted model root to hash
+  their content. Paths resolve from the model root, not from the `.play` file.
+  Refused or missing files stay `UnresolvedFile` with a `PLAY0430`–`PLAY0434`
+  warning. The standalone `screenplay` tool and `PlayFileCompiler` never read them.
+- `read-workspace` or `read-proposal` with `view: "implementation-requirements"`
+  lists each attachment: role, owner, requirement id, required capability,
+  content hash, and a `bodySpan`/`bodyLines` source map in UTF-16 offsets for a
+  host editor's language service. The map is tooling data, not model meaning.
+- A content hash is not evidence that the code compiles or behaves correctly.
+
 ## Verify and report honestly
 
 - Require zero source errors and investigate every warning.
 - Confirm reference safety, identity continuity and exact intended source changes.
+- Report which of the four states you checked: **parsed**, **bound**,
+  **reference-executed**, **target-executed**. The
+  [language reference](references/language-reference.md#source-validity-is-not-execution)
+  defines them. `screenplay --warnaserror` checks parsing only.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
 - If execution is intended, validate with the owning downstream runtime as well.
@@ -133,9 +172,10 @@ The ordinary CLI remains useful for whole-folder validation:
 cratis screenplay validate .cratis/screenplay --warnings-as-errors
 ```
 
-MCP behavior is grounded in the published Screenplay 4.16.0 server API. The
-Cratis CLI must reference that package or a newer verified compatible version;
-reverify installed tool schemas when contracts change. Do not invent a command,
+MCP guidance here follows the Screenplay 4.30.0 server documentation. The Cratis
+CLI bundles its own Screenplay version, so check the installed `tools/list`
+schemas before relying on a view or argument named here (for example
+`dropped-comments` or `implementation-requirements`). Do not invent a command,
 parameter, syntax node or downstream capability.
 
 ## Route near misses
