@@ -25,13 +25,21 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.12.1` | Parser, validator, diagnostics |
+| `Cratis.Screenplay` | `4.30.0` | Parser, validator, diagnostics, semantic binder |
 
-Read from the Screenplay repository at tag `v4.12.1` (commit `122eee8`), against
-both the documentation and `Source/DotNET/Screenplay/Parsing/`. Reverify before
-claiming another version behaves the same.
+Checked against the Screenplay repository at tag `v4.30.0` (commit `969b6b7`):
+`Documentation/screenplay/{commands,constraints,policies,context,concepts,diagnostics}.md`
+and decisions 0001 and 0003. Every example below compiles with that version's
+compiler. Reverify before claiming another version behaves the same.
+
+"Parses" and "runs" are different claims. The executable profile, and what
+each construct binds to, is in the `cratis-screenplay-model-authoring` language
+reference.
 
 ## The command block
+
+Excerpt: the concepts, the `InvoiceLine` type, the policy and the event are
+declared elsewhere in the model.
 
 ```screenplay
 command RegisterInvoice
@@ -40,33 +48,33 @@ command RegisterInvoice
   invoiceNumber  InvoiceNumber
   lines          InvoiceLine[]
   note           String?
-  reads InvoiceList by invoiceNumber
   authorize CanManageInvoice
   validate
     invoiceNumber not empty                 message "Invoice number is required"
-    invoiceNumber matches "^INV-[0-9]{6}$"  message "Must look like INV-000000"
+    invoiceNumber matches "^INV-[0-9]{6}$"  severity warning message "Must look like INV-000000"
   produces InvoiceRegistered
     invoiceId    = invoiceId
     registeredAt = $context.occurred
-  concurrency
-    eventSource
-    events InvoiceRegistered, InvoiceCancelled
 ```
 
 Type modifiers: `<Type>[]` for a collection, `<Type>?` for optional.
 
-⚠️ **The parser enforces no clause order.** The order above is the house
-convention and the order a reader expects; the compiler accepts any. Keep to it.
+⚠️ **The parser enforces no clause order.** The house order is description,
+properties, `reads`, `authorize`, `validate`, `produces`/`handler`, `concurrency`.
+Keep to it.
 
 ⚠️ **`produces` and `handler` are mutually exclusive** — declaring both is an
 error. Everything else may repeat except `description` (one) and `concurrency`
-(one).
+(one). A `handler` parses but does not bind to the executable model yet
+(`PLAY0268`); prefer `produces` when the model must run.
 
 ## `identifier` — the stream boundary decision
 
-Exactly one command property may carry `identifier`. It names the value the
-runtime resolves the event source id from, so **choosing it is choosing the stream
-boundary** — the highest-consequence decision in the slice.
+At most one command property may carry `identifier`. It names the value the
+runtime uses as the event source id, so **choosing it is choosing the stream
+boundary** — the highest-consequence decision in the slice. Leave it out only
+when the runtime should allocate a fresh `Uuid` (a command that creates
+something whose identity the caller does not supply).
 
 - A second `identifier` on the same command is an error: *only one property can be
   the identifier*.
@@ -75,50 +83,91 @@ boundary** — the highest-consequence decision in the slice.
 
 ## `reads` — state the command decides against
 
+Excerpt: the `Account` read model, its projection and its keyed query are
+declared elsewhere.
+
 ```screenplay
-reads InvoiceList by invoiceNumber
+command TransferFunds
+  sourceId      AccountId
+  destinationId AccountId
+  amount        Decimal
+  reads Account as source by sourceId
+  reads Account as destination by destinationId
+  validate
+    require source.balance >= amount
+      message "The source account does not cover the transfer"
 ```
 
-`by <property>` names the command property the read model is looked up by; it is
-optional. A command may read several read models, but **each one only once** —
-a duplicate is an error.
+`by <property>` names the command property the read model is looked up by.
+`as <alias>` names one read: a command that reads a view more than once needs an
+alias on **every** read (`PLAY0410`), aliases are unique (`PLAY0411`) and must not
+match a command property (`PLAY0412`). A `require` path uses the alias, or the
+view name when that view is read once.
 
-This is a deliberate Cratis divergence from generic Event Modeling, which forbids
-read-model-to-command edges. Use it for a genuine consistency boundary, and pair
-it with `concurrency` so the decision is enforced at append time rather than
-merely consulted. Do not use it to fetch data the caller could supply.
+⚠️ **`reads` is not a protected read.** It documents the read-model-to-command
+arrow of the event model; nothing checks at append time that the state is still
+current. The executable model rejects every `reads` and `concurrency` with
+`PLAY0271`, and `require` over a read-model path with `PLAY0268`, until
+decision-consistent reads exist (Screenplay #129, decision 0003). Adding a
+`concurrency` block does not fix this: its scope is not the read's watermark, and
+decision 0003 plans to make the combination an error once protected reads ship.
+When a rule depends on state:
 
-## `validate` — the complete rule vocabulary
+- if it is uniqueness, declare a `unique` constraint (below);
+- otherwise state the rule, and say in review that the target implementation
+  must enforce it consistently. Do not claim the model guarantees it.
 
-Fourteen rule kinds (`ValidationRuleKind`), each taking an optional
-`message "<text>"`:
+Do not use `reads` to fetch data the caller could supply.
+
+## `validate`
+
+Each rule takes an optional `severity information|warning|error` and then an
+optional `message "<text>"` (or `$strings.<key>`). The default severity is `error`.
 
 | Rule | Example |
 | --- | --- |
 | `not empty` | `name not empty` |
-| `max <n>` / `min <n>` | `reason max 500`, `quantity min 1` |
+| `max <n>` / `min <n>` | `reason max 500` (length on text), `quantity min 1` (value on numbers) |
 | `> <v>` / `>= <v>` / `< <v>` / `<= <v>` | `quantity > 0`, `discountPct <= 100` |
-| `== <v>` / `!= <v>` | `currency == "NOK"`, `status != "draft"` |
+| `== <v>` / `!= <v>` | `currency == "NOK"`, `status != draft` |
 | `length == <n>` | `currency length == 3` |
-| `matches <regex>` | `invoiceNumber matches "^INV-[0-9]{6}$"` |
+| `matches email` | the only named pattern; any other name is `PLAY0366` |
+| `matches "<regex>"` | ECMAScript; matches **any substring** unless anchored with `^…$`; an invalid pattern is `PLAY0367` |
 | `all > <v>` / `all >= <v>` | `lines.quantity all > 0` |
 | `rule <Name>` | `orgNumber rule BeAValidOrganizationNumber` |
 
-`matches` accepts either a named pattern (`email matches email`) or a quoted
-regex, which is why the reference lists it on two rows while the parser has one
-kind for it.
+⚠️ **Validation severity is not compiler severity.** Every failed rule and
+`require` rejects the command, at `information` and `warning` too; severity only
+tells the UI how to present the failure.
 
-A `rule <Name>` may carry an indented `file <path>` or an inline code block as its
-body. A rule with no body is a complete statement that the rule exists.
+**Whole-command rules** use `require <condition>` with an indented `message` and
+optional `severity`, sharing the condition grammar with `produces … when`:
+`and` binds tighter than `or`, parentheses group. A conditional rule is an
+implication: `require isExtension == false or newEndDate > endDate`.
 
-**Whole-command rules** use `require <condition>` with an optional indented
-`message`, sharing the condition grammar with `produces … when` and `where`.
+**Rules whose logic is code.** A bare `rule <Name>` records that a rule exists but
+has no portable meaning (`PLAY0268`). Give it a body when the logic can live in the
+model — a `file` or a tagged ` ```csharp ` fence indented under the rule, or a
+fenced `validate` block for cross-field rules. Excerpt, inside a command's
+`validate` block:
+
+```screenplay
+validate
+  orgNumber rule BeAValidOrganizationNumber message "Must be a valid organization number"
+    file Validations/BeAValidOrganizationNumber.cs
+```
+
+A bodied rule or fenced block binds as opaque code (ESM v3): the reference runner
+reports it unsupported, and a target must supply the implementation. Prefer a
+declarative rule when one can say it.
 
 **Put format rules on the `concept`, not the command.** A concept carries its own
 `validate` block and every use inherits it — that is Screenplay's type system, and
 a rule that travels is worth more than one that is repeated.
 
 ## `authorize`
+
+Excerpt: the policies are declared at the top of the model.
 
 ```screenplay
 authorize IsAccountant
@@ -133,21 +182,34 @@ A continuation line extends the clause.
 ⚠️ **Two adjacent policies synthesize an implicit `and`.** `authorize A B` means
 `A and B`. Write the operator explicitly so the reader does not have to know this.
 
+- Several `authorize` lines on one command or query combine with AND, in authored
+  order. (Before v4.29.0 all but the last were silently dropped.)
+- `authorize` on an enclosing `module` or `feature` is ANDed with the command's
+  own gate; an `or` inside one gate never bypasses another gate.
+- Evaluation short-circuits left to right, module → feature → command. If it
+  reaches a policy implemented in code, the reference runner reports the outcome
+  unsupported; it never guesses allow or deny.
+
 ## `produces`
 
-Every mapping source form: a command property (`= invoiceNumber`), a context value
-(`= $context.occurred`, `= $context.identity.id`, `= $context.identity.claims.x`,
-`= $context.causedBy.subject`, `= $context.causation.type`, `= $context.tenant`),
-an environment variable (`= $env.REGION`), a literal (`= "draft"`, `= 0`), or a
-template (`` = `${firstName} ${lastName}` ``).
-
-- **`for <expression>`** says which event source the event lands on. **At most one
-  per `produces`** — *an event is appended to one event source*.
-- **`tag`** lines apply tags to this append. Tags also exist on the `event`
-  declaration, where they apply to every append of that type.
+- **Mapping sources** that bind to the executable model: a command property
+  (`= invoiceNumber`), a literal (`= "draft"`, `= 0`), `$context.occurred`, and
+  the caller's audit identity (`$context.identity.id`/`.name`/`.userName`, the
+  same values as `$context.causedBy.*`). The last two select ESM v2.
+  `$context.tenant`, claims, roles, causation, `$env.` values, templates and
+  computed expressions parse but block binding (`PLAY0268`).
+- **`for <identifier>`** on an indented line names the event source the event is
+  appended to. At most one per `produces`. To bind, it must name the command's
+  `identifier` property (`PLAY0273` otherwise); fanning out to another event
+  source parses but does not run today.
+- **`tag`** lines apply literal tags to this append. Tags also exist on the
+  `event` declaration, where they apply to every append of that type.
 - **Several unconditional `produces` blocks** are allowed — that is co-production,
   and it is what an automation is *not*.
-- **`produces when <condition>`** takes the event name on the next indented line:
+- **`produces when <condition>`** takes the event name on the next indented line.
+  Conditions over command properties and constants bind; each is evaluated
+  independently, and when all are false the command is accepted with no events.
+  Excerpt:
 
 ```screenplay
 produces when isProForma == true
@@ -158,7 +220,9 @@ produces when isProForma == true
 ## `concurrency`
 
 Five dimensions, each at most once, and at most one `concurrency` block per
-command:
+command. It mirrors Chronicle's `ConcurrencyScope` for a target implementation;
+the executable model does not bind it (`PLAY0271`), and it does not protect a
+`reads` decision.
 
 | Dimension | Scopes the check to |
 | --- | --- |
@@ -168,25 +232,43 @@ command:
 | `streamId <Name>` | an event stream id |
 | `events <A>, <B>` | the listed event types |
 
-An unknown dimension is an error naming all five.
+An empty block or an unknown dimension is an error.
 
-## `constraint` — append-time invariants
+## `constraint` — uniqueness at append time
 
-Exactly one of three forms per constraint:
+Chronicle's constraints enforce **uniqueness only**. Excerpt: the events are
+declared in the same model.
 
 ```screenplay
 constraint UniqueInvoiceNumber
   unique invoiceNumber on InvoiceRegistered
+  released by InvoiceCancelled
+  ignore casing
+  message "That invoice number is already in use"
 
 constraint OneRegistrationPerInvoice
   unique event InvoiceRegistered
-
-constraint InvoiceStatusTransition
-  file Constraints/InvoiceStatusTransition.cs
 ```
 
-A constraint with no body is an error naming the three forms. Use a constraint
-when two concurrent appends must not both win — a `validate` rule cannot do that.
+- `unique <p>[, <p>…] on <Event>` — a value (or composite value, in order) held by
+  one event source is unavailable to every other. Repeat the line for other
+  events sharing the claim. The same event source may re-claim its own value; a
+  null value claims nothing. The property must be declared directly on the event
+  (`PLAY0391`).
+- `unique event <Event>` — the event occurs at most once per event source.
+- `released by <Event>` (repeatable) frees the claim; `ignore casing` applies to
+  property rules only (`PLAY0393`); `message` replaces the default violation text —
+  never put the colliding value in it.
+- **The name is the identity.** It is unique across the application (`PLAY0392`),
+  and renaming a constraint starts a new, empty index.
+- Chronicle updates the uniqueness index after the append commits; do not describe
+  it as an atomic index-and-append guarantee.
+
+⚠️ **Do not use `constraint … file <Path>` for other rules.** It can only name a
+hand-written Chronicle `IConstraint`, which can only declare uniqueness; it warns
+(`PLAY0396`) and the executable model rejects it. A state transition rule
+belongs in `validate`/`require`. Use a constraint when two concurrent appends must
+not both win — a `validate` rule cannot do that.
 
 ## `concept` and `type`
 
@@ -209,7 +291,9 @@ The seven primitives are `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date` and
 is why the compiler says *expected … or Enum* rather than listing it among them.
 Attributes `@pii` and `@sensitive`, each with at most one `reason`; a
 reason for an attribute the concept does not declare is an error. **Compliance is
-inherited** — a property typed with a `@pii` concept is PII everywhere.
+inherited** — a property typed with a `@pii` concept is PII everywhere. The
+executable model does not bind compliance attributes yet (`PLAY0268`); keep them,
+because the classification is the point.
 
 ⚠️ **Enum trap.** A value literally named `validate` is read as an empty validate
 block. Write `@validate` for the value; the compiler warns when it sees the
@@ -223,11 +307,15 @@ commands reference; use `concept` for a single wrapped primitive.
 ```screenplay
 policy IsAuthenticated
   require authenticated
+policy IsAccountant
+  require role "Accountant"
 policy CanManageInvoice
   require role "InvoiceManager"
     or role "Accountant"
 policy OwnsInvoice
   require claim "sub" matches subject
+policy IsAdultCustomer
+  file Policies/IsAdultCustomer.cs
 
 persona Accountant
   description "Handles invoicing and collections"
@@ -235,10 +323,17 @@ persona Accountant
 ```
 
 Three condition forms: `authenticated`, `role "<name>"`, and
-`claim "<name>" matches subject | <value>`. A policy must declare a `require`
-condition or an inline code block.
+`claim "<name>" matches subject | "<value>" | <path>`. A policy has **exactly one**
+`require` line — continue the condition on deeper-indented lines instead of adding
+a second (`PLAY0441`) — **or** one implementation (a tagged ` ```csharp ` block or
+`file`), never both (`PLAY0440`). Declarative policies run in the reference
+runner; a code policy binds as opaque ESM v3 and needs a target to evaluate it.
+A `persona` is documentation for people; it blocks executable binding
+(`PLAY0268`).
 
 ## `seed`
+
+Excerpt: `CustomerRegistered` is declared in a slice.
 
 ```screenplay
 seed
@@ -248,7 +343,8 @@ seed
 ```
 
 Events append to that event source in declaration order, using the same mapping
-expression grammar as `produces`. Several `seed` blocks accumulate.
+expression grammar as `produces`. Several `seed` blocks accumulate. Seeding is
+operational metadata, not part of executable behavior (`PLAY0270`).
 
 ## `$context`
 
@@ -266,10 +362,13 @@ Four contexts, and **what each omits is load-bearing** — read
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
-- [ ] Exactly one command property carries `identifier`, and no event property does.
+- [ ] At most one command property carries `identifier`, and no event property does.
 - [ ] Format rules live on the `concept`; state-dependent rules are specifications.
 - [ ] Every `authorize` combining policies writes `and`/`or` explicitly.
-- [ ] Any `reads` that decides a rule is paired with a `concurrency` block.
+- [ ] No `reads` or `concurrency` is described as protecting a decision; the gap
+      is stated.
+- [ ] Constraints are `unique` forms; no `file` constraint stands in for another rule.
+- [ ] Each policy has one `require` or one implementation, not both.
 - [ ] Personal data is `@pii` on the concept, with a reason.
 - [ ] No event carries an optional property covering two situations.
 
@@ -277,5 +376,5 @@ Four contexts, and **what each omits is load-bearing** — read
 
 - Deciding *which* commands and events exist: `cratis-screenplay-event-modeling`.
 - Building read models from these events: `cratis-screenplay-projections`.
-- Pinning the rejections: `cratis-screenplay-specifications`.
-- The admitted-versus-parsed boundary: `cratis-screenplay-model-authoring`.
+- Pinning the rejections and denials: `cratis-screenplay-specifications`.
+- The parsed/bound/executed boundary: `cratis-screenplay-model-authoring`.
