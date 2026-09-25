@@ -42,6 +42,8 @@ class DecisionRequest(BaseModel):
     requestId: str = ""  # noqa: N815 - wire contract is camelCase
     context: DecisionContext
     choices: list[str] = Field(min_length=1)
+    question: str | None = None
+    descriptions: dict[str, str] | None = None
 
     @field_validator("choices")
     @classmethod

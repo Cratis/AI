@@ -34,6 +34,19 @@ model is loaded: replacing the model is a deployment change.
 }
 ```
 
+Two optional fields make the choices mean something to the model rather than just read as words:
+
+```json
+{
+  "question": "What kind of issue is this?",
+  "descriptions": { "bug": "something that used to work is broken" }
+}
+```
+
+`question` replaces the generic "which option applies?" in the prompt, and each described choice is
+listed as `bug - something that used to work is broken`. Both are ignored by an engine that predates
+them, so a caller can send them regardless of which version is deployed.
+
 Guarantees a caller may rely on:
 
 - Every supplied choice appears in the response.

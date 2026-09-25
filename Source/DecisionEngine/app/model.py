@@ -47,6 +47,8 @@ class ScoringTask:
 
     context: str
     choices: list[str]
+    question: str | None = None
+    descriptions: dict[str, str] | None = None
 
 
 class DecisionModel:
@@ -170,7 +172,7 @@ class DecisionModel:
             for start in range(0, len(orders), SETTINGS.max_rows):
                 chunk = orders[start:start + SETTINGS.max_rows]
                 log_probs = self._forward(
-                    [self._render(task.context, order) for order in chunk]
+                    [self._render(task, order) for order in chunk]
                 )
 
                 for row, order in enumerate(chunk):
@@ -183,10 +185,10 @@ class DecisionModel:
             for slot, choice in enumerate(task.choices)
         ]
 
-    def _render(self, context: str, choices: list[str]) -> str:
+    def _render(self, task: ScoringTask, choices: list[str]) -> str:
         """Apply the model's chat template to one option order."""
         return self._tokenizer.apply_chat_template(
-            [{"role": "user", "content": build_prompt(context, choices)}],
+            [{"role": "user", "content": build_prompt(task.context, choices, task.question, task.descriptions)}],
             tokenize=False,
             add_generation_prompt=True,
         ) + ANSWER_PREFIX
@@ -232,7 +234,7 @@ class DecisionModel:
         """
         import torch
 
-        prompt = build_continuation_prompt(task.context, task.choices)
+        prompt = build_continuation_prompt(task.context, task.choices, task.question, task.descriptions)
         prompt_ids = self._tokenizer(prompt, return_tensors="pt").input_ids
         length = prompt_ids.shape[1]
         scored: list[ScoredChoice] = []
