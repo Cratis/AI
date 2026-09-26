@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-validation-typescript
-description: Add a rejection rule to a Cratis Arc command or query in a Node.js TypeScript server with Arc for TypeScript — choosing between @field shape, authorization, ConceptValidator, CommandValidator, QueryValidator with an arguments model, ModelValidator, readModelForValidation, and rejected()/denied() from provide() or handle(); the ruleFor vocabulary, which rules are copied into generated proxies, the validation() helper, severity filtering and the X-Allowed-Severity cap, and asserting rule failures in @cratis/arc.testing specs. Use when an Arc for TypeScript command or query must refuse work under some condition. Do not use to define a new command or query, for the .NET or Kotlin/Java validation shapes, or for append-time Chronicle constraints and concurrency.
+description: Add a rejection rule to a Cratis Arc command or query in a Node.js TypeScript server with Arc for TypeScript — choosing between @field shape, authorization, ConceptValidator, CommandValidator, QueryValidator with an arguments model, ModelValidator, readModelForValidation, and rejected()/denied() from provide() or handle(); the ruleFor vocabulary, which rules are copied into generated proxies, the ValidationResult helpers and validation(), severity filtering and the X-Allowed-Severity cap, and asserting rule failures in @cratis/arc.testing specs. Use when an Arc for TypeScript command or query must refuse work under some condition. Do not use to define a new command or query, for the .NET or Kotlin/Java validation shapes, or for append-time Chronicle constraints and concurrency.
 license: MIT
 ---
 
@@ -27,9 +27,10 @@ Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
 `validation-severity-filtering.md`, `command-outcomes.md`,
 `Documentation/queries/validation.md`, `Documentation/concepts.md`,
 `Documentation/proxy-generation/validation.md`, `Source/Testing`, and the
-`Samples/Tasks` validators. At that commit `ValidationResult` is an exported
-**type** (an interface); results are built with the `validation(...)` function.
-There are no static `ValidationResult.error(...)`-style factories.
+`Samples/Tasks` validators. Rechecked against `main` at `3cc6ab3` (v0.34.0) for the result helpers.
+`ValidationResult` is both the exported interface and a value with the helpers
+`ValidationResult.information/warning/error(message, options?)`; the positional
+`validation(...)` function remains available.
 
 ## Choose where to reject
 
@@ -217,16 +218,21 @@ success: the caller gets 400 with reason `validatorFailed` or
 ## Reject from `provide()` or `handle()`
 
 ```typescript
-import { denied, rejected, validation, Severity } from '@cratis/arc.core';
+import { denied, rejected, validation, Severity, ValidationResult } from '@cratis/arc.core';
 
-return rejected(validation('The task does not exist', ['id'], 'notFound'));
+return rejected(ValidationResult.error('The task does not exist', { members: ['id'], reason: 'notFound' }));
+return rejected(ValidationResult.warning('Unusually long title', { members: ['title'], reasonDetail: 'TitleLength' }));
 return rejected(validation('Unusually long title', ['title'], 'rule', Severity.Warning));
 return denied('Only the owner can rename a task');
 ```
 
+- `ValidationResult.information/warning/error(message, options?)` (Arc for
+  TypeScript 0.34.0 and later) build a result at that severity; `options` sets
+  `members`, `state` (must be JSON-serializable), `reason` (default `rule`) and
+  `reasonDetail`. Omitted options are left out of the result.
 - `validation(message, members = [], reason = 'rule', severity = Severity.Error)`
-  builds a `ValidationResult` (`{ severity, message, members, reason }`, plus
-  optional `reasonDetail` and `state`).
+  builds a `ValidationResult` (`{ severity, message, members, reason }`) with
+  positional arguments; it cannot set `reasonDetail` or `state`.
 - `rejected(...results)` answers 400; it throws when given no results, so an
   empty rejection can never pass as success. `denied(reason?)` answers 403 with
   `authorizationFailureReason`.
@@ -303,9 +309,8 @@ describe('when validating a task with an empty title', given(a_task_registration
   needs; access control is in authorization or `denied(...)`, not a validator.
 - Every validator is exported (or passed to `add()`), extends the right base
   class, and carries `@validator(ExactTarget)`.
-- Rejections are `ValidationResult`s built with `validation(...)` or rule
-  messages — never thrown errors, and never invented `ValidationResult.error(...)`
-  factories.
+- Rejections are `ValidationResult`s built with `ValidationResult.error/warning/information(...)`,
+  `validation(...)` or rule messages — never thrown errors.
 - `readModelForValidation` is called only inside a model-bound command's
   validator, with `{ optional: true }` wherever absence is a legitimate state.
 - Generated metadata and proxies are regenerated after a validator changes, so

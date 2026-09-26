@@ -17,8 +17,8 @@ Arc supplies the route, body binding, validation, authorization, and the
   `@cratis/arc.express`, `@cratis/arc.fastify`, `@cratis/arc.hono`,
   `@cratis/arc.testing`, `@cratis/arc.mongodb`, `@cratis/arc.drizzle`,
   `@cratis/arc.chronicle`, `@cratis/cratis`, `@cratis/arc.proxygenerator` and
-  `@cratis/eslint-plugin-arc-core` are a source preview at version `0.33.0`. The
-  API may still change. `npm install @cratis/arc.core` fails.
+  `@cratis/eslint-plugin-arc-core` are a source preview (0.x versions, published
+  only as GitHub pre-releases). The API may still change. `npm install @cratis/arc.core` fails.
 - **`@cratis/arc` is a different package.** `@cratis/arc`, `@cratis/arc.react` and
   `@cratis/arc.react.mvvm` are the published **client** runtime, built from
   `Cratis/Arc`. Generated proxies import them in the frontend. The server packages

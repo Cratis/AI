@@ -4,7 +4,7 @@
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "is a **source preview**" },
-    { "kind": "skill-contains", "value": "There are no static `ValidationResult.error(...)`-style factories." },
+    { "kind": "skill-contains", "value": "`ValidationResult.information/warning/error(message, options?)`" },
     { "kind": "skill-contains", "value": "`validation(message, members = [], reason = 'rule', severity = Severity.Error)`" },
     { "kind": "skill-contains", "value": "**Keep access control out of validators.**" },
     { "kind": "skill-contains", "value": "`3` is **capped** to `2`, so errors always block" },

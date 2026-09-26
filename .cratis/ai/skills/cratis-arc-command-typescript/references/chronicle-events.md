@@ -39,6 +39,7 @@ the SDK — it imports it itself.
 | `tuple(eventSourceIdResponse(id), event)` | The event is appended to `id`, and `id` is the response |
 | `eventForEventSourceId({ eventSourceId, event, eventSourceType?, subject?, tags? })` | Appended to that event source with explicit routing |
 | `eventsWithConcurrencyScopes(events, scopes)` | Appended with exact per-source concurrency scopes |
+| `tuple(event, operation)` | The command operation runs first; the event batch then decides compensation (compensated on a known append rejection, not on an unknown outcome) |
 
 `tuple` comes from `@cratis/arc.core`; `eventSourceIdResponse`,
 `eventForEventSourceId`, and `eventsWithConcurrencyScopes` from

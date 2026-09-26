@@ -20,7 +20,7 @@ frontend. Project setup, the builder, and hosts are in
 ## Verified product sources
 
 Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
-`v0.33.0` plus three commits; packages at `0.33.0`), reading
+`v0.33.0` plus three commits), reading
 `Source/Core/queries/index.ts`, `Documentation/queries/**`,
 `Documentation/mongodb/**`, `Documentation/sql/**`,
 `Documentation/testing/queries.md` and `observable-queries.md`, and
