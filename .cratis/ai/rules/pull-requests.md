@@ -6,7 +6,7 @@ applyTo: "**/*"
 
 PR descriptions serve two purposes: they help reviewers understand the change *now*, and they become the release notes that users read *later*. Write them with both audiences in mind.
 
-**The description is the release note — it is published verbatim.** Write it as the note you want the person upgrading to read, in the repository template's sections. A generic development write-up (`## Summary`, `## Verification`, `## Testing`, a list of the files you touched, a description of how you arrived at the change) is not a release note, and shipping one makes the release history unreadable. The same applies wherever a release is produced by hand: release-notes text typed into a manual workflow run, or written straight into a published release, carries exactly the same shape and the same audience as a PR description. There is no path to a release whose notes are allowed to describe the work instead of the change.
+**The description is the release note — it is published verbatim.** Write it as the note you want the person upgrading to read, in the repository template's sections. A generic development write-up is not a release note, and shipping one makes the release history unreadable. The same applies wherever a release is produced by hand: release-notes text typed into a manual workflow run, or written straight into a published release, carries exactly the same shape and the same audience as a PR description. There is no path to a release whose notes are allowed to describe the work instead of the change.
 
 ## Description
 
@@ -17,6 +17,31 @@ PR descriptions serve two purposes: they help reviewers understand the change *n
 - Add the associated issue reference at the end of a bullet when there is a real GitHub issue for the change (e.g. `(#351)`). Keep it a bare reference — **no closing keywords** (`Closes #351`, `Fixes #351`) anywhere in the body, because the published release notes are the PR description verbatim. If there is no associated issue, omit the reference entirely. Never use a placeholder like `(#issue)` or leave the example number `(#123)` literally, and never invent a random issue number. **Always verify the issue number read-only using the repository source — never guess or invent a number.** Comment on or close an issue when the user's request includes that effect; otherwise prepare a bounded post-merge disposition without performing it.
 - Include a summary only if there is a cohesive theme across the changes. If you find yourself restating individual bullets in slightly different words, the summary adds no value — remove it.
 - Never include Copilot prompt content in the PR description. Remove any "Original prompt" / coding agent transcript blocks before publishing.
+
+### No banned sections, no first-person narration
+
+A release note describes the change, not the work of producing it. Two failure modes keep recurring and are both explicitly disallowed, not just discouraged:
+
+- **No process/work-log sections, under any heading.** `## Summary` (beyond the one-paragraph exception above), `## Verification`, `## Testing`, `## Design decision(s)`, `## Implementation notes`, `## Why I did it this way`, a list of files touched, a list of specs added, build/test pass counts, or anything else that narrates *how* the change was produced rather than *what* it is. Renaming the heading does not exempt it — `## A note on my approach` is exactly as banned as `## Design decision worth flagging`. A reviewer who wants that context can read the diff and the commits; a user reading the release notes six months from now cannot use it for anything.
+- **No first person.** Never write "I added", "I chose not to", "I deliberately did X", "I'm happy to", or any other sentence with the author as its subject. Release notes describe the product in the imperative/declarative voice the template's section headings already establish ("Added", "Changed", "Fixed") — the same voice as every bullet under them. If a sentence needs a subject, the subject is the feature or the behavior, never the person or agent who wrote the code.
+
+Design rationale, rejected alternatives, and scope explicitly deferred to follow-up work are real and often worth recording — but a PR description is not where they go. Put that content in a **comment on the originating issue** (when the user's request includes that effect — see [`general.md`](./general.md) on issue-comment authority) or in a decision record when it meets that bar (see the **cratis-engineering-decision-record** skill). A PR that intentionally implements only part of a larger issue still gets a short, factual **Added**/**Changed** bullet list for what it *does* ship; it does not get a prose section explaining what it does not ship and why — that belongs on the issue.
+
+```text
+# ❌ Wrong — process narration, first person, belongs on the issue not the PR
+## Design decision worth flagging
+I deliberately did not do X because Y risked breaking Z. Instead I built W,
+which required zero changes to the existing storage layer.
+
+## Verification
+- 7,653 specs pass across four projects — zero regressions
+- dotnet build clean on every touched project
+
+# ✅ Right — states what shipped, nothing else
+## Added
+- `[Encrypted]` attribute for values that need encryption at rest without
+  being enrolled in GDPR right-to-erasure (#4095)
+```
 
 ## Commits
 
