@@ -54,7 +54,7 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 | `cratis/application` | Full application stack (C# + React + TypeScript) | `cratis/application/csharp`, `cratis/application/elixir`, `cratis/application/kotlin`, `cratis/application/typescript`, `cratis/arc/core`, `cratis/arc/react`, `cratis/chronicle/core`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
 | `cratis/application/csharp` | C# backend with Arc + Chronicle | `cratis/arc`, `cratis/arc/react`, `cratis/chronicle`, `cratis/components`, `cratis/fundamentals`, `cratis/language/csharp`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
 | `cratis/application/react` | React frontend with Cratis Components | `cratis/arc/core`, `cratis/arc/react`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
-| `cratis/application/typescript` | TypeScript client for Chronicle | `cratis/chronicle/client-typescript`, `cratis/language/typescript`, `cratis/specifications/typescript` |
+| `cratis/application/typescript` | Node.js TypeScript application: Arc for TypeScript server and the Chronicle client | `cratis/arc/server-typescript`, `cratis/chronicle/client-typescript`, `cratis/language/typescript`, `cratis/specifications/typescript` |
 | `cratis/application/arc-chronicle` | Arc + Chronicle integration | `cratis/arc/core`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
 | `cratis/application/arc-only` | Arc without Chronicle | `cratis/arc/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
 | `cratis/application/chronicle-dotnet` | Chronicle .NET client | `cratis/chronicle/client-dotnet`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
@@ -66,7 +66,7 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
-| `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/java`, `cratis/arc/kotlin` |
+| `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/java`, `cratis/arc/kotlin`, `cratis/arc/typescript` |
 | `cratis/chronicle` | Chronicle event sourcing engine | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/java`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
 | `cratis/components` | React component library | (no child profiles) |
 | `cratis/fundamentals` | Core primitives (`ConceptAs<T>`, `EventSourceId<T>`) | (no child profiles) |
@@ -109,6 +109,26 @@ since Arc generates Kotlin adapters for Java declarations.
 Standalone Chronicle client usage (no Arc) for Kotlin and Java is
 `cratis-chronicle-client-kotlin`, reused by `cratis/chronicle/client-java`.
 JVM language conventions are `kotlin.md` and `java.md`.
+
+### Arc for TypeScript on Node.js
+
+Arc for TypeScript (`@cratis/arc.core` with the Express, Fastify, Hono,
+MongoDB, Drizzle, testing and experimental Chronicle packages) brings the same
+model-bound command/query shape to a Node.js server. Its packages are a source
+preview and are not published to npm. It is separate from `@cratis/arc`, the
+published client runtime that generated proxies import in a frontend.
+`cratis/arc/server-typescript` carries the skills; `cratis/arc/typescript` adds
+the TypeScript language conventions, and `cratis/application/typescript`
+composes the skills with the Chronicle TypeScript client.
+
+| Skill | Covers |
+| --- | --- |
+| `cratis-arc-command-typescript` | Project setup from the source preview, `ArcApplication.createBuilder()`, `@command()` with `handle()`/`provide()`, outcomes, authorization, returned Chronicle events, generated metadata and proxies, hosts, `CommandScenario` |
+| `cratis-arc-query-typescript` | `@readModel()` with static `@query()` methods, argument binding, GET and HTTP `QUERY`, paging, RxJS observable queries, MongoDB/Drizzle/Chronicle read models, `QueryScenario`/`ObservableQueryScenario` |
+| `cratis-arc-validation-typescript` | `CommandValidator`/`QueryValidator`/`ConceptValidator`/`ModelValidator`, `readModelForValidation`, `validation()` with `rejected`/`denied`, severity filtering |
+
+Standalone Chronicle client usage (no Arc) in TypeScript is
+`cratis-chronicle-client-typescript`.
 
 ### Specialized Profiles
 
