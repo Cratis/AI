@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-arc-query-typescript",
+  "input": "Expose a live list of tasks from an Arc for TypeScript read model.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "is a **source preview**" },
+    { "kind": "skill-contains", "value": "- the method is `static`," },
+    { "kind": "skill-contains", "value": "**Absence is an answer, not an error.**" },
+    { "kind": "skill-contains", "value": "`@query({ observable: true }, service(Tasks))`" },
+    { "kind": "skill-contains", "value": "| RxJS `BehaviorSubject<T>` | 200 immediately" },
+    { "kind": "skill-contains", "value": "authorization runs **once**, when the subscription\n  opens" },
+    { "kind": "skill-contains", "value": "QueryScenario.for<T>(ReadModel, 'methodName', ...artifacts)" }
+  ]
+}

@@ -38,7 +38,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
         // skills are the managed resources under test, so an operator's personal skills must not move the count.
         const repositoryRealPath = realpathSync(repositoryRoot);
         const repositorySkills = loader.getSkills().skills.filter(skill => realpathSync(skill.filePath).startsWith(repositoryRealPath));
-        assert.equal(repositorySkills.length, 70);
+        assert.equal(repositorySkills.length, 73);
         assert.equal(loader.getPrompts().prompts.length, 18);
         // A worktree nested under another checkout can also load that checkout's AGENTS.md.
         // Assert this repository's context is present exactly once, regardless of its ancestors.
@@ -58,7 +58,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
 
 test('every supported harness resolves the canonical skill corpus', () => {
     for (const path of ['.claude/skills', '.agents/skills', '.github/skills', '.cursor/skills', '.opencode/skills', '.pi/skills']) {
-        assert.equal(skillCount(join(repositoryRoot, path)), 70, path);
+        assert.equal(skillCount(join(repositoryRoot, path)), 73, path);
         assert.equal(realpathSync(join(repositoryRoot, path)), realpathSync(join(corpusRoot, 'skills')), path);
     }
 });

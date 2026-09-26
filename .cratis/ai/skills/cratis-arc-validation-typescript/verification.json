@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-arc-validation-typescript",
+  "input": "Reject an Arc for TypeScript command when the title is empty or unchanged.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "is a **source preview**" },
+    { "kind": "skill-contains", "value": "`ValidationResult.information/warning/error(message, options?)`" },
+    { "kind": "skill-contains", "value": "`validation(message, members = [], reason = 'rule', severity = Severity.Error)`" },
+    { "kind": "skill-contains", "value": "**Keep access control out of validators.**" },
+    { "kind": "skill-contains", "value": "`3` is **capped** to `2`, so errors always block" },
+    { "kind": "skill-contains", "value": "It works **only** inside a validator of a model-bound command" },
+    { "kind": "skill-contains", "value": "shouldHaveValidationErrorForMember('title')" }
+  ]
+}
