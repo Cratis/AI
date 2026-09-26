@@ -229,7 +229,8 @@ return denied('Only the owner can rename a task');
 - `ValidationResult.information/warning/error(message, options?)` (Arc for
   TypeScript 0.34.0 and later) build a result at that severity; `options` sets
   `members`, `state` (must be JSON-serializable), `reason` (default `rule`) and
-  `reasonDetail`. Omitted options are left out of the result.
+  `reasonDetail`. `members` defaults to `[]` and `reason` to `rule`; omitted
+  `state` and `reasonDetail` are left out of the result.
 - `validation(message, members = [], reason = 'rule', severity = Severity.Error)`
   builds a `ValidationResult` (`{ severity, message, members, reason }`) with
   positional arguments; it cannot set `reasonDetail` or `state`.
