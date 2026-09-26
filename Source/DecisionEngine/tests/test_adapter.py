@@ -23,6 +23,7 @@ class Router:
     def predict(self, state, questions, model):
         assert model == "multilingual"
         assert state
+        assert len(questions) == 1
         return {"answers": {key: (
             {"probabilities": {name: 1 / len(q["criteria"]) for name in q["criteria"]}}
             if q["type"] == "choice" else {"noul": 0.75}
@@ -70,6 +71,21 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["labels"], ["bug", "documentation"])
         self.assertEqual(set(response.json()["probabilities"]), {"bug", "documentation"})
+
+    def test_long_context_is_bounded_for_model(self):
+        text = "BEGIN " + "x" * 7900 + " END"
+        result = self.module.state(self.module.Context(text=text))
+        self.assertTrue(result["text"].startswith("BEGIN "))
+        self.assertTrue(result["text"].endswith(" END"))
+        self.assertLess(len(result["text"]), 1600)
+
+    def test_many_labels_are_scored_in_bounded_passes(self):
+        labels = [f"label-{i}" for i in range(32)]
+        response = self.client.post("/v1/labels", json={
+            "context": {"text": "A bug"}, "labels": labels})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["labels"], labels)
+        self.assertEqual(list(response.json()["probabilities"]), labels)
 
     def test_invalid_context_and_duplicate_labels(self):
         self.assertEqual(self.client.post("/v1/decisions", json={"context": {}, "choices": ["x"]}).status_code, 422)

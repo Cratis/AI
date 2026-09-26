@@ -62,7 +62,12 @@ def check_choices(choices):
 
 
 def state(context):
-    return {**({"text": context.text} if context.text else {}),
+    # Laya's attention memory grows with input tokens. Valid 8K contexts can OOM a
+    # 2 GiB pod even for a single label; retain title/prefix and recent suffix.
+    text = context.text
+    if text and len(text) > 1500:
+        text = text[:750] + "\n... [middle truncated] ...\n" + text[-750:]
+    return {**({"text": text} if text else {}),
             **({"structured": context.structured} if context.structured else {})}
 
 
@@ -94,11 +99,15 @@ def decide(request):
 def classify_labels(request):
     check_choices(request.labels)
     started = time.perf_counter()
-    questions = {f"label_{i}": {"type": "noul",
-        "instructions": f"Does this issue warrant the label '{label}'? "
-                        f"{request.descriptions.get(label, '')}"}
-        for i, label in enumerate(request.labels)}
-    answers = infer(request.context, questions)
+    # An 8K-character context OOM-killed 2 GiB pods with 32 labels on x86 and
+    # even four labels per pass on Apple Silicon. Score one label per pass.
+    answers = {}
+    for i, label in enumerate(request.labels):
+        answers.update(infer(request.context, {f"label_{i}": {
+            "type": "noul",
+            "instructions": f"Does this issue warrant the label '{label}'? "
+                            f"{request.descriptions.get(label, '')}",
+        }}))
     probabilities = {label: answers[f"label_{i}"]["noul"]
                      for i, label in enumerate(request.labels)}
     return {"labels": [label for label in request.labels if probabilities[label] >= request.threshold],
