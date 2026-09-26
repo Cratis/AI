@@ -23,6 +23,8 @@
         "cratis/arc/java",
         "cratis/arc/kotlin",
         "cratis/arc/react",
+        "cratis/arc/server-typescript",
+        "cratis/arc/typescript",
         "cratis/chronicle",
         "cratis/chronicle/client-dotnet",
         "cratis/chronicle/client-elixir",
@@ -210,6 +212,7 @@
     {
       "id": "cratis/application/typescript",
       "composes": [
+        "cratis/arc/server-typescript",
         "cratis/chronicle/client-typescript",
         "cratis/language/typescript",
         "cratis/specifications/typescript"
@@ -224,7 +227,8 @@
       "composes": [
         "cratis/arc/csharp",
         "cratis/arc/java",
-        "cratis/arc/kotlin"
+        "cratis/arc/kotlin",
+        "cratis/arc/typescript"
       ],
       "languages": [
         "csharp",
@@ -332,6 +336,27 @@
       ],
       "languages": [
         "react",
+        "typescript"
+      ]
+    },
+    {
+      "id": "cratis/arc/server-typescript",
+      "availableTargets": [
+        "cratis-arc-command-typescript",
+        "cratis-arc-query-typescript",
+        "cratis-arc-validation-typescript"
+      ],
+      "languages": [
+        "typescript"
+      ]
+    },
+    {
+      "id": "cratis/arc/typescript",
+      "composes": [
+        "cratis/arc/server-typescript",
+        "cratis/language/typescript"
+      ],
+      "languages": [
         "typescript"
       ]
     },
@@ -666,6 +691,7 @@
       "id": "cratis/full/typescript",
       "composes": [
         "cratis/application/typescript",
+        "cratis/arc/typescript",
         "cratis/chronicle/typescript",
         "cratis/modeling/screenplay-stage"
       ],
