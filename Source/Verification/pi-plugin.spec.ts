@@ -245,3 +245,19 @@ test('Pi resolves configured profile composition through selected languages', ()
         rmSync(project, { recursive: true, force: true });
     }
 });
+
+test('Pi resolves the TypeScript application profile to the Arc for TypeScript server skills', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/application/typescript'], languages: ['typescript'] }));
+        const names = selectedSkillPaths(project).map(path => path.split('/').pop());
+        for (const skill of ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript', 'cratis-chronicle-client-typescript']) {
+            assert.ok(names.includes(skill), skill);
+        }
+        assert.ok(!names.includes('cratis-arc-command-kotlin'));
+        assert.ok(!names.includes('cratis-arc-command'));
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
