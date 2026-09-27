@@ -403,15 +403,23 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # No model weights are baked in - the image pulls its model at start-up onto the deployment's
-      # cache volume, so the same tag serves whichever model a stack configures.
+      # Contract tests use a fake router and never download model weights. Build with the same
+      # Dockerfile and context that will be pushed, so packaging mistakes fail the release.
+      - name: Test the Laya-backed Decision Engine image
+        run: |
+          docker build --file Source/DecisionEngine/Dockerfile --tag cratis/decision-engine:test Source/DecisionEngine
+          docker run --rm --entrypoint python \
+            --volume "$PWD/Source/DecisionEngine/tests:/tests:ro" \
+            cratis/decision-engine:test -m unittest discover -s /tests
+
+      # Weights are fetched onto a persistent volume at startup, not baked into the image.
       - name: Build and push the Decision Engine image
         env:
           VERSION: ${{ needs.release.outputs.version }}
           PRERELEASE: ${{ needs.release.outputs.prerelease }}
         run: |
           set -euo pipefail
-          args="--push --file Source/DecisionEngine/Dockerfile --tag cratis/decision-engine:$VERSION"
+          args="--push --file Source/DecisionEngine/Dockerfile --tag cratis/decision-engine:$VERSION --tag cratis/decision-engine:laya-4066d5d"
           if [ "$PRERELEASE" != "true" ]; then
             args="$args --tag cratis/decision-engine:latest"
           fi

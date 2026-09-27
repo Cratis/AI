@@ -27,8 +27,8 @@ public interface IDecisions
     /// <param name="request">The request.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
     /// <returns>The <see cref="DecisionResult"/>.</returns>
-    /// <exception cref="DecisionProviderNotConfigured">Thrown when no decision provider has been configured.</exception>
-    /// <exception cref="ProviderDoesNotSupportDecisions">Thrown when the configured provider cannot make decisions.</exception>
+    /// <exception cref="DecisionEngineNotAvailable">Thrown when no decision engine is available.</exception>
+    /// <exception cref="NoClientForDecisionEngine">Thrown when there is no client for the engine in force.</exception>
     /// <exception cref="DecisionRequestIsNotAnswerable">Thrown when the request has no context or no choices.</exception>
     Task<DecisionResult> Decide(DecisionRequest request, CancellationToken cancellationToken = default);
 

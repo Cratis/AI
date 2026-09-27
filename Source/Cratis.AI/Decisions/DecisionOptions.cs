@@ -43,4 +43,14 @@ public class DecisionOptions
     /// exporting to a tracing backend because nobody remembered to turn it off.
     /// </remarks>
     public bool RecordContextInTelemetry { get; set; }
+
+    /// <summary>
+    /// Gets or sets how long the outcome of checking the engine's health is reused before it is
+    /// checked again.
+    /// </summary>
+    /// <remarks>
+    /// A settings page polls the engine's health; without this every poll would be a round trip to
+    /// the engine, and a hosted engine bills or rate-limits those.
+    /// </remarks>
+    public TimeSpan HealthCheckInterval { get; set; } = TimeSpan.FromSeconds(30);
 }

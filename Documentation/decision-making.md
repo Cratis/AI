@@ -1,7 +1,7 @@
 # Decision Making
 
 A decision is not a completion. The caller supplies a context and a finite set of outcomes; the
-provider weighs them and returns a probability distribution. Nothing is generated.
+engine weighs them and returns a probability distribution. Nothing is generated.
 
 It exists so that bounded workflow decisions — which agent, which model tier, which next action,
 which diagnostic path — stop costing a frontier-model call each.
@@ -31,14 +31,14 @@ Task<DecisionResult> Decide(DecisionRequest request, CancellationToken cancellat
 Task<IReadOnlyList<DecisionResult>> Decide(IReadOnlyList<DecisionRequest> requests, CancellationToken cancellationToken = default);
 ```
 
-`DecisionResult` carries the provider's **raw** distribution plus two derived values:
+`DecisionResult` carries the engine's **raw** distribution plus two derived values:
 
 | Member | Why it is here |
 |---|---|
 | `Outcomes` | Every supplied choice with its probability, ordered descending. Never clamped, rounded or filtered — thresholding is consumer policy, and a package that pre-applied one would make calibration impossible to measure after the fact. |
 | `Top` / `TopProbability` | The winner, as a convenience. |
 | `Margin` | Distance to the runner-up. Precomputed because every consumer needs it, and four consumers each deriving it is how four subtly different definitions of the same word appear. |
-| `Model` / `Provider` / `Latency` | Telemetry. Nothing branches on them. |
+| `Model` / `Engine` / `Latency` | Telemetry. Nothing branches on them. |
 
 ### What this surface deliberately does not do
 
@@ -62,53 +62,90 @@ being idempotent the moment two options score equally.
 
 ## Requests that are refused
 
-Rejected before reaching a provider, because a provider would answer them anyway and the caller
+Rejected before reaching an engine, because an engine would answer them anyway and the caller
 would have no way to tell the answer was meaningless:
 
 - an empty context
 - no choices
 - duplicate choices — they collapse on the way back, leaving a distribution that no longer sums to
-  what the provider computed
+  what the engine computed
 - more choices than `DecisionOptions.MaxChoices`
 
 A response that omits a supplied choice raises `DecisionChoicesNotCovered` rather than being
-completed with zeros: "the provider considered this impossible" and "the provider never looked at
+completed with zeros: "the engine considered this impossible" and "the engine never looked at
 it" want opposite responses from a caller.
 
-## Capabilities
+## Engines
 
-Three enums gained a member. **All three are persisted in events — append, never renumber.**
+There is only ever **one** decision engine in force - a deployment chooses between engines rather
+than adding providers to a list, which is the difference from language-model providers.
 
-| Enum | Member |
+| `DecisionEngineType` | What it is | What it needs |
+|---|---|---|
+| `BuiltIn` | The Cratis Decision Engine in `Source/DecisionEngine/`, deployed to the shared cluster by `Cratis/Infrastructure` | Nothing a person enters - its address is deployment configuration |
+| `Jev` | TypeSafe AI's Jev, a hosted System One model | An API key; optionally a model (default `jev-latest`) and an endpoint (default `https://api.typesafe.ai`) |
+
+Each engine has an `IDecisionEngineClient`, discovered by convention the same way a language-model
+vendor has its provider client. `DecisionEngineType` is persisted in events - append, never renumber.
+
+### Choosing an engine
+
+Two commands, both recorded under the single `DecisionEngineId.Default` stream:
+
+| Command | Event | Notes |
+|---|---|---|
+| `UseBuiltInDecisionEngine` | `BuiltInDecisionEngineSelected` | Refused when the deployment has no built-in engine |
+| `UseJevDecisionEngine(ApiKey, Model, Endpoint)` | `JevDecisionEngineSelected` | A blank key keeps the one already recorded; blank model and endpoint take the defaults |
+
+The API key is `[Encrypted]` at rest and `[NotAudited]`, like a provider's API key. Choosing the
+built-in engine keeps the Jev settings, so switching back does not ask for the key again.
+
+`CurrentDecisionEngine` returns `DecisionEngineSettings` for a settings page: which engine is in
+force, what each is configured with, whether a Jev key is recorded (never the key itself), and the
+result of the engine's last health check.
+
+Until anything is chosen, decisions go to the built-in engine. That fallback is what makes a host
+work out of the box.
+
+### The built-in engine's address
+
+Bound from `Cratis:AI:Decisions:BuiltIn`:
+
+| Setting | Notes |
 |---|---|
-| `AIProviderCapability` | `Decision = 2` |
-| `AIModelCapability` | `Decision = 4` |
-| `AIProviderType` | `DecisionEngine = 6` |
+| `Endpoint` | The engine's internal cluster address. Unset means the deployment has no built-in engine |
+| `Model` | The model it is deployed with, for display and usage reporting |
 
-`AIProviderCapabilities.For(AIProviderType.DecisionEngine)` returns `{ Decision }` and deliberately
-**not** `Conversational` or `Agentic`. Declaring the capabilities it lacks is what stops an agent
-being scheduled onto a decision engine — the compatibility checks that already exist read this, so
-the refusal needs no new code anywhere else.
+### Questions and descriptions
 
-`AIModelCapabilities` gained a `For(AIProviderType, ModelName)` overload. The existing substring
-heuristic cannot see a decision model: a small open model's identifier carries no marker that
-distinguishes it from a chat model, and the existing markers would happily label it conversational.
-On a decision engine the capability is declared by provider type instead — which is also the only
-honest answer, since what the model can do there is decided by the service in front of it rather
-than by the weights.
+`DecisionRequest` optionally carries a `Question`, a description per choice, and a `Topic`. The
+choices stay the opaque identifiers the caller branches on; the question and descriptions tell the
+engine what those identifiers mean. Jev takes them natively as a `choice` question's instructions and
+criteria. The built-in engine puts them into its multiple-choice prompt.
+
+Requests in a batch that share a context go to Jev as several questions against one state, in one
+call - Jev evaluates them in parallel and bills for the state once.
+
+## Usage
+
+Every call that produced an answer appends `DecisionUsageRecorded` through `RecordDecisionUsage`:
+engine, model, topic, how many decisions and choices, the tokens the engine reported (Jev reports
+them; the built-in engine does not) and how long it took. `DecisionUsageByDay` accumulates them per
+day, engine, model and topic; `DecisionUsageForLastThirtyDays` reads the trailing month.
+
+A failed usage record is logged, never allowed to fail a decision that was already made.
 
 ## Registration
 
 ```csharp
 builder.Services.AddCratisAI(ai => ai
     .WithAgents<OrganizationAgents>()
-    .WithDecisions<OrganizationDecisionProvider>());
+    .WithDecisions());
 ```
 
-`IDecisionProviderResolver` is **required**, not defaulted. Which provider serves decisions is a
-product setting — a built-in platform engine for one host, a user-configured provider for another —
-and a package that guessed one would be making a configuration decision on behalf of a host that
-never asked it to.
+`WithDecisions()` resolves the engine from the configuration above through
+`ConfiguredDecisionEngineResolver`. A host that needs to decide for itself registers its own
+`IDecisionEngineResolver` with `WithDecisions<TResolver>()`.
 
 Nothing decision-related is registered when `WithDecisions` is not called.
 
@@ -122,6 +159,7 @@ Bound from `Cratis:AI:Decisions`. Transport and telemetry only.
 | `MaxChoices` | 32 | |
 | `MaxBatchSize` | 32 | |
 | `RecordContextInTelemetry` | `false` | Context carries whatever the calling workflow put in it. Off unless deliberately enabled |
+| `HealthCheckInterval` | 30s | How long a health check of the engine is reused before it is made again |
 
 ## Telemetry
 
@@ -129,19 +167,8 @@ Bound from `Cratis:AI:Decisions`. Transport and telemetry only.
 
 - `cratis.ai.decision.duration` (ms histogram)
 - `cratis.ai.decision.count`
-- `cratis.ai.decision.top_probability` — **the calibration signal**. A provider answering every
+- `cratis.ai.decision.top_probability` — **the calibration signal**. An engine answering every
   question at 0.34/0.33/0.33 is useless in a way no latency graph will ever show.
 
-Tags: `provider.type`, `model`, `outcome`. The context text is not recorded unless
+Tags: `decision.engine`, `model`, `outcome`. The context text is not recorded unless
 `RecordContextInTelemetry` is on.
-
-## The Decision Engine provider
-
-`DecisionEngineProviderClient` speaks Decision API v1 to a Cratis Decision Engine —
-`Source/DecisionEngine/` in this repository, deployed to the shared cluster by
-`Cratis/Infrastructure`.
-
-Configure additional engines with `AddDecisionEngineProvider` / `ReconfigureDecisionEngineProvider`.
-The model is pinned on the provider rather than supplied per call, the same way Studio's provider
-shape pins one: an engine hosts exactly one loaded model, and a caller naming a different one would
-be asking for something the service cannot serve.

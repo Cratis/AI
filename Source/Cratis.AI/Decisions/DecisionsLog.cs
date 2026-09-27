@@ -1,36 +1,39 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Cratis.AI.Providers;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Decisions;
 
 /// <summary>
-/// Log messages for the decision path. A decision failure reaches the caller as an exception it
-/// will usually swallow into a fallback - which is correct behavior and also means the only record
-/// that the decision layer is silently broken is here.
+/// Log messages for decisions.
 /// </summary>
 internal static partial class DecisionsLog
 {
-    [LoggerMessage(LogLevel.Debug, "Weighing {ChoiceCount} choices on {Vendor}/{Model}")]
-    internal static partial void Deciding(this ILogger logger, int choiceCount, AIProviderType vendor, string model);
+    [LoggerMessage(LogLevel.Debug, "Weighing {ChoiceCount} choices on the {Engine} decision engine ({Model})")]
+    internal static partial void Deciding(this ILogger logger, int choiceCount, DecisionEngineType engine, string model);
 
-    [LoggerMessage(LogLevel.Warning, "{Vendor} decision API returned {StatusCode}")]
-    internal static partial void UnexpectedStatusCode(this ILogger logger, AIProviderType vendor, int statusCode);
+    [LoggerMessage(LogLevel.Warning, "The {Engine} decision engine returned {StatusCode}")]
+    internal static partial void UnexpectedStatusCode(this ILogger logger, DecisionEngineType engine, int statusCode);
 
-    [LoggerMessage(LogLevel.Warning, "{Vendor} decision API returned a response that could not be read")]
-    internal static partial void UnreadableResponse(this ILogger logger, Exception exception, AIProviderType vendor);
+    [LoggerMessage(LogLevel.Warning, "The {Engine} decision engine returned a response that could not be read")]
+    internal static partial void UnreadableResponse(this ILogger logger, Exception exception, DecisionEngineType engine);
 
-    [LoggerMessage(LogLevel.Warning, "{Vendor} decision API could not be reached")]
-    internal static partial void NetworkFailure(this ILogger logger, Exception exception, AIProviderType vendor);
+    [LoggerMessage(LogLevel.Warning, "The {Engine} decision engine could not be reached")]
+    internal static partial void NetworkFailure(this ILogger logger, Exception exception, DecisionEngineType engine);
 
-    [LoggerMessage(LogLevel.Warning, "{Vendor} decision API did not respond within {Timeout}")]
-    internal static partial void RequestTimedOut(this ILogger logger, AIProviderType vendor, TimeSpan timeout);
+    [LoggerMessage(LogLevel.Warning, "The {Engine} decision engine did not respond within {Timeout}")]
+    internal static partial void RequestTimedOut(this ILogger logger, DecisionEngineType engine, TimeSpan timeout);
 
-    [LoggerMessage(LogLevel.Warning, "{Vendor} decision API returned {Returned} probabilities for {Expected} choices")]
-    internal static partial void ChoiceCountMismatch(this ILogger logger, AIProviderType vendor, int returned, int expected);
+    [LoggerMessage(LogLevel.Warning, "The {Engine} decision engine returned {Returned} distributions for {Expected} requests")]
+    internal static partial void DistributionCountMismatch(this ILogger logger, DecisionEngineType engine, int returned, int expected);
 
-    [LoggerMessage(LogLevel.Error, "No decision provider is configured - the caller will have to fall back")]
-    internal static partial void NoProviderConfigured(this ILogger logger);
+    [LoggerMessage(LogLevel.Warning, "The {Engine} decision engine returned {Returned} probabilities for {Expected} choices")]
+    internal static partial void ChoiceCountMismatch(this ILogger logger, DecisionEngineType engine, int returned, int expected);
+
+    [LoggerMessage(LogLevel.Warning, "No decision engine is available - the caller will have to fall back")]
+    internal static partial void NoEngineAvailable(this ILogger logger);
+
+    [LoggerMessage(LogLevel.Warning, "Recording the usage of a decision on the {Engine} decision engine failed")]
+    internal static partial void FailedToRecordUsage(this ILogger logger, Exception exception, DecisionEngineType engine);
 }
