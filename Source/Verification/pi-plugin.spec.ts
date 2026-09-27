@@ -202,14 +202,20 @@ test('the Pi package yields to a managed CLI installation', () => {
 });
 
 test('Cratis quality hooks do not continue a completed noninteractive session', async () => {
-    let settled: ((event: unknown, context: { mode: string }) => Promise<void>) | undefined;
+    let ended: ((event: unknown, context: { mode: string }) => Promise<void>) | undefined;
+    let sent = 0;
     registerCratisHooks({
         on(name: string, handler: unknown) {
-            if (name === 'agent_settled') settled = handler as typeof settled;
+            if (name === 'agent_end') ended = handler as typeof ended;
+        },
+        registerTool() {},
+        sendMessage() {
+            sent++;
         },
     } as unknown as ExtensionAPI);
-    assert.ok(settled);
-    await assert.doesNotReject(() => settled!({}, { mode: 'print' }));
+    assert.ok(ended);
+    await assert.doesNotReject(() => ended!({ messages: [] }, { mode: 'print' }));
+    assert.equal(sent, 0);
 });
 
 test('the Pi package filters rules for framework CSharp documentation repositories', () => {

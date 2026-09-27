@@ -36,6 +36,18 @@ they describe what a hook should do for tools that have no wiring yet.
 > extension under `../harnesses/pi/extensions/` (its `bash` tool feeds the store-mutation guard, its
 > `write` and `edit` tools the write guard); Copilot would read `.github/hooks/*.json`, and no
 > Copilot wiring ships yet.
+>
+> In Pi the quality gate is not run at the end of a turn. Pi waits for end-of-turn handlers before it
+> starts the next prompt, so a gate run there froze the session for as long as the build and tests took.
+> Instead the bridge registers a `cratis_quality_gate` tool that runs the same script in the foreground:
+> it shows which gate is running, Escape cancels it, and it stops after
+> `CRATIS_HOOKS_GATE_TIMEOUT_SECONDS` (default 900), including planning and working-tree checks.
+> A timeout or a cancellation is reported as an error that says nothing was verified, never as a pass.
+> An inherited dry-run setting cannot produce a verified result, and a passing gate only verifies a
+> working tree that stayed unchanged throughout the run. When a turn changed the working tree (or Git
+> could not reliably determine whether it did) and a gate applies, the bridge asks the model once,
+> before the run ends, to run the tool. The gate never runs in the background, where it would race
+> the agent's next edits.
 
 ## What is enforced
 
@@ -363,6 +375,7 @@ Each is an explicit, auditable opt-out — none of them is a default.
 | `CRATIS_HOOKS_SKIP_SCAN=1` | disables the pattern pass |
 | `CRATIS_HOOKS_SKIP_GATE=1` | disables the quality gate |
 | `CRATIS_HOOKS_GATE_DRYRUN=1` | prints which gates would run, and why, then exits 0 |
+| `CRATIS_HOOKS_GATE_TIMEOUT_SECONDS=<n>` | Pi only: stops a `cratis_quality_gate` run after `n` seconds (default 900) and reports it as timed out |
 | `CRATIS_HOOKS_PATTERNS=<path>` | replaces the pattern file |
 | `CRATIS_HOOKS_GATES=<path>` | replaces the gate file (the project override still merges over it) |
 | `CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` | allows `cratis chronicle` commands that change a live store; set by the person who authorized the mutation, in the environment the harness was started from |

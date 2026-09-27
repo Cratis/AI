@@ -1,0 +1,471 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+/**
+ * The Pi quality gate must never freeze a session between prompts.
+ *
+ * Pi awaits `agent_settled` handlers and defers the next prompt until they finish, so the bridge may register
+ * nothing there, and the end-of-run check it does make must stay cheap even when the gate itself would run
+ * forever. The gate runs only as an explicit tool, with a deadline and cancellation, and a timeout, a
+ * cancellation or a failure is always an error: never a pass. These fixtures prove each of those against the
+ * real gate script, driven by a throwaway repository and a gate configuration whose command never finishes.
+ */
+
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, statSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import test from 'node:test';
+import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import registerCratisHooks, { QUALITY_GATE_MESSAGE_TYPE, QUALITY_GATE_TOOL_NAME } from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
+import { gateTimeoutSeconds, parseGatePlan, runBounded, tailLines, workingTreeFingerprint } from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/quality-gate.ts';
+
+type Handler = (event: unknown, ctx: unknown) => Promise<unknown> | unknown;
+type GateTool = {
+    name: string;
+    executionMode?: string;
+    execute: (id: string, params: { timeoutSeconds?: number }, signal: AbortSignal | undefined, onUpdate: ((update: unknown) => void) | undefined, ctx: unknown) => Promise<{ content: Array<{ text: string }>; details?: { status?: string } }>;
+};
+type SentMessage = { message: { customType: string; content: string; display: boolean }; options?: { deliverAs?: string; triggerTurn?: boolean } };
+
+function bridge() {
+    const handlers = new Map<string, Handler>();
+    const tools: GateTool[] = [];
+    const sent: SentMessage[] = [];
+    registerCratisHooks({
+        on: (event: string, handler: Handler) => handlers.set(event, handler),
+        registerTool: (tool: GateTool) => tools.push(tool),
+        sendMessage: (message: SentMessage['message'], options?: SentMessage['options']) => sent.push({ message, options }),
+    } as unknown as ExtensionAPI);
+    const tool = tools.find(candidate => candidate.name === QUALITY_GATE_TOOL_NAME);
+    assert.ok(tool, 'the bridge registers the quality gate tool');
+    return { handlers, tool, sent };
+}
+
+/** A committed scratch repository and a gate configuration whose one gate runs `command` for any changed .txt file. */
+function scratch(command: string[]) {
+    const workDirectory = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '.ai-work');
+    mkdirSync(workDirectory, { recursive: true });
+    const root = mkdtempSync(join(workDirectory, 'cratis-gate-'));
+    const git = (...args: string[]) => spawnSync('git', ['-C', root, '-c', 'user.email=gate@cratis.io', '-c', 'user.name=gate', ...args], { encoding: 'utf8' });
+    git('init', '-q');
+    writeFileSync(join(root, 'README.md'), '# scratch\n');
+    git('add', '.');
+    git('commit', '-q', '-m', 'initial');
+    const gates = join(root, '..', `${root.split('/').pop()}-gates.json`);
+    writeFileSync(gates, JSON.stringify({
+        enabled: true,
+        failFast: true,
+        maxOutputLines: 20,
+        gates: [{ id: 'scratch-gate', description: 'scratch gate', changed: ['*.txt', '**/*.txt'], workingDirectory: '.', command }],
+    }));
+    const saved = {
+        gates: process.env.CRATIS_HOOKS_GATES,
+        skip: process.env.CRATIS_HOOKS_SKIP_GATE,
+        timeout: process.env.CRATIS_HOOKS_GATE_TIMEOUT_SECONDS,
+        project: process.env.CLAUDE_PROJECT_DIR,
+        dryRun: process.env.CRATIS_HOOKS_GATE_DRYRUN,
+    };
+    process.env.CRATIS_HOOKS_GATES = gates;
+    // The gate script locates the repository from CLAUDE_PROJECT_DIR, else from its own location.
+    process.env.CLAUDE_PROJECT_DIR = root;
+    delete process.env.CRATIS_HOOKS_SKIP_GATE;
+    delete process.env.CRATIS_HOOKS_GATE_TIMEOUT_SECONDS;
+    delete process.env.CRATIS_HOOKS_GATE_DRYRUN;
+    const session = `spec-${Math.random().toString(36).slice(2)}`;
+    const ctx = (mode = 'tui', signal?: AbortSignal) => ({ cwd: root, mode, signal, sessionManager: { getSessionId: () => session } });
+    return {
+        root,
+        ctx,
+        change: (name = 'change.txt', content = `${Date.now()}\n`) => writeFileSync(join(root, name), content),
+        dispose: () => {
+            for (const [key, value] of [['CRATIS_HOOKS_GATES', saved.gates], ['CRATIS_HOOKS_SKIP_GATE', saved.skip], ['CRATIS_HOOKS_GATE_TIMEOUT_SECONDS', saved.timeout], ['CLAUDE_PROJECT_DIR', saved.project], ['CRATIS_HOOKS_GATE_DRYRUN', saved.dryRun]] as const) {
+                if (value === undefined) delete process.env[key];
+                else process.env[key] = value;
+            }
+            rmSync(root, { recursive: true, force: true });
+            rmSync(gates, { force: true });
+        },
+    };
+}
+
+const completedRun = { messages: [{ role: 'assistant', stopReason: 'stop' }] };
+
+test('the Pi bridge registers nothing on agent_settled, so no gate work can hold the next prompt', () => {
+    const { handlers, tool } = bridge();
+    assert.equal(handlers.has('agent_settled'), false, 'Pi awaits agent_settled handlers and defers the next prompt until they finish');
+    assert.equal(tool.executionMode, 'sequential', 'the gate must not run beside an edit in the same batch');
+});
+
+test('ending a run that changed the tree asks for the gate once, without running it', async () => {
+    const repo = scratch(['sleep', '600']);
+    try {
+        const { handlers, sent } = bridge();
+        await handlers.get('input')?.({ source: 'interactive', text: 'change something' }, repo.ctx());
+        // Pi runs tool_call before the write lands; that is where the turn's starting tree is guaranteed recorded.
+        const allowed = await handlers.get('tool_call')?.({ toolName: 'write', input: { path: join(repo.root, 'change.txt'), content: 'x' } }, repo.ctx());
+        assert.equal(allowed, undefined);
+        repo.change();
+
+        const started = Date.now();
+        await handlers.get('agent_end')?.(completedRun, repo.ctx());
+        assert.ok(Date.now() - started < 15_000, `the end-of-run check took ${Date.now() - started}ms although the gate command never finishes`);
+
+        assert.equal(sent.length, 1, 'the gate is requested once');
+        assert.equal(sent[0].message.customType, QUALITY_GATE_MESSAGE_TYPE);
+        assert.match(sent[0].message.content, new RegExp(QUALITY_GATE_TOOL_NAME));
+        assert.match(sent[0].message.content, /scratch-gate/);
+        assert.deepEqual(sent[0].options, { deliverAs: 'followUp', triggerTurn: true });
+
+        await handlers.get('agent_end')?.(completedRun, repo.ctx());
+        assert.equal(sent.length, 1, 'the same user turn is never asked twice, so it cannot loop');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('the gate is not requested for a turn that changed nothing, an aborted run, or a noninteractive session', async () => {
+    const repo = scratch(['sleep', '600']);
+    try {
+        repo.change('existing.txt');
+        const { handlers, sent } = bridge();
+
+        await handlers.get('input')?.({ source: 'interactive', text: 'just a question' }, repo.ctx());
+        await handlers.get('agent_end')?.(completedRun, repo.ctx());
+        assert.equal(sent.length, 0, 'a pre-existing change the turn did not touch does not trigger the gate');
+
+        await handlers.get('input')?.({ source: 'interactive', text: 'change it' }, repo.ctx());
+        await handlers.get('tool_call')?.({ toolName: 'bash', input: { command: 'echo changed > existing.txt' } }, repo.ctx());
+        repo.change('existing.txt', 'changed\n');
+        await handlers.get('agent_end')?.({ messages: [{ role: 'assistant', stopReason: 'aborted' }] }, repo.ctx());
+        assert.equal(sent.length, 0, 'an aborted run is not asked to verify anything');
+
+        for (const mode of ['print', 'json']) {
+            await handlers.get('agent_end')?.(completedRun, repo.ctx(mode));
+            assert.equal(sent.length, 0, `${mode} mode must not be continued`);
+        }
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a gate that outlives its deadline is stopped and reported as timed out, never as a pass', async () => {
+    const repo = scratch(['sleep', '600']);
+    try {
+        const { tool } = bridge();
+        repo.change();
+        const started = Date.now();
+        await assert.rejects(
+            () => tool.execute('call', { timeoutSeconds: 1 }, undefined, undefined, repo.ctx()),
+            (error: Error) => {
+                assert.match(error.message, /TIMED OUT after 1s/);
+                assert.match(error.message, /not a pass/);
+                return true;
+            },
+        );
+        assert.ok(Date.now() - started < 20_000, 'the timeout bounds the run');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('cancelling the gate stops it and reports that nothing was verified', async () => {
+    const repo = scratch(['sleep', '600']);
+    try {
+        const { tool } = bridge();
+        repo.change();
+        const cancel = new AbortController();
+        const updates: unknown[] = [];
+        setTimeout(() => cancel.abort(), 1500);
+        await assert.rejects(
+            () => tool.execute('call', {}, cancel.signal, update => updates.push(update), repo.ctx()),
+            /cancelled.*Nothing was verified/,
+        );
+        assert.ok(updates.length > 0, 'the running gate reports progress');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a failing gate is an error, a passing gate records the tree so it is not requested again', async () => {
+    const failing = scratch(['false']);
+    try {
+        const { tool } = bridge();
+        failing.change();
+        await assert.rejects(() => tool.execute('call', {}, undefined, undefined, failing.ctx()), /QUALITY GATE FAILED: scratch-gate/);
+    } finally {
+        failing.dispose();
+    }
+
+    const passing = scratch(['true']);
+    try {
+        const { handlers, tool, sent } = bridge();
+        await handlers.get('input')?.({ source: 'interactive', text: 'change something' }, passing.ctx());
+        await handlers.get('tool_call')?.({ toolName: 'edit', input: { path: join(passing.root, 'change.txt'), edits: [] } }, passing.ctx());
+        passing.change();
+        const result = await tool.execute('call', {}, undefined, undefined, passing.ctx());
+        assert.equal(result.details?.status, 'passed');
+        assert.match(result.content[0].text, /passed .*scratch-gate/);
+        await handlers.get('agent_end')?.(completedRun, passing.ctx());
+        assert.equal(sent.length, 0, 'the gate already ran against this tree');
+    } finally {
+        passing.dispose();
+    }
+});
+
+test('the gate honors the skip escape hatch without claiming a pass', async () => {
+    const repo = scratch(['true']);
+    try {
+        process.env.CRATIS_HOOKS_SKIP_GATE = '1';
+        const { tool } = bridge();
+        const result = await tool.execute('call', {}, undefined, undefined, repo.ctx());
+        assert.equal(result.details?.status, 'skipped');
+        assert.match(result.content[0].text, /nothing was verified/);
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a bounded run stops the whole process tree at its deadline', async () => {
+    const run = await runBounded('bash', ['-c', 'sleep 600 & echo $!; wait'], { cwd: tmpdir(), timeoutMs: 500, killGraceMs: 500 });
+    assert.equal(run.timedOut, true);
+    const child = Number(run.stdout.trim());
+    assert.ok(child > 0, 'the grandchild pid was printed');
+    await new Promise(resolve => setTimeout(resolve, 200));
+    assert.throws(() => process.kill(child, 0), 'the grandchild must not outlive the gate');
+});
+
+test('queued input cannot reset the baseline after a streaming run edits the tree', async () => {
+    const repo = scratch(['true']);
+    try {
+        const { handlers, sent } = bridge();
+        await handlers.get('input')?.({ source: 'interactive' }, repo.ctx());
+        await handlers.get('agent_start')?.({}, repo.ctx());
+        await handlers.get('tool_call')?.({ toolName: 'edit', input: { path: join(repo.root, 'change.txt'), edits: [] } }, repo.ctx());
+        repo.change();
+        // Pi delivers this event before queueing the second prompt, while the first run still streams.
+        await handlers.get('input')?.({ source: 'interactive', text: 'read that file' }, { ...repo.ctx(), isIdle: () => false });
+        await handlers.get('agent_end')?.(completedRun, repo.ctx());
+        assert.equal(sent.length, 1, 'the changed tree must still request verification');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('an inherited dry-run flag never reports or caches a verified gate', async () => {
+    const repo = scratch(['true']);
+    try {
+        const { handlers, tool, sent } = bridge();
+        await handlers.get('input')?.({ source: 'interactive' }, repo.ctx());
+        await handlers.get('tool_call')?.({ toolName: 'edit', input: { path: join(repo.root, 'change.txt'), edits: [] } }, repo.ctx());
+        repo.change();
+        process.env.CRATIS_HOOKS_GATE_DRYRUN = '1';
+        const result = await tool.execute('call', {}, undefined, undefined, repo.ctx());
+        assert.equal(result.details?.status, 'dry-run');
+        assert.match(result.content[0].text, /NOT VERIFIED/);
+        await handlers.get('agent_end')?.(completedRun, repo.ctx());
+        assert.equal(sent.length, 1, 'a dry run must not populate the verified-tree cache');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('failed fingerprints are unknown, not evidence that the working tree was unchanged', async () => {
+    const repo = scratch(['true']);
+    try {
+        const aborted = new AbortController();
+        aborted.abort();
+        assert.deepEqual(await workingTreeFingerprint(repo.root, 1000, aborted.signal), { kind: 'unknown' });
+        assert.deepEqual(await workingTreeFingerprint(tmpdir()), { kind: 'not-repository' });
+        const originalGitDir = process.env.GIT_DIR;
+        try {
+            process.env.GIT_DIR = join(repo.root, 'missing-git-dir');
+            assert.deepEqual(await workingTreeFingerprint(repo.root), { kind: 'unknown' }, 'a broken Git environment is not a non-repository');
+        } finally {
+            if (originalGitDir === undefined) delete process.env.GIT_DIR;
+            else process.env.GIT_DIR = originalGitDir;
+        }
+        const { handlers, sent } = bridge();
+        // The initial Git probe was interrupted, but an existing change is still eligible for a gate.
+        repo.change();
+        await handlers.get('input')?.({ source: 'interactive' }, repo.ctx('tui', aborted.signal));
+        await handlers.get('agent_end')?.(completedRun, repo.ctx());
+        assert.equal(sent.length, 1);
+        assert.match(sent[0].message.content, /could not be checked reliably/);
+
+        // A Git failure at agent_end must also request verification, even if planning cannot run.
+        const second = bridge();
+        await second.handlers.get('input')?.({ source: 'interactive' }, repo.ctx());
+        const savedGitDir = process.env.GIT_DIR;
+        try {
+            process.env.GIT_DIR = join(repo.root, 'missing-git-dir');
+            await second.handlers.get('agent_end')?.(completedRun, repo.ctx());
+        } finally {
+            if (savedGitDir === undefined) delete process.env.GIT_DIR;
+            else process.env.GIT_DIR = savedGitDir;
+        }
+        assert.equal(second.sent.length, 1);
+        assert.match(second.sent[0].message.content, /could not be checked reliably/);
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a gate cannot verify edits made while it ran, even when its command succeeds', async () => {
+    const repo = scratch(['sleep', '1']);
+    try {
+        const { handlers, tool, sent } = bridge();
+        await handlers.get('input')?.({ source: 'interactive' }, repo.ctx());
+        repo.change();
+        let changed = false;
+        let scheduled = false;
+        await assert.rejects(() => tool.execute('call', {}, undefined, update => {
+            if (!scheduled && (update as { details?: { status?: string } }).details?.status === 'running') {
+                scheduled = true;
+                setTimeout(() => {
+                    changed = true;
+                    repo.change('change.txt', 'external edit while gate ran\n');
+                }, 350);
+            }
+        }, repo.ctx()), /older tree; this tree is NOT VERIFIED/);
+        assert.equal(changed, true);
+        await handlers.get('agent_end')?.(completedRun, repo.ctx());
+        assert.equal(sent.length, 1, 'a changed tree must not be cached as verified');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a successful gate that generated a source file leaves the new tree unverified', async () => {
+    const repo = scratch(['bash', '-c', 'printf generated > generated.txt']);
+    try {
+        repo.change();
+        const { tool } = bridge();
+        await assert.rejects(() => tool.execute('call', {}, undefined, undefined, repo.ctx()), /older tree; this tree is NOT VERIFIED/);
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('planning reports progress immediately and respects cancellation before starting a gate', async () => {
+    const repo = scratch(['true']);
+    try {
+        repo.change();
+        const { tool } = bridge();
+        const controller = new AbortController();
+        const updates: unknown[] = [];
+        await assert.rejects(() => tool.execute('call', {}, controller.signal, update => {
+            updates.push(update);
+            controller.abort();
+        }, repo.ctx()), /cancelled.*Nothing was verified/);
+        assert.equal((updates[0] as { details: { status: string } }).details.status, 'planning');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a TERM-resistant descendant is killed even if the parent exits and closes its redirected pipes', async () => {
+    const run = await runBounded('bash', ['-c', "bash -c 'trap \"\" TERM; while :; do :; done' >/dev/null 2>&1 & echo $!; wait"], {
+        cwd: tmpdir(), timeoutMs: 300, killGraceMs: 300,
+    });
+    assert.equal(run.timedOut, true);
+    const child = Number(run.stdout.trim());
+    assert.ok(child > 0);
+    // On some CI kernels an orphan remains as a zombie until init reaps it: it can no longer execute.
+    await new Promise(resolve => setTimeout(resolve, 150));
+    const state = spawnSync('ps', ['-p', String(child), '-o', 'stat='], { encoding: 'utf8' });
+    assert.ok(state.status !== 0 || state.stdout.trim().startsWith('Z'), `the resistant descendant is still running: ${state.stdout.trim()}`);
+});
+
+test('gate log tails bound reads and single oversized lines', () => {
+    const repo = scratch(['true']);
+    try {
+        const file = join(repo.root, 'gate.log');
+        writeFileSync(file, `old\n${'x'.repeat(2_000_000)}\nlast\n`);
+        const tail = tailLines(file, 3);
+        assert.ok(tail.length <= 65_600, 'the returned tail must remain bounded');
+        assert.match(tail, /last$/);
+        assert.doesNotMatch(tail, /old/);
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('an overflowing Git status is unknown rather than a fingerprint of only its retained tail', async () => {
+    const repo = scratch(['true']);
+    try {
+        // Each path is below Git's component limit, but the combined -z status exceeds 256 KiB.
+        for (let index = 0; index < 2100; index++) {
+            writeFileSync(join(repo.root, `item-${String(index).padStart(4, '0')}-${'x'.repeat(126)}.txt`), 'x');
+        }
+        const status = await runBounded('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], { cwd: repo.root, timeoutMs: 15_000 });
+        assert.equal(status.code, 0);
+        assert.equal(status.stdoutTruncated, true, 'the Git output must genuinely exceed the retained cap');
+        assert.deepEqual(await workingTreeFingerprint(repo.root), { kind: 'unknown' });
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('same-size untracked content edits with restored mtime invalidate a passing gate', async () => {
+    const repo = scratch(['true']);
+    try {
+        const { handlers, tool, sent } = bridge();
+        await handlers.get('input')?.({ source: 'interactive' }, repo.ctx());
+        const file = join(repo.root, 'change.txt');
+        const fixed = new Date('2020-01-01T00:00:00.000Z');
+        writeFileSync(file, 'aaaa');
+        utimesSync(file, fixed, fixed);
+        const verified = await workingTreeFingerprint(repo.root);
+        assert.equal(verified.kind, 'ok');
+        assert.equal((await tool.execute('call', {}, undefined, undefined, repo.ctx())).details?.status, 'passed');
+        const original = statSync(file);
+        writeFileSync(file, 'bbbb');
+        utimesSync(file, fixed, fixed);
+        assert.equal(statSync(file).size, original.size);
+        assert.equal(statSync(file).mtimeMs, original.mtimeMs);
+        const changed = await workingTreeFingerprint(repo.root);
+        assert.equal(changed.kind, 'ok');
+        assert.notDeepEqual(changed, verified, 'content, not only metadata, is part of the digest');
+        await handlers.get('agent_end')?.(completedRun, repo.ctx());
+        assert.equal(sent.length, 1, 'the old gate result cannot verify the edited bytes');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('an untracked symlink hashes its link text without following a target outside the repository', async () => {
+    const repo = scratch(['true']);
+    const external = join(dirname(repo.root), `${basename(repo.root)}-external.txt`);
+    try {
+        writeFileSync(external, 'outside one');
+        const link = join(repo.root, 'link.txt');
+        symlinkSync(external, link);
+        const initial = await workingTreeFingerprint(repo.root);
+        assert.equal(initial.kind, 'ok');
+        writeFileSync(external, 'outside two');
+        assert.deepEqual(await workingTreeFingerprint(repo.root), initial, 'target contents outside the repository are not read');
+        rmSync(link);
+        symlinkSync(`${external}-different`, link);
+        assert.notDeepEqual(await workingTreeFingerprint(repo.root), initial, 'a new symlink target changes the fingerprint');
+    } finally {
+        repo.dispose();
+        rmSync(external, { force: true });
+    }
+});
+
+test('gate timeouts and dry-run plans are parsed defensively', () => {
+    assert.equal(gateTimeoutSeconds(undefined, undefined), 900);
+    assert.equal(gateTimeoutSeconds(undefined, '120'), 120);
+    assert.equal(gateTimeoutSeconds(30, '120'), 30, 'an explicit request wins over the environment');
+    assert.equal(gateTimeoutSeconds(undefined, 'soon'), 900);
+    assert.equal(gateTimeoutSeconds(999_999, undefined), 7200);
+    assert.equal(gateTimeoutSeconds(0, undefined), 1);
+    assert.deepEqual(
+        parseGatePlan('cratis-quality-gate: SKIP  frontend-lint (no matching change)\ncratis-quality-gate: RUN   backend-build-debug dotnet build\n                            $ dotnet build   (cwd: .)\ncratis-quality-gate: RUN   backend-specs dotnet test\n'),
+        ['backend-build-debug', 'backend-specs'],
+    );
+    assert.deepEqual(parseGatePlan(''), []);
+});
