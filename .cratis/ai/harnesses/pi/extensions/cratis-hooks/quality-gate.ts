@@ -12,6 +12,7 @@ import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { StringDecoder } from "node:string_decoder";
 
 /** How long one explicit gate run may take before it is stopped and reported as timed out. */
 export const DEFAULT_GATE_TIMEOUT_SECONDS = 300;
@@ -87,6 +88,8 @@ export function runBounded(command: string, args: string[], options: BoundedRunO
 		let stdout = "";
 		let stdoutBytes = 0;
 		let stderr = "";
+		const stdoutDecoder = new StringDecoder("utf8");
+		const stderrDecoder = new StringDecoder("utf8");
 		let timedOut = false;
 		let aborted = false;
 		let exitCode: number | null = null;
@@ -126,6 +129,8 @@ export function runBounded(command: string, args: string[], options: BoundedRunO
 		const finish = (failed = false) => {
 			if (settled) return;
 			settled = true;
+			stdout = appendCapped(stdout, stdoutDecoder.end());
+			stderr = appendCapped(stderr, stderrDecoder.end());
 			for (const timer of timers) clearTimeout(timer);
 			options.signal?.removeEventListener("abort", onAbort);
 			resolve({
@@ -143,9 +148,9 @@ export function runBounded(command: string, args: string[], options: BoundedRunO
 		proc.stdout?.on("data", (chunk: Buffer) => {
 			options.onStdout?.(chunk);
 			stdoutBytes += chunk.length;
-			stdout = appendCapped(stdout, chunk.toString());
+			stdout = appendCapped(stdout, stdoutDecoder.write(chunk));
 		});
-		proc.stderr?.on("data", (chunk: Buffer) => (stderr = appendCapped(stderr, chunk.toString())));
+		proc.stderr?.on("data", (chunk: Buffer) => (stderr = appendCapped(stderr, stderrDecoder.write(chunk))));
 		proc.on("error", (error) => {
 			stderr = appendCapped(stderr, String(error));
 			finish(true);
@@ -272,23 +277,34 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 	const root = await git(["rev-parse", "--show-toplevel"]);
 	if (!root || root.aborted || root.timedOut || root.failed) return { kind: "unknown" };
 	if (root.code !== 0) return root.stderr.includes("not a git repository (or any of the parent directories)") ? { kind: "not-repository" } : { kind: "unknown" };
-	const status = await git(["status", "--porcelain=v1", "-z", "--untracked-files=all"]);
+	const status = await git(["status", "--porcelain=v2", "-z", "--untracked-files=all", "--ignore-submodules=none"]);
 	if (!status || status.code !== 0 || status.aborted || status.timedOut || status.failed || status.stdoutTruncated) return { kind: "unknown" };
 	const head = await git(["rev-parse", "--verify", "-q", "HEAD"]);
 	if (!head || head.aborted || head.timedOut || head.failed || (head.code !== 0 && head.code !== 1)) return { kind: "unknown" };
 	// Without an initial commit, porcelain status alone does not reflect changes to already-added files.
 	if (head.code === 1) return { kind: "unknown", reason: "HEAD has no initial commit" };
+	// In porcelain v2 the third field of a tracked entry is Git's submodule state (S<c><m><u>).
+	// A dirty gitlink's HEAD and diff can stay identical while its nested content changes.
+	// A rename (type 2) has an extra NUL-delimited old path; never parse it as another status record.
+	const untracked: string[] = [];
+	const entries = status.stdout.split("\0");
+	for (let index = 0; index < entries.length; index++) {
+		const entry = entries[index];
+		if (entry.startsWith("? ")) untracked.push(entry.slice(2));
+		if (!entry.startsWith("1 ") && !entry.startsWith("2 ")) continue;
+		const submoduleState = entry.split(" ", 4)[2];
+		if (submoduleState?.startsWith("S") && submoduleState !== "S...") return { kind: "unknown", reason: "dirty tracked submodule" };
+		if (entry.startsWith("2 ")) index++;
+	}
 	hash.update(`head:${head.stdout.trim()}\0status:${status.stdout}\0`);
-	const diff = await git(["diff", "HEAD", "--no-ext-diff", "--binary"], (chunk) => hash.update(chunk));
+	const diff = await git(["diff", "HEAD", "--no-ext-diff", "--binary", "--ignore-submodules=none"], (chunk) => hash.update(chunk));
 	if (!diff || diff.code !== 0 || diff.aborted || diff.timedOut || diff.failed) return { kind: "unknown" };
 	const top = path.resolve(root.stdout.trim());
 	const sameFile = (left: fs.Stats, right: fs.Stats) =>
 		left.dev === right.dev && left.ino === right.ino && left.mode === right.mode &&
 		left.size === right.size && left.mtimeMs === right.mtimeMs && left.ctimeMs === right.ctimeMs;
-	for (const entry of status.stdout.split("\0")) {
+	for (const file of untracked) {
 		if (signal?.aborted || Date.now() >= deadline) return { kind: "unknown" };
-		if (!entry.startsWith("?? ")) continue;
-		const file = entry.slice(3);
 		const parts = file.split("/");
 		if (parts.some((part) => !part || part === "." || part === "..")) return { kind: "unknown", reason: `unsupported untracked entry ${JSON.stringify(file)}` };
 		const fullPath = path.resolve(top, file);

@@ -256,6 +256,31 @@ test('a bounded run stops the whole process tree at its deadline', async () => {
     assert.throws(() => process.kill(child, 0), 'the grandchild must not outlive the gate');
 });
 
+test('a bounded run decodes UTF-8 split across stdout and stderr chunks without changing raw callbacks', async () => {
+    const chunks: Buffer[] = [];
+    const run = await runBounded(process.execPath, ['-e', `
+        process.stdout.write(Buffer.from([0xe2]));
+        process.stderr.write(Buffer.from([0xf0, 0x9f]));
+        setTimeout(() => {
+            process.stdout.write(Buffer.from([0x82, 0xac]));
+            process.stderr.write(Buffer.from([0x98, 0x80]));
+        }, 100);
+    `], { cwd: tmpdir(), timeoutMs: 2_000, onStdout: chunk => chunks.push(Buffer.from(chunk)) });
+    assert.equal(run.code, 0);
+    assert.equal(run.stdout, '€');
+    assert.equal(run.stderr, '😀');
+    assert.equal(run.stdoutTruncated, false);
+    assert.ok(chunks.length >= 2, 'the multibyte character was split between stdout data events');
+    assert.deepEqual(Buffer.concat(chunks), Buffer.from('€'));
+    const incomplete = await runBounded(process.execPath, ['-e', `
+        process.stdout.write(Buffer.from([0xe2]));
+        process.stderr.write(Buffer.from([0xf0]));
+    `], { cwd: tmpdir(), timeoutMs: 2_000 });
+    assert.equal(incomplete.code, 0);
+    assert.equal(incomplete.stdout, '�', 'the stdout decoder flushes an incomplete character at EOF');
+    assert.equal(incomplete.stderr, '�', 'the stderr decoder flushes an incomplete character at EOF');
+});
+
 test('an inherited dry-run flag never reports a verified gate', async () => {
     const repo = scratch(['true']);
     try {
@@ -438,6 +463,60 @@ test('same-size untracked content edits with restored mtime require a new explic
         assert.equal((await tool.execute('call', {}, undefined, undefined, repo.ctx())).details?.status, 'passed', 'the new bytes require an explicit new run');
     } finally {
         repo.dispose();
+    }
+});
+
+test('porcelain v2 rename source paths are not mistaken for status records', async () => {
+    const repo = scratch(['true']);
+    const git = (...args: string[]) => {
+        const run = spawnSync('git', ['-C', repo.root, '-c', 'user.email=gate@cratis.io', '-c', 'user.name=gate', ...args], { encoding: 'utf8' });
+        assert.equal(run.status, 0, `git ${args.join(' ')}: ${run.stderr}`);
+    };
+    try {
+        writeFileSync(join(repo.root, '? missing.txt'), 'one');
+        writeFileSync(join(repo.root, '1 .M S..U missing.txt'), 'two');
+        git('add', '.');
+        git('commit', '-q', '-m', 'track oddly named paths');
+        git('mv', '? missing.txt', 'first.txt');
+        git('mv', '1 .M S..U missing.txt', 'second.txt');
+        assert.equal((await workingTreeFingerprint(repo.root)).kind, 'ok', 'rename source paths are not independent status records');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('dirty tracked submodules cannot be verified even when Git is configured to ignore them', async () => {
+    const repo = scratch(['true']);
+    const nestedSource = mkdtempSync(join(dirname(repo.root), 'gate-submodule-source-'));
+    const git = (cwd: string, ...args: string[]) => {
+        const run = spawnSync('git', ['-C', cwd, '-c', 'user.email=gate@cratis.io', '-c', 'user.name=gate', ...args], { encoding: 'utf8' });
+        assert.equal(run.status, 0, `git ${args.join(' ')}: ${run.stderr}`);
+    };
+    try {
+        git(nestedSource, 'init', '-q');
+        writeFileSync(join(nestedSource, 'nested.txt'), 'one');
+        git(nestedSource, 'add', 'nested.txt');
+        git(nestedSource, 'commit', '-q', '-m', 'nested initial');
+        git(repo.root, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', nestedSource, 'nested');
+        git(repo.root, 'add', '.gitmodules', 'nested');
+        git(repo.root, 'commit', '-q', '-m', 'track nested');
+        git(repo.root, 'config', 'diff.ignoreSubmodules', 'all');
+        git(repo.root, 'config', 'submodule.nested.ignore', 'all');
+        repo.change();
+        const clean = await workingTreeFingerprint(repo.root);
+        assert.equal(clean.kind, 'ok', 'a clean tracked submodule must not block normal verification');
+        const { tool } = bridge();
+        assert.equal((await tool.execute('call', {}, undefined, undefined, repo.ctx())).details?.status, 'passed');
+        writeFileSync(join(repo.root, 'nested', 'nested.txt'), 'two');
+        const dirty = await workingTreeFingerprint(repo.root);
+        assert.equal(dirty.kind, 'unknown');
+        assert.match(dirty.kind === 'unknown' ? dirty.reason ?? '' : '', /dirty tracked submodule/);
+        await assert.rejects(() => tool.execute('call', {}, undefined, undefined, repo.ctx()), /dirty tracked submodule.*Nothing was verified/);
+        writeFileSync(join(repo.root, 'nested', 'nested.txt'), 'new contents');
+        assert.equal((await workingTreeFingerprint(repo.root)).kind, 'unknown', 'another nested content edit is still unverified');
+    } finally {
+        repo.dispose();
+        rmSync(nestedSource, { recursive: true, force: true });
     }
 });
 
