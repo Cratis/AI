@@ -56,6 +56,13 @@ git -C "$ROOT/seed" push -q "$ROOT/upstream.git" HEAD:refs/heads/main
 
 mkdir -p "$ROOT/bin"
 printf '#!/bin/sh\nexit 0\n' > "$ROOT/bin/rtk"
+cat > "$ROOT/bin/curl" <<'STUB'
+#!/usr/bin/env bash
+case "$*" in
+    *'/api/work/spec/push-token'*) printf '{"token":"fresh-local-token"}\n' ;;
+    *) exit 0 ;;
+esac
+STUB
 
 # Stands in for `pi --mode rpc`: commits, then writes the events run_pi() reads a finished session
 # out of - a settled turn and the two responses it keys the final text and usage off, by the ids it
@@ -86,7 +93,7 @@ git -c maintenance.auto=false -c gc.auto=0 -C "$ROOT/workspace" -c user.email=a@
 touch "$ROOT/committed"
 while [[ ! -f "$ROOT/stop" ]]; do sleep 0.2; done
 STUB
-chmod +x "$ROOT/bin/rtk" "$ROOT/bin/pi-that-finishes" "$ROOT/bin/pi-that-keeps-working"
+chmod +x "$ROOT/bin/rtk" "$ROOT/bin/curl" "$ROOT/bin/pi-that-finishes" "$ROOT/bin/pi-that-keeps-working"
 
 start_worker() {
     local label="$1" agent="$2"
@@ -109,6 +116,9 @@ start_worker() {
         DIRECT_REPOSITORY_URL="$ROOT/upstream.git" \
         DIRECT_BRANCH="$BRANCH" \
         DIRECT_WORK_ID="spec" \
+        DIRECT_CALLBACK_URL="https://direct.example/api/work/spec/callback" \
+        DIRECT_PUSH_TOKEN_URL="https://direct.example/api/work/spec/push-token" \
+        DIRECT_CALLBACK_TOKEN="local-callback-token" \
         DIRECT_PROMPT="do the work" \
         bash "$SCRIPT" > "$ROOT/${label}.log" 2>&1 &
     WORKER=$!
