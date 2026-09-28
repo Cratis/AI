@@ -111,6 +111,8 @@
 #                               configure_pi_provider() turns it into AZURE_OPENAI_BASE_URL for Azure,
 #                               or the `baseUrl` of the generated models.json entry otherwise.
 #   DIRECT_CALLBACK_URL     - URL the container reports start/completion/failure to
+#   DIRECT_PUSH_TOKEN_URL   - authenticated POST endpoint returning a JSON token immediately before
+#                               each push. Missing/invalid responses fail rather than reusing an expired token.
 #   DIRECT_PROGRESS_URL     - URL the report_progress MCP tool posts live plan/status updates to
 #                               (Source/AgentHarnesses/progress-mcp-server.mjs) - a sibling of
 #                               DIRECT_CALLBACK_URL rather than derived from it by string surgery,
@@ -191,7 +193,8 @@
 # arrive as a file of shell assignments this script sources, named by DIRECT_SECRETS_FILE
 # (Kubernetes mounts a Secret; Docker copies the file onto a tmpfs). From that file:
 #   DIRECT_CALLBACK_TOKEN   - bearer token the container authenticates its callbacks with
-#   GITHUB_TOKEN             - a short-lived GitHub App installation token, used for git and the GitHub CLI
+#   GITHUB_TOKEN             - a short-lived GitHub App installation token, used for git and the GitHub CLI;
+#                               refreshed through Direct before pushing committed work
 #   ANTHROPIC_API_KEY        - the acting agent's AI provider key when the provider is Anthropic and
 #                             the credential is an actual API key (sk-ant-api...) - the vendor-standard
 #                             variable both the Claude CLI and Pi read natively, revealed by the
@@ -573,6 +576,33 @@ remember_workspace() {
     WORKSPACES+=("${dest}|$(git -C "$dest" rev-parse HEAD 2>/dev/null || echo '')|${url}")
 }
 
+# Obtain a new installation token for the push. Never fall back to the dispatch-time token: a
+# long-running session may have outlived it. Curl's body is kept out of logs even on HTTP errors.
+refresh_git_token() {
+    local url="${DIRECT_PUSH_TOKEN_URL:-}" response token
+    if [[ "$url" != http://* && "$url" != https://* ]] || [[ -z "${DIRECT_CALLBACK_TOKEN:-}" ]]; then
+        log "Cannot refresh GitHub token: push-token URL or callback credential is missing/invalid"
+        return 1
+    fi
+    if ! response=$(curl -fsS --retry 6 --retry-max-time 90 --retry-connrefused --retry-all-errors \
+        -X POST -H "Authorization: Bearer ${DIRECT_CALLBACK_TOKEN}" "$url"); then
+        log "Could not refresh GitHub token before push"
+        return 1
+    fi
+    token=$(jq -er '.token | select(type == "string" and length > 0)' <<<"$response") || {
+        log "Direct returned an invalid GitHub token"
+        return 1
+    }
+    if [[ "$token" == *[$'\r\n']* ]]; then
+        log "Direct returned an invalid GitHub token"
+        return 1
+    fi
+    export GITHUB_TOKEN="$token"
+    # Keep the secret out of git config; git's credential helper expands it at invocation time.
+    # shellcheck disable=SC2016
+    git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
+}
+
 # Pushes whatever the agent committed, while the checkout still exists.
 #
 # This runs in the harness rather than being left to the agent, because the agent forgetting to push
@@ -589,7 +619,7 @@ remember_workspace() {
 push_workspaces() {
     [[ -z "${DIRECT_BRANCH:-}" ]] && return 0
     [[ ${#WORKSPACES[@]} -eq 0 ]] && return 0
-    local index entry dest started_at url head
+    local index entry dest started_at url head failed=0
     for index in "${!WORKSPACES[@]}"; do
         entry="${WORKSPACES[$index]}"
         [[ -z "$entry" ]] && continue
@@ -597,6 +627,12 @@ push_workspaces() {
         head=$(git -C "$dest" rev-parse HEAD 2>/dev/null || echo '')
         if [[ -z "$head" || "$head" == "$started_at" ]]; then
             log "Nothing new committed in ${dest} - not pushing ${DIRECT_BRANCH}"
+            continue
+        fi
+
+        if ! refresh_git_token; then
+            log "FAILED to prepare push of ${DIRECT_BRANCH} from ${dest}"
+            failed=1
             continue
         fi
 
@@ -611,8 +647,10 @@ push_workspaces() {
             WORKSPACES[index]="${dest}|${head}|${url}"
         else
             log "FAILED to push ${DIRECT_BRANCH} from ${dest} - the work in this checkout is about to be lost"
+            failed=1
         fi
     done
+    return "$failed"
 }
 
 # What a stopped or evicted worker runs before it goes away.
@@ -638,7 +676,7 @@ on_termination() {
         kill "$HEADROOM_PID" 2>/dev/null || true
     fi
     stop_pipe_holder
-    push_workspaces
+    push_workspaces || log "Could not preserve all committed work before termination"
 
     # The conventional exit status for a shell killed by a signal, so whatever reads this container's
     # exit code sees "terminated by SIGTERM" rather than a plain failure.
@@ -646,10 +684,18 @@ on_termination() {
 }
 
 # EXIT covers every ordinary way out of this script, including `fail` and the harness paths' own
-# `exit 1` - the two explicit push_workspaces calls further down stay where they are because the
-# push has to have happened *before* the run is reported, not merely before the container exits.
-# Both are no-ops once the other has pushed.
-trap push_workspaces EXIT
+# `exit 1` - the explicit pushes further down must happen before reporting completion.
+# A failed push on any exit path must never turn a successful process exit green.
+on_exit() {
+    local status="$1"
+    if ! push_workspaces; then
+        log "Could not preserve all committed work on exit"
+        [[ "$status" -ne 0 ]] || status=1
+    fi
+    trap - EXIT
+    exit "$status"
+}
+trap 'on_exit $?' EXIT
 trap 'on_termination TERM 15' TERM
 trap 'on_termination INT 2' INT
 
@@ -1042,7 +1088,10 @@ run_claude_code() {
 
     # Before reporting anything: the Direct acts on the report, so the branch has to be on
     # the remote by the time it arrives. The EXIT trap pushes too, but only after that.
-    push_workspaces
+    if ! push_workspaces; then
+        report failed "Could not push committed work"
+        exit 1
+    fi
 
     if [[ ${CLAUDE_EXIT} -ne 0 || -z "$RESULT_EVENT" ]]; then
         log "Claude CLI exited with ${CLAUDE_EXIT}"
@@ -1472,7 +1521,10 @@ run_pi() {
 
     # Before reporting anything: the Direct acts on the report, so the branch has to be on
     # the remote by the time it arrives. The EXIT trap pushes too, but only after that.
-    push_workspaces
+    if ! push_workspaces; then
+        report failed "Could not push committed work"
+        exit 1
+    fi
 
     if [[ "$STOP_REASON" == "error" || "$STOP_REASON" == "aborted" ]]; then
         log "Pi agent turn ended with stopReason=${STOP_REASON}"
@@ -1629,7 +1681,10 @@ run_copilot() {
 
     # Before reporting anything: the dispatching product acts on the report, so the branch has to be
     # on the remote by the time it arrives. The EXIT trap pushes too, but only after that.
-    push_workspaces
+    if ! push_workspaces; then
+        report failed "Could not push committed work"
+        exit 1
+    fi
 
     if [[ ${COPILOT_EXIT} -ne 0 ]]; then
         log "Copilot CLI exited with ${COPILOT_EXIT}"

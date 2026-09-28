@@ -64,7 +64,7 @@ ORDER_FILE="$WORK/order"
 REPORT_FILE="$WORK/report"
 log() { printf '[agent-harness] %s\n' "$*"; }
 report() { printf '%s\n' "report $*" >> "$ORDER_FILE"; printf '%s\n' "$*" > "$REPORT_FILE"; }
-push_workspaces() { printf 'push\n' >> "$ORDER_FILE"; }
+push_workspaces() { printf 'push\n' >> "$ORDER_FILE"; [[ "${PUSH_FAIL:-0}" != 1 ]]; }
 claude_cpu_seconds_from_time_file() { printf '0'; }
 claude_memory_bytes_from_time_file() { printf '0'; }
 
@@ -153,6 +153,14 @@ check "still pushes before reporting" "push" "$(head -1 "$ORDER_FILE")"
 check "fails the container" "1" "$(cat "$WORK/session-exit")"
 
 echo
+echo "=== A push that fails cannot report completion ==="
+export PUSH_FAIL=1
+run_session
+check "reports the push failure" "failed" "$(cut -d' ' -f1 < "$REPORT_FILE")"
+check "exits unsuccessfully" "1" "$(cat "$WORK/session-exit")"
+check "does not report completion" "0" "$(grep -c '^report completed' "$ORDER_FILE")"
+unset PUSH_FAIL
+
 echo "=== Headroom is not routed to ==="
 export COPILOT_STUB_EXIT=0
 export DIRECT_HEADROOM=1
