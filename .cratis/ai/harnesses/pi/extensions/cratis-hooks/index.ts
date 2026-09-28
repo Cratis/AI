@@ -9,18 +9,17 @@
  *   Claude PreToolUse  (Write|Edit)  →  Pi `tool_call`      →  cratis-guard-writes.sh  (exit 2 = block)
  *   Claude PreToolUse  (Bash)        →  Pi `tool_call`      →  cratis-guard-store-mutations.sh  (exit 2 = block)
  *   Claude PostToolUse (Write|Edit)  →  Pi `tool_result`    →  cratis-pattern-scan.sh  (advisory context)
- *   Claude Stop                       →  Pi `cratis_quality_gate` tool, requested at `agent_end`
- *                                                              →  cratis-quality-gate.sh  (exit 2 = failed)
+ *   Explicit Pi `cratis_quality_gate` tool → cratis-quality-gate.sh  (exit 2 = failed)
  *
  * The quality gate is the one deliberate difference from Claude. It builds and tests the repository, which can
  * take many minutes, and Pi awaits `agent_settled` handlers while deferring the next prompt — so a gate run there
  * froze the session between prompts, invisibly and with no way to cancel it. Here the gate is an explicit tool
  * the model runs in the foreground: it shows progress, Escape cancels it, it stops at a deadline
- * (CRATIS_HOOKS_GATE_TIMEOUT_SECONDS, default 15 minutes), and a timeout or cancellation is reported as "not
- * verified", never as a pass. It never runs in the background, where it would race the agent's next edits.
- * Enforcement is kept while the run is still active: when a turn changed the working tree, a gate applies to the
- * change, and the gate has not been run against the tree as it now stands, `agent_end` continues the turn once
- * with an instruction to run the tool. Deciding that costs a read-only Git fingerprint and the gate's own dry-run plan.
+ * (CRATIS_HOOKS_GATE_TIMEOUT_SECONDS, default 5 minutes, maximum 10 minutes). A timeout or cancellation
+ * is reported as "not verified", never as a pass. It never runs in the background, where it would race the agent's next edits.
+ * It is not invoked at every prompt boundary: use affected-project checks while iterating, then run the
+ * repository's full CI-equivalent checks before declaring completion or pushing/opening a PR. The explicit tool
+ * selects gates for all current working-tree changes; it is not a substitute for the full CI gate.
  *
  * Nothing here duplicates corpus content: it is adapter machinery, the Pi peer of the Claude
  * `hooks` block in `.claude/settings.json`. Every environment escape hatch the scripts honor
@@ -50,11 +49,9 @@ import {
 	runBounded,
 	tailLines,
 	workingTreeFingerprint,
-	type Fingerprint,
 } from "./quality-gate.ts";
 
 export const QUALITY_GATE_TOOL_NAME = "cratis_quality_gate";
-export const QUALITY_GATE_MESSAGE_TYPE = "cratis-quality-gate";
 const HEARTBEAT_MS = 10_000;
 const TAIL_LINES = 60;
 
@@ -180,43 +177,15 @@ export default function (pi: ExtensionAPI) {
 	const patternScan = path.join(scriptsDir, "cratis-pattern-scan.sh");
 	const qualityGate = path.join(scriptsDir, "cratis-quality-gate.sh");
 
-	// Quality gate state. The gate is requested at most once per user turn (the Pi peer of Claude's
-	// `stop_hook_active`, so a turn can never loop on it), only when the turn changed the working tree, and
-	// never for a tree a successful gate verified, because its result is then already in the conversation.
-	let turnStart: Promise<Fingerprint> | undefined;
-	let runActive = false;
-	let gateRequested = false;
-	let checkedFingerprint: string | undefined;
+	// The explicit gate owns its subprocesses; shutdown also cancels a still-running tool.
 	const activeGateRuns = new Set<AbortController>();
-	const gateEnabled = () => process.env.CRATIS_HOOKS_SKIP_GATE !== "1" && isInstalled(qualityGate);
-
-	pi.on("session_start", async () => {
-		runActive = false;
-		turnStart = undefined;
-		gateRequested = false;
-		checkedFingerprint = undefined;
-	});
 	pi.on("session_shutdown", async () => {
 		for (const run of activeGateRuns) run.abort();
 		activeGateRuns.clear();
 	});
-	pi.on("input", async (event, ctx) => {
-		if (event.source === "extension" || runActive || (typeof ctx.isIdle === "function" && !ctx.isIdle())) return;
-		// Pi emits input before queueing messages sent while a run is streaming. Only idle input starts a new baseline.
-		gateRequested = false;
-		turnStart = gateEnabled() ? workingTreeFingerprint(ctx.cwd, FINGERPRINT_TIMEOUT_MS, ctx.signal) : undefined;
-	});
-	pi.on("agent_start", async () => {
-		runActive = true;
-	});
 
 	// ── PreToolUse → guard writes and store-mutating cratis commands (blocking) ──
 	pi.on("tool_call", async (event, ctx) => {
-		if ((event.toolName === "bash" || event.toolName === "write" || event.toolName === "edit") && gateEnabled()) {
-			// The turn's starting tree must be recorded before its first change lands; usually it already is.
-			turnStart ??= workingTreeFingerprint(ctx.cwd, FINGERPRINT_TIMEOUT_MS, ctx.signal);
-			await turnStart;
-		}
 		if (event.toolName === "bash") {
 			const command = (event as any).input?.command;
 			if (typeof command !== "string" || !command.trim()) return;
@@ -273,13 +242,7 @@ export default function (pi: ExtensionAPI) {
 		return { content: [...existing, { type: "text", text: `\n\n[cratis-hooks]\n${reminder.trim()}` }] };
 	});
 
-	// ── Stop → quality gate (re-runs the gates the change touched; keeps the model going on failure) ──
-	// Nothing here is registered on `agent_settled`: Pi awaits those handlers and defers the next prompt until
-	// they finish, so anything slow there freezes the session between prompts. The request is made from
-	// `agent_end` instead: the run is still active there (Pi shows it as working, Escape aborts it), and a
-	// follow-up queued there continues the run on every Pi version this corpus supports, including hosts that
-	// predate `agent_before_settle`.
-
+	// The quality gate is only run by its explicit tool, never by a turn-end handler.
 	const sessionIdOf = (ctx: ExtensionContext) => ctx.sessionManager.getSessionId?.() ?? "nosession";
 	const gatePayload = (sessionId: string) => JSON.stringify({ session_id: sessionId, stop_hook_active: false });
 
@@ -299,41 +262,6 @@ export default function (pi: ExtensionAPI) {
 		return { gates };
 	}
 
-	// ── Stop → request the quality gate once, before the run ends, when the turn changed the tree ──
-	pi.on("agent_end", async (event, ctx) => {
-		runActive = false;
-		if (ctx.mode === "print" || ctx.mode === "json") return;
-		if (gateRequested || !gateEnabled()) return;
-		// A run the user aborted, or one that ended in an error, is not asked to verify anything.
-		const last = [...(event.messages ?? [])].reverse().find((message: any) => message?.role === "assistant") as { stopReason?: string } | undefined;
-		if (last?.stopReason === "aborted" || last?.stopReason === "error" || ctx.signal?.aborted) return;
-
-		const before = turnStart ? await turnStart : undefined;
-		if (ctx.signal?.aborted) return;
-		const now = await workingTreeFingerprint(ctx.cwd, FINGERPRINT_TIMEOUT_MS, ctx.signal);
-		if (ctx.signal?.aborted || now.kind === "not-repository") return;
-		if (now.kind === "ok" && (now.value === checkedFingerprint || (before?.kind === "ok" && now.value === before.value))) return;
-		const plan = await planGates(ctx, ctx.signal);
-		if (ctx.signal?.aborted) return;
-		const unknownTree = now.kind !== "ok" || before?.kind === "unknown";
-		if (plan.gates.length === 0 && !plan.problem && !unknownTree) return;
-		gateRequested = true;
-		const which = unknownTree
-			? `The working tree could not be checked reliably; gate verification is required or must be reported as not verified.${plan.problem ? ` The gate plan is unknown: ${plan.problem}.` : ""}`
-			: plan.gates.length > 0 ? `Gates that apply: ${plan.gates.join(", ")}.` : `The gate plan is unknown: ${plan.problem}.`;
-		await pi.sendMessage(
-			{
-				customType: QUALITY_GATE_MESSAGE_TYPE,
-				display: true,
-				content:
-					`[cratis-hooks] This turn changed the working tree and the Cratis quality gate has not been run against it. ${which} ` +
-					`Run the \`${QUALITY_GATE_TOOL_NAME}\` tool now and fix any failure before reporting the work as done. ` +
-					`If the user asked you not to run checks, do not run it, and say plainly that the change was not verified.`,
-			},
-			{ deliverAs: "followUp", triggerTurn: true },
-		);
-	});
-
 	// ── The quality gate itself: explicit, foreground, bounded, cancellable ──
 	pi.registerTool({
 		name: QUALITY_GATE_TOOL_NAME,
@@ -341,8 +269,9 @@ export default function (pi: ExtensionAPI) {
 		description:
 			"Run the Cratis quality gate (.cratis/ai/hooks/scripts/cratis-quality-gate.sh): the build, spec and lint gates the current " +
 			"working-tree changes touch, configured in quality-gates.json. Runs in the foreground with a deadline and can be cancelled. " +
-			"A failure, a timeout or a cancellation is returned as an error and means the change is NOT verified. Run it on its own after " +
-			"your edits are complete, and fix any failure before reporting the work as done.",
+			"A failure, a timeout or a cancellation is returned as an error and means the change is NOT verified. " +
+			"Run it explicitly at a verification checkpoint, not after every prompt. It selects gates for all current " +
+			"working-tree changes, not the complete CI matrix; run CI-equivalent gates before claiming completion or pushing/opening a PR.",
 		promptSnippet: "Run the Cratis quality gate for the current changes (bounded, cancellable)",
 		parameters: Type.Object({
 			timeoutSeconds: Type.Optional(
@@ -350,7 +279,7 @@ export default function (pi: ExtensionAPI) {
 					minimum: MIN_GATE_TIMEOUT_SECONDS,
 					maximum: MAX_GATE_TIMEOUT_SECONDS,
 					description:
-						"Stop the gate after this many seconds. Defaults to CRATIS_HOOKS_GATE_TIMEOUT_SECONDS, or 900. Raise it only when the repository's tests are known to need longer.",
+						"Stop the gate after this many seconds (default 300; maximum 600). Raise it only for a concrete reason within the authorized execution budget.",
 				}),
 			),
 		}),
@@ -438,12 +367,11 @@ export default function (pi: ExtensionAPI) {
 			if (before.kind !== "ok" || after.kind !== "ok" || before.value !== after.value) {
 				throw new Error("The working tree changed while the Cratis quality gate ran (or could not be checked afterward). The gate tested an older tree; this tree is NOT VERIFIED. Re-run after changes settle.");
 			}
-			checkedFingerprint = after.value;
 			const summary =
 				plan.gates.length > 0
 					? `The Cratis quality gate passed in ${duration(run.durationMs)} (gates: ${planned}).`
-					: "No Cratis quality gate applies to the current changes, so nothing needed to run.";
-			return { content: [{ type: "text", text: `${summary}${notes}` }], details: { status: "passed", gates: plan.gates, durationMs: run.durationMs } };
+					: "No Cratis quality gate was planned for the current changes; nothing was verified by this tool.";
+			return { content: [{ type: "text", text: `${summary}${notes}` }], details: { status: plan.gates.length > 0 ? "passed" : "no-applicable-gates", gates: plan.gates, durationMs: run.durationMs } };
 			} finally {
 				clearTimeout(deadlineTimer);
 				activeGateRuns.delete(cancel);

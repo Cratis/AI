@@ -14,9 +14,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 /** How long one explicit gate run may take before it is stopped and reported as timed out. */
-export const DEFAULT_GATE_TIMEOUT_SECONDS = 900;
+export const DEFAULT_GATE_TIMEOUT_SECONDS = 300;
 export const MIN_GATE_TIMEOUT_SECONDS = 1;
-export const MAX_GATE_TIMEOUT_SECONDS = 7200;
+export const MAX_GATE_TIMEOUT_SECONDS = 600;
 /** The dispatch plan is `git diff` plus `jq`; anything slower than this is itself a problem. */
 export const PLAN_TIMEOUT_MS = 30_000;
 export const FINGERPRINT_TIMEOUT_MS = 15_000;
