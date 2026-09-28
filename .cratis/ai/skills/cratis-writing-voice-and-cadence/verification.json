@@ -24,6 +24,7 @@
     { "kind": "skill-contains", "value": "Copy in the first person needs the named author's own input" },
     { "kind": "skill-contains", "value": "lacks clear perspective" },
     { "kind": "skill-contains", "value": "Cratis applies it, as its own stricter policy" },
-    { "kind": "skill-contains", "value": "references/ai-tells.md" }
+    { "kind": "skill-contains", "value": "references/ai-tells.md" },
+    { "kind": "skill-contains", "value": "feed posts if installed (for example, through `cratis/content`)" }
   ]
 }
