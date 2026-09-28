@@ -298,7 +298,7 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 		if (entry.startsWith("2 ")) index++;
 	}
 	hash.update(`head:${head.stdout.trim()}\0status:${status.stdout}\0`);
-	const diff = await git(["diff", "HEAD", "--no-relative", "--no-ext-diff", "--binary", "--ignore-submodules=none"], (chunk) => hash.update(chunk));
+	const diff = await git(["diff", "HEAD", "--no-relative", "--no-ext-diff", "--no-textconv", "--binary", "--ignore-submodules=none"], (chunk) => hash.update(chunk));
 	if (!diff || diff.code !== 0 || diff.aborted || diff.timedOut || diff.failed) return { kind: "unknown" };
 	const top = path.resolve(root.stdout.trim());
 	const sameFile = (left: fs.Stats, right: fs.Stats) =>

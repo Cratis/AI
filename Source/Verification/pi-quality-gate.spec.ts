@@ -370,6 +370,47 @@ test('a gate cannot verify edits made while it ran, even when its command succee
     }
 });
 
+test('lossy textconv cannot hide an edit to an already-dirty tracked file during a gate', async () => {
+    const repo = scratch(['sleep', '1']);
+    const git = (...args: string[]) => {
+        const run = spawnSync('git', ['-C', repo.root, '-c', 'user.email=gate@cratis.io', '-c', 'user.name=gate', ...args], { encoding: 'utf8' });
+        assert.equal(run.status, 0, `git ${args.join(' ')}: ${run.stderr}`);
+        return run.stdout;
+    };
+    try {
+        writeFileSync(join(repo.root, '.gitattributes'), 'change.txt diff=lossy\n');
+        repo.change('change.txt', 'baseline\n');
+        git('add', '.gitattributes', 'change.txt');
+        git('commit', '-q', '-m', 'track textconv fixture');
+        git('config', 'diff.lossy.textconv', "sed 's/[0-9]//g'");
+        // Git's abbreviated index line can also collide, leaving textconv's lossy patch identical.
+        git('config', 'core.abbrev', '4');
+        repo.change('change.txt', 'dirty59\n');
+        const initial = await workingTreeFingerprint(repo.root);
+        assert.equal(initial.kind, 'ok');
+        const textconvDiff = git('diff', 'HEAD', '--no-relative', '--no-ext-diff', '--binary', '--ignore-submodules=none');
+        assert.match(textconvDiff, /dirty/);
+        repo.change('change.txt', 'dirty288\n');
+        assert.equal(git('diff', 'HEAD', '--no-relative', '--no-ext-diff', '--binary', '--ignore-submodules=none'), textconvDiff, 'the configured driver hides the changed raw bytes');
+        const changed = await workingTreeFingerprint(repo.root);
+        assert.equal(changed.kind, 'ok');
+        assert.notDeepEqual(changed, initial, 'raw tracked bytes must change the fingerprint');
+
+        repo.change('change.txt', 'dirty59\n');
+        const { tool } = bridge();
+        let edited = false;
+        await assert.rejects(() => tool.execute('call', {}, undefined, update => {
+            if (!edited && (update as { details?: { status?: string } }).details?.status === 'running') {
+                edited = true;
+                setTimeout(() => repo.change('change.txt', 'dirty288\n'), 350);
+            }
+        }, repo.ctx()), /older tree; this tree is NOT VERIFIED/);
+        assert.equal(edited, true, 'the gate must have run while the tracked file changed');
+    } finally {
+        repo.dispose();
+    }
+});
+
 test('a successful gate that generated a source file leaves the new tree unverified', async () => {
     const repo = scratch(['bash', '-c', 'printf generated > generated.txt']);
     try {
