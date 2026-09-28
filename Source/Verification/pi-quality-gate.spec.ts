@@ -485,6 +485,30 @@ test('porcelain v2 rename source paths are not mistaken for status records', asy
     }
 });
 
+test('unmerged paths are unknown until conflicts are resolved', async () => {
+    const repo = scratch(['true']);
+    const git = (...args: string[]) => spawnSync('git', ['-C', repo.root, '-c', 'user.email=gate@cratis.io', '-c', 'user.name=gate', ...args], { encoding: 'utf8' });
+    try {
+        assert.equal(git('switch', '-q', '-c', 'alternate').status, 0);
+        writeFileSync(join(repo.root, 'README.md'), 'alternate contents\n');
+        assert.equal(git('commit', '-qam', 'alternate edit').status, 0);
+        assert.equal(git('switch', '-q', '-').status, 0);
+        writeFileSync(join(repo.root, 'README.md'), 'original contents\n');
+        assert.equal(git('commit', '-qam', 'original edit').status, 0);
+        assert.equal(git('merge', 'alternate').status, 1, 'the fixture must produce a real conflict');
+        const status = git('status', '--porcelain=v2', '-z');
+        assert.equal(status.status, 0);
+        assert.ok(status.stdout.split('\0').some(entry => entry.startsWith('u ')), 'the fixture must include a porcelain v2 conflict record');
+        const fingerprint = await workingTreeFingerprint(repo.root);
+        assert.equal(fingerprint.kind, 'unknown');
+        assert.match(fingerprint.kind === 'unknown' ? fingerprint.reason ?? '' : '', /unmerged paths; resolve conflicts/);
+        const { tool } = bridge();
+        await assert.rejects(() => tool.execute('call', {}, undefined, undefined, repo.ctx()), /unmerged paths; resolve conflicts.*Nothing was verified/);
+    } finally {
+        repo.dispose();
+    }
+});
+
 test('a clean unstaged submodule pointer bump changes the fingerprint without blocking verification', async () => {
     const repo = scratch(['true']);
     const nestedSource = mkdtempSync(join(dirname(repo.root), 'gate-submodule-source-'));
@@ -579,6 +603,30 @@ test('the gate binds planning and execution to the fingerprinted root, even in a
         const result = await tool.execute('call', {}, undefined, undefined, { ...repo.ctx(), cwd: join(repo.root, 'subdir') });
         assert.equal(result.details?.status, 'passed');
         assert.match(result.content[0].text, /scratch-gate/);
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('subdirectory fingerprints include already-dirty tracked files outside the subdirectory with diff.relative enabled', async () => {
+    const repo = scratch(['true']);
+    const git = (...args: string[]) => spawnSync('git', ['-C', repo.root, ...args], { encoding: 'utf8' });
+    try {
+        const subdir = join(repo.root, 'subdir');
+        mkdirSync(subdir);
+        const configured = git('config', 'diff.relative', 'true');
+        assert.equal(configured.status, 0, configured.stderr);
+        const outside = join(repo.root, 'README.md');
+        writeFileSync(outside, 'outside one\n');
+        const initial = await workingTreeFingerprint(subdir);
+        assert.equal(initial.kind, 'ok');
+        const omitted = spawnSync('git', ['diff', 'HEAD', '--no-ext-diff', '--binary', '--ignore-submodules=none'], { cwd: subdir, encoding: 'utf8' });
+        assert.equal(omitted.status, 0, omitted.stderr);
+        assert.equal(omitted.stdout, '', 'diff.relative omits the tracked change outside cwd without --no-relative');
+        writeFileSync(outside, 'outside two\n');
+        const changed = await workingTreeFingerprint(subdir);
+        assert.equal(changed.kind, 'ok');
+        assert.notDeepEqual(changed, initial, 'different outside tracked bytes must invalidate the already-dirty fingerprint');
     } finally {
         repo.dispose();
     }

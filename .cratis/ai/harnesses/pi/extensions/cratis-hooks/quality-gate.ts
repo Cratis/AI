@@ -290,6 +290,7 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 	const entries = status.stdout.split("\0");
 	for (let index = 0; index < entries.length; index++) {
 		const entry = entries[index];
+		if (entry.startsWith("u ")) return { kind: "unknown", reason: "unmerged paths; resolve conflicts before verifying" };
 		if (entry.startsWith("? ")) untracked.push(entry.slice(2));
 		if (!entry.startsWith("1 ") && !entry.startsWith("2 ")) continue;
 		const submoduleState = entry.split(" ", 4)[2];
@@ -297,7 +298,7 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 		if (entry.startsWith("2 ")) index++;
 	}
 	hash.update(`head:${head.stdout.trim()}\0status:${status.stdout}\0`);
-	const diff = await git(["diff", "HEAD", "--no-ext-diff", "--binary", "--ignore-submodules=none"], (chunk) => hash.update(chunk));
+	const diff = await git(["diff", "HEAD", "--no-relative", "--no-ext-diff", "--binary", "--ignore-submodules=none"], (chunk) => hash.update(chunk));
 	if (!diff || diff.code !== 0 || diff.aborted || diff.timedOut || diff.failed) return { kind: "unknown" };
 	const top = path.resolve(root.stdout.trim());
 	const sameFile = (left: fs.Stats, right: fs.Stats) =>
