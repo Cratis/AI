@@ -257,7 +257,7 @@ export function tailLines(file: string, lines: number): string {
 	}
 }
 
-export type Fingerprint = { kind: "ok"; value: string } | { kind: "not-repository" } | { kind: "unknown" };
+export type Fingerprint = { kind: "ok"; value: string; root: string } | { kind: "not-repository" } | { kind: "unknown"; reason?: string };
 
 /** Digest the working tree; a Git failure or deadline is unknown, never proof that no gate applies. */
 export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRINT_TIMEOUT_MS, signal?: AbortSignal): Promise<Fingerprint> {
@@ -276,11 +276,11 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 	if (!status || status.code !== 0 || status.aborted || status.timedOut || status.failed || status.stdoutTruncated) return { kind: "unknown" };
 	const head = await git(["rev-parse", "--verify", "-q", "HEAD"]);
 	if (!head || head.aborted || head.timedOut || head.failed || (head.code !== 0 && head.code !== 1)) return { kind: "unknown" };
+	// Without an initial commit, porcelain status alone does not reflect changes to already-added files.
+	if (head.code === 1) return { kind: "unknown", reason: "HEAD has no initial commit" };
 	hash.update(`head:${head.stdout.trim()}\0status:${status.stdout}\0`);
-	if (head.code === 0) {
-		const diff = await git(["diff", "HEAD", "--no-ext-diff", "--binary"], (chunk) => hash.update(chunk));
-		if (!diff || diff.code !== 0 || diff.aborted || diff.timedOut || diff.failed) return { kind: "unknown" };
-	}
+	const diff = await git(["diff", "HEAD", "--no-ext-diff", "--binary"], (chunk) => hash.update(chunk));
+	if (!diff || diff.code !== 0 || diff.aborted || diff.timedOut || diff.failed) return { kind: "unknown" };
 	const top = path.resolve(root.stdout.trim());
 	const sameFile = (left: fs.Stats, right: fs.Stats) =>
 		left.dev === right.dev && left.ino === right.ino && left.mode === right.mode &&
@@ -290,7 +290,7 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 		if (!entry.startsWith("?? ")) continue;
 		const file = entry.slice(3);
 		const parts = file.split("/");
-		if (parts.some((part) => !part || part === "." || part === "..")) return { kind: "unknown" };
+		if (parts.some((part) => !part || part === "." || part === "..")) return { kind: "unknown", reason: `unsupported untracked entry ${JSON.stringify(file)}` };
 		const fullPath = path.resolve(top, file);
 		const relative = path.relative(top, fullPath);
 		if (!relative || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) return { kind: "unknown" };
@@ -304,7 +304,7 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 				if (!parent.isDirectory() || parent.isSymbolicLink()) return { kind: "unknown" };
 			}
 			const before = await fs.promises.lstat(fullPath);
-			hash.update(`untracked:${file}:${before.mode}:${before.size}:${before.mtimeMs}\0`);
+			hash.update(`untracked:${file}:${before.mode}:${before.size}\0`);
 			if (before.isSymbolicLink()) {
 				// Hash the link text, not the bytes of its target (which may be outside the repository).
 				hash.update(`link:${await fs.promises.readlink(fullPath)}\0`);
@@ -337,5 +337,5 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 			return { kind: "unknown" };
 		}
 	}
-	return signal?.aborted || Date.now() >= deadline ? { kind: "unknown" } : { kind: "ok", value: hash.digest("hex") };
+	return signal?.aborted || Date.now() >= deadline ? { kind: "unknown" } : { kind: "ok", value: hash.digest("hex"), root: top };
 }

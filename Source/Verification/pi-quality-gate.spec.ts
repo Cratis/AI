@@ -13,7 +13,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, statSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,6 +37,7 @@ function bridge() {
         on: (event: string, handler: Handler) => handlers.set(event, handler),
         registerTool: (tool: GateTool) => tools.push(tool),
         sendMessage: (message: unknown) => sent.push(message),
+        sendUserMessage: (message: unknown) => sent.push(message),
     } as unknown as ExtensionAPI);
     const tool = tools.find(candidate => candidate.name === QUALITY_GATE_TOOL_NAME);
     assert.ok(tool, 'the bridge registers the quality gate tool');
@@ -92,9 +93,7 @@ function scratch(command: string[]) {
 
 test('the Pi bridge has no automatic gate handler at any turn boundary', () => {
     const { handlers, tool } = bridge();
-    for (const event of ['input', 'agent_start', 'agent_end', 'agent_before_settle', 'agent_settled']) {
-        assert.equal(handlers.has(event), false, `${event} must not start or request a full gate`);
-    }
+    assert.deepEqual([...handlers.keys()].sort(), ['session_shutdown', 'tool_call', 'tool_result']);
     assert.equal(tool.executionMode, 'sequential', 'the gate must not run beside an edit in the same batch');
 });
 
@@ -134,6 +133,22 @@ test('a gate that outlives its deadline is stopped and reported as timed out, ne
     }
 });
 
+test('a timed-out gate includes its bounded log tail and log path', async () => {
+    const repo = scratch(['bash', '-c', 'echo distinctive-gate-output; exec sleep 600']);
+    try {
+        const { tool } = bridge();
+        repo.change();
+        await assert.rejects(() => tool.execute('call', { timeoutSeconds: 1 }, undefined, undefined, repo.ctx()), (error: Error) => {
+            assert.match(error.message, /TIMED OUT after 1s/);
+            assert.match(error.message, /scratch-gate\.log/);
+            assert.match(error.message, /distinctive-gate-output/);
+            return true;
+        });
+    } finally {
+        repo.dispose();
+    }
+});
+
 test('cancelling the gate stops it and reports that nothing was verified', async () => {
     const repo = scratch(['sleep', '600']);
     try {
@@ -148,6 +163,35 @@ test('cancelling the gate stops it and reports that nothing was verified', async
         );
         assert.ok(updates.length > 0, 'the running gate reports progress');
     } finally {
+        repo.dispose();
+    }
+});
+
+test('session shutdown awaits escalation of a TERM-resistant gate descendant', async () => {
+    const repo = scratch(['bash', '-c', 'trap "" TERM; echo $$ > "$1"; while :; do sleep 1; done', '_', 'gate-child.pid']);
+    const controller = new AbortController();
+    const childFile = join(repo.root, 'gate-child.pid');
+    try {
+        repo.change();
+        const { tool, handlers } = bridge();
+        const execution = tool.execute('call', {}, controller.signal, undefined, repo.ctx());
+        const cancelled = assert.rejects(execution, /cancelled.*Nothing was verified/);
+        const started = Date.now();
+        while (!existsSync(childFile) && Date.now() - started < 5_000) {
+            await new Promise(resolve => setTimeout(resolve, 30));
+        }
+        assert.ok(existsSync(childFile), 'the gate descendant must be running before shutdown');
+        const child = Number(readFileSync(childFile, 'utf8').trim());
+        let finished = false;
+        const shutdown = Promise.resolve(handlers.get('session_shutdown')?.({}, repo.ctx())).then(() => { finished = true; });
+        await new Promise(resolve => setTimeout(resolve, 100));
+        assert.equal(finished, false, 'shutdown must wait for SIGKILL escalation before Pi exits');
+        await shutdown;
+        await cancelled;
+        const state = spawnSync('ps', ['-p', String(child), '-o', 'stat='], { encoding: 'utf8' });
+        assert.ok(state.status !== 0 || state.stdout.trim().startsWith('Z'), `the gate descendant survived shutdown: ${state.stdout.trim()}`);
+    } finally {
+        controller.abort();
         repo.dispose();
     }
 });
@@ -253,6 +297,29 @@ test('failed fingerprints are unknown, not evidence that the working tree was un
         }
     } finally {
         repo.dispose();
+    }
+});
+
+test('planning-time removal of the triggering edit cannot claim the planned gate executed', async () => {
+    const repo = scratch(['true']);
+    const shim = mkdtempSync(join(dirname(repo.root), 'gate-git-shim-'));
+    const originalPath = process.env.PATH;
+    const git = spawnSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).stdout.trim();
+    try {
+        repo.change();
+        const wrapper = join(shim, 'git');
+        writeFileSync(wrapper, `#!/bin/sh\nif [ "\${CRATIS_HOOKS_GATE_DRYRUN:-0}" = 1 ] && [ "\${3:-}" = ls-files ]; then\n    "${git}" "$@"\n    rm -f "${join(repo.root, 'change.txt')}"\nelse\n    exec "${git}" "$@"\nfi\n`);
+        chmodSync(wrapper, 0o755);
+        process.env.PATH = `${shim}:${originalPath}`;
+        const { tool } = bridge();
+        const updates: Array<{ details?: { status?: string; gates?: string[] } }> = [];
+        await assert.rejects(() => tool.execute('call', {}, undefined, update => updates.push(update as typeof updates[number]), repo.ctx()), /older tree; this tree is NOT VERIFIED/);
+        assert.ok(updates.some(update => update.details?.status === 'running' && update.details.gates?.includes('scratch-gate')), 'the dry run must actually have planned a gate');
+        assert.equal(existsSync(join(repo.root, 'change.txt')), false);
+    } finally {
+        process.env.PATH = originalPath;
+        repo.dispose();
+        rmSync(shim, { recursive: true, force: true });
     }
 });
 
@@ -369,6 +436,84 @@ test('same-size untracked content edits with restored mtime require a new explic
         assert.equal(changed.kind, 'ok');
         assert.notDeepEqual(changed, verified, 'content, not only metadata, is part of the digest');
         assert.equal((await tool.execute('call', {}, undefined, undefined, repo.ctx())).details?.status, 'passed', 'the new bytes require an explicit new run');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('touching identical untracked content does not invalidate a passing gate', async () => {
+    const repo = scratch(['bash', '-c', 'touch change.txt']);
+    try {
+        repo.change('change.txt', 'identical content');
+        const fixed = new Date('2020-01-01T00:00:00.000Z');
+        utimesSync(join(repo.root, 'change.txt'), fixed, fixed);
+        const { tool } = bridge();
+        assert.equal((await tool.execute('call', {}, undefined, undefined, repo.ctx())).details?.status, 'passed');
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('the gate binds planning and execution to the fingerprinted root, even in a subdirectory', async () => {
+    const repo = scratch(['true']);
+    try {
+        repo.change();
+        mkdirSync(join(repo.root, 'subdir'));
+        process.env.CLAUDE_PROJECT_DIR = tmpdir();
+        const { tool } = bridge();
+        const result = await tool.execute('call', {}, undefined, undefined, { ...repo.ctx(), cwd: join(repo.root, 'subdir') });
+        assert.equal(result.details?.status, 'passed');
+        assert.match(result.content[0].text, /scratch-gate/);
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a non-repository cannot claim the gate was verified', async () => {
+    const repo = scratch(['true']);
+    try {
+        const { tool } = bridge();
+        await assert.rejects(() => tool.execute('call', {}, undefined, undefined, { ...repo.ctx(), cwd: tmpdir() }), /not in a Git repository; nothing was verified/);
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('unborn HEAD cannot fingerprint already-staged files as unchanged', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'cratis-gate-unborn-'));
+    try {
+        assert.equal(spawnSync('git', ['init', '-q', root]).status, 0);
+        writeFileSync(join(root, 'staged.txt'), 'one');
+        assert.equal(spawnSync('git', ['-C', root, 'add', 'staged.txt']).status, 0);
+        writeFileSync(join(root, 'staged.txt'), 'two');
+        writeFileSync(join(root, 'change.txt'), 'trigger');
+        const fingerprint = await workingTreeFingerprint(root);
+        assert.equal(fingerprint.kind, 'unknown');
+        assert.match(fingerprint.kind === 'unknown' ? fingerprint.reason ?? '' : '', /no initial commit/);
+        const repo = scratch(['true']);
+        try {
+            const { tool } = bridge();
+            await assert.rejects(() => tool.execute('call', {}, undefined, undefined, { ...repo.ctx(), cwd: root }), /HEAD has no initial commit.*Nothing was verified/);
+        } finally {
+            repo.dispose();
+        }
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test('nested untracked repositories are refused with the offending entry named', async () => {
+    const repo = scratch(['true']);
+    try {
+        const nested = join(repo.root, 'nested');
+        mkdirSync(nested);
+        assert.equal(spawnSync('git', ['init', '-q', nested]).status, 0);
+        writeFileSync(join(nested, 'change.txt'), 'unsafe nested change');
+        const fingerprint = await workingTreeFingerprint(repo.root);
+        assert.equal(fingerprint.kind, 'unknown');
+        assert.match(fingerprint.kind === 'unknown' ? fingerprint.reason ?? '' : '', /nested\//);
+        const { tool } = bridge();
+        await assert.rejects(() => tool.execute('call', {}, undefined, undefined, repo.ctx()), /nested\//);
     } finally {
         repo.dispose();
     }
