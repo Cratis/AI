@@ -283,7 +283,9 @@ export default function (pi: ExtensionAPI) {
 			"working-tree changes touch, configured in quality-gates.json. Runs in the foreground with a deadline and can be cancelled. " +
 			"A failure, a timeout or a cancellation is returned as an error and means the change is NOT verified. " +
 			"Run it explicitly at a verification checkpoint, not after every prompt. It selects gates for all current " +
-			"working-tree changes, not the complete CI matrix; run CI-equivalent gates before claiming completion or pushing/opening a PR.",
+			"working-tree changes, not the complete CI matrix; run CI-equivalent gates before claiming completion or pushing/opening a PR. " +
+			"Tracked-file stability is Git-visible, not byte-exact: lossy clean/EOL conversion and assume-unchanged/skip-worktree " +
+			"can hide raw disk changes. Verify raw content independently or remove those settings before relying on this check.",
 		promptSnippet: "Run the Cratis quality gate for the current changes (bounded, cancellable)",
 		parameters: Type.Object({
 			timeoutSeconds: Type.Optional(
