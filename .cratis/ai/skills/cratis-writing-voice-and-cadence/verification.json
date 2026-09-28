@@ -25,6 +25,7 @@
     { "kind": "skill-contains", "value": "lacks clear perspective" },
     { "kind": "skill-contains", "value": "Cratis applies it, as its own stricter policy" },
     { "kind": "skill-contains", "value": "references/ai-tells.md" },
-    { "kind": "skill-contains", "value": "feed posts if installed (for example, through `cratis/content`)" }
+    { "kind": "skill-contains", "value": "the selected profiles install it" },
+    { "kind": "skill-contains", "value": "**cratis-documentation-writing** for pages (`cratis/documentation`)" }
   ]
 }
