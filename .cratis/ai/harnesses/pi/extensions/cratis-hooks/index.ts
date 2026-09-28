@@ -368,19 +368,17 @@ export default function (pi: ExtensionAPI) {
 				onHeartbeat: () => progress(Date.now() - started),
 				heartbeatMs: HEARTBEAT_MS,
 			});
-			// Cancellation never starts another Git process. A completed gate must have tested a stable tree.
+			// Cancellation never starts another Git process. Only a successful gate needs a post-run fingerprint.
 			if (run.aborted || operationSignal.aborted) reportInterrupted();
 			if (run.timedOut) reportTimedOut();
-			const after = await workingTreeFingerprint(ctx.cwd, Math.min(FINGERPRINT_TIMEOUT_MS, remaining()), operationSignal);
-			reportInterrupted();
-
 			const notes = run.stderr.trim() ? `\n\n${run.stderr.trim()}` : "";
-
 			if (run.failed) {
 				throw new Error(`The Cratis quality gate is installed at ${qualityGate} but could not be run, so nothing was verified.${notes}`);
 			}
 			if (run.code === 2) throw new Error(run.stderr.trim() || "A Cratis quality gate failed. Fix it and re-run the gate.");
 			if (run.code !== 0) throw new Error(`The Cratis quality gate exited unexpectedly with code ${run.code ?? "none"}; treat the change as not verified.${notes}`);
+			const after = await workingTreeFingerprint(ctx.cwd, Math.min(FINGERPRINT_TIMEOUT_MS, remaining()), operationSignal);
+			reportInterrupted();
 			if (before.kind !== "ok" || after.kind !== "ok" || before.value !== after.value) {
 				throw new Error("The working tree changed while the Cratis quality gate ran (or could not be checked afterward). The gate tested an older tree; this tree is NOT VERIFIED. Re-run after changes settle.");
 			}

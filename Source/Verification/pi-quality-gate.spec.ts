@@ -222,6 +222,46 @@ test('a failing explicit gate is an error; a passing explicit gate verifies the 
     }
 });
 
+test('a known gate failure keeps its stderr without starting a post-run fingerprint or accepting a late abort', async () => {
+    const repo = scratch(['bash', '-c', 'echo distinctive-gate-failure >&2; exit 2']);
+    const shim = mkdtempSync(join(dirname(repo.root), 'gate-git-shim-'));
+    const originalPath = process.env.PATH;
+    const git = spawnSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).stdout.trim();
+    const firstFingerprint = join(shim, 'first-fingerprint');
+    const postFingerprint = join(shim, 'post-fingerprint');
+    try {
+        repo.change();
+        writeFileSync(join(shim, 'git'), `#!/bin/sh\nif [ "\${GIT_OPTIONAL_LOCKS:-}" = 0 ] && [ "\${1:-}" = rev-parse ] && [ "\${2:-}" = --show-toplevel ]; then\n    if [ -f "${firstFingerprint}" ]; then\n        : > "${postFingerprint}"\n        sleep 2\n    else\n        : > "${firstFingerprint}"\n    fi\nfi\nexec "${git}" "$@"\n`);
+        chmodSync(join(shim, 'git'), 0o755);
+        process.env.PATH = `${shim}:${originalPath}`;
+        const { tool } = bridge();
+        const cancel = new AbortController();
+        let finished = false;
+        const lateAbort = (async () => {
+            while (!finished && !existsSync(postFingerprint)) await new Promise(resolve => setTimeout(resolve, 10));
+            if (existsSync(postFingerprint)) cancel.abort();
+        })();
+        let failure: unknown;
+        try {
+            await tool.execute('call', {}, cancel.signal, undefined, repo.ctx());
+        } catch (error) {
+            failure = error;
+        } finally {
+            finished = true;
+            await lateAbort;
+        }
+        assert.ok(existsSync(firstFingerprint), 'the pre-run fingerprint must have completed');
+        assert.equal(existsSync(postFingerprint), false, 'a failed gate must not start a post-run fingerprint');
+        assert.equal(cancel.signal.aborted, false, 'no late abort was needed after the known failure');
+        assert.ok(failure instanceof Error, 'the gate must reject');
+        assert.match(failure.message, /QUALITY GATE FAILED: scratch-gate[\s\S]*distinctive-gate-failure/);
+    } finally {
+        process.env.PATH = originalPath;
+        repo.dispose();
+        rmSync(shim, { recursive: true, force: true });
+    }
+});
+
 test('no applicable gate is reported as no verification, not a pass', async () => {
     const repo = scratch(['true']);
     try {
