@@ -261,7 +261,7 @@ test('the Pi bridge runs shell commands through the store-mutation guard', async
     const project = mkdtempSync(join(tmpdir(), 'cratis-store-guard-pi-'));
     // The scratch project holds no .cratis/ai/hooks/scripts, so the bridge falls back to the bundled corpus scripts.
     const handlers = new Map<string, (event: unknown, ctx: unknown) => Promise<unknown> | unknown>();
-    registerCratisHooks({ on: (event: string, handler: (event: unknown, ctx: unknown) => unknown) => handlers.set(event, handler) } as unknown as ExtensionAPI);
+    registerCratisHooks({ on: (event: string, handler: (event: unknown, ctx: unknown) => unknown) => handlers.set(event, handler), registerTool: () => {} } as unknown as ExtensionAPI);
     const toolCall = handlers.get('tool_call');
     assert.ok(toolCall, 'the bridge registers a tool_call handler');
     const ctx = { cwd: project, signal: undefined };
