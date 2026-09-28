@@ -293,7 +293,7 @@ export async function workingTreeFingerprint(cwd: string, timeoutMs = FINGERPRIN
 		if (entry.startsWith("? ")) untracked.push(entry.slice(2));
 		if (!entry.startsWith("1 ") && !entry.startsWith("2 ")) continue;
 		const submoduleState = entry.split(" ", 4)[2];
-		if (submoduleState?.startsWith("S") && submoduleState !== "S...") return { kind: "unknown", reason: "dirty tracked submodule" };
+		if (submoduleState?.startsWith("S") && (submoduleState[2] === "M" || submoduleState[3] === "U")) return { kind: "unknown", reason: "dirty tracked submodule" };
 		if (entry.startsWith("2 ")) index++;
 	}
 	hash.update(`head:${head.stdout.trim()}\0status:${status.stdout}\0`);

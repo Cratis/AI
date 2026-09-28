@@ -485,6 +485,37 @@ test('porcelain v2 rename source paths are not mistaken for status records', asy
     }
 });
 
+test('a clean unstaged submodule pointer bump changes the fingerprint without blocking verification', async () => {
+    const repo = scratch(['true']);
+    const nestedSource = mkdtempSync(join(dirname(repo.root), 'gate-submodule-source-'));
+    const git = (cwd: string, ...args: string[]) => {
+        const run = spawnSync('git', ['-C', cwd, '-c', 'user.email=gate@cratis.io', '-c', 'user.name=gate', ...args], { encoding: 'utf8' });
+        assert.equal(run.status, 0, `git ${args.join(' ')}: ${run.stderr}`);
+        return run.stdout;
+    };
+    try {
+        git(nestedSource, 'init', '-q');
+        writeFileSync(join(nestedSource, 'nested.txt'), 'one');
+        git(nestedSource, 'add', 'nested.txt');
+        git(nestedSource, 'commit', '-q', '-m', 'nested initial');
+        git(repo.root, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', nestedSource, 'nested');
+        git(repo.root, 'add', '.gitmodules', 'nested');
+        git(repo.root, 'commit', '-q', '-m', 'track nested');
+        const initial = await workingTreeFingerprint(repo.root);
+        assert.equal(initial.kind, 'ok');
+        writeFileSync(join(repo.root, 'nested', 'nested.txt'), 'two');
+        git(join(repo.root, 'nested'), 'add', 'nested.txt');
+        git(join(repo.root, 'nested'), 'commit', '-q', '-m', 'bump nested pointer');
+        assert.match(git(repo.root, 'status', '--porcelain=v2', '--ignore-submodules=none'), / SC\.\. /, 'the submodule is pointer-only changed, not dirty');
+        const bumped = await workingTreeFingerprint(repo.root);
+        assert.equal(bumped.kind, 'ok');
+        assert.notDeepEqual(bumped, initial, 'the unstaged gitlink diff changes the fingerprint');
+    } finally {
+        repo.dispose();
+        rmSync(nestedSource, { recursive: true, force: true });
+    }
+});
+
 test('dirty tracked submodules cannot be verified even when Git is configured to ignore them', async () => {
     const repo = scratch(['true']);
     const nestedSource = mkdtempSync(join(dirname(repo.root), 'gate-submodule-source-'));
@@ -514,6 +545,11 @@ test('dirty tracked submodules cannot be verified even when Git is configured to
         await assert.rejects(() => tool.execute('call', {}, undefined, undefined, repo.ctx()), /dirty tracked submodule.*Nothing was verified/);
         writeFileSync(join(repo.root, 'nested', 'nested.txt'), 'new contents');
         assert.equal((await workingTreeFingerprint(repo.root)).kind, 'unknown', 'another nested content edit is still unverified');
+        git(join(repo.root, 'nested'), 'restore', 'nested.txt');
+        writeFileSync(join(repo.root, 'nested', 'untracked.txt'), 'untracked nested content');
+        const untracked = await workingTreeFingerprint(repo.root);
+        assert.equal(untracked.kind, 'unknown');
+        assert.match(untracked.kind === 'unknown' ? untracked.reason ?? '' : '', /dirty tracked submodule/);
     } finally {
         repo.dispose();
         rmSync(nestedSource, { recursive: true, force: true });
