@@ -14,8 +14,8 @@ a sentence chopped short for rhythm.
 This skill works from what can be counted and what can be checked. Three things go wrong:
 a handful of constructions recur often enough to be worth a second look, a body of work
 falls into one shape, and underneath both, something only the author knew is missing.
-It revises existing material. Drafting belongs to the skill for the content type, where
-the selected profiles install it: **cratis-release-notes** for release notes,
+It revises existing material. For drafting, use the skill for the content type, if your
+profiles install it: **cratis-release-notes** for release notes,
 **cratis-technical-examples** for code samples, **cratis-social-feed-post** for feed posts
 (`cratis/content`) and **cratis-documentation-writing** for pages (`cratis/documentation`).
 
