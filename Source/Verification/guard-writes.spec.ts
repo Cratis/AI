@@ -109,7 +109,7 @@ test('the Pi bridge classifies write-shaped calls through the guard and never bl
     // The bridge prefers <cwd>/.cratis/ai/hooks/scripts when present; the scratch repo has none, so it falls back
     // to the bundled corpus scripts - the same ones the spec above exercised directly.
     const handlers = new Map<string, (event: unknown, ctx: unknown) => Promise<unknown> | unknown>();
-    const api = { on: (event: string, handler: (event: unknown, ctx: unknown) => Promise<unknown> | unknown) => handlers.set(event, handler) } as unknown as ExtensionAPI;
+    const api = { on: (event: string, handler: (event: unknown, ctx: unknown) => Promise<unknown> | unknown) => handlers.set(event, handler), registerTool: () => {} } as unknown as ExtensionAPI;
     registerCratisHooks(api);
     const toolCall = handlers.get('tool_call');
     assert.ok(toolCall, 'the bridge registers a tool_call handler');
