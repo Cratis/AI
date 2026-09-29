@@ -9,6 +9,7 @@ import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '..
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
+import { skillPathProblems } from './skill-paths.ts';
 
 interface Profile {
     id: string;
@@ -87,7 +88,7 @@ for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/ma
         failures.push(`${marketplace} must expose the canonical .cratis/ai/skills corpus.`);
     }
 }
-const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'subagent', 'cratis-mcp'];
+const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'cratis-path-guidance', 'subagent', 'cratis-mcp'];
 for (const extension of requiredPiExtensions) {
     if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);
 }
@@ -102,6 +103,7 @@ for (const extension of [
     './package/corpus/harnesses/pi/extensions/cratis-hooks/index.ts',
     './package/corpus/harnesses/pi/extensions/subagent/index.ts',
     './package/corpus/harnesses/pi/extensions/cratis-mcp/index.ts',
+    './package/corpus/harnesses/pi/extensions/cratis-path-guidance/index.ts',
 ]) {
     if (!packagedExtensions.includes(extension)) failures.push(`@cratis/pi does not load '${extension}'.`);
 }
@@ -144,9 +146,11 @@ for (const directory of skillDirectories) {
         failures.push(`Skill directory '${directory.name}' has no SKILL.md.`);
         continue;
     }
-    const metadata = frontmatter(await readFile(skillFile, 'utf8'));
+    const skillContent = await readFile(skillFile, 'utf8');
+    const metadata = frontmatter(skillContent);
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, skillFile)} must declare name and description.`);
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
+    failures.push(...skillPathProblems(relative(root, skillFile), skillContent));
 }
 
 for (const prompt of (await readdir(join(corpus, 'prompts'))).filter(name => name.endsWith('.md'))) {
