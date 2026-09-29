@@ -54,9 +54,10 @@ one to add weight.
   `https://` links only. Sections are in
   a fixed order (Added, Changed, Fixed, Removed, Security, Deprecated); within
   a section, put changes requiring action first, then new capabilities and
-  fixes. State impact and the user's next action in plain language, and flag
-  an upgrade action in the summary (a first `## Summary` section or an
-  unheaded lead paragraph, not both) when one applies. Do not list internal
+  fixes. State impact and the user's next action in plain language: state an
+  upgrade action in its `## Changed` or `## Removed` bullet (a first
+  `## Summary` section or an unheaded lead paragraph, not both, may mention it
+  too). Do not list internal
   refactors or specs that change nothing users observe. For a
   user-visible fix, a sentence of root cause and of what now guards against a
   regression, stated as observable behavior rather than a list of specs, is
