@@ -113,7 +113,7 @@ whatever you configure it to keep.
 |---|---|
 | **You** (the user file, via `/system-one setup`) | Enable, choose endpoint, model, key and mode. |
 | **The repository** (`.cratis/ai.json`) | Only **opt out or narrow**. It can never enable the extension or set an endpoint, key, model or timeout. It fails closed: a problem in that file, whether it cannot be read, is not valid JSON, or has a `systemOne` section that says anything else, **switches System One off** with one notice until fixed. |
-| **The environment** | Disable (`CRATIS_SYSTEM_ONE` set to `0`, `false`, `off` or `no`), narrow (`CRATIS_SYSTEM_ONE_SKILL_RELEVANCE=off`), or override `SYSTEMONE_ENDPOINT`, `SYSTEMONE_API_KEY` and `CRATIS_SYSTEM_ONE_MODEL`, **only once you have enabled it**. It never enables anything by itself: a globally exported `TYPESAFE_API_KEY` alone sends nothing. |
+| **The environment** | Disable (`CRATIS_SYSTEM_ONE` set to `0`, `false`, `off` or `no`), narrow (`CRATIS_SYSTEM_ONE_SKILL_RELEVANCE` set to `0`, `false`, `off` or `no`, in any case), or override `SYSTEMONE_ENDPOINT`, `SYSTEMONE_API_KEY` and `CRATIS_SYSTEM_ONE_MODEL`, **only once you have enabled it**. It never enables anything by itself: a globally exported `TYPESAFE_API_KEY` alone sends nothing. |
 
 A committed `.cratis/ai.json` belongs to whoever controls the repository, so it must not be able to
 send your prompts anywhere. A repository can protect its contributors like this:

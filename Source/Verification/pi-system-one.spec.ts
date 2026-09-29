@@ -185,10 +185,15 @@ test('the environment can disable, narrow and override, but never enable', async
             const configuration = (environment: NodeJS.ProcessEnv) => loadConfiguration(project.directory, project.agentDirectory, environment);
             for (const value of ['0', 'false', 'off', 'no', 'FALSE', ' Off ', 'No']) assert.equal(configuration({ CRATIS_SYSTEM_ONE: value }).enabled, false, value);
             for (const value of ['1', 'true', 'yes', '']) assert.equal(configuration({ CRATIS_SYSTEM_ONE: value }).enabled, true, value);
-            const off = configuration({ CRATIS_SYSTEM_ONE_SKILL_RELEVANCE: 'off' });
-            assert.ok(off.enabled && off.settings.skillRelevance.mode === SkillRelevanceMode.Off);
-            const other = configuration({ CRATIS_SYSTEM_ONE_SKILL_RELEVANCE: 'shadow' });
-            assert.ok(other.enabled && other.settings.skillRelevance.mode === SkillRelevanceMode.Shadow);
+            // Like CRATIS_SYSTEM_ONE: trimmed, case-insensitive, and off, 0, false or no all mean off.
+            for (const value of ['off', '0', 'false', 'no', 'OFF', ' Off ', 'False', 'NO', '\tno\n']) {
+                const off = configuration({ CRATIS_SYSTEM_ONE_SKILL_RELEVANCE: value });
+                assert.ok(off.enabled && off.settings.skillRelevance.mode === SkillRelevanceMode.Off, JSON.stringify(value));
+            }
+            for (const value of ['shadow', '1', 'true', 'yes', '', 'offline']) {
+                const other = configuration({ CRATIS_SYSTEM_ONE_SKILL_RELEVANCE: value });
+                assert.ok(other.enabled && other.settings.skillRelevance.mode === SkillRelevanceMode.Shadow, JSON.stringify(value));
+            }
 
             const overridden = configuration({ SYSTEMONE_ENDPOINT: 'http://127.0.0.1:9', CRATIS_SYSTEM_ONE_MODEL: 'laya' });
             assert.ok(overridden.enabled);

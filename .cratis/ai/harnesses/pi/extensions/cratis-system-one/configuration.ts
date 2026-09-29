@@ -168,7 +168,7 @@ export function resolveConfiguration({ user: userFile, repository, environment }
         if (!modelPattern.test(model)) return disabled('the model name is not valid', true);
 
         let mode = user.skillRelevance?.mode ?? SkillRelevanceMode.Shadow;
-        if (narrowing.off || environment.CRATIS_SYSTEM_ONE_SKILL_RELEVANCE === 'off') mode = SkillRelevanceMode.Off;
+        if (narrowing.off || disablingValues.has(environment.CRATIS_SYSTEM_ONE_SKILL_RELEVANCE?.trim().toLowerCase() ?? '')) mode = SkillRelevanceMode.Off;
         const skillRelevance: SkillRelevanceSettings = { mode, ...skillRelevanceLimits };
 
         return {
