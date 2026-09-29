@@ -143,8 +143,6 @@ export function chooseKey(environment: NodeJS.ProcessEnv, target: KeyTarget, sto
     return key === undefined ? none : { source: KeySource.Entered, key, environmentKeyIgnored };
 }
 
-
-
 /** The endpoint a user's file resolves to once `SYSTEMONE_ENDPOINT` is taken into account. */
 export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endpoint?: string }): EffectiveEndpoint {
     const environmentEndpoint = nonEmpty(environment.SYSTEMONE_ENDPOINT);
