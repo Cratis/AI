@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import type { SkillRelevanceMode } from './SkillRelevanceMode.ts';
+import { SkillRelevanceMode } from './SkillRelevanceMode.ts';
 
 export interface SkillRelevanceSettings {
     /** The only setting anyone can change: off, or shadow. */

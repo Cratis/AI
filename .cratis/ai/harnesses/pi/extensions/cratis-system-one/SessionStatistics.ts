@@ -1,9 +1,9 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import type { FailureClass } from './FailureClass.ts';
+import { FailureClass } from './FailureClass.ts';
 import type { RecentDecision } from './RecentDecision.ts';
-import type { SkipReason } from './SkipReason.ts';
+import { SkipReason } from './SkipReason.ts';
 
 const ringCapacity = 20;
 

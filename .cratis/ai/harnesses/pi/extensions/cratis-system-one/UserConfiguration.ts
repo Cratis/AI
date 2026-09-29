@@ -1,8 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import type { AgreedKey } from './AgreedKey.ts';
-import type { SkillRelevanceMode } from './SkillRelevanceMode.ts';
+import { AgreedKey } from './AgreedKey.ts';
+import { SkillRelevanceMode } from './SkillRelevanceMode.ts';
 
 /** The user's own decision, stored in `<pi agent dir>/cratis-system-one.json`. Only the user can enable System One. */
 export interface UserConfiguration {

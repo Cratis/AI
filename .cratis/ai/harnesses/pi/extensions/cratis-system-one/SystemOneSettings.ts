@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import type { KeySource } from './KeySource.ts';
+import { KeySource } from './KeySource.ts';
 import type { SkillRelevanceSettings } from './SkillRelevanceSettings.ts';
 
 /** Fully validated settings. Only exists when the user has enabled the extension. */

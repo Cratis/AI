@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import type { FileState } from './FileState.ts';
+import { FileState } from './FileState.ts';
 
 /** A configuration file as found on disk. Resolution never touches the disk itself. */
 export type ConfigurationFile =

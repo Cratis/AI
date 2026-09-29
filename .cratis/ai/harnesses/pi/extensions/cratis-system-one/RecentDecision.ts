@@ -1,8 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import type { DecisionOutcome } from './DecisionOutcome.ts';
-import type { FailureClass } from './FailureClass.ts';
+import { DecisionOutcome } from './DecisionOutcome.ts';
+import { FailureClass } from './FailureClass.ts';
 
 /** What `/system-one last` shows. Ids and probabilities only; the prompt is never kept. */
 export interface RecentDecision {
