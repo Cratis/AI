@@ -41,6 +41,7 @@
       "./src/index.ts",
       "./package/corpus/harnesses/pi/extensions/cratis-hooks/index.ts",
       "./package/corpus/harnesses/pi/extensions/cratis-mcp/index.ts",
+      "./package/corpus/harnesses/pi/extensions/cratis-path-guidance/index.ts",
       "./package/corpus/harnesses/pi/extensions/subagent/index.ts"
     ]
   }

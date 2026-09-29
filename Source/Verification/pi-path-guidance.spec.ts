@@ -1,0 +1,700 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import test from 'node:test';
+import { pathToFileURL } from 'node:url';
+import { DefaultResourceLoader, SettingsManager } from '@earendil-works/pi-coding-agent';
+import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import registerPathGuidance from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/index.ts';
+import { standsDown } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/standDown.ts';
+import { skillsRead } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/skillReads.ts';
+import { skillTriggerKey } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
+import { selectedSkillNames } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillSelection.ts';
+import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
+import { globProblem } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
+import { skillPathProblems } from './skill-paths.ts';
+
+const repositoryRoot = resolve(import.meta.dirname, '..', '..');
+const extensionsRoot = join(repositoryRoot, '.cratis', 'ai', 'harnesses', 'pi', 'extensions');
+
+type Context = { cwd: string; hasUI?: boolean };
+type Handler = (event: unknown, context: Context) => unknown;
+type Result = { content: Array<{ text: string }> } | undefined;
+type LoadedSkill = { name: string; filePath: string };
+
+/** A Pi host that only records what the extension registers, as a subagent session would see it. */
+function register(extension: (pi: ExtensionAPI) => void = registerPathGuidance): Map<string, Handler> {
+    const handlers = new Map<string, Handler>();
+    extension({
+        on(name: string, handler: Handler) {
+            handlers.set(name, handler);
+        },
+    } as unknown as ExtensionAPI);
+    return handlers;
+}
+
+function textOf(result: Result): string {
+    return result?.content.map(part => part.text).join('') ?? '';
+}
+
+function writeSkill(project: string, name: string, globs: string[], skillsRoot = join(project, '.cratis', 'ai', 'skills')): LoadedSkill {
+    const directory = join(skillsRoot, name);
+    mkdirSync(join(directory, 'references'), { recursive: true });
+    const paths = globs.length === 0 ? '' : `${skillTriggerKey}:\n${globs.map(glob => `  - "${glob}"\n`).join('')}`;
+    writeFileSync(join(directory, 'SKILL.md'), `---\nname: ${name}\ndescription: Test skill.\n${paths}---\n\n# ${name}\n`);
+    writeFileSync(join(directory, 'references', 'detail.md'), '# detail');
+    return { name, filePath: join(directory, 'SKILL.md') };
+}
+
+/** A repository with one skill triggered by `for_*` C# files and one by documentation files. */
+function projectWithSkills() {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-guidance-'));
+    const specifications = writeSkill(project, 'demo-specifications', ['**/for_*/**/*.cs']);
+    const documentation = writeSkill(project, 'demo-documentation', ['**/Documentation/**/*.{md,mdx}', '**/*.guide']);
+    const untriggered = writeSkill(project, 'demo-untriggered', []);
+    return { project, specifications, documentation, untriggered, all: [specifications, documentation, untriggered] };
+}
+
+function session(project: string, skills: LoadedSkill[] | undefined, context: Context = { cwd: project }) {
+    const handlers = register();
+    if (skills) handlers.get('before_agent_start')?.({ systemPrompt: 'base', systemPromptOptions: { cwd: project, skills } }, context);
+    const call = (toolName: string, input: Record<string, unknown>, isError = false) =>
+        handlers.get('tool_result')?.({ toolName, isError, input, content: [{ type: 'text', text: 'ok' }] }, context) as Result;
+    return {
+        handlers,
+        write: (path: string) => call('write', { path }),
+        edit: (path: string) => call('edit', { path }),
+        read: (path: string) => call('read', { path }),
+        bash: (command: string) => call('bash', { command }),
+        call,
+        context,
+    };
+}
+
+const specificationPath = 'Source/for_Thing/when_doing/and_it_works.cs';
+
+test('path guidance delivers a scoped rule once per session when its file is touched', () => {
+    const handlers = register();
+    const context = { cwd: repositoryRoot };
+    const touch = (path: string, toolName = 'read') => handlers.get('tool_result')?.({ toolName, isError: false, input: { path }, content: [] }, context) as Result;
+    assert.equal(handlers.has('before_agent_start'), true, 'skills are observed at agent start');
+    const first = touch('Source/Thing.cs');
+    assert.ok(first, 'expected the C# rules to be attached on first touch');
+    assert.match(textOf(first), /# C# Conventions/);
+    assert.match(textOf(first), /^\n\n\[cratis-rules\] Rules that apply to Source\/Thing\.cs:/);
+    assert.equal(touch('Source/Other.cs'), undefined, 'the same rules must not be delivered twice in a session');
+    assert.equal(touch('README.md'), undefined);
+    assert.equal(touch('../outside.cs'), undefined);
+
+    handlers.get('session_start')?.({}, context);
+    assert.ok(touch('Source/Thing.cs'), 'a new session delivers the rules again');
+});
+
+test('path guidance re-delivers scoped rules after the conversation is rewritten', () => {
+    for (const event of ['session_compact', 'session_before_switch']) {
+        const handlers = register();
+        const context = { cwd: repositoryRoot };
+        const touch = () => handlers.get('tool_result')?.({ toolName: 'read', isError: false, input: { path: 'Source/Thing.cs' }, content: [] }, context) as Result;
+
+        assert.ok(touch(), `${event}: first touch delivers`);
+        assert.equal(touch(), undefined, `${event}: still delivered before the rewrite`);
+
+        // A delivered rule lives in the conversation, so compaction or a switch can remove it.
+        assert.ok(handlers.get(event), `${event} handler must be registered`);
+        handlers.get(event)?.({}, context);
+        const again = touch();
+        assert.ok(again, `${event}: the rule must be delivered again once the conversation is rewritten`);
+        assert.match(textOf(again), /# C# Conventions/);
+    }
+});
+
+test('path guidance delivers scoped rules for files touched through bash', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-guidance-'));
+    try {
+        mkdirSync(join(project, 'Source'), { recursive: true });
+        writeFileSync(join(project, 'Source', 'Thing.cs'), 'class Thing {}');
+        writeFileSync(join(project, 'README.md'), '# readme');
+        const guidance = session(project, undefined);
+
+        // rtk.md directs bulk reads through the terminal, so this is how many sessions read source.
+        const viaRtk = guidance.bash('rtk read Source/Thing.cs');
+        assert.ok(viaRtk, 'a bash read of a .cs file must deliver the C# rules');
+        assert.match(textOf(viaRtk), /# C# Conventions/);
+        assert.equal(guidance.bash('cat Source/Thing.cs'), undefined, 'already delivered this session');
+
+        guidance.handlers.get('session_start')?.({}, guidance.context);
+        assert.ok(guidance.bash('grep -n "Thing" Source/Thing.cs'), 'grep with flags still finds the path');
+
+        guidance.handlers.get('session_start')?.({}, guidance.context);
+        assert.equal(guidance.bash('npm test'), undefined, 'a command with no file path delivers nothing');
+        assert.equal(guidance.bash('git commit -m "fix Source/Missing.cs"'), undefined, 'a filename that does not exist is not a touch');
+        assert.equal(guidance.bash('cat README.md'), undefined, 'no scoped rule matches README.md');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('a successful write or edit of a matching path gets one hint naming the skill, its SKILL.md and the glob', () => {
+    const { project, all, specifications } = projectWithSkills();
+    try {
+        const guidance = session(project, all);
+        const result = guidance.write(specificationPath);
+        const text = textOf(result);
+        assert.match(text, /^ok/, 'the original tool result content is preserved');
+        assert.ok(text.includes('[cratis-path-guidance] Skill `demo-specifications` (matched `**/for_*/**/*.cs`) covers Source/for_Thing/when_doing/and_it_works.cs;'), text);
+        assert.ok(text.includes(`read .cratis/ai/skills/demo-specifications/SKILL.md before continuing`), text);
+        assert.equal(text.match(/\[cratis-path-guidance\]/g)?.length, 1, 'only the matching skill is named');
+        assert.ok(specifications.filePath.endsWith('SKILL.md'));
+
+        const documentation = textOf(session(project, all).edit('Documentation/guide/page.mdx'));
+        assert.match(documentation, /Skill `demo-documentation`/);
+        assert.ok(documentation.includes('matched `**/Documentation/**/*.{md,mdx}`'));
+        assert.doesNotMatch(documentation, /demo-specifications/);
+        assert.match(textOf(session(project, all).write('notes/intro.guide')), /matched `\*\*\/\*\.guide`/);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('a non-matching path, a read, a failed write and a skill without a trigger get no hint', () => {
+    const { project, all } = projectWithSkills();
+    try {
+        const guidance = session(project, all);
+        assert.equal(guidance.write('notes/todo.txt'), undefined, 'no skill trigger matches');
+        assert.doesNotMatch(textOf(guidance.write('Source/Thing/other.cs')), /cratis-path-guidance/, 'not under a for_ folder');
+        assert.doesNotMatch(textOf(guidance.read(specificationPath)), /cratis-path-guidance/, 'a read is not a write');
+        // A bash read of a SKILL.md is not a write either; it happens in its own session because it marks the skill as read.
+        assert.doesNotMatch(textOf(session(project, all).bash(`cat ${join(project, '.cratis/ai/skills/demo-specifications/SKILL.md')}`)), /cratis-path-guidance/);
+        assert.equal(guidance.call('write', { path: specificationPath }, true), undefined, 'a failed write is not guided');
+        assert.doesNotMatch(textOf(guidance.write('Anything/untriggered.md')), /demo-untriggered/);
+        // The skill that never matched is still hinted on its own first match.
+        assert.match(textOf(guidance.write(specificationPath)), /demo-specifications/);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('a skill the model already read in this session is not hinted', () => {
+    const { project, all } = projectWithSkills();
+    try {
+        const viaRead = session(project, all);
+        viaRead.read(join(project, '.cratis/ai/skills/demo-specifications/SKILL.md'));
+        assert.doesNotMatch(textOf(viaRead.write(specificationPath)), /demo-specifications/, 'read of SKILL.md');
+
+        const viaReference = session(project, all);
+        viaReference.read('.cratis/ai/skills/demo-specifications/references/detail.md');
+        assert.doesNotMatch(textOf(viaReference.write(specificationPath)), /demo-specifications/, 'read of a reference');
+
+        const viaCat = session(project, all);
+        viaCat.bash('cat .cratis/ai/skills/demo-specifications/SKILL.md');
+        assert.doesNotMatch(textOf(viaCat.write(specificationPath)), /demo-specifications/, 'bash cat');
+
+        const viaRtk = session(project, all);
+        viaRtk.bash('rtk read .agents/skills/demo-specifications/SKILL.md');
+        assert.doesNotMatch(textOf(viaRtk.write(specificationPath)), /demo-specifications/, 'bash rtk read on another harness folder');
+
+        const viaGrep = session(project, all);
+        viaGrep.bash(`grep -n "Establish" ${project}/.cratis/ai/skills/demo-specifications/SKILL.md | head`);
+        assert.doesNotMatch(textOf(viaGrep.write(specificationPath)), /demo-specifications/, 'bash grep of an absolute path');
+
+        const otherSkill = session(project, all);
+        otherSkill.read('.cratis/ai/skills/demo-documentation/SKILL.md');
+        assert.match(textOf(otherSkill.write(specificationPath)), /demo-specifications/, 'reading a different skill does not suppress this one');
+
+        const failedRead = session(project, all);
+        failedRead.call('read', { path: '.cratis/ai/skills/demo-specifications/SKILL.md' }, true);
+        assert.match(textOf(failedRead.write(specificationPath)), /demo-specifications/, 'a failed read gave the model nothing');
+
+        const afterReset = session(project, all);
+        afterReset.read('.cratis/ai/skills/demo-specifications/SKILL.md');
+        afterReset.handlers.get('session_compact')?.({}, afterReset.context);
+        assert.match(textOf(afterReset.write(specificationPath)), /demo-specifications/, 'a compacted conversation no longer holds the skill');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the repository skills are hinted whether or not Pi loaded them, and a loaded skill is not duplicated', () => {
+    const { project, documentation, untriggered } = projectWithSkills();
+    try {
+        // Pi loaded only the documentation skill; the repository's specifications skill can still be read by path.
+        const guidance = session(project, [documentation, untriggered]);
+        assert.match(textOf(guidance.write(specificationPath)), /demo-specifications/);
+        const text = textOf(guidance.write('Documentation/page.md'));
+        assert.match(text, /demo-documentation/);
+        assert.equal(text.match(/demo-documentation/g)?.length, 2, 'named once, with its SKILL.md path');
+
+        // A loaded skill wins over the repository copy of the same name, so it is one hint with the loaded file.
+        const elsewhere = writeSkill(project, 'demo-documentation', ['**/Documentation/**/*.{md,mdx}'], join(project, 'elsewhere'));
+        const loaded = textOf(session(project, [elsewhere]).write('Documentation/page.md'));
+        assert.equal(loaded.match(/\[cratis-path-guidance\]/g)?.length, 1, loaded);
+        assert.equal(loaded.match(/`demo-documentation`/g)?.length, 1, 'not duplicated');
+        assert.ok(loaded.includes('read elsewhere/demo-documentation/SKILL.md'), loaded);
+
+        // A session with skills switched off (pi-subagents `skills: false`) reports none; the repository's skills stand in.
+        const none = session(project, []);
+        assert.match(textOf(none.write(specificationPath)), /demo-specifications/, 'skills can still be read by path');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('a skill is hinted once per session and again after the conversation is rewritten', () => {
+    const { project, all } = projectWithSkills();
+    try {
+        const guidance = session(project, all);
+        assert.match(textOf(guidance.write(specificationPath)), /demo-specifications/);
+        assert.doesNotMatch(textOf(guidance.write('Source/for_Other/when_x.cs')), /cratis-path-guidance/, 'second write in the same session');
+        assert.doesNotMatch(textOf(guidance.edit(specificationPath)), /cratis-path-guidance/, 'an edit counts as the same skill');
+
+        guidance.handlers.get('session_start')?.({}, guidance.context);
+        assert.match(textOf(guidance.write(specificationPath)), /demo-specifications/, 'a new session hints again');
+        assert.doesNotMatch(textOf(guidance.write(specificationPath)), /cratis-path-guidance/);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('a session without UI, such as a subagent, still gets hints and rules', () => {
+    const { project, all } = projectWithSkills();
+    try {
+        // No `ui` and `hasUI: false`, as in a print-mode or in-process subagent session.
+        const guidance = session(project, all, { cwd: project, hasUI: false });
+        const result = textOf(guidance.write(specificationPath));
+        assert.match(result, /demo-specifications/);
+        assert.match(result, /# C# Conventions/);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('without Pi-reported skills the repository skills stand in, and the hint never touches the system prompt', () => {
+    const { project } = projectWithSkills();
+    try {
+        const guidance = session(project, undefined);
+        assert.match(textOf(guidance.write(specificationPath)), /demo-specifications/);
+
+        const observed = guidance.handlers.get('before_agent_start')?.({ systemPrompt: 'base', systemPromptOptions: { cwd: project, skills: [] } }, guidance.context);
+        assert.equal(observed, undefined, 'the extension only observes the loaded skills');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the corpus skills declare triggers that match the conventions they teach', () => {
+    const handlers = register();
+    const context = { cwd: repositoryRoot };
+    const skill = (name: string): LoadedSkill => ({ name, filePath: join(repositoryRoot, '.cratis', 'ai', 'skills', name, 'SKILL.md') });
+    const names = [
+        'cratis-specifications-csharp', 'cratis-specifications-typescript', 'cratis-application-slice-specifications', 'cratis-application-react-specifications',
+        'cratis-documentation-writing', 'cratis-engineering-docs-authoring', 'cratis-technical-examples',
+    ];
+    handlers.get('before_agent_start')?.({ systemPrompt: '', systemPromptOptions: { cwd: repositoryRoot, skills: names.map(skill) } }, context);
+    const write = (path: string) => textOf(handlers.get('tool_result')?.({ toolName: 'write', isError: false, input: { path }, content: [] }, context) as Result);
+    const named = (text: string) => names.filter(name => text.includes(`\`${name}\``));
+    const reset = () => handlers.get('session_start')?.({}, context);
+
+    // A for_ specification names the framework C# skill and the slice skill, in one line.
+    const csharp = write('Source/for_Thing/when_doing.cs');
+    assert.deepEqual(named(csharp), ['cratis-specifications-csharp', 'cratis-application-slice-specifications']);
+    assert.equal(csharp.match(/\[cratis-path-guidance\]/g)?.length, 1, 'one combined line');
+    reset();
+    // The slice skill teaches `<Slice>/when_<verb>/and_<condition>.cs` with no for_ folder, and must still be hinted.
+    assert.deepEqual(named(write('Features/Projects/Registration/when_registering/and_name_is_unique.cs')), ['cratis-application-slice-specifications']);
+    reset();
+    assert.deepEqual(named(write('Source/for_Thing/when_doing.ts')), ['cratis-specifications-typescript', 'cratis-application-react-specifications']);
+    reset();
+    // A documentation page brings the two authoring skills in one line; runnable-sample guidance is for samples.
+    const documentation = write('Documentation/guides/page.md');
+    assert.deepEqual(named(documentation), ['cratis-documentation-writing', 'cratis-engineering-docs-authoring']);
+    assert.equal(documentation.match(/\[cratis-path-guidance\]/g)?.length, 1, 'one combined line');
+    reset();
+    assert.deepEqual(named(write('Samples/Quickstart/Program.cs')), ['cratis-technical-examples']);
+    reset();
+    assert.equal(write('Source/Thing.cs').includes('cratis-specifications-csharp'), false, 'production code is not a specification');
+});
+
+test('several matching skills are named in one line that lists each skill, glob and SKILL.md', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-guidance-'));
+    try {
+        const first = writeSkill(project, 'demo-first', ['**/Documentation/**/*.md']);
+        const second = writeSkill(project, 'demo-second', ['Documentation/**/*.md']);
+        const third = writeSkill(project, 'demo-third', ['**/*.md']);
+        const text = textOf(session(project, [first, second, third]).write('Documentation/page.md'));
+        assert.equal(text.match(/\[cratis-path-guidance\]/g)?.length, 1, text);
+        assert.ok(text.includes('Skills `demo-first` (matched `**/Documentation/**/*.md`), `demo-second` (matched `Documentation/**/*.md`) and `demo-third` (matched `**/*.md`) cover Documentation/page.md;'), text);
+        assert.ok(text.includes('read .cratis/ai/skills/demo-first/SKILL.md, .cratis/ai/skills/demo-second/SKILL.md and .cratis/ai/skills/demo-third/SKILL.md before continuing.'), text);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('a skill that is already in context is not hinted: preloaded by pi-subagents or expanded by /skill', () => {
+    const { project, all } = projectWithSkills();
+    try {
+        // pi-subagents `skills: a` reports no loaded skills and preloads the text into the system prompt.
+        const preloaded = register();
+        const context = { cwd: project };
+        preloaded.get('before_agent_start')?.({
+            systemPrompt: 'base\n\n# Preloaded Skill: demo-specifications\n\nfull text',
+            systemPromptOptions: { cwd: project, skills: [] },
+        }, context);
+        const write = (path: string) => textOf(preloaded.get('tool_result')?.({ toolName: 'write', isError: false, input: { path }, content: [] }, context) as Result);
+        assert.doesNotMatch(write(specificationPath), /demo-specifications/, 'preloaded skill');
+        assert.match(write('Documentation/page.md'), /demo-documentation/, 'other repository skills are still hinted');
+        preloaded.get('session_compact')?.({}, context);
+        assert.doesNotMatch(write('Source/for_Other/when_x.cs'), /demo-specifications/, 'the system prompt survives compaction');
+
+        // pi-subagents writes the header even when it could not load the skill (a managed installation exposes
+        // `.pi/skills` as a symlink, which its loader rejects), so a header alone is not the skill's text.
+        const preloadedWrite = (systemPrompt: string) => {
+            const handlers = register();
+            handlers.get('before_agent_start')?.({ systemPrompt, systemPromptOptions: { cwd: project, skills: [] } }, context);
+            return textOf(handlers.get('tool_result')?.({ toolName: 'write', isError: false, input: { path: specificationPath }, content: [] }, context) as Result);
+        };
+        const header = 'base\n\n# Preloaded Skill: demo-specifications\n';
+        assert.match(preloadedWrite(`${header}(Skill "demo-specifications" not found in .pi/skills/, .agents/skills/, or global skill locations)`), /demo-specifications/, 'not found');
+        assert.match(preloadedWrite(`${header}(Skill "demo-specifications" skipped: name contains path traversal characters)`), /demo-specifications/, 'skipped');
+        assert.match(preloadedWrite(header), /demo-specifications/, 'no content');
+        assert.match(preloadedWrite(`${header}\n\n# Preloaded Skill: demo-other\nreal text`), /demo-specifications/, 'an empty block is not the next skill\'s text');
+        assert.doesNotMatch(preloadedWrite(`${header}---\nname: demo-specifications\n---\n\n# demo-specifications\n`), /demo-specifications/, 'frontmatter and body as pi-subagents writes it');
+        assert.doesNotMatch(preloadedWrite(`base\n\n# Preloaded Skill: demo-other\n(Skill "demo-other" not found in x)\n\n# Preloaded Skill: demo-specifications\ntext`), /demo-specifications/, 'a later real block counts');
+
+        // `/skill:demo-specifications` expands into the user message; no read call happens.
+        const expanded = session(project, all);
+        expanded.handlers.get('before_agent_start')?.({
+            systemPrompt: 'base',
+            prompt: '<skill name="demo-specifications" location="x">\nbody\n</skill>\n\nDo it',
+            systemPromptOptions: { cwd: project, skills: all },
+        }, expanded.context);
+        assert.doesNotMatch(textOf(expanded.write(specificationPath)), /demo-specifications/, 'expanded skill');
+        expanded.handlers.get('session_compact')?.({}, expanded.context);
+        assert.match(textOf(expanded.write(specificationPath)), /demo-specifications/, 'a compacted conversation no longer holds the expansion');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('only a command that reads a skill document counts as a shell read', () => {
+    const { project, all, specifications } = projectWithSkills();
+    try {
+        const skill = 'demo-specifications';
+        const trigger = { name: skill, filePath: specifications.filePath, baseDir: join(project, '.cratis', 'ai', 'skills', skill), globs: [] };
+        const reads = (command: string) => skillsRead('bash', { command }, [trigger]).length === 1;
+        const document = `.cratis/ai/skills/${skill}/SKILL.md`;
+        const reference = `.cratis/ai/skills/${skill}/references/detail.md`;
+
+        for (const command of [
+            `cat ${document}`, `head -40 ${document}`, `tail -n 20 ${reference}`, `sed -n '1,80p' ${document}`, `less ${document}`, `bat ${document}`,
+            `rg -n Establish ${document}`, `grep -n "x" ${reference}`, `rtk read ${document}`, `rtk grep foo ${reference}`, `cd repo && cat ${document}`,
+            `cat "${join(project, document)}" | head`, `cat .agents/skills/${skill}/SKILL.md`,
+        ]) assert.equal(reads(command), true, command);
+
+        for (const command of [
+            `ls .cratis/ai/skills/${skill}`, `ls -la .cratis/ai/skills/${skill}/`, `git diff -- ${document}`, `git add ${document}`, `git log -- ${document}`,
+            `echo "cat ${document}"`, `git commit -m "update ${document}"`, `cat README.md`, `cat .cratis/ai/skills/${skill}/assets/logo.txt`,
+            `ls ${document} && echo done`, `cat other/skills/${skill}-extra/SKILL.md`,
+        ]) assert.equal(reads(command), false, command);
+
+        // The read tool opens the file itself, so any file in the skill's directory counts.
+        assert.equal(skillsRead('read', { path: reference }, [trigger]).length, 1);
+
+        // A listing suppresses nothing: the hint still fires afterwards.
+        const listed = session(project, all);
+        listed.bash(`ls .cratis/ai/skills/${skill}`);
+        listed.bash(`git diff -- ${document}`);
+        assert.match(textOf(listed.write(specificationPath)), /demo-specifications/);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+/** Lays out `package/corpus` (rules, extensions, skills) and `package/profile-catalog.json` the way prepare-package.mjs does. */
+function packagedWorkspace(skills: Record<string, string[]>, catalog?: object) {
+    const workspace = mkdtempSync(join(tmpdir(), 'cratis-guidance-pack-'));
+    const corpus = join(workspace, 'package', 'corpus');
+    cpSync(join(repositoryRoot, '.cratis', 'ai', 'rules'), join(corpus, 'rules'), { recursive: true });
+    cpSync(extensionsRoot, join(corpus, 'harnesses', 'pi', 'extensions'), { recursive: true });
+    for (const [name, globs] of Object.entries(skills)) writeSkill(workspace, name, globs, join(corpus, 'skills'));
+    if (catalog) writeFileSync(join(workspace, 'package', 'profile-catalog.json'), JSON.stringify(catalog));
+    const project = join(workspace, 'project');
+    mkdirSync(join(project, '.cratis'), { recursive: true });
+    return { workspace, project, corpus };
+}
+
+async function loadPackaged(corpus: string): Promise<(pi: ExtensionAPI) => void> {
+    return (await import(pathToFileURL(join(corpus, 'harnesses', 'pi', 'extensions', 'cratis-path-guidance', 'index.ts')).href)).default as (pi: ExtensionAPI) => void;
+}
+
+test('the packaged copy hints only the skills the repository selected when the session reports none', async () => {
+    const catalog = {
+        publicProfiles: [
+            { id: 'demo/slices', availableTargets: ['demo-slice-specifications'] },
+            { id: 'demo/framework', availableTargets: ['demo-framework-specifications'] },
+        ],
+        engineeringProfiles: [],
+    };
+    const { workspace, project, corpus } = packagedWorkspace({
+        'demo-slice-specifications': ['**/for_*/**/*.cs'],
+        'demo-framework-specifications': ['**/for_*/**/*.cs'],
+    }, catalog);
+    const originalDirectory = process.cwd();
+    try {
+        const packaged = await loadPackaged(corpus);
+        process.chdir(project);
+        const write = (skills: LoadedSkill[] | undefined) => {
+            const handlers = register(packaged);
+            handlers.get('before_agent_start')?.({ systemPrompt: '', systemPromptOptions: { cwd: project, skills } }, { cwd: project });
+            return textOf(handlers.get('tool_result')?.({ toolName: 'write', isError: false, input: { path: 'Source/for_Thing/when_x.cs' }, content: [] }, { cwd: project }) as Result);
+        };
+
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['demo/slices'] }));
+        const selected = write([]);
+        assert.match(selected, /demo-slice-specifications/);
+        assert.doesNotMatch(selected, /demo-framework-specifications/, 'a skill the repository did not select is never hinted');
+
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['demo/framework'] }));
+        const other = write(undefined);
+        assert.match(other, /demo-framework-specifications/);
+        assert.doesNotMatch(other, /demo-slice-specifications/);
+
+        rmSync(join(project, '.cratis', 'ai.json'));
+        const unconfigured = write([]);
+        assert.match(unconfigured, /demo-slice-specifications/, 'without ai.json the package loads every skill');
+        assert.match(unconfigured, /demo-framework-specifications/);
+    } finally {
+        process.chdir(originalDirectory);
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('the packaged copy hints a selected skill when Pi loaded only unrelated skills, and never an unselected one', async () => {
+    const catalog = {
+        publicProfiles: [
+            { id: 'demo/slices', availableTargets: ['demo-slice-specifications'] },
+            { id: 'demo/framework', availableTargets: ['demo-framework-specifications'] },
+        ],
+        engineeringProfiles: [],
+    };
+    const { workspace, project, corpus } = packagedWorkspace({
+        'demo-slice-specifications': ['**/for_*/**/*.cs'],
+        'demo-framework-specifications': ['**/for_*/**/*.cs'],
+    }, catalog);
+    const originalDirectory = process.cwd();
+    try {
+        const packaged = await loadPackaged(corpus);
+        process.chdir(project);
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['demo/slices'] }));
+        // A personal skill without a trigger, from ~/.pi/agent/skills: the list is non-empty but holds no Cratis skill.
+        const personal = writeSkill(workspace, 'personal-notes', [], join(workspace, 'home', 'skills'));
+        const write = (skills: LoadedSkill[]) => {
+            const handlers = register(packaged);
+            handlers.get('before_agent_start')?.({ systemPrompt: '', systemPromptOptions: { cwd: project, skills } }, { cwd: project });
+            return textOf(handlers.get('tool_result')?.({ toolName: 'write', isError: false, input: { path: 'Source/for_Thing/when_x.cs' }, content: [] }, { cwd: project }) as Result);
+        };
+
+        const hinted = write([personal]);
+        assert.match(hinted, /demo-slice-specifications/, 'a personal skill list does not hide the selected skill');
+        assert.doesNotMatch(hinted, /demo-framework-specifications/, 'an unselected corpus skill is never hinted');
+
+        // The selected skill is also loaded (the extension allowlist kept @cratis/pi): one hint, with the loaded file.
+        const loaded = writeSkill(workspace, 'demo-slice-specifications', ['**/for_*/**/*.cs'], join(workspace, 'loaded'));
+        const both = write([personal, loaded]);
+        assert.equal(both.match(/`demo-slice-specifications`/g)?.length, 1, both);
+        assert.ok(both.includes('loaded/demo-slice-specifications/SKILL.md') || both.includes(join(workspace, 'loaded', 'demo-slice-specifications', 'SKILL.md')), both);
+    } finally {
+        process.chdir(originalDirectory);
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('the packaged copy hints nothing from the fallback when the selection cannot be resolved', async () => {
+    const { workspace, project, corpus } = packagedWorkspace({ 'demo-specifications': ['**/for_*/**/*.cs'] });
+    const originalDirectory = process.cwd();
+    try {
+        const packaged = await loadPackaged(corpus);
+        process.chdir(project);
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['demo/unknown'] }));
+        const handlers = register(packaged);
+        handlers.get('before_agent_start')?.({ systemPrompt: '', systemPromptOptions: { cwd: project, skills: [] } }, { cwd: project });
+        const result = textOf(handlers.get('tool_result')?.({ toolName: 'write', isError: false, input: { path: 'Source/for_Thing/when_x.cs' }, content: [] }, { cwd: project }) as Result);
+        assert.doesNotMatch(result, /cratis-path-guidance/, 'no catalog and an unknown profile give no hint, never every packaged skill');
+    } finally {
+        process.chdir(originalDirectory);
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('the skill selection path guidance uses equals the one @cratis/pi loads', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-guidance-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const names = (paths: string[]) => paths.map(path => path.split('/').pop()).sort();
+        assert.deepEqual(selectedSkillNames(project), names(selectedSkillPaths(project)), 'no configuration');
+        for (const configuration of [
+            { profiles: ['cratis/application/csharp'], languages: ['csharp'] },
+            { profiles: ['cratis/engineering/csharp', 'cratis/documentation'], languages: ['csharp'] },
+            { profiles: ['cratis/application/csharp'], languages: ['csharp', 'typescript'] },
+        ]) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
+            assert.deepEqual(selectedSkillNames(project), names(selectedSkillPaths(project)), JSON.stringify(configuration));
+        }
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['no/such-profile'] }));
+        assert.equal(selectedSkillNames(project), undefined);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('cratis-path-guidance loads through the Pi SDK and works without cratis-rules', async () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-guidance-'));
+    const agentDirectory = mkdtempSync(join(tmpdir(), 'cratis-guidance-agent-'));
+    try {
+        const loader = new DefaultResourceLoader({
+            cwd: project,
+            agentDir: agentDirectory,
+            settingsManager: SettingsManager.inMemory(),
+            noExtensions: true,
+            noSkills: true,
+            noPromptTemplates: true,
+            noContextFiles: true,
+            additionalExtensionPaths: [join(extensionsRoot, 'cratis-path-guidance', 'index.ts')],
+        });
+        await loader.reload();
+        const { extensions, errors } = loader.getExtensions();
+        assert.deepEqual(errors, []);
+        assert.equal(extensions.length, 1);
+        assert.ok(extensions[0].path.endsWith('cratis-path-guidance/index.ts'));
+        const registered = [...extensions[0].handlers.keys()].sort();
+        assert.deepEqual(registered, ['before_agent_start', 'session_before_switch', 'session_compact', 'session_start', 'tool_result']);
+        assert.equal(extensions.some(extension => extension.path.includes('cratis-rules')), false);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+        rmSync(agentDirectory, { recursive: true, force: true });
+    }
+});
+
+test('the packaged copy stands down whenever a managed installation already delivers path guidance', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-guidance-'));
+    const managedExtension = (name: string, content: string) => {
+        mkdirSync(join(project, '.pi', 'extensions', name), { recursive: true });
+        writeFileSync(join(project, '.pi', 'extensions', name, 'index.ts'), content);
+    };
+    try {
+        assert.equal(standsDown(true, project), false, 'nothing managed');
+        mkdirSync(join(project, '.cratis'));
+        managedExtension('cratis-path-guidance', '');
+        assert.equal(standsDown(true, project), false, 'an extension without a manifest is not a managed installation');
+        writeFileSync(join(project, '.cratis', 'ai.manifest.json'), '{}');
+        assert.equal(standsDown(true, project), true, 'managed cratis-path-guidance delivers rules and hints');
+        assert.equal(standsDown(false, project), false, 'the managed copy never stands down');
+
+        // Installations made before cratis-path-guidance: every historical cratis-rules delivers path-scoped rules itself.
+        rmSync(join(project, '.pi'), { recursive: true });
+        assert.equal(standsDown(true, project), false, 'manifest without any managed Pi extension: nothing else delivers guidance');
+        const generations: Record<string, string> = {
+            // 6b0bb54, 5b048c6: every rule concatenated into the system prompt on before_agent_start.
+            'concatenates every rule': "import { readdirSync } from 'node:fs';\nexport function managedRules(cwd: string): string { return ''; }\nexport default function (pi) {\n    pi.on('before_agent_start', (event, context) => ({ systemPrompt: `${event.systemPrompt}\\n\\n${managedRules(context.cwd)}` }));\n}\n",
+            // aca9c6b, 59362cf: universal rules in the system prompt, path-scoped rules on tool_result (read, write, edit).
+            'tool_result for read, write and edit': "export function universalRules(cwd) { return []; }\nexport default function (pi) {\n    pi.on('session_start', () => {});\n    pi.on('before_agent_start', () => undefined);\n    pi.on('tool_result', () => undefined);\n}\n",
+            // 1937b06, eec744a: the same, also for bash and re-delivered after compaction.
+            'tool_result for bash and compaction': "function touchedPaths() { return []; }\nexport default function (pi) {\n    pi.on('session_compact', () => {});\n    pi.on('before_agent_start', () => undefined);\n    pi.on(\"tool_result\", () => undefined);\n}\n",
+        };
+        for (const [generation, content] of Object.entries(generations)) {
+            managedExtension('cratis-rules', content);
+            assert.equal(standsDown(true, project), true, `cratis-rules that ${generation} would deliver every path rule twice`);
+        }
+        managedExtension('cratis-rules', '');
+        assert.equal(standsDown(true, project), true, 'an unrecognisable cratis-rules is not trusted');
+
+        // The current cratis-rules delivers only universal rules, so the packaged copy is the only source of path guidance.
+        managedExtension('cratis-rules', readFileSync(join(extensionsRoot, 'cratis-rules', 'index.ts'), 'utf8'));
+        assert.equal(standsDown(true, project), false, 'universal-only cratis-rules does not deliver path rules');
+        managedExtension('cratis-path-guidance', '');
+        assert.equal(standsDown(true, project), true, 'a current managed installation');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the packaged copy resolves its shared helpers, delivers guidance, and stands down beside a managed copy', async () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'cratis-guidance-pack-'));
+    const originalDirectory = process.cwd();
+    try {
+        // Lay the tree out the way prepare-package.mjs does: package/corpus/{rules,harnesses/pi/extensions}.
+        const corpus = join(workspace, 'package', 'corpus');
+        cpSync(join(repositoryRoot, '.cratis', 'ai', 'rules'), join(corpus, 'rules'), { recursive: true });
+        cpSync(extensionsRoot, join(corpus, 'harnesses', 'pi', 'extensions'), { recursive: true });
+        const skill = writeSkill(join(workspace, 'project'), 'demo-specifications', ['**/for_*/**/*.cs']);
+        const packaged = (await import(pathToFileURL(join(corpus, 'harnesses', 'pi', 'extensions', 'cratis-path-guidance', 'index.ts')).href)).default as (pi: ExtensionAPI) => void;
+        const project = join(workspace, 'project');
+
+        process.chdir(project);
+        const active = register(packaged);
+        assert.ok(active.has('tool_result'), 'a project without a managed installation loads the packaged copy');
+        active.get('before_agent_start')?.({ systemPrompt: '', systemPromptOptions: { cwd: project, skills: [skill] } }, { cwd: project });
+        const delivered = textOf(active.get('tool_result')?.({ toolName: 'write', isError: false, input: { path: 'Source/for_Thing/when_x.cs' }, content: [] }, { cwd: project }) as Result);
+        assert.match(delivered, /# C# Conventions/);
+        assert.match(delivered, /demo-specifications/);
+
+        mkdirSync(join(project, '.pi', 'extensions', 'cratis-path-guidance'), { recursive: true });
+        writeFileSync(join(project, '.pi', 'extensions', 'cratis-path-guidance', 'index.ts'), '');
+        writeFileSync(join(project, '.cratis', 'ai.manifest.json'), '{}');
+        assert.equal(register(packaged).size, 0, 'the packaged copy registers nothing beside a managed copy');
+    } finally {
+        process.chdir(originalDirectory);
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('the Pi package lists cratis-path-guidance and ships its shared helpers', () => {
+    const manifest = JSON.parse(readFileSync(join(repositoryRoot, 'Source', 'Pi.Plugin', 'package.json'), 'utf8')) as { pi: { extensions: string[] } };
+    assert.ok(manifest.pi.extensions.includes('./package/corpus/harnesses/pi/extensions/cratis-path-guidance/index.ts'));
+    assert.ok(existsSync(join(extensionsRoot, 'shared', 'rules.ts')));
+});
+
+test('skill path hints must be non-empty valid globs under a Cratis-specific key, and skills without triggers are left alone', () => {
+    const skill = (paths: string) => `---\nname: x\ndescription: y\n${paths}---\n\nBody\n`;
+    assert.deepEqual(skillPathProblems('x/SKILL.md', skill('')), []);
+    assert.deepEqual(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/for_*/**/*.cs"\n  - "Documentation/**/*.{md,mdx}"\n`)), []);
+    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n`))[0], /declares 'cratis-hint-paths' without any glob/);
+    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - ""\n`))[0], /invalid 'cratis-hint-paths' entry '': it is empty/);
+    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/*"\n`))[0], /matches every file/);
+    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/*.{md"\n`))[0], /unbalanced braces/);
+    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "/abs/**/*.cs"\n`))[0], /repository-relative/);
+    assert.equal(globProblem('**/for_*/**/*.cs'), undefined);
+    // A plain `paths` key is Claude Code's conditional-activation switch, so it is refused rather than read as a hint.
+    assert.match(skillPathProblems('x/SKILL.md', skill('paths:\n  - "**/for_*/**/*.cs"\n'))[0], /declares 'paths', which Claude Code treats as conditional activation; use 'cratis-hint-paths'/);
+});
+
+test('verify.ts rejects a skill with a bad paths entry and accepts the corpus without it', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'cratis-verify-'));
+    try {
+        for (const entry of ['.cratis', '.claude-plugin', '.cursor-plugin', '.github/workflows', '.github/plugin']) {
+            cpSync(join(repositoryRoot, entry), join(workspace, entry), { recursive: true });
+        }
+        cpSync(join(repositoryRoot, '.agents', 'plugins'), join(workspace, '.agents', 'plugins'), { recursive: true });
+        mkdirSync(join(workspace, 'Source', 'Pi.Plugin'), { recursive: true });
+        cpSync(join(repositoryRoot, 'Source', 'Pi.Plugin', 'package.json'), join(workspace, 'Source', 'Pi.Plugin', 'package.json'));
+        const verify = () => spawnSync(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), workspace], { encoding: 'utf8', cwd: join(repositoryRoot, 'Source', 'Verification') });
+
+        const skillFile = join(workspace, '.cratis', 'ai', 'skills', 'cratis-specifications-csharp', 'SKILL.md');
+        const original = readFileSync(skillFile, 'utf8');
+        assert.match(original, /\ncratis-hint-paths:\n/, 'the corpus skill declares a trigger');
+        assert.doesNotMatch(original, /\npaths:/, "the plain 'paths' key is Claude Code's conditional activation");
+        const baseline = verify();
+        assert.equal(baseline.status, 0, `${baseline.stdout}${baseline.stderr}`);
+
+        writeFileSync(skillFile, original.replace('  - "**/for_*/**/*.cs"', '  - "**/*.{cs"'));
+        const rejected = verify();
+        assert.equal(rejected.status, 1, `${rejected.stdout}${rejected.stderr}`);
+        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'cratis-hint-paths' entry/);
+    } finally {
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
