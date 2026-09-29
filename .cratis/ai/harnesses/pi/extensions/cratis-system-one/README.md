@@ -30,7 +30,8 @@ It walks you through four things:
    nothing.
 3. **What leaves your machine, stated exactly, and a confirmation.** Nothing is saved before you
    confirm. If `SYSTEMONE_ENDPOINT` is set in your environment it overrides your choice, and setup
-   says so and names the endpoint that will really receive data.
+   says so and names the endpoint that will really receive data. That origin, and the credential, are
+   recorded as what you agreed to.
 4. **A probe** of that endpoint: one tiny request, with its latency and result shown. It saves as
    enabled only if the probe works. If it fails you can save anyway (the extension fails open) or stop.
 
@@ -46,9 +47,18 @@ unless `PI_CODING_AGENT_DIR` says otherwise), written atomically with mode `0600
   "enabled": true,
   "endpoint": "https://api.typesafe.ai/v1/systemone",
   "consentedAt": "2026-01-01T00:00:00.000Z",
+  "consentedOrigin": "https://api.typesafe.ai",
+  "keySource": "TYPESAFE_API_KEY",
   "skillRelevance": { "mode": "shadow" }
 }
 ```
+
+`consentedOrigin` is the origin (scheme, host and port) that setup disclosed and probed and you
+confirmed, including a `SYSTEMONE_ENDPOINT` override that was set at the time. `keySource` is the
+credential you agreed to: `none`, `typed` (the key stored in this file), `SYSTEMONE_API_KEY` or
+`TYPESAFE_API_KEY`. Both are written by setup. A file from before they existed is read as agreeing to
+the origin of its `endpoint` (TypeSafe if there is none), with environment keys allowed for the
+TypeSafe origin only.
 
 `endpoint` is a full URL: `https`, or `http` only for `localhost`, `127.0.0.0/8` addresses and `::1`.
 `0.0.0.0`, `::` and other unspecified addresses are refused. `model`
@@ -120,7 +130,7 @@ whatever you configure it to keep.
 |---|---|
 | **You** (the user file, via `/system-one setup`) | Enable, choose endpoint, model, key and mode. |
 | **The repository** (`.cratis/ai.json`) | Only **opt out or narrow**. It can never enable the extension or set an endpoint, key, model or timeout. It fails closed: a problem in that file, whether it cannot be read, is not valid JSON, or has a `systemOne` section that says anything else, **switches System One off** with one notice until fixed. |
-| **The environment** | Disable (`CRATIS_SYSTEM_ONE` set to `0`, `false`, `off` or `no`), narrow (`CRATIS_SYSTEM_ONE_SKILL_RELEVANCE` set to `0`, `false`, `off` or `no`, in any case), or override `SYSTEMONE_ENDPOINT`, `SYSTEMONE_API_KEY` and `CRATIS_SYSTEM_ONE_MODEL`, **only once you have enabled it**. It never enables anything by itself: a globally exported `TYPESAFE_API_KEY` alone sends nothing. |
+| **The environment** | Disable (`CRATIS_SYSTEM_ONE` set to `0`, `false`, `off` or `no`), narrow (`CRATIS_SYSTEM_ONE_SKILL_RELEVANCE` set to `0`, `false`, `off` or `no`, in any case), or override `SYSTEMONE_ENDPOINT` (within the origin you set up; another origin turns System One off), `SYSTEMONE_API_KEY` and `CRATIS_SYSTEM_ONE_MODEL`, **only once you have enabled it**. It never enables anything by itself: a globally exported `TYPESAFE_API_KEY` alone sends nothing. |
 
 A committed `.cratis/ai.json` belongs to whoever controls the repository, so it must not be able to
 send your prompts anywhere. A repository can protect its contributors like this:
@@ -145,8 +155,16 @@ having opted out.
 
 ### Keys
 
+- **Data and keys go only to the origin you set up.** If the effective origin (after any
+  `SYSTEMONE_ENDPOINT`) is not the one recorded in setup, System One **turns itself off** with one
+  notice ("System One: SYSTEMONE_ENDPOINT points to <origin>, which you did not set up; run
+  `/system-one setup` to use it."), and nothing, key included, is sent. A different path on the same
+  origin is fine.
 - Precedence is `SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` (**only** for `https://api.typesafe.ai`),
-  then the `apiKey` in your user file.
+  then the `apiKey` in your user file. `SYSTEMONE_API_KEY` is attached to `https://api.typesafe.ai`, or to
+  another origin only if you agreed to it there in setup (`keySource`). If you agreed to a typed key and
+  `SYSTEMONE_API_KEY` is exported later for another origin, the stored key is used, the environment key
+  is ignored, and `/system-one status` says so.
 - **Environment keys are never attached to any loopback endpoint, `http` or `https`.** That is all of
   `127.0.0.0/8`, `::1`, IPv4-mapped forms such as `::ffff:127.0.0.1`, `localhost`, `*.localhost` and any
   of them with a trailing dot. A local server gets a key only if you stored one for that exact endpoint
@@ -156,8 +174,9 @@ having opted out.
   its value. An environment key headed anywhere but `https://api.typesafe.ai` needs a second, explicit
   confirmation, and nothing is sent before it.
 - **A stored key is bound to the endpoint it was stored for.** It is used only when the effective
-  endpoint has the same origin (for a loopback server, the exact endpoint), so `SYSTEMONE_ENDPOINT`
-  pointing elsewhere does not carry it along.
+  endpoint has the same origin (for a loopback server, the exact endpoint).
+- `/system-one status` names the credential in use (`SYSTEMONE_API_KEY from the environment`,
+  `TYPESAFE_API_KEY from the environment`, `stored key` or `none`), never its value.
 - Redirects are refused, so a server cannot forward your prompt or key elsewhere.
 - The key is never shown in status output, notices or session entries. If your user file can be read
   by other users, you get one notice to run `chmod 600` on it.

@@ -40,9 +40,9 @@ the hosted model is the realistic backend and consent has to be safe for a remot
   extension off with one notice, because a file that may have been trying to opt out must not be read
   as silence. Consent resolution never throws.
 - **The environment can restrict or tune, never enable.** `CRATIS_SYSTEM_ONE=0` and
-  `CRATIS_SYSTEM_ONE_SKILL_RELEVANCE=off` restrict. `SYSTEMONE_ENDPOINT`, `SYSTEMONE_API_KEY` and
-  `CRATIS_SYSTEM_ONE_MODEL` override, but only once the user file enables the extension. A globally
-  exported key alone sends nothing.
+  `CRATIS_SYSTEM_ONE_SKILL_RELEVANCE=off` restrict. `SYSTEMONE_ENDPOINT` (within the origin the user set
+  up), `SYSTEMONE_API_KEY` (where the user agreed to it) and `CRATIS_SYSTEM_ONE_MODEL` override, but only
+  once the user file enables the extension. A globally exported key alone sends nothing.
 - **Keys go only where the user pointed them.** Precedence is `SYSTEMONE_API_KEY`, then
   `TYPESAFE_API_KEY` (only for `https://api.typesafe.ai`), then the user file. Environment keys are
   never attached to any loopback endpoint, `http` or `https` (all of `127.0.0.0/8`, `::1`, IPv4-mapped
@@ -76,6 +76,17 @@ the hosted model is the realistic backend and consent has to be safe for a remot
     the feature off. Claims are therefore made only for what is skipped, and for what the extension does
     not read (it looks at the path of a `read` of a `SKILL.md`, never at tool result content), never as an
     absolute about file contents.
+  - **The origin and credential are what the user agreed to, and are recorded.** Setup writes
+    `consentedOrigin` (the origin actually disclosed and probed, including a `SYSTEMONE_ENDPOINT` override
+    then in force) and `keySource` (`none`, `typed`, `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`) to the
+    user file. At run time an effective origin, after any `SYSTEMONE_ENDPOINT`, that differs from
+    `consentedOrigin` disables the extension with one notice and sends nothing; a path-only difference is
+    allowed. `SYSTEMONE_API_KEY` reaches a non-TypeSafe origin only when `keySource` says the user agreed
+    to it, so exporting it later cannot send it anywhere new: with a typed key agreed, the stored key is
+    used, the environment key is ignored and status says so. `TYPESAFE_API_KEY` goes to TypeSafe only,
+    and environment keys never go to loopback. A file from before these fields is read as agreeing to the
+    origin of its `endpoint` (TypeSafe if none) with environment keys allowed for TypeSafe only. Status
+    names the credential source, never its value.
   - **The credential is disclosed.** Setup names which credential goes with the requests (the
     environment's `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`, the entered key, or none) and never its
     value, and asks a second, explicit confirmation before an environment key goes anywhere but
