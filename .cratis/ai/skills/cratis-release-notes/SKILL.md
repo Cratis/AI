@@ -49,7 +49,9 @@ one to add weight.
   Verification or Test plan headings, no review or provenance notes; those go
   in a PR comment); `(#n)` at the end of the bullet that delivers an issue and
   `(part of #n)` for anything that stays open, never `Closes`, `Fixes` or
-  `Refs` before a number; and absolute `https://` links only. Sections are in
+  `Refs` before a number (also in bold or a link), and no issue reference
+  inside an HTML comment, which still closes the issue; and absolute
+  `https://` links only. Sections are in
   a fixed order (Added, Changed, Fixed, Removed, Security, Deprecated); within
   a section, put changes requiring action first, then new capabilities and
   fixes. State impact and the user's next action in plain language, and flag

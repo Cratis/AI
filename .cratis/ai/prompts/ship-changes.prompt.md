@@ -43,6 +43,7 @@ The description is published verbatim as the release notes, so it follows the co
   - No development write-up: no Overview/Verification/Test plan headings (only a first `## Summary`
     is allowed), no review, testing or provenance notes. Those go in a PR comment.
   - `(#n)` ends the bullet that delivers an issue and `(part of #n)` marks anything that stays open;
-    never `Closes`/`Fixes`/`Refs` before a number.
+    never `Closes`/`Fixes`/`Refs` before a number, and never an issue reference inside an HTML comment,
+    which still closes the issue.
   - Links are absolute `https://` URLs, never relative paths.
 - After pushing, if `verify-release-notes` fails, fix it by editing the description; it re-runs on edit.
