@@ -196,9 +196,10 @@ test('the environment can disable, narrow and override, but never enable', async
                 assert.ok(other.enabled && other.settings.skillRelevance.mode === SkillRelevanceMode.Shadow, JSON.stringify(value));
             }
 
-            const overridden = configuration({ SYSTEMONE_ENDPOINT: 'http://127.0.0.1:9', CRATIS_SYSTEM_ONE_MODEL: 'laya' });
+            // The endpoint may be overridden within the origin the user set up (another path), not to another origin.
+            const overridden = configuration({ SYSTEMONE_ENDPOINT: 'https://example.invalid/custom/v1/systemone', CRATIS_SYSTEM_ONE_MODEL: 'laya' });
             assert.ok(overridden.enabled);
-            assert.equal(overridden.settings.endpoint, 'http://127.0.0.1:9/v1/systemone');
+            assert.equal(overridden.settings.endpoint, 'https://example.invalid/custom/v1/systemone');
             assert.equal(overridden.settings.endpointFromEnvironment, true);
             assert.equal(overridden.settings.model, 'laya');
             const refused = configuration({ SYSTEMONE_ENDPOINT: 'http://example.invalid' });
@@ -252,12 +253,25 @@ test('a key is only ever sent to the endpoint it was meant for', async () => {
         // ... and a loopback server gets a key only if the user stored one for that exact endpoint.
         await run({ endpoint: 'http://127.0.0.1:8000', apiKey: 'local-key' }, { SYSTEMONE_API_KEY: secret });
         assert.equal(sent.at(-1)?.authorization, 'Bearer local-key');
+        for (const endpoint of ['https://127.0.0.1:9443', 'http://127.0.0.1:8000']) {
+            await run({ endpoint, keySource: 'SYSTEMONE_API_KEY' }, { SYSTEMONE_API_KEY: secret });
+            assert.equal(sent.at(-1)?.authorization, undefined, `${endpoint}: not even when the user agreed to that key`);
+        }
+        const beforeMoved = sent.length;
         await run({ endpoint: 'http://127.0.0.1:8000' }, { SYSTEMONE_ENDPOINT: 'http://127.0.0.1:9000', SYSTEMONE_API_KEY: secret });
-        assert.equal(sent.at(-1)?.authorization, undefined);
+        assert.equal(sent.length, beforeMoved, 'another origin than the one set up: nothing is sent');
 
-        // Precedence for https: SYSTEMONE_API_KEY, then TYPESAFE_API_KEY (TypeSafe only), then the user's file.
-        await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'from-file' }, { SYSTEMONE_API_KEY: 'from-environment', TYPESAFE_API_KEY: 'typesafe' });
+        // Precedence for https: SYSTEMONE_API_KEY (only where the user agreed to it, or TypeSafe), then TYPESAFE_API_KEY (TypeSafe only), then the user's file.
+        await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'from-file', keySource: 'SYSTEMONE_API_KEY' }, { SYSTEMONE_API_KEY: 'from-environment', TYPESAFE_API_KEY: 'typesafe' });
         assert.equal(sent.at(-1)?.authorization, 'Bearer from-environment');
+        await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'from-file', keySource: 'typed' }, { SYSTEMONE_API_KEY: 'from-environment' });
+        assert.equal(sent.at(-1)?.authorization, 'Bearer from-file', 'the agreed typed key, never an exported environment key');
+        await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'from-file' }, { SYSTEMONE_API_KEY: 'from-environment' });
+        assert.equal(sent.at(-1)?.authorization, 'Bearer from-file', 'an older file allows environment keys for TypeSafe only');
+        await run({ endpoint: 'https://example.invalid/v1/systemone' }, { SYSTEMONE_API_KEY: 'from-environment' });
+        assert.equal(sent.at(-1)?.authorization, undefined);
+        await run({ endpoint: typeSafeEndpoint, apiKey: 'from-file', keySource: 'typed' }, { SYSTEMONE_API_KEY: 'from-environment' });
+        assert.equal(sent.at(-1)?.authorization, 'Bearer from-environment', 'TypeSafe keeps the environment precedence');
         await run({ apiKey: 'from-file' }, { TYPESAFE_API_KEY: 'typesafe' });
         assert.equal(sent.at(-1)?.authorization, 'Bearer typesafe');
         await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'from-file' }, { TYPESAFE_API_KEY: 'typesafe' });
@@ -267,17 +281,18 @@ test('a key is only ever sent to the endpoint it was meant for', async () => {
 
         // A stored key is bound to the endpoint it was stored for. SYSTEMONE_ENDPOINT moving the destination
         // elsewhere must not carry the key along, however the origin is spelled.
+        // Since another origin than the one set up switches System One off, nothing is sent at all.
         const bound = { endpoint: 'https://example.invalid/v1/systemone', apiKey: 'stored-key' };
-        await run(bound, { SYSTEMONE_ENDPOINT: 'https://other.invalid/v1/systemone' });
-        assert.deepEqual(sent.at(-1), { url: 'https://other.invalid/v1/systemone', authorization: undefined });
-        await run(bound, { SYSTEMONE_ENDPOINT: 'https://example.invalid:8443/v1/systemone' });
-        assert.equal(sent.at(-1)?.authorization, undefined, 'another port is another origin');
-        await run(bound, { SYSTEMONE_ENDPOINT: 'http://127.0.0.1:8000' });
-        assert.equal(sent.at(-1)?.authorization, undefined);
+        for (const moved of ['https://other.invalid/v1/systemone', 'https://example.invalid:8443/v1/systemone', 'http://127.0.0.1:8000']) {
+            const before = sent.length;
+            await run(bound, { SYSTEMONE_ENDPOINT: moved });
+            assert.equal(sent.length, before, `${moved}: another origin, so nothing is sent, and the key stays home`);
+        }
         await run(bound, { SYSTEMONE_ENDPOINT: 'https://example.invalid/other/v1/systemone' });
         assert.equal(sent.at(-1)?.authorization, 'Bearer stored-key', 'same origin, so the same key');
+        const beforeDefault = sent.length;
         await run({ apiKey: 'stored-key' }, { SYSTEMONE_ENDPOINT: 'https://other.invalid/v1/systemone' });
-        assert.equal(sent.at(-1)?.authorization, undefined, 'a key stored for the TypeSafe default stays with TypeSafe');
+        assert.equal(sent.length, beforeDefault, 'a key stored for the TypeSafe default stays with TypeSafe');
 
         // No key ever reaches status, entries or notices.
         const session = await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'file-key-value' }, { SYSTEMONE_API_KEY: 'env-key-value' });
@@ -338,6 +353,9 @@ test('every loopback form is loopback for keys, and unspecified addresses are re
             const configuration = loadConfiguration(project.directory, project.agentDirectory, { SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret });
             assert.ok(configuration.enabled, endpoint);
             assert.equal(configuration.settings.apiKey, undefined, `${endpoint}: an environment key never goes to loopback`);
+            project.writeUser({ enabled: true, endpoint, consentedAt, keySource: 'SYSTEMONE_API_KEY' });
+            const agreed = loadConfiguration(project.directory, project.agentDirectory, { SYSTEMONE_API_KEY: secret });
+            assert.ok(agreed.enabled && agreed.settings.apiKey === undefined, `${endpoint}: not even one the user agreed to`);
         } finally {
             project.cleanup();
         }
@@ -351,7 +369,7 @@ test('every loopback form is loopback for keys, and unspecified addresses are re
         assert.ok(!('error' in checked), endpoint);
         assert.equal(checked.loopback, false, endpoint);
     }
-    const project = enabledProject('https://128.0.0.1');
+    const project = enabledProject('https://128.0.0.1', { keySource: 'SYSTEMONE_API_KEY' });
     try {
         const configuration = loadConfiguration(project.directory, project.agentDirectory, { SYSTEMONE_API_KEY: secret });
         assert.ok(configuration.enabled && configuration.settings.apiKey === secret, 'control: a non-loopback https endpoint still gets the key');
@@ -519,6 +537,7 @@ test('setup states what is sent, confirms, probes, and only then saves a private
             assert.match(confirm.detail!, /Anything else that reaches Pi as typed interactive input is sent: pasted text, text you resubmit from \/tree or \/fork, and text produced by another extension's editor or earlier input handler\./);
             assert.doesNotMatch(confirm.detail!, /file contents are never sent/i, 'no claim the residuals contradict');
             assert.match(confirm.detail!, /with each request, no credential\./);
+            assert.match(confirm.detail!, /Setup remembers this destination and credential: if SYSTEMONE_ENDPOINT later points to another origin, System One turns itself off until you run setup again\./);
             assert.doesNotMatch(confirm.detail!, /after slash-command expansion/);
             assert.match(confirm.detail!, /\/system-one off/);
 
@@ -659,6 +678,181 @@ test('a key the user typed, and no key at all, are named without the extra confi
             project.cleanup();
         }
     });
+});
+
+async function setUpAndCapture(project: ReturnType<typeof projectFixture>, script: { select: string; inputs?: string[]; confirms: boolean[] }, environment: NodeJS.ProcessEnv): Promise<Array<string | undefined>> {
+    const sent: Array<string | undefined> = [];
+    const transport = async (_input: string | URL | Request, init?: RequestInit) => {
+        sent.push((init?.headers as Record<string, string>).authorization);
+        return new Response(JSON.stringify({ answers: { [setupSkills]: { type: 'noul', noul: 0.5 } } }), { status: 200 });
+    };
+    await host(project, { transport, environment }, { script }).command('setup');
+    return sent;
+}
+
+test('setup records the consented origin and the agreed credential, and status names the source without its value', async () => {
+    const cases: Array<[string, string, string[], NodeJS.ProcessEnv, string, string, RegExp]> = [
+        ['a typed key', other, ['https://opencode.ai/zen/v1/systemone', 'zen-key'], {}, 'typed', 'https://opencode.ai', /Credential: stored key$/m],
+        ['SYSTEMONE_API_KEY', other, ['https://opencode.ai/zen/v1/systemone'], { SYSTEMONE_API_KEY: secret }, 'SYSTEMONE_API_KEY', 'https://opencode.ai', /Credential: SYSTEMONE_API_KEY from the environment$/m],
+        ['TYPESAFE_API_KEY', typeSafe, [], { TYPESAFE_API_KEY: secret }, 'TYPESAFE_API_KEY', 'https://api.typesafe.ai', /Credential: TYPESAFE_API_KEY from the environment$/m],
+    ];
+    for (const [name, choice, inputs, environment, keySource, origin, credentialLine] of cases) {
+        const project = projectFixture();
+        try {
+            const confirms = keySource === 'SYSTEMONE_API_KEY' ? [true, true] : [true];
+            await setUpAndCapture(project, { select: choice, inputs, confirms }, environment);
+            const saved = JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8'));
+            assert.equal(saved.consentedOrigin, origin, name);
+            assert.equal(saved.keySource, keySource, name);
+            const status = await host(project, { environment }).command('status');
+            assert.match(status, credentialLine, name);
+            assert.equal(status.includes(secret) || status.includes('zen-key'), false, `${name}: never the value`);
+        } finally {
+            project.cleanup();
+        }
+    }
+    const project = projectFixture();
+    try {
+        await setUpAndCapture(project, { select: local, inputs: ['http://127.0.0.1:8000', ''], confirms: [true] }, {});
+        const saved = JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8'));
+        assert.deepEqual([saved.consentedOrigin, saved.keySource], ['http://127.0.0.1:8000', 'none']);
+        assert.match(await host(project, {}).command('status'), /Credential: none$/m);
+    } finally {
+        project.cleanup();
+    }
+});
+
+test('a typed key agreed for one origin is what is sent, even when SYSTEMONE_API_KEY is exported later', async () => {
+    const project = projectFixture();
+    try {
+        await setUpAndCapture(project, { select: other, inputs: ['https://opencode.ai/zen/v1/systemone', 'zen-key'], confirms: [true] }, {});
+        const sent: Array<string | undefined> = [];
+        const transport = async (_input: string | URL | Request, init?: RequestInit) => {
+            sent.push((init?.headers as Record<string, string>).authorization);
+            return new Response(JSON.stringify(answerBody({ body: { questions: { 'skill-a': {} } } } as never, 0.5)), { status: 200 });
+        };
+        const session = host(project, { transport, environment: { SYSTEMONE_API_KEY: 'exported-later', TYPESAFE_API_KEY: 'typesafe-later' } });
+        // The project needs to be a Cratis repository for turns to be judged.
+        project.configure({});
+        await session.askAndSettle(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
+        assert.deepEqual(sent, ['Bearer zen-key'], 'the typed key, never the exported one');
+        const status = await session.command('status');
+        assert.match(status, /Credential: stored key \(SYSTEMONE_API_KEY is set in the environment but ignored: you did not agree to it for https:\/\/opencode\.ai in setup\)/);
+        assert.equal(['exported-later', 'typesafe-later', 'zen-key'].some(value => status.includes(value)), false);
+    } finally {
+        project.cleanup();
+    }
+});
+
+test('an origin the user never set up switches System One off, with one notice and nothing sent', async () => {
+    const project = projectFixture();
+    try {
+        // Set up TypeSafe (the default endpoint), then point SYSTEMONE_ENDPOINT somewhere else.
+        await setUpAndCapture(project, { select: typeSafe, confirms: [true] }, { TYPESAFE_API_KEY: secret });
+        project.configure({});
+        const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+        const environment = { SYSTEMONE_ENDPOINT: 'https://other.invalid/v1/systemone', SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret };
+        const moved = host(project, { transport: failOnCall, environment });
+        await moved.askAndSettle(promptText, skills);
+        await moved.askAndSettle(promptText, skills);
+        assert.deepEqual(moved.notices, ['System One: SYSTEMONE_ENDPOINT points to https://other.invalid, which you did not set up; run /system-one setup to use it.'], 'one notice');
+        assert.deepEqual(moved.entries, []);
+        assert.match(await moved.command('status'), /State: disabled \(SYSTEMONE_ENDPOINT points to https:\/\/other\.invalid, which you did not set up/);
+
+        // The same origin with another path is the same destination, and TypeSafe's own key still applies there.
+        const sent: Array<{ url: string; authorization?: string }> = [];
+        const transport = async (input: string | URL | Request, init?: RequestInit) => {
+            sent.push({ url: String(input), authorization: (init?.headers as Record<string, string>).authorization });
+            return new Response(JSON.stringify(answerBody({ body: { questions: { 'skill-a': {} } } } as never, 0.5)), { status: 200 });
+        };
+        await host(project, { transport, environment: { SYSTEMONE_ENDPOINT: 'https://api.typesafe.ai/custom/v1/systemone', TYPESAFE_API_KEY: secret } }).askAndSettle(promptText, skills);
+        assert.deepEqual(sent, [{ url: 'https://api.typesafe.ai/custom/v1/systemone', authorization: `Bearer ${secret}` }]);
+    } finally {
+        project.cleanup();
+    }
+});
+
+test('setup consents to the origin that really receives data, and running without the override then switches it off', async () => {
+    await withServer(answering(0.6), async chosen => {
+        await withServer(answering(0.6), async overriding => {
+            const project = projectFixture();
+            try {
+                await setUpAndCapture(project, { select: local, inputs: [chosen.endpoint, ''], confirms: [true] }, { SYSTEMONE_ENDPOINT: overriding.endpoint });
+                const saved = JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8'));
+                assert.equal(saved.consentedOrigin, new URL(overriding.endpoint).origin, 'the origin that was disclosed and probed');
+                assert.equal(new URL(saved.endpoint).origin, new URL(chosen.endpoint).origin, 'the chosen one is kept as chosen');
+                project.configure({});
+                const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+
+                // With the same override the extension runs against the origin the user agreed to.
+                const same = host(project, { environment: { SYSTEMONE_ENDPOINT: overriding.endpoint } });
+                const before = overriding.requests.length;
+                await same.askAndSettle(promptText, skills);
+                assert.equal(overriding.requests.length, before + 1);
+                // Without it the configured endpoint is another origin than the one consented to: off.
+                const without = host(project, { transport: failOnCall });
+                await without.askAndSettle(promptText, skills);
+                assert.deepEqual(without.notices, [`System One: your configuration points to ${new URL(chosen.endpoint).origin}, which you did not set up; run /system-one setup to use it.`]);
+            } finally {
+                project.cleanup();
+            }
+        });
+    });
+});
+
+test('a user file from before the origin and credential were recorded uses its endpoint and allows environment keys for TypeSafe only', async () => {
+    const skillsFor = (project: ReturnType<typeof projectFixture>) => skillsIn(project.directory, [{ name: 'skill-a' }]);
+    const captured = () => {
+        const sent: Array<{ url: string; authorization?: string }> = [];
+        const transport = async (input: string | URL | Request, init?: RequestInit) => {
+            sent.push({ url: String(input), authorization: (init?.headers as Record<string, string>).authorization });
+            return new Response(JSON.stringify(answerBody({ body: { questions: { 'skill-a': {} } } } as never, 0.5)), { status: 200 });
+        };
+        return { sent, transport };
+    };
+    // No endpoint at all: TypeSafe, where an exported key applies.
+    const typeSafeProject = projectFixture({}, { enabled: true, consentedAt });
+    try {
+        const { sent, transport } = captured();
+        await host(typeSafeProject, { transport, environment: { SYSTEMONE_API_KEY: secret } }).askAndSettle(promptText, skillsFor(typeSafeProject));
+        assert.deepEqual(sent, [{ url: typeSafeEndpoint, authorization: `Bearer ${secret}` }]);
+        // ... and the same file cannot be moved to another origin by the environment.
+        const moved = captured();
+        const session = host(typeSafeProject, { transport: moved.transport, environment: { SYSTEMONE_ENDPOINT: 'https://other.invalid', SYSTEMONE_API_KEY: secret } });
+        await session.askAndSettle(promptText, skillsFor(typeSafeProject));
+        assert.deepEqual(moved.sent, []);
+        assert.match(session.notices[0], /SYSTEMONE_ENDPOINT points to https:\/\/other\.invalid, which you did not set up/);
+    } finally {
+        typeSafeProject.cleanup();
+    }
+    // Another endpoint: its own origin, and no exported key.
+    const otherProject = projectFixture({}, { enabled: true, endpoint: 'https://opencode.ai/zen/v1/systemone', apiKey: 'zen-key', consentedAt });
+    try {
+        const { sent, transport } = captured();
+        const session = host(otherProject, { transport, environment: { SYSTEMONE_API_KEY: secret } });
+        await session.askAndSettle(promptText, skillsFor(otherProject));
+        assert.deepEqual(sent, [{ url: 'https://opencode.ai/zen/v1/systemone', authorization: 'Bearer zen-key' }]);
+        assert.match(await session.command('status'), /Credential: stored key \(SYSTEMONE_API_KEY is set in the environment but ignored/);
+    } finally {
+        otherProject.cleanup();
+    }
+});
+
+test('the recorded origin and credential are validated', () => {
+    const project = projectFixture({}, undefined);
+    try {
+        for (const bad of [{ consentedOrigin: 'https://api.typesafe.ai/v1/systemone' }, { consentedOrigin: 'not a url' }, { consentedOrigin: 7 }, { consentedOrigin: 'https://0.0.0.0' }, { keySource: 'env' }, { keySource: 7 }]) {
+            project.writeUser({ enabled: true, consentedAt, ...bad });
+            const configuration = loadConfiguration(project.directory, project.agentDirectory, {});
+            assert.ok(!configuration.enabled && /invalid/.test(configuration.reason), JSON.stringify(bad));
+        }
+        for (const good of [{ consentedOrigin: 'https://api.typesafe.ai', keySource: 'none' }, { endpoint: 'http://127.0.0.1:8000', consentedOrigin: 'http://127.0.0.1:8000', keySource: 'typed' }, { keySource: 'SYSTEMONE_API_KEY' }, { keySource: 'TYPESAFE_API_KEY' }]) {
+            project.writeUser({ enabled: true, consentedAt, ...good });
+            assert.ok(loadConfiguration(project.directory, project.agentDirectory, {}).enabled, JSON.stringify(good));
+        }
+    } finally {
+        project.cleanup();
+    }
 });
 
 test('setup for a local server never uses an environment key, and stores a typed one for that endpoint only', async () => {

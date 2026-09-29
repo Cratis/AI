@@ -3,7 +3,8 @@
 
 import type { ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { askSystemOne } from './client.ts';
-import { chooseKey, effectiveEndpoint, parseUserConfiguration, requestTimeoutMs, resolveConfiguration, selectKey } from './configuration.ts';
+import { AgreedKey } from './AgreedKey.ts';
+import { chooseKey, effectiveEndpoint, parseUserConfiguration, requestTimeoutMs, resolveConfiguration } from './configuration.ts';
 import { BackendChoice } from './BackendChoice.ts';
 import type { ConfigurationFile } from './ConfigurationFile.ts';
 import { checkEndpoint, typeSafeEndpoint, typeSafeOrigin } from './endpoint.ts';
@@ -29,9 +30,21 @@ export function manualSteps(agentDirectory: string): string {
         '   Use "endpoint": "http://127.0.0.1:8000" for a local server such as Laya (LAYA_HOST=127.0.0.1 laya-serve).',
         '2. Provide a key: SYSTEMONE_API_KEY (or TYPESAFE_API_KEY for TypeSafe) in the environment, or "apiKey" in that file.',
         '   A key in the file is used only for the endpoint stored in it. A local http server gets a key only from that file.',
+        '   An environment key goes to TypeSafe only, unless the file says you agree to SYSTEMONE_API_KEY for your endpoint: "keySource": "SYSTEMONE_API_KEY".',
+        '   The origin of "endpoint" is the only one that will ever receive data or a key; SYSTEMONE_ENDPOINT pointing to another origin turns System One off.',
         '3. Check it with /system-one status. Turn it off with /system-one off.',
         'By enabling it you agree that, in repositories set up with Cratis AI, skill names, the first sentence of each skill description and the first 1200 characters of each prompt you type in an interactive session are sent to that endpoint.',
     ].join('\n');
+}
+
+/** What setup records about the credential the user agreed to. */
+function agreedKeyOf(source: KeySource): AgreedKey {
+    switch (source) {
+        case KeySource.SystemOneEnvironment: return AgreedKey.SystemOneEnvironment;
+        case KeySource.TypeSafeEnvironment: return AgreedKey.TypeSafeEnvironment;
+        case KeySource.Entered: return AgreedKey.Typed;
+        case KeySource.None: return AgreedKey.None;
+    }
 }
 
 /** True when the credential comes from the environment rather than from the user's own entry. */
@@ -52,6 +65,7 @@ export function disclosure(origin: string, credential: KeySource, override?: End
         '  - the first 1200 characters of each prompt you type in an interactive session, in repositories set up with Cratis AI,',
         `  - with each request, ${credential === KeySource.None ? 'no credential' : `a credential: ${credential} (the value is never shown)`}.`,
         'Skipped, never sent: slash commands, skill and template invocations, subagent tasks, prompts Pi built around @file arguments or that start with "<", prompts rewritten after this extension saw them, and prompts from extensions, RPC hosts or sessions without a UI. This extension does not read tool result content.',
+        'Setup remembers this destination and credential: if SYSTEMONE_ENDPOINT later points to another origin, System One turns itself off until you run setup again.',
         'Anything else that reaches Pi as typed interactive input is sent: pasted text, text you resubmit from /tree or /fork, and text produced by another extension\'s editor or earlier input handler.',
         'A System One model uses this to judge which skills would help. In this version scores are only recorded in your session; they change nothing the model sees.',
         `Retention and privacy are the provider's. For TypeSafe see ${legalUrl}.`,
@@ -99,7 +113,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     // An environment key is used when one applies to this endpoint. Otherwise ask, and store it only in the
     // user file, bound to this endpoint. A hosted provider needs a key; a local server may not.
     let storedKey: string | undefined;
-    if (selectKey(environment, chosen, {}) === undefined) {
+    if (chooseKey(environment, chosen, {}, AgreedKey.SystemOneEnvironment).key === undefined) {
         const keyPrompt = chosen.loopback
             ? `API key for ${chosen.origin}, or leave blank for none (stored only in ${userConfigurationPath(dependencies.agentDirectory)}, mode 600, used only for this endpoint)`
             : `API key for ${chosen.origin} (stored only in ${userConfigurationPath(dependencies.agentDirectory)}, mode 600, used only for this endpoint; never shown again; tip: set SYSTEMONE_API_KEY instead to store nothing)`;
@@ -112,11 +126,20 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
         }
     }
 
+    // What the user is about to agree to is where data really goes: the effective endpoint, which is not the
+    // one they chose if SYSTEMONE_ENDPOINT overrides it. That origin, and the credential that applies to it
+    // (an environment key counts as offered here; the second confirmation below is where it is agreed to),
+    // are recorded, so a different origin later switches System One off instead of quietly receiving data.
+    const effective = effectiveEndpoint(environment, { endpoint: chosen.endpoint }).checked;
+    const destination = 'error' in effective ? chosen : effective;
+    const offered = chooseKey(environment, destination, { apiKey: storedKey, endpoint: chosen.endpoint }, AgreedKey.SystemOneEnvironment);
     const configuration: UserConfiguration = {
         enabled: true,
         endpoint: chosen.endpoint,
         ...(storedKey === undefined ? {} : { apiKey: storedKey }),
         consentedAt: new Date(now()).toISOString(),
+        consentedOrigin: destination.origin,
+        keySource: agreedKeyOf(offered.source),
         skillRelevance: { mode: SkillRelevanceMode.Shadow },
     };
     // Exactly what would run: the same resolution, with this machine's environment but no repository.
@@ -130,12 +153,11 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     // Whenever the environment sends data anywhere but the URL the user chose, however similar, say so.
     const overridden: EndpointOverride | undefined = effectiveEndpoint(environment, configuration).fromEnvironment && settings.endpoint !== chosen.endpoint ? { chosen: chosen.endpoint, effective: settings.endpoint } : undefined;
 
-    const credential = chooseKey(environment, settings, configuration);
-    const confirmed = await ui.confirm(`Send this to ${settings.origin}?`, disclosure(settings.origin, credential.source, overridden));
+    const confirmed = await ui.confirm(`Send this to ${settings.origin}?`, disclosure(settings.origin, settings.credential, overridden));
     if (!confirmed) return cancelled();
     // A key from the environment was not given to this program for this server. Ask again, plainly, before it is used.
-    if (isEnvironmentKey(credential.source) && settings.origin !== typeSafeOrigin) {
-        const usesKey = await ui.confirm(`Send ${credential.source} to ${settings.origin}?`, `${credential.source} was not issued for ${settings.origin}. It would go there as a bearer token with the setup probe and with every request after it. Continue only if you trust that server with this key.`);
+    if (isEnvironmentKey(settings.credential) && settings.origin !== typeSafeOrigin) {
+        const usesKey = await ui.confirm(`Send ${settings.credential} to ${settings.origin}?`, `${settings.credential} was not issued for ${settings.origin}. It would go there as a bearer token with the setup probe and with every request after it. Continue only if you trust that server with this key.`);
         if (!usesKey) return cancelled();
     }
 

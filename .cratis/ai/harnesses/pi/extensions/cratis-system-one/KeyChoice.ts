@@ -7,4 +7,6 @@ import type { KeySource } from './KeySource.ts';
 export interface KeyChoice {
     source: KeySource;
     key?: string;
+    /** True when `SYSTEMONE_API_KEY` is set but was not used because the user did not agree to it for this origin. */
+    environmentKeyIgnored?: boolean;
 }

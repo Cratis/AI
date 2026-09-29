@@ -9,6 +9,7 @@ import { checkEndpoint, typeSafeEndpoint, typeSafeOrigin } from './endpoint.ts';
 import type { EffectiveEndpoint } from './EffectiveEndpoint.ts';
 import { FileState } from './FileState.ts';
 import type { RepositoryNarrowing } from './RepositoryNarrowing.ts';
+import { AgreedKey } from './AgreedKey.ts';
 import type { KeyChoice } from './KeyChoice.ts';
 import type { KeyTarget } from './KeyTarget.ts';
 import { KeySource } from './KeySource.ts';
@@ -22,7 +23,7 @@ import { readConfigurationFile, readUserConfigurationFile } from './userConfigur
 export const defaultModel = 'jev-1.13.0';
 export const requestTimeoutMs = 5000;
 
-const userKeys = ['enabled', 'endpoint', 'model', 'apiKey', 'consentedAt', 'skillRelevance'];
+const userKeys = ['enabled', 'endpoint', 'model', 'apiKey', 'consentedAt', 'consentedOrigin', 'keySource', 'skillRelevance'];
 const disablingValues = new Set(['0', 'false', 'off', 'no']);
 
 /** Fixed: nothing but the mode is configurable, and the repository can only narrow that. */
@@ -64,6 +65,11 @@ export function parseUserConfiguration(text: string): UserConfiguration {
     }
     if (typeof document.model === 'string' && !modelPattern.test(document.model)) throw new Invalid("'model' is not a valid model name");
     if (document.enabled && (typeof document.consentedAt !== 'string' || Number.isNaN(Date.parse(document.consentedAt)))) throw new Invalid("'consentedAt' must record when consent was given");
+    if (document.consentedOrigin !== undefined) {
+        const origin = typeof document.consentedOrigin === 'string' ? checkEndpoint(document.consentedOrigin) : undefined;
+        if (origin === undefined || 'error' in origin || origin.origin !== document.consentedOrigin) throw new Invalid("'consentedOrigin' must be an origin such as https://api.typesafe.ai");
+    }
+    if (document.keySource !== undefined && !Object.values(AgreedKey).includes(document.keySource as AgreedKey)) throw new Invalid(`'keySource' must be ${Object.values(AgreedKey).join(', ')}`);
     if (document.skillRelevance !== undefined) {
         if (!isRecord(document.skillRelevance) || Object.keys(document.skillRelevance).some(key => key !== 'mode') || !isMode(document.skillRelevance.mode)) {
             throw new Invalid("'skillRelevance' must be { mode: 'off' | 'shadow' }");
@@ -108,30 +114,49 @@ function repositoryNarrowing(repository: ConfigurationFile): RepositoryNarrowing
 }
 
 /**
- * The only place a key is chosen. Environment keys (`SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` for the
- * TypeSafe origin only) are never attached to any loopback endpoint (127.0.0.0/8, IPv4-mapped forms,
- * `localhost`, `*.localhost`), http or https: a local server gets a
- * key only if the user stored one for that exact endpoint. Elsewhere, a key stored in the user file is
- * bound to the origin it was stored for and is used only when that is the effective origin.
+ * The only place a key is chosen. Environment keys are never attached to any loopback endpoint
+ * (127.0.0.0/8, IPv4-mapped forms, `localhost`, `*.localhost`), http or https: a local server gets a key
+ * only if the user stored one for that exact endpoint. Elsewhere:
+ *
+ * - `TYPESAFE_API_KEY` goes to the TypeSafe origin only.
+ * - `SYSTEMONE_API_KEY` goes to the TypeSafe origin, or to another origin only when `agreed` says the user
+ *   agreed to it in setup. Otherwise it is ignored (and `environmentKeyIgnored` says so), so exporting it
+ *   later cannot send it somewhere the user never approved. `agreed` is undefined for a file from before
+ *   the agreement was recorded, which means the TypeSafe origin only.
+ * - A key stored in the user file is bound to the origin it was stored for and is used only when that is
+ *   the effective origin.
  */
-export function chooseKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }): KeyChoice {
+export function chooseKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }, agreed?: AgreedKey): KeyChoice {
+    let environmentKeyIgnored = false;
     if (!target.loopback) {
         const fromSystemOne = nonEmpty(environment.SYSTEMONE_API_KEY);
-        if (fromSystemOne !== undefined) return { source: KeySource.SystemOneEnvironment, key: fromSystemOne };
+        const systemOneAllowed = target.origin === typeSafeOrigin || agreed === AgreedKey.SystemOneEnvironment;
+        if (fromSystemOne !== undefined && systemOneAllowed) return { source: KeySource.SystemOneEnvironment, key: fromSystemOne };
+        environmentKeyIgnored = fromSystemOne !== undefined;
         const fromTypeSafe = target.origin === typeSafeOrigin ? nonEmpty(environment.TYPESAFE_API_KEY) : undefined;
         if (fromTypeSafe !== undefined) return { source: KeySource.TypeSafeEnvironment, key: fromTypeSafe };
     }
-    const none = { source: KeySource.None };
+    const none = { source: KeySource.None, environmentKeyIgnored };
     const storedFor = checkEndpoint(stored.endpoint ?? typeSafeEndpoint);
     if ('error' in storedFor) return none;
     const sameDestination = target.loopback ? storedFor.endpoint === target.endpoint : storedFor.origin === target.origin;
     const key = sameDestination ? nonEmpty(stored.apiKey) : undefined;
-    return key === undefined ? none : { source: KeySource.Entered, key };
+    return key === undefined ? none : { source: KeySource.Entered, key, environmentKeyIgnored };
 }
 
 /** The key `chooseKey` picks, without where it came from. */
-export function selectKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }): string | undefined {
-    return chooseKey(environment, target, stored).key;
+export function selectKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }, agreed?: AgreedKey): string | undefined {
+    return chooseKey(environment, target, stored, agreed).key;
+}
+
+/**
+ * The origin the user agreed to: the one recorded by setup, or, in a file from before that was recorded,
+ * the origin of its `endpoint` (TypeSafe when there is none). Undefined when that endpoint is not valid.
+ */
+export function consentedOriginOf(user: UserConfiguration): string | undefined {
+    if (user.consentedOrigin !== undefined) return user.consentedOrigin;
+    const own = checkEndpoint(user.endpoint ?? typeSafeEndpoint);
+    return 'error' in own ? undefined : own.origin;
 }
 
 /** The endpoint a user's file resolves to once `SYSTEMONE_ENDPOINT` is taken into account. */
@@ -148,15 +173,18 @@ export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endp
  *   environment can disable, narrow, or override endpoint, key and model, but only once the user has
  *   enabled it.
  * - An unconfigured install is silent: no notice is produced for it.
- * - Keys follow `selectKey`. Redirects are refused by the client.
+ * - Data and keys go only to the origin the user agreed to in setup (`consentedOriginOf`). An effective
+ *   origin that differs, for instance from a `SYSTEMONE_ENDPOINT` set later, disables System One with one
+ *   notice. A different path on the same origin is fine.
+ * - Keys follow `chooseKey`. Redirects are refused by the client.
  */
 export function resolveConfiguration({ user: userFile, repository, environment }: ConfigurationInputs): ConfigurationResult {
     if (userFile.state === FileState.Missing) return { enabled: false, reason: 'not set up (run /system-one setup)', configured: false };
-    const disabled = (reason: string, notice = false): ConfigurationResult => ({
+    const disabled = (reason: string, notice: boolean | string = false): ConfigurationResult => ({
         enabled: false,
         reason,
         configured: true,
-        notice: notice ? `System One is disabled: ${reason}.` : undefined,
+        notice: typeof notice === 'string' ? notice : notice ? `System One is disabled: ${reason}.` : undefined,
     });
     try {
         if (userFile.state === FileState.Unreadable) return disabled('your System One configuration file could not be read', true);
@@ -176,12 +204,18 @@ export function resolveConfiguration({ user: userFile, repository, environment }
         const { checked, fromEnvironment } = effectiveEndpoint(environment, user);
         if ('error' in checked) return disabled(`${fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'the configured endpoint'}: ${checked.error}`, true);
 
+        if (checked.origin !== consentedOriginOf(user)) {
+            const pointer = fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'your configuration';
+            return disabled(`${pointer} points to ${checked.origin}, which you did not set up (run /system-one setup)`, `System One: ${pointer} points to ${checked.origin}, which you did not set up; run /system-one setup to use it.`);
+        }
+
         const model = nonEmpty(environment.CRATIS_SYSTEM_ONE_MODEL) ?? user.model ?? defaultModel;
         if (!modelPattern.test(model)) return disabled('the model name is not valid', true);
 
         let mode = user.skillRelevance?.mode ?? SkillRelevanceMode.Shadow;
         if (narrowing.off || disablingValues.has(environment.CRATIS_SYSTEM_ONE_SKILL_RELEVANCE?.trim().toLowerCase() ?? '')) mode = SkillRelevanceMode.Off;
         const skillRelevance: SkillRelevanceSettings = { mode, ...skillRelevanceLimits };
+        const key = chooseKey(environment, checked, user, user.keySource);
 
         return {
             enabled: true,
@@ -192,7 +226,9 @@ export function resolveConfiguration({ user: userFile, repository, environment }
                 endpointFromEnvironment: fromEnvironment,
                 model,
                 timeoutMs: requestTimeoutMs,
-                apiKey: selectKey(environment, checked, user),
+                apiKey: key.key,
+                credential: key.source,
+                environmentKeyIgnored: key.environmentKeyIgnored === true,
                 skillRelevance,
             },
             notice: userFile.readableByOthers ? 'System One: your configuration file can be read by other users and may hold an API key. Run chmod 600 on it.' : undefined,

@@ -6,10 +6,25 @@ import { entryType } from './entryType.ts';
 import { EntryKind } from './EntryKind.ts';
 import type { ConfigurationResult } from './ConfigurationResult.ts';
 import type { RecentDecision } from './RecentDecision.ts';
+import { KeySource } from './KeySource.ts';
 import type { SessionStatistics } from './SessionStatistics.ts';
+import type { SystemOneSettings } from './SystemOneSettings.ts';
 import type { ShadowReport } from './ShadowReport.ts';
 
 const listedSkills = 10;
+
+/** Names where the credential comes from, never the credential. */
+function describeCredential(settings: SystemOneSettings): string {
+    const source = ((): string => {
+        switch (settings.credential) {
+            case KeySource.SystemOneEnvironment: return 'SYSTEMONE_API_KEY from the environment';
+            case KeySource.TypeSafeEnvironment: return 'TYPESAFE_API_KEY from the environment';
+            case KeySource.Entered: return 'stored key';
+            case KeySource.None: return 'none';
+        }
+    })();
+    return settings.environmentKeyIgnored ? `${source} (SYSTEMONE_API_KEY is set in the environment but ignored: you did not agree to it for ${settings.origin} in setup)` : source;
+}
 
 /**
  * The text of `/system-one status`. Shows the effective endpoint origin and whether a credential is
@@ -25,6 +40,7 @@ export function formatStatus(configuration: ConfigurationResult, statistics: Ses
         lines.push(
             'State: enabled',
             `Endpoint: ${settings.origin} (from ${from}${settings.loopback ? ', loopback' : ''}; ${settings.apiKey ? 'credential attached' : 'no credential sent'})`,
+            `Credential: ${describeCredential(settings)}`,
             `Model: ${settings.model}, timeout ${settings.timeoutMs} ms`,
             `Skill relevance: ${settings.skillRelevance.mode} (${settings.skillRelevance.chunkSize} questions per request, fuse ${settings.skillRelevance.maxQuestions}, prompt text capped at ${settings.skillRelevance.stateChars} characters)`,
         );
