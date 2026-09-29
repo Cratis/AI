@@ -418,6 +418,7 @@ __metadata:
     "@types/node": "npm:^22.0.0"
     tsx: "npm:^4.19.0"
     typescript: "npm:^5.8.0"
+    yaml: "npm:2.9.0"
   languageName: unknown
   linkType: soft
 
