@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { parseDocument } from 'yaml';
+import { isMap, isScalar, parseDocument } from 'yaml';
 import { frontmatterBlock, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globProblem } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 import { skillTriggerGlobs, skillTriggerKey, splitSkillTriggerGlobs } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
@@ -57,6 +57,15 @@ function kindOf(value: unknown): string {
  * The problems with the shape of `metadata`: Agent Skills maps strings to strings, so it must be absent or a plain map
  * whose values are all strings. The hint's own value is left to `hintValueProblems`, which explains what it must hold.
  */
+/** The keys under `metadata` that are not YAML strings, such as `1:` or `true:`, which a JS object would silently turn into strings. */
+function nonStringMetadataKeys(document: ReturnType<typeof parseDocument>): string[] {
+    const metadata = isMap(document.contents) ? document.contents.get('metadata', true) : undefined;
+    if (!isMap(metadata)) return [];
+    return metadata.items
+        .filter(pair => !(isScalar(pair.key) && typeof pair.key.value === 'string'))
+        .map(pair => String(isScalar(pair.key) ? pair.key.value : pair.key));
+}
+
 function metadataShapeProblems(subject: string, fields: Record<string, unknown>): string[] {
     if (!Object.hasOwn(fields, 'metadata')) return [];
     const metadata = fields.metadata;
@@ -127,6 +136,7 @@ export function skillFrontmatterProblems(subject: string, content: string): stri
         ...keys.includes(skillTriggerKey) ? [`${subject} declares '${skillTriggerKey}' as a top-level key, which Agent Skills does not allow; declare it under 'metadata' as a string of whitespace-separated globs.`] : [],
         ...keys.includes('paths') ? [`${subject} declares 'paths', which Claude Code treats as conditional activation; use 'metadata.${skillTriggerKey}' for path hints.`] : [],
         ...metadataShapeProblems(subject, fields),
+        ...nonStringMetadataKeys(document).map(key => `${subject} declares the metadata key '${key}', which is not a string; metadata keys must be strings (Agent Skills metadata maps strings to strings), so quote it.`),
         ...known,
     ];
     const metadata = fields.metadata;

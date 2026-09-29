@@ -107,6 +107,8 @@ export function frontmatterMap(content: string, name: string): Map<string, strin
     const block = frontmatterBlock(content, name);
     if (!block) return undefined;
     const map = new Map<string, string>();
+    // A value on the key's own line (a flow map, even one that continues below) is not the supported block form.
+    if (block.inline !== '') return map;
     for (const [key, entry] of block.entries) {
         const value = entry.indent === 2 && !entry.continues ? quotedScalar(entry.raw) : undefined;
         if (value !== undefined) map.set(key, value);

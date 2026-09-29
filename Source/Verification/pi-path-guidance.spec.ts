@@ -891,6 +891,26 @@ test('every spelling the runtime reader does not know is reported by the YAML cr
     }
 });
 
+test('a flow map spread over lines gives the runtime no hint, even a nested one', () => {
+    for (const lines of [
+        `metadata: {\n  ${skillTriggerKey}: "a/*.cs"\n}\n`,
+        `metadata: {\n  x: {\n  ${skillTriggerKey}: "a/*.cs"\n}}\n`,
+    ]) {
+        assert.deepEqual(skillTriggerGlobs(skillWith(lines)), [], lines);
+        assert.ok(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(lines)).length >= 1, lines);
+    }
+});
+
+test('a metadata key that is not a YAML string is refused', () => {
+    for (const key of ['1', 'true', 'null', '1.5']) {
+        const problems = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${key}: "x"\n`));
+        assert.match(problems.join(' | '), new RegExp(`metadata key '${key.replace('.', '\\.')}', which is not a string`), key);
+    }
+    for (const key of ['"1"', "'true'", 'version']) {
+        assert.deepEqual(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${key}: "x"\n`)), [], key);
+    }
+});
+
 test('a duplicate metadata key or any duplicate top-level key is refused as invalid YAML', () => {
     const duplicates: Array<[string, string]> = [
         ['metadata twice', `metadata:\n  other: "x"\nmetadata:\n  ${skillTriggerKey}: "a/*.cs"\n`],
