@@ -6,6 +6,9 @@
     { "kind": "skill-contains", "value": "Exact-version release note" },
     { "kind": "skill-contains", "value": "old behavior → new" },
     { "kind": "skill-contains", "value": "migration from optional cleanup" },
-    { "kind": "skill-contains", "value": "drafting never authorizes publishing" }
+    { "kind": "skill-contains", "value": "drafting never authorizes publishing" },
+    { "kind": "skill-contains", "value": "`(part of #n)`" },
+    { "kind": "skill-contains", "value": "gh release edit TAG --notes-file" },
+    { "kind": "skill-contains", "value": "does not re-run release-action" }
   ]
 }
