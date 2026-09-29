@@ -2,20 +2,20 @@
 agent: agent
 description: >
   Ship local changes: create a branch, make logical commits, push, open and
-  label a PR with a proper description, merge it, prepare no-effect related
-  issue dispositions, and delete the branch.
+  label a PR with a proper description, merge it, prepare related issue
+  dispositions the request does not authorize, and delete the branch.
 ---
 
 # Ship Changes
 
 Ship the current local modifications to `main` through the standard
-branch → commits → PR → merge → no-effect issue disposition → cleanup workflow.
+branch → commits → PR → merge → issue disposition → cleanup workflow.
 
 ## Inputs
 
 - **What changed** — brief description of the work (used for branch name and PR title)
 - **Label** — `no-release`, `patch`, `minor`, or `major`, or omit entirely if no label should be applied
-- **Related issue** — optional exact repository and issue number; if unknown, search read-only first. A delivered issue is closed by release-action through `(#n)` in the description; comment on or close any issue by hand only when the user's request includes that effect.
+- **Related issue** — optional exact repository and issue number; if unknown, search read-only first. Comment on or close it only when the user's request includes that effect; otherwise prepare the disposition as a proposal. A delivered issue is closed by release-action through `(#n)` in the description, but release-action does not run for a `no-release` PR, so `(#n)` closes nothing there.
 
 Invoking this prompt is direct authority for the standard branch, commit, push, pull-request,
 requested-label, merge, and branch-cleanup effects. Do not pause to ask for separate approval at
@@ -38,12 +38,11 @@ for the rest of the chain because this prompt happens to be loaded.
 The description is published verbatim as the release notes, so it follows the contract in
 [`pull-requests.md`](../rules/pull-requests.md#the-description-is-the-release-note).
 
-- Before `gh pr create` or `gh pr edit`, write the body from `.github/pull_request_template.md`:
-  an optional unheaded lead paragraph, then only the non-empty Added/Changed/Fixed/Removed/
-  Security/Deprecated sections. Put `(#n)` at the end of each bullet that delivers an issue and
-  `(part of #n)` for anything that must stay open. Never use `Closes`/`Fixes`/`Refs` before a number.
-- Re-read the body against the forbidden list in the contract (headings such as Summary or
-  Verification, review/testing/provenance notes, internal status, relative links, placeholders)
-  and fix every hit before submitting it.
-- Put the test plan, verification results and review notes in a PR comment, never the description.
+- Before `gh pr create` or `gh pr edit`, write the body from `.github/pull_request_template.md` and
+  check it against the contract. The rules agents most often break:
+  - No development write-up: no Summary/Verification/Test plan headings, no review, testing or
+    provenance notes. Those go in a PR comment.
+  - `(#n)` ends the bullet that delivers an issue and `(part of #n)` marks anything that stays open;
+    never `Closes`/`Fixes`/`Refs` before a number.
+  - Links are absolute `https://` URLs, never relative paths.
 - After pushing, if `verify-release-notes` fails, fix it by editing the description; it re-runs on edit.

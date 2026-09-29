@@ -6,13 +6,14 @@ applyTo: "**/*"
 
 ## The description is the release note
 
-**The PR description is published verbatim as the GitHub release, and `cratis/release-action` closes every issue written as `(#n)`.** Write the note the person upgrading should read, not a development write-up. The same contract applies to release notes typed into a manual workflow run or written straight into a release. The `verify-release-notes` check enforces it on every PR into the default branch that is or may become `major`/`minor`/`patch`; it skips `no-release` PRs, which should still be written this way. Editing the description re-runs the check.
+**The PR description is published verbatim as the GitHub release, and `cratis/release-action` closes every issue written as `(#n)`.** Write the note the person upgrading should read, not a development write-up. The same contract applies to release notes typed into a manual workflow run or written straight into a release. The `verify-release-notes` check enforces it on every PR into the default branch that is or may become `major`/`minor`/`patch`; it skips `no-release` PRs, which should still be written this way. `release-action` does not run for a `no-release` PR, so `(#n)` closes nothing there. Editing the description re-runs the check. HTML comments are not published and the check ignores them, so the template's comment can stay.
 
 ### Allowed shape
 
 - Follow the repository's pull request template (`.github/pull_request_template.md`) within this contract.
-- An optional lead paragraph (1–3 sentences, **no heading**) only when one theme spans the bullets.
-- Then only these `##` sections, in this order, only when non-empty: `## Added`, `## Changed`, `## Fixed`, `## Removed`, `## Security`, `## Deprecated`. `###` sub-headings inside a section are fine unless they use a forbidden name.
+- At most one lead paragraph (1–3 sentences, **no heading**), only when one theme spans the bullets. No bullets or code before the first section.
+- Then only these `##` sections, each at most once, in this order: `## Added`, `## Changed`, `## Fixed`, `## Removed`, `## Security`, `## Deprecated`. Keep only the sections that have bullets. `###` sub-headings inside a section are fine unless they use a forbidden name.
+- A `major`/`minor`/`patch` PR needs at least one bullet under an allowed section.
 - Bullets are short, self-contained and user-facing: what a consumer compiles against, runs or observes. A user-visible fix may add one sentence of root cause or regression guard, stated as observable behavior. Credit an external contributor by name or handle, unless they asked not to be named.
 - Breaking changes and upgrade actions are bullets in `## Changed` or `## Removed` that state the action. A longer migration story goes in the docs, linked by absolute URL.
 - Do not list internal plumbing (storage, converters, gRPC internals, specs, file lists, refactor narration).
@@ -25,13 +26,13 @@ applyTo: "**/*"
 | `(part of #351)` or prose `see #351` | Related, partial or follow-up: never closes |
 | `Cratis/Repo#351` | Other repository: never closed |
 
-- Never use a linking or closing keyword before a number, anywhere: `Closes`, `Closed`, `Fixes`, `Fixed`, `Resolves`, `Resolved`, `Refs`, `Ref`, `References` (also with `owner/repo#n`). A `Refs #93` line delivers nothing and stops the delivered issue from closing.
-- Comment on or close an issue when the user's request includes that effect; a delivered `(#n)` is closed by release-action at release, so do not close it by hand.
+- Never use a linking or closing keyword before a number, anywhere: `Close`, `Closes`, `Closed`, `Fix`, `Fixes`, `Fixed`, `Resolve`, `Resolves`, `Resolved`, `Refs`, `Ref`, `References`, also as `Keyword: #n` and with `owner/repo#n`. A `Refs #93` line delivers nothing and stops the delivered issue from closing.
+- Comment on or close an issue when the user's request includes that effect; otherwise prepare a bounded post-merge disposition without performing it. A delivered `(#n)` is closed by release-action at release, so do not close it by hand; for a `no-release` PR release-action does not run, so any disposition follows this same rule.
 - Use a bare `(#n)` only for an issue this PR fully delivers. No issue means no reference. Never use a placeholder such as `(#issue)` or the template's `(#123)`, and verify every number exists in the right repository; never guess.
 
 ### Forbidden anywhere outside code
 
-- **Headings** (any level) such as Summary, Overview, Description, What, Why, How, Context, Changes, Test plan, Testing, Tests, Verification, Validation, Quality, Review, Notes, Notes for reviewers, Limitations, Known follow-up, Acceptance, Details, and any `#`/`##` heading not in the allowed list.
+- **Headings** (any level) such as Summary, Overview, Description, What, Why, How, Context, Changes, What changed, Test plan, Testing, Tests, Verification, Verified, Validation, Quality, Review, Notes, Notes for reviewers, Limitations, Known follow-up, Acceptance, Details, and any `#`/`##` heading not in the allowed list.
 - **Review, verification, testing and provenance notes**: `Review:`, `Reviewed:`, `Verification:`, `Tested:`, `Testing:`, `Validation:` lines; mentions of same-provider, cross-provider, Opus-only, Anthropic-only, the review workflow, CI or gate results, or which agent or model wrote the change.
 - **Internal state** that is not a consumer change (for example "npm publication remains disabled").
 - **Relative links** (`](Documentation/x.md)`, `](./x)`, `](Source/...)`): they 404 on the release page. Use `https://github.com/Cratis/<Repo>/blob/main/<path>`, a `#anchor` or `mailto:`.
@@ -71,12 +72,9 @@ Arc can now construct Chronicle reactors and reducers through its own dependency
 
 ### Before you create or edit a PR
 
-1. Read the body against the forbidden list above; delete every hit.
-2. Only allowed headings, in order, none empty; the lead paragraph has no heading.
-3. Every bullet is user-facing; internal and process lines are gone.
-4. Delivered issues are `(#n)` at the end of their bullet; everything else is `(part of #n)`, `see #n` or `Cratis/Repo#n`; no keyword before any number; every number verified.
-5. Every link is `https://`, `#anchor` or `mailto:`.
-6. Test plan, verification and review notes are in a PR comment.
+1. Read the body against the forbidden list and the issue table above; delete every hit and verify every issue number.
+2. Sections in order, none empty; every bullet user-facing.
+3. Test plan, verification and review notes are in a PR comment.
 
 If `verify-release-notes` fails, fix it by editing the description, not by pushing code.
 

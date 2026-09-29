@@ -44,24 +44,22 @@ one to add weight.
 
 - **Exact-version release note (GitHub/PR):** in a Cratis repository this is
   the merged PR description, published verbatim, so it follows the contract in
-  [pull-requests.md](../../rules/pull-requests.md): an optional unheaded lead
-  paragraph, then only `## Added`, `## Changed`, `## Fixed`, `## Removed`,
-  `## Security`, `## Deprecated`, each non-empty and in that order. Within a section, put
-  changes requiring action first (breaking changes and upgrade
-  actions are bullets in `## Changed` or `## Removed` that state the action),
-  then new capabilities and fixes. State impact and the user's next action in
-  plain language. End the bullet that delivers a verified issue with `(#n)`;
-  release-action closes it. Use `(part of #n)`, `see #n` or `Cratis/Repo#n` for
-  anything that must stay open, and never a closing keyword (`Closes`, `Fixes`,
-  `Refs`, ...) before a number. No Summary, Verification, Test plan or Review
-  headings or lines, no internal status, no relative links (use `https://`
-  URLs), no placeholders. Reviewer information goes in a PR comment. Do not list
+  [pull-requests.md](../../rules/pull-requests.md), which holds the full
+  rules. The ones most often broken: no development write-up (no Summary,
+  Verification or Test plan headings, no review or provenance notes; those go
+  in a PR comment); `(#n)` at the end of the bullet that delivers an issue and
+  `(part of #n)` for anything that stays open, never `Closes`, `Fixes` or
+  `Refs` before a number; and absolute `https://` links only. Sections are in
+  a fixed order (Added, Changed, Fixed, Removed, Security, Deprecated); within
+  a section, put changes requiring action first, then new capabilities and
+  fixes. State impact and the user's next action in plain language, and flag
+  an upgrade action in the lead paragraph when one applies. Do not list
   internal refactors or specs that change nothing users observe. For a
   user-visible fix, a sentence of root cause and of what now guards against a
   regression, stated as observable behavior rather than a list of specs, is
-  user-facing: it tells the reader whether to trust the fix. Credit an external
-  contributor by name or handle and say what they did, unless they asked not to
-  be named.
+  user-facing: it tells the reader whether to trust the fix. Credit an
+  external contributor by name or handle and say what they did, unless they
+  asked not to be named.
 - **Migration guide (durable product docs):** a compact *old behavior → new
   behavior → required action* table for each affected upgrade path, followed
   by source-verified before/after code or commands. Distinguish required
@@ -90,9 +88,17 @@ items. Use descriptive headings, meaningful links, and natural sentence rhythm.
 
 Only when asked to fix a release that violates the contract:
 
-1. Read the published body (`gh release view TAG --json body`) and the merged PR. Keep the facts; remove headings, review and verification lines, internal status and closing keywords, and turn relative links into `https://` URLs. Do not invent changes, versions or issue numbers.
-2. Publish the corrected text with `gh release edit TAG --notes-file FILE`, only when the request authorizes editing that release.
-3. Editing a release does not re-run release-action. An issue that a `(#n)` would have closed stays open. For each one, confirm the release actually delivered it, then close it by hand with a comment naming the release. Leave an issue open when the release only partly delivered it.
+1. Read the published body (`gh release view TAG --json body`) and the merged
+   PR. Keep the facts; remove headings, review and verification lines,
+   internal status and closing keywords, and turn relative links into
+   `https://` URLs. Do not invent changes, versions or issue numbers.
+2. Publish the corrected text with `gh release edit TAG --notes-file FILE`,
+   only when the request authorizes editing that release.
+3. Editing a release does not re-run release-action, so an issue that a
+   `(#n)` would have closed stays open. For each one, confirm the release
+   actually delivered it. Close it by hand with a comment naming the release
+   only when the request covers closing issues; otherwise list the issues as a
+   proposal. Leave an issue open when the release only partly delivered it.
 
 ## Verify before handing over
 
