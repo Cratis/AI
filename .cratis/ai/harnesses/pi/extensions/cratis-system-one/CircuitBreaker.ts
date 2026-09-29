@@ -48,12 +48,17 @@ export class CircuitBreaker {
         }
     }
 
-    /** Gives back a probe that produced no result (the session ended, the turn threw), so the breaker cannot stay stuck. */
+    /** Gives back the probe of a turn that produced no result (the session ended, the turn threw), so the breaker cannot stay stuck. Only that turn may call it. */
     release(): void {
         this.#probing = false;
     }
 
-    recordSuccess(): void {
+    /**
+     * `isProbe` says whether the turn reporting was the one `allow()` granted the half-open probe to. Only
+     * that turn's result closes an open breaker; a turn from before it opened, reporting late, does not.
+     */
+    recordSuccess(isProbe: boolean): void {
+        if (this.#open && !isProbe) return;
         this.#consecutiveFailures = 0;
         this.#trips = 0;
         this.#open = false;
@@ -61,16 +66,19 @@ export class CircuitBreaker {
     }
 
     /**
-     * Returns true when this failure opened (or re-opened) the breaker. A failure that ends a probe always
+     * Returns true when this failure opened (or re-opened) the breaker. `isProbe` says whether the turn
+     * reporting was the one `allow()` granted the half-open probe to. A failure that ends a probe always
      * re-opens it with a fresh, longer back-off, however few failures were counted before it opened, for
-     * instance when a rate-limit answer opened it after a single failure.
+     * instance when a rate-limit answer opened it after a single failure. A turn from before the breaker
+     * opened, failing late, changes nothing while it is open or half-open: the probe decides, and the
+     * probe stays the only one.
      */
-    recordFailure(failure: FailureClass, retryAfterMs?: number): boolean {
-        const wasProbe = this.#probing;
+    recordFailure(failure: FailureClass, retryAfterMs: number | undefined, isProbe: boolean): boolean {
+        if (this.#open && !isProbe) return false;
         this.#probing = false;
         this.#consecutiveFailures++;
         const pushedBack = failure === FailureClass.RateLimited || failure === FailureClass.Overloaded;
-        if (!wasProbe && !pushedBack && this.#consecutiveFailures < this.threshold) return false;
+        if (!isProbe && !pushedBack && this.#consecutiveFailures < this.threshold) return false;
         const backoff = Math.min(this.baseBackoffMs * 2 ** this.#trips, this.maximumBackoffMs);
         const wait = pushedBack && retryAfterMs !== undefined ? Math.min(retryAfterMs, maximumRetryAfterMs) : backoff;
         this.#trips++;

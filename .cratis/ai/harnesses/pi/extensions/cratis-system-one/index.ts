@@ -163,8 +163,9 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             await judgeTurn(owner, record, prompt, candidates, settings, context, isCurrent, controller, halfOpen, () => { reported = true; });
         } finally {
             // A probe that reported nothing (the session ended, the configuration changed, something threw)
-            // is given back, so the breaker cannot stay stuck. One that reported has already closed or re-opened it.
-            if (!reported) owner.release();
+            // is given back, so the breaker cannot stay stuck. One that reported has already closed or re-opened
+            // it. Only the turn that was granted the probe may give it back: any other turn never held it.
+            if (halfOpen && !reported) owner.release();
         }
     };
 
@@ -199,12 +200,12 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         // that is what the server asked for; otherwise the first failure does. It is told first, before anything
         // that could throw, so a failed probe always re-opens it.
         if (failures.length === 0) {
-            owner.recordSuccess();
+            owner.recordSuccess(halfOpen);
         } else {
             const pushedBack = failures.filter(failure => failure.failure === FailureClass.RateLimited || failure.failure === FailureClass.Overloaded);
             const deciding = pushedBack.length > 0 ? pushedBack : failures;
             const retryAfterMs = Math.max(0, ...deciding.map(failure => failure.retryAfterMs ?? 0)) || undefined;
-            if (owner.recordFailure(deciding[0].failure, retryAfterMs)) {
+            if (owner.recordFailure(deciding[0].failure, retryAfterMs, halfOpen)) {
                 announce(context, 'breaker-open', `System One is paused for about ${Math.ceil(owner.retryInMs / 1000)} s after repeated failures. See /system-one status.`);
             }
         }
@@ -327,7 +328,7 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             inFlight.add(work);
         } catch (error) {
             // A probe was granted but no request will report for it.
-            owner.release();
+            if (halfOpen) owner.release();
             throw error;
         }
     };
