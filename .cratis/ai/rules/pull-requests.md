@@ -4,19 +4,79 @@ applyTo: "**/*"
 
 # How to Do Pull Requests
 
-PR descriptions serve two purposes: they help reviewers understand the change *now*, and they become the release notes that users read *later*. Write them with both audiences in mind.
+## The description is the release note
 
-**The description is the release note — it is published verbatim.** Write it as the note you want the person upgrading to read, in the repository template's sections. A generic development write-up (`## Summary`, `## Verification`, `## Testing`, a list of the files you touched, a description of how you arrived at the change) is not a release note, and shipping one makes the release history unreadable. The same applies wherever a release is produced by hand: release-notes text typed into a manual workflow run, or written straight into a published release, carries exactly the same shape and the same audience as a PR description. There is no path to a release whose notes are allowed to describe the work instead of the change.
+**The PR description is published verbatim as the GitHub release, and `cratis/release-action` closes every issue written as `(#n)`.** Write the note the person upgrading should read, not a development write-up. The same contract applies to release notes typed into a manual workflow run or written straight into a release. The `verify-release-notes` check enforces it on every PR into the default branch that is or may become `major`/`minor`/`patch`; it skips `no-release` PRs, which should still be written this way. Editing the description re-runs the check.
 
-## Description
+### Allowed shape
 
-- Follow the repository's pull request template (`.github/pull_request_template.md`).
-- Focus on the **Added**, **Changed**, **Fixed**, **Removed**, **Security**, and **Deprecated** sections. Remove sections that are empty — don't leave blank headings.
-- Each bullet should be short, self-contained, and release-note ready.
-- **Write for users of the framework, not for internal developers.** Only include changes that have an impact on anyone using what we build — new APIs, changed behavior, fixed bugs, removed features. Do not list internal implementation details like storage changes, converter updates, gRPC contract internals, or spec additions. If a change is purely internal plumbing, it does not belong in the PR description. For a user-visible fix, a brief root cause and what now prevents a regression, stated as observable behavior rather than a list of specs, are user-facing and may be included: they tell the upgrader whether to trust the fix. Credit an external contributor by name or handle, unless they asked not to be named.
-- Add the associated issue reference at the end of a bullet when there is a real GitHub issue for the change (e.g. `(#351)`). Keep it a bare reference — **no closing keywords** (`Closes #351`, `Fixes #351`) anywhere in the body, because the published release notes are the PR description verbatim. If there is no associated issue, omit the reference entirely. Never use a placeholder like `(#issue)` or leave the example number `(#123)` literally, and never invent a random issue number. **Always verify the issue number read-only using the repository source — never guess or invent a number.** Comment on or close an issue when the user's request includes that effect; otherwise prepare a bounded post-merge disposition without performing it.
-- Include a summary only if there is a cohesive theme across the changes. If you find yourself restating individual bullets in slightly different words, the summary adds no value — remove it.
-- Never include Copilot prompt content in the PR description. Remove any "Original prompt" / coding agent transcript blocks before publishing.
+- Follow the repository's pull request template (`.github/pull_request_template.md`) within this contract.
+- An optional lead paragraph (1–3 sentences, **no heading**) only when one theme spans the bullets.
+- Then only these `##` sections, in this order, only when non-empty: `## Added`, `## Changed`, `## Fixed`, `## Removed`, `## Security`, `## Deprecated`. `###` sub-headings inside a section are fine unless they use a forbidden name.
+- Bullets are short, self-contained and user-facing: what a consumer compiles against, runs or observes. A user-visible fix may add one sentence of root cause or regression guard, stated as observable behavior. Credit an external contributor by name or handle, unless they asked not to be named.
+- Breaking changes and upgrade actions are bullets in `## Changed` or `## Removed` that state the action. A longer migration story goes in the docs, linked by absolute URL.
+- Do not list internal plumbing (storage, converters, gRPC internals, specs, file lists, refactor narration).
+
+### Issue references
+
+| Write | Meaning |
+| --- | --- |
+| `(#351)` at the **end of the bullet that delivers it** | Delivered: release-action closes it |
+| `(part of #351)` or prose `see #351` | Related, partial or follow-up: never closes |
+| `Cratis/Repo#351` | Other repository: never closed |
+
+- Never use a linking or closing keyword before a number, anywhere: `Closes`, `Closed`, `Fixes`, `Fixed`, `Resolves`, `Resolved`, `Refs`, `Ref`, `References` (also with `owner/repo#n`). A `Refs #93` line delivers nothing and stops the delivered issue from closing.
+- Comment on or close an issue when the user's request includes that effect; a delivered `(#n)` is closed by release-action at release, so do not close it by hand.
+- Use a bare `(#n)` only for an issue this PR fully delivers. No issue means no reference. Never use a placeholder such as `(#issue)` or the template's `(#123)`, and verify every number exists in the right repository; never guess.
+
+### Forbidden anywhere outside code
+
+- **Headings** (any level) such as Summary, Overview, Description, What, Why, How, Context, Changes, Test plan, Testing, Tests, Verification, Validation, Quality, Review, Notes, Notes for reviewers, Limitations, Known follow-up, Acceptance, Details, and any `#`/`##` heading not in the allowed list.
+- **Review, verification, testing and provenance notes**: `Review:`, `Reviewed:`, `Verification:`, `Tested:`, `Testing:`, `Validation:` lines; mentions of same-provider, cross-provider, Opus-only, Anthropic-only, the review workflow, CI or gate results, or which agent or model wrote the change.
+- **Internal state** that is not a consumer change (for example "npm publication remains disabled").
+- **Relative links** (`](Documentation/x.md)`, `](./x)`, `](Source/...)`): they 404 on the release page. Use `https://github.com/Cratis/<Repo>/blob/main/<path>`, a `#anchor` or `mailto:`.
+- **Placeholders and transcripts**: template text, empty sections, Copilot "Original prompt" blocks, agent transcripts.
+
+Reviewer-facing information (test plan, verification, review provenance, notes for reviewers) goes in a **PR comment**, never the description.
+
+### Bad to good
+
+Bad (abridged from Cratis/Arc.TypeScript v0.48.0, as published):
+
+```markdown
+Reactors can now be scoped to an activation, but npm publication remains disabled.
+
+## Added
+
+- Scoped activation for Chronicle reactors.
+
+See [scoped activation](Documentation/chronicle/reactors/scoped-activation.md).
+
+Review: Opus-only (same-provider) review.
+
+Refs #93
+```
+
+Good:
+
+```markdown
+## Added
+
+- Scoped activation for Chronicle reactors. See [scoped activation](https://github.com/Cratis/Arc.TypeScript/blob/main/Documentation/chronicle/reactors/scoped-activation.md) (#93)
+```
+
+The lead line is internal status, the link was relative, the review line is provenance, and `Refs #93` never closed the issue; `(#93)` now sits on the bullet that delivers it.
+
+### Before you create or edit a PR
+
+1. Read the body against the forbidden list above; delete every hit.
+2. Only allowed headings, in order, none empty; the lead paragraph has no heading.
+3. Every bullet is user-facing; internal and process lines are gone.
+4. Delivered issues are `(#n)` at the end of their bullet; everything else is `(part of #n)`, `see #n` or `Cratis/Repo#n`; no keyword before any number; every number verified.
+5. Every link is `https://`, `#anchor` or `mailto:`.
+6. Test plan, verification and review notes are in a PR comment.
+
+If `verify-release-notes` fails, fix it by editing the description, not by pushing code.
 
 ## Commits
 
