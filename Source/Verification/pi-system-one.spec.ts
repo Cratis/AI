@@ -941,22 +941,83 @@ test('setup discloses an override even when only the path differs', async () => 
     }
 });
 
-test('setup stops when the environment would keep it from running, or points somewhere not allowed', async () => {
-    for (const [name, environment, expected] of [
-        ['CRATIS_SYSTEM_ONE=0', { CRATIS_SYSTEM_ONE: '0' }, /would not run here \(disabled by CRATIS_SYSTEM_ONE\)/],
-        ['SYSTEMONE_ENDPOINT over http to a remote host', { SYSTEMONE_ENDPOINT: 'http://example.invalid' }, /would not run here \(SYSTEMONE_ENDPOINT: a non-loopback endpoint must use https/],
-    ] as const) {
+test('setup stops when the environment would keep it from running', async () => {
+    const project = projectFixture();
+    try {
+        const session = host(project, { environment: { CRATIS_SYSTEM_ONE: '0' }, transport: failOnCall }, { script: { select: typeSafe, inputs: [secret], confirms: [true] } });
+        const output = await session.command('setup');
+        assert.match(output, /would not run here \(disabled by CRATIS_SYSTEM_ONE\)/);
+        assert.equal(session.prompts.some(prompt => prompt.kind === 'confirm'), false, 'nothing to confirm');
+        assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false);
+    } finally {
+        project.cleanup();
+    }
+});
+
+test('setup stops before the key question when SYSTEMONE_ENDPOINT is not a usable endpoint', async () => {
+    for (const value of ['http://example.invalid', 'not-a-url']) {
         const project = projectFixture();
         try {
-            const session = host(project, { environment, transport: failOnCall }, { script: { select: typeSafe, inputs: [secret], confirms: [true] } });
+            let requests = 0;
+            const transport = async (): Promise<Response> => { requests++; throw new Error('the transport must not be called'); };
+            const session = host(project, { environment: { SYSTEMONE_ENDPOINT: value }, transport }, { script: { select: typeSafe, inputs: [secret], confirms: [true] } });
             const output = await session.command('setup');
-            assert.match(output, expected, name);
-            assert.equal(session.prompts.some(prompt => prompt.kind === 'confirm'), false, `${name}: nothing to confirm`);
-            assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false, name);
+            assert.match(output, /System One setup stopped: SYSTEMONE_ENDPOINT: .+\. Nothing was saved\./, value);
+            assert.deepEqual(session.prompts.map(prompt => prompt.kind), ['select'], `${value}: no key question, no disclosure`);
+            assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false, `${value}: nothing saved`);
+            assert.equal(requests, 0, `${value}: no request`);
+            assert.equal(output.includes(secret), false, value);
         } finally {
             project.cleanup();
         }
     }
+});
+
+test('a key typed for a local server that a path-only override would not reach is neither stored nor recorded', async () => {
+    await withServer(answering(0.6), async server => {
+        const project = projectFixture();
+        try {
+            const environment = { SYSTEMONE_ENDPOINT: `${server.endpoint}/elsewhere/v1/systemone` };
+            const session = host(project, { environment }, { script: { select: local, inputs: [server.endpoint, 'typed-local-key'], confirms: [true] } });
+            const output = await session.command('setup');
+            const confirm = session.prompts.find(prompt => prompt.kind === 'confirm')!;
+            // The disclosure, the probe and the agreement all say the same thing: no credential.
+            assert.match(confirm.detail!, /with each request, no credential\./);
+            assert.equal(server.requests.length, 1);
+            assert.equal(server.requests[0].url, '/elsewhere/v1/systemone');
+            assert.equal(server.requests[0].headers.authorization, undefined, 'the probe carried no credential');
+            const text = readFileSync(userConfigurationPath(project.agentDirectory), 'utf8');
+            const saved = JSON.parse(text);
+            assert.equal(saved.keySource, 'none');
+            assert.equal('apiKey' in saved, false, 'a key that is not sent is not stored');
+            assert.equal(text.includes('typed-local-key'), false);
+            assert.match(output, /The key you typed is not stored/);
+            assert.equal(output.includes('typed-local-key'), false);
+            // Run time agrees: with and without the override, nothing carries a credential.
+            project.configure({});
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            await host(project, { environment }).askAndSettle(promptText, skills);
+            await host(project, {}).askAndSettle(promptText, skills);
+            assert.deepEqual(server.requests.map(request => request.headers.authorization), [undefined, undefined, undefined]);
+        } finally {
+            project.cleanup();
+        }
+    });
+    // Without an override the same typed key is stored, recorded and sent.
+    await withServer(answering(0.6), async server => {
+        const project = projectFixture();
+        try {
+            const session = host(project, {}, { script: { select: local, inputs: [server.endpoint, 'typed-local-key'], confirms: [true] } });
+            await session.command('setup');
+            assert.match(session.prompts.find(prompt => prompt.kind === 'confirm')!.detail!, /a credential: the key you entered/);
+            assert.equal(server.requests[0].headers.authorization, 'Bearer typed-local-key');
+            const saved = JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8'));
+            assert.equal(saved.keySource, 'typed');
+            assert.equal(saved.apiKey, 'typed-local-key');
+        } finally {
+            project.cleanup();
+        }
+    });
 });
 
 test('a failed probe saves nothing unless the user insists', async () => {
