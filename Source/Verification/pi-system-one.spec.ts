@@ -325,6 +325,45 @@ test('endpoints must be https, or http only for loopback, and bare origins get t
     assert.equal(full.loopback, false);
 });
 
+test('every loopback form is loopback for keys, and unspecified addresses are refused', async () => {
+    // What the URL parser makes of each form is what is checked, so every spelling is covered.
+    const loopbackForms = ['https://127.0.0.2', 'https://127.255.255.254:9443', 'https://127.1', 'https://2130706433', 'https://0x7f.0.0.1', 'https://[::1]', 'https://[0:0:0:0:0:0:0:1]', 'https://[::ffff:127.0.0.1]', 'https://[::ffff:7f00:1]', 'https://[::ffff:7f00:2]', 'https://[0:0:0:0:0:ffff:7f00:1]', 'https://[::127.0.0.1]', 'https://localhost', 'https://localhost.', 'https://LOCALHOST', 'https://a.localhost', 'https://a.b.localhost.', 'https://api.localhost:8443/v1/systemone'];
+    for (const endpoint of loopbackForms) {
+        const checked = checkEndpoint(endpoint);
+        assert.ok(!('error' in checked), endpoint);
+        assert.equal(checked.loopback, true, endpoint);
+        const project = enabledProject(endpoint);
+        try {
+            const configuration = loadConfiguration(project.directory, project.agentDirectory, { SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret });
+            assert.ok(configuration.enabled, endpoint);
+            assert.equal(configuration.settings.apiKey, undefined, `${endpoint}: an environment key never goes to loopback`);
+        } finally {
+            project.cleanup();
+        }
+    }
+    // Only addresses that are certainly this machine, and the name localhost, may use plain http.
+    for (const endpoint of ['http://127.0.0.2:8000', 'http://127.1:8000', 'http://localhost.:8000', 'http://[::1]:8000', 'http://LOCALHOST:8000']) assert.ok(!('error' in checkEndpoint(endpoint)), endpoint);
+    for (const endpoint of ['http://a.localhost:8000', 'http://[::ffff:7f00:1]:8000', 'http://[::127.0.0.1]:8000', 'http://128.0.0.1:8000']) assert.ok('error' in checkEndpoint(endpoint), endpoint);
+    // Not loopback: a look-alike, or a neighbor of one, still gets the environment key and needs https.
+    for (const endpoint of ['https://128.0.0.1', 'https://126.255.255.255', 'https://[::ffff:8000:1]', 'https://localhost.example.invalid', 'https://notlocalhost', 'https://localhost-x.example.invalid', 'https://a-localhost.invalid']) {
+        const checked = checkEndpoint(endpoint);
+        assert.ok(!('error' in checked), endpoint);
+        assert.equal(checked.loopback, false, endpoint);
+    }
+    const project = enabledProject('https://128.0.0.1');
+    try {
+        const configuration = loadConfiguration(project.directory, project.agentDirectory, { SYSTEMONE_API_KEY: secret });
+        assert.ok(configuration.enabled && configuration.settings.apiKey === secret, 'control: a non-loopback https endpoint still gets the key');
+    } finally {
+        project.cleanup();
+    }
+    // Unspecified addresses mean "any address here", so they are refused outright, over http or https.
+    for (const endpoint of ['http://0.0.0.0', 'https://0.0.0.0', 'https://0.0.0.0:8443/v1/systemone', 'https://0', 'https://0x0', 'https://0.1.2.3', 'http://[::]', 'https://[::]', 'https://[0:0:0:0:0:0:0:0]', 'https://[::ffff:0.0.0.0]', 'https://[::ffff:0:0]']) {
+        const checked = checkEndpoint(endpoint);
+        assert.ok('error' in checked && /unspecified address/.test(checked.error), endpoint);
+    }
+});
+
 test('an endpoint the user configured but that is not allowed disables System One with one notice and sends nothing', async () => {
     for (const endpoint of ['http://example.invalid', 'http://0.0.0.0:8000', 'http://[::ffff:127.0.0.1]:8000', 'https://user:pass@example.invalid', 'ftp://example.invalid']) {
         const project = enabledProject(endpoint);
@@ -680,7 +719,8 @@ test('setup stops without saving or sending when the user declines, cancels, or 
         ['cancels the key', { select: typeSafe, inputs: [undefined] }, /cancelled/],
         ['gives no key for a hosted provider', { select: typeSafe, inputs: [''] }, /needs an API key/],
         ['gives http for a remote provider', { select: other, inputs: ['http://example.invalid'] }, /https/],
-        ['gives 0.0.0.0 for a local server', { select: local, inputs: ['http://0.0.0.0:8000'] }, /https/],
+        ['gives 0.0.0.0 for a local server', { select: local, inputs: ['http://0.0.0.0:8000'] }, /unspecified address/],
+        ['gives :: for a local server', { select: local, inputs: ['https://[::]:8000'] }, /unspecified address/],
         ['gives an IPv4-mapped loopback address', { select: local, inputs: ['http://[::ffff:127.0.0.1]:8000'] }, /https/],
         ['gives a remote URL for a local server', { select: local, inputs: ['https://example.invalid'] }, /local server must be on 127\.0\.0\.1/],
     ];

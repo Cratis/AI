@@ -107,7 +107,8 @@ function repositoryNarrowing(repository: ConfigurationFile): RepositoryNarrowing
 
 /**
  * The only place a key is chosen. Environment keys (`SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` for the
- * TypeSafe origin only) are never attached to any loopback endpoint, http or https: a local server gets a
+ * TypeSafe origin only) are never attached to any loopback endpoint (127.0.0.0/8, IPv4-mapped forms,
+ * `localhost`, `*.localhost`), http or https: a local server gets a
  * key only if the user stored one for that exact endpoint. Elsewhere, a key stored in the user file is
  * bound to the origin it was stored for and is used only when that is the effective origin.
  */
