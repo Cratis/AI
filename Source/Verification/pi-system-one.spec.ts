@@ -513,7 +513,8 @@ test('setup states what is sent, confirms, probes, and only then saves a private
             assert.match(confirm.detail!, /in repositories set up with Cratis AI/);
             assert.match(confirm.detail!, /names and first sentence/);
             // Accurate rather than absolute: what is skipped is listed, and so is what still goes.
-            assert.match(confirm.detail!, /Skipped, never sent: slash commands, skill and template invocations, subagent tasks, tool output, prompts Pi built around @file arguments or that start with "<", prompts rewritten after this extension saw them, and prompts from extensions, RPC hosts or sessions without a UI\./);
+            assert.match(confirm.detail!, /Skipped, never sent: slash commands, skill and template invocations, subagent tasks, prompts Pi built around @file arguments or that start with "<", prompts rewritten after this extension saw them, and prompts from extensions, RPC hosts or sessions without a UI\. This extension does not read tool result content\./);
+            assert.doesNotMatch(confirm.detail!, /tool output/i, 'no claim about tool output');
             assert.match(confirm.detail!, /Anything else that reaches Pi as typed interactive input is sent: pasted text, text you resubmit from \/tree or \/fork, and text produced by another extension's editor or earlier input handler\./);
             assert.doesNotMatch(confirm.detail!, /file contents are never sent/i, 'no claim the residuals contradict');
             assert.match(confirm.detail!, /with each request, no credential\./);

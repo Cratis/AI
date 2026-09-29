@@ -73,8 +73,9 @@ the hosted model is the realistic backend and consent has to be safe for a remot
     an input handler loaded before this extension already rewrote, and a prompt from an SDK host with
     a UI that calls `session.prompt` without a source. Pi's default editor keeps an `@path` a path.
     The setup disclosure and the README say this, and a user who runs such extensions or hosts can turn
-    the feature off. Claims about file contents and tool output are therefore made only for what is
-    skipped, never as an absolute.
+    the feature off. Claims are therefore made only for what is skipped, and for what the extension does
+    not read (it looks at the path of a `read` of a `SKILL.md`, never at tool result content), never as an
+    absolute about file contents.
   - **The credential is disclosed.** Setup names which credential goes with the requests (the
     environment's `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`, the entered key, or none) and never its
     value, and asks a second, explicit confirmation before an environment key goes anywhere but

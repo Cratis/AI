@@ -51,7 +51,7 @@ export function disclosure(origin: string, credential: KeySource, override?: End
         '  - the names and first sentence of the description of the Cratis skills Pi loaded,',
         '  - the first 1200 characters of each prompt you type in an interactive session, in repositories set up with Cratis AI,',
         `  - with each request, ${credential === KeySource.None ? 'no credential' : `a credential: ${credential} (the value is never shown)`}.`,
-        'Skipped, never sent: slash commands, skill and template invocations, subagent tasks, tool output, prompts Pi built around @file arguments or that start with "<", prompts rewritten after this extension saw them, and prompts from extensions, RPC hosts or sessions without a UI.',
+        'Skipped, never sent: slash commands, skill and template invocations, subagent tasks, prompts Pi built around @file arguments or that start with "<", prompts rewritten after this extension saw them, and prompts from extensions, RPC hosts or sessions without a UI. This extension does not read tool result content.',
         'Anything else that reaches Pi as typed interactive input is sent: pasted text, text you resubmit from /tree or /fork, and text produced by another extension\'s editor or earlier input handler.',
         'A System One model uses this to judge which skills would help. In this version scores are only recorded in your session; they change nothing the model sees.',
         `Retention and privacy are the provider's. For TypeSafe see ${legalUrl}.`,
