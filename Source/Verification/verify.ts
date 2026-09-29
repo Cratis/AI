@@ -88,7 +88,7 @@ for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/ma
         failures.push(`${marketplace} must expose the canonical .cratis/ai/skills corpus.`);
     }
 }
-const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'cratis-path-guidance', 'subagent', 'cratis-mcp'];
+const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'cratis-path-guidance', 'subagent', 'cratis-mcp', 'cratis-system-one'];
 for (const extension of requiredPiExtensions) {
     if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);
 }
@@ -104,6 +104,7 @@ for (const extension of [
     './package/corpus/harnesses/pi/extensions/subagent/index.ts',
     './package/corpus/harnesses/pi/extensions/cratis-mcp/index.ts',
     './package/corpus/harnesses/pi/extensions/cratis-path-guidance/index.ts',
+    './package/corpus/harnesses/pi/extensions/cratis-system-one/index.ts',
 ]) {
     if (!packagedExtensions.includes(extension)) failures.push(`@cratis/pi does not load '${extension}'.`);
 }
