@@ -29,9 +29,10 @@ the hosted model is the realistic backend and consent has to be safe for a remot
   written atomically with mode `0600` because it may hold a key. It records `consentedAt`.
 - **`/system-one setup` is the consent flow.** It states exactly what is sent and to which endpoint,
   asks for confirmation, and probes that endpoint with one tiny request before saving. What is
-  disclosed and probed is computed by the same resolution the extension uses at run time, so if
-  `SYSTEMONE_ENDPOINT` overrides the user's choice, setup says so and names the endpoint that really
-  receives data. Nothing is written before the confirmation. A failed probe saves only if the user
+  disclosed and probed is computed by the same resolution the extension uses at run time: if
+  `SYSTEMONE_ENDPOINT` changes only the path of the chosen endpoint, setup says so and names the URL that
+  really receives data; if it points to another origin, or is not a usable endpoint, setup stops before
+  asking for a key. Nothing is written before the confirmation. A failed probe saves only if the user
   insists. Without a UI it prints the manual steps to the terminal (stderr).
 - **The repository can only opt out or narrow, and it fails closed.** The `systemOne` section of
   `.cratis/ai.json` accepts `{ "enabled": false }` and `{ "skillRelevance": { "mode": "off" } }`. It
@@ -77,12 +78,12 @@ the hosted model is the realistic backend and consent has to be safe for a remot
     not read (it looks at the path of a `read` of a `SKILL.md`, never at tool result content), never as an
     absolute about file contents.
   - **The origin and credential are what the user agreed to, and are recorded.** Setup writes
-    `consentedOrigin` (the origin actually disclosed and probed) and `keySource` (`none`, `typed`, `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`) to the
+    `consentedOrigin` (the origin of the backend the user chose, which was disclosed and probed) and `keySource` (`none`, `typed`, `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`) to the
     user file. At run time an effective origin, after any `SYSTEMONE_ENDPOINT`, that differs from
     `consentedOrigin` disables the extension with one notice and sends nothing; a path-only difference is
     allowed. Setup applies the same rule up front instead of reconciling: a `SYSTEMONE_ENDPOINT` pointing
     to another origin than the backend chosen stops setup before it asks for a key, discloses, probes or
-    saves anything, and a path-only override is disclosed and probed at the effective URL. `SYSTEMONE_API_KEY` reaches a non-TypeSafe origin only when `keySource` says the user agreed
+    saves anything, and a path-only override is disclosed and probed at the effective URL. The recorded `keySource` and the stored key are those of the credential disclosed and probed at that URL: a key typed for a local server is bound to that exact endpoint, so if a path-only override means it would not be sent, setup says so and neither stores nor records it. `SYSTEMONE_API_KEY` reaches a non-TypeSafe origin only when `keySource` says the user agreed
     to it, so exporting it later cannot send it anywhere new: with a typed key agreed, the stored key is
     used, the environment key is ignored and status says so. `TYPESAFE_API_KEY` goes to TypeSafe only,
     and environment keys never go to loopback. Both fields are required once the file is enabled: a file
