@@ -167,8 +167,59 @@ test('the Pi package filters rules for framework CSharp documentation repositori
         // Path-scoped rules are delivered by the packaged cratis-path-guidance extension, not the system prompt.
         assert.doesNotMatch(result.systemPrompt, /# C# Conventions/);
         assert.doesNotMatch(result.systemPrompt, /# How to write documentation/);
+        // The same selection applies to the rules path guidance delivers: csharp and documentation are selected...
         assert.ok(rulesForPath(project, 'Source/Thing.cs').some(rule => /# C# Conventions/.test(rule.content)));
         assert.ok(rulesForPath(project, 'Documentation/page.md').some(rule => /# How to write documentation/.test(rule.content)));
+        // ...typescript is not, so no TypeScript rule reaches a .ts file.
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), []);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('path-scoped rules from the packaged corpus follow the selected languages and documentation', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const configure = (configuration: object) => writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
+
+        configure({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] });
+        assert.ok(rulesForPath(project, 'Source/Thing.cs').length > 0, 'csharp is selected');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), [], 'no TypeScript rules for a csharp-only repository');
+        assert.deepEqual(rulesForPath(project, 'Documentation/page.md').map(rule => rule.name), [], 'no documentation rules without cratis/documentation');
+
+        configure({ profiles: ['cratis/engineering/typescript', 'cratis/documentation'], languages: ['typescript'] });
+        assert.ok(rulesForPath(project, 'Source/Thing.ts').length > 0, 'typescript is selected');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), [], 'no C# rules for a typescript-only repository');
+        assert.ok(rulesForPath(project, 'Documentation/page.md').length > 0, 'cratis/documentation is selected');
+
+        rmSync(join(project, '.cratis', 'ai.json'));
+        assert.ok(rulesForPath(project, 'Source/Thing.cs').length > 0 && rulesForPath(project, 'Source/Thing.ts').length > 0, 'no configuration keeps every rule');
+
+        // A managed corpus is already resolved by the CLI, so the language filter does not run on it again.
+        mkdirSync(join(project, '.cratis', 'ai', 'rules'), { recursive: true });
+        writeFileSync(join(project, '.cratis', 'ai', 'rules', 'ts.md'), '---\napplyTo: "**/*.ts"\n---\n# Managed TypeScript rule\n');
+        configure({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] });
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['ts.md']);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the Pi package prompt and path guidance select the same rules for every language and documentation choice', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        for (const configuration of [
+            { profiles: ['cratis/engineering/csharp'], languages: ['csharp'] },
+            { profiles: ['cratis/engineering/typescript'], languages: ['typescript'] },
+            { profiles: ['cratis/application/csharp', 'cratis/documentation'], languages: ['csharp', 'typescript'] },
+            { profiles: ['cratis/application/csharp'], languages: [] },
+        ]) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
+            const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+            assert.equal(result.systemPrompt, `base\n\n${universalRules(project).map(rule => rule.content).join('\n\n')}`, JSON.stringify(configuration));
+        }
     } finally {
         rmSync(project, { recursive: true, force: true });
     }

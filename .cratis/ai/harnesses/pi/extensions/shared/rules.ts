@@ -36,10 +36,33 @@ function matchesProfile(rule: ManagedRule, selected: AiConfiguration | undefined
     return true;
 }
 
-/** Loads every managed rule with its frontmatter interpreted, filtered to the repository's profiles. */
+/**
+ * The packaged `@cratis/pi` corpus holds every rule, so the languages and documentation a repository selected
+ * decide which apply: a rule scoped to `.cs` files needs `csharp`, to `.ts` files needs `typescript`, and to
+ * Markdown needs the `cratis/documentation` profile. A repository that selects no languages keeps them all.
+ */
+function matchesSelection(name: string, applyTo: string[], selected: AiConfiguration | undefined): boolean {
+    const languages = selected?.languages ?? [];
+    if (!selected || languages.length === 0) return true;
+    const scope = applyTo.join(',');
+    const needsCSharp = scope.includes('.cs');
+    const needsTypeScript = scope.includes('.ts') || name === 'rtk.md' || name.endsWith('/rtk.md');
+    const needsDocumentation = scope.includes('md');
+    if (!needsCSharp && !needsTypeScript && !needsDocumentation) return true;
+    return (needsCSharp && languages.includes('csharp')) ||
+        (needsTypeScript && languages.includes('typescript')) ||
+        (needsDocumentation && (selected.profiles ?? []).includes('cratis/documentation'));
+}
+
+/**
+ * Loads every managed rule with its frontmatter interpreted, filtered to the repository's profiles. From the
+ * packaged corpus, which is not resolved for the repository, the selected languages and documentation apply as
+ * well. A managed `.cratis/ai/rules` is already resolved by the CLI, so that second filter is skipped there.
+ */
 export function managedRules(cwd: string): ManagedRule[] {
     const root = rulesRoot(cwd);
     const selected = configuration(cwd);
+    const resolved = existsSync(join(cwd, '.cratis', 'ai', 'rules'));
     return readdirSync(root, { recursive: true, encoding: 'utf8' })
         .filter((entry): entry is string => entry.endsWith('.md'))
         .sort()
@@ -47,13 +70,17 @@ export function managedRules(cwd: string): ManagedRule[] {
             const content = readFileSync(join(root, entry), 'utf8');
             const fields = frontmatter(content);
             return {
-                name: entry.split(sep).join('/'),
-                content,
-                profile: fields.get('profile')?.[0],
-                globs: [...(fields.get('applyTo') ?? []), ...(fields.get('paths') ?? [])],
-            } satisfies ManagedRule;
+                rule: {
+                    name: entry.split(sep).join('/'),
+                    content,
+                    profile: fields.get('profile')?.[0],
+                    globs: [...(fields.get('applyTo') ?? []), ...(fields.get('paths') ?? [])],
+                } satisfies ManagedRule,
+                applyTo: fields.get('applyTo') ?? [],
+            };
         })
-        .filter(rule => matchesProfile(rule, selected));
+        .filter(({ rule, applyTo }) => matchesProfile(rule, selected) && (resolved || matchesSelection(rule.name, applyTo, selected)))
+        .map(({ rule }) => rule);
 }
 
 /** Rules that apply to every file. These belong in the system prompt. */
