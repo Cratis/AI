@@ -53,10 +53,6 @@ function kindOf(value: unknown): string {
     return `a ${typeof value}`;
 }
 
-/**
- * The problems with the shape of `metadata`: Agent Skills maps strings to strings, so it must be absent or a plain map
- * whose values are all strings. The hint's own value is left to `hintValueProblems`, which explains what it must hold.
- */
 /** The keys under `metadata` that are not YAML strings, such as `1:` or `true:`, which a JS object would silently turn into strings. */
 function nonStringMetadataKeys(document: ReturnType<typeof parseDocument>): string[] {
     const metadata = isMap(document.contents) ? document.contents.get('metadata', true) : undefined;
@@ -66,6 +62,10 @@ function nonStringMetadataKeys(document: ReturnType<typeof parseDocument>): stri
         .map(pair => String(isScalar(pair.key) ? pair.key.value : pair.key));
 }
 
+/**
+ * The problems with the shape of `metadata`: Agent Skills maps strings to strings, so it must be absent or a plain map
+ * whose values are all strings. The hint's own value is left to `hintValueProblems`, which explains what it must hold.
+ */
 function metadataShapeProblems(subject: string, fields: Record<string, unknown>): string[] {
     if (!Object.hasOwn(fields, 'metadata')) return [];
     const metadata = fields.metadata;
