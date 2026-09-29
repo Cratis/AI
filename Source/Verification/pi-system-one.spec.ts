@@ -973,13 +973,15 @@ test('setup stops before the key question when SYSTEMONE_ENDPOINT is not a usabl
     }
 });
 
-test('a key typed for a local server that a path-only override would not reach is neither stored nor recorded', async () => {
+test('a local server that a path-only override moves is not asked for a key, and none is stored or recorded', async () => {
     await withServer(answering(0.6), async server => {
         const project = projectFixture();
         try {
             const environment = { SYSTEMONE_ENDPOINT: `${server.endpoint}/elsewhere/v1/systemone` };
             const session = host(project, { environment }, { script: { select: local, inputs: [server.endpoint, 'typed-local-key'], confirms: [true] } });
             const output = await session.command('setup');
+            assert.deepEqual(session.prompts.filter(prompt => prompt.kind === 'input').map(prompt => prompt.title), ['Local server URL (127.0.0.1, ::1 or localhost)'], 'no key question');
+            assert.ok(output.includes(`A key for a local server is sent only to the exact URL; SYSTEMONE_ENDPOINT sends data to ${server.endpoint}/elsewhere/v1/systemone, so no key will be sent. Unset it and run setup again if that server needs one.`), 'the explanation is shown up front');
             const confirm = session.prompts.find(prompt => prompt.kind === 'confirm')!;
             // The disclosure, the probe and the agreement all say the same thing: no credential.
             assert.match(confirm.detail!, /with each request, no credential\./);
@@ -991,7 +993,6 @@ test('a key typed for a local server that a path-only override would not reach i
             assert.equal(saved.keySource, 'none');
             assert.equal('apiKey' in saved, false, 'a key that is not sent is not stored');
             assert.equal(text.includes('typed-local-key'), false);
-            assert.match(output, /The key you typed is not stored/);
             assert.equal(output.includes('typed-local-key'), false);
             // Run time agrees: with and without the override, nothing carries a credential.
             project.configure({});

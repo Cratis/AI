@@ -127,9 +127,13 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     }
 
     // An environment key is used when one applies to this endpoint. Otherwise ask, and store it only in the
-    // user file, bound to this endpoint. A hosted provider needs a key; a local server may not.
+    // user file, bound to this endpoint. A hosted provider needs a key; a local server may not. A key for a
+    // local server is sent only to the exact URL it was stored for, so when a path-only override moves data
+    // elsewhere on that server no key can be sent: say so up front instead of asking for one to discard.
     let storedKey: string | undefined;
-    if (chooseKey(environment, chosen, {}, AgreedKey.SystemOneEnvironment).key === undefined) {
+    if (chosen.loopback && effective.endpoint !== chosen.endpoint) {
+        say(`A key for a local server is sent only to the exact URL; SYSTEMONE_ENDPOINT sends data to ${effective.endpoint}, so no key will be sent. Unset it and run setup again if that server needs one.`, NotifyLevel.Warning);
+    } else if (chooseKey(environment, chosen, {}, AgreedKey.SystemOneEnvironment).key === undefined) {
         const keyPrompt = chosen.loopback
             ? `API key for ${chosen.origin}, or leave blank for none (stored only in ${userConfigurationPath(dependencies.agentDirectory)}, mode 600, used only for this endpoint)`
             : `API key for ${chosen.origin} (stored only in ${userConfigurationPath(dependencies.agentDirectory)}, mode 600, used only for this endpoint; never shown again; tip: set SYSTEMONE_API_KEY instead to store nothing)`;
@@ -143,15 +147,15 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     }
 
     // The credential that is recorded, stored, disclosed and probed is the one that applies at the URL that
-    // really receives data, worked out once here. A key is bound to the endpoint it was typed for (a loopback
-    // key to that exact URL), so a path-only override can leave a typed key unsent: it is then not stored and
-    // not recorded, rather than agreed to and never used. An environment key counts as offered here, and the
-    // second confirmation below is where it is agreed to. The origin recorded is the one the user chose; a
-    // different origin later switches System One off instead of quietly receiving data.
+    // really receives data, worked out once here. The question above already avoids asking for a key that
+    // would go unsent; this is the defensive check that keeps it so: a key that would not be sent is not
+    // stored and not recorded, rather than agreed to and never used. An environment key counts as offered
+    // here, and the second confirmation below is where it is agreed to. The origin recorded is the one the
+    // user chose; a different origin later switches System One off instead of quietly receiving data.
     const offered = chooseKey(environment, effective, { apiKey: storedKey, endpoint: chosen.endpoint }, AgreedKey.SystemOneEnvironment);
     if (storedKey !== undefined && offered.source !== KeySource.Entered) {
         storedKey = undefined;
-        say(`The key you typed is not stored: it is bound to ${chosen.endpoint}, and SYSTEMONE_ENDPOINT sends data to ${effective.endpoint}, so it would not be sent there. Unset SYSTEMONE_ENDPOINT and run setup again if that server needs it.`, NotifyLevel.Warning);
+        say(`The key is not stored: it is bound to ${chosen.endpoint}, and SYSTEMONE_ENDPOINT sends data to ${effective.endpoint}, so it would not be sent there. Unset SYSTEMONE_ENDPOINT and run setup again if that server needs it.`, NotifyLevel.Warning);
     }
     const configuration: UserConfiguration = {
         enabled: true,

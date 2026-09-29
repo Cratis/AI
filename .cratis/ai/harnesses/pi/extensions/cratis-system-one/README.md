@@ -32,11 +32,11 @@ It walks you through four things:
    confirm. If `SYSTEMONE_ENDPOINT` is set in your environment and only changes the path of the
    endpoint you chose, setup says so and names the URL that will really receive data. If it points to
    **another origin** than the backend you chose, setup stops before asking for a key, disclosing,
-   probing or saving anything, and so does a `SYSTEMONE_ENDPOINT` that is not a usable endpoint: unset
-   it, or choose that endpoint ("Other System One provider"). The origin you chose, and the credential
-   that is disclosed and probed, are recorded as what you agreed to. A key you typed for a local server
-   is bound to that exact URL, so if a path-only override means it would not be sent, setup says so
-   and does not store it.
+   probing or saving anything: unset it, or choose that endpoint ("Other System One provider"). So does
+   a `SYSTEMONE_ENDPOINT` that is not a usable endpoint: unset or correct it. The origin you chose, and
+   the credential that is disclosed and probed, are recorded as what you agreed to. A key for a local
+   server is sent only to the exact URL, so with a path-only override setup does not ask for one, says
+   that no key will be sent, and stores none.
 4. **A probe** of that endpoint: one tiny request, with its latency and result shown. It saves as
    enabled only if the probe works. If it fails you can save anyway (the extension fails open) or stop.
 
