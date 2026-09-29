@@ -3,6 +3,7 @@
 
 import type { Connection } from './Connection.ts';
 import { FailureClass } from './FailureClass.ts';
+import { modelPattern } from './modelPattern.ts';
 import type { NoulQuestion } from './NoulQuestion.ts';
 import type { SystemOneOutcome } from './SystemOneOutcome.ts';
 import type { Transport } from './Transport.ts';
@@ -27,7 +28,9 @@ export function retryAfterMs(headers: Headers, now: () => number = Date.now): nu
 
 /**
  * Checks a response body against the questions that were asked. Every asked id must be answered as a
- * `noul` and nothing else may be answered; each probability must be finite and within [0, 1].
+ * `noul` and nothing else may be answered; each probability must be finite and within [0, 1]. The model
+ * name a server reports is kept only when it looks like a model name; otherwise it is dropped (the
+ * configured one is used), and the answer is still good. It ends up in session entries.
  */
 export function validateAnswers(body: unknown, questionIds: readonly string[]): { probabilities: Map<string, number>; model?: string } | FailureClass {
     if (!isRecord(body) || !isRecord(body.answers)) return FailureClass.MalformedResponse;
@@ -42,7 +45,7 @@ export function validateAnswers(body: unknown, questionIds: readonly string[]): 
         if (!Number.isFinite(answer.noul) || answer.noul < 0 || answer.noul > 1) return FailureClass.InvalidProbability;
         probabilities.set(id, answer.noul);
     }
-    return { probabilities, model: typeof body.model === 'string' ? body.model : undefined };
+    return { probabilities, model: typeof body.model === 'string' && modelPattern.test(body.model) ? body.model : undefined };
 }
 
 async function readBounded(response: Response): Promise<string | undefined> {

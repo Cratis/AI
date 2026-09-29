@@ -1683,6 +1683,8 @@ test('shadow mode changes nothing, records ids and probabilities without the pro
             session.sessionStart();
             const skills = skillsIn(project.directory, [{ name: 'skill-a' }, { name: 'skill-b' }, { name: 'skill-c' }]);
             skillsIn(project.directory, [{ name: 'personal-skill', directory: 'elsewhere' }]);
+            // In the corpus, but not among the skills Pi loaded for this turn, so it is never asked about.
+            skillsIn(project.directory, [{ name: 'unasked-skill' }]);
             const { result, unchanged } = session.ask(prompt, skills);
             assert.equal(result, undefined, 'no systemPrompt, no message');
             assert.ok(unchanged());

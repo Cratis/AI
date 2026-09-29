@@ -10,6 +10,7 @@ import type { EffectiveEndpoint } from './EffectiveEndpoint.ts';
 import { FileState } from './FileState.ts';
 import type { RepositoryNarrowing } from './RepositoryNarrowing.ts';
 import type { KeyTarget } from './KeyTarget.ts';
+import { modelPattern } from './modelPattern.ts';
 import { Invalid } from './Invalid.ts';
 import type { SkillRelevanceSettings } from './SkillRelevanceSettings.ts';
 import { SkillRelevanceMode } from './SkillRelevanceMode.ts';
@@ -19,7 +20,6 @@ import { readConfigurationFile, readUserConfigurationFile } from './userConfigur
 export const defaultModel = 'jev-1.13.0';
 export const requestTimeoutMs = 5000;
 
-const modelPattern = /^[A-Za-z0-9._:/-]{1,128}$/;
 const userKeys = ['enabled', 'endpoint', 'model', 'apiKey', 'consentedAt', 'skillRelevance'];
 const disablingValues = new Set(['0', 'false', 'off', 'no']);
 
