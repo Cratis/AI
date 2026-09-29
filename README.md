@@ -73,10 +73,13 @@ file at the moment the file is touched, so it costs almost nothing per session:
   attached to the tool result the first time that file is touched in a session.
   `cratis-rules` no longer delivers them; it keeps only the universal rules in
   the system prompt.
-- **Skill hints.** A skill declares trigger globs in the `cratis-hint-paths` list of its
-  `SKILL.md` frontmatter. The key is Cratis-specific on purpose: Claude Code reads a
-  plain `paths` key in `SKILL.md` as conditional activation and would hide the skill
-  until a matching file is touched. After a successful `write` or `edit` of a
+- **Skill hints.** A skill declares trigger globs in `metadata.cratis-hint-paths` in its
+  `SKILL.md` frontmatter, as one string of whitespace-separated globs
+  (`cratis-hint-paths: "**/for_*/**/*.ts **/for_*/**/*.tsx"`). It sits under `metadata`
+  because Agent Skills allows only `name`, `description`, `license`, `compatibility`,
+  `metadata` and `allowed-tools` at the top level, and the key is Cratis-specific on
+  purpose: Claude Code reads a plain `paths` key in `SKILL.md` as conditional activation
+  and would hide the skill until a matching file is touched. After a successful `write` or `edit` of a
   matching file, one advisory line names every matching skill with its glob and its
   `SKILL.md`. Each skill is hinted at most once per session. A skill is not hinted
   when it is already in context: read in the session (a shell command counts only

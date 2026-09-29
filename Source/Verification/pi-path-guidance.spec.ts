@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -13,11 +13,12 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPathGuidance from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/index.ts';
 import { standsDown } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/standDown.ts';
 import { skillsRead } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/skillReads.ts';
-import { skillTriggerKey } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
+import { frontmatterBlock, frontmatterMap } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
+import { skillTriggerGlobs, skillTriggerKey } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
 import { selectedSkillNames } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillSelection.ts';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import { globProblem } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
-import { skillPathProblems } from './skill-paths.ts';
+import { skillFrontmatterProblems } from './skill-paths.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const extensionsRoot = join(repositoryRoot, '.cratis', 'ai', 'harnesses', 'pi', 'extensions');
@@ -45,7 +46,7 @@ function textOf(result: Result): string {
 function writeSkill(project: string, name: string, globs: string[], skillsRoot = join(project, '.cratis', 'ai', 'skills')): LoadedSkill {
     const directory = join(skillsRoot, name);
     mkdirSync(join(directory, 'references'), { recursive: true });
-    const paths = globs.length === 0 ? '' : `${skillTriggerKey}:\n${globs.map(glob => `  - "${glob}"\n`).join('')}`;
+    const paths = globs.length === 0 ? '' : `metadata:\n  ${skillTriggerKey}: "${globs.join(' ')}"\n`;
     writeFileSync(join(directory, 'SKILL.md'), `---\nname: ${name}\ndescription: Test skill.\n${paths}---\n\n# ${name}\n`);
     writeFileSync(join(directory, 'references', 'detail.md'), '# detail');
     return { name, filePath: join(directory, 'SKILL.md') };
@@ -658,18 +659,384 @@ test('the Pi package lists cratis-path-guidance and ships its shared helpers', (
     assert.ok(existsSync(join(extensionsRoot, 'shared', 'rules.ts')));
 });
 
-test('skill path hints must be non-empty valid globs under a Cratis-specific key, and skills without triggers are left alone', () => {
-    const skill = (paths: string) => `---\nname: x\ndescription: y\n${paths}---\n\nBody\n`;
-    assert.deepEqual(skillPathProblems('x/SKILL.md', skill('')), []);
-    assert.deepEqual(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/for_*/**/*.cs"\n  - "Documentation/**/*.{md,mdx}"\n`)), []);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n`))[0], /declares 'cratis-hint-paths' without any glob/);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - ""\n`))[0], /invalid 'cratis-hint-paths' entry '': it is empty/);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/*"\n`))[0], /matches every file/);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/*.{md"\n`))[0], /unbalanced braces/);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "/abs/**/*.cs"\n`))[0], /repository-relative/);
+test('skill path hints under metadata must be a non-empty string of valid globs, and skills without triggers are left alone', () => {
+    const skill = (frontmatterLines: string) => `---\nname: x\ndescription: y\n${frontmatterLines}---\n\nBody\n`;
+    const hint = (value: string) => skill(`metadata:\n  ${skillTriggerKey}: ${value}\n`);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', skill('')), []);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', skill('metadata:\n  other: value\n')), []);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', hint('"**/for_*/**/*.cs"')), []);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', hint('"**/for_*/**/*.cs Documentation/**/*.{md,mdx}"')), []);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hint('""'))[0], /declares 'metadata.cratis-hint-paths' without any glob/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hint('"   "'))[0], /declares 'metadata.cratis-hint-paths' without any glob/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hint('"**/*"'))[0], /matches every file/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hint('"**/for_*/**/*.cs **/*.{md"'))[0], /invalid 'metadata.cratis-hint-paths' entry '\*\*\/\*\.\{md': it .*unbalanced braces/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hint('"/abs/**/*.cs"'))[0], /repository-relative/);
     assert.equal(globProblem('**/for_*/**/*.cs'), undefined);
+    // A top-level key is outside the Agent Skills set, so it is refused rather than read as a hint, whatever its shape.
+    assert.match(skillFrontmatterProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/for_*/**/*.cs"\n`))[0], /declares 'cratis-hint-paths' as a top-level key, which Agent Skills does not allow; declare it under 'metadata'/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', skill(`${skillTriggerKey}: "**/for_*/**/*.cs"\n`))[0], /as a top-level key/);
     // A plain `paths` key is Claude Code's conditional-activation switch, so it is refused rather than read as a hint.
-    assert.match(skillPathProblems('x/SKILL.md', skill('paths:\n  - "**/for_*/**/*.cs"\n'))[0], /declares 'paths', which Claude Code treats as conditional activation; use 'cratis-hint-paths'/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', skill('paths:\n  - "**/for_*/**/*.cs"\n'))[0], /declares 'paths', which Claude Code treats as conditional activation; use 'metadata.cratis-hint-paths'/);
+});
+
+test('metadata.cratis-hint-paths is read as whitespace-separated globs, keeping the commas of brace sets', () => {
+    const skill = (frontmatterLines: string) => `---\nname: x\ndescription: y\n${frontmatterLines}---\n\nBody\n`;
+    assert.deepEqual(skillTriggerGlobs(skill('')), []);
+    assert.deepEqual(skillTriggerGlobs(skill(`metadata:\n  ${skillTriggerKey}: "**/for_*/**/*.ts **/for_*/**/*.tsx"\n`)), ['**/for_*/**/*.ts', '**/for_*/**/*.tsx']);
+    assert.deepEqual(skillTriggerGlobs(skill(`metadata:\n  ${skillTriggerKey}: "**/Samples/**/*.{cs,ts,tsx}  **/Documentation/**/*.{md,mdx}"\n`)), ['**/Samples/**/*.{cs,ts,tsx}', '**/Documentation/**/*.{md,mdx}']);
+    // Neighboring metadata entries and later top-level keys do not leak into the value.
+    assert.deepEqual(skillTriggerGlobs(skill(`metadata:\n  author: cratis\n  ${skillTriggerKey}: "a/*.cs"\n  version: "1"\nlicense: MIT\n`)), ['a/*.cs']);
+    // A top-level key is not a hint.
+    assert.deepEqual(skillTriggerGlobs(skill(`${skillTriggerKey}:\n  - "a/*.cs"\n`)), []);
+});
+
+const skillWith = (frontmatterLines: string) => `---\nname: x\ndescription: y\n${frontmatterLines}---\n\nBody\n`;
+const hintUnder = (lines: string) => skillWith(`metadata:\n${lines}`);
+
+test('the one supported hint form is a one-line quoted string indented two spaces, and double or single quotes both work', () => {
+    for (const value of ['"a/*.cs b/*.ts"', "'a/*.cs b/*.ts'", '"a/*.cs b/*.ts"   ']) {
+        const content = hintUnder(`  ${skillTriggerKey}: ${value}\n`);
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', content), [], value);
+        assert.deepEqual(skillTriggerGlobs(content), ['a/*.cs', 'b/*.ts'], value);
+    }
+    // Comment lines and other entries around it do not matter, and a later top-level key ends the block.
+    const surrounded = hintUnder(`  # note\n  author: cratis\n\n  ${skillTriggerKey}: "a/*.cs"\n  version: "1"\nlicense: MIT\n`);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', surrounded), []);
+    assert.deepEqual(skillTriggerGlobs(surrounded), ['a/*.cs']);
+});
+
+test('any top-level line ends the metadata block, however the key is spelled, so the hint is still read', () => {
+    const hint = `  ${skillTriggerKey}: "a/*.cs"\n`;
+    for (const following of ['"license": MIT\n', "'license': MIT\n", 'license : MIT\n', 'license: MIT\n', '# note\nlicense: MIT\n']) {
+        const content = hintUnder(`${hint}${following}`);
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', content), [], JSON.stringify(following));
+        assert.deepEqual(skillTriggerGlobs(content), ['a/*.cs'], JSON.stringify(following));
+        assert.equal(frontmatterBlock(content, 'metadata')!.entries.get(skillTriggerKey)!.continues, false, JSON.stringify(following));
+    }
+    // The real problem is reported, and it is not that the hint spans several lines.
+    const problemsFor = (following: string) => skillFrontmatterProblems('x/SKILL.md', hintUnder(`${hint}${following}`));
+    for (const following of ['"version": 1\n', 'version : 1\n']) {
+        const problems = problemsFor(following);
+        assert.equal(problems.length, 1, `${JSON.stringify(following)}: ${problems.join(' | ')}`);
+        assert.match(problems[0], /declares top-level frontmatter key 'version'/, following);
+        assert.doesNotMatch(problems[0], /several lines/, following);
+    }
+    for (const following of [`"${skillTriggerKey}": "b/*.cs"\n`, `${skillTriggerKey} : "b/*.cs"\n`]) {
+        const problems = problemsFor(following);
+        assert.equal(problems.length, 1, `${JSON.stringify(following)}: ${problems.join(' | ')}`);
+        assert.match(problems[0], /declares 'cratis-hint-paths' as a top-level key/, following);
+    }
+    // Lines under a spelled-differently top-level key are not metadata entries.
+    const other = hintUnder(`  author: cratis\n"other":\n  ${skillTriggerKey}: "a/*.cs"\n`);
+    assert.deepEqual([...frontmatterBlock(other, 'metadata')!.entries.keys()], ['author']);
+    assert.deepEqual(skillTriggerGlobs(other), []);
+    // A quoted `"metadata":` key is not the metadata block, and a metadata block after another key still is.
+    assert.equal(frontmatterBlock(skillWith('"metadata":\n  a: "b"\n'), 'metadata'), undefined);
+    const after = skillWith(`"license": MIT\nmetadata:\n${hint}`);
+    assert.deepEqual(skillTriggerGlobs(after), ['a/*.cs']);
+});
+
+test('every other hint form is reported with how to write it, and yields no triggers at runtime', () => {
+    const rejected: Array<[string, string, RegExp]> = [
+        ['a folded block scalar', `  ${skillTriggerKey}: >-\n    a/*.cs\n    b/*.cs\n`, /block scalar/],
+        ['a literal block scalar', `  ${skillTriggerKey}: |\n    a/*.cs\n`, /block scalar/],
+        ['a block scalar with an indentation indicator', `  ${skillTriggerKey}: |+2\n    a/*.cs\n`, /block scalar/],
+        ['a folded block scalar with a keep indicator', `  ${skillTriggerKey}: >+\n    a/*.cs\n`, /block scalar/],
+        ['an unquoted value', `  ${skillTriggerKey}: **/for_*/**/*.cs\n`, /not quoted/],
+        ['an unquoted flow map', `  ${skillTriggerKey}: {a: b}\n`, /not quoted/],
+        ['no value', `  ${skillTriggerKey}:\n`, /no value/],
+        ['a trailing comment after a double-quoted string', `  ${skillTriggerKey}: "a/*.cs b/*.cs" # tests\n`, /comment follows the closing quote/],
+        ['a trailing comment after a single-quoted string', `  ${skillTriggerKey}: 'a/*.cs' # tests\n`, /comment follows the closing quote/],
+        ['text after the closing quote', `  ${skillTriggerKey}: "a/*.cs" b/*.cs\n`, /text follows the closing quote/],
+        ['a string that is never closed', `  ${skillTriggerKey}: "a/*.cs\n`, /closing quote is missing/],
+        ['a quoted string continued on the next line', `  ${skillTriggerKey}: "a/*.cs\n    b/*.cs"\n`, /spread over several lines/],
+        ['a complete quoted string with more lines under it', `  ${skillTriggerKey}: "a/*.cs"\n    b/*.cs\n`, /spread over several lines/],
+        ['a plain scalar over several lines', `  ${skillTriggerKey}: a/*.cs\n    b/*.cs\n`, /spread over several lines/],
+        ['a value only on the following lines', `  ${skillTriggerKey}:\n    "a/*.cs"\n`, /on the following lines/],
+        ['a string with a backslash', `  ${skillTriggerKey}: "a\\*.cs"\n`, /backslash/],
+        ['a single-quoted string with an escaped quote', `  ${skillTriggerKey}: 'a''b'\n`, /text follows the closing quote/],
+        ['a four-space indent', `    ${skillTriggerKey}: "a/*.cs"\n`, /not indented exactly two spaces/],
+        ['a one-space indent', ` ${skillTriggerKey}: "a/*.cs"\n`, /not indented exactly two spaces/],
+    ];
+    for (const [form, lines, message] of rejected) {
+        const content = hintUnder(lines);
+        const all = skillFrontmatterProblems('x/SKILL.md', content);
+        // Invalid YAML leads with the parser error; the hint-form reason is then the single message after it.
+        const problems = all.filter(problem => !/has frontmatter that is not valid YAML/.test(problem));
+        assert.equal(problems.length, 1, `${form}: ${all.join(' | ')}`);
+        assert.ok(all.length === 1 || /has frontmatter that is not valid YAML/.test(all[0]), `${form}: the parser error leads: ${all.join(' | ')}`);
+        assert.match(problems[0], /^x\/SKILL\.md has an unsupported 'metadata\.cratis-hint-paths' value \(/, form);
+        assert.match(problems[0], message, form);
+        assert.match(problems[0], /write it as one double-quoted string on a single line, indented two spaces under 'metadata:', with no comment after it: cratis-hint-paths: "<glob> <glob>"/, form);
+        assert.deepEqual(skillTriggerGlobs(content), [], `${form}: no bogus glob at runtime`);
+    }
+});
+
+test('a hint nested deeper than metadata is refused as a non-string metadata value, and a flow map is reported', () => {
+    const nested = hintUnder(`  other:\n    ${skillTriggerKey}: "a/*.cs"\n`);
+    const problems = skillFrontmatterProblems('x/SKILL.md', nested);
+    assert.equal(problems.length, 1, problems.join(' | '));
+    assert.match(problems[0], /metadata\.other must be a string \(Agent Skills metadata maps strings to strings\)/);
+    assert.deepEqual(skillTriggerGlobs(nested), []);
+    const flow = skillWith(`metadata: {${skillTriggerKey}: "a/*.cs"}\n`);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', flow)[0], /declares 'metadata' inline \(a flow map\).*write it as one double-quoted string/);
+    assert.deepEqual(skillTriggerGlobs(flow), []);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', skillWith('metadata: {author: cratis}\n')), []);
+});
+
+test('metadata must map strings to strings, and every other shape is reported by name', () => {
+    const shapes: Array<[string, string, RegExp]> = [
+        ['a scalar', 'metadata: cratis\n', /'metadata' that is a string; it must be a map of strings to strings \(Agent Skills metadata maps strings to strings\)/],
+        ['a number', 'metadata: 42\n', /'metadata' that is a number; it must be a map of strings to strings/],
+        ['a list', 'metadata:\n  - author\n  - version\n', /'metadata' that is a list; it must be a map of strings to strings/],
+        ['null', 'metadata:\n', /'metadata' that is null; it must be a map of strings to strings/],
+        ['a number value', 'metadata:\n  version: 1\n', /metadata\.version must be a string \(Agent Skills metadata maps strings to strings\)/],
+        ['a boolean value', 'metadata:\n  draft: true\n', /metadata\.draft must be a string/],
+        ['a null value', 'metadata:\n  author:\n', /metadata\.author must be a string/],
+        ['a list value', 'metadata:\n  tags:\n    - a\n', /metadata\.tags must be a string/],
+        ['a nested map', 'metadata:\n  nested:\n    inner: "y"\n', /metadata\.nested must be a string/],
+    ];
+    for (const [shape, lines, message] of shapes) {
+        const problems = skillFrontmatterProblems('x/SKILL.md', skillWith(lines));
+        assert.equal(problems.length, 1, `${shape}: ${problems.join(' | ')}`);
+        assert.match(problems[0], message, shape);
+    }
+    // Every offending value is named, and a valid hint next to a bad value is not lost or duplicated.
+    const several = skillFrontmatterProblems('x/SKILL.md', skillWith(`metadata:\n  version: 1\n  ${skillTriggerKey}: "a/*.cs"\n  nested:\n    inner: "y"\n`));
+    assert.equal(several.length, 2, several.join(' | '));
+    assert.match(several[0], /metadata\.version must be a string/);
+    assert.match(several[1], /metadata\.nested must be a string/);
+    // Absent, or a map of strings, is fine, including quoted numbers and an empty flow map.
+    for (const lines of ['', 'metadata:\n  version: "1"\n  author: cratis\n', 'metadata: {}\n', 'metadata: {author: cratis}\n']) {
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', skillWith(lines)), [], lines);
+    }
+});
+
+test('an empty hint string is reported with the supported form', () => {
+    for (const value of ['""', "''", '"   "']) {
+        const problems = skillFrontmatterProblems('x/SKILL.md', hintUnder(`  ${skillTriggerKey}: ${value}\n`));
+        assert.equal(problems.length, 1, value);
+        assert.match(problems[0], /without any glob; it must be a non-empty string of whitespace-separated globs: cratis-hint-paths: "<glob> <glob>"/, value);
+    }
+});
+
+test('frontmatterMap keeps only one-line quoted metadata entries and leaves out any guess', () => {
+    const content = hintUnder('  quoted: "one two"\n  single: \'three\'\n  plain: value\n  folded: >-\n    text\n  commented: "x" # c\n  nested:\n    inner: "y"\n');
+    assert.deepEqual([...frontmatterMap(content, 'metadata')!], [['quoted', 'one two'], ['single', 'three']]);
+    assert.equal(frontmatterMap(skillWith(''), 'metadata'), undefined);
+});
+
+test('nested metadata keys are not counted as top-level keys', () => {
+    const nested = hintUnder('  name: other\n  description: other\n  version: "1"\n  paths: "a/*.cs"\n');
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', nested), []);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', nested), []);
+    // Unknown top-level keys and the two misplaced hint keys are still refused, even next to a metadata block.
+    assert.match(skillFrontmatterProblems('x/SKILL.md', skillWith('metadata:\n  a: "b"\nversion: 1\n'))[0], /top-level frontmatter key 'version'/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', skillWith(`metadata:\n  a: "b"\n${skillTriggerKey}: "a/*.cs"\n`))[0], /as a top-level key/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', skillWith('metadata:\n  a: "b"\npaths: "a/*.cs"\n'))[0], /declares 'paths'/);
+});
+
+test('the corpus skills produce exactly the globs they did before the hint form was tightened', () => {
+    const expected: Record<string, string[]> = {
+        'cratis-application-react-specifications': ['**/for_*/**/*.ts', '**/for_*/**/*.tsx'],
+        'cratis-application-slice-specifications': ['**/when_*/**/*.cs', '**/for_*/**/*.cs'],
+        'cratis-documentation-writing': ['**/Documentation/**/*.{md,mdx}'],
+        'cratis-engineering-docs-authoring': ['**/Documentation/**/*.{md,mdx}'],
+        'cratis-specifications-csharp': ['**/for_*/**/*.cs'],
+        'cratis-specifications-typescript': ['**/for_*/**/*.ts', '**/for_*/**/*.tsx'],
+        'cratis-technical-examples': ['**/Samples/**/*.{cs,ts,tsx}'],
+    };
+    const skillsRoot = join(repositoryRoot, '.cratis', 'ai', 'skills');
+    const actual: Record<string, string[]> = {};
+    for (const name of readdirSync(skillsRoot)) {
+        const content = readFileSync(join(skillsRoot, name, 'SKILL.md'), 'utf8');
+        assert.deepEqual(skillFrontmatterProblems(`${name}/SKILL.md`, content), [], name);
+        const globs = skillTriggerGlobs(content);
+        if (globs.length > 0) actual[name] = globs;
+    }
+    assert.deepEqual(actual, expected);
+});
+
+test('skill frontmatter may only use the Agent Skills top-level keys', () => {
+    const skill = (frontmatterLines: string) => `---\nname: x\ndescription: y\n${frontmatterLines}---\n\nBody\n`;
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', skill('license: MIT\ncompatibility: any\nallowed-tools: Read Bash\nmetadata:\n  anything: "goes"\n')), []);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', skill('version: 1\n'))[0], /top-level frontmatter key 'version', which Agent Skills does not allow \(allowed: name, description, license, compatibility, metadata, allowed-tools\)/);
+    assert.equal(skillFrontmatterProblems('x/SKILL.md', skill('version: 1\nauthor: me\n')).length, 2);
+    // The two known misplacements have their own, more specific messages, and are not also reported as unknown keys.
+    const misplaced = skillFrontmatterProblems('x/SKILL.md', skill(`${skillTriggerKey}: "a/*.cs"\npaths: "b/*.cs"\n`));
+    assert.equal(misplaced.length, 2, misplaced.join(' | '));
+    assert.doesNotMatch(misplaced.join(' | '), /top-level frontmatter key/);
+});
+
+const otherSpellings: Array<[string, string, RegExp]> = [
+    ['a quoted key', `metadata:\n  "${skillTriggerKey}": "a/*.cs"\n`, /spells 'metadata\.cratis-hint-paths' in a way the Pi runtime reads differently from YAML \(runtime: \[\], YAML: \["a\/\*\.cs"\]\)/],
+    ['a single-quoted key', `metadata:\n  '${skillTriggerKey}': "a/*.cs"\n`, /reads differently from YAML/],
+    ['a space before the colon', `metadata:\n  ${skillTriggerKey} : "a/*.cs"\n`, /reads differently from YAML/],
+    ['a space before the colon and a quoted key', `metadata:\n  "${skillTriggerKey}" : 'a/*.cs'\n`, /reads differently from YAML/],
+    ['an explicit key', `metadata:\n  ? ${skillTriggerKey}\n  : "a/*.cs"\n`, /reads differently from YAML/],
+    ['a quoted key with a block scalar', `metadata:\n  "${skillTriggerKey}": >-\n    a/*.cs\n    b/*.cs\n`, /reads differently from YAML \(runtime: \[\], YAML: \["a\/\*\.cs","b\/\*\.cs"\]\)/],
+    ['a quoted metadata key', `"metadata":\n  ${skillTriggerKey}: "a/*.cs"\n`, /reads differently from YAML/],
+    ['a space before the colon of metadata', `metadata :\n  ${skillTriggerKey}: "a/*.cs"\n`, /reads differently from YAML/],
+    ['a flow map with a quoted key on the metadata line', `metadata: {"${skillTriggerKey}": "a/*.cs"}\n`, /declares 'metadata' inline \(a flow map\)/],
+    ['a flow map spread over lines', `metadata: {\n  ${skillTriggerKey}: "a/*.cs"\n}\n`, /declares 'metadata' inline \(a flow map\)/],
+    ['a flow map with a quoted key', `metadata:\n  {"${skillTriggerKey}": "a/*.cs"}\n`, /declares 'metadata' inline \(a flow map\)/],
+    ['mixed sibling indentation', `metadata:\n    other: "x"\n  ${skillTriggerKey}: "a/*.cs"\n`, /not valid YAML/],
+];
+
+test('every spelling the runtime reader does not know is reported by the YAML cross-check, naming the skill', () => {
+    for (const [form, lines, message] of otherSpellings) {
+        const content = skillWith(lines);
+        const problems = skillFrontmatterProblems('skills/demo/SKILL.md', content);
+        assert.ok(problems.length >= 1, `${form}: verify passed`);
+        assert.match(problems.join(' | '), message, form);
+        assert.ok(problems.every(problem => problem.startsWith('skills/demo/SKILL.md ')), `${form}: names the skill: ${problems.join(' | ')}`);
+        if (/reads differently/.test(problems.join(' | '))) assert.match(problems.join(' | '), /write it as one double-quoted string on a single line, indented two spaces under 'metadata:'/, form);
+    }
+});
+
+test('a flow map spread over lines gives the runtime no hint, even a nested one', () => {
+    for (const lines of [
+        `metadata: {\n  ${skillTriggerKey}: "a/*.cs"\n}\n`,
+        `metadata: {\n  x: {\n  ${skillTriggerKey}: "a/*.cs"\n}}\n`,
+    ]) {
+        assert.deepEqual(skillTriggerGlobs(skillWith(lines)), [], lines);
+        assert.ok(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(lines)).length >= 1, lines);
+    }
+});
+
+test('a comment after metadata: is not a value, so the hint below it is read, while an anchor or a tag is refused by name', () => {
+    const hint = `  ${skillTriggerKey}: "a/*.cs"\n`;
+    for (const opener of ['metadata: # c', 'metadata:   # c', 'metadata: #']) {
+        const content = skillWith(`${opener}\n${hint}`);
+        assert.deepEqual(skillTriggerGlobs(content), ['a/*.cs'], opener);
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', content), [], opener);
+    }
+    for (const opener of ['metadata: &m', 'metadata: !!map', 'metadata: &m # c']) {
+        const problems = skillFrontmatterProblems('x/SKILL.md', skillWith(`${opener}\n${hint}`));
+        assert.equal(problems.length, 1, `${opener}: ${problems.join(' | ')}`);
+        assert.match(problems[0], /nothing \(no anchor or tag\) may follow 'metadata:' on its line/, opener);
+    }
+});
+
+test('a sibling metadata key the entry pattern does not read ends the hint entry, in either order', () => {
+    const hint = `  ${skillTriggerKey}: "a/*.cs"\n`;
+    const siblings: Array<[string, string]> = [
+        ['a dotted key', '  cratis.version: "1"\n'],
+        ['a quoted key', '  "quoted key": "1"\n'],
+        ['a single-quoted key', "  'quoted key': \"1\"\n"],
+        ['a numeric key', '  1: "x"\n'],
+        ['an explicit key', '  ? complex\n'],
+        ['a nested value under a quoted key', '  "quoted key":\n    inner: "y"\n'],
+    ];
+    for (const [form, sibling] of siblings) {
+        for (const [order, lines] of [['after', `${hint}${sibling}`], ['before', `${sibling}${hint}`]]) {
+            const content = hintUnder(lines);
+            assert.deepEqual(skillTriggerGlobs(content), ['a/*.cs'], `${form}, ${order}`);
+            const problems = skillFrontmatterProblems('x/SKILL.md', content).join(' | ');
+            assert.doesNotMatch(problems, /several lines|following lines|reads differently/, `${form}, ${order}: ${problems}`);
+            assert.equal(frontmatterBlock(content, 'metadata')!.entries.get(skillTriggerKey)!.continues, false, `${form}, ${order}`);
+        }
+    }
+    // Spellings that are valid metadata give no problem at all.
+    for (const [form, sibling] of siblings.slice(0, 3)) {
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', hintUnder(`${hint}${sibling}`)), [], form);
+    }
+    // The actual problem is what gets reported: a non-string key, or a value that is not a string.
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hintUnder(`${hint}  1: "x"\n`)).join(' | '), /metadata key '1', which is not a string/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hintUnder(`${hint}  "quoted key":\n    inner: "y"\n`)).join(' | '), /metadata\.quoted key must be a string/);
+    // A more-indented line still belongs to the entry above it.
+    const spread = hintUnder(`  ${skillTriggerKey}: "a/*.cs\n    b/*.cs"\n`);
+    assert.equal(frontmatterBlock(spread, 'metadata')!.entries.get(skillTriggerKey)!.continues, true);
+    assert.deepEqual(skillTriggerGlobs(spread), []);
+});
+
+test('the flow map message is given for a flow-map hint only, not when the name appears in some other text', () => {
+    const flow = /declares 'metadata' inline \(a flow map\)/;
+    const text = skillWith(`metadata: {note: "see ${skillTriggerKey}"}\n`);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', text), []);
+    assert.doesNotMatch(skillFrontmatterProblems('x/SKILL.md', skillWith(`metadata: {note: "see ${skillTriggerKey}: here"}\n`)).join(' | '), flow);
+    for (const inline of [`{${skillTriggerKey}: "a/*.cs"}`, `{note: "x", ${skillTriggerKey}: "a/*.cs"}`, `{"${skillTriggerKey}": "a/*.cs"}`]) {
+        assert.match(skillFrontmatterProblems('x/SKILL.md', skillWith(`metadata: ${inline}\n`))[0], flow, inline);
+    }
+});
+
+test('a metadata key that is not a YAML string is refused', () => {
+    for (const key of ['1', 'true', 'null', '1.5']) {
+        const problems = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${key}: "x"\n`));
+        assert.match(problems.join(' | '), new RegExp(`metadata key '${key.replace('.', '\\.')}', which is not a string`), key);
+    }
+    for (const key of ['"1"', "'true'", 'version']) {
+        assert.deepEqual(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${key}: "x"\n`)), [], key);
+    }
+});
+
+test('the unsupported-form message follows the YAML parse: a mention of the key in a string is never blamed, a list is named', () => {
+    const noHint = [
+        `metadata: {note: "x, ${skillTriggerKey}: y"}\n`,
+        `metadata: {note: "a,\n  ${skillTriggerKey}: b"}\n`,
+        `metadata:\n  note: "see ${skillTriggerKey}: here"\n`,
+    ];
+    for (const lines of noHint) assert.deepEqual(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(lines)), [], lines);
+    for (const lines of [`metadata:\n  ${skillTriggerKey}:\n  - "a/*.cs"\n`, `metadata:\n  ${skillTriggerKey}:\n    - "a/*.cs"\n`]) {
+        assert.match(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(lines)).join(' | '), /\(the value is a list\)/, lines);
+    }
+    assert.match(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata: {${skillTriggerKey}: "a/*.cs"}\n`)).join(' | '), /inline \(a flow map\)/);
+});
+
+test('invalid YAML always reports the parser error first, with any hint-form reading only added to it', () => {
+    const problems = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata: {note: "x, ${skillTriggerKey}: y"}\nfoo: [\n`));
+    assert.match(problems[0], /has frontmatter that is not valid YAML/);
+    assert.equal(problems.length, 1, `a mention of the key is not described as a hint form: ${problems.join(' | ')}`);
+    // skillWith puts '---', 'name', 'description' on lines 1-3, so an unterminated quote on the fifth line is reported there.
+    const located = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`license: MIT\nauthor: "x\n`));
+    assert.match(located[0], /line 5\b/, located[0]);
+    const duplicate = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${skillTriggerKey}:\n  - "a/*.cs"\nname: again\n`));
+    assert.match(duplicate[0], /has frontmatter that is not valid YAML/);
+});
+
+test('a duplicate metadata key or any duplicate top-level key is refused as invalid YAML', () => {
+    const duplicates: Array<[string, string]> = [
+        ['metadata twice', `metadata:\n  other: "x"\nmetadata:\n  ${skillTriggerKey}: "a/*.cs"\n`],
+        ['metadata twice, hint first', `metadata:\n  ${skillTriggerKey}: "a/*.cs"\nmetadata:\n  other: "x"\n`],
+        ['license twice', 'license: MIT\nlicense: Apache-2.0\n'],
+        ['name twice', 'name: y\n'],
+        ['a hint twice under metadata', `metadata:\n  ${skillTriggerKey}: "a/*.cs"\n  ${skillTriggerKey}: "b/*.cs"\n`],
+    ];
+    for (const [form, lines] of duplicates) {
+        const problems = skillFrontmatterProblems('x/SKILL.md', skillWith(lines));
+        assert.equal(problems.length, 1, `${form}: ${problems.join(' | ')}`);
+        assert.match(problems[0], /^x\/SKILL\.md has frontmatter that is not valid YAML: .*unique/i, form);
+    }
+});
+
+test('a top-level key outside the Agent Skills set is refused however it is spelled', () => {
+    for (const lines of ['version : 1\n', '"version": 1\n', "'version': 1\n", 'x.y: 1\n', '_private: 1\n', '9lives: 1\n', '? version\n: 1\n']) {
+        const problems = skillFrontmatterProblems('x/SKILL.md', skillWith(lines));
+        assert.equal(problems.length, 1, `${JSON.stringify(lines)}: ${problems.join(' | ')}`);
+        assert.match(problems[0], /declares top-level frontmatter key '/, lines);
+    }
+    for (const lines of [`"${skillTriggerKey}": "a/*.cs"\n`, `${skillTriggerKey} : "a/*.cs"\n`]) {
+        assert.match(skillFrontmatterProblems('x/SKILL.md', skillWith(lines))[0], /declares 'cratis-hint-paths' as a top-level key/, lines);
+    }
+    for (const lines of ['"paths": "a/*.cs"\n', 'paths : "a/*.cs"\n']) {
+        assert.match(skillFrontmatterProblems('x/SKILL.md', skillWith(lines))[0], /declares 'paths', which Claude Code treats as conditional activation/, lines);
+    }
+});
+
+test('a hint that is present in YAML but is not a string is refused', () => {
+    for (const value of ['~', '42', '[a/*.cs]', '{a: b}', 'true']) {
+        const problems = skillFrontmatterProblems('x/SKILL.md', hintUnder(`  ${skillTriggerKey}: ${value}\n`));
+        assert.ok(problems.length >= 1, value);
+    }
+    const quotedNull = skillFrontmatterProblems('x/SKILL.md', hintUnder(`  "${skillTriggerKey}":\n`));
+    assert.match(quotedNull.join(' | '), /without any glob; it must be a non-empty string/);
+});
+
+test('invalid YAML in the frontmatter is reported', () => {
+    const problems = skillFrontmatterProblems('x/SKILL.md', skillWith('metadata: [unclosed\n'));
+    assert.equal(problems.length >= 1, true);
+    assert.match(problems[0], /^x\/SKILL\.md has frontmatter that is not valid YAML: /);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', 'no frontmatter'), []);
 });
 
 test('verify.ts rejects a skill with a bad paths entry and accepts the corpus without it', () => {
@@ -685,15 +1052,52 @@ test('verify.ts rejects a skill with a bad paths entry and accepts the corpus wi
 
         const skillFile = join(workspace, '.cratis', 'ai', 'skills', 'cratis-specifications-csharp', 'SKILL.md');
         const original = readFileSync(skillFile, 'utf8');
-        assert.match(original, /\ncratis-hint-paths:\n/, 'the corpus skill declares a trigger');
+        assert.match(original, /\nmetadata:\n  cratis-hint-paths: "/, 'the corpus skill declares a trigger under metadata');
         assert.doesNotMatch(original, /\npaths:/, "the plain 'paths' key is Claude Code's conditional activation");
         const baseline = verify();
         assert.equal(baseline.status, 0, `${baseline.stdout}${baseline.stderr}`);
 
-        writeFileSync(skillFile, original.replace('  - "**/for_*/**/*.cs"', '  - "**/*.{cs"'));
+        writeFileSync(skillFile, original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"'));
         const rejected = verify();
         assert.equal(rejected.status, 1, `${rejected.stdout}${rejected.stderr}`);
-        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'cratis-hint-paths' entry/);
+        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'metadata\.cratis-hint-paths' entry '\*\*\/\*\.\{cs'/);
+
+        writeFileSync(skillFile, original.replace('metadata:\n  cratis-hint-paths:', 'cratis-hint-paths:'));
+        const topLevel = verify();
+        assert.equal(topLevel.status, 1, `${topLevel.stdout}${topLevel.stderr}`);
+        assert.match(topLevel.stderr, /cratis-specifications-csharp\/SKILL\.md declares 'cratis-hint-paths' as a top-level key/);
+
+        writeFileSync(skillFile, original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: >-\n    **/for_*/**/*.cs'));
+        const blockScalar = verify();
+        assert.equal(blockScalar.status, 1, `${blockScalar.stdout}${blockScalar.stderr}`);
+        assert.match(blockScalar.stderr, /cratis-specifications-csharp\/SKILL\.md has an unsupported 'metadata\.cratis-hint-paths' value \(a block scalar/);
+
+        // Spellings the runtime reader does not know are valid YAML, so only the cross-check with a real parser catches them.
+        const spellings: Array<[string, string, RegExp]> = [
+            ['a quoted key', original.replace('  cratis-hint-paths:', '  "cratis-hint-paths":'), /cratis-specifications-csharp\/SKILL\.md spells 'metadata\.cratis-hint-paths' in a way the Pi runtime reads differently from YAML/],
+            ['a space before the colon', original.replace('  cratis-hint-paths:', '  cratis-hint-paths :'), /reads differently from YAML/],
+            ['a duplicate metadata key', original.replace('---\n\n', 'metadata:\n  other: "x"\n---\n\n'), /cratis-specifications-csharp\/SKILL\.md has frontmatter that is not valid YAML: .*unique/i],
+            ['a duplicate top-level key', original.replace('license: MIT\n', 'license: MIT\nlicense: MIT\n'), /not valid YAML: .*unique/i],
+            ['a flow map', original.replace('metadata:\n  cratis-hint-paths: "**/for_*/**/*.cs"\n', 'metadata: {cratis-hint-paths: "**/for_*/**/*.cs"}\n'), /declares 'metadata' inline \(a flow map\)/],
+            ['a literal block scalar', original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: |\n    **/for_*/**/*.cs'), /a block scalar/],
+            ['a quoted block scalar key', original.replace('  cratis-hint-paths: "**/for_*/**/*.cs"', '  "cratis-hint-paths": >-\n    **/for_*/**/*.cs'), /reads differently from YAML/],
+        ];
+        for (const [form, content, message] of spellings) {
+            assert.notEqual(content, original, `${form}: the replacement did not apply`);
+            writeFileSync(skillFile, content);
+            const result = verify();
+            assert.equal(result.status, 1, `${form}: ${result.stdout}${result.stderr}`);
+            assert.match(result.stderr, message, form);
+        }
+
+        writeFileSync(skillFile, original.replace('metadata:\n', 'metadata:\n  name: other\n  description: other\n'));
+        const nestedKeys = verify();
+        assert.equal(nestedKeys.status, 0, `${nestedKeys.stdout}${nestedKeys.stderr}`);
+
+        writeFileSync(skillFile, original.replace('license: MIT\n', 'license: MIT\nversion: 1\n'));
+        const unknown = verify();
+        assert.equal(unknown.status, 1, `${unknown.stdout}${unknown.stderr}`);
+        assert.match(unknown.stderr, /cratis-specifications-csharp\/SKILL\.md declares top-level frontmatter key 'version'/);
     } finally {
         rmSync(workspace, { recursive: true, force: true });
     }

@@ -7,9 +7,10 @@ import { access, readFile, readdir, stat } from 'node:fs/promises';
 import { basename, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
+import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
-import { skillPathProblems } from './skill-paths.ts';
+import { skillFrontmatterProblems } from './skill-paths.ts';
 
 interface Profile {
     id: string;
@@ -47,14 +48,10 @@ async function files(directory: string): Promise<string[]> {
     return discovered;
 }
 
+/** The top-level frontmatter fields as strings, read by the shared parser so that indented (nested) keys are not counted. */
 function frontmatter(content: string): Record<string, string> | undefined {
-    if (!content.startsWith('---\n')) return undefined;
-    const end = content.indexOf('\n---\n', 4);
-    if (end < 0) return undefined;
-    return Object.fromEntries(content.slice(4, end).split('\n').flatMap(line => {
-        const separator = line.indexOf(':');
-        return separator < 0 ? [] : [[line.slice(0, separator).trim(), line.slice(separator + 1).trim().replace(/^['"]|['"]$/g, '')]];
-    }));
+    const fields = sharedFrontmatter(content);
+    return fields.size === 0 ? undefined : Object.fromEntries([...fields].map(([key, values]) => [key, values.join(', ')]));
 }
 
 function requireValues(actual: string[], required: string[], subject: string): void {
@@ -150,7 +147,7 @@ for (const directory of skillDirectories) {
     const metadata = frontmatter(skillContent);
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, skillFile)} must declare name and description.`);
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
-    failures.push(...skillPathProblems(relative(root, skillFile), skillContent));
+    failures.push(...skillFrontmatterProblems(relative(root, skillFile), skillContent));
 }
 
 for (const prompt of (await readdir(join(corpus, 'prompts'))).filter(name => name.endsWith('.md'))) {
