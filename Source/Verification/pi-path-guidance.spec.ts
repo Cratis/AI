@@ -876,7 +876,7 @@ const otherSpellings: Array<[string, string, RegExp]> = [
     ['a space before the colon of metadata', `metadata :\n  ${skillTriggerKey}: "a/*.cs"\n`, /reads differently from YAML/],
     ['a flow map with a quoted key on the metadata line', `metadata: {"${skillTriggerKey}": "a/*.cs"}\n`, /declares 'metadata' inline \(a flow map\)/],
     ['a flow map spread over lines', `metadata: {\n  ${skillTriggerKey}: "a/*.cs"\n}\n`, /declares 'metadata' inline \(a flow map\)/],
-    ['a flow map with a quoted key', `metadata:\n  {"${skillTriggerKey}": "a/*.cs"}\n`, /reads differently from YAML/],
+    ['a flow map with a quoted key', `metadata:\n  {"${skillTriggerKey}": "a/*.cs"}\n`, /declares 'metadata' inline \(a flow map\)/],
     ['mixed sibling indentation', `metadata:\n    other: "x"\n  ${skillTriggerKey}: "a/*.cs"\n`, /not valid YAML/],
 ];
 
@@ -965,6 +965,19 @@ test('a metadata key that is not a YAML string is refused', () => {
     for (const key of ['"1"', "'true'", 'version']) {
         assert.deepEqual(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${key}: "x"\n`)), [], key);
     }
+});
+
+test('the unsupported-form message follows the YAML parse: a mention of the key in a string is never blamed, a list is named', () => {
+    const noHint = [
+        `metadata: {note: "x, ${skillTriggerKey}: y"}\n`,
+        `metadata: {note: "a,\n  ${skillTriggerKey}: b"}\n`,
+        `metadata:\n  note: "see ${skillTriggerKey}: here"\n`,
+    ];
+    for (const lines of noHint) assert.deepEqual(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(lines)), [], lines);
+    for (const lines of [`metadata:\n  ${skillTriggerKey}:\n  - "a/*.cs"\n`, `metadata:\n  ${skillTriggerKey}:\n    - "a/*.cs"\n`]) {
+        assert.match(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(lines)).join(' | '), /\(the value is a list\)/, lines);
+    }
+    assert.match(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata: {${skillTriggerKey}: "a/*.cs"}\n`)).join(' | '), /inline \(a flow map\)/);
 });
 
 test('a duplicate metadata key or any duplicate top-level key is refused as invalid YAML', () => {

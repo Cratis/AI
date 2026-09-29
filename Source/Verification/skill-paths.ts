@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { isMap, isScalar, parseDocument } from 'yaml';
+import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 import { frontmatterBlock, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globProblem } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 import { skillTriggerGlobs, skillTriggerKey, splitSkillTriggerGlobs } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
@@ -100,6 +100,19 @@ function knownFormProblems(subject: string, content: string): string[] {
 }
 
 /**
+ * The clear message for an unsupported hint form when the frontmatter is valid YAML. The parse decides whether there is
+ * a hint at all, so text that merely mentions the key (inside a string, say) is never blamed; the raw-line reading then
+ * names the form. A hint that YAML reads as a list, or inside a flow map, is named from the parse itself.
+ */
+function parsedFormProblems(subject: string, content: string, document: ReturnType<typeof parseDocument>): string[] {
+    const metadata = isMap(document.contents) ? document.contents.get('metadata', true) : undefined;
+    if (!isMap(metadata) || !metadata.has(skillTriggerKey)) return [];
+    if (metadata.flow) return [`${subject} declares 'metadata' inline (a flow map), which the path hints do not read; put it on its own lines and ${howToWrite}.`];
+    if (isSeq(metadata.get(skillTriggerKey, true))) return [`${subject} has an unsupported 'metadata.${skillTriggerKey}' value (the value is a list); ${howToWrite}.`];
+    return knownFormProblems(subject, content);
+}
+
+/**
  * Problems with the frontmatter of a skill's `SKILL.md`, checked against a real YAML parser (`yaml`) rather than the
  * small reader the Pi runtime ships, which understands one form only. Verification is where the parser may live: the
  * runtime may use only Node built-ins.
@@ -120,8 +133,11 @@ export function skillFrontmatterProblems(subject: string, content: string): stri
     const text = frontmatterText(content);
     if (text === undefined) return [];
     const document = parseDocument(text, { uniqueKeys: true });
-    const known = knownFormProblems(subject, content);
-    const notYaml = (messages: string[]) => known.length > 0 ? known : messages.map(message => `${subject} has frontmatter that is not valid YAML: ${message.split('\n')[0]}`);
+    // Invalid YAML has no parse to consult, so the raw-line reading names the cause when it can.
+    const notYaml = (messages: string[]) => {
+        const raw = knownFormProblems(subject, content);
+        return raw.length > 0 ? raw : messages.map(message => `${subject} has frontmatter that is not valid YAML: ${message.split('\n')[0]}`);
+    };
     if (document.errors.length > 0) return notYaml(document.errors.map(error => error.message));
     let data: unknown;
     try {
@@ -134,6 +150,7 @@ export function skillFrontmatterProblems(subject: string, content: string): stri
     if (typeof data !== 'object' || Array.isArray(data)) return [`${subject} has frontmatter that is not a YAML map of keys and values.`];
     const fields = data as Record<string, unknown>;
     const keys = Object.keys(fields);
+    const known = parsedFormProblems(subject, content, document);
     const problems = [
         ...keys
             .filter(key => !(allowedSkillKeys as readonly string[]).includes(key) && key !== skillTriggerKey && key !== 'paths')
