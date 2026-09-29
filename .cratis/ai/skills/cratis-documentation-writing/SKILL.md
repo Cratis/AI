@@ -61,7 +61,13 @@ and neighboring pages; ask only when the alternatives change the outcome.
    targeted recipes, and exact reference. Give different languages or hosts
    their own procedures when a shared path cannot be run as written. A
    'coming from X' bridge should map familiar concepts to the new workflow,
-   not replace it.
+   not replace it. When a page shows several backends, state how they differ
+   once, in a "how the backends differ" table near the start: identity
+   source, id and response wire types, default authorization, live versus
+   snapshot queries, and unsupported features with their tracking issue.
+   Inside a step, write only what the current tab's reader needs. Across a
+   series, keep backend limitations in one table on the series index and link
+   it; don't repeat an issue-tracked limitation on every page.
 4. Draft in workflow order. For a tutorial, use one working domain throughout,
    show what to run and what appears, and recap before adding another concept.
    For a how-to, keep only what the specific task needs. Link out for details.
@@ -144,6 +150,12 @@ Never transcribe an API from memory, hand-translate an unsupported client, or
 claim a pasted block is runnable when it requires unstated setup. Show the
 command and observable output for a substantial walkthrough.
 
+Adding a backend or client to a product also changes pages the product's own
+checks don't scan, such as cross-product and site-level pages. Search them for
+single-language claims ("in C#", C#-only APIs presented as universal) and for
+series indexes whose description, reading order or production claims no longer
+hold.
+
 Edit the *authored* file, never a synced copy. The Cratis site derives each
 product page's edit link from that source path, so don't hand-author
 `editUrl` in product frontmatter. Recheck examples against the supported
@@ -157,8 +169,9 @@ wording, structure and examples as readers hit them.
 
 Read [Cratis site specifics](references/cratis-site.md) before writing a
 Cratis product page. It covers the teaching components (`YouWillLearn`,
-`Recap`, client tabs), maturity labeling, cross-product compatibility, the
-Prompter feedback signal, and who decides page structure.
+`Recap`, client tabs, including on site-owned pages), the variant-docs audit,
+maturity and preview labeling, cross-product compatibility, the Prompter
+feedback signal, and who decides page structure.
 
 ## Contextual awareness
 
