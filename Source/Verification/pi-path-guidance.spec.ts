@@ -219,13 +219,22 @@ test('a skill the model already read in this session is not hinted', () => {
     }
 });
 
-test('a skill that is not available to the session is not hinted', () => {
+test('the repository skills are hinted whether or not Pi loaded them, and a loaded skill is not duplicated', () => {
     const { project, documentation, untriggered } = projectWithSkills();
     try {
-        // Pi loaded only the documentation skill; the specifications skill exists on disk but is not selected.
+        // Pi loaded only the documentation skill; the repository's specifications skill can still be read by path.
         const guidance = session(project, [documentation, untriggered]);
-        assert.doesNotMatch(textOf(guidance.write(specificationPath)), /demo-specifications/);
-        assert.match(textOf(guidance.write('Documentation/page.md')), /demo-documentation/);
+        assert.match(textOf(guidance.write(specificationPath)), /demo-specifications/);
+        const text = textOf(guidance.write('Documentation/page.md'));
+        assert.match(text, /demo-documentation/);
+        assert.equal(text.match(/demo-documentation/g)?.length, 2, 'named once, with its SKILL.md path');
+
+        // A loaded skill wins over the repository copy of the same name, so it is one hint with the loaded file.
+        const elsewhere = writeSkill(project, 'demo-documentation', ['**/Documentation/**/*.{md,mdx}'], join(project, 'elsewhere'));
+        const loaded = textOf(session(project, [elsewhere]).write('Documentation/page.md'));
+        assert.equal(loaded.match(/\[cratis-path-guidance\]/g)?.length, 1, loaded);
+        assert.equal(loaded.match(/`demo-documentation`/g)?.length, 1, 'not duplicated');
+        assert.ok(loaded.includes('read elsewhere/demo-documentation/SKILL.md'), loaded);
 
         // A session with skills switched off (pi-subagents `skills: false`) reports none; the repository's skills stand in.
         const none = session(project, []);
@@ -458,6 +467,46 @@ test('the packaged copy hints only the skills the repository selected when the s
         const unconfigured = write([]);
         assert.match(unconfigured, /demo-slice-specifications/, 'without ai.json the package loads every skill');
         assert.match(unconfigured, /demo-framework-specifications/);
+    } finally {
+        process.chdir(originalDirectory);
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('the packaged copy hints a selected skill when Pi loaded only unrelated skills, and never an unselected one', async () => {
+    const catalog = {
+        publicProfiles: [
+            { id: 'demo/slices', availableTargets: ['demo-slice-specifications'] },
+            { id: 'demo/framework', availableTargets: ['demo-framework-specifications'] },
+        ],
+        engineeringProfiles: [],
+    };
+    const { workspace, project, corpus } = packagedWorkspace({
+        'demo-slice-specifications': ['**/for_*/**/*.cs'],
+        'demo-framework-specifications': ['**/for_*/**/*.cs'],
+    }, catalog);
+    const originalDirectory = process.cwd();
+    try {
+        const packaged = await loadPackaged(corpus);
+        process.chdir(project);
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['demo/slices'] }));
+        // A personal skill without a trigger, from ~/.pi/agent/skills: the list is non-empty but holds no Cratis skill.
+        const personal = writeSkill(workspace, 'personal-notes', [], join(workspace, 'home', 'skills'));
+        const write = (skills: LoadedSkill[]) => {
+            const handlers = register(packaged);
+            handlers.get('before_agent_start')?.({ systemPrompt: '', systemPromptOptions: { cwd: project, skills } }, { cwd: project });
+            return textOf(handlers.get('tool_result')?.({ toolName: 'write', isError: false, input: { path: 'Source/for_Thing/when_x.cs' }, content: [] }, { cwd: project }) as Result);
+        };
+
+        const hinted = write([personal]);
+        assert.match(hinted, /demo-slice-specifications/, 'a personal skill list does not hide the selected skill');
+        assert.doesNotMatch(hinted, /demo-framework-specifications/, 'an unselected corpus skill is never hinted');
+
+        // The selected skill is also loaded (the extension allowlist kept @cratis/pi): one hint, with the loaded file.
+        const loaded = writeSkill(workspace, 'demo-slice-specifications', ['**/for_*/**/*.cs'], join(workspace, 'loaded'));
+        const both = write([personal, loaded]);
+        assert.equal(both.match(/`demo-slice-specifications`/g)?.length, 1, both);
+        assert.ok(both.includes('loaded/demo-slice-specifications/SKILL.md') || both.includes(join(workspace, 'loaded', 'demo-slice-specifications', 'SKILL.md')), both);
     } finally {
         process.chdir(originalDirectory);
         rmSync(workspace, { recursive: true, force: true });

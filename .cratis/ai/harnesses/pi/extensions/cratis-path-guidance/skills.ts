@@ -18,7 +18,7 @@ function skillAt(root: string, name: string): LoadedSkill[] {
 }
 
 /**
- * The skills the repository selected, for a session in which Pi reported none. A managed installation resolves
+ * The skills the repository selected, whether or not Pi loaded them into the session. A managed installation resolves
  * them into `.cratis/ai/skills`. Without one, the packaged corpus holds every catalog skill, so the selection
  * comes from `.cratis/ai.json` and the profile catalog; when that cannot be resolved nothing is hinted.
  */
@@ -42,14 +42,18 @@ function triggerGlobs(filePath: string): string[] {
 }
 
 /**
- * The skills available to a session with their trigger globs. `loaded` are the skills Pi loaded for the
- * session (`systemPromptOptions.skills`). When Pi reported none, either because the host has not said or because
- * skills are switched off (a pi-subagents agent with `skills: false`, the usual setup for cheap workers), the
- * repository's selected skills stand in: their `SKILL.md` can still be read by path, which is what the hint asks
- * for. Skills without a `cratis-hint-paths` trigger are left out.
+ * The skills available to a session with their trigger globs: the skills Pi loaded for the session
+ * (`systemPromptOptions.skills`) together with the repository's selected skills, deduplicated by name with the
+ * loaded one winning. The union matters because Pi's list says nothing about whether the Cratis skills are in it:
+ * it can be empty (a pi-subagents agent with `skills: false`, the usual setup for cheap workers), or non-empty
+ * with only personal skills (an agent with `skills: true` whose `extensions:` allowlist leaves `@cratis/pi`, and
+ * so its skill paths, out). The selected skills' `SKILL.md` can still be read by path, which is what the hint asks
+ * for; a corpus skill the repository did not select is never added. Skills without a `cratis-hint-paths` trigger
+ * are left out.
  */
 export function skillTriggers(loaded: LoadedSkill[] | undefined, cwd: string): SkillTrigger[] {
-    return (loaded !== undefined && loaded.length > 0 ? loaded : repositorySkills(cwd))
+    const loadedNames = new Set((loaded ?? []).map(skill => skill.name));
+    return [...(loaded ?? []), ...repositorySkills(cwd).filter(skill => !loadedNames.has(skill.name))]
         .map(skill => ({
             name: skill.name,
             filePath: skill.filePath,
