@@ -8,7 +8,9 @@ import { BackendChoice } from './BackendChoice.ts';
 import type { ConfigurationFile } from './ConfigurationFile.ts';
 import { checkEndpoint, typeSafeEndpoint } from './endpoint.ts';
 import { FileState } from './FileState.ts';
+import { NotifyLevel } from './NotifyLevel.ts';
 import { show } from './output.ts';
+import type { EndpointOverride } from './EndpointOverride.ts';
 import type { SetupDependencies } from './SetupDependencies.ts';
 import { SkillRelevanceMode } from './SkillRelevanceMode.ts';
 import type { UserConfiguration } from './UserConfiguration.ts';
@@ -32,10 +34,10 @@ export function manualSteps(agentDirectory: string): string {
 }
 
 /** Exactly what leaves the machine, stated before the user confirms. */
-export function disclosure(origin: string, overriddenFrom?: string): string {
+export function disclosure(origin: string, override?: EndpointOverride): string {
     return [
         `Cratis will send to ${origin}:`,
-        ...(overriddenFrom === undefined ? [] : [`  (SYSTEMONE_ENDPOINT in your environment overrides the endpoint you chose, ${overriddenFrom}. Data goes to ${origin}.)`]),
+        ...(override === undefined ? [] : [`  (SYSTEMONE_ENDPOINT in your environment overrides the endpoint you chose, ${override.chosen}. Data goes to ${override.effective}.)`]),
         '  - the names and first sentence of the description of the Cratis skills Pi loaded,',
         '  - the first 1200 characters of each prompt you type in an interactive session, in repositories set up with Cratis AI.',
         'Slash commands and skill or template invocations are not sent. Subagent tasks, attachments, file contents and tool output are never sent.',
@@ -56,7 +58,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     const { ui } = context;
     const { environment } = dependencies;
     const now = dependencies.now ?? Date.now;
-    const say = (text: string, level: 'info' | 'warning' = 'info') => show(context, dependencies.write, text, level);
+    const say = (text: string, level: NotifyLevel = NotifyLevel.Info) => show(context, dependencies.write, text, level);
     const cancelled = () => say('System One setup cancelled. Nothing was saved.');
 
     if (!context.hasUI) {
@@ -74,11 +76,11 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     if (candidate === undefined) return cancelled();
     const chosen = checkEndpoint(candidate);
     if ('error' in chosen) {
-        say(`System One setup stopped: ${chosen.error}. Nothing was saved.`, 'warning');
+        say(`System One setup stopped: ${chosen.error}. Nothing was saved.`, NotifyLevel.Warning);
         return;
     }
     if (choice === BackendChoice.Local && !chosen.loopback) {
-        say('System One setup stopped: a local server must be on 127.0.0.1, ::1 or localhost. Choose "Other System One provider" for a remote one. Nothing was saved.', 'warning');
+        say('System One setup stopped: a local server must be on 127.0.0.1, ::1 or localhost. Choose "Other System One provider" for a remote one. Nothing was saved.', NotifyLevel.Warning);
         return;
     }
 
@@ -93,7 +95,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
         if (typed === undefined) return cancelled();
         storedKey = typed.trim() || undefined;
         if (storedKey === undefined && !chosen.loopback) {
-            say(`System One setup stopped: ${chosen.origin} needs an API key. Set SYSTEMONE_API_KEY or run setup again. Nothing was saved.`, 'warning');
+            say(`System One setup stopped: ${chosen.origin} needs an API key. Set SYSTEMONE_API_KEY or run setup again. Nothing was saved.`, NotifyLevel.Warning);
             return;
         }
     }
@@ -109,11 +111,12 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     const user: ConfigurationFile = { state: FileState.Present, text: JSON.stringify(configuration) };
     const resolved = resolveConfiguration({ user, repository: { state: FileState.Missing }, environment });
     if (!resolved.enabled) {
-        say(`System One setup stopped: it would not run here (${resolved.reason}). Nothing was saved.`, 'warning');
+        say(`System One setup stopped: it would not run here (${resolved.reason}). Nothing was saved.`, NotifyLevel.Warning);
         return;
     }
     const { settings } = resolved;
-    const overridden = effectiveEndpoint(environment, configuration).fromEnvironment && settings.origin !== chosen.origin ? chosen.origin : undefined;
+    // Whenever the environment sends data anywhere but the URL the user chose, however similar, say so.
+    const overridden: EndpointOverride | undefined = effectiveEndpoint(environment, configuration).fromEnvironment && settings.endpoint !== chosen.endpoint ? { chosen: chosen.endpoint, effective: settings.endpoint } : undefined;
 
     const confirmed = await ui.confirm(`Send this to ${settings.origin}?`, disclosure(settings.origin, overridden));
     if (!confirmed) return cancelled();
@@ -128,7 +131,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     if (probe.ok) {
         say(`Probe of ${settings.origin} succeeded in ${probe.latencyMs} ms: cratis-arc-command scored ${probe.probabilities.get('cratis-arc-command')?.toFixed(2)} for a command prompt.`);
     } else {
-        say(`Probe of ${settings.origin} failed (${probe.failure}, ${probe.latencyMs} ms).`, 'warning');
+        say(`Probe of ${settings.origin} failed (${probe.failure}, ${probe.latencyMs} ms).`, NotifyLevel.Warning);
         const saveAnyway = await ui.confirm('The probe failed. Save anyway?', 'The extension will fail open (turns are never blocked) and pause itself after repeated failures. You can fix the endpoint or key and run /system-one setup again.');
         if (!saveAnyway) return cancelled();
     }

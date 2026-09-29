@@ -6,8 +6,9 @@ import type { ConfigurationFile } from './ConfigurationFile.ts';
 import type { ConfigurationInputs } from './ConfigurationInputs.ts';
 import type { ConfigurationResult } from './ConfigurationResult.ts';
 import { checkEndpoint, typeSafeEndpoint, typeSafeOrigin } from './endpoint.ts';
-import type { EndpointCheck } from './EndpointCheck.ts';
+import type { EffectiveEndpoint } from './EffectiveEndpoint.ts';
 import { FileState } from './FileState.ts';
+import type { RepositoryNarrowing } from './RepositoryNarrowing.ts';
 import type { KeyTarget } from './KeyTarget.ts';
 import { Invalid } from './Invalid.ts';
 import type { SkillRelevanceSettings } from './SkillRelevanceSettings.ts';
@@ -75,7 +76,7 @@ export function parseUserConfiguration(text: string): UserConfiguration {
  * a wrong type, an endpoint, a key or a timeout, is a `problem`, and a problem switches System One off:
  * a file that may have been trying to opt out is treated as having opted out, never as silence.
  */
-function repositoryNarrowing(repository: ConfigurationFile): { optOut: boolean; off: boolean; problem?: string } {
+function repositoryNarrowing(repository: ConfigurationFile): RepositoryNarrowing {
     const none = { optOut: false, off: false };
     if (repository.state === FileState.Missing) return none;
     if (repository.state === FileState.Unreadable) return { ...none, problem: '.cratis/ai.json could not be read' };
@@ -106,21 +107,23 @@ function repositoryNarrowing(repository: ConfigurationFile): { optOut: boolean; 
 
 /**
  * The only place a key is chosen. Environment keys (`SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` for the
- * TypeSafe origin only) are never attached to a loopback `http` endpoint. A key stored in the user file
- * is bound to the origin it was stored for: it is used only when that is the effective origin.
+ * TypeSafe origin only) are never attached to any loopback endpoint, http or https: a local server gets a
+ * key only if the user stored one for that exact endpoint. Elsewhere, a key stored in the user file is
+ * bound to the origin it was stored for and is used only when that is the effective origin.
  */
 export function selectKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }): string | undefined {
-    const plainLoopback = target.loopback && target.endpoint.startsWith('http:');
-    if (!plainLoopback) {
+    if (!target.loopback) {
         const fromEnvironment = nonEmpty(environment.SYSTEMONE_API_KEY) ?? (target.origin === typeSafeOrigin ? nonEmpty(environment.TYPESAFE_API_KEY) : undefined);
         if (fromEnvironment !== undefined) return fromEnvironment;
     }
     const storedFor = checkEndpoint(stored.endpoint ?? typeSafeEndpoint);
-    return !('error' in storedFor) && storedFor.origin === target.origin ? nonEmpty(stored.apiKey) : undefined;
+    if ('error' in storedFor) return undefined;
+    const sameDestination = target.loopback ? storedFor.endpoint === target.endpoint : storedFor.origin === target.origin;
+    return sameDestination ? nonEmpty(stored.apiKey) : undefined;
 }
 
 /** The endpoint a user's file resolves to once `SYSTEMONE_ENDPOINT` is taken into account. */
-export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endpoint?: string }): { checked: EndpointCheck; fromEnvironment: boolean } {
+export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endpoint?: string }): EffectiveEndpoint {
     const environmentEndpoint = nonEmpty(environment.SYSTEMONE_ENDPOINT);
     return { checked: checkEndpoint(environmentEndpoint ?? stored.endpoint ?? typeSafeEndpoint), fromEnvironment: environmentEndpoint !== undefined };
 }

@@ -11,7 +11,10 @@ import { BreakerState } from './BreakerState.ts';
 import { loadConfiguration } from './configuration.ts';
 import { CircuitBreaker } from './CircuitBreaker.ts';
 import { DecisionOutcome } from './DecisionOutcome.ts';
+import { FailureClass } from './FailureClass.ts';
 import { entryType } from './entryType.ts';
+import { InputSource } from './InputSource.ts';
+import { NotifyLevel } from './NotifyLevel.ts';
 import { EntryKind } from './EntryKind.ts';
 import { show } from './output.ts';
 import { eligibleSkills, questionsFor, realPathOf, stateFor } from './relevance.ts';
@@ -21,14 +24,16 @@ import { runSetup, turnOff } from './setup.ts';
 import type { SkillCandidate } from './SkillCandidate.ts';
 import { SkillRelevanceMode } from './SkillRelevanceMode.ts';
 import { SkipReason } from './SkipReason.ts';
+import { Subcommand } from './Subcommand.ts';
 import type { SystemOneDependencies } from './SystemOneDependencies.ts';
 import type { SystemOneHandle } from './SystemOneHandle.ts';
 import type { SystemOneOutcome } from './SystemOneOutcome.ts';
 import type { SystemOneSettings } from './SystemOneSettings.ts';
 import type { TurnRecord } from './TurnRecord.ts';
+import type { TypedInput } from './TypedInput.ts';
 
 const extensionDirectory = dirname(fileURLToPath(import.meta.url));
-const usage = 'Usage: /system-one [status|last|report|setup|off]';
+const usage = `Usage: /system-one [${Object.values(Subcommand).join('|')}]`;
 
 function corpusRootOf(directory: string): string {
     return resolve(directory, '..', '..', '..', '..');
@@ -50,14 +55,14 @@ export function standsDown(cwd: string, directory: string = extensionDirectory):
 
 function notify(context: ExtensionContext, message: string): void {
     try {
-        if (context.hasUI) context.ui.notify(message, 'warning');
+        if (context.hasUI) context.ui.notify(message, NotifyLevel.Warning);
     } catch {
         /* a notice is never worth failing a turn, and a stale context can throw */
     }
 }
 
-function isSlashInput(text: string | undefined): boolean {
-    return text !== undefined && text.trimStart().startsWith('/');
+function isSlashInput(text: string): boolean {
+    return text.trimStart().startsWith('/');
 }
 
 /** Only repositories set up with Cratis AI are judged; a stray Pi session elsewhere sends nothing. */
@@ -84,7 +89,8 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
     const transport = dependencies.transport ?? fetch;
     const now = dependencies.now ?? Date.now;
     const environment = dependencies.environment ?? process.env;
-    const write = dependencies.write ?? ((text: string) => { process.stdout.write(`${text}\n`); });
+    // stderr, not stdout: in print and json modes stdout carries the model's output or the JSON stream.
+    const write = dependencies.write ?? ((text: string) => { process.stderr.write(`${text}\n`); });
     const agentDirectory = (): string => dependencies.agentDirectory ?? getAgentDir();
     const configure = dependencies.configure ?? ((cwd: string) => loadConfiguration(cwd, agentDirectory(), environment));
     const directory = dependencies.extensionDirectory ?? extensionDirectory;
@@ -97,7 +103,7 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
     let epoch = 0;
     let turn = 0;
     let current: TurnRecord | undefined;
-    let rawInput: string | undefined;
+    let typedInput: TypedInput | undefined;
     const knownSkills = new Map<string, string>();
     const readSkills = new Set<string>();
     const inFlight = new Set<Promise<void>>();
@@ -117,7 +123,7 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         breaker = new CircuitBreaker(3, now);
         breakerOrigin = undefined;
         turn = 0;
-        rawInput = undefined;
+        typedInput = undefined;
         knownSkills.clear();
         readSkills.clear();
     };
@@ -128,6 +134,17 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
 
     /** Runs in the background: never awaited by a turn, never throws. */
     const judge = async (record: TurnRecord, prompt: string, candidates: SkillCandidate[], settings: SystemOneSettings, context: ExtensionContext, sessionEpoch: number, controller: AbortController, halfOpen: boolean): Promise<void> => {
+        const owner = breaker;
+        let reported = false;
+        try {
+            await judgeTurn(record, prompt, candidates, settings, context, sessionEpoch, controller, halfOpen, () => { reported = true; });
+        } finally {
+            // A probe that reported nothing (the session ended, something threw) must not leave the breaker stuck.
+            if (!reported) owner.release();
+        }
+    };
+
+    const judgeTurn = async (record: TurnRecord, prompt: string, candidates: SkillCandidate[], settings: SystemOneSettings, context: ExtensionContext, sessionEpoch: number, controller: AbortController, halfOpen: boolean, reportedToBreaker: () => void): Promise<void> => {
         const relevance = settings.skillRelevance;
         const state = stateFor(prompt, relevance);
         const timeoutMs = dependencies.requestTimeoutMs ?? settings.timeoutMs;
@@ -165,10 +182,18 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             }
         }
         // The breaker counts turns, not requests: one turn is one success or one failure however many chunks it had.
+        // A rate-limit or overload answer anywhere in the turn decides its class and its Retry-After, because
+        // that is what the server asked for; otherwise the first failure does.
+        reportedToBreaker();
         if (failures.length === 0) {
             breaker.recordSuccess();
-        } else if (breaker.recordFailure(failures[0].failure, Math.max(0, ...failures.map(failure => failure.retryAfterMs ?? 0)) || undefined)) {
-            announce(context, 'breaker-open', `System One is paused for about ${Math.ceil(breaker.retryInMs / 1000)} s after repeated failures. See /system-one status.`);
+        } else {
+            const pushedBack = failures.filter(failure => failure.failure === FailureClass.RateLimited || failure.failure === FailureClass.Overloaded);
+            const deciding = pushedBack.length > 0 ? pushedBack : failures;
+            const retryAfterMs = Math.max(0, ...deciding.map(failure => failure.retryAfterMs ?? 0)) || undefined;
+            if (breaker.recordFailure(deciding[0].failure, retryAfterMs)) {
+                announce(context, 'breaker-open', `System One is paused for about ${Math.ceil(breaker.retryInMs / 1000)} s after repeated failures. See /system-one status.`);
+            }
         }
 
         const decision = {
@@ -201,8 +226,8 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
     };
 
     const start = (prompt: string, skills: Parameters<typeof eligibleSkills>[0], context: ExtensionContext): void => {
-        const raw = rawInput;
-        rawInput = undefined;
+        const input = typedInput;
+        typedInput = undefined;
         current = undefined;
         const configuration = configure(context.cwd);
         if (!configuration.enabled) {
@@ -213,16 +238,20 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         const { settings } = configuration;
         const relevance = settings.skillRelevance;
         if (relevance.mode === SkillRelevanceMode.Off) return;
-        // Only what a person types in an interactive session is judged: never print/json/RPC without a UI, and
+        // Only what a person types in an interactive session is judged: never print or json mode, and
         // so never a subagent's task, which runs in a child process without one.
         if (!context.hasUI) return statistics.recordSkip(SkipReason.NoInteractiveSession);
+        // Only text a person typed. Another extension's injected message (sendUserMessage) arrives with source
+        // "extension" and may carry tool output or file contents; an RPC host's prompt may be automated, and
+        // when in doubt it is excluded. No input event for the turn means nobody typed anything.
+        if (input === undefined || input.source !== InputSource.Interactive) return statistics.recordSkip(SkipReason.NotTypedByUser);
         if (!isCratisRepository(context.cwd)) return statistics.recordSkip(SkipReason.NotCratisRepository);
         if (breakerOrigin !== settings.origin) {
             breaker = new CircuitBreaker(3, now);
             breakerOrigin = settings.origin;
         }
 
-        if (isSlashInput(raw) || isSlashInput(prompt) || prompt.startsWith('<skill ')) return statistics.recordSkip(SkipReason.SlashCommand);
+        if (isSlashInput(input.text) || isSlashInput(prompt) || prompt.startsWith('<skill ')) return statistics.recordSkip(SkipReason.SlashCommand);
         if (prompt.trim().length < relevance.minPromptChars) return statistics.recordSkip(SkipReason.ShortPrompt);
 
         const candidates = eligibleSkills(skills, skillRoots(context.cwd));
@@ -247,7 +276,7 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         current = record;
         const controller = new AbortController();
         controllers.add(controller);
-        // Not awaited: a prompt is never delayed by a judgement that only feeds a measurement.
+        // Not awaited: a prompt is never delayed by a judgment that only feeds a measurement.
         const work = judge(record, prompt, candidates, settings, context, epoch, controller, halfOpen)
             .catch(() => undefined)
             .finally(() => { inFlight.delete(work); controllers.delete(controller); });
@@ -263,9 +292,10 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         try { retire(); } catch { /* fail open */ }
     });
 
-    // The raw text still has its leading slash here; before_agent_start only sees it after expansion.
+    // The raw text still has its leading slash here, and the source says who sent it; before_agent_start
+    // only sees the prompt after expansion and knows neither.
     pi.on('input', event => {
-        try { rawInput = typeof event?.text === 'string' ? event.text : undefined; } catch { /* fail open */ }
+        try { typedInput = typeof event?.text === 'string' ? { text: event.text, source: event.source as InputSource } : undefined; } catch { /* fail open */ }
     });
 
     pi.on('before_agent_start', (event, context) => {
@@ -306,25 +336,25 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
     });
 
     pi.registerCommand('system-one', {
-        description: 'System One skill relevance (experimental): /system-one [status|last|report|setup|off]',
+        description: `System One skill relevance (experimental): /system-one [${Object.values(Subcommand).join('|')}]`,
         handler: async (argumentsText, context) => {
             const say = (text: string) => show(context, write, text);
             try {
-                const subcommand = argumentsText.trim().split(/\s+/)[0] || 'status';
+                const subcommand = argumentsText.trim().split(/\s+/)[0] || Subcommand.Status;
                 switch (subcommand) {
-                    case 'status':
+                    case Subcommand.Status:
                         say(formatStatus(configure(context.cwd), statistics, breaker.state, breaker.retryInMs));
                         break;
-                    case 'last':
+                    case Subcommand.Last:
                         say(formatLast(statistics));
                         break;
-                    case 'report':
+                    case Subcommand.Report:
                         say(formatReport(aggregateShadow(context.sessionManager.getEntries())));
                         break;
-                    case 'setup':
+                    case Subcommand.Setup:
                         await runSetup(context, { agentDirectory: agentDirectory(), environment, write, transport, now });
                         break;
-                    case 'off':
+                    case Subcommand.Off:
                         turnOff(context, { agentDirectory: agentDirectory(), write });
                         break;
                     default:
@@ -332,7 +362,7 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
                 }
             } catch {
                 // Never include the error text: it could carry a path, a URL or worse.
-                try { show(context, write, 'System One: the command failed; nothing may have been saved.', 'warning'); } catch { /* fail open */ }
+                try { show(context, write, 'System One: the command failed; nothing may have been saved.', NotifyLevel.Warning); } catch { /* fail open */ }
             }
         },
     });

@@ -145,8 +145,9 @@ export function host(project: Project, dependencies: SystemOneDependencies = {},
     const commands = new Map<string, (argumentsText: string, context: unknown) => Promise<void>>();
     const entries: Array<{ type: string; data: Record<string, unknown> }> = [];
     const notices: string[] = [];
-    /** What went to stdout: command output when Pi has no UI. */
-    const stdout: string[] = [];
+    /** What went to the terminal (stderr): command output when Pi has no UI. */
+    const terminal: string[] = [];
+    let explicitInput = false;
     const prompts: Prompt[] = [];
     const misuse: string[] = [];
     const script = { inputs: [...(options.script?.inputs ?? [])], confirms: [...(options.script?.confirms ?? [])], select: options.script?.select };
@@ -157,7 +158,7 @@ export function host(project: Project, dependencies: SystemOneDependencies = {},
     } as Record<string, unknown>;
     // Anything else on the API (sending messages, registering tools, changing tools) is misuse in shadow mode.
     const api = new Proxy(known, { get: (target, property) => property in target ? target[property as string] : () => { misuse.push(String(property)); } }) as unknown as ExtensionAPI;
-    const handle = registerSystemOne(api, { environment: {}, agentDirectory: project.agentDirectory, write: (text: string) => { stdout.push(text); }, ...dependencies });
+    const handle = registerSystemOne(api, { environment: {}, agentDirectory: project.agentDirectory, write: (text: string) => { terminal.push(text); }, ...dependencies });
     const hasUI = options.hasUI ?? true;
     const record = (kind: Prompt['kind'], title: string, detail?: string) => prompts.push({ kind, title, detail, userFileExisted: existsSync(join(project.agentDirectory, 'cratis-system-one.json')) });
     const context = {
@@ -174,12 +175,19 @@ export function host(project: Project, dependencies: SystemOneDependencies = {},
     };
     const invoke = (name: string, event: unknown) => handlers.get(name)!(event, context);
     return {
-        entries, notices, stdout, prompts, misuse, commands, handlers,
+        entries, notices, terminal, prompts, misuse, commands, handlers,
         settled: () => handle.settled(),
         sessionStart: () => invoke('session_start', { type: 'session_start', reason: 'startup' }),
-        input: (text: string) => invoke('input', { type: 'input', text, source: 'interactive' }),
-        /** Fires before_agent_start and returns immediately, as Pi sees it. Await `settled()` for the background request. */
-        ask(prompt: string, skills: Skill[], systemPrompt = 'base system prompt') {
+        /** Fires an input event. A turn asked after this one uses it instead of a default typed-by-the-user event. */
+        input: (text: string, source = 'interactive') => { explicitInput = true; return invoke('input', { type: 'input', text, source }); },
+        /**
+         * Fires before_agent_start and returns immediately, as Pi sees it. Unless an input event was fired
+         * for this turn, one is fired first, as if the user typed the prompt (`input: false` for none).
+         * Await `settled()` for the background request.
+         */
+        ask(prompt: string, skills: Skill[], systemPrompt = 'base system prompt', input: boolean = true) {
+            if (input && !explicitInput) invoke('input', { type: 'input', text: prompt, source: 'interactive' });
+            explicitInput = false;
             const event = { type: 'before_agent_start', prompt, systemPrompt, systemPromptOptions: { cwd: project.directory, skills } };
             const before = JSON.stringify(event);
             const result = invoke('before_agent_start', event);
@@ -194,11 +202,11 @@ export function host(project: Project, dependencies: SystemOneDependencies = {},
         read: (path: string, isError = false, toolName = 'read') => invoke('tool_result', { type: 'tool_result', toolName, toolCallId: 'call', input: { path }, content: [], isError, details: undefined }),
         end: () => invoke('agent_end', { type: 'agent_end', messages: [] }),
         shutdown: () => invoke('session_shutdown', { type: 'session_shutdown', reason: 'quit' }),
-        /** Runs a /system-one command and returns what it showed, in a UI or on stdout. */
+        /** Runs a /system-one command and returns what it showed, in a UI or on the terminal. */
         async command(argumentsText = '') {
-            const before = [notices.length, stdout.length];
+            const before = [notices.length, terminal.length];
             await commands.get('system-one')!(argumentsText, context);
-            return [...notices.slice(before[0]), ...stdout.slice(before[1])].join('\n');
+            return [...notices.slice(before[0]), ...terminal.slice(before[1])].join('\n');
         },
         entriesOfKind: (kind: string) => entries.filter(entry => entry.data.kind === kind).map(entry => entry.data),
     };

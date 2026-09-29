@@ -15,7 +15,7 @@ export interface SystemOneDependencies {
     agentDirectory?: string;
     /** Where this copy of the extension lives. Decides whether it is the packaged copy. Defaults to the real one. */
     extensionDirectory?: string;
-    /** Where command output goes when Pi has no UI. Defaults to stdout. */
+    /** Where command output goes when Pi has no UI. Defaults to stderr. */
     write?: (text: string) => void;
     /** Overrides the per-request timeout. For specs only; the setting itself is fixed. */
     requestTimeoutMs?: number;

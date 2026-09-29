@@ -229,6 +229,15 @@ test('a key is only ever sent to the endpoint it was meant for', async () => {
         await run({}, { TYPESAFE_API_KEY: secret });
         assert.deepEqual(sent.at(-1), { url: typeSafeEndpoint, authorization: `Bearer ${secret}` });
 
+        // Environment keys are never attached to any loopback endpoint, http or https, whatever the variable.
+        for (const endpoint of ['https://127.0.0.1:9443', 'https://localhost:9443/v1/systemone', 'https://[::1]:9443']) {
+            await run({ endpoint }, { SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret });
+            assert.equal(sent.at(-1)?.authorization, undefined, endpoint);
+        }
+        await run({ endpoint: 'https://127.0.0.1:9443/v1/systemone', apiKey: 'local-key' }, { SYSTEMONE_API_KEY: secret });
+        assert.equal(sent.at(-1)?.authorization, 'Bearer local-key', 'the stored key for that exact endpoint, not the environment one');
+        await run({ endpoint: 'https://127.0.0.1:9443/v1/systemone', apiKey: 'local-key' }, { SYSTEMONE_ENDPOINT: 'https://127.0.0.1:9443/other/v1/systemone' });
+        assert.equal(sent.at(-1)?.authorization, undefined, 'a loopback key is bound to the exact endpoint, not just the origin');
         // Environment keys are never attached to a loopback http endpoint, whatever the variable.
         for (const environment of [{ TYPESAFE_API_KEY: secret }, { SYSTEMONE_API_KEY: secret }, { SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret }]) {
             await run({ endpoint: 'http://127.0.0.1:8000' }, environment);
@@ -587,12 +596,40 @@ test('setup discloses, names and probes the endpoint that will really be used wh
                 assert.equal(chosen.requests.length, 0, 'the chosen endpoint is not probed');
                 assert.equal(overriding.requests.length, 1, 'the effective endpoint is');
                 assert.match(output, /SYSTEMONE_ENDPOINT overrides its endpoint while it is set/);
+                assert.ok(confirm.detail!.includes(`Data goes to ${overriding.endpoint}/v1/systemone`), 'names the effective URL');
                 assert.equal(JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8')).endpoint, `${chosen.endpoint}/v1/systemone`, 'the file keeps the user\'s choice');
             } finally {
                 project.cleanup();
             }
         });
     });
+});
+
+test('setup discloses an override even when only the path differs', async () => {
+    await withServer(answering(0.6), async server => {
+        const project = projectFixture();
+        try {
+            const environment = { SYSTEMONE_ENDPOINT: `${server.endpoint}/elsewhere/v1/systemone` };
+            const session = host(project, { environment }, { script: { select: local, inputs: [server.endpoint, ''], confirms: [true] } });
+            const output = await session.command('setup');
+            const confirm = session.prompts.find(prompt => prompt.kind === 'confirm')!;
+            assert.match(confirm.detail!, /SYSTEMONE_ENDPOINT in your environment overrides the endpoint you chose/);
+            assert.ok(confirm.detail!.includes(`you chose, ${server.endpoint}/v1/systemone. Data goes to ${server.endpoint}/elsewhere/v1/systemone`));
+            assert.equal(server.requests[0].url, '/elsewhere/v1/systemone');
+            assert.match(output, /SYSTEMONE_ENDPOINT overrides its endpoint while it is set/);
+        } finally {
+            project.cleanup();
+        }
+    });
+    // No override, no mention.
+    const plain = projectFixture();
+    try {
+        const session = host(plain, { transport: async () => new Response(JSON.stringify({ answers: { [setupSkills]: { type: 'noul', noul: 0.5 } } })) }, { script: { select: typeSafe, inputs: [secret], confirms: [true] } });
+        await session.command('setup');
+        assert.doesNotMatch(session.prompts.find(prompt => prompt.kind === 'confirm')!.detail!, /overrides/);
+    } finally {
+        plain.cleanup();
+    }
 });
 
 test('setup stops when the environment would keep it from running, or points somewhere not allowed', async () => {
@@ -655,13 +692,13 @@ test('setup stops without saving or sending when the user declines, cancels, or 
     }
 });
 
-test('setup without a UI prints the manual steps to stdout and writes nothing', async () => {
+test('setup without a UI prints the manual steps to the terminal and writes nothing', async () => {
     const project = projectFixture();
     try {
         const session = host(project, { transport: failOnCall }, { hasUI: false });
         const output = await session.command('setup');
         assert.deepEqual(session.notices, [], 'notify does nothing without a UI');
-        assert.equal(session.stdout.length, 1);
+        assert.equal(session.terminal.length, 1);
         assert.match(output, /cratis-system-one\.json/);
         assert.match(output, /chmod 600/);
         assert.match(output, /first 1200 characters of each prompt you type in an interactive session/);
@@ -716,7 +753,7 @@ test('a command that fails says so without the error text', async () => {
 
 // ---------------------------------------------------------------- only interactive sessions in Cratis repositories
 
-test('without a UI (print, json, RPC without one, subagent children) nothing is ever asked, and output goes to stdout', async () => {
+test('without a UI (print, json, RPC without one, subagent children) nothing is ever asked, and output goes to the terminal', async () => {
     await withServer(answering(0.9), async server => {
         const project = enabledProject(server.endpoint);
         try {
@@ -729,11 +766,46 @@ test('without a UI (print, json, RPC without one, subagent children) nothing is 
             assert.match(status, /no interactive session 1/);
             assert.match(status, /State: enabled/);
             assert.deepEqual(session.notices, []);
-            assert.equal(session.stdout.length, 1, 'status went to stdout');
+            assert.equal(session.terminal.length, 1, 'status went to the terminal');
             assert.match(await session.command('last'), /not been asked/);
             assert.match(await session.command('report'), /No skill-relevance turns/);
             assert.match(await session.command('bogus'), /Usage: /);
-            assert.equal(session.stdout.length, 4);
+            assert.equal(session.terminal.length, 4);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('only what the user typed is judged: extension-injected and RPC prompts are skipped, and so is a turn with no input event', async () => {
+    await withServer(answering(0.9), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            const session = host(project);
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            const injected = 'Here is the tool output another extension wants the model to see: SECRET-FILE-CONTENT and more text to pass the length check.';
+
+            // sendUserMessage from another extension: an input event with source "extension".
+            session.input(injected, 'extension');
+            await session.askAndSettle(injected, skills);
+            // An RPC host's prompt may be automated, so it is excluded too.
+            session.input(promptText, 'rpc');
+            await session.askAndSettle(promptText, skills);
+            // No input event at all for this turn (the helper fires one by default; suppress it).
+            const { result } = session.ask(promptText, skills, 'base', false);
+            await session.settled();
+            assert.equal(result, undefined);
+
+            assert.equal(server.requests.length, 0, 'nothing was sent');
+            assert.equal(JSON.stringify(server.requests).includes('SECRET-FILE-CONTENT'), false);
+            assert.deepEqual(session.entries, []);
+            const status = await session.command('status');
+            assert.match(status, /not typed by the user 3/, 'extension, rpc and missing input are each recorded');
+
+            // A typed prompt still works afterwards.
+            session.input(promptText, 'interactive');
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 1);
         } finally {
             project.cleanup();
         }
@@ -864,9 +936,70 @@ test('the breaker counts turns, not chunks, and half-open sends one probe reques
             clock += 61_000;
             await session.askAndSettle(promptText, skills);
             assert.equal(requests(), 13, 'the probe plus the other two chunks');
-            const [judgement] = session.entriesOfKind('skill-relevance');
-            assert.equal(judgement.answered, 70);
+            const [judgment] = session.entriesOfKind('skill-relevance');
+            assert.equal(judgment.answered, 70);
             assert.match(await session.command('status'), /Circuit breaker: closed/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('a probe that reports nothing is given back, so the breaker cannot stay half-open forever', async () => {
+    let mode: 'down' | 'hang' | 'up' = 'down';
+    await withServer((request, response) => {
+        if (mode === 'hang') return;
+        if (mode === 'down') json(response, 500, 'down');
+        else json(response, 200, answerBody(request, 0.5));
+    }, async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            let clock = 1_000_000;
+            const session = host(project, { now: () => clock });
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            for (let turn = 0; turn < 3; turn++) await session.askAndSettle(promptText, skills);
+            assert.match(await session.command('status'), /Circuit breaker: open/);
+
+            // Half-open: the probe goes out and hangs, then the session ends before it reports anything.
+            clock += 31_000;
+            mode = 'hang';
+            const before = server.requests.length;
+            session.ask(promptText, skills);
+            while (server.requests.length === before) await new Promise(resolve => setTimeout(resolve, 10));
+            session.shutdown();
+            await session.settled();
+
+            // The breaker must allow another probe, and a healthy answer closes it.
+            mode = 'up';
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, before + 2, 'a new probe was allowed');
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('a rate-limit answer anywhere in a turn decides the breaker class and its Retry-After', async () => {
+    let seen = 0;
+    await withServer((request, response) => {
+        seen++;
+        if (seen === 1) json(response, 500, 'oops');
+        else if (seen === 2) json(response, 429, {}, { 'retry-after': '2' });
+        else json(response, 200, answerBody(request, 0.5));
+    }, async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            const clock = 1_000_000;
+            const session = host(project, { now: () => clock });
+            const skills = skillsIn(project.directory, Array.from({ length: 70 }, (_unused, index) => ({ name: `skill-${index}` })));
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 3);
+            // Had the first failure (a 500) decided, one failed turn would leave the breaker closed.
+            const status = await session.command('status');
+            assert.match(status, /Circuit breaker: open, retry in 2 s/);
+            assert.match(status, /rate-limited 1/);
+            assert.match(status, /server-error 1/);
         } finally {
             project.cleanup();
         }
@@ -1034,10 +1167,10 @@ test('requests are chunked to at most 32 questions and sent concurrently', async
             assert.equal(new Set(asked).size, 70, 'every skill exactly once');
             assert.equal(new Set(server.requests.map(request => request.body.state.prompt)).size, 1);
 
-            const [judgement] = session.entriesOfKind('skill-relevance');
-            assert.equal(judgement.asked, 70);
-            assert.equal(judgement.answered, 70);
-            assert.equal(Object.keys(judgement.probabilities as object).length, 70);
+            const [judgment] = session.entriesOfKind('skill-relevance');
+            assert.equal(judgment.asked, 70);
+            assert.equal(judgment.answered, 70);
+            assert.equal(Object.keys(judgment.probabilities as object).length, 70);
             assert.equal(session.entriesOfKind('skill-relevance').length, 1, 'one record per turn');
             assert.match(await session.command('status'), /Requests: 3, succeeded 3, failed 0/);
         } finally {
@@ -1058,9 +1191,9 @@ test('a failed chunk is recorded as a failure while the answered chunks are kept
             const session = host(project);
             await session.askAndSettle(promptText, skillsIn(project.directory, Array.from({ length: 70 }, (_unused, index) => ({ name: `skill-${index}` }))));
             assert.equal(session.entriesOfKind('skill-failure').length, 1);
-            const [judgement] = session.entriesOfKind('skill-relevance');
-            assert.equal(judgement.asked, 70);
-            assert.ok((judgement.answered as number) < 70 && (judgement.answered as number) >= 6);
+            const [judgment] = session.entriesOfKind('skill-relevance');
+            assert.equal(judgment.asked, 70);
+            assert.ok((judgment.answered as number) < 70 && (judgment.answered as number) >= 6);
         } finally {
             project.cleanup();
         }
@@ -1234,14 +1367,14 @@ test('shadow mode changes nothing, records ids and probabilities without the pro
             assert.deepEqual(session.misuse, [], 'no message, tool or tool-set changes');
             assert.equal(server.requests.length, 1);
 
-            const [judgement] = session.entriesOfKind('skill-relevance');
+            const [judgment] = session.entriesOfKind('skill-relevance');
             assert.equal(session.entries[0].type, 'cratis-system-one');
-            assert.equal(judgement.endpoint, server.endpoint);
-            assert.equal(judgement.mode, 'shadow');
-            assert.equal(judgement.asked, 3);
-            assert.equal(typeof judgement.latencyMs, 'number');
-            assert.equal(typeof judgement.turnId, 'string');
-            assert.deepEqual(judgement.probabilities, { 'skill-a': 0.91, 'skill-b': 0.42, 'skill-c': 0.03 });
+            assert.equal(judgment.endpoint, server.endpoint);
+            assert.equal(judgment.mode, 'shadow');
+            assert.equal(judgment.asked, 3);
+            assert.equal(typeof judgment.latencyMs, 'number');
+            assert.equal(typeof judgment.turnId, 'string');
+            assert.deepEqual(judgment.probabilities, { 'skill-a': 0.91, 'skill-b': 0.42, 'skill-c': 0.03 });
 
             // The model reads skill-a (relative path), a skill nobody suggested from outside the corpus, and a
             // skill it failed to read; it also reads ordinary files and runs a bash command.
@@ -1255,7 +1388,7 @@ test('shadow mode changes nothing, records ids and probabilities without the pro
             session.end();
 
             const [outcome] = session.entriesOfKind('skill-outcome');
-            assert.deepEqual(outcome, { kind: 'skill-outcome', version: 1, turnId: judgement.turnId, turn: 1, read: ['personal-skill', 'skill-a'], readEarlier: [] });
+            assert.deepEqual(outcome, { kind: 'skill-outcome', version: 1, turnId: judgment.turnId, turn: 1, read: ['personal-skill', 'skill-a'], readEarlier: [] });
             assert.equal(JSON.stringify(session.entries).includes(sentinel), false, 'the prompt is never recorded');
             assert.equal(JSON.stringify(session.entries).includes('Reference'), false);
 
@@ -1303,9 +1436,9 @@ test('a late answer is still recorded after the turn has ended, and joined by tu
 
             release!();
             await session.settled();
-            const [judgement] = session.entriesOfKind('skill-relevance');
+            const [judgment] = session.entriesOfKind('skill-relevance');
             const [outcome] = session.entriesOfKind('skill-outcome');
-            assert.equal(judgement.turnId, outcome.turnId);
+            assert.equal(judgment.turnId, outcome.turnId);
             assert.match(await session.command('last'), /0\.80 {2}skill-a {2}\(read\)/);
             assert.match(await session.command('report'), /of those, read by the model: 1 \(100%\)/);
         } finally {

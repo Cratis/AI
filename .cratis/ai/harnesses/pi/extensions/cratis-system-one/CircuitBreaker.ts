@@ -48,6 +48,11 @@ export class CircuitBreaker {
         }
     }
 
+    /** Gives back a probe that produced no result (the session ended, the turn threw), so the breaker cannot stay stuck. */
+    release(): void {
+        this.#probing = false;
+    }
+
     recordSuccess(): void {
         this.#consecutiveFailures = 0;
         this.#trips = 0;
