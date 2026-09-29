@@ -83,7 +83,7 @@ the hosted model is the realistic backend and consent has to be safe for a remot
     `consentedOrigin` disables the extension with one notice and sends nothing; a path-only difference is
     allowed. Setup applies the same rule up front instead of reconciling: a `SYSTEMONE_ENDPOINT` pointing
     to another origin than the backend chosen stops setup before it asks for a key, discloses, probes or
-    saves anything, and a path-only override is disclosed and probed at the effective URL. The recorded `keySource` and the stored key are those of the credential disclosed and probed at that URL: a key typed for a local server is bound to that exact endpoint, so if a path-only override means it would not be sent, setup says so and neither stores nor records it. `SYSTEMONE_API_KEY` reaches a non-TypeSafe origin only when `keySource` says the user agreed
+    saves anything, and a path-only override is disclosed and probed at the effective URL. The recorded `keySource` and the stored key are those of the credential disclosed and probed at that URL: a key for a local server is sent only to that exact endpoint, so with a path-only override setup does not ask for one, says that no key will be sent, and neither stores nor records a key. A `SYSTEMONE_ENDPOINT` that is not a usable endpoint also stops setup before the key question. `SYSTEMONE_API_KEY` reaches a non-TypeSafe origin only when `keySource` says the user agreed
     to it, so exporting it later cannot send it anywhere new: with a typed key agreed, the stored key is
     used, the environment key is ignored and status says so. `TYPESAFE_API_KEY` goes to TypeSafe only,
     and environment keys never go to loopback. Both fields are required once the file is enabled: a file
