@@ -901,6 +901,16 @@ test('a flow map spread over lines gives the runtime no hint, even a nested one'
     }
 });
 
+test('the flow map message is given for a flow-map hint only, not when the name appears in some other text', () => {
+    const flow = /declares 'metadata' inline \(a flow map\)/;
+    const text = skillWith(`metadata: {note: "see ${skillTriggerKey}"}\n`);
+    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', text), []);
+    assert.doesNotMatch(skillFrontmatterProblems('x/SKILL.md', skillWith(`metadata: {note: "see ${skillTriggerKey}: here"}\n`)).join(' | '), flow);
+    for (const inline of [`{${skillTriggerKey}: "a/*.cs"}`, `{note: "x", ${skillTriggerKey}: "a/*.cs"}`, `{"${skillTriggerKey}": "a/*.cs"}`]) {
+        assert.match(skillFrontmatterProblems('x/SKILL.md', skillWith(`metadata: ${inline}\n`))[0], flow, inline);
+    }
+});
+
 test('a metadata key that is not a YAML string is refused', () => {
     for (const key of ['1', 'true', 'null', '1.5']) {
         const problems = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${key}: "x"\n`));

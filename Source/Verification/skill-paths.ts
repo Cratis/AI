@@ -77,6 +77,9 @@ function metadataShapeProblems(subject: string, fields: Record<string, unknown>)
         .map(([key, value]) => `${subject} declares 'metadata.${key}' as ${kindOf(value)}; metadata.${key} must be a string (Agent Skills metadata maps strings to strings).`);
 }
 
+/** A `cratis-hint-paths` key inside a flow map, as opposed to the name appearing in some other text such as a string value. */
+const flowMapKey = new RegExp(`[{,]\\s*["']?${skillTriggerKey}["']?\\s*:`);
+
 /**
  * The clear message for the forms the small runtime reader recognizes but does not support (a block scalar, an
  * unquoted or commented value, a wrong indent, a flow map), or an empty list when it recognizes none. This reads the
@@ -89,7 +92,7 @@ function knownFormProblems(subject: string, content: string): string[] {
     const flowMap = `${subject} declares 'metadata' inline (a flow map), which the path hints do not read; put it on its own lines and ${howToWrite}.`;
     // A flow map that continues on the following lines reads as entries, but is still not the supported block form.
     if (entry && block.inline.startsWith('{')) return [flowMap];
-    if (!entry) return block.inline.includes(skillTriggerKey) ? [flowMap] : [];
+    if (!entry) return flowMapKey.test(block.inline) ? [flowMap] : [];
     const reason = unsupportedForm(entry.raw, entry.indent, entry.continues);
     return reason ? [`${subject} has an unsupported 'metadata.${skillTriggerKey}' value (${reason}); ${howToWrite}.`] : [];
 }
