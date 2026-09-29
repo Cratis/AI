@@ -11,6 +11,10 @@ export interface SystemOneDependencies {
     /** Resolves consent and settings for a working directory. The only source of configuration decisions. */
     configure?: (cwd: string) => ConfigurationResult;
     environment?: NodeJS.ProcessEnv;
+    /** Where the user's `cratis-system-one.json` lives. Defaults to Pi's agent directory. */
+    agentDirectory?: string;
     /** Corpus skill roots besides the managed `.cratis/ai/skills`. Defaults to the corpus this file ships in. */
     packagedSkillRoots?: readonly string[];
+    /** Overrides the per-request timeout. For specs only; the setting itself is fixed. */
+    requestTimeoutMs?: number;
 }

@@ -1,25 +1,30 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { ExtensionAPI, ExtensionContext } from '@earendil-works/pi-coding-agent';
+import { getAgentDir, type ExtensionAPI, type ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { askSystemOne } from './client.ts';
 import type { ConfigurationResult } from './ConfigurationResult.ts';
 import { loadConfiguration } from './configuration.ts';
 import { CircuitBreaker } from './CircuitBreaker.ts';
 import type { FailureClass } from './FailureClass.ts';
-import type { PendingTurn } from './PendingTurn.ts';
 import { eligibleSkills, questionsFor, realPathOf, stateFor } from './relevance.ts';
-import { formatLast, formatStatus } from './report.ts';
+import { aggregateShadow, formatLast, formatReport, formatStatus } from './report.ts';
 import { SessionStatistics } from './SessionStatistics.ts';
+import { runSetup, turnOff } from './setup.ts';
 import { SkillRelevanceMode } from './SkillRelevanceMode.ts';
 import { SkipReason } from './SkipReason.ts';
 import type { SystemOneDependencies } from './SystemOneDependencies.ts';
+import type { SystemOneSettings } from './SystemOneSettings.ts';
+import type { TurnRecord } from './TurnRecord.ts';
+import type { SkillCandidate } from './SkillCandidate.ts';
 
 const extensionDirectory = dirname(fileURLToPath(import.meta.url));
 const entryType = 'cratis-system-one';
+const usage = 'Usage: /system-one [status|last|report|setup|off]';
 
 function corpusRootOf(directory: string): string {
     return resolve(directory, '..', '..', '..', '..');
@@ -43,7 +48,7 @@ function notify(context: ExtensionContext, message: string): void {
     try {
         if (context.hasUI) context.ui.notify(message, 'warning');
     } catch {
-        /* a notice is never worth failing a turn */
+        /* a notice is never worth failing a turn, and a stale context can throw */
     }
 }
 
@@ -51,35 +56,51 @@ function isSlashInput(text: string | undefined): boolean {
     return text !== undefined && text.trimStart().startsWith('/');
 }
 
+function chunks<T>(items: readonly T[], size: number): T[][] {
+    const groups: T[][] = [];
+    for (let start = 0; start < items.length; start += size) groups.push(items.slice(start, start + size));
+    return groups;
+}
+
+export interface SystemOneHandle {
+    /** Resolves when every background request has finished. Only specs need this. */
+    settled(): Promise<void>;
+}
+
 /**
- * Skill relevance in shadow mode. At `before_agent_start` it asks a System One model which of the corpus
- * skills Pi already loaded would help with the prompt, records the answers, and records later whether the
- * model read each skill. It returns nothing, so the system prompt and the conversation are untouched.
- * Every handler fails open: an error, a timeout or an open circuit breaker means the turn proceeds as if
- * the extension were absent.
+ * Skill relevance in shadow mode. At `before_agent_start` it starts a request to a System One model in the
+ * background and returns at once, so a prompt is never delayed. When the answer arrives it is recorded as
+ * a session entry (skill ids and probabilities, never the prompt); when the turn ends the SKILL.md files
+ * the model read are recorded. It never returns a system prompt or a message, so nothing the model sees
+ * changes. Every handler fails open. Nothing runs, and nothing is announced, until the user has run
+ * `/system-one setup`.
  */
-export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDependencies = {}): void {
+export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDependencies = {}): SystemOneHandle {
     const transport = dependencies.transport ?? fetch;
     const now = dependencies.now ?? Date.now;
     const environment = dependencies.environment ?? process.env;
-    const configure = dependencies.configure ?? ((cwd: string) => loadConfiguration(cwd, environment));
+    const agentDirectory = (): string => dependencies.agentDirectory ?? getAgentDir();
+    const configure = dependencies.configure ?? ((cwd: string) => loadConfiguration(cwd, agentDirectory(), environment));
     const packagedRoots = dependencies.packagedSkillRoots ?? [join(corpusRootOf(extensionDirectory), 'skills')];
 
     let statistics = new SessionStatistics();
     let breaker = new CircuitBreaker(3, now);
     let breakerOrigin: string | undefined;
+    let epoch = 0;
     let turn = 0;
-    let pending: PendingTurn | undefined;
+    let current: TurnRecord | undefined;
     let rawInput: string | undefined;
     const knownSkills = new Map<string, string>();
     const readSkills = new Set<string>();
+    const inFlight = new Set<Promise<void>>();
 
     const reset = (): void => {
+        epoch++;
         statistics = new SessionStatistics();
         breaker = new CircuitBreaker(3, now);
         breakerOrigin = undefined;
         turn = 0;
-        pending = undefined;
+        current = undefined;
         rawInput = undefined;
         knownSkills.clear();
         readSkills.clear();
@@ -89,22 +110,78 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         if (statistics.firstNotice(noticeClass)) notify(context, message);
     };
 
-    const record = (failure: FailureClass, retryAfterMs: number | undefined, context: ExtensionContext): void => {
+    const failed = (record: TurnRecord, settings: SystemOneSettings, asked: number, failure: FailureClass, latencyMs: number, retryAfterMs: number | undefined, context: ExtensionContext): void => {
         statistics.recordFailure(failure);
         const opened = breaker.recordFailure(failure, retryAfterMs);
-        announce(context, failure, `System One skill relevance failed (${failure}). The turn continues without it. See /system-one status.`);
+        pi.appendEntry(entryType, { kind: 'skill-failure', version: 1, turnId: record.turnId, turn: record.turn, endpoint: settings.origin, failure, latencyMs, asked });
+        announce(context, failure, `System One skill relevance failed (${failure}). Turns continue without it. See /system-one status.`);
         if (opened) announce(context, 'breaker-open', `System One is paused for about ${Math.ceil(breaker.retryInMs / 1000)} s after repeated failures. See /system-one status.`);
     };
 
-    const consider = async (prompt: string, skills: Parameters<typeof eligibleSkills>[0], context: ExtensionContext): Promise<void> => {
+    /** Runs in the background: never awaited by a turn, never throws. */
+    const judge = async (record: TurnRecord, prompt: string, candidates: SkillCandidate[], settings: SystemOneSettings, context: ExtensionContext, sessionEpoch: number): Promise<void> => {
+        const relevance = settings.skillRelevance;
+        const state = stateFor(prompt, relevance);
+        const timeoutMs = dependencies.requestTimeoutMs ?? settings.timeoutMs;
+        const outcomes = await Promise.all(chunks(candidates, relevance.chunkSize).map(chunk =>
+            askSystemOne({ ...settings, timeoutMs }, state, questionsFor(chunk, relevance), transport, now)));
+        // A session switch while the request was running: its result belongs to nobody now.
+        if (sessionEpoch !== epoch) return;
+
+        const probabilities = new Map<string, number>();
+        let latencyMs = 0;
+        let model: string | undefined;
+        for (const outcome of outcomes) {
+            latencyMs = Math.max(latencyMs, outcome.latencyMs);
+            if (outcome.ok) {
+                breaker.recordSuccess();
+                statistics.successes++;
+                model ??= outcome.model;
+                for (const [skill, probability] of outcome.probabilities) probabilities.set(skill, probability);
+            } else {
+                failed(record, settings, candidates.length, outcome.failure, outcome.latencyMs, outcome.retryAfterMs, context);
+            }
+        }
+        const firstFailure = outcomes.find(outcome => !outcome.ok);
+        const decision = {
+            turn: record.turn,
+            at: new Date(now()).toISOString(),
+            endpointOrigin: settings.origin,
+            latencyMs,
+            asked: candidates.length,
+            outcome: probabilities.size > 0 ? 'answered' as const : (firstFailure && !firstFailure.ok ? firstFailure.failure : 'answered' as const),
+            probabilities: [...probabilities],
+            read: record.readFinal,
+        };
+        record.decision = decision;
+        statistics.remember(decision);
+        if (probabilities.size === 0) return;
+        // Ids and probabilities only. The prompt never enters the session.
+        pi.appendEntry(entryType, {
+            kind: 'skill-relevance',
+            version: 1,
+            turnId: record.turnId,
+            turn: record.turn,
+            mode: relevance.mode,
+            endpoint: settings.origin,
+            model: model ?? settings.model,
+            latencyMs,
+            asked: candidates.length,
+            answered: probabilities.size,
+            probabilities: Object.fromEntries(probabilities),
+        });
+    };
+
+    const start = (prompt: string, skills: Parameters<typeof eligibleSkills>[0], context: ExtensionContext): void => {
         const raw = rawInput;
         rawInput = undefined;
-        pending = undefined;
+        current = undefined;
         const configuration = configure(context.cwd);
         if (!configuration.enabled) {
             if (configuration.notice) announce(context, 'configuration', configuration.notice);
             return;
         }
+        if (configuration.notice) announce(context, 'configuration', configuration.notice);
         const { settings } = configuration;
         const relevance = settings.skillRelevance;
         if (relevance.mode === SkillRelevanceMode.Off) return;
@@ -121,39 +198,24 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         // A fuse stops the call and says so. Trimming the list would silently ask about a different set.
         if (candidates.length > relevance.maxQuestions) {
             statistics.recordSkip(SkipReason.TooManySkills);
-            announce(context, 'fuse', `System One skill relevance skipped: ${candidates.length} skills exceed the limit of ${relevance.maxQuestions} questions per request.`);
+            announce(context, 'fuse', `System One skill relevance skipped: ${candidates.length} skills exceed the limit of ${relevance.maxQuestions} questions.`);
             return;
         }
         if (!breaker.allow()) return statistics.recordSkip(SkipReason.BreakerOpen);
 
         for (const candidate of candidates) knownSkills.set(candidate.realPath, candidate.name);
         turn++;
-        statistics.requests++;
-        const outcome = await askSystemOne(settings, stateFor(prompt, relevance), questionsFor(candidates, relevance), transport, now);
-        const at = new Date(now()).toISOString();
-        if (!outcome.ok) {
-            statistics.remember({ turn, at, endpointOrigin: settings.origin, latencyMs: outcome.latencyMs, asked: candidates.length, outcome: outcome.failure, probabilities: [] });
-            record(outcome.failure, outcome.retryAfterMs, context);
-            return;
-        }
-        breaker.recordSuccess();
-        statistics.successes++;
-        const probabilities = [...outcome.probabilities];
-        const decision = { turn, at, endpointOrigin: settings.origin, latencyMs: outcome.latencyMs, asked: candidates.length, outcome: 'answered' as const, probabilities };
-        statistics.remember(decision);
-        pending = { turn, read: new Set(), readEarlier: candidates.filter(candidate => readSkills.has(candidate.name)).map(candidate => candidate.name), decision };
-        // Ids and probabilities only. The prompt never enters the session.
-        pi.appendEntry(entryType, {
-            kind: 'skill-relevance',
-            version: 1,
+        statistics.requests += Math.ceil(candidates.length / relevance.chunkSize);
+        const record: TurnRecord = {
+            turnId: randomUUID(),
             turn,
-            mode: relevance.mode,
-            endpoint: settings.origin,
-            model: outcome.model ?? settings.model,
-            latencyMs: outcome.latencyMs,
-            asked: candidates.length,
-            probabilities: Object.fromEntries(probabilities),
-        });
+            read: new Set(),
+            readEarlier: candidates.filter(candidate => readSkills.has(candidate.name)).map(candidate => candidate.name),
+        };
+        current = record;
+        // Not awaited: a prompt is never delayed by a judgement that only feeds a measurement.
+        const work = judge(record, prompt, candidates, settings, context, epoch).catch(() => undefined).finally(() => { inFlight.delete(work); });
+        inFlight.add(work);
     };
 
     pi.on('session_start', () => {
@@ -165,13 +227,13 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         try { rawInput = typeof event?.text === 'string' ? event.text : undefined; } catch { /* fail open */ }
     });
 
-    pi.on('before_agent_start', async (event, context) => {
+    pi.on('before_agent_start', (event, context) => {
         try {
-            await consider(event.prompt, event.systemPromptOptions?.skills, context);
+            start(event.prompt, event.systemPromptOptions?.skills, context);
         } catch {
             /* fail open: the turn proceeds as if this extension were absent */
         }
-        // Shadow mode never returns a system prompt or a message.
+        // Shadow mode never returns a system prompt or a message, and never waits.
         return undefined;
     });
 
@@ -179,12 +241,11 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         try {
             if (event.toolName !== 'read' || event.isError) return;
             const value = (event.input as { path?: unknown } | undefined)?.path;
-            if (typeof value !== 'string' || value.length === 0) return;
-            const realPath = realPathOf(resolve(context.cwd, value.replace(/^@/, '')));
-            const skill = realPath === undefined ? undefined : knownSkills.get(realPath);
-            if (skill === undefined) return;
+            if (typeof value !== 'string' || basename(value) !== 'SKILL.md') return;
+            const resolved = resolve(context.cwd, value.replace(/^@/, ''));
+            const skill = knownSkills.get(realPathOf(resolved) ?? resolved) ?? basename(dirname(resolved));
             readSkills.add(skill);
-            pending?.read.add(skill);
+            current?.read.add(skill);
         } catch {
             /* fail open */
         }
@@ -192,41 +253,50 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
 
     pi.on('agent_end', () => {
         try {
-            const finished = pending;
-            pending = undefined;
+            const finished = current;
+            current = undefined;
             if (!finished) return;
-            const read = [...finished.read].sort();
-            finished.decision.read = read;
-            pi.appendEntry(entryType, { kind: 'skill-outcome', version: 1, turn: finished.turn, read, readEarlier: finished.readEarlier });
+            finished.readFinal = [...finished.read].sort();
+            if (finished.decision) finished.decision.read = finished.readFinal;
+            pi.appendEntry(entryType, { kind: 'skill-outcome', version: 1, turnId: finished.turnId, turn: finished.turn, read: finished.readFinal, readEarlier: finished.readEarlier });
         } catch {
             /* fail open */
         }
     });
 
     pi.registerCommand('system-one', {
-        description: 'Show System One status (default) or the last skill-relevance decision: /system-one [status|last]',
+        description: 'System One skill relevance (experimental): /system-one [status|last|report|setup|off]',
         handler: async (argumentsText, context) => {
             try {
                 const subcommand = argumentsText.trim().split(/\s+/)[0] || 'status';
                 let configuration: ConfigurationResult;
-                let text: string;
                 switch (subcommand) {
                     case 'status':
                         configuration = configure(context.cwd);
-                        text = formatStatus(configuration, statistics, breaker.state, breaker.retryInMs);
+                        context.ui.notify(formatStatus(configuration, statistics, breaker.state, breaker.retryInMs), 'info');
                         break;
                     case 'last':
-                        text = formatLast(statistics);
+                        context.ui.notify(formatLast(statistics), 'info');
+                        break;
+                    case 'report':
+                        context.ui.notify(formatReport(aggregateShadow(context.sessionManager.getEntries())), 'info');
+                        break;
+                    case 'setup':
+                        await runSetup(context, { agentDirectory: agentDirectory(), environment, transport, now });
+                        break;
+                    case 'off':
+                        turnOff(context, agentDirectory());
                         break;
                     default:
-                        text = 'Usage: /system-one [status|last]';
+                        context.ui.notify(usage, 'info');
                 }
-                context.ui.notify(text, 'info');
             } catch {
                 /* fail open */
             }
         },
     });
+
+    return { settled: async () => { await Promise.allSettled([...inFlight]); } };
 }
 
 /** Registers unless a managed copy in the project already provides this extension. Returns whether it registered. */

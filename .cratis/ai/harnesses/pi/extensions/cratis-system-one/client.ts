@@ -102,7 +102,7 @@ export async function askSystemOne(
         try {
             const headers: Record<string, string> = { 'content-type': 'application/json', accept: 'application/json' };
             if (connection.apiKey) headers.authorization = `Bearer ${connection.apiKey}`;
-            const response = await transport(`${connection.endpoint}/v1/systemone`, {
+            const response = await transport(connection.endpoint, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({ state, model: connection.model, questions }),

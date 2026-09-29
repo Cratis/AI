@@ -3,7 +3,7 @@
 
 import { createServer, type IncomingHttpHeaders, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ExtensionAPI, Skill } from '@earendil-works/pi-coding-agent';
@@ -79,58 +79,118 @@ export function skillsIn(project: string, fixtures: SkillFixture[]): Skill[] {
     });
 }
 
-export function projectFixture(configuration?: unknown) {
+export interface Project {
+    directory: string;
+    agentDirectory: string;
+    /** Replaces the repository's `.cratis/ai.json`. */
+    configure(value: unknown): void;
+    /** Replaces the user's `cratis-system-one.json`, exactly as given. */
+    writeUser(value: unknown): void;
+    cleanup(): void;
+}
+
+/** A repository plus a private agent directory, so nothing here can touch the real ~/.pi/agent. */
+export function projectFixture(repository?: unknown, user?: unknown): Project {
     const directory = realpathSync(mkdtempSync(join(tmpdir(), 'cratis-system-one-')));
-    const configure = (value: unknown) => {
-        mkdirSync(join(directory, '.cratis'), { recursive: true });
-        writeFileSync(join(directory, '.cratis', 'ai.json'), typeof value === 'string' ? value : JSON.stringify(value));
+    const agentDirectory = realpathSync(mkdtempSync(join(tmpdir(), 'cratis-system-one-agent-')));
+    const project: Project = {
+        directory,
+        agentDirectory,
+        configure(value) {
+            mkdirSync(join(directory, '.cratis'), { recursive: true });
+            writeFileSync(join(directory, '.cratis', 'ai.json'), typeof value === 'string' ? value : JSON.stringify(value));
+        },
+        writeUser(value) {
+            writeFileSync(join(agentDirectory, 'cratis-system-one.json'), typeof value === 'string' ? value : JSON.stringify(value));
+        },
+        cleanup() {
+            rmSync(directory, { recursive: true, force: true });
+            rmSync(agentDirectory, { recursive: true, force: true });
+        },
     };
-    if (configuration !== undefined) configure(configuration);
-    return { directory, configure, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
+    if (repository !== undefined) project.configure(repository);
+    if (user !== undefined) project.writeUser(user);
+    return project;
 }
 
 export const promptText = 'Please add a command that opens an account and validate the owner name.';
 
+/** A project whose user has run setup: enabled, pointing at `endpoint`. `extra` adds or overrides user settings. */
+export function enabledProject(endpoint: string, extra: Record<string, unknown> = {}, repository?: unknown): Project {
+    return projectFixture(repository, { enabled: true, endpoint, consentedAt: '2026-01-01T00:00:00.000Z', ...extra });
+}
+
 export type Handler = (event: unknown, context: unknown) => unknown;
 
+export interface UiScript {
+    select?: string;
+    inputs?: Array<string | undefined>;
+    confirms?: boolean[];
+}
+
+export interface Prompt {
+    kind: 'select' | 'input' | 'confirm';
+    title: string;
+    detail?: string;
+    /** Whether the user's file existed when the prompt was shown. */
+    userFileExisted: boolean;
+}
+
 /** A host that records what the extension registers, notifies and appends, and how it misuses the API. */
-export function host(directory: string, dependencies: SystemOneDependencies = {}) {
+export function host(project: Project, dependencies: SystemOneDependencies = {}, options: { hasUI?: boolean; script?: UiScript } = {}) {
     const handlers = new Map<string, Handler>();
     const commands = new Map<string, (argumentsText: string, context: unknown) => Promise<void>>();
     const entries: Array<{ type: string; data: Record<string, unknown> }> = [];
     const notices: string[] = [];
+    const prompts: Prompt[] = [];
     const misuse: string[] = [];
+    const script = { inputs: [...(options.script?.inputs ?? [])], confirms: [...(options.script?.confirms ?? [])], select: options.script?.select };
     const known = {
         on: (name: string, handler: Handler) => { handlers.set(name, handler); },
-        registerCommand: (name: string, options: { handler: (argumentsText: string, context: unknown) => Promise<void> }) => { commands.set(name, options.handler); },
+        registerCommand: (name: string, registration: { handler: (argumentsText: string, context: unknown) => Promise<void> }) => { commands.set(name, registration.handler); },
         appendEntry: (type: string, data: Record<string, unknown>) => { entries.push({ type, data }); },
     } as Record<string, unknown>;
     // Anything else on the API (sending messages, registering tools, changing tools) is misuse in shadow mode.
     const api = new Proxy(known, { get: (target, property) => property in target ? target[property as string] : () => { misuse.push(String(property)); } }) as unknown as ExtensionAPI;
-    registerSystemOne(api, dependencies);
-    const context = { cwd: directory, hasUI: true, ui: { notify: (message: string) => { notices.push(message); } } };
+    const handle = registerSystemOne(api, { environment: {}, agentDirectory: project.agentDirectory, ...dependencies });
+    const record = (kind: Prompt['kind'], title: string, detail?: string) => prompts.push({ kind, title, detail, userFileExisted: existsSync(join(project.agentDirectory, 'cratis-system-one.json')) });
+    const context = {
+        cwd: project.directory,
+        hasUI: options.hasUI ?? true,
+        sessionManager: { getEntries: () => entries.map(entry => ({ type: 'custom', customType: entry.type, data: entry.data })) },
+        ui: {
+            notify: (message: string) => { notices.push(message); },
+            select: async (title: string) => { record('select', title); return script.select; },
+            input: async (title: string) => { record('input', title); return script.inputs.shift(); },
+            confirm: async (title: string, message: string) => { record('confirm', title, message); return script.confirms.shift() ?? false; },
+        },
+    };
     const invoke = (name: string, event: unknown) => handlers.get(name)!(event, context);
     return {
-        entries, notices, misuse, commands, handlers,
+        entries, notices, prompts, misuse, commands, handlers,
+        settled: () => handle.settled(),
         sessionStart: () => invoke('session_start', { type: 'session_start', reason: 'startup' }),
         input: (text: string) => invoke('input', { type: 'input', text, source: 'interactive' }),
-        async ask(prompt: string, skills: Skill[], systemPrompt = 'base system prompt') {
-            const event = { type: 'before_agent_start', prompt, systemPrompt, systemPromptOptions: { cwd: directory, skills } };
+        /** Fires before_agent_start and returns immediately, as Pi sees it. Await `settled()` for the background request. */
+        ask(prompt: string, skills: Skill[], systemPrompt = 'base system prompt') {
+            const event = { type: 'before_agent_start', prompt, systemPrompt, systemPromptOptions: { cwd: project.directory, skills } };
             const before = JSON.stringify(event);
-            const result = await invoke('before_agent_start', event);
-            return { result, unchanged: JSON.stringify(event) === before };
+            const result = invoke('before_agent_start', event);
+            return { result, unchanged: () => JSON.stringify(event) === before };
         },
-        read: (path: string, isError = false) => invoke('tool_result', { type: 'tool_result', toolName: 'read', toolCallId: 'call', input: { path }, content: [], isError, details: undefined }),
+        /** Asks and waits for the background request to finish. */
+        async askAndSettle(prompt: string, skills: Skill[]) {
+            const asked = this.ask(prompt, skills);
+            await handle.settled();
+            return asked;
+        },
+        read: (path: string, isError = false, toolName = 'read') => invoke('tool_result', { type: 'tool_result', toolName, toolCallId: 'call', input: { path }, content: [], isError, details: undefined }),
         end: () => invoke('agent_end', { type: 'agent_end', messages: [] }),
         async command(argumentsText = '') {
             const before = notices.length;
             await commands.get('system-one')!(argumentsText, context);
             return notices.slice(before).join('\n');
         },
+        entriesOfKind: (kind: string) => entries.filter(entry => entry.data.kind === kind).map(entry => entry.data),
     };
-}
-
-/** A project that has opted in and points at the given fake server. */
-export function enabledProject(endpoint: string, extra: Record<string, unknown> = {}) {
-    return projectFixture({ profiles: ['cratis/documentation'], systemOne: { enabled: true, endpoint, ...extra } });
 }
