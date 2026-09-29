@@ -34,8 +34,10 @@ managed corpus.
 The packaged `cratis-path-guidance` extension attaches a path-scoped rule to the
 tool result the first time a matching file is touched, and after a successful
 `write` or `edit` adds one advisory line naming every skill whose `SKILL.md`
-`cratis-hint-paths` frontmatter matches the file. (The key is Cratis-specific
-because Claude Code gives a plain `paths` key its own meaning.) A skill is hinted at
+`metadata.cratis-hint-paths` frontmatter (one string of whitespace-separated globs)
+matches the file. (It sits under `metadata` because Agent Skills allows only a fixed set
+of top-level keys, and the key is Cratis-specific because Claude Code gives a plain
+`paths` key its own meaning.) A skill is hinted at
 most once per session and not when it is already in context: read (a shell command
 counts only when `cat`, `sed`, `head`, `tail`, `less`, `bat`, `rg` or `grep` opens
 its `SKILL.md` or a file under `references/`), preloaded by pi-subagents, or
