@@ -962,7 +962,7 @@ test('setup stops before the key question when SYSTEMONE_ENDPOINT is not a usabl
             const transport = async (): Promise<Response> => { requests++; throw new Error('the transport must not be called'); };
             const session = host(project, { environment: { SYSTEMONE_ENDPOINT: value }, transport }, { script: { select: typeSafe, inputs: [secret], confirms: [true] } });
             const output = await session.command('setup');
-            assert.match(output, /System One setup stopped: SYSTEMONE_ENDPOINT: .+\. Nothing was saved\./, value);
+            assert.match(output, /System One setup stopped: SYSTEMONE_ENDPOINT: .+\. Unset or correct it\. Nothing was saved\./, value);
             assert.deepEqual(session.prompts.map(prompt => prompt.kind), ['select'], `${value}: no key question, no disclosure`);
             assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false, `${value}: nothing saved`);
             assert.equal(requests, 0, `${value}: no request`);

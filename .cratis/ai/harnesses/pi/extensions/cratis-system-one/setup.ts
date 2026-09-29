@@ -118,7 +118,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     const override = effectiveEndpoint(environment, { endpoint: chosen.endpoint });
     const effective = override.checked;
     if ('error' in effective) {
-        say(`System One setup stopped: SYSTEMONE_ENDPOINT: ${effective.error}. Nothing was saved.`, NotifyLevel.Warning);
+        say(`System One setup stopped: SYSTEMONE_ENDPOINT: ${effective.error}. Unset or correct it. Nothing was saved.`, NotifyLevel.Warning);
         return;
     }
     if (override.fromEnvironment && effective.origin !== chosen.origin) {
