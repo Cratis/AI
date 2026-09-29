@@ -121,6 +121,22 @@ Add `cratis-rules` only to an agent that needs the universal rules as well. The
 corpus's own `subagent` tool starts a full `pi` process and already loads every
 extension.
 
+### System One skill relevance (experimental)
+
+The `cratis-system-one` Pi extension, from either channel, measures whether a
+[System One model](https://typesafe.ai/blog/introducing-system-one-models-and-jev) helps with the
+skill corpus. In shadow mode it asks, in the background, which of the loaded skills would help with a
+prompt, and records the scores next to the `SKILL.md` files the model actually read. It changes
+nothing the model sees and never delays a prompt.
+
+It is off until *you* run `/system-one setup`, which states what is sent (skill names, the first
+sentence of each description, and the first 1,200 characters of each prompt), asks you to confirm, and
+probes the backend before saving to a private file in Pi's agent directory. A repository's
+`.cratis/ai.json` can only opt out or narrow it, and environment variables can never enable it. See
+[the extension README](.cratis/ai/harnesses/pi/extensions/cratis-system-one/README.md) for backends,
+privacy and the report, and the
+[consent and privacy decision](Documentation/decisions/0017-system-one-consent-and-privacy.md).
+
 OpenCode can consume the standard `.opencode` and `AGENTS.md` adapters directly.
 
 ## Maintain harness adapters
@@ -149,8 +165,8 @@ npm test --prefix Source/Verification
 ```
 
 The verification suite uses Pi's `DefaultResourceLoader` directly, without a
-model or credentials, to prove that project context, all 68 skills, 18 prompts,
-and the managed extensions are actually discovered. It also verifies the
+model or credentials, to prove that project context, all 70 skills, 18 prompts,
+and the six managed extensions are actually discovered. It also verifies the
 canonical skill and rule paths exposed to Claude, Codex, Copilot, Cursor, and
 OpenCode.
 
