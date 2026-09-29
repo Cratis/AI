@@ -65,11 +65,13 @@ export function frontmatterBlock(content: string, name: string): FrontmatterBloc
     let inside = false;
     let last: FrontmatterEntry | undefined;
     for (const line of text.split('\n')) {
-        const top = /^([A-Za-z][\w-]*):(.*)$/.exec(line);
-        if (top) {
-            inside = top[1] === name;
+        // Any line that starts in column 0 with something other than a comment ends the current block, whatever its
+        // spelling (a quoted key, a space before the colon). Only a real `name:` key starts this block.
+        if (/^[^\s#]/.test(line)) {
+            const top = /^([A-Za-z][\w-]*):(.*)$/.exec(line);
+            inside = top?.[1] === name;
             last = undefined;
-            if (inside) block ??= { inline: top[2].trim(), entries: new Map() };
+            if (inside) block ??= { inline: top![2].trim(), entries: new Map() };
             continue;
         }
         if (!inside || !block || line.trim() === '' || /^\s*#/.test(line)) continue;

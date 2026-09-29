@@ -13,7 +13,7 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPathGuidance from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/index.ts';
 import { standsDown } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/standDown.ts';
 import { skillsRead } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/skillReads.ts';
-import { frontmatterMap } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
+import { frontmatterBlock, frontmatterMap } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { skillTriggerGlobs, skillTriggerKey } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
 import { selectedSkillNames } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillSelection.ts';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
@@ -705,6 +705,37 @@ test('the one supported hint form is a one-line quoted string indented two space
     assert.deepEqual(skillTriggerGlobs(surrounded), ['a/*.cs']);
 });
 
+test('any top-level line ends the metadata block, however the key is spelled, so the hint is still read', () => {
+    const hint = `  ${skillTriggerKey}: "a/*.cs"\n`;
+    for (const following of ['"license": MIT\n', "'license': MIT\n", 'license : MIT\n', 'license: MIT\n', '# note\nlicense: MIT\n']) {
+        const content = hintUnder(`${hint}${following}`);
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', content), [], JSON.stringify(following));
+        assert.deepEqual(skillTriggerGlobs(content), ['a/*.cs'], JSON.stringify(following));
+        assert.equal(frontmatterBlock(content, 'metadata')!.entries.get(skillTriggerKey)!.continues, false, JSON.stringify(following));
+    }
+    // The real problem is reported, and it is not that the hint spans several lines.
+    const problemsFor = (following: string) => skillFrontmatterProblems('x/SKILL.md', hintUnder(`${hint}${following}`));
+    for (const following of ['"version": 1\n', 'version : 1\n']) {
+        const problems = problemsFor(following);
+        assert.equal(problems.length, 1, `${JSON.stringify(following)}: ${problems.join(' | ')}`);
+        assert.match(problems[0], /declares top-level frontmatter key 'version'/, following);
+        assert.doesNotMatch(problems[0], /several lines/, following);
+    }
+    for (const following of [`"${skillTriggerKey}": "b/*.cs"\n`, `${skillTriggerKey} : "b/*.cs"\n`]) {
+        const problems = problemsFor(following);
+        assert.equal(problems.length, 1, `${JSON.stringify(following)}: ${problems.join(' | ')}`);
+        assert.match(problems[0], /declares 'cratis-hint-paths' as a top-level key/, following);
+    }
+    // Lines under a spelled-differently top-level key are not metadata entries.
+    const other = hintUnder(`  author: cratis\n"other":\n  ${skillTriggerKey}: "a/*.cs"\n`);
+    assert.deepEqual([...frontmatterBlock(other, 'metadata')!.entries.keys()], ['author']);
+    assert.deepEqual(skillTriggerGlobs(other), []);
+    // A quoted `"metadata":` key is not the metadata block, and a metadata block after another key still is.
+    assert.equal(frontmatterBlock(skillWith('"metadata":\n  a: "b"\n'), 'metadata'), undefined);
+    const after = skillWith(`"license": MIT\nmetadata:\n${hint}`);
+    assert.deepEqual(skillTriggerGlobs(after), ['a/*.cs']);
+});
+
 test('every other hint form is reported with how to write it, and yields no triggers at runtime', () => {
     const rejected: Array<[string, string, RegExp]> = [
         ['a folded block scalar', `  ${skillTriggerKey}: >-\n    a/*.cs\n    b/*.cs\n`, /block scalar/],
@@ -844,7 +875,7 @@ const otherSpellings: Array<[string, string, RegExp]> = [
     ['a quoted metadata key', `"metadata":\n  ${skillTriggerKey}: "a/*.cs"\n`, /reads differently from YAML/],
     ['a space before the colon of metadata', `metadata :\n  ${skillTriggerKey}: "a/*.cs"\n`, /reads differently from YAML/],
     ['a flow map with a quoted key on the metadata line', `metadata: {"${skillTriggerKey}": "a/*.cs"}\n`, /declares 'metadata' inline \(a flow map\)/],
-    ['a flow map spread over lines', `metadata: {\n  ${skillTriggerKey}: "a/*.cs"\n}\n`, /spread over several lines/],
+    ['a flow map spread over lines', `metadata: {\n  ${skillTriggerKey}: "a/*.cs"\n}\n`, /declares 'metadata' inline \(a flow map\)/],
     ['a flow map with a quoted key', `metadata:\n  {"${skillTriggerKey}": "a/*.cs"}\n`, /reads differently from YAML/],
     ['mixed sibling indentation', `metadata:\n    other: "x"\n  ${skillTriggerKey}: "a/*.cs"\n`, /not valid YAML/],
 ];

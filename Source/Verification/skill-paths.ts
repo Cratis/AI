@@ -77,11 +77,10 @@ function knownFormProblems(subject: string, content: string): string[] {
     const block = frontmatterBlock(content, 'metadata');
     if (!block) return [];
     const entry = block.entries.get(skillTriggerKey);
-    if (!entry) {
-        return block.inline.includes(skillTriggerKey)
-            ? [`${subject} declares 'metadata' inline (a flow map), which the path hints do not read; put it on its own lines and ${howToWrite}.`]
-            : [];
-    }
+    const flowMap = `${subject} declares 'metadata' inline (a flow map), which the path hints do not read; put it on its own lines and ${howToWrite}.`;
+    // A flow map that continues on the following lines reads as entries, but is still not the supported block form.
+    if (entry && block.inline.startsWith('{')) return [flowMap];
+    if (!entry) return block.inline.includes(skillTriggerKey) ? [flowMap] : [];
     const reason = unsupportedForm(entry.raw, entry.indent, entry.continues);
     return reason ? [`${subject} has an unsupported 'metadata.${skillTriggerKey}' value (${reason}); ${howToWrite}.`] : [];
 }
