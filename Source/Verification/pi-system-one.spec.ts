@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { askSystemOne, retryAfterMs, validateAnswers } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/client.ts';
 import { loadConfiguration, parseUserConfiguration, resolveConfiguration } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/configuration.ts';
+import { ConfigurationNotice } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/ConfigurationNotice.ts';
 import { checkEndpoint, typeSafeEndpoint } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/endpoint.ts';
 import { BreakerState } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/BreakerState.ts';
 import { CircuitBreaker } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/CircuitBreaker.ts';
@@ -400,6 +401,56 @@ test('an endpoint the user configured but that is not allowed disables System On
             project.cleanup();
         }
     }
+});
+
+test('each kind of configuration notice is announced once, and one never hides another later in the session', async () => {
+    await withServer(answering(0.9), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            chmodSync(join(project.agentDirectory, 'cratis-system-one.json'), 0o644);
+            const session = host(project);
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            await session.askAndSettle(promptText, skills);
+            await session.askAndSettle(promptText, skills);
+            assert.equal(session.notices.length, 1, 'the same notice raised twice is shown once');
+            assert.match(session.notices[0], /can be read by other users.*chmod 600/);
+
+            // The repository later refuses to be trusted: a different kind of notice, which must still be heard.
+            project.configure({ systemOne: { enabled: true } });
+            await session.askAndSettle(promptText, skills);
+            await session.askAndSettle(promptText, skills);
+            assert.equal(session.notices.length, 2, session.notices.join(' | '));
+            assert.match(session.notices[1], /System One is disabled: .*stays off until that is fixed/);
+
+            // The repository is fixed, but the user's file now predates this version: yet another kind.
+            project.configure({});
+            project.writeUser({ enabled: true, consentedAt });
+            await session.askAndSettle(promptText, skills);
+            await session.askAndSettle(promptText, skills);
+            assert.equal(session.notices.length, 3, session.notices.join(' | '));
+            assert.match(session.notices[2], /your settings predate this version/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('every configuration notice names its own kind', () => {
+    const user = (fields: Record<string, unknown>) => ({ state: FileState.Present as const, text: JSON.stringify({ enabled: true, consentedAt, ...recorded, ...fields }) });
+    const resolve = (inputs: Partial<Parameters<typeof resolveConfiguration>[0]>) => resolveConfiguration({ user: user({}), repository: { state: FileState.Missing }, environment: {}, ...inputs });
+    const kinds = [
+        resolve({ user: { ...user({}), readableByOthers: true } }),
+        resolve({ user: user({ consentedOrigin: undefined, keySource: undefined }) }),
+        resolve({ user: user({ endpoint: 'https://other.invalid/v1/systemone' }) }),
+        resolve({ repository: { state: FileState.Present, text: '[]' } }),
+        resolve({ user: { state: FileState.Present, text: '[]' } }),
+        resolve({ user: { state: FileState.Unreadable } }),
+        resolve({ user: user({ endpoint: 'http://example.invalid' }) }),
+        resolve({ environment: { CRATIS_SYSTEM_ONE_MODEL: 'a b; c' } }),
+    ].map(result => result.noticeClass);
+    assert.ok(kinds.every(kind => kind !== undefined), `every notice has a kind: ${kinds.join(', ')}`);
+    assert.equal(new Set(kinds).size, Object.keys(ConfigurationNotice).length, 'each kind of notice has its own class');
+    assert.equal(resolve({}).noticeClass, undefined, 'no notice, no class');
 });
 
 test('the user file is validated strictly, and defaults are the TypeSafe endpoint and jev-1.13.0', async () => {

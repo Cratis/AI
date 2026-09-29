@@ -4,6 +4,7 @@
 import { join } from 'node:path';
 import type { ConfigurationFile } from './ConfigurationFile.ts';
 import type { ConfigurationInputs } from './ConfigurationInputs.ts';
+import { ConfigurationNotice } from './ConfigurationNotice.ts';
 import type { ConfigurationResult } from './ConfigurationResult.ts';
 import { checkEndpoint, typeSafeEndpoint, typeSafeOrigin } from './endpoint.ts';
 import type { EffectiveEndpoint } from './EffectiveEndpoint.ts';
@@ -164,41 +165,44 @@ export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endp
  */
 export function resolveConfiguration({ user: userFile, repository, environment }: ConfigurationInputs): ConfigurationResult {
     if (userFile.state === FileState.Missing) return { enabled: false, reason: 'not set up (run /system-one setup)', configured: false };
-    const disabled = (reason: string, notice: boolean | string = false): ConfigurationResult => ({
+    // A notice names its kind, so each kind is announced once per session on its own. Without a message it
+    // says the reason.
+    const disabled = (reason: string, kind?: ConfigurationNotice, message?: string): ConfigurationResult => ({
         enabled: false,
         reason,
         configured: true,
-        notice: typeof notice === 'string' ? notice : notice ? `System One is disabled: ${reason}.` : undefined,
+        notice: kind === undefined ? undefined : message ?? `System One is disabled: ${reason}.`,
+        noticeClass: kind,
     });
     try {
-        if (userFile.state === FileState.Unreadable) return disabled('your System One configuration file could not be read', true);
+        if (userFile.state === FileState.Unreadable) return disabled('your System One configuration file could not be read', ConfigurationNotice.UserFileUnreadable);
         let user: UserConfiguration;
         try {
             user = parseUserConfiguration(userFile.text);
         } catch (error) {
-            return disabled(`your System One configuration is invalid (${error instanceof Invalid ? error.message : 'unreadable'})`, true);
+            return disabled(`your System One configuration is invalid (${error instanceof Invalid ? error.message : 'unreadable'})`, ConfigurationNotice.UserFileInvalid);
         }
         if (!user.enabled) return disabled('turned off in your System One configuration');
         if (disablingValues.has(environment.CRATIS_SYSTEM_ONE?.trim().toLowerCase() ?? '')) return disabled('disabled by CRATIS_SYSTEM_ONE');
         // Setup records the origin and the credential the user agreed to. A file without them predates that, and
         // is refused rather than guessed at.
         const { consentedOrigin, keySource } = user;
-        if (consentedOrigin === undefined || keySource === undefined) return disabled('your settings predate this version; run /system-one setup again', 'System One: your settings predate this version; run /system-one setup again.');
+        if (consentedOrigin === undefined || keySource === undefined) return disabled('your settings predate this version; run /system-one setup again', ConfigurationNotice.PredatesVersion, 'System One: your settings predate this version; run /system-one setup again.');
 
         const narrowing = repositoryNarrowing(repository);
-        if (narrowing.problem) return disabled(`${narrowing.problem}; System One stays off until that is fixed`, true);
+        if (narrowing.problem) return disabled(`${narrowing.problem}; System One stays off until that is fixed`, ConfigurationNotice.RepositoryProblem);
         if (narrowing.optOut) return disabled('the repository opted out in .cratis/ai.json');
 
         const { checked, fromEnvironment } = effectiveEndpoint(environment, user);
-        if ('error' in checked) return disabled(`${fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'the configured endpoint'}: ${checked.error}`, true);
+        if ('error' in checked) return disabled(`${fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'the configured endpoint'}: ${checked.error}`, ConfigurationNotice.EndpointRefused);
 
         if (checked.origin !== consentedOrigin) {
             const pointer = fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'your configuration';
-            return disabled(`${pointer} points to ${checked.origin}, which you did not set up (run /system-one setup)`, `System One: ${pointer} points to ${checked.origin}, which you did not set up; run /system-one setup to use it.`);
+            return disabled(`${pointer} points to ${checked.origin}, which you did not set up (run /system-one setup)`, ConfigurationNotice.OriginMismatch, `System One: ${pointer} points to ${checked.origin}, which you did not set up; run /system-one setup to use it.`);
         }
 
         const model = nonEmpty(environment.CRATIS_SYSTEM_ONE_MODEL) ?? user.model ?? defaultModel;
-        if (!modelPattern.test(model)) return disabled('the model name is not valid', true);
+        if (!modelPattern.test(model)) return disabled('the model name is not valid', ConfigurationNotice.ModelInvalid);
 
         let mode = user.skillRelevance?.mode ?? SkillRelevanceMode.Shadow;
         if (narrowing.off || disablingValues.has(environment.CRATIS_SYSTEM_ONE_SKILL_RELEVANCE?.trim().toLowerCase() ?? '')) mode = SkillRelevanceMode.Off;
@@ -220,6 +224,7 @@ export function resolveConfiguration({ user: userFile, repository, environment }
                 skillRelevance,
             },
             notice: userFile.readableByOthers ? 'System One: your configuration file can be read by other users and may hold an API key. Run chmod 600 on it.' : undefined,
+            noticeClass: userFile.readableByOthers ? ConfigurationNotice.ReadableByOthers : undefined,
         };
     } catch {
         return disabled('the configuration could not be evaluated');

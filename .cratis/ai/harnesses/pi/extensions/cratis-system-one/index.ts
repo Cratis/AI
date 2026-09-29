@@ -262,11 +262,10 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         typedInput = undefined;
         current = undefined;
         const configuration = configure(context.cwd);
-        if (!configuration.enabled) {
-            if (configuration.notice) announce(context, 'configuration', configuration.notice);
-            return;
-        }
-        if (configuration.notice) announce(context, 'configuration', configuration.notice);
+        // Each kind of notice is announced once, under its own class, so one never hides another. A notice
+        // without a class is keyed by its text.
+        if (configuration.notice) announce(context, configuration.noticeClass ?? configuration.notice, configuration.notice);
+        if (!configuration.enabled) return;
         const { settings } = configuration;
         const relevance = settings.skillRelevance;
         if (relevance.mode === SkillRelevanceMode.Off) return;
