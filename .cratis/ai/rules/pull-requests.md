@@ -25,8 +25,9 @@ applyTo: "**/*"
 | `(#351)` at the **end of the bullet that delivers it** | Delivered: release-action closes it |
 | `(part of #351)` or prose `see #351` | Related, partial or follow-up: never closes |
 | `Cratis/Repo#351` | Other repository: never closed |
+| one `(#351)` per issue, never `(#351, #352)` | `(#351, #352)` closes nothing: write `(#351) (#352)` |
 
-- Nothing but more issue references (also `(part of #n)`), closing emphasis, `<br>` and punctuation may follow the delivering `(#n)`.
+- Nothing but more issue references (also `(part of #n)`, `(see #n)` and `(Cratis/Repo#n)`), closing emphasis, `<br>` and sentence punctuation (a `:` may introduce nested bullets) may follow the delivering `(#n)`. Write one `(#n)` per issue: release-action only matches `(#n)`, so `(#56, #57)` closes nothing; write `(#56) (#57)`.
 - Never use a linking or closing keyword before a number, anywhere: `Close`, `Closes`, `Closed`, `Fix`, `Fixes`, `Fixed`, `Resolve`, `Resolves`, `Resolved`, `Refs`, `Ref`, `References`, also as `Keyword: #n`, with `owner/repo#n`, followed by an issue URL, and wrapped in bold, italics or a link (`**Closes** #n`, `Closes [#n](url)`, `[Closes #n](url)`, and `[Closes](url)` where the link starts a clause). A `Refs #93` line closes nothing and is not a delivery marker: write `(#93)` at the end of the delivering bullet, or `(part of #93)` if it must stay open.
 - Comment on or close an issue when the user's request includes that effect; otherwise prepare a bounded post-merge disposition without performing it. A delivered `(#n)` is closed by release-action at release, so do not close it by hand; for a `no-release` PR release-action does not run, so any disposition follows this same rule.
 - Use a bare `(#n)` only for an issue this PR fully delivers. No issue means no reference. Never use a placeholder such as `(#issue)` or the template's `(#123)`, and verify every number exists in the right repository; never guess.
