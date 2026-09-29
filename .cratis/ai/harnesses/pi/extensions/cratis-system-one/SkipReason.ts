@@ -8,6 +8,8 @@ export enum SkipReason {
     NotCratisRepository = 'not a repository set up with Cratis AI',
     ShortPrompt = 'short prompt',
     SlashCommand = 'slash command',
+    WrappedInput = 'file attachment or other wrapped input',
+    RewrittenPrompt = 'prompt changed since it was typed',
     NoSkills = 'no eligible skills',
     TooManySkills = 'too many skills',
     BreakerOpen = 'circuit breaker open',

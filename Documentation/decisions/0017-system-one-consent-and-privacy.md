@@ -59,7 +59,11 @@ the hosted model is the realistic backend and consent has to be safe for a remot
   tool output or file contents, and an RPC host's prompt (source `rpc`) may be automated, so both are
   excluded, as is a turn with no input event. It is judged only in a repository set up with Cratis AI
   (`.cratis/ai.json` or `.cratis/ai.manifest.json`). Slash commands and skill or template invocations
-  are not sent; file contents and tool output never are.
+  are not sent. Neither is text Pi wrapped around what was typed: `pi @file "..."` builds the first
+  prompt as a `<file name="...">` block holding the file, then the typed text, and any prompt with a
+  file block or whose text starts with `<` is skipped, as is one whose text another extension's `input`
+  handler rewrote (it is judged only when it equals the typed text). File contents and tool output
+  never are sent.
 - **State is bounded and never persisted as text.** What is sent is the names and first sentence of the
   descriptions of the corpus skills Pi already loaded, and the first 1,200 characters of the prompt.
   Session entries hold skill names, probabilities, timings and which `SKILL.md` files were read, and no

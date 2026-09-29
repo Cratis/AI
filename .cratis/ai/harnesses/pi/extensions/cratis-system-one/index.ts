@@ -65,6 +65,16 @@ function isSlashInput(text: string): boolean {
     return text.trimStart().startsWith('/');
 }
 
+/**
+ * True for text Pi built rather than a person typed. `pi @notes.env "review this"` puts
+ * `<file name="/abs/path">` and the file's contents in front of the typed text, and a skill invocation
+ * arrives as `<skill ...>`. Anything Pi wraps starts with a tag, so a prompt that starts with `<` or
+ * contains a file block is never judged, even if that also skips a person who typed a tag.
+ */
+export function isWrapped(text: string): boolean {
+    return text.trimStart().startsWith('<') || text.includes('<file name="');
+}
+
 /** Only repositories set up with Cratis AI are judged; a stray Pi session elsewhere sends nothing. */
 function isCratisRepository(cwd: string): boolean {
     return existsSync(join(cwd, '.cratis', 'ai.json')) || existsSync(join(cwd, '.cratis', 'ai.manifest.json'));
@@ -252,6 +262,12 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         }
 
         if (isSlashInput(input.text) || isSlashInput(prompt) || prompt.startsWith('<skill ')) return statistics.recordSkip(SkipReason.SlashCommand);
+        // Text Pi wrapped around what was typed (`@file` contents, skill blocks) is not what the user typed.
+        if (isWrapped(input.text) || isWrapped(prompt)) return statistics.recordSkip(SkipReason.WrappedInput);
+        // Judge exactly what was typed. Another extension's input handler may have rewritten it since (each
+        // handler sees the previous one's output, and one that runs later can still change what the model
+        // gets), and template expansion changes it too; then the prompt is not what the user typed.
+        if (prompt.trim() !== input.text.trim()) return statistics.recordSkip(SkipReason.RewrittenPrompt);
         if (prompt.trim().length < relevance.minPromptChars) return statistics.recordSkip(SkipReason.ShortPrompt);
 
         const candidates = eligibleSkills(skills, skillRoots(context.cwd));

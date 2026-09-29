@@ -91,9 +91,14 @@ setup and `/system-one status` name it) and nowhere else:
 Never sent: **slash commands and skill or template invocations** (a prompt that starts with `/` or
 is a `<skill …>` expansion), **subagent tasks**, text another extension injects into the
 conversation, an RPC host's prompts, anything in print, JSON or other sessions without a UI,
-attachments and images, **file contents and tool output**, your repository's name or
-path, or anything from earlier turns. Very short prompts and turns with no corpus skills send
-nothing either, and neither does a session outside a repository set up with Cratis AI.
+attachments and images, **tool output**, your repository's name or path, or anything from earlier
+turns. **File contents are never sent either:** `pi @notes.env "review this"` makes Pi build its
+first prompt as a `<file name="/abs/path">` block holding the file, followed by your text, and a
+prompt like that is skipped whole, as is any prompt that starts with `<` or contains a file block.
+A path you type or the editor inserts (an `@src/file.ts` mention, a pasted image's temporary path) is
+only a path, and is part of your text. A prompt that another extension's `input` handler rewrote is
+skipped as well. Very short prompts and turns with no corpus skills send nothing either, and neither
+does a session outside a repository set up with Cratis AI.
 
 The extension does not keep a disk cache, and it stores **no prompt text** anywhere: session entries
 hold only skill names, probabilities, timings and which `SKILL.md` files were read.
@@ -172,8 +177,12 @@ When it is not set up, the extension is completely silent: no notices, no reques
 - **Only prompts you type, in interactive sessions in Cratis repositories, are judged.** With no UI
   (print and JSON modes, and every subagent child process) nothing is asked. Neither is a prompt
   another extension injected with `sendUserMessage`, an RPC host's prompt (it may be automated), or a
-  turn for which Pi reported no typed input. `/system-one status` counts each skip. Repositories
-  without `.cratis/ai.json` or `.cratis/ai.manifest.json` are skipped too.
+  turn for which Pi reported no typed input. Text Pi wrapped around what you typed is skipped: a
+  prompt built from `@file` arguments (a `<file name="…">` block anywhere in it) and any prompt whose
+  text starts with `<`. So is a prompt whose text is no longer what you typed, because another
+  extension's `input` handler transformed it. `/system-one status` counts each skip. Repositories
+  without `.cratis/ai.json` or `.cratis/ai.manifest.json` are skipped too. Pasted text is part of what
+  you typed and is sent like the rest, up to the 1,200-character cap.
 - **Only corpus skills** that Pi already loaded and the model may invoke are asked about (the
   project's managed `.cratis/ai/skills`, or the packaged corpus for the `@cratis/pi` copy). Skills you
   wrote yourself are never sent.
@@ -201,6 +210,11 @@ The kill criterion for the whole idea is simple: if models already load the rele
   `cat` in bash is **not counted**.
 - A skill read in an earlier turn is still in the conversation; entries list those as `readEarlier`.
 - Session data lives in Pi's session file, so it is as private as the session.
+- Pi runs `input` handlers in load order, each seeing the previous one's output. A rewrite by an
+  extension that loads **after** this one is detected (the prompt no longer equals the input this
+  extension saw). One that loads **before** it is not: this extension sees the rewritten text as if
+  you had typed it. Load order is Pi's, so a rewriting extension you trust with your prompts is the
+  only safe kind.
 
 ## Installation
 

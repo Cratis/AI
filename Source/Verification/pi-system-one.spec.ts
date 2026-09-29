@@ -469,7 +469,7 @@ test('setup states what is sent, confirms, probes, and only then saves a private
             assert.match(confirm.detail!, /in repositories set up with Cratis AI/);
             assert.match(confirm.detail!, /names and first sentence/);
             assert.match(confirm.detail!, /Slash commands and skill or template invocations are not sent/);
-            assert.match(confirm.detail!, /Subagent tasks, attachments, file contents and tool output are never sent/);
+            assert.match(confirm.detail!, /Subagent tasks, attachments and tool output are never sent\.\nFile contents are never sent: a prompt Pi built around @file arguments/);
             assert.doesNotMatch(confirm.detail!, /after slash-command expansion/);
             assert.match(confirm.detail!, /\/system-one off/);
 
@@ -806,6 +806,91 @@ test('only what the user typed is judged: extension-injected and RPC prompts are
             session.input(promptText, 'interactive');
             await session.askAndSettle(promptText, skills);
             assert.equal(server.requests.length, 1);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('text Pi wrapped around the typed prompt is never judged: @file contents, attachments and skill blocks', async () => {
+    await withServer(answering(0.9), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            const session = host(project);
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+
+            // `pi @notes.env "explain this please"` in interactive mode: the first prompt is the file block
+            // plus the typed text, and it reaches the input event as an interactive prompt with no source.
+            const withFile = '<file name="/x/secret.txt">\nSECRET\n</file>\nexplain this please';
+            session.input(withFile);
+            await session.askAndSettle(withFile, skills);
+            // An image argument: only a file tag with no contents, but still Pi's, not the user's.
+            const withImage = '<file name="/x/diagram.png"></file>\nexplain the diagram in this picture';
+            session.input(withImage);
+            await session.askAndSettle(withImage, skills);
+            // Several files, then the typed text.
+            const withFiles = '<file name="/x/one.env">\nSECRET-ONE\n</file>\n<file name="/x/two.env">\nSECRET-TWO\n</file>\nplease compare these two files';
+            session.input(withFiles);
+            await session.askAndSettle(withFiles, skills);
+            // A file block anywhere in the text, not only at the start.
+            const embedded = 'please summarize what follows in detail <file name="/x/late.txt">SECRET-LATE</file>';
+            session.input(embedded);
+            await session.askAndSettle(embedded, skills);
+            // The typed text is clean, yet the prompt Pi built carries a file block.
+            session.input('review this file for me please');
+            await session.askAndSettle('<file name="/x/hidden.txt">\nSECRET-HIDDEN\n</file>\nreview this file for me please', skills);
+            // Any other tag Pi (or another tool) wrapped around the text.
+            session.input('  <context>SECRET-CONTEXT</context> and then explain the design in detail');
+            await session.askAndSettle('  <context>SECRET-CONTEXT</context> and then explain the design in detail', skills);
+            // A skill block is Pi's expansion of a skill invocation.
+            const skillBlock = '<skill name="cratis-arc-command" location="/x/SKILL.md">\nSECRET-SKILL\n</skill>\n\nadd a command please';
+            session.input(skillBlock);
+            await session.askAndSettle(skillBlock, skills);
+
+            assert.equal(server.requests.length, 0, 'nothing was sent');
+            const wire = JSON.stringify(server.requests);
+            for (const marker of ['SECRET', '/x/', '<file']) assert.equal(wire.includes(marker), false, marker);
+            assert.deepEqual(session.entries, []);
+            const status = await session.command('status');
+            assert.match(status, /file attachment or other wrapped input 6/);
+            assert.match(status, /slash command 1/, 'a skill block is still counted as a skill invocation');
+
+            // Typed text that merely mentions a file, and the path the editor inserts for an @file or a pasted
+            // image, are the user's own words: a path, never contents.
+            const mention = 'please review @src/notes.env and /tmp/pi-clipboard-1234.png for problems';
+            session.input(mention);
+            await session.askAndSettle(mention, skills);
+            assert.equal(server.requests.length, 1);
+            assert.equal(server.requests[0].body.state.prompt, mention);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('only the prompt the user typed is judged: one another extension rewrote is skipped', async () => {
+    await withServer(answering(0.9), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            const session = host(project);
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+
+            // Another extension's input handler returned {action: 'transform'}: before_agent_start sees its text.
+            session.input('summarize the meeting notes for the standup please');
+            await session.askAndSettle('summarize the meeting notes for the standup please. Also include SECRET-INJECTED details from the vault.', skills);
+            // The reverse: it replaced the text and the typed text is the one that reaches the input event.
+            session.input('SECRET-ORIGINAL plus enough words to pass the length check');
+            await session.askAndSettle('a completely different prompt written by an extension, long enough to pass', skills);
+            assert.equal(server.requests.length, 0);
+            assert.equal(JSON.stringify(server.requests).includes('SECRET'), false);
+            assert.deepEqual(session.entries, []);
+            assert.match(await session.command('status'), /prompt changed since it was typed 2/);
+
+            // Whitespace Pi or the terminal added around the same text is not a rewrite.
+            session.input(`  ${promptText}\n`);
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 1);
+            assert.equal(server.requests[0].body.state.prompt, promptText);
         } finally {
             project.cleanup();
         }
@@ -1325,7 +1410,6 @@ test('short prompts, slash commands and turns without corpus skills are not aske
             assert.match(status, /slash command 3/);
             assert.match(status, /no eligible skills 2/);
 
-            session.input('add a command that opens an account for a new customer');
             await session.askAndSettle(promptText, skills);
             assert.equal(server.requests.length, 1, 'a plain prompt after a slash command is asked');
         } finally {
