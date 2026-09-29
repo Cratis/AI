@@ -350,15 +350,6 @@ test('a skill that is already in context is not hinted: preloaded by pi-subagent
         preloaded.get('session_compact')?.({}, context);
         assert.doesNotMatch(write('Source/for_Other/when_x.cs'), /demo-specifications/, 'the system prompt survives compaction');
 
-        // `/skill:demo-specifications` expands into the user message; no read call happens.
-        const expanded = session(project, all);
-        expanded.handlers.get('before_agent_start')?.({
-            systemPrompt: 'base',
-            prompt: '<skill name="demo-specifications" location="x">\nbody\n</skill>\n\nDo it',
-            systemPromptOptions: { cwd: project, skills: all },
-        }, expanded.context);
-        assert.doesNotMatch(textOf(expanded.write(specificationPath)), /demo-specifications/, 'expanded skill');
-        expanded.handlers.get('session_compact')?.({}, expanded.context);
         // pi-subagents writes the header even when it could not load the skill (a managed installation exposes
         // `.pi/skills` as a symlink, which its loader rejects), so a header alone is not the skill's text.
         const preloadedWrite = (systemPrompt: string) => {
@@ -374,6 +365,15 @@ test('a skill that is already in context is not hinted: preloaded by pi-subagent
         assert.doesNotMatch(preloadedWrite(`${header}---\nname: demo-specifications\n---\n\n# demo-specifications\n`), /demo-specifications/, 'frontmatter and body as pi-subagents writes it');
         assert.doesNotMatch(preloadedWrite(`base\n\n# Preloaded Skill: demo-other\n(Skill "demo-other" not found in x)\n\n# Preloaded Skill: demo-specifications\ntext`), /demo-specifications/, 'a later real block counts');
 
+        // `/skill:demo-specifications` expands into the user message; no read call happens.
+        const expanded = session(project, all);
+        expanded.handlers.get('before_agent_start')?.({
+            systemPrompt: 'base',
+            prompt: '<skill name="demo-specifications" location="x">\nbody\n</skill>\n\nDo it',
+            systemPromptOptions: { cwd: project, skills: all },
+        }, expanded.context);
+        assert.doesNotMatch(textOf(expanded.write(specificationPath)), /demo-specifications/, 'expanded skill');
+        expanded.handlers.get('session_compact')?.({}, expanded.context);
         assert.match(textOf(expanded.write(specificationPath)), /demo-specifications/, 'a compacted conversation no longer holds the expansion');
     } finally {
         rmSync(project, { recursive: true, force: true });
