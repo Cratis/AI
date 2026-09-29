@@ -133,11 +133,12 @@ export function skillFrontmatterProblems(subject: string, content: string): stri
     const text = frontmatterText(content);
     if (text === undefined) return [];
     const document = parseDocument(text, { uniqueKeys: true });
-    // Invalid YAML has no parse to consult, so the raw-line reading names the cause when it can.
-    const notYaml = (messages: string[]) => {
-        const raw = knownFormProblems(subject, content);
-        return raw.length > 0 ? raw : messages.map(message => `${subject} has frontmatter that is not valid YAML: ${message.split('\n')[0]}`);
-    };
+    // Invalid YAML has no parse to consult: the parser's own error always leads, and a raw-line reading of the hint is
+    // added only as a possible further cause, never in place of the error that actually broke the file.
+    const notYaml = (messages: string[]) => [
+        `${subject} has frontmatter that is not valid YAML: ${messages[0].split('\n')[0]}`,
+        ...knownFormProblems(subject, content),
+    ];
     if (document.errors.length > 0) return notYaml(document.errors.map(error => error.message));
     let data: unknown;
     try {

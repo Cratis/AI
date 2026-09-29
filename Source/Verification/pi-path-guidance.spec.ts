@@ -760,8 +760,11 @@ test('every other hint form is reported with how to write it, and yields no trig
     ];
     for (const [form, lines, message] of rejected) {
         const content = hintUnder(lines);
-        const problems = skillFrontmatterProblems('x/SKILL.md', content);
-        assert.equal(problems.length, 1, `${form}: ${problems.join(' | ')}`);
+        const all = skillFrontmatterProblems('x/SKILL.md', content);
+        // Invalid YAML leads with the parser error; the hint-form reason is then the single message after it.
+        const problems = all.filter(problem => !/has frontmatter that is not valid YAML/.test(problem));
+        assert.equal(problems.length, 1, `${form}: ${all.join(' | ')}`);
+        assert.ok(all.length === 1 || /has frontmatter that is not valid YAML/.test(all[0]), `${form}: the parser error leads: ${all.join(' | ')}`);
         assert.match(problems[0], /^x\/SKILL\.md has an unsupported 'metadata\.cratis-hint-paths' value \(/, form);
         assert.match(problems[0], message, form);
         assert.match(problems[0], /write it as one double-quoted string on a single line, indented two spaces under 'metadata:', with no comment after it: cratis-hint-paths: "<glob> <glob>"/, form);
@@ -978,6 +981,13 @@ test('the unsupported-form message follows the YAML parse: a mention of the key 
         assert.match(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(lines)).join(' | '), /\(the value is a list\)/, lines);
     }
     assert.match(skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata: {${skillTriggerKey}: "a/*.cs"}\n`)).join(' | '), /inline \(a flow map\)/);
+});
+
+test('invalid YAML always reports the parser error first, with any hint-form reading only added to it', () => {
+    const problems = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata: {note: "x, ${skillTriggerKey}: y"}\nfoo: [\n`));
+    assert.match(problems[0], /has frontmatter that is not valid YAML/);
+    const duplicate = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${skillTriggerKey}:\n  - "a/*.cs"\nname: again\n`));
+    assert.match(duplicate[0], /has frontmatter that is not valid YAML/);
 });
 
 test('a duplicate metadata key or any duplicate top-level key is refused as invalid YAML', () => {
