@@ -1456,6 +1456,33 @@ test('a rate-limited answer reports how long the server asked to wait', async ()
     });
 });
 
+test('a model name the server reports is kept only when it looks like one; the answer is used either way', async () => {
+    const accepted = validateAnswers({ model: 'fake-1', answers: { a: { type: 'noul', noul: 0.5 } } }, ['a']);
+    assert.ok(typeof accepted === 'object' && accepted.model === 'fake-1');
+    for (const model of ['x'.repeat(129), 'has space', '<script>alert(1)</script>', 'a\nb', '', 'ключ', 7, null, { name: 'x' }]) {
+        const validated = validateAnswers({ model, answers: { a: { type: 'noul', noul: 0.5 } } }, ['a']);
+        assert.ok(typeof validated === 'object', `the answer is still good for ${JSON.stringify(model)}`);
+        assert.equal(validated.model, undefined, JSON.stringify(model));
+    }
+
+    for (const reported of ['x'.repeat(4096), 'bad model!', '<b>secret</b>']) {
+        await withServer((request, response) => json(response, 200, { ...answerBody(request, 0.7) as object, model: reported }), async server => {
+            const project = enabledProject(server.endpoint, { model: 'configured-1' });
+            try {
+                const session = host(project);
+                await session.askAndSettle(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
+                const [judgment] = session.entriesOfKind('skill-relevance');
+                assert.equal(judgment.model, 'configured-1', 'falls back to the configured model instead of failing the request');
+                assert.deepEqual(judgment.probabilities, { 'skill-a': 0.7 });
+                assert.equal(JSON.stringify(session.entries).includes(reported), false, 'the server text is never persisted');
+                assert.match(await session.command('status'), /Requests: 1, succeeded 1, failed 0/);
+            } finally {
+                project.cleanup();
+            }
+        });
+    }
+});
+
 test('response validation accepts exactly the asked ids with probabilities in [0, 1]', () => {
     const good = validateAnswers({ model: 'm', answers: { a: { type: 'noul', noul: 0 }, b: { type: 'noul', noul: 1 } } }, ['a', 'b']);
     assert.ok(typeof good !== 'string');
