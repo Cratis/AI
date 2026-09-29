@@ -48,7 +48,8 @@ one to add weight.
   rules. The ones most often broken: no development write-up (no Overview,
   Verification or Test plan headings, no review or provenance notes; those go
   in a PR comment); `(#n)` at the end of the bullet that delivers an issue and
-  `(part of #n)` for anything that stays open, never `Closes`, `Fixes` or
+  `(part of #n)` for anything that stays open (in repositories released by
+  `cratis/release-action`, `(#n)` is what closes the issue), never `Closes`, `Fixes` or
   `Refs` before a number (also in bold or a link), and no issue reference
   inside an HTML comment, which still closes the issue; and absolute
   `https://` links only. Sections are in
@@ -98,8 +99,9 @@ Only when asked to fix a release that violates the contract:
    `https://` URLs. Do not invent changes, versions or issue numbers.
 2. Publish the corrected text with `gh release edit TAG --notes-file FILE`,
    only when the request authorizes editing that release.
-3. Editing a release does not re-run release-action, so an issue that a
-   `(#n)` would have closed stays open. For each one, confirm the release
+3. In a repository released by `cratis/release-action`, editing a release
+   does not re-run release-action, so an issue that a `(#n)` would have
+   closed stays open. For each one, confirm the release
    actually delivered it. Close it by hand with a comment naming the release
    only when the request covers closing issues; otherwise list the issues as a
    proposal. Leave an issue open when the release only partly delivered it.

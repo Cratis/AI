@@ -15,7 +15,7 @@ branch → commits → PR → merge → issue disposition → cleanup workflow.
 
 - **What changed** — brief description of the work (used for branch name and PR title)
 - **Label** — `no-release`, `patch`, `minor`, or `major`, or omit entirely if no label should be applied
-- **Related issue** — optional exact repository and issue number; if unknown, search read-only first. Comment on or close it only when the user's request includes that effect; otherwise prepare the disposition as a proposal. A delivered issue is closed by release-action through `(#n)` in the description, but release-action does not run for a `no-release` PR, so `(#n)` closes nothing there.
+- **Related issue** — optional exact repository and issue number; if unknown, search read-only first. Comment on or close it only when the user's request includes that effect; otherwise prepare the disposition as a proposal. In repositories released by `cratis/release-action`, a delivered issue is closed by release-action through `(#n)` in the description, but release-action does not run for a `no-release` PR, so `(#n)` closes nothing there; elsewhere follow the repository's own release and issue-closing process.
 
 Invoking this prompt is direct authority for the standard branch, commit, push, pull-request,
 requested-label, merge, and branch-cleanup effects. Do not pause to ask for separate approval at
