@@ -111,6 +111,7 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
     let breaker = new CircuitBreaker(3, now);
     let breakerOrigin: string | undefined;
     let epoch = 0;
+    let configurationEpoch = 0;
     let turn = 0;
     let current: TurnRecord | undefined;
     let typedInput: TypedInput | undefined;
@@ -125,6 +126,19 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         for (const controller of controllers) controller.abort();
         controllers.clear();
         current = undefined;
+    };
+
+    /**
+     * The consent or the endpoint changed (setup, off, another origin): a request made under the old one
+     * is aborted, and whatever it returns is dropped rather than recorded against the new configuration's
+     * breaker or statistics. The new configuration starts with a fresh breaker.
+     */
+    const configurationChanged = (): void => {
+        configurationEpoch++;
+        for (const controller of controllers) controller.abort();
+        controllers.clear();
+        breaker = new CircuitBreaker(3, now);
+        breakerOrigin = undefined;
     };
 
     const reset = (): void => {
@@ -143,18 +157,23 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
     };
 
     /** Runs in the background: never awaited by a turn, never throws. */
-    const judge = async (record: TurnRecord, prompt: string, candidates: SkillCandidate[], settings: SystemOneSettings, context: ExtensionContext, sessionEpoch: number, controller: AbortController, halfOpen: boolean): Promise<void> => {
-        const owner = breaker;
+    const judge = async (owner: CircuitBreaker, record: TurnRecord, prompt: string, candidates: SkillCandidate[], settings: SystemOneSettings, context: ExtensionContext, isCurrent: () => boolean, controller: AbortController, halfOpen: boolean): Promise<void> => {
         let reported = false;
         try {
-            await judgeTurn(record, prompt, candidates, settings, context, sessionEpoch, controller, halfOpen, () => { reported = true; });
+            await judgeTurn(owner, record, prompt, candidates, settings, context, isCurrent, controller, halfOpen, () => { reported = true; });
         } finally {
-            // A probe that reported nothing (the session ended, something threw) must not leave the breaker stuck.
+            // A probe that reported nothing (the session ended, the configuration changed, something threw)
+            // is given back, so the breaker cannot stay stuck. One that reported has already closed or re-opened it.
             if (!reported) owner.release();
         }
     };
 
-    const judgeTurn = async (record: TurnRecord, prompt: string, candidates: SkillCandidate[], settings: SystemOneSettings, context: ExtensionContext, sessionEpoch: number, controller: AbortController, halfOpen: boolean, reportedToBreaker: () => void): Promise<void> => {
+    /**
+     * `owner` is the breaker the turn was started under, and `isCurrent` says whether the session and
+     * configuration it was started under still stand. A result is recorded only while they do, and only
+     * ever against `owner`.
+     */
+    const judgeTurn = async (owner: CircuitBreaker, record: TurnRecord, prompt: string, candidates: SkillCandidate[], settings: SystemOneSettings, context: ExtensionContext, isCurrent: () => boolean, controller: AbortController, halfOpen: boolean, reportedToBreaker: () => void): Promise<void> => {
         const relevance = settings.skillRelevance;
         const state = stateFor(prompt, relevance);
         const timeoutMs = dependencies.requestTimeoutMs ?? settings.timeoutMs;
@@ -166,17 +185,34 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             // The breaker is testing the server: one request first, and the fan-out resumes only if it works.
             const probe = await ask(groups[0]);
             outcomes.push(probe);
-            if (probe.ok && sessionEpoch === epoch) outcomes.push(...await Promise.all(groups.slice(1).map(ask)));
+            if (probe.ok && isCurrent()) outcomes.push(...await Promise.all(groups.slice(1).map(ask)));
         } else {
             outcomes.push(...await Promise.all(groups.map(ask)));
         }
-        // A session ended or switched while the request was running: its result belongs to nobody now.
-        if (sessionEpoch !== epoch) return;
+        // A session ended or switched, or the configuration changed, while the request was running: its
+        // result belongs to nobody now, and is never given to the breaker or statistics of whatever runs next.
+        if (!isCurrent()) return;
+
+        const failures = outcomes.filter((outcome): outcome is Extract<SystemOneOutcome, { ok: false }> => !outcome.ok);
+        // The breaker counts turns, not requests: one turn is one success or one failure however many chunks it had.
+        // A rate-limit or overload answer anywhere in the turn decides its class and its Retry-After, because
+        // that is what the server asked for; otherwise the first failure does. It is told first, before anything
+        // that could throw, so a failed probe always re-opens it.
+        if (failures.length === 0) {
+            owner.recordSuccess();
+        } else {
+            const pushedBack = failures.filter(failure => failure.failure === FailureClass.RateLimited || failure.failure === FailureClass.Overloaded);
+            const deciding = pushedBack.length > 0 ? pushedBack : failures;
+            const retryAfterMs = Math.max(0, ...deciding.map(failure => failure.retryAfterMs ?? 0)) || undefined;
+            if (owner.recordFailure(deciding[0].failure, retryAfterMs)) {
+                announce(context, 'breaker-open', `System One is paused for about ${Math.ceil(owner.retryInMs / 1000)} s after repeated failures. See /system-one status.`);
+            }
+        }
+        reportedToBreaker();
 
         const probabilities = new Map<string, number>();
         let latencyMs = 0;
         let model: string | undefined;
-        const failures: Array<Extract<SystemOneOutcome, { ok: false }>> = [];
         for (const outcome of outcomes) {
             latencyMs = Math.max(latencyMs, outcome.latencyMs);
             statistics.requests++;
@@ -185,24 +221,9 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
                 model ??= outcome.model;
                 for (const [skill, probability] of outcome.probabilities) probabilities.set(skill, probability);
             } else {
-                failures.push(outcome);
                 statistics.recordFailure(outcome.failure);
                 pi.appendEntry(entryType, { kind: EntryKind.SkillFailure, version: 1, turnId: record.turnId, turn: record.turn, endpoint: settings.origin, failure: outcome.failure, latencyMs: outcome.latencyMs, asked: candidates.length });
                 announce(context, outcome.failure, `System One skill relevance failed (${outcome.failure}). Turns continue without it. See /system-one status.`);
-            }
-        }
-        // The breaker counts turns, not requests: one turn is one success or one failure however many chunks it had.
-        // A rate-limit or overload answer anywhere in the turn decides its class and its Retry-After, because
-        // that is what the server asked for; otherwise the first failure does.
-        reportedToBreaker();
-        if (failures.length === 0) {
-            breaker.recordSuccess();
-        } else {
-            const pushedBack = failures.filter(failure => failure.failure === FailureClass.RateLimited || failure.failure === FailureClass.Overloaded);
-            const deciding = pushedBack.length > 0 ? pushedBack : failures;
-            const retryAfterMs = Math.max(0, ...deciding.map(failure => failure.retryAfterMs ?? 0)) || undefined;
-            if (breaker.recordFailure(deciding[0].failure, retryAfterMs)) {
-                announce(context, 'breaker-open', `System One is paused for about ${Math.ceil(breaker.retryInMs / 1000)} s after repeated failures. See /system-one status.`);
             }
         }
 
@@ -257,7 +278,7 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
         if (input === undefined || input.source !== InputSource.Interactive) return statistics.recordSkip(SkipReason.NotTypedByUser);
         if (!isCratisRepository(context.cwd)) return statistics.recordSkip(SkipReason.NotCratisRepository);
         if (breakerOrigin !== settings.origin) {
-            breaker = new CircuitBreaker(3, now);
+            configurationChanged();
             breakerOrigin = settings.origin;
         }
 
@@ -278,25 +299,35 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             announce(context, 'fuse', `System One skill relevance skipped: ${candidates.length} skills exceed the limit of ${relevance.maxQuestions} questions.`);
             return;
         }
-        const halfOpen = breaker.state === BreakerState.HalfOpen;
-        if (!breaker.allow()) return statistics.recordSkip(SkipReason.BreakerOpen);
+        const owner = breaker;
+        const halfOpen = owner.state === BreakerState.HalfOpen;
+        if (!owner.allow()) return statistics.recordSkip(SkipReason.BreakerOpen);
 
-        for (const candidate of candidates) knownSkills.set(candidate.realPath, candidate.name);
-        turn++;
-        const record: TurnRecord = {
-            turnId: randomUUID(),
-            turn,
-            read: new Set(),
-            readEarlier: candidates.filter(candidate => readSkills.has(candidate.name)).map(candidate => candidate.name),
-        };
-        current = record;
-        const controller = new AbortController();
-        controllers.add(controller);
-        // Not awaited: a prompt is never delayed by a judgment that only feeds a measurement.
-        const work = judge(record, prompt, candidates, settings, context, epoch, controller, halfOpen)
-            .catch(() => undefined)
-            .finally(() => { inFlight.delete(work); controllers.delete(controller); });
-        inFlight.add(work);
+        try {
+            for (const candidate of candidates) knownSkills.set(candidate.realPath, candidate.name);
+            turn++;
+            const record: TurnRecord = {
+                turnId: randomUUID(),
+                turn,
+                read: new Set(),
+                readEarlier: candidates.filter(candidate => readSkills.has(candidate.name)).map(candidate => candidate.name),
+            };
+            current = record;
+            const controller = new AbortController();
+            controllers.add(controller);
+            const sessionEpoch = epoch;
+            const startedUnder = configurationEpoch;
+            const isCurrent = (): boolean => sessionEpoch === epoch && startedUnder === configurationEpoch;
+            // Not awaited: a prompt is never delayed by a judgment that only feeds a measurement.
+            const work = judge(owner, record, prompt, candidates, settings, context, isCurrent, controller, halfOpen)
+                .catch(() => undefined)
+                .finally(() => { inFlight.delete(work); controllers.delete(controller); });
+            inFlight.add(work);
+        } catch (error) {
+            // A probe was granted but no request will report for it.
+            owner.release();
+            throw error;
+        }
     };
 
     pi.on('session_start', () => {
@@ -368,10 +399,18 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
                         say(formatReport(aggregateShadow(context.sessionManager.getEntries())));
                         break;
                     case Subcommand.Setup:
-                        await runSetup(context, { agentDirectory: agentDirectory(), environment, write, transport, now });
+                        try {
+                            await runSetup(context, { agentDirectory: agentDirectory(), environment, write, transport, now });
+                        } finally {
+                            configurationChanged();
+                        }
                         break;
                     case Subcommand.Off:
-                        turnOff(context, { agentDirectory: agentDirectory(), write });
+                        try {
+                            turnOff(context, { agentDirectory: agentDirectory(), write });
+                        } finally {
+                            configurationChanged();
+                        }
                         break;
                     default:
                         say(usage);

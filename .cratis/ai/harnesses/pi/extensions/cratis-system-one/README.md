@@ -171,9 +171,13 @@ When it is not set up, the extension is completely silent: no notices, no reques
   network error, counts as a failure and the turn is unaffected. A circuit breaker opens after three
   consecutive failed turns (a turn with several requests counts once), or at once on 429 and 529,
   honoring `Retry-After`. When it has been open long enough, one probe request goes out first and
-  the full set only follows if that works. You get one notice per error class per session.
+  the full set only follows if that works. A failed probe re-opens it with a longer back-off; a probe
+  that reports nothing (the session ended, the configuration changed) is given back. You get one
+  notice per error class per session.
 - **Shutdown stops it.** Ending or replacing the session cancels requests still running, and nothing
-  is recorded afterwards.
+  is recorded afterwards. So does changing the configuration (`/system-one setup` or `off`, or a
+  different endpoint): a request made under the old one is cancelled, and whatever it returns is
+  dropped, never counted against the new endpoint's circuit breaker.
 - **Only prompts you type, in interactive sessions in Cratis repositories, are judged.** With no UI
   (print and JSON modes, and every subagent child process) nothing is asked. Neither is a prompt
   another extension injected with `sendUserMessage`, an RPC host's prompt (it may be automated), or a

@@ -71,8 +71,10 @@ the hosted model is the realistic backend and consent has to be safe for a remot
 - **Advisory, and it fails open.** Per `capability-is-not-authority`, a score is evidence, not
   authorization. In shadow mode the extension returns no system prompt and no message. Requests run in
   the background so a prompt is never delayed, with a 5 s timeout, strict response validation and a
-  circuit breaker that counts turns, honors `Retry-After` and probes with one request before resuming.
-  Ending the session cancels running requests and records nothing afterwards. Handlers never throw.
+  circuit breaker that counts turns, honors `Retry-After` and probes with one request before resuming;
+  a failed probe always re-opens it. Ending the session or changing the configuration cancels running
+  requests, and their results are dropped rather than recorded against the next breaker. Handlers never
+  throw.
 - **Retention is the provider's.** The docs point users to the provider's terms
   (for TypeSafe, https://docs.typesafe.ai/legal) and do not make retention claims for it.
 

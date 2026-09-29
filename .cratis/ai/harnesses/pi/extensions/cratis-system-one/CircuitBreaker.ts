@@ -60,12 +60,17 @@ export class CircuitBreaker {
         this.#probing = false;
     }
 
-    /** Returns true when this failure opened (or re-opened) the breaker. */
+    /**
+     * Returns true when this failure opened (or re-opened) the breaker. A failure that ends a probe always
+     * re-opens it with a fresh, longer back-off, however few failures were counted before it opened, for
+     * instance when a rate-limit answer opened it after a single failure.
+     */
     recordFailure(failure: FailureClass, retryAfterMs?: number): boolean {
+        const wasProbe = this.#probing;
         this.#probing = false;
         this.#consecutiveFailures++;
         const pushedBack = failure === FailureClass.RateLimited || failure === FailureClass.Overloaded;
-        if (!pushedBack && this.#consecutiveFailures < this.threshold) return false;
+        if (!wasProbe && !pushedBack && this.#consecutiveFailures < this.threshold) return false;
         const backoff = Math.min(this.baseBackoffMs * 2 ** this.#trips, this.maximumBackoffMs);
         const wait = pushedBack && retryAfterMs !== undefined ? Math.min(retryAfterMs, maximumRetryAfterMs) : backoff;
         this.#trips++;

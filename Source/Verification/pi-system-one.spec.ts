@@ -1070,6 +1070,177 @@ test('a probe that reports nothing is given back, so the breaker cannot stay hal
     });
 });
 
+/** Opens a breaker with three failing turns against `server`, then moves the clock past the back-off. */
+async function halfOpenAfterThreeFailures(session: ReturnType<typeof host>, skills: ReturnType<typeof skillsIn>, advance: () => void): Promise<void> {
+    for (let turn = 0; turn < 3; turn++) await session.askAndSettle(promptText, skills);
+    assert.match(await session.command('status'), /Circuit breaker: open/);
+    advance();
+    assert.match(await session.command('status'), /Circuit breaker: half-open/);
+}
+
+test('a failed probe re-opens the breaker with a fresh back-off, even when a rate limit opened it after one failure', async () => {
+    let seen = 0;
+    await withServer((_request, response) => {
+        seen++;
+        if (seen === 1) json(response, 429, {}, { 'retry-after': '1' });
+        else json(response, 500, 'down');
+    }, async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            let clock = 1_000_000;
+            const session = host(project, { now: () => clock });
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            await session.askAndSettle(promptText, skills);
+            assert.match(await session.command('status'), /Circuit breaker: open, retry in 1 s/, 'one rate-limit answer opens it');
+
+            clock += 1_500;
+            assert.match(await session.command('status'), /Circuit breaker: half-open/);
+            // Only one failure was counted before the probe, fewer than the threshold: it must still re-open.
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 2, 'the probe');
+            assert.match(await session.command('status'), /Circuit breaker: open, retry in 60 s/, 'a longer back-off, not an immediate second probe');
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 2, 'no request while it is open again');
+
+            clock += 59_000;
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 2, 'still inside the fresh back-off');
+            clock += 2_000;
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 3, 'the next probe, once the back-off has passed');
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('a probe that fails, in the first chunk or a later one, re-opens the breaker; one that succeeds closes it', async () => {
+    let answer: 'down' | 'up' | 'second-chunk-down' = 'down';
+    let chunkSeen = 0;
+    await withServer((request, response) => {
+        if (answer === 'up') return json(response, 200, answerBody(request, 0.5));
+        if (answer === 'second-chunk-down' && chunkSeen++ === 0) return json(response, 200, answerBody(request, 0.5));
+        json(response, 500, 'down');
+    }, async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            let clock = 1_000_000;
+            const session = host(project, { now: () => clock });
+            const skills = skillsIn(project.directory, Array.from({ length: 70 }, (_unused, index) => ({ name: `skill-${index}` })));
+            await halfOpenAfterThreeFailures(session, skills, () => { clock += 31_000; });
+
+            // The probe (first chunk) works but a chunk of the resumed fan-out fails: that is a failed probe.
+            answer = 'second-chunk-down';
+            await session.askAndSettle(promptText, skills);
+            assert.match(await session.command('status'), /Circuit breaker: open, retry in 60 s/);
+
+            clock += 61_000;
+            answer = 'up';
+            await session.askAndSettle(promptText, skills);
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('a turn skipped before it asks anything does not use up the half-open probe', async () => {
+    let healthy = false;
+    await withServer((request, response) => healthy ? json(response, 200, answerBody(request, 0.5)) : json(response, 500, 'down'), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            let clock = 1_000_000;
+            const session = host(project, { now: () => clock });
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            await halfOpenAfterThreeFailures(session, skills, () => { clock += 31_000; });
+            const before = server.requests.length;
+
+            // The fuse (too many skills), no eligible skills and a short prompt each stop the turn before the breaker is asked.
+            await session.askAndSettle(promptText, skillsIn(project.directory, Array.from({ length: 129 }, (_unused, index) => ({ name: `many-${index}` }))));
+            await session.askAndSettle(promptText, []);
+            await session.askAndSettle('fix it', skills);
+            assert.equal(server.requests.length, before, 'nothing was sent');
+            assert.match(await session.command('status'), /Circuit breaker: half-open/, 'the probe is still there');
+
+            healthy = true;
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, before + 1, 'the next real turn is the probe');
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('a probe whose judgment throws is given back, and the next turn probes again', async () => {
+    let healthy = false;
+    let armed = false;
+    let broken = false;
+    let clock = 1_000_000;
+    // The transport fails and, on the way out, makes the clock throw: askSystemOne rejects, which it never does
+    // in practice, so the turn's judgment throws before it can tell the breaker anything.
+    const transport = async (url: string | URL | Request, init?: RequestInit): Promise<Response> => {
+        if (armed) {
+            broken = true;
+            throw new Error('network');
+        }
+        return fetch(url, init);
+    };
+    await withServer((request, response) => healthy ? json(response, 200, answerBody(request, 0.5)) : json(response, 500, 'down'), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            const session = host(project, { transport, now: () => { if (broken) throw new Error('clock'); return clock; } });
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            await halfOpenAfterThreeFailures(session, skills, () => { clock += 31_000; });
+
+            armed = true;
+            await session.askAndSettle(promptText, skills);
+            broken = false;
+            armed = false;
+            assert.deepEqual(session.entriesOfKind('skill-relevance'), []);
+            assert.match(await session.command('status'), /Circuit breaker: half-open/, 'given back, not stuck');
+
+            healthy = true;
+            const before = server.requests.length;
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, before + 1, 'a new probe was allowed');
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('a probe from a replaced session reports to nobody, and the new session starts with a closed breaker', async () => {
+    let release: (() => void) | undefined;
+    let held = false;
+    await withServer((request, response) => {
+        if (!held) return json(response, 500, 'down');
+        release = () => json(response, 500, 'down');
+    }, async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            let clock = 1_000_000;
+            const session = host(project, { now: () => clock });
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            await halfOpenAfterThreeFailures(session, skills, () => { clock += 31_000; });
+
+            held = true;
+            const before = server.requests.length;
+            session.ask(promptText, skills);
+            while (server.requests.length === before) await new Promise(resolve => setTimeout(resolve, 10));
+            session.sessionStart();
+            release?.();
+            await session.settled();
+            const status = await session.command('status');
+            assert.match(status, /Requests: 0,/, 'the old session\'s probe recorded nothing');
+            assert.match(status, /Circuit breaker: closed/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
 test('a rate-limit answer anywhere in a turn decides the breaker class and its Retry-After', async () => {
     let seen = 0;
     await withServer((request, response) => {
@@ -1124,6 +1295,29 @@ test('the circuit breaker honors Retry-After, allows one probe, and closes on su
     breaker.recordSuccess();
     assert.equal(breaker.recordFailure(FailureClass.Overloaded), true);
     assert.equal(breaker.retryInMs, 30_000, 'without Retry-After the back-off applies');
+});
+
+test('a failed probe always re-opens the breaker, however few failures came before it', () => {
+    let clock = 1_000;
+    const breaker = new CircuitBreaker(3, () => clock);
+    // A rate limit opens it after one failure; the probe then fails with an ordinary error.
+    assert.equal(breaker.recordFailure(FailureClass.RateLimited, 2_000), true);
+    clock += 2_000;
+    assert.equal(breaker.allow(), true);
+    assert.equal(breaker.recordFailure(FailureClass.ServerError), true);
+    assert.equal(breaker.state, BreakerState.Open);
+    assert.equal(breaker.retryInMs, 60_000, 'a fresh, longer back-off');
+    assert.equal(breaker.allow(), false);
+
+    // A probe that reports nothing is given back and can be granted again.
+    clock += 60_000;
+    assert.equal(breaker.allow(), true);
+    breaker.release();
+    assert.equal(breaker.state, BreakerState.HalfOpen);
+    assert.equal(breaker.allow(), true);
+    breaker.recordSuccess();
+    assert.equal(breaker.state, BreakerState.Closed);
+    assert.equal(breaker.recordFailure(FailureClass.Timeout), false, 'and a closed breaker still needs the threshold');
 });
 
 test('Retry-After and retry-after-ms are read', () => {
@@ -1548,6 +1742,61 @@ test('a result that arrives after the session was replaced is dropped', async ()
             release!();
             await session.settled();
             assert.deepEqual(session.entries, []);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('a result from a request made under the old endpoint never reaches the new endpoint\'s breaker or statistics', async () => {
+    const held: Array<() => void> = [];
+    await withServer((_request, response) => { held.push(() => json(response, 429, {}, { 'retry-after': '120' })); }, async old => {
+        await withServer(answering(0.5), async fresh => {
+            const project = enabledProject(old.endpoint);
+            try {
+                const session = host(project, {}, { script: { select: local, inputs: [fresh.endpoint, ''], confirms: [true] } });
+                const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+                session.ask(promptText, skills);
+                while (old.requests.length === 0) await new Promise(resolve => setTimeout(resolve, 10));
+
+                // The user runs setup for another endpoint while the request to the old one is still out.
+                await session.command('setup');
+                assert.equal(fresh.requests.length, 1, 'the setup probe');
+                await session.askAndSettle(promptText, skills);
+                assert.equal(fresh.requests.length, 2, 'the turn now goes to the new endpoint');
+                // The old server finally answers with a rate limit that would open the breaker if it counted.
+                for (const release of held) release();
+                await session.settled();
+
+                const status = await session.command('status');
+                assert.match(status, /Requests: 1, succeeded 1, failed 0/, 'only the new endpoint\'s request counts');
+                assert.match(status, /Circuit breaker: closed/);
+                assert.deepEqual(session.entriesOfKind('skill-failure'), []);
+                assert.equal(session.entriesOfKind('skill-relevance').length, 1);
+                assert.deepEqual(session.notices.filter(notice => /skill relevance failed|is paused/.test(notice)), []);
+            } finally {
+                project.cleanup();
+            }
+        });
+    });
+});
+
+test('turning System One off while a request is out drops its result', async () => {
+    await withServer(() => { /* never answer */ }, async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            const session = host(project);
+            session.ask(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
+            while (server.requests.length === 0) await new Promise(resolve => setTimeout(resolve, 10));
+            const started = Date.now();
+            await session.command('off');
+            await session.settled();
+            assert.ok(Date.now() - started < 2500, 'the request was aborted, not waited for');
+            assert.deepEqual(session.entries, []);
+            assert.deepEqual(session.notices.filter(notice => /skill relevance failed|is paused/.test(notice)), []);
+            const status = await session.command('status');
+            assert.match(status, /State: disabled/);
+            assert.match(status, /Requests: 0,/);
         } finally {
             project.cleanup();
         }
