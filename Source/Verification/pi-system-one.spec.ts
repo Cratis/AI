@@ -1894,7 +1894,7 @@ test('shadow mode changes nothing, records ids and probabilities without the pro
             assert.deepEqual(outcome, { kind: 'skill-outcome', version: 1, turnId: judgment.turnId, turn: 1, read: ['skill-a'], readEarlier: [], otherReads: 2 });
             assert.equal(JSON.stringify(session.entries).includes('personal-skill'), false);
             assert.equal(JSON.stringify(session.entries).includes('unasked-skill'), false);
-            assert.match(await session.command('report'), /Other skill reads \(not asked about; not counted above\): 2/);
+            assert.match(await session.command('report'), /Other skill reads \(not in the corpus, or not asked about; not counted above\): 2/);
             assert.equal(JSON.stringify(session.entries).includes(sentinel), false, 'the prompt is never recorded');
             assert.equal(JSON.stringify(session.entries).includes('Reference'), false);
 
@@ -2045,10 +2045,13 @@ test('the report aggregates this session: suggestions, reads, unsuggested reads,
     assert.equal(report.turnsAwaitingOutcome, 1);
     assert.equal(report.suggested, 3, 'a, b, then a (b at 0.49 is below the threshold)');
     assert.equal(report.suggestedAndRead, 1, 'only a in t1');
-    // x was never asked about and answered in t1, so it is neither a hit nor a miss: it is only counted, apart.
+    // x was asked about but not answered in t1, so it is neither a hit nor a miss: it is counted on its own line.
     assert.equal(report.readNotSuggested, 1, 'b in t2, which was asked, answered 0.49 and read');
-    assert.equal(report.otherSkillReads, 3, 'x in t1, plus the two the extension counted without naming in t2');
-    assert.match(formatReport(report), /Other skill reads \(not asked about; not counted above\): 3/);
+    assert.equal(report.askedUnansweredRead, 1, 'x in t1 was asked but got no answer');
+    assert.equal(report.otherSkillReads, 2, 'the two the extension counted without naming in t2');
+    const text = formatReport(report);
+    assert.match(text, /Asked but unanswered skills read \(a request failed; not counted above\): 1/);
+    assert.match(text, /Other skill reads \(not in the corpus, or not asked about; not counted above\): 2/);
     assert.equal(report.latencyP50Ms, 200);
     assert.equal(report.latencyP95Ms, 300);
     assert.deepEqual([...report.failures], [['timeout', 2], ['invalid-request', 1]]);

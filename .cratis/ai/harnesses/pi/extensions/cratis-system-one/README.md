@@ -217,7 +217,9 @@ into:
 - turns judged,
 - skills suggested at 0.5 or above, and how many of those the model then read,
 - skills asked about, answered and read that were not suggested,
-- other skill reads, counted apart so they cannot inflate the line above,
+- skills that were asked about but got no answer (a request failed) and were read anyway, on their own line,
+- other skill reads (not in the corpus, or not asked about that turn), counted apart so they cannot
+  inflate the line above,
 - backend latency p50 and p95,
 - failures by class.
 

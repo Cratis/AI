@@ -88,7 +88,7 @@ export function aggregateShadow(entries: readonly unknown[]): ShadowReport {
             failures.set(data.failure, (failures.get(data.failure) ?? 0) + 1);
         }
     }
-    const report: ShadowReport = { turnsJudged: judged.size, turnsAwaitingOutcome: 0, suggested: 0, suggestedAndRead: 0, readNotSuggested: 0, otherSkillReads: 0, failures };
+    const report: ShadowReport = { turnsJudged: judged.size, turnsAwaitingOutcome: 0, suggested: 0, suggestedAndRead: 0, readNotSuggested: 0, askedUnansweredRead: 0, otherSkillReads: 0, failures };
     for (const [turnId, { answered, suggested }] of judged) {
         const recorded = outcomes.get(turnId);
         if (recorded === undefined) {
@@ -101,7 +101,9 @@ export function aggregateShadow(entries: readonly unknown[]): ShadowReport {
         report.suggested += suggested.length;
         report.suggestedAndRead += suggested.filter(name => read.includes(name)).length;
         report.readNotSuggested += read.filter(name => !suggested.includes(name)).length;
-        report.otherSkillReads += (recorded.length - read.length) + (otherReads.get(turnId) ?? 0);
+        // The entry names only asked skills, so a recorded name that got no answer was asked and unanswered.
+        report.askedUnansweredRead += recorded.length - read.length;
+        report.otherSkillReads += otherReads.get(turnId) ?? 0;
     }
     latencies.sort((left, right) => left - right);
     report.latencyP50Ms = percentile(latencies, 0.5);
@@ -120,7 +122,8 @@ export function formatReport(report: ShadowReport): string {
         `Skills suggested at ${suggestionThreshold} or above: ${report.suggested}`,
         `  of those, read by the model: ${report.suggestedAndRead} (${share})`,
         `Skills read that were not suggested: ${report.readNotSuggested}`,
-        `Other skill reads (not asked about; not counted above): ${report.otherSkillReads}`,
+        `Asked but unanswered skills read (a request failed; not counted above): ${report.askedUnansweredRead}`,
+        `Other skill reads (not in the corpus, or not asked about; not counted above): ${report.otherSkillReads}`,
         `Backend latency: p50 ${report.latencyP50Ms ?? 'n/a'} ms, p95 ${report.latencyP95Ms ?? 'n/a'} ms`,
         `Failures: ${failures || 'none'}`,
         'Reads are counted only through the read tool; a skill file read with cat in bash is not counted.',

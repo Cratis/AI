@@ -13,7 +13,9 @@ export interface ShadowReport {
     suggestedAndRead: number;
     /** Reads of skills that were asked about and answered but not suggested, over the same turns. */
     readNotSuggested: number;
-    /** Other SKILL.md reads (never asked about, or not in the corpus), over the same turns. Counted, not named. */
+    /** Skills that were asked about but got no answer (their chunk failed) and were read anyway, over the same turns. */
+    askedUnansweredRead: number;
+    /** Other SKILL.md reads (not in the corpus, or not asked about in that turn), over the same turns. Counted, not named. */
     otherSkillReads: number;
     latencyP50Ms?: number;
     latencyP95Ms?: number;
