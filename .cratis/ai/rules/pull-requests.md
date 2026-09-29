@@ -41,31 +41,33 @@ Reviewer-facing information (test plan, verification, review provenance, notes f
 
 ### Bad to good
 
-Bad (abridged from Cratis/Arc.TypeScript v0.48.0, as published):
+Bad (Cratis/Arc.TypeScript v0.48.0 as first published, bullets abridged):
 
 ```markdown
-Reactors can now be scoped to an activation, but npm publication remains disabled.
+Arc can now construct Chronicle reactors and reducers through its own dependency injection, one scope per delivered batch, as an opt-in preview. npm publication remains disabled.
 
 ## Added
 
-- Scoped activation for Chronicle reactors.
+- Preview option `withChronicle({ ..., activateArtifactsInScopes: true })` ... (#93)
 
-See [scoped activation](Documentation/chronicle/reactors/scoped-activation.md).
+See [Activate reactors and reducers in Arc scopes](Documentation/chronicle/reactors/scoped-activation.md).
 
 Review: Opus-only (same-provider) review.
 
 Refs #93
 ```
 
-Good:
+Good (as corrected):
 
 ```markdown
+Arc can now construct Chronicle reactors and reducers through its own dependency injection, one scope per delivered batch, as an opt-in preview.
+
 ## Added
 
-- Scoped activation for Chronicle reactors. See [scoped activation](https://github.com/Cratis/Arc.TypeScript/blob/main/Documentation/chronicle/reactors/scoped-activation.md) (#93)
+- Preview option `withChronicle({ ..., activateArtifactsInScopes: true })` ... See [Activate reactors and reducers in Arc scopes](https://github.com/Cratis/Arc.TypeScript/blob/main/Documentation/chronicle/reactors/scoped-activation.md). (part of #93)
 ```
 
-The lead line is internal status, the link was relative, the review line is provenance, and `Refs #93` never closed the issue; `(#93)` now sits on the bullet that delivers it.
+"npm publication remains disabled" is internal status, the link was relative (it 404s on the release page), the review line is provenance for reviewers, and `Refs #93` is a keyword line. #93 was only partly delivered by this release, so its bullets say `(part of #93)`; `(#93)` would have closed it.
 
 ### Before you create or edit a PR
 
