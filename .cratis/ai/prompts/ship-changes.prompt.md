@@ -40,8 +40,8 @@ The description is published verbatim as the release notes, so it follows the co
 
 - Before `gh pr create` or `gh pr edit`, write the body from `.github/pull_request_template.md` and
   check it against the contract. The rules agents most often break:
-  - No development write-up: no Summary/Verification/Test plan headings, no review, testing or
-    provenance notes. Those go in a PR comment.
+  - No development write-up: no Overview/Verification/Test plan headings (only a first `## Summary`
+    is allowed), no review, testing or provenance notes. Those go in a PR comment.
   - `(#n)` ends the bullet that delivers an issue and `(part of #n)` marks anything that stays open;
     never `Closes`/`Fixes`/`Refs` before a number.
   - Links are absolute `https://` URLs, never relative paths.

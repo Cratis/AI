@@ -45,7 +45,7 @@ one to add weight.
 - **Exact-version release note (GitHub/PR):** in a Cratis repository this is
   the merged PR description, published verbatim, so it follows the contract in
   [pull-requests.md](../../rules/pull-requests.md), which holds the full
-  rules. The ones most often broken: no development write-up (no Summary,
+  rules. The ones most often broken: no development write-up (no Overview,
   Verification or Test plan headings, no review or provenance notes; those go
   in a PR comment); `(#n)` at the end of the bullet that delivers an issue and
   `(part of #n)` for anything that stays open, never `Closes`, `Fixes` or
@@ -53,8 +53,9 @@ one to add weight.
   a fixed order (Added, Changed, Fixed, Removed, Security, Deprecated); within
   a section, put changes requiring action first, then new capabilities and
   fixes. State impact and the user's next action in plain language, and flag
-  an upgrade action in the lead paragraph when one applies. Do not list
-  internal refactors or specs that change nothing users observe. For a
+  an upgrade action in the summary (a first `## Summary` section or an
+  unheaded lead paragraph, not both) when one applies. Do not list internal
+  refactors or specs that change nothing users observe. For a
   user-visible fix, a sentence of root cause and of what now guards against a
   regression, stated as observable behavior rather than a list of specs, is
   user-facing: it tells the reader whether to trust the fix. Credit an

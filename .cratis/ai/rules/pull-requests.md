@@ -11,8 +11,8 @@ applyTo: "**/*"
 ### Allowed shape
 
 - Follow the repository's pull request template (`.github/pull_request_template.md`) within this contract.
-- At most one lead paragraph (1–3 sentences, **no heading**), only when one theme spans the bullets. No bullets or code before the first section.
-- Then only these `##` sections, each at most once, in this order: `## Added`, `## Changed`, `## Fixed`, `## Removed`, `## Security`, `## Deprecated`. Keep only the sections that have bullets. `###` sub-headings inside a section are fine unless they use a forbidden name.
+- An optional summary, first, only when one cohesive theme spans the bullets: **either** a `## Summary` section (short, user-facing prose) **or** one unheaded lead paragraph (1–3 sentences), never both. `Summary` is a level-2 heading; `# Summary` is the wrong level. No bullets or code before the first section.
+- Then only these `##` sections, each at most once, in this order after any `## Summary`: `## Added`, `## Changed`, `## Fixed`, `## Removed`, `## Security`, `## Deprecated`. Keep only the sections that have bullets. `###` sub-headings inside a section are fine unless they use a forbidden name.
 - A `major`/`minor`/`patch` PR needs at least one bullet under an allowed section.
 - Bullets are short, self-contained and user-facing: what a consumer compiles against, runs or observes. A user-visible fix may add one sentence of root cause or regression guard, stated as observable behavior. Credit an external contributor by name or handle, unless they asked not to be named.
 - Breaking changes and upgrade actions are bullets in `## Changed` or `## Removed` that state the action. A longer migration story goes in the docs, linked by absolute URL.
@@ -32,7 +32,7 @@ applyTo: "**/*"
 
 ### Forbidden anywhere outside code
 
-- **Headings** (any level) such as Summary, Overview, Description, What, Why, How, Context, Changes, What changed, Test plan, Testing, Tests, Verification, Verified, Validation, Quality, Review, Notes, Notes for reviewers, Limitations, Known follow-up, Acceptance, Details, and any `#`/`##` heading not in the allowed list.
+- **Headings** (any level) other than a first `## Summary`, such as Overview, Description, What, Why, How, Context, Changes, What changed, Test plan, Testing, Tests, Verification, Verified, Validation, Quality, Review, Notes, Notes for reviewers, Limitations, Known follow-up, Acceptance, Details, and any `#`/`##` heading not in the allowed list.
 - **Review, verification, testing and provenance notes**: `Review:`, `Reviewed:`, `Verification:`, `Tested:`, `Testing:`, `Validation:` lines; mentions of same-provider, cross-provider, Opus-only, Anthropic-only, the review workflow, CI or gate results, or which agent or model wrote the change.
 - **Internal state** that is not a consumer change (for example "npm publication remains disabled").
 - **Relative links** (`](Documentation/x.md)`, `](./x)`, `](Source/...)`): they 404 on the release page. Use `https://github.com/Cratis/<Repo>/blob/main/<path>`, a `#anchor` or `mailto:`.
@@ -73,7 +73,7 @@ Arc can now construct Chronicle reactors and reducers through its own dependency
 ### Before you create or edit a PR
 
 1. Read the body against the forbidden list and the issue table above; delete every hit and verify every issue number.
-2. Sections in order, none empty; every bullet user-facing.
+2. Sections in order, none empty, at most one summary form; every bullet user-facing.
 3. Test plan, verification and review notes are in a PR comment.
 
 If `verify-release-notes` fails, fix it by editing the description, not by pushing code.
