@@ -26,12 +26,13 @@ export function manualSteps(agentDirectory: string): string {
     return [
         'System One setup needs an interactive session. To set it up by hand:',
         `1. Create ${userConfigurationPath(agentDirectory)} (keep it private: chmod 600) containing`,
-        `   { "enabled": true, "endpoint": "${typeSafeEndpoint}", "consentedAt": "<ISO time>" }`,
+        `   { "enabled": true, "endpoint": "${typeSafeEndpoint}", "consentedOrigin": "${typeSafeOrigin}", "keySource": "TYPESAFE_API_KEY", "consentedAt": "<ISO time>" }`,
         '   Use "endpoint": "http://127.0.0.1:8000" for a local server such as Laya (LAYA_HOST=127.0.0.1 laya-serve).',
         '2. Provide a key: SYSTEMONE_API_KEY (or TYPESAFE_API_KEY for TypeSafe) in the environment, or "apiKey" in that file.',
         '   A key in the file is used only for the endpoint stored in it. A local http server gets a key only from that file.',
-        '   An environment key goes to TypeSafe only, unless the file says you agree to SYSTEMONE_API_KEY for your endpoint: "keySource": "SYSTEMONE_API_KEY".',
-        '   The origin of "endpoint" is the only one that will ever receive data or a key; SYSTEMONE_ENDPOINT pointing to another origin turns System One off.',
+        '   "consentedOrigin" is the origin (scheme, host, port) of "endpoint": the only one that will ever receive data or a key. SYSTEMONE_ENDPOINT pointing to another origin turns System One off.',
+        '   "keySource" is the credential you agree to: "none", "typed" (the "apiKey" in the file), "SYSTEMONE_API_KEY" or "TYPESAFE_API_KEY". An environment key goes to TypeSafe, or to your endpoint only if it is the one named here.',
+        '   Both fields are required: a file without them is refused.',
         '3. Check it with /system-one status. Turn it off with /system-one off.',
         'By enabling it you agree that, in repositories set up with Cratis AI, skill names, the first sentence of each skill description and the first 1200 characters of each prompt you type in an interactive session are sent to that endpoint.',
     ].join('\n');

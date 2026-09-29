@@ -121,12 +121,11 @@ function repositoryNarrowing(repository: ConfigurationFile): RepositoryNarrowing
  * - `TYPESAFE_API_KEY` goes to the TypeSafe origin only.
  * - `SYSTEMONE_API_KEY` goes to the TypeSafe origin, or to another origin only when `agreed` says the user
  *   agreed to it in setup. Otherwise it is ignored (and `environmentKeyIgnored` says so), so exporting it
- *   later cannot send it somewhere the user never approved. `agreed` is undefined for a file from before
- *   the agreement was recorded, which means the TypeSafe origin only.
+ *   later cannot send it somewhere the user never approved.
  * - A key stored in the user file is bound to the origin it was stored for and is used only when that is
  *   the effective origin.
  */
-export function chooseKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }, agreed?: AgreedKey): KeyChoice {
+export function chooseKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }, agreed: AgreedKey): KeyChoice {
     let environmentKeyIgnored = false;
     if (!target.loopback) {
         const fromSystemOne = nonEmpty(environment.SYSTEMONE_API_KEY);
@@ -144,20 +143,7 @@ export function chooseKey(environment: NodeJS.ProcessEnv, target: KeyTarget, sto
     return key === undefined ? none : { source: KeySource.Entered, key, environmentKeyIgnored };
 }
 
-/** The key `chooseKey` picks, without where it came from. */
-export function selectKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }, agreed?: AgreedKey): string | undefined {
-    return chooseKey(environment, target, stored, agreed).key;
-}
 
-/**
- * The origin the user agreed to: the one recorded by setup, or, in a file from before that was recorded,
- * the origin of its `endpoint` (TypeSafe when there is none). Undefined when that endpoint is not valid.
- */
-export function consentedOriginOf(user: UserConfiguration): string | undefined {
-    if (user.consentedOrigin !== undefined) return user.consentedOrigin;
-    const own = checkEndpoint(user.endpoint ?? typeSafeEndpoint);
-    return 'error' in own ? undefined : own.origin;
-}
 
 /** The endpoint a user's file resolves to once `SYSTEMONE_ENDPOINT` is taken into account. */
 export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endpoint?: string }): EffectiveEndpoint {
@@ -173,7 +159,7 @@ export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endp
  *   environment can disable, narrow, or override endpoint, key and model, but only once the user has
  *   enabled it.
  * - An unconfigured install is silent: no notice is produced for it.
- * - Data and keys go only to the origin the user agreed to in setup (`consentedOriginOf`). An effective
+ * - Data and keys go only to the origin the user agreed to in setup (`consentedOrigin`). An effective
  *   origin that differs, for instance from a `SYSTEMONE_ENDPOINT` set later, disables System One with one
  *   notice. A different path on the same origin is fine.
  * - Keys follow `chooseKey`. Redirects are refused by the client.
@@ -196,6 +182,10 @@ export function resolveConfiguration({ user: userFile, repository, environment }
         }
         if (!user.enabled) return disabled('turned off in your System One configuration');
         if (disablingValues.has(environment.CRATIS_SYSTEM_ONE?.trim().toLowerCase() ?? '')) return disabled('disabled by CRATIS_SYSTEM_ONE');
+        // Setup records the origin and the credential the user agreed to. A file without them predates that, and
+        // is refused rather than guessed at.
+        const { consentedOrigin, keySource } = user;
+        if (consentedOrigin === undefined || keySource === undefined) return disabled('your settings predate this version; run /system-one setup again', 'System One: your settings predate this version; run /system-one setup again.');
 
         const narrowing = repositoryNarrowing(repository);
         if (narrowing.problem) return disabled(`${narrowing.problem}; System One stays off until that is fixed`, true);
@@ -204,7 +194,7 @@ export function resolveConfiguration({ user: userFile, repository, environment }
         const { checked, fromEnvironment } = effectiveEndpoint(environment, user);
         if ('error' in checked) return disabled(`${fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'the configured endpoint'}: ${checked.error}`, true);
 
-        if (checked.origin !== consentedOriginOf(user)) {
+        if (checked.origin !== consentedOrigin) {
             const pointer = fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'your configuration';
             return disabled(`${pointer} points to ${checked.origin}, which you did not set up (run /system-one setup)`, `System One: ${pointer} points to ${checked.origin}, which you did not set up; run /system-one setup to use it.`);
         }
@@ -215,7 +205,7 @@ export function resolveConfiguration({ user: userFile, repository, environment }
         let mode = user.skillRelevance?.mode ?? SkillRelevanceMode.Shadow;
         if (narrowing.off || disablingValues.has(environment.CRATIS_SYSTEM_ONE_SKILL_RELEVANCE?.trim().toLowerCase() ?? '')) mode = SkillRelevanceMode.Off;
         const skillRelevance: SkillRelevanceSettings = { mode, ...skillRelevanceLimits };
-        const key = chooseKey(environment, checked, user, user.keySource);
+        const key = chooseKey(environment, checked, user, keySource);
 
         return {
             enabled: true,

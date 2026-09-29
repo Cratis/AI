@@ -17,11 +17,11 @@ export interface UserConfiguration {
     /**
      * The origin (scheme, host, port) setup disclosed, probed and the user confirmed: the one that really
      * receives data, including a `SYSTEMONE_ENDPOINT` override that was set at the time. If the effective
-     * origin is ever another one, System One turns itself off. Absent in files from before this existed:
-     * the origin of `endpoint` (or TypeSafe) is used.
+     * origin is ever another one, System One turns itself off. Required once `enabled` is true: a file
+     * without it predates this version and is refused, not guessed at.
      */
     consentedOrigin?: string;
-    /** The credential the user agreed to. Absent in older files: an environment key is then allowed for the TypeSafe origin only. */
+    /** The credential the user agreed to. Required once `enabled` is true, like `consentedOrigin`. */
     keySource?: AgreedKey;
     skillRelevance?: { mode: SkillRelevanceMode };
 }

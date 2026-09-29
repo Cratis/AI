@@ -85,8 +85,9 @@ the hosted model is the realistic backend and consent has to be safe for a remot
     saves anything, and a path-only override is disclosed and probed at the effective URL. `SYSTEMONE_API_KEY` reaches a non-TypeSafe origin only when `keySource` says the user agreed
     to it, so exporting it later cannot send it anywhere new: with a typed key agreed, the stored key is
     used, the environment key is ignored and status says so. `TYPESAFE_API_KEY` goes to TypeSafe only,
-    and environment keys never go to loopback. A file from before these fields is read as agreeing to the
-    origin of its `endpoint` (TypeSafe if none) with environment keys allowed for TypeSafe only. Status
+    and environment keys never go to loopback. Both fields are required once the file is enabled: a file
+    without either predates this version and is refused with one notice ("your settings predate this
+    version; run /system-one setup again") and nothing is sent, rather than being guessed at. Status
     names the credential source, never its value.
   - **The credential is disclosed.** Setup names which credential goes with the requests (the
     environment's `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`, the entered key, or none) and never its

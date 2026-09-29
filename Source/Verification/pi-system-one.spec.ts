@@ -16,10 +16,12 @@ import { FailureClass } from '../../.cratis/ai/harnesses/pi/extensions/cratis-sy
 import { aggregateShadow, formatReport } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/report.ts';
 import { SkillRelevanceMode } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/SkillRelevanceMode.ts';
 import { readUserConfigurationFile, userConfigurationPath, writeUserConfiguration } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/userConfigurationFile.ts';
-import { answering, answerBody, enabledProject, fakeServer, host, json, projectFixture, promptText, skillsIn } from './pi-system-one-helpers.ts';
+import { answering, answerBody, enabledProject, fakeServer, host, json, originOf, projectFixture, promptText, skillsIn } from './pi-system-one-helpers.ts';
 
 const secret = 'sk-test-secret-value-1234567890';
 const consentedAt = '2026-01-01T00:00:00.000Z';
+/** What setup records for TypeSafe with no key of its own: the parts of a complete file besides `enabled` and `consentedAt`. */
+const recorded = { consentedOrigin: 'https://api.typesafe.ai', keySource: 'none' };
 type Server = Awaited<ReturnType<typeof fakeServer>>;
 
 async function withServer<T>(behavior: Parameters<typeof fakeServer>[0], run: (server: Server) => Promise<T>): Promise<T> {
@@ -222,7 +224,7 @@ test('a key is only ever sent to the endpoint it was meant for', async () => {
         };
         const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
         const run = async (user: Record<string, unknown>, environment: NodeJS.ProcessEnv) => {
-            project.writeUser({ enabled: true, consentedAt, ...user });
+            project.writeUser({ enabled: true, consentedAt, consentedOrigin: originOf(String(user.endpoint ?? typeSafeEndpoint)), keySource: user.apiKey === undefined ? 'none' : 'typed', ...user });
             const session = host(project, { transport, environment });
             await session.askAndSettle(promptText, skills);
             return session;
@@ -267,7 +269,7 @@ test('a key is only ever sent to the endpoint it was meant for', async () => {
         await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'from-file', keySource: 'typed' }, { SYSTEMONE_API_KEY: 'from-environment' });
         assert.equal(sent.at(-1)?.authorization, 'Bearer from-file', 'the agreed typed key, never an exported environment key');
         await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'from-file' }, { SYSTEMONE_API_KEY: 'from-environment' });
-        assert.equal(sent.at(-1)?.authorization, 'Bearer from-file', 'an older file allows environment keys for TypeSafe only');
+        assert.equal(sent.at(-1)?.authorization, 'Bearer from-file', 'environment keys go to TypeSafe unless the user agreed to one for this origin');
         await run({ endpoint: 'https://example.invalid/v1/systemone' }, { SYSTEMONE_API_KEY: 'from-environment' });
         assert.equal(sent.at(-1)?.authorization, undefined);
         await run({ endpoint: typeSafeEndpoint, apiKey: 'from-file', keySource: 'typed' }, { SYSTEMONE_API_KEY: 'from-environment' });
@@ -353,7 +355,7 @@ test('every loopback form is loopback for keys, and unspecified addresses are re
             const configuration = loadConfiguration(project.directory, project.agentDirectory, { SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret });
             assert.ok(configuration.enabled, endpoint);
             assert.equal(configuration.settings.apiKey, undefined, `${endpoint}: an environment key never goes to loopback`);
-            project.writeUser({ enabled: true, endpoint, consentedAt, keySource: 'SYSTEMONE_API_KEY' });
+            project.writeUser({ enabled: true, endpoint, consentedAt, consentedOrigin: originOf(endpoint), keySource: 'SYSTEMONE_API_KEY' });
             const agreed = loadConfiguration(project.directory, project.agentDirectory, { SYSTEMONE_API_KEY: secret });
             assert.ok(agreed.enabled && agreed.settings.apiKey === undefined, `${endpoint}: not even one the user agreed to`);
         } finally {
@@ -425,7 +427,7 @@ test('the user file is validated strictly, and defaults are the TypeSafe endpoin
             assert.ok(!result.enabled && result.configured && result.notice, `${name}: one notice for a configured user`);
         }
 
-        project.writeUser({ enabled: true, consentedAt });
+        project.writeUser({ enabled: true, consentedAt, ...recorded });
         const defaults = loadConfiguration(project.directory, project.agentDirectory, {});
         assert.ok(defaults.enabled);
         assert.equal(defaults.settings.endpoint, typeSafeEndpoint);
@@ -434,7 +436,7 @@ test('the user file is validated strictly, and defaults are the TypeSafe endpoin
         assert.deepEqual(defaults.settings.skillRelevance, { mode: 'shadow', maxQuestions: 128, chunkSize: 32, minPromptChars: 20, stateChars: 1200, criterionChars: 200 });
 
         // resolveConfiguration is pure: the same inputs give the same answer with no files at all.
-        assert.deepEqual(resolveConfiguration({ user: { state: FileState.Present, text: JSON.stringify({ enabled: true, consentedAt }) }, repository: { state: FileState.Missing }, environment: {} }), defaults);
+        assert.deepEqual(resolveConfiguration({ user: { state: FileState.Present, text: JSON.stringify({ enabled: true, consentedAt, ...recorded }) }, repository: { state: FileState.Missing }, environment: {} }), defaults);
         assert.equal(resolveConfiguration({ user: { state: FileState.Missing }, repository: { state: FileState.Present, text: '{ "systemOne": { "enabled": true } }' }, environment: { CRATIS_SYSTEM_ONE: '1' } }).enabled, false);
     } finally {
         project.cleanup();
@@ -476,7 +478,7 @@ test('an unreadable user file is reported as unreadable, and a file others can r
         rmSync(userConfigurationPath(project.agentDirectory), { recursive: true });
 
         const path = userConfigurationPath(project.agentDirectory);
-        writeFileSync(path, JSON.stringify({ enabled: true, consentedAt, apiKey: secret }));
+        writeFileSync(path, JSON.stringify({ enabled: true, consentedAt, ...recorded, apiKey: secret }));
         chmodSync(path, 0o644);
         const open = loadConfiguration(project.directory, project.agentDirectory, {});
         assert.ok(open.enabled);
@@ -817,41 +819,39 @@ test('setup with a path-only SYSTEMONE_ENDPOINT records the chosen origin and ru
     });
 });
 
-test('a user file from before the origin and credential were recorded uses its endpoint and allows environment keys for TypeSafe only', async () => {
-    const skillsFor = (project: ReturnType<typeof projectFixture>) => skillsIn(project.directory, [{ name: 'skill-a' }]);
-    const captured = () => {
-        const sent: Array<{ url: string; authorization?: string }> = [];
-        const transport = async (input: string | URL | Request, init?: RequestInit) => {
-            sent.push({ url: String(input), authorization: (init?.headers as Record<string, string>).authorization });
-            return new Response(JSON.stringify(answerBody({ body: { questions: { 'skill-a': {} } } } as never, 0.5)), { status: 200 });
-        };
-        return { sent, transport };
-    };
-    // No endpoint at all: TypeSafe, where an exported key applies.
-    const typeSafeProject = projectFixture({}, { enabled: true, consentedAt });
-    try {
-        const { sent, transport } = captured();
-        await host(typeSafeProject, { transport, environment: { SYSTEMONE_API_KEY: secret } }).askAndSettle(promptText, skillsFor(typeSafeProject));
-        assert.deepEqual(sent, [{ url: typeSafeEndpoint, authorization: `Bearer ${secret}` }]);
-        // ... and the same file cannot be moved to another origin by the environment.
-        const moved = captured();
-        const session = host(typeSafeProject, { transport: moved.transport, environment: { SYSTEMONE_ENDPOINT: 'https://other.invalid', SYSTEMONE_API_KEY: secret } });
-        await session.askAndSettle(promptText, skillsFor(typeSafeProject));
-        assert.deepEqual(moved.sent, []);
-        assert.match(session.notices[0], /SYSTEMONE_ENDPOINT points to https:\/\/other\.invalid, which you did not set up/);
-    } finally {
-        typeSafeProject.cleanup();
+test('a user file that predates the recorded origin and credential is refused with one notice, and nothing is sent', async () => {
+    const legacy: Array<[string, Record<string, unknown>]> = [
+        ['neither field', { enabled: true, consentedAt }],
+        ['an endpoint and a key but neither field', { enabled: true, consentedAt, endpoint: 'https://opencode.ai/zen/v1/systemone', apiKey: 'zen-key' }],
+        ['only consentedOrigin', { enabled: true, consentedAt, consentedOrigin: 'https://api.typesafe.ai' }],
+        ['only keySource', { enabled: true, consentedAt, keySource: 'none' }],
+    ];
+    const notice = 'System One: your settings predate this version; run /system-one setup again.';
+    for (const [name, user] of legacy) {
+        const project = projectFixture({}, user);
+        try {
+            const session = host(project, { transport: failOnCall, environment: { SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret } });
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            await session.askAndSettle(promptText, skills);
+            await session.askAndSettle(promptText, skills);
+            assert.deepEqual(session.notices, [notice], `${name}: one notice`);
+            assert.deepEqual(session.entries, [], name);
+            assert.match(await session.command('status'), /State: disabled \(your settings predate this version; run \/system-one setup again\)/, name);
+        } finally {
+            project.cleanup();
+        }
     }
-    // Another endpoint: its own origin, and no exported key.
-    const otherProject = projectFixture({}, { enabled: true, endpoint: 'https://opencode.ai/zen/v1/systemone', apiKey: 'zen-key', consentedAt });
+    // A file that is turned off stays quiet, and /system-one off still works on an old file.
+    const project = projectFixture({}, { enabled: false, consentedAt });
     try {
-        const { sent, transport } = captured();
-        const session = host(otherProject, { transport, environment: { SYSTEMONE_API_KEY: secret } });
-        await session.askAndSettle(promptText, skillsFor(otherProject));
-        assert.deepEqual(sent, [{ url: 'https://opencode.ai/zen/v1/systemone', authorization: 'Bearer zen-key' }]);
-        assert.match(await session.command('status'), /Credential: stored key \(SYSTEMONE_API_KEY is set in the environment but ignored/);
+        const session = host(project, { transport: failOnCall });
+        await session.askAndSettle(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
+        assert.deepEqual(session.notices, []);
+        project.writeUser({ enabled: true, consentedAt });
+        await host(project, {}).command('off');
+        assert.equal(JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8')).enabled, false);
     } finally {
-        otherProject.cleanup();
+        project.cleanup();
     }
 });
 
@@ -863,7 +863,7 @@ test('the recorded origin and credential are validated', () => {
             const configuration = loadConfiguration(project.directory, project.agentDirectory, {});
             assert.ok(!configuration.enabled && /invalid/.test(configuration.reason), JSON.stringify(bad));
         }
-        for (const good of [{ consentedOrigin: 'https://api.typesafe.ai', keySource: 'none' }, { endpoint: 'http://127.0.0.1:8000', consentedOrigin: 'http://127.0.0.1:8000', keySource: 'typed' }, { keySource: 'SYSTEMONE_API_KEY' }, { keySource: 'TYPESAFE_API_KEY' }]) {
+        for (const good of [{ consentedOrigin: 'https://api.typesafe.ai', keySource: 'none' }, { endpoint: 'http://127.0.0.1:8000', consentedOrigin: 'http://127.0.0.1:8000', keySource: 'typed' }, { consentedOrigin: 'https://api.typesafe.ai', keySource: 'SYSTEMONE_API_KEY' }, { consentedOrigin: 'https://api.typesafe.ai', keySource: 'TYPESAFE_API_KEY' }]) {
             project.writeUser({ enabled: true, consentedAt, ...good });
             assert.ok(loadConfiguration(project.directory, project.agentDirectory, {}).enabled, JSON.stringify(good));
         }

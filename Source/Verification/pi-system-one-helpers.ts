@@ -120,7 +120,17 @@ export const promptText = 'Please add a command that opens an account and valida
 
 /** A project set up with Cratis AI (it has `.cratis/ai.json`) whose user has run setup: enabled, pointing at `endpoint`. */
 export function enabledProject(endpoint: string, extra: Record<string, unknown> = {}, repository: unknown = {}): Project {
-    return projectFixture(repository, { enabled: true, endpoint, consentedAt: '2026-01-01T00:00:00.000Z', ...extra });
+    return projectFixture(repository, { enabled: true, endpoint, consentedAt: '2026-01-01T00:00:00.000Z', consentedOrigin: originOf(endpoint), keySource: 'none', ...extra });
+}
+
+/** The origin setup would have recorded for an endpoint. An endpoint that is not valid gets TypeSafe's, so its own error is what shows. */
+export function originOf(endpoint: string): string {
+    try {
+        const { origin } = new URL(endpoint);
+        return origin === 'null' ? 'https://api.typesafe.ai' : origin;
+    } catch {
+        return 'https://api.typesafe.ai';
+    }
 }
 
 export type Handler = (event: unknown, context: unknown) => unknown;

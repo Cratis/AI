@@ -58,9 +58,9 @@ unless `PI_CODING_AGENT_DIR` says otherwise), written atomically with mode `0600
 `consentedOrigin` is the origin (scheme, host and port) that setup disclosed and probed and you
 confirmed. `keySource` is the
 credential you agreed to: `none`, `typed` (the key stored in this file), `SYSTEMONE_API_KEY` or
-`TYPESAFE_API_KEY`. Both are written by setup. A file from before they existed is read as agreeing to
-the origin of its `endpoint` (TypeSafe if there is none), with environment keys allowed for the
-TypeSafe origin only.
+`TYPESAFE_API_KEY`. Setup writes both, and both are required: an enabled file without either is refused
+with one notice ("System One: your settings predate this version; run /system-one setup again."), and
+nothing is sent.
 
 `endpoint` is a full URL: `https`, or `http` only for `localhost`, `127.0.0.0/8` addresses and `::1`.
 `0.0.0.0`, `::` and other unspecified addresses are refused. `model`
