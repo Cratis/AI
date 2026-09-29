@@ -699,7 +699,7 @@ test('an environment key headed for an origin other than TypeSafe needs a second
         assert.match(questions[1].detail!, /was not issued for https:\/\/opencode\.ai/);
         assert.deepEqual(sent, [], 'nothing was sent');
         assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false, 'nothing was saved');
-        assert.match(output, /cancelled/);
+        assert.match(output, /canceled/);
         assert.equal([output, ...declined.prompts.map(prompt => `${prompt.title} ${prompt.detail ?? ''}`)].join('\n').includes(secret), false);
 
         // Agreeing sends the probe with that key.
@@ -1081,7 +1081,7 @@ test('a failed probe saves nothing unless the user insists', async () => {
                 const output = await session.command('setup');
                 assert.match(output, /Probe of http:\/\/127\.0\.0\.1:\d+ failed \(unauthorized/);
                 assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), saved);
-                assert.match(output, saved ? /System One enabled/ : /cancelled/);
+                assert.match(output, saved ? /System One enabled/ : /canceled/);
             } finally {
                 project.cleanup();
             }
@@ -1091,10 +1091,10 @@ test('a failed probe saves nothing unless the user insists', async () => {
 
 test('setup stops without saving or sending when the user declines, cancels, or gives an unusable endpoint', async () => {
     const cases: Array<[string, { select?: string; inputs?: Array<string | undefined>; confirms?: boolean[] }, RegExp]> = [
-        ['declines the disclosure', { select: typeSafe, inputs: [secret], confirms: [false] }, /cancelled/],
-        ['cancels the backend choice', {}, /cancelled/],
-        ['cancels the endpoint', { select: other, inputs: [undefined] }, /cancelled/],
-        ['cancels the key', { select: typeSafe, inputs: [undefined] }, /cancelled/],
+        ['declines the disclosure', { select: typeSafe, inputs: [secret], confirms: [false] }, /canceled/],
+        ['cancels the backend choice', {}, /canceled/],
+        ['cancels the endpoint', { select: other, inputs: [undefined] }, /canceled/],
+        ['cancels the key', { select: typeSafe, inputs: [undefined] }, /canceled/],
         ['gives no key for a hosted provider', { select: typeSafe, inputs: [''] }, /needs an API key/],
         ['gives http for a remote provider', { select: other, inputs: ['http://example.invalid'] }, /https/],
         ['gives 0.0.0.0 for a local server', { select: local, inputs: ['http://0.0.0.0:8000'] }, /unspecified address/],

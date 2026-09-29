@@ -86,7 +86,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     const { environment } = dependencies;
     const now = dependencies.now ?? Date.now;
     const say = (text: string, level: NotifyLevel = NotifyLevel.Info) => show(context, dependencies.write, text, level);
-    const cancelled = () => say('System One setup cancelled. Nothing was saved.');
+    const canceled = () => say('System One setup canceled. Nothing was saved.');
 
     if (!context.hasUI) {
         say(manualSteps(dependencies.agentDirectory));
@@ -94,13 +94,13 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     }
 
     const choice = await ui.select('Choose a System One backend', Object.values(BackendChoice));
-    if (choice === undefined) return cancelled();
+    if (choice === undefined) return canceled();
 
     let candidate: string | undefined;
     if (choice === BackendChoice.TypeSafe) candidate = typeSafeEndpoint;
     else if (choice === BackendChoice.Other) candidate = await ui.input('Provider endpoint URL (https)', 'https://opencode.ai/zen/v1/systemone');
     else candidate = await ui.input('Local server URL (127.0.0.1, ::1 or localhost)', 'http://127.0.0.1:8000');
-    if (candidate === undefined) return cancelled();
+    if (candidate === undefined) return canceled();
     const chosen = checkEndpoint(candidate);
     if ('error' in chosen) {
         say(`System One setup stopped: ${chosen.error}. Nothing was saved.`, NotifyLevel.Warning);
@@ -138,7 +138,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
             ? `API key for ${chosen.origin}, or leave blank for none (stored only in ${userConfigurationPath(dependencies.agentDirectory)}, mode 600, used only for this endpoint)`
             : `API key for ${chosen.origin} (stored only in ${userConfigurationPath(dependencies.agentDirectory)}, mode 600, used only for this endpoint; never shown again; tip: set SYSTEMONE_API_KEY instead to store nothing)`;
         const typed = await ui.input(keyPrompt, '');
-        if (typed === undefined) return cancelled();
+        if (typed === undefined) return canceled();
         storedKey = typed.trim() || undefined;
         if (storedKey === undefined && !chosen.loopback) {
             say(`System One setup stopped: ${chosen.origin} needs an API key. Set SYSTEMONE_API_KEY or run setup again. Nothing was saved.`, NotifyLevel.Warning);
@@ -178,11 +178,11 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     const overridden: EndpointOverride | undefined = override.fromEnvironment && settings.endpoint !== chosen.endpoint ? { chosen: chosen.endpoint, effective: settings.endpoint } : undefined;
 
     const confirmed = await ui.confirm(`Send this to ${settings.origin}?`, disclosure(settings.origin, settings.credential, overridden));
-    if (!confirmed) return cancelled();
+    if (!confirmed) return canceled();
     // A key from the environment was not given to this program for this server. Ask again, plainly, before it is used.
     if (isEnvironmentKey(settings.credential) && settings.origin !== typeSafeOrigin) {
         const usesKey = await ui.confirm(`Send ${settings.credential} to ${settings.origin}?`, `${settings.credential} was not issued for ${settings.origin}. It would go there as a bearer token with the setup probe and with every request after it. Continue only if you trust that server with this key.`);
-        if (!usesKey) return cancelled();
+        if (!usesKey) return canceled();
     }
 
     const probe = await askSystemOne(
@@ -197,7 +197,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     } else {
         say(`Probe of ${settings.origin} failed (${probe.failure}, ${probe.latencyMs} ms).`, NotifyLevel.Warning);
         const saveAnyway = await ui.confirm('The probe failed. Save anyway?', 'The extension will fail open (turns are never blocked) and pause itself after repeated failures. You can fix the endpoint or key and run /system-one setup again.');
-        if (!saveAnyway) return cancelled();
+        if (!saveAnyway) return canceled();
     }
 
     const path = writeUserConfiguration(dependencies.agentDirectory, configuration);

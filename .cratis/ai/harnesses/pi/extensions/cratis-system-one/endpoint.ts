@@ -45,7 +45,7 @@ function withoutTrailingDot(hostname: string): string {
 /**
  * Loopback for the purpose of keys: nothing in the environment may be sent here. Generous on purpose:
  * 127.0.0.0/8, `::1`, IPv4-mapped and IPv4-compatible forms of 127.x (however they were written, the
- * parser has normalised them), `localhost`, `*.localhost`, and any of these with a trailing dot.
+ * parser has normalized them), `localhost`, `*.localhost`, and any of these with a trailing dot.
  */
 export function isLoopbackHost(hostname: string): boolean {
     const name = withoutTrailingDot(hostname.toLowerCase());

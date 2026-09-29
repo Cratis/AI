@@ -213,7 +213,7 @@ When it is not set up, the extension is completely silent: no notices, no reques
   notice per error class per session.
 - **Shutdown stops it.** Ending or replacing the session cancels requests still running, and nothing
   is recorded afterwards. So does changing the configuration (`/system-one setup` or `off`, or a
-  different endpoint): a request made under the old one is cancelled, and whatever it returns is
+  different endpoint): a request made under the old one is canceled, and whatever it returns is
   dropped, never counted against the new endpoint's circuit breaker.
 - **Only prompts you type, in interactive sessions in Cratis repositories, are judged.** With no UI
   (print and JSON modes, and every subagent child process) nothing is asked. Neither is a prompt
