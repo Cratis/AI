@@ -134,9 +134,9 @@ An AI-drafted narrative is a first draft, not a finished page. Give the model
 the reader, the scenario, the terminology and the source evidence up front;
 then revise the result against that evidence and the
 **cratis-writing-voice-and-cadence** constructions before it ships. Tell the
-reviewer the narrative was AI-drafted (in the review request or commit
-message, not in a PR description's release-note sections) so they read it as
-prose, not only as a diff.
+reviewer the narrative was AI-drafted (in the review request, a PR comment or
+the commit message, never in the PR description, which is published as the
+release note) so they read it as prose, not only as a diff.
 
 For machine-readable delivery and retrieval checks, use
 **cratis-llm-friendly-documentation**; publishing `llms-full.txt` alone does
