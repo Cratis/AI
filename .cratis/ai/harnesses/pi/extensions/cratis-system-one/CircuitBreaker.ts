@@ -3,6 +3,7 @@
 
 import { BreakerState } from './BreakerState.ts';
 import { FailureClass } from './FailureClass.ts';
+import { Grant } from './Grant.ts';
 
 const maximumRetryAfterMs = 10 * 60_000;
 
@@ -34,17 +35,22 @@ export class CircuitBreaker {
         return this.#open ? Math.max(0, this.#reopenAt - this.now()) : 0;
     }
 
-    /** True when a request may be sent. In the half-open state exactly one caller gets `true`. */
-    allow(): boolean {
+    /**
+     * Whether a request may be sent, and on what terms. The clock is read once, so the caller learns from
+     * the grant itself whether it holds the probe: reading the state first and asking after could see two
+     * different states if the back-off ended in between. In the half-open state exactly one caller gets
+     * `Grant.Probe`, and it must report the result or `release()` it.
+     */
+    allow(): Grant {
         switch (this.state) {
             case BreakerState.Closed:
-                return true;
+                return Grant.Closed;
             case BreakerState.Open:
-                return false;
+                return Grant.None;
             case BreakerState.HalfOpen:
-                if (this.#probing) return false;
+                if (this.#probing) return Grant.None;
                 this.#probing = true;
-                return true;
+                return Grant.Probe;
         }
     }
 

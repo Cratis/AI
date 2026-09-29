@@ -7,7 +7,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getAgentDir, type ExtensionAPI, type ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { askSystemOne } from './client.ts';
-import { BreakerState } from './BreakerState.ts';
+import { Grant } from './Grant.ts';
 import { loadConfiguration } from './configuration.ts';
 import { CircuitBreaker } from './CircuitBreaker.ts';
 import { DecisionOutcome } from './DecisionOutcome.ts';
@@ -301,8 +301,10 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             return;
         }
         const owner = breaker;
-        const halfOpen = owner.state === BreakerState.HalfOpen;
-        if (!owner.allow()) return statistics.recordSkip(SkipReason.BreakerOpen);
+        // One reading decides both whether to ask and whether this turn is the probe.
+        const grant = owner.allow();
+        if (grant === Grant.None) return statistics.recordSkip(SkipReason.BreakerOpen);
+        const halfOpen = grant === Grant.Probe;
 
         try {
             for (const candidate of candidates) knownSkills.set(candidate.realPath, candidate.name);

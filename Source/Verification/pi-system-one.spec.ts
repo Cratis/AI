@@ -10,6 +10,7 @@ import { loadConfiguration, parseUserConfiguration, resolveConfiguration } from 
 import { checkEndpoint, typeSafeEndpoint } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/endpoint.ts';
 import { BreakerState } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/BreakerState.ts';
 import { CircuitBreaker } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/CircuitBreaker.ts';
+import { Grant } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/Grant.ts';
 import { FileState } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/FileState.ts';
 import { FailureClass } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/FailureClass.ts';
 import { aggregateShadow, formatReport } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/report.ts';
@@ -1411,6 +1412,112 @@ test('only the turn granted the probe decides it: a late turn from before the br
     });
 });
 
+test('allow() reads the clock once, so the grant says whether the caller holds the probe', () => {
+    // The back-off ends between two readings: the first sees it still open, the second sees it over.
+    let reopenAt = 0;
+    let readings: number[] = [];
+    let clock = 1_000;
+    const breaker = new CircuitBreaker(3, () => readings.length > 0 ? readings.shift()! : clock);
+    for (let index = 0; index < 3; index++) breaker.recordFailure(FailureClass.ServerError, undefined, false);
+    reopenAt = clock + breaker.retryInMs;
+
+    // One reading, taken just before the end: no request, and no probe is left taken.
+    readings = [reopenAt - 1];
+    assert.equal(breaker.allow(), Grant.None);
+    assert.equal(readings.length, 0, 'allow() made exactly one reading');
+    clock = reopenAt;
+    assert.equal(breaker.state, BreakerState.HalfOpen);
+
+    // One reading, taken just after the end: it is the probe, whatever a later reading says.
+    readings = [reopenAt, reopenAt - 1];
+    assert.equal(breaker.allow(), Grant.Probe);
+    assert.equal(readings.length, 1, 'allow() made exactly one reading');
+    readings = [];
+    assert.equal(breaker.allow(), Grant.None, 'and it is the only one');
+    breaker.recordSuccess(true);
+    assert.equal(breaker.allow(), Grant.Closed);
+});
+
+test('a back-off that ends while a turn starts never leaves the breaker stuck', async () => {
+    let healthy = false;
+    await withServer((request, response) => healthy ? json(response, 200, answerBody(request, 0.5)) : json(response, 500, 'down'), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            let clock = 1_000_000;
+            let readings: number[] = [];
+            const session = host(project, { now: () => readings.length > 0 ? readings.shift()! : clock });
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            for (let turn = 0; turn < 3; turn++) await session.askAndSettle(promptText, skills);
+            assert.match(await session.command('status'), /Circuit breaker: open, retry in 30 s/);
+            const opened = server.requests.length;
+
+            // The first reading the turn takes is one millisecond short of the end of the back-off, later ones are past it.
+            const reopenAt = clock + 30_000;
+            readings = [reopenAt - 1];
+            clock = reopenAt;
+            healthy = true;
+            await session.askAndSettle(promptText, skills);
+            readings = [];
+            // Whether that turn was skipped or the probe, the breaker is not stuck: the next turn gets through and a success closes it.
+            await session.askAndSettle(promptText, skills);
+            assert.ok(server.requests.length > opened, 'a request went out');
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
+            await session.askAndSettle(promptText, skills);
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('a turn that never held the probe cannot give it back', async () => {
+    const held: Array<(status: number) => void> = [];
+    await withServer((request, response) => {
+        const number = held.length;
+        // Request 0 is a turn from before the breaker opened, 1 to 3 fail and open it, 4 is the probe: 0 and 4 are held.
+        if (number === 0 || number === 4) { held.push(() => json(response, 200, answerBody(request, 0.5))); return; }
+        held.push(() => undefined);
+        if (number <= 3) json(response, 500, 'down');
+        else json(response, 200, answerBody(request, 0.5));
+    }, async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            let clock = 1_000_000;
+            let broken = false;
+            const session = host(project, { now: () => { if (broken) throw new Error('clock'); return clock; } });
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            const until = async (condition: () => boolean) => { while (!condition()) await new Promise(resolve => setTimeout(resolve, 10)); };
+
+            session.ask(promptText, skills);
+            await until(() => server.requests.length === 1);
+            for (let turn = 0; turn < 3; turn++) session.ask(promptText, skills);
+            await until(() => server.requests.length === 4);
+            while (!/Circuit breaker: open/.test(await session.command('status'))) await new Promise(resolve => setTimeout(resolve, 10));
+            clock += 31_000;
+            session.ask(promptText, skills);
+            await until(() => server.requests.length === 5);
+
+            // The old turn now ends without reporting anything: its judgment throws before it can tell the breaker.
+            broken = true;
+            held[0](200);
+            await new Promise(resolve => setTimeout(resolve, 150));
+            broken = false;
+
+            // It never held the probe, so the probe is still taken: no second one goes out.
+            const before = server.requests.length;
+            session.ask(promptText, skills);
+            assert.equal(server.requests.length, before, 'no second probe');
+            assert.match(await session.command('status'), /circuit breaker open 1/);
+
+            held[4](200);
+            await session.settled();
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
 test('a late success from before the breaker opened does not close it, and a late failure changes nothing', () => {
     let clock = 1_000;
     const breaker = new CircuitBreaker(3, () => clock);
@@ -1420,14 +1527,14 @@ test('a late success from before the breaker opened does not close it, and a lat
     assert.equal(breaker.state, BreakerState.Open, 'a late success is not the probe');
 
     clock += 30_000;
-    assert.equal(breaker.allow(), true, 'the probe');
+    assert.equal(breaker.allow(), Grant.Probe, 'the probe');
     assert.equal(breaker.recordFailure(FailureClass.RateLimited, 500, false), false, 'a late failure is not the probe');
     clock += 5_000;
     assert.equal(breaker.state, BreakerState.HalfOpen, 'the back-off is unchanged');
-    assert.equal(breaker.allow(), false, 'and it does not free a second probe');
+    assert.equal(breaker.allow(), Grant.None, 'and it does not free a second probe');
     breaker.recordSuccess(true);
     assert.equal(breaker.state, BreakerState.Closed, 'the probe decides');
-    assert.equal(breaker.allow(), true);
+    assert.equal(breaker.allow(), Grant.Closed);
 });
 
 test('a rate-limit answer anywhere in a turn decides the breaker class and its Retry-After', async () => {
@@ -1462,16 +1569,16 @@ test('the circuit breaker honors Retry-After, allows one probe, and closes on su
     assert.equal(breaker.state, BreakerState.Closed);
     assert.equal(breaker.recordFailure(FailureClass.Timeout, undefined, false), false);
     assert.equal(breaker.recordFailure(FailureClass.Network, undefined, false), false);
-    assert.equal(breaker.allow(), true);
+    assert.equal(breaker.allow(), Grant.Closed);
     assert.equal(breaker.recordFailure(FailureClass.ServerError, undefined, false), true, 'the third consecutive failure opens it');
     assert.equal(breaker.state, BreakerState.Open);
-    assert.equal(breaker.allow(), false);
+    assert.equal(breaker.allow(), Grant.None);
     clock += 29_999;
-    assert.equal(breaker.allow(), false);
+    assert.equal(breaker.allow(), Grant.None);
     clock += 1;
     assert.equal(breaker.state, BreakerState.HalfOpen);
-    assert.equal(breaker.allow(), true, 'one probe');
-    assert.equal(breaker.allow(), false, 'only one');
+    assert.equal(breaker.allow(), Grant.Probe, 'one probe');
+    assert.equal(breaker.allow(), Grant.None, 'only one');
     assert.equal(breaker.recordFailure(FailureClass.Timeout, undefined, true), true, 'a failed probe re-opens it with a longer back-off');
     assert.equal(breaker.retryInMs, 60_000);
     breaker.recordSuccess(true);
@@ -1492,18 +1599,18 @@ test('a failed probe always re-opens the breaker, however few failures came befo
     // A rate limit opens it after one failure; the probe then fails with an ordinary error.
     assert.equal(breaker.recordFailure(FailureClass.RateLimited, 2_000, false), true);
     clock += 2_000;
-    assert.equal(breaker.allow(), true);
+    assert.equal(breaker.allow(), Grant.Probe);
     assert.equal(breaker.recordFailure(FailureClass.ServerError, undefined, true), true);
     assert.equal(breaker.state, BreakerState.Open);
     assert.equal(breaker.retryInMs, 60_000, 'a fresh, longer back-off');
-    assert.equal(breaker.allow(), false);
+    assert.equal(breaker.allow(), Grant.None);
 
     // A probe that reports nothing is given back and can be granted again.
     clock += 60_000;
-    assert.equal(breaker.allow(), true);
+    assert.equal(breaker.allow(), Grant.Probe);
     breaker.release();
     assert.equal(breaker.state, BreakerState.HalfOpen);
-    assert.equal(breaker.allow(), true);
+    assert.equal(breaker.allow(), Grant.Probe);
     breaker.recordSuccess(true);
     assert.equal(breaker.state, BreakerState.Closed);
     assert.equal(breaker.recordFailure(FailureClass.Timeout, undefined, false), false, 'and a closed breaker still needs the threshold');
