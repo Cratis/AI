@@ -350,6 +350,21 @@ test('a skill that is already in context is not hinted: preloaded by pi-subagent
         }, expanded.context);
         assert.doesNotMatch(textOf(expanded.write(specificationPath)), /demo-specifications/, 'expanded skill');
         expanded.handlers.get('session_compact')?.({}, expanded.context);
+        // pi-subagents writes the header even when it could not load the skill (a managed installation exposes
+        // `.pi/skills` as a symlink, which its loader rejects), so a header alone is not the skill's text.
+        const preloadedWrite = (systemPrompt: string) => {
+            const handlers = register();
+            handlers.get('before_agent_start')?.({ systemPrompt, systemPromptOptions: { cwd: project, skills: [] } }, context);
+            return textOf(handlers.get('tool_result')?.({ toolName: 'write', isError: false, input: { path: specificationPath }, content: [] }, context) as Result);
+        };
+        const header = 'base\n\n# Preloaded Skill: demo-specifications\n';
+        assert.match(preloadedWrite(`${header}(Skill "demo-specifications" not found in .pi/skills/, .agents/skills/, or global skill locations)`), /demo-specifications/, 'not found');
+        assert.match(preloadedWrite(`${header}(Skill "demo-specifications" skipped: name contains path traversal characters)`), /demo-specifications/, 'skipped');
+        assert.match(preloadedWrite(header), /demo-specifications/, 'no content');
+        assert.match(preloadedWrite(`${header}\n\n# Preloaded Skill: demo-other\nreal text`), /demo-specifications/, 'an empty block is not the next skill\'s text');
+        assert.doesNotMatch(preloadedWrite(`${header}---\nname: demo-specifications\n---\n\n# demo-specifications\n`), /demo-specifications/, 'frontmatter and body as pi-subagents writes it');
+        assert.doesNotMatch(preloadedWrite(`base\n\n# Preloaded Skill: demo-other\n(Skill "demo-other" not found in x)\n\n# Preloaded Skill: demo-specifications\ntext`), /demo-specifications/, 'a later real block counts');
+
         assert.match(textOf(expanded.write(specificationPath)), /demo-specifications/, 'a compacted conversation no longer holds the expansion');
     } finally {
         rmSync(project, { recursive: true, force: true });

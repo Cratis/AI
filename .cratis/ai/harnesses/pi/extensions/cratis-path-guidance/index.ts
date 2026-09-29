@@ -36,9 +36,23 @@ function hintLine(cwd: string, files: string[], matches: SkillMatch[]): string {
     return `[cratis-path-guidance] ${named} ${files.join(', ')}; read ${read} before continuing.`;
 }
 
-/** The skills pi-subagents preloaded into the system prompt (`skills: a, b`), whose full text is already in context. */
+/**
+ * pi-subagents writes `# Preloaded Skill: <name>` for every name in `skills:` and then the skill's text, or a
+ * placeholder when it could not load it: `(Skill "<name>" not found in ...)` or `(Skill "<name>" skipped: ...)`.
+ * It cannot load a skill from a symlinked skills root, which is how a managed installation exposes
+ * `.pi/skills` and `.agents/skills`. Only a header followed by real content puts the skill in context.
+ */
+const placeholderBody = /^\(Skill "[^"]*" (?:not found|skipped)\b/;
+
+/** The skills pi-subagents preloaded into the system prompt (`skills: a, b`) whose full text is already in context. */
 function preloadedSkillNames(systemPrompt: unknown): Set<string> {
-    return new Set(typeof systemPrompt === 'string' ? [...systemPrompt.matchAll(/^# Preloaded Skill: (\S+)/gm)].map(match => match[1]) : []);
+    const names = new Set<string>();
+    if (typeof systemPrompt !== 'string') return names;
+    for (const match of systemPrompt.matchAll(/^# Preloaded Skill: (\S+)[ \t]*\r?\n/gm)) {
+        const body = systemPrompt.slice(match.index + match[0].length).split(/^# Preloaded Skill: /m)[0].trim();
+        if (body.length > 0 && !placeholderBody.test(body)) names.add(match[1]);
+    }
+    return names;
 }
 
 /** The skills a `/skill:name` command expanded into the user message, which arrive without a `read` call. */
@@ -54,7 +68,7 @@ function expandedSkillNames(prompt: unknown): string[] {
  * exactly as they were when `cratis-rules` delivered them. On a successful `write` or `edit`, one advisory line
  * names every skill whose `cratis-hint-paths` frontmatter matches the file and where its `SKILL.md` is. A skill
  * is not hinted when it is already in context: read in the session, preloaded by pi-subagents
- * (`# Preloaded Skill: <name>` in the system prompt), or expanded by `/skill:<name>`. Hints are advisory only:
+ * (`# Preloaded Skill: <name>` followed by its text in the system prompt), or expanded by `/skill:<name>`. Hints are advisory only:
  * nothing is blocked and the system prompt is never touched.
  *
  * Delivery happens on `tool_result`, so guidance arrives after the call that first touched the file.
