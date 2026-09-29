@@ -30,26 +30,79 @@ export function frontmatter(content: string): Map<string, string[]> {
     return fields;
 }
 
+/** One `key: value` line under a top-level block map such as `metadata`, as written, not interpreted. */
+export interface FrontmatterEntry {
+    /** The number of spaces the key is indented by, or -1 when the indentation contains a tab. */
+    indent: number;
+    /** The text after the colon, trimmed and otherwise untouched: quotes, a trailing comment and block scalar indicators included. */
+    raw: string;
+    /** True when more-indented lines follow the entry, so its value is a block scalar, a multi-line scalar or a nested map. */
+    continues: boolean;
+}
+
+/** The result of reading the block map under a top-level key. */
+export interface FrontmatterBlock {
+    /** The text after `name:` on the key's own line, trimmed. Non-empty for an inline value such as a flow map. */
+    inline: string;
+    /** The entries the block holds, in order. A more-indented line belongs to the entry above it and is not an entry itself. */
+    entries: Map<string, FrontmatterEntry>;
+}
+
 /**
- * Reads a nested string map: the indented `  key: value` lines under a top-level `name:` key, as Agent Skills
- * `metadata` uses. Values stay whole strings (no comma splitting) and are unquoted. Returns `undefined` when the
- * key is absent or the frontmatter is unterminated.
+ * Reads the block under a top-level `name:` key without interpreting the values. Blank and comment lines are skipped.
+ * Returns `undefined` when the key is absent or the frontmatter is unterminated.
  */
-export function frontmatterMap(content: string, name: string): Map<string, string> | undefined {
+export function frontmatterBlock(content: string, name: string): FrontmatterBlock | undefined {
     if (!content.startsWith('---\n')) return undefined;
     const end = content.indexOf('\n---\n', 4);
     if (end < 0) return undefined;
-    let map: Map<string, string> | undefined;
+    let block: FrontmatterBlock | undefined;
     let inside = false;
+    let last: FrontmatterEntry | undefined;
     for (const line of content.slice(4, end).split('\n')) {
-        const top = /^([A-Za-z][\w-]*):/.exec(line);
+        const top = /^([A-Za-z][\w-]*):(.*)$/.exec(line);
         if (top) {
             inside = top[1] === name;
-            if (inside) map ??= new Map();
+            last = undefined;
+            if (inside) block ??= { inline: top[2].trim(), entries: new Map() };
             continue;
         }
-        const entry = /^\s+([A-Za-z][\w-]*):\s*(.*)$/.exec(line);
-        if (inside && entry) map!.set(entry[1], unquote(entry[2]));
+        if (!inside || !block || line.trim() === '' || /^\s*#/.test(line)) continue;
+        const indent = /^ *\t/.test(line) ? -1 : /^( *)/.exec(line)![1].length;
+        const entry = /^\s+([A-Za-z][\w-]*):(.*)$/.exec(line);
+        if (entry && (!last || indent <= last.indent)) {
+            last = { indent, raw: entry[2].trim(), continues: false };
+            block.entries.set(entry[1], last);
+        } else if (last) {
+            last.continues = true;
+        }
+    }
+    return block;
+}
+
+/**
+ * The string a raw scalar spells when it is written as one complete double-quoted or single-quoted string on one
+ * line, with nothing after the closing quote. Anything else, including a string with an escape or an embedded
+ * quote, a trailing `# comment`, an unquoted value and a block scalar, yields `undefined`: it is not guessed at.
+ */
+export function quotedScalar(raw: string): string | undefined {
+    return /^"([^"\\]*)"$/.exec(raw)?.[1] ?? /^'([^']*)'$/.exec(raw)?.[1];
+}
+
+/**
+ * Reads the nested string map under a top-level `name:` key, as Agent Skills `metadata` uses. Only the one form the
+ * corpus supports is read: an entry indented two spaces whose value is a complete one-line quoted string (see
+ * `quotedScalar`). Values stay whole strings, without comma splitting. An entry in any other form is left out of the
+ * map, so a caller never sees a guess such as `>-`; `frontmatterBlock` gives the raw entries for reporting them.
+ * Returns `undefined` when the key is absent or the frontmatter is unterminated.
+ */
+export function frontmatterMap(content: string, name: string): Map<string, string> | undefined {
+    const block = frontmatterBlock(content, name);
+    if (!block) return undefined;
+    const map = new Map<string, string>();
+    for (const [key, entry] of block.entries) {
+        const value = entry.indent === 2 && !entry.continues ? quotedScalar(entry.raw) : undefined;
+        if (value !== undefined) map.set(key, value);
     }
     return map;
 }
