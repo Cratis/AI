@@ -11,8 +11,10 @@ export interface ShadowReport {
     suggested: number;
     /** How many of those the model read during the turn. */
     suggestedAndRead: number;
-    /** SKILL.md reads that were not suggested, over the same turns. */
+    /** Reads of skills that were asked about and answered but not suggested, over the same turns. */
     readNotSuggested: number;
+    /** Other SKILL.md reads (never asked about, or not in the corpus), over the same turns. Counted, not named. */
+    otherSkillReads: number;
     latencyP50Ms?: number;
     latencyP95Ms?: number;
     failures: Map<string, number>;

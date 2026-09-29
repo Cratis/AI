@@ -11,8 +11,12 @@ export interface TurnRecord {
     /** Unique across sessions, so entries from a resumed session never collide. */
     turnId: string;
     turn: number;
-    /** SKILL.md files the model read during the turn, by skill name, suggested or not. */
+    /** The corpus skills this turn asked about. Only reads of these are recorded by name. */
+    asked: ReadonlySet<string>;
+    /** SKILL.md files of asked skills the model read during the turn, by skill name. */
     read: Set<string>;
+    /** SKILL.md reads of any other skill (not in the corpus, or not asked about this turn): counted, never named. */
+    otherReads: number;
     /** Asked skills the model had already read in an earlier turn of this session. */
     readEarlier: string[];
     /** Set when the agent loop ends. */

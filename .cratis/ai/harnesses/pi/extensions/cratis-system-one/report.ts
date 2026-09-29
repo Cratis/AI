@@ -68,7 +68,8 @@ function percentile(sorted: number[], fraction: number): number | undefined {
 
 /** Aggregates this session's `cratis-system-one` custom entries. Entries that do not parse are ignored. */
 export function aggregateShadow(entries: readonly unknown[]): ShadowReport {
-    const judged = new Map<string, string[]>();
+    const judged = new Map<string, { answered: string[]; suggested: string[] }>();
+    const otherReads = new Map<string, number>();
     const outcomes = new Map<string, string[]>();
     const latencies: number[] = [];
     const failures = new Map<string, number>();
@@ -77,24 +78,30 @@ export function aggregateShadow(entries: readonly unknown[]): ShadowReport {
         const data = entry.data;
         if (typeof data.turnId !== 'string') continue;
         if (data.kind === EntryKind.SkillRelevance && isRecord(data.probabilities)) {
-            judged.set(data.turnId, Object.entries(data.probabilities).filter(([, probability]) => typeof probability === 'number' && probability >= suggestionThreshold).map(([name]) => name));
+            const scored = Object.entries(data.probabilities).filter((pair): pair is [string, number] => typeof pair[1] === 'number');
+            judged.set(data.turnId, { answered: scored.map(([name]) => name), suggested: scored.filter(([, probability]) => probability >= suggestionThreshold).map(([name]) => name) });
             if (typeof data.latencyMs === 'number') latencies.push(data.latencyMs);
         } else if (data.kind === EntryKind.SkillOutcome) {
             outcomes.set(data.turnId, stringList(data.read));
+            if (typeof data.otherReads === 'number') otherReads.set(data.turnId, data.otherReads);
         } else if (data.kind === EntryKind.SkillFailure && typeof data.failure === 'string') {
             failures.set(data.failure, (failures.get(data.failure) ?? 0) + 1);
         }
     }
-    const report: ShadowReport = { turnsJudged: judged.size, turnsAwaitingOutcome: 0, suggested: 0, suggestedAndRead: 0, readNotSuggested: 0, failures };
-    for (const [turnId, suggested] of judged) {
-        const read = outcomes.get(turnId);
-        if (read === undefined) {
+    const report: ShadowReport = { turnsJudged: judged.size, turnsAwaitingOutcome: 0, suggested: 0, suggestedAndRead: 0, readNotSuggested: 0, otherSkillReads: 0, failures };
+    for (const [turnId, { answered, suggested }] of judged) {
+        const recorded = outcomes.get(turnId);
+        if (recorded === undefined) {
             report.turnsAwaitingOutcome++;
             continue;
         }
+        // Only a skill that was asked about and answered in this turn can be a hit or a miss. A read of any other
+        // skill says nothing about the model's judgment, so it is counted apart and never as "not suggested".
+        const read = recorded.filter(name => answered.includes(name));
         report.suggested += suggested.length;
         report.suggestedAndRead += suggested.filter(name => read.includes(name)).length;
         report.readNotSuggested += read.filter(name => !suggested.includes(name)).length;
+        report.otherSkillReads += (recorded.length - read.length) + (otherReads.get(turnId) ?? 0);
     }
     latencies.sort((left, right) => left - right);
     report.latencyP50Ms = percentile(latencies, 0.5);
@@ -113,6 +120,7 @@ export function formatReport(report: ShadowReport): string {
         `Skills suggested at ${suggestionThreshold} or above: ${report.suggested}`,
         `  of those, read by the model: ${report.suggestedAndRead} (${share})`,
         `Skills read that were not suggested: ${report.readNotSuggested}`,
+        `Other skill reads (not asked about; not counted above): ${report.otherSkillReads}`,
         `Backend latency: p50 ${report.latencyP50Ms ?? 'n/a'} ms, p95 ${report.latencyP95Ms ?? 'n/a'} ms`,
         `Failures: ${failures || 'none'}`,
         'Reads are counted only through the read tool; a skill file read with cat in bash is not counted.',

@@ -309,7 +309,9 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             const record: TurnRecord = {
                 turnId: randomUUID(),
                 turn,
+                asked: new Set(candidates.map(candidate => candidate.name)),
                 read: new Set(),
+                otherReads: 0,
                 readEarlier: candidates.filter(candidate => readSkills.has(candidate.name)).map(candidate => candidate.name),
             };
             current = record;
@@ -361,9 +363,16 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             const value = (event.input as { path?: unknown } | undefined)?.path;
             if (typeof value !== 'string' || basename(value) !== 'SKILL.md') return;
             const resolved = resolve(context.cwd, value.replace(/^@/, ''));
-            const skill = knownSkills.get(realPathOf(resolved) ?? resolved) ?? basename(dirname(resolved));
+            // Only corpus skills that were asked about are named. Any other skill's name (a user's own skill,
+            // a project's) stays out of the entries; such a read is only counted.
+            const skill = knownSkills.get(realPathOf(resolved) ?? resolved);
+            if (skill === undefined) {
+                if (current) current.otherReads++;
+                return;
+            }
             readSkills.add(skill);
-            current?.read.add(skill);
+            if (current?.asked.has(skill)) current.read.add(skill);
+            else if (current) current.otherReads++;
         } catch {
             /* fail open */
         }
@@ -376,7 +385,7 @@ export function registerSystemOne(pi: ExtensionAPI, dependencies: SystemOneDepen
             if (!finished) return;
             finished.readFinal = [...finished.read].sort();
             if (finished.decision) finished.decision.read = finished.readFinal;
-            pi.appendEntry(entryType, { kind: EntryKind.SkillOutcome, version: 1, turnId: finished.turnId, turn: finished.turn, read: finished.readFinal, readEarlier: finished.readEarlier });
+            pi.appendEntry(entryType, { kind: EntryKind.SkillOutcome, version: 1, turnId: finished.turnId, turn: finished.turn, read: finished.readFinal, readEarlier: finished.readEarlier, otherReads: finished.otherReads });
         } catch {
             /* fail open */
         }

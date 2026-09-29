@@ -12,7 +12,7 @@ import { BreakerState } from '../../.cratis/ai/harnesses/pi/extensions/cratis-sy
 import { CircuitBreaker } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/CircuitBreaker.ts';
 import { FileState } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/FileState.ts';
 import { FailureClass } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/FailureClass.ts';
-import { aggregateShadow } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/report.ts';
+import { aggregateShadow, formatReport } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/report.ts';
 import { SkillRelevanceMode } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/SkillRelevanceMode.ts';
 import { readUserConfigurationFile, userConfigurationPath, writeUserConfiguration } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/userConfigurationFile.ts';
 import { answering, answerBody, enabledProject, fakeServer, host, json, projectFixture, promptText, skillsIn } from './pi-system-one-helpers.ts';
@@ -1700,7 +1700,7 @@ test('skill relevance mode off asks nothing', async () => {
 
 // ---------------------------------------------------------------- shadow recording and the report
 
-test('shadow mode changes nothing, records ids and probabilities without the prompt, and records every SKILL.md read', async () => {
+test('shadow mode changes nothing, records ids and probabilities without the prompt, and records only reads of the skills it asked about', async () => {
     const sentinel = 'zebra-quartz-7731';
     const prompt = `${promptText} Reference ${sentinel}.`;
     await withServer(answering(id => id === 'skill-a' ? 0.91 : id === 'skill-b' ? 0.42 : 0.03), async server => {
@@ -1728,10 +1728,11 @@ test('shadow mode changes nothing, records ids and probabilities without the pro
             assert.equal(typeof judgment.turnId, 'string');
             assert.deepEqual(judgment.probabilities, { 'skill-a': 0.91, 'skill-b': 0.42, 'skill-c': 0.03 });
 
-            // The model reads skill-a (relative path), a skill nobody suggested from outside the corpus, and a
-            // skill it failed to read; it also reads ordinary files and runs a bash command.
+            // The model reads skill-a (relative path), a skill from outside the corpus, a corpus skill that was
+            // not asked about, and a skill it failed to read; it also reads ordinary files and runs a bash command.
             session.read('.cratis/ai/skills/skill-a/SKILL.md');
             session.read('elsewhere/personal-skill/SKILL.md');
+            session.read('.cratis/ai/skills/unasked-skill/SKILL.md');
             session.read('@.cratis/ai/skills/skill-b/SKILL.md', true);
             session.read('README.md');
             session.read('.cratis/ai/skills/skill-c/SKILL.md', false, 'bash');
@@ -1740,7 +1741,11 @@ test('shadow mode changes nothing, records ids and probabilities without the pro
             session.end();
 
             const [outcome] = session.entriesOfKind('skill-outcome');
-            assert.deepEqual(outcome, { kind: 'skill-outcome', version: 1, turnId: judgment.turnId, turn: 1, read: ['personal-skill', 'skill-a'], readEarlier: [] });
+            // Only the asked skill is named; the two others are counted, and their names are nowhere in the entries.
+            assert.deepEqual(outcome, { kind: 'skill-outcome', version: 1, turnId: judgment.turnId, turn: 1, read: ['skill-a'], readEarlier: [], otherReads: 2 });
+            assert.equal(JSON.stringify(session.entries).includes('personal-skill'), false);
+            assert.equal(JSON.stringify(session.entries).includes('unasked-skill'), false);
+            assert.match(await session.command('report'), /Other skill reads \(not asked about; not counted above\): 2/);
             assert.equal(JSON.stringify(session.entries).includes(sentinel), false, 'the prompt is never recorded');
             assert.equal(JSON.stringify(session.entries).includes('Reference'), false);
 
@@ -1875,10 +1880,10 @@ test('turning System One off while a request is out drops its result', async () 
 test('the report aggregates this session: suggestions, reads, unsuggested reads, latency and failures', () => {
     const entry = (data: Record<string, unknown>) => ({ type: 'custom', customType: 'cratis-system-one', data: { version: 1, ...data } });
     const judged = (turnId: string, latencyMs: number, probabilities: Record<string, number>) => entry({ kind: 'skill-relevance', turnId, latencyMs, probabilities });
-    const outcome = (turnId: string, read: string[]) => entry({ kind: 'skill-outcome', turnId, read });
+    const outcome = (turnId: string, read: string[], otherReads?: number) => entry({ kind: 'skill-outcome', turnId, read, otherReads });
     const report = aggregateShadow([
         judged('t1', 100, { a: 0.9, b: 0.6, c: 0.1 }), outcome('t1', ['a', 'x']),
-        judged('t2', 300, { a: 0.5, b: 0.49 }), outcome('t2', ['b']),
+        judged('t2', 300, { a: 0.5, b: 0.49 }), outcome('t2', ['b'], 2),
         judged('t3', 200, { a: 0.7 }),
         entry({ kind: 'skill-failure', turnId: 't4', failure: 'timeout' }),
         entry({ kind: 'skill-failure', turnId: 't5', failure: 'timeout' }),
@@ -1891,7 +1896,10 @@ test('the report aggregates this session: suggestions, reads, unsuggested reads,
     assert.equal(report.turnsAwaitingOutcome, 1);
     assert.equal(report.suggested, 3, 'a, b, then a (b at 0.49 is below the threshold)');
     assert.equal(report.suggestedAndRead, 1, 'only a in t1');
-    assert.equal(report.readNotSuggested, 2, 'x in t1 and b in t2');
+    // x was never asked about and answered in t1, so it is neither a hit nor a miss: it is only counted, apart.
+    assert.equal(report.readNotSuggested, 1, 'b in t2, which was asked, answered 0.49 and read');
+    assert.equal(report.otherSkillReads, 3, 'x in t1, plus the two the extension counted without naming in t2');
+    assert.match(formatReport(report), /Other skill reads \(not asked about; not counted above\): 3/);
     assert.equal(report.latencyP50Ms, 200);
     assert.equal(report.latencyP95Ms, 300);
     assert.deepEqual([...report.failures], [['timeout', 2], ['invalid-request', 1]]);
