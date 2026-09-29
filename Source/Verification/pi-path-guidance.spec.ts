@@ -13,11 +13,11 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPathGuidance from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/index.ts';
 import { standsDown } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/standDown.ts';
 import { skillsRead } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/skillReads.ts';
-import { skillTriggerKey } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
+import { skillTriggerGlobs, skillTriggerKey } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
 import { selectedSkillNames } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillSelection.ts';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import { globProblem } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
-import { skillPathProblems } from './skill-paths.ts';
+import { skillKeyProblems, skillPathProblems } from './skill-paths.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const extensionsRoot = join(repositoryRoot, '.cratis', 'ai', 'harnesses', 'pi', 'extensions');
@@ -45,7 +45,7 @@ function textOf(result: Result): string {
 function writeSkill(project: string, name: string, globs: string[], skillsRoot = join(project, '.cratis', 'ai', 'skills')): LoadedSkill {
     const directory = join(skillsRoot, name);
     mkdirSync(join(directory, 'references'), { recursive: true });
-    const paths = globs.length === 0 ? '' : `${skillTriggerKey}:\n${globs.map(glob => `  - "${glob}"\n`).join('')}`;
+    const paths = globs.length === 0 ? '' : `metadata:\n  ${skillTriggerKey}: "${globs.join(' ')}"\n`;
     writeFileSync(join(directory, 'SKILL.md'), `---\nname: ${name}\ndescription: Test skill.\n${paths}---\n\n# ${name}\n`);
     writeFileSync(join(directory, 'references', 'detail.md'), '# detail');
     return { name, filePath: join(directory, 'SKILL.md') };
@@ -658,18 +658,44 @@ test('the Pi package lists cratis-path-guidance and ships its shared helpers', (
     assert.ok(existsSync(join(extensionsRoot, 'shared', 'rules.ts')));
 });
 
-test('skill path hints must be non-empty valid globs under a Cratis-specific key, and skills without triggers are left alone', () => {
-    const skill = (paths: string) => `---\nname: x\ndescription: y\n${paths}---\n\nBody\n`;
+test('skill path hints under metadata must be a non-empty string of valid globs, and skills without triggers are left alone', () => {
+    const skill = (frontmatterLines: string) => `---\nname: x\ndescription: y\n${frontmatterLines}---\n\nBody\n`;
+    const hint = (value: string) => skill(`metadata:\n  ${skillTriggerKey}: ${value}\n`);
     assert.deepEqual(skillPathProblems('x/SKILL.md', skill('')), []);
-    assert.deepEqual(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/for_*/**/*.cs"\n  - "Documentation/**/*.{md,mdx}"\n`)), []);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n`))[0], /declares 'cratis-hint-paths' without any glob/);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - ""\n`))[0], /invalid 'cratis-hint-paths' entry '': it is empty/);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/*"\n`))[0], /matches every file/);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/*.{md"\n`))[0], /unbalanced braces/);
-    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "/abs/**/*.cs"\n`))[0], /repository-relative/);
+    assert.deepEqual(skillPathProblems('x/SKILL.md', skill('metadata:\n  other: value\n')), []);
+    assert.deepEqual(skillPathProblems('x/SKILL.md', hint('"**/for_*/**/*.cs"')), []);
+    assert.deepEqual(skillPathProblems('x/SKILL.md', hint('"**/for_*/**/*.cs Documentation/**/*.{md,mdx}"')), []);
+    assert.match(skillPathProblems('x/SKILL.md', hint('""'))[0], /declares 'metadata.cratis-hint-paths' without any glob/);
+    assert.match(skillPathProblems('x/SKILL.md', hint('"   "'))[0], /declares 'metadata.cratis-hint-paths' without any glob/);
+    assert.match(skillPathProblems('x/SKILL.md', hint('"**/*"'))[0], /matches every file/);
+    assert.match(skillPathProblems('x/SKILL.md', hint('"**/for_*/**/*.cs **/*.{md"'))[0], /invalid 'metadata.cratis-hint-paths' entry '\*\*\/\*\.\{md': it .*unbalanced braces/);
+    assert.match(skillPathProblems('x/SKILL.md', hint('"/abs/**/*.cs"'))[0], /repository-relative/);
     assert.equal(globProblem('**/for_*/**/*.cs'), undefined);
+    // A top-level key is outside the Agent Skills set, so it is refused rather than read as a hint, whatever its shape.
+    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}:\n  - "**/for_*/**/*.cs"\n`))[0], /declares 'cratis-hint-paths' as a top-level key, which Agent Skills does not allow; declare it under 'metadata'/);
+    assert.match(skillPathProblems('x/SKILL.md', skill(`${skillTriggerKey}: "**/for_*/**/*.cs"\n`))[0], /as a top-level key/);
     // A plain `paths` key is Claude Code's conditional-activation switch, so it is refused rather than read as a hint.
-    assert.match(skillPathProblems('x/SKILL.md', skill('paths:\n  - "**/for_*/**/*.cs"\n'))[0], /declares 'paths', which Claude Code treats as conditional activation; use 'cratis-hint-paths'/);
+    assert.match(skillPathProblems('x/SKILL.md', skill('paths:\n  - "**/for_*/**/*.cs"\n'))[0], /declares 'paths', which Claude Code treats as conditional activation; use 'metadata.cratis-hint-paths'/);
+});
+
+test('metadata.cratis-hint-paths is read as whitespace-separated globs, keeping the commas of brace sets', () => {
+    const skill = (frontmatterLines: string) => `---\nname: x\ndescription: y\n${frontmatterLines}---\n\nBody\n`;
+    assert.deepEqual(skillTriggerGlobs(skill('')), []);
+    assert.deepEqual(skillTriggerGlobs(skill(`metadata:\n  ${skillTriggerKey}: "**/for_*/**/*.ts **/for_*/**/*.tsx"\n`)), ['**/for_*/**/*.ts', '**/for_*/**/*.tsx']);
+    assert.deepEqual(skillTriggerGlobs(skill(`metadata:\n  ${skillTriggerKey}: "**/Samples/**/*.{cs,ts,tsx}  **/Documentation/**/*.{md,mdx}"\n`)), ['**/Samples/**/*.{cs,ts,tsx}', '**/Documentation/**/*.{md,mdx}']);
+    // Neighbouring metadata entries and later top-level keys do not leak into the value.
+    assert.deepEqual(skillTriggerGlobs(skill(`metadata:\n  author: cratis\n  ${skillTriggerKey}: "a/*.cs"\n  version: "1"\nlicense: MIT\n`)), ['a/*.cs']);
+    // A top-level key is not a hint.
+    assert.deepEqual(skillTriggerGlobs(skill(`${skillTriggerKey}:\n  - "a/*.cs"\n`)), []);
+});
+
+test('skill frontmatter may only use the Agent Skills top-level keys', () => {
+    const skill = (frontmatterLines: string) => `---\nname: x\ndescription: y\n${frontmatterLines}---\n\nBody\n`;
+    assert.deepEqual(skillKeyProblems('x/SKILL.md', skill('license: MIT\ncompatibility: any\nallowed-tools: Read Bash\nmetadata:\n  anything: "goes"\n')), []);
+    assert.match(skillKeyProblems('x/SKILL.md', skill('version: 1\n'))[0], /top-level frontmatter key 'version', which Agent Skills does not allow \(allowed: name, description, license, compatibility, metadata, allowed-tools\)/);
+    assert.equal(skillKeyProblems('x/SKILL.md', skill('version: 1\nauthor: me\n')).length, 2);
+    // The two known misplacements have their own, more specific messages.
+    assert.deepEqual(skillKeyProblems('x/SKILL.md', skill(`${skillTriggerKey}: "a/*.cs"\npaths: "b/*.cs"\n`)), []);
 });
 
 test('verify.ts rejects a skill with a bad paths entry and accepts the corpus without it', () => {
@@ -685,15 +711,25 @@ test('verify.ts rejects a skill with a bad paths entry and accepts the corpus wi
 
         const skillFile = join(workspace, '.cratis', 'ai', 'skills', 'cratis-specifications-csharp', 'SKILL.md');
         const original = readFileSync(skillFile, 'utf8');
-        assert.match(original, /\ncratis-hint-paths:\n/, 'the corpus skill declares a trigger');
+        assert.match(original, /\nmetadata:\n  cratis-hint-paths: "/, 'the corpus skill declares a trigger under metadata');
         assert.doesNotMatch(original, /\npaths:/, "the plain 'paths' key is Claude Code's conditional activation");
         const baseline = verify();
         assert.equal(baseline.status, 0, `${baseline.stdout}${baseline.stderr}`);
 
-        writeFileSync(skillFile, original.replace('  - "**/for_*/**/*.cs"', '  - "**/*.{cs"'));
+        writeFileSync(skillFile, original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"'));
         const rejected = verify();
         assert.equal(rejected.status, 1, `${rejected.stdout}${rejected.stderr}`);
-        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'cratis-hint-paths' entry/);
+        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'metadata\.cratis-hint-paths' entry '\*\*\/\*\.\{cs'/);
+
+        writeFileSync(skillFile, original.replace('metadata:\n  cratis-hint-paths:', 'cratis-hint-paths:'));
+        const topLevel = verify();
+        assert.equal(topLevel.status, 1, `${topLevel.stdout}${topLevel.stderr}`);
+        assert.match(topLevel.stderr, /cratis-specifications-csharp\/SKILL\.md declares 'cratis-hint-paths' as a top-level key/);
+
+        writeFileSync(skillFile, original.replace('license: MIT\n', 'license: MIT\nversion: 1\n'));
+        const unknown = verify();
+        assert.equal(unknown.status, 1, `${unknown.stdout}${unknown.stderr}`);
+        assert.match(unknown.stderr, /cratis-specifications-csharp\/SKILL\.md declares top-level frontmatter key 'version'/);
     } finally {
         rmSync(workspace, { recursive: true, force: true });
     }

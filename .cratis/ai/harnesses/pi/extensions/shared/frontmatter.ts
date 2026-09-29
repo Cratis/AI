@@ -29,3 +29,27 @@ export function frontmatter(content: string): Map<string, string[]> {
     }
     return fields;
 }
+
+/**
+ * Reads a nested string map: the indented `  key: value` lines under a top-level `name:` key, as Agent Skills
+ * `metadata` uses. Values stay whole strings (no comma splitting) and are unquoted. Returns `undefined` when the
+ * key is absent or the frontmatter is unterminated.
+ */
+export function frontmatterMap(content: string, name: string): Map<string, string> | undefined {
+    if (!content.startsWith('---\n')) return undefined;
+    const end = content.indexOf('\n---\n', 4);
+    if (end < 0) return undefined;
+    let map: Map<string, string> | undefined;
+    let inside = false;
+    for (const line of content.slice(4, end).split('\n')) {
+        const top = /^([A-Za-z][\w-]*):/.exec(line);
+        if (top) {
+            inside = top[1] === name;
+            if (inside) map ??= new Map();
+            continue;
+        }
+        const entry = /^\s+([A-Za-z][\w-]*):\s*(.*)$/.exec(line);
+        if (inside && entry) map!.set(entry[1], unquote(entry[2]));
+    }
+    return map;
+}

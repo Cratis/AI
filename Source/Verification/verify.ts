@@ -9,7 +9,7 @@ import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '..
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
-import { skillPathProblems } from './skill-paths.ts';
+import { skillKeyProblems, skillPathProblems } from './skill-paths.ts';
 
 interface Profile {
     id: string;
@@ -150,6 +150,7 @@ for (const directory of skillDirectories) {
     const metadata = frontmatter(skillContent);
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, skillFile)} must declare name and description.`);
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
+    failures.push(...skillKeyProblems(relative(root, skillFile), skillContent));
     failures.push(...skillPathProblems(relative(root, skillFile), skillContent));
 }
 
