@@ -13,24 +13,24 @@ This description is published verbatim as the release notes of a release-bound p
 
 ## Added
 
-- Short statement of what was added (#123)
+- Short statement of what was added
 
 ## Changed
 
-- Short statement of what changed (#123)
+- Short statement of what changed
 
 ## Fixed
 
-- Short statement of what was fixed (#123)
+- Short statement of what was fixed
 
 ## Removed
 
-- Short statement of what was removed (#123)
+- Short statement of what was removed
 
 ## Security
 
-- Short statement of the security fix (#123)
+- Short statement of the security fix
 
 ## Deprecated
 
-- Short statement of what is deprecated (#123)
+- Short statement of what is deprecated
