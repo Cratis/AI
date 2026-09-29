@@ -99,7 +99,10 @@ or through any `.pi/extensions/cratis-rules` that is not the current universal-o
 version, because every earlier version delivers path-scoped rules itself (in the
 system prompt or on `tool_result`); one that cannot be recognised counts as
 delivering them. Until `cratis ai update` installs the managed copy, such an older
-installation keeps its rules but not the skill hints, and no rule is delivered twice.
+installation keeps its rules in full sessions but not the skill hints, and no rule is
+delivered twice. Subagents that load only the allowlisted extensions below get no
+path guidance in such an installation until `cratis ai update` installs the managed
+copy.
 
 `cratis-rules` puts every universal rule in the system prompt, about 26k tokens
 on every turn. A pi-subagents agent definition (`@tintinweb/pi-subagents`) with an

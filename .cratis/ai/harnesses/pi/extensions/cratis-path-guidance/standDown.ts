@@ -14,7 +14,8 @@ import { join } from 'node:path';
  *
  * Only a file that is recognisably the current one, importing the shared rules and having no `tool_result`
  * handler, is trusted not to deliver path rules; anything else, including a file that cannot be read, is assumed
- * to, because a duplicated rule costs less than a rule lost to a guess.
+ * to. Standing down on a guess costs allowlisted subagents their path guidance until `cratis ai update`, which
+ * is cheaper than duplicating every path-scoped rule in every full session.
  */
 function managedRulesDeliverPaths(cwd: string): boolean {
     const path = join(cwd, '.pi', 'extensions', 'cratis-rules', 'index.ts');

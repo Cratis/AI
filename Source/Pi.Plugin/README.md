@@ -53,7 +53,9 @@ in sessions without a UI. It stands down when a managed installation
 `.pi/extensions/cratis-path-guidance`, or through any `.pi/extensions/cratis-rules`
 that is not the current universal-only version, since every earlier version
 delivers path-scoped rules itself. A `cratis-rules` that cannot be recognised
-counts as one that delivers them.
+counts as one that delivers them. In such an older managed installation, a subagent
+that loads only the allowlisted extensions below gets no path guidance until
+`cratis ai update` installs the managed `cratis-path-guidance`.
 
 The universal rules add about 26k tokens to every session. A pi-subagents agent
 (`@tintinweb/pi-subagents`) with an `extensions:` allowlist loads only the
