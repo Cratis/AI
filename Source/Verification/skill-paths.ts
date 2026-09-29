@@ -92,6 +92,8 @@ function knownFormProblems(subject: string, content: string): string[] {
     const flowMap = `${subject} declares 'metadata' inline (a flow map), which the path hints do not read; put it on its own lines and ${howToWrite}.`;
     // A flow map that continues on the following lines reads as entries, but is still not the supported block form.
     if (entry && block.inline.startsWith('{')) return [flowMap];
+    // An anchor or a tag on the key's line is valid YAML but is not read: the hint below it would be lost.
+    if (entry && /^[&!]/.test(block.inline)) return [`${subject} has an anchor or tag after 'metadata:', which the path hints do not read; nothing (no anchor or tag) may follow 'metadata:' on its line, so ${howToWrite}.`];
     if (!entry) return flowMapKey.test(block.inline) ? [flowMap] : [];
     const reason = unsupportedForm(entry.raw, entry.indent, entry.continues);
     return reason ? [`${subject} has an unsupported 'metadata.${skillTriggerKey}' value (${reason}); ${howToWrite}.`] : [];

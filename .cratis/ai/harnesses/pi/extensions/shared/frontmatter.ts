@@ -64,6 +64,7 @@ export function frontmatterBlock(content: string, name: string): FrontmatterBloc
     let block: FrontmatterBlock | undefined;
     let inside = false;
     let last: FrontmatterEntry | undefined;
+    let skipAbove: number | undefined;
     for (const line of text.split('\n')) {
         // Any line that starts in column 0 with something other than a comment ends the current block, whatever its
         // spelling (a quoted key, a space before the colon). Only a real `name:` key starts this block.
@@ -71,17 +72,26 @@ export function frontmatterBlock(content: string, name: string): FrontmatterBloc
             const top = /^([A-Za-z][\w-]*):(.*)$/.exec(line);
             inside = top?.[1] === name;
             last = undefined;
-            if (inside) block ??= { inline: top![2].trim(), entries: new Map() };
+            skipAbove = undefined;
+            // A comment after the key (`metadata: # note`) is not a value, so the block below it is still the block form.
+            if (inside) block ??= { inline: /^\s+#/.test(top![2]) ? '' : top![2].trim(), entries: new Map() };
             continue;
         }
         if (!inside || !block || line.trim() === '' || /^\s*#/.test(line)) continue;
         const indent = /^ *\t/.test(line) ? -1 : /^( *)/.exec(line)![1].length;
+        // Lines under a sibling key the entry pattern does not read (a quoted key, `? complex`) are not entries.
+        if (skipAbove !== undefined && indent > skipAbove) continue;
+        skipAbove = undefined;
         const entry = /^\s+([A-Za-z][\w-]*):(.*)$/.exec(line);
         if (entry && (!last || indent <= last.indent)) {
             last = { indent, raw: entry[2].trim(), continues: false };
             block.entries.set(entry[1], last);
-        } else if (last) {
+        } else if (last && (indent < 0 || indent > last.indent)) {
             last.continues = true;
+        } else {
+            // At the entry's indentation or less, so a sibling key ends the entry even when its spelling is not read here.
+            last = undefined;
+            skipAbove = indent;
         }
     }
     return block;

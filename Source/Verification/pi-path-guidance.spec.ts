@@ -901,6 +901,52 @@ test('a flow map spread over lines gives the runtime no hint, even a nested one'
     }
 });
 
+test('a comment after metadata: is not a value, so the hint below it is read, while an anchor or a tag is refused by name', () => {
+    const hint = `  ${skillTriggerKey}: "a/*.cs"\n`;
+    for (const opener of ['metadata: # c', 'metadata:   # c', 'metadata: #']) {
+        const content = skillWith(`${opener}\n${hint}`);
+        assert.deepEqual(skillTriggerGlobs(content), ['a/*.cs'], opener);
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', content), [], opener);
+    }
+    for (const opener of ['metadata: &m', 'metadata: !!map', 'metadata: &m # c']) {
+        const problems = skillFrontmatterProblems('x/SKILL.md', skillWith(`${opener}\n${hint}`));
+        assert.equal(problems.length, 1, `${opener}: ${problems.join(' | ')}`);
+        assert.match(problems[0], /nothing \(no anchor or tag\) may follow 'metadata:' on its line/, opener);
+    }
+});
+
+test('a sibling metadata key the entry pattern does not read ends the hint entry, in either order', () => {
+    const hint = `  ${skillTriggerKey}: "a/*.cs"\n`;
+    const siblings: Array<[string, string]> = [
+        ['a dotted key', '  cratis.version: "1"\n'],
+        ['a quoted key', '  "quoted key": "1"\n'],
+        ['a single-quoted key', "  'quoted key': \"1\"\n"],
+        ['a numeric key', '  1: "x"\n'],
+        ['an explicit key', '  ? complex\n'],
+        ['a nested value under a quoted key', '  "quoted key":\n    inner: "y"\n'],
+    ];
+    for (const [form, sibling] of siblings) {
+        for (const [order, lines] of [['after', `${hint}${sibling}`], ['before', `${sibling}${hint}`]]) {
+            const content = hintUnder(lines);
+            assert.deepEqual(skillTriggerGlobs(content), ['a/*.cs'], `${form}, ${order}`);
+            const problems = skillFrontmatterProblems('x/SKILL.md', content).join(' | ');
+            assert.doesNotMatch(problems, /several lines|following lines|reads differently/, `${form}, ${order}: ${problems}`);
+            assert.equal(frontmatterBlock(content, 'metadata')!.entries.get(skillTriggerKey)!.continues, false, `${form}, ${order}`);
+        }
+    }
+    // Spellings that are valid metadata give no problem at all.
+    for (const [form, sibling] of siblings.slice(0, 3)) {
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', hintUnder(`${hint}${sibling}`)), [], form);
+    }
+    // The actual problem is what gets reported: a non-string key, or a value that is not a string.
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hintUnder(`${hint}  1: "x"\n`)).join(' | '), /metadata key '1', which is not a string/);
+    assert.match(skillFrontmatterProblems('x/SKILL.md', hintUnder(`${hint}  "quoted key":\n    inner: "y"\n`)).join(' | '), /metadata\.quoted key must be a string/);
+    // A more-indented line still belongs to the entry above it.
+    const spread = hintUnder(`  ${skillTriggerKey}: "a/*.cs\n    b/*.cs"\n`);
+    assert.equal(frontmatterBlock(spread, 'metadata')!.entries.get(skillTriggerKey)!.continues, true);
+    assert.deepEqual(skillTriggerGlobs(spread), []);
+});
+
 test('the flow map message is given for a flow-map hint only, not when the name appears in some other text', () => {
     const flow = /declares 'metadata' inline \(a flow map\)/;
     const text = skillWith(`metadata: {note: "see ${skillTriggerKey}"}\n`);
