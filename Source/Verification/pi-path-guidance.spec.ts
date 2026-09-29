@@ -738,14 +738,44 @@ test('every other hint form is reported with how to write it, and yields no trig
     }
 });
 
-test('a hint nested deeper than metadata, or in a flow map, is not read and the flow map is reported', () => {
+test('a hint nested deeper than metadata is refused as a non-string metadata value, and a flow map is reported', () => {
     const nested = hintUnder(`  other:\n    ${skillTriggerKey}: "a/*.cs"\n`);
-    assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', nested), []);
+    const problems = skillFrontmatterProblems('x/SKILL.md', nested);
+    assert.equal(problems.length, 1, problems.join(' | '));
+    assert.match(problems[0], /metadata\.other must be a string \(Agent Skills metadata maps strings to strings\)/);
     assert.deepEqual(skillTriggerGlobs(nested), []);
     const flow = skillWith(`metadata: {${skillTriggerKey}: "a/*.cs"}\n`);
     assert.match(skillFrontmatterProblems('x/SKILL.md', flow)[0], /declares 'metadata' inline \(a flow map\).*write it as one double-quoted string/);
     assert.deepEqual(skillTriggerGlobs(flow), []);
     assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', skillWith('metadata: {author: cratis}\n')), []);
+});
+
+test('metadata must map strings to strings, and every other shape is reported by name', () => {
+    const shapes: Array<[string, string, RegExp]> = [
+        ['a scalar', 'metadata: cratis\n', /'metadata' that is a string; it must be a map of strings to strings \(Agent Skills metadata maps strings to strings\)/],
+        ['a number', 'metadata: 42\n', /'metadata' that is a number; it must be a map of strings to strings/],
+        ['a list', 'metadata:\n  - author\n  - version\n', /'metadata' that is a list; it must be a map of strings to strings/],
+        ['null', 'metadata:\n', /'metadata' that is null; it must be a map of strings to strings/],
+        ['a number value', 'metadata:\n  version: 1\n', /metadata\.version must be a string \(Agent Skills metadata maps strings to strings\)/],
+        ['a boolean value', 'metadata:\n  draft: true\n', /metadata\.draft must be a string/],
+        ['a null value', 'metadata:\n  author:\n', /metadata\.author must be a string/],
+        ['a list value', 'metadata:\n  tags:\n    - a\n', /metadata\.tags must be a string/],
+        ['a nested map', 'metadata:\n  nested:\n    inner: "y"\n', /metadata\.nested must be a string/],
+    ];
+    for (const [shape, lines, message] of shapes) {
+        const problems = skillFrontmatterProblems('x/SKILL.md', skillWith(lines));
+        assert.equal(problems.length, 1, `${shape}: ${problems.join(' | ')}`);
+        assert.match(problems[0], message, shape);
+    }
+    // Every offending value is named, and a valid hint next to a bad value is not lost or duplicated.
+    const several = skillFrontmatterProblems('x/SKILL.md', skillWith(`metadata:\n  version: 1\n  ${skillTriggerKey}: "a/*.cs"\n  nested:\n    inner: "y"\n`));
+    assert.equal(several.length, 2, several.join(' | '));
+    assert.match(several[0], /metadata\.version must be a string/);
+    assert.match(several[1], /metadata\.nested must be a string/);
+    // Absent, or a map of strings, is fine, including quoted numbers and an empty flow map.
+    for (const lines of ['', 'metadata:\n  version: "1"\n  author: cratis\n', 'metadata: {}\n', 'metadata: {author: cratis}\n']) {
+        assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', skillWith(lines)), [], lines);
+    }
 });
 
 test('an empty hint string is reported with the supported form', () => {

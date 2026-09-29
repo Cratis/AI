@@ -45,6 +45,29 @@ function hintValueProblems(subject: string, value: unknown): string[] {
     });
 }
 
+/** What a parsed YAML value is, named for a message. */
+function kindOf(value: unknown): string {
+    if (value === null || value === undefined) return 'null';
+    if (Array.isArray(value)) return 'a list';
+    if (typeof value === 'object') return 'a nested map';
+    return `a ${typeof value}`;
+}
+
+/**
+ * The problems with the shape of `metadata`: Agent Skills maps strings to strings, so it must be absent or a plain map
+ * whose values are all strings. The hint's own value is left to `hintValueProblems`, which explains what it must hold.
+ */
+function metadataShapeProblems(subject: string, fields: Record<string, unknown>): string[] {
+    if (!Object.hasOwn(fields, 'metadata')) return [];
+    const metadata = fields.metadata;
+    if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
+        return [`${subject} has 'metadata' that is ${kindOf(metadata)}; it must be a map of strings to strings (Agent Skills metadata maps strings to strings).`];
+    }
+    return Object.entries(metadata)
+        .filter(([key, value]) => key !== skillTriggerKey && typeof value !== 'string')
+        .map(([key, value]) => `${subject} declares 'metadata.${key}' as ${kindOf(value)}; metadata.${key} must be a string (Agent Skills metadata maps strings to strings).`);
+}
+
 /**
  * The clear message for the forms the small runtime reader recognizes but does not support (a block scalar, an
  * unquoted or commented value, a wrong indent, a flow map), or an empty list when it recognizes none. This reads the
@@ -72,6 +95,7 @@ function knownFormProblems(subject: string, content: string): string[] {
  * - The top-level keys, taken from the parse, must be within the Agent Skills set. A top-level `cratis-hint-paths` and
  *   a plain `paths` have their own messages: `paths` is Claude Code's conditional activation and would hide the skill
  *   from it.
+ * - `metadata` is optional; when present it must be a map whose values are all strings, as Agent Skills requires.
  * - `metadata.cratis-hint-paths` is optional; when present it must be a non-empty string whose globs are each valid.
  * - Whatever the YAML says, the globs the runtime reader produces must equal the YAML value split on whitespace. Any
  *   difference, including a YAML value the runtime does not read at all, is an error that names the one supported
@@ -103,6 +127,7 @@ export function skillFrontmatterProblems(subject: string, content: string): stri
             .map(key => `${subject} declares top-level frontmatter key '${key}', which Agent Skills does not allow (allowed: ${allowedSkillKeys.join(', ')}); put vendor-specific values under 'metadata'.`),
         ...keys.includes(skillTriggerKey) ? [`${subject} declares '${skillTriggerKey}' as a top-level key, which Agent Skills does not allow; declare it under 'metadata' as a string of whitespace-separated globs.`] : [],
         ...keys.includes('paths') ? [`${subject} declares 'paths', which Claude Code treats as conditional activation; use 'metadata.${skillTriggerKey}' for path hints.`] : [],
+        ...metadataShapeProblems(subject, fields),
         ...known,
     ];
     const metadata = fields.metadata;
