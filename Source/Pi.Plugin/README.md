@@ -39,17 +39,21 @@ because Claude Code gives a plain `paths` key its own meaning.) A skill is hinte
 most once per session and not when it is already in context: read (a shell command
 counts only when `cat`, `sed`, `head`, `tail`, `less`, `bat`, `rg` or `grep` opens
 its `SKILL.md` or a file under `references/`), preloaded by pi-subagents, or
-expanded by `/skill:name`. The skills considered are the ones Pi loaded; when Pi
-reports none (for example a pi-subagents agent with `skills: false`), the skills
-that the repository's `.cratis/ai.json` selects stand in, and none if that
-selection cannot be resolved. Rules follow the same language and documentation
-selection as the system prompt. Nothing is blocked and the system prompt is
-untouched. The system prompt carries only the universal rules, so path-scoped
-rules are never delivered twice. The extension works in sessions without a UI.
-It stands down when a managed installation (`.cratis/ai.manifest.json`) already
-delivers path guidance, through its own `.pi/extensions/cratis-path-guidance` or
-through an older `.pi/extensions/cratis-rules` that still delivers path-scoped
-rules.
+expanded by `/skill:name`. A pi-subagents header without the skill's text (its
+loader cannot read a symlinked `.pi/skills`) does not count as preloaded. The
+skills considered are the ones Pi loaded plus the skills the repository selected
+(`.cratis/ai.json`), so a session whose Pi skill list holds only personal skills,
+or none (for example `skills: false`), still gets hints; an unselected skill is
+never hinted, and none is added if the selection cannot be resolved. Rules follow
+the same language and documentation selection as the system prompt. Nothing is
+blocked and the system prompt is untouched. The system prompt carries only the
+universal rules, so path-scoped rules are not delivered twice. The extension works
+in sessions without a UI. It stands down when a managed installation
+(`.cratis/ai.manifest.json`) already delivers path guidance: through its own
+`.pi/extensions/cratis-path-guidance`, or through any `.pi/extensions/cratis-rules`
+that is not the current universal-only version, since every earlier version
+delivers path-scoped rules itself. A `cratis-rules` that cannot be recognised
+counts as one that delivers them.
 
 The universal rules add about 26k tokens to every session. A pi-subagents agent
 (`@tintinweb/pi-subagents`) with an `extensions:` allowlist loads only the

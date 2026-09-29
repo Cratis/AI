@@ -4,12 +4,26 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** Whether a managed `cratis-rules` still delivers path-scoped rules itself, as versions before `cratis-path-guidance` did. */
+/**
+ * Whether a managed `cratis-rules` delivers path-scoped rules itself, which is every generation but the current one:
+ *
+ * - `6b0bb54`, `5b048c6`: `before_agent_start` concatenates every rule into the system prompt;
+ * - `aca9c6b`, `59362cf`, `1937b06`, `eec744a`: universal rules in the system prompt, path-scoped rules on
+ *   `tool_result`;
+ * - current: universal rules only, taken from `../shared/rules.ts`, with no `tool_result` handler.
+ *
+ * Only a file that is recognisably the current one, importing the shared rules and having no `tool_result`
+ * handler, is trusted not to deliver path rules; anything else, including a file that cannot be read, is assumed
+ * to, because a duplicated rule costs less than a rule lost to a guess.
+ */
 function managedRulesDeliverPaths(cwd: string): boolean {
+    const path = join(cwd, '.pi', 'extensions', 'cratis-rules', 'index.ts');
+    if (!existsSync(path)) return false;
     try {
-        return readFileSync(join(cwd, '.pi', 'extensions', 'cratis-rules', 'index.ts'), 'utf8').includes("'tool_result'");
+        const content = readFileSync(path, 'utf8');
+        return !content.includes("'../shared/rules.ts'") || content.includes('tool_result');
     } catch {
-        return false;
+        return true;
     }
 }
 
@@ -19,10 +33,11 @@ function managedRulesDeliverPaths(cwd: string): boolean {
  * is never delivered twice, whichever versions are mixed:
  *
  * - the managed `cratis-path-guidance` exists: it delivers rules and hints;
- * - an older managed `cratis-rules` exists, which delivers path-scoped rules on `tool_result` itself: the packaged
- *   copy would repeat every rule, so it yields until `cratis ai update` installs the managed copy;
- * - a managed `cratis-rules` that only injects universal rules, or no managed Pi extensions at all: nothing else
- *   delivers path guidance, so the packaged copy stays active.
+ * - an older managed `cratis-rules` exists, which delivers path-scoped rules itself, in the system prompt or on
+ *   `tool_result`: the packaged copy would repeat every rule, so it yields until `cratis ai update` installs the
+ *   managed copy;
+ * - a current managed `cratis-rules` that only injects universal rules, or no managed Pi extensions at all:
+ *   nothing else delivers path guidance, so the packaged copy stays active.
  *
  * The managed copy never stands down.
  */

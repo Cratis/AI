@@ -594,14 +594,26 @@ test('the packaged copy stands down whenever a managed installation already deli
         assert.equal(standsDown(true, project), true, 'managed cratis-path-guidance delivers rules and hints');
         assert.equal(standsDown(false, project), false, 'the managed copy never stands down');
 
-        // An installation made before cratis-path-guidance: its cratis-rules still delivers path-scoped rules.
+        // Installations made before cratis-path-guidance: every historical cratis-rules delivers path-scoped rules itself.
         rmSync(join(project, '.pi'), { recursive: true });
         assert.equal(standsDown(true, project), false, 'manifest without any managed Pi extension: nothing else delivers guidance');
-        managedExtension('cratis-rules', "pi.on('before_agent_start', () => undefined);\npi.on('tool_result', () => undefined);\n");
-        assert.equal(standsDown(true, project), true, 'an older managed cratis-rules would deliver every path rule twice');
+        const generations: Record<string, string> = {
+            // 6b0bb54, 5b048c6: every rule concatenated into the system prompt on before_agent_start.
+            'concatenates every rule': "import { readdirSync } from 'node:fs';\nexport function managedRules(cwd: string): string { return ''; }\nexport default function (pi) {\n    pi.on('before_agent_start', (event, context) => ({ systemPrompt: `${event.systemPrompt}\\n\\n${managedRules(context.cwd)}` }));\n}\n",
+            // aca9c6b, 59362cf: universal rules in the system prompt, path-scoped rules on tool_result (read, write, edit).
+            'tool_result for read, write and edit': "export function universalRules(cwd) { return []; }\nexport default function (pi) {\n    pi.on('session_start', () => {});\n    pi.on('before_agent_start', () => undefined);\n    pi.on('tool_result', () => undefined);\n}\n",
+            // 1937b06, eec744a: the same, also for bash and re-delivered after compaction.
+            'tool_result for bash and compaction': "function touchedPaths() { return []; }\nexport default function (pi) {\n    pi.on('session_compact', () => {});\n    pi.on('before_agent_start', () => undefined);\n    pi.on(\"tool_result\", () => undefined);\n}\n",
+        };
+        for (const [generation, content] of Object.entries(generations)) {
+            managedExtension('cratis-rules', content);
+            assert.equal(standsDown(true, project), true, `cratis-rules that ${generation} would deliver every path rule twice`);
+        }
+        managedExtension('cratis-rules', '');
+        assert.equal(standsDown(true, project), true, 'an unrecognisable cratis-rules is not trusted');
 
-        // A current cratis-rules delivers only universal rules, so the packaged copy is the only source of path guidance.
-        managedExtension('cratis-rules', "pi.on('before_agent_start', () => undefined);\n");
+        // The current cratis-rules delivers only universal rules, so the packaged copy is the only source of path guidance.
+        managedExtension('cratis-rules', readFileSync(join(extensionsRoot, 'cratis-rules', 'index.ts'), 'utf8'));
         assert.equal(standsDown(true, project), false, 'universal-only cratis-rules does not deliver path rules');
         managedExtension('cratis-path-guidance', '');
         assert.equal(standsDown(true, project), true, 'a current managed installation');
