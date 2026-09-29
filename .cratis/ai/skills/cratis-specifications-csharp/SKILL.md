@@ -2,7 +2,7 @@
 name: cratis-specifications-csharp
 description: Write C# specifications with Cratis.Specifications using the Establish/Because/should_ pattern and the for_/when_/and_ folder hierarchy. Use when adding or restructuring C# specs in any Cratis repository, choosing between an isolated unit spec and an in-process scenario spec, or building reusable given/ contexts. Do not use for TypeScript or React specs, and do not use it to decide what a command, projection, or reactor should do.
 license: MIT
-paths:
+cratis-hint-paths:
   - "**/for_*/**/*.cs"
 ---
 

@@ -73,16 +73,29 @@ file at the moment the file is touched, so it costs almost nothing per session:
   attached to the tool result the first time that file is touched in a session.
   `cratis-rules` no longer delivers them; it keeps only the universal rules in
   the system prompt.
-- **Skill hints.** A skill declares trigger globs in its `SKILL.md` `paths`
-  frontmatter. After a successful `write` or `edit` of a matching file, one short
-  advisory line names the skill, its `SKILL.md` and the matching glob. Each skill
-  is hinted at most once per session, only when the session has the skill, and
-  not when the skill was already read (with the `read` tool or through a shell
-  command). Hints never block a call and never touch the system prompt.
+- **Skill hints.** A skill declares trigger globs in the `cratis-hint-paths` list of its
+  `SKILL.md` frontmatter. The key is Cratis-specific on purpose: Claude Code reads a
+  plain `paths` key in `SKILL.md` as conditional activation and would hide the skill
+  until a matching file is touched. After a successful `write` or `edit` of a
+  matching file, one advisory line names every matching skill with its glob and its
+  `SKILL.md`. Each skill is hinted at most once per session. A skill is not hinted
+  when it is already in context: read in the session (a shell command counts only
+  when a reader such as `cat`, `sed`, `head`, `tail`, `less`, `bat`, `rg` or `grep`
+  opens its `SKILL.md` or a file under `references/`), preloaded by pi-subagents
+  (`skills: a, b`), or expanded by `/skill:name`. The skills considered are the ones
+  Pi loaded for the session. When Pi reports none (for example a pi-subagents agent
+  with `skills: false`), the repository's selected skills stand in: the managed
+  `.cratis/ai/skills`, or from the packaged extension the skills that
+  `.cratis/ai.json` selects, and none if that selection cannot be resolved. Hints
+  never block a call and never touch the system prompt.
 
-The extension works in a session without a UI and without `cratis-rules`, and the
-packaged copy stands down when the repository has its own
-`.pi/extensions/cratis-path-guidance` installation.
+The extension works in a session without a UI and without `cratis-rules`. The
+packaged copy stands down when a managed installation (`.cratis/ai.manifest.json`)
+already delivers path guidance: through its own `.pi/extensions/cratis-path-guidance`,
+or through an older `.pi/extensions/cratis-rules` that still delivers path-scoped
+rules itself. Until `cratis ai update` installs the managed copy, such an older
+installation therefore keeps its rules but not the skill hints, and nothing is
+delivered twice.
 
 `cratis-rules` puts every universal rule in the system prompt, about 26k tokens
 on every turn. A pi-subagents agent definition (`@tintinweb/pi-subagents`) with an

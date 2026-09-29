@@ -33,13 +33,23 @@ managed corpus.
 
 The packaged `cratis-path-guidance` extension attaches a path-scoped rule to the
 tool result the first time a matching file is touched, and after a successful
-`write` or `edit` adds one advisory line naming a skill whose `SKILL.md` `paths`
-frontmatter matches the file. A skill is hinted at most once per session, only
-when the session has it, and not when it was already read. Nothing is blocked and
-the system prompt is untouched. The system prompt carries only the universal
-rules, so path-scoped rules are never delivered twice. The extension stands down
-when the repository has its own `.pi/extensions/cratis-path-guidance` and works
-in sessions without a UI.
+`write` or `edit` adds one advisory line naming every skill whose `SKILL.md`
+`cratis-hint-paths` frontmatter matches the file. (The key is Cratis-specific
+because Claude Code gives a plain `paths` key its own meaning.) A skill is hinted at
+most once per session and not when it is already in context: read (a shell command
+counts only when `cat`, `sed`, `head`, `tail`, `less`, `bat`, `rg` or `grep` opens
+its `SKILL.md` or a file under `references/`), preloaded by pi-subagents, or
+expanded by `/skill:name`. The skills considered are the ones Pi loaded; when Pi
+reports none (for example a pi-subagents agent with `skills: false`), the skills
+that the repository's `.cratis/ai.json` selects stand in, and none if that
+selection cannot be resolved. Rules follow the same language and documentation
+selection as the system prompt. Nothing is blocked and the system prompt is
+untouched. The system prompt carries only the universal rules, so path-scoped
+rules are never delivered twice. The extension works in sessions without a UI.
+It stands down when a managed installation (`.cratis/ai.manifest.json`) already
+delivers path guidance, through its own `.pi/extensions/cratis-path-guidance` or
+through an older `.pi/extensions/cratis-rules` that still delivers path-scoped
+rules.
 
 The universal rules add about 26k tokens to every session. A pi-subagents agent
 (`@tintinweb/pi-subagents`) with an `extensions:` allowlist loads only the

@@ -27,8 +27,23 @@ function displayPath(cwd: string, path: string): string {
     return repositoryRelative(cwd, path) ?? path;
 }
 
-function hintLine(cwd: string, file: string, match: SkillMatch): string {
-    return `[cratis-path-guidance] Skill \`${match.skill.name}\` covers ${file} (matched \`${match.glob}\`); read ${displayPath(cwd, match.skill.filePath)} before continuing.`;
+/** One line for everything a write matched, however many skills, so overlapping triggers cost one line and not several. */
+function hintLine(cwd: string, files: string[], matches: SkillMatch[]): string {
+    const skills = matches.map(match => `\`${match.skill.name}\` (matched \`${match.glob}\`)`);
+    const named = skills.length === 1 ? `Skill ${skills[0]} covers` : `Skills ${skills.slice(0, -1).join(', ')} and ${skills[skills.length - 1]} cover`;
+    const documents = matches.map(match => displayPath(cwd, match.skill.filePath));
+    const read = documents.length === 1 ? documents[0] : `${documents.slice(0, -1).join(', ')} and ${documents[documents.length - 1]}`;
+    return `[cratis-path-guidance] ${named} ${files.join(', ')}; read ${read} before continuing.`;
+}
+
+/** The skills pi-subagents preloaded into the system prompt (`skills: a, b`), whose full text is already in context. */
+function preloadedSkillNames(systemPrompt: unknown): Set<string> {
+    return new Set(typeof systemPrompt === 'string' ? [...systemPrompt.matchAll(/^# Preloaded Skill: (\S+)/gm)].map(match => match[1]) : []);
+}
+
+/** The skills a `/skill:name` command expanded into the user message, which arrive without a `read` call. */
+function expandedSkillNames(prompt: unknown): string[] {
+    return typeof prompt === 'string' ? [...prompt.matchAll(/<skill name="([^"]+)"/g)].map(match => match[1]) : [];
 }
 
 /**
@@ -37,8 +52,10 @@ function hintLine(cwd: string, file: string, match: SkillMatch): string {
  *
  * Path-scoped rules are attached to the tool result the first time a matching file is touched in the session,
  * exactly as they were when `cratis-rules` delivered them. On a successful `write` or `edit`, one advisory line
- * per skill whose `paths` frontmatter matches the file names that skill and where its `SKILL.md` is. Hints are
- * advisory only: nothing is blocked and the system prompt is never touched.
+ * names every skill whose `cratis-hint-paths` frontmatter matches the file and where its `SKILL.md` is. A skill
+ * is not hinted when it is already in context: read in the session, preloaded by pi-subagents
+ * (`# Preloaded Skill: <name>` in the system prompt), or expanded by `/skill:<name>`. Hints are advisory only:
+ * nothing is blocked and the system prompt is never touched.
  *
  * Delivery happens on `tool_result`, so guidance arrives after the call that first touched the file.
  * `ToolCallEventResult` carries only `block`/`reason`/`terminate`, so there is no supported way to add
@@ -56,6 +73,9 @@ export default function (pi: ExtensionAPI): void {
     const deliveredRules = new Set<string>();
     const hintedSkills = new Set<string>();
     const readSkills = new Set<string>();
+    // Preloaded skills live in the system prompt, which compaction leaves alone, so this is replaced at each
+    // agent start rather than reset with the conversation.
+    let preloadedSkills = new Set<string>();
     let loadedSkills: LoadedSkill[] | undefined;
     let loadedKey: string | undefined;
     let triggers: SkillTrigger[] | undefined;
@@ -74,9 +94,12 @@ export default function (pi: ExtensionAPI): void {
     pi.on('session_compact', reset);
     pi.on('session_before_switch', reset);
 
-    // Only observes which skills Pi loaded for this session; the system prompt is never changed.
+    // Only observes which skills are in context for this session; the system prompt is never changed.
     pi.on('before_agent_start', event => {
-        const skills = (event as { systemPromptOptions?: { skills?: LoadedSkill[] } }).systemPromptOptions?.skills;
+        const observed = event as { systemPrompt?: unknown; prompt?: unknown; systemPromptOptions?: { skills?: LoadedSkill[] } };
+        preloadedSkills = preloadedSkillNames(observed.systemPrompt);
+        expandedSkillNames(observed.prompt).forEach(name => readSkills.add(name));
+        const skills = observed.systemPromptOptions?.skills;
         const key = skills?.map(skill => `${skill.name}\t${skill.filePath}`).join('\n');
         if (key !== loadedKey) triggers = undefined;
         loadedSkills = skills;
@@ -95,7 +118,8 @@ export default function (pi: ExtensionAPI): void {
 
         const pendingRules: ManagedRule[] = [];
         const matchedFiles: string[] = [];
-        const pendingHints: string[] = [];
+        const hintedFiles: string[] = [];
+        const pendingMatches: SkillMatch[] = [];
         for (const path of touchedPaths(toolName, input, cwd)) {
             const relativePath = repositoryRelative(cwd, path);
             if (!relativePath) continue;
@@ -106,12 +130,14 @@ export default function (pi: ExtensionAPI): void {
             }
             if (toolName !== ToolName.Write && toolName !== ToolName.Edit) continue;
             for (const match of skillsForPath(availableTriggers(cwd), relativePath)) {
-                if (hintedSkills.has(match.skill.name) || readSkills.has(match.skill.name)) continue;
-                hintedSkills.add(match.skill.name);
-                pendingHints.push(hintLine(cwd, relativePath, match));
+                const name = match.skill.name;
+                if (hintedSkills.has(name) || readSkills.has(name) || preloadedSkills.has(name)) continue;
+                hintedSkills.add(name);
+                pendingMatches.push(match);
+                if (!hintedFiles.includes(relativePath)) hintedFiles.push(relativePath);
             }
         }
-        if (pendingRules.length === 0 && pendingHints.length === 0) return;
+        if (pendingRules.length === 0 && pendingMatches.length === 0) return;
         pendingRules.forEach(rule => deliveredRules.add(rule.name));
 
         const existing = Array.isArray(event.content) ? event.content : [];
@@ -119,7 +145,7 @@ export default function (pi: ExtensionAPI): void {
             pendingRules.length === 0
                 ? undefined
                 : `\n\n[cratis-rules] Rules that apply to ${matchedFiles.join(', ')}:\n\n${pendingRules.map(rule => rule.content).join('\n\n')}`,
-            pendingHints.length === 0 ? undefined : `\n\n${pendingHints.join('\n')}`,
+            pendingMatches.length === 0 ? undefined : `\n\n${hintLine(cwd, hintedFiles, pendingMatches)}`,
         ].filter(part => part !== undefined).join('');
         return { content: [...existing, { type: 'text', text }] };
     });

@@ -8,6 +8,6 @@ export interface SkillTrigger {
     filePath: string;
     /** Directory holding `SKILL.md` and the skill's references. */
     baseDir: string;
-    /** The `paths` frontmatter of the skill. Empty when the skill declares no trigger. */
+    /** The `cratis-hint-paths` frontmatter of the skill. Empty when the skill declares no trigger. */
     globs: string[];
 }
