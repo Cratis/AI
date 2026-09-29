@@ -3,11 +3,12 @@
 
 import type { ExtensionContext } from '@earendil-works/pi-coding-agent';
 import { askSystemOne } from './client.ts';
-import { effectiveEndpoint, parseUserConfiguration, requestTimeoutMs, resolveConfiguration, selectKey } from './configuration.ts';
+import { chooseKey, effectiveEndpoint, parseUserConfiguration, requestTimeoutMs, resolveConfiguration, selectKey } from './configuration.ts';
 import { BackendChoice } from './BackendChoice.ts';
 import type { ConfigurationFile } from './ConfigurationFile.ts';
-import { checkEndpoint, typeSafeEndpoint } from './endpoint.ts';
+import { checkEndpoint, typeSafeEndpoint, typeSafeOrigin } from './endpoint.ts';
 import { FileState } from './FileState.ts';
+import { KeySource } from './KeySource.ts';
 import { NotifyLevel } from './NotifyLevel.ts';
 import { show } from './output.ts';
 import type { EndpointOverride } from './EndpointOverride.ts';
@@ -33,15 +34,25 @@ export function manualSteps(agentDirectory: string): string {
     ].join('\n');
 }
 
-/** Exactly what leaves the machine, stated before the user confirms. */
-export function disclosure(origin: string, override?: EndpointOverride): string {
+/** True when the credential comes from the environment rather than from the user's own entry. */
+function isEnvironmentKey(source: KeySource): boolean {
+    return source === KeySource.SystemOneEnvironment || source === KeySource.TypeSafeEnvironment;
+}
+
+/**
+ * Exactly what leaves the machine, stated before the user confirms: the destination, the data, and which
+ * credential goes with it (never its value). Kept accurate rather than absolute: whatever reaches Pi as
+ * typed interactive input is sent, wherever the text came from.
+ */
+export function disclosure(origin: string, credential: KeySource, override?: EndpointOverride): string {
     return [
         `Cratis will send to ${origin}:`,
         ...(override === undefined ? [] : [`  (SYSTEMONE_ENDPOINT in your environment overrides the endpoint you chose, ${override.chosen}. Data goes to ${override.effective}.)`]),
         '  - the names and first sentence of the description of the Cratis skills Pi loaded,',
-        '  - the first 1200 characters of each prompt you type in an interactive session, in repositories set up with Cratis AI.',
-        'Slash commands and skill or template invocations are not sent. Subagent tasks, attachments and tool output are never sent.',
-        'File contents are never sent: a prompt Pi built around @file arguments (or one that starts with "<") is skipped whole, and so is one another extension rewrote. Text you paste into a prompt is part of it.',
+        '  - the first 1200 characters of each prompt you type in an interactive session, in repositories set up with Cratis AI,',
+        `  - with each request, ${credential === KeySource.None ? 'no credential' : `a credential: ${credential} (the value is never shown)`}.`,
+        'Skipped, never sent: slash commands, skill and template invocations, subagent tasks, tool output, prompts Pi built around @file arguments or that start with "<", prompts rewritten after this extension saw them, and prompts from extensions, RPC hosts or sessions without a UI.',
+        'Anything else that reaches Pi as typed interactive input is sent: pasted text, text you resubmit from /tree or /fork, and text produced by another extension\'s editor or earlier input handler.',
         'A System One model uses this to judge which skills would help. In this version scores are only recorded in your session; they change nothing the model sees.',
         `Retention and privacy are the provider's. For TypeSafe see ${legalUrl}.`,
         'Turn it off any time with /system-one off.',
@@ -119,8 +130,14 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     // Whenever the environment sends data anywhere but the URL the user chose, however similar, say so.
     const overridden: EndpointOverride | undefined = effectiveEndpoint(environment, configuration).fromEnvironment && settings.endpoint !== chosen.endpoint ? { chosen: chosen.endpoint, effective: settings.endpoint } : undefined;
 
-    const confirmed = await ui.confirm(`Send this to ${settings.origin}?`, disclosure(settings.origin, overridden));
+    const credential = chooseKey(environment, settings, configuration);
+    const confirmed = await ui.confirm(`Send this to ${settings.origin}?`, disclosure(settings.origin, credential.source, overridden));
     if (!confirmed) return cancelled();
+    // A key from the environment was not given to this program for this server. Ask again, plainly, before it is used.
+    if (isEnvironmentKey(credential.source) && settings.origin !== typeSafeOrigin) {
+        const usesKey = await ui.confirm(`Send ${credential.source} to ${settings.origin}?`, `${credential.source} was not issued for ${settings.origin}. It would go there as a bearer token with the setup probe and with every request after it. Continue only if you trust that server with this key.`);
+        if (!usesKey) return cancelled();
+    }
 
     const probe = await askSystemOne(
         { endpoint: settings.endpoint, model: settings.model, timeoutMs: requestTimeoutMs, apiKey: settings.apiKey },

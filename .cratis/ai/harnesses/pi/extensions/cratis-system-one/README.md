@@ -50,7 +50,8 @@ unless `PI_CODING_AGENT_DIR` says otherwise), written atomically with mode `0600
 }
 ```
 
-`endpoint` is a full URL: `https`, or `http` only for `127.0.0.1`, `::1` or `localhost`. `model`
+`endpoint` is a full URL: `https`, or `http` only for `localhost`, `127.0.0.0/8` addresses and `::1`.
+`0.0.0.0`, `::` and other unspecified addresses are refused. `model`
 (default `jev-1.13.0`) and `apiKey` are optional. A file this version does not understand disables the
 extension and says so once; it never crashes Pi.
 
@@ -86,19 +87,25 @@ setup and `/system-one status` name it) and nowhere else:
 - the **first 1,200 characters of each prompt you type in an interactive session**, in repositories
   set up with Cratis AI (those with `.cratis/ai.json` or `.cratis/ai.manifest.json`). If you paste a
   secret into a prompt, its first 1,200 characters are sent.
-- the model name and, when one applies, your API key as a bearer token.
+- the model name and, when one applies, your API key as a bearer token. Setup says which credential.
 
-Never sent: **slash commands and skill or template invocations** (a prompt that starts with `/` or
-is a `<skill …>` expansion), **subagent tasks**, text another extension injects into the
-conversation, an RPC host's prompts, anything in print, JSON or other sessions without a UI,
-attachments and images, **tool output**, your repository's name or path, or anything from earlier
-turns. **File contents are never sent either:** `pi @notes.env "review this"` makes Pi build its
-first prompt as a `<file name="/abs/path">` block holding the file, followed by your text, and a
-prompt like that is skipped whole, as is any prompt that starts with `<` or contains a file block.
-A path you type or the editor inserts (an `@src/file.ts` mention, a pasted image's temporary path) is
-only a path, and is part of your text. A prompt that another extension's `input` handler rewrote is
-skipped as well. Very short prompts and turns with no corpus skills send nothing either, and neither
-does a session outside a repository set up with Cratis AI.
+**Skipped, never sent:** slash commands and skill or template invocations (a prompt that starts with
+`/` or is a `<skill …>` expansion), subagent tasks, text another extension injects into the
+conversation (source `extension`), an RPC host's prompts (source `rpc`), anything in print, JSON or
+other sessions without a UI, and your repository's name or path or anything from earlier turns.
+`pi @notes.env "review this"` makes Pi build its first prompt as a `<file name="/abs/path">` block
+holding the file, followed by your text. A prompt with a file block, or whose text starts with `<`,
+is skipped whole. So is a prompt whose text is no longer what this extension saw typed, because an
+input handler that runs after this one changed it. Very short prompts, turns with no corpus skills
+and sessions outside a repository set up with Cratis AI send nothing either.
+
+**Sent, whatever its origin:** anything that reaches Pi as a typed interactive prompt and passes those
+checks. That includes text you paste, text you resubmit after `/tree` or `/fork` has put an earlier
+message (or an extension's custom message or hook output) back in the editor, and text produced by
+another extension's editor component or by an input handler that runs before this one, for example one
+that expands an `@path` into the file's contents. This extension cannot tell those apart from typing.
+See the limitations below. With Pi's default editor, an `@src/file.ts` mention or a pasted image's
+temporary path is only a path, and is part of your text.
 
 The extension does not keep a disk cache, and it stores **no prompt text** anywhere: session entries
 hold only skill names, probabilities, timings and which `SKILL.md` files were read.
@@ -140,8 +147,14 @@ having opted out.
 
 - Precedence is `SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` (**only** for `https://api.typesafe.ai`),
   then the `apiKey` in your user file.
-- **Environment keys are never attached to any loopback endpoint, `http` or `https`.** A local server
-  gets a key only if you stored one for that exact endpoint in setup.
+- **Environment keys are never attached to any loopback endpoint, `http` or `https`.** That is all of
+  `127.0.0.0/8`, `::1`, IPv4-mapped forms such as `::ffff:127.0.0.1`, `localhost`, `*.localhost` and any
+  of them with a trailing dot. A local server gets a key only if you stored one for that exact endpoint
+  in setup.
+- **Setup names the credential.** Before you confirm it says which one goes with the requests (your
+  `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY` from the environment, the key you entered, or none), never
+  its value. An environment key headed anywhere but `https://api.typesafe.ai` needs a second, explicit
+  confirmation, and nothing is sent before it.
 - **A stored key is bound to the endpoint it was stored for.** It is used only when the effective
   endpoint has the same origin (for a loopback server, the exact endpoint), so `SYSTEMONE_ENDPOINT`
   pointing elsewhere does not carry it along.
@@ -183,8 +196,8 @@ When it is not set up, the extension is completely silent: no notices, no reques
   another extension injected with `sendUserMessage`, an RPC host's prompt (it may be automated), or a
   turn for which Pi reported no typed input. Text Pi wrapped around what you typed is skipped: a
   prompt built from `@file` arguments (a `<file name="…">` block anywhere in it) and any prompt whose
-  text starts with `<`. So is a prompt whose text is no longer what you typed, because another
-  extension's `input` handler transformed it. `/system-one status` counts each skip. Repositories
+  text starts with `<`. So is a prompt whose text is no longer what this extension saw typed, because a
+  later extension's `input` handler transformed it. `/system-one status` counts each skip. Repositories
   without `.cratis/ai.json` or `.cratis/ai.manifest.json` are skipped too. Pasted text is part of what
   you typed and is sent like the rest, up to the 1,200-character cap.
 - **Only corpus skills** that Pi already loaded and the model may invoke are asked about (the
@@ -196,12 +209,15 @@ When it is not set up, the extension is completely silent: no notices, no reques
 ## Reading the data
 
 Each judged turn adds session entries of type `cratis-system-one`: the skills' probabilities (no
-prompt), any failures, and, when the turn ends, **every `SKILL.md` the model read during the turn**,
-suggested or not. `/system-one report` turns that into:
+prompt), any failures, and, when the turn ends, which of **the skills that were asked about** the
+model read during the turn (by name), plus a count of any other `SKILL.md` reads (a skill of your own,
+or a corpus skill that was not asked about), which are never named. `/system-one report` turns that
+into:
 
 - turns judged,
 - skills suggested at 0.5 or above, and how many of those the model then read,
-- skills read that were not suggested,
+- skills asked about, answered and read that were not suggested,
+- other skill reads, counted apart so they cannot inflate the line above,
 - backend latency p50 and p95,
 - failures by class.
 
@@ -214,11 +230,22 @@ The kill criterion for the whole idea is simple: if models already load the rele
   `cat` in bash is **not counted**.
 - A skill read in an earlier turn is still in the conversation; entries list those as `readEarlier`.
 - Session data lives in Pi's session file, so it is as private as the session.
-- Pi runs `input` handlers in load order, each seeing the previous one's output. A rewrite by an
-  extension that loads **after** this one is detected (the prompt no longer equals the input this
-  extension saw). One that loads **before** it is not: this extension sees the rewritten text as if
-  you had typed it. Load order is Pi's, so a rewriting extension you trust with your prompts is the
-  only safe kind.
+- **What counts as typed input is Pi's word, and this extension takes it.** It cannot see who or what
+  produced text that reaches Pi as an interactive prompt. These are known and not detected:
+  - Pi runs `input` handlers in load order, each seeing the previous one's output. A rewrite by an
+    extension that loads **after** this one is detected (the prompt no longer equals the input this
+    extension saw). One that loads **before** it is not: this extension sees the rewritten text as if
+    you had typed it, for instance an `@path` already expanded into a file's contents.
+  - `/tree` and `/fork` can put an earlier message, an extension's custom message or a hook's output
+    back in the editor. If you resubmit it, it goes as an interactive prompt.
+  - A custom editor component that another extension installs (`setEditorComponent`) can expand
+    `@path` mentions into file contents before submit. Pi's default editor does not: there an
+    `@path` stays a path.
+  - An SDK host that embeds Pi with a UI and calls `session.prompt` without a source is labeled
+    interactive.
+
+  If you use extensions that rewrite or generate prompts, or such a host, and do not want their text
+  judged, turn System One off or set `"skillRelevance": { "mode": "off" }` in your user file.
 
 ## Installation
 

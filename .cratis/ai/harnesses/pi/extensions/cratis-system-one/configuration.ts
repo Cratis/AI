@@ -9,7 +9,9 @@ import { checkEndpoint, typeSafeEndpoint, typeSafeOrigin } from './endpoint.ts';
 import type { EffectiveEndpoint } from './EffectiveEndpoint.ts';
 import { FileState } from './FileState.ts';
 import type { RepositoryNarrowing } from './RepositoryNarrowing.ts';
+import type { KeyChoice } from './KeyChoice.ts';
 import type { KeyTarget } from './KeyTarget.ts';
+import { KeySource } from './KeySource.ts';
 import { modelPattern } from './modelPattern.ts';
 import { Invalid } from './Invalid.ts';
 import type { SkillRelevanceSettings } from './SkillRelevanceSettings.ts';
@@ -112,15 +114,24 @@ function repositoryNarrowing(repository: ConfigurationFile): RepositoryNarrowing
  * key only if the user stored one for that exact endpoint. Elsewhere, a key stored in the user file is
  * bound to the origin it was stored for and is used only when that is the effective origin.
  */
-export function selectKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }): string | undefined {
+export function chooseKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }): KeyChoice {
     if (!target.loopback) {
-        const fromEnvironment = nonEmpty(environment.SYSTEMONE_API_KEY) ?? (target.origin === typeSafeOrigin ? nonEmpty(environment.TYPESAFE_API_KEY) : undefined);
-        if (fromEnvironment !== undefined) return fromEnvironment;
+        const fromSystemOne = nonEmpty(environment.SYSTEMONE_API_KEY);
+        if (fromSystemOne !== undefined) return { source: KeySource.SystemOneEnvironment, key: fromSystemOne };
+        const fromTypeSafe = target.origin === typeSafeOrigin ? nonEmpty(environment.TYPESAFE_API_KEY) : undefined;
+        if (fromTypeSafe !== undefined) return { source: KeySource.TypeSafeEnvironment, key: fromTypeSafe };
     }
+    const none = { source: KeySource.None };
     const storedFor = checkEndpoint(stored.endpoint ?? typeSafeEndpoint);
-    if ('error' in storedFor) return undefined;
+    if ('error' in storedFor) return none;
     const sameDestination = target.loopback ? storedFor.endpoint === target.endpoint : storedFor.origin === target.origin;
-    return sameDestination ? nonEmpty(stored.apiKey) : undefined;
+    const key = sameDestination ? nonEmpty(stored.apiKey) : undefined;
+    return key === undefined ? none : { source: KeySource.Entered, key };
+}
+
+/** The key `chooseKey` picks, without where it came from. */
+export function selectKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }): string | undefined {
+    return chooseKey(environment, target, stored).key;
 }
 
 /** The endpoint a user's file resolves to once `SYSTEMONE_ENDPOINT` is taken into account. */

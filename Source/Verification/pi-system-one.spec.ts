@@ -512,8 +512,11 @@ test('setup states what is sent, confirms, probes, and only then saves a private
             assert.match(confirm.detail!, /first 1200 characters of each prompt you type in an interactive session/);
             assert.match(confirm.detail!, /in repositories set up with Cratis AI/);
             assert.match(confirm.detail!, /names and first sentence/);
-            assert.match(confirm.detail!, /Slash commands and skill or template invocations are not sent/);
-            assert.match(confirm.detail!, /Subagent tasks, attachments and tool output are never sent\.\nFile contents are never sent: a prompt Pi built around @file arguments/);
+            // Accurate rather than absolute: what is skipped is listed, and so is what still goes.
+            assert.match(confirm.detail!, /Skipped, never sent: slash commands, skill and template invocations, subagent tasks, tool output, prompts Pi built around @file arguments or that start with "<", prompts rewritten after this extension saw them, and prompts from extensions, RPC hosts or sessions without a UI\./);
+            assert.match(confirm.detail!, /Anything else that reaches Pi as typed interactive input is sent: pasted text, text you resubmit from \/tree or \/fork, and text produced by another extension's editor or earlier input handler\./);
+            assert.doesNotMatch(confirm.detail!, /file contents are never sent/i, 'no claim the residuals contradict');
+            assert.match(confirm.detail!, /with each request, no credential\./);
             assert.doesNotMatch(confirm.detail!, /after slash-command expansion/);
             assert.match(confirm.detail!, /\/system-one off/);
 
@@ -578,6 +581,82 @@ test('setup uses an environment key without asking for one or storing it', async
     } finally {
         project.cleanup();
     }
+});
+
+test('setup names the credential that goes with the requests, and never shows its value', async () => {
+    const cases: Array<[string, string, NodeJS.ProcessEnv, string[], RegExp]> = [
+        ['TypeSafe with TYPESAFE_API_KEY', typeSafe, { TYPESAFE_API_KEY: secret }, [], /a credential: your TYPESAFE_API_KEY from the environment \(the value is never shown\)/],
+        ['TypeSafe with SYSTEMONE_API_KEY', typeSafe, { SYSTEMONE_API_KEY: secret }, [], /a credential: your SYSTEMONE_API_KEY from the environment/],
+        ['TypeSafe with a typed key', typeSafe, {}, [secret], /a credential: the key you entered/],
+    ];
+    for (const [name, choice, environment, inputs, expected] of cases) {
+        const project = projectFixture();
+        try {
+            const transport = async () => new Response(JSON.stringify({ answers: { [setupSkills]: { type: 'noul', noul: 0.5 } } }), { status: 200 });
+            const session = host(project, { transport, environment }, { script: { select: choice, inputs, confirms: [true] } });
+            const output = await session.command('setup');
+            const confirm = session.prompts.find(prompt => prompt.kind === 'confirm')!;
+            assert.match(confirm.detail!, expected, name);
+            assert.equal([output, ...session.prompts.map(prompt => `${prompt.title} ${prompt.detail ?? ''}`)].join('\n').includes(secret), false, `${name}: the value is never shown`);
+            assert.equal(session.prompts.filter(prompt => prompt.kind === 'confirm').length, 1, `${name}: TypeSafe's own origin needs no extra confirmation`);
+        } finally {
+            project.cleanup();
+        }
+    }
+});
+
+test('an environment key headed for an origin other than TypeSafe needs a second, explicit confirmation before anything is sent', async () => {
+    const endpoint = 'https://opencode.ai/zen/v1/systemone';
+    const environment = { SYSTEMONE_API_KEY: secret };
+    const project = projectFixture();
+    try {
+        const sent: Array<string | undefined> = [];
+        const transport = async (_input: string | URL | Request, init?: RequestInit) => {
+            sent.push((init?.headers as Record<string, string>).authorization);
+            return new Response(JSON.stringify({ answers: { [setupSkills]: { type: 'noul', noul: 0.5 } } }), { status: 200 });
+        };
+        // Declining the second question stops before the probe and saves nothing.
+        const declined = host(project, { transport, environment }, { script: { select: other, inputs: [endpoint], confirms: [true, false] } });
+        const output = await declined.command('setup');
+        const questions = declined.prompts.filter(prompt => prompt.kind === 'confirm');
+        assert.equal(questions.length, 2);
+        assert.match(questions[0].detail!, /a credential: your SYSTEMONE_API_KEY from the environment/);
+        assert.match(questions[1].title, /Send your SYSTEMONE_API_KEY from the environment to https:\/\/opencode\.ai\?/);
+        assert.match(questions[1].detail!, /was not issued for https:\/\/opencode\.ai/);
+        assert.deepEqual(sent, [], 'nothing was sent');
+        assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false, 'nothing was saved');
+        assert.match(output, /cancelled/);
+        assert.equal([output, ...declined.prompts.map(prompt => `${prompt.title} ${prompt.detail ?? ''}`)].join('\n').includes(secret), false);
+
+        // Agreeing sends the probe with that key.
+        const agreed = host(project, { transport, environment }, { script: { select: other, inputs: [endpoint], confirms: [true, true] } });
+        await agreed.command('setup');
+        assert.deepEqual(sent, [`Bearer ${secret}`]);
+        assert.equal(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8').includes(secret), false, 'the environment key is not stored');
+    } finally {
+        project.cleanup();
+    }
+});
+
+test('a key the user typed, and no key at all, are named without the extra confirmation', async () => {
+    await withServer(answering(0.5), async server => {
+        const project = projectFixture();
+        try {
+            const transport = async () => new Response(JSON.stringify({ answers: { [setupSkills]: { type: 'noul', noul: 0.5 } } }), { status: 200 });
+            const typed = host(project, { transport }, { script: { select: other, inputs: ['https://opencode.ai/zen/v1/systemone', 'zen-key'], confirms: [true] } });
+            await typed.command('setup');
+            const confirms = typed.prompts.filter(prompt => prompt.kind === 'confirm');
+            assert.equal(confirms.length, 1);
+            assert.match(confirms[0].detail!, /a credential: the key you entered \(the value is never shown\)/);
+            assert.equal(confirms[0].detail!.includes('zen-key'), false);
+
+            const none = host(project, {}, { script: { select: local, inputs: [server.endpoint, ''], confirms: [true] } });
+            await none.command('setup');
+            assert.match(none.prompts.find(prompt => prompt.kind === 'confirm')!.detail!, /with each request, no credential\./);
+        } finally {
+            project.cleanup();
+        }
+    });
 });
 
 test('setup for a local server never uses an environment key, and stores a typed one for that endpoint only', async () => {

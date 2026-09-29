@@ -45,10 +45,12 @@ the hosted model is the realistic backend and consent has to be safe for a remot
   exported key alone sends nothing.
 - **Keys go only where the user pointed them.** Precedence is `SYSTEMONE_API_KEY`, then
   `TYPESAFE_API_KEY` (only for `https://api.typesafe.ai`), then the user file. Environment keys are
-  never attached to any loopback endpoint, `http` or `https`; a local server gets a key only if the user
-  stored one for that exact endpoint. Elsewhere, a key stored in the user file is bound to the origin it
+  never attached to any loopback endpoint, `http` or `https` (all of `127.0.0.0/8`, `::1`, IPv4-mapped
+  forms, `localhost`, `*.localhost`, with or without a trailing dot); a local server gets a key only if
+  the user stored one for that exact endpoint. Elsewhere, a key stored in the user file is bound to the origin it
   was stored for, so an environment override of the endpoint cannot carry it elsewhere. A non-loopback
-  endpoint must be `https`; `http` is accepted only for `127.0.0.1`, `::1` and `localhost`. Redirects
+  endpoint must be `https`; `http` is accepted only for `localhost`, `127.0.0.0/8` literals and `::1`, and
+  unspecified addresses (`0.0.0.0`, `::`) are refused. Redirects
   are refused, so a server cannot forward the prompt or key. The key never appears in status output,
   notices, session entries or the transcript, and a user file others can read is flagged once.
 - **Silent until configured.** An unconfigured install produces no notices and makes no requests; only
@@ -61,9 +63,22 @@ the hosted model is the realistic backend and consent has to be safe for a remot
   (`.cratis/ai.json` or `.cratis/ai.manifest.json`). Slash commands and skill or template invocations
   are not sent. Neither is text Pi wrapped around what was typed: `pi @file "..."` builds the first
   prompt as a `<file name="...">` block holding the file, then the typed text, and any prompt with a
-  file block or whose text starts with `<` is skipped, as is one whose text another extension's `input`
-  handler rewrote (it is judged only when it equals the typed text). File contents and tool output
-  never are sent.
+  file block or whose text starts with `<` is skipped, as is one whose text an input handler that runs
+  after this extension's rewrote (it is judged only when it equals the input event's text).
+  - **What is not excluded, and is stated as such.** Pi tells the extension a prompt was interactive;
+    it does not say who produced the text. Whatever arrives as a typed interactive prompt is sent
+    (capped at 1,200 characters): pasted text, an earlier message or an extension's custom message or
+    hook output that `/tree` or `/fork` put back in the editor and the user resubmitted, text from a
+    custom editor component (`setEditorComponent`) that expands `@path` into file contents, text that
+    an input handler loaded before this extension already rewrote, and a prompt from an SDK host with
+    a UI that calls `session.prompt` without a source. Pi's default editor keeps an `@path` a path.
+    The setup disclosure and the README say this, and a user who runs such extensions or hosts can turn
+    the feature off. Claims about file contents and tool output are therefore made only for what is
+    skipped, never as an absolute.
+  - **The credential is disclosed.** Setup names which credential goes with the requests (the
+    environment's `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`, the entered key, or none) and never its
+    value, and asks a second, explicit confirmation before an environment key goes anywhere but
+    `https://api.typesafe.ai`. Nothing is sent before it.
 - **State is bounded and never persisted as text.** What is sent is the names and first sentence of the
   descriptions of the corpus skills Pi already loaded, and the first 1,200 characters of the prompt.
   Session entries hold skill names, probabilities, timings and which `SKILL.md` files were read, and no

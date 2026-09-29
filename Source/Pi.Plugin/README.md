@@ -26,8 +26,10 @@ provider, or a local server) which of the loaded skills would help with each pro
 scores next to the `SKILL.md` files the model read. Only you can enable it: a repository's
 `.cratis/ai.json` can only opt out or narrow it (a problem in that file switches it off), and
 environment variables never enable it. Setup states exactly what is sent, and prompt text leaves your
-machine for the backend you choose, but only prompts you type in an interactive session in a
-repository set up with Cratis AI; never subagent tasks, `@file` contents or tool output.
+machine for the backend you choose, but only prompts that reach Pi as typed input in an interactive
+session in a repository set up with Cratis AI. Slash commands, subagent tasks and prompts built from `@file`
+arguments are skipped; anything else that reaches Pi as a typed prompt is sent, wherever it came from
+(see the extension's README for the limits of that).
 `/system-one status`, `last`, `report` and `off` are available afterwards. Like the MCP bridge, the
 package's copy stands down when the project already has a managed copy under
 `.pi/extensions/cratis-system-one`. The extension's README (in the corpus at

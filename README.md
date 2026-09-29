@@ -131,9 +131,10 @@ nothing the model sees and never delays a prompt.
 
 It is off until *you* run `/system-one setup`, which states what is sent (skill names, the first
 sentence of each description, and the first 1,200 characters of each prompt you type in an
-interactive session in a repository set up with Cratis AI; never subagent tasks, `@file` contents or
-tool output), asks you to confirm, and probes the backend before saving to a private file in Pi's
-agent directory. A repository's `.cratis/ai.json` can only opt out or narrow it (a problem in that
+interactive session in a repository set up with Cratis AI, and which credential goes with the requests;
+not slash commands, subagent tasks or prompts built from `@file` arguments, but everything else that
+reaches Pi as a typed prompt, wherever it came from), asks you to confirm, and probes the backend
+before saving to a private file in Pi's agent directory. A repository's `.cratis/ai.json` can only opt out or narrow it (a problem in that
 file switches it off), and environment variables can never enable it. See
 [the extension README](.cratis/ai/harnesses/pi/extensions/cratis-system-one/README.md) for backends,
 privacy and the report, and the
