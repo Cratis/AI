@@ -10,7 +10,7 @@ import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
-import { skillKeyProblems, skillPathProblems } from './skill-paths.ts';
+import { skillFrontmatterProblems } from './skill-paths.ts';
 
 interface Profile {
     id: string;
@@ -147,8 +147,7 @@ for (const directory of skillDirectories) {
     const metadata = frontmatter(skillContent);
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, skillFile)} must declare name and description.`);
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
-    failures.push(...skillKeyProblems(relative(root, skillFile), skillContent));
-    failures.push(...skillPathProblems(relative(root, skillFile), skillContent));
+    failures.push(...skillFrontmatterProblems(relative(root, skillFile), skillContent));
 }
 
 for (const prompt of (await readdir(join(corpus, 'prompts'))).filter(name => name.endsWith('.md'))) {

@@ -5,17 +5,23 @@ export function unquote(value: string): string {
     return value.trim().replace(/^["']|["']$/g, '');
 }
 
+/** The text between the opening and closing `---` markers, or `undefined` when there is no terminated frontmatter. */
+export function frontmatterText(content: string): string | undefined {
+    if (!content.startsWith('---\n')) return undefined;
+    const end = content.indexOf('\n---\n', 4);
+    return end < 0 ? undefined : content.slice(4, end);
+}
+
 /**
  * Reads the YAML-ish frontmatter the corpus uses: scalar `key: value` lines and `key:` followed by
  * `  - item` lines. Anything richer is not used by the rules and skills and is deliberately not supported.
  */
 export function frontmatter(content: string): Map<string, string[]> {
     const fields = new Map<string, string[]>();
-    if (!content.startsWith('---\n')) return fields;
-    const end = content.indexOf('\n---\n', 4);
-    if (end < 0) return fields;
+    const text = frontmatterText(content);
+    if (text === undefined) return fields;
     let current: string | undefined;
-    for (const line of content.slice(4, end).split('\n')) {
+    for (const line of text.split('\n')) {
         const item = /^\s+-\s+(.*)$/.exec(line);
         if (item && current) {
             fields.get(current)!.push(unquote(item[1]));
@@ -53,13 +59,12 @@ export interface FrontmatterBlock {
  * Returns `undefined` when the key is absent or the frontmatter is unterminated.
  */
 export function frontmatterBlock(content: string, name: string): FrontmatterBlock | undefined {
-    if (!content.startsWith('---\n')) return undefined;
-    const end = content.indexOf('\n---\n', 4);
-    if (end < 0) return undefined;
+    const text = frontmatterText(content);
+    if (text === undefined) return undefined;
     let block: FrontmatterBlock | undefined;
     let inside = false;
     let last: FrontmatterEntry | undefined;
-    for (const line of content.slice(4, end).split('\n')) {
+    for (const line of text.split('\n')) {
         const top = /^([A-Za-z][\w-]*):(.*)$/.exec(line);
         if (top) {
             inside = top[1] === name;
