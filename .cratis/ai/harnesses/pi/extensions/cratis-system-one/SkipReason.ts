@@ -3,6 +3,8 @@
 
 /** Why a turn did not ask System One anything. Counted and shown by `/system-one status`. */
 export enum SkipReason {
+    NoInteractiveSession = 'no interactive session',
+    NotCratisRepository = 'not a repository set up with Cratis AI',
     ShortPrompt = 'short prompt',
     SlashCommand = 'slash command',
     NoSkills = 'no eligible skills',

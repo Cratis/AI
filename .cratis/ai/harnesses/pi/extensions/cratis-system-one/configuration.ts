@@ -1,20 +1,26 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import type { ConfigurationFile } from './ConfigurationFile.ts';
+import type { ConfigurationInputs } from './ConfigurationInputs.ts';
 import type { ConfigurationResult } from './ConfigurationResult.ts';
 import { checkEndpoint, typeSafeEndpoint, typeSafeOrigin } from './endpoint.ts';
+import type { EndpointCheck } from './EndpointCheck.ts';
+import { FileState } from './FileState.ts';
+import type { KeyTarget } from './KeyTarget.ts';
+import { Invalid } from './Invalid.ts';
 import type { SkillRelevanceSettings } from './SkillRelevanceSettings.ts';
 import { SkillRelevanceMode } from './SkillRelevanceMode.ts';
 import type { UserConfiguration } from './UserConfiguration.ts';
-import { readUserConfigurationText } from './userConfigurationFile.ts';
+import { readConfigurationFile, readUserConfigurationFile } from './userConfigurationFile.ts';
 
 export const defaultModel = 'jev-1.13.0';
 export const requestTimeoutMs = 5000;
 
 const modelPattern = /^[A-Za-z0-9._:/-]{1,128}$/;
 const userKeys = ['enabled', 'endpoint', 'model', 'apiKey', 'consentedAt', 'skillRelevance'];
+const disablingValues = new Set(['0', 'false', 'off', 'no']);
 
 /** Fixed: nothing but the mode is configurable, and the repository can only narrow that. */
 const skillRelevanceLimits = {
@@ -24,9 +30,6 @@ const skillRelevanceLimits = {
     stateChars: 1200,
     criterionChars: 200,
 };
-
-/** A problem in what someone wrote, as opposed to "not configured", which is silent. */
-class Invalid extends Error {}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -67,25 +70,28 @@ export function parseUserConfiguration(text: string): UserConfiguration {
 }
 
 /**
- * What the repository may say about System One: opt out, or narrow skill relevance to off. Anything
- * else, including `enabled: true`, an endpoint, a key or a timeout, is refused so that a committed file
- * can never turn the extension on or point it anywhere.
+ * What the repository may say about System One: opt out, or narrow skill relevance to off. It fails
+ * closed. Anything else, including an unreadable or unparseable file, `enabled: true`, an unknown key,
+ * a wrong type, an endpoint, a key or a timeout, is a `problem`, and a problem switches System One off:
+ * a file that may have been trying to opt out is treated as having opted out, never as silence.
  */
-function repositoryNarrowing(repositoryText: string | undefined): { optOut: boolean; off: boolean; problem?: string } {
+function repositoryNarrowing(repository: ConfigurationFile): { optOut: boolean; off: boolean; problem?: string } {
     const none = { optOut: false, off: false };
-    if (repositoryText === undefined || !repositoryText.includes('systemOne')) return none;
+    if (repository.state === FileState.Missing) return none;
+    if (repository.state === FileState.Unreadable) return { ...none, problem: '.cratis/ai.json could not be read' };
     let document: unknown;
     try {
-        document = JSON.parse(repositoryText);
+        document = JSON.parse(repository.text);
     } catch {
         return { ...none, problem: '.cratis/ai.json is not valid JSON' };
     }
-    if (!isRecord(document) || document.systemOne === undefined) return none;
+    if (!isRecord(document)) return { ...none, problem: '.cratis/ai.json must contain an object' };
+    if (document.systemOne === undefined) return none;
     const section = document.systemOne;
-    const refused = (why: string) => ({ ...none, problem: `the systemOne section of .cratis/ai.json was ignored: ${why}` });
+    const refused = (why: string) => ({ ...none, problem: `the systemOne section of .cratis/ai.json is not allowed: ${why}` });
     if (!isRecord(section)) return refused('it must be an object');
     const unknown = Object.keys(section).find(key => key !== 'enabled' && key !== 'skillRelevance');
-    if (unknown !== undefined) return refused(`'${unknown}' is not allowed; a repository can only opt out or narrow`);
+    if (unknown !== undefined) return refused(`'${unknown}' is not a setting; a repository can only opt out or narrow`);
     if (section.enabled !== undefined && section.enabled !== false) return refused("'enabled' can only be false; a repository cannot enable System One");
     let off = false;
     if (section.skillRelevance !== undefined) {
@@ -98,26 +104,39 @@ function repositoryNarrowing(repositoryText: string | undefined): { optOut: bool
     return { optOut: section.enabled === false, off };
 }
 
-/** Everything resolution depends on, gathered by the caller. Resolution itself does no I/O. */
-export interface ConfigurationInputs {
-    /** The text of the user's `cratis-system-one.json`, or undefined when the user never set it up. */
-    userText: string | undefined;
-    /** The text of the repository's `.cratis/ai.json`, or undefined when there is none. */
-    repositoryText: string | undefined;
-    environment: NodeJS.ProcessEnv;
+/**
+ * The only place a key is chosen. Environment keys (`SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` for the
+ * TypeSafe origin only) are never attached to a loopback `http` endpoint. A key stored in the user file
+ * is bound to the origin it was stored for: it is used only when that is the effective origin.
+ */
+export function selectKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }): string | undefined {
+    const plainLoopback = target.loopback && target.endpoint.startsWith('http:');
+    if (!plainLoopback) {
+        const fromEnvironment = nonEmpty(environment.SYSTEMONE_API_KEY) ?? (target.origin === typeSafeOrigin ? nonEmpty(environment.TYPESAFE_API_KEY) : undefined);
+        if (fromEnvironment !== undefined) return fromEnvironment;
+    }
+    const storedFor = checkEndpoint(stored.endpoint ?? typeSafeEndpoint);
+    return !('error' in storedFor) && storedFor.origin === target.origin ? nonEmpty(stored.apiKey) : undefined;
+}
+
+/** The endpoint a user's file resolves to once `SYSTEMONE_ENDPOINT` is taken into account. */
+export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endpoint?: string }): { checked: EndpointCheck; fromEnvironment: boolean } {
+    const environmentEndpoint = nonEmpty(environment.SYSTEMONE_ENDPOINT);
+    return { checked: checkEndpoint(environmentEndpoint ?? stored.endpoint ?? typeSafeEndpoint), fromEnvironment: environmentEndpoint !== undefined };
 }
 
 /**
  * Pure: the single place that decides whether System One may run, where it goes and which key it uses.
  * Never throws.
  *
- * - Only the user's file can enable it. The repository can opt out or narrow; the environment can
- *   disable, narrow, or override endpoint, key and model, but only once the user has enabled it.
+ * - Only the user's file can enable it. The repository can opt out or narrow, and fails closed; the
+ *   environment can disable, narrow, or override endpoint, key and model, but only once the user has
+ *   enabled it.
  * - An unconfigured install is silent: no notice is produced for it.
- * - `TYPESAFE_API_KEY` is used only for the TypeSafe origin. Redirects are refused by the client.
+ * - Keys follow `selectKey`. Redirects are refused by the client.
  */
-export function resolveConfiguration({ userText, repositoryText, environment }: ConfigurationInputs): ConfigurationResult {
-    if (userText === undefined) return { enabled: false, reason: 'not set up (run /system-one setup)', configured: false };
+export function resolveConfiguration({ user: userFile, repository, environment }: ConfigurationInputs): ConfigurationResult {
+    if (userFile.state === FileState.Missing) return { enabled: false, reason: 'not set up (run /system-one setup)', configured: false };
     const disabled = (reason: string, notice = false): ConfigurationResult => ({
         enabled: false,
         reason,
@@ -125,33 +144,29 @@ export function resolveConfiguration({ userText, repositoryText, environment }: 
         notice: notice ? `System One is disabled: ${reason}.` : undefined,
     });
     try {
+        if (userFile.state === FileState.Unreadable) return disabled('your System One configuration file could not be read', true);
         let user: UserConfiguration;
         try {
-            user = parseUserConfiguration(userText);
+            user = parseUserConfiguration(userFile.text);
         } catch (error) {
             return disabled(`your System One configuration is invalid (${error instanceof Invalid ? error.message : 'unreadable'})`, true);
         }
         if (!user.enabled) return disabled('turned off in your System One configuration');
-        if (environment.CRATIS_SYSTEM_ONE === '0') return disabled('disabled by CRATIS_SYSTEM_ONE=0');
+        if (disablingValues.has(environment.CRATIS_SYSTEM_ONE?.trim().toLowerCase() ?? '')) return disabled('disabled by CRATIS_SYSTEM_ONE');
 
-        const repository = repositoryNarrowing(repositoryText);
-        if (repository.optOut) return disabled('the repository opted out in .cratis/ai.json');
+        const narrowing = repositoryNarrowing(repository);
+        if (narrowing.problem) return disabled(`${narrowing.problem}; System One stays off until that is fixed`, true);
+        if (narrowing.optOut) return disabled('the repository opted out in .cratis/ai.json');
 
-        const environmentEndpoint = nonEmpty(environment.SYSTEMONE_ENDPOINT);
-        const checked = checkEndpoint(environmentEndpoint ?? user.endpoint ?? typeSafeEndpoint);
-        if ('error' in checked) return disabled(`${environmentEndpoint ? 'SYSTEMONE_ENDPOINT' : 'the configured endpoint'}: ${checked.error}`, true);
+        const { checked, fromEnvironment } = effectiveEndpoint(environment, user);
+        if ('error' in checked) return disabled(`${fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'the configured endpoint'}: ${checked.error}`, true);
 
         const model = nonEmpty(environment.CRATIS_SYSTEM_ONE_MODEL) ?? user.model ?? defaultModel;
         if (!modelPattern.test(model)) return disabled('the model name is not valid', true);
 
         let mode = user.skillRelevance?.mode ?? SkillRelevanceMode.Shadow;
-        if (repository.off || environment.CRATIS_SYSTEM_ONE_SKILL_RELEVANCE === 'off') mode = SkillRelevanceMode.Off;
+        if (narrowing.off || environment.CRATIS_SYSTEM_ONE_SKILL_RELEVANCE === 'off') mode = SkillRelevanceMode.Off;
         const skillRelevance: SkillRelevanceSettings = { mode, ...skillRelevanceLimits };
-
-        // Key precedence: SYSTEMONE_API_KEY, then TYPESAFE_API_KEY (TypeSafe origin only), then the user's file.
-        const apiKey = nonEmpty(environment.SYSTEMONE_API_KEY)
-            ?? (checked.origin === typeSafeOrigin ? nonEmpty(environment.TYPESAFE_API_KEY) : undefined)
-            ?? nonEmpty(user.apiKey);
 
         return {
             enabled: true,
@@ -159,14 +174,13 @@ export function resolveConfiguration({ userText, repositoryText, environment }: 
                 endpoint: checked.endpoint,
                 origin: checked.origin,
                 loopback: checked.loopback,
-                endpointFromEnvironment: environmentEndpoint !== undefined,
+                endpointFromEnvironment: fromEnvironment,
                 model,
                 timeoutMs: requestTimeoutMs,
-                apiKey,
+                apiKey: selectKey(environment, checked, user),
                 skillRelevance,
             },
-            // A refused repository section does not stop the user's own choice; it is announced once.
-            notice: repository.problem ? `System One: ${repository.problem}.` : undefined,
+            notice: userFile.readableByOthers ? 'System One: your configuration file can be read by other users and may hold an API key. Run chmod 600 on it.' : undefined,
         };
     } catch {
         return disabled('the configuration could not be evaluated');
@@ -178,12 +192,9 @@ export function resolveConfiguration({ userText, repositoryText, environment }: 
  * resolves them. Never throws.
  */
 export function loadConfiguration(cwd: string, agentDirectory: string, environment: NodeJS.ProcessEnv = process.env): ConfigurationResult {
-    let repositoryText: string | undefined;
-    try {
-        const path = join(cwd, '.cratis', 'ai.json');
-        repositoryText = existsSync(path) ? readFileSync(path, 'utf8') : undefined;
-    } catch {
-        repositoryText = undefined;
-    }
-    return resolveConfiguration({ userText: readUserConfigurationText(agentDirectory), repositoryText, environment });
+    return resolveConfiguration({
+        user: readUserConfigurationFile(agentDirectory),
+        repository: readConfigurationFile(join(cwd, '.cratis', 'ai.json')),
+        environment,
+    });
 }

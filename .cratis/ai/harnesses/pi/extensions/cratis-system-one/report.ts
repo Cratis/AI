@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import type { BreakerState } from './BreakerState.ts';
+import { entryType } from './entryType.ts';
+import { EntryKind } from './EntryKind.ts';
 import type { ConfigurationResult } from './ConfigurationResult.ts';
 import type { RecentDecision } from './RecentDecision.ts';
 import type { SessionStatistics } from './SessionStatistics.ts';
@@ -71,15 +73,15 @@ export function aggregateShadow(entries: readonly unknown[]): ShadowReport {
     const latencies: number[] = [];
     const failures = new Map<string, number>();
     for (const entry of entries) {
-        if (!isRecord(entry) || entry.type !== 'custom' || entry.customType !== 'cratis-system-one' || !isRecord(entry.data)) continue;
+        if (!isRecord(entry) || entry.type !== 'custom' || entry.customType !== entryType || !isRecord(entry.data)) continue;
         const data = entry.data;
         if (typeof data.turnId !== 'string') continue;
-        if (data.kind === 'skill-relevance' && isRecord(data.probabilities)) {
+        if (data.kind === EntryKind.SkillRelevance && isRecord(data.probabilities)) {
             judged.set(data.turnId, Object.entries(data.probabilities).filter(([, probability]) => typeof probability === 'number' && probability >= suggestionThreshold).map(([name]) => name));
             if (typeof data.latencyMs === 'number') latencies.push(data.latencyMs);
-        } else if (data.kind === 'skill-outcome') {
+        } else if (data.kind === EntryKind.SkillOutcome) {
             outcomes.set(data.turnId, stringList(data.read));
-        } else if (data.kind === 'skill-failure' && typeof data.failure === 'string') {
+        } else if (data.kind === EntryKind.SkillFailure && typeof data.failure === 'string') {
             failures.set(data.failure, (failures.get(data.failure) ?? 0) + 1);
         }
     }

@@ -9,7 +9,7 @@ import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPiPlugin, { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
-import registerSystemOne, { activate as activateSystemOne, isPackagedCopy, standsDown } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/index.ts';
+import { activate as activateSystemOne, isPackagedCopy, standsDown } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/index.ts';
 import registerManagedRules from '../../.cratis/ai/harnesses/pi/extensions/cratis-rules/index.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 import { managedRules, rulesForPath, universalRules } from '../../.cratis/ai/harnesses/pi/extensions/shared/rules.ts';
@@ -287,9 +287,16 @@ test('the packaged System One extension stands down only when the project has it
     }
 });
 
-test('this checkout loads the System One extension itself, so the default entry is a managed copy', () => {
+test('a managed System One copy never stands down for itself, even in a project that has it', () => {
+    // repositoryRoot has .pi/extensions/cratis-system-one/index.ts, the very file being run here. With the
+    // real (non-packaged) directory, activate must still register.
+    assert.equal(existsSync(join(repositoryRoot, '.pi', 'extensions', 'cratis-system-one', 'index.ts')), true);
+    assert.equal(isPackagedCopy(), false);
+    assert.equal(standsDown(repositoryRoot), false);
     const registered: string[] = [];
-    registerSystemOne({ on: (name: string) => registered.push(name), registerCommand: () => registered.push('command') } as unknown as ExtensionAPI);
+    const recorder = { on: (name: string) => registered.push(name), registerCommand: () => registered.push('command') } as unknown as ExtensionAPI;
+    assert.equal(activateSystemOne(recorder, repositoryRoot), true);
     assert.ok(registered.includes('before_agent_start'));
     assert.ok(registered.includes('command'));
+    assert.ok(registered.includes('session_shutdown'));
 });

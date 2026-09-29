@@ -1,19 +1,11 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+import type { Connection } from './Connection.ts';
 import { FailureClass } from './FailureClass.ts';
 import type { NoulQuestion } from './NoulQuestion.ts';
 import type { SystemOneOutcome } from './SystemOneOutcome.ts';
-
-/** The injectable transport. Defaults to the global `fetch`. */
-export type Transport = typeof fetch;
-
-export interface Connection {
-    endpoint: string;
-    model: string;
-    timeoutMs: number;
-    apiKey?: string;
-}
+import type { Transport } from './Transport.ts';
 
 const maximumResponseBytes = 256 * 1024;
 const maximumRetryAfterMs = 10 * 60_000;
@@ -92,9 +84,13 @@ export async function askSystemOne(
     questions: Record<string, NoulQuestion>,
     transport: Transport = fetch,
     now: () => number = Date.now,
+    parent?: AbortSignal,
 ): Promise<SystemOneOutcome> {
     const started = now();
     const controller = new AbortController();
+    // A session that ended cancels what it started.
+    if (parent?.aborted) controller.abort();
+    else parent?.addEventListener('abort', () => controller.abort(), { once: true });
     const timer = setTimeout(() => controller.abort(), connection.timeoutMs);
     const failed = (failure: FailureClass, retryAfter?: number): SystemOneOutcome => ({ ok: false, failure, latencyMs: now() - started, retryAfterMs: retryAfter });
 

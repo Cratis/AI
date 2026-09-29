@@ -3,7 +3,7 @@
 
 import { createServer, type IncomingHttpHeaders, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ExtensionAPI, Skill } from '@earendil-works/pi-coding-agent';
@@ -101,7 +101,10 @@ export function projectFixture(repository?: unknown, user?: unknown): Project {
             writeFileSync(join(directory, '.cratis', 'ai.json'), typeof value === 'string' ? value : JSON.stringify(value));
         },
         writeUser(value) {
-            writeFileSync(join(agentDirectory, 'cratis-system-one.json'), typeof value === 'string' ? value : JSON.stringify(value));
+            const path = join(agentDirectory, 'cratis-system-one.json');
+            writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value));
+            // Private, as setup writes it, whatever the umask of the machine running the specs.
+            chmodSync(path, 0o600);
         },
         cleanup() {
             rmSync(directory, { recursive: true, force: true });
@@ -115,8 +118,8 @@ export function projectFixture(repository?: unknown, user?: unknown): Project {
 
 export const promptText = 'Please add a command that opens an account and validate the owner name.';
 
-/** A project whose user has run setup: enabled, pointing at `endpoint`. `extra` adds or overrides user settings. */
-export function enabledProject(endpoint: string, extra: Record<string, unknown> = {}, repository?: unknown): Project {
+/** A project set up with Cratis AI (it has `.cratis/ai.json`) whose user has run setup: enabled, pointing at `endpoint`. */
+export function enabledProject(endpoint: string, extra: Record<string, unknown> = {}, repository: unknown = {}): Project {
     return projectFixture(repository, { enabled: true, endpoint, consentedAt: '2026-01-01T00:00:00.000Z', ...extra });
 }
 
@@ -142,6 +145,8 @@ export function host(project: Project, dependencies: SystemOneDependencies = {},
     const commands = new Map<string, (argumentsText: string, context: unknown) => Promise<void>>();
     const entries: Array<{ type: string; data: Record<string, unknown> }> = [];
     const notices: string[] = [];
+    /** What went to stdout: command output when Pi has no UI. */
+    const stdout: string[] = [];
     const prompts: Prompt[] = [];
     const misuse: string[] = [];
     const script = { inputs: [...(options.script?.inputs ?? [])], confirms: [...(options.script?.confirms ?? [])], select: options.script?.select };
@@ -152,14 +157,16 @@ export function host(project: Project, dependencies: SystemOneDependencies = {},
     } as Record<string, unknown>;
     // Anything else on the API (sending messages, registering tools, changing tools) is misuse in shadow mode.
     const api = new Proxy(known, { get: (target, property) => property in target ? target[property as string] : () => { misuse.push(String(property)); } }) as unknown as ExtensionAPI;
-    const handle = registerSystemOne(api, { environment: {}, agentDirectory: project.agentDirectory, ...dependencies });
+    const handle = registerSystemOne(api, { environment: {}, agentDirectory: project.agentDirectory, write: (text: string) => { stdout.push(text); }, ...dependencies });
+    const hasUI = options.hasUI ?? true;
     const record = (kind: Prompt['kind'], title: string, detail?: string) => prompts.push({ kind, title, detail, userFileExisted: existsSync(join(project.agentDirectory, 'cratis-system-one.json')) });
     const context = {
         cwd: project.directory,
-        hasUI: options.hasUI ?? true,
+        hasUI,
         sessionManager: { getEntries: () => entries.map(entry => ({ type: 'custom', customType: entry.type, data: entry.data })) },
         ui: {
-            notify: (message: string) => { notices.push(message); },
+            // Like Pi without a UI, where notify does nothing.
+            notify: (message: string) => { if (hasUI) notices.push(message); },
             select: async (title: string) => { record('select', title); return script.select; },
             input: async (title: string) => { record('input', title); return script.inputs.shift(); },
             confirm: async (title: string, message: string) => { record('confirm', title, message); return script.confirms.shift() ?? false; },
@@ -167,7 +174,7 @@ export function host(project: Project, dependencies: SystemOneDependencies = {},
     };
     const invoke = (name: string, event: unknown) => handlers.get(name)!(event, context);
     return {
-        entries, notices, prompts, misuse, commands, handlers,
+        entries, notices, stdout, prompts, misuse, commands, handlers,
         settled: () => handle.settled(),
         sessionStart: () => invoke('session_start', { type: 'session_start', reason: 'startup' }),
         input: (text: string) => invoke('input', { type: 'input', text, source: 'interactive' }),
@@ -186,10 +193,12 @@ export function host(project: Project, dependencies: SystemOneDependencies = {},
         },
         read: (path: string, isError = false, toolName = 'read') => invoke('tool_result', { type: 'tool_result', toolName, toolCallId: 'call', input: { path }, content: [], isError, details: undefined }),
         end: () => invoke('agent_end', { type: 'agent_end', messages: [] }),
+        shutdown: () => invoke('session_shutdown', { type: 'session_shutdown', reason: 'quit' }),
+        /** Runs a /system-one command and returns what it showed, in a UI or on stdout. */
         async command(argumentsText = '') {
-            const before = notices.length;
+            const before = [notices.length, stdout.length];
             await commands.get('system-one')!(argumentsText, context);
-            return notices.slice(before).join('\n');
+            return [...notices.slice(before[0]), ...stdout.slice(before[1])].join('\n');
         },
         entriesOfKind: (kind: string) => entries.filter(entry => entry.data.kind === kind).map(entry => entry.data),
     };

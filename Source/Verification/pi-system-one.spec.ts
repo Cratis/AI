@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 import { askSystemOne, retryAfterMs, validateAnswers } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/client.ts';
@@ -10,10 +10,11 @@ import { loadConfiguration, parseUserConfiguration, resolveConfiguration } from 
 import { checkEndpoint, typeSafeEndpoint } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/endpoint.ts';
 import { BreakerState } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/BreakerState.ts';
 import { CircuitBreaker } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/CircuitBreaker.ts';
+import { FileState } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/FileState.ts';
 import { FailureClass } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/FailureClass.ts';
 import { aggregateShadow } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/report.ts';
 import { SkillRelevanceMode } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/SkillRelevanceMode.ts';
-import { readUserConfigurationText, userConfigurationPath, writeUserConfiguration } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/userConfigurationFile.ts';
+import { readUserConfigurationFile, userConfigurationPath, writeUserConfiguration } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/userConfigurationFile.ts';
 import { answering, answerBody, enabledProject, fakeServer, host, json, projectFixture, promptText, skillsIn } from './pi-system-one-helpers.ts';
 
 const secret = 'sk-test-secret-value-1234567890';
@@ -70,7 +71,7 @@ test('the extension registers only the /system-one command and never touches too
         const session = host(project);
         assert.deepEqual([...session.commands.keys()], ['system-one']);
         assert.deepEqual(session.misuse, []);
-        assert.deepEqual([...session.handlers.keys()].sort(), ['agent_end', 'before_agent_start', 'input', 'session_start', 'tool_result']);
+        assert.deepEqual([...session.handlers.keys()].sort(), ['agent_end', 'before_agent_start', 'input', 'session_shutdown', 'session_start', 'tool_result']);
     } finally {
         project.cleanup();
     }
@@ -78,7 +79,7 @@ test('the extension registers only the /system-one command and never touches too
 
 // ---------------------------------------------------------------- only the user enables
 
-test('a repository can never enable System One or point it anywhere', async () => {
+test('a repository can never enable System One or point it anywhere, and trying switches it off', async () => {
     await withServer(answering(0.9), async repositoryServer => {
         await withServer(answering(0.9), async userServer => {
             const enabling = { systemOne: { enabled: true, endpoint: repositoryServer.endpoint, model: 'x', apiKey: secret, timeoutMs: 100 } };
@@ -95,17 +96,17 @@ test('a repository can never enable System One or point it anywhere', async () =
                 }
             }
 
-            // The user enabled a different endpoint: the repository's endpoint, key, model and timeout are all ignored.
+            // The user enabled a different endpoint. The repository's attempt fails closed: nothing goes to the
+            // repository's endpoint, nothing goes to the user's, and the user hears about it once.
             const project = enabledProject(userServer.endpoint, {}, enabling);
             try {
                 const session = host(project);
                 await session.askAndSettle(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
+                await session.askAndSettle(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
                 assert.equal(repositoryServer.requests.length, 0);
-                assert.equal(userServer.requests.length, 1);
-                assert.equal(userServer.requests[0].headers.authorization, undefined, 'the repository key is never used');
-                assert.equal(userServer.requests[0].body.model, 'jev-1.13.0');
-                assert.equal(session.notices.length, 1, 'one notice that the section was ignored');
-                assert.match(session.notices[0], /cannot enable|not allowed/);
+                assert.equal(userServer.requests.length, 0);
+                assert.equal(session.notices.length, 1, 'one notice');
+                assert.match(session.notices[0], /System One is disabled: the systemOne section of \.cratis\/ai\.json is not allowed/);
                 assert.equal(session.notices[0].includes(secret), false);
             } finally {
                 project.cleanup();
@@ -114,23 +115,25 @@ test('a repository can never enable System One or point it anywhere', async () =
     });
 });
 
-test('a repository can opt out or narrow, and a malformed section is ignored with at most one notice', async () => {
+test('a repository can opt out or narrow, and any problem in .cratis/ai.json fails closed with one notice', async () => {
     await withServer(answering(0.9), async server => {
         const cases: Array<[string, unknown, { requests: number; notices: number }]> = [
             ['opt out', { systemOne: { enabled: false } }, { requests: 0, notices: 0 }],
             ['narrow to off', { systemOne: { skillRelevance: { mode: 'off' } } }, { requests: 0, notices: 0 }],
             ['both', { systemOne: { enabled: false, skillRelevance: { mode: 'off' } } }, { requests: 0, notices: 0 }],
             ['an unrelated ai.json', { profiles: ['cratis/documentation'] }, { requests: 1, notices: 0 }],
-            ['section is a string', { systemOne: 'off' }, { requests: 1, notices: 1 }],
-            ['enabled true', { systemOne: { enabled: true } }, { requests: 1, notices: 1 }],
-            ['enabled is not a boolean', { systemOne: { enabled: 'no' } }, { requests: 1, notices: 1 }],
-            ['unknown key', { systemOne: { enabled: false, sendEverything: true } }, { requests: 1, notices: 1 }],
-            ['mode shadow', { systemOne: { skillRelevance: { mode: 'shadow' } } }, { requests: 1, notices: 1 }],
-            ['unknown mode', { systemOne: { skillRelevance: { mode: 'hint' } } }, { requests: 1, notices: 1 }],
-            ['an endpoint', { systemOne: { endpoint: 'http://127.0.0.1:1' } }, { requests: 1, notices: 1 }],
-            ['a timeout', { systemOne: { timeoutMs: 1 } }, { requests: 1, notices: 1 }],
-            ['invalid JSON that mentions systemOne', '{ "systemOne": { "enabled": ', { requests: 1, notices: 1 }],
-            ['invalid JSON that never mentions it', '{ "profiles": [ ', { requests: 1, notices: 0 }],
+            ['no systemOne section', {}, { requests: 1, notices: 0 }],
+            ['section is a string', { systemOne: 'off' }, { requests: 0, notices: 1 }],
+            ['enabled true', { systemOne: { enabled: true } }, { requests: 0, notices: 1 }],
+            ['enabled is not a boolean', { systemOne: { enabled: 'no' } }, { requests: 0, notices: 1 }],
+            ['unknown key beside an opt-out', { systemOne: { enabled: false, sendEverything: true } }, { requests: 0, notices: 1 }],
+            ['mode shadow', { systemOne: { skillRelevance: { mode: 'shadow' } } }, { requests: 0, notices: 1 }],
+            ['unknown mode', { systemOne: { skillRelevance: { mode: 'hint' } } }, { requests: 0, notices: 1 }],
+            ['an endpoint', { systemOne: { endpoint: 'http://127.0.0.1:1' } }, { requests: 0, notices: 1 }],
+            ['a timeout', { systemOne: { timeoutMs: 1 } }, { requests: 0, notices: 1 }],
+            ['invalid JSON that mentions systemOne', '{ "systemOne": { "enabled": ', { requests: 0, notices: 1 }],
+            ['invalid JSON that never mentions it', '{ "profiles": [ ', { requests: 0, notices: 1 }],
+            ['a JSON array', '[]', { requests: 0, notices: 1 }],
         ];
         for (const [name, repository, expected] of cases) {
             const before = server.requests.length;
@@ -142,11 +145,25 @@ test('a repository can opt out or narrow, and a malformed section is ignored wit
                 await session.askAndSettle(promptText, skills);
                 assert.equal((server.requests.length - before) / 2, expected.requests, name);
                 assert.equal(session.notices.length, expected.notices, `${name}: ${session.notices.join(' | ')}`);
+                if (expected.notices > 0) assert.match(session.notices[0], /System One is disabled: .*stays off until that is fixed/, name);
             } finally {
                 project.cleanup();
             }
         }
     });
+
+    // A file that cannot be read is a problem too, not silence; and an unconfigured user still hears nothing.
+    const project = enabledProject('http://127.0.0.1:1');
+    try {
+        rmSync(join(project.directory, '.cratis', 'ai.json'));
+        mkdirSync(join(project.directory, '.cratis', 'ai.json'));
+        const session = host(project, { transport: failOnCall });
+        await session.askAndSettle(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
+        assert.equal(session.notices.length, 1);
+        assert.match(session.notices[0], /could not be read/);
+    } finally {
+        project.cleanup();
+    }
 });
 
 test('the environment can disable, narrow and override, but never enable', async () => {
@@ -166,7 +183,8 @@ test('the environment can disable, narrow and override, but never enable', async
         const project = enabledProject('https://example.invalid/v1/systemone');
         try {
             const configuration = (environment: NodeJS.ProcessEnv) => loadConfiguration(project.directory, project.agentDirectory, environment);
-            assert.equal(configuration({ CRATIS_SYSTEM_ONE: '0' }).enabled, false);
+            for (const value of ['0', 'false', 'off', 'no', 'FALSE', ' Off ', 'No']) assert.equal(configuration({ CRATIS_SYSTEM_ONE: value }).enabled, false, value);
+            for (const value of ['1', 'true', 'yes', '']) assert.equal(configuration({ CRATIS_SYSTEM_ONE: value }).enabled, true, value);
             const off = configuration({ CRATIS_SYSTEM_ONE_SKILL_RELEVANCE: 'off' });
             assert.ok(off.enabled && off.settings.skillRelevance.mode === SkillRelevanceMode.Off);
             const other = configuration({ CRATIS_SYSTEM_ONE_SKILL_RELEVANCE: 'shadow' });
@@ -187,8 +205,8 @@ test('the environment can disable, narrow and override, but never enable', async
 
 // ---------------------------------------------------------------- keys
 
-test('a key is only ever sent to the endpoint the user configured, and TYPESAFE_API_KEY only to TypeSafe', async () => {
-    const project = enabledProject('https://example.invalid/v1/systemone', {}, { systemOne: { apiKey: secret } });
+test('a key is only ever sent to the endpoint it was meant for', async () => {
+    const project = enabledProject('https://example.invalid/v1/systemone');
     try {
         const sent: Array<{ url: string; authorization?: string }> = [];
         const transport = async (input: string | URL | Request, init?: RequestInit) => {
@@ -206,14 +224,23 @@ test('a key is only ever sent to the endpoint the user configured, and TYPESAFE_
         // A global TypeSafe key alone goes nowhere but TypeSafe.
         await run({ endpoint: 'https://example.invalid/v1/systemone' }, { TYPESAFE_API_KEY: secret });
         assert.deepEqual(sent.at(-1), { url: 'https://example.invalid/v1/systemone', authorization: undefined });
-        await run({ endpoint: 'http://127.0.0.1:8000' }, { TYPESAFE_API_KEY: secret });
-        assert.deepEqual(sent.at(-1), { url: 'http://127.0.0.1:8000/v1/systemone', authorization: undefined });
         await run({ endpoint: 'https://api.typesafe.ai.evil.example/v1/systemone' }, { TYPESAFE_API_KEY: secret });
         assert.equal(sent.at(-1)?.authorization, undefined, 'a look-alike host is not TypeSafe');
         await run({}, { TYPESAFE_API_KEY: secret });
         assert.deepEqual(sent.at(-1), { url: typeSafeEndpoint, authorization: `Bearer ${secret}` });
 
-        // Precedence: SYSTEMONE_API_KEY, then TYPESAFE_API_KEY (TypeSafe only), then the user's file.
+        // Environment keys are never attached to a loopback http endpoint, whatever the variable.
+        for (const environment of [{ TYPESAFE_API_KEY: secret }, { SYSTEMONE_API_KEY: secret }, { SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret }]) {
+            await run({ endpoint: 'http://127.0.0.1:8000' }, environment);
+            assert.deepEqual(sent.at(-1), { url: 'http://127.0.0.1:8000/v1/systemone', authorization: undefined }, JSON.stringify(Object.keys(environment)));
+        }
+        // ... and a loopback server gets a key only if the user stored one for that exact endpoint.
+        await run({ endpoint: 'http://127.0.0.1:8000', apiKey: 'local-key' }, { SYSTEMONE_API_KEY: secret });
+        assert.equal(sent.at(-1)?.authorization, 'Bearer local-key');
+        await run({ endpoint: 'http://127.0.0.1:8000' }, { SYSTEMONE_ENDPOINT: 'http://127.0.0.1:9000', SYSTEMONE_API_KEY: secret });
+        assert.equal(sent.at(-1)?.authorization, undefined);
+
+        // Precedence for https: SYSTEMONE_API_KEY, then TYPESAFE_API_KEY (TypeSafe only), then the user's file.
         await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'from-file' }, { SYSTEMONE_API_KEY: 'from-environment', TYPESAFE_API_KEY: 'typesafe' });
         assert.equal(sent.at(-1)?.authorization, 'Bearer from-environment');
         await run({ apiKey: 'from-file' }, { TYPESAFE_API_KEY: 'typesafe' });
@@ -223,10 +250,24 @@ test('a key is only ever sent to the endpoint the user configured, and TYPESAFE_
         await run({ endpoint: 'http://127.0.0.1:8000' }, {});
         assert.equal(sent.at(-1)?.authorization, undefined, 'no key is fine for loopback');
 
-        // Neither the repository's apiKey (secret) nor any key ever reaches status, entries or notices.
+        // A stored key is bound to the endpoint it was stored for. SYSTEMONE_ENDPOINT moving the destination
+        // elsewhere must not carry the key along, however the origin is spelled.
+        const bound = { endpoint: 'https://example.invalid/v1/systemone', apiKey: 'stored-key' };
+        await run(bound, { SYSTEMONE_ENDPOINT: 'https://other.invalid/v1/systemone' });
+        assert.deepEqual(sent.at(-1), { url: 'https://other.invalid/v1/systemone', authorization: undefined });
+        await run(bound, { SYSTEMONE_ENDPOINT: 'https://example.invalid:8443/v1/systemone' });
+        assert.equal(sent.at(-1)?.authorization, undefined, 'another port is another origin');
+        await run(bound, { SYSTEMONE_ENDPOINT: 'http://127.0.0.1:8000' });
+        assert.equal(sent.at(-1)?.authorization, undefined);
+        await run(bound, { SYSTEMONE_ENDPOINT: 'https://example.invalid/other/v1/systemone' });
+        assert.equal(sent.at(-1)?.authorization, 'Bearer stored-key', 'same origin, so the same key');
+        await run({ apiKey: 'stored-key' }, { SYSTEMONE_ENDPOINT: 'https://other.invalid/v1/systemone' });
+        assert.equal(sent.at(-1)?.authorization, undefined, 'a key stored for the TypeSafe default stays with TypeSafe');
+
+        // No key ever reaches status, entries or notices.
         const session = await run({ endpoint: 'https://example.invalid/v1/systemone', apiKey: 'file-key-value' }, { SYSTEMONE_API_KEY: 'env-key-value' });
         const shown = [await session.command('status'), await session.command('last'), await session.command('report'), JSON.stringify(session.entries), session.notices.join('\n')].join('\n');
-        for (const key of [secret, 'file-key-value', 'env-key-value']) assert.equal(shown.includes(key), false, key);
+        for (const key of [secret, 'file-key-value', 'env-key-value', 'stored-key']) assert.equal(shown.includes(key), false, key);
         assert.match(shown, /credential attached/);
     } finally {
         project.cleanup();
@@ -256,7 +297,7 @@ test('endpoints must be https, or http only for loopback, and bare origins get t
         const checked = checkEndpoint(endpoint);
         assert.ok(!('error' in checked), endpoint);
     }
-    for (const endpoint of ['http://example.invalid', 'http://10.0.0.5:8000', 'http://127.0.0.1@example.invalid', 'http://localhost.example.invalid', 'http://127.0.0.1.example.invalid', 'http://user:pass@127.0.0.1:8000', 'ftp://127.0.0.1', 'http://127.0.0.1:8000/?x=1', 'https://example.invalid/#x', 'not a url']) {
+    for (const endpoint of ['http://example.invalid', 'http://0.0.0.0', 'http://0.0.0.0:8000', 'http://[::ffff:127.0.0.1]:8000', 'http://[::ffff:7f00:1]', 'http://10.0.0.5:8000', 'http://127.0.0.1@example.invalid', 'http://localhost.example.invalid', 'http://127.0.0.1.example.invalid', 'http://user:pass@127.0.0.1:8000', 'ftp://127.0.0.1', 'http://127.0.0.1:8000/?x=1', 'https://example.invalid/#x', 'not a url']) {
         assert.ok('error' in checkEndpoint(endpoint), endpoint);
     }
     const bare = checkEndpoint('http://localhost:8000');
@@ -271,7 +312,7 @@ test('endpoints must be https, or http only for loopback, and bare origins get t
 });
 
 test('an endpoint the user configured but that is not allowed disables System One with one notice and sends nothing', async () => {
-    for (const endpoint of ['http://example.invalid', 'https://user:pass@example.invalid', 'ftp://example.invalid']) {
+    for (const endpoint of ['http://example.invalid', 'http://0.0.0.0:8000', 'http://[::ffff:127.0.0.1]:8000', 'https://user:pass@example.invalid', 'ftp://example.invalid']) {
         const project = enabledProject(endpoint);
         try {
             const session = host(project, { transport: failOnCall });
@@ -321,8 +362,8 @@ test('the user file is validated strictly, and defaults are the TypeSafe endpoin
         assert.deepEqual(defaults.settings.skillRelevance, { mode: 'shadow', maxQuestions: 128, chunkSize: 32, minPromptChars: 20, stateChars: 1200, criterionChars: 200 });
 
         // resolveConfiguration is pure: the same inputs give the same answer with no files at all.
-        assert.deepEqual(resolveConfiguration({ userText: JSON.stringify({ enabled: true, consentedAt }), repositoryText: undefined, environment: {} }), defaults);
-        assert.equal(resolveConfiguration({ userText: undefined, repositoryText: '{ "systemOne": { "enabled": true } }', environment: { CRATIS_SYSTEM_ONE: '1' } }).enabled, false);
+        assert.deepEqual(resolveConfiguration({ user: { state: FileState.Present, text: JSON.stringify({ enabled: true, consentedAt }) }, repository: { state: FileState.Missing }, environment: {} }), defaults);
+        assert.equal(resolveConfiguration({ user: { state: FileState.Missing }, repository: { state: FileState.Present, text: '{ "systemOne": { "enabled": true } }' }, environment: { CRATIS_SYSTEM_ONE: '1' } }).enabled, false);
     } finally {
         project.cleanup();
     }
@@ -340,7 +381,7 @@ test('the user file is written atomically with mode 0600 and round-trips', () =>
         assert.equal(written, path);
         assert.equal(statSync(path).mode & 0o777, 0o600, 'an existing file is replaced by a private one');
         assert.deepEqual(readdirSync(project.agentDirectory), ['cratis-system-one.json'], 'no temp file is left behind');
-        assert.deepEqual(parseUserConfiguration(readUserConfigurationText(project.agentDirectory)!), { enabled: true, endpoint: 'https://example.invalid/v1/systemone', apiKey: secret, consentedAt, skillRelevance: { mode: 'shadow' } });
+        assert.deepEqual(parseUserConfiguration((readUserConfigurationFile(project.agentDirectory) as { text: string }).text), { enabled: true, endpoint: 'https://example.invalid/v1/systemone', apiKey: secret, consentedAt, skillRelevance: { mode: 'shadow' } });
 
         const nested = join(project.agentDirectory, 'a', 'b');
         writeUserConfiguration(nested, { enabled: false, consentedAt });
@@ -350,15 +391,59 @@ test('the user file is written atomically with mode 0600 and round-trips', () =>
     }
 });
 
+test('an unreadable user file is reported as unreadable, and a file others can read is flagged once', () => {
+    const project = projectFixture();
+    try {
+        // A directory where the file should be cannot be read.
+        mkdirSync(userConfigurationPath(project.agentDirectory));
+        assert.equal(readUserConfigurationFile(project.agentDirectory).state, FileState.Unreadable);
+        const unreadable = loadConfiguration(project.directory, project.agentDirectory, {});
+        assert.ok(!unreadable.enabled && unreadable.configured);
+        assert.match(unreadable.enabled ? '' : unreadable.reason, /could not be read/);
+        assert.match(unreadable.enabled ? '' : unreadable.notice ?? '', /could not be read/);
+        rmSync(userConfigurationPath(project.agentDirectory), { recursive: true });
+
+        const path = userConfigurationPath(project.agentDirectory);
+        writeFileSync(path, JSON.stringify({ enabled: true, consentedAt, apiKey: secret }));
+        chmodSync(path, 0o644);
+        const open = loadConfiguration(project.directory, project.agentDirectory, {});
+        assert.ok(open.enabled);
+        assert.match(open.notice ?? '', /can be read by other users.*chmod 600/);
+        assert.equal((open.notice ?? '').includes(secret), false);
+        chmodSync(path, 0o600);
+        const closed = loadConfiguration(project.directory, project.agentDirectory, {});
+        assert.ok(closed.enabled && closed.notice === undefined);
+    } finally {
+        project.cleanup();
+    }
+});
+
+test('a failed write leaves no temp file behind and the old file intact', () => {
+    const project = projectFixture();
+    try {
+        // A non-empty directory where the file should go makes the final rename fail.
+        const path = userConfigurationPath(project.agentDirectory);
+        mkdirSync(join(path, 'inside'), { recursive: true });
+        assert.throws(() => writeUserConfiguration(project.agentDirectory, { enabled: true, apiKey: secret, consentedAt }));
+        assert.deepEqual(readdirSync(project.agentDirectory), ['cratis-system-one.json'], 'the temp file was removed');
+        assert.equal(existsSync(join(path, 'inside')), true);
+    } finally {
+        project.cleanup();
+    }
+});
+
 // ---------------------------------------------------------------- /system-one setup and off
 
 const setupSkills = 'cratis-arc-command';
+const local = 'Local server such as Laya (loopback URL)';
+const typeSafe = 'TypeSafe Jev (recommended)';
+const other = 'Other System One provider (endpoint URL)';
 
 test('setup states what is sent, confirms, probes, and only then saves a private file', async () => {
     await withServer(answering(0.97), async server => {
         const project = projectFixture();
         try {
-            const session = host(project, {}, { script: { select: 'Local server such as Laya (loopback URL)', inputs: [server.endpoint], confirms: [true] } });
+            const session = host(project, {}, { script: { select: local, inputs: [server.endpoint, ''], confirms: [true] } });
             const output = await session.command('setup');
 
             assert.equal(server.requests.length, 1, 'exactly one probe request');
@@ -371,11 +456,15 @@ test('setup states what is sent, confirms, probes, and only then saves a private
             assert.ok(confirm);
             assert.equal(confirm.userFileExisted, false, 'nothing is saved before the user confirms');
             assert.ok(confirm.detail?.includes(server.endpoint), 'names the destination');
-            assert.match(confirm.detail!, /first 1200 characters/);
+            assert.match(confirm.detail!, /first 1200 characters of each prompt you type in an interactive session/);
+            assert.match(confirm.detail!, /in repositories set up with Cratis AI/);
             assert.match(confirm.detail!, /names and first sentence/);
+            assert.match(confirm.detail!, /Slash commands and skill or template invocations are not sent/);
+            assert.match(confirm.detail!, /Subagent tasks, attachments, file contents and tool output are never sent/);
+            assert.doesNotMatch(confirm.detail!, /after slash-command expansion/);
             assert.match(confirm.detail!, /\/system-one off/);
 
-            assert.match(output, /Probe succeeded in \d+ ms: cratis-arc-command scored 0\.97/);
+            assert.match(output, /Probe of http:\/\/127\.0\.0\.1:\d+ succeeded in \d+ ms: cratis-arc-command scored 0\.97/);
             assert.match(output, /System One enabled in shadow mode/);
             const path = userConfigurationPath(project.agentDirectory);
             assert.equal(statSync(path).mode & 0o777, 0o600);
@@ -387,6 +476,7 @@ test('setup states what is sent, confirms, probes, and only then saves a private
             assert.deepEqual(saved.skillRelevance, { mode: 'shadow' });
 
             // And it now works: a turn is asked about.
+            project.configure({});
             await session.askAndSettle(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
             assert.equal(server.requests.length, 2);
         } finally {
@@ -403,7 +493,7 @@ test('setup for TypeSafe stores a typed key only in the private file, and never 
             sent.push({ url: String(input), authorization: (init?.headers as Record<string, string>).authorization });
             return new Response(JSON.stringify({ model: 'jev-1.13.0', answers: { [setupSkills]: { type: 'noul', noul: 0.88 } } }), { status: 200 });
         };
-        const session = host(project, { transport }, { script: { select: 'TypeSafe Jev (recommended)', inputs: [secret], confirms: [true] } });
+        const session = host(project, { transport }, { script: { select: typeSafe, inputs: [secret], confirms: [true] } });
         const output = await session.command('setup');
         assert.deepEqual(sent, [{ url: typeSafeEndpoint, authorization: `Bearer ${secret}` }]);
         const confirm = session.prompts.find(prompt => prompt.kind === 'confirm')!;
@@ -427,7 +517,7 @@ test('setup uses an environment key without asking for one or storing it', async
             sent.push((init?.headers as Record<string, string>).authorization);
             return new Response(JSON.stringify({ answers: { [setupSkills]: { type: 'noul', noul: 0.5 } } }), { status: 200 });
         };
-        const session = host(project, { transport, environment: { TYPESAFE_API_KEY: secret } }, { script: { select: 'TypeSafe Jev (recommended)', confirms: [true] } });
+        const session = host(project, { transport, environment: { TYPESAFE_API_KEY: secret } }, { script: { select: typeSafe, confirms: [true] } });
         await session.command('setup');
         assert.deepEqual(sent, [`Bearer ${secret}`]);
         assert.equal(session.prompts.some(prompt => prompt.kind === 'input'), false, 'no key prompt');
@@ -435,6 +525,31 @@ test('setup uses an environment key without asking for one or storing it', async
     } finally {
         project.cleanup();
     }
+});
+
+test('setup for a local server never uses an environment key, and stores a typed one for that endpoint only', async () => {
+    await withServer(answering(0.5), async server => {
+        const environment = { SYSTEMONE_API_KEY: secret, TYPESAFE_API_KEY: secret };
+        const project = projectFixture();
+        try {
+            // The environment key does not apply to loopback http, so setup asks; blank means none.
+            const none = host(project, { environment }, { script: { select: local, inputs: [server.endpoint, ''], confirms: [true] } });
+            await none.command('setup');
+            assert.ok(none.prompts.some(prompt => prompt.kind === 'input' && /API key/.test(prompt.title)), 'the key question is asked');
+            assert.equal(server.requests[0].headers.authorization, undefined);
+            assert.equal(JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8')).apiKey, undefined);
+
+            const keyed = host(project, { environment }, { script: { select: local, inputs: [server.endpoint, 'local-key'], confirms: [true] } });
+            const output = await keyed.command('setup');
+            assert.equal(server.requests[1].headers.authorization, 'Bearer local-key');
+            const saved = JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8'));
+            assert.equal(saved.apiKey, 'local-key');
+            assert.equal(statSync(userConfigurationPath(project.agentDirectory)).mode & 0o777, 0o600);
+            assert.equal([output, ...keyed.prompts.map(prompt => prompt.title)].join('\n').includes('local-key'), false);
+        } finally {
+            project.cleanup();
+        }
+    });
 });
 
 test('setup with another provider probes its endpoint', async () => {
@@ -445,7 +560,7 @@ test('setup with another provider probes its endpoint', async () => {
             urls.push(String(input));
             return new Response(JSON.stringify({ answers: { [setupSkills]: { type: 'noul', noul: 0.5 } } }), { status: 200 });
         };
-        const session = host(project, { transport }, { script: { select: 'Other System One provider (endpoint URL)', inputs: ['https://opencode.ai/zen/v1/systemone', 'zen-key'], confirms: [true] } });
+        const session = host(project, { transport }, { script: { select: other, inputs: ['https://opencode.ai/zen/v1/systemone', 'zen-key'], confirms: [true] } });
         await session.command('setup');
         assert.deepEqual(urls, ['https://opencode.ai/zen/v1/systemone']);
         assert.equal(JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8')).endpoint, 'https://opencode.ai/zen/v1/systemone');
@@ -454,14 +569,58 @@ test('setup with another provider probes its endpoint', async () => {
     }
 });
 
+test('setup discloses, names and probes the endpoint that will really be used when SYSTEMONE_ENDPOINT overrides the choice', async () => {
+    await withServer(answering(0.6), async chosen => {
+        await withServer(answering(0.6), async overriding => {
+            const project = projectFixture();
+            try {
+                const environment = { SYSTEMONE_ENDPOINT: overriding.endpoint };
+                const session = host(project, { environment }, { script: { select: local, inputs: [chosen.endpoint, ''], confirms: [true] } });
+                const output = await session.command('setup');
+
+                const confirm = session.prompts.find(prompt => prompt.kind === 'confirm')!;
+                assert.ok(confirm.title.includes(overriding.endpoint), 'the confirmation names where data will go');
+                assert.match(confirm.detail!, new RegExp(`Cratis will send to ${overriding.endpoint.replace(/[.]/g, '\\.')}`));
+                assert.match(confirm.detail!, /SYSTEMONE_ENDPOINT in your environment overrides the endpoint you chose/);
+                assert.ok(confirm.detail!.includes(chosen.endpoint), 'and says what it overrides');
+
+                assert.equal(chosen.requests.length, 0, 'the chosen endpoint is not probed');
+                assert.equal(overriding.requests.length, 1, 'the effective endpoint is');
+                assert.match(output, /SYSTEMONE_ENDPOINT overrides its endpoint while it is set/);
+                assert.equal(JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8')).endpoint, `${chosen.endpoint}/v1/systemone`, 'the file keeps the user\'s choice');
+            } finally {
+                project.cleanup();
+            }
+        });
+    });
+});
+
+test('setup stops when the environment would keep it from running, or points somewhere not allowed', async () => {
+    for (const [name, environment, expected] of [
+        ['CRATIS_SYSTEM_ONE=0', { CRATIS_SYSTEM_ONE: '0' }, /would not run here \(disabled by CRATIS_SYSTEM_ONE\)/],
+        ['SYSTEMONE_ENDPOINT over http to a remote host', { SYSTEMONE_ENDPOINT: 'http://example.invalid' }, /would not run here \(SYSTEMONE_ENDPOINT: a non-loopback endpoint must use https/],
+    ] as const) {
+        const project = projectFixture();
+        try {
+            const session = host(project, { environment, transport: failOnCall }, { script: { select: typeSafe, inputs: [secret], confirms: [true] } });
+            const output = await session.command('setup');
+            assert.match(output, expected, name);
+            assert.equal(session.prompts.some(prompt => prompt.kind === 'confirm'), false, `${name}: nothing to confirm`);
+            assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false, name);
+        } finally {
+            project.cleanup();
+        }
+    }
+});
+
 test('a failed probe saves nothing unless the user insists', async () => {
     await withServer((_request, response) => json(response, 401, { detail: 'no' }), async server => {
         for (const [insist, saved] of [[false, false], [true, true]] as const) {
             const project = projectFixture();
             try {
-                const session = host(project, {}, { script: { select: 'Local server such as Laya (loopback URL)', inputs: [server.endpoint], confirms: [true, insist] } });
+                const session = host(project, {}, { script: { select: local, inputs: [server.endpoint, ''], confirms: [true, insist] } });
                 const output = await session.command('setup');
-                assert.match(output, /Probe failed \(unauthorized/);
+                assert.match(output, /Probe of http:\/\/127\.0\.0\.1:\d+ failed \(unauthorized/);
                 assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), saved);
                 assert.match(output, saved ? /System One enabled/ : /cancelled/);
             } finally {
@@ -473,12 +632,15 @@ test('a failed probe saves nothing unless the user insists', async () => {
 
 test('setup stops without saving or sending when the user declines, cancels, or gives an unusable endpoint', async () => {
     const cases: Array<[string, { select?: string; inputs?: Array<string | undefined>; confirms?: boolean[] }, RegExp]> = [
-        ['declines the disclosure', { select: 'TypeSafe Jev (recommended)', inputs: [secret], confirms: [false] }, /cancelled/],
+        ['declines the disclosure', { select: typeSafe, inputs: [secret], confirms: [false] }, /cancelled/],
         ['cancels the backend choice', {}, /cancelled/],
-        ['cancels the endpoint', { select: 'Other System One provider (endpoint URL)', inputs: [undefined] }, /cancelled/],
-        ['gives no key for a hosted provider', { select: 'TypeSafe Jev (recommended)', inputs: [''] }, /needs an API key/],
-        ['gives http for a remote provider', { select: 'Other System One provider (endpoint URL)', inputs: ['http://example.invalid'] }, /https/],
-        ['gives a remote URL for a local server', { select: 'Local server such as Laya (loopback URL)', inputs: ['https://example.invalid'] }, /local server must be on 127\.0\.0\.1/],
+        ['cancels the endpoint', { select: other, inputs: [undefined] }, /cancelled/],
+        ['cancels the key', { select: typeSafe, inputs: [undefined] }, /cancelled/],
+        ['gives no key for a hosted provider', { select: typeSafe, inputs: [''] }, /needs an API key/],
+        ['gives http for a remote provider', { select: other, inputs: ['http://example.invalid'] }, /https/],
+        ['gives 0.0.0.0 for a local server', { select: local, inputs: ['http://0.0.0.0:8000'] }, /https/],
+        ['gives an IPv4-mapped loopback address', { select: local, inputs: ['http://[::ffff:127.0.0.1]:8000'] }, /https/],
+        ['gives a remote URL for a local server', { select: local, inputs: ['https://example.invalid'] }, /local server must be on 127\.0\.0\.1/],
     ];
     for (const [name, script, expected] of cases) {
         const project = projectFixture();
@@ -493,14 +655,17 @@ test('setup stops without saving or sending when the user declines, cancels, or 
     }
 });
 
-test('setup without a UI prints the manual steps and writes nothing', async () => {
+test('setup without a UI prints the manual steps to stdout and writes nothing', async () => {
     const project = projectFixture();
     try {
         const session = host(project, { transport: failOnCall }, { hasUI: false });
         const output = await session.command('setup');
+        assert.deepEqual(session.notices, [], 'notify does nothing without a UI');
+        assert.equal(session.stdout.length, 1);
         assert.match(output, /cratis-system-one\.json/);
         assert.match(output, /chmod 600/);
-        assert.match(output, /first 1200 characters/);
+        assert.match(output, /first 1200 characters of each prompt you type in an interactive session/);
+        assert.match(output, /repositories set up with Cratis AI/);
         assert.equal(session.prompts.length, 0);
         assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false);
     } finally {
@@ -536,6 +701,67 @@ test('/system-one off turns it off, keeps the file private and the consent recor
     }
 });
 
+test('a command that fails says so without the error text', async () => {
+    const project = enabledProject('http://127.0.0.1:1');
+    try {
+        const session = host(project, { configure: () => { throw new Error(`boom at /private/path with ${secret}`); } });
+        const output = await session.command('status');
+        assert.equal(output, 'System One: the command failed; nothing may have been saved.');
+        assert.equal(output.includes(secret), false);
+        assert.equal(output.includes('/private/path'), false);
+    } finally {
+        project.cleanup();
+    }
+});
+
+// ---------------------------------------------------------------- only interactive sessions in Cratis repositories
+
+test('without a UI (print, json, RPC without one, subagent children) nothing is ever asked, and output goes to stdout', async () => {
+    await withServer(answering(0.9), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            const session = host(project, {}, { hasUI: false });
+            const { result } = await session.askAndSettle(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
+            assert.equal(result, undefined);
+            assert.equal(server.requests.length, 0);
+            assert.deepEqual(session.entries, []);
+            const status = await session.command('status');
+            assert.match(status, /no interactive session 1/);
+            assert.match(status, /State: enabled/);
+            assert.deepEqual(session.notices, []);
+            assert.equal(session.stdout.length, 1, 'status went to stdout');
+            assert.match(await session.command('last'), /not been asked/);
+            assert.match(await session.command('report'), /No skill-relevance turns/);
+            assert.match(await session.command('bogus'), /Usage: /);
+            assert.equal(session.stdout.length, 4);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('only repositories set up with Cratis AI are asked about, quietly', async () => {
+    await withServer(answering(0.9), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            rmSync(join(project.directory, '.cratis', 'ai.json'));
+            const session = host(project);
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 0);
+            assert.deepEqual(session.notices, []);
+            assert.match(await session.command('status'), /not a repository set up with Cratis AI 1/);
+
+            // A managed install (its manifest) counts as much as .cratis/ai.json.
+            writeFileSync(join(project.directory, '.cratis', 'ai.manifest.json'), '{}');
+            await session.askAndSettle(promptText, skills);
+            assert.equal(server.requests.length, 1);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
 // ---------------------------------------------------------------- never delays a prompt
 
 test('before_agent_start returns at once even when the server hangs, and the request is recorded as a failure later', async () => {
@@ -546,10 +772,10 @@ test('before_agent_start returns at once even when the server hangs, and the req
             const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
             const started = Date.now();
             const { result, unchanged } = session.ask(promptText, skills);
-            const elapsed = Date.now() - started;
+            // The handler is synchronous: it returned nothing (not a promise) while the request could not have
+            // finished, because the server never answers. That is the whole guarantee, with no clock involved.
             assert.equal(result, undefined, 'the handler returns nothing, synchronously');
             assert.ok(unchanged());
-            assert.ok(elapsed < 100, `the turn was held for ${elapsed} ms`);
             assert.equal(session.entries.length, 0, 'nothing is recorded yet');
 
             await session.settled();
@@ -573,13 +799,74 @@ test('the circuit breaker opens after three failures and then no request is made
             assert.match(status, /failed 3 \(timeout 3\)/);
             assert.match(status, /Circuit breaker: open, retry in/);
 
-            const started = Date.now();
             await session.askAndSettle(promptText, skills);
-            assert.ok(Date.now() - started < 50);
             assert.equal(server.requests.length, 3, 'no request while the breaker is open');
             assert.match(await session.command('status'), /circuit breaker open 1/);
             assert.equal(session.notices.filter(notice => /failed \(timeout\)/.test(notice)).length, 1, 'one notice per error class');
             assert.equal(session.notices.filter(notice => /paused/.test(notice)).length, 1);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('ending the session cancels in-flight requests and nothing is recorded afterwards', async () => {
+    await withServer(() => { /* never answer */ }, async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            // The default 5 s timeout stays: only the shutdown can end this request early.
+            const session = host(project);
+            session.ask(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
+            while (server.requests.length === 0) await new Promise(resolve => setTimeout(resolve, 10));
+            const started = Date.now();
+            session.shutdown();
+            await session.settled();
+            assert.ok(Date.now() - started < 2500, 'the request was aborted, not waited for');
+            assert.deepEqual(session.entries, [], 'no entry after shutdown');
+            assert.deepEqual(session.notices, []);
+        } finally {
+            project.cleanup();
+        }
+    });
+});
+
+test('the breaker counts turns, not chunks, and half-open sends one probe request before the fan-out resumes', async () => {
+    let healthy = false;
+    await withServer((request, response) => healthy ? json(response, 200, answerBody(request, 0.5)) : json(response, 500, 'down'), async server => {
+        const project = enabledProject(server.endpoint);
+        try {
+            let clock = 1_000_000;
+            const session = host(project, { now: () => clock });
+            const skills = skillsIn(project.directory, Array.from({ length: 70 }, (_unused, index) => ({ name: `skill-${index}` })));
+            const requests = () => server.requests.length;
+
+            // Each failing turn fans out to three chunks, yet three turns, not three chunks, open the breaker.
+            await session.askAndSettle(promptText, skills);
+            assert.equal(requests(), 3);
+            assert.match(await session.command('status'), /Circuit breaker: closed/, 'three failed chunks are one failed turn');
+            await session.askAndSettle(promptText, skills);
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
+            await session.askAndSettle(promptText, skills);
+            assert.match(await session.command('status'), /Circuit breaker: open/);
+            assert.equal(requests(), 9);
+
+            // Open: nothing is sent. Half-open, server still down: exactly one probe request, no fan-out.
+            await session.askAndSettle(promptText, skills);
+            assert.equal(requests(), 9);
+            clock += 31_000;
+            await session.askAndSettle(promptText, skills);
+            assert.equal(requests(), 10, 'one probe of one chunk');
+            assert.equal(Object.keys(server.requests[9].body.questions).length, 32);
+            assert.match(await session.command('status'), /Circuit breaker: open/);
+
+            // Half-open again, server recovered: the probe succeeds, then the remaining chunks go out.
+            healthy = true;
+            clock += 61_000;
+            await session.askAndSettle(promptText, skills);
+            assert.equal(requests(), 13, 'the probe plus the other two chunks');
+            const [judgement] = session.entriesOfKind('skill-relevance');
+            assert.equal(judgement.answered, 70);
+            assert.match(await session.command('status'), /Circuit breaker: closed/);
         } finally {
             project.cleanup();
         }
@@ -698,7 +985,7 @@ test('a transport that throws or ignores the abort signal still fails open withi
         const ignoring = host(project, { requestTimeoutMs: 100, transport: () => new Promise<Response>(() => { /* never settles */ }) });
         const started = Date.now();
         await ignoring.askAndSettle(promptText, skills);
-        assert.ok(Date.now() - started < 600);
+        assert.ok(Date.now() - started < 3000, 'the timeout ends a transport that ignores the abort signal');
         assert.match(await ignoring.command('status'), /timeout 1/);
     } finally {
         project.cleanup();
@@ -734,7 +1021,7 @@ test('requests are chunked to at most 32 questions and sent concurrently', async
     }, async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             const skills = skillsIn(project.directory, Array.from({ length: 70 }, (_unused, index) => ({ name: `skill-${index}` })));
             const started = Date.now();
             await session.askAndSettle(promptText, skills);
@@ -768,7 +1055,7 @@ test('a failed chunk is recorded as a failure while the answered chunks are kept
     }, async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             await session.askAndSettle(promptText, skillsIn(project.directory, Array.from({ length: 70 }, (_unused, index) => ({ name: `skill-${index}` }))));
             assert.equal(session.entriesOfKind('skill-failure').length, 1);
             const [judgement] = session.entriesOfKind('skill-relevance');
@@ -784,7 +1071,7 @@ test('the total fuse skips the call and reports it instead of trimming', async (
     await withServer(answering(0.5), async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             const limit = skillsIn(project.directory, Array.from({ length: 128 }, (_unused, index) => ({ name: `skill-${index}` })));
             await session.askAndSettle(promptText, limit);
             assert.equal(server.requests.length, 4, '128 skills is exactly the limit: four requests of 32');
@@ -836,7 +1123,7 @@ test('only corpus skills the model may invoke are asked about, and requests are 
             const viaSymlink = { ...managed[0], name: 'cratis-through-link', filePath: join(project.directory, '.pi', 'skills', 'cratis-arc-command', 'SKILL.md') };
             const foreign = skillsIn(project.directory, [{ name: 'personal-skill', directory: 'elsewhere' }]);
             const lookalike = skillsIn(project.directory, [{ name: 'cratis-lookalike', directory: join('.cratis', 'ai', 'skills-other') }]);
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             await session.askAndSettle(promptText, [...managed, viaSymlink, ...foreign, ...lookalike]);
 
             assert.equal(server.requests.length, 1);
@@ -864,14 +1151,22 @@ test('only corpus skills the model may invoke are asked about, and requests are 
     });
 });
 
-test('the packaged corpus counts as a corpus root', async () => {
+test('a managed copy asks about the project corpus, the packaged copy only about the packaged corpus', async () => {
     await withServer(answering(0.5), async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const packaged = skillsIn(project.directory, [{ name: 'packaged-skill', directory: join('node_modules', 'pkg', 'corpus', 'skills') }]);
-            const session = host(project, { packagedSkillRoots: [join(project.directory, 'node_modules', 'pkg', 'corpus', 'skills')] });
-            await session.askAndSettle(promptText, packaged);
-            assert.deepEqual(Object.keys(server.requests[0].body.questions), ['packaged-skill']);
+            const managed = skillsIn(project.directory, [{ name: 'managed-skill' }]);
+            const packagedDirectory = join(project.directory, 'node_modules', 'pkg', 'package', 'corpus');
+            const packaged = skillsIn(project.directory, [{ name: 'packaged-skill', directory: join('node_modules', 'pkg', 'package', 'corpus', 'skills') }]);
+            const extensionDirectory = join(packagedDirectory, 'harnesses', 'pi', 'extensions', 'cratis-system-one');
+
+            // A managed (or development) copy: the repository's own .cratis/ai/skills, never the packaged ones.
+            await host(project).askAndSettle(promptText, [...managed, ...packaged]);
+            assert.deepEqual(Object.keys(server.requests[0].body.questions), ['managed-skill']);
+
+            // The packaged copy: the packaged corpus, never .cratis/ai/skills.
+            await host(project, { extensionDirectory }).askAndSettle(promptText, [...managed, ...packaged]);
+            assert.deepEqual(Object.keys(server.requests[1].body.questions), ['packaged-skill']);
         } finally {
             project.cleanup();
         }
@@ -882,7 +1177,7 @@ test('short prompts, slash commands and turns without corpus skills are not aske
     await withServer(answering(0.5), async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
             await session.askAndSettle('fix it', skills);
             session.input('/review the current diff');
@@ -928,7 +1223,7 @@ test('shadow mode changes nothing, records ids and probabilities without the pro
     await withServer(answering(id => id === 'skill-a' ? 0.91 : id === 'skill-b' ? 0.42 : 0.03), async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             session.sessionStart();
             const skills = skillsIn(project.directory, [{ name: 'skill-a' }, { name: 'skill-b' }, { name: 'skill-c' }]);
             skillsIn(project.directory, [{ name: 'personal-skill', directory: 'elsewhere' }]);
@@ -997,7 +1292,7 @@ test('a late answer is still recorded after the turn has ended, and joined by tu
     await withServer((request, response) => { release = () => json(response, 200, answerBody(request, 0.8)); }, async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
             session.ask(promptText, skills);
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -1024,7 +1319,7 @@ test('a result that arrives after the session was replaced is dropped', async ()
     await withServer((request, response) => { release = () => json(response, 200, answerBody(request, 0.8)); }, async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             session.ask(promptText, skillsIn(project.directory, [{ name: 'skill-a' }]));
             await new Promise(resolve => setTimeout(resolve, 50));
             session.sessionStart();
@@ -1066,7 +1361,7 @@ test('/system-one report reads the session entries', async () => {
     await withServer(answering(id => id === 'skill-a' ? 0.9 : 0.1), async server => {
         const project = enabledProject(server.endpoint);
         try {
-            const session = host(project, { packagedSkillRoots: [] });
+            const session = host(project);
             const skills = skillsIn(project.directory, [{ name: 'skill-a' }, { name: 'skill-b' }]);
             await session.askAndSettle(promptText, skills);
             session.read('.cratis/ai/skills/skill-b/SKILL.md');

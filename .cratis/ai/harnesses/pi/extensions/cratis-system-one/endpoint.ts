@@ -1,13 +1,13 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+import type { EndpointCheck } from './EndpointCheck.ts';
+
 const loopbackHosts = new Set(['127.0.0.1', '[::1]', 'localhost']);
 
 /** The only origin that may receive `TYPESAFE_API_KEY`. */
 export const typeSafeOrigin = 'https://api.typesafe.ai';
 export const typeSafeEndpoint = `${typeSafeOrigin}/v1/systemone`;
-
-export type EndpointCheck = { endpoint: string; origin: string; loopback: boolean } | { error: string };
 
 export function isLoopbackHost(hostname: string): boolean {
     return loopbackHosts.has(hostname);
