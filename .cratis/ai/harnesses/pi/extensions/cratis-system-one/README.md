@@ -29,9 +29,11 @@ It walks you through four things:
    does not mask typing, so prefer `SYSTEMONE_API_KEY` in your environment if you would rather store
    nothing.
 3. **What leaves your machine, stated exactly, and a confirmation.** Nothing is saved before you
-   confirm. If `SYSTEMONE_ENDPOINT` is set in your environment it overrides your choice, and setup
-   says so and names the endpoint that will really receive data. That origin, and the credential, are
-   recorded as what you agreed to.
+   confirm. If `SYSTEMONE_ENDPOINT` is set in your environment and only changes the path of the
+   endpoint you chose, setup says so and names the URL that will really receive data. If it points to
+   **another origin** than the backend you chose, setup stops before asking for a key, disclosing,
+   probing or saving anything: unset it, or choose that endpoint ("Other System One provider"). The
+   origin you chose, and the credential, are recorded as what you agreed to.
 4. **A probe** of that endpoint: one tiny request, with its latency and result shown. It saves as
    enabled only if the probe works. If it fails you can save anyway (the extension fails open) or stop.
 
@@ -54,7 +56,7 @@ unless `PI_CODING_AGENT_DIR` says otherwise), written atomically with mode `0600
 ```
 
 `consentedOrigin` is the origin (scheme, host and port) that setup disclosed and probed and you
-confirmed, including a `SYSTEMONE_ENDPOINT` override that was set at the time. `keySource` is the
+confirmed. `keySource` is the
 credential you agreed to: `none`, `typed` (the key stored in this file), `SYSTEMONE_API_KEY` or
 `TYPESAFE_API_KEY`. Both are written by setup. A file from before they existed is read as agreeing to
 the origin of its `endpoint` (TypeSafe if there is none), with environment keys allowed for the

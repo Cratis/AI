@@ -77,11 +77,12 @@ the hosted model is the realistic backend and consent has to be safe for a remot
     not read (it looks at the path of a `read` of a `SKILL.md`, never at tool result content), never as an
     absolute about file contents.
   - **The origin and credential are what the user agreed to, and are recorded.** Setup writes
-    `consentedOrigin` (the origin actually disclosed and probed, including a `SYSTEMONE_ENDPOINT` override
-    then in force) and `keySource` (`none`, `typed`, `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`) to the
+    `consentedOrigin` (the origin actually disclosed and probed) and `keySource` (`none`, `typed`, `SYSTEMONE_API_KEY` or `TYPESAFE_API_KEY`) to the
     user file. At run time an effective origin, after any `SYSTEMONE_ENDPOINT`, that differs from
     `consentedOrigin` disables the extension with one notice and sends nothing; a path-only difference is
-    allowed. `SYSTEMONE_API_KEY` reaches a non-TypeSafe origin only when `keySource` says the user agreed
+    allowed. Setup applies the same rule up front instead of reconciling: a `SYSTEMONE_ENDPOINT` pointing
+    to another origin than the backend chosen stops setup before it asks for a key, discloses, probes or
+    saves anything, and a path-only override is disclosed and probed at the effective URL. `SYSTEMONE_API_KEY` reaches a non-TypeSafe origin only when `keySource` says the user agreed
     to it, so exporting it later cannot send it anywhere new: with a typed key agreed, the stored key is
     used, the environment key is ignored and status says so. `TYPESAFE_API_KEY` goes to TypeSafe only,
     and environment keys never go to loopback. A file from before these fields is read as agreeing to the

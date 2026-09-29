@@ -772,31 +772,48 @@ test('an origin the user never set up switches System One off, with one notice a
     }
 });
 
-test('setup consents to the origin that really receives data, and running without the override then switches it off', async () => {
-    await withServer(answering(0.6), async chosen => {
-        await withServer(answering(0.6), async overriding => {
-            const project = projectFixture();
-            try {
-                await setUpAndCapture(project, { select: local, inputs: [chosen.endpoint, ''], confirms: [true] }, { SYSTEMONE_ENDPOINT: overriding.endpoint });
-                const saved = JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8'));
-                assert.equal(saved.consentedOrigin, new URL(overriding.endpoint).origin, 'the origin that was disclosed and probed');
-                assert.equal(new URL(saved.endpoint).origin, new URL(chosen.endpoint).origin, 'the chosen one is kept as chosen');
-                project.configure({});
-                const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+test('setup refuses a SYSTEMONE_ENDPOINT that points to another origin, before asking, disclosing, probing or saving', async () => {
+    const cases: Array<[string, { select: string; inputs?: string[]; confirms: boolean[] }, NodeJS.ProcessEnv, RegExp]> = [
+        ['TypeSafe with its key, overridden to another origin', { select: typeSafe, confirms: [true] }, { TYPESAFE_API_KEY: secret, SYSTEMONE_ENDPOINT: 'https://other.invalid/v1/systemone' }, /SYSTEMONE_ENDPOINT points to https:\/\/other\.invalid, not https:\/\/api\.typesafe\.ai\. Unset it, or choose that endpoint \(Other System One provider\) in setup\. Nothing was saved\./],
+        ['another provider, overridden to TypeSafe', { select: other, inputs: ['https://opencode.ai/zen/v1/systemone', 'zen-key'], confirms: [true] }, { SYSTEMONE_ENDPOINT: typeSafeEndpoint }, /SYSTEMONE_ENDPOINT points to https:\/\/api\.typesafe\.ai, not https:\/\/opencode\.ai\./],
+        ['a local server, overridden to another port', { select: local, inputs: ['http://127.0.0.1:8000', ''], confirms: [true] }, { SYSTEMONE_ENDPOINT: 'http://127.0.0.1:9000' }, /SYSTEMONE_ENDPOINT points to http:\/\/127\.0\.0\.1:9000, not http:\/\/127\.0\.0\.1:8000\./],
+    ];
+    for (const [name, script, environment, expected] of cases) {
+        const project = projectFixture();
+        try {
+            const session = host(project, { transport: failOnCall, environment }, { script });
+            const output = await session.command('setup');
+            assert.match(output, expected, name);
+            assert.deepEqual(session.prompts.filter(prompt => prompt.kind !== 'select' && !(prompt.kind === 'input' && /URL/.test(prompt.title))), [], `${name}: no key question, no disclosure`);
+            assert.equal(existsSync(userConfigurationPath(project.agentDirectory)), false, `${name}: nothing saved`);
+            assert.equal([output, ...session.prompts.map(prompt => `${prompt.title} ${prompt.detail ?? ''}`)].join('\n').includes(secret), false, name);
+        } finally {
+            project.cleanup();
+        }
+    }
+});
 
-                // With the same override the extension runs against the origin the user agreed to.
-                const same = host(project, { environment: { SYSTEMONE_ENDPOINT: overriding.endpoint } });
-                const before = overriding.requests.length;
-                await same.askAndSettle(promptText, skills);
-                assert.equal(overriding.requests.length, before + 1);
-                // Without it the configured endpoint is another origin than the one consented to: off.
-                const without = host(project, { transport: failOnCall });
-                await without.askAndSettle(promptText, skills);
-                assert.deepEqual(without.notices, [`System One: your configuration points to ${new URL(chosen.endpoint).origin}, which you did not set up; run /system-one setup to use it.`]);
-            } finally {
-                project.cleanup();
-            }
-        });
+test('setup with a path-only SYSTEMONE_ENDPOINT records the chosen origin and runs at the effective URL', async () => {
+    await withServer(answering(0.6), async server => {
+        const project = projectFixture();
+        try {
+            const environment = { SYSTEMONE_ENDPOINT: `${server.endpoint}/elsewhere/v1/systemone` };
+            await host(project, { environment }, { script: { select: local, inputs: [server.endpoint, ''], confirms: [true] } }).command('setup');
+            const saved = JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8'));
+            assert.equal(saved.consentedOrigin, new URL(server.endpoint).origin);
+            assert.equal(saved.endpoint, `${server.endpoint}/v1/systemone`, 'the file keeps the user\'s choice');
+            project.configure({});
+            const skills = skillsIn(project.directory, [{ name: 'skill-a' }]);
+
+            // With the same override it keeps running against the origin the user agreed to, at that path.
+            await host(project, { environment }).askAndSettle(promptText, skills);
+            assert.equal(server.requests.at(-1)?.url, '/elsewhere/v1/systemone');
+            // Without it the chosen path on the same origin is fine too.
+            await host(project, {}).askAndSettle(promptText, skills);
+            assert.equal(server.requests.at(-1)?.url, '/v1/systemone');
+        } finally {
+            project.cleanup();
+        }
     });
 });
 
@@ -895,33 +912,6 @@ test('setup with another provider probes its endpoint', async () => {
     } finally {
         project.cleanup();
     }
-});
-
-test('setup discloses, names and probes the endpoint that will really be used when SYSTEMONE_ENDPOINT overrides the choice', async () => {
-    await withServer(answering(0.6), async chosen => {
-        await withServer(answering(0.6), async overriding => {
-            const project = projectFixture();
-            try {
-                const environment = { SYSTEMONE_ENDPOINT: overriding.endpoint };
-                const session = host(project, { environment }, { script: { select: local, inputs: [chosen.endpoint, ''], confirms: [true] } });
-                const output = await session.command('setup');
-
-                const confirm = session.prompts.find(prompt => prompt.kind === 'confirm')!;
-                assert.ok(confirm.title.includes(overriding.endpoint), 'the confirmation names where data will go');
-                assert.match(confirm.detail!, new RegExp(`Cratis will send to ${overriding.endpoint.replace(/[.]/g, '\\.')}`));
-                assert.match(confirm.detail!, /SYSTEMONE_ENDPOINT in your environment overrides the endpoint you chose/);
-                assert.ok(confirm.detail!.includes(chosen.endpoint), 'and says what it overrides');
-
-                assert.equal(chosen.requests.length, 0, 'the chosen endpoint is not probed');
-                assert.equal(overriding.requests.length, 1, 'the effective endpoint is');
-                assert.match(output, /SYSTEMONE_ENDPOINT overrides its endpoint while it is set/);
-                assert.ok(confirm.detail!.includes(`Data goes to ${overriding.endpoint}/v1/systemone`), 'names the effective URL');
-                assert.equal(JSON.parse(readFileSync(userConfigurationPath(project.agentDirectory), 'utf8')).endpoint, `${chosen.endpoint}/v1/systemone`, 'the file keeps the user\'s choice');
-            } finally {
-                project.cleanup();
-            }
-        });
-    });
 });
 
 test('setup discloses an override even when only the path differs', async () => {

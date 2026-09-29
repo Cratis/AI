@@ -110,6 +110,15 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
         return;
     }
 
+    // SYSTEMONE_ENDPOINT may change the path of the endpoint the user chose, and setup then discloses and probes
+    // the effective URL. It may not move data to another origin: what the user is agreeing to is the origin they
+    // chose, so setup stops here, before asking for a key, disclosing, probing or saving anything.
+    const override = effectiveEndpoint(environment, { endpoint: chosen.endpoint });
+    if (override.fromEnvironment && !('error' in override.checked) && override.checked.origin !== chosen.origin) {
+        say(`System One setup stopped: SYSTEMONE_ENDPOINT points to ${override.checked.origin}, not ${chosen.origin}. Unset it, or choose that endpoint (Other System One provider) in setup. Nothing was saved.`, NotifyLevel.Warning);
+        return;
+    }
+
     // An environment key is used when one applies to this endpoint. Otherwise ask, and store it only in the
     // user file, bound to this endpoint. A hosted provider needs a key; a local server may not.
     let storedKey: string | undefined;
@@ -126,19 +135,17 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
         }
     }
 
-    // What the user is about to agree to is where data really goes: the effective endpoint, which is not the
-    // one they chose if SYSTEMONE_ENDPOINT overrides it. That origin, and the credential that applies to it
-    // (an environment key counts as offered here; the second confirmation below is where it is agreed to),
-    // are recorded, so a different origin later switches System One off instead of quietly receiving data.
-    const effective = effectiveEndpoint(environment, { endpoint: chosen.endpoint }).checked;
-    const destination = 'error' in effective ? chosen : effective;
-    const offered = chooseKey(environment, destination, { apiKey: storedKey, endpoint: chosen.endpoint }, AgreedKey.SystemOneEnvironment);
+    // The origin the user chose is the one that is recorded (an override can only change its path), with the
+    // credential that applies to it: an environment key counts as offered here, and the second confirmation
+    // below is where it is agreed to. A different origin later switches System One off instead of quietly
+    // receiving data.
+    const offered = chooseKey(environment, chosen, { apiKey: storedKey, endpoint: chosen.endpoint }, AgreedKey.SystemOneEnvironment);
     const configuration: UserConfiguration = {
         enabled: true,
         endpoint: chosen.endpoint,
         ...(storedKey === undefined ? {} : { apiKey: storedKey }),
         consentedAt: new Date(now()).toISOString(),
-        consentedOrigin: destination.origin,
+        consentedOrigin: chosen.origin,
         keySource: agreedKeyOf(offered.source),
         skillRelevance: { mode: SkillRelevanceMode.Shadow },
     };
@@ -151,7 +158,7 @@ export async function runSetup(context: Pick<ExtensionContext, 'ui' | 'hasUI'>, 
     }
     const { settings } = resolved;
     // Whenever the environment sends data anywhere but the URL the user chose, however similar, say so.
-    const overridden: EndpointOverride | undefined = effectiveEndpoint(environment, configuration).fromEnvironment && settings.endpoint !== chosen.endpoint ? { chosen: chosen.endpoint, effective: settings.endpoint } : undefined;
+    const overridden: EndpointOverride | undefined = override.fromEnvironment && settings.endpoint !== chosen.endpoint ? { chosen: chosen.endpoint, effective: settings.endpoint } : undefined;
 
     const confirmed = await ui.confirm(`Send this to ${settings.origin}?`, disclosure(settings.origin, settings.credential, overridden));
     if (!confirmed) return cancelled();
