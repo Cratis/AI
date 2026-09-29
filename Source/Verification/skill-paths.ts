@@ -132,12 +132,14 @@ function parsedFormProblems(subject: string, content: string, document: ReturnTy
 export function skillFrontmatterProblems(subject: string, content: string): string[] {
     const text = frontmatterText(content);
     if (text === undefined) return [];
-    const document = parseDocument(text, { uniqueKeys: true });
+    // A blank line stands in for the opening `---`, so the parser's line numbers match the SKILL.md.
+    const document = parseDocument(`\n${text}`, { uniqueKeys: true });
     // Invalid YAML has no parse to consult: the parser's own error always leads, and a raw-line reading of the hint is
     // added only as a possible further cause, never in place of the error that actually broke the file.
     const notYaml = (messages: string[]) => [
         `${subject} has frontmatter that is not valid YAML: ${messages[0].split('\n')[0]}`,
-        ...knownFormProblems(subject, content),
+        // Only a hint entry the raw reader actually found is described; a mere mention of the key is not.
+        ...(frontmatterBlock(content, 'metadata')?.entries.has(skillTriggerKey) ? knownFormProblems(subject, content) : []),
     ];
     if (document.errors.length > 0) return notYaml(document.errors.map(error => error.message));
     let data: unknown;

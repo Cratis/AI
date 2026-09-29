@@ -986,6 +986,10 @@ test('the unsupported-form message follows the YAML parse: a mention of the key 
 test('invalid YAML always reports the parser error first, with any hint-form reading only added to it', () => {
     const problems = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata: {note: "x, ${skillTriggerKey}: y"}\nfoo: [\n`));
     assert.match(problems[0], /has frontmatter that is not valid YAML/);
+    assert.equal(problems.length, 1, `a mention of the key is not described as a hint form: ${problems.join(' | ')}`);
+    // skillWith puts '---', 'name', 'description' on lines 1-3, so an unterminated quote on the fifth line is reported there.
+    const located = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`license: MIT\nauthor: "x\n`));
+    assert.match(located[0], /line 5\b/, located[0]);
     const duplicate = skillFrontmatterProblems('skills/demo/SKILL.md', skillWith(`metadata:\n  ${skillTriggerKey}:\n  - "a/*.cs"\nname: again\n`));
     assert.match(duplicate[0], /has frontmatter that is not valid YAML/);
 });
