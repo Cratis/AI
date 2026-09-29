@@ -34,9 +34,9 @@ It walks you through four things:
 4. **A probe** of that endpoint: one tiny request, with its latency and result shown. It saves as
    enabled only if the probe works. If it fails you can save anyway (the extension fails open) or stop.
 
-Without a UI (print mode) the command prints the same steps, to stdout, to do by hand. `/system-one`
-commands also print to stdout when Pi has no UI, so they work in print and JSON modes; in RPC mode
-with a UI they behave as in the terminal.
+Without a UI (print or JSON mode) the command prints the same steps, written to the terminal (stderr in
+print and JSON modes), to do by hand. `/system-one` commands are written the same way when Pi has no UI;
+with a UI they behave as usual.
 
 Your choice is stored in `<pi agent dir>/cratis-system-one.json` (Pi's agent directory, `~/.pi/agent`
 unless `PI_CODING_AGENT_DIR` says otherwise), written atomically with mode `0600`:
@@ -89,8 +89,9 @@ setup and `/system-one status` name it) and nowhere else:
 - the model name and, when one applies, your API key as a bearer token.
 
 Never sent: **slash commands and skill or template invocations** (a prompt that starts with `/` or
-is a `<skill …>` expansion), **subagent tasks** and anything in print, JSON or other sessions
-without a UI, attachments and images, **file contents and tool output**, your repository's name or
+is a `<skill …>` expansion), **subagent tasks**, text another extension injects into the
+conversation, an RPC host's prompts, anything in print, JSON or other sessions without a UI,
+attachments and images, **file contents and tool output**, your repository's name or
 path, or anything from earlier turns. Very short prompts and turns with no corpus skills send
 nothing either, and neither does a session outside a repository set up with Cratis AI.
 
@@ -134,10 +135,11 @@ having opted out.
 
 - Precedence is `SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` (**only** for `https://api.typesafe.ai`),
   then the `apiKey` in your user file.
-- **Environment keys are never attached to a loopback `http` endpoint.** A local server gets a key
-  only if you stored one for it in setup.
+- **Environment keys are never attached to any loopback endpoint, `http` or `https`.** A local server
+  gets a key only if you stored one for that exact endpoint in setup.
 - **A stored key is bound to the endpoint it was stored for.** It is used only when the effective
-  endpoint has the same origin, so `SYSTEMONE_ENDPOINT` pointing elsewhere does not carry it along.
+  endpoint has the same origin (for a loopback server, the exact endpoint), so `SYSTEMONE_ENDPOINT`
+  pointing elsewhere does not carry it along.
 - Redirects are refused, so a server cannot forward your prompt or key elsewhere.
 - The key is never shown in status output, notices or session entries. If your user file can be read
   by other users, you get one notice to run `chmod 600` on it.
@@ -167,10 +169,11 @@ When it is not set up, the extension is completely silent: no notices, no reques
   the full set only follows if that works. You get one notice per error class per session.
 - **Shutdown stops it.** Ending or replacing the session cancels requests still running, and nothing
   is recorded afterwards.
-- **Only interactive sessions in Cratis repositories are judged.** With no UI (print, JSON, RPC
-  without one, and every subagent child process) nothing is asked, and `/system-one status` counts
-  the skipped turns. Repositories without `.cratis/ai.json` or `.cratis/ai.manifest.json` are
-  skipped too.
+- **Only prompts you type, in interactive sessions in Cratis repositories, are judged.** With no UI
+  (print and JSON modes, and every subagent child process) nothing is asked. Neither is a prompt
+  another extension injected with `sendUserMessage`, an RPC host's prompt (it may be automated), or a
+  turn for which Pi reported no typed input. `/system-one status` counts each skip. Repositories
+  without `.cratis/ai.json` or `.cratis/ai.manifest.json` are skipped too.
 - **Only corpus skills** that Pi already loaded and the model may invoke are asked about (the
   project's managed `.cratis/ai/skills`, or the packaged corpus for the `@cratis/pi` copy). Skills you
   wrote yourself are never sent.
@@ -197,8 +200,6 @@ The kill criterion for the whole idea is simple: if models already load the rele
 - A read is counted only when the model uses the `read` tool on a `SKILL.md`. A skill file read with
   `cat` in bash is **not counted**.
 - A skill read in an earlier turn is still in the conversation; entries list those as `readEarlier`.
-- If Pi exits before the backend answers (for example `pi -p` finishing a fast turn), that turn's
-  score is lost; the read record is still written.
 - Session data lives in Pi's session file, so it is as private as the session.
 
 ## Installation

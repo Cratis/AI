@@ -32,7 +32,7 @@ the hosted model is the realistic backend and consent has to be safe for a remot
   disclosed and probed is computed by the same resolution the extension uses at run time, so if
   `SYSTEMONE_ENDPOINT` overrides the user's choice, setup says so and names the endpoint that really
   receives data. Nothing is written before the confirmation. A failed probe saves only if the user
-  insists. Without a UI it prints the manual steps to stdout.
+  insists. Without a UI it prints the manual steps to the terminal (stderr).
 - **The repository can only opt out or narrow, and it fails closed.** The `systemOne` section of
   `.cratis/ai.json` accepts `{ "enabled": false }` and `{ "skillRelevance": { "mode": "off" } }`. It
   can never enable the extension, and can never set an endpoint, model, key or timeout. Any problem in
@@ -45,17 +45,21 @@ the hosted model is the realistic backend and consent has to be safe for a remot
   exported key alone sends nothing.
 - **Keys go only where the user pointed them.** Precedence is `SYSTEMONE_API_KEY`, then
   `TYPESAFE_API_KEY` (only for `https://api.typesafe.ai`), then the user file. Environment keys are
-  never attached to a loopback `http` endpoint. A key stored in the user file is bound to the origin it
+  never attached to any loopback endpoint, `http` or `https`; a local server gets a key only if the user
+  stored one for that exact endpoint. Elsewhere, a key stored in the user file is bound to the origin it
   was stored for, so an environment override of the endpoint cannot carry it elsewhere. A non-loopback
   endpoint must be `https`; `http` is accepted only for `127.0.0.1`, `::1` and `localhost`. Redirects
   are refused, so a server cannot forward the prompt or key. The key never appears in status output,
   notices, session entries or the transcript, and a user file others can read is flagged once.
 - **Silent until configured.** An unconfigured install produces no notices and makes no requests; only
   the `/system-one` command exists.
-- **Only what a person types is judged.** A prompt is judged only in an interactive session (Pi has a
-  UI), which excludes print, JSON and RPC without a UI and every subagent child process, and only in a
-  repository set up with Cratis AI (`.cratis/ai.json` or `.cratis/ai.manifest.json`). Slash commands and
-  skill or template invocations are not sent; file contents and tool output never are.
+- **Only what a person types is judged.** A prompt is judged only when Pi says it was typed
+  interactively (input source `interactive`) in a session with a UI, which excludes print and JSON
+  modes and every subagent child process. Text another extension injects (source `extension`) may carry
+  tool output or file contents, and an RPC host's prompt (source `rpc`) may be automated, so both are
+  excluded, as is a turn with no input event. It is judged only in a repository set up with Cratis AI
+  (`.cratis/ai.json` or `.cratis/ai.manifest.json`). Slash commands and skill or template invocations
+  are not sent; file contents and tool output never are.
 - **State is bounded and never persisted as text.** What is sent is the names and first sentence of the
   descriptions of the corpus skills Pi already loaded, and the first 1,200 characters of the prompt.
   Session entries hold skill names, probabilities, timings and which `SKILL.md` files were read, and no
