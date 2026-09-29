@@ -2459,6 +2459,31 @@ test('the report aggregates this session: suggestions, reads, unsuggested reads,
     assert.equal(report.latencyP50Ms, 200);
     assert.equal(report.latencyP95Ms, 300);
     assert.deepEqual([...report.failures], [['timeout', 2], ['invalid-request', 1]]);
+    assert.equal(report.turnsWithoutAnswer, 3, 't4, t5 and t6 have failures and no relevance entry');
+    assert.equal(report.skillsReadWithoutAnswer, 0, 'none of them has a recorded outcome');
+});
+
+test('a turn where every request failed and the model read a skill is counted on its own lines', async () => {
+    const project = enabledProject('http://127.0.0.1:1');
+    try {
+        const session = host(project, { transport: async () => new Response('', { status: 500 }) });
+        const skills = skillsIn(project.directory, [{ name: 'skill-a' }, { name: 'skill-b' }]);
+        await session.askAndSettle(promptText, skills);
+        session.read('.cratis/ai/skills/skill-a/SKILL.md');
+        session.end();
+        assert.deepEqual(session.entriesOfKind('skill-relevance'), []);
+        assert.equal(session.entriesOfKind('skill-outcome').length, 1);
+
+        const report = await session.command('report');
+        assert.match(report, /Turns judged: 0\n/);
+        assert.match(report, /Turns with no answer \(all requests failed\): 1\n/);
+        assert.match(report, /Skills read in turns with no answer \(not counted below\): 1\n/);
+        assert.match(report, /Skills read that were not suggested: 0\n/, 'the read is not a miss');
+        assert.match(report, /Asked but unanswered skills read \(a request failed; not counted above\): 0\n/);
+        assert.match(report, /Failures: server-error 1/);
+    } finally {
+        project.cleanup();
+    }
 });
 
 test('/system-one report reads the session entries', async () => {

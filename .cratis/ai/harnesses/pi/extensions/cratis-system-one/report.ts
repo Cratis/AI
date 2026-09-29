@@ -89,6 +89,7 @@ export function aggregateShadow(entries: readonly unknown[]): ShadowReport {
     const outcomes = new Map<string, string[]>();
     const latencies: number[] = [];
     const failures = new Map<string, number>();
+    const failedTurns = new Set<string>();
     for (const entry of entries) {
         if (!isRecord(entry) || entry.type !== 'custom' || entry.customType !== entryType || !isRecord(entry.data)) continue;
         const data = entry.data;
@@ -102,9 +103,10 @@ export function aggregateShadow(entries: readonly unknown[]): ShadowReport {
             if (typeof data.otherReads === 'number') otherReads.set(data.turnId, data.otherReads);
         } else if (data.kind === EntryKind.SkillFailure && typeof data.failure === 'string') {
             failures.set(data.failure, (failures.get(data.failure) ?? 0) + 1);
+            failedTurns.add(data.turnId);
         }
     }
-    const report: ShadowReport = { turnsJudged: judged.size, turnsAwaitingOutcome: 0, suggested: 0, suggestedAndRead: 0, readNotSuggested: 0, askedUnansweredRead: 0, otherSkillReads: 0, failures };
+    const report: ShadowReport = { turnsJudged: judged.size, turnsWithoutAnswer: 0, skillsReadWithoutAnswer: 0, turnsAwaitingOutcome: 0, suggested: 0, suggestedAndRead: 0, readNotSuggested: 0, askedUnansweredRead: 0, otherSkillReads: 0, failures };
     for (const [turnId, { answered, suggested }] of judged) {
         const recorded = outcomes.get(turnId);
         if (recorded === undefined) {
@@ -121,6 +123,13 @@ export function aggregateShadow(entries: readonly unknown[]): ShadowReport {
         report.askedUnansweredRead += recorded.length - read.length;
         report.otherSkillReads += otherReads.get(turnId) ?? 0;
     }
+    // A turn whose every request failed has failure entries and an outcome but no relevance entry: nothing was
+    // answered, so its reads are neither hits nor misses, and they are counted on their own.
+    for (const turnId of failedTurns) {
+        if (judged.has(turnId)) continue;
+        report.turnsWithoutAnswer++;
+        report.skillsReadWithoutAnswer += outcomes.get(turnId)?.length ?? 0;
+    }
     latencies.sort((left, right) => left - right);
     report.latencyP50Ms = percentile(latencies, 0.5);
     report.latencyP95Ms = percentile(latencies, 0.95);
@@ -135,6 +144,8 @@ export function formatReport(report: ShadowReport): string {
     return [
         'System One shadow report for this session (experimental; nothing was changed for the model)',
         `Turns judged: ${report.turnsJudged}${report.turnsAwaitingOutcome > 0 ? ` (${report.turnsAwaitingOutcome} still running, not counted below)` : ''}`,
+        `Turns with no answer (all requests failed): ${report.turnsWithoutAnswer}`,
+        `Skills read in turns with no answer (not counted below): ${report.skillsReadWithoutAnswer}`,
         `Skills suggested at ${suggestionThreshold} or above: ${report.suggested}`,
         `  of those, read by the model: ${report.suggestedAndRead} (${share})`,
         `Skills read that were not suggested: ${report.readNotSuggested}`,

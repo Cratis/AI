@@ -239,6 +239,9 @@ or a corpus skill that was not asked about), which are never named. `/system-one
 into:
 
 - turns judged,
+- turns with no answer (every request failed), and the skills the model read in them, on their own
+  lines: with no answer there is nothing to compare a read against, so those reads never count as hits
+  or misses,
 - skills suggested at 0.5 or above, and how many of those the model then read,
 - skills asked about, answered and read that were not suggested,
 - skills that were asked about but got no answer (a request failed) and were read anyway, on their own line,

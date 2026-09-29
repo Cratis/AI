@@ -5,6 +5,13 @@
 export interface ShadowReport {
     /** Turns that got at least one answered request. */
     turnsJudged: number;
+    /**
+     * Turns where every request failed. They have failure entries but no relevance entry, so they are not
+     * judged turns and none of the counts below include them.
+     */
+    turnsWithoutAnswer: number;
+    /** Skills that were asked about and read, in turns with no answer. Counted on their own, never as hits or misses. */
+    skillsReadWithoutAnswer: number;
     /** Judged turns whose outcome is not recorded yet (the turn is still running). */
     turnsAwaitingOutcome: number;
     /** Suggestions at or above the threshold, over judged turns with an outcome. */
