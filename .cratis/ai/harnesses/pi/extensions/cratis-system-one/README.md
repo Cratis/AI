@@ -23,15 +23,20 @@ Run this in Pi:
 It walks you through four things:
 
 1. **Choose a backend** (see the table below).
-2. **A key**, if the backend needs one. An environment key is used when present. Otherwise you type
-   it once and it is stored only in your user file. Pi's input box does not mask typing, so prefer
-   `SYSTEMONE_API_KEY` in your environment if you would rather store nothing.
+2. **A key**, if the backend needs one. An environment key is used when one applies to the endpoint
+   (see *Keys* below). Otherwise you type it once and it is stored only in your user file, for that
+   endpoint. For a local server the key question is optional: leave it blank for none. Pi's input box
+   does not mask typing, so prefer `SYSTEMONE_API_KEY` in your environment if you would rather store
+   nothing.
 3. **What leaves your machine, stated exactly, and a confirmation.** Nothing is saved before you
-   confirm.
-4. **A probe**: one tiny request, with its latency and result shown. It saves as enabled only if the
-   probe works. If it fails you can save anyway (the extension fails open) or stop.
+   confirm. If `SYSTEMONE_ENDPOINT` is set in your environment it overrides your choice, and setup
+   says so and names the endpoint that will really receive data.
+4. **A probe** of that endpoint: one tiny request, with its latency and result shown. It saves as
+   enabled only if the probe works. If it fails you can save anyway (the extension fails open) or stop.
 
-Without a UI (print mode) the command prints the same steps to do by hand.
+Without a UI (print mode) the command prints the same steps, to stdout, to do by hand. `/system-one`
+commands also print to stdout when Pi has no UI, so they work in print and JSON modes; in RPC mode
+with a UI they behave as in the terminal.
 
 Your choice is stored in `<pi agent dir>/cratis-system-one.json` (Pi's agent directory, `~/.pi/agent`
 unless `PI_CODING_AGENT_DIR` says otherwise), written atomically with mode `0600`:
@@ -55,13 +60,13 @@ extension and says so once; it never crashes Pi.
 |---|---|---|---|
 | **TypeSafe Jev** (recommended) | `https://api.typesafe.ai/v1/systemone` | `TYPESAFE_API_KEY` or `SYSTEMONE_API_KEY` | Most accurate. New accounts get **$5 of free credit** at [console.typesafe.ai](https://console.typesafe.ai). Your prompt text leaves the machine. |
 | **Other System One provider** | Any `https` URL, for example OpenCode Zen `https://opencode.ai/zen/v1/systemone` | `SYSTEMONE_API_KEY` | Anything that speaks `POST /v1/systemone`. |
-| **Local server such as [Laya](https://github.com/NandhaKishorM/laya)** | `http://127.0.0.1:8000` | none (`LAYA_API_KEY` if you set one) | Nothing leaves your machine. See the caveat below. |
+| **Local server such as [Laya](https://github.com/NandhaKishorM/laya)** | `http://127.0.0.1:8000` | none, or a key you store in setup | Nothing leaves your machine. See the caveat below. |
 
 **Laya caveat.** Laya (Apache-2.0) runs on CPU or Apple silicon, but in our test, without any training
-on Cratis skills, it was **too slow and too imprecise for skill relevance**: 1.3 to 3.5 seconds per
-prompt for 70 skills, with a poor ranking (many skills scored alike, and the obvious one was not at
-the top). About 14 candidates took roughly 260 ms. It is still useful for trying the wiring without
-a key. To run it, bind it to loopback, because it listens on `0.0.0.0` by default:
+on Cratis skills, it was **too slow and too imprecise for skill relevance**. Latency was 1.3 to 3.5
+seconds for 70 skills, and the ranking was unreliable: in our 10-prompt test the expected skill
+ranked anywhere from 1st to 70th. It is still useful for trying the wiring without a key. To run it,
+bind it to loopback, because it listens on `0.0.0.0` by default:
 
 ```bash
 pip install "laya[serve]"
@@ -73,17 +78,21 @@ request.
 
 ## What leaves your machine
 
-Sent, to the endpoint you chose and nowhere else:
+Sent, to the endpoint that will receive it (your choice, or `SYSTEMONE_ENDPOINT` if that overrides it;
+setup and `/system-one status` name it) and nowhere else:
 
 - the **names** of the Cratis skills Pi loaded, and the **first sentence** of each skill's description
   (capped at 200 characters each). These come from the corpus, not from your code.
-- the **first 1,200 characters of each prompt** you submit, **after** slash-command and template
-  expansion. If you paste a secret into a prompt, its first 1,200 characters are sent.
-- the model name and, if you configured one, your API key as a bearer token.
+- the **first 1,200 characters of each prompt you type in an interactive session**, in repositories
+  set up with Cratis AI (those with `.cratis/ai.json` or `.cratis/ai.manifest.json`). If you paste a
+  secret into a prompt, its first 1,200 characters are sent.
+- the model name and, when one applies, your API key as a bearer token.
 
-Never sent: attachments and images, file contents, tool output, your repository's name or path, or
-anything from earlier turns. Slash commands, very short prompts and turns with no corpus skills are
-skipped and send nothing.
+Never sent: **slash commands and skill or template invocations** (a prompt that starts with `/` or
+is a `<skill …>` expansion), **subagent tasks** and anything in print, JSON or other sessions
+without a UI, attachments and images, **file contents and tool output**, your repository's name or
+path, or anything from earlier turns. Very short prompts and turns with no corpus skills send
+nothing either, and neither does a session outside a repository set up with Cratis AI.
 
 The extension does not keep a disk cache, and it stores **no prompt text** anywhere: session entries
 hold only skill names, probabilities, timings and which `SKILL.md` files were read.
@@ -97,8 +106,8 @@ whatever you configure it to keep.
 | Source | Can do |
 |---|---|
 | **You** (the user file, via `/system-one setup`) | Enable, choose endpoint, model, key and mode. |
-| **The repository** (`.cratis/ai.json`) | Only **opt out or narrow**. It can never enable the extension or set an endpoint, key, model or timeout. |
-| **The environment** | Disable (`CRATIS_SYSTEM_ONE=0`), narrow (`CRATIS_SYSTEM_ONE_SKILL_RELEVANCE=off`), or override `SYSTEMONE_ENDPOINT`, `SYSTEMONE_API_KEY` and `CRATIS_SYSTEM_ONE_MODEL`, **only once you have enabled it**. It never enables anything by itself: a globally exported `TYPESAFE_API_KEY` alone sends nothing. |
+| **The repository** (`.cratis/ai.json`) | Only **opt out or narrow**. It can never enable the extension or set an endpoint, key, model or timeout. It fails closed: a problem in that file, whether it cannot be read, is not valid JSON, or has a `systemOne` section that says anything else, **switches System One off** with one notice until fixed. |
+| **The environment** | Disable (`CRATIS_SYSTEM_ONE` set to `0`, `false`, `off` or `no`), narrow (`CRATIS_SYSTEM_ONE_SKILL_RELEVANCE=off`), or override `SYSTEMONE_ENDPOINT`, `SYSTEMONE_API_KEY` and `CRATIS_SYSTEM_ONE_MODEL`, **only once you have enabled it**. It never enables anything by itself: a globally exported `TYPESAFE_API_KEY` alone sends nothing. |
 
 A committed `.cratis/ai.json` belongs to whoever controls the repository, so it must not be able to
 send your prompts anywhere. A repository can protect its contributors like this:
@@ -117,12 +126,21 @@ or keep System One on but turn this feature off:
 }
 ```
 
-Anything else in that section is ignored with one notice.
+Anything else in that section, or any other problem in `.cratis/ai.json`, switches System One off for
+that repository and says why once, because a file that may have been trying to opt out is treated as
+having opted out.
 
-Key precedence is `SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` (**only** for `https://api.typesafe.ai`),
-then the `apiKey` in your user file. A key is sent only to the endpoint you configured. Redirects are
-refused, so a server cannot forward your prompt or key elsewhere. The key is never shown in status
-output, notices or session entries.
+### Keys
+
+- Precedence is `SYSTEMONE_API_KEY`, then `TYPESAFE_API_KEY` (**only** for `https://api.typesafe.ai`),
+  then the `apiKey` in your user file.
+- **Environment keys are never attached to a loopback `http` endpoint.** A local server gets a key
+  only if you stored one for it in setup.
+- **A stored key is bound to the endpoint it was stored for.** It is used only when the effective
+  endpoint has the same origin, so `SYSTEMONE_ENDPOINT` pointing elsewhere does not carry it along.
+- Redirects are refused, so a server cannot forward your prompt or key elsewhere.
+- The key is never shown in status output, notices or session entries. If your user file can be read
+  by other users, you get one notice to run `chmod 600` on it.
 
 ## Commands
 
@@ -144,10 +162,18 @@ When it is not set up, the extension is completely silent: no notices, no reques
 - **It fails open.** Each request has a 5 second timeout. Responses are validated strictly (asked ids,
   `noul` type, finite probabilities in `[0, 1]`); anything else, and any 401, 413, 422, 429, 529 or
   network error, counts as a failure and the turn is unaffected. A circuit breaker opens after three
-  consecutive failures, or at once on 429 and 529, honoring `Retry-After`. You get one notice per
-  error class per session.
-- **Only corpus skills** that Pi already loaded and the model may invoke are asked about (managed
-  `.cratis/ai/skills` or the packaged corpus). Skills you wrote yourself are never sent.
+  consecutive failed turns (a turn with several requests counts once), or at once on 429 and 529,
+  honoring `Retry-After`. When it has been open long enough, one probe request goes out first and
+  the full set only follows if that works. You get one notice per error class per session.
+- **Shutdown stops it.** Ending or replacing the session cancels requests still running, and nothing
+  is recorded afterwards.
+- **Only interactive sessions in Cratis repositories are judged.** With no UI (print, JSON, RPC
+  without one, and every subagent child process) nothing is asked, and `/system-one status` counts
+  the skipped turns. Repositories without `.cratis/ai.json` or `.cratis/ai.manifest.json` are
+  skipped too.
+- **Only corpus skills** that Pi already loaded and the model may invoke are asked about (the
+  project's managed `.cratis/ai/skills`, or the packaged corpus for the `@cratis/pi` copy). Skills you
+  wrote yourself are never sent.
 - **Limits.** At most 32 questions per request, sent concurrently. If more than 128 skills qualify,
   the call is skipped, not trimmed, and `/system-one status` says so.
 

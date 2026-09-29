@@ -130,9 +130,11 @@ prompt, and records the scores next to the `SKILL.md` files the model actually r
 nothing the model sees and never delays a prompt.
 
 It is off until *you* run `/system-one setup`, which states what is sent (skill names, the first
-sentence of each description, and the first 1,200 characters of each prompt), asks you to confirm, and
-probes the backend before saving to a private file in Pi's agent directory. A repository's
-`.cratis/ai.json` can only opt out or narrow it, and environment variables can never enable it. See
+sentence of each description, and the first 1,200 characters of each prompt you type in an
+interactive session in a repository set up with Cratis AI; never subagent tasks, file contents or
+tool output), asks you to confirm, and probes the backend before saving to a private file in Pi's
+agent directory. A repository's `.cratis/ai.json` can only opt out or narrow it (a problem in that
+file switches it off), and environment variables can never enable it. See
 [the extension README](.cratis/ai/harnesses/pi/extensions/cratis-system-one/README.md) for backends,
 privacy and the report, and the
 [consent and privacy decision](Documentation/decisions/0017-system-one-consent-and-privacy.md).
