@@ -159,6 +159,7 @@ await_worker() {
     touch "$ROOT/stop"
     wait "$WORKER" 2>/dev/null
     WORKER_STATUS=$?
+    scratch_untrack_pid "$WORKER"
     ! kill -0 "$WORKER" 2>/dev/null
 }
 

@@ -98,9 +98,10 @@ jobs:
         run: npm test
 
       # Each fixture is a self-contained, hermetic bash script that seeds its own throwaway git
-      # repositories under its own directory and exits non-zero on failure - not a bats/TAP suite,
-      # so they are simply run and their exit codes checked. Every one runs even after a failure, so
-      # a single broken fixture does not hide the others. Ported from Direct's build.yml unchanged.
+      # repositories in a temporary directory (removed on exit, along with any process it started)
+      # and exits non-zero on failure - not a bats/TAP suite, so they are simply run and their exit
+      # codes checked. Every one runs even after a failure, so a single broken fixture does not hide
+      # the others.
       - name: Run entrypoint fixtures
         working-directory: Source/AgentHarnesses/for_entrypoint
         run: |

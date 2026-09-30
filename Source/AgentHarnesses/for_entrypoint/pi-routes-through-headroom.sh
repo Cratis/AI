@@ -67,9 +67,9 @@ reset_home() {
 }
 
 # stop_headroom sends the kill and returns without waiting for the process to actually die - fine for
-# entrypoint.sh, where the container exits right after regardless, but this script's final `rm -rf`
-# below can otherwise race a headroom that is still mid-shutdown and writes to $HOME after the
-# directory is gone. `wait` blocks on the real exit, not a guessed delay.
+# entrypoint.sh, where the container exits right after regardless, but this script's `reset_home`
+# and the scratch-tree removal on exit can otherwise race a headroom that is still mid-shutdown and
+# writes to $HOME after the directory is gone. `wait` blocks on the real exit, not a guessed delay.
 stop_and_reap() {
     local pid="$HEADROOM_PID"
     stop_headroom

@@ -85,6 +85,7 @@ for _ in 1 2 3 4 5; do
 done
 
 wait "$BUSY_PID" 2>/dev/null
+scratch_untrack_pid "$BUSY_PID"
 
 if [[ "$PI_PEAK_MEMORY_BYTES" -gt 0 ]]; then
     echo "  PASS: peak memory sampled from a live process (${PI_PEAK_MEMORY_BYTES} bytes)"
