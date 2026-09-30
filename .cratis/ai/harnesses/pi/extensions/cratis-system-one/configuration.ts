@@ -1,0 +1,244 @@
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+import { join } from 'node:path';
+import type { ConfigurationFile } from './ConfigurationFile.ts';
+import type { ConfigurationInputs } from './ConfigurationInputs.ts';
+import { ConfigurationNotice } from './ConfigurationNotice.ts';
+import type { ConfigurationResult } from './ConfigurationResult.ts';
+import { checkEndpoint, typeSafeEndpoint, typeSafeOrigin } from './endpoint.ts';
+import type { EffectiveEndpoint } from './EffectiveEndpoint.ts';
+import { FileState } from './FileState.ts';
+import type { RepositoryNarrowing } from './RepositoryNarrowing.ts';
+import { AgreedKey } from './AgreedKey.ts';
+import type { KeyChoice } from './KeyChoice.ts';
+import type { KeyTarget } from './KeyTarget.ts';
+import { KeySource } from './KeySource.ts';
+import { modelPattern } from './modelPattern.ts';
+import { Invalid } from './Invalid.ts';
+import type { SkillRelevanceSettings } from './SkillRelevanceSettings.ts';
+import { SkillRelevanceMode } from './SkillRelevanceMode.ts';
+import type { UserConfiguration } from './UserConfiguration.ts';
+import { readConfigurationFile, readUserConfigurationFile } from './userConfigurationFile.ts';
+
+export const defaultModel = 'jev-1.13.0';
+export const requestTimeoutMs = 5000;
+
+const userKeys = ['enabled', 'endpoint', 'model', 'apiKey', 'consentedAt', 'consentedOrigin', 'keySource', 'skillRelevance'];
+const disablingValues = new Set(['0', 'false', 'off', 'no']);
+
+/** Fixed: nothing but the mode is configurable, and the repository can only narrow that. */
+const skillRelevanceLimits = {
+    maxQuestions: 128,
+    chunkSize: 32,
+    minPromptChars: 20,
+    stateChars: 1200,
+    criterionChars: 200,
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function nonEmpty(value: string | undefined): string | undefined {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : undefined;
+}
+
+function isMode(value: unknown): value is SkillRelevanceMode {
+    return value === SkillRelevanceMode.Off || value === SkillRelevanceMode.Shadow;
+}
+
+/** Validates the user's file. Strict on purpose: an unknown key means a file this version does not understand. */
+export function parseUserConfiguration(text: string): UserConfiguration {
+    let document: unknown;
+    try {
+        document = JSON.parse(text);
+    } catch {
+        throw new Invalid('the file is not valid JSON');
+    }
+    if (!isRecord(document)) throw new Invalid('the file must contain an object');
+    const unknown = Object.keys(document).find(key => !userKeys.includes(key));
+    if (unknown !== undefined) throw new Invalid(`unknown setting '${unknown}'`);
+    if (typeof document.enabled !== 'boolean') throw new Invalid("'enabled' must be true or false");
+    for (const key of ['endpoint', 'model', 'apiKey'] as const) {
+        if (document[key] !== undefined && (typeof document[key] !== 'string' || document[key] === '' || (document[key] as string).length > 2048)) throw new Invalid(`'${key}' must be a non-empty string`);
+    }
+    if (typeof document.model === 'string' && !modelPattern.test(document.model)) throw new Invalid("'model' is not a valid model name");
+    if (document.enabled && (typeof document.consentedAt !== 'string' || Number.isNaN(Date.parse(document.consentedAt)))) throw new Invalid("'consentedAt' must record when consent was given");
+    if (document.consentedOrigin !== undefined) {
+        const origin = typeof document.consentedOrigin === 'string' ? checkEndpoint(document.consentedOrigin) : undefined;
+        if (origin === undefined || 'error' in origin || origin.origin !== document.consentedOrigin) throw new Invalid("'consentedOrigin' must be an origin such as https://api.typesafe.ai");
+    }
+    if (document.keySource !== undefined && !Object.values(AgreedKey).includes(document.keySource as AgreedKey)) throw new Invalid(`'keySource' must be ${Object.values(AgreedKey).join(', ')}`);
+    if (document.skillRelevance !== undefined) {
+        if (!isRecord(document.skillRelevance) || Object.keys(document.skillRelevance).some(key => key !== 'mode') || !isMode(document.skillRelevance.mode)) {
+            throw new Invalid("'skillRelevance' must be { mode: 'off' | 'shadow' }");
+        }
+    }
+    return document as unknown as UserConfiguration;
+}
+
+/**
+ * What the repository may say about System One: opt out, or narrow skill relevance to off. It fails
+ * closed. Anything else, including an unreadable or unparseable file, `enabled: true`, an unknown key,
+ * a wrong type, an endpoint, a key or a timeout, is a `problem`, and a problem switches System One off:
+ * a file that may have been trying to opt out is treated as having opted out, never as silence.
+ */
+function repositoryNarrowing(repository: ConfigurationFile): RepositoryNarrowing {
+    const none = { optOut: false, off: false };
+    if (repository.state === FileState.Missing) return none;
+    if (repository.state === FileState.Unreadable) return { ...none, problem: '.cratis/ai.json could not be read' };
+    let document: unknown;
+    try {
+        document = JSON.parse(repository.text);
+    } catch {
+        return { ...none, problem: '.cratis/ai.json is not valid JSON' };
+    }
+    if (!isRecord(document)) return { ...none, problem: '.cratis/ai.json must contain an object' };
+    if (document.systemOne === undefined) return none;
+    const section = document.systemOne;
+    const refused = (why: string) => ({ ...none, problem: `the systemOne section of .cratis/ai.json is not allowed: ${why}` });
+    if (!isRecord(section)) return refused('it must be an object');
+    const unknown = Object.keys(section).find(key => key !== 'enabled' && key !== 'skillRelevance');
+    if (unknown !== undefined) return refused(`'${unknown}' is not a setting; a repository can only opt out or narrow`);
+    if (section.enabled !== undefined && section.enabled !== false) return refused("'enabled' can only be false; a repository cannot enable System One");
+    let off = false;
+    if (section.skillRelevance !== undefined) {
+        const relevance = section.skillRelevance;
+        if (!isRecord(relevance) || Object.keys(relevance).some(key => key !== 'mode') || relevance.mode !== SkillRelevanceMode.Off) {
+            return refused("'skillRelevance' can only be { mode: 'off' }");
+        }
+        off = true;
+    }
+    return { optOut: section.enabled === false, off };
+}
+
+/**
+ * The only place a key is chosen. Environment keys are never attached to any loopback endpoint
+ * (127.0.0.0/8, IPv4-mapped forms, `localhost`, `*.localhost`), http or https: a local server gets a key
+ * only if the user stored one for that exact endpoint. Elsewhere:
+ *
+ * - `TYPESAFE_API_KEY` goes to the TypeSafe origin only.
+ * - `SYSTEMONE_API_KEY` goes to the TypeSafe origin, or to another origin only when `agreed` says the user
+ *   agreed to it in setup. Otherwise it is ignored (and `environmentKeyIgnored` says so), so exporting it
+ *   later cannot send it somewhere the user never approved.
+ * - A key stored in the user file is bound to the origin it was stored for and is used only when that is
+ *   the effective origin.
+ */
+export function chooseKey(environment: NodeJS.ProcessEnv, target: KeyTarget, stored: { apiKey?: string; endpoint?: string }, agreed: AgreedKey): KeyChoice {
+    let environmentKeyIgnored = false;
+    if (!target.loopback) {
+        const fromSystemOne = nonEmpty(environment.SYSTEMONE_API_KEY);
+        const systemOneAllowed = target.origin === typeSafeOrigin || agreed === AgreedKey.SystemOneEnvironment;
+        if (fromSystemOne !== undefined && systemOneAllowed) return { source: KeySource.SystemOneEnvironment, key: fromSystemOne };
+        environmentKeyIgnored = fromSystemOne !== undefined;
+        const fromTypeSafe = target.origin === typeSafeOrigin ? nonEmpty(environment.TYPESAFE_API_KEY) : undefined;
+        if (fromTypeSafe !== undefined) return { source: KeySource.TypeSafeEnvironment, key: fromTypeSafe };
+    }
+    const none = { source: KeySource.None, environmentKeyIgnored };
+    const storedFor = checkEndpoint(stored.endpoint ?? typeSafeEndpoint);
+    if ('error' in storedFor) return none;
+    const sameDestination = target.loopback ? storedFor.endpoint === target.endpoint : storedFor.origin === target.origin;
+    const key = sameDestination ? nonEmpty(stored.apiKey) : undefined;
+    return key === undefined ? none : { source: KeySource.Entered, key, environmentKeyIgnored };
+}
+
+/** The endpoint a user's file resolves to once `SYSTEMONE_ENDPOINT` is taken into account. */
+export function effectiveEndpoint(environment: NodeJS.ProcessEnv, stored: { endpoint?: string }): EffectiveEndpoint {
+    const environmentEndpoint = nonEmpty(environment.SYSTEMONE_ENDPOINT);
+    return { checked: checkEndpoint(environmentEndpoint ?? stored.endpoint ?? typeSafeEndpoint), fromEnvironment: environmentEndpoint !== undefined };
+}
+
+/**
+ * Pure: the single place that decides whether System One may run, where it goes and which key it uses.
+ * Never throws.
+ *
+ * - Only the user's file can enable it. The repository can opt out or narrow, and fails closed; the
+ *   environment can disable, narrow, or override endpoint, key and model, but only once the user has
+ *   enabled it.
+ * - An unconfigured install is silent: no notice is produced for it.
+ * - Data and keys go only to the origin the user agreed to in setup (`consentedOrigin`). An effective
+ *   origin that differs, for instance from a `SYSTEMONE_ENDPOINT` set later, disables System One with one
+ *   notice. A different path on the same origin is fine.
+ * - Keys follow `chooseKey`. Redirects are refused by the client.
+ */
+export function resolveConfiguration({ user: userFile, repository, environment }: ConfigurationInputs): ConfigurationResult {
+    if (userFile.state === FileState.Missing) return { enabled: false, reason: 'not set up (run /system-one setup)', configured: false };
+    // A notice names its kind, so each kind is announced once per session on its own. Without a message it
+    // says the reason.
+    const disabled = (reason: string, kind?: ConfigurationNotice, message?: string): ConfigurationResult => ({
+        enabled: false,
+        reason,
+        configured: true,
+        notice: kind === undefined ? undefined : message ?? `System One is disabled: ${reason}.`,
+        noticeClass: kind,
+    });
+    try {
+        if (userFile.state === FileState.Unreadable) return disabled('your System One configuration file could not be read', ConfigurationNotice.UserFileUnreadable);
+        let user: UserConfiguration;
+        try {
+            user = parseUserConfiguration(userFile.text);
+        } catch (error) {
+            return disabled(`your System One configuration is invalid (${error instanceof Invalid ? error.message : 'unreadable'})`, ConfigurationNotice.UserFileInvalid);
+        }
+        if (!user.enabled) return disabled('turned off in your System One configuration');
+        if (disablingValues.has(environment.CRATIS_SYSTEM_ONE?.trim().toLowerCase() ?? '')) return disabled('disabled by CRATIS_SYSTEM_ONE');
+        // Setup records the origin and the credential the user agreed to. A file without them predates that, and
+        // is refused rather than guessed at.
+        const { consentedOrigin, keySource } = user;
+        if (consentedOrigin === undefined || keySource === undefined) return disabled('your settings predate this version; run /system-one setup again', ConfigurationNotice.PredatesVersion, 'System One: your settings predate this version; run /system-one setup again.');
+
+        const narrowing = repositoryNarrowing(repository);
+        if (narrowing.problem) return disabled(`${narrowing.problem}; System One stays off until that is fixed`, ConfigurationNotice.RepositoryProblem);
+        if (narrowing.optOut) return disabled('the repository opted out in .cratis/ai.json');
+
+        const { checked, fromEnvironment } = effectiveEndpoint(environment, user);
+        if ('error' in checked) return disabled(`${fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'the configured endpoint'}: ${checked.error}`, ConfigurationNotice.EndpointRefused);
+
+        if (checked.origin !== consentedOrigin) {
+            const pointer = fromEnvironment ? 'SYSTEMONE_ENDPOINT' : 'your configuration';
+            return disabled(`${pointer} points to ${checked.origin}, which you did not set up (run /system-one setup)`, ConfigurationNotice.OriginMismatch, `System One: ${pointer} points to ${checked.origin}, which you did not set up; run /system-one setup to use it.`);
+        }
+
+        const model = nonEmpty(environment.CRATIS_SYSTEM_ONE_MODEL) ?? user.model ?? defaultModel;
+        if (!modelPattern.test(model)) return disabled('the model name is not valid', ConfigurationNotice.ModelInvalid);
+
+        let mode = user.skillRelevance?.mode ?? SkillRelevanceMode.Shadow;
+        if (narrowing.off || disablingValues.has(environment.CRATIS_SYSTEM_ONE_SKILL_RELEVANCE?.trim().toLowerCase() ?? '')) mode = SkillRelevanceMode.Off;
+        const skillRelevance: SkillRelevanceSettings = { mode, ...skillRelevanceLimits };
+        const key = chooseKey(environment, checked, user, keySource);
+
+        return {
+            enabled: true,
+            settings: {
+                endpoint: checked.endpoint,
+                origin: checked.origin,
+                loopback: checked.loopback,
+                endpointFromEnvironment: fromEnvironment,
+                model,
+                timeoutMs: requestTimeoutMs,
+                apiKey: key.key,
+                credential: key.source,
+                environmentKeyIgnored: key.environmentKeyIgnored === true,
+                skillRelevance,
+            },
+            notice: userFile.readableByOthers ? 'System One: your configuration file can be read by other users and may hold an API key. Run chmod 600 on it.' : undefined,
+            noticeClass: userFile.readableByOthers ? ConfigurationNotice.ReadableByOthers : undefined,
+        };
+    } catch {
+        return disabled('the configuration could not be evaluated');
+    }
+}
+
+/**
+ * Reads the user's file from `agentDirectory` and the repository's `.cratis/ai.json` under `cwd`, then
+ * resolves them. Never throws.
+ */
+export function loadConfiguration(cwd: string, agentDirectory: string, environment: NodeJS.ProcessEnv = process.env): ConfigurationResult {
+    return resolveConfiguration({
+        user: readUserConfigurationFile(agentDirectory),
+        repository: readConfigurationFile(join(cwd, '.cratis', 'ai.json')),
+        environment,
+    });
+}

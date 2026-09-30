@@ -20,6 +20,21 @@ same agents). It removes itself from the active tools at session start and
 shows one notice when Pi has a UI, so the model is not offered two delegation
 tools.
 
+The `cratis-system-one` extension is included and **experimental**. It stays completely silent until
+you run `/system-one setup`; then, in shadow mode, it asks a System One model (TypeSafe Jev, another
+provider, or a local server) which of the loaded skills would help with each prompt and records the
+scores next to the `SKILL.md` files the model read. Only you can enable it: a repository's
+`.cratis/ai.json` can only opt out or narrow it (a problem in that file switches it off), and
+environment variables never enable it. Setup states exactly what is sent, and prompt text leaves your
+machine for the backend you choose, but only prompts that reach Pi as typed input in an interactive
+session in a repository set up with Cratis AI. Slash commands, subagent tasks and prompts built from `@file`
+arguments are skipped; anything else that reaches Pi as a typed prompt is sent, wherever it came from
+(see the extension's README for the limits of that).
+`/system-one status`, `last`, `report` and `off` are available afterwards. Like the MCP bridge, the
+package's copy stands down when the project already has a managed copy under
+`.pi/extensions/cratis-system-one`. The extension's README (in the corpus at
+`harnesses/pi/extensions/cratis-system-one/README.md`) covers backends and privacy.
+
 The managed CLI path remains the choice when one repository must configure and
 synchronize several harnesses. It writes the resolved corpus to `.cratis/ai`,
 creates every harness integration, and records hashes for safe update and

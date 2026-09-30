@@ -9,6 +9,7 @@ import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPiPlugin, { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
+import { activate as activateSystemOne, isPackagedCopy, standsDown } from '../../.cratis/ai/harnesses/pi/extensions/cratis-system-one/index.ts';
 import registerManagedRules from '../../.cratis/ai/harnesses/pi/extensions/cratis-rules/index.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 import { managedRules, rulesForPath, universalRules } from '../../.cratis/ai/harnesses/pi/extensions/shared/rules.ts';
@@ -247,4 +248,55 @@ test('Pi resolves configured profile composition through selected languages', ()
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
+});
+
+test('the packaged System One extension stands down only when the project has its own managed copy', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        const packaged = join(project, 'node_modules', '@cratis', 'pi', 'package', 'corpus', 'harnesses', 'pi', 'extensions', 'cratis-system-one');
+        const managed = join(project, '.cratis', 'ai', 'harnesses', 'pi', 'extensions', 'cratis-system-one');
+        assert.equal(isPackagedCopy(packaged), true);
+        assert.equal(isPackagedCopy(managed), false);
+
+        // Without a managed extension in the project, the packaged copy registers.
+        assert.equal(standsDown(project, packaged), false);
+        const without: string[] = [];
+        assert.equal(activateSystemOne({ on: (name: string) => without.push(name), registerCommand: () => without.push('command') } as unknown as ExtensionAPI, project, packaged), true);
+        assert.ok(without.includes('before_agent_start') && without.includes('command'));
+
+        // The manifest alone is not enough: the managed entry file has to be there.
+        mkdirSync(join(project, '.cratis'), { recursive: true });
+        writeFileSync(join(project, '.cratis', 'ai.manifest.json'), '{}');
+        assert.equal(standsDown(project, packaged), false);
+
+        mkdirSync(join(project, '.pi', 'extensions', 'cratis-system-one'), { recursive: true });
+        writeFileSync(join(project, '.pi', 'extensions', 'cratis-system-one', 'index.ts'), '');
+        assert.equal(standsDown(project, packaged), true);
+        const registered: string[] = [];
+        const recorder = { on: (name: string) => registered.push(name), registerCommand: () => registered.push('command') } as unknown as ExtensionAPI;
+        assert.equal(activateSystemOne(recorder, project, packaged), false);
+        assert.deepEqual(registered, [], 'a stood-down copy registers nothing');
+
+        // The managed copy is never the one that stands down.
+        assert.equal(standsDown(project, managed), false);
+        const managedRegistered: string[] = [];
+        assert.equal(activateSystemOne({ on: (name: string) => managedRegistered.push(name), registerCommand: () => managedRegistered.push('command') } as unknown as ExtensionAPI, project, managed), true);
+        assert.ok(managedRegistered.includes('before_agent_start'));
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('a managed System One copy never stands down for itself, even in a project that has it', () => {
+    // repositoryRoot has .pi/extensions/cratis-system-one/index.ts, the very file being run here. With the
+    // real (non-packaged) directory, activate must still register.
+    assert.equal(existsSync(join(repositoryRoot, '.pi', 'extensions', 'cratis-system-one', 'index.ts')), true);
+    assert.equal(isPackagedCopy(), false);
+    assert.equal(standsDown(repositoryRoot), false);
+    const registered: string[] = [];
+    const recorder = { on: (name: string) => registered.push(name), registerCommand: () => registered.push('command') } as unknown as ExtensionAPI;
+    assert.equal(activateSystemOne(recorder, repositoryRoot), true);
+    assert.ok(registered.includes('before_agent_start'));
+    assert.ok(registered.includes('command'));
+    assert.ok(registered.includes('session_shutdown'));
 });
