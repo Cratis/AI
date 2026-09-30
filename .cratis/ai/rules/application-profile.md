@@ -50,7 +50,7 @@ Tagged **[contract]** (framework-enforced) or **[convention]** (house default). 
 
 ## Implementation Workflow
 
-- **Phase 0 — Model.** Confirm Module/Feature, slice name, slice type, domain rules; for new behavior or unclear event vocabulary run the **event-modeling** skill first.
+- **Phase 0 — Model.** Confirm Module/Feature, slice name, slice type, domain rules; for new behavior or unclear event vocabulary run the **cratis-chronicle-event-modeling** skill first.
 - **Phase 1 — Backend.** Implement a coherent slice change. **Gate:** incremental Debug build of the affected project (regenerates proxies, compiles `#if DEBUG` spec code).
 - **Phase 2 — Specs.** Mandatory for every slice type, in-process scenario family first (`CommandScenario<T>`, `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>`). **Gate:** tests pass.
 - **Phase 3 — Frontend.** Build from the generated proxies, register in the composition page, wire routing. **Gate:** lint, conditional test, build.
