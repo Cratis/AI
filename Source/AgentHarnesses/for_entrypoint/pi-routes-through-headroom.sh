@@ -16,8 +16,13 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-WORK="${HERE}/pitest"
-rm -rf "$WORK"; mkdir -p "$WORK/bin"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create pitest
+WORK="$SCRATCH_ROOT"
+# The proxy these cases start is a child of this shell; HEADROOM_PID is reassigned on each start.
+scratch_before_cleanup() { scratch_track_pid "${HEADROOM_PID:-}"; }
+mkdir -p "$WORK/bin"
 
 log() { printf '[agent-harness] %s\n' "$*"; }
 
@@ -62,9 +67,9 @@ reset_home() {
 }
 
 # stop_headroom sends the kill and returns without waiting for the process to actually die - fine for
-# entrypoint.sh, where the container exits right after regardless, but this script's final `rm -rf`
-# below can otherwise race a headroom that is still mid-shutdown and writes to $HOME after the
-# directory is gone. `wait` blocks on the real exit, not a guessed delay.
+# entrypoint.sh, where the container exits right after regardless, but this script's `reset_home`
+# and the scratch-tree removal on exit can otherwise race a headroom that is still mid-shutdown and
+# writes to $HOME after the directory is gone. `wait` blocks on the real exit, not a guessed delay.
 stop_and_reap() {
     local pid="$HEADROOM_PID"
     stop_headroom
@@ -172,5 +177,4 @@ if [[ $failures -eq 0 ]]; then
 else
     echo "${failures} case(s) failed."
 fi
-rm -rf "$WORK"
 exit $((failures > 0))

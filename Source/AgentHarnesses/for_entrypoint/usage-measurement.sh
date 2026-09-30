@@ -13,6 +13,9 @@ set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ENTRYPOINT="$ROOT/entrypoint.sh"
+# shellcheck source=lib/scratch.sh
+source "$ROOT/for_entrypoint/lib/scratch.sh"
+scratch_create usage-measurement
 FAILED=0
 
 extract_function() {
@@ -43,7 +46,7 @@ check() {
 
 echo "=== claude_cpu_seconds_from_time_file / claude_memory_bytes_from_time_file ==="
 
-TIME_FILE="$(mktemp)"
+TIME_FILE="${SCRATCH_ROOT}/time-report"
 cat > "$TIME_FILE" <<'EOF'
 	Command being timed: "claude -p --input-format stream-json"
 	User time (seconds): 12.34
@@ -70,6 +73,7 @@ echo "=== sample_pi_usage ==="
 # has something non-zero to observe, rather than asserting only that the code path does not crash.
 ( for _ in $(seq 1 20000000); do :; done ) &
 BUSY_PID=$!
+scratch_track_pid "$BUSY_PID"
 
 PI_PEAK_MEMORY_BYTES=0
 PI_CPU_SECONDS=0
@@ -81,6 +85,7 @@ for _ in 1 2 3 4 5; do
 done
 
 wait "$BUSY_PID" 2>/dev/null
+scratch_untrack_pid "$BUSY_PID"
 
 if [[ "$PI_PEAK_MEMORY_BYTES" -gt 0 ]]; then
     echo "  PASS: peak memory sampled from a live process (${PI_PEAK_MEMORY_BYTES} bytes)"
