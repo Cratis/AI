@@ -43,6 +43,13 @@ git -C "$ROOT/seed" push -q "$ROOT/upstream.git" HEAD:refs/heads/main
 
 mkdir -p "$ROOT/bin"
 printf '#!/bin/sh\nexit 0\n' > "$ROOT/bin/rtk"
+cat > "$ROOT/bin/curl" <<'STUB'
+#!/usr/bin/env bash
+case "$*" in
+    *'/api/work/spec/push-token'*) printf '{"token":"fresh-local-token"}\n' ;;
+    *) exit 0 ;;
+esac
+STUB
 
 # Stands in for the agent CLI: commits into the checkout and then stays alive, exactly like a
 # session that is still working when the container is told to go away.
@@ -61,7 +68,7 @@ git -c maintenance.auto=false -c gc.auto=0 -C "$ROOT/workspace" -c user.email=a@
 touch "$ROOT/committed"
 printf '%s\n' '{"type":"result","result":"all done","usage":{"input_tokens":1,"output_tokens":2},"total_cost_usd":0.5,"duration_ms":10}'
 STUB
-chmod +x "$ROOT/bin/rtk" "$ROOT/bin/claude-that-keeps-working" "$ROOT/bin/claude-that-finishes"
+chmod +x "$ROOT/bin/rtk" "$ROOT/bin/curl" "$ROOT/bin/claude-that-keeps-working" "$ROOT/bin/claude-that-finishes"
 
 # Runs the real entrypoint - optionally with lines matching `strip` removed, to reproduce the old
 # behavior - and leaves it running in the background as $WORKER.
@@ -85,6 +92,9 @@ start_worker() {
         DIRECT_REPOSITORY_URL="$ROOT/upstream.git" \
         DIRECT_BRANCH="$BRANCH" \
         DIRECT_WORK_ID="spec" \
+        DIRECT_CALLBACK_URL="https://direct.example/api/work/spec/callback" \
+        DIRECT_PUSH_TOKEN_URL="https://direct.example/api/work/spec/push-token" \
+        DIRECT_CALLBACK_TOKEN="local-callback-token" \
         DIRECT_PROMPT="do the work" \
         bash "$SCRIPT" > "$ROOT/${label}.log" 2>&1 &
     WORKER=$!

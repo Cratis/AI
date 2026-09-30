@@ -9,7 +9,9 @@ import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPiPlugin, { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
-import registerManagedRules, { globToRegExp, managedRules, rulesForPath, universalRules } from '../../.cratis/ai/harnesses/pi/extensions/cratis-rules/index.ts';
+import registerManagedRules from '../../.cratis/ai/harnesses/pi/extensions/cratis-rules/index.ts';
+import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
+import { managedRules, rulesForPath, universalRules } from '../../.cratis/ai/harnesses/pi/extensions/shared/rules.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 type Handler = (event: { cwd: string; systemPrompt: string }, context: { cwd: string }) => unknown;
@@ -93,84 +95,19 @@ test('managed Pi drops profile-specific rules the repository does not select', (
     }
 });
 
-test('managed Pi delivers a scoped rule once per session when its file is touched', () => {
+test('managed Pi cratis-rules injects only the universal rules and delivers no path-scoped rule', () => {
     const handlers = new Map<string, (event: unknown, context: { cwd: string }) => unknown>();
     registerManagedRules({
         on(name: string, handler: (event: unknown, context: { cwd: string }) => unknown) {
             handlers.set(name, handler);
         },
     } as unknown as ExtensionAPI);
+    assert.deepEqual([...handlers.keys()], ['before_agent_start'], 'path delivery lives in cratis-path-guidance');
     const context = { cwd: repositoryRoot };
     const prompt = handlers.get('before_agent_start')?.({ cwd: repositoryRoot, systemPrompt: 'base' }, context) as { systemPrompt: string };
     assert.match(prompt.systemPrompt, /^base\n\n/);
+    assert.match(prompt.systemPrompt, /# Cratis — Project Instructions/);
     assert.doesNotMatch(prompt.systemPrompt, /# C# Conventions/);
-
-    const touch = (path: string, toolName = 'read') => handlers.get('tool_result')?.({ toolName, isError: false, input: { path }, content: [] }, context) as { content: Array<{ text: string }> } | undefined;
-    const first = touch('Source/Thing.cs');
-    assert.ok(first, 'expected the C# rules to be attached on first touch');
-    assert.match(first.content.map(part => part.text).join(''), /# C# Conventions/);
-    assert.equal(touch('Source/Other.cs'), undefined, 'the same rules must not be delivered twice in a session');
-    assert.equal(touch('README.md'), undefined);
-    assert.equal(touch('../outside.cs'), undefined);
-
-    handlers.get('session_start')?.({}, context);
-    assert.ok(touch('Source/Thing.cs'), 'a new session delivers the rules again');
-});
-
-test('managed Pi re-delivers scoped rules after the conversation is rewritten', () => {
-    for (const event of ['session_compact', 'session_before_switch']) {
-        const handlers = new Map<string, (event: unknown, context: { cwd: string }) => unknown>();
-        registerManagedRules({
-            on(name: string, handler: (event: unknown, context: { cwd: string }) => unknown) {
-                handlers.set(name, handler);
-            },
-        } as unknown as ExtensionAPI);
-        const context = { cwd: repositoryRoot };
-        const touch = () => handlers.get('tool_result')?.({ toolName: 'read', isError: false, input: { path: 'Source/Thing.cs' }, content: [] }, context) as { content: Array<{ text: string }> } | undefined;
-
-        assert.ok(touch(), `${event}: first touch delivers`);
-        assert.equal(touch(), undefined, `${event}: still delivered before the rewrite`);
-
-        // A delivered rule lives in the conversation, so compaction or a switch can remove it.
-        assert.ok(handlers.get(event), `${event} handler must be registered`);
-        handlers.get(event)?.({}, context);
-        const again = touch();
-        assert.ok(again, `${event}: the rule must be delivered again once the conversation is rewritten`);
-        assert.match(again.content.map(part => part.text).join(''), /# C# Conventions/);
-    }
-});
-
-test('managed Pi delivers scoped rules for files touched through bash', () => {
-    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
-    try {
-        mkdirSync(join(project, 'Source'), { recursive: true });
-        writeFileSync(join(project, 'Source', 'Thing.cs'), 'class Thing {}');
-        writeFileSync(join(project, 'README.md'), '# readme');
-        const handlers = new Map<string, (event: unknown, context: { cwd: string }) => unknown>();
-        registerManagedRules({
-            on(name: string, handler: (event: unknown, context: { cwd: string }) => unknown) {
-                handlers.set(name, handler);
-            },
-        } as unknown as ExtensionAPI);
-        const context = { cwd: project };
-        const bash = (command: string) => handlers.get('tool_result')?.({ toolName: 'bash', isError: false, input: { command }, content: [] }, context) as { content: Array<{ text: string }> } | undefined;
-
-        // rtk.md directs bulk reads through the terminal, so this is how many sessions read source.
-        const viaRtk = bash('rtk read Source/Thing.cs');
-        assert.ok(viaRtk, 'a bash read of a .cs file must deliver the C# rules');
-        assert.match(viaRtk.content.map(part => part.text).join(''), /# C# Conventions/);
-        assert.equal(bash('cat Source/Thing.cs'), undefined, 'already delivered this session');
-
-        handlers.get('session_start')?.({}, context);
-        assert.ok(bash('grep -n "Thing" Source/Thing.cs'), 'grep with flags still finds the path');
-
-        handlers.get('session_start')?.({}, context);
-        assert.equal(bash('npm test'), undefined, 'a command with no file path delivers nothing');
-        assert.equal(bash('git commit -m "fix Source/Missing.cs"'), undefined, 'a filename that does not exist is not a touch');
-        assert.equal(bash('cat README.md'), undefined, 'no scoped rule matches README.md');
-    } finally {
-        rmSync(project, { recursive: true, force: true });
-    }
 });
 
 test('Pi package rules exclude owning-repository guidance and approval ceremonies', () => {
@@ -201,15 +138,17 @@ test('the Pi package yields to a managed CLI installation', () => {
     }
 });
 
-test('Cratis quality hooks do not continue a completed noninteractive session', async () => {
-    let settled: ((event: unknown, context: { mode: string }) => Promise<void>) | undefined;
+test('Cratis quality hooks register an explicit gate but no automatic turn-end continuation', () => {
+    const handlers: string[] = [];
+    const tools: string[] = [];
     registerCratisHooks({
-        on(name: string, handler: unknown) {
-            if (name === 'agent_settled') settled = handler as typeof settled;
-        },
+        on(name: string) { handlers.push(name); },
+        registerTool(tool: { name: string }) { tools.push(tool.name); },
+        sendMessage() { assert.fail('quality hooks must not request a follow-up'); },
+        sendUserMessage() { assert.fail('quality hooks must not request a follow-up'); },
     } as unknown as ExtensionAPI);
-    assert.ok(settled);
-    await assert.doesNotReject(() => settled!({}, { mode: 'print' }));
+    assert.ok(tools.includes('cratis_quality_gate'));
+    assert.deepEqual(handlers.sort(), ['session_shutdown', 'tool_call', 'tool_result']);
 });
 
 test('the Pi package filters rules for framework CSharp documentation repositories', () => {
@@ -223,10 +162,74 @@ test('the Pi package filters rules for framework CSharp documentation repositori
         const handlers = pluginHandlers();
         const result = handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
         assert.match(result.systemPrompt, /# Framework Profile/);
-        assert.match(result.systemPrompt, /# C# Conventions/);
-        assert.match(result.systemPrompt, /# How to write documentation/);
         assert.doesNotMatch(result.systemPrompt, /# Vertical Slice Architecture/);
         assert.doesNotMatch(result.systemPrompt, /# TypeScript Conventions/);
+        // Path-scoped rules are delivered by the packaged cratis-path-guidance extension, not the system prompt.
+        assert.doesNotMatch(result.systemPrompt, /# C# Conventions/);
+        assert.doesNotMatch(result.systemPrompt, /# How to write documentation/);
+        // The same selection applies to the rules path guidance delivers: csharp and documentation are selected...
+        assert.ok(rulesForPath(project, 'Source/Thing.cs').some(rule => /# C# Conventions/.test(rule.content)));
+        assert.ok(rulesForPath(project, 'Documentation/page.md').some(rule => /# How to write documentation/.test(rule.content)));
+        // ...typescript is not, so no TypeScript rule reaches a .ts file.
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), []);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('path-scoped rules from the packaged corpus follow the selected languages and documentation', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const configure = (configuration: object) => writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
+
+        configure({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] });
+        assert.ok(rulesForPath(project, 'Source/Thing.cs').length > 0, 'csharp is selected');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), [], 'no TypeScript rules for a csharp-only repository');
+        assert.deepEqual(rulesForPath(project, 'Documentation/page.md').map(rule => rule.name), [], 'no documentation rules without cratis/documentation');
+
+        configure({ profiles: ['cratis/engineering/typescript', 'cratis/documentation'], languages: ['typescript'] });
+        assert.ok(rulesForPath(project, 'Source/Thing.ts').length > 0, 'typescript is selected');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), [], 'no C# rules for a typescript-only repository');
+        assert.ok(rulesForPath(project, 'Documentation/page.md').length > 0, 'cratis/documentation is selected');
+
+        rmSync(join(project, '.cratis', 'ai.json'));
+        assert.ok(rulesForPath(project, 'Source/Thing.cs').length > 0 && rulesForPath(project, 'Source/Thing.ts').length > 0, 'no configuration keeps every rule');
+
+        // A managed corpus is already resolved by the CLI, so the language filter does not run on it again.
+        mkdirSync(join(project, '.cratis', 'ai', 'rules'), { recursive: true });
+        writeFileSync(join(project, '.cratis', 'ai', 'rules', 'ts.md'), '---\napplyTo: "**/*.ts"\n---\n# Managed TypeScript rule\n');
+        configure({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] });
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['ts.md']);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the Pi package prompt and path guidance select the same rules for every language and documentation choice', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        for (const configuration of [
+            { profiles: ['cratis/engineering/csharp'], languages: ['csharp'] },
+            { profiles: ['cratis/engineering/typescript'], languages: ['typescript'] },
+            { profiles: ['cratis/application/csharp', 'cratis/documentation'], languages: ['csharp', 'typescript'] },
+            { profiles: ['cratis/application/csharp'], languages: [] },
+        ]) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
+            const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+            assert.equal(result.systemPrompt, `base\n\n${universalRules(project).map(rule => rule.content).join('\n\n')}`, JSON.stringify(configuration));
+        }
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the Pi package system prompt carries exactly the universal rules so path guidance never duplicates it', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+        assert.equal(result.systemPrompt, `base\n\n${universalRules(project).map(rule => rule.content).join('\n\n')}`);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }

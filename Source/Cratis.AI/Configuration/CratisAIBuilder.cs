@@ -104,7 +104,10 @@ public class CratisAIBuilder(IServiceCollection services)
         Services.TryAddSingleton<DecisionEngineHealthCache>();
         Services.TryAddSingleton(TimeProvider.System);
         Services.AddSingleton<IDecisionTelemetry, DecisionTelemetry>();
-        Services.AddTransient<IDecisionEngineClient, BuiltInDecisionEngineClient>();
+
+        // Also expose the concrete built-in client for its multi-label issue classification API.
+        Services.AddTransient<BuiltInDecisionEngineClient>();
+        Services.AddTransient<IDecisionEngineClient>(provider => provider.GetRequiredService<BuiltInDecisionEngineClient>());
         Services.AddTransient<IDecisionEngineClient, JevDecisionEngineClient>();
 
         var options = Services.AddOptions<DecisionOptions>().BindConfiguration(DecisionOptions.SectionName);

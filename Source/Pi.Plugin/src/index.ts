@@ -88,6 +88,16 @@ function ruleMatchesConfiguration(path: string, content: string, configuration: 
         (needsDocumentation && selectedProfiles.includes('cratis/documentation'));
 }
 
+/**
+ * A rule scoped by `applyTo` to particular files is delivered by the packaged `cratis-path-guidance`
+ * extension when such a file is touched, so it stays out of the system prompt. Only rules that apply to
+ * every file, or declare no scope, belong there.
+ */
+function isUniversalRule(content: string): boolean {
+    const applyTo = (frontmatterValue(content, 'applyTo') ?? '').split(',').map(glob => glob.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+    return applyTo.length === 0 || applyTo.some(glob => ['**', '**/*', '*'].includes(glob));
+}
+
 function rules(cwd: string): string {
     const root = join(corpusRoot, 'rules');
     const configurationPath = join(cwd, '.cratis', 'ai.json');
@@ -99,6 +109,7 @@ function rules(cwd: string): string {
         .sort()
         .map(entry => ({ path: join(root, entry), content: readFileSync(join(root, entry), 'utf8') }))
         .filter(rule => !configuration || ruleMatchesConfiguration(rule.path, rule.content, configuration))
+        .filter(rule => isUniversalRule(rule.content))
         .map(rule => rule.content)
         .join('\n\n');
 }

@@ -25,6 +25,7 @@ public class BuiltInDecisionEngineClient(
 
     const string DecisionsRoute = "v1/decisions";
     const string BatchRoute = "v1/decisions/batch";
+    const string LabelsRoute = "v1/labels";
 
     // /readyz rather than /healthz: a process that is up but has not loaded its model cannot answer
     // a decision, and reporting that as healthy on a settings page whose whole job is telling
@@ -59,6 +60,42 @@ public class BuiltInDecisionEngineClient(
         }
 
         return new([.. batch.Results.Select(OutcomesFrom)], batch.Results.Count > 0 ? ModelFrom(batch.Results[0], connection) : connection.Model);
+    }
+
+    /// <summary>
+    /// Classifies an issue against caller-supplied labels. Unlike a choice decision, any number of
+    /// labels may apply; every candidate receives an independent probability.
+    /// </summary>
+    /// <param name="context">Issue title, body and optional structured metadata.</param>
+    /// <param name="labels">Distinct candidate labels.</param>
+    /// <param name="connection">The built-in engine connection.</param>
+    /// <param name="threshold">Inclusive probability threshold, between zero and one.</param>
+    /// <param name="descriptions">Optional explanation of each label.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Selected labels and scores for every candidate.</returns>
+    /// <exception cref="ArgumentException">The context, labels or threshold is invalid.</exception>
+    public async Task<BuiltInLabelClassification> ClassifyLabels(
+        DecisionContext context,
+        IReadOnlyList<string> labels,
+        DecisionEngineConnection connection,
+        double threshold = 0.5,
+        IReadOnlyDictionary<string, string>? descriptions = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (context.IsEmpty || labels.Count == 0 || labels.Any(string.IsNullOrWhiteSpace) ||
+            labels.Distinct(StringComparer.Ordinal).Count() != labels.Count ||
+            !double.IsFinite(threshold) || threshold is < 0 or > 1)
+        {
+            throw new ArgumentException("A nonempty context, distinct labels and a threshold in [0, 1] are required.");
+        }
+
+        using var client = CreateClient(connection);
+        using var response = await Post(
+            client,
+            LabelsRoute,
+            new BuiltInLabelRequest(new(context.Text, context.Structured), labels, threshold, descriptions),
+            cancellationToken);
+        return await Read<BuiltInLabelClassification>(response, cancellationToken);
     }
 
     /// <inheritdoc/>
