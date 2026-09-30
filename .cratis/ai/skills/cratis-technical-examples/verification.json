@@ -6,6 +6,9 @@
     { "kind": "skill-contains", "value": "## Choose the right source" },
     { "kind": "skill-contains", "value": "**Multi-language client example:**" },
     { "kind": "skill-contains", "value": "## Build the example as a reader would" },
-    { "kind": "skill-contains", "value": "## Stop conditions" }
+    { "kind": "skill-contains", "value": "## Stop conditions" },
+    { "kind": "skill-contains", "value": "A compiling tab is not a working tab." },
+    { "kind": "skill-contains", "value": "one id type per concept across every page of a series" },
+    { "kind": "skill-contains", "value": "Use the same domain type names in every tab" }
   ]
 }

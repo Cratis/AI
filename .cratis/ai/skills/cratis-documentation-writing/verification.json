@@ -7,6 +7,10 @@
     { "kind": "skill-contains", "value": "## Work from the reader outward" },
     { "kind": "skill-contains", "value": "cratis-technical-examples" },
     { "kind": "skill-contains", "value": "## Completion checklist" },
-    { "kind": "skill-contains", "value": "(references/cratis-site.md)" }
+    { "kind": "skill-contains", "value": "(references/cratis-site.md)" },
+    { "kind": "skill-contains", "value": "\"how the backends differ\" table" },
+    { "kind": "skill-contains", "value": "keep backend limitations in one table on the series index" },
+    { "kind": "skill-contains", "value": "single-language claims" },
+    { "kind": "skill-contains", "value": "the variant-docs audit" }
   ]
 }

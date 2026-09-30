@@ -7,8 +7,10 @@ import { access, readFile, readdir, stat } from 'node:fs/promises';
 import { basename, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
+import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
+import { skillFrontmatterProblems } from './skill-paths.ts';
 
 interface Profile {
     id: string;
@@ -46,14 +48,10 @@ async function files(directory: string): Promise<string[]> {
     return discovered;
 }
 
+/** The top-level frontmatter fields as strings, read by the shared parser so that indented (nested) keys are not counted. */
 function frontmatter(content: string): Record<string, string> | undefined {
-    if (!content.startsWith('---\n')) return undefined;
-    const end = content.indexOf('\n---\n', 4);
-    if (end < 0) return undefined;
-    return Object.fromEntries(content.slice(4, end).split('\n').flatMap(line => {
-        const separator = line.indexOf(':');
-        return separator < 0 ? [] : [[line.slice(0, separator).trim(), line.slice(separator + 1).trim().replace(/^['"]|['"]$/g, '')]];
-    }));
+    const fields = sharedFrontmatter(content);
+    return fields.size === 0 ? undefined : Object.fromEntries([...fields].map(([key, values]) => [key, values.join(', ')]));
 }
 
 function requireValues(actual: string[], required: string[], subject: string): void {
@@ -80,14 +78,17 @@ for (const obsolete of ['tooling', 'evidence', 'evals', 'catalog', 'distribution
     if (await exists(join(root, obsolete))) failures.push(`Obsolete root '${obsolete}' must not exist.`);
 }
 const workflows = (await readdir(join(root, '.github', 'workflows'))).filter(name => name.endsWith('.yml') || name.endsWith('.yaml'));
-if (workflows.length !== 1 || workflows[0] !== 'publish.yml') failures.push('Exactly one publish workflow is required.');
+if (!workflows.includes('publish.yml')) failures.push('The publish workflow is required.');
+// verify-release-notes.yml is the only other workflow: a thin caller of the organization release-notes check.
+const unexpectedWorkflows = workflows.filter(name => name !== 'publish.yml' && name !== 'verify-release-notes.yml');
+if (unexpectedWorkflows.length > 0) failures.push(`Only publish.yml and verify-release-notes.yml are allowed; found ${unexpectedWorkflows.join(', ')}.`);
 for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/marketplace.json', '.agents/plugins/marketplace.json', '.github/plugin/marketplace.json']) {
     const document = JSON.parse(await readFile(join(root, marketplace), 'utf8'));
     if (document.plugins?.length !== 1 || document.plugins[0]?.source?.path !== '.cratis/ai' || document.plugins[0]?.skills !== './skills') {
         failures.push(`${marketplace} must expose the canonical .cratis/ai/skills corpus.`);
     }
 }
-const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'subagent', 'cratis-mcp'];
+const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'cratis-path-guidance', 'subagent', 'cratis-mcp'];
 for (const extension of requiredPiExtensions) {
     if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);
 }
@@ -102,6 +103,7 @@ for (const extension of [
     './package/corpus/harnesses/pi/extensions/cratis-hooks/index.ts',
     './package/corpus/harnesses/pi/extensions/subagent/index.ts',
     './package/corpus/harnesses/pi/extensions/cratis-mcp/index.ts',
+    './package/corpus/harnesses/pi/extensions/cratis-path-guidance/index.ts',
 ]) {
     if (!packagedExtensions.includes(extension)) failures.push(`@cratis/pi does not load '${extension}'.`);
 }
@@ -144,9 +146,11 @@ for (const directory of skillDirectories) {
         failures.push(`Skill directory '${directory.name}' has no SKILL.md.`);
         continue;
     }
-    const metadata = frontmatter(await readFile(skillFile, 'utf8'));
+    const skillContent = await readFile(skillFile, 'utf8');
+    const metadata = frontmatter(skillContent);
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, skillFile)} must declare name and description.`);
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
+    failures.push(...skillFrontmatterProblems(relative(root, skillFile), skillContent));
 }
 
 for (const prompt of (await readdir(join(corpus, 'prompts'))).filter(name => name.endsWith('.md'))) {
