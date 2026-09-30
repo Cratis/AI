@@ -110,6 +110,29 @@ Standalone Chronicle client usage (no Arc) for Kotlin and Java is
 `cratis-chronicle-client-kotlin`, reused by `cratis/chronicle/client-java`.
 JVM language conventions are `kotlin.md` and `java.md`.
 
+### Arc for TypeScript on Node.js
+
+Arc for TypeScript (`@cratis/arc.core` with the Express, Fastify, Hono,
+MongoDB, Drizzle, testing and experimental Chronicle packages) brings the same
+model-bound command/query shape to a Node.js server. Its packages are a source
+preview and are not published to npm. It is separate from `@cratis/arc`, the
+published client runtime that generated proxies import in a frontend.
+`cratis/arc/server-typescript` carries the skills; `cratis/arc/typescript` adds
+the TypeScript language conventions, and `cratis/full/typescript` composes it.
+The server skills are opt-in: `cratis/arc`, `cratis/application` and
+`cratis/application/typescript` do not load them, because they target a
+Node.js server and a C# or React-frontend project has no use for them. Select
+`cratis/arc/typescript` (or `cratis/full/typescript`) for a Node.js Arc server.
+
+| Skill | Covers |
+| --- | --- |
+| `cratis-arc-command-typescript` | Project setup from the source preview, `ArcApplication.createBuilder()`, `@command()` with `handle()`/`provide()`, outcomes, authorization, returned Chronicle events, generated metadata and proxies, hosts, `CommandScenario` |
+| `cratis-arc-query-typescript` | `@readModel()` with static `@query()` methods, argument binding, GET and HTTP `QUERY`, paging, RxJS observable queries, MongoDB/Drizzle/Chronicle read models, `QueryScenario`/`ObservableQueryScenario` |
+| `cratis-arc-validation-typescript` | `CommandValidator`/`QueryValidator`/`ConceptValidator`/`ModelValidator`, `readModelForValidation`, `validation()` with `rejected`/`denied`, severity filtering |
+
+Standalone Chronicle client usage (no Arc) in TypeScript is
+`cratis-chronicle-client-typescript`.
+
 ### Specialized Profiles
 
 | Profile ID | Description |

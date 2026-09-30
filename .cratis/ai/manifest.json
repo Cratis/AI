@@ -30,6 +30,8 @@
     "cratis/arc/java",
     "cratis/arc/kotlin",
     "cratis/arc/react",
+    "cratis/arc/server-typescript",
+    "cratis/arc/typescript",
     "cratis/chronicle",
     "cratis/chronicle/client-dotnet",
     "cratis/chronicle/client-elixir",

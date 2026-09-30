@@ -1,0 +1,15 @@
+{
+  "skill": "cratis-arc-command-typescript",
+  "input": "Add a command that registers an author to an Arc for TypeScript server and append an event to Chronicle.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "**None of the server packages is published to npm.**" },
+    { "kind": "skill-contains", "value": "**`@cratis/arc` is a different package.**" },
+    { "kind": "skill-contains", "value": "ArcApplication.createBuilder()" },
+    { "kind": "skill-contains", "value": "**No key is inferred from an unmarked `id`\nfield.**" },
+    { "kind": "skill-contains", "value": "Authorization belongs on the **class**." },
+    { "kind": "skill-contains", "value": "is created through its **constructor** in `handle()`" },
+    { "kind": "skill-contains", "value": "`--check-metadata`" },
+    { "kind": "skill-contains", "value": "CommandScenario.for(RegisterTask, RegisterTaskValidator)" }
+  ]
+}
