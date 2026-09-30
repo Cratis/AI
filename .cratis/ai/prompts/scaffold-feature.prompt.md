@@ -5,7 +5,7 @@ description: Scaffold a new feature — folder structure, composition page, rout
 
 # Scaffold a Feature
 
-Scaffold a brand-new feature folder (composition page, routing, navigation) — ready for slices. Follow the Project Layout in `.cratis/ai/rules/application-profile.md` exactly.
+Scaffold a brand-new feature folder (composition page, routing, navigation) — ready for slices. Follow the Project Layout in `.cratis/ai/rules/application-profile.md` exactly, and Phase 3 of its Implementation Workflow plus the Composition section of `.cratis/ai/rules/react.md` for the composition page, routing and navigation. Invoke the **cratis-arc-react-page** skill for the page itself.
 
 ## Confirm first
 
