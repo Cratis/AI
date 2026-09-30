@@ -16,8 +16,13 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-WORK="${HERE}/pitest"
-rm -rf "$WORK"; mkdir -p "$WORK/bin"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create pitest
+WORK="$SCRATCH_ROOT"
+# The proxy these cases start is a child of this shell; HEADROOM_PID is reassigned on each start.
+scratch_before_cleanup() { scratch_track_pid "${HEADROOM_PID:-}"; }
+mkdir -p "$WORK/bin"
 
 log() { printf '[agent-harness] %s\n' "$*"; }
 
@@ -172,5 +177,4 @@ if [[ $failures -eq 0 ]]; then
 else
     echo "${failures} case(s) failed."
 fi
-rm -rf "$WORK"
 exit $((failures > 0))
