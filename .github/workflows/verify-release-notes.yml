@@ -1,0 +1,40 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Verify Release Notes
+
+# Thin caller of the organization-wide release-notes gate. This pull request's
+# description is published verbatim as the release notes, so the gate checks it
+# before the merge. The contract - which sections, issue references and content
+# are allowed, and what the errors say - lives in
+# Cratis/Workflows/.github/workflows/verify-release-notes.yml; do not reintroduce
+# logic here. Installed through this repository's own reviewed change because
+# Cratis/Workflows' bootstrap-common-workflows ignores it (it holds its own governance).
+#
+# `edited` re-runs the check when the description changes and `labeled` and
+# `unlabeled` when the release label does. There is no branch or label filter: the
+# gate itself only checks pull requests into the default branch that carry exactly
+# one of major, minor or patch, and passes the rest (no release label yet,
+# no-release, Dependabot) with a notice.
+#
+# The job is named release-notes so the check reads `release-notes / verify` and
+# does not collide with other `verify / verify` gates.
+#
+# RUNNER_GATE is an outage escape hatch and is normally unset: set it temporarily to reroute the
+# job when the default runner is down.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, labeled, unlabeled, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  release-notes:
+    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@cc2dde3c60b899afb5d27f28af25695ab88c0ed2 # main on 2026-09-30
+    with:
+      runs-on: ${{ vars.RUNNER_GATE || 'ubuntu-latest' }}

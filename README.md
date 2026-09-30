@@ -163,7 +163,10 @@ tooling pipeline.
 
 ## Release
 
-`.github/workflows/publish.yml` is the single workflow. It verifies
+`.github/workflows/publish.yml` is the only release workflow. It verifies
 the corpus and packages, checks semantic release intent, uses
 `cratis/release-action` to calculate the version after merge, and publishes
 `@cratis/pi` when a release is requested by the merged pull request label.
+`.github/workflows/verify-release-notes.yml` is a thin caller of the
+organization release-notes check, which fails a release-bound pull request
+whose description would not publish as release notes.
