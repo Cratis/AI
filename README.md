@@ -121,7 +121,7 @@ Add `cratis-rules` only to an agent that needs the universal rules as well. The
 corpus's own `subagent` tool starts a full `pi` process and already loads every
 extension.
 
-### System One skill relevance (experimental)
+## System One skill relevance (experimental)
 
 The `cratis-system-one` Pi extension, from either channel, measures whether a
 [System One model](https://typesafe.ai/blog/introducing-system-one-models-and-jev) helps with the
