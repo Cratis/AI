@@ -54,7 +54,7 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 | `cratis/application` | Full application stack (C# + React + TypeScript) | `cratis/application/csharp`, `cratis/application/elixir`, `cratis/application/kotlin`, `cratis/application/typescript`, `cratis/arc/core`, `cratis/arc/react`, `cratis/chronicle/core`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
 | `cratis/application/csharp` | C# backend with Arc + Chronicle | `cratis/arc`, `cratis/arc/react`, `cratis/chronicle`, `cratis/components`, `cratis/fundamentals`, `cratis/language/csharp`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
 | `cratis/application/react` | React frontend with Cratis Components | `cratis/arc/core`, `cratis/arc/react`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
-| `cratis/application/typescript` | Node.js TypeScript application: Arc for TypeScript server and the Chronicle client | `cratis/arc/server-typescript`, `cratis/chronicle/client-typescript`, `cratis/language/typescript`, `cratis/specifications/typescript` |
+| `cratis/application/typescript` | TypeScript client for Chronicle | `cratis/chronicle/client-typescript`, `cratis/language/typescript`, `cratis/specifications/typescript` |
 | `cratis/application/arc-chronicle` | Arc + Chronicle integration | `cratis/arc/core`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
 | `cratis/application/arc-only` | Arc without Chronicle | `cratis/arc/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
 | `cratis/application/chronicle-dotnet` | Chronicle .NET client | `cratis/chronicle/client-dotnet`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
@@ -66,7 +66,7 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
-| `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/java`, `cratis/arc/kotlin`, `cratis/arc/typescript` |
+| `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/java`, `cratis/arc/kotlin` |
 | `cratis/chronicle` | Chronicle event sourcing engine | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/java`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
 | `cratis/components` | React component library | (no child profiles) |
 | `cratis/fundamentals` | Core primitives (`ConceptAs<T>`, `EventSourceId<T>`) | (no child profiles) |
@@ -118,8 +118,11 @@ model-bound command/query shape to a Node.js server. Its packages are a source
 preview and are not published to npm. It is separate from `@cratis/arc`, the
 published client runtime that generated proxies import in a frontend.
 `cratis/arc/server-typescript` carries the skills; `cratis/arc/typescript` adds
-the TypeScript language conventions, and `cratis/application/typescript`
-composes the skills with the Chronicle TypeScript client.
+the TypeScript language conventions, and `cratis/full/typescript` composes it.
+The server skills are opt-in: `cratis/arc`, `cratis/application` and
+`cratis/application/typescript` do not load them, because they target a
+Node.js server and a C# or React-frontend project has no use for them. Select
+`cratis/arc/typescript` (or `cratis/full/typescript`) for a Node.js Arc server.
 
 | Skill | Covers |
 | --- | --- |

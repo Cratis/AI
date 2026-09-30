@@ -212,7 +212,6 @@
     {
       "id": "cratis/application/typescript",
       "composes": [
-        "cratis/arc/server-typescript",
         "cratis/chronicle/client-typescript",
         "cratis/language/typescript",
         "cratis/specifications/typescript"
@@ -227,8 +226,7 @@
       "composes": [
         "cratis/arc/csharp",
         "cratis/arc/java",
-        "cratis/arc/kotlin",
-        "cratis/arc/typescript"
+        "cratis/arc/kotlin"
       ],
       "languages": [
         "csharp",
