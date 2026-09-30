@@ -45,6 +45,7 @@ export * from './generated/Providers/Refreshing';
 export * from './generated/Providers/Removing';
 export * from './generated/Providers/Renaming';
 export * from './generated/Providers/SettingConcurrency';
+export * from './generated/Providers/SettingHarnesses';
 export * from './generated/Providers/SettingTierModels';
 export * from './generated/Providers/SettingUsageCapacity';
 export * from './generated/Providers/SigningIn';
