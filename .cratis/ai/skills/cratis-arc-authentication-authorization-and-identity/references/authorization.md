@@ -127,6 +127,11 @@ opt-in:
 - Only a declaration made **entirely** of opted-in policies, with no roles and no
   schemes, can evaluate guests. Roles and schemes always require authentication.
 
+⚠️ The opt-in governs Arc's pipeline verdict only. Today the HTTP layer can reject
+a guest before the policy runs: a Core host with any authentication handler, or an
+ASP.NET Core `FallbackPolicy` that requires authentication, returns 401 first
+(tracked in Cratis/Arc#2948). Test guest endpoints through the real HTTP host.
+
 ⚠️ Because a method replaces its type, a method-level guest policy on a read model
 with a type-level `[Roles("Admin")]` is reachable by guests when the policy
 allows them. The type-level role no longer protects that method.
@@ -138,11 +143,11 @@ allows them. The type-level role no longer protects that method.
    `AmbiguousAuthorizationLevel`.
 2. On the ASP.NET Core host, named schemes are authenticated and the selected
    identity chosen.
-3. Authentication and roles are checked, and every policy is **awaited**, one at a
+3. Command context-value providers and the execution-scope `Begin` hooks run
+   next, **before the policy verdict**, so they can run for a caller the policy
+   later denies. They must not perform irreversible effects.
+4. Authentication and roles are checked, and every policy is **awaited**, one at a
    time, **before** `Provide()`, `Handle()` or the query method runs.
-4. Command context-value providers and the execution-scope `Begin` hooks run
-   **before the policy verdict**, so they can run for a caller the policy later
-   denies. They must not perform irreversible effects.
 5. Identity and declaration continuity is rechecked before and after each policy
    and again immediately before the handler or query method; a change denies.
 6. Only then does `Provide()`/`Handle()`/the query method run.
