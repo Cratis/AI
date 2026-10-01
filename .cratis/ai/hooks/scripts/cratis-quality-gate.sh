@@ -151,9 +151,16 @@ EOF
     return 1
 }
 
-# Report the first unmet requirement, or nothing when the gate can run here.
+# Does the package.json at $1 define the script named $2? A missing file or a file that is not
+# valid JSON defines nothing.
+package_defines_script() {
+    [ -f "$1" ] && jq -e --arg s "$2" '.scripts[$s] != null' "$1" >/dev/null 2>&1
+}
+
+# Report the first unmet requirement, or nothing when the gate can run here. $2 is the directory,
+# relative to the repository root, the gate runs in.
 gate_unmet() {
-    local idx="$1" c p
+    local idx="$1" dir="$2" c p s
     while IFS= read -r c; do
         [ -n "$c" ] || continue
         hook_have "$c" || { printf "command '%s' is not on PATH" "$c"; return 0; }
@@ -165,6 +172,20 @@ EOF
         [ -e "$root/$p" ] || { printf "'%s' does not exist in this repository" "$p"; return 0; }
     done <<EOF
 $(jq -r --argjson i "$idx" '.gates[$i].requires.paths // [] | .[]' "$config")
+EOF
+    # A package.json script a gate invokes must exist, or yarn fails with "Couldn't find a script"
+    # instead of the gate being a NO-OP. A global script (g:) may live in the root package.json
+    # that the workspace's own package.json defers to.
+    while IFS= read -r s; do
+        [ -n "$s" ] || continue
+        package_defines_script "$root/$dir/package.json" "$s" && continue
+        case "$s" in
+            g:*) package_defines_script "$root/package.json" "$s" && continue ;;
+        esac
+        printf "script '%s' is not defined in %s" "$s" "$dir/package.json"
+        return 0
+    done <<EOF
+$(jq -r --argjson i "$idx" '.gates[$i].requires.packageScripts // [] | .[]' "$config")
 EOF
     return 0
 }
@@ -199,7 +220,7 @@ while [ "$idx" -lt "$gate_count" ]; do
     fi
     [ -n "$wd" ] || wd="."
 
-    unmet="$(gate_unmet "$idx")"
+    unmet="$(gate_unmet "$idx" "$wd")"
     if [ -n "$unmet" ]; then
         printf 'cratis-quality-gate: NO-OP %-24s — %s. Configure it in %s.\n' \
             "$id" "$unmet" "${config#"$root"/}" >&2

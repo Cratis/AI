@@ -1,30 +1,36 @@
 {
-  "$comment": "Project-owned overrides for the managed quality gates (merged by gate id). This repository is the corpus itself: its TypeScript lives in yarn workspaces with no application frontend, so the shipped frontend gates are mapped onto the checks the publish workflow runs. The corpus verification (yarn workspace @cratis/ai-verification run verify) is part of the test script's package check and runs in CI; the override keeps each gate a single argv command.",
+  "$comment": "Project-owned overrides for the managed quality gates (merged by gate id). This repository is the corpus itself: its TypeScript lives in yarn workspaces with no application frontend, so the shipped frontend gates are mapped onto the checks the publish workflow runs. The corpus verification (yarn workspace @cratis/ai-verification run verify) is part of the test script's package check and runs in CI; the override keeps each gate a single argv command. Each gate also restates excludeChanged without the managed .cratis/** and adapter trees, because here those are the files under verification, and the gates that replace the command require only yarn instead of a g: script.",
   "gates": [
     {
       "id": "frontend-lint",
       "description": "yarn workspace @cratis/harness-setup run check — type check and adapter plan verified",
       "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/agents/*.md", ".cratis/ai/prompts/*.md"],
+      "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
       "command": ["yarn", "workspace", "@cratis/harness-setup", "run", "check"]
     },
     {
       "id": "frontend-compile",
       "description": "yarn workspace @cratis/ai-verification run check — zero TypeScript errors",
+      "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
+      "requires": { "commands": ["yarn"] },
       "command": ["yarn", "workspace", "@cratis/ai-verification", "run", "check"]
     },
     {
       "id": "frontend-compile-specs",
       "description": "yarn workspace @cratis/ai-verification run verify — corpus structure, catalog, agents, and skill scenarios verified",
       "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/**/*.md", ".cratis/ai/**/*.json"],
+      "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
+      "requires": { "commands": ["yarn"] },
       "command": ["yarn", "workspace", "@cratis/ai-verification", "run", "verify"]
     },
     {
       "id": "frontend-specs",
       "description": "yarn workspace @cratis/ai-verification run test — zero failures",
       "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/agents/*.md", ".cratis/ai/harnesses/**"],
+      "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
       "command": ["yarn", "workspace", "@cratis/ai-verification", "run", "test"]
     }
