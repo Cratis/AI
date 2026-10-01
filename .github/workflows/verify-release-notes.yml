@@ -13,9 +13,8 @@ name: Verify Release Notes
 #
 # `edited` re-runs the check when the description changes and `labeled` and
 # `unlabeled` when the release label does. There is no branch or label filter: the
-# gate itself only checks pull requests into the default branch that carry exactly
-# one of major, minor or patch, and passes the rest (no release label yet,
-# no-release, Dependabot) with a notice.
+# gate checks release-bound pull requests into the default branch and warns about
+# invalid notes on no-release and unlabelled requests. Dependabot is exempt.
 #
 # The job is named release-notes so the check reads `release-notes / verify` and
 # does not collide with other `verify / verify` gates.
@@ -32,9 +31,10 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   release-notes:
-    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@cc2dde3c60b899afb5d27f28af25695ab88c0ed2 # main on 2026-09-30
+    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@40125b4fcae388e62ed9471edfffd0e991422f0a # main on 2026-10-01
     with:
       runs-on: ${{ vars.RUNNER_GATE || 'ubuntu-latest' }}

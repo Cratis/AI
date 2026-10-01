@@ -80,9 +80,10 @@ for (const obsolete of ['tooling', 'evidence', 'evals', 'catalog', 'distribution
 }
 const workflows = (await readdir(join(root, '.github', 'workflows'))).filter(name => name.endsWith('.yml') || name.endsWith('.yaml'));
 if (!workflows.includes('publish.yml')) failures.push('The publish workflow is required.');
-// verify-release-notes.yml is the only other workflow: a thin caller of the organization release-notes check.
-const unexpectedWorkflows = workflows.filter(name => name !== 'publish.yml' && name !== 'verify-release-notes.yml');
-if (unexpectedWorkflows.length > 0) failures.push(`Only publish.yml and verify-release-notes.yml are allowed; found ${unexpectedWorkflows.join(', ')}.`);
+// The other workflows are thin callers of the organization release-note and release-intent checks.
+const allowedWorkflows = ['publish.yml', 'verify-release-notes.yml', 'verify-semver-label.yml'];
+const unexpectedWorkflows = workflows.filter(name => !allowedWorkflows.includes(name));
+if (unexpectedWorkflows.length > 0) failures.push(`Only ${allowedWorkflows.join(', ')} are allowed; found ${unexpectedWorkflows.join(', ')}.`);
 for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/marketplace.json', '.agents/plugins/marketplace.json', '.github/plugin/marketplace.json']) {
     const document = JSON.parse(await readFile(join(root, marketplace), 'utf8'));
     if (document.plugins?.length !== 1 || document.plugins[0]?.source?.path !== '.cratis/ai' || document.plugins[0]?.skills !== './skills') {

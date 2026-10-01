@@ -11,6 +11,7 @@ Three layers:
 | Pattern pass | `PostToolUse` on a write | `scripts/cratis-pattern-scan.sh` | zero tokens until a match | appends a one-line reminder to context, never blocks |
 | Hard block | `PreToolUse` on a write | `scripts/cratis-guard-writes.sh` | zero | exits **2** — the write does not happen |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-store-mutations.sh` | zero; parses only commands that mention `cratis` | exits **2** — the store-changing `cratis chronicle` command does not run |
+| Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-pr-body.sh` | fetches shared rules only for `gh pr create/edit` | exits **2** for inline bodies, invalid notes or conflicting release labels; warns and allows when offline with no cache |
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
 
@@ -34,7 +35,7 @@ they describe what a hook should do for tools that have no wiring yet.
 
 > Hooks are the one surface with no folder adapter: Claude Code reads `.claude/settings.json`;
 > the Pi harness bridges the same scripts to its own events through the `cratis-hooks`
-> extension under `../harnesses/pi/extensions/` (its `bash` tool feeds the store-mutation guard, its
+> extension under `../harnesses/pi/extensions/` (its `bash` tool feeds the store-mutation and PR-body guards, its
 > `write` and `edit` tools the write guard); Copilot would read `.github/hooks/*.json`, and no
 > Copilot wiring ships yet.
 >
@@ -107,6 +108,60 @@ a live store and says a request to diagnose does not authorize a mutation; this 
 A person who has authorized a mutation sets `CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` in the
 environment the harness was started from. The hook reads its own environment, so an assignment
 inside the command (`CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1 cratis …`) changes nothing.
+
+### Pull-request bodies
+
+The Bash guard is a no-op unless **both** target-repository opt-in conditions hold: the target is under
+`github.com/Cratis/`, and its `.github/workflows` contains a reusable Cratis/Workflows
+`verify-release-notes` or `verify-semver-label` caller (including the renamed
+`verify-release-intent` caller). Installing the corpus or `@cratis/pi` alone does not opt in a
+consumer or personal repository. This scope applies to both Claude Code and Pi; the direct checker
+remains available explicitly in any repository. As in `gh`, an edit's PR URL takes priority over
+`--repo` / `-R`, then literal leading or inherited `GH_REPO`, then the current directory's `origin`.
+Cross-repository commands use the target's workflow
+callers, not the checkout's; an unavailable remote opt-in lookup blocks rather than bypassing the guard.
+
+In opted-in repositories, the Bash guard checks literal `gh pr create` and `gh pr edit` commands, also behind leading environment assignments, `env`, `command`, `rtk` or
+following shell separators. Inline `--body` / `-b` is refused: write the body to
+`.ai-work/pr-body.md` and use `--body-file` / `-F`. It applies `--label`, `--add-label` and
+`--remove-label` to the current PR labels and requires exactly one release intent. A label-only
+edit checks the current body too. Variables, aliases, shell functions, nested shell scripts and
+script files are outside its scope; guarded option values must be literal paths or labels.
+Shell comments and here-document payloads are not executable commands. If an earlier redirection
+or `tee` in the same tool command writes the guarded body file, the command is blocked: **write the body
+file first, then run `gh pr create/edit` in a separate command**. The guard reads files before
+execution, so it cannot validate a body that the command has yet to write, even if an older file
+already exists. Dependabot's generated description remains exempt (including GitHub CLI's
+`app/dependabot` bot identity), but its release-intent label is still checked.
+
+Run the same checker directly:
+
+```bash
+node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.md --label patch
+node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.md --pr 123 --strict
+```
+
+The checker fetches both marked programs from Cratis/Workflows' `verify-release-notes.yml` at
+the immutable commit SHA in the repository's own release-notes caller. If there is no such caller,
+it uses the reviewed pin `40125b4fcae388e62ed9471edfffd0e991422f0a`. Floating callers such as `@main`
+fetch the programs at that ref; if the fetch fails, they use the bundled programs from the reviewed
+pin with a warning, so body validation is never silently skipped. Programs receive only the proposed PR
+metadata and `PATH`, `HOME`, and `LANG`, not inherited credentials or Node runtime options.
+The exact programs are cached by workflow blob SHA under
+`${XDG_CACHE_HOME:-~/.cache}/cratis/release-notes/<ref>/<sha>.cjs`. Offline, the newest complete
+cached copy for that same pin is used with a warning. With no cache it reports **unchecked** and
+exits **3**; the hook passes through with that warning. Successful checks are silent in hook mode;
+real warnings go to Pi's context or Claude Code's JSON `systemMessage` and `additionalContext`. Exit **0** means no violations; **1** means invalid notes or
+release intent. `--strict` makes warnings (including a cached-rule fallback or an unavailable
+diff comparison) fail too. `no-release` bodies may omit the change list (for example, a summary-only
+internal change); other release-note contract violations still fail, rather than being exempted.
+
+The drift program compares committed `HEAD` with `origin/<base>` (default: the repository's
+default branch, normally `main`), so commit the intended changes and fetch the base before the
+final check. Drift is advisory without `--strict`; re-read the note against the diff after
+merging or rebasing main. The local checker requires Node and Git; fetching rules and live PR
+labels also needs authenticated `gh`. Unrelated commands exit before checking for Node; when Node
+is missing, relevant PR commands in locally opted-in repositories warn rather than claiming a pass.
 
 **Flagged** (`PostToolUse`, exit 0 + context):
 
@@ -414,8 +469,9 @@ Each is an explicit, auditable opt-out — none of them is a default.
   (macOS system bash) — no `mapfile`, no associative arrays, no GNU-only flags, `LC_ALL=C` on
   every sort and compare.
 - **Gate commands are an argv array**, executed directly. They never pass through a shell.
-- **`jq` is the only dependency.** Every script
-  degrades to a silent no-op when it is missing — a hook must never break a session.
+- **`jq` is the dependency for the write, store-mutation, pattern and quality hooks.** They
+  degrade to a silent no-op when it is missing — a hook must never break a session. The
+  PR-body hook uses Node instead, and the checker uses Git and `gh` as described above.
 - **Fail safe.** Malformed config, empty stdin, a missing file, a binary file, a file over 2 MB:
   all exit 0 silently. The one deliberate exception is the store-mutation guard's command lists:
   an unreadable shipped or local list is not an empty allowlist that happens to pass, so every `cratis chronicle`
