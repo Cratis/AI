@@ -137,9 +137,9 @@ list|show`, `failed-partitions list|show`, `projections list|show`,
 - **A quarantined observer does not resume by itself.** A quarantine ends when
   an operator clears it, or when the observer is subscribed again — for an
   application observer, when the client reconnects, for example after a
-  redeploy. Clearing the quarantine is an explicit operation, and it is the last
-  step, not the first, and a redeploy that restarts the client can end the
-  quarantine as a side effect, so check before and after one.
+  redeploy. Clearing the quarantine is an explicit operation and the last step,
+  not the first. A redeploy that restarts the client can also end the quarantine
+  as a side effect, so check the observer's state before and after a redeploy.
 
 ## Before you change anything
 
