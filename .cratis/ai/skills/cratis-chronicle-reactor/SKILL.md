@@ -313,8 +313,10 @@ If a handler throws, or a returned side-effect event fails to append — a
 constraint violation, a concurrency violation, or an error — the failing
 event-source partition **pauses** until the cause is resolved. Repeated failures
 can **quarantine** the observer, which stops retries and suppresses automatic
-recovery. **A quarantined observer does not resume on reconnect**; an operator
-must clear the quarantine explicitly.
+recovery. **A quarantine ends when an operator clears it
+(`ClearObserverQuarantine()`), or when the observer is subscribed again** — for an
+application observer that is when the client connects again, for example after a
+redeploy; Kernel-owned observers are subscribed again when the Kernel starts.
 
 Do not throw to reject a malformed inbound event. A reactor is not a data-quality
 gate; invalid payloads belong at the command or append site. When a malformed
