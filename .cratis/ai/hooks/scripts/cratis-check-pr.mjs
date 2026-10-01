@@ -176,7 +176,7 @@ function check(argv, repositoryCallers) {
     const file = rules(warn, repositoryCallers || targetCallers(repository, process.cwd()));
     if (!file) return 3;
     const env = { PATH: process.env.PATH, HOME: homedir(), LANG: 'C.UTF-8',
-        PR_BODY: body, PR_LABELS: JSON.stringify(intent[0] === 'no-release' ? ['patch'] : [...labels]),
+        PR_BODY: body, PR_LABELS: JSON.stringify([...labels]),
         PR_AUTHOR: author, PR_BASE: base, DEFAULT_BRANCH: defaultBranch, GITHUB_REPOSITORY: repository,
         BASE: base, REPOSITORY: repository };
     for (const program of ['release-notes', 'release-notes-drift']) {
@@ -185,6 +185,14 @@ function check(argv, repositoryCallers) {
             (hookMode ? process.stderr : process.stdout).write(result.stdout || '');
             process.stderr.write(result.stderr || '');
             if (result.error) console.error(result.error.message);
+            return 1;
+        }
+        // no-release may omit a change list, but other contract violations still block locally.
+        const output = (result.stdout || '') + (result.stderr || '');
+        if (intent[0] === 'no-release' && program === 'release-notes'
+            && output.split('\n').some(line => /^::warning title=Release notes(?::|%3A) (?!No release notes::)/.test(line))) {
+            (hookMode ? process.stderr : process.stdout).write(result.stdout || '');
+            process.stderr.write(result.stderr || '');
             return 1;
         }
         if (!hookMode) process.stdout.write(result.stdout || '');
@@ -262,16 +270,19 @@ function commands(text) {
 
 function executableWords(words) {
     const result = [...words];
+    let environmentRepository = process.env.GH_REPO;
     while (result.length) {
-        if (/^[A-Za-z_][A-Za-z_0-9]*=/.test(result[0]) || ['rtk', 'env', 'command'].includes(result[0])) result.shift();
-        else if (result[0] === '--') result.shift();
+        if (/^[A-Za-z_][A-Za-z_0-9]*=/.test(result[0])) {
+            if (result[0].startsWith('GH_REPO=')) environmentRepository = result[0].slice('GH_REPO='.length);
+            result.shift();
+        } else if (['rtk', 'env', 'command', '--'].includes(result[0])) result.shift();
         else break;
     }
-    return result;
+    return { words: result, environmentRepository };
 }
 
-function effectiveRepository(words, cwd) {
-    // Explicit repository flags take priority over an edit's PR URL and the checkout origin.
+function effectiveRepository(words, cwd, environmentRepository) {
+    // gh selects an edit's PR URL before --repo, then GH_REPO, then the checkout origin.
     let repository, target;
     let explicitRepository = false;
     for (let index = 3; index < words.length; index++) {
@@ -287,12 +298,16 @@ function effectiveRepository(words, cwd) {
             if (!attached.length) index++;
         } else if (!option.startsWith('-') && words[2] === 'edit' && !target) target = words[index];
     }
+    if (/^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+\/?$/.test(target || '')) return target.split('/').slice(3, 5).join('/');
     if (explicitRepository) {
         if (!repository || repository.startsWith('-') || /[$`]/.test(repository)) throw new Error('Use a literal value for --repo, not a shell expansion.');
         return repositoryName(repository);
     }
-    return /^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+\/?$/.test(target || '')
-        ? target.split('/').slice(3, 5).join('/') : originRepository(cwd);
+    if (environmentRepository) {
+        if (/[$`]/.test(environmentRepository)) throw new Error('Use a literal value for GH_REPO, not a shell expansion.');
+        return repositoryName(environmentRepository);
+    }
+    return originRepository(cwd);
 }
 
 function hook() {
@@ -307,7 +322,7 @@ function hook() {
     try { parsed = commands(text); } catch (error) { if (!optedIn(cwd)) return 0; throw error; }
     const written = new Set();
     for (const command of parsed) {
-        const words = executableWords(command.words);
+        const { words, environmentRepository } = executableWords(command.words);
         const writes = [...command.writes];
         if (words[0] === 'tee') writes.push(...words.slice(1).filter(word => !word.startsWith('-')));
         for (const file of writes) written.add(resolve(cwd, file));
@@ -322,7 +337,7 @@ function hook() {
         }
         if (words[0] !== 'gh' || words[1] !== 'pr' || !['create', 'edit'].includes(words[2])) continue;
         if (words.includes('--help') || words.includes('-h')) continue;
-        const repository = effectiveRepository(words, cwd);
+        const repository = effectiveRepository(words, cwd, environmentRepository);
         if (!/^Cratis\/[^/]+$/i.test(repository)) continue;
         const repositoryCallers = targetCallers(repository, cwd);
         if (!repositoryCallers.length) continue;
@@ -339,7 +354,7 @@ function hook() {
             if (mapped) {
                 const value = attached.length ? attached.join('=') : words[++index];
                 if (!value || /[$`]/.test(value) || value === '-') throw new Error(`Use a literal value for ${option}, not stdin or a shell expansion.`);
-                args.push(mapped, value);
+                if (mapped !== '--repo') args.push(mapped, value);
                 if (mapped === '--body-file') {
                     hasBody = true;
                     if (written.has(resolve(cwd, value))) throw new Error('write the body file first, then run gh pr create/edit in a separate command; an earlier redirection may change the submitted body.');
@@ -352,7 +367,8 @@ function hook() {
         }
         if (words[2] === 'create' && !hasBody) throw new Error('write the body to `.ai-work/pr-body.md` and use `--body-file` when creating a pull request.');
         if (words[2] === 'edit') args.push('--pr', target);
-        if (repository.toLowerCase() !== originRepository(cwd)?.toLowerCase() && !args.includes('--repo')) args.push('--repo', repository);
+        // Use the same resolved target for opt-in, PR metadata and repository metadata.
+        args.push('--repo', repository);
         process.chdir(cwd);
         const code = check(args, repositoryCallers);
         if (code !== 0 && code !== 3) throw new Error('The pull-request body or release intent failed cratis-check-pr. Fix the reported violations before retrying.');

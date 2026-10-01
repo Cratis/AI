@@ -116,8 +116,9 @@ The Bash guard is a no-op unless **both** target-repository opt-in conditions ho
 `verify-release-notes` or `verify-semver-label` caller (including the renamed
 `verify-release-intent` caller). Installing the corpus or `@cratis/pi` alone does not opt in a
 consumer or personal repository. This scope applies to both Claude Code and Pi; the direct checker
-remains available explicitly in any repository. The target is resolved from `--repo` / `-R`, then a
-PR URL, then the current directory's `origin`. Cross-repository commands use the target's workflow
+remains available explicitly in any repository. As in `gh`, an edit's PR URL takes priority over
+`--repo` / `-R`, then literal leading or inherited `GH_REPO`, then the current directory's `origin`.
+Cross-repository commands use the target's workflow
 callers, not the checkout's; an unavailable remote opt-in lookup blocks rather than bypassing the guard.
 
 In opted-in repositories, the Bash guard checks literal `gh pr create` and `gh pr edit` commands, also behind leading environment assignments, `env`, `command`, `rtk` or
@@ -152,7 +153,8 @@ cached copy for that same pin is used with a warning. With no cache it reports *
 exits **3**; the hook passes through with that warning. Successful checks are silent in hook mode;
 real warnings go to Pi's context or Claude Code's JSON `systemMessage` and `additionalContext`. Exit **0** means no violations; **1** means invalid notes or
 release intent. `--strict` makes warnings (including a cached-rule fallback or an unavailable
-diff comparison) fail too. `no-release` bodies are checked as release-bound, not exempted.
+diff comparison) fail too. `no-release` bodies may omit the change list (for example, a summary-only
+internal change); other release-note contract violations still fail, rather than being exempted.
 
 The drift program compares committed `HEAD` with `origin/<base>` (default: the repository's
 default branch, normally `main`), so commit the intended changes and fetch the base before the

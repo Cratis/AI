@@ -31,7 +31,7 @@ const workflow = `jobs:
       "use strict";
       // cratis:program release-notes
       if (process.env.PR_JSON || process.env.GH_TOKEN || process.env.NUMBER || process.env.TEST_SECRET || process.env.NODE_OPTIONS || process.env.GITHUB_TOKEN) throw new Error('Live state leaked');
-      if (JSON.parse(process.env.PR_LABELS).filter(x => ['major', 'minor', 'patch'].includes(x)).length !== 1) process.exit(1);
+      if (JSON.parse(process.env.PR_LABELS).filter(x => ['major', 'minor', 'patch', 'no-release'].includes(x)).length !== 1) process.exit(1);
       if (process.env.PR_BODY.includes('reject-me')) { console.log('::error::rejected by downloaded program'); process.exit(1); }
       console.log('Gate read proposed body for ' + process.env.GITHUB_REPOSITORY + ' by ' + process.env.PR_AUTHOR);
       process.exit(0);
@@ -83,12 +83,12 @@ else if (args[0] === 'api') {
 } else if (args[0] === 'repo') console.log(JSON.stringify({ nameWithOwner: args[2] === '--json' ? 'Cratis/Example' : args[2], defaultBranchRef: { name: 'main' } }));
 else if (args[0] === 'pr') {
     if (process.env.TEST_PR_FAILURE === '1') process.exit(1);
-    console.log(JSON.stringify({ labels: [{ name: 'minor' }, { name: 'dependencies' }], body: process.env.TEST_PR_BODY || 'current-body', author: JSON.parse(process.env.TEST_PR_AUTHOR || '{"login":"woksin"}'), baseRefName: 'main' }));
+    console.log(JSON.stringify({ labels: JSON.parse(process.env.TEST_PR_LABELS || '[{"name":"minor"},{"name":"dependencies"}]'), body: process.env.TEST_PR_BODY || 'current-body', author: JSON.parse(process.env.TEST_PR_AUTHOR || '{"login":"woksin"}'), baseRefName: 'main' }));
 } else process.exit(1);
 `, { mode: 0o755 });
     const cache = join(directory, 'cache');
     const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, XDG_CACHE_HOME: cache,
-        TEST_CALLS: calls, TEST_WORKFLOW: downloaded, TEST_OFFLINE: '0', TEST_PR_FAILURE: '0',
+        TEST_CALLS: calls, TEST_WORKFLOW: downloaded, TEST_OFFLINE: '0', TEST_PR_FAILURE: '0', GH_REPO: '',
         GH_TOKEN: 'must-not-reach-program', GITHUB_TOKEN: 'must-not-reach-program', TEST_SECRET: 'must-not-reach-program', NODE_OPTIONS: '--no-warnings',
         PR_JSON: 'must-not-reach-program', NUMBER: '123', GITHUB_STEP_SUMMARY: 'must-not-write' };
     const run = (args: string[], extra: NodeJS.ProcessEnv = {}) => spawnSync(process.execPath, [checker, ...args], { cwd: directory, env: { ...env, ...extra }, encoding: 'utf8', timeout: 15000 });
@@ -98,7 +98,7 @@ else if (args[0] === 'pr') {
     return { directory, body, cache, callers, noNodePath, rulesCache: join(cache, 'cratis/release-notes', rulesRef), downloaded, calls, env, run, hook, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
 }
 
-test('the checker extracts both marked programs, caches by blob SHA, and checks no-release as release-bound', () => {
+test('the checker extracts both marked programs, caches by blob SHA, and preserves no-release intent', () => {
     const f = fixture();
     try {
         const result = f.run(['--body-file', f.body, '--label', 'no-release']);
@@ -115,6 +115,31 @@ test('the checker extracts both marked programs, caches by blob SHA, and checks 
         const rejected = f.run(['--body-file', f.body, '--label', 'no-release']);
         assert.equal(rejected.status, 1);
         assert.match(rejected.stdout, /rejected by downloaded program/);
+    } finally { f.cleanup(); }
+});
+
+test('no-release accepts summary-only bodies and metadata edits but still rejects contract violations', () => {
+    const f = fixture();
+    try {
+        const bundle = readFileSync(join(scripts, 'cratis-release-notes-reviewed.cjs'), 'utf8');
+        const programs = [...bundle.matchAll(/\nif \(process\.argv\[2\] === "([^"]+)"\) \{\n([\s\S]*?)\n\}(?=\nif \(process\.argv\[2\]|\s*$)/g)];
+        assert.equal(programs.length, 2);
+        writeFileSync(f.downloaded, programs.map(([, name, source]) =>
+            `  ${name}:\n    run: |\n      node - <<'JS'\n${source.split('\n').map(line => `      ${line}`).join('\n')}\n      JS\n`).join(''));
+        const summary = '## Summary\n\nInternal CI cleanup.\n';
+        writeFileSync(f.body, summary);
+        const valid = f.run(['--body-file', f.body, '--label', 'no-release']);
+        assert.equal(valid.status, 0, valid.stdout + valid.stderr);
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 1);
+        const metadata = { TEST_PR_LABELS: '[{"name":"no-release"}]', TEST_PR_BODY: summary };
+        assert.equal(f.hook(`gh pr create -F '${f.body}' -lno-release`).status, 0);
+        assert.equal(f.hook('gh pr edit 7 --add-assignee woksin', metadata).status, 0);
+        writeFileSync(f.body, '## Testing\n\nInternal CI cleanup.\n');
+        const invalid = f.run(['--body-file', f.body, '--label', 'no-release']);
+        assert.equal(invalid.status, 1);
+        assert.match(invalid.stdout, /::warning title=Release notes%3A/);
+        assert.equal(f.hook(`gh pr create -F '${f.body}' -lno-release`).status, 2);
+        assert.equal(f.hook('gh pr edit 7 --add-assignee woksin', { ...metadata, TEST_PR_BODY: '## Testing\n\nInternal CI cleanup.' }).status, 2);
     } finally { f.cleanup(); }
 });
 
@@ -278,7 +303,7 @@ test('metadata edit options consume values before selecting an explicit or curre
                 assert.equal(result.status, 0, result.stderr);
                 const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
                 const view = calls.filter(args => args[0] === 'pr').at(-1);
-                assert.deepEqual(view, ['pr', 'view', ...(target ? [target] : []), '--json', 'labels,body,author,baseRefName']);
+                assert.deepEqual(view, ['pr', 'view', ...(target ? [target] : []), '--repo', 'Cratis/Example', '--json', 'labels,body,author,baseRefName']);
             }
         }
         for (const flags of ['--head branch --template template.md', '-H branch -T template.md', '-Hbranch -Ttemplate.md']) {
@@ -387,6 +412,33 @@ test('environment assignments, env and command prefixes cannot hide guarded comm
     } finally { f.cleanup(); }
 });
 
+test('GH_REPO assignments and inherited values resolve targets across checkouts and metadata calls', () => {
+    const f = fixture();
+    try {
+        for (const prefix of ['GH_REPO=Someone/Personal', 'env GH_REPO=Someone/Personal']) {
+            assert.equal(f.hook(`${prefix} gh pr create --body inline`).status, 0);
+        }
+        assert.equal(f.hook('gh pr create --body inline', { GH_REPO: 'Someone/Personal' }).status, 0);
+        assert.equal(f.hook('env GH_REPO=Someone/Personal gh pr create -R Cratis/Example --body inline').status, 2);
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        for (const prefix of ['GH_REPO=Cratis/Other', 'env GH_REPO=Cratis/Other', 'command GH_REPO=Cratis/Other', 'env GH_REPO=Someone/Personal GH_REPO=Cratis/Other']) {
+            assert.equal(f.hook(`${prefix} gh pr create --body inline`).status, 2, prefix);
+            const valid = f.hook(`${prefix} gh pr create -F '${f.body}' -lpatch`);
+            assert.equal(valid.status, 0, valid.stderr);
+        }
+        assert.equal(f.hook('gh pr create --body inline', { GH_REPO: 'Cratis/Other' }).status, 2);
+        assert.equal(f.hook(`gh pr edit 7 -F '${f.body}'`, { GH_REPO: 'Cratis/Other' }).status, 0);
+        assert.equal(f.hook('GH_REPO=Cratis/Other gh pr create -R Someone/Personal --body inline').status, 0);
+        assert.equal(f.hook('GH_REPO="$TARGET" gh pr create --body inline').status, 2);
+        assert.equal(f.hook('GH_REPO= gh pr create --body inline', { GH_REPO: 'Cratis/Other' }).status, 0);
+        const calls = readFileSync(f.calls, 'utf8');
+        assert.match(calls, /repos\/Cratis\/Other\/contents\/\.github\/workflows/);
+        assert.match(calls, /"pr","view","7","--repo","Cratis\/Other"/);
+        assert.match(calls, /"repo","view","Cratis\/Other"/);
+        assert.doesNotMatch(calls, /"repo","view","Someone\/Personal"/);
+    } finally { f.cleanup(); }
+});
+
 test('tee writes cannot submit missing or stale body files in the same command', () => {
     const f = fixture();
     try {
@@ -437,7 +489,12 @@ test('the target repository opts in independently of the current checkout', () =
         assert.equal(f.hook(`gh pr edit https://github.com/Cratis/Other/pull/7 -F '${f.body}'`).status, 0);
         assert.match(readFileSync(f.calls, 'utf8'), /"pr","view","https:\/\/github.com\/Cratis\/Other\/pull\/7","--repo","Cratis\/Other"/);
         assert.match(readFileSync(f.calls, 'utf8'), /"repo","view","Cratis\/Other"/);
-        assert.equal(f.hook('gh pr edit https://github.com/Cratis/Other/pull/7 -R Someone/Personal --body inline').status, 0);
+        assert.equal(f.hook('gh pr edit https://github.com/Cratis/Other/pull/7 -R Someone/Personal --body inline').status, 2);
+        assert.equal(f.hook('gh pr edit https://github.com/Someone/Personal/pull/7 -R Cratis/Other --body inline').status, 0);
+        assert.equal(f.hook(`gh pr edit https://github.com/Cratis/Other/pull/7 -R Someone/Personal -F '${f.body}'`, { GH_REPO: 'Someone/Personal' }).status, 0);
+        const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+        assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', 'https://github.com/Cratis/Other/pull/7', '--repo', 'Cratis/Other', '--json', 'labels,body,author,baseRefName']);
+        assert.deepEqual(calls.filter(args => args[0] === 'repo').at(-1), ['repo', 'view', 'Cratis/Other', '--json', 'nameWithOwner,defaultBranchRef']);
         assert.equal(f.hook('gh pr create -R Cratis/Other --body inline', { TEST_REMOTE_CALLERS: '0' }).status, 0);
         assert.match(readFileSync(f.calls, 'utf8'), /repos\/Cratis\/Other\/contents\/\.github\/workflows/);
         assert.match(readFileSync(f.calls, 'utf8'), /verify-release-notes.yml\?ref=main/);
