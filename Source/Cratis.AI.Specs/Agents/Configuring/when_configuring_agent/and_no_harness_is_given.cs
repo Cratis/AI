@@ -6,7 +6,7 @@ using Cratis.AI.Providers;
 
 namespace Cratis.AI.Agents.Configuring.when_configuring_agent;
 
-public class and_a_harness_is_given : Specification
+public class and_no_harness_is_given : Specification
 {
     CommandScenario<ConfigureAgent> _scenario;
     CommandResult _result;
@@ -14,10 +14,11 @@ public class and_a_harness_is_given : Specification
     void Establish() => _scenario = new();
 
     async Task Because() => _result = await _scenario.Execute(new ConfigureAgent(
-        "WorkExecution", "Wright", "Carries out scheduled units of work.", ModelTier.Balanced, null, null, Harness.Claude, Effort.High));
+        "WorkExecution", "Wright", "Carries out scheduled units of work.", ModelTier.Balanced));
 
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
+
     [Fact]
-    void should_append_the_legacy_harness_preference() => _scenario.EventSequence.ShouldHaveAppendedEvent<AgentConfigured>(
-        @event => @event.Purpose == new LanguageModelPurpose("WorkExecution") && @event.Harness == Harness.Claude);
+    void should_preserve_the_legacy_event_shape() => _scenario.EventSequence.ShouldHaveAppendedEvent<AgentConfigured>(
+        @event => @event.Purpose == new LanguageModelPurpose("WorkExecution") && @event.Harness == Harness.Pi);
 }
