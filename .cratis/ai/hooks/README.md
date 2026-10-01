@@ -111,12 +111,25 @@ inside the command (`CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1 cratis …`) changes n
 
 ### Pull-request bodies
 
-The Bash guard checks literal `gh pr create` and `gh pr edit` commands, also behind `rtk` or
+The Bash guard is a no-op unless **both** repository opt-in conditions hold: `origin` is under
+`github.com/Cratis/`, and `.github/workflows` contains a reusable Cratis/Workflows
+`verify-release-notes` or `verify-semver-label` caller (including the renamed
+`verify-release-intent` caller). Installing the corpus or `@cratis/pi` alone does not opt in a
+consumer or personal repository. This scope applies to both Claude Code and Pi; the direct checker
+remains available explicitly in any repository.
+
+In opted-in repositories, the Bash guard checks literal `gh pr create` and `gh pr edit` commands, also behind `rtk` or
 following shell separators. Inline `--body` / `-b` is refused: write the body to
 `.ai-work/pr-body.md` and use `--body-file` / `-F`. It applies `--label`, `--add-label` and
 `--remove-label` to the current PR labels and requires exactly one release intent. A label-only
 edit checks the current body too. Variables, aliases, shell functions, nested shell scripts and
 script files are outside its scope; guarded option values must be literal paths or labels.
+Shell comments and here-document payloads are not executable commands. If an earlier redirection
+in the same tool command writes the guarded body file, the command is blocked: **write the body
+file first, then run `gh pr create/edit` in a separate command**. The guard reads files before
+execution, so it cannot validate a body that the command has yet to write, even if an older file
+already exists. Dependabot's generated description remains exempt (including GitHub CLI's
+`app/dependabot` bot identity), but its release-intent label is still checked.
 
 Run the same checker directly:
 
@@ -125,11 +138,16 @@ node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.m
 node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.md --pr 123 --strict
 ```
 
-The checker fetches both marked programs from Cratis/Workflows' `verify-release-notes.yml` on
-`main` and caches the exact programs by the workflow blob SHA in
-`${XDG_CACHE_HOME:-~/.cache}/cratis/release-notes/<sha>.cjs`. Offline, the newest complete cached
-copy is used with a warning. With no cache it reports **unchecked** and exits **3**; the hook
-passes through with that warning. Exit **0** means no violations; **1** means invalid notes or
+The checker fetches both marked programs from Cratis/Workflows' `verify-release-notes.yml` at
+the immutable commit SHA in the repository's own release-notes caller. If there is no such caller,
+it uses the reviewed bundled pin `40125b4fcae388e62ed9471edfffd0e991422f0a`; a floating caller ref
+is reported as **unchecked**, never downloaded or executed. Programs receive only the proposed PR
+metadata and `PATH`, `HOME`, and `LANG`, not inherited credentials or Node runtime options.
+The exact programs are cached by workflow blob SHA under
+`${XDG_CACHE_HOME:-~/.cache}/cratis/release-notes/<ref>/<sha>.cjs`. Offline, the newest complete
+cached copy for that same pin is used with a warning. With no cache it reports **unchecked** and
+exits **3**; the hook passes through with that warning. Successful checks are silent in hook mode;
+real warnings go to Pi's context or Claude Code's JSON `systemMessage` and `additionalContext`. Exit **0** means no violations; **1** means invalid notes or
 release intent. `--strict` makes warnings (including a cached-rule fallback or an unavailable
 diff comparison) fail too. `no-release` bodies are checked as release-bound, not exempted.
 

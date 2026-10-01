@@ -5,6 +5,8 @@
 # Node reads the hook JSON and tokenizes literal shell arguments without executing them.
 set -euo pipefail
 if ! command -v node >/dev/null 2>&1; then
+    # JSON makes fail-open warnings visible to Claude; stderr exposes the same warning to Pi.
+    printf '%s\n' '{"systemMessage":"Warning: unchecked pull-request body: node is unavailable.","hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"Warning: unchecked pull-request body: node is unavailable."}}'
     printf 'Warning: unchecked pull-request body: node is unavailable.\n' >&2
     exit 0
 fi

@@ -19,4 +19,4 @@ permissions:
 
 jobs:
   release-intent:
-    uses: Cratis/Workflows/.github/workflows/verify-release-intent.yml@main
+    uses: Cratis/Workflows/.github/workflows/verify-release-intent.yml@40125b4fcae388e62ed9471edfffd0e991422f0a # reviewed with verify-release-notes

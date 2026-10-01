@@ -12,6 +12,15 @@ import { Script } from 'node:vm';
 
 const intents = ['major', 'minor', 'patch', 'no-release'];
 const commandTimeout = 15_000;
+const reviewedRulesRef = '40125b4fcae388e62ed9471edfffd0e991422f0a';
+const hookMode = process.argv[2] === '--hook';
+let claudeHook = false;
+const hookWarnings = [];
+const warningLine = line => /^(::warning\b|::notice title=Release notes (?:drift )?not checked|Warning:)/.test(line);
+const warning = message => {
+    if (hookMode && claudeHook) hookWarnings.push(message);
+    else console.error(message);
+};
 const run = (command, args, options = {}) => spawnSync(command, args, {
     encoding: 'utf8', timeout: commandTimeout, maxBuffer: 32 * 1024 * 1024, ...options,
 });
@@ -20,10 +29,28 @@ const gh = args => {
     if (result.error || result.status !== 0) throw new Error(`gh ${args[0]} failed: ${result.stderr?.trim() || result.error?.message || result.status}`);
     return result.stdout;
 };
-const git = args => {
-    const result = run('git', args);
+const git = (args, cwd = process.cwd()) => {
+    const result = run('git', args, { cwd });
     return result.status === 0 ? result.stdout.trim() : '';
 };
+
+function callers(cwd = process.cwd()) {
+    const root = git(['rev-parse', '--show-toplevel'], cwd);
+    if (!root) return [];
+    const directory = join(root, '.github/workflows');
+    try {
+        return readdirSync(directory).filter(name => /\.ya?ml$/.test(name)).flatMap(name => {
+            const source = readFileSync(join(directory, name), 'utf8');
+            return [...source.matchAll(/^\s*uses:\s*['"]?Cratis\/Workflows\/\.github\/workflows\/(verify-(?:release-notes|semver-label|release-intent))\.yml@([^\s'"#]+)/gmi)]
+                .map(match => ({ name: match[1], ref: match[2] }));
+        });
+    } catch { return []; }
+}
+
+function optedIn(cwd) {
+    const origin = git(['remote', 'get-url', 'origin'], cwd);
+    return /^(?:https?:\/\/github\.com\/|(?:ssh:\/\/)?git@github\.com[:/])Cratis\/[^/]+\/?$/i.test(origin) && callers(cwd).length > 0;
+}
 
 // Fetch the actual inline programs, not a second implementation of the rules.
 function programs(workflow) {
@@ -41,9 +68,14 @@ function programs(workflow) {
 }
 
 function rules(warn) {
-    const cache = join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'cratis', 'release-notes');
+    const ref = callers().find(caller => caller.name === 'verify-release-notes')?.ref || reviewedRulesRef;
+    if (!/^[a-f0-9]{40}$/i.test(ref)) {
+        warn('unchecked: the verify-release-notes caller must pin an immutable commit SHA.');
+        return undefined;
+    }
+    const cache = join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'cratis', 'release-notes', ref);
     try {
-        const workflow = gh(['api', '-H', 'Accept: application/vnd.github.raw', 'repos/Cratis/Workflows/contents/.github/workflows/verify-release-notes.yml?ref=main']);
+        const workflow = gh(['api', '-H', 'Accept: application/vnd.github.raw', `repos/Cratis/Workflows/contents/.github/workflows/verify-release-notes.yml?ref=${ref}`]);
         const bundle = programs(workflow);
         const bytes = Buffer.from(workflow);
         const sha = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
@@ -80,7 +112,7 @@ function check(argv) {
         pr: { type: 'string' }, base: { type: 'string' }, repo: { type: 'string' }, strict: { type: 'boolean' },
     } });
     let warned = false;
-    const warn = message => { warned = true; console.error(`Warning: ${message}`); };
+    const warn = message => { warned = true; warning(`Warning: ${message}`); };
     let pull;
     const repoArgs = values.repo ? ['--repo', values.repo] : [];
     if (values.pr !== undefined) {
@@ -105,21 +137,34 @@ function check(argv) {
         repository ||= git(['remote', 'get-url', 'origin']).replace(/^.*github\.com[:/]/, '').replace(/\.git$/, '') || 'Cratis/<Repository>';
     }
     let author = pull?.author?.login;
+    if (pull?.author?.is_bot && author?.startsWith('app/')) author = `${author.slice(4)}[bot]`;
     if (!author) {
         try { author = gh(['api', 'user', '--jq', '.login']).trim(); } catch { author = ''; }
     }
+    // Match the reusable workflow's job-level Dependabot exemption as well as its body exemption.
+    // The release-intent check above still applies to bot-authored pull requests.
+    if (author === 'dependabot[bot]') return 0;
     const base = values.base || pull?.baseRefName || defaultBranch;
     const file = rules(warn);
     if (!file) return 3;
-    const env = { ...process.env, PR_BODY: body, PR_LABELS: JSON.stringify(intent[0] === 'no-release' ? ['patch'] : [...labels]),
+    const env = { PATH: process.env.PATH, HOME: homedir(), LANG: 'C.UTF-8',
+        PR_BODY: body, PR_LABELS: JSON.stringify(intent[0] === 'no-release' ? ['patch'] : [...labels]),
         PR_AUTHOR: author, PR_BASE: base, DEFAULT_BRANCH: defaultBranch, GITHUB_REPOSITORY: repository,
-        BASE: base, REPOSITORY: repository, PR_JSON: '', GH_TOKEN: '', NUMBER: '', GITHUB_STEP_SUMMARY: '', BEFORE: '', ACTION: '' };
+        BASE: base, REPOSITORY: repository };
     for (const program of ['release-notes', 'release-notes-drift']) {
         const result = run(process.execPath, [file, program], { env, timeout: 60_000 });
-        (process.argv[2] === '--hook' ? process.stderr : process.stdout).write(result.stdout || '');
-        process.stderr.write(result.stderr || '');
-        if (result.error || result.status !== 0) return 1;
-        if (/::warning\b|::notice title=Release notes (?:drift )?not checked/.test(result.stdout)) warned = true;
+        if (result.error || result.status !== 0) {
+            (hookMode ? process.stderr : process.stdout).write(result.stdout || '');
+            process.stderr.write(result.stderr || '');
+            if (result.error) console.error(result.error.message);
+            return 1;
+        }
+        if (!hookMode) process.stdout.write(result.stdout || '');
+        for (const line of ((result.stdout || '') + (result.stderr || '')).split('\n').filter(warningLine)) {
+            warned = true;
+            if (hookMode) warning(line);
+        }
+        if (!hookMode) process.stderr.write(result.stderr || '');
     }
     return values.strict && warned ? 1 : 0;
 }
@@ -129,9 +174,22 @@ function check(argv) {
 // are outside this guard's scope. Dynamic values of guarded options fail closed.
 function commands(text) {
     const result = [];
-    let words = [], word = '', started = false, quote = '';
-    const endWord = () => { if (started) words.push(word); word = ''; started = false; };
-    const endCommand = () => { endWord(); if (words.length) result.push(words); words = []; };
+    let words = [], writes = [], word = '', started = false, quote = '', redirect;
+    const heredocs = [];
+    const endWord = () => {
+        if (started) {
+            if (redirect?.heredoc) heredocs.push({ delimiter: word, tabs: redirect.tabs });
+            else if (redirect?.write && !(redirect.duplicate && /^(?:\d+|-)$/.test(word))) writes.push(word);
+            else if (!redirect) words.push(word);
+            redirect = undefined;
+        }
+        word = ''; started = false;
+    };
+    const endCommand = () => {
+        endWord();
+        if (words.length || writes.length) result.push({ words, writes });
+        words = []; writes = [];
+    };
     for (let index = 0; index < text.length; index++) {
         const char = text[index];
         if (char === '\\' && quote !== "'") {
@@ -139,9 +197,34 @@ function commands(text) {
             if (next && next !== '\n') { word += next; started = true; }
         } else if (quote) {
             if (char === quote) quote = ''; else word += char;
+        } else if (char === '#' && !started) {
+            // Quotes inside comments have no shell meaning.
+            while (index + 1 < text.length && text[index + 1] !== '\n') index++;
         } else if (char === '"' || char === "'") { quote = char; started = true;
-        } else if (/[;&|\n]/.test(char)) endCommand();
-        else if (/\s/.test(char)) endWord();
+        } else if (char === '<' || char === '>') {
+            // A numeric word touching a redirect is a file descriptor, not an argument.
+            if (started && /^\d+$/.test(word)) { word = ''; started = false; }
+            endWord();
+            const operator = /^(?:<<<|<<-|<<|>>|<>|>&|<&|>\||[<>])/.exec(text.slice(index))[0];
+            redirect = { heredoc: operator === '<<' || operator === '<<-', tabs: operator === '<<-', duplicate: operator === '>&', write: operator.startsWith('>') || operator === '<>' };
+            index += operator.length - 1;
+        } else if (/[;&|\n]/.test(char)) {
+            endCommand();
+            if (char === '\n') {
+                // Here-document payloads are data; do not tokenize their quotes or gh examples.
+                for (const { delimiter, tabs } of heredocs.splice(0)) {
+                    let found = false;
+                    while (index + 1 < text.length) {
+                        const start = index + 1;
+                        const end = text.indexOf('\n', start);
+                        const line = text.slice(start, end < 0 ? text.length : end);
+                        index = end < 0 ? text.length - 1 : end;
+                        if ((tabs ? line.replace(/^\t+/, '') : line) === delimiter) { found = true; break; }
+                    }
+                    if (!found) throw new Error('Unclosed heredoc in pull-request command; write the body file first in a separate command.');
+                }
+            }
+        } else if (/\s/.test(char)) endWord();
         else { word += char; started = true; }
     }
     if (quote) throw new Error('Unclosed quote in pull-request command; use a simple gh command with --body-file.');
@@ -152,24 +235,33 @@ function commands(text) {
 function hook() {
     let payload;
     try { payload = JSON.parse(readFileSync(0, 'utf8')); } catch { return 0; }
+    claudeHook = payload?.hook_event_name === 'PreToolUse';
     const text = payload?.tool_input?.command;
-    if (typeof text !== 'string' || !/(^|[;&|\n]\s*)(rtk\s+)?gh\s+pr\s+(create|edit)\b/.test(text.trim())) return 0;
+    if (typeof text !== 'string' || !/\bgh\s+pr\s+(create|edit)\b/.test(text)) return 0;
     // Match each simple command, never the same text inside an echo/grep argument.
     let cwd = payload.cwd || process.cwd();
-    for (const words of commands(text)) {
+    let parsed;
+    try { parsed = commands(text); } catch (error) { if (!optedIn(cwd)) return 0; throw error; }
+    const written = new Set();
+    for (const { words, writes } of parsed) {
+        for (const file of writes) written.add(resolve(cwd, file));
         if (words[0] === 'cd') {
             const directory = words[1] === '--' ? words[2] : words[1];
-            if (!directory || /[$`~]/.test(directory)) throw new Error('Use a literal directory before gh pr create/edit.');
+            if (!directory || /[$`~]/.test(directory)) {
+                if (!optedIn(cwd)) return 0;
+                throw new Error('Use a literal directory before gh pr create/edit.');
+            }
             cwd = resolve(cwd, directory);
             continue;
         }
         if (words[0] === 'rtk') words.shift();
         if (words[0] !== 'gh' || words[1] !== 'pr' || !['create', 'edit'].includes(words[2])) continue;
+        if (!optedIn(cwd)) continue;
         if (words.includes('--help') || words.includes('-h')) continue;
         const args = [];
         let target = '', hasBody = false;
         for (let index = 3; index < words.length; index++) {
-            const compact = /^(-[FlBR])(.+)$/.exec(words[index]);
+            const compact = /^(-[FlBRtarmpHT])(.+)$/.exec(words[index]);
             const [option, ...attached] = compact ? [compact[1], compact[2]] : words[index].split('=');
             if (option === '--body' || option === '-b' || /^-b./.test(option)) {
                 throw new Error('write the body to `.ai-work/pr-body.md` and use `--body-file`; inline --body/-b is blocked.');
@@ -180,10 +272,15 @@ function hook() {
                 const value = attached.length ? attached.join('=') : words[++index];
                 if (!value || /[$`]/.test(value) || value === '-') throw new Error(`Use a literal value for ${option}, not stdin or a shell expansion.`);
                 args.push(mapped, value);
-                if (mapped === '--body-file') hasBody = true;
+                if (mapped === '--body-file') {
+                    hasBody = true;
+                    if (written.has(resolve(cwd, value))) throw new Error('write the body file first, then run gh pr create/edit in a separate command; an earlier redirection may change the submitted body.');
+                }
             } else if (!option.startsWith('-') && words[2] === 'edit' && !target) {
                 target = option;
-            } else if (['--title', '-t', '--assignee', '-a', '--reviewer', '-r', '--milestone', '-m', '--project', '-p'].includes(option) && !attached.length) index++;
+            } else if (['--title', '-t', '--assignee', '-a', '--reviewer', '-r', '--milestone', '-m', '--project', '-p',
+                '--add-assignee', '--remove-assignee', '--add-reviewer', '--remove-reviewer', '--add-project', '--remove-project',
+                '--head', '-H', '--template', '-T', '--recover'].includes(option) && !attached.length) index++;
         }
         if (words[2] === 'create' && !hasBody) throw new Error('write the body to `.ai-work/pr-body.md` and use `--body-file` when creating a pull request.');
         if (words[2] === 'edit') args.push('--pr', target);
@@ -195,8 +292,11 @@ function hook() {
 }
 
 try {
-    process.exitCode = process.argv[2] === '--hook' ? hook() : check(process.argv.slice(2));
+    process.exitCode = hookMode ? hook() : check(process.argv.slice(2));
 } catch (error) {
-    console.error(`${process.argv[2] === '--hook' ? 'BLOCKED by cratis-guard-pr-body: ' : ''}${error.message}`);
-    process.exitCode = process.argv[2] === '--hook' ? 2 : 1;
+    console.error(`${hookMode ? 'BLOCKED by cratis-guard-pr-body: ' : ''}${error.message}`);
+    process.exitCode = hookMode ? 2 : 1;
+} finally {
+    if (claudeHook && hookWarnings.length) console.log(JSON.stringify({ systemMessage: hookWarnings.join('\n'),
+        hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: hookWarnings.join('\n') } }));
 }
