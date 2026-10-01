@@ -82,6 +82,10 @@ else if (args[0] === 'api') {
     else console.log(fs.readFileSync(process.env.TEST_WORKFLOW, 'utf8').trimEnd());
 } else if (args[0] === 'repo') console.log(JSON.stringify({ nameWithOwner: args[2] === '--json' ? 'Cratis/Example' : args[2], defaultBranchRef: { name: 'main' } }));
 else if (args[0] === 'pr') {
+    if (args[1] === 'view' && args.includes('--repo') && args[2].startsWith('-')) {
+        console.error('argument required when using the --repo flag');
+        process.exit(1);
+    }
     if (process.env.TEST_PR_FAILURE === '1') process.exit(1);
     console.log(JSON.stringify({ labels: JSON.parse(process.env.TEST_PR_LABELS || '[{"name":"minor"},{"name":"dependencies"}]'), body: process.env.TEST_PR_BODY || 'current-body', author: JSON.parse(process.env.TEST_PR_AUTHOR || '{"login":"woksin"}'), baseRefName: 'main' }));
 } else process.exit(1);
@@ -210,6 +214,37 @@ test('the Bash hook blocks inline bodies and violations, understands literal fla
     } finally { f.cleanup(); }
 });
 
+test('current-branch edits preserve selectorless lookup for body and metadata changes', () => {
+    const f = fixture();
+    try {
+        for (const flags of [`--body-file '${f.body}'`, '--add-assignee woksin']) {
+            const result = f.hook(`gh pr edit ${flags}`);
+            assert.equal(result.status, 0, result.stderr);
+            const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+            assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', '--json', 'labels,body,author,baseRefName']);
+            assert.deepEqual(calls.filter(args => args[0] === 'repo').at(-1), ['repo', 'view', 'Cratis/Example', '--json', 'nameWithOwner,defaultBranchRef']);
+        }
+    } finally { f.cleanup(); }
+});
+
+test('dynamic directories only block executable PR mutations, not quoted examples', () => {
+    const f = fixture();
+    try {
+        for (const directory of ['~/x', '"$HOME"', '"$(pwd)"']) {
+            for (const command of ['grep -rn "gh pr create" .', "printf '%s\\n' 'gh pr create'", 'gh pr create --help']) {
+                const result = f.hook(`cd ${directory} && ${command}`);
+                assert.equal(result.status, 0, result.stderr);
+                assert.equal(result.stderr, '');
+            }
+            const mutation = f.hook(`cd ${directory} && gh pr edit --add-assignee woksin`);
+            assert.equal(mutation.status, 2);
+            assert.match(mutation.stderr, /Use a literal directory/);
+            assert.equal(f.hook(`cd ${directory} && cd subdir && gh pr edit --add-assignee woksin`).status, 2);
+            assert.equal(f.hook(`cd ${directory} && cd '${f.directory}' && gh pr edit --add-assignee woksin`).status, 0);
+        }
+    } finally { f.cleanup(); }
+});
+
 test('the Bash hook warns and passes through offline without cached rules', () => {
     const f = fixture();
     try {
@@ -303,7 +338,7 @@ test('metadata edit options consume values before selecting an explicit or curre
                 assert.equal(result.status, 0, result.stderr);
                 const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
                 const view = calls.filter(args => args[0] === 'pr').at(-1);
-                assert.deepEqual(view, ['pr', 'view', ...(target ? [target] : []), '--repo', 'Cratis/Example', '--json', 'labels,body,author,baseRefName']);
+                assert.deepEqual(view, ['pr', 'view', ...(target ? [target, '--repo', 'Cratis/Example'] : []), '--json', 'labels,body,author,baseRefName']);
             }
         }
         for (const flags of ['--head branch --template template.md', '-H branch -T template.md', '-Hbranch -Ttemplate.md']) {
@@ -498,6 +533,28 @@ test('the target repository opts in independently of the current checkout', () =
         assert.equal(f.hook('gh pr create -R Cratis/Other --body inline', { TEST_REMOTE_CALLERS: '0' }).status, 0);
         assert.match(readFileSync(f.calls, 'utf8'), /repos\/Cratis\/Other\/contents\/\.github\/workflows/);
         assert.match(readFileSync(f.calls, 'utf8'), /verify-release-notes.yml\?ref=main/);
+    } finally { f.cleanup(); }
+});
+
+test('PR URL prefixes retain precedence with HTTP, trailing paths, queries, and fragments', () => {
+    const f = fixture();
+    try {
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        for (const url of [
+            'http://github.com/Cratis/Other/pull/7',
+            'https://github.com/Cratis/Other/pull/7/files',
+            'https://github.com/Cratis/Other/pull/7?diff=split',
+            'https://github.com/Cratis/Other/pull/7#issuecomment-123',
+            'http://github.com/Cratis/Other/pull/7/files?diff=split#comment',
+        ]) {
+            assert.equal(f.hook(`gh pr edit '${url}' -R Someone/Personal --body inline`, { GH_REPO: 'Someone/Personal' }).status, 2, url);
+            const valid = f.hook(`gh pr edit '${url}' -R Someone/Personal -F '${f.body}'`, { GH_REPO: 'Someone/Personal' });
+            assert.equal(valid.status, 0, valid.stderr);
+            const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+            assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', url, '--repo', 'Cratis/Other', '--json', 'labels,body,author,baseRefName']);
+            assert.deepEqual(calls.filter(args => args[0] === 'repo').at(-1), ['repo', 'view', 'Cratis/Other', '--json', 'nameWithOwner,defaultBranchRef']);
+            assert.equal(f.hook(`gh pr edit '${url.replace('Cratis/Other', 'Someone/Personal')}' -R Cratis/Other --body inline`).status, 0);
+        }
     } finally { f.cleanup(); }
 });
 

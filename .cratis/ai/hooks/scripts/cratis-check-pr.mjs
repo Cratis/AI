@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, renameSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { isAbsolute, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { Script } from 'node:vm';
 import { fileURLToPath } from 'node:url';
@@ -142,7 +142,8 @@ function check(argv, repositoryCallers) {
     let warned = false;
     const warn = message => { warned = true; warning(`Warning: ${message}`); };
     let pull;
-    const repoArgs = values.repo ? ['--repo', values.repo] : [];
+    // gh requires a selector when --repo is supplied; otherwise preserve current-branch lookup.
+    const repoArgs = values.pr && values.repo ? ['--repo', values.repo] : [];
     if (values.pr !== undefined) {
         pull = JSON.parse(gh(['pr', 'view', ...(values.pr ? [values.pr] : []), ...repoArgs,
             '--json', 'labels,body,author,baseRefName']));
@@ -298,7 +299,11 @@ function effectiveRepository(words, cwd, environmentRepository) {
             if (!attached.length) index++;
         } else if (!option.startsWith('-') && words[2] === 'edit' && !target) target = words[index];
     }
-    if (/^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+\/?$/.test(target || '')) return target.split('/').slice(3, 5).join('/');
+    try {
+        const url = new URL(target);
+        const pull = /^\/([^/]+)\/([^/]+)\/pull\/(\d+)/.exec(url.pathname);
+        if (['http:', 'https:'].includes(url.protocol) && url.hostname === 'github.com' && pull) return `${pull[1]}/${pull[2]}`;
+    } catch { /* A branch name or PR number is not a URL. */ }
     if (explicitRepository) {
         if (!repository || repository.startsWith('-') || /[$`]/.test(repository)) throw new Error('Use a literal value for --repo, not a shell expansion.');
         return repositoryName(repository);
@@ -318,6 +323,7 @@ function hook() {
     if (typeof text !== 'string' || !/\bgh\s+pr\s+(create|edit)\b/.test(text.replace(/\\\r?\n/g, ''))) return 0;
     // Match each simple command, never the same text inside an echo/grep argument.
     let cwd = payload.cwd || process.cwd();
+    let knownDirectory = true;
     let parsed;
     try { parsed = commands(text); } catch (error) { if (!optedIn(cwd)) return 0; throw error; }
     const written = new Set();
@@ -325,18 +331,22 @@ function hook() {
         const { words, environmentRepository } = executableWords(command.words);
         const writes = [...command.writes];
         if (words[0] === 'tee') writes.push(...words.slice(1).filter(word => !word.startsWith('-')));
-        for (const file of writes) written.add(resolve(cwd, file));
+        if (knownDirectory) for (const file of writes) written.add(resolve(cwd, file));
         if (words[0] === 'cd') {
             const directory = words[1] === '--' ? words[2] : words[1];
-            if (!directory || /[$`~]/.test(directory)) {
-                if (!optedIn(cwd)) return 0;
-                throw new Error('Use a literal directory before gh pr create/edit.');
+            if (!directory || /[$`~]/.test(directory)) knownDirectory = false;
+            else if (knownDirectory || isAbsolute(directory)) {
+                cwd = resolve(cwd, directory);
+                knownDirectory = true;
             }
-            cwd = resolve(cwd, directory);
             continue;
         }
         if (words[0] !== 'gh' || words[1] !== 'pr' || !['create', 'edit'].includes(words[2])) continue;
         if (words.includes('--help') || words.includes('-h')) continue;
+        if (!knownDirectory) {
+            if (!optedIn(cwd)) return 0;
+            throw new Error('Use a literal directory before gh pr create/edit.');
+        }
         const repository = effectiveRepository(words, cwd, environmentRepository);
         if (!/^Cratis\/[^/]+$/i.test(repository)) continue;
         const repositoryCallers = targetCallers(repository, cwd);
@@ -360,7 +370,7 @@ function hook() {
                     if (written.has(resolve(cwd, value))) throw new Error('write the body file first, then run gh pr create/edit in a separate command; an earlier redirection may change the submitted body.');
                 }
             } else if (!option.startsWith('-') && words[2] === 'edit' && !target) {
-                target = option;
+                target = words[index];
             } else if (['--title', '-t', '--assignee', '-a', '--reviewer', '-r', '--milestone', '-m', '--project', '-p',
                 '--add-assignee', '--remove-assignee', '--add-reviewer', '--remove-reviewer', '--add-project', '--remove-project',
                 '--head', '-H', '--template', '-T', '--recover'].includes(option) && !attached.length) index++;
