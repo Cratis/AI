@@ -23,8 +23,11 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-WORK="${HERE}/copilot-run"
-rm -rf "$WORK"; mkdir -p "$WORK/bin"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create copilot-run
+WORK="$SCRATCH_ROOT"
+mkdir -p "$WORK/bin"
 export PATH="$WORK/bin:$PATH"
 
 command -v jq >/dev/null || { echo "SKIPPED: jq is not installed"; exit 0; }
@@ -169,7 +172,6 @@ check_contains "says so rather than silently ignoring it" "cannot route through 
 check "leaves ANTHROPIC_BASE_URL alone" "" "${ANTHROPIC_BASE_URL:-}"
 unset DIRECT_HEADROOM
 
-rm -rf "$WORK"
 
 echo
 if [[ $failures -eq 0 ]]; then

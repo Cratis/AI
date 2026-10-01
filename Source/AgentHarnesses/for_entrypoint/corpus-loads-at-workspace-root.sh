@@ -22,8 +22,10 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-ROOT="${HERE}/corpustest"
-chmod -R u+w "$ROOT" 2>/dev/null; rm -rf "$ROOT"; mkdir -p "$ROOT"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create corpustest
+ROOT="$SCRATCH_ROOT"
 
 BRANCH="direct/spec-corpus"
 FAILURES=0
@@ -57,7 +59,7 @@ STUB
 chmod +x "$ROOT/bin/rtk" "$ROOT/bin/claude"
 
 fail_case() {
-    echo "  RESULT: $1 - see $ROOT"
+    echo "  RESULT: $1 (rerun with SPEC_KEEP_SCRATCH=1 to keep the scratch tree)"
     FAILURES=$((FAILURES + 1))
 }
 

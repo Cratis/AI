@@ -5,7 +5,7 @@ description: Write comprehensive BDD specs for an existing vertical slice comman
 
 # Write Specs
 
-Write **comprehensive specs** for an existing slice. Invoke the **write-specs** skill (and `write-specs-events` / `write-specs-readmodels` for constraints and projections); follow `.cratis/ai/rules/specs.md` and `.cratis/ai/rules/specs.csharp.md`.
+Write **comprehensive specs** for an existing slice. Invoke the **cratis-application-slice-specifications** skill (and **cratis-chronicle-event-specifications** / **cratis-chronicle-read-model-specifications** for constraints and projections); follow `.cratis/ai/rules/specs.md` and `.cratis/ai/rules/specs.csharp.md`.
 
 ## What to provide
 

@@ -184,4 +184,4 @@ These supplement the universal conventions in [specs.csharp.md](./specs.csharp.m
 - [specs.csharp.md](./specs.csharp.md) — the universal `Specification` + NSubstitute base this builds on (and what framework specs use).
 - [vertical-slices.md](./vertical-slices.md) — what each artifact promises (the contract under spec).
 - [efcore.specs.md](./efcore.specs.md) — `DbContext` specs with SQLite in-memory.
-- skills: **write-specs**, **write-specs-events**, **write-specs-readmodels**.
+- skills: **cratis-application-slice-specifications**, **cratis-chronicle-event-specifications**, **cratis-chronicle-read-model-specifications**.

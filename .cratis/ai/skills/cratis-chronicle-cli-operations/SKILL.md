@@ -134,8 +134,12 @@ list|show`, `failed-partitions list|show`, `projections list|show`,
   from the outside.
 - **Fix the cause before replaying.** Replaying into an unfixed handler fails the
   same way and buries the original error under a newer one.
-- **A quarantined observer does not resume by itself.** Clearing the quarantine
-  is an explicit operation, and it is the last step, not the first.
+- **A quarantined observer does not resume by itself.** A quarantine ends when
+  an operator clears it, or when the observer is subscribed again — for an
+  application observer, when the client reconnects, for example after a
+  redeploy. Clearing the quarantine is an explicit operation and the last step,
+  not the first. A redeploy that restarts the client can also end the quarantine
+  as a side effect, so check the observer's state before and after a redeploy.
 
 ## Before you change anything
 

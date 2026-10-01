@@ -4,10 +4,10 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-WORK="${HERE}/aiconfigtest"
-rm -rf "$WORK"
-mkdir -p "$WORK"
-trap 'rm -rf "$WORK"' EXIT
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create aiconfigtest
+WORK="$SCRATCH_ROOT"
 
 awk '/^prepare_ai_profile_prompt\(\)/ { inside = 1 }
      inside { print }

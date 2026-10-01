@@ -248,3 +248,44 @@ test('Pi resolves configured profile composition through selected languages', ()
         rmSync(project, { recursive: true, force: true });
     }
 });
+
+const arcTypeScriptServerSkills = ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript'];
+
+function resolvedSkills(configuration: { profiles: string[]; languages?: string[] }): (string | undefined)[] {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
+        return selectedSkillPaths(project).map(path => path.split('/').pop());
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+}
+
+test('Pi resolves a TypeScript-only Arc application to the Arc for TypeScript server skills', () => {
+    for (const profile of ['cratis/arc/typescript', 'cratis/full/typescript']) {
+        const names = resolvedSkills({ profiles: [profile], languages: ['typescript'] });
+        for (const skill of arcTypeScriptServerSkills) {
+            assert.ok(names.includes(skill), `${profile}: ${skill}`);
+        }
+        assert.ok(!names.includes('cratis-arc-command-kotlin'), profile);
+        assert.ok(!names.includes('cratis-arc-command'), profile);
+    }
+    const names = resolvedSkills({ profiles: ['cratis/application/typescript'], languages: ['typescript'] });
+    assert.ok(names.includes('cratis-chronicle-client-typescript'));
+});
+
+test('Pi does not load the Arc for TypeScript server skills into C# applications with a React frontend', () => {
+    for (const configuration of [
+        { profiles: ['cratis/application/csharp'], languages: ['csharp', 'typescript'] },
+        { profiles: ['cratis/application'] },
+        { profiles: ['cratis/application'], languages: ['csharp', 'typescript'] },
+        { profiles: ['cratis/arc'], languages: ['csharp', 'typescript'] },
+        { profiles: ['cratis/application/typescript'], languages: ['typescript'] },
+    ]) {
+        const names = resolvedSkills(configuration);
+        for (const skill of arcTypeScriptServerSkills) {
+            assert.ok(!names.includes(skill), `${JSON.stringify(configuration)}: ${skill}`);
+        }
+    }
+});

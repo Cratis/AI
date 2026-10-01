@@ -35,7 +35,7 @@ A new vertical slice (State Change, State View, Automation, Translation), or a n
 ## Workflow — phase gates; don't start the next until the current passes
 
 ### Phase 1 — Plan
-For new behavior, unclear event names/stream boundaries, or multi-slice flows, run the `event-modeling` skill first. Confirm Module/Feature/slice name + type, the behavior in one sentence, whether a UI surface is needed, and the event/read-model/scenario outline. Ask only when a real product/domain choice can't be answered from the repo.
+For new behavior, unclear event names/stream boundaries, or multi-slice flows, run the **cratis-chronicle-event-modeling** skill first. Confirm Module/Feature/slice name + type, the behavior in one sentence, whether a UI surface is needed, and the event/read-model/scenario outline. Ask only when a real product/domain choice can't be answered from the repo.
 
 ### Phase 2 — Backend
 Write `<Module>/<Feature>/<Slice>/<Slice>.cs` with all backend artifacts (declaration order per `general.md`). **Gate:** build clean in **Debug and Release** (zero errors/warnings — Debug validates `#if DEBUG` spec code and regenerates the TypeScript proxies; build Release with `-p:CratisProxiesOutputPath=` to skip re-running proxy generation).
