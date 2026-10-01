@@ -2,12 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Reactive.Subjects;
+using Cratis.AI.Harnesses;
 using Cratis.AI.Providers.Adding;
 using Cratis.AI.Providers.AvailableModels;
 using Cratis.AI.Providers.Codex;
+using Cratis.AI.Providers.Copilot;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.SettingConcurrency;
+using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
 using Cratis.AI.Providers.SettingUsageCapacity;
 using Cratis.AI.Providers.UsageReporting.SettingCredential;
@@ -30,7 +33,7 @@ namespace Cratis.AI.Providers.Listing;
 /// <param name="Type">Which vendor this provider talks to.</param>
 /// <param name="Endpoint">The endpoint this provider is reached at, for the vendors that need one.</param>
 /// <param name="MaxConcurrentJobs">How many units of work may run on this provider at once - zero for no limit. Set at creation from the vendor's Added event, and overridable afterwards via <see cref="AIProviderConcurrencySet"/>.</param>
-/// <param name="IsSubscription">Whether this provider is on a ChatGPT subscription rather than a metered API key - which decides where it can be spent, and is not otherwise visible without the credential this model deliberately does not carry.</param>
+/// <param name="IsSubscription">Whether the provider has a connected subscription credential (ChatGPT or Copilot) rather than a metered API key.</param>
 /// <param name="SubscriptionExpiresAt">When the subscription's current access token runs out. Direct refreshes it before dispatch, so this moving forward is the sign the credential is healthy - and it standing still is the sign it is not.</param>
 /// <param name="TierModels">Which concrete models this provider offers for each capability tier - <see langword="null"/> until configured, and unset tiers derived from the catalog the provider published (#865, #1187).</param>
 /// <param name="UsageCapacity">How many tokens this provider may consume within its usage-reporting window - <see langword="null"/> until configured (issue #1061).</param>
@@ -38,6 +41,8 @@ namespace Cratis.AI.Providers.Listing;
 /// <param name="ModelDiscoveryFailure">Why the catalog could not be read last time it was asked - an empty string when it could.</param>
 /// <param name="HasUsageCredential">Whether a usage-reporting Admin API key is configured. Carried so the credentials dialog can say which of the two keys is actually set without this model ever holding either of them.</param>
 /// <param name="RateLimitedUntil">When the vendor is worth trying again after it turned calls away over its own limits - <see langword="null"/> when it never has. Carried here, not only on <c>ConfiguredAIProvider</c>, because a provider the vendor is currently refusing looks identical to a healthy idle one on the settings page, and that is exactly the state somebody needs to see.</param>
+/// <param name="SupportedHarnesses">The selected harnesses; an empty list disables dispatch only if <paramref name="HasHarnessSelection"/> is true.</param>
+/// <param name="HasHarnessSelection">Whether a harness selection has been recorded; false for legacy providers.</param>
 [ReadModel]
 [FromEvent<CratisAIAdding.AnthropicProviderAdded>]
 [FromEvent<OpenAIProviderAdded>]
@@ -45,11 +50,13 @@ namespace Cratis.AI.Providers.Listing;
 [FromEvent<CratisAIAdding.OpenAICompatibleProviderAdded>]
 [FromEvent<CratisAIAdding.ZAIProviderAdded>]
 [FromEvent<OpenAICodexProviderAdded>]
+[FromEvent<CopilotProviderAdded>]
 [FromEvent<AIProviderModelsDiscovered>]
 [FromEvent<AIProviderModelDiscoveryFailed>]
 [FromEvent<AIProviderUsageCredentialSet>]
 [FromEvent<AIProviderUsageCredentialCleared>]
 [FromEvent<AIProviderRateLimited>]
+[FromEvent<AIProviderHarnessesSet>]
 [RemovedWith<CratisAIRemoving.AIProviderRemoved>]
 public record AIProvider(
     AIProviderId Id,
@@ -61,13 +68,17 @@ public record AIProvider(
     [SetValue<CratisAIAdding.OpenAICompatibleProviderAdded>(AIProviderType.OpenAICompatible)]
     [SetValue<CratisAIAdding.ZAIProviderAdded>(AIProviderType.ZAI)]
     [SetValue<OpenAICodexProviderAdded>(AIProviderType.OpenAICodex)]
+    [SetValue<CopilotProviderAdded>(AIProviderType.Copilot)]
     AIProviderType Type,
     AIProviderEndpoint? Endpoint = null,
     [SetFrom<AIProviderConcurrencySet>(nameof(AIProviderConcurrencySet.MaxConcurrentJobs))]
+    [SetFrom<CopilotProviderAdded>(nameof(CopilotProviderAdded.MaxConcurrentJobs))]
     MaxConcurrentJobs? MaxConcurrentJobs = null,
     [SetValue<OpenAISubscriptionCredentialConfigured>(true)]
     [SetValue<OpenAIProviderApiKeyConfigured>(false)]
     [SetValue<OpenAICodexProviderDisconnected>(false)]
+    [SetValue<CopilotProviderConnected>(true)]
+    [SetValue<CopilotProviderDisconnected>(false)]
     bool IsSubscription = false,
     [SetFrom<OpenAISubscriptionCredentialConfigured>(nameof(OpenAISubscriptionCredentialConfigured.ExpiresAt))]
     DateTimeOffset? SubscriptionExpiresAt = null,
@@ -84,7 +95,10 @@ public record AIProvider(
     [SetValue<AIProviderUsageCredentialCleared>(false)]
     bool HasUsageCredential = false,
     [SetFrom<AIProviderRateLimited>(nameof(AIProviderRateLimited.Until))]
-    DateTimeOffset? RateLimitedUntil = null)
+    DateTimeOffset? RateLimitedUntil = null,
+    IReadOnlyList<Harness>? SupportedHarnesses = null,
+    [SetValue<AIProviderHarnessesSet>(true)]
+    bool HasHarnessSelection = false)
 {
     /// <summary>
     /// Observes every configured AI provider.
