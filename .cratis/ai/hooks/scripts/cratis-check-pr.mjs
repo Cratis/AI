@@ -9,6 +9,7 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { Script } from 'node:vm';
+import { fileURLToPath } from 'node:url';
 
 const intents = ['major', 'minor', 'patch', 'no-release'];
 const commandTimeout = 15_000;
@@ -34,6 +35,11 @@ const git = (args, cwd = process.cwd()) => {
     return result.status === 0 ? result.stdout.trim() : '';
 };
 
+function workflowCallers(source) {
+    return [...source.matchAll(/^\s*uses:\s*['"]?Cratis\/Workflows\/\.github\/workflows\/(verify-(?:release-notes|semver-label|release-intent))\.yml@([^\s'"#]+)/gmi)]
+        .map(match => ({ name: match[1], ref: match[2] }));
+}
+
 function callers(cwd = process.cwd()) {
     const root = git(['rev-parse', '--show-toplevel'], cwd);
     if (!root) return [];
@@ -41,15 +47,34 @@ function callers(cwd = process.cwd()) {
     try {
         return readdirSync(directory).filter(name => /\.ya?ml$/.test(name)).flatMap(name => {
             const source = readFileSync(join(directory, name), 'utf8');
-            return [...source.matchAll(/^\s*uses:\s*['"]?Cratis\/Workflows\/\.github\/workflows\/(verify-(?:release-notes|semver-label|release-intent))\.yml@([^\s'"#]+)/gmi)]
-                .map(match => ({ name: match[1], ref: match[2] }));
+            return workflowCallers(source);
         });
     } catch { return []; }
 }
 
+function repositoryName(value) {
+    return value?.replace(/^(?:https?:\/\/github\.com\/|(?:ssh:\/\/)?git@github\.com[:/])/i, '')
+        .replace(/^github\.com\//i, '').replace(/\/$/, '').replace(/\.git$/i, '');
+}
+
+function originRepository(cwd) {
+    return repositoryName(git(['remote', 'get-url', 'origin'], cwd));
+}
+
+function targetCallers(repository, cwd) {
+    if (repository?.toLowerCase() === originRepository(cwd)?.toLowerCase()) return callers(cwd);
+    let files;
+    try { files = JSON.parse(gh(['api', `repos/${repository}/contents/.github/workflows`])); }
+    catch (error) {
+        if (/HTTP 404/.test(error.message)) return [];
+        throw new Error(`Could not determine release-workflow opt-in for ${repository}: ${error.message}`);
+    }
+    return files.filter(file => file.type === 'file' && /\.ya?ml$/.test(file.name)).flatMap(file =>
+        workflowCallers(gh(['api', '-H', 'Accept: application/vnd.github.raw', `repos/${repository}/contents/${file.path}`])));
+}
+
 function optedIn(cwd) {
-    const origin = git(['remote', 'get-url', 'origin'], cwd);
-    return /^(?:https?:\/\/github\.com\/|(?:ssh:\/\/)?git@github\.com[:/])Cratis\/[^/]+\/?$/i.test(origin) && callers(cwd).length > 0;
+    return /^Cratis\/[^/]+$/i.test(originRepository(cwd)) && callers(cwd).length > 0;
 }
 
 // Fetch the actual inline programs, not a second implementation of the rules.
@@ -67,15 +92,12 @@ function programs(workflow) {
     return bundle;
 }
 
-function rules(warn) {
-    const ref = callers().find(caller => caller.name === 'verify-release-notes')?.ref || reviewedRulesRef;
-    if (!/^[a-f0-9]{40}$/i.test(ref)) {
-        warn('unchecked: the verify-release-notes caller must pin an immutable commit SHA.');
-        return undefined;
-    }
+function rules(warn, repositoryCallers) {
+    const ref = repositoryCallers.find(caller => caller.name === 'verify-release-notes')?.ref || reviewedRulesRef;
+    const floating = !/^[a-f0-9]{40}$/i.test(ref);
     const cache = join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'cratis', 'release-notes', ref);
     try {
-        const workflow = gh(['api', '-H', 'Accept: application/vnd.github.raw', `repos/Cratis/Workflows/contents/.github/workflows/verify-release-notes.yml?ref=${ref}`]);
+        const workflow = gh(['api', '-H', 'Accept: application/vnd.github.raw', `repos/Cratis/Workflows/contents/.github/workflows/verify-release-notes.yml?ref=${encodeURIComponent(ref)}`]);
         const bundle = programs(workflow);
         const bytes = Buffer.from(workflow);
         const sha = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
@@ -86,6 +108,12 @@ function rules(warn) {
         renameSync(temporary, file);
         return file;
     } catch (error) {
+        if (floating) {
+            const bundled = fileURLToPath(new URL('./cratis-release-notes-reviewed.cjs', import.meta.url));
+            new Script(readFileSync(bundled, 'utf8'));
+            warn(`Could not fetch release-note rules at ${ref}; using bundled reviewed ${reviewedRulesRef}. ${error.message}`);
+            return bundled;
+        }
         try {
             const cached = readdirSync(cache).filter(name => /^[a-f0-9]{40}\.cjs$/.test(name))
                 .map(name => ({ file: join(cache, name), modified: statSync(join(cache, name)).mtimeMs }))
@@ -105,7 +133,7 @@ function rules(warn) {
     }
 }
 
-function check(argv) {
+function check(argv, repositoryCallers) {
     const { values } = parseArgs({ args: argv, options: {
         'body-file': { type: 'string' }, label: { type: 'string', multiple: true },
         'add-label': { type: 'string', multiple: true }, 'remove-label': { type: 'string', multiple: true },
@@ -145,7 +173,7 @@ function check(argv) {
     // The release-intent check above still applies to bot-authored pull requests.
     if (author === 'dependabot[bot]') return 0;
     const base = values.base || pull?.baseRefName || defaultBranch;
-    const file = rules(warn);
+    const file = rules(warn, repositoryCallers || targetCallers(repository, process.cwd()));
     if (!file) return 3;
     const env = { PATH: process.env.PATH, HOME: homedir(), LANG: 'C.UTF-8',
         PR_BODY: body, PR_LABELS: JSON.stringify(intent[0] === 'no-release' ? ['patch'] : [...labels]),
@@ -232,18 +260,56 @@ function commands(text) {
     return result;
 }
 
+function executableWords(words) {
+    const result = [...words];
+    while (result.length) {
+        if (/^[A-Za-z_][A-Za-z_0-9]*=/.test(result[0]) || ['rtk', 'env', 'command'].includes(result[0])) result.shift();
+        else if (result[0] === '--') result.shift();
+        else break;
+    }
+    return result;
+}
+
+function effectiveRepository(words, cwd) {
+    // Explicit repository flags take priority over an edit's PR URL and the checkout origin.
+    let repository, target;
+    let explicitRepository = false;
+    for (let index = 3; index < words.length; index++) {
+        const compact = /^(-[bFlBRtarmpHT])(.+)$/.exec(words[index]);
+        const [option, ...attached] = compact ? [compact[1], compact[2]] : words[index].split('=');
+        if (option === '--repo' || option === '-R') {
+            explicitRepository = true;
+            repository = attached.length ? attached.join('=') : words[++index];
+        } else if (['--body', '-b', '--body-file', '-F', '--label', '-l', '--add-label', '--remove-label', '--base', '-B',
+            '--title', '-t', '--assignee', '-a', '--reviewer', '-r', '--milestone', '-m', '--project', '-p',
+            '--add-assignee', '--remove-assignee', '--add-reviewer', '--remove-reviewer', '--add-project', '--remove-project',
+            '--head', '-H', '--template', '-T', '--recover'].includes(option)) {
+            if (!attached.length) index++;
+        } else if (!option.startsWith('-') && words[2] === 'edit' && !target) target = words[index];
+    }
+    if (explicitRepository) {
+        if (!repository || repository.startsWith('-') || /[$`]/.test(repository)) throw new Error('Use a literal value for --repo, not a shell expansion.');
+        return repositoryName(repository);
+    }
+    return /^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+\/?$/.test(target || '')
+        ? target.split('/').slice(3, 5).join('/') : originRepository(cwd);
+}
+
 function hook() {
     let payload;
     try { payload = JSON.parse(readFileSync(0, 'utf8')); } catch { return 0; }
     claudeHook = payload?.hook_event_name === 'PreToolUse';
     const text = payload?.tool_input?.command;
-    if (typeof text !== 'string' || !/\bgh\s+pr\s+(create|edit)\b/.test(text)) return 0;
+    if (typeof text !== 'string' || !/\bgh\s+pr\s+(create|edit)\b/.test(text.replace(/\\\r?\n/g, ''))) return 0;
     // Match each simple command, never the same text inside an echo/grep argument.
     let cwd = payload.cwd || process.cwd();
     let parsed;
     try { parsed = commands(text); } catch (error) { if (!optedIn(cwd)) return 0; throw error; }
     const written = new Set();
-    for (const { words, writes } of parsed) {
+    for (const command of parsed) {
+        const words = executableWords(command.words);
+        const writes = [...command.writes];
+        if (words[0] === 'tee') writes.push(...words.slice(1).filter(word => !word.startsWith('-')));
         for (const file of writes) written.add(resolve(cwd, file));
         if (words[0] === 'cd') {
             const directory = words[1] === '--' ? words[2] : words[1];
@@ -254,10 +320,12 @@ function hook() {
             cwd = resolve(cwd, directory);
             continue;
         }
-        if (words[0] === 'rtk') words.shift();
         if (words[0] !== 'gh' || words[1] !== 'pr' || !['create', 'edit'].includes(words[2])) continue;
-        if (!optedIn(cwd)) continue;
         if (words.includes('--help') || words.includes('-h')) continue;
+        const repository = effectiveRepository(words, cwd);
+        if (!/^Cratis\/[^/]+$/i.test(repository)) continue;
+        const repositoryCallers = targetCallers(repository, cwd);
+        if (!repositoryCallers.length) continue;
         const args = [];
         let target = '', hasBody = false;
         for (let index = 3; index < words.length; index++) {
@@ -284,8 +352,9 @@ function hook() {
         }
         if (words[2] === 'create' && !hasBody) throw new Error('write the body to `.ai-work/pr-body.md` and use `--body-file` when creating a pull request.');
         if (words[2] === 'edit') args.push('--pr', target);
+        if (repository.toLowerCase() !== originRepository(cwd)?.toLowerCase() && !args.includes('--repo')) args.push('--repo', repository);
         process.chdir(cwd);
-        const code = check(args);
+        const code = check(args, repositoryCallers);
         if (code !== 0 && code !== 3) throw new Error('The pull-request body or release intent failed cratis-check-pr. Fix the reported violations before retrying.');
     }
     return 0;

@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -52,6 +52,12 @@ function fixture() {
     const directory = mkdtempSync(join(tmpdir(), 'cratis-pr-body-'));
     const bin = join(directory, 'bin');
     mkdirSync(bin);
+    const noNodePath = join(directory, 'no-node-bin');
+    mkdirSync(noNodePath);
+    for (const command of ['bash', 'git', 'grep']) {
+        const executable = spawnSync('bash', ['-c', 'command -v "$1"', '--', command], { encoding: 'utf8' }).stdout.trim();
+        symlinkSync(executable, join(noNodePath, command));
+    }
     assert.equal(spawnSync('git', ['init', '--quiet', directory]).status, 0);
     assert.equal(spawnSync('git', ['-C', directory, 'remote', 'add', 'origin', 'git@github.com:Cratis/Example.git']).status, 0);
     const callers = join(directory, '.github/workflows');
@@ -70,8 +76,11 @@ fs.appendFileSync(process.env.TEST_CALLS, JSON.stringify(args) + '\\n');
 if (args[0] === 'api' && args.includes('user')) { console.log('woksin'); }
 else if (args[0] === 'api') {
     if (process.env.TEST_OFFLINE === '1') process.exit(1);
-    console.log(fs.readFileSync(process.env.TEST_WORKFLOW, 'utf8').trimEnd());
-} else if (args[0] === 'repo') console.log(JSON.stringify({ nameWithOwner: 'Cratis/Example', defaultBranchRef: { name: 'main' } }));
+    const endpoint = args.at(-1);
+    if (endpoint.endsWith('/contents/.github/workflows')) console.log(JSON.stringify(process.env.TEST_REMOTE_CALLERS === '0' ? [] : [{ name: 'release.yml', path: '.github/workflows/release.yml', type: 'file' }]));
+    else if (endpoint.endsWith('/contents/.github/workflows/release.yml')) console.log('jobs:\\n  verify:\\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@main');
+    else console.log(fs.readFileSync(process.env.TEST_WORKFLOW, 'utf8').trimEnd());
+} else if (args[0] === 'repo') console.log(JSON.stringify({ nameWithOwner: args[2] === '--json' ? 'Cratis/Example' : args[2], defaultBranchRef: { name: 'main' } }));
 else if (args[0] === 'pr') {
     if (process.env.TEST_PR_FAILURE === '1') process.exit(1);
     console.log(JSON.stringify({ labels: [{ name: 'minor' }, { name: 'dependencies' }], body: process.env.TEST_PR_BODY || 'current-body', author: JSON.parse(process.env.TEST_PR_AUTHOR || '{"login":"woksin"}'), baseRefName: 'main' }));
@@ -86,7 +95,7 @@ else if (args[0] === 'pr') {
     const hook = (command: string, extra: NodeJS.ProcessEnv = {}, claude = false) => spawnSync('bash', [guard], {
         cwd: directory, env: { ...env, ...extra }, input: JSON.stringify({ cwd: directory, hook_event_name: claude ? 'PreToolUse' : undefined, tool_input: { command } }), encoding: 'utf8', timeout: 15000,
     });
-    return { directory, body, cache, callers, rulesCache: join(cache, 'cratis/release-notes', rulesRef), downloaded, calls, env, run, hook, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
+    return { directory, body, cache, callers, noNodePath, rulesCache: join(cache, 'cratis/release-notes', rulesRef), downloaded, calls, env, run, hook, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
 }
 
 test('the checker extracts both marked programs, caches by blob SHA, and checks no-release as release-bound', () => {
@@ -165,6 +174,7 @@ test('the Bash hook blocks inline bodies and violations, understands literal fla
         assert.equal(f.hook('git status').status, 0);
         assert.equal(f.hook("echo 'gh pr create --body inline'").status, 0);
         assert.equal(f.hook('gh pr create --help').status, 0);
+        assert.equal(f.hook('gh\tpr\tcreate --body inline').status, 2);
         mkdirSync(join(f.directory, 'subdir'));
         writeFileSync(join(f.directory, 'subdir', 'body.md'), 'valid');
         assert.equal(f.hook('cd subdir && gh pr create -Fbody.md -lpatch').status, 0);
@@ -326,9 +336,106 @@ test('rules use the repository caller SHA and never reuse a cache from another p
         assert.ok(readFileSync(f.calls, 'utf8').includes(`verify-release-notes.yml?ref=${otherRef}`));
         writeFileSync(join(f.callers, 'release.yml'), 'jobs:\n  verify:\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@main\n');
         const floating = f.run(['--body-file', f.body, '--label', 'patch']);
-        assert.equal(floating.status, 3);
-        assert.match(floating.stderr, /immutable commit SHA/);
-        assert.doesNotMatch(readFileSync(f.calls, 'utf8'), /verify-release-notes.yml\?ref=main/);
+        assert.equal(floating.status, 0, floating.stderr);
+        assert.match(readFileSync(f.calls, 'utf8'), /verify-release-notes.yml\?ref=main/);
+        writeFileSync(f.body, 'reject-me');
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 1);
+        const fallback = f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' });
+        assert.equal(fallback.status, 1, fallback.stderr);
+        assert.match(fallback.stderr, /using bundled reviewed/);
+        writeFileSync(f.body, '## Fixed\n\n- Command handling works correctly.\n');
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' }).status, 0);
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch', '--strict'], { TEST_OFFLINE: '1' }).status, 1);
+    } finally { f.cleanup(); }
+});
+
+test('environment assignments, env and command prefixes cannot hide guarded commands', () => {
+    const f = fixture();
+    try {
+        for (const prefix of ['GH_REPO=Cratis/Example', 'env GH_REPO=Cratis/Example', 'command', 'env GH_REPO=Cratis/Example command', 'rtk env FOO=bar']) {
+            assert.equal(f.hook(`${prefix} gh pr create --body inline --label patch`).status, 2, prefix);
+            assert.equal(f.hook(`${prefix} gh pr create -F '${f.body}' -lpatch`).status, 0, prefix);
+        }
+    } finally { f.cleanup(); }
+});
+
+test('tee writes cannot submit missing or stale body files in the same command', () => {
+    const f = fixture();
+    try {
+        for (const body of [f.body, join(f.directory, 'missing.md')]) {
+            for (const flags of ['', '-a ', '-- ']) {
+                const result = f.hook(`echo reject-me | tee ${flags}'${body}' && gh pr create -F '${body}' -lpatch`);
+                assert.equal(result.status, 2, result.stderr);
+                assert.match(result.stderr, /write the body file first/);
+            }
+        }
+        assert.equal(f.hook(`echo text | tee other.md && gh pr create -F '${f.body}' -lpatch`).status, 0);
+    } finally { f.cleanup(); }
+});
+
+test('line continuations are guarded for both create and edit', () => {
+    const f = fixture();
+    try {
+        for (const operation of ['create', 'edit 7']) {
+            for (const separator of ['\\\n', '\\\n  ']) {
+                assert.equal(f.hook(`gh pr ${separator}${operation} --body inline`).status, 2);
+                assert.equal(f.hook(`gh ${separator}pr ${operation} --body inline`).status, 2);
+                assert.equal(f.hook(`gh pr ${separator}${operation} -F '${f.body}' -lpatch`).status, 0);
+            }
+        }
+    } finally { f.cleanup(); }
+});
+
+test('the target repository opts in independently of the current checkout', () => {
+    const f = fixture();
+    try {
+        for (const repo of ['-R Someone/Personal', '-RSomeone/Personal', '--repo=Someone/Personal', '--repo https://github.com/Someone/Personal']) {
+            const result = f.hook(`gh pr create ${repo} --body inline`);
+            assert.equal(result.status, 0, result.stderr);
+            assert.equal(result.stderr, '');
+        }
+        assert.equal(f.hook('gh pr edit https://github.com/Someone/Personal/pull/7 --body inline').status, 0);
+        assert.equal(f.hook('gh pr edit 7 --title https://github.com/Someone/Personal/pull/7 --body inline').status, 2);
+        assert.equal(f.hook('gh pr create --body https://github.com/Someone/Personal/pull/7').status, 2);
+        assert.equal(f.hook('gh pr create --repo --body inline').status, 2);
+        assert.equal(readFileSync(f.calls, 'utf8'), '');
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        for (const repo of ['-R Cratis/Other', '-RCratis/Other', '--repo=Cratis/Other', '-R github.com/Cratis/Other']) {
+            assert.equal(f.hook(`gh pr create ${repo} --body inline`).status, 2);
+            const valid = f.hook(`gh pr create ${repo} -F '${f.body}' -lpatch`);
+            assert.equal(valid.status, 0, valid.stderr);
+        }
+        assert.equal(f.hook('gh pr edit https://github.com/Cratis/Other/pull/7 --body inline').status, 2);
+        assert.equal(f.hook(`gh pr edit https://github.com/Cratis/Other/pull/7 -F '${f.body}'`).status, 0);
+        assert.match(readFileSync(f.calls, 'utf8'), /"pr","view","https:\/\/github.com\/Cratis\/Other\/pull\/7","--repo","Cratis\/Other"/);
+        assert.match(readFileSync(f.calls, 'utf8'), /"repo","view","Cratis\/Other"/);
+        assert.equal(f.hook('gh pr edit https://github.com/Cratis/Other/pull/7 -R Someone/Personal --body inline').status, 0);
+        assert.equal(f.hook('gh pr create -R Cratis/Other --body inline', { TEST_REMOTE_CALLERS: '0' }).status, 0);
+        assert.match(readFileSync(f.calls, 'utf8'), /repos\/Cratis\/Other\/contents\/\.github\/workflows/);
+        assert.match(readFileSync(f.calls, 'utf8'), /verify-release-notes.yml\?ref=main/);
+    } finally { f.cleanup(); }
+});
+
+test('Node-free guards are silent for unrelated commands and repositories without opt-in', () => {
+    const f = fixture();
+    try {
+        for (const command of ['ls', 'git status', 'echo hello']) {
+            const result = f.hook(command, { PATH: f.noNodePath }, true);
+            assert.equal(result.status, 0, result.stderr);
+            assert.equal(result.stdout, '');
+            assert.equal(result.stderr, '');
+        }
+        const relevant = f.hook('gh pr create --body inline', { PATH: f.noNodePath }, true);
+        assert.equal(relevant.status, 0);
+        assert.match(relevant.stderr, /node is unavailable/);
+        rmSync(join(f.callers, 'release.yml'));
+        const noCaller = f.hook('gh pr create --body inline', { PATH: f.noNodePath }, true);
+        assert.equal(noCaller.stdout, '');
+        assert.equal(noCaller.stderr, '');
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        const personal = f.hook('gh pr create --body inline', { PATH: f.noNodePath }, true);
+        assert.equal(personal.stdout, '');
+        assert.equal(personal.stderr, '');
     } finally { f.cleanup(); }
 });
 

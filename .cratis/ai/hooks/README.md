@@ -111,21 +111,23 @@ inside the command (`CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1 cratis …`) changes n
 
 ### Pull-request bodies
 
-The Bash guard is a no-op unless **both** repository opt-in conditions hold: `origin` is under
-`github.com/Cratis/`, and `.github/workflows` contains a reusable Cratis/Workflows
+The Bash guard is a no-op unless **both** target-repository opt-in conditions hold: the target is under
+`github.com/Cratis/`, and its `.github/workflows` contains a reusable Cratis/Workflows
 `verify-release-notes` or `verify-semver-label` caller (including the renamed
 `verify-release-intent` caller). Installing the corpus or `@cratis/pi` alone does not opt in a
 consumer or personal repository. This scope applies to both Claude Code and Pi; the direct checker
-remains available explicitly in any repository.
+remains available explicitly in any repository. The target is resolved from `--repo` / `-R`, then a
+PR URL, then the current directory's `origin`. Cross-repository commands use the target's workflow
+callers, not the checkout's; an unavailable remote opt-in lookup blocks rather than bypassing the guard.
 
-In opted-in repositories, the Bash guard checks literal `gh pr create` and `gh pr edit` commands, also behind `rtk` or
+In opted-in repositories, the Bash guard checks literal `gh pr create` and `gh pr edit` commands, also behind leading environment assignments, `env`, `command`, `rtk` or
 following shell separators. Inline `--body` / `-b` is refused: write the body to
 `.ai-work/pr-body.md` and use `--body-file` / `-F`. It applies `--label`, `--add-label` and
 `--remove-label` to the current PR labels and requires exactly one release intent. A label-only
 edit checks the current body too. Variables, aliases, shell functions, nested shell scripts and
 script files are outside its scope; guarded option values must be literal paths or labels.
 Shell comments and here-document payloads are not executable commands. If an earlier redirection
-in the same tool command writes the guarded body file, the command is blocked: **write the body
+or `tee` in the same tool command writes the guarded body file, the command is blocked: **write the body
 file first, then run `gh pr create/edit` in a separate command**. The guard reads files before
 execution, so it cannot validate a body that the command has yet to write, even if an older file
 already exists. Dependabot's generated description remains exempt (including GitHub CLI's
@@ -140,8 +142,9 @@ node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.m
 
 The checker fetches both marked programs from Cratis/Workflows' `verify-release-notes.yml` at
 the immutable commit SHA in the repository's own release-notes caller. If there is no such caller,
-it uses the reviewed bundled pin `40125b4fcae388e62ed9471edfffd0e991422f0a`; a floating caller ref
-is reported as **unchecked**, never downloaded or executed. Programs receive only the proposed PR
+it uses the reviewed pin `40125b4fcae388e62ed9471edfffd0e991422f0a`. Floating callers such as `@main`
+fetch the programs at that ref; if the fetch fails, they use the bundled programs from the reviewed
+pin with a warning, so body validation is never silently skipped. Programs receive only the proposed PR
 metadata and `PATH`, `HOME`, and `LANG`, not inherited credentials or Node runtime options.
 The exact programs are cached by workflow blob SHA under
 `${XDG_CACHE_HOME:-~/.cache}/cratis/release-notes/<ref>/<sha>.cjs`. Offline, the newest complete
@@ -155,7 +158,8 @@ The drift program compares committed `HEAD` with `origin/<base>` (default: the r
 default branch, normally `main`), so commit the intended changes and fetch the base before the
 final check. Drift is advisory without `--strict`; re-read the note against the diff after
 merging or rebasing main. The local checker requires Node and Git; fetching rules and live PR
-labels also needs authenticated `gh`. A missing Node warns rather than silently claiming a pass.
+labels also needs authenticated `gh`. Unrelated commands exit before checking for Node; when Node
+is missing, relevant PR commands in locally opted-in repositories warn rather than claiming a pass.
 
 **Flagged** (`PostToolUse`, exit 0 + context):
 
