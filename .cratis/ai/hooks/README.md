@@ -11,6 +11,7 @@ Three layers:
 | Pattern pass | `PostToolUse` on a write | `scripts/cratis-pattern-scan.sh` | zero tokens until a match | appends a one-line reminder to context, never blocks |
 | Hard block | `PreToolUse` on a write | `scripts/cratis-guard-writes.sh` | zero | exits **2** — the write does not happen |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-store-mutations.sh` | zero; parses only commands that mention `cratis` | exits **2** — the store-changing `cratis chronicle` command does not run |
+| Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-pr-body.sh` | fetches shared rules only for `gh pr create/edit` | exits **2** for inline bodies, invalid notes or conflicting release labels; warns and allows when offline with no cache |
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
 
@@ -34,7 +35,7 @@ they describe what a hook should do for tools that have no wiring yet.
 
 > Hooks are the one surface with no folder adapter: Claude Code reads `.claude/settings.json`;
 > the Pi harness bridges the same scripts to its own events through the `cratis-hooks`
-> extension under `../harnesses/pi/extensions/` (its `bash` tool feeds the store-mutation guard, its
+> extension under `../harnesses/pi/extensions/` (its `bash` tool feeds the store-mutation and PR-body guards, its
 > `write` and `edit` tools the write guard); Copilot would read `.github/hooks/*.json`, and no
 > Copilot wiring ships yet.
 >
@@ -107,6 +108,36 @@ a live store and says a request to diagnose does not authorize a mutation; this 
 A person who has authorized a mutation sets `CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` in the
 environment the harness was started from. The hook reads its own environment, so an assignment
 inside the command (`CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1 cratis …`) changes nothing.
+
+### Pull-request bodies
+
+The Bash guard checks literal `gh pr create` and `gh pr edit` commands, also behind `rtk` or
+following shell separators. Inline `--body` / `-b` is refused: write the body to
+`.ai-work/pr-body.md` and use `--body-file` / `-F`. It applies `--label`, `--add-label` and
+`--remove-label` to the current PR labels and requires exactly one release intent. A label-only
+edit checks the current body too. Variables, aliases, shell functions, nested shell scripts and
+script files are outside its scope; guarded option values must be literal paths or labels.
+
+Run the same checker directly:
+
+```bash
+node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.md --label patch
+node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.md --pr 123 --strict
+```
+
+The checker fetches both marked programs from Cratis/Workflows' `verify-release-notes.yml` on
+`main` and caches the exact programs by the workflow blob SHA in
+`${XDG_CACHE_HOME:-~/.cache}/cratis/release-notes/<sha>.cjs`. Offline, the newest complete cached
+copy is used with a warning. With no cache it reports **unchecked** and exits **3**; the hook
+passes through with that warning. Exit **0** means no violations; **1** means invalid notes or
+release intent. `--strict` makes warnings (including a cached-rule fallback or an unavailable
+diff comparison) fail too. `no-release` bodies are checked as release-bound, not exempted.
+
+The drift program compares committed `HEAD` with `origin/<base>` (default: the repository's
+default branch, normally `main`), so commit the intended changes and fetch the base before the
+final check. Drift is advisory without `--strict`; re-read the note against the diff after
+merging or rebasing main. The local checker requires Node and Git; fetching rules and live PR
+labels also needs authenticated `gh`. A missing Node warns rather than silently claiming a pass.
 
 **Flagged** (`PostToolUse`, exit 0 + context):
 
@@ -414,8 +445,9 @@ Each is an explicit, auditable opt-out — none of them is a default.
   (macOS system bash) — no `mapfile`, no associative arrays, no GNU-only flags, `LC_ALL=C` on
   every sort and compare.
 - **Gate commands are an argv array**, executed directly. They never pass through a shell.
-- **`jq` is the only dependency.** Every script
-  degrades to a silent no-op when it is missing — a hook must never break a session.
+- **`jq` is the dependency for the write, store-mutation, pattern and quality hooks.** They
+  degrade to a silent no-op when it is missing — a hook must never break a session. The
+  PR-body hook uses Node instead, and the checker uses Git and `gh` as described above.
 - **Fail safe.** Malformed config, empty stdin, a missing file, a binary file, a file over 2 MB:
   all exit 0 silently. The one deliberate exception is the store-mutation guard's command lists:
   an unreadable shipped or local list is not an empty allowlist that happens to pass, so every `cratis chronicle`

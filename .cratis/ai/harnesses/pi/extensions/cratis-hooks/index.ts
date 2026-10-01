@@ -8,6 +8,7 @@
  *
  *   Claude PreToolUse  (Write|Edit)  →  Pi `tool_call`      →  cratis-guard-writes.sh  (exit 2 = block)
  *   Claude PreToolUse  (Bash)        →  Pi `tool_call`      →  cratis-guard-store-mutations.sh  (exit 2 = block)
+ *   Claude PreToolUse  (Bash)        →  Pi `tool_call`      →  cratis-guard-pr-body.sh  (exit 2 = block)
  *   Claude PostToolUse (Write|Edit)  →  Pi `tool_result`    →  cratis-pattern-scan.sh  (advisory context)
  *   Explicit Pi `cratis_quality_gate` tool → cratis-quality-gate.sh  (exit 2 = failed)
  *
@@ -176,6 +177,7 @@ export default function (pi: ExtensionAPI) {
 	const scriptsDir = fs.existsSync(managedScriptsDir) ? managedScriptsDir : path.join(bundledCorpusRoot, "hooks", "scripts");
 	const guardWrites = path.join(scriptsDir, "cratis-guard-writes.sh");
 	const guardStoreMutations = path.join(scriptsDir, "cratis-guard-store-mutations.sh");
+	const guardPrBody = path.join(scriptsDir, "cratis-guard-pr-body.sh");
 	const patternScan = path.join(scriptsDir, "cratis-pattern-scan.sh");
 	const qualityGate = path.join(scriptsDir, "cratis-quality-gate.sh");
 
@@ -201,9 +203,17 @@ export default function (pi: ExtensionAPI) {
 		if (event.toolName === "bash") {
 			const command = (event as any).input?.command;
 			if (typeof command !== "string" || !command.trim()) return;
-			if (!isInstalled(guardStoreMutations)) return; // no guard installed in this repository - nothing to enforce
 			const payload = { cwd: ctx.cwd, tool_name: "Bash", tool_input: { command } };
-			return runBlockingGuard(guardStoreMutations, "cratis-guard-store-mutations", "command", payload, ctx);
+			if (isInstalled(guardStoreMutations)) {
+				const blocked = await runBlockingGuard(guardStoreMutations, "cratis-guard-store-mutations", "command", payload, ctx);
+				if (blocked) return blocked;
+			}
+			if (isInstalled(guardPrBody)) {
+				const run = await runScript(guardPrBody, JSON.stringify(payload), ctx.cwd, ctx.signal);
+				if (run.failed || run.code !== 0) return { block: true, reason: run.stderr.trim() || "cratis-guard-pr-body could not check this command." };
+				if (run.stderr.trim()) pi.sendMessage({ customType: "cratis-pr-body-warning", content: run.stderr.trim(), display: true });
+			}
+			return;
 		}
 		if (event.toolName !== "write" && event.toolName !== "edit") return;
 		const { filePath, content, newString } = writeTarget(event.toolName, (event as any).input);
