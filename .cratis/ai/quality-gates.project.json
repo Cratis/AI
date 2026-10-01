@@ -1,5 +1,5 @@
 {
-  "$comment": "Project-owned overrides for the managed quality gates (merged by gate id). This repository is the corpus itself: its TypeScript lives in yarn workspaces with no application frontend, so the shipped frontend gates are mapped onto the checks the publish workflow runs. The corpus verification (yarn workspace @cratis/ai-verification run verify) is part of the test script's package check and runs in CI; the override keeps each gate a single argv command. Each gate also restates excludeChanged without the managed .cratis/** and adapter trees, because here those are the files under verification, and the gates that replace the command require only yarn instead of a g: script.",
+  "$comment": "Project-owned overrides for the managed quality gates (merged by gate id). This repository is the corpus itself: its TypeScript lives in yarn workspaces with no application frontend, so the shipped frontend gates are mapped onto the checks the publish workflow runs. The corpus verification (yarn workspace @cratis/ai-verification run verify) is part of the test script's package check and runs in CI; the override keeps each gate a single argv command. Each gate also restates excludeChanged without the managed .cratis/** and adapter trees, because here those are the files under verification.",
   "gates": [
     {
       "id": "frontend-lint",
@@ -14,7 +14,6 @@
       "description": "yarn workspace @cratis/ai-verification run check — zero TypeScript errors",
       "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
-      "requires": { "commands": ["yarn"] },
       "command": ["yarn", "workspace", "@cratis/ai-verification", "run", "check"]
     },
     {
@@ -23,7 +22,6 @@
       "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/**/*.md", ".cratis/ai/**/*.json"],
       "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
-      "requires": { "commands": ["yarn"] },
       "command": ["yarn", "workspace", "@cratis/ai-verification", "run", "verify"]
     },
     {

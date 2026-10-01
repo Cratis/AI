@@ -54,8 +54,9 @@ function plan(committed: Record<string, string>, changed: Record<string, string>
     }
 }
 
-const ran = (output: string, id: string) => new RegExp(`RUN\\s+${id}\\b`).test(output);
-const noOp = (output: string, id: string) => new RegExp(`NO-OP\\s+${id}\\b`).test(output);
+// (?![\w-]) rather than \b: a gate id must not match a longer id that extends it with a hyphen.
+const ran = (output: string, id: string) => new RegExp(`RUN\\s+${id}(?![\\w-])`).test(output);
+const noOp = (output: string, id: string) => new RegExp(`NO-OP\\s+${id}(?![\\w-])`).test(output);
 
 test('a managed corpus or adapter update triggers no application gate', () => {
     const output = plan(
@@ -101,4 +102,37 @@ test('a compile gate runs when the root package.json defines its global script',
     );
     assert.ok(ran(output, 'frontend-compile'), output);
     assert.ok(ran(output, 'frontend-compile-specs'), output);
+});
+
+const overrideFile = '.cratis/ai/quality-gates.project.json';
+
+test('an override that replaces only the command still runs when the repository lacks the managed script', () => {
+    const output = plan(
+        {
+            'package.json': JSON.stringify({ scripts: { 'lint:ci': 'x', compile: 'x', test: 'x' } }),
+            [overrideFile]: JSON.stringify({
+                gates: [{ id: 'frontend-compile', workingDirectory: '.', command: ['yarn', 'workspace', 'app', 'run', 'check'] }],
+            }),
+        },
+        { 'Source/App/a.ts': 'export {};\n' },
+    );
+    assert.ok(ran(output, 'frontend-compile'), output);
+    assert.match(output, /\$ yarn workspace app run check/);
+    assert.ok(!noOp(output, 'frontend-compile'), output);
+    // The sibling gate that was not overridden keeps its managed requirement.
+    assert.ok(noOp(output, 'frontend-compile-specs'), output);
+});
+
+test('an override that states its own requires replaces the managed requirements whole', () => {
+    const output = plan(
+        {
+            'package.json': JSON.stringify({ scripts: { 'lint:ci': 'x', compile: 'x', test: 'x' } }),
+            [overrideFile]: JSON.stringify({
+                gates: [{ id: 'frontend-compile', workingDirectory: '.', requires: { packageScripts: ['check'] }, command: ['yarn', 'check'] }],
+            }),
+        },
+        { 'Source/App/a.ts': 'export {};\n' },
+    );
+    assert.ok(noOp(output, 'frontend-compile'), output);
+    assert.match(output, /script 'check' is not defined/);
 });

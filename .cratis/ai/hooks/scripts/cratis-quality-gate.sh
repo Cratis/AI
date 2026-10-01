@@ -47,6 +47,11 @@ jq -e . "$config" >/dev/null 2>&1 || {
 # quality-gates.json mixes project facts into Cratis-owned content, so the next managed update
 # either reports drift or silently discards the repository's own configuration. The override
 # states only what differs, keyed by gate id, and nothing here needs a script fork.
+#
+# The merge is shallow (a patch field replaces the base field), with one exception: a patch that
+# replaces `command` but does not state `requires` also drops the base gate's
+# requires.packageScripts. Those scripts guard the base command; keeping them would make the
+# overriding repository's own command a silent NO-OP whenever it lacks e.g. g:compile.
 overrides="$root/.cratis/ai/quality-gates.project.json"
 if [ -f "$overrides" ]; then
     if jq -e . "$overrides" >/dev/null 2>&1; then
@@ -54,11 +59,16 @@ if [ -f "$overrides" ]; then
         if jq -s '
             .[0] as $base | .[1] as $over
             | ($over.gates // []) as $gates
-            | $base
+            | def patched($gate; $patch):
+                ($gate + ($patch | del(.id))) as $m
+                | if ($patch | has("command")) and (($patch | has("requires")) | not) and ($m.requires != null)
+                  then $m | .requires |= del(.packageScripts)
+                  else $m end;
+            $base
             + ($over | del(.gates))
             + { gates: [ $base.gates[] as $gate
                 | ($gates | map(select(.id == $gate.id)) | first) as $patch
-                | if $patch == null then $gate else $gate + ($patch | del(.id)) end ] }
+                | if $patch == null then $gate else patched($gate; $patch) end ] }
         ' "$config" "$overrides" >"$merged" 2>/dev/null; then
             unknown="$(jq -r --slurpfile base "$config" '[.gates // [] | .[].id] - [$base[0].gates[].id] | .[]' "$overrides" 2>/dev/null || true)"
             [ -n "$unknown" ] && printf 'cratis-quality-gate: %s overrides unknown gate(s): %s\n' \
@@ -175,7 +185,9 @@ $(jq -r --argjson i "$idx" '.gates[$i].requires.paths // [] | .[]' "$config")
 EOF
     # A package.json script a gate invokes must exist, or yarn fails with "Couldn't find a script"
     # instead of the gate being a NO-OP. A global script (g:) may live in the root package.json
-    # that the workspace's own package.json defers to.
+    # that the workspace's own package.json defers to. That fallback assumes Yarn Berry, where
+    # a g: script defined at the root is runnable from every workspace; no workspace package.json
+    # is inspected.
     while IFS= read -r s; do
         [ -n "$s" ] || continue
         package_defines_script "$root/$dir/package.json" "$s" && continue

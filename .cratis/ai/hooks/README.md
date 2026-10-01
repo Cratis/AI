@@ -342,9 +342,18 @@ script. A consuming repository customises all three without forking anything:
 
 A gate whose `requires.commands` are not on `PATH`, whose `requires.paths` do not exist, whose
 `requires.packageScripts` are not defined in the `package.json` of its working directory (a `g:`
-script may instead be defined in the root `package.json`), or whose `workingDirectoryFrom` matches
+script may instead be defined in the root `package.json` — this assumes Yarn Berry, where a
+root-defined `g:` script runs from every workspace, and no workspace `package.json` is inspected), or whose `workingDirectoryFrom` matches
 nothing in the repository, is a **no-op with a message on stderr**
 rather than a failure — that is how a repository with no .NET solution or no frontend stays quiet.
+
+An override in `.cratis/ai/quality-gates.project.json` is merged shallowly: a field it states
+replaces the managed one. The one exception is `requires.packageScripts`: an override that sets
+`command` without stating `requires` drops the managed gate's `packageScripts`, because they guard
+the managed command (`yarn g:compile`), not the replacement. Without that, a repository replacing
+`command` would silently turn the gate into a no-op whenever it lacks the managed script. An
+override that does state `requires` replaces it whole, so list `packageScripts` again if the new
+command needs them.
 
 Every shipped gate ignores the managed corpus and adapter trees (`.cratis/**`, `.pi/**`,
 `.claude/**`) through `excludeChanged`, so a `cratis ai update` never runs a repository's application
