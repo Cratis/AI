@@ -10,6 +10,7 @@ import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
+import { danglingSkillReferences } from './skill-references.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
 
 interface Profile {
@@ -140,6 +141,12 @@ const skillDirectories = (await readdir(join(corpus, 'skills'), { withFileTypes:
 for (const name of unprofiledSkills(skillDirectories.map(entry => entry.name), profiles)) {
     failures.push(`Skill '${name}' is not reachable from any profile.`);
 }
+// A rule, prompt or agent that names a skill with no directory sends the agent following it to load nothing.
+const referencingFiles = await Promise.all(['rules', 'prompts', 'agents'].map(async directory => {
+    const names = (await readdir(join(corpus, directory))).filter(name => name.endsWith('.md'));
+    return Promise.all(names.map(async name => ({ path: `${directory}/${name}`, content: await readFile(join(corpus, directory, name), 'utf8') })));
+}));
+failures.push(...danglingSkillReferences(referencingFiles.flat(), skillDirectories.map(entry => entry.name)));
 for (const directory of skillDirectories) {
     const skillFile = join(corpus, 'skills', directory.name, 'SKILL.md');
     if (!await exists(skillFile)) {
