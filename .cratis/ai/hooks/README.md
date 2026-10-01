@@ -340,9 +340,25 @@ script. A consuming repository customises all three without forking anything:
 | `scripts/cratis-store-mutations.json` | the store-mutation guard's read-only allowlist and known-mutating list, each entry with its reason or effect, and the CLI options it skips; its header `$comment` documents every field and the CLI version the lists were derived from |
 | `scripts/cratis-store-mutations.local.json` | optional; its lists are appended to the above. It can classify a command a newer CLI adds, or list a shipped read-only command as mutating (a command on the mutating list always blocks); only a replacement file can make a known mutation read-only |
 
-A gate whose `requires.commands` are not on `PATH`, whose `requires.paths` do not exist, or whose
-`workingDirectoryFrom` matches nothing in the repository, is a **no-op with a message on stderr**
+A gate whose `requires.commands` are not on `PATH`, whose `requires.paths` do not exist, whose
+`requires.packageScripts` are not defined in the `package.json` of its working directory (a `g:`
+script may instead be defined in the root `package.json` — this assumes Yarn Berry, where a
+root-defined `g:` script runs from every workspace, and no workspace `package.json` is inspected), or whose `workingDirectoryFrom` matches
+nothing in the repository, is a **no-op with a message on stderr**
 rather than a failure — that is how a repository with no .NET solution or no frontend stays quiet.
+
+An override in `.cratis/ai/quality-gates.project.json` is merged shallowly: a field it states
+replaces the managed one. The one exception is `requires.packageScripts`: an override that sets
+`command` without stating `requires` drops the managed gate's `packageScripts`, because they guard
+the managed command (`yarn g:compile`), not the replacement. Without that, a repository replacing
+`command` would silently turn the gate into a no-op whenever it lacks the managed script. An
+override that does state `requires` replaces it whole, so list `packageScripts` again if the new
+command needs them.
+
+Every shipped gate ignores the managed corpus and adapter trees (`.cratis/**`, `.pi/**`,
+`.claude/**`) through `excludeChanged`, so a `cratis ai update` never runs a repository's application
+gates. A repository whose own source lives there, like this corpus, restates `excludeChanged` for the
+gates it needs in `.cratis/ai/quality-gates.project.json`.
 
 **No shipped gate names a product's file.** A default that did would activate in exactly one
 repository and silently no-op in every other, which is the worst of both: it looks configured and
