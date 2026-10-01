@@ -4,7 +4,10 @@
 # PreToolUse (Bash): release-note bodies are checked before gh pr create/edit.
 # Node reads the hook JSON and tokenizes literal shell arguments without executing them.
 set -euo pipefail
-payload=$(</dev/stdin)
+# Read the inherited descriptor directly: Node uses a socket for stdin on Linux,
+# and reopening it via /dev/stdin fails with ENXIO. EOF without a newline is normal.
+payload=''
+IFS= read -r -d '' payload || true
 # This dependency-free prefilter runs even on Node-free machines. Normalize JSON-escaped
 # line continuations before matching; Node still determines executable command identity.
 command_text=${payload//\\n/ }
