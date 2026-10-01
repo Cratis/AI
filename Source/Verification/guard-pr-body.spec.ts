@@ -222,6 +222,34 @@ test('the hook is silent in non-Cratis repositories and Cratis repositories with
     } finally { f.cleanup(); }
 });
 
+test('the hook stays silent instead of crashing when a caller provides no stdin at all', () => {
+    const f = fixture();
+    try {
+        // Reopening /dev/stdin fails with ENXIO once the pipe's write end is already closed, which is
+        // exactly how Pi's bridge (spawn + write + end, not spawnSync's buffered `input`) invokes every
+        // guard for every tool call. A crash here must not read as "block": it would refuse unrelated
+        // commands never meant for this guard, as happened for the store-mutation and write guards.
+        const noInput = spawnSync('bash', [guard], { cwd: f.directory, env: f.env, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8' });
+        assert.equal(noInput.status, 0, noInput.stderr);
+        assert.equal(noInput.stdout, '');
+        assert.equal(noInput.stderr, '');
+        const closedPipe = spawnSync(process.execPath, ['-e', `
+            const { spawn } = require('node:child_process');
+            const proc = spawn('bash', [${JSON.stringify(guard)}], { cwd: ${JSON.stringify(f.directory)}, env: ${JSON.stringify(f.env)}, stdio: ['pipe', 'pipe', 'pipe'] });
+            let out = '', err = '';
+            proc.stdout.on('data', d => out += d);
+            proc.stderr.on('data', d => err += d);
+            proc.on('close', code => { process.stdout.write(JSON.stringify({ code, out, err })); });
+            proc.stdin.write(${JSON.stringify(JSON.stringify({ cwd: f.directory, tool_input: { command: "gh pr create --body 'inline'" } }))});
+            proc.stdin.end();
+        `], { encoding: 'utf8', timeout: 15000 });
+        assert.equal(closedPipe.status, 0, closedPipe.stderr);
+        const result = JSON.parse(closedPipe.stdout);
+        assert.equal(result.code, 2, result.err);
+        assert.match(result.err, /write the body to.*\.ai-work\/pr-body.md/);
+    } finally { f.cleanup(); }
+});
+
 test('Dependabot CLI app metadata keeps generated bodies exempt but still checks release intent', () => {
     const f = fixture();
     try {
