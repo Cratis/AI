@@ -100,6 +100,13 @@ function runScript(script: string, stdinJson: string, cwd: string, signal?: Abor
 			if (signal.aborted) kill();
 			else signal.addEventListener("abort", kill, { once: true });
 		}
+		// A script that exits before reading stdin (or doesn't read it at all) closes its end of the
+		// pipe first; the write then fails with EPIPE asynchronously, after this try/catch has already
+		// returned. Without a listener here that surfaces as an unhandled 'error' event and crashes the
+		// process, even though the exit code the close handler already captured is the real verdict.
+		proc.stdin?.on("error", () => {
+			/* the child may exit before (or without) reading stdin; its exit code is still the verdict */
+		});
 		try {
 			proc.stdin?.write(stdinJson);
 			proc.stdin?.end();
