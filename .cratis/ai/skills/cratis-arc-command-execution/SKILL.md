@@ -9,7 +9,8 @@ license: MIT
 `ICommandPipeline` is the same entry point the HTTP boundary uses. Everything
 downstream of the entry point is identical: authorization filters, validation
 filters, argument resolution including `Provide()`, `Handle()`, and response
-dispatch.
+dispatch. `Execute` also runs returned command operations and completes eligible
+recovery; calling `Handle()` directly only returns their declarations.
 
 ## Verified product sources
 
@@ -20,7 +21,9 @@ dispatch.
 
 > Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
 
-Reverify before claiming support for another version.
+Reverify before claiming support for another version. Operation execution,
+nesting restrictions, and backend recovery members below are verified at
+**Arc v22.48.1**; see `cratis-arc-command-operation` for sources and limits.
 
 ## When this is the wrong tool
 
@@ -28,6 +31,11 @@ Reverify before claiming support for another version.
 validation. It is not the way to append an event to another stream from inside a
 handler — return an `EventForEventSourceId` from `Handle()` instead, and never
 inject `IEventLog` (`ARCCHR0007`).
+
+Do not call `ICommandPipeline` for a same-host nested command from an operation's
+`Execute()` or `Compensate()`: the flat operation boundary rejects it. Ignoring
+the child's failed result still rejects the executing batch; during compensation
+it records a failed compensator. Compose operation declarations instead.
 
 ## Inject and execute
 
@@ -107,6 +115,14 @@ crash.
 | `IsValid` | Derived: no blocking validation results survived. `ValidationResults` carries them |
 | `HasExceptions` | Derived: `ExceptionMessages` is non-empty. `ExceptionStackTrace` has the detail |
 | `CorrelationId` | The pipeline-wide id to correlate logs and traces on |
+| `Recovery` | Backend-only nullable commit/recovery summary when operations participate |
+| `OperationOutcomes` | Backend-only observations of entered operations and their compensation |
+
+`Recovery` and `OperationOutcomes` are excluded from HTTP JSON and the TypeScript
+result contract. **A failed result is not proof that nothing committed.** Known
+commit suppresses automatic reversal; unknown/mixed commitment is indeterminate,
+not permission to compensate or retry. Consult `cratis-arc-command-operation`
+before interpreting these observations.
 
 A command with no registered handler comes back with an exception message naming
 the command type rather than throwing.
@@ -154,5 +170,7 @@ mis-marking it to silence the warning.
 
 - Defining the command or choosing its `Handle()` return shape:
   `cratis-arc-command`.
+- Declaring operations or diagnosing their execution/recovery:
+  `cratis-arc-command-operation`.
 - Adding or changing a rule: the Arc command validation guidance.
 - Designing what a reactor should observe: the Chronicle reactor guidance.

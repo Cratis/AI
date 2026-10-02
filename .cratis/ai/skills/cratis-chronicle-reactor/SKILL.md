@@ -300,6 +300,9 @@ public class <ReactorName> : IReactor
 A reactor runs with **no principal**; `[ExecuteCommandsAsSystem]` (class-level,
 `Cratis.Arc.Chronicle.Reactors`) supplies one for the **returned** commands only.
 A collection return is executed as commands when every element is a command.
+A reactor retry can execute the command's operations again; inline operations
+are not a substitute for reactor/outbox durability (see
+`cratis-arc-command-operation`, verified at Arc v22.48.1).
 
 The imperative form — inject `ICommandPipeline` (`Cratis.Arc.Commands`) and call
 `Execute(command)` — is still supported and is the subject of the
