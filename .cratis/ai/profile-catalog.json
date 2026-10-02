@@ -253,6 +253,7 @@
       "availableTargets": [
         "cratis-arc-command",
         "cratis-arc-command-execution",
+        "cratis-arc-command-operation",
         "cratis-arc-command-validation",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"

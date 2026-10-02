@@ -149,7 +149,7 @@ npm test --prefix Source/Verification
 ```
 
 The verification suite uses Pi's `DefaultResourceLoader` directly, without a
-model or credentials, to prove that project context, all 73 skills, 18 prompts,
+model or credentials, to prove that project context, all 74 skills, 18 prompts,
 and the managed extensions are actually discovered. It also verifies the
 canonical skill and rule paths exposed to Claude, Codex, Copilot, Cursor, and
 OpenCode.
