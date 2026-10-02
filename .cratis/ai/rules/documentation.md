@@ -71,7 +71,7 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 ## Links
 
 - **Link text must describe the destination.** Write `[Event types](...)`, never `[see documentation](...)`, `[here](...)`, or `[click here](...)`. Non-descriptive link text is a defect.
-- Use relative links for internal product-source references. Verify every link resolves — broken links and links to non-existent folders fail review.
+- Use relative links for internal product-source references and root-relative site routes (`/arc/backend/commands/`) for another product's pages — not absolute `cratis.io` or GitHub URLs, and not `xref:` symbol links, which the site does not support. Verify every link resolves — broken links and links to non-existent folders fail review.
 
 ## Cover the reader's needs at the product's scale
 
