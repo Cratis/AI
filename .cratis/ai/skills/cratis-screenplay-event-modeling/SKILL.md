@@ -172,7 +172,37 @@ At the most granular layout, folders mirror the language, one folder per level:
 one slice, whole. A slice file restates its `module` and `feature`; nothing is
 written twice.
 
-⚠️ **Compile the folder as one application.** `screenplay <folder>` merges every
+**Compose focused files with imports** (v4.48.0, checked at tag `v4.48.0`,
+commit `3baf4a4`). `import "<path or glob>"` imports `.play` files relative to
+the importing file - `**` crosses folders, `*` stays in one, `..` climbs. Where
+the import is written decides where the files belong: at the top level it brings
+in whole documents; inside a `module` or `feature` it places each imported file
+there, so a file holds only its part of the story - a slice file is just the
+`slice`. A root file that imports everything says what the application is made
+of:
+
+```screenplay
+domain Acme.Commerce
+
+import "Shared/*.play"
+import "Ordering/Ordering.play"
+```
+
+```screenplay
+module Ordering
+  description "Orders, from basket to doorstep"
+  feature Orders
+    import "Orders/*.play"
+```
+
+Every file is imported once. When a root glob and a module file both match a
+file, the deepest placement wins; two placements where neither lies inside the
+other are an error (`PLAY0457`), and so is a file placed in a module it does not
+restate (`PLAY0459`). `import Customers.CustomerRegistered` without quotes still
+names a contract from another bounded context.
+
+⚠️ **Compile the folder, or its root file, as one application.**
+`screenplay <root file>` compiles what the root imports. `screenplay <folder>` merges every
 `.play` beneath the root *before* resolving, so an event declared in one file and
 produced in another resolves. Compiling files individually reports unknown types,
 events and policies (`PLAY0165`, `PLAY0166`, `PLAY0167`) that are not missing.

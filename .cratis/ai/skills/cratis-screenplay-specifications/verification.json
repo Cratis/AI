@@ -34,6 +34,18 @@
     {
       "kind": "skill-contains",
       "value": "Bare `then error` never matches\n  a denial"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**`when query` executes today. The clock, trigger and capture actions do not.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`then result` and `then no result` need `when query`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A clock instant is ISO 8601 with an offset or `Z`"
     }
   ]
 }

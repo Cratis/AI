@@ -15,11 +15,25 @@ repository is the full list; this page is the authoring summary.
 `authentication`, `trigger`, `theme`, `layout`, `ui profile`, `behavior`,
 `module`, `seed`.
 
-**Inside a module:** `description`, `authorize`, `screen`/`dialog` templates,
-`form`, `contribute`, `on`/`uses` behavior attachments, `feature`.
+**Inside a module:** `description`, `authorize`, `import "<glob>"`,
+`screen`/`dialog` templates, `form`, `contribute`, `on`/`uses` behavior
+attachments, `feature`.
 
-**Inside a feature:** `description`, `authorize`, nested `feature`, `slice`,
-`contribute`, `on`/`uses` behavior attachments.
+**Inside a feature:** `description`, `authorize`, `import "<glob>"`, nested
+`feature`, `slice`, `contribute`, `on`/`uses` behavior attachments.
+
+**Files (v4.48.0).** `import "<path or glob>"` - quoted - imports `.play` files
+relative to the importing file; unquoted, `import` still names a contract from
+another bounded context. At the top level it brings in whole documents. Inside a
+`module` or `feature` it places each imported file there, and that file's top
+level is the module's or feature's body, alongside any application-level
+declarations it makes. A file matched by several imports is imported once, at the
+deepest placement; conflicting placements (`PLAY0457`), cycles (`PLAY0458`) and
+imports that match nothing (`PLAY0455`, `PLAY0456`) are reported where the import
+is written. `screenplay <file>` compiles the application that file is the root
+of; `screenplay <folder>` treats every file as a root and still places what the
+imports place. The VS Code extension validates a workspace folder the same way,
+as one application.
 
 | Slice type | Meaning | Typical contents |
 | --- | --- | --- |

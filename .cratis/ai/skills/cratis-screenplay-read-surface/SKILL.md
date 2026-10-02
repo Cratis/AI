@@ -131,6 +131,13 @@ precondition. It takes a `file` reference or an inline block in a tagged fence
 a nonsensical one, so the choice is yours to get right. Performer code is opaque:
 Screenplay never runs it.
 
+A read model a performer composes needs no projection, and no event builds it.
+Specify it from state with `given readmodel`, then `when query <Query>` with the
+arguments and `then result` (v4.48.0) - see `cratis-screenplay-specifications`.
+
+A query's key goes on its own `by` line in the body. `query X => RM? by id Type`
+on the header line is a declaration error, not a shorthand.
+
 ### What runs
 
 In the executable model today, only the keyed snapshot shape binds:

@@ -39,6 +39,26 @@ is not admitted by ESM v1*), and so do reactions and declared triggers. A
 specification's `when append` never runs reactions either. Model them when the
 `.play` file is the deliverable; do not promise they execute.
 
+**Specify what sets them off anyway** (v4.48.0, checked at tag `v4.48.0`, commit
+`3baf4a4`): `when clock "<instant>"` for a reaction on `every` or `at`,
+`when trigger <Trigger>` with its values for one on an application trigger, and
+`given capture` / `when capture <Capture>` with the source record's fields for a
+capture, then the events that should follow. `given clock` fixes the occurrence
+time, so values mapped from `$context.occurred` can be asserted:
+
+```screenplay
+specification ChasingAnOverdueInvoiceOnMonday
+  given clock "2026-10-05T07:00:00Z"
+  when clock "2026-10-05T07:30:00Z"
+  then CollectionsDigestIssued
+    issuedAt = "2026-10-05T07:30:00Z"
+```
+
+These actions parse and are checked against the application, but they bind to
+nothing yet: admitting them, and running reactions, is proposed as ESM v6 in
+the Screenplay repository's decision 0022. Report such a specification as
+parsed, not executed.
+
 ## `capture` — the Change Data Capture Language
 
 Captures live in `Translate` slices and are the anti-corruption layer: external
