@@ -174,6 +174,7 @@ public class StockKeeping : IReactor
 
 - **A reactor runs with no principal.** It is not an HTTP request, so a returned command gated by `[Roles]`/`[Authorize]` is denied. Opt in on the reactor **class** with `[ExecuteCommandsAsSystem("<role>", …)]` (`Cratis.Arc.Chronicle.Reactors`), naming only the roles its returned commands need. The attribute covers **returned** commands only.
 - Mark the handler `[OnceOnly]` — a replay would otherwise execute the command again. Replay exclusion is not exactly-once: recovery re-delivers, so the command itself must be safe to repeat.
+- A reactor retry can execute the command's operations again; inline operations are not a substitute for reactor/outbox durability — see **cratis-arc-command-operation** (verified at Arc v22.48.1).
 - The imperative alternative — inject `ICommandPipeline` and call `Execute(command)` — remains supported (see the **cratis-arc-command-execution** skill). It needs `[OnceOnly]` (`ARCCHR0006` warns otherwise), its `CommandResult` must be inspected (a denied or invalid result is otherwise discarded), and it needs its own execution context: `[ExecuteCommandsAsSystem]` does not apply to it.
 
 ## External event stores (outbox / inbox)

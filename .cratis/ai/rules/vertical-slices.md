@@ -73,6 +73,8 @@ The command carries input from the caller. `Handle()` is defined directly on the
 
 > This application is event-sourced, so the guidance below assumes a command's `Handle()` returns event(s) that Arc+Chronicle appends. Arc itself is a standalone CQRS framework (see [general.md](./general.md)) — a command may legitimately return a response or `void` and do its work through injected services when a slice isn't event-sourced; the return-shape and "never inject `IEventLog`" rules are the event-sourced default, not universal Arc laws.
 
+**[convention]** Return immediate external work chosen by a command as a command operation rather than performing it inside `Handle()`; durable after-commit work belongs in reactors. Operations also work without Chronicle; direct service calls remain supported when the decision needs their result. Audit custom `ICommandExecutionScope`s first — every one must implement `ICommandOperationExecutionScope` or operation-bearing commands are rejected. See **cratis-arc-command-operation** (verified at Arc v22.48.1).
+
 ### The decision matrix — where each rule lives **[contract]**
 
 `Handle()` assumes the command is valid and constructs the event(s). Pick the mechanism by what the decision *is*:
@@ -136,6 +138,8 @@ public record PlaceOrder(OrderId OrderId, CustomerId CustomerId) : ICanProvideEv
 
 Use `Provide()` for IO/fetched/computed data a valid command needs (explicit-key read-model lookups, external services, snapshots). It may short-circuit with `ValidationResult` / `AuthorizationResult` / `Result<TProvided, ValidationResult>` when the supplied data is missing or unusable. Keep IO in `Provide()` and the decision in `Handle()`. Do **not** write a pass-through `Provide()` that only wraps a read model `Handle(...)` could take directly, and do **not** duplicate the same rejection in both the validator and `Provide()` — pick one owner.
 
+**[convention]** `Provide()` acquires decision inputs, not the writes moved out of `Handle()`; declare those as operations and let Arc execute them. Operations cannot return receipts into the decision — see **cratis-arc-command-operation**.
+
 ### `Handle()` return shapes **[contract]**
 
 Return the event(s) directly — Arc appends them; never inject `IEventLog` to append the primary event. If there is no `await`, return the value directly (no `Task<T>`/`Task.FromResult`).
@@ -147,9 +151,10 @@ Return the event(s) directly — Arc appends them; never inject `IEventLog` to a
 | `(TResponse, TEvent)` | a response value plus an event |
 | `IEnumerable<object>` | multiple events; `EventForEventSourceId(id, @event)` wrappers for cross-stream |
 | `Result<TEvent, ValidationResult>` | success event or a typed validation error (concurrency-sensitive rule) |
+| `ICommandOperation` / `CommandOperations` | immediate server-side work after event enrollment, never the client response |
 | `void` | no event |
 
-**How Arc picks the response vs. metadata:** for an `(A, B)` tuple, each element is checked — exactly one element *without* a registered event handler becomes the `CommandResult<...>` response; if all are events, there is no response; **more than one un-handled element throws**. A `Result<TSuccess, TError>` has its inner value unwrapped and processed by these same rules (so `Result<(TId, TEvent), ValidationResult>` is processed as a tuple). A `(TEvent, Subject)` tuple's `Subject` is treated as **append metadata** (not a response) and overrides the resolved compliance subject. A `(TIdConcept, TEvent)` tuple opens a new stream — the id concept is the event source for that event.
+**How Arc picks the response vs. metadata:** for an `(A, B)` tuple, each element is checked — operations are server-consumed, and at most one ordinary element without a response-value handler becomes the `CommandResult<...>` response; if all are server-consumed, there is no response; **more than one un-handled element throws**. A `Result<TSuccess, TError>` has its inner value unwrapped and processed by these same rules (so `Result<(TId, TEvent), ValidationResult>` is processed as a tuple). A `(TEvent, Subject)` tuple's `Subject` is treated as **append metadata** (not a response) and overrides the resolved compliance subject. A `(TIdConcept, TEvent)` tuple opens a new stream — the id concept is the event source for that event.
 
 ### Stream metadata & DCB concurrency **[contract]**
 

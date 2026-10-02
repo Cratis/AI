@@ -48,6 +48,8 @@ Tagged **[contract]** (framework-enforced) or **[convention]** (house default). 
 16. **[convention] Use the Cratis dialogs** — `CommandDialog` from `@cratis/components/CommandDialog`, `Dialog` from `@cratis/components/Dialogs`; never a vendor or hand-rolled modal. The default frontend stack is Cratis Components **4.x** (Components-owned markup, `--cratis-*` tokens, `pt`/`data-cratis-part` parts; no PrimeReact dependency) — **not** Tailwind (Tailwind is one supported way to write the token-mapping CSS, not the generic default).
 17. **[convention] One slice is one unit** — creating/renaming/moving/deleting a slice means doing the same to every artifact (the `.cs`, every `when_*/`, every `.tsx`, the composition import/JSX, the route).
 
+**[convention]** Return immediate external work chosen by a command as a command operation, not a service write inside `Handle()`; durable after-commit work belongs in reactors. Direct service calls remain supported when the decision needs their result. Audit custom `ICommandExecutionScope`s first — every one must implement `ICommandOperationExecutionScope` or operation-bearing commands are rejected. See **cratis-arc-command-operation** (verified at Arc v22.48.1).
+
 ## Implementation Workflow
 
 - **Phase 0 — Model.** Confirm Module/Feature, slice name, slice type, domain rules; for new behavior or unclear event vocabulary run the **cratis-chronicle-event-modeling** skill first.
