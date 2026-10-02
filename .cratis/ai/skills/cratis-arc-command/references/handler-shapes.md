@@ -31,7 +31,10 @@ leaving the authorization verdict at its permissive default.
 ## Dispatch
 
 The returned value is dispatched on its **runtime** type, not on the method's
-declared return type.
+declared return type. The one exception is operation participation: Arc decides
+from the **declared** return type whether a command may carry operations, and
+only then dispatches concrete operations by runtime type. An operation hidden
+behind `object` is rejected, and one inside `IEnumerable<object>` is not executed.
 
 - `Task<T>` and `ValueTask<T>` are awaited first, then the inner value is
   dispatched. (`ARC0010` warns when a synchronous result is wrapped in a `Task`

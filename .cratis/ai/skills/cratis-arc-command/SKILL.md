@@ -77,7 +77,9 @@ Chronicle-backed identities the `EventSourceId<T>` base — see the
 ## Choose the return shape
 
 `Handle()`'s return value is dispatched by its runtime type. The shape decides
-what is appended and what the caller gets back.
+what is appended and what the caller gets back. Operations are the exception:
+the *declared* return type must name `ICommandOperation`/`CommandOperations`
+(directly or in a tuple, `Task`, `Result`/`OneOf`) for Arc to execute them.
 
 | Return | What Arc does |
 | --- | --- |
@@ -109,7 +111,10 @@ Two consequences worth knowing before writing the first command:
   `EventSourceId`-derived value in the tuple is not appendable, so it becomes the
   response — and the response, when it is an event-source id value, is also what
   the events in that same tuple are appended to. Returning more than one
-  unhandleable element throws `MultipleUnhandledTupleValues`.
+  unhandleable element throws `MultipleUnhandledTupleValues`. When the command
+  also returns an operation keyed by that id, have the caller supply the id
+  instead of calling `New()` in `Handle()`, so a retried request reuses the same
+  ownership key.
 - **Events never carry their own event source.** Cross-stream writes use
   `EventForEventSourceId`; they are not expressed by a property on the event.
 

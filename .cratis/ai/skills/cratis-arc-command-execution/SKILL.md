@@ -32,8 +32,11 @@ validation. It is not the way to append an event to another stream from inside a
 handler — return an `EventForEventSourceId` from `Handle()` instead, and never
 inject `IEventLog` (`ARCCHR0007`).
 
-Do not call `ICommandPipeline` for a same-host nested command from an operation's
-`Execute()` or `Compensate()`: the flat operation boundary rejects it. Ignoring
+Do not call `ICommandPipeline` for a same-host nested command while an
+operation-capable command runs (from its `Provide()`, `Handle()`, validators,
+`Execute()` or `Compensate()`), nor execute an operation-capable command nested
+inside another command: the flat operation boundary refuses it and the child
+never runs. Ignoring
 the child's failed result still rejects the executing batch; during compensation
 it records a failed compensator. Compose operation declarations instead.
 

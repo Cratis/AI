@@ -130,11 +130,19 @@ public CommandOperations Handle() =>
 **Never return a raw array or `IEnumerable<ICommandOperation>` as a batch.**
 `CommandOperations` materializes membership once and rejects null elements.
 Ordinary collections are response data, not an implicit operation executor.
-Keep the signature explicit: an operation returned through an `object`-typed
-(or otherwise erased) signature is rejected at runtime with
-`InvalidCommandOperation` rather than executed. A controller action that returns
-an operation object does not execute it either; operations run only through the
-model-bound command pipeline.
+**Keep the signature statically operation-bearing.** Arc decides whether a
+command participates from `Handle()`'s *declared* return type, and unwraps only
+tuples and `Result`/`OneOf` branches. So:
+
+- An operation returned as a top-level value of an `object`-typed `Handle()`
+  (alone or inside a tuple) is rejected with `InvalidCommandOperation`.
+- **An operation placed inside `IEnumerable<object>` or `object[]` — the usual
+  multi-event shape — is silently not executed.** Neither ARC0017 nor the
+  runtime sees it; it is treated as ordinary response data. To return events and
+  operations together, use a tuple such as
+  `(IEnumerable<object> Events, CommandOperations Operations)`.
+- A controller action that returns an operation object does not execute it;
+  operations run only through the model-bound command pipeline.
 
 Operations never reach the client/proxy; only the ordinary response does.
 **Calling `Handle()` directly does not execute operations.** Use `ICommandPipeline`
@@ -179,7 +187,8 @@ an uncertain commit cannot. Do not explicitly commit aggregates or immediately
 append events and expect operation recovery to undo them: if the commit
 participant has already committed (or its outcome is unknown or mixed) when
 operations would start, Arc rejects the batch with `InvalidCommandOperation` and
-none of them run.
+none of them run. Explicit commits made inside an operation-capable command are
+refused outright.
 
 `Execute()` receives the command token. `Compensate()` receives a separate token;
 `CommandOperationOptions.CompensationTimeout` defaults to **30 seconds**, shared
@@ -189,16 +198,20 @@ is still awaited, not forcibly terminated.
 ## Keep the execution boundary supported
 
 The supported profile is **flat, sequential, with at most one deferred commit
-participant**. No parallel/detached participation or nested commands through
-`ICommandPipeline` from `Execute()` or `Compensate()`. Same-host nesting during
-execution rejects the batch even if the child result is ignored; nesting during
-compensation is recorded as failed compensation.
+participant**. **No same-host nested commands at all** while an operation-capable
+command runs: an `ICommandPipeline` call from its `Provide()`, `Handle()`,
+validators, `Execute()` or `Compensate()` — or any nested call whose child
+command is itself operation-capable — is refused and the child never runs.
+During execution this rejects the batch even if the child result is ignored;
+during compensation it is recorded as a failed compensation. Compose operation
+declarations instead, or move follow-up commands to a reactor.
 
-**Every registered `ICommandExecutionScope` must implement
-`ICommandOperationExecutionScope`.** When `Handle()` declares a return type that
-can carry operations (an operation, nullable operation, or `CommandOperations`),
-Arc rejects the command with `InvalidCommandOperation` before any scope begins
-if an unclassified scope is registered — even when the handler returns null or
+**Every discovered `ICommandExecutionScope` must implement
+`ICommandOperationExecutionScope`.** "Operation-capable" means `Handle()`'s
+declared return type structurally contains `ICommandOperation` or
+`CommandOperations` — directly, nullable, in a tuple, `Task`/`ValueTask`, or
+`Result`/`OneOf`. For such a command Arc rejects execution with
+`InvalidCommandOperation` before any scope begins if any scope is unclassified — even when the handler returns null or
 an empty batch. Audit the application's own unit-of-work or audit scopes before
 adopting operations.
 
@@ -236,7 +249,7 @@ migration. Provider tests must separately prove ownership and idempotency.
 | `try/catch` rollback stacks in `Handle()` | Return work and implement its business `Compensate()` |
 | Raw `IEnumerable<ICommandOperation>` | Return `CommandOperations` (`ARC0017`) |
 | Capturing services in the record | Inject them into operation methods |
-| Generating IDs or reading the clock inside `Handle()` | Supply decision inputs explicitly |
+| Generating an operation's request/ownership key (or clock values it depends on) inside `Handle()` | Have the caller supply it so a retry reuses the same key |
 | Using inline operations for email/payment delivery that must survive a crash | Use reactors/outbox/durable workflows |
 | Assuming `!IsSuccess` means nothing committed | Inspect backend commitment and recovery observations |
 | Marking a committing scope as a nonparticipant | Report its actual boundary; do not evade the single-participant limit |

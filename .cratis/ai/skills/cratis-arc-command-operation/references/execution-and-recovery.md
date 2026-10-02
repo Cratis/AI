@@ -40,8 +40,12 @@ This is not a claim of whole-host NativeAOT support.
 | `Task<T>` / `ValueTask<T>` | Await the handler, then classify its result |
 | Ordinary array/enumerable | Ordinary response classification, not an operation batch |
 
-Bare collections of operations are rejected; use `CommandOperations`. Do not
-hide declarations behind `object` or arbitrary containers. Operations bypass
+Bare collections of operations are rejected; use `CommandOperations`.
+Participation is decided from the declared return type, and only tuples and
+`Result`/`OneOf` are unwrapped: a top-level operation under an `object`
+signature is rejected, while an operation inside `IEnumerable<object>`/`object[]`
+is treated as response data and silently not executed. Combine events and
+operations with a tuple, e.g. `(IEnumerable<object>, CommandOperations)`. Operations bypass
 ordinary response handlers and never become client/proxy response types.
 
 ## Nine-step ordering
@@ -172,10 +176,12 @@ compensation retries occur; provider/driver policies can still retry internally.
 
 ## Supported scopes
 
-Flat, sequential execution; at most one deferred commit participant. No nested
-operation-bearing commands, parallel/detached participation, or durable recovery.
-A same-host nested `ICommandPipeline` call from `Execute` rejects the batch even
-when its failed result is ignored. From `Compensate` it fails that compensation;
+Flat, sequential execution; at most one deferred commit participant. No
+parallel/detached participation or durable recovery. Any same-host nested
+`ICommandPipeline` call is refused (the child never runs) when the parent or the
+child is operation-capable — from `Provide`, `Handle`, validators, `Execute` or
+`Compensate`. Explicit commits inside the boundary are refused too. From
+`Execute` a nested call rejects the batch even when its failed result is ignored. From `Compensate` it fails that compensation;
 remaining eligible compensators still run.
 
 Custom scopes implement `ICommandOperationExecutionScope`, extending
@@ -184,8 +190,13 @@ Custom scopes implement `ICommandOperationExecutionScope`, extending
 - `Begin(CommandContext)` does not commit; partial initialization is safe to clean up.
 - `IsCommitParticipant` is stable and names responsibility, not the latest outcome.
 - A nonparticipant truly does not commit business changes.
-- `GetCommitDisposition(CommandContext)` reports authoritative facts after
-  `Complete` fails too; unavailable facts mean `Unknown`, not `NotCommitted`.
+- `GetCommitDisposition(CommandContext)` is read **before operations start** as
+  well as after completion. While the deferred commit is still pending it must
+  report `NotCommitted` (or `NoCommit`); report `Committed`/`Unknown`/`Mixed`
+  only when an early or uncertain commit actually happened, otherwise Arc
+  refuses to start operations.
+- It reports authoritative facts after `Complete` fails too; unavailable facts
+  mean `Unknown`, not `NotCommitted`.
 - Known commit remains committed after a later scope fails. Scope completion
   order is unchanged; never infer disposition from `IsSuccess` or a completed flag.
 - Compensation can use its dependencies after completion; a live DI scope does
