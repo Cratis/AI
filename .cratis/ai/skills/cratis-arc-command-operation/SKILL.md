@@ -130,8 +130,11 @@ public CommandOperations Handle() =>
 **Never return a raw array or `IEnumerable<ICommandOperation>` as a batch.**
 `CommandOperations` materializes membership once and rejects null elements.
 Ordinary collections are response data, not an implicit operation executor.
-Keep the signature explicit; do not hide operations behind `object` or an
-arbitrary container.
+Keep the signature explicit: an operation returned through an `object`-typed
+(or otherwise erased) signature is rejected at runtime with
+`InvalidCommandOperation` rather than executed. A controller action that returns
+an operation object does not execute it either; operations run only through the
+model-bound command pipeline.
 
 Operations never reach the client/proxy; only the ordinary response does.
 **Calling `Handle()` directly does not execute operations.** Use `ICommandPipeline`
@@ -173,7 +176,10 @@ post-pipeline serialization, and result delivery are outside this recovery.
 With Chronicle, **return events for deferred enrollment**. Operations run before
 automatic transaction completion. A known rejection can permit compensation;
 an uncertain commit cannot. Do not explicitly commit aggregates or immediately
-append events and expect operation recovery to undo them.
+append events and expect operation recovery to undo them: if the commit
+participant has already committed (or its outcome is unknown or mixed) when
+operations would start, Arc rejects the batch with `InvalidCommandOperation` and
+none of them run.
 
 `Execute()` receives the command token. `Compensate()` receives a separate token;
 `CommandOperationOptions.CompensationTimeout` defaults to **30 seconds**, shared
@@ -187,6 +193,14 @@ participant**. No parallel/detached participation or nested commands through
 `ICommandPipeline` from `Execute()` or `Compensate()`. Same-host nesting during
 execution rejects the batch even if the child result is ignored; nesting during
 compensation is recorded as failed compensation.
+
+**Every registered `ICommandExecutionScope` must implement
+`ICommandOperationExecutionScope`.** When `Handle()` declares a return type that
+can carry operations (an operation, nullable operation, or `CommandOperations`),
+Arc rejects the command with `InvalidCommandOperation` before any scope begins
+if an unclassified scope is registered — even when the handler returns null or
+an empty batch. Audit the application's own unit-of-work or audit scopes before
+adopting operations.
 
 Custom scopes opt in through `ICommandOperationExecutionScope`; they must report
 real commit facts, not infer them from `IsSuccess`. A nonparticipant promises not
@@ -242,7 +256,8 @@ migration. Provider tests must separately prove ownership and idempotency.
 - Inputs and caller response are preserved; `Handle()` only declares the work.
 - Method shapes satisfy ARC0016–ARC0018; batches use `CommandOperations`.
 - The provider protects ownership, earlier successes, partial work, and retries.
-- Scopes honor the flat boundary and report authoritative commit facts.
+- Every registered execution scope implements `ICommandOperationExecutionScope`,
+  honors the flat boundary, and reports authoritative commit facts.
 - Decision, adapter, and scenario specs cover success and a specific failure;
   Chronicle specs prove real non-commit, not only a fabricated failed result.
 - Debug and Release builds are clean; the generated proxy contains no operation

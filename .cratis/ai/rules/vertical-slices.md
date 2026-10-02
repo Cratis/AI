@@ -73,7 +73,7 @@ The command carries input from the caller. `Handle()` is defined directly on the
 
 > This application is event-sourced, so the guidance below assumes a command's `Handle()` returns event(s) that Arc+Chronicle appends. Arc itself is a standalone CQRS framework (see [general.md](./general.md)) — a command may legitimately return a response or `void` and do its work through injected services when a slice isn't event-sourced; the return-shape and "never inject `IEventLog`" rules are the event-sourced default, not universal Arc laws.
 
-**[convention]** Return immediate external work chosen by a command as a command operation rather than performing it inside `Handle()`; durable after-commit work belongs in reactors. Operations also work without Chronicle; direct service calls remain supported when the decision needs their result. See **cratis-arc-command-operation** (verified at Arc v22.48.1).
+**[convention]** Return immediate external work chosen by a command as a command operation rather than performing it inside `Handle()`; durable after-commit work belongs in reactors. Operations also work without Chronicle; direct service calls remain supported when the decision needs their result. Audit custom `ICommandExecutionScope`s first — every one must implement `ICommandOperationExecutionScope` or operation-bearing commands are rejected. See **cratis-arc-command-operation** (verified at Arc v22.48.1).
 
 ### The decision matrix — where each rule lives **[contract]**
 
