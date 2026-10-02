@@ -33,6 +33,12 @@ The worked example below compiles with zero diagnostics, binds to ESM v2, and
 all six specifications pass the reference runner at that tag. Reverify before
 claiming another version behaves the same.
 
+The specification actions beyond commands (`given clock`, `when clock`,
+`when trigger`, `given capture`, `when capture`, `when query`, `then result`,
+`then no result`) were checked against tag `v4.48.0` (commit `3baf4a4`):
+`Documentation/screenplay/{specifications,diagnostics}.md` and the proposed
+decision 0022. They do not exist before v4.48.0.
+
 ## The vocabulary
 
 | Construct | Meaning |
@@ -42,6 +48,13 @@ claiming another version behaves the same.
 | `given caller` | the caller: `authenticated`, `role "<r>"`, repeatable `claim "<type>" = "<value>"`; empty means unauthenticated |
 | `when <CommandType>` | run a command |
 | `when append <EventType>` | append one event: constraints and projections run, the command and reactions do not |
+| `when query <Query>` | perform a query with the argument values beneath it (v4.48.0) |
+| `then result [exactly]` | one expected row of the performed query; repeat for several (v4.48.0) |
+| `then no result` | the performed query returns nothing (v4.48.0) |
+| `given clock "<instant>"` | the ISO 8601 instant the scenario happens at (v4.48.0) |
+| `when clock "<instant>"` | the clock reaches an instant; scheduled reactions that are due run (v4.48.0) |
+| `when trigger <Trigger>` | an application trigger fires with the values beneath it (v4.48.0) |
+| `given capture` / `when capture <Capture>` | an earlier and the current record of a capture's source (v4.48.0) |
 | `then <EventType>` | an expected new event |
 | `then events in any order` | compare the new events without regard to order |
 | `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
@@ -52,10 +65,23 @@ claiming another version behaves the same.
 | `for <value>` | the event source of a `given`/`then` event, or of the `when` command or appended event |
 | `<property> = <value>` | a literal, `null`, or a one-line JSON-shaped object or list: `lines = [{"sku":"A-1","quantity":2}]` |
 
+From v4.48.0 an enumeration value binds whether it is written bare
+(`status = sent`), qualified (`status = InvoiceStatus.sent`) or quoted, and a
+`DateTime` value binds as a plain ISO 8601 instant (`"2026-10-05T08:00:00Z"`).
+Before v4.48.0 only the quoted member and the full round-trip instant
+(`"2026-10-05T08:00:00.0000000Z"`) bound, although the compiler accepted all of
+them - quote members when a model must bind on older versions.
+
 Rules the binder enforces:
 
-- **At most one action** — `when` or `when append` (`PLAY0358`). Without an
-  action, assert only `then readmodel` or `then query` (`PLAY0352`).
+- **At most one action** — a command, `when append`, `when clock`, `when trigger`,
+  `when capture` or `when query` (`PLAY0097`, `PLAY0358`). Without an action,
+  assert only `then readmodel` or `then query` (`PLAY0352`).
+- **`then result` and `then no result` need `when query`**, and `when query`
+  needs one of them or `then denied` (`PLAY0465`). Each argument is a `by` or
+  `filter` parameter of the query (`PLAY0468`).
+- **A clock instant is ISO 8601 with an offset or `Z`**, such as
+  `"2026-10-05T08:00:00Z"` (`PLAY0461`); `given clock` appears at most once.
 - **`then` contains either events or an error — never both.** A rejection
   specification has exactly one rejection and no success outcome.
 - **`then denied` stands alone**: not with events, errors or state assertions
@@ -170,11 +196,10 @@ module Invoicing
         given readmodel InvoiceSummary
           invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
           invoiceNumber = "INV-000001"
-        then query InvoiceById
-          arguments
-            invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          result
-            invoiceNumber = "INV-000001"
+        when query InvoiceById
+          invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
+        then result
+          invoiceNumber = "INV-000001"
 ```
 
 - `RejectingANumberAnotherInvoiceHolds` needs `for`: without it the `given`
@@ -183,7 +208,30 @@ module Invoicing
 - `ProjectingAnAppendedInvoice` exercises the projection without running the
   command. Put `for`-bearing specifications in the slice whose command produces
   the event; placed in the view slice, binding fails with `PLAY0273`.
-- `LookingUpAnExistingInvoice` has no action: it checks established state only.
+- `LookingUpAnExistingInvoice` performs the query as its action. It binds to
+  exactly what `then query` with `arguments` and `result` would, so on a version
+  before v4.48.0 write it that way instead.
+
+## Actions beyond commands
+
+A slice is not always set off by a command. Name what does:
+
+| Slice | Action |
+| --- | --- |
+| A view no event builds - its query has a `performer` | `given readmodel` …, `when query <Query>`, `then result` / `then no result` |
+| An automation driven by the clock | `given clock "<instant>"`, `when clock "<later instant>"` |
+| An automation driven by an application trigger | `when trigger <Trigger>` with the values it carries |
+| A translation driven by a capture | `given capture <Capture>` (the record as it was), `when capture <Capture>` (as it is now) |
+
+`given clock` also fixes the occurrence time of every action in the scenario, so
+a value a `produces` maps from `$context.occurred` can be asserted.
+
+**`when query` executes today. The clock, trigger and capture actions do not.**
+They parse, print and are checked against the application, but binding reports
+`PLAY0268` naming the proposed ESM v6 (decision 0022): the executable model does
+not yet admit automation or translate slices, nor the reactions and captures these
+actions drive. Write them - they state what sets the slice off - and report them
+as parsed, not executed.
 
 ## Rejections and denials say different things
 
@@ -248,7 +296,9 @@ target has one normalized behavior to match.
 - Unsupported reachable declarative constructs block the whole execution plan
   rather than running partially: no specification in the model runs, including
   the ones that never touch the refused construct.
-- Reactions never run, not even after `when append`.
+- Reactions never run, not even after `when append`. `when clock`,
+  `when trigger` and `when capture` fail binding until ESM v6 is accepted and
+  built.
 - A rejection leaves the world unchanged; an accepted action commits once, then
   the read models and queries are compared.
 
@@ -273,6 +323,8 @@ For command specifications:
 
 For view specifications:
 
+- [ ] A view a `performer` composes is specified with `given readmodel`,
+      `when query` and `then result` or `then no result`.
 - [ ] `given readmodel` is a complete instance with its identifier.
 - [ ] `then readmodel` states the identifier and the properties that matter; add
       `exactly` only when extra properties must fail the assertion.
