@@ -117,8 +117,21 @@ proposal. Layout is not application semantics.
 - Use one file per feature when nested features need separate review.
 - Use one file per slice when a large model needs isolated diffs.
 
+Compose split files with quoted imports (`import "<path or glob>"`, v4.48.0).
+Each level above the slices is a barrel file: `application.play` holds `domain`
+and imports `Shared/*.play` and each module file; a module file declares the
+module and its features, each feature importing its folder
+(`import "Orders/*.play"`); a slice file holds only its `slice`, because the
+import places it in its feature. When you write or reorganize files yourself,
+do not restate `module`/`feature` in a slice file, and do not leave a barrel
+that declares a scope but imports nothing. `expand-layout` still writes that
+older merge-only layout; it compiles as a folder, and you can compose it with
+imports afterwards. See the
+[language reference](references/language-reference.md) for placement rules.
+
 Parent scaffolding carries no duplicated module forms or contributions. Compile
-and validate the whole `.cratis/screenplay/` folder, not just the edited fragment.
+and validate the whole `.cratis/screenplay/` folder, or its root file, not just
+the edited fragment.
 
 ## Preserve state and recover explicitly
 

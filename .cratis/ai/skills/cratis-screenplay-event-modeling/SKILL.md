@@ -165,12 +165,32 @@ Reviewability, not an arbitrary line count, triggers the next split. In a large
 model, one slice per file makes a scripted edit's blast radius visible in the
 diff instead of hiding cross-reference defects in a single enormous file.
 
-At the most granular layout, folders mirror the language, one folder per level:
-`application.play` at the root (`domain`, `import`, `concept`, `type`, `policy`,
-`persona`, `authentication`, `seed`), then `<Module>/<Module>.play`,
-`<Module>/…/<Feature>/<Feature>.play`, and `<Module>/…/<Slice>/<Slice>.play` for
-one slice, whole. A slice file restates its `module` and `feature`; nothing is
-written twice.
+At the most granular layout, folders mirror the language, one folder per level,
+and every level above the slices is a **barrel file** that declares its scope
+and imports what is beneath it:
+
+- `application.play` at the root holds `domain` and imports the rest:
+  `import "Shared/*.play"` for the files of `concept`, `type`, `policy`,
+  `persona`, `authentication` and `seed`, then one import per module file.
+- `<Module>/<Module>.play` declares the module - `description`, `authorize`,
+  templates, forms - and its features. Either declare each feature inline and
+  import its folder (`feature Orders` / `import "Orders/*.play"`), or import one
+  `<Feature>/<Feature>.play` per feature.
+- `<Feature>/<Feature>.play`, when a feature has its own file, declares the
+  feature and imports its slice files (`import "*.play"`) and any nested
+  feature's file.
+- A slice file holds just its `slice`, at the top level. The import that brings
+  it in places it in its feature, so it does **not** restate `module` or
+  `feature` - the barrel above it already says where it belongs.
+
+The root then reads as a table of contents, and every file is reachable from
+it: `screenplay application.play` compiles exactly what the imports reach, and
+a file no import reaches is not part of the application. Do not hand-write the
+older merge-only layout, where barrels import nothing and every slice file
+restates `module` and `feature` so the folder merges into one model. It compiles
+as a folder, but the root says nothing about what the application holds and
+every slice file repeats where it lives. The MCP `expand-layout` tool still
+writes that layout; compose its output with imports when you take it over.
 
 **Compose focused files with imports** (v4.48.0, checked at tag `v4.48.0`,
 commit `3baf4a4`). `import "<path or glob>"` imports `.play` files relative to
@@ -197,8 +217,10 @@ module Ordering
 
 Every file is imported once. When a root glob and a module file both match a
 file, the deepest placement wins; two placements where neither lies inside the
-other are an error (`PLAY0457`), and so is a file placed in a module it does not
-restate (`PLAY0459`). `import Customers.CustomerRegistered` without quotes still
+other are an error (`PLAY0457`), and so is a file that declares a module other
+than the one it is placed in (`PLAY0459`). A placed file's top level holds only
+what its scope can hold (`PLAY0460`) - a `screen template` belongs in the
+module file, not in a slice file placed in a feature. `import Customers.CustomerRegistered` without quotes still
 names a contract from another bounded context.
 
 ⚠️ **Compile the folder, or its root file, as one application.**

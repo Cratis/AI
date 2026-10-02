@@ -42,6 +42,14 @@
     {
       "kind": "skill-contains",
       "value": "are accepted but\n**not available**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "every level above the slices is a **barrel file**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "it does **not** restate `module` or"
     }
   ]
 }

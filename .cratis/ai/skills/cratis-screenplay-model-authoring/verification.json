@@ -58,6 +58,10 @@
     {
       "kind": "skill-contains",
       "value": "Screenplay never compiles or runs them"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Each level above the slices is a barrel file"
     }
   ]
 }
