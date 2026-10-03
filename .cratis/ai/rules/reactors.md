@@ -201,6 +201,17 @@ The default is fire-and-forget. When a caller's correctness depends on all obser
 7. **No state** — Reactors should be stateless. Inject dependencies via primary constructor, but do not store mutable state on the class.
 8. **An unattended, irreversible pass reads the log, not the sink — and carries a fuse.** A reactor that deletes, revokes, bills or notifies *because a read model says something is absent* is trusting a materialized sink that is only as current as its observer: a paused partition, a replay in progress or a lagging projection makes "absent" true of the sink and false of the world. Decide from a **`[Passive]`** read model (computed on demand from the events at the moment the reactor runs) or from the events themselves. And the code shape cannot tell an **empty subject set** ("nothing to consider" — fail-safe) from an **empty qualifying set** ("nothing survived the filter" — fail-destructive: every subject is about to be acted on), so an unattended pass states its expected population, refuses when the count is implausible, and caps how many subjects one run may touch — the same discipline as [guards-and-fuses.md](./guards-and-fuses.md), applied to a reactor.
 
+## Failure transitions **[convention]**
+
+A domain failure must produce a timely, observable workflow outcome rather than
+leave work looking active until a watchdog notices. Assign the transition to a
+reliable consumer: an existing state machine can be sufficient; do not add a
+redundant failure reactor when it already owns the event. Watchdogs cover missing
+signals, not ordinary handling of an already recorded failure. Specify the visible
+transition, repeated delivery, and stale failures from earlier attempts. Keep
+public reasons free of secrets. See **cratis-chronicle-reactor** for the distinction
+between domain failure and an observer's operational failure.
+
 ## Slice Types That Use Reactors
 
 | Slice type | Pattern |
