@@ -24,11 +24,11 @@ FROM ${BASE_IMAGE}
 
 USER root
 
-# Claude CLI — the harness. Pinned to npm's "stable" dist-tag as resolved on 2026-09-05
+# Claude CLI — the harness. Pinned to npm's "stable" dist-tag as resolved on 2026-10-03
 # (npm view @anthropic-ai/claude-code dist-tags) rather than "latest", so a fresh publish upstream
 # cannot change what this image installs out from under a build. Bump procedure: re-run that command,
 # update this ARG to the new "stable" value, and rebuild.
-ARG CLAUDE_CLI_VERSION=2.1.236
+ARG CLAUDE_CLI_VERSION=2.1.285
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}
 
 # Disable Claude Code subagent spawning to ensure deterministic, single-agent execution.
