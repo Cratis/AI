@@ -68,7 +68,20 @@ behavior this file does not already state.
 - No N+1: one query returns what the caller needs.
 - A count is a count. Hydrating the collection to measure its length is the
   same finding as an unpaged list, wearing different clothes.
-- A read model does not embed a large nested collection nothing fully iterates.
+- Prefer slim projection-backed summaries over repeatedly assembling broad
+  collections. Query composition is supported; one collection per query is not
+  a framework requirement. Bound each input and measure recomputation.
+- Embed bounded related state, not growing histories; page timelines separately.
+  Evaluate variants for divergent lifecycle shapes, not every status field.
+- Preserve reducer admission and ordering guards when proposing a projection
+  conversion; an unconditional setter may resurrect or prematurely create state.
+- Count passive models as inventory, not a smell. Assess history length and read
+  frequency against consistency/security needs. `IMongoCollection<T>` cannot
+  read passive computed state; never materialize secrets to make that query work.
+- Distinguish retained `Observe` state and in-memory emissions from explicit
+  recompute queries. Narrow source filters and inspect page-refill/membership
+  lookups; do not claim every change re-queries the entire collection. See the
+  **cratis-chronicle-read-model** query reference for versioned behavior.
 
 ## Step 3 — Commands and queries
 

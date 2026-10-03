@@ -8,6 +8,15 @@ harness selection therefore belongs to the **provider** whose credential and end
 use, not to each agent role. You can give one provider both Claude Code and Pi, and disable worker
 jobs on another without stopping chat completions.
 
+## Claude model compatibility
+
+The Claude worker image pins Claude Code **2.1.285**, resolved from npm's `stable`
+dist-tag. Models that require Claude Code 2.1.251 or later cannot run with the
+older 2.1.236 image. Upgrade the worker image as well as selecting a compatible
+provider; changing only the model name does not update the CLI inside a container.
+Provider access to the selected model must still be verified with that provider's
+credential and endpoint.
+
 ## Set a provider's harnesses
 
 Execute `SetAIProviderHarnesses` with the provider's `AIProviderId` and the **complete**

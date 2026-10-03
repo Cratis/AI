@@ -90,6 +90,15 @@ The command carries input from the caller. `Handle()` is defined directly on the
 
 **Do not throw for normal business rejection.** A thrown exception (from `Provide()` or `Handle()`) surfaces as an exception/HTTP 500, *not* a validation result. Recoverable, user-facing rejections are validation: `ValidationResult.Error(...)` via a validator or `Result<,>`. (For step-by-step business-rule placement, invoke the **cratis-arc-command-validation** skill.)
 
+### Nested commands **[contract]**
+
+With Arc + Chronicle, ordinary nested pipeline commands join the outer ambient
+transaction even when the call creates a new DI scope. Child success is enrollment,
+not final persistence. Do not promise partial success for an atomic returned batch.
+Independent outcomes require separate top-level executions outside that transaction;
+operation-capable commands reject nesting entirely. See **cratis-arc-command-execution**
+for the versioned boundary and supported alternatives.
+
 ### Causation — what a command records **[contract]**
 
 A command's **property values** are recorded on the causation of every event it appends, alongside the command's name, so an event says not only which command produced it but what that command was asked to do. The causation is written into the event log and stays there for as long as the events do — a value recorded there cannot be taken back out by changing code.
@@ -240,9 +249,27 @@ public record Author(AuthorId Id, AuthorName Name)
 
 **[convention] Read-model boundaries & naming.** Read models are shaped for consumers and command policies, not CRUD-style aggregate DTOs. Split one when it starts mixing unrelated lifecycles — the test is coupling (state that changes for different reasons), not size. The event log is already the canonical history/audit trail, so name a model `AuditLog`/`ActivityLog` only when it genuinely is an audit surface; for curated UI projections prefer names like `Timeline`, `WorkSurface`, `Summary`, `Detail`, or `Policy`. (This is "specialization over reuse" applied to read models.)
 
+**[convention] Keep query cost bounded.** Prefer slim, purpose-built projections
+for frequently read summaries rather than repeatedly joining broad collections.
+This is not a one-collection framework restriction. Embed bounded children; keep
+growing histories in separately paged timeline models. Evaluate variants when
+lifecycle shapes diverge, and preserve reducer admission/ordering guards when
+considering a projection conversion. Narrow observable inputs at the source.
+Ordinary MongoDB `Observe` retains its initial set and applies changes; do not
+claim it always re-queries the whole collection per event. Explicit recompute
+callbacks have a different cost. See the **cratis-chronicle-read-model** skill's
+query reference for versioned behavior and composition trade-offs.
+
 ### Choosing read-model access in command-side code **[convention]**
 
 Ladder, first that fits: (1) direct read-model (DCB) injection — only when keyed by the command's own event-source id; (2) a `[Passive]` projection; (3) `IReadModels.GetInstanceById<T>((EventSourceId)key)` for a different/derived key; (4) a materialized projection. A lookup *interface* is justified **only** for a genuine non-key search (e.g. find-by-email) — never to wrap a keyed `GetInstanceById`.
+
+**[contract] Passive state is not sink state.** `IMongoCollection<T>` cannot
+compute a passive read model; any leftover documents are not maintained state.
+Read through Chronicle by key or supported injection. **[convention]** Never
+materialize secret-bearing state just to make a collection query work: project
+safe metadata separately. Count passive types only as inventory, not as a defect;
+evaluate reconstruction frequency, history length, consistency, and security.
 
 ### Existence checks — what an absent read model actually resolves to **[contract]**
 

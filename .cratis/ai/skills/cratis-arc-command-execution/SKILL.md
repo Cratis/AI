@@ -60,7 +60,8 @@ public class <Name>Reactor(ICommandPipeline pipeline) : IReactor
 ```
 
 `Execute(command)` is the scopeless overload: the pipeline creates its own DI
-scope for the call. This is the normal case.
+scope for the call. This is the normal case. **A DI scope is not an independent
+transaction boundary**; see the nested-command contract below.
 
 ## The overloads
 
@@ -88,6 +89,42 @@ response of a different type. When the handler returns no response, or the
 command failed for any reason, `Response` is `default` — a failed result never
 carries a response, because the pipeline clears it once the execution scopes
 have completed.
+
+## Nested commands and atomic batches
+
+With **Arc's Chronicle integration**, an ordinary nested pipeline command joins
+the outer command's ambient transaction. Only the outer owner commits pending
+returned events. The child's successful result means enrollment, not persistence;
+a commit-time constraint rejection can reject the entire batch. Inspect and
+propagate child failures, and never report per-item persisted success before the
+outer result is known.
+
+This remains true with the scopeless overload or a newly created DI scope:
+transaction context follows the async flow, not DI scope identity. Do not invent
+a detached `Execute` overload or use fire-and-forget work to escape the owner.
+Standalone Arc does not supply this Chronicle transaction guarantee. The flat
+operation-capable boundary described above is stricter and rejects nesting.
+
+Choose the intended outcome before implementing a bulk action:
+
+- **All-or-nothing:** one command owns the returned event batch. Report its final
+  result as one atomic outcome, not a list of independently committed children.
+- **Independent outcomes:** orchestrate separate top-level pipeline executions
+  outside an enclosing command transaction, awaiting each final result. A durable
+  workflow/reactor can own follow-up work and retries. A collection of returned
+  reactor commands executes as separate transactions; earlier successes remain
+  when a later command fails, so retries must be idempotent.
+
+Neither choice makes external service writes atomic. Immediate event appends
+and explicit early commits also do not become rollbackable merely because a
+command later fails; do not use them as an undocumented batch-isolation trick.
+
+Checked against **Arc v22.49.0**
+([transactional commands](https://github.com/Cratis/Arc/blob/v22.49.0/Documentation/backend/csharp/chronicle/commands/transactional-commands.md),
+[transaction scope](https://github.com/Cratis/Arc/blob/v22.49.0/Source/DotNET/Chronicle/Commands/TransactionalCommandScope.cs),
+[ambient context](https://github.com/Cratis/Arc/blob/v22.49.0/Source/DotNET/Chronicle/Commands/CommandTransaction.cs)).
+Specify a later child's rejection and the actual persisted events: none for an
+atomic returned batch, only completed independent items for separate commands.
 
 ## Pre-flight `Validate`
 
