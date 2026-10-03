@@ -3,6 +3,9 @@
   "input": "Build a read model from events with the Projection Declaration Language.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "main `fd18129`" },
+    { "kind": "skill-contains", "value": "it changes no projection contract" },
+    { "kind": "skill-contains", "value": "map the read-model identity from `$eventSourceId`" },
     { "kind": "skill-contains", "value": ".cratis/screenplay/" },
     { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
     { "kind": "skill-contains", "value": "AutoMap is on by default" },

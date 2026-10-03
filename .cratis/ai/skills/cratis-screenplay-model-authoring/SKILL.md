@@ -19,14 +19,19 @@ the executable profile and the complete canonical model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Compiler, executable semantic model (ESM), workspace and MCP server |
+| `Cratis.Screenplay` | `4.31.0` | Original compiler, ESM and workspace evidence |
+| `Cratis.Screenplay` | main `fd18129` | Inline events, repairs, rename/extraction and `optional` |
+
+The update follows `commands.md`, `events.md`, `types.md`, `diagnostics.md`,
+`mcp/authoring-tools.md`, `vscode.md` and decision 0023 at that main commit
+(after v4.52.0). Changed examples were compiled; MCP contracts were read, not
+exercised against a live server.
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{ast-authoring,mcp,mcp-authoring,printing,file-references,diagnostics}.md`
-and the release notes for v4.17.0 to v4.31.0. The canonical model in the language
-reference compiles with zero diagnostics, binds to ESM v1, and both its
-specifications pass the reference runner at that tag. Reverify before claiming
-another version behaves the same.
+and the release notes for v4.17.0 to v4.31.0 established the original baseline.
+The updated registration model in the language reference uses inline events and
+`optional`; its current verification is compilation, not reference execution.
 
 ## Locate and connect
 
@@ -105,7 +110,38 @@ each lost comment (`PLAY0288` also reports their count and lines). Untouched
 documents retain exact bytes. A printer that loses requested structural fields
 rejects the plan.
 
-Read the [MCP tool guide](references/mcp-tools.md) for tool groups and refusals.
+## Repair or extract before rewriting
+
+Read `read-workspace` with `view: "diagnostics"`, then `view: "repairs"` at the
+same revision. Pass the returned `diagnosticCode`, `subject`, required formatting
+and both revisions to `propose-repair`; preview with `read-proposal`, then `apply`.
+Discovery lists verified repairs only when their acceptance checks pass (the
+legacy `PLAY0397` fence recipe is an exception). A cached discovery verdict is
+not a cached proposal: the selected repair gets a fresh transaction.
+
+- `PLAY0166`: declare a missing produced event only when mapping types are known.
+- `PLAY0478`: explicitly choose the identifier destination for a plain production;
+  this is a routing decision, not a spelling-only cleanup.
+- `PLAY0471`: remove a redundant name-equal event pin without changing semantics.
+- `PLAY0469`: remove an inline identifier payload copy. It **changes the event
+  contract**, retires a property and refuses consumer/opaque impact. No fix-all.
+  The catalog does not prove whether events were persisted; ask about stored
+  contracts before removing fields. No automatic generation-evolution repair ships.
+- `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
+  migrates all occurrences together. Keep the `query Q => observable?` exception.
+
+Use `propose-extract-inline-event` on the inline `EventSyntax` handle before
+adding a generation. It makes the declaration standalone, preserves metadata,
+identities and canonical ESM, and states the formerly implicit `for`. It needs
+canonical formatting consent and refuses comment loss. There is no reverse
+inlining operation.
+
+Event `propose-rename` pins `id "<old name>"` by default; existing older pins
+survive. Use `eventNeverPersisted: true` only when that is known, to skip a new
+pin. Renaming back to the pinned name removes it. Catalog persistence and stored
+event history are different things.
+
+Read the [MCP tool guide](references/mcp-tools.md) for exact repair limits and refusals.
 
 ## Choose a readable layout
 
@@ -186,7 +222,7 @@ The ordinary CLI remains useful for whole-folder validation:
 cratis screenplay validate .cratis/screenplay --warnings-as-errors
 ```
 
-MCP guidance here follows the Screenplay 4.31.0 server documentation. The Cratis
+Repair and refactoring guidance follows Screenplay main `fd18129`. The Cratis
 CLI bundles its own Screenplay version, so check the installed `tools/list`
 schemas before relying on a view or argument named here (for example
 `dropped-comments` or `implementation-requirements`). Do not invent a command,

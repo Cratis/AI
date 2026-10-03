@@ -3,6 +3,14 @@
   "input": "Declare a Screenplay command with validation, authorization, a uniqueness constraint and a state-dependent rule.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "main `fd18129`" },
+    { "kind": "skill-contains", "value": "produces event ProjectRenamed" },
+    { "kind": "skill-contains", "value": "name ProjectName = name" },
+    { "kind": "skill-contains", "value": "allocated-identity destination" },
+    { "kind": "skill-contains", "value": "PLAY0478" },
+    { "kind": "skill-contains", "value": "PLAY0479" },
+    { "kind": "skill-contains", "value": "changes the event contract" },
+    { "kind": "skill-contains", "value": "`reads X optional` is not supported yet" },
     {
       "kind": "skill-contains",
       "value": ".cratis/screenplay/"

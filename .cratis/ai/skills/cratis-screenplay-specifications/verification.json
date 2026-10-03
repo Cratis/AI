@@ -3,6 +3,10 @@
   "input": "Write given/when/then specifications for a Screenplay slice.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "main `fd18129`" },
+    { "kind": "skill-contains", "value": "Inline events are ordinary named facts" },
+    { "kind": "skill-contains", "value": "Use `given clock`, never `given time`" },
+    { "kind": "skill-contains", "value": "query InvoiceById => InvoiceSummary optional" },
     {
       "kind": "skill-contains",
       "value": ".cratis/screenplay/"

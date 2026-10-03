@@ -34,12 +34,16 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
 | `Cratis.Screenplay.Tool` | `4.31.0` | The `screenplay` dotnet tool |
+| `Cratis.Screenplay` | main `fd18129` | Inline contracts and event context; changed nine-step examples compiled |
+
+The update follows `commands.md`, `events.md` and decision 0023 at that main
+commit (after v4.52.0); compilation does not establish reference execution.
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
-`projections/keys.md`, and decisions 0001 to 0014. The examples in
-[nine-steps.md](references/nine-steps.md) compile with that version's compiler.
-Reverify before claiming another version behaves the same.
+`projections/keys.md`, and decisions 0001 to 0014 established the original
+baseline. Changed [nine-step examples](references/nine-steps.md) use the newer
+main commit above; do not attribute their verification to the old tag.
 
 > **Method lineage.** The two-phase process, the nine steps, the four patterns and
 > the GWT discipline follow **Event Modeling** (Adam Dymitruk; Martin Dilger,
@@ -132,6 +136,13 @@ compile or will not be safe. Both are deliberate.
 - **The event-source identity is never an event property.** The command binds it
   with `identifier` on at most one property; marking an *event* property
   `identifier` is an error: *an event never carries its event source id*.
+- **Inline events remain slice-owned contracts.** A command may introduce one
+  with `produces event <Name>` and typed mappings; other slices still consume it
+  by name. Extracting it changes placement, not its contract or projection meaning.
+- **Storage identity is not payload identity.** `for` selects the event source;
+  `id "<old name>"` preserves an event type's old persisted name on rename. New
+  events omit the pin, and the pin does not replace catalog identity. Do not copy
+  the same-source identifier into payload merely to project it; use `$eventSourceId`.
 - **Domain facts, not runtime context.** Test: would this field have the same value
   if the event were replayed on a different machine? If not, it does not belong.
 
@@ -288,10 +299,12 @@ read a clean `screenplay` run as evidence a construct works downstream.
 
 Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger can declare the
 views it decides from with `reads` (see `cratis-screenplay-captures-and-reactions`),
-but nothing enforces them yet. Decisions 0007 to 0014 (affected read-model
-instances, one data subject per event, external event origin, query paging and
-live change sets, event generations, typed context descriptors) are accepted but
-**not available**. Do not write their syntax; note the need in prose instead.
+but nothing enforces them yet. Event generations and typed repairs now ship;
+generations do not supply deployed migrations. Do not treat every accepted
+decision as implemented: affected-instance declarations, per-event subjects,
+external origin and richer query delivery remain unavailable. Decision 0023's
+responses, operations, streams and derived/provided values are planned, not
+available yet; do not turn their examples into usable syntax.
 
 ## Route near misses
 

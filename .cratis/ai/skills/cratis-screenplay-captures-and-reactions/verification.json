@@ -3,6 +3,9 @@
   "input": "Translate external data into events and declare a reaction.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "main `fd18129`" },
+    { "kind": "skill-contains", "value": "command-only (`PLAY0474` in a reaction)" },
+    { "kind": "skill-contains", "value": "Do not extend the inline command destination default" },
     { "kind": "skill-contains", "value": ".cratis/screenplay/" },
     { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
     { "kind": "skill-contains", "value": "cannot be mixed in one clause" },

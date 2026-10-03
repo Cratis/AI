@@ -3,6 +3,13 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "main `fd18129`" },
+    { "kind": "skill-contains", "value": "view: \"repairs\"" },
+    { "kind": "skill-contains", "value": "propose-repair" },
+    { "kind": "skill-contains", "value": "propose-extract-inline-event" },
+    { "kind": "skill-contains", "value": "eventNeverPersisted: true" },
+    { "kind": "skill-contains", "value": "No automatic generation-evolution repair ships" },
+    { "kind": "skill-contains", "value": "`PLAY0479`: migrate optionality spelling with `PreserveTrivia`" },
     {
       "kind": "skill-contains",
       "value": ".cratis/screenplay/"

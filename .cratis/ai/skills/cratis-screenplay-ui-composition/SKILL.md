@@ -25,12 +25,16 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Layout, template, form, contribution, interaction, profile and theme parsers |
+| `Cratis.Screenplay` | `4.31.0` | Original UI composition parser evidence |
+| `Cratis.Screenplay` | main `fd18129` | Cancellation routing and `optional`; changed example compiled |
+
+The update follows `commands.md`, `events.md`, `queries.md` and decision 0023
+at that main commit (after v4.52.0). It does not verify UI rendering.
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{templates,layout-arrangement,forms,contributions,interactions,ui-profile,theme,internationalization,file-references}.md`.
-Every example below compiles with that version's compiler. Reverify before
-claiming another version behaves the same.
+Those checks established the original baseline. The changed cancellation
+example uses the newer main commit above, not the old tag.
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
@@ -205,10 +209,7 @@ module Invoicing
     slice StateChange CancelInvoice
       command CancelInvoice
         invoiceId InvoiceId identifier
-        produces InvoiceCancelled
-          invoiceId = invoiceId
-      event InvoiceCancelled
-        invoiceId InvoiceId
+        produces event InvoiceCancelled
       screen CancelInvoiceScreen
         data InvoiceStatusView via query InvoiceStatusById by invoiceId
         uses ConfirmThenExecute
@@ -223,11 +224,17 @@ module Invoicing
         invoiceId InvoiceId
         cancelled Bool
       projection InvoiceStatuses => InvoiceStatusView
-        from InvoiceCancelled key invoiceId
+        from InvoiceCancelled
+          invoiceId = $eventSourceId
           cancelled = true
-      query InvoiceStatusById => InvoiceStatusView?
+      query InvoiceStatusById => InvoiceStatusView optional
         by invoiceId InvoiceId
 ```
+
+The inline event targets `invoiceId` without copying it into payload; the
+projection obtains it from event context. Command `returns` and response-field
+bindings in `on submit`/`on success` are planned in decision 0023, not available
+yet. An existing success continuation does not imply a response contract.
 
 - Write the one-off case inline; name it with `behavior` when several places need
   the same wiring. A `uses` site must supply exactly the declared parameters
