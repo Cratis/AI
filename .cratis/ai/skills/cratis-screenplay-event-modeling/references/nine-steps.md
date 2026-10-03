@@ -85,7 +85,9 @@ Commands are imperative and present tense: `RegisterInvoice`, `ProcessPayment`.
 **Output:** the `command` declaration with its properties, its `identifier`
 property (at most one; leave it out only when the runtime should allocate a new
 identity), `authorize`, and `produces`. Excerpt: the concepts, the policy and the
-event are declared elsewhere in the model.
+event are declared elsewhere in the model. Give the event a description of the
+fact, and fenced Markdown `documentation` when its meaning needs elaboration.
+Alternatively, declare it in the command with `produces event` and typed mappings.
 
 ```screenplay
 slice StateChange RegisterInvoice
@@ -96,7 +98,7 @@ slice StateChange RegisterInvoice
     validate
       invoiceNumber not empty  message "Invoice number is required"
     produces InvoiceRegistered
-      invoiceId     = invoiceId
+      for invoiceId
       invoiceNumber = invoiceNumber
       registeredAt  = $context.occurred
 ```
@@ -116,7 +118,7 @@ Verify **every** field traces back to an event:
 
 ```text
 InvoiceListReadModel:
-  invoiceId      <- InvoiceRegistered.invoiceId
+  invoiceId      <- InvoiceRegistered event context ($eventSourceId)
   invoiceNumber  <- InvoiceRegistered.invoiceNumber
   status         <- InvoiceRegistered, InvoiceSent, InvoicePaid
 ```
@@ -128,10 +130,11 @@ a collection type, not a singular value.
 builds it. **Exactly one thing may build a read model** — two builders is a
 compile error (`PLAY0191`).
 
-Key **every** `from` on the value that identifies the instance. A `from` without a
-key routes by the event's event source id, not by the key of another `from`, and
-a `key` written directly on the projection routes nothing (`PLAY0381`). Excerpt:
-the concepts and events are declared elsewhere, and both events carry `invoiceId`.
+Route each `from` deliberately. When the instance is the event source, omit the
+key and map its identity from `$eventSourceId`; do not duplicate it in payload.
+A `from` without a key never inherits another `from`'s key, and a projection-level
+`key` routes nothing (`PLAY0381`). Excerpt: the concepts and events are declared
+elsewhere, and both events target the invoice's event source.
 
 ```screenplay
 slice StateView InvoiceList
@@ -140,9 +143,11 @@ slice StateView InvoiceList
     invoiceNumber InvoiceNumber
     status        InvoiceStatus
   projection InvoiceList => InvoiceListReadModel
-    from InvoiceRegistered key invoiceId
+    from InvoiceRegistered
+      invoiceId = $eventSourceId
       status = "draft"
-    from InvoiceSent key invoiceId
+    from InvoiceSent
+      invoiceId = $eventSourceId
       status = "sent"
   query ListInvoices => InvoiceListReadModel[]
 ```
@@ -164,19 +169,24 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 **Output:** the `reaction`, in an `Automation` slice. It documents the automation;
 it does not bind to the executable model today. When the automation decides from
 a view, declare it under the trigger with `reads` (see
-`cratis-screenplay-captures-and-reactions`). Excerpt: the event and the
-command are declared in their own slices.
+`cratis-screenplay-captures-and-reactions`). Intent-only excerpt: the event and
+command are declared in their own slices; the view comes from Step 6.
 
 ```screenplay
 slice Automation ChaseOverdueInvoices
   reaction OverdueChaser
     when InvoiceRegistered
-      invoiceId
-      dueDate
+      description "Check the invoice's due date and unpaid state before requesting MarkInvoiceOverdue for the triggering event's source"
+      reads InvoiceListReadModel
       invokes MarkInvoiceOverdue
-        invoiceId = invoiceId
-    where dueDate < today
 ```
+
+The realization must obtain `invoiceId` from the triggering event's source
+identity, not its payload. Screenplay does not yet document a reaction-context
+binding for invocation arguments; `$eventSourceId` is documented for projections,
+not reaction mappings. Leave the argument mapping and overdue decision as intent
+until realization supplies them. Do not select missing `invoiceId` or `dueDate`
+payload fields from Step 5's event, or add them merely to make this reaction parse.
 
 `produces` and `invokes` are indented **inside** the trigger; only `description`
 and `where` sit at reaction level. Outdenting an effect gives `PLAY0137`.

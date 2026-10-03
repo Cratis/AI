@@ -78,6 +78,16 @@ roles, claims and causation report `PLAY0268`.
 
 An unknown `$context.` path is reported, so a typo does not silently become null.
 
+## Production metadata is not a context expression
+
+`namespace`, `sequence`, `correlation`, `causation`, `causedBy` and `occurred`
+are reserved, system-assigned directives in production bodies (`PLAY0476`).
+They are not routing knobs. Escape a genuine payload property with `@`, as in
+`@sequence String = name` in an inline event. `occurred at` is not available yet.
+Reading `$context.occurred` into a payload mapping does not assign the event's
+occurrence metadata; use `given clock`, never `given time`, to state scenario time
+(the specification skill distinguishes parsing from execution).
+
 ## The other expression roots
 
 | Root | Where | Yields |

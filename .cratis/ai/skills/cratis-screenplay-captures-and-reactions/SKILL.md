@@ -26,6 +26,10 @@ source is the single flow model.
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | CDL parser, reaction and trigger parsers, diagnostics, semantic binder |
+| `Cratis.Screenplay` | main `fd18129` | Command-only inline event boundary |
+
+The update follows `commands.md`, `events.md` and `diagnostics.md` at that main
+commit (after v4.52.0); no reaction or capture example changes in this update.
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{captures,captures/grammar,reactions,triggers,interactions,file-references,grammar,diagnostics}.md`
@@ -187,6 +191,10 @@ occurrences are worth running for, whatever set them off. A second `where` on on
 reaction is an error; combine with `and`/`or` instead.
 
 ### Effects — `produces` vs `invokes`
+
+Inline `produces event <Name>` is command-only (`PLAY0474` in a reaction).
+Declare reaction-produced events separately and use plain `produces <Name>`.
+Do not extend the inline command destination default or its repairs to reactions.
 
 Excerpt, inside an `Automation` slice:
 

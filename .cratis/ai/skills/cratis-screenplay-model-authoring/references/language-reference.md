@@ -57,12 +57,12 @@ tagged fence (` ```csharp `); the older language-line form still parses with
 warning `PLAY0397`. Query the MCP's `syntax-schema` instead of inventing JSON
 members or translating names from memory.
 
-## Canonical complete model
+## Complete model
 
-The RegisterProject conformance vector is the narrow executable example shared
-by downstream tooling. Its source is shipped in `Cratis.Screenplay.CanonicalCorpus`.
-At v4.31.0 it compiles with zero diagnostics, binds to ESM v1, and both
-specifications pass the reference runner.
+This registration model uses an inline event and context identity rather than
+copying the identifier into payload. It was compiled at main `fd18129` with zero
+source diagnostics; that check does not run its specifications. Inline lowering
+and `optional` spelling do not themselves select a newer ESM version.
 
 ```screenplay
 concept ProjectId : Uuid
@@ -75,19 +75,14 @@ module Projects
         name ProjectName
         validate
           name not empty message "Project name is required"
-        produces ProjectRegistered
-          for projectId
-          projectId = projectId
-          name = name
-      event ProjectRegistered
-        projectId ProjectId
-        name ProjectName
+        produces event ProjectRegistered
+          name ProjectName = name
       specification RegisteringAProject
         when RegisterProject
           projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           name = "Screenplay"
         then ProjectRegistered
-          projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          for "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           name = "Screenplay"
         then readmodel ProjectSummary
           projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -107,10 +102,11 @@ module Projects
       readmodel ProjectSummary
         projectId ProjectId
         name ProjectName
-      query ProjectById => ProjectSummary?
+      query ProjectById => ProjectSummary optional
         by projectId ProjectId
       projection ProjectSummaryProjection => ProjectSummary
-        from ProjectRegistered key projectId
+        from ProjectRegistered
+          projectId = $eventSourceId
           name = name
 ```
 
@@ -136,6 +132,13 @@ The ESM version is selected by what a model uses, never by the author:
   `policy` implemented in code or a file. They bind as opaque requirements with
   capability `pure`. The reference runner returns `SemanticUnsupported` whenever
   it would need one, so a specification that depends on one never passes.
+- **v4** represents complete event generations, with one contract identity and
+  distinct revision property identities. Historical declarations are not migration
+  implementations; a target without migration support must reject the contract.
+
+Inline events lower to slice-owned standalone contracts and preserve equivalent
+canonical bytes. Event `description`, `documentation` and rename-only `id` are
+authoring metadata, not new ESM bytes or replacements for catalog identity.
 
 Binding is not the last gate before the reference runner. The runner needs an
 execution plan, and the plan is created only when every reachable capability is
@@ -150,7 +153,7 @@ what blocks binding (Screenplay v4.31.0):
 | Binds and runs in the reference runner | `StateChange`/`StateView` slices; `produces` including `when` conditions over command properties and literal tags; the portable validation rules, `matches email`, quoted `matches` patterns and `require` over command properties; declarative policies and `authorize` on modules, features, commands and keyed queries; `unique` constraints; projections as Chronicle lowers them, including variants, except the projection constructs in the next row; specifications, including `given caller`, `then denied` and `when append` |
 | Binds, but the reference execution plan refuses it | A projection-level `remove via join`; `all` beside removals, `children` or `nested`; a `join`, `children` or `remove via join` inside `nested`; any event-context value other than the event source identity in a projection mapping or key, such as `$eventContext.occurred`, `$eventContext.sequenceNumber` or `$eventContext.causedBy.subject` (`$eventSourceId` and `$eventContext.eventSourceId` run) |
 | Binds as opaque code (v3); reference runner reports unsupported | Bodied reducers, bodied named rules, fenced `validate` blocks, code or file policies |
-| Blocks binding (`PLAY0268`) | `Automation` and `Translate` slices, reactions (with or without trigger `reads`), captures, top-level `trigger`, `persona`, `@pii`/`@sensitive` concepts, command `handler`, bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, a read model whose keyed queries in its own slice do not share one `by` property (none, or two different properties; several queries over the same property bind), any query other than `=> <ReadModel>?` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
+| Blocks binding (`PLAY0268`) | `Automation` and `Translate` slices, reactions (with or without trigger `reads`), captures, top-level `trigger`, `persona`, `@pii`/`@sensitive` concepts, command `handler`, bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, a read model whose keyed queries in its own slice do not share one `by` property (none, or two different properties; several queries over the same property bind), any query other than `=> <ReadModel> optional` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
 | Blocks binding (`PLAY0271`, legacy meaning) | Command `reads` and `concurrency` |
 | Deferred (`PLAY0269`, information) | Screens, layouts, templates, forms, contributions, UI profiles, themes, behaviors and `on`/`uses` |
 | Metadata only (`PLAY0270`, information) | `domain`, `seed`, descriptions and `file` provenance on declarations |
@@ -168,11 +171,27 @@ Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger may declare
 `cratis-screenplay-captures-and-reactions`). Reactions still block binding, so
 those reads are declared, not enforced.
 
-Screenplay decisions 0007 to 0014 are accepted but not implemented. Do not write
-their syntax: affected-instance declarations, per-event data subjects, external event origin, query paging/sorting/change-set delivery, event
-generations, a typed context descriptor or command-handler role, code round-trip
-equivalence, or typed diagnostic repairs. Model today's syntax and record the
-gap in prose or an issue.
+Do not infer availability from an accepted decision. Event generations and typed
+diagnostic repairs now exist; see the event and MCP references rather than the
+old blanket claim that decisions 0011–0014 are unimplemented. Generations describe
+full historical shapes, not deployed-schema immutability or a working migrator.
+Code attachment/source-map support likewise does not prove code round-trip
+execution equivalence.
+
+Decision 0023's generated values and `returns` (allocated ESM v8), operations
+(v9), named event sources/streams (v10), and protected reads, `derive`/`provide`
+(v11) are planned, not available yet. Do not teach their example syntax as usable.
+The allocations are not shipped capabilities. Affected-instance declarations,
+per-event data subjects, external event origin and query paging/sorting/change-set
+delivery also remain unavailable here.
+
+`Type optional` is canonical for admitted type references; `Type?` remains
+compatible with information `PLAY0479`. The modifier follows `[]` for an optional
+collection. It changes no `IsOptional` meaning or ESM bytes. Keep the exceptional
+one-shot result `query Q => observable?` when the type itself is named
+`observable`: `observable optional` would be parsed as a live result of a type
+named `optional`. Screen data, behavior parameters, concept bases and
+`reads X optional` do not accept optionality.
 
 ## Editor support
 

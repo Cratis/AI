@@ -24,12 +24,16 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Parser, validator, diagnostics, semantic binder |
+| `Cratis.Screenplay` | `4.31.0` | Original parser, validator and binder evidence |
+| `Cratis.Screenplay` | main `fd18129` | Canonical optionality; changed examples compiled |
+
+The update follows `types.md`, `queries.md` and `vscode.md` at that main commit
+(after v4.52.0). Compilation does not establish query execution.
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{queries,readmodels,screens,policies,specifications,interactions}.md`
-and decision 0010. Every example below compiles with that version's compiler.
-Reverify before claiming another version behaves the same.
+and decision 0010 established the original baseline. Changed examples use the
+newer main commit above; do not attribute their verification to the old tag.
 
 ## `readmodel` — shape only
 
@@ -40,7 +44,7 @@ readmodel AccountBalance
   description "What the account is worth right now"
   balance   Decimal
   movements Int
-  note      String?
+  note      String optional
 ```
 
 A read model declares what it **is** — nothing about what builds it. Whatever
@@ -50,9 +54,10 @@ error `PLAY0191`. See `cratis-screenplay-projections` for the builder side.
 Do not mark a read-model property `identifier`. The executable model infers the
 instance identifier from the `by` property of the keyed queries that return the
 read model in its own slice
-(`query InvoiceById => InvoiceSummary? by invoiceId InvoiceId`). Several queries
+(`query InvoiceById => InvoiceSummary optional`, then `by invoiceId InvoiceId`
+on its own body line). Several queries
 over the same `by` property are fine; each must still have the shape the
-executable model admits, `=> <ReadModel>?` with one caller-supplied `by`. A read
+executable model admits, `=> <ReadModel> optional` with one caller-supplied `by`. A read
 model with no keyed query, or with keyed queries over different `by` properties,
 has no unambiguous identifier and does not bind (`PLAY0268`), and specifications
 cannot select an instance of it.
@@ -64,21 +69,28 @@ Excerpt: the concepts, the read model and the policy are declared elsewhere.
 ```screenplay
 query ListInvoices => InvoiceListReadModel[]
   description "Every invoice the caller may see, narrowed by status and customer"
-  filter status     InvoiceStatus?
-  filter customerId CustomerId?
+  filter status     InvoiceStatus optional
+  filter customerId CustomerId optional
   filter tenantId   TenantId from $context.tenant
   authorize IsAuthenticated
 ```
 
-Return-type forms after `=>`: `ReadModel`, `ReadModel?`, `ReadModel[]`, each
-optionally prefixed `observable`.
+Return-type forms after `=>`: `ReadModel`, `ReadModel optional`, `ReadModel[]`,
+each optionally prefixed `observable`. `ReadModel[] optional` permits an absent
+collection, not absent items. Legacy `Type?` reports information `PLAY0479`,
+which does not fail `--warnaserror`; use a verified repair or editor quick fix.
+
+Keep `query Q => observable?` only for a one-shot query returning an optional
+scalar type named `observable`. It is the canonical exception and has no
+`PLAY0479`: `observable optional` instead means a live result of a type named
+`optional`. Do not migrate that exception.
 
 ### `by` vs `filter` — and why it is a security decision
 
 | Clause | Meaning |
 | --- | --- |
 | `by` | the **identifying** parameter — the query returns the instance it identifies |
-| `filter` | an optional parameter narrowing the result set; usually typed `?` |
+| `filter` | an optional parameter narrowing the result set; usually typed `optional` |
 | `from <source>` | fills the parameter **from the context** instead of from the caller |
 
 ⚠️ **Anything the caller must not be able to choose — the tenant, the caller's own
@@ -115,7 +127,7 @@ Treat every `scoped to global` in a review as a question to answer, not a detail
 `=> observable OverdueInvoicesReadModel[]` declares a live read that keeps
 pushing; without the marker a query is one-shot, which is the default and what
 most reads are. The marker qualifies only *how* the result arrives, so it composes
-with `[]`, `?`, `by`, `filter`, `authorize` and a `performer`, and a screen binds
+with `[]`, `optional`, `by`, `filter`, `authorize` and a `performer`, and a screen binds
 to a live query exactly as it binds to a one-shot one. The delivery itself is the
 target runtime's: the executable model does not bind observable queries.
 
@@ -135,13 +147,13 @@ A read model a performer composes needs no projection, and no event builds it.
 Specify it from state with `given readmodel`, then `when query <Query>` with the
 arguments and `then result` (v4.48.0) - see `cratis-screenplay-specifications`.
 
-A query's key goes on its own `by` line in the body. `query X => RM? by id Type`
+A query's key goes on its own `by` line in the body. `query X => RM optional by id Type`
 on the header line is a declaration error, not a shorthand.
 
 ### What runs
 
 In the executable model today, only the keyed snapshot shape binds:
-`=> <ReadModel>?` with one caller-supplied `by` argument and no `observable`,
+`=> <ReadModel> optional` with one caller-supplied `by` argument and no `observable`,
 `filter`, `scoped to` or `performer`. Anything else, including `=> <ReadModel>`
 and `=> <ReadModel>[]`, reports `PLAY0268`. Its `authorize` gate runs before
 the lookup, ANDed with module and feature gates; a denied caller gets

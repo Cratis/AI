@@ -25,13 +25,18 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Parser, semantic binder, reference execution |
+| `Cratis.Screenplay` | `4.31.0` | Original parser, binder and reference execution evidence |
+| `Cratis.Screenplay` | main `fd18129` | Inline facts, `optional` and clock spelling; changed examples compiled |
+
+The update follows `commands.md`, `events.md`, `types.md` and
+`specifications.md` at that main commit (after v4.52.0). This pass compiles the
+changed examples; it does not rerun the reference runner.
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{specifications,policies,constraints,readmodels,diagnostics}.md`.
-The worked example below compiles with zero diagnostics, binds to ESM v2, and
-all six specifications pass the reference runner at that tag. Reverify before
-claiming another version behaves the same.
+The original worked example had reference-runner evidence at that tag. The
+example below now uses inline events and canonical optionality; keep its current
+compile check distinct from that historical execution evidence.
 
 The specification actions beyond commands (`given clock`, `when clock`,
 `when trigger`, `given capture`, `when capture`, `when query`, `then result`,
@@ -127,11 +132,8 @@ module Invoicing
         authorize IsAccountant
         validate
           invoiceNumber not empty message "Invoice number is required"
-        produces InvoiceRegistered
-          for invoiceId
-          invoiceNumber = invoiceNumber
-      event InvoiceRegistered
-        invoiceNumber InvoiceNumber
+        produces event InvoiceRegistered
+          invoiceNumber InvoiceNumber = invoiceNumber
       constraint UniqueInvoiceNumber
         unique invoiceNumber on InvoiceRegistered
       specification RegisteringAnInvoice
@@ -186,7 +188,7 @@ module Invoicing
       readmodel InvoiceSummary
         invoiceId     InvoiceId
         invoiceNumber InvoiceNumber
-      query InvoiceById => InvoiceSummary?
+      query InvoiceById => InvoiceSummary optional
         by invoiceId InvoiceId
       projection InvoiceSummaries => InvoiceSummary
         from InvoiceRegistered
@@ -202,6 +204,9 @@ module Invoicing
           invoiceNumber = "INV-000001"
 ```
 
+- Inline events are ordinary named facts in `given` and `then`. Assert their
+  destination with `for`, not a payload identifier; inline declaration does not
+  change fixture or assertion syntax.
 - `RejectingANumberAnotherInvoiceHolds` needs `for`: without it the `given`
   event lands on the command's own event source, and re-claiming your own value
   is not a violation.
@@ -223,8 +228,9 @@ A slice is not always set off by a command. Name what does:
 | An automation driven by an application trigger | `when trigger <Trigger>` with the values it carries |
 | A translation driven by a capture | `given capture <Capture>` (the record as it was), `when capture <Capture>` (as it is now) |
 
-`given clock` also fixes the occurrence time of every action in the scenario, so
-a value a `produces` maps from `$context.occurred` can be asserted.
+Use `given clock`, never `given time`, to state the scenario occurrence time and
+assert a value mapped from `$context.occurred`. The clock fixture is documented
+on main, but its executable admission is still deferred as described below.
 
 **`when query` executes today. The clock, trigger and capture actions do not.**
 They parse, print and are checked against the application, but binding reports

@@ -25,12 +25,17 @@ source is the single flow model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Parser, validator, diagnostics, semantic binder |
+| `Cratis.Screenplay` | `4.31.0` | Original examples and executable boundaries |
+| `Cratis.Screenplay` | main `fd18129` | Inline events, repairs and canonical `optional`; changed examples compiled |
+
+The update follows `commands.md`, `events.md`, `types.md`, `diagnostics.md`,
+`mcp/authoring-tools.md` and decision 0023 at that main commit (after v4.52.0).
+Compilation checks syntax and model consistency, not reference execution.
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{commands,constraints,policies,context,concepts,diagnostics}.md`
-and decisions 0001 and 0003. Every example below compiles with that version's
-compiler. Reverify before claiming another version behaves the same.
+and decisions 0001 and 0003 established the original baseline. Changed examples
+use the newer main commit above; do not attribute their verification to the old tag.
 
 "Parses" and "runs" are different claims. The executable profile, and what
 each construct binds to, is in the `cratis-screenplay-model-authoring` language
@@ -47,17 +52,21 @@ command RegisterInvoice
   invoiceId      InvoiceId identifier
   invoiceNumber  InvoiceNumber
   lines          InvoiceLine[]
-  note           String?
+  note           String optional
   authorize CanManageInvoice
   validate
     invoiceNumber not empty                 message "Invoice number is required"
     invoiceNumber matches "^INV-[0-9]{6}$"  severity warning message "Must look like INV-000000"
   produces InvoiceRegistered
-    invoiceId    = invoiceId
+    for invoiceId
     registeredAt = $context.occurred
 ```
 
-Type modifiers: `<Type>[]` for a collection, `<Type>?` for optional.
+Type modifiers: `<Type>[]` for a collection, `<Type> optional` for absence.
+`Type[] optional` makes the whole collection optional, not its items. Legacy
+`Type?` still parses with information `PLAY0479`; use its repair or editor quick
+fix to migrate. `--warnaserror` does not reject information diagnostics.
+`reads X optional` is not supported yet.
 
 ⚠️ **The parser enforces no clause order.** The house order is description,
 properties, `reads`, `authorize`, `validate`, `produces`/`handler`, `concurrency`.
@@ -189,6 +198,68 @@ A continuation line extends the clause.
   reaches a policy implemented in code, the reference runner reports the outcome
   unsupported; it never guesses allow or deny.
 
+## Inline events and destinations
+
+Use `produces event` when the command introduces a new, generation-1 event.
+This complete example declares its payload and mappings together:
+
+````screenplay
+concept ProjectId : Uuid
+concept ProjectName : String
+module Projects
+  feature Naming
+    slice StateChange RenameProject
+      command RenameProject
+        projectId ProjectId identifier
+        name ProjectName
+        produces event ProjectRenamed
+          description "A project received a new name"
+          documentation
+            ```markdown
+            Existing links retain the project's identity.
+            ```
+          tag audit
+          name ProjectName = name
+````
+
+The omitted `for` means the command's required scalar identifier **only for
+inline productions**, when every production targets that same source. Once a
+production targets another source, every production must state `for`. Mixing
+omitted inline and plain destinations also fails (`PLAY0470`); there is no
+verified MCP repair for that diagnostic. Explicit syntax does not make cross-source
+execution supported.
+
+Plain `produces X` references a declared event; omitting `for` does not infer
+the command's identifier. In ESM v2+, it inherits a sibling production's resolved
+destination through the command destination default. An allocated identity is
+used only when no production resolves a destination. State `for` explicitly on
+every production targeting the identifier. `PLAY0478` offers advice and a
+reviewed repair, not permission to silently retarget an append. Supply an
+allocated identity to the executable model when allocation is intentional.
+
+Inline declarations are slice-owned contracts, usable by other consumers.
+Their `tag` lines are event-type tags; plain production tags apply at that one
+append site. Both inline and standalone events accept a quoted description or
+text/Markdown description fence, and one nonempty fenced Markdown `documentation`.
+New events omit `id`. Only a rename preserving an old stored name needs
+`id "<old name>"`; it does not replace the catalog's `EventContractId`.
+
+| Diagnostic | What to change |
+| --- | --- |
+| `PLAY0469` | Do not copy the same-source command identifier into payload. Inline copies warn; plain copies with explicit `for` are information. Review persistence before changing a contract. |
+| `PLAY0471` / `PLAY0472` | Remove a redundant name-equal `id`; an id must be one nonempty quoted value. |
+| `PLAY0473` / `PLAY0474` | Avoid declaration/import collisions; inline events belong only in commands, never reactions. |
+| `PLAY0475` | Extract the inline event before adding generations. |
+| `PLAY0476` | Inline `origin` and unescaped system-assigned production metadata are forbidden. |
+| `PLAY0477` | Use one nonempty Markdown documentation fence. |
+
+MCP can declare a missing produced event (`PLAY0166`), add explicit routing
+(`PLAY0478`), remove a redundant pin (`PLAY0471`), or remove an inline identifier
+copy (`PLAY0469`). The last **changes the event contract**, retires a property,
+refuses affected consumers/opaque implementations and is not fix-all. It does
+not establish that stored data is safe to migrate. Use
+`cratis-screenplay-model-authoring` for discovery, preview, extraction and rename.
+
 ## `produces`
 
 - **Mapping sources** that bind to the executable model: a command property
@@ -216,7 +287,7 @@ A continuation line extends the clause.
 ```screenplay
 produces when isProForma == true
   ProFormaInvoiceIssued
-    invoiceId = invoiceId
+    for invoiceId
 ```
 
 ## `concurrency`
@@ -234,7 +305,12 @@ the executable model does not bind it (`PLAY0271`), and it does not protect a
 | `streamId <Name>` | an event stream id |
 | `events <A>, <B>` | the listed event types |
 
-An empty block or an unknown dimension is an error.
+An empty block or an unknown dimension is an error. Omitting `concurrency` does
+not mean unchecked appends: Chronicle's default optimistic concurrency applies
+to the routed scope. This does not make command `reads` protected.
+
+Decision 0023's generated values, `returns`, operations, named event sources and
+streams, `derive` and `provide` are planned, not available yet.
 
 ## `constraint` — uniqueness at append time
 
@@ -364,6 +440,7 @@ Four contexts, and **what each omits is load-bearing** — read
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
+- [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
 - [ ] Format rules live on the `concept`; state-dependent rules are specifications.
 - [ ] Every `authorize` combining policies writes `and`/`or` explicitly.

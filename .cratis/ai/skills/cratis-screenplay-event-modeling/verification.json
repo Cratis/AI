@@ -3,6 +3,9 @@
   "input": "Facilitate an event modeling session and land the model as .play source.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "main `fd18129`" },
+    { "kind": "skill-contains", "value": "Inline events remain slice-owned contracts" },
+    { "kind": "skill-contains", "value": "Storage identity is not payload identity" },
     {
       "kind": "skill-contains",
       "value": ".cratis/screenplay/"
@@ -41,7 +44,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "are accepted but\n**not available**"
+      "value": "Event generations and typed repairs now ship"
     },
     {
       "kind": "skill-contains",

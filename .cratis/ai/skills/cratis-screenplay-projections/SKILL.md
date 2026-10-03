@@ -26,6 +26,10 @@ source is the single flow model.
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | PDL parser, validator, diagnostics, semantic binder |
+| `Cratis.Screenplay` | main `fd18129` | Inline event extraction and context identity guidance |
+
+The update follows `commands.md`, `events.md` and `mcp/authoring-tools.md` at
+that main commit (after v4.52.0); no PDL example changes in this update.
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/projections/` (including `semantic-model.md`, `keys.md`
@@ -94,6 +98,13 @@ the event source id. A `from` without a key does **not** inherit another
 `from`'s key: when one event is keyed by `invoiceId` and another is unkeyed, they
 update the same instance only if the event source id happens to equal
 `invoiceId`.
+
+For same-source events, map the read-model identity from `$eventSourceId`
+(or `$eventContext.eventSourceId`), not a duplicated payload field. An event
+declared by `produces event` is still a named slice-owned contract: projections
+subscribe to it exactly like a standalone event. Verified extraction preserves
+canonical ESM and identities, so it changes no projection contract. Removing a
+payload property is different and requires consumer/persistence review.
 
 A second key on one `from` is error `PLAY0060`. A template expression in a
 composite key is error `PLAY0073`; an empty composite key is `PLAY0074`.
