@@ -169,19 +169,24 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 **Output:** the `reaction`, in an `Automation` slice. It documents the automation;
 it does not bind to the executable model today. When the automation decides from
 a view, declare it under the trigger with `reads` (see
-`cratis-screenplay-captures-and-reactions`). Excerpt: the event and the
-command are declared in their own slices.
+`cratis-screenplay-captures-and-reactions`). Intent-only excerpt: the event and
+command are declared in their own slices; the view comes from Step 6.
 
 ```screenplay
 slice Automation ChaseOverdueInvoices
   reaction OverdueChaser
     when InvoiceRegistered
-      invoiceId
-      dueDate
+      description "Check the invoice's due date and unpaid state before requesting MarkInvoiceOverdue for the triggering event's source"
+      reads InvoiceListReadModel
       invokes MarkInvoiceOverdue
-        invoiceId = invoiceId
-    where dueDate < today
 ```
+
+The realization must obtain `invoiceId` from the triggering event's source
+identity, not its payload. Screenplay does not yet document a reaction-context
+binding for invocation arguments; `$eventSourceId` is documented for projections,
+not reaction mappings. Leave the argument mapping and overdue decision as intent
+until realization supplies them. Do not select missing `invoiceId` or `dueDate`
+payload fields from Step 5's event, or add them merely to make this reaction parse.
 
 `produces` and `invokes` are indented **inside** the trigger; only `description`
 and `where` sit at reaction level. Outdenting an effect gives `PLAY0137`.

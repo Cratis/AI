@@ -229,11 +229,13 @@ omitted inline and plain destinations also fails (`PLAY0470`); there is no
 verified MCP repair for that diagnostic. Explicit syntax does not make cross-source
 execution supported.
 
-Plain `produces X` references a declared event and keeps its legacy
-allocated-identity destination when `for` is omitted; it never inherits the
-inline default. `PLAY0478` offers advice and a reviewed repair to state `for`,
-not permission to silently retarget an append. Supply an allocated identity to
-the executable model when allocation is intentional.
+Plain `produces X` references a declared event; omitting `for` does not infer
+the command's identifier. In ESM v2+, it inherits a sibling production's resolved
+destination through the command destination default. An allocated identity is
+used only when no production resolves a destination. State `for` explicitly on
+every production targeting the identifier. `PLAY0478` offers advice and a
+reviewed repair, not permission to silently retarget an append. Supply an
+allocated identity to the executable model when allocation is intentional.
 
 Inline declarations are slice-owned contracts, usable by other consumers.
 Their `tag` lines are event-type tags; plain production tags apply at that one

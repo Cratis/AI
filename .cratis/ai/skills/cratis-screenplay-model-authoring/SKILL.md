@@ -13,7 +13,7 @@ the compiler already knows declarations, references, hierarchy and source owners
 Screenplay remains experimental. **Valid source is not necessarily executable.**
 It does not generate or run an application; Stage owns rendering/runtime admission.
 See the [language reference](references/language-reference.md) for constructs,
-the executable profile and the complete canonical model.
+the executable profile and a complete compiled model.
 
 ## Verified product sources
 
