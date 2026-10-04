@@ -3,7 +3,9 @@
 
 # Working with the Screenplay MCP
 
-The supported CLI launch is `cratis screenplay mcp <model-root>`. The default
+The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
+alone, where the server binds a root on first use from `open-workspace`'s `path`, the
+client's roots, or the working directory. The default
 consumer model location is `.cratis/screenplay/`. AI distribution provides the
 profile-selected declaration and guidance; the CLI owns executable hosting and
 client registration. Installation must preserve user-owned MCP servers and

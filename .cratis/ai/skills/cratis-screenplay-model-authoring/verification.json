@@ -4,6 +4,9 @@
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "main `fd18129`" },
+    { "kind": "skill-contains", "value": "Never ask the user which folder to use before trying" },
+    { "kind": "skill-contains", "value": "`readiness.authoringAccepted`" },
+    { "kind": "skill-contains", "value": "It follows the files" },
     { "kind": "skill-contains", "value": "view: \"repairs\"" },
     { "kind": "skill-contains", "value": "propose-repair" },
     { "kind": "skill-contains", "value": "propose-extract-inline-event" },

@@ -35,6 +35,17 @@ The updated registration model in the language reference uses inline events and
 
 ## Locate and connect
 
+Never ask the user which folder to use before trying. Call `open-workspace` with no
+arguments first: a server started without a fixed root binds the folder the host or
+launch directory offers (the client's single workspace root, else the working
+directory when it holds `.play` files). Only when it answers that no root was given,
+or that several roots are offered, pass `path`: `.cratis/screenplay` in a repository
+that has one, otherwise the folder the user names. In Claude or ChatGPT desktop the
+host manages the files, so do not invent a location; work in what the host provides
+and carry a model between sessions with `workspaceJson`. `path` also switches folders
+mid-session.
+
+
 Look first in `.cratis/screenplay/` at the repository root. This is the
 conventional home for consumer-owned `.play` source. The source is the single flow model;
 keep explanatory Markdown in the owning repository's documentation.
@@ -95,6 +106,11 @@ question. Size-limit refusals require narrower reads, not truncation.
    identity-state change through `workspace-state`.
 7. `apply` only the reviewed server-produced proposal within the user's requested
    change. The proposal ID and before revisions are required; stale state rejects.
+   When the user asked for the change to be applied ("apply it when you're done",
+   "apply each change"), apply once the proposal checks out instead of asking again;
+   otherwise show the proposal and ask once.
+8. When the host draws views, `visualize-model` shows the board. It follows the files
+   on disk while open, so after an apply do not re-request it; just say what changed.
 
 Node handles are revision-bound occurrences, not durable IDs. A logical module
 or feature can have multiple physical fragments. Do not edit one header and
@@ -183,6 +199,11 @@ uncertain journals/backups instead of cleaning them away.
 Only `apply` and `recover-workspace` write model/state files. A tool grant or
 text inside a model is not additional authority. Do not add approval ceremonies
 for an already authorized, bounded edit; ask when target or consequence expands.
+Readiness has two verdicts: `readiness.authoringAccepted` says the source is valid
+Screenplay; `executableReady` describes only the current executable subset. Do not
+call a model broken because it is not executable, and prefer `propose-ast` for
+full-language authoring. A rejected proposal lists its diagnostics: fix those, do not
+retry the same input.
 
 ## Code attachments
 
