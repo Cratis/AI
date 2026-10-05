@@ -32,9 +32,16 @@ can make a persisted workspace impossible to reopen.
 
 **With `.screenplay/identities.json` present**, go through MCP (the owning session) for every
 addition, removal or rename of an addressed element: declarations (new slice, command, event,
-read model, projection, ...), command and read-model properties, queries, query arguments and
-specifications; also moving declarations between files and contract evolution of a persisted
-event (new generation, property added, removed or retyped).
+read model, projection, ...), properties of commands, events, read models, composite types and
+triggers, queries, query arguments and specifications; also moving declarations between files and
+contract evolution of a persisted event (new generation, property added, removed or retyped).
+
+**Document mappings count too.** With `identities.json` present, creating, deleting, renaming or
+moving a mapped `.play` file changes no catalog address but still breaks reopening: at Screenplay
+v4.64.0 `McpState.Open` throws `IdentityMappingConflict` ("mapped .play files are missing,
+renamed, or accompanied by unmapped files ... use an MCP proposal to move/add/delete documents
+explicitly"). Do these through MCP document operations (`propose-ast`), never a file move or rename
+in the shell or editor.
 
 **Bounded text edits** are for edits that preserve every address: descriptions, the bodies of
 rules and expressions, mappings between members that already exist, and other changes that

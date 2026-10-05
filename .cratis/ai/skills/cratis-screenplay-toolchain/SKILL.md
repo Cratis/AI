@@ -113,8 +113,10 @@ with the root folder name.
   text edit to get around an MCP refusal.
 - **Catalog-changing edits** belong to the identity owner (the session that owns MCP). When
   `.screenplay/identities.json` exists, adding, removing or renaming an addressed element
-  (declarations, command and read-model properties, queries, query arguments, specifications),
-  moving declarations and persisted event contract evolution go through MCP, and `id` pins alone
+  (declarations, properties of commands, events, read models, composite types and triggers,
+  queries, query arguments, specifications), moving declarations, creating, deleting, renaming
+  or moving a mapped `.play` document (`IdentityMappingConflict`) and persisted event contract
+  evolution go through MCP, and `id` pins alone
   are not enough: a session without MCP returns the request to the owning session.
 - AST JSON costs several times the text it replaces; use it where a typed operation is the
   only identity-safe route.

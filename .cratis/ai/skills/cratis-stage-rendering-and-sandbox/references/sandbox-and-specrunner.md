@@ -79,9 +79,13 @@ argument or an invalid semantic option.
   external effects, composite values, protected queries, queries other than optional
   snapshots. Unsupported is never a pass. Do not feed the file to a legacy reader.
 
-How the runner relates to the verdicts: a structural pass is not a behavioural result; a
-semantic pass is a reference execution of those specifications (V4), not a rendered
-Debug test run (V5). How the runner behaves on ESM v4 to v6 specifications was not
+How the runner relates to the verdicts: a structural pass is not a behavioural result. The
+semantic engine is Stage's own `SemanticSpecificationExecutor` (verified at Stage `v4.24.0`,
+`Source/SpecRunner/Program.cs`), running through Arc's in-memory pipeline. It is not the
+Screenplay reference route, so a semantic pass is never V4 (V4 is reference execution only;
+`cratis-screenplay-toolchain` `references/verdicts.md`) and it is not a rendered Debug test run
+(V5.tests). Report its outcomes as a separate line, "Stage semantic engine (target-engine
+evidence)", with the report schema counts, next to the V5 results and labelled as such. How the runner behaves on ESM v4 to v6 specifications was not
 verified: record it as "not run" rather than assuming.
 
 ## Choosing between them
@@ -89,6 +93,6 @@ verified: record it as "not run" rather than assuming.
 | Question | Use |
 | --- | --- |
 | Does the model feel right as a running API? | Sandbox (`cratis run`) |
-| Do the modeled specifications pass in the reference semantics? | Specification runner, `--engine semantic` |
+| Do the modeled specifications pass in Stage's semantic engine (target-engine evidence, not V4)? | Specification runner, `--engine semantic` |
 | Does the generated code behave? | `cratis render`, then Debug build and tests of the output |
 | Is authorization enforced? | Debug tests of a render and the rendered policies; never the default sandbox |

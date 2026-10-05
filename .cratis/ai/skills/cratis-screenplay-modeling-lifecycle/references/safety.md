@@ -2,7 +2,7 @@
 
 | Action | Rule | Enforced by |
 |---|---|---|
-| `.play` text edits in the model root that leave catalog addresses unchanged (or any text edit when no `identities.json` exists) | allowed within the brief | policy |
+| `.play` text edits in the model root that leave catalog addresses and document mappings unchanged (or any text edit when no `identities.json` exists) | allowed within the brief | policy |
 | MCP `apply`, recovery; catalog-changing and identity-affecting edits | the identity owner applies; approval naming the target | policy (the harness may also gate the tool) |
 | `cratis screenplay generate` | output only under `.ai-work/screenplay/<model-slug>/legacy/` | policy |
 | `cratis render` | probe renders under `.ai-work/screenplay/<model-slug>/render-probe/` unless the user names a destination; `--force` needs approval naming it; pass `--name`; never stage `.cratis-render/` | policy |

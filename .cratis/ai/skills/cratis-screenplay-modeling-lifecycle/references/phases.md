@@ -73,6 +73,10 @@ whose gate fails stays open; it is never "carried" into the next one.
 ## P6 Accept (the user)
 - **Input**: the reviewed source identity.
 - **Carry-forward**: the accepted **source identity** (`verdicts-and-modes.md`).
+- **Recommend**: that the user commit the accepted model once they accept it. Committing a model
+  under the model root is the team's act of acceptance and opts the repository in (a `.play`
+  file tracked by git, `git ls-files <root>`); until committed, the work is a draft that code
+  agents do not treat as a contract. The modeler never commits on its own.
 - **Gate**: explicit acceptance. Any later edit to the scope invalidates it.
 
 ## P7 Execute (executable mode; modeling stance)

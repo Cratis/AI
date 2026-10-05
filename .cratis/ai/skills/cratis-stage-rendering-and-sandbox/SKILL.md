@@ -163,7 +163,7 @@ from unsigned headers, so authorization there is not a security boundary.
 `cratis/stage-specrunner` checks modeled specifications and writes a results file. The
 default `structural` engine is deprecated and model-level only; `--engine semantic`
 executes admitted specs through Arc's in-memory pipeline and reports `Passed`, `Failed`,
-`Unsupported` or `Cancelled`. A green result is not a rendered Debug test run. Commands,
+`Unsupported` or `Cancelled`. A green result is Stage semantic-engine evidence: not V4 and not a rendered Debug test run. Commands,
 the semantic report schema and limits: [references/sandbox-and-specrunner.md](references/sandbox-and-specrunner.md).
 
 ## Verify

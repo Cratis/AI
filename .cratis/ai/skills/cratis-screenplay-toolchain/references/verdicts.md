@@ -80,9 +80,10 @@ model and for any construct whose evaluation needs an opaque body.
 4.24 admits pure reducer bodies and generates reducer replay and assertions in its Debug
 tests, so the two engines can differ (a pure reducer body is a concrete case). Report those
 outcomes only under V5.tests, labelled target-test evidence. The `cratis/stage-specrunner` job
-(Docker, opt-in; behaviour on ESM v4 to v6 unverified) is not a verified reference route:
-report its outcomes as target-test evidence unless it is shown to execute the reference
-semantics.
+(Docker, opt-in; behaviour on ESM v4 to v6 unverified) runs Stage's own semantic executor
+(`SemanticSpecificationExecutor`, Stage `v4.24.0` `Source/SpecRunner/Program.cs`), not the
+reference route: report its outcomes on a separate line, "Stage semantic engine (target-engine
+evidence)", never as V4 and not as V5.tests.
 Without a reference route: `V4 not run: no route`.
 
 ## V5: rendered and target-verified

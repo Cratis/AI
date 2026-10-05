@@ -47,10 +47,11 @@ are, is `cratis-screenplay-modeling-lifecycle` ("Decide the level first").
 1. An accepted `.play` model under the model root (default `.cratis/screenplay/`, or the root
    set by `mcpServers.screenplay.root` in `.cratis/ai.json`) covers the slice (search
    `**/*.play` for the slice, command, event and read-model names): the `.play` slice and its
-   specifications are the contract. A matching file that is not accepted, or one outside the
-   root, is a draft, not a contract.
-2. The repository is opted in (the root holds a `.play` file, or the project explicitly set that
-   root; an empty directory, install output or an installed skill does not count) but this
+   specifications are the contract. "Accepted" means tracked by git (`git ls-files <root>` lists
+   it); an untracked or uncommitted file, or one outside the root, is a draft, not a contract.
+2. The repository is opted in (the root holds a git-tracked `.play` file, or the project
+   explicitly set that root, even if it is empty; an empty unconfigured directory, install
+   output, an installed skill or an uncommitted draft does not count) but this
    scope has no model yet: new behaviour starts in discovery and slice design
    (`cratis-screenplay-discovery`, `cratis-screenplay-slice-design`); do not code first. If those
    skills are not installed, say so and do not author `.play` from memory.

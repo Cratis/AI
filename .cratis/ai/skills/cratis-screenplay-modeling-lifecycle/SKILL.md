@@ -16,25 +16,25 @@ when a step needs them. Facilitate, do not transcribe. Tools judge structure; pe
 independent reviewers judge meaning. A truthful "not run", "blocked" or "capability gap" beats
 an unproven pass.
 
-## Decide the level first (master copy of the decision rule)
+## Decide the level first (master copy; run once per request, from any entry point)
 
-Run this once per request, from any entry point. Master definition; other places carry a short
-form and point here. Evidence: `references/opt-in.md`.
-
-1. **Opted in?** Only when (a) the model root holds at least one `.play` file (default
-   `.cratis/screenplay/`, or the root the project configured), or (b) the project explicitly set
-   a Screenplay model root: `mcpServers.screenplay.root` in `.cratis/ai.json`. **Not opt-in:**
-   an empty `.cratis/screenplay/` directory or the MCP entry that `cratis ai install`/`update`
-   creates; an installed profile or skill; a `.play` file outside the root; an unaccepted draft.
-   A behavior is a **contract** only when an accepted model under the root covers it. A direct
-   user request to model a scope is consent for that scope.
+1. **Opted in?** Only when (a) the model root (default `.cratis/screenplay/`, or the project's
+   configured root) holds a `.play` file **tracked by git** (`git ls-files <root>` lists it), or (b)
+   the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json` (an empty configured
+   root counts). **Not opt-in:** an empty `.cratis/screenplay/` or the MCP entry that `cratis ai
+   install`/`update` creates; an installed profile or skill; a `.play` file outside the root; an
+   untracked or uncommitted `.play` file under the root (a draft). Committing a model under the root
+   is the team's act of acceptance and opts the repository in; the modeler still writes into the
+   root, and that work is a draft until committed. A behavior is a **contract** only when an
+   accepted (git-tracked) model under the root covers it. A direct user request to model a scope is
+   consent for that scope. Evidence: `references/opt-in.md`.
 2. **Not opted in:** continue code-first; never force a model (framework, brownfield,
-   infrastructure, client and adapter work stays code-first). Only the entry-point agent or
-   session may **propose a model**: at most once per session, never for trivial, bug-fix,
-   infrastructure, client, framework or brownfield-maintenance work; delegated agents get the
-   decision in their brief and never propose. If declined, do not ask again; a team records a
-   lasting decision in its own repository instructions (for example `.cratis/ai/rules/project.md`),
-   never in managed corpus files. Unattended runs record the recommendation in the final report.
+   infrastructure, client and adapter work stays code-first). Only the entry-point agent or session
+   may **propose a model**: at most once per session, never for trivial, bug-fix, infrastructure,
+   client, framework or brownfield-maintenance work; delegated agents get the decision in their
+   brief and never propose. If declined, do not ask again (a team records a lasting decision in its
+   own repository instructions, e.g. `.cratis/ai/rules/project.md`, never in managed corpus files).
+   Unattended runs record the recommendation in the final report.
 3. **Availability is separate from consent.** Only the modeled branch needs the method skills; if
    missing, say which and stop that branch. Never author Screenplay from memory or install anything.
 

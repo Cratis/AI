@@ -62,8 +62,13 @@ wherever it lives inside the repository.
 
 Run from the repository root with repository-relative paths. It fails closed (non-zero exit, no
 digest) on: a missing model-root argument, an empty input inventory, a missing, unreadable,
-non-regular or out-of-repository input, any symlink (the input itself, or anything below an input
-directory, including nested directory links), and any traversal, hashing or sort failure.
+non-regular input, any input that resolves outside the repository, any symlink (the input itself
+with or without a trailing slash, a symlinked parent component, or anything below an input
+directory, including nested directory links), and any traversal, hashing or sort failure. Each
+input is normalised first: trailing slashes are stripped, the whole path is resolved physically
+(`pwd -P`) and compared with its lexical form, so `dir/` for a symlinked `dir`, `..`, `../x` and
+`sub/../..` fail closed. The manifest lists canonical repository-relative paths, so `root`,
+`root/` and `./root` give one digest.
 Deletions and renames change the digest because the manifest lists paths as well as hashes.
 
 ```shell
@@ -73,22 +78,48 @@ set -euo pipefail
 fail() { echo "ident: $*" >&2; exit 1; }
 [[ $# -ge 1 ]] || fail "usage: ident.sh <model-root> [extra-input-path ...]"
 repo=$(git rev-parse --show-toplevel) || fail "not in a git repository"
+repo=$(cd "$repo" && pwd -P) || fail "cannot resolve the repository root"
 commit=$(git rev-parse HEAD) || fail "no commit"
 tmp=$(mktemp -d) || fail "mktemp failed"
 trap 'rm -rf "$tmp"' EXIT
+cd "$repo" || fail "cannot enter the repository root"
+# Collapse ".", "" and ".." components lexically (no filesystem access).
+lexical() {
+  local IFS=/ part out=() r
+  for part in $1; do
+    case "$part" in
+      ''|.) ;;
+      ..) [[ ${#out[@]} -gt 0 ]] && unset 'out[${#out[@]}-1]' ;;
+      *) out+=("$part") ;;
+    esac
+  done
+  r="${out[*]-}"
+  printf '/%s' "$r"
+}
 : > "$tmp/files"
-for p in "$@"; do
-  [[ -e "$p" ]] || fail "missing input: $p"
-  [[ ! -L "$p" ]] || fail "symlink input: $p"
-  real=$(cd "$(dirname "$p")" && pwd -P) || fail "cannot resolve: $p"
-  [[ "$real/$(basename "$p")" == "$repo"/* ]] || fail "input outside the repository: $p"
+for arg in "$@"; do
+  p=$arg
+  while [[ "$p" == */ && "$p" != "/" ]]; do p=${p%/}; done
+  [[ -n "$p" ]] || fail "empty input"
+  [[ -e "$p" ]] || fail "missing input: $arg"
+  [[ ! -L "$p" ]] || fail "symlink input: $arg"
+  if [[ "$p" == /* ]]; then lex=$(lexical "$p"); else lex=$(lexical "$repo/$p"); fi
   if [[ -d "$p" ]]; then
-    find "$p" -type l -print > "$tmp/links" || fail "traversal failed: $p"
-    [[ ! -s "$tmp/links" ]] || fail "symlink under input: $(head -n 1 "$tmp/links")"
-    find "$p" -type f -print0 >> "$tmp/files" || fail "traversal failed: $p"
+    real=$(cd "$p" && pwd -P) || fail "cannot resolve: $arg"
   else
-    [[ -f "$p" ]] || fail "not a regular file: $p"
-    printf '%s\0' "$p" >> "$tmp/files"
+    dir=$(cd "$(dirname "$p")" && pwd -P) || fail "cannot resolve: $arg"
+    real="$dir/$(basename "$p")"
+  fi
+  [[ "$real" == "$repo"/* ]] || fail "input outside the repository: $arg"
+  [[ "$real" == "$lex" ]] || fail "input path contains a symlink or an escaping component: $arg"
+  rel=${real#"$repo"/}
+  if [[ -d "$rel" ]]; then
+    find "$rel" -type l -print > "$tmp/links" || fail "traversal failed: $arg"
+    [[ ! -s "$tmp/links" ]] || fail "symlink under input: $(head -n 1 "$tmp/links")"
+    find "$rel" -type f -print0 >> "$tmp/files" || fail "traversal failed: $arg"
+  else
+    [[ -f "$rel" ]] || fail "not a regular file: $arg"
+    printf '%s\0' "$rel" >> "$tmp/files"
   fi
 done
 [[ -s "$tmp/files" ]] || fail "empty input inventory"
@@ -107,8 +138,11 @@ Example: `ident.sh .cratis/screenplay .cratis/screenplay/.screenplay/identities.
 merged). Record the output as the source identity; a changed digest invalidates acceptance. Add the
 MCP workspace revision and catalog revision when a workspace is open. Validated cases: a normal
 folder (stable digest on rerun), a changed file, an added file, a deleted file, a symlinked folder,
-a nested file symlink, a nested directory symlink, an empty folder, no argument, a missing input, an
-unreadable file, an untraversable directory and an out-of-repository input.
+a nested file symlink, a nested directory symlink, a symlink with a trailing slash (`dir/`, `dir//`),
+a path through a symlinked parent, `.`, `..`, `../`, `../x`, `model/..`, `/`, an absolute
+out-of-repository path, an empty folder, no argument, an empty argument, a missing input, an
+unreadable file, an untraversable directory, and equal digests for `root`, `root/`, `./root` and
+`other/../root`. The cases ran as an executable scratch test (26 cases) against the script above.
 
 ### Revisions are three different things
 - **Source identity** (above): bytes of the inputs. Used for acceptance.

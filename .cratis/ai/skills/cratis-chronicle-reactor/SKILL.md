@@ -25,7 +25,7 @@ outside data that becomes our own facts.
 
 > **Model first.** If an accepted model under the model root covers this scope, or
 > the repository is opted in (the root, default `.cratis/screenplay/`, holds a
-> `.play` file, or the project explicitly set `mcpServers.screenplay.root` in
+> git-tracked `.play` file, or the project explicitly set `mcpServers.screenplay.root` in
 > `.cratis/ai.json`; master definition in `cratis-screenplay-modeling-lifecycle`), the automation is
 > a modeled slice: find it (`Automation` or `Translate`), treat its `produces` /
 > `invokes`, conditions and fields as the contract, and write the reactor only as
@@ -33,7 +33,7 @@ outside data that becomes our own facts.
 > Translate slices). Use `cratis-screenplay-automations-and-translations` to
 > change the model; never change the model to fit the reactor, and never leave a
 > modeled rule living only in the reactor. If the repository is not opted in
-> (an empty directory, install output, a `.play` file outside the root or an unaccepted draft is not consent), stay code-first here
+> (an empty directory, install output, a `.play` file outside the root or an untracked or uncommitted draft is not consent), stay code-first here
 > (`cratis-chronicle-event-modeling` for a new, unsettled flow); if the Screenplay skills are not installed, say so and do not author `.play` from memory.
 
 ## Verified product sources

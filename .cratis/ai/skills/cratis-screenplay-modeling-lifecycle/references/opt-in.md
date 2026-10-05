@@ -20,6 +20,14 @@ disables registration"; `AiConfiguration.McpServers`, read by `AiMcpDescriptor` 
 
 ## Edge cases
 - `.play` files only under `.ai-work/`, a docs folder or a sample: not under the root, so not opt-in.
-- A draft produced in this session before the user accepts it does not opt the repository in.
+- Acceptance is visible in the repository: the model root holds at least one `.play` file tracked
+  by git (`git ls-files <root>` lists it). Committing a model under the root is the team's act of
+  acceptance and opts the repository in. P6 recommends that the user commit once they accept.
+- An untracked or uncommitted `.play` file under the root is a draft: it does not opt the
+  repository in and is not a contract for code agents. The modeler writes drafts into the root
+  as before; they stay drafts until committed. A local STATE.md alone proves nothing to another
+  clone.
+- An explicitly configured root (`mcpServers.screenplay.root`) that is empty still counts as
+  opted in; rule (b) is independent of rule (a).
 - Declined proposals: a team that wants a lasting "no model" answer writes it in its own
   repository instructions, never in managed corpus files.
