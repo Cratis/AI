@@ -795,13 +795,23 @@
     {
       "id": "cratis/screenplay",
       "availableTargets": [
+        "cratis-screenplay-automations-and-translations",
         "cratis-screenplay-captures-and-reactions",
         "cratis-screenplay-command-surface",
+        "cratis-screenplay-discovery",
         "cratis-screenplay-event-modeling",
+        "cratis-screenplay-legacy-extraction",
         "cratis-screenplay-model-authoring",
+        "cratis-screenplay-model-review",
+        "cratis-screenplay-modeling-lifecycle",
         "cratis-screenplay-projections",
         "cratis-screenplay-read-surface",
+        "cratis-screenplay-render-and-gap-fill",
+        "cratis-screenplay-scenario-coverage",
+        "cratis-screenplay-slice-design",
         "cratis-screenplay-specifications",
+        "cratis-screenplay-streams-and-consistency",
+        "cratis-screenplay-toolchain",
         "cratis-screenplay-ui-composition"
       ],
       "languages": [
@@ -823,6 +833,7 @@
         "cratis/specifications"
       ],
       "availableTargets": [
+        "cratis-application-slice-conformance",
         "cratis-application-slice-specifications",
         "cratis-chronicle-event-specifications",
         "cratis-chronicle-read-model-specifications",
