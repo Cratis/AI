@@ -22,10 +22,12 @@ frameworks during modeling.
 **1. Decide the level (short form; master copy in `cratis-screenplay-modeling-lifecycle`).**
 Check first that the method skills are installed; installing them never opts a
 repository in. The work is **model-first** only in an opted-in repository: the model
-root (default `.cratis/screenplay/`) holds a git-tracked `.play` file, or the project explicitly set
+root (default `.cratis/screenplay/`) holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project explicitly set
 `mcpServers.screenplay.root` in `.cratis/ai.json`. An empty directory, install output,
 an installed skill, a `.play` file outside the root or an untracked or uncommitted draft is not
-opt-in; a behavior is a contract only when an accepted model under the root covers it.
+opt-in; staged or untracked files under the root are drafts. A committed file with uncommitted
+working-tree edits is a model change in progress; its HEAD version is the contract until the
+change is committed. A behavior is a contract only when an accepted model under the root covers it.
 Otherwise stay code-first. Only the entry-point session proposes a model (at most once
 per session, never for trivial, bug-fix, infrastructure, client, framework or
 brownfield-maintenance work; unattended: record the recommendation in the final report).

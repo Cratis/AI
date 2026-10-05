@@ -7,8 +7,8 @@ license: MIT
 # Chronicle event modeling
 
 > **Model-first check.** If an accepted model under the model root covers this scope, or the
-> repository is opted in (the root, default `.cratis/screenplay/`, holds a git-tracked `.play`
-> file, or the project explicitly set `mcpServers.screenplay.root` in
+> repository is opted in (the root, default `.cratis/screenplay/`, holds a committed `.play`
+> file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project explicitly set `mcpServers.screenplay.root` in
 > `.cratis/ai.json`), the model is the source of truth: use
 > `cratis-screenplay-event-modeling` (and the lifecycle in
 > `cratis-screenplay-modeling-lifecycle`, which holds the master definition)

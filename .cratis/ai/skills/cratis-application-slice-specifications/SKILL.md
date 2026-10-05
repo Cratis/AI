@@ -48,7 +48,7 @@ repository before claiming support for another version.
   the contract for this skill). Decide this with the decision rule in
   `cratis-screenplay-modeling-lifecycle`: model-first only when an accepted
   model under the model root covers this scope, or the repository is opted in
-  (the root holds a git-tracked `.play` file, or the project set `mcpServers.screenplay.root`
+  (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project set `mcpServers.screenplay.root`
   in `.cratis/ai.json`); an empty directory, install output, a `.play` file
   outside the root or an uncommitted draft does not count, and framework, infrastructure, client, adapter and not-opted-in
   brownfield work stays code-first. Opted in but no model for this scope: model
@@ -66,7 +66,7 @@ When the slice has a contract — a `.play` slice with its `specification`
 blocks, or an agreed outline — its specifications are the **minimum list**: each
 one becomes a specification class here, named after it. Steps 3–7 then add what
 the code reveals (each validator rule, each constraint). A rule found in the code
-with no contract specification is a proposal for the model, not silent coverage:
+with no contract specification is a proposal for the contract (the `.play` model when one covers the slice, otherwise the agreed outline), not silent coverage:
 list it in the report and, where a model exists, route it to
 `cratis-screenplay-scenario-coverage`.
 

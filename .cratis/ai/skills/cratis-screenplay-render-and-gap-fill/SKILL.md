@@ -69,7 +69,8 @@ import-only root file.
 
 ## Procedure
 
-1. **Preconditions.** Record the source identity (`cratis-screenplay-modeling-lifecycle`
+1. **Preconditions.** P6 has committed the accepted `.play` files and `.screenplay/identities.json`
+   when present; uncommitted model changes return to P6 before delivery. Record the source identity (`cratis-screenplay-modeling-lifecycle`
    `references/verdicts-and-modes.md` "Source identity"), the model root, `--name`,
    `--project-name`, `--root-namespace` and target `cratis`. Take V1 and V3 from
    `cratis-screenplay-toolchain`; report each with tool and version. V3 from the standalone
@@ -131,8 +132,8 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 - Never remove `@pii`, `@sensitive`, authorization or rules to get a render through; report the gap.
 - Stop and ask only on a genuine contradiction between model, specs, descriptions and declared
   contracts, after reading the slice fully (`cratis-screenplay-modeling-lifecycle` `references/stop-or-assume.md`).
-- Commit set after a delivery the user accepts: `.play` files, `.screenplay/identities.json`
-  when present, the destination's `.cratis-render.json`, managed output and `Customizations/`.
+- Commit set after a delivery the user accepts: the destination's `.cratis-render.json`,
+  managed output and `Customizations/`. The model and identity catalog were committed at P6.
   Never `.cratis-render/` (the journal directory) and never `.ai-work/`.
 - Limits stated in this text are prompt policy unless a guard enforces them; say so.
 

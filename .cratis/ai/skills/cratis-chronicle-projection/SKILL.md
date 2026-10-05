@@ -245,7 +245,7 @@ projection spans streams.
 ## Route near misses
 
 - An accepted `.play` model under the model root covers the behavior, or the
-  repository is opted in (the root holds a git-tracked `.play` file, or the project set
+  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project set
   `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
   output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
   `cratis-screenplay-modeling-lifecycle`): change the model first with

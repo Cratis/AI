@@ -36,7 +36,7 @@ another version. Never translate an assertion or helper name from memory.
   plain `Specification` base in this file and do not reach for the scenario
   family except to test the very engine that repository provides.
 - An accepted `.play` model under the model root covers the behavior, or the
-  repository is opted in (the root holds a git-tracked `.play` file, or the project set
+  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project set
   `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
   output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
   `cratis-screenplay-modeling-lifecycle`): change the model first with

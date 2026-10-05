@@ -31,7 +31,7 @@ Select only diff-relevant, profile-applicable canonical rules in `.cratis/ai/rul
 
 ## Model-first check
 
-Run the model-first decision once per review (master text: `cratis-screenplay-modeling-lifecycle`): the repository is opted in only when the model root (default `.cratis/screenplay/`) holds a git-tracked `.play` file or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed skill, a `.play` file outside the root or an untracked or uncommitted draft is not opt-in, and a behavior is a contract only when an accepted model under the root covers it. Otherwise skip this section, and do not demand a model from framework, brownfield or not-opted-in work. If the Screenplay skills are missing, say so in the report rather than reviewing model content from memory.
+Run the model-first decision once per review (master text: `cratis-screenplay-modeling-lifecycle`): the repository is opted in only when the model root (default `.cratis/screenplay/`) holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it) or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed skill, a `.play` file outside the root or an untracked or uncommitted draft is not opt-in, and a behavior is a contract only when an accepted model under the root covers it. Otherwise skip this section, and do not demand a model from framework, brownfield or not-opted-in work. If the Screenplay skills are missing, say so in the report rather than reviewing model content from memory.
 
 In an opted-in repository:
 

@@ -19,15 +19,15 @@ an unproven pass.
 ## Decide the level first (master copy; run once per request, from any entry point)
 
 1. **Opted in?** Only when (a) the model root (default `.cratis/screenplay/`, or the project's
-   configured root) holds a `.play` file **tracked by git** (`git ls-files <root>` lists it), or (b)
+   configured root) holds a `.play` file **in the committed tree** (`git ls-tree -r --name-only HEAD -- <root>` lists it), or (b)
    the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json` (an empty configured
    root counts). **Not opt-in:** an empty `.cratis/screenplay/` or the MCP entry that `cratis ai
    install`/`update` creates; an installed profile or skill; a `.play` file outside the root; an
-   untracked or uncommitted `.play` file under the root (a draft). Committing a model under the root
-   is the team's act of acceptance and opts the repository in; the modeler still writes into the
-   root, and that work is a draft until committed. A behavior is a **contract** only when an
-   accepted (git-tracked) model under the root covers it. A direct user request to model a scope is
-   consent for that scope. Evidence: `references/opt-in.md`.
+   staged or untracked `.play` file under the root (a draft). Committing a model under the root
+   is the team's act of acceptance and opts the repository in. Staged or untracked files under the root are drafts.
+   A committed file with uncommitted working-tree edits is a model change in progress: its HEAD version is the contract until the change is committed.
+   A behavior is a **contract** only when an accepted (committed) model under the root covers it.
+   A direct user request to model a scope is consent for that scope. Evidence: `references/opt-in.md`.
 2. **Not opted in:** continue code-first; never force a model (framework, brownfield,
    infrastructure, client and adapter work stays code-first). Only the entry-point agent or session
    may **propose a model**: at most once per session, never for trivial, bug-fix, infrastructure,

@@ -47,9 +47,12 @@ are, is `cratis-screenplay-modeling-lifecycle` ("Decide the level first").
 1. An accepted `.play` model under the model root (default `.cratis/screenplay/`, or the root
    set by `mcpServers.screenplay.root` in `.cratis/ai.json`) covers the slice (search
    `**/*.play` for the slice, command, event and read-model names): the `.play` slice and its
-   specifications are the contract. "Accepted" means tracked by git (`git ls-files <root>` lists
-   it); an untracked or uncommitted file, or one outside the root, is a draft, not a contract.
-2. The repository is opted in (the root holds a git-tracked `.play` file, or the project
+   specifications are the contract. "Accepted" means the `.play` file is in the committed tree
+   (`git ls-tree -r --name-only HEAD -- <root>` lists it). Staged or untracked files under the
+   root are drafts, not contracts; a file outside the root is not a contract. A committed file
+   with uncommitted working-tree edits is a model change in progress: its HEAD version is the
+   contract until the change is committed.
+2. The repository is opted in (the root holds a committed `.play` file, or the project
    explicitly set that root, even if it is empty; an empty unconfigured directory, install
    output, an installed skill or an uncommitted draft does not count) but this
    scope has no model yet: new behaviour starts in discovery and slice design
@@ -80,7 +83,8 @@ Slice-type checklists and the Chronicle runtime guarantees: `references/checklis
 - Contract to code: every listed element has a realization; list each gap.
 - Code to contract: every business field, default, rule, filter or outcome in code has
   contract authority. Anything else is invented: remove it, or if it is a real need, propose it
-  for the model and stop that scope. Framework metadata (stream type, concurrency scope,
+  for the contract (the `.play` model when one covers the slice, otherwise the agreed outline)
+  and stop that scope. Framework metadata (stream type, concurrency scope,
   `[OnceOnly]`) is infrastructure and never changes the domain contract.
 - A rule that lives only in code but is modeled elsewhere is a defect, not a convenience.
 - Unrelated contracts stay as they were. Identity-affecting changes (renames, moves, removal of
@@ -93,7 +97,8 @@ specification's name; split it only if every assertion survives. Report the mapp
 (contract specification, spec class, result). Rejections map to the rule they name: build the
 command valid in every other respect so a neighbouring rule cannot make it pass. Use the
 contract's example values except where uniqueness needs fresh ones. Code-derived cases the
-contract lacks are extra, and reported as proposals for the model.
+contract lacks are extra, and reported as proposals for the contract (the `.play` model when
+one covers the slice, otherwise the agreed outline).
 
 **Never edit, skip or delete a specification derived from the contract to make code pass.**
 Change the code, or return an edit request. Do not touch test files outside the slice unless

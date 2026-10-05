@@ -65,9 +65,10 @@ digest) on: a missing model-root argument, an empty input inventory, a missing, 
 non-regular input, any input that resolves outside the repository, any symlink (the input itself
 with or without a trailing slash, a symlinked parent component, or anything below an input
 directory, including nested directory links), and any traversal, hashing or sort failure. Each
-input is normalised first: trailing slashes are stripped, the whole path is resolved physically
-(`pwd -P`) and compared with its lexical form, so `dir/` for a symlinked `dir`, `..`, `../x` and
-`sub/../..` fail closed. The manifest lists canonical repository-relative paths, so `root`,
+input is normalised first: trailing slashes are stripped, symlink components are rejected
+before `..` is collapsed, and the whole path is resolved with physical traversal (`set -P`,
+`pwd -P`) and compared with its lexical form. Thus `dir/` for a symlinked `dir`, `..`, `../x`,
+`sub/../..`, `link/..` and `.github/skills/../workflows` fail closed. The manifest lists canonical repository-relative paths, so `root`,
 `root/` and `./root` give one digest.
 Deletions and renames change the digest because the manifest lists paths as well as hashes.
 
@@ -75,6 +76,7 @@ Deletions and renames change the digest because the manifest lists paths as well
 #!/usr/bin/env bash
 # Usage: ident.sh <model-root> [extra-input-path ...]   (run from the repository root)
 set -euo pipefail
+set -P
 fail() { echo "ident: $*" >&2; exit 1; }
 [[ $# -ge 1 ]] || fail "usage: ident.sh <model-root> [extra-input-path ...]"
 repo=$(git rev-parse --show-toplevel) || fail "not in a git repository"
@@ -96,6 +98,16 @@ lexical() {
   r="${out[*]-}"
   printf '/%s' "$r"
 }
+# Inspect the raw absolute path before lexical normalization can remove a symlink component.
+reject_symlink_components() {
+  local IFS=/ part prefix='' parts=()
+  read -r -a parts <<< "$1"
+  for part in "${parts[@]}"; do
+    case "$part" in ''|.) continue ;; esac
+    prefix="$prefix/$part"
+    [[ ! -L "$prefix" ]] || fail "symlink component: $1"
+  done
+}
 : > "$tmp/files"
 for arg in "$@"; do
   p=$arg
@@ -103,7 +115,9 @@ for arg in "$@"; do
   [[ -n "$p" ]] || fail "empty input"
   [[ -e "$p" ]] || fail "missing input: $arg"
   [[ ! -L "$p" ]] || fail "symlink input: $arg"
-  if [[ "$p" == /* ]]; then lex=$(lexical "$p"); else lex=$(lexical "$repo/$p"); fi
+  if [[ "$p" == /* ]]; then raw=$p; else raw="$repo/$p"; fi
+  reject_symlink_components "$raw"
+  lex=$(lexical "$raw")
   if [[ -d "$p" ]]; then
     real=$(cd "$p" && pwd -P) || fail "cannot resolve: $arg"
   else
@@ -136,13 +150,12 @@ echo "$commit+${d:0:12}"
 Example: `ident.sh .cratis/screenplay .cratis/screenplay/.screenplay/identities.json src/Billing/Rule.cs`
 (the identity catalog sits inside the root, so list it only if it lives elsewhere; duplicates are
 merged). Record the output as the source identity; a changed digest invalidates acceptance. Add the
-MCP workspace revision and catalog revision when a workspace is open. Validated cases: a normal
-folder (stable digest on rerun), a changed file, an added file, a deleted file, a symlinked folder,
-a nested file symlink, a nested directory symlink, a symlink with a trailing slash (`dir/`, `dir//`),
-a path through a symlinked parent, `.`, `..`, `../`, `../x`, `model/..`, `/`, an absolute
-out-of-repository path, an empty folder, no argument, an empty argument, a missing input, an
-unreadable file, an untraversable directory, and equal digests for `root`, `root/`, `./root` and
-`other/../root`. The cases ran as an executable scratch test (26 cases) against the script above.
+MCP workspace revision and catalog revision when a workspace is open. Retained regression cases
+in the Cratis AI spec `source-identity-helper.spec.ts` extract and execute the shell fence above:
+a trailing-slash symlink (`link/`, `link//`), `..`, `../x`, `sub/../..`, `link/..`, a symlinked
+parent with `..` when both logical and physical destinations exist (`.github/skills/../workflows`),
+no argument, an empty argument, equal digests for `root`, `root/` and `./root`, and a changed
+file changing the digest. The spec skips gracefully when bash is unavailable.
 
 ### Revisions are three different things
 - **Source identity** (above): bytes of the inputs. Used for acceptance.

@@ -32,7 +32,7 @@ Select from these canonical rules in `.cratis/ai/rules/` only after applying the
 ## Inputs you expect
 
 - Feature name, slice name, and slice type (specs are **mandatory for every slice type**)
-- The slice's contract and its specification list: the `.play` slice's specifications, or the agreed outline. Before accepting an outline, apply Phase 0 of `application-profile.md` (an accepted model under the model root covers the scope, or the repository is opted in, meaning the root holds a git-tracked `.play` file or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`: the contract is the `.play` slice's specifications; if the model lacks the behaviour, request it be added; check skill availability separately). Without opt-in, an agreed outline is the contract and code-first work is preserved. Existing code is not the contract.
+- The slice's contract and its specification list: the `.play` slice's specifications, or the agreed outline. Before accepting an outline, apply Phase 0 of `application-profile.md` (an accepted model under the model root covers the scope, or the repository is opted in, meaning the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it) or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`: the contract is the `.play` slice's specifications; if the model lacks the behaviour, request it be added; check skill availability separately). Without opt-in, an agreed outline is the contract and code-first work is preserved. Existing code is not the contract.
 - The complete slice file (`<Slice>.cs`) so you understand what behaviors to specify
 - Any business rules or constraints that must be validated
 - The namespace root (read from existing source files)
@@ -89,7 +89,7 @@ public class and_all_information_is_valid : Specification
 
 ### What to specify
 
-0. **Every contract specification first** — one spec each, named after it, using the contract's example values. Then add the code-derived cases below that the contract lacks and report them as proposals for the model; never present them as contract coverage. A `.play` specification maps to the scenario helper for its slice type; never edit, skip or delete a spec derived from the contract to make code pass — change the code or return an edit request.
+0. **Every contract specification first** — one spec each, named after it, using the contract's example values. Then add the code-derived cases below that the contract lacks and report them as proposals for the contract (the `.play` model when one covers the slice, otherwise the agreed outline); never present them as contract coverage. A `.play` specification maps to the scenario helper for its slice type; never edit, skip or delete a spec derived from the contract to make code pass — change the code or return an edit request.
 1. **Happy path** — succeeds, correct event(s) appended.
 2. **Each validation failure** — assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()`. Never assert on message strings. Violate **only** the rule the spec is named after (build the command valid in every other respect), or a neighbouring rule makes it pass.
 3. **Business-rule violations** — each `Result<,>` rejection / DCB condition.

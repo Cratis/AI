@@ -42,7 +42,7 @@ version.
   readmodel` rows are the contract). Decide this with the decision rule in
   `cratis-screenplay-modeling-lifecycle`: model-first only when an accepted
   model under the model root covers this scope, or the repository is opted in
-  (the root holds a git-tracked `.play` file, or the project set `mcpServers.screenplay.root`
+  (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project set `mcpServers.screenplay.root`
   in `.cratis/ai.json`); an empty directory, install output, a `.play` file
   outside the root or an uncommitted draft does not count, and framework, infrastructure, client, adapter and not-opted-in
   brownfield work stays code-first. Opted in but no model for this scope: model
@@ -193,7 +193,7 @@ one, derive it from the projection and say so. Then check each line:
 - **Use the contract's example values** so the code and the contract describe the
   same example; substitute fresh identifiers only where isolation needs it,
   keeping the example's relationships. A read-model rule found in the projection with no contract
-  specification is a proposal for the model, not silent coverage.
+  specification is a proposal for the contract (the `.play` model when one covers the slice, otherwise the agreed outline), not silent coverage.
 
 ## Lineage
 

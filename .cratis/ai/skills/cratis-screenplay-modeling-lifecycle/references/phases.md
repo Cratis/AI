@@ -73,11 +73,16 @@ whose gate fails stays open; it is never "carried" into the next one.
 ## P6 Accept (the user)
 - **Input**: the reviewed source identity.
 - **Carry-forward**: the accepted **source identity** (`verdicts-and-modes.md`).
-- **Recommend**: that the user commit the accepted model once they accept it. Committing a model
-  under the model root is the team's act of acceptance and opts the repository in (a `.play`
-  file tracked by git, `git ls-files <root>`); until committed, the work is a draft that code
-  agents do not treat as a contract. The modeler never commits on its own.
-- **Gate**: explicit acceptance. Any later edit to the scope invalidates it.
+- **Commit at P6**: the accepted `.play` files and `.screenplay/identities.json` when present.
+  The user commits, or explicitly authorizes the owning session to commit; the modeler never
+  commits on its own. Committing a model under the model root is the team's act of acceptance
+  and opts the repository in (`git ls-tree -r --name-only HEAD -- <root>` lists the `.play`
+  file). Staged or untracked files under the root are drafts, not contracts for code agents.
+  A committed file with working-tree edits is a model change in progress; its HEAD version is
+  the contract until the change is committed.
+- **Gate**: explicit acceptance and the model commit before P7-P9. Record the source identity
+  after committing. Any later edit to the scope invalidates that identity's acceptance; it
+  does not replace the HEAD contract until committed.
 
 ## P7 Execute (executable mode; modeling stance)
 - **Input**: the accepted identity.

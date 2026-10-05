@@ -3,8 +3,11 @@
 ## Which contract
 First the opt-in decision (master: `cratis-screenplay-modeling-lifecycle`, "Decide the level
 first"; `SKILL.md` step 1 suffices when it is not installed): an accepted model under the model
-root covers the slice (accepted means tracked by git), or the root holds a git-tracked `.play`
-file or was explicitly set in `.cratis/ai.json` (even if empty). An empty directory, install
+root covers the slice (accepted means the `.play` file is in the committed tree:
+`git ls-tree -r --name-only HEAD -- <root>` lists it), or the root holds a committed `.play`
+file or was explicitly set in `.cratis/ai.json` (even if empty). Staged or untracked files under
+the root are drafts. A committed file with uncommitted working-tree edits is a model change
+in progress; its HEAD version is the contract until the change is committed. An empty directory, install
 output, an uncommitted `.play` draft or a `.play` file outside the root does not count. Otherwise stay code-first.
 
 | Situation | Contract | Code's role |
