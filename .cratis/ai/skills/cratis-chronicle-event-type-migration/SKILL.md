@@ -220,6 +220,14 @@ is expected, since the prior generation records history rather than new intent.
 | Splitting one event into two inside `Upcast` | a migration produces one event; model a split as a reactor or a command |
 | Adding a new generation for a renamed enum member | not needed; only removal or renumbering requires one |
 
+## Route near misses
+
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.
+
 ## Verify
 
 - The current record carries the bumped `[EventType(generation: N)]`.

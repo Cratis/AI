@@ -174,6 +174,14 @@ model and assert on the resulting instance. Cover, at minimum:
 - every branch the reducer actually has;
 - deletion, if the reducer ever returns `null`.
 
+## Route near misses
+
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.
+
 ## Verify
 
 - The admission test is satisfied and the justification names the specific

@@ -44,6 +44,11 @@ another version.
   validator. Use `cratis-arc-authentication-authorization-and-identity`.
 - Writing the specification for the rejection: use
   `cratis-application-slice-specifications`.
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.
 
 ## Step 1 — Choose the mechanism by what the decision *is*
 

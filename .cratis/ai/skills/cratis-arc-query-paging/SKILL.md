@@ -181,3 +181,8 @@ pinning, keep it in a method a specification can supply arguments to.
 - Creating the read model or its projection: the Chronicle read-model guidance.
 - Inspecting an observable query over HTTP: `cratis-arc-observable-query-http`.
 - Whole-slice performance work: the performance review guidance.
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.

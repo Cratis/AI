@@ -14,6 +14,8 @@ A vertical slice owns a single behavior: the command or query, the events it pro
 
 This file is the reference for *what* goes in each part of a slice. Layout, slice types, workflow, and quality gates are in [general.md](./general.md).
 
+**Model-first check.** Before changing a slice, look for it in the `.play` model (`.cratis/screenplay/` or the configured model root). If the model covers it, change the model and render or gap-fill from it; never edit Stage-managed files. See Phase 0 in [application-profile.md](./application-profile.md).
+
 ## Technical stack
 
 - .NET / C# (ASP.NET Core) — **Cratis Arc** for CQRS / model-bound commands and queries, **Cratis Chronicle** for event sourcing, MongoDB or EF Core for read models.
@@ -312,7 +314,7 @@ Group multi-event constraints under a shared name constant (`<Module>ConstraintN
 
 ## Reactors **[contract]**
 
-`IReactor` is a marker interface; dispatch is by the first parameter type. Reactors live only in Automation/Translation slices. See [reactors.md](./reactors.md) for full rules, or invoke the **cratis-chronicle-reactor** skill.
+`IReactor` is a marker interface; dispatch is by the first parameter type. Reactors live in Automation slices (reacting to events, calling external systems, returning follow-up commands/events) and in Translation slices that record outside data as our facts. See [reactors.md](./reactors.md) for full rules, or invoke the **cratis-chronicle-reactor** skill.
 
 ```csharp
 public Task AuthorRegistered(AuthorRegistered @event, EventContext context) => ...

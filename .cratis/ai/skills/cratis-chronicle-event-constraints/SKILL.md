@@ -37,6 +37,11 @@ memory.
   `cratis-chronicle-read-model`.
 - You are writing the specification and want the `EventScenario` mechanics in
   depth: use `cratis-chronicle-event-specifications`.
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.
 
 ## Step 1 — Pick the mechanism
 

@@ -178,6 +178,14 @@ Run the project's frontend test gate (typically `yarn test`) plus lint and the
 TypeScript build. Specifications complement lint and build; they do not replace
 them.
 
+## Route near misses
+
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.
+
 ## Verify
 
 - Files sit in `for_<Subject>/when_<context>/` beside the unit, in snake_case.

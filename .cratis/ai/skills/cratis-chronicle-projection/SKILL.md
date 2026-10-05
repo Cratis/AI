@@ -242,6 +242,14 @@ through the read-model specification for this model and assert the projected
 state — seed each contributing stream with its own event-source setup when the
 projection spans streams.
 
+## Route near misses
+
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.
+
 ## Verify
 
 - Model-bound attributes were exhausted before the fluent builder, and the

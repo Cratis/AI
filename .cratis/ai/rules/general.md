@@ -104,6 +104,8 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 > **Building an application on Cratis?** Project layout, slice types, slice naming, the seventeen slice rules, the implementation workflow and the application quality gates are in [application-profile.md](./application-profile.md), which loads only for repositories that select an application profile. If you are contributing to a Cratis framework repo, see **Framework profile** below.
 
+**Model first.** When an accepted `.play` model covers the scope, or the repository has opted in (a `.cratis/screenplay/` directory or a configured model root, even if empty), the `.play` model is the source of truth for behavior: change the model first, verify it, then render it or gap-fill from it, and never edit Stage-managed output, take code as a shortcut around the model, or weaken protection (authorization, `@pii`, rules) to make a model compile or render. Without a model or opt-in, propose a model once and stay code-first; installing a profile or skill is not opt-in, framework repositories and brownfield work with no accepted model and no opt-in stay code-first, and infrastructure, client and adapter work stays in code at any level. Trivial changes keep the proportional-delegation policy. The decision rule is in **cratis-screenplay-event-modeling**; if the Screenplay skills are not installed, say so and do not author `.play` from memory.
+
 ---
 
 # Framework profile
@@ -147,9 +149,11 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Exit-code meaning and wrappers that lose a verdict | `exit-codes-and-wrappers.md` |
 | Writing a scan, allowlist or destructive pass that cannot pass vacuously | `guards-and-fuses.md` |
 | How the shared corpus is installed, updated and rolled back | `ai-distribution.md` |
-| Event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |
-| Designing an information system, business process or information flow as a **Screenplay** `.play` model | the **cratis-screenplay-event-modeling** skill, then the per-surface `cratis-screenplay-*` skills |
-| Rendering a settled `.play` model into an application | the **cratis-stage-rendering-and-sandbox** skill |
+| Code-level event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |
+| Building or changing behavior in a Cratis application, or designing an information system, business process or information flow: **model first** | the **cratis-screenplay-event-modeling** skill (decision rule), then **cratis-screenplay-modeling-lifecycle** and one phase skill; per-surface `cratis-screenplay-*` skills for syntax |
+| Reviewing or explaining a `.play` model | the **cratis-screenplay-model-review** skill |
+| Turning an existing system into a model | the **cratis-screenplay-legacy-extraction** skill |
+| Rendering or gap-filling an accepted model | the **cratis-screenplay-render-and-gap-fill** skill, then **cratis-stage-rendering-and-sandbox** for renderer facts |
 | Step-by-step recipes | `.cratis/ai/skills/` |
 
 ## Source-of-Truth Discipline

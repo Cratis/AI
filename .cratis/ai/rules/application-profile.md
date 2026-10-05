@@ -19,8 +19,8 @@ Pick exactly one type per slice folder — determined by what the slice *does*.
 | --- | --- | --- |
 | **State Change** | Accepts a command, appends events | Command + validator + event(s); optional `[Passive]` read model for command-side decisions |
 | **State View** | Projects events into a queryable read model | `[ReadModel]` + model-bound projection + static query method(s) |
-| **Automation** | Reacts to events, calls external systems / `ICommandPipeline` | Reactor only |
-| **Translation** | Reacts to events and appends follow-up events to another stream | Reactor only |
+| **Automation** | Reacts to events, calls external systems / `ICommandPipeline`, or returns follow-up commands/events (including to another stream) | Reactor only |
+| **Translation** | Takes data from outside our own facts (an external system or another service) and records it as our facts | An adapter at the boundary, often a reactor |
 
 ## Slice Naming (convention)
 
@@ -52,7 +52,11 @@ Tagged **[contract]** (framework-enforced) or **[convention]** (house default). 
 
 ## Implementation Workflow
 
-- **Phase 0 — Model.** Confirm Module/Feature, slice name, slice type, domain rules; for new behavior or unclear event vocabulary run the **cratis-chronicle-event-modeling** skill first.
+- **Phase 0 — Find the contract / choose the level.** Before writing slice code, find what the code must match, and choose the level once for the whole scope.
+  1. **Look for a Screenplay model:** `.cratis/screenplay/` or the configured model root (search `**/*.play`) for the slice, command, event and read-model names.
+  2. **Model level** — an accepted model covers the scope, or the repository has opted in (`.cratis/screenplay/` or a configured model root exists, even if empty) and this scope has no model yet. The `.play` slice and its specs are the contract: change the model first (new behavior starts in discovery), verify it (V1–V3), get an independent review, then render with Stage or gap-fill by hand only what the renderer rejects. Hand-written code stays checked against the model (**cratis-application-slice-conformance**). Never edit Stage-managed output, never implement behavior the model does not state, never change the model to match existing code, never weaken protection to make it compile or render. Start with **cratis-screenplay-event-modeling** (decision rule), then **cratis-screenplay-modeling-lifecycle**. If the Screenplay skills are not installed, say so; do not author `.play` from memory.
+  3. **Code level** — infrastructure (hosting, DI composition, identity wiring, CI, deployment), clients, Screenplay code attachments and handlers, adapters in the render's customization area, and scope Stage cannot render yet (the model remains the contract). Framework repositories and brownfield work with no model and no opt-in also stay code-first: propose a model once (creating `.cratis/screenplay/` is a repository decision), then continue in code if declined. Confirm Module/Feature, slice name, slice type and domain rules; for new behavior or unclear event vocabulary run **cratis-chronicle-event-modeling** first, and record the agreed outline (fields, events, rules, scenarios) in the issue before writing code. If you write code first where a model exists, say the model now lags.
+  4. **Trivial changes** keep the proportional-delegation policy; Phases 1–3 below apply to code you write at either level.
 - **Phase 1 — Backend.** Implement a coherent slice change. **Gate:** incremental Debug build of the affected project (regenerates proxies, compiles `#if DEBUG` spec code).
 - **Phase 2 — Specs.** Mandatory for every slice type, in-process scenario family first (`CommandScenario<T>`, `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>`). **Gate:** tests pass.
 - **Phase 3 — Frontend.** Build from the generated proxies, register in the composition page, wire routing. **Gate:** lint, conditional test, build.

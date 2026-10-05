@@ -162,3 +162,8 @@ apply. Do not construct or suggest credentials.
 - Operating or recovering a Chronicle store: the Chronicle CLI guidance.
 - Diagnosing a whole slice rather than one endpoint: the slice diagnostics
   guidance.
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.

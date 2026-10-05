@@ -214,3 +214,8 @@ mis-marking it to silence the warning.
   `cratis-arc-command-operation`.
 - Adding or changing a rule: the Arc command validation guidance.
 - Designing what a reactor should observe: the Chronicle reactor guidance.
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.

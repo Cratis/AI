@@ -290,6 +290,11 @@ Components guidance, not to this skill.
 - Append-time uniqueness or concurrency constraints: the Chronicle event
   constraints guidance.
 - Choosing the concept or identity type for a value: `cratis-fundamentals-concept`.
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.
 
 ## Verify
 

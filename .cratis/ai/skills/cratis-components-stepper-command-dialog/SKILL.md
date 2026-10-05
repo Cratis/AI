@@ -196,6 +196,14 @@ children.
 | Seeding a required value in `onBeforeExecute` | Use `initialValues` |
 | `pt` applied expecting it to reach the dialog | `pt` targets the stepper; use `dialogPt` |
 
+## Route near misses
+
+- The behavior is described in a `.play` model, or the repository has opted in
+  to model-first work: change the model first with
+  `cratis-screenplay-event-modeling`. Edit code here only for infrastructure,
+  clients, adapters, Screenplay code attachments, or gap-fill scope
+  (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed output.
+
 ## Verify
 
 - Imports come from `@cratis/components/CommandDialog` and
