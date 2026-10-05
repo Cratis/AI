@@ -27,6 +27,22 @@ Select only diff-relevant, profile-applicable canonical rules in `.cratis/ai/rul
 
 ---
 
+## Model-first check
+
+Run the model-first decision once per review (master text: `cratis-screenplay-modeling-lifecycle`): an accepted model covers the scope, a model root is configured (even if empty), or `.cratis/screenplay/` exists means the repository is opted in. Otherwise skip this section, and do not demand a model from framework, brownfield or not-opted-in work. If the Screenplay skills are missing, say so in the report rather than reviewing model content from memory.
+
+In an opted-in repository:
+
+- [ ] **[BLOCKING]** Behavior added in code has a `.play` counterpart (command, event, rule, read model, specification), or the code is in an allowed place: infrastructure, clients, Screenplay code attachments and handlers, adapters, or documented gap-fill for scope Stage cannot render, with the `.play` slice and specs as the contract
+- [ ] **[BLOCKING]** No edits to Stage-managed output (the generated files and their managed markers); customizations live in the places Stage reserves for them
+- [ ] **[BLOCKING]** No modeled rule lives only in code; protection (authorization, `@pii`, rules) was not weakened to make a model compile or render
+- [ ] The model was not changed to match existing code
+- [ ] Specs derived from `.play` specifications were not weakened or removed
+
+Changes under `.cratis/screenplay/**` (or the configured model root) are not reviewed here beyond noting them: route them to `screenplay-reviewer` for an independent, fresh-context model review and list that routing in the report. Review the surrounding code changes as usual.
+
+---
+
 ## Review approach
 
 Review every changed file. For each issue found:
