@@ -80,8 +80,10 @@ whose gate fails stays open; it is never "carried" into the next one.
   file). Staged or untracked files under the root are drafts, not contracts for code agents.
   A committed file with working-tree edits is a model change in progress; its HEAD version is
   the contract until the change is committed.
-- **Gate**: explicit acceptance and the model commit before P7-P9. Record the source identity
-  after committing. Any later edit to the scope invalidates that identity's acceptance; it
+- **Gate**: explicit acceptance and the model commit before P7-P9. After committing, recompute
+  the source identity. Its digest must equal the digest reviewed at P5; only the commit part may
+  differ. If the digest differs, return to P4/P5 for the changed scope. Record the post-commit
+  identity only after this check passes. Any later edit to the scope invalidates that identity's acceptance; it
   does not replace the HEAD contract until committed.
 
 ## P7 Execute (executable mode; modeling stance)

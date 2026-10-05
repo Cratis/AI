@@ -97,10 +97,12 @@ MCP loop procedure and proposals: `cratis-screenplay-model-authoring`.
 ## Revisions and descriptions
 
 - `modelRevision` exists only when the model binds; design-only models have none. It is stable
-  across reopens, but it **changes when the root folder is renamed or a file moves** and no
+  across reopens, but it **changes when the root folder is renamed** and no
   `.screenplay/identities.json` exists, because the application identity is bootstrapped
-  from the root. It also changes with file names and line positions, so a description edit
-  can change it. Do not assume hash stability; re-read after every edit.
+  from the root. A file move changes it only if it changes logical placement or application
+  identity. It is computed from canonical semantic JSON (descriptions and source locations live
+  in the separate source map), so line positions and description edits do not change it. A
+  workspace or source revision can change without a `modelRevision` change. Re-read after every edit.
 - `cratis render` records its own `semanticRevision` in `.cratis-render.json`, computed with
   the `--name` identity and the 4.60.1 compiler. **Never compare the MCP `modelRevision`
   with a render manifest.** Drift is detected by comparing successive `semanticRevision`

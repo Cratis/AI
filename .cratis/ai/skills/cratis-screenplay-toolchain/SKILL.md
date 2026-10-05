@@ -89,8 +89,8 @@ server with a fixed root (a dynamic root hits the roots bug on 4.63.1 and the bu
 One line per verdict, tool first, for example `V1 pass (screenplay 4.64.0, 3 files)` and
 `V3 blocked: PLAY0268 x3 (list query, @pii)`. Name the source identity (commit plus a hash of
 dirty and untracked files and attachments) the verdict ran on; keep it apart from the MCP
-`modelRevision`, which changes with file names and, without `.screenplay/identities.json`,
-with the root folder name.
+`modelRevision`, which is semantic and, without `.screenplay/identities.json`,
+changes with the root folder name.
 
 ## Subsets (write from the one your mode needs)
 

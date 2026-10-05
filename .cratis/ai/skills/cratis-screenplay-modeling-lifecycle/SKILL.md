@@ -22,9 +22,9 @@ an unproven pass.
    configured root) holds a `.play` file **in the committed tree** (`git ls-tree -r --name-only HEAD -- <root>` lists it), or (b)
    the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json` (an empty configured
    root counts). **Not opt-in:** an empty `.cratis/screenplay/` or the MCP entry that `cratis ai
-   install`/`update` creates; an installed profile or skill; a `.play` file outside the root; an
+   install`/`update` creates; an installed profile or skill; a `.play` file outside the root; a
    staged or untracked `.play` file under the root (a draft). Committing a model under the root
-   is the team's act of acceptance and opts the repository in. Staged or untracked files under the root are drafts.
+   is the team's act of acceptance and opts the repository in.
    A committed file with uncommitted working-tree edits is a model change in progress: its HEAD version is the contract until the change is committed.
    A behavior is a **contract** only when an accepted (committed) model under the root covers it.
    A direct user request to model a scope is consent for that scope. Evidence: `references/opt-in.md`.

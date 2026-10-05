@@ -140,6 +140,7 @@ done
 : > "$tmp/manifest"
 while IFS= read -r -d '' f; do
   [[ -r "$f" && ! -L "$f" ]] || fail "unreadable or symlink: $f"
+  case "$f" in *$'\n'*|*$'\t'*) fail "filename contains a newline or tab: $f" ;; esac
   h=$(shasum -a 256 < "$f") || fail "hash failed: $f"
   printf '%s\t%s\n' "$f" "${h%% *}" >> "$tmp/manifest"
 done < "$tmp/files"
@@ -149,13 +150,14 @@ echo "$commit+${d:0:12}"
 ```
 Example: `ident.sh .cratis/screenplay .cratis/screenplay/.screenplay/identities.json src/Billing/Rule.cs`
 (the identity catalog sits inside the root, so list it only if it lives elsewhere; duplicates are
-merged). Record the output as the source identity; a changed digest invalidates acceptance. Add the
+merged). Record the output as the source identity; a changed digest invalidates acceptance. After the P6
+commit, recompute it: the digest must equal the one reviewed at P5 (only the commit part may differ). Add the
 MCP workspace revision and catalog revision when a workspace is open. Retained regression cases
 in the Cratis AI spec `source-identity-helper.spec.ts` extract and execute the shell fence above:
 a trailing-slash symlink (`link/`, `link//`), `..`, `../x`, `sub/../..`, `link/..`, a symlinked
 parent with `..` when both logical and physical destinations exist (`.github/skills/../workflows`),
 no argument, an empty argument, equal digests for `root`, `root/` and `./root`, and a changed
-file changing the digest. The spec skips gracefully when bash is unavailable.
+file changing the digest, and a filename containing a tab or a newline (fail closed). The spec skips gracefully when bash is unavailable.
 
 ### Revisions are three different things
 - **Source identity** (above): bytes of the inputs. Used for acceptance.
@@ -163,7 +165,9 @@ file changing the digest. The spec skips gracefully when bash is unavailable.
 - **`modelRevision`** (MCP `read-workspace view=executable-model`): the canonical semantic revision
   of the bound executable model. It exists only when the model binds. Descriptions and source
   locations are not part of it; the application identity is (without `identities.json` it is
-  bootstrapped from the root folder name, so renaming the root or moving the file changes it).
+  bootstrapped from the root folder name, so renaming the root changes it). Moving a file changes
+  it only if the move changes logical placement or application identity. Workspace or source
+  revision changes (any edit or file move) are a different thing from semantic `modelRevision` changes.
 
 ## Render revision drift
 Do not compare the MCP `modelRevision` with a render manifest's `semanticRevision`: the render

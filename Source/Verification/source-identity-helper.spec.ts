@@ -98,3 +98,20 @@ test('source-identity helper changes the digest when a file changes without a ne
     assert.equal(before.stdout.split('+')[0], after.stdout.split('+')[0]);
     assert.notEqual(before.stdout, after.stdout);
 });
+
+for (const [label, name] of [['a tab', 'a.cs\tdeadbeef'], ['a newline', 'a.cs\nb.play']] as const) {
+    test(`source-identity helper fails closed on a filename containing ${label}`, options, t => {
+        const { repo, run } = fixture(t);
+        try {
+            writeFileSync(join(repo, 'root', name), 'hidden input\n');
+        } catch {
+            t.skip('the platform does not allow this filename');
+            return;
+        }
+        const result = run(['root']);
+        assert.equal(result.error, undefined);
+        assert.equal(result.status, 1, result.stderr);
+        assert.equal(result.stdout, '');
+        assert.match(result.stderr, /ident: filename contains a newline or tab/);
+    });
+}
