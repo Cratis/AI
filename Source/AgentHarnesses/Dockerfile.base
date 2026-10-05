@@ -76,7 +76,7 @@
 # rtk publishes a static musl binary for amd64 only - build from source elsewhere.
 # Digest resolved from the rust:1-slim tag on 2026-09-05 (docker buildx imagetools inspect).
 FROM rust:1-slim@sha256:17d1ba895198f9934c6314ec5346a0d5115372f3243390c3d731e242f35c2f27 AS rtk-build
-ARG RTK_VERSION=v0.45.0
+ARG RTK_VERSION=v0.51.0
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
@@ -116,7 +116,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
 # observer is stuck, replaying a partition, browsing events and read models. Installed to a shared
 # tool path rather than with `-g`, because a global install lands in the installing user's home and
 # this image runs as `agent` - the tool has to be on PATH for that user, not for root.
-ARG CRATIS_CLI_VERSION=2.18.0
+ARG CRATIS_CLI_VERSION=3.27.1
 RUN dotnet tool install --tool-path /usr/local/bin --version ${CRATIS_CLI_VERSION} Cratis.Cli \
     && rm -rf /tmp/NuGetScratch /root/.nuget/packages
 
@@ -129,18 +129,18 @@ RUN dotnet tool install --tool-path /usr/local/bin --version ${CRATIS_CLI_VERSIO
 # `solution/open` request naming the .sln/.slnf to analyze. No bespoke MCP-to-LSP bridge ships in
 # this image - wiring one is a separate, larger effort - so this only guarantees the tool itself is
 # installed and on PATH for whichever harness can drive it.
-ARG ROSLYN_LANGUAGE_SERVER_VERSION=5.12.0-1.26426.8
+ARG ROSLYN_LANGUAGE_SERVER_VERSION=5.12.0-1.26475.2
 RUN dotnet tool install --tool-path /usr/local/bin --version ${ROSLYN_LANGUAGE_SERVER_VERSION} roslyn-language-server \
     && rm -rf /tmp/NuGetScratch /root/.nuget/packages
 
 # Docker CLI (with buildx and compose) and Kubernetes tooling - what an agent investigating an alert
 # needs to look at a running system. Clients only: the daemon and the cluster come from whatever
 # DOCKER_HOST and kubeconfig the Direct injects, and neither is baked in here.
-ARG HELM_VERSION=v3.16.4
+ARG HELM_VERSION=v4.3.0
 # Published per-architecture checksums for HELM_VERSION (get.helm.sh/helm-<version>-linux-<arch>.tar.gz.sha256sum)
 # - refresh both alongside HELM_VERSION.
-ARG HELM_SHA256_AMD64=fc307327959aa38ed8f9f7e66d45492bb022a66c3e5da6063958254b9767d179
-ARG HELM_SHA256_ARM64=d3f8f15b3d9ec8c8678fbf3280c3e5902efabe5912e2f9fcf29107efbc8ead69
+ARG HELM_SHA256_AMD64=86584a54def73570558f66f5111cc53dfed56689637ae32c1201205d494f54fb
+ARG HELM_SHA256_ARM64=31c5794dd55c66a51e6b7d2e2ac7a114ae8b1de41ff1d9ba51748ac973b06a08
 # The distribution comes from the base image rather than being assumed: the .NET SDK image is
 # Ubuntu-based today, and Docker serves a separate repository per distribution - hard-coding one
 # fails the build with a Release-file error that reads like a network problem.
@@ -190,7 +190,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
 # screenshot a running web page, ffmpeg stitches a sequence of screenshots into a GIF, and gifsicle
 # shrinks the result. `--with-deps` installs Chromium's own apt dependencies alongside the browser,
 # which is why this runs before the image drops to the non-root `agent` user.
-ARG PLAYWRIGHT_VERSION=1.49.1
+ARG PLAYWRIGHT_VERSION=1.63.0
 RUN npm install -g playwright@${PLAYWRIGHT_VERSION} \
     && npx --yes playwright@${PLAYWRIGHT_VERSION} install --with-deps chromium \
     && apt-get update \
@@ -200,17 +200,17 @@ RUN npm install -g playwright@${PLAYWRIGHT_VERSION} \
 # mongosh - the MongoDB shell, installed straight from npm rather than MongoDB's own apt repository:
 # no extra keyring, no root-owned apt source to add, and npm is already how every other Node-based
 # tool in this image gets installed.
-ARG MONGOSH_VERSION=2.10.0
+ARG MONGOSH_VERSION=2.13.0
 RUN npm install -g mongosh@${MONGOSH_VERSION}
 
 # Java (Temurin LTS) + Maven; Gradle and Kotlin as pinned distributions. Most JVM repositories
 # bring a Gradle wrapper, but the standalone tools cover the rest.
 ARG JAVA_MAJOR=21
-ARG GRADLE_VERSION=8.14
-ARG KOTLIN_VERSION=2.1.20
+ARG GRADLE_VERSION=9.8.0
+ARG KOTLIN_VERSION=2.4.20
 # Published checksums for the pinned versions - refresh alongside the version ARG above.
-ARG GRADLE_SHA256=61ad310d3c7d3e5da131b76bbf22b5a4c0786e9d892dae8c1658d4b484de3caa
-ARG KOTLIN_SHA256=a118197b0de55ffab2bc8d5cd03a5e39033cfb53383d6931bc761dec0784891a
+ARG GRADLE_SHA256=bafd5ce9cfaea0fbccfdc8439a1ac42fbd4cd9c89dc9a988228d8a2639a58e6c
+ARG KOTLIN_SHA256=59e9ca74c7904ef2c122b12114937673ccce68de820a663f0ed66ccf8799e0b7
 RUN curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public \
         -o /usr/share/keyrings/adoptium.asc \
     && echo "deb [signed-by=/usr/share/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(. /etc/os-release && echo $VERSION_CODENAME) main" \
@@ -233,7 +233,7 @@ RUN curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public \
 # Elixir with Erlang/OTP through the official installer. 1.20 is Elixir's current release branch,
 # and OTP 29 is within its supported range (27-29, per hexdocs.pm/elixir/compatibility-and-deprecations.html).
 ARG ELIXIR_VERSION=1.20.4
-ARG OTP_VERSION=29.0.6
+ARG OTP_VERSION=29.1.1
 # install.sh has no published checksum of its own - this pins the exact script fetched while these
 # versions were pinned (2026-09-05), so a tampered or unexpectedly changed installer fails the build
 # instead of running unverified. It is independent of ELIXIR_VERSION/OTP_VERSION above and normally
@@ -276,7 +276,7 @@ COPY --from=rtk-build /rtk /usr/local/bin/rtk
 # and `[proxy,code]` is ~897 MB - the extra ~191 MB is tree-sitter's language pack. Acceptable
 # against a base that already carries the .NET SDK, a JDK, Node, Chromium, Elixir, Kotlin and Gradle,
 # but `[code]` is the first thing to drop if the image ever needs to lose weight.
-ARG HEADROOM_VERSION=0.37.0
+ARG HEADROOM_VERSION=0.39.1
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 python3-venv \
     && rm -rf /var/lib/apt/lists/* \
