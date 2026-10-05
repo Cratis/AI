@@ -28,30 +28,35 @@ other infrastructure. Change behaviour in the model first, never in managed outp
 
 ## Verified product sources
 
-Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`. This skill
-is a method: it names no API of its own. The mechanisms it points to are owned by the skills
-and rules named in the procedure.
+This skill is a method: it names no API of its own. Product facts it relies on are pinned
+to these tags; when the Screenplay skills are installed their `references/versions.md`
+(in `cratis-screenplay-toolchain`) holds the full table.
 
 | Fact used here | Source |
 | --- | --- |
-| Where each rule lives (validator, `Provide()`, handler result, constraint, exception) | `rules/vertical-slices.md` "The decision matrix" (Arc v22.50.5 behaviour verified there) |
-| A customization never makes a rejected model renderable; managed output is never hand-edited | `cratis-stage-rendering-and-sandbox` (Stage v4.24.0) |
-| A command `handler` never binds (PLAY0268), so that slice is gap-fill with the model as contract | `cratis-screenplay-toolchain` `references/executable-subset.md` and `renderable-subset.md` (Screenplay v4.64.0, checked there) |
+| Where each rule lives (validator, `Provide()`, handler result, constraint, exception) | `rules/vertical-slices.md` "The decision matrix" (Arc `v22.50.5` behaviour verified there) |
+| A customization never makes a rejected model renderable; managed output is never hand-edited | Stage `v4.24.0` (`Customizations/` is the unmanaged seam; managed output is regenerated) |
+| A command `handler` never binds (PLAY0268), so that slice is gap-fill with the model as contract | Screenplay `v4.64.0` (diagnostic PLAY0268) |
 
 ## Procedure
 
 ### 1. Name the contract and its precedence
-Find the contract before touching code; say which one you are using. First apply the decision
-rule of `cratis-screenplay-modeling-lifecycle` ("Decide the level first") once; this skill does
-not restate it.
-1. An accepted `.play` model covers the slice (model root default `.cratis/screenplay/`; search
+Find the contract before touching code; say which one you are using. These steps are enough on
+their own when the Screenplay skills are not installed; the master decision rule, when they
+are, is `cratis-screenplay-modeling-lifecycle` ("Decide the level first").
+1. An accepted `.play` model under the model root (default `.cratis/screenplay/`, or the root
+   set by `mcpServers.screenplay.root` in `.cratis/ai.json`) covers the slice (search
    `**/*.play` for the slice, command, event and read-model names): the `.play` slice and its
-   specifications are the contract. A matching file that is not accepted is a draft, not a contract.
-2. Opted in (accepted model, configured model root even if empty, or `.cratis/screenplay/`
-   exists) but this scope has no model yet: new behaviour starts in discovery and slice design
-   (`cratis-screenplay-discovery`, `cratis-screenplay-slice-design`); do not code first.
-3. Not opted in: propose a model once, never force it; if declined, the agreed slice outline
-   (fields, events, rules, scenarios) recorded in the issue is the contract.
+   specifications are the contract. A matching file that is not accepted, or one outside the
+   root, is a draft, not a contract.
+2. The repository is opted in (the root holds a `.play` file, or the project explicitly set that
+   root; an empty directory, install output or an installed skill does not count) but this
+   scope has no model yet: new behaviour starts in discovery and slice design
+   (`cratis-screenplay-discovery`, `cratis-screenplay-slice-design`); do not code first. If those
+   skills are not installed, say so and do not author `.play` from memory.
+3. Not opted in: never force a model. The agreed slice outline (fields, events, rules,
+   scenarios), confirmed as before and recorded where the team tracks work, if anywhere, is the
+   contract. Only the entry-point session proposes a model, at most once per session.
 4. Existing code has no authority over the contract.
 
 Precedence inside the contract. Executable parts of the contract beat prose: specifications,
@@ -134,8 +139,8 @@ Passing specs are the evidence; the inventory is an aid, never a receipt.
 
 - Run the slice's own specifications with the repository's runner and report the real result.
 - Re-read the inventory against the code once more, looking only for invented content.
-- For a `.play` contract, run the model check named in `cratis-screenplay-toolchain` after
-  any edit request is applied, never before.
+- For a `.play` contract, run the repository's Screenplay model check (the compiler named in
+  `cratis-screenplay-toolchain` when installed) after any edit request is applied, never before.
 
 ## Route near misses
 

@@ -41,9 +41,10 @@ version.
 - The scope is model-first (its read-model `specification` blocks and `then
   readmodel` rows are the contract). Decide this with the decision rule in
   `cratis-screenplay-modeling-lifecycle`: model-first only when an accepted
-  model covers this scope, a model root is configured (even if empty), or
-  `.cratis/screenplay/` exists; a stray or unaccepted `.play` example does not
-  count, and framework, infrastructure, client, adapter and not-opted-in
+  model under the model root covers this scope, or the repository is opted in
+  (the root holds a `.play` file, or the project set `mcpServers.screenplay.root`
+  in `.cratis/ai.json`); an empty directory, install output, a `.play` file
+  outside the root or an unaccepted example does not count, and framework, infrastructure, client, adapter and not-opted-in
   brownfield work stays code-first. Opted in but no model for this scope: model
   it first (`cratis-screenplay-discovery`, then `cratis-screenplay-slice-design`)
   before writing specifications. If those Screenplay skills are not installed,

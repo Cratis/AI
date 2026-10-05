@@ -37,7 +37,7 @@ Load **cratis-application-slice-conformance** when it is installed; read the ski
 
 - Feature name and slice name
 - Slice type (`State Change`, `State View`, `Automation`, `Translation`)
-- The slice's contract: the `.play` slice and its specifications, or the agreed slice outline. Before accepting an outline, apply Phase 0 of `application-profile.md`; if none is given, find it or stop and ask.
+- The slice's contract: the `.play` slice and its specifications, or the agreed slice outline. Before accepting an outline, apply Phase 0 of `application-profile.md`; if none is given, find it from the stated domain requirements, or ask when those are unclear.
 - Domain requirements (what the slice should do)
 - Any existing events from other slices this slice depends on
 - The namespace root (read from `global.json` or existing source files, e.g. `Studio`, `Library`)
@@ -46,7 +46,7 @@ Load **cratis-application-slice-conformance** when it is installed; read the ski
 
 ## Process
 
-0. **Find the contract.** Apply Phase 0 of `application-profile.md` first: the repository is model-first when an accepted model covers the scope, a model root is configured (even if empty, and not only the default path), or `.cratis/screenplay/` exists; then new behaviour missing from the model is a request to add it, not a reason to use an outline. Skill availability is checked separately from opt-in. Without opt-in, an agreed outline is the contract and code-first work (infrastructure, clients, adapters, framework) is preserved. If the slice is in a Screenplay model, the `.play` slice and its specifications are the contract: write C# only for scope the renderer rejects or for adapters, never edit Stage-managed output, and never change the model to match code. If the contract is ambiguous or contradictory, do not guess: stop that scope and return one specific question (for `.play`, an edit request: address, change, reason).
+0. **Find the contract.** Apply Phase 0 of `application-profile.md` first: the repository is opted in only when the model root (default `.cratis/screenplay/`, or the root set by `mcpServers.screenplay.root` in `.cratis/ai.json`) holds a `.play` file or the project explicitly set that root; an empty directory, install output, an installed skill, a `.play` file outside the root or an unaccepted draft is not opt-in. When opted in, an accepted model under the root is the contract, and new behaviour missing from the model is a request to add it, not a reason to use an outline. Skill availability is checked separately from opt-in. Without opt-in, an agreed outline is the contract and code-first work (infrastructure, clients, adapters, framework) is preserved. If the slice is in a Screenplay model, the `.play` slice and its specifications are the contract: write C# only for scope the renderer rejects or for adapters, never edit Stage-managed output, and never change the model to match code. If the contract is ambiguous or contradictory, do not guess: stop that scope and return one specific question (for `.play`, an edit request: address, change, reason).
 1. **Determine the namespace root** by reading an existing source file to identify the convention (e.g. `Studio`, `Library`, `MyApp`).
 2. **Read existing slices** in the same feature to understand naming, existing concepts, and events you may reference.
 3. **Create a single `.cs` file** at `<Feature>/<Slice>/<Slice>.cs` (under the app source root; an optional `<Module>/` may group the feature — there is **no** top-level `Features/` wrapper).

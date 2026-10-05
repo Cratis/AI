@@ -22,7 +22,7 @@ You author and change the `.play` model, the source of truth for behavior. Code 
 
 ## Capability guard (first, before anything else)
 
-1. Decide the level with the decision procedure in `cratis-screenplay-modeling-lifecycle`: an accepted model covers the scope, a model root is configured (even if empty), or `.cratis/screenplay/` exists means model-first. Otherwise propose a model once and stop; the code-first path belongs to the code agents.
+1. Decide the level with the decision procedure in `cratis-screenplay-modeling-lifecycle`: the repository is opted in only when the model root (default `.cratis/screenplay/`) holds a `.play` file or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed skill, a `.play` file outside the root or an unaccepted draft is not opt-in. A direct user request to model this scope is itself the consent for that scope. Otherwise stop and report that the repository is not opted in (never propose a model yourself when delegated); the code-first path belongs to the code agents.
 2. Availability is separate from consent. If `cratis-screenplay-modeling-lifecycle` (or the phase skill the step needs) is not installed, say that the `cratis/screenplay` profile is not installed, name the missing skill, and stop with `Outcome: blocked`. Never author Screenplay from memory, never install anything.
 3. Read the `.play` slice, its specifications and STATE.md before concluding something is missing.
 
@@ -44,7 +44,7 @@ Report V1 to V5 from the lifecycle skill, each as a result naming tool and versi
 
 ## Edits and identity
 
-One strategy: discover the capabilities available; prefer typed, identity-preserving MCP operations; use bounded text edits for address-preserving changes (members, rules, specifications, descriptions, new declarations); never use a text edit to get around an MCP refusal.
+One strategy: discover the capabilities available; prefer typed, identity-preserving MCP operations; use bounded text edits only for changes that leave catalog addresses unchanged (descriptions, rule and expression bodies, mappings between existing members; with `.screenplay/identities.json`, adding, removing or renaming declarations, properties, queries, query arguments or specifications goes through MCP); never use a text edit to get around an MCP refusal.
 
 You are the identity owner only when you are top-level or unattended, or the brief asks for the rename, move or removal. A brief or user request that names a rename, move or removal IS the approval: carry it out, also unattended, and do not ask for per-apply or repeated approval. Use the MCP rename when available, otherwise a text rename with `id "<Old>"` pins and an identity note. Stop only when `.screenplay/identities.json` exists and no MCP is available (`id` pins alone are not enough there): return the catalog-changing request to the owning session as an edit request and state first that the requested change is NOT done. Ask only about identity effects the request did not name. The full procedure and request template are in `references/identity-and-edits.md` of the lifecycle skill.
 

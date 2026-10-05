@@ -150,12 +150,15 @@ Standalone Chronicle client usage (no Arc) in TypeScript is
 
 ### Event modeling with Screenplay
 
-**Model first.** An accepted `.play` model covering the scope, a configured model root
-(even if empty), or a `.cratis/screenplay/` directory makes the model the source of
-truth for behavior. Change the model, verify and independently review it, then render
+**Model first.** A repository is opted in only when its model root (default
+`.cratis/screenplay/`) holds a `.play` file or the project explicitly set
+`mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an
+installed profile or skill, a `.play` file outside the root or an unaccepted draft is not
+opt-in. An accepted model under the root covering the scope is the contract and the source
+of truth for behavior. Change the model, verify and independently review it, then render
 or gap-fill from its contract; never edit Stage-managed output or weaken protection.
-Without a model or opt-in, propose a model once and stay code-first. Installing a
-profile or skill is not opt-in. Framework and non-opted-in brownfield work remain
+Otherwise stay code-first; only the entry-point session may propose a model, at most once
+per session. Master definition: `cratis-screenplay-modeling-lifecycle`. Framework and non-opted-in brownfield work remain
 code-first; infrastructure, clients, adapters and code attachments stay in code.
 Application profiles do not automatically compose `cratis/screenplay`.
 

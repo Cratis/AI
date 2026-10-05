@@ -1,16 +1,18 @@
 # Contract, precedence and conflicting evidence
 
 ## Which contract
-First the opt-in decision of `cratis-screenplay-modeling-lifecycle` ("Decide the level first"):
-an accepted model, a configured model root (even if empty) or `.cratis/screenplay/` means
-model-first; otherwise propose a model once and stay code-first if declined.
+First the opt-in decision (master: `cratis-screenplay-modeling-lifecycle`, "Decide the level
+first"; `SKILL.md` step 1 suffices when it is not installed): an accepted model under the model
+root covers the slice, or the root holds a `.play` file or was explicitly set in
+`.cratis/ai.json`. An empty directory, install output or a `.play` file outside the root does
+not count. Otherwise stay code-first.
 
 | Situation | Contract | Code's role |
 | --- | --- | --- |
 | The slice is in a `.play` model | the `.play` slice and its specifications | derived; the model stays the oracle for hand-written or gap-filled code |
 | Opted in, scope unmodeled | discovery and slice design first; then the `.play` slice | none until modeled |
 | A model exists but lacks this behaviour | propose adding it to the model first; code first only if the user chooses, or `.play` cannot express it; then say the model lags the code | provisional |
-| No model, not opted in (or declined) | the agreed outline (Module/Feature, slice type, fields, events, rules, scenarios), recorded in the issue before code | derived |
+| No model, not opted in (or declined) | the agreed outline (Module/Feature, slice type, fields, events, rules, scenarios), recorded where the team tracks work, if anywhere | derived |
 
 Hand-written code is right for scope the renderer rejects, adapters and infrastructure.
 Never hand-edit Stage-managed output (`cratis-stage-rendering-and-sandbox`); change the `.play`

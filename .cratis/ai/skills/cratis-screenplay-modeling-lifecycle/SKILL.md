@@ -18,20 +18,29 @@ an unproven pass.
 
 ## Decide the level first (master copy of the decision rule)
 
-Run this once per request, from any entry point (router, rule, agent, prompt).
+Run this once per request, from any entry point. Master definition; other places carry a short
+form and point here. Evidence: `references/opt-in.md`.
 
-1. **Opted in?** Yes when an accepted model covers the scope, a model root is configured (even
-   if empty), or `.cratis/screenplay/` exists. Installing the Screenplay skills never opts a
-   repository in. Not opted in: propose a model once, name the feature it would start with, and
-   continue code-first through the code skills if declined or unattended (record the
-   recommendation). Framework, brownfield, infrastructure, client and adapter work stays code-first.
-2. **Availability is separate from consent.** Only the modeled branch needs the method skills. If
-   they are missing, say which and stop that branch; never author Screenplay from memory or
-   install anything. Code-first work continues without them.
+1. **Opted in?** Only when (a) the model root holds at least one `.play` file (default
+   `.cratis/screenplay/`, or the root the project configured), or (b) the project explicitly set
+   a Screenplay model root: `mcpServers.screenplay.root` in `.cratis/ai.json`. **Not opt-in:**
+   an empty `.cratis/screenplay/` directory or the MCP entry that `cratis ai install`/`update`
+   creates; an installed profile or skill; a `.play` file outside the root; an unaccepted draft.
+   A behavior is a **contract** only when an accepted model under the root covers it. A direct
+   user request to model a scope is consent for that scope.
+2. **Not opted in:** continue code-first; never force a model (framework, brownfield,
+   infrastructure, client and adapter work stays code-first). Only the entry-point agent or
+   session may **propose a model**: at most once per session, never for trivial, bug-fix,
+   infrastructure, client, framework or brownfield-maintenance work; delegated agents get the
+   decision in their brief and never propose. If declined, do not ask again; a team records a
+   lasting decision in its own repository instructions (for example `.cratis/ai/rules/project.md`),
+   never in managed corpus files. Unattended runs record the recommendation in the final report.
+3. **Availability is separate from consent.** Only the modeled branch needs the method skills; if
+   missing, say which and stop that branch. Never author Screenplay from memory or install anything.
 
 | Situation | Level | Where the work goes |
 |---|---|---|
-| An accepted or opted-in model covers the scope | **Model** | Change the `.play`, verify V1-V3, review, then render or gap-fill |
+| An accepted model covers the scope | **Model** | Change the `.play`, verify V1-V3, review, then render or gap-fill |
 | Opted in, but this scope has no model yet | **Model** | New behavior starts in discovery, then slice design |
 | A computed rule inside a modeled slice | **Model + code attachment** | `csharp`/`file` block; it binds only as the construct allows (`cratis-screenplay-model-authoring`) |
 | Scope Stage cannot render yet, including every modeled automation and translation (Stage `v4.24.0` renders neither; the whole behavior is gap-fill, not just its outside call) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
@@ -52,16 +61,11 @@ commands need no `then denied`"; "n/a" without a domain reason; "one `XUpdated` 
 edits"; "drop `@pii`, authorization or a rule so a check passes". This never widens your scope
 (note other gaps in STATE.md); a real time or budget trade-off is the user's call.
 
-Three unresolved things, never conflated:
-- **Open question**: business meaning nobody decided. Record it against a declaration address
-  with the assumption in use; it closes when answered, never by deletion.
-- **Decided rejection**: a known refusal. It is a specification (`then denied`, `then error`),
-  never a note.
-- **Contradiction**: model, specs and an agreed fact disagree. Stop that scope and report.
-
-Say which tier a finding comes from: **compiler contract** (a named tool and version rejects
-it for the mode), **modeling default** (deviate with a recorded reason), or **review question**
-(a finding only with a domain consequence).
+Three unresolved things, never conflated: an **open question** (business meaning nobody decided:
+record it against a declaration address with the assumption in use; it closes when answered, never
+by deletion), a **decided rejection** (a known refusal: a specification, `then denied` or
+`then error`, never a note) and a **contradiction** (model, specs and an agreed fact disagree:
+stop that scope and report). Finding tiers: `references/principles.md`.
 
 ## Modes (state the mode in the first output line)
 | Mode | Use | Done when |
@@ -84,10 +88,10 @@ or **critic** (P4-P5: strict, report first, fix in a separate batch).
 | V4 reference specs run | engine, expected vs discovered | rendering or build health |
 | V5 delivery | admission, publication, build, tests, each separate | customization conformance |
 
-Report all five at checkpoints and handoffs, only those you ran between edit batches; each is a
+Report all five at checkpoints and handoffs (between edit batches only those you ran), each a
 result or "not run: <reason>" naming tool and version. Never infer one from another or "fix" a
-correct model to silence a contradicting diagnostic (record a tool-version gap). Commands,
-report template, source identity: `references/verdicts-and-modes.md`.
+correct model to silence a diagnostic (record a tool-version gap). Commands, report template,
+source identity: `references/verdicts-and-modes.md`.
 
 ## Lifecycle
 P0 intake, P1 discover, P2 model, P3 specify, P4 self-check, P5 independent review, P6 accept
@@ -107,7 +111,7 @@ Otherwise ask only what is missing:
 2. **Source**: requirements, rough ideas, an existing system (legacy entry), an existing `.play` (change entry)?
 3. **Goal**: learning, documentation, validation, executable behavior, generated code (fixes the mode)?
 4. **Constraints**: outside systems, data sensitivity, who can answer, target stack.
-5. **Starting point**: from scratch, or which phase outputs already exist?
+5. **Starting point**: from scratch, or which phase outputs exist?
 
 Confirm in one sentence only when something was inferred: "So we model <domain>, goal <goal>,
 mode <mode>, starting at <phase>. Right?" Unattended: assume visibly, record each assumption
@@ -131,8 +135,10 @@ and what artifacts exist; never rerun a completed phase, start at the first inco
 
 ## Edits and identity
 One strategy. Discover the capabilities available; prefer typed, identity-preserving MCP
-operations; bounded text edits are fine for address-preserving changes (members, rules,
-specs, new declarations, descriptions); a text edit never gets around an MCP refusal. The
+operations; bounded text edits only where no catalog address changes. With
+`.screenplay/identities.json`, adding, removing or renaming an addressed element (declarations,
+properties, queries, query arguments, specifications) goes through MCP
+(`references/identity-and-edits.md`). A text edit never gets around an MCP refusal. The
 **identity owner** (the main session, or a top-level or unattended agent whose brief asks for
 it) makes renames, moves, removals of persisted names and contract evolution. **A request
 or brief that names a rename, move or removal is the approval for it**: carry it out, also
@@ -165,8 +171,7 @@ when the reviewer runs on a different model family than every author; choose tha
 harness's own agent or model settings, never in the corpus. Each packet records the model the
 agent ran on when the harness exposes it, else `model: not exposed`. A same-model review is
 labelled as such. The user decides whether it is enough
-(`rules/capability-is-not-authority.md`: the user is sufficient authority). It is never blocked
-as a matter of authority.
+(`rules/capability-is-not-authority.md`); it is never blocked as a matter of authority.
 
 ## Session state, report and packet
 - **State**: `.ai-work/screenplay/<model-slug>/STATE.md`, untracked (`rules/local-work-artifacts.md`),
@@ -178,8 +183,8 @@ as a matter of authority.
 - **Handoff packet** (about 40 lines, appended): outcome, mode, model root, source identity,
   changed declarations, edit requests, five verdict lines, gaps, assumptions, open questions,
   next phase, report pointer. Templates: `references/handoff-template.md`,
-  `references/phase-report-inventories.md`. Rationale in `description`: `references/reasoning-notes.md`.
-  Reading and token rules: `references/code-reading-and-tokens.md`.
+  `references/phase-report-inventories.md`; `references/reasoning-notes.md`;
+  `references/code-reading-and-tokens.md`.
 
 ## Route to one phase skill
 | Need | Skill |
@@ -194,14 +199,14 @@ as a matter of authority.
 | Existing system into a model | `cratis-screenplay-legacy-extraction` |
 | Render, gap-fill, fallback, drift | `cratis-screenplay-render-and-gap-fill` |
 
-Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes in
-`references/vocabulary-map.md`. Complete worked example: `references/worked-example.md`.
-Quality checklist before reporting done: `references/phases.md`.
+Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes:
+`references/vocabulary-map.md`; worked example: `references/worked-example.md`; quality
+checklist before reporting done: `references/phases.md`.
 
 ## Gate
 Done when: the mode's "done when" holds with fresh verdict lines; every open question has an
-address and an assumption; every decided rejection is a specification; no protection was
-removed; the packet opens with `Outcome:`; STATE.md is current.
+address and assumption; every decided rejection is a specification; no protection was removed;
+the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
 Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here: Screenplay
@@ -209,7 +214,8 @@ Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here:
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
 cratis CLI `v3.27.1` (`cratis screenplay validate --warnings-as-errors`, older bundled compiler);
-Stage `v4.24.0` (admits ESM v1-v3). The worked example compiles with both tools.
+Stage `v4.24.0` (admits ESM v1-v3); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.27.1`
+`Documentation/reference/screenplay-mcp.md`. The worked example compiles with both tools.
 
 ## Verify
 ```shell

@@ -8,7 +8,7 @@ lifecycles and events that record what the business decided (not table rows) cha
 ## Classify the change
 Edit class depends on whether the event is **persisted** (facts may be stored: the model was
 accepted, deployed or rendered into a running system; ask when unsure). Changing an
-unpersisted event's members is an ordinary address-preserving text edit. Any change to a
+unpersisted event's members is an ordinary text edit when no `.screenplay/identities.json` exists; with it, adding or removing event properties changes catalog addresses and goes through MCP. Any change to a
 persisted event's contract (new generation, property added, removed or retyped, meaning) is
 **contract evolution**: identity-affecting (identity procedure in `cratis-screenplay-modeling-lifecycle`). Write the
 compatibility scenarios below first; the identity owner then applies the change (see

@@ -71,16 +71,19 @@ never "specifications pass".
 ## V4: reference specifications run
 
 No MCP tool and no compile command runs specifications (Screenplay#377 is open). V4 comes
-only from an engine that executes them: the rendered application's Debug tests (see V5), or
-the `cratis/stage-specrunner` job (Docker, opt-in; behaviour on ESM v4 to v6 unverified).
-Record the engine, the expected versus discovered specification count, and
-passed, failed, unsupported and cancelled counts. The Screenplay **reference runner** returns
-unsupported for a specification that reads a reducer-built read model and for any construct
-whose evaluation needs an opaque body. A rendered application is a different engine: Stage
+only from an actually executed Screenplay **reference** route. Record the route, the expected
+versus discovered specification count, and passed, failed, unsupported and cancelled counts.
+The reference runner returns unsupported for a specification that reads a reducer-built read
+model and for any construct whose evaluation needs an opaque body.
+
+**Rendered Debug tests are never V4.** A rendered application is a different engine: Stage
 4.24 admits pure reducer bodies and generates reducer replay and assertions in its Debug
-tests, so report the actual test outcomes there and label each result as reference-runner
-evidence or target-test evidence.
-Without an engine: `V4 not run: no engine`.
+tests, so the two engines can differ (a pure reducer body is a concrete case). Report those
+outcomes only under V5.tests, labelled target-test evidence. The `cratis/stage-specrunner` job
+(Docker, opt-in; behaviour on ESM v4 to v6 unverified) is not a verified reference route:
+report its outcomes as target-test evidence unless it is shown to execute the reference
+semantics.
+Without a reference route: `V4 not run: no route`.
 
 ## V5: rendered and target-verified
 
@@ -109,7 +112,7 @@ One line per verdict, tool and version first, evidence second:
 V1 pass (screenplay 4.64.0, 3 files)
 V2 read (screenplay 4.64.0 via MCP): 0 blocking, 3 informational (PLAY0270)
 V3 ready (screenplay 4.64.0, ESM v3)
-V4 not run: no engine
+V4 not run: no route
 V5 admission pass (cratis 3.27.1, Stage 4.24.0); publication written 14 files; build not run; tests not run
 ```
 

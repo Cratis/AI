@@ -6,12 +6,16 @@ license: MIT
 
 # Chronicle event modeling
 
-> **Model-first check.** If an accepted model covers this scope, a model root is
-> configured (even if empty), or `.cratis/screenplay/` exists, the model is the
-> source of truth: use `cratis-screenplay-event-modeling` (and the lifecycle in
-> `cratis-screenplay-modeling-lifecycle`) instead of this skill. A stray `.play`
-> file elsewhere is not consent. This skill is for hand-written C# models where
-> the repository has not opted in (propose a model once, never force it), and for
+> **Model-first check.** If an accepted model under the model root covers this scope, or the
+> repository is opted in (the root, default `.cratis/screenplay/`, holds a `.play`
+> file, or the project explicitly set `mcpServers.screenplay.root` in
+> `.cratis/ai.json`), the model is the source of truth: use
+> `cratis-screenplay-event-modeling` (and the lifecycle in
+> `cratis-screenplay-modeling-lifecycle`, which holds the master definition)
+> instead of this skill. An empty directory, install output, a `.play` file
+> outside the root or an unaccepted draft is not consent. This skill is for
+> hand-written C# models where the repository has not opted in (never force a
+> model; only the entry-point session proposes one, at most once per session), and for
 > code-level work against an already accepted contract (stream identity,
 > compliance, specifications). If the repository is opted in and the Screenplay
 > skills are not installed, report the missing capability and block the

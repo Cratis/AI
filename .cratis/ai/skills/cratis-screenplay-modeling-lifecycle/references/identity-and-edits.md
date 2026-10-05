@@ -5,8 +5,10 @@ Every other skill and reference points here instead of restating it.
 ## One edit strategy
 1. **Discover** the capabilities available in this session once (MCP reachable, tool versions).
 2. **Prefer typed, identity-preserving operations** (MCP proposals: review the diff, then apply).
-3. **Bounded text edits** are fine for address-preserving changes: members, expressions, rules,
-   specifications, descriptions, new declarations. Validate per coherent batch.
+3. **Bounded text edits** are fine only for edits that leave the identity catalog's addresses
+   unchanged (see *Classify by catalog address* below). Without `.screenplay/identities.json` (a
+   fresh, never-applied model) plain text edits are fine for everything except persisted names.
+   Validate per coherent batch.
 4. **Never use a text edit to get around an MCP refusal.** A refusal means look, then ask or
    return an edit request.
 5. Let tools resolve what they can (revisions, identities, renames); never compute them by hand.
@@ -18,12 +20,28 @@ is separate from authoring authority: an authoring agent without ownership still
 address-preserving edits its brief asks for and returns edit requests only for identity-affecting
 changes. The Screenplay Reviewer and Renderer never edit `.play`; they always return edit requests.
 
-## What is identity-affecting
-Renaming, moving or removing a persisted name (module, feature, slice, event, command, read
-model, constraint, reaction, projection); moving declarations between files; contract evolution
-of a persisted event (new generation, property added, removed or retyped). Members of commands,
-read models and unpersisted events, mappings, rules, queries, screens, specifications, new
-declarations and descriptions are address-preserving. A fresh, unpersisted model takes plain edits.
+## Classify by catalog address
+Classify an edit by whether it changes the **catalog addresses**, not by artifact category.
+At Screenplay v4.64.0 `SemanticAddress` assigns identities to modules, features, slices,
+concepts, composite types, properties, commands, event contracts, read models, projections,
+queries, query arguments, specifications, triggers, reactions and captures;
+`ScreenplayWorkspace` materializes new assignments when it is created from source; and
+`McpState.Open` refuses a persisted workspace whose recompiled catalog differs from the stored
+one (`IdentityReconciliationRequired`). So a text edit that adds or removes an addressed element
+can make a persisted workspace impossible to reopen.
+
+**With `.screenplay/identities.json` present**, go through MCP (the owning session) for every
+addition, removal or rename of an addressed element: declarations (new slice, command, event,
+read model, projection, ...), command and read-model properties, queries, query arguments and
+specifications; also moving declarations between files and contract evolution of a persisted
+event (new generation, property added, removed or retyped).
+
+**Bounded text edits** are for edits that preserve every address: descriptions, the bodies of
+rules and expressions, mappings between members that already exist, and other changes that
+add, remove or rename no addressed element. Anything doubtful goes through MCP.
+
+**Without `identities.json`** the model has no persisted catalog: plain text edits are fine;
+persisted event names still need `id` pins (below) and ask when unsure whether events are stored.
 
 ## What the owner does
 0. **A request or brief that names a rename, move or removal IS the approval** (see
@@ -43,8 +61,9 @@ declarations and descriptions are address-preserving. A fresh, unpersisted model
    (an identities file exists and no MCP is available). The report's first line then says the
    requested change is NOT done. Never leave a requested change silently unapplied.
 
-A subagent without MCP returns the catalog-changing request to the owning session even when the
-domain rename itself is authorized.
+A subagent without MCP returns the catalog-changing request (any addition, removal or rename of
+an addressed element, not only renames) to the owning session even when the domain change itself
+is authorized.
 
 ## Edit requests
 The normal path for any non-owner that finds a model defect, identity-affecting or not. Template:

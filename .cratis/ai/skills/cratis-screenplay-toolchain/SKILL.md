@@ -15,7 +15,7 @@ skill answers "does it compile, bind, render, and which compiler said so". The m
 
 ## Locate the model
 
-Look first in `.cratis/screenplay/` (or the configured model root). A folder of `.play`
+Look first in the model root: `.cratis/screenplay/` by default, or the root the project set with `mcpServers.screenplay.root` in `.cratis/ai.json`. A folder of `.play`
 files is one application: always check the folder, never one file of it.
 
 ## Verified product sources
@@ -79,7 +79,7 @@ Independent results, not a ladder. Commands and report format: `references/verdi
 | V1 | authorable (compiles, warnings as errors) | the folder command above |
 | V2 | executable diagnostics read | MCP `open-workspace`, then `read-workspace view=executable-diagnostics` |
 | V3 | binding-ready (binds, no blocking executable diagnostics) | `executableReady` true and no error-severity diagnostic in V2; informational PLAY0269/0270 are reported separately |
-| V4 | reference specifications run | an engine only: rendered Debug tests or the specrunner; else "not run" |
+| V4 | reference specifications run | the Screenplay reference execution route only (none ships in the pinned tools: `V4 not run: no route`); rendered Debug tests are V5.tests, never V4 |
 | V5 | rendered and target-verified | `cratis render`, then Debug build and tests; report admission, publication, build and tests separately |
 
 V2 and V3 need MCP: send `initialize`, then `notifications/initialized`, and start the
@@ -107,14 +107,15 @@ with the root folder name.
 - **Discover the capabilities available** (tool, version, `tools/list`, model root) once,
   then prefer typed, identity-preserving MCP operations (`propose-ast`, `propose-rename`,
   `propose-repair`, `propose-extract-inline-event`).
-- **Bounded text edits** are fine for address-preserving changes (members of commands, read
-  models and unpersisted events; mappings, rules, specifications, new declarations,
-  descriptions): a small `.play` diff followed by V1. Never use a text edit to get around an
-  MCP refusal.
-- **Identity-affecting edits** (rename, remove, move, persisted event contract evolution)
-  belong to the identity owner (the session that owns MCP). When
-  `.screenplay/identities.json` exists, `id` pins alone are not enough: a session without
-  MCP returns the catalog-changing request to the owning session.
+- **Bounded text edits** are for edits that leave catalog addresses unchanged (descriptions,
+  rule and expression bodies, mappings between existing members): a small `.play` diff
+  followed by V1. Without `.screenplay/identities.json`, plain text edits are fine. Never use a
+  text edit to get around an MCP refusal.
+- **Catalog-changing edits** belong to the identity owner (the session that owns MCP). When
+  `.screenplay/identities.json` exists, adding, removing or renaming an addressed element
+  (declarations, command and read-model properties, queries, query arguments, specifications),
+  moving declarations and persisted event contract evolution go through MCP, and `id` pins alone
+  are not enough: a session without MCP returns the request to the owning session.
 - AST JSON costs several times the text it replaces; use it where a typed operation is the
   only identity-safe route.
 - Proposals are connection-local (at most 16); `apply` writes `.screenplay/identities.json`

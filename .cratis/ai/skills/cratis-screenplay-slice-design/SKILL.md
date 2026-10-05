@@ -158,12 +158,15 @@ finding only with a domain consequence.
 
 ## Identity-affecting edits on an existing model
 
-Renaming, moving or removing commands, events, read models, constraints or slices, and any
-contract change to a persisted event, is identity-affecting: the identity owner performs it
-through the identity-aware path (`cratis-screenplay-modeling-lifecycle`; evolution classes:
-`cratis-screenplay-streams-and-consistency`). Members, mappings, rules, queries, screens and
-specifications are address-preserving text edits. Never use a text edit to get around a
-refusal from the typed tools.
+Classify an edit by whether it changes catalog addresses. When `.screenplay/identities.json`
+exists, adding, removing or renaming an addressed element (declarations, command and read-model
+properties, queries, query arguments, specifications), moving declarations between files, and any
+contract change to a persisted event go through MCP, performed by the identity owner
+(`cratis-screenplay-modeling-lifecycle`, *Classify by catalog address*; evolution classes:
+`cratis-screenplay-streams-and-consistency`). Bounded text edits are only for edits that
+preserve addresses (descriptions, rule and expression bodies, mappings between existing
+members). Without `identities.json`, plain text edits are fine. Never use a text edit to get
+around a refusal from the typed tools.
 
 ## Gate
 

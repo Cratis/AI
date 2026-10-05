@@ -60,38 +60,55 @@ from `git status`. Inputs: every file under the model root, the identity catalog
 (`.screenplay/identities.json`) when present, and every attachment file the model references,
 wherever it lives inside the repository.
 
-Run from the repository root; it fails closed on a missing, unreadable, symlinked or
-out-of-repository input and on any command failure. Deletions and renames change the digest
-because the manifest lists paths as well as hashes.
+Run from the repository root with repository-relative paths. It fails closed (non-zero exit, no
+digest) on: a missing model-root argument, an empty input inventory, a missing, unreadable,
+non-regular or out-of-repository input, any symlink (the input itself, or anything below an input
+directory, including nested directory links), and any traversal, hashing or sort failure.
+Deletions and renames change the digest because the manifest lists paths as well as hashes.
 
 ```shell
 #!/usr/bin/env bash
-# Usage: ident.sh <model-root> [extra-input-path ...]
+# Usage: ident.sh <model-root> [extra-input-path ...]   (run from the repository root)
 set -euo pipefail
-repo=$(git rev-parse --show-toplevel)
-commit=$(git rev-parse HEAD)
-inputs=()
+fail() { echo "ident: $*" >&2; exit 1; }
+[[ $# -ge 1 ]] || fail "usage: ident.sh <model-root> [extra-input-path ...]"
+repo=$(git rev-parse --show-toplevel) || fail "not in a git repository"
+commit=$(git rev-parse HEAD) || fail "no commit"
+tmp=$(mktemp -d) || fail "mktemp failed"
+trap 'rm -rf "$tmp"' EXIT
+: > "$tmp/files"
 for p in "$@"; do
-  [[ -e "$p" ]] || { echo "missing input: $p" >&2; exit 1; }
-  real=$(cd "$(dirname "$p")" && pwd -P)/$(basename "$p")
-  [[ "$real" == "$repo"/* ]] || { echo "input outside the repository: $p" >&2; exit 1; }
+  [[ -e "$p" ]] || fail "missing input: $p"
+  [[ ! -L "$p" ]] || fail "symlink input: $p"
+  real=$(cd "$(dirname "$p")" && pwd -P) || fail "cannot resolve: $p"
+  [[ "$real/$(basename "$p")" == "$repo"/* ]] || fail "input outside the repository: $p"
   if [[ -d "$p" ]]; then
-    while IFS= read -r -d '' f; do inputs+=("$f"); done < <(find "$p" -type f -print0)
+    find "$p" -type l -print > "$tmp/links" || fail "traversal failed: $p"
+    [[ ! -s "$tmp/links" ]] || fail "symlink under input: $(head -n 1 "$tmp/links")"
+    find "$p" -type f -print0 >> "$tmp/files" || fail "traversal failed: $p"
   else
-    inputs+=("$p")
+    [[ -f "$p" ]] || fail "not a regular file: $p"
+    printf '%s\0' "$p" >> "$tmp/files"
   fi
 done
-manifest=$(for f in "${inputs[@]}"; do
-  [[ -r "$f" && ! -L "$f" ]] || { echo "unreadable or symlink: $f" >&2; exit 1; }
-  printf '%s  %s\n' "$(shasum -a 256 < "$f" | cut -d' ' -f1)" "$f"
-done | LC_ALL=C sort -k2)
-echo "$commit+$(printf '%s\n' "$manifest" | shasum -a 256 | cut -c1-12)"
+[[ -s "$tmp/files" ]] || fail "empty input inventory"
+: > "$tmp/manifest"
+while IFS= read -r -d '' f; do
+  [[ -r "$f" && ! -L "$f" ]] || fail "unreadable or symlink: $f"
+  h=$(shasum -a 256 < "$f") || fail "hash failed: $f"
+  printf '%s\t%s\n' "$f" "${h%% *}" >> "$tmp/manifest"
+done < "$tmp/files"
+LC_ALL=C sort -u "$tmp/manifest" > "$tmp/sorted" || fail "sort failed"
+d=$(shasum -a 256 < "$tmp/sorted") || fail "digest failed"
+echo "$commit+${d:0:12}"
 ```
-Example: `ident.sh .cratis/screenplay .cratis/screenplay/.screenplay/identities.json src/Billing/Rule.cs`.
-Record the output as the source identity; a changed digest invalidates acceptance. Add the MCP
-workspace revision and catalog revision when a workspace is open. Validated cases: a clean tree,
-a changed tracked file, a changed git-ignored attachment, a deleted file, a missing input and an
-out-of-repository input.
+Example: `ident.sh .cratis/screenplay .cratis/screenplay/.screenplay/identities.json src/Billing/Rule.cs`
+(the identity catalog sits inside the root, so list it only if it lives elsewhere; duplicates are
+merged). Record the output as the source identity; a changed digest invalidates acceptance. Add the
+MCP workspace revision and catalog revision when a workspace is open. Validated cases: a normal
+folder (stable digest on rerun), a changed file, an added file, a deleted file, a symlinked folder,
+a nested file symlink, a nested directory symlink, an empty folder, no argument, a missing input, an
+unreadable file, an untraversable directory and an out-of-repository input.
 
 ### Revisions are three different things
 - **Source identity** (above): bytes of the inputs. Used for acceptance.

@@ -29,7 +29,7 @@ Select only diff-relevant, profile-applicable canonical rules in `.cratis/ai/rul
 
 ## Model-first check
 
-Run the model-first decision once per review (master text: `cratis-screenplay-modeling-lifecycle`): an accepted model covers the scope, a model root is configured (even if empty), or `.cratis/screenplay/` exists means the repository is opted in. Otherwise skip this section, and do not demand a model from framework, brownfield or not-opted-in work. If the Screenplay skills are missing, say so in the report rather than reviewing model content from memory.
+Run the model-first decision once per review (master text: `cratis-screenplay-modeling-lifecycle`): the repository is opted in only when the model root (default `.cratis/screenplay/`) holds a `.play` file or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed skill, a `.play` file outside the root or an unaccepted draft is not opt-in, and a behavior is a contract only when an accepted model under the root covers it. Otherwise skip this section, and do not demand a model from framework, brownfield or not-opted-in work. If the Screenplay skills are missing, say so in the report rather than reviewing model content from memory.
 
 In an opted-in repository:
 
@@ -39,7 +39,7 @@ In an opted-in repository:
 - [ ] The model was not changed to match existing code
 - [ ] Specs derived from `.play` specifications were not weakened or removed
 
-Changes under `.cratis/screenplay/**` (or the configured model root) are not reviewed here beyond noting them: route them to `screenplay-reviewer` for an independent, fresh-context model review and list that routing in the report. Review the surrounding code changes as usual.
+Changes under `.cratis/screenplay/**` (or the model root) are not reviewed here beyond noting them: route them to `screenplay-reviewer` for an independent, fresh-context model review and list that routing in the report. Review the surrounding code changes as usual.
 
 ---
 

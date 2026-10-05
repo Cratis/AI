@@ -21,12 +21,15 @@ frameworks during modeling.
 
 **1. Decide the level (short form; master copy in `cratis-screenplay-modeling-lifecycle`).**
 Check first that the method skills are installed; installing them never opts a
-repository in. The work is **model-first** when an accepted model covers the scope,
-a model root is configured (even if empty), or `.cratis/screenplay/` exists.
-Otherwise propose a model once, name the feature it would start with, and stay
-code-first if declined (unattended: record the recommendation and continue
-code-first). Framework repositories and brownfield work that has not opted in stay
-code-first.
+repository in. The work is **model-first** only in an opted-in repository: the model
+root (default `.cratis/screenplay/`) holds a `.play` file, or the project explicitly set
+`mcpServers.screenplay.root` in `.cratis/ai.json`. An empty directory, install output,
+an installed skill, a `.play` file outside the root or an unaccepted draft is not
+opt-in; a behavior is a contract only when an accepted model under the root covers it.
+Otherwise stay code-first. Only the entry-point session proposes a model (at most once
+per session, never for trivial, bug-fix, infrastructure, client, framework or
+brownfield-maintenance work; unattended: record the recommendation in the final report).
+Framework repositories and brownfield work that has not opted in stay code-first.
 
 - **Model:** change the `.play`, verify, review, then render or gap-fill.
 - **Code is right for** infrastructure, clients, Screenplay code attachments and

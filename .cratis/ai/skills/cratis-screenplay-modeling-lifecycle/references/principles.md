@@ -46,3 +46,8 @@ Do not do these, and do not reopen them because a tool or extractor meets framew
 - Exactly-once claims inferred from replay controls, delivery ids or reference clock execution.
 - Treating a green compile, an attractive board or a closed issue as proof the application works.
 - Making the model mandatory for every repository task.
+
+## Finding tiers
+Say which tier a finding comes from: **compiler contract** (a named tool and version rejects it
+for the mode), **modeling default** (deviate with a recorded reason), or **review question** (a
+finding only with a domain consequence).

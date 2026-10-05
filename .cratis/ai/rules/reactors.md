@@ -9,7 +9,7 @@ profile: application
 
 Reactors are the "if this then that" of event sourcing — they observe events and produce side effects. Unlike projections (which build state), reactors *do things*: send emails, trigger commands in other slices, call external APIs.
 
-**Model first:** when an accepted model covers this scope, a model root is configured (even if empty), or `.cratis/screenplay/` exists, a reactor implements an automation that the model owns (`produces` / `invokes`); read the modeled slice first and keep the reactor to what the model leaves to code (gap-fill). Otherwise (not opted in) stay code-first: this file and the **cratis-chronicle-reactor** skill are the guide, and a model may be proposed once. A stray `.play` file elsewhere is not consent.
+**Model first:** when an accepted model under the model root covers this scope (or the repository is opted in: the root holds a `.play` file or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; master definition in `cratis-screenplay-modeling-lifecycle`), a reactor implements an automation that the model owns (`produces` / `invokes`); read the modeled slice first and keep the reactor to what the model leaves to code (gap-fill). Otherwise (not opted in) stay code-first: this file and the **cratis-chronicle-reactor** skill are the guide, and the entry-point session may propose a model at most once per session. A `.play` file outside the root, an unaccepted draft or an empty directory is not consent.
 
 ## IReactor — Marker Interface
 

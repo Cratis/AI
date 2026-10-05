@@ -122,7 +122,9 @@ dynamic root there, fix the root.
    (keeps `id` pins and assigned identities, refuses on ambiguity),
    `propose-repair`, `propose-extract-inline-event`, `propose-ast` for additions,
    replacements, removals and moves.
-3. **Bounded text edits** are fine where no catalog address changes (table below).
+3. **Bounded text edits** are fine only where no catalog address changes (table below). With
+   `.screenplay/identities.json`, adding, removing or renaming a declaration, a command or
+   read-model property, a query, a query argument or a specification changes addresses.
    A text edit is **never** a way around a refusal: if a typed operation refused,
    change the request or ask, do not retype the file.
 4. **`id` pins alone are not enough when `.screenplay/identities.json` exists.**
@@ -137,8 +139,8 @@ dynamic root there, fix the root.
 
 | Edit class | Examples | Route |
 | --- | --- | --- |
-| Address-preserving | add or change members of commands, read models and unpersisted events; mappings, rules, specifications; a new slice or declaration; descriptions | bounded text edit of the `.play` file, then compile the folder; or `propose-ast` |
-| Identity-affecting | rename, remove or move an event, command, read model, constraint, module, feature or slice; move declarations between files; contract evolution of a persisted event (new generation, property added, removed or retyped) | `propose-rename` or a reviewed `propose-ast`; never a blind text rename. Renaming a constraint resets its uniqueness index: ask first unless the request names it, then report the reset. A persisted event rename needs `id "OldName"` (added by default) |
+| Address-preserving | descriptions; bodies of rules and expressions; mappings between members that already exist; any edit that adds, removes or renames no addressed element. Also every edit in a model with no `.screenplay/identities.json` except persisted names | bounded text edit of the `.play` file, then compile the folder; or `propose-ast` |
+| Catalog-changing (identity file present) | add, remove or rename a declaration (slice, command, event, read model, projection, ...), a command or read-model property, a query, a query argument or a specification; rename, remove or move an event, command, read model, constraint, module, feature or slice; move declarations between files; contract evolution of a persisted event (new generation, property added, removed or retyped) | `propose-rename` or a reviewed `propose-ast`; never a blind text rename. Renaming a constraint resets its uniqueness index: ask first unless the request names it, then report the reset. A persisted event rename needs `id "OldName"` (added by default) |
 | Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479` (and recipe-only `0397`) | `propose-repair` with `formatting` |
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
 | Parser-invalid document | no editable handles | `propose-ast` `replace-document` with a whole typed document, or fix the text |

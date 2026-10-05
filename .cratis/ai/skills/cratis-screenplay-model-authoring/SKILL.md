@@ -103,10 +103,11 @@ question. Size-limit refusals require narrower reads, not truncation.
 
 **One edit strategy.** Discover what the server offers. Prefer typed,
 identity-preserving operations (`propose-rename`, `propose-repair`,
-`propose-extract-inline-event`, `propose-ast`). A bounded text edit is fine for
-address-preserving changes (members, mappings, rules, specifications, a new
-slice), but never a way around an MCP refusal. When `.screenplay/identities.json`
-exists, an `id` pin is not enough for a rename or move; use the MCP operation. A request naming
+`propose-extract-inline-event`, `propose-ast`). A bounded text edit is fine only for
+edits that leave catalog addresses unchanged (descriptions, rule and expression bodies, mappings
+between existing members), never a way around an MCP refusal. When `.screenplay/identities.json`
+exists, adding, removing or renaming a declaration, command or read-model property, query,
+query argument or specification goes through MCP, and an `id` pin is not enough for a rename or move. A request naming
 a rename, move or removal is the approval: do not ask again at `apply`. Without MCP, text-rename
 with `id "<Old>"` pins and an identity note; only with `identities.json` and no MCP, return the
 request to the owning session, saying first it is NOT done.

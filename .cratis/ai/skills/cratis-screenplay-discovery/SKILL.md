@@ -27,9 +27,11 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
   scenarios (`cratis-screenplay-scenario-coverage`); auditing (`cratis-screenplay-model-review`);
   existing code or a database as the source (`cratis-screenplay-legacy-extraction`).
 - Small change to an existing model (one or two events): enter at step 5.
-- Model-first: work in `.play` where an accepted model covers the scope or the repository
-  opted in (a `.cratis/screenplay/` directory or a configured model root). Otherwise offer a
-  model once and stay code-first if it is declined (`cratis-screenplay-modeling-lifecycle`).
+- Model-first: work in `.play` where an accepted model under the model root covers the scope or
+  the repository is opted in (the root holds a `.play` file, or the project explicitly set
+  `mcpServers.screenplay.root` in `.cratis/ai.json`). Otherwise stay code-first; only the
+  entry-point session proposes a model, at most once per session; the master definition is in
+  `cratis-screenplay-modeling-lifecycle`. A direct request to model this scope is itself consent.
 
 ## Verified product sources
 

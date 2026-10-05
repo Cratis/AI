@@ -116,7 +116,7 @@ language. Include commands that emit no event.
    system or return events or commands in response to our own events for
    automations, and adapters that take outside data in as our own events for
    translations. Choose the **authority** here: when an accepted model covers
-   the scope (or the repository opted into Screenplay), read the behaviors from
+   the scope (or the repository is opted in, per `cratis-screenplay-modeling-lifecycle`), read the behaviors from
    its slices (`StateChange`, `StateView`, `Automation`, `Translate`) and render
    from the model; otherwise the code is the authority. Report code that
    disagrees with the model as drift, separately; do not add unmodeled behavior
@@ -159,7 +159,7 @@ language. Include commands that emit no event.
 
 ## Route near misses
 
-- An accepted model covers the scope (or the repository opted in): it is the source for this
+- An accepted model covers the scope (or the repository is opted in): it is the source for this
   diagram; do not redraw from code and never change the model to match a
   diagram. The diagram is a view of it.
 - Deciding the model rather than drawing one: `cratis-chronicle-event-modeling`

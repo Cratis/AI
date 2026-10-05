@@ -39,7 +39,7 @@ Select from these canonical rules in `.cratis/ai/rules/` only after applying the
 - Slice type (`State Change`, `State View`, `Automation`, `Translation`)
 - The auto-generated proxy file(s) produced by `dotnet build` (TypeScript commands/queries)
 - Whether this slice introduces a new page (requires routing update)
-- The slice's `screen`, `form` and interaction (`on` / `uses`) declarations, when the repository has a `.cratis/screenplay/` directory or a configured model root. These are the spec for the page.
+- The slice's `screen`, `form` and interaction (`on` / `uses`) declarations, when an accepted model under the model root covers the slice, or the repository is opted in. These are the spec for the page.
 
 ---
 
@@ -52,14 +52,14 @@ Confirm that the TypeScript proxies exist in the slice folder before writing any
 
 ## Model-first check
 
-Before writing slice UI, decide the level. The model is the source of truth when an accepted `.play` model covers the slice, or when the repository has opted in (a `.cratis/screenplay/` directory or a configured model root, even if empty). The page is then the model's implementation:
+Before writing slice UI, decide the level. The model is the source of truth when an accepted `.play` model covers the slice, or when the repository has opted in: the model root (default `.cratis/screenplay/`) holds a `.play` file or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`. An empty directory, install output, an installed skill, a `.play` file outside the root or an unaccepted draft is not opt-in (master: `cratis-screenplay-modeling-lifecycle`). The page is then the model's implementation:
 
 - Read the slice's `screen` and `form` declarations first, and follow `cratis-arc-react-page` `references/from-screenplay.md` for the declaration-to-component mapping. Use `cratis-screenplay-modeling-lifecycle` for the model-first decision rule.
 - Where the model and the request disagree, fix the model first (through the modeler, or ask) and report it. Never change the model to match existing code, and never add data or actions in the page that the model lacks.
 - Opted in but no model covers the slice: route to modeling (the Screenplay Modeler) before implementing the UI. Do not fall back to code-first.
 - Screens are design-only in the compiler. Where Stage renders the screen, prefer the render to hand-writing it, and never edit Stage-managed output.
 - If the Screenplay skills are not installed, report that, do not author model content from memory, and do not treat it as withdrawing opt-in; ask how to proceed.
-- Not opted in and no accepted model: propose a model once, and if declined continue code-first. Framework repositories stay code-first.
+- Not opted in and no accepted model: continue code-first and do not propose a model (only the entry-point agent or session does, at most once per session). Framework repositories stay code-first.
 
 ---
 
