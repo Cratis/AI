@@ -1,0 +1,16 @@
+{
+  "skill": "cratis-screenplay-modeling-lifecycle",
+  "input": "Add a berth allocation feature to this Cratis application that already has a .cratis/screenplay model. How should the work be done and verified?",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Model first" },
+    { "kind": "skill-contains", "value": "`Outcome:`" },
+    { "kind": "skill-contains", "value": "V3 binding-ready" },
+    { "kind": "skill-contains", "value": "never a state copy" },
+    { "kind": "skill-contains", "value": ".ai-work/screenplay/<model-slug>/STATE.md" },
+    { "kind": "skill-contains", "value": "decided rejection" },
+    { "kind": "skill-contains", "value": "same-model review" },
+    { "kind": "skill-contains", "value": "`id` pins alone are not enough" },
+    { "kind": "skill-contains", "value": "names a rename, move or removal is the approval for it" }
+  ]
+}

@@ -1,0 +1,230 @@
+---
+name: cratis-screenplay-slice-design
+description: "Shape Screenplay slices from a discovered timeline: commands with reachable, authorized origins and traced inputs, rules placed by layer, a per-command refusal inventory, events-vs-views decisions, read models per screen component with queries that follow the business view, Level-1 screens, field lineage, state-transition tables, slice dependencies and the next slice. Use after discovery, when adding a capability or deciding command inputs, rule placement, read-model shape or screen data. Not for: stream boundaries or invariants across streams (use `cratis-screenplay-streams-and-consistency`), reactions and captures (use `cratis-screenplay-automations-and-translations`), which scenarios to write (use `cratis-screenplay-scenario-coverage`), or auditing a finished model (use `cratis-screenplay-model-review`)."
+license: MIT
+---
+
+# Slice design
+
+## Purpose
+
+Turn a timeline of events into designed slices: for each fact, the command that records it and
+where its data comes from; for each thing someone needs to see, the read model, query and
+screen. Output: compiling `StateChange` and `StateView` slices in the chosen mode, a command
+card and refusal inventory per command, a lineage matrix, a state-transition table per entity,
+slice dependencies, and the rules the model records but cannot enforce yet.
+Grammar: `cratis-screenplay-command-surface`, `cratis-screenplay-read-surface`,
+`cratis-screenplay-projections`. Tools, versions and verdicts: `cratis-screenplay-toolchain`.
+Lifecycle, modes and hand-offs: `cratis-screenplay-modeling-lifecycle`.
+
+## When / when not
+
+- Use after `cratis-screenplay-discovery`; for adding a capability; for command inputs, rule
+  placement, read-model or query shape, screen data; for checking lineage.
+- Not for: which identity a fact belongs to and where invariants are enforced
+  (`cratis-screenplay-streams-and-consistency`); reactions, todo lists, captures
+  (`cratis-screenplay-automations-and-translations`); which scenarios to write
+  (`cratis-screenplay-scenario-coverage`); a full audit (`cratis-screenplay-model-review`).
+
+## Interview phase
+
+Skip if the request already names the origins of the commands (screens, reactions, outside
+systems), the decision a person makes with each shown field, and how fresh each view must be.
+Otherwise ask, in one batch, only what is missing. Unattended: assume visibly, write each
+assumption into the phase report and the slice `description`, and continue.
+
+1. **Origin of each action.** Is it a person on a screen, an automatic reaction, or an outside
+   system? Impact: separates screen commands from automation (and a trusted path).
+   Follow-up: if a mix, which user actions start automation, and what does the automation
+   decide on its own? If outside systems, which one and what data does it send?
+2. **Critical fields.** Which data matters most on each screen, and what decision does the
+   person make from each field? Impact: fields with no decision behind them are questions, not
+   requirements. Follow-up: for a field nobody can justify, ask whether it is history worth
+   keeping or can go.
+3. **Freshness and cost.** How stale may each view be, and what does a stale answer cost?
+   Impact: picks projection versus reducer, and one-shot versus `observable`. Follow-up: if a
+   wrong answer is expensive (a booking, a payment), that decision needs a protected read
+   (`references/rule-layers.md`), not a view.
+4. **Granularity.** When someone changes these values, why? Impact: separates decisions from
+   forms. Follow-up: when a screen edits several values, ask for each who changes it and why.
+5. **Existing UI or constraints.** Is there a screen or system to match? Impact: origins and
+   screen data. Follow-up: ask to see it; styling belongs to `cratis-screenplay-ui-composition`.
+
+## Procedure
+
+1. **Fix the mode** for the scope (`cratis-screenplay-modeling-lifecycle`): design, executable
+   or renderable. It decides which shapes you may use (steps 6, 9). Read the existing model
+   before adding to it.
+2. **Find each event's origin.** For every event ask who or what makes it happen and through
+   which path: a persona's screen `action` or form, a reaction's `invokes`, a capture. The
+   origin must be **reachable** (some screen, form, reaction or integration leads to the
+   command) and **authorized** (the persona's policies satisfy every gate on module, feature
+   and command). A command may have several origins; each must be real. A reaction's `invokes`
+   has no caller, so a gated command it invokes is refused: design the trusted path, never
+   delete the gate.
+3. **Design the command** (`references/command-inventory.md`). Imperative business name for
+   **one** decision (`ReassignLocker`, `CorrectLockerVolume`). A form verb (`Update`, `Edit`,
+   `Save`, `Set`, `Change`, `Manage` + noun) means several decisions share a form: ask which
+   separate reasons change these values, then split (`references/slicing.md` *Generic edits*).
+   One input per thing the caller decides or supplies; `identifier` on the property naming the
+   instance (omit only for allocation); `for <identifier>` on every `produces`. Trace each input
+   (`references/field-lineage.md`). A conditional input is a granularity question: two
+   decisions are two commands; one decision with a dependent rule is an implication
+   (`require a == false or b > c`). Never a boolean attestation input (`confirmsX == true`)
+   standing in for a rule. Place each rule in its layer (`references/rule-layers.md`). A rule
+   over stored state is written as `reads <View>` + `require ... message "..."` and marked
+   **NOT enforced in the model today** in the slice `description`, with its target named (Arc
+   `[ProtectedDecision]` + `DecisionRead<T>` on Arc 22.39.0+, not available in Stage-rendered
+   apps; Chronicle DCB; or a constraint). Never copy state
+   into the command as input or hide a rule in `handler` / hint prose; descriptions are not
+   rendered (Stage#178). Fill the **refusal inventory**: success, each distinct refusal with
+   layer and message, and the denied persona.
+4. **Name and shape the event.** Past tense, the specific change that became true
+   (`LockerRelocated`, `VolumeCorrected`); never `XUpdated`/`Changed`/`Edited`/`Saved`/
+   `Modified`, never `XRecalculated` (a running figure is a view), and no payload restating the
+   creation event without a named business change. Naming: `cratis-screenplay-discovery`
+   `references/event-naming.md`. Only facts: values the command supplied, literals,
+   `$context.occurred` or caller identity. No event-source id in the payload (it is the `for`);
+   references to other instances are payload. No nullable property by default (a required value
+   or a separate event). No PII on the identifier; one data subject per stream. Add a field only
+   when something downstream needs it.
+5. **Events or views?** For each value someone needs: was it decided or supplied (event), or
+   can it be worked out from facts already recorded (view)? Decided calculations (a quoted
+   price, a set fee) are facts. Running figures are views. Time-relative states ("overdue")
+   are not stored: store the deadline.
+6. **Design the read side** (`references/read-model-design.md`). One read model per screen
+   component or automation need. Pick the builder (declarative projection first, reducer when
+   guards cannot be expressed). The query follows the business view: a list where people scan a
+   list, a keyed lookup where they open one thing. For **executable or renderable scope**, every
+   read model also needs exactly one keyed shape `query XById => RM optional` + `by xId XId`,
+   with `xId = $eventSourceId`; keep the list query in design mode and record that it blocks V3.
+   Whose rows is part of the view; a caller-supplied filter is not access control.
+7. **Screens, Level 1.** `data <RM> via query <Q>` plus `action <Command>` per thing the user
+   can do there. Build each slice as read model, screen, command, event. A screen acting on an
+   existing instance also shows `data` from a view that supplies the identifier and the state
+   the user decides on; only a creation screen may lack `data` (say so in the slice
+   `description`). A screen with neither `data` nor `action` is a gap. One actor's point of view
+   per screen, at a real beat of the story, not one per persona for symmetry; know where the
+   actor sees each state change's result. Beyond Level 1: `cratis-screenplay-ui-composition`.
+8. **Lineage pass.** Build the matrix in `references/field-lineage.md` from the `.play` files
+   (read them), not from memory or an earlier summary. For each read model, write one line per
+   contributing event in its StateView slice `description`: which fields it sets and why. An
+   event with no reason does not belong in the view. A field without an origin is a gap: add
+   the missing input or event field, or record an open question. Never invent a source.
+9. **Slice and continue** (`references/slicing.md`): state-transition table per entity; one
+   command per `StateChange` slice by default (required for renderable scope), one view per
+   `StateView` slice; record the events each slice consumes and which slice produces them. If
+   the request names the next capability, build that; otherwise pick the next slice with the
+   heuristic there, act, and state why you chose it.
+10. **Validate** after the batch: V1 with warnings as errors, then V3 when the mode is
+    executable or renderable, with the tool and version named (`cratis-screenplay-toolchain`
+    `references/verdicts.md`). Hand off with the model root and source revision, the slices
+    touched, and **one line per element** (command, screen, read model, slice inventory), not
+    only problems. Decided refusals go to `cratis-screenplay-scenario-coverage`, never to open
+    questions.
+
+## Rules
+
+### Compiler contracts (the tool enforces these)
+
+- At most one `identifier` per command; never on an event property; never on a read-model
+  property (identity comes from the keyed query's `by`).
+- At most one builder (projection or reducer) per read model (`PLAY0191`).
+- A query's `by` goes on its own body line. Only `=> RM optional` with one caller-supplied `by`
+  binds in the executable model; list, observable, filtered or scoped queries are `PLAY0268` at
+  binding but compile.
+- A `unique` constraint names a property the event declares directly; the constraint name is
+  its identity (renaming starts an empty index).
+- Unauthorized is `then denied`; a broken rule is `then error`; authorization runs first.
+- Missing projection targets are not reported (also after a one-sided rename): check by hand.
+
+### Modeling defaults (follow unless the domain gives a reason not to)
+
+- One command per `StateChange` slice (renderable: required, plus no `produces when`).
+- One business decision usually produces one event; a decision establishing several facts the
+  business recognises separately may produce several (say why in the `description`).
+- Copy an identity into an event payload only when a consumer needs it as a value.
+- Keep durable design rationale in slice `description` text, not `//` comments.
+- Rule coverage: for each value carrying a rule, list every path that sets it
+  (`references/slicing.md`). A constraint on a claim covers every event setting that claim;
+  value invariants live in the concept so they travel; command-level conditions are reviewed
+  per path, not copied blindly.
+
+### Review questions
+
+Ask the design review questions in `references/review-questions.md` (reachability, forms in
+disguise, secrets, fan-in, collections, atomic invariants, who sees which rows); report a
+finding only with a domain consequence.
+
+## Identity-affecting edits on an existing model
+
+Renaming, moving or removing commands, events, read models, constraints or slices, and any
+contract change to a persisted event, is identity-affecting: the identity owner performs it
+through the identity-aware path (`cratis-screenplay-modeling-lifecycle`; evolution classes:
+`cratis-screenplay-streams-and-consistency`). Members, mappings, rules, queries, screens and
+specifications are address-preserving text edits. Never use a text edit to get around a
+refusal from the typed tools.
+
+## Gate
+
+Slice design is done when all of these hold; otherwise report what is open.
+
+- [ ] Every command: origin reachable and authorized; every input traced; rules placed by
+      layer; stored-state rules recorded NOT enforced with a named target; no form-verb name.
+- [ ] Every command has a refusal inventory (success, each refusal with layer and message,
+      denied persona); every gated command and query has a `then denied` row.
+- [ ] Every event is past tense, a specific change, and consumed or justified.
+- [ ] Every read model has a consumer and one keyed query when the scope is executable.
+- [ ] Every StateView `description` gives a reason per contributing event; every read-model
+      field and screen field is traced; every `from` event sets a field.
+- [ ] No `screen` without `data` or `action`; every acting screen has `data` or a stated
+      exemption.
+- [ ] State-transition table per entity, including refused transitions; rule coverage listed
+      per rule-carrying value; slice dependencies recorded.
+- [ ] V1 passed, and V3 for executable or renderable scope with expected codes only (or
+      ready), each naming the tool and version.
+
+## Verified product sources
+
+| Source | Pin | Used for |
+| --- | --- | --- |
+| Screenplay | `v4.64.0` (`7e16162`) | `commands.md`, `constraints.md`, `specifications.md`, `diagnostics.md` (`PLAY0191`, `PLAY0268`, `PLAY0271`, `PLAY0350`, `PLAY0381`, `PLAY0397`), `projections/keys.md` |
+
+Every example here compiles with the standalone `screenplay` 4.64.0 `--warnaserror`, and with
+`cratis screenplay validate --warnings-as-errors` (cratis 3.27.1). Other pins:
+`cratis-screenplay-toolchain` `references/versions.md`. Compilation proves syntax, not that
+the model is executable or renders.
+
+## Verify
+
+- V1 passes with the tool named in `cratis-screenplay-toolchain` (name tool and version).
+- Executable/renderable scope: V3 reports the expected codes only (or ready).
+- Walk the Gate list above; the report lists every element as ok / exempt with reason / gap.
+- Every persona `Cannot` line resolves to a gate plus a denied spec, or is recorded as a gap.
+- Worked reference: `references/worked-example.md` (design mode, compiles clean).
+
+## Route near misses
+
+- Grammar: `cratis-screenplay-command-surface`, `cratis-screenplay-read-surface`,
+  `cratis-screenplay-projections`.
+- Streams, retries, cross-stream invariants: `cratis-screenplay-streams-and-consistency`.
+- Automations and captures: `cratis-screenplay-automations-and-translations`.
+- Scenario coverage and specification forms: `cratis-screenplay-scenario-coverage`,
+  `cratis-screenplay-specifications`.
+- Audit of a finished model: `cratis-screenplay-model-review`.
+- Layout, forms, templates: `cratis-screenplay-ui-composition`.
+
+## References (load on demand)
+
+- `references/command-inventory.md` - command card, interview questions, refusal inventory.
+- `references/review-questions.md` - design review questions.
+- `references/rule-layers.md` - rule placement, executable authorization, PII.
+- `references/field-lineage.md` - origins per element, matrix, reason lines, chain edits.
+- `references/read-model-design.md` - components, fan-in, list vs keyed, singletons, scope.
+- `references/slicing.md` - slice naming, dependencies, state table, generic edits, coverage,
+  next slice.
+- `references/worked-example.md` - parcel lockers, design mode, complete and compiling.
+
+## Lineage
+
+Method lineage and attribution: `references/provenance.md`.

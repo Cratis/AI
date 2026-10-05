@@ -1,0 +1,43 @@
+{
+  "skill": "cratis-screenplay-slice-design",
+  "input": "Design the slices for a new capability in a Screenplay model: commands, rules, read models and screens.",
+  "fixtures": [],
+  "assertions": [
+    {
+      "kind": "skill-contains",
+      "value": "NOT enforced in the model today"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## Interview phase"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "refusal inventory"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "never `XUpdated`/`Changed`/`Edited`/`Saved`/"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Rule coverage:"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Never a boolean attestation input"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "record the events each slice consumes"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A screen with neither `data` nor `action` is a gap"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## Gate"
+    }
+  ]
+}

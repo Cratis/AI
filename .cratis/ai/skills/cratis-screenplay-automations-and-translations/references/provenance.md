@@ -1,0 +1,37 @@
+# Provenance
+
+## Adapted closely (MIT)
+Source: `TrogonStack/agentskills`, commit `7b249d3ee42d8b7e11fa564141ebd5fbc37aadf1`,
+Copyright (c) 2025 Straw Hat, LLC, MIT. The complete notice is in this skill's `LICENSE`.
+
+| Our content | From | Adaptation |
+|---|---|---|
+| `SKILL.md` Interview phase: skip condition, the sources and mapping questions with follow-ups, "missing correlation first" | `plugins/trogonstack-eventmodeling/skills/eventmodeling-translating-external-events/SKILL.md` (Interview Phase) | rewritten for Screenplay captures; added automation and recovery questions and the unattended rule |
+| `references/worked-integration.md` structure: catalog, technical analysis, correlation, translation rules, scenarios, failure and recovery, output | same file, Workflow 1 to 7 and Output Format | new domain (invoicing, synthetic provider); target-field completeness table, recovery owner column and `capture`/`constraint` mapping added; the payment and geofence examples are not reused |
+| `references/integration-contracts.md` question table and the quality checklist ideas (every type has a rule, correlation, external ids kept for dedup, validation, missing data) | same file, Quality Checklist and Key Principles | merged into the contract and the audit |
+
+Reviewed and not adopted: the translating skill's "Default Gracefully" principle (sensible
+defaults for missing data) is replaced by "never fabricate a default"; its log-and-drop failure
+handling is replaced by recorded failure facts. `plugins/trogonstack-eda` was skimmed; nothing
+adopted.
+
+## Ideas only (written independently)
+Nebulit-GmbH/agentic-engineer has no licence; nothing is copied.
+- idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/eventmodeling-designing-automation-chains`:
+  resolve the automation chain at the moment it is introduced, and audit every automation
+  exhaustively with a per-declaration result. Written independently as `SKILL.md` Gate and
+  `references/audit-format.md`. Its compulsory queue and never-closing translation queue were rejected.
+- idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/build-automation`: keep the model
+  authoritative, exact input mappings, explicit filtering, repeated-command cases. Written
+  independently in `references/realization-and-gap-fill.md` and `references/cases-to-specify.md`.
+  Its implementation recipe was dropped.
+
+## Carried forward
+`references/automation-patterns.md`, `translation-patterns.md`, `effects-and-idempotency.md`,
+`cases-to-specify.md` and both examples come from the earlier Cratis drafts of this skill.
+Changes in this version: the examples are complete fenced documents that compile (the translate
+example's anonymous-booking spec gained the `given caller` PLAY0389 requires; the todo-list
+example's list query, `reads` and retry sweep moved to marked design-only excerpts so the core
+binds); tool-qualified verdict text; the trusted-actor text now names `[ExecuteCommandsAsSystem]`
+(Arc v20.56.0, available in a rendered app's Arc 22.25.0) and Screenplay#383; Stage renders no
+Automation or Translate slice (Stage#79).
