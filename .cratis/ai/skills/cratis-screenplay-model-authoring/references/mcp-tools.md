@@ -4,24 +4,31 @@
 # Working with the Screenplay MCP
 
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
-alone, where the server binds a root on first use from `open-workspace`'s `path`, the
-client's roots, or the working directory. The default
-consumer model location is `.cratis/screenplay/`. AI distribution provides the
+alone inside a project with `.cratis/ai.json`, which resolves the fixed default root
+`.cratis/screenplay`. The standalone form is `screenplay mcp <model-folder>`. A
+server started with no root at all binds one on first use from `open-workspace`'s
+`path`, the client's roots, or the working directory; that dynamic form hit the
+roots bug in Screenplay up to 4.63.1 (see the [MCP loop](mcp-loop.md#roots-bug-and-the-workaround)),
+so prefer a fixed root. The default consumer model location is `.cratis/screenplay/`. AI distribution provides the
 profile-selected declaration and guidance; the CLI owns executable hosting and
 client registration. Installation must preserve user-owned MCP servers and
 report unsupported adapters or drift.
 
 ## Tool groups
 
-Discover current argument schemas with `tools/list`; do not infer arguments from
-these short descriptions.
+`tools/list` returns 29 tools (30 on MCP-Apps hosts, which add `visualize-model`),
+after `initialize` and `notifications/initialized`. Discover current argument
+schemas with `tools/list`; do not infer arguments from these short descriptions.
+The connection procedure, edit routes, identity state and failure handling are in
+the [MCP loop](mcp-loop.md).
 
 | Group | Tools | Intent |
 | --- | --- | --- |
 | Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details` | Navigate logical hierarchy and inspect bounded details |
 | References and examples | `find-references`, `dependencies`, `find-fixtures`, `find-assertion-gaps` | Inspect declared relationships and authored examples, not executed coverage |
 | Source and validation | `diagnostics`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
-| Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace` | Obtain current identities, handles, readiness, code attachment requirements and durable-state status |
+| Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
+| Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
 | Planning | `propose-ast`, `propose-rename`, `propose-repair`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
 | Review | `read-proposal`, `discard-proposal` | Inspect exact changes, dropped comments and proposed attachments, or abandon a connection-local proposal |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
@@ -83,6 +90,29 @@ refuse the rename. Do not promise a generation-2 payload-removal repair or a
 VS Code and Monaco provide local optionality quick fixes without .NET; they do
 not host these production-repair transactions. Use MCP for production repairs.
 
+## Syntax-only constructs through the MCP
+
+`generated` properties and `returns` responses, `system`/`operation`, and
+`eventsource`/`stream` are authorable but not executable (`PLAY0268`, ESM v8, v9,
+v10). The server reads and edits them: `declaration-details` exposes `isGenerated`
+and a command `response` view, `route` and `streams` views; `read-workspace` offers
+the views `event-sources`, `event-streams`, `event-source-details`,
+`event-stream-details`, `command-routes` and `event-source-diagnostics` (detail
+views need the exact `authoringKey` from the inventory). Each discloses
+`executionAvailable: false`. Discover the node kinds with `syntax-schema` and edit
+through typed `propose-ast`; there is no automatic source or stream rename and no
+routing repair. Inline-event extraction refuses response-bearing commands.
+
+## Source map and appended-event fixtures
+
+`read-workspace` `view: "source-map"` pages the compiler's semantic entries (ordered
+by semantic id) with role, identity origin, document id, path and an exact UTF-16
+span. Compilation must have succeeded for entries to exist (`available`).
+`find-fixtures` roles are `givenEvent`, `whenAppendedEvent`,
+`whenAppendedEventDestination` and `thenEvent` (and others for commands and
+queries): a `when append` payload is labeled `whenAppendedEvent`, not `thenEvent`,
+in `declaration-details`, `find-fixtures`, references and dependencies.
+
 ## Revision and ownership rules
 
 - A source query's `sourceRevision` binds its pages. Use `expectedSourceRevision`
@@ -95,6 +125,14 @@ not host these production-repair transactions. Use MCP for production repairs.
   meaning. Rename all required fragments through the model-aware operation.
 - IDs are opaque values. Never create replacements from similar names, paths or
   line numbers. Keep root-local `.screenplay/identities.json` with the model.
+- Proposals are connection-local, at most 16 outstanding, and are cleared by
+  `open-workspace`, a successful `apply` and a root change. They cannot cross
+  sessions: a non-owner returns an edit request, never a proposal id.
+- `apply` persists identity state with the source; a text edit of an
+  identity-affecting declaration (rename, move, remove, event contract change)
+  in a model that has `identities.json` breaks continuity silently. Use
+  `propose-rename` or a reviewed `propose-ast`. `id` pins alone do not protect the
+  catalog.
 
 ## Refusals are useful information
 

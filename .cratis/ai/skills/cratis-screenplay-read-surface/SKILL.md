@@ -26,6 +26,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original parser, validator and binder evidence |
 | `Cratis.Screenplay` | main `fd18129` | Canonical optionality; changed examples compiled |
+| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Which query shapes bind and render (`Semantics/`, `Documentation/screenplay/queries.md`) |
 
 The update follows `types.md`, `queries.md` and `vscode.md` at that main commit
 (after v4.52.0). Compilation does not establish query execution.
@@ -74,6 +75,12 @@ query ListInvoices => InvoiceListReadModel[]
   filter tenantId   TenantId from $context.tenant
   authorize IsAuthenticated
 ```
+
+⚠️ **A list query is design-only.** `=> RM[]`, `observable`, `filter`, `scoped to` and
+`performer` are valid model language, but neither the executable model nor Stage
+4.24.0 binds or renders them (`PLAY0268`). Model them when the application needs them,
+and pair each list with a keyed `XById => RM optional` query with one `by`, which is
+the shape that binds, runs in specifications and renders.
 
 Return-type forms after `=>`: `ReadModel`, `ReadModel optional`, `ReadModel[]`,
 each optionally prefixed `observable`. `ReadModel[] optional` permits an absent
@@ -247,7 +254,10 @@ binding failures are errors.
 
 ## Verify
 
-- [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
+- [ ] Standalone `screenplay <model> --warnaserror` (4.64.0) reports zero errors and zero
+      warnings; with only the bundled compiler, `cratis screenplay validate
+      --warnings-as-errors` on the model folder (3.27.1 bundles Screenplay 4.60.1, ESM v5 or
+      lower). Name which tool produced the result.
 - [ ] Every value the caller must not choose is a `from` parameter, not a `filter`.
 - [ ] Every `scoped to global` is deliberate and defensible.
 - [ ] `observable` is present exactly where the caller should see changes without
@@ -256,6 +266,9 @@ binding failures are errors.
       `then denied` case.
 - [ ] Each read model has exactly one builder and every field traces to an event.
 - [ ] No screen reference is left ambiguous or unresolved.
+
+Versions, tool capabilities and the executable and renderable subsets: `cratis-screenplay-toolchain` (`references/versions.md`). Where a construct sits in the
+method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses
 

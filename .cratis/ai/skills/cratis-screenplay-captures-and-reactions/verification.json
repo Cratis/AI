@@ -3,17 +3,65 @@
   "input": "Translate external data into events and declare a reaction.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "main `fd18129`" },
-    { "kind": "skill-contains", "value": "command-only (`PLAY0474` in a reaction)" },
-    { "kind": "skill-contains", "value": "Do not extend the inline command destination default" },
-    { "kind": "skill-contains", "value": ".cratis/screenplay/" },
-    { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
-    { "kind": "skill-contains", "value": "cannot be mixed in one clause" },
-    { "kind": "skill-contains", "value": "`where` belongs to the reaction, not to one trigger" },
-    { "kind": "skill-contains", "value": "Startup` and `Shutdown" },
-    { "kind": "skill-contains", "value": "`reads <View> [as <alias>] [by <trigger value>]`" },
-    { "kind": "skill-contains", "value": "Clock triggers read whole views." },
-    { "kind": "skill-contains", "value": "Declared, not enforced." },
-    { "kind": "skill-contains", "value": "An application trigger is not a UI event" }
+    {
+      "kind": "skill-contains",
+      "value": "main `fd18129`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "command-only (`PLAY0474` in a reaction)"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Do not extend the inline command destination default"
+    },
+    {
+      "kind": "skill-contains",
+      "value": ".cratis/screenplay/"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "cannot be mixed in one clause"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`where` belongs to the reaction, not to one trigger"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Startup` and `Shutdown"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`reads <View> [as <alias>] [by <trigger value>]`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Clock triggers read whole views."
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Declared, not enforced."
+    },
+    {
+      "kind": "skill-contains",
+      "value": "An application trigger is not a UI event"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Who is the caller of an `invokes`?"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Screenplay#383"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "[ExecuteCommandsAsSystem]"
+    }
   ]
 }

@@ -1,0 +1,19 @@
+{
+  "skill": "cratis-stage-rendering-and-sandbox",
+  "input": "Can Stage render this Screenplay model, and how do I re-render it safely after someone edited Program.cs?",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "`cratis render`" },
+    { "kind": "skill-contains", "value": "`--name <NAME>` | **Required for plain source**" },
+    { "kind": "skill-contains", "value": "`.cratis-render.json`" },
+    { "kind": "skill-contains", "value": "`.cratis-render/`" },
+    { "kind": "skill-contains", "value": "means stop and reconcile" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-016" },
+    { "kind": "skill-contains", "value": "**Render never builds, tests or runs**" },
+    { "kind": "skill-contains", "value": "Arc `22.25.0`" },
+    { "kind": "skill-contains", "value": "`[ProtectedDecision]`" },
+    { "kind": "skill-contains", "value": "`Customizations/`" },
+    { "kind": "skill-contains", "value": "`Stage__Runtime__Engine=semantic`" },
+    { "kind": "skill-contains", "value": "`--engine semantic`" }
+  ]
+}

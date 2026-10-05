@@ -1,21 +1,69 @@
 ---
 name: cratis-screenplay-event-modeling
-description: Facilitate an Event Modeling session and land the result as Cratis Screenplay `.play` source — domain discovery, the nine-step workflow per behavior, the four slice types, information completeness, and the model-validation gate. Use when designing an information system, mapping a business process or information flow, deciding the event vocabulary or stream boundaries, or turning a whiteboard model into `.play`. Do not use for the language and compiler mechanics alone, and do not use to render a settled model into an application.
+description: "Entry point and router for model-first Cratis work: the short decision rule (model, or code), the nine-step workflow per behavior, the four slice types, the Cratis divergences from the generic method, the quick validation gate, file layout and what parsed-but-not-runnable means, then the phase skill to load next. Use when designing an information system, mapping a business process or information flow, deciding the event vocabulary or stream boundaries, turning a whiteboard model into `.play`, or when a request may change behavior in an application with a Screenplay model. Not for: Screenplay syntax and the compiler alone (use `cratis-screenplay-toolchain`), the lifecycle, verdicts and handoffs (use `cratis-screenplay-modeling-lifecycle`), or rendering a settled model (use `cratis-screenplay-render-and-gap-fill`)."
 license: MIT
 ---
 
-# Event modeling with Screenplay
+# Event modeling with Screenplay (start here)
 
 Event Modeling is the **method**: walk a business process left to right and write
 down every behavior as a command that changes the system, a view that reads it,
 an automation that runs off it, or a translation of outside data. Screenplay is
-the **artifact**: one language that holds that whole model — concepts, commands,
-events, read models, queries, screens, specifications — in files that compile.
+the **artifact**: one language that holds that whole model - concepts, commands,
+events, read models, queries, screens, specifications - in files that compile.
 
 You are a **facilitator, not a stenographer.** Ask probing questions. Challenge
 assumptions. Keep asking *"and then what happens?"* after every event, every
 command, every answer. Use business language. Do not discuss databases, APIs, or
 frameworks during modeling.
+
+## Start here
+
+**1. Decide the level (short form; master copy in `cratis-screenplay-modeling-lifecycle`).**
+Check first that the method skills are installed; installing them never opts a
+repository in. The work is **model-first** when an accepted model covers the scope,
+a model root is configured (even if empty), or `.cratis/screenplay/` exists.
+Otherwise propose a model once, name the feature it would start with, and stay
+code-first if declined (unattended: record the recommendation and continue
+code-first). Framework repositories and brownfield work that has not opted in stay
+code-first.
+
+- **Model:** change the `.play`, verify, review, then render or gap-fill.
+- **Code is right for** infrastructure, clients, Screenplay code attachments and
+  handlers, adapters, and scope Stage cannot render yet (the model stays the contract).
+- **Never:** use code as a shortcut around the model; change the model to match
+  existing code; edit Stage-managed output; leave a modeled rule living only in
+  code; weaken protection (authorization, `@pii`, rules) so a model compiles or renders.
+
+**2. Run the lifecycle.** Load `cratis-screenplay-modeling-lifecycle` for modes, the
+independent verdicts V1-V5, the P0-P9 phases with their gates, stop-or-assume,
+identity ownership and handoffs. Then load **one** phase skill. Small changes enter
+at the phase where they belong and run the downstream gates for the changed scope.
+
+**3. Pick the phase skill.**
+
+| Phase | Skill |
+| --- | --- |
+| P0-P1 intake, timeline, personas, events | `cratis-screenplay-discovery` |
+| P2 commands, read models, screens, field lineage | `cratis-screenplay-slice-design` |
+| P2 stream identity, consistency, evolution | `cratis-screenplay-streams-and-consistency` |
+| P2 reactions, work queues, clocks, captures | `cratis-screenplay-automations-and-translations` |
+| P3 specifications and coverage | `cratis-screenplay-scenario-coverage` |
+| P4-P5 self-check and independent review | `cratis-screenplay-model-review` |
+| Existing system into a model (replaces P1-P2) | `cratis-screenplay-legacy-extraction` |
+| P7-P9 execute, render, fall back, verify | `cratis-screenplay-render-and-gap-fill` |
+| Tools, versions, verdict commands, diagnostics | `cratis-screenplay-toolchain` |
+
+**4. Nine steps to phase skill.** [references/nine-steps.md](references/nine-steps.md)
+keeps the activities, Screenplay output and facilitation questions of each step:
+
+| Step | Activity | Phase skill |
+| --- | --- | --- |
+| 1-3 | Goal, brainstorm events, order them | `cratis-screenplay-discovery` |
+| 4-6 | Wireframes, commands, read models | `cratis-screenplay-slice-design` |
+| 7-8 | Automations, external integrations | `cratis-screenplay-automations-and-translations` |
+| 9 | Decompose into vertical slices | `cratis-screenplay-slice-design` |
+| after 9 | Specifications, then review | `cratis-screenplay-scenario-coverage`, `cratis-screenplay-model-review` |
 
 ## Locate the model
 
@@ -35,61 +83,55 @@ source is the single flow model.
 | `Cratis.Screenplay` | `4.31.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
 | `Cratis.Screenplay.Tool` | `4.31.0` | The `screenplay` dotnet tool |
 | `Cratis.Screenplay` | main `fd18129` | Inline contracts and event context; changed nine-step examples compiled |
+| `Cratis.Screenplay.Tool` | `4.64.0` (`7e16162`) | Current pin: the Step 7 clock example compiles and binds; persona, generated, operation and stream dispositions below were read at this tag |
 
-The update follows `commands.md`, `events.md` and decision 0023 at that main
-commit (after v4.52.0); compilation does not establish reference execution.
-
-Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
-`Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
-`projections/keys.md`, and decisions 0001 to 0014 established the original
-baseline. Changed [nine-step examples](references/nine-steps.md) use the newer
-main commit above; do not attribute their verification to the old tag.
+The pin set for the whole Screenplay family, and which tool reports what, lives only in
+`cratis-screenplay-toolchain` `references/versions.md`. The `fd18129` update follows
+`commands.md`, `events.md` and decision 0023 at that main commit (after v4.52.0);
+compilation does not establish reference execution. The original baseline was checked at
+tag `v4.31.0` (commit `355dffb`): `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
+`projections/keys.md`, and decisions 0001 to 0014. Changed [nine-step examples](references/nine-steps.md)
+use the newer commit and the 4.64.0 tool; do not attribute them to the old tag.
 
 > **Method lineage.** The two-phase process, the nine steps, the four patterns and
 > the GWT discipline follow **Event Modeling** (Adam Dymitruk; Martin Dilger,
 > *Understanding Eventsourcing*), as structured in
 > [jwilger/agent-skills `event-modeling`](https://github.com/jwilger/agent-skills/tree/main/skills/event-modeling).
-> Screenplay adopts that vocabulary directly: *"Slices are the atom — everything
+> Screenplay adopts that vocabulary directly: *"Slices are the atom - everything
 > lives inside a typed slice aligned with Event Modeling's vocabulary."*
 > Where Cratis deliberately diverges, this skill says so.
 
-## Two phases — discovery, then design
+## Two phases - discovery, then design
 
-**Never jump into detailed workflow design without broad domain understanding.**
-Phase 1 maps the territory; Phase 2 explores each region.
-
-**Phase 1 — Domain discovery.** What does the business do? Who are the actors?
-What major processes exist? What external systems integrate? Which workflow is
-most critical? *Ask the user; do not assume answers.* Lands as the `module` set,
-`persona` declarations, and the `import` list.
-
-**Phase 2 — Workflow design.** One workflow at a time, all nine steps, before
-starting the next. Read **[nine-steps.md](references/nine-steps.md)** — it carries
-each step's activities, its Screenplay output, and the facilitation questions.
+**Never jump into detailed workflow design without broad domain understanding.** Phase 1
+maps the territory (actors, processes, outside systems, the most critical workflow; ask,
+do not assume; it lands as `module`, `persona` and `import`; protocol in
+`cratis-screenplay-discovery`). Phase 2 designs one workflow at a time through all nine steps
+([nine-steps.md](references/nine-steps.md): activities, Screenplay output, questions).
 
 ## The prime directive: do not lose information
 
 Store what happened (events), not just current state. Events are immutable
 past-tense facts in business language. **Every read-model field must trace back to
-an event.** If a field has no source event, something is missing from the model —
+an event.** If a field has no source event, something is missing from the model -
 it is not an optional column.
 
-## The four patterns → the four slice types
+## The four patterns -> the four slice types
 
 Every behavior is exactly one. An unknown slice type is a compile error:
 *Unknown slice type '<x>' - expected StateChange, StateView, Automation or Translate*.
 
 | Pattern | Slice type | Screenplay constructs |
 | --- | --- | --- |
-| Command → Event | `StateChange` | `command` → `produces` → `event`, plus `validate`, `authorize`, `constraint` |
-| Events → Read Model | `StateView` | `readmodel`, `projection` or `reducer`, `query`, `screen` |
-| Event → decision → Command/Event | `Automation` | `reaction` |
-| External data → Event | `Translate` | `capture` |
+| Command -> Event | `StateChange` | `command` -> `produces` -> `event`, plus `validate`, `authorize`, `constraint` |
+| Events -> Read Model | `StateView` | `readmodel`, `projection` or `reducer`, `query`, `screen` |
+| Event -> decision -> Command/Event | `Automation` | `reaction` |
+| External data -> Event | `Translate` | `capture` |
 
 **A slice is one behavior, not one artifact of each kind.** Every construct may
 appear as many times as the behavior needs. Only `description` is limited to one.
 
-**Automation has four required components** — a triggering occurrence, the state
+**Automation has four required components** - a triggering occurrence, the state
 it consults (the trigger's `reads`), conditional logic, and a resulting command
 or event. If the events are always unconditionally co-produced, it is **not** an
 automation: model it as one `StateChange` slice with several `produces` blocks.
@@ -102,22 +144,27 @@ workflow needs (event persistence, message transport) is not a `Translate` slice
 Two divergences matter, and getting them wrong produces a model that will not
 compile or will not be safe. Both are deliberate.
 
-- **A command may read state.** The generic method forbids `ReadModel → Command`
+- **A command may read state.** The generic method forbids `ReadModel -> Command`
   edges. Screenplay ships `reads <ReadModel> [as <alias>] [by <property>]` so the
   model shows what a state-dependent decision consulted. **It is not a protected
   read today:** nothing checks at append time that the state is still current,
   the executable model rejects `reads` and `concurrency` (`PLAY0271`), and adding
   `concurrency` does not make the decision safe (decision 0003, Screenplay #129).
-  Model uniqueness as a `unique` constraint; for any other state-dependent rule,
-  record that the target must enforce it consistently. Do not use `reads` to
-  fetch data the command could carry as input. A reaction trigger declares the
-  views an automation decides from with the same `reads`, and the same caveat
-  applies.
+  Write a state-dependent rule as `reads <View>` plus `require <expr> message "..."`
+  and mark it in the slice `description` as **not enforced in the model today**,
+  naming the target that must enforce it (Arc `[ProtectedDecision]` with
+  `DecisionRead<T>`, Chronicle's dynamic consistency boundary, or a constraint where
+  one fits). Model uniqueness as a `unique` constraint. Never copy state into a
+  command input, add an attestation flag, or hide the rule in `handler` prose. Do not
+  use `reads` to fetch data the command could carry as input. A reaction trigger
+  declares the views an automation decides from with the same `reads`, and the same
+  caveat applies.
 - **Some validation *does* belong in the model.** The generic method routes format
   rules to the type system. Screenplay's type system *is* the `concept`, and a
-  concept carries its own `validate` block — so a format rule lives on the concept
-  and travels with every use, while a state-dependent rule stays a specification.
-  The split is the same; the place is different.
+  concept carries its own `validate` block - so a format rule lives on the concept
+  and travels with every use. A state-dependent rule is not a format rule: it needs
+  the modeled `reads` + `require` intent, specifications, and the recorded
+  target-enforcement gap described above.
 
 ## Naming the primitives is the highest-value work
 
@@ -128,9 +175,9 @@ compile or will not be safe. Both are deliberate.
 - **Classify personal data at the concept**, with a reason:
   `concept PersonName : String @pii` plus an indented `pii reason "..."`. Every
   usage inherits it; a reason for an attribute the concept does not declare is an
-  error. Decide this before fixing event shapes — erasure follows the subject and
+  error. Decide this before fixing event shapes - erasure follows the subject and
   the subject follows the stream.
-- **Events are past tense and self-describing** — `InvoiceRegistered`, never
+- **Events are past tense and self-describing** - `InvoiceRegistered`, never
   `Created`. One purpose per event; an event needing an optional property to cover
   two situations is two events.
 - **The event-source identity is never an event property.** The command binds it
@@ -146,10 +193,12 @@ compile or will not be safe. Both are deliberate.
 - **Domain facts, not runtime context.** Test: would this field have the same value
   if the event were replayed on a different machine? If not, it does not belong.
 
-## Model validation — the gate before implementation
+## Quick gate - before specifications are called done
 
 Run this after the GWT specifications are written. **Do not proceed with gaps.**
 When one is found, ask the user to clarify, create the missing element, re-validate.
+The full critic pass (evidence, severity, business-question review) is
+`cratis-screenplay-model-review`.
 
 1. Every `readmodel` property traces to an `event` (**backward trace**).
 2. Every `event` feeds a projection, reaction, or capture target (**forward trace**).
@@ -158,7 +207,7 @@ When one is found, ask the user to clarify, create the missing element, re-valid
 5. No `given`/`when`/`then` clause references an undefined element.
 6. Every behavior is exactly one slice type.
 7. Read-model fields use collection types where the domain allows concurrent
-   instances — ask *"can there be more than one of these at once?"* for each field.
+   instances - ask *"can there be more than one of these at once?"* for each field.
 8. No cross-cutting infrastructure is modeled as a `Translate` slice.
 
 ## Choose a file layout
@@ -212,14 +261,16 @@ there, so a file holds only its part of the story - a slice file is just the
 `slice`. A root file that imports everything says what the application is made
 of:
 
-```screenplay
+Layout sketches (file contents, not standalone documents):
+
+```text
 domain Acme.Commerce
 
 import "Shared/*.play"
 import "Ordering/Ordering.play"
 ```
 
-```screenplay
+```text
 module Ordering
   description "Orders, from basket to doorstep"
   feature Orders
@@ -255,16 +306,22 @@ order of modules, features or slices.
 screenplay .cratis/screenplay/ --warnaserror
 ```
 
+(The standalone tool; `cratis screenplay validate .cratis/screenplay --warnings-as-errors`
+is the fallback, and neither names the other's verdict. Versions and commands:
+`cratis-screenplay-toolchain`.)
+
 - [ ] Zero errors **and zero warnings**. An unrecognized construct inside a slice
-      is only a warning (`PLAY0029`) and its block is **silently dropped** — a typo
+      is only a warning (`PLAY0029`) and its block is **silently dropped** - a typo
       can delete a whole projection while the exit code stays `0`.
 - [ ] Every behavior is exactly one slice type, and the whole model validates
       against the eight checks above.
 - [ ] Every event is past tense, single-purpose, and carries no event-source id.
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
-- [ ] If the model must reach a runtime, every slice is `StateChange` or
-      `StateView` and binds to the executable model (below).
+- [ ] If the model must reach a runtime, check it binds with the tool that will
+      consume it. The standalone 4.64.0 binder admits Automation and Translate slices
+      (ESM v6); Stage 4.24.0 admits ESM v1 to v3 and renders only `StateChange` and
+      `StateView` slices, so automations and translations are gap-fill there.
 
 ## Parsed is not runnable
 
@@ -274,44 +331,45 @@ what it cannot represent reports `PLAY0268` or `PLAY0271` and the model does not
 bind. Keep four states apart when you report on a model: **parsed** (the
 `screenplay` tool), **bound** (ESM), **reference-executed** (specifications pass
 the reference runner) and **target-executed** (Stage or a rendered application).
+The independent verdicts V1 to V5 that report them are in
+`cratis-screenplay-modeling-lifecycle`.
 
-The ESM version follows from what the model uses: v1 by default, v2 for typed
-event-source facts (`produces … for <identifier>` when the event does not repeat
-the identifier, `for` values in specifications, and `$context.occurred` or caller
-identity in `produces`), v3 for code the model hands off (bodied reducers, code
-validation, code policies). Code binds as an opaque requirement; the reference
-runner reports any specification that needs it as unsupported.
+What binds depends on **which tool** you ask, so name the tool and its version:
 
-For event modeling, the consequential boundaries today are:
+- `Automation` and `Translate` slices, reactions, captures and triggers: the
+  standalone `screenplay` 4.64.0 binds them (ESM v6). The `cratis` 3.27.1 bundle
+  (Screenplay 4.60.1) reports *Slice '<name>' of type '<type>'
+  is not admitted by ESM v1.* Stage 4.24.0 admits only ESM v1 to v3 and renders none of them.
+- `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
+  protected against stale state. A reaction trigger's `reads` that only `invokes` is
+  report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
+- `persona` declarations are report-only and never block; `@pii` and `@sensitive`
+  concepts do block binding (`PLAY0268`). Keep them anyway: the classification is
+  part of the model. Report the block.
+- Generated values and responses, operations and systems, and event sources and
+  streams are authorable but non-executable (`PLAY0268`); a command `handler` never binds.
 
-- `Automation` and `Translate` slices, reactions, captures and triggers do not
-  bind: *Slice '<name>' of type '<type>' is not admitted by ESM v1.*
-- `reads` and `concurrency` do not bind (`PLAY0271`), so no decision is protected
-  against stale state.
-- `persona` and `@pii`/`@sensitive` concepts do not bind yet. Keep them: the
-  classification is part of the model.
-- UI constructs are deferred with information `PLAY0269`; they never block.
-
-The full disposition table is in the `cratis-screenplay-model-authoring` language
-reference. Model the wider language freely when the `.play` file **is** the
-deliverable — documentation, review, a shared description of a system. Never
-read a clean `screenplay` run as evidence a construct works downstream.
+The ESM versions, the full disposition table and the Step 7 clock example's binding
+result are in [references/parsed-not-runnable.md](references/parsed-not-runnable.md)
+and `cratis-screenplay-toolchain` (`references/executable-subset.md`). Model the wider
+language freely when the `.play` file **is** the deliverable - documentation,
+review, a shared description of a system. Never read a clean `screenplay` run as
+evidence a construct works downstream.
 
 Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger can declare the
 views it decides from with `reads` (see `cratis-screenplay-captures-and-reactions`),
 but nothing enforces them yet. Event generations and typed repairs now ship;
 generations do not supply deployed migrations. Do not treat every accepted
-decision as implemented: affected-instance declarations, per-event subjects,
-external origin and richer query delivery remain unavailable. Decision 0023's
-responses, operations, streams and derived/provided values are planned, not
-available yet; do not turn their examples into usable syntax.
+decision as implemented: check the construct's own page and the versions table.
 
 ## Route near misses
+
+The lifecycle, toolchain and phase skills are in "Start here" above. Construct and neighbouring skills:
 
 | Need | Skill |
 | --- | --- |
 | Commands, validation, authorization, `produces`, concurrency, `$context` | `cratis-screenplay-command-surface` |
-| Projections — PDL keys, joins, children, removal, arithmetic | `cratis-screenplay-projections` |
+| Projections - PDL keys, joins, children, removal, arithmetic | `cratis-screenplay-projections` |
 | Read models, queries, screens | `cratis-screenplay-read-surface` |
 | Layouts, templates, forms, contributions, themes, i18n | `cratis-screenplay-ui-composition` |
 | Captures (CDL), reactions, triggers | `cratis-screenplay-captures-and-reactions` |
