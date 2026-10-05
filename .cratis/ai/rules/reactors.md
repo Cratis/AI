@@ -9,20 +9,22 @@ profile: application
 
 Reactors are the "if this then that" of event sourcing — they observe events and produce side effects. Unlike projections (which build state), reactors *do things*: send emails, trigger commands in other slices, call external APIs.
 
+**Model first:** when an accepted model covers this scope, a model root is configured (even if empty), or `.cratis/screenplay/` exists, a reactor implements an automation that the model owns (`produces` / `invokes`); read the modeled slice first and keep the reactor to what the model leaves to code (gap-fill). Otherwise (not opted in) stay code-first: this file and the **cratis-chronicle-reactor** skill are the guide, and a model may be proposed once. A stray `.play` file elsewhere is not consent.
+
 ## IReactor — Marker Interface
 
 `IReactor` is a **marker interface** with no methods to implement. Method dispatch is entirely by convention: the first parameter type of each public method determines which event it handles.
 
 ```csharp
-public class ProjectRegisteredNotifier(INotificationService notifications) : IReactor
+public class InvoiceIssuedNotifier(INotificationService notifications) : IReactor
 {
     /// <summary>
-    /// Reacts to <see cref="ProjectRegistered"/> events by sending a notification.
+    /// Reacts to <see cref="InvoiceIssued"/> events by sending a notification.
     /// </summary>
     /// <param name="event">The event.</param>
     /// <param name="context">The event context.</param>
-    public async Task ProjectRegistered(ProjectRegistered @event, EventContext context) =>
-        await notifications.Notify($"Project '{@event.Name}' was registered.");
+    public async Task InvoiceIssued(InvoiceIssued @event, EventContext context) =>
+        await notifications.Notify($"Invoice '{@event.Number}' was issued.");
 }
 ```
 
@@ -164,11 +166,11 @@ public Task<IEnumerable<EventForEventSourceId>> Handle(AnEvent @event, EventCont
 When the follow-up belongs to **another slice**, return its `[Command]` instead of an event — the same idiom as returning events, applied to intent. Arc's Chronicle integration executes a returned command through the full pipeline (validation, authorization, `Handle()`) in its own service scope; a collection is executed in order when **every** element is a command (events and commands do not mix in one return). An unauthorized, invalid or throwing result is a **side-effect failure** — it fails the partition like a failed append, so it is never silently dropped.
 
 ```csharp
-public class StockKeeping : IReactor
+public class RenewalBilling : IReactor
 {
     [OnceOnly]
-    public Task<DecreaseStock> BookReserved(BookReserved @event, EventContext context) =>
-        Task.FromResult(new DecreaseStock(@event.Isbn, @event.Quantity));
+    public Task<IssueRenewalInvoice> MembershipRenewed(MembershipRenewed @event, EventContext context) =>
+        Task.FromResult(new IssueRenewalInvoice(@event.MemberId, @event.Amount));
 }
 ```
 
@@ -216,43 +218,49 @@ between domain failure and an observer's operational failure.
 
 | Slice type | Pattern |
 |------------|---------|
-| **Automation** | Reacts to events, makes decisions, triggers side effects |
-| **Translation** | Adapts events from one slice/system by triggering commands in another |
+| **Automation** | Reacts to our own events, makes decisions, triggers side effects: an external call, a follow-up event (`produces`), or a follow-up command in another slice (`invokes`) |
+| **Translation** | Takes data from outside the model's own facts (an external system or another service) and records it as our own facts. A reactor is only its adapter code; a reactor that turns our own event into a follow-up event or command is an Automation |
 
 ### Automation Example
 
 ```csharp
-public class ProjectRegisteredNotifier(INotificationService notifications) : IReactor
+public class InvoiceIssuedNotifier(INotificationService notifications) : IReactor
 {
     /// <summary>
-    /// Sends a notification when a project is registered.
+    /// Sends a notification when an invoice is issued.
     /// </summary>
     /// <param name="event">The event.</param>
     /// <param name="context">The event context.</param>
-    public async Task ProjectRegistered(ProjectRegistered @event, EventContext context) =>
-        await notifications.Notify($"Project '{@event.Name}' was registered.");
+    public async Task InvoiceIssued(InvoiceIssued @event, EventContext context) =>
+        await notifications.Notify($"Invoice '{@event.Number}' was issued.");
 }
 ```
 
-### Translation Example
+### Automation Example — Returning a Command
 
 ```csharp
-[ExecuteCommandsAsSystem("inventory")]
-public class StockKeeping : IReactor
+[ExecuteCommandsAsSystem("invoicing")]
+public class RenewalBilling : IReactor
 {
     /// <summary>
-    /// Reacts to a book reservation by decreasing stock in the inventory slice.
+    /// Reacts to a membership renewal by invoking the invoice issuing in the invoicing slice.
     /// </summary>
     /// <param name="event">The event.</param>
     /// <param name="context">The event context.</param>
     /// <returns>The command Arc executes as this reactor's side effect.</returns>
     [OnceOnly]
-    public Task<DecreaseStock> BookReserved(BookReserved @event, EventContext context) =>
-        Task.FromResult(new DecreaseStock(@event.Isbn, @event.Quantity));
+    public Task<IssueRenewalInvoice> MembershipRenewed(MembershipRenewed @event, EventContext context) =>
+        Task.FromResult(new IssueRenewalInvoice(@event.MemberId, @event.Amount));
 }
 ```
 
-The command is returned, not executed: Arc runs it through validation and authorization under the roles the class opts into, and a rejected command fails the partition instead of vanishing. `[OnceOnly]` keeps a replay from decreasing stock twice.
+The command is returned, not executed: Arc runs it through validation and authorization under the roles the class opts into, and a rejected command fails the partition instead of vanishing. `[OnceOnly]` keeps a replay from issuing the renewal invoice twice.
+
+## Contract checks for a reactor
+
+- **Field lineage:** every field of a returned command or event comes from the trigger event, an injected read model, or a mapping the contract states. Nothing is invented or defaulted.
+- **Contract-authorized filtering:** every condition that skips an event is stated in the contract; do not add a skip the contract does not name.
+- **Repeated delivery:** write a specification for the same event arriving again. Recovery re-delivers even with `[OnceOnly]`.
 
 ## Testing Reactors
 
@@ -265,9 +273,9 @@ void Establish()
     _scenario = new(new ServiceCollection().AddSingleton(_notifications).BuildServiceProvider());
 }
 
-async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new ProjectRegistered("Acme"));
+async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new InvoiceIssued("INV-1001"));
 
-[Fact] async Task should_notify() => await _notifications.Received(1).Notify("Project 'Acme' was registered.");
+[Fact] async Task should_notify() => await _notifications.Received(1).Notify("Invoice 'INV-1001' was issued.");
 ```
 
 For reactors that return side-effect events, assert the resulting appends through the scenario's event store; for non-event side effects, assert on the mocked services (as above). See [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) for the full `*Scenario` family.
