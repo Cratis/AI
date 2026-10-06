@@ -72,7 +72,7 @@ collections (path below them: PLAY0297 E). Unknown member: PLAY0295/0296 W.
 ## PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
 - Header `projection Name => ReadModel`; variant group `projection Name` + `variant RM` /
   `enters on Event [key k]`.
-- Directives: `no automap` (AutoMap is on by default, case-sensitive name match), `every`
+- Directives: `no automap` (AutoMap is on by default; names match case-insensitively, same type), `every`
   (mappings applied for every event), `all` (per event source, never global), `from Event [key k]`.
 - Mappings: `target = source`, `"literal"`, `$eventSourceId`, `$eventContext.occurred` (binds, but blocks the execution plan),
   `increment n`, `decrement n`, `count n` (in `all`), `add t by x`, `subtract t by x`,

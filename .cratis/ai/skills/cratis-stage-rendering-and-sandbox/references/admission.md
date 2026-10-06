@@ -70,7 +70,8 @@ Stage renders two projection forms; the restrictions differ.
   1. The identifier always equals the projection's effective key: the inline `key`, else the
      `from` block `key`, else the event source. An event-source key (default or
      `key $eventSourceId`) makes the identifier the event source; an event-property or literal
-     key makes it that key. Never map `$eventSourceId` onto the identifier when the key is
+     key makes it that key. Stage refuses a literal key (`STAGE-ESM-017`; scoped keys are an
+     event property or the event source, `SemanticScopedProjectionSupport.KeySupported`). Never map `$eventSourceId` onto the identifier when the key is
      something else (`from PaymentRecorded key invoiceId`): the runtime fails with "affected key
      disagrees with read-model identifier" (Screenplay v4.64.0
      `SemanticScopedProjection.State.cs:182-184`, `SemanticEvaluator.cs:733-736`).
