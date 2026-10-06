@@ -130,8 +130,9 @@ changes with the root folder name.
 2. Write `for <identifier>` on every `produces`.
 3. PLAY0029 is a warning: validate with warnings as errors.
 4. Validate the folder; name the compiler (cli#244, cli#242).
-5. Missing projection target properties and undeclared events in `remove with` or capture
-   `append` are never reported: check by hand.
+5. Mappings to undeclared projection targets and undeclared events in `remove with`/capture
+   `append` pass V1 and fail binding (V2/V3, PLAY0273); a declared read-model property that
+   nothing maps is reported by no tool: run V3 and walk field lineage by hand.
 6. A reaction's `invokes` has no caller: a gated command rejects it; keep the gate.
 7. Read-model identity is one `query XById => RM optional` with `by xId XId`, and the identifier equal to the
    projection's key (see trap 12); never `identifier` on a read model.

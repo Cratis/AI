@@ -23,11 +23,13 @@ then STAGE (V5 admission). Tool differences: `versions.md`.
 | PLAY0455 | quoted import glob matches no file | fix the glob |
 | PLAY0196/0197/0198 | unknown query/screen; ambiguous bare name | declare or qualify `Slice.Name` |
 
-## Silent gaps (no diagnostic at V1 or V2, probed)
+## Not caught at V1 (fail binding: V2/V3, PLAY0273)
 - Projection mapping to a property the read model does not declare.
 - Undeclared event in `remove with` or in a capture `append`.
-Run a completeness check by hand: every referenced event, read model, query, command, screen
-and policy is declared.
+(Screenplay v4.64.0 `SemanticModelBinder` `BindMapping`, `LevelEvent`, `BindCaptureAppends`.)
+
+## Silent at every level
+- A declared read-model property that nothing maps (it stays empty): walk field lineage by hand.
 
 ## Consistency errors (V1: the model contradicts itself)
 | Code | Meaning |
