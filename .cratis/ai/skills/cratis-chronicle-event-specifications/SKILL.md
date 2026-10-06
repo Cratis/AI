@@ -147,12 +147,14 @@ scenario and the second passes vacuously.
 The constraint name parameter is a `ConstraintName`, which converts implicitly
 from `string`, so a literal compiles. Prefer a shared constant
 (`<Module>ConstraintNames.UniqueX`) so a rename moves both sides at once.
-**Assert the name, never the message.**
+**Assert the name by default.** Assert exact message text only when that wording
+is the specified behavior, and name that behavior in the fact.
 
 ## Step 5 — Write the specification
 
-Specification files live in the slice folder, wrapped in `#if DEBUG … #endif` so
-specification code ships only in Debug.
+Specification files live in the slice folder. Wrap them in `#if DEBUG … #endif`
+only when they compile into the application assembly, so specification code
+ships only in Debug. Dedicated spec projects need no wrapper.
 
 ```csharp
 #if DEBUG

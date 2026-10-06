@@ -94,8 +94,9 @@ From `Cratis.Specifications`:
 | `.ShouldBeOfExactType<T>()` | `_event.ShouldBeOfExactType<<EventType>>()` |
 | `.ShouldBeGreaterThan(n)` / `.ShouldBeLessThan(n)` | `_count.ShouldBeGreaterThan(0)` |
 
-Assert on values and types. Never assert on a presentation message string — it
-is text, not behavior.
+Assert on values and types. Do not assert on presentation message strings by
+default; assert exact text only when that wording is the specified behavior,
+and name that behavior in the fact.
 
 ## Catching exceptions
 

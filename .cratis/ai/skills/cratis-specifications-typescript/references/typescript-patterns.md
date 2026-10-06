@@ -46,7 +46,9 @@ value.should.be.instanceOf(<Type>);
 (() => <throwingCall>()).should.throw(<ErrorType>);
 ```
 
-Assert on values and types, never on a presentation message string.
+Assert on values and types. Do not assert on presentation message strings by
+default; assert exact text only when that wording is the specified behavior,
+and name that behavior in the fact.
 
 ## Sinon stubbing
 

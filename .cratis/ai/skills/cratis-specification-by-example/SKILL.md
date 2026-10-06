@@ -169,16 +169,21 @@ getter, not a behavior. Delete it rather than maintaining it.
 
 A specification is only as good as the signal it reads.
 
-- **Assert on the outcome, not the message.** A presentation string is copy;
+- **Assert on the outcome by default.** A presentation string is copy;
   it changes for reasons that have nothing to do with the behavior. Assert on
   the identity of what failed — an error code, a constraint name, a typed
-  result — never on the sentence shown to a user.
-  - **In code (C#, TypeScript):** never assert a message string.
+  result — rather than the sentence shown to a user, unless exact wording is
+  the specified behavior.
+  - **In code (C#, TypeScript):** do not assert message strings by default;
+    assert exact text only when that wording is the specified behavior, and
+    name that behavior in the fact.
   - **In a `.play` model:** a rejection specification pins the message, or
     its localization key, with `then error "<message>"` or
     `then error "$strings.<key>"`, because the model has no reason codes. Bare
-    `then error` leaves the reason to the specification's name. The model pins
-    the message; the code specification pins the kind. They do not conflict.
+    `then error` leaves the reason to the specification's name. The code
+    specification pins the kind by default; assert the model's exact message
+    too only when its wording is
+    the specified behavior, and name that behavior in the fact.
 
 ```screenplay
 concept InvoiceId : Uuid

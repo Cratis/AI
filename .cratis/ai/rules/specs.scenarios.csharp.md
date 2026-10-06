@@ -124,7 +124,7 @@ async Task Because() =>
 [Fact] void should_violate_unique_constraint() => _result.ShouldHaveConstraintViolationFor(AuthorConstraintNames.UniqueName);
 ```
 
-`IAppendResult` assertions (failures throw `AppendResultAssertionException`): `ShouldBeSuccessful()`, `ShouldBeFailed()`, `ShouldHaveConstraintViolations()`/`ShouldNotHave…`, `ShouldHaveConstraintViolationFor(name)`, `ShouldHaveConcurrencyViolations()`/`ShouldNotHave…`, `ShouldHaveErrors()`/`ShouldNotHave…`. Assert the constraint **name**, never the message.
+`IAppendResult` assertions (failures throw `AppendResultAssertionException`): `ShouldBeSuccessful()`, `ShouldBeFailed()`, `ShouldHaveConstraintViolations()`/`ShouldNotHave…`, `ShouldHaveConstraintViolationFor(name)`, `ShouldHaveConcurrencyViolations()`/`ShouldNotHave…`, `ShouldHaveErrors()`/`ShouldNotHave…`. Assert the constraint **name** by default; assert exact message text only when that wording is the specified behavior, and name that behavior in the fact.
 
 ### `ReadModelScenario<TReadModel>` — projections, the State View default
 

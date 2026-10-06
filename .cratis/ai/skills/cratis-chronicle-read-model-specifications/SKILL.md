@@ -167,8 +167,9 @@ public class and_two_items_are_priced : Specification
 #endif
 ```
 
-Wrap every file in `#if DEBUG … #endif` so specification code ships only in
-Debug, and keep one outcome per `should_` fact.
+Wrap files in `#if DEBUG … #endif` only when they compile into the application
+assembly, so specification code ships only in Debug. Dedicated spec projects
+need no wrapper. Keep one outcome per `should_` fact.
 
 ## Step 6 — Cover the read model, not just one event
 

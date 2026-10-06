@@ -176,8 +176,9 @@ plaintext-derived hashes, not the personal value itself.
 Specify the constraint with `EventScenario`: seed the conflicting state through
 `Given`, append again, and assert
 `ShouldHaveConstraintViolationFor(<Module>ConstraintNames.UniqueX)` — **the
-constraint name, never the message**. A message is presentation text and will
-change without the behavior changing.
+constraint name by default**. A message is presentation text and will change
+without the behavior changing. Assert exact message text only when that wording
+is the specified behavior, and name that behavior in the fact.
 
 ```csharp
 #if DEBUG
