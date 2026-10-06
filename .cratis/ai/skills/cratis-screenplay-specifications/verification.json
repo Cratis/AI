@@ -7,6 +7,10 @@
       "kind": "skill-contains",
       "value": "main `fd18129`"
     },
+    { "kind": "skill-contains", "value": "Generated fixtures and return expectations (ESM v7)" },
+    { "kind": "skill-contains", "value": "`then returns` counts as a success outcome but does not relax event comparison" },
+    { "kind": "skill-contains", "value": "`Unsupported(IdentityAllocation)`" },
+    { "kind": "skill-contains", "value": "4.68.0" },
     {
       "kind": "skill-contains",
       "value": "Inline events are ordinary named facts"

@@ -17,6 +17,7 @@ design model: keep it and record the gap.
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
 | `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | Screenplay 4.61 or later yes (standalone, cratis 3.28.2 or later); a cratis before 3.28.2 bundle no (see versions.md) | no |
 | Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no (no reactions) |
+| `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later; not on the 4.66.0 bundled in cratis 3.28.x (`PLAY0268`) | no (Stage does not render ESM v7) |
 | `then events in any order` | yes | yes | yes |
 | Composite (JSON) values in specs | yes | yes | no |
 | Rules over dates or `today`, nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |

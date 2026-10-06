@@ -42,6 +42,8 @@
     {
       "kind": "skill-contains",
       "value": "STAGE-ESM-026"
-    }
+    },
+    { "kind": "skill-contains", "value": "Generated command values and `returns` responses (ESM v7) bind and run" },
+    { "kind": "skill-contains", "value": "tracked in Stage#201" }
   ]
 }
