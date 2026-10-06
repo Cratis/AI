@@ -47,7 +47,7 @@ public record RecordProviderRateLimited(AIProviderId Provider, DateTimeOffset Un
 /// provider for an hour over an unrelated failure, which is worse than not noticing. Anything not
 /// recognized here simply fails the work the way it always did.
 /// </remarks>
-public static class ProviderRateLimit
+public static partial class ProviderRateLimit
 {
     /// <summary>
     /// The phrases vendors use when the account, rather than the request, is the problem.
@@ -61,7 +61,23 @@ public static class ProviderRateLimit
         "usage limit",
         "usage_limit",
         "too many requests",
-        "insufficient_quota"
+        "insufficient_quota",
+
+        // Claude Code and the harnesses wrapping it report a subscription window running out in
+        // words of their own, none of which carries a status code - "You've hit your weekly limit ·
+        // resets Oct 9, 2am (UTC)" went unrecognized in production and failed the work instead of
+        // failing over. Each phrase names the account's own allowance, never a request property,
+        // which is what keeps it from matching ordinary failures that merely mention a limit.
+        "hit your limit",
+        "hit your weekly limit",
+        "hit your 5-hour limit",
+        "hit your session limit",
+        "hit your opus limit",
+        "hit your sonnet limit",
+        "5-hour limit reached",
+        "weekly limit reached",
+        "session limit reached",
+        "usage limit reached"
     ];
 
     /// <summary>

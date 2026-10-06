@@ -6,18 +6,24 @@ using Cratis.AI.Providers.Pools.Listing;
 namespace Cratis.AI.Providers.Pools;
 
 /// <summary>
-/// Picks which member of a pool a completion is dispatched to. A member with a known, non-exhausted
-/// remaining capacity - a configured <see cref="AIProviderUsageCapacity"/> ceiling measured against
-/// its refreshed <see cref="UsageReporting.ProviderUsageLevel"/> - wins over one without: a real
-/// measurement of remaining capacity is a better bet than a proxy for it (issue #1061). Among members
-/// with no known remaining capacity, the one with the least tokens burnt over the trailing week wins
-/// - recent burn is the best available proxy for "most available" absent a real measurement, and a
-/// member that has never served a job wins outright. A member with a known but exhausted ceiling, or
-/// that has failed a real call recently, ranks after every other member regardless of burn - a
-/// provider that is out of capacity or fails every call is not a usable pick just because it has
-/// burnt few tokens succeeding (issue #1060). Pure so the strategy is directly specifiable; the
-/// tie-breaks (fewest recent jobs, then declaration order) make the pick deterministic among members
-/// with the same standing.
+/// Picks which member of a pool a completion is dispatched to, in this order:
+/// <list type="number">
+/// <item>A member that has failed a real call recently ranks after every other member (issue #1060).</item>
+/// <item>A member with no headroom left, or a known but exhausted configured ceiling, ranks after every
+/// member that has some - a provider that is out of capacity is not a usable pick just because it has
+/// burnt few tokens.</item>
+/// <item>The most headroom wins (<see cref="PoolSelectionData.HeadroomByProvider"/>, an unknown headroom
+/// counting as full) - a subscription with most of its five-hour and weekly windows left is a better
+/// pick than one about to run out, however little either has burnt.</item>
+/// <item>A member with a known, non-exhausted remaining capacity - a configured
+/// <see cref="AIProviderUsageCapacity"/> ceiling measured against its refreshed
+/// <see cref="UsageReporting.ProviderUsageLevel"/> - wins over one without, and more wins over less
+/// (issue #1061).</item>
+/// <item>The least tokens burnt over the trailing week wins - the best available proxy for "most
+/// available" absent a real measurement; a member that has never served a job wins outright.</item>
+/// <item>Fewest recent jobs, then declaration order, make the pick deterministic.</item>
+/// </list>
+/// Pure so the strategy is directly specifiable.
 /// </summary>
 public static class PoolMemberSelector
 {
@@ -45,6 +51,7 @@ public static class PoolMemberSelector
             .Select((member, index) => (Member: member, Index: index))
             .OrderBy(candidate => selection.RecentFailuresByProvider.GetValueOrDefault(candidate.Member.ProviderId, 0) > 0)
             .ThenBy(candidate => IsCapacityExhausted(candidate.Member.ProviderId, selection))
+            .ThenByDescending(candidate => HeadroomOf(candidate.Member.ProviderId, selection))
             .ThenBy(candidate => HasAvailableCapacity(candidate.Member.ProviderId, selection) ? 0 : 1)
             .ThenByDescending(candidate => selection.RemainingCapacityByProvider.GetValueOrDefault(candidate.Member.ProviderId, long.MinValue))
             .ThenBy(candidate => selection.RecentTokensByProvider.GetValueOrDefault(candidate.Member.ProviderId, 0L))
@@ -60,7 +67,17 @@ public static class PoolMemberSelector
     /// <param name="providerId">The provider to check.</param>
     /// <param name="selection">The facts to check it against.</param>
     static bool IsCapacityExhausted(AIProviderId providerId, PoolSelectionData selection) =>
-        selection.RemainingCapacityByProvider.TryGetValue(providerId, out var remaining) && remaining <= 0;
+        (selection.RemainingCapacityByProvider.TryGetValue(providerId, out var remaining) && remaining <= 0) ||
+        (selection.HeadroomByProvider.TryGetValue(providerId, out var headroom) && headroom <= 0);
+
+    /// <summary>
+    /// How much of a provider's tightest usage window is left - 1.0 when it is not known, so a member
+    /// nobody has measured is never ranked behind one known to be nearly spent.
+    /// </summary>
+    /// <param name="providerId">The provider to check.</param>
+    /// <param name="selection">The facts to check it against.</param>
+    static double HeadroomOf(AIProviderId providerId, PoolSelectionData selection) =>
+        selection.HeadroomByProvider.TryGetValue(providerId, out var headroom) ? headroom : 1d;
 
     /// <summary>
     /// Whether a provider has a known remaining capacity greater than zero - ranked ahead of every

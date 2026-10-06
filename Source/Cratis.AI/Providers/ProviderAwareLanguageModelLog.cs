@@ -61,4 +61,10 @@ internal static partial class ProviderAwareLanguageModelLog
 
     [LoggerMessage(LogLevel.Warning, "The {Purpose} completion did not finish within its {Timeout} deadline - treated as a transient failure rather than left to escape as an uncaught cancellation")]
     internal static partial void CompletionTimedOut(this ILogger logger, LanguageModelPurpose purpose, TimeSpan timeout);
+
+    [LoggerMessage(LogLevel.Information, "AI provider {ProviderId} has {Headroom:P0} headroom left and cannot start work until {AvailableAgainAt:O} - skipped in favor of the rest of the pool")]
+    internal static partial void PoolMemberHasNoCapacity(this ILogger logger, AIProviderId providerId, double headroom, DateTimeOffset? availableAgainAt);
+
+    [LoggerMessage(LogLevel.Warning, "Could not read the capacity of the members of AI provider pool {PoolId} - every member is ranked as fully available instead")]
+    internal static partial void CouldNotReadPoolCapacity(this ILogger logger, Exception exception, AIProviderPoolId poolId);
 }

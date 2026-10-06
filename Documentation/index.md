@@ -26,6 +26,8 @@ this documentation does not cover. See that content's own `AGENTS.md`/`CLAUDE.md
 - [`anthropic-credentials.md`](./anthropic-credentials.md) - credential normalization and authentication headers.
 - [`worker-console.md`](./worker-console.md) - console readiness, cancellation, and application-owned archiving.
 - [`provider-harnesses.md`](./provider-harnesses.md) - select supported worker harnesses per provider and migrate away from per-agent selection.
+- [`provider-capacity.md`](./provider-capacity.md) - how much of each provider's subscription
+  windows is left, how pools rank and skip members by it, and how long a hit limit stays parked.
 - [`usage.md`](./usage.md) - the usage subsystem: concepts, `AgentSessionUsageRecorded`, the
   command, the read models, and how event-type changes are handled without migrations.
 - [`migration-status.md`](./migration-status.md) - a living record of what has moved from Direct
