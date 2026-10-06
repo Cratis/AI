@@ -82,11 +82,13 @@ Stage renders two projection forms; the restrictions differ.
      $eventSourceId` for an event-source key, `xId = <keyProperty>` for an event-property key)
      is also valid.
   3. Renderable model (Stage v4.24.0). Binding flat (Screenplay `SemanticModelBinder.Projections.cs`
-     `IsFlat`: every `from` has `key <eventProperty>` and every mapping copies an event property
-     or a literal) is not Stage admission.
+     `IsFlat`: every block is a `from` - no `remove`, join, children, nested, `every` or `all` -
+     none has a parent key, every `from` is keyed by a top-level event property, and every
+     mapping is a plain set from a top-level event property or a literal) is not Stage
+     admission; every other shape binds scoped.
 - **Flat admission** (`SemanticCratisAdmission.StateView.cs:94-114`) holds only when all of these
   are true: one `from` naming one event (`STAGE-ESM-008`); every read-model property, optional
-  ones included, is mapped from an event property (auto-map counts; a literal is refused,
+  ones included, is mapped from an event property (auto-map counts, and flat auto-map matches exact names only; a literal is refused,
   `STAGE-ESM-009`, `SemanticFlatProjectionSupport.MappingsMatch`); and the key property is an
   identifier concept that every producing command's `for` fills (`UsesEventSourceIdentity`).
   Anything else that binds flat is refused. When the key is the event source, drop the explicit

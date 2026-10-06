@@ -68,7 +68,7 @@ property. The identifier always equals the projection's effective key:
 | Effective key | Executable model | Renderable model (Stage) |
 |---|---|---|
 | event source (default or `key $eventSourceId`) | `xId = $eventSourceId`, or leave it unmapped in a scoped projection | scoped: leave it unmapped; the event must not carry a same-named, same-typed property unless `no automap` |
-| event property (`key invoiceId`) | `xId = invoiceId` (never `$eventSourceId`) | if every `from` has an event-property key and every mapping is an event property or a literal, it binds **flat**: Stage admits it only with one `from`, every property mapped from an event property (no literals) and the key an identifier concept filled by each producing command's `for`; any other flat-bound shape is refused (`STAGE-ESM-008`/`-009`), it does not fall back to scoped. It is scoped only when it does not bind flat (for example another `from` uses the event source key); then leave the identifier unmapped or map it only from the key's own property |
+| event property (`key invoiceId`) | `xId = invoiceId` (never `$eventSourceId`) | it binds **flat** only when every block is a `from` (no `remove`, join, children, nested, `every` or `all`), none has a parent key, every `from` is keyed by a top-level event property and every mapping is a plain set from a top-level event property or a literal: Stage admits it only with one `from`, every property mapped from an event property (no literals) and the key an identifier concept filled by each producing command's `for`; any other flat-bound shape is refused (`STAGE-ESM-008`/`-009`), it does not fall back to scoped. Any other shape is scoped (for example a `remove with`, or another `from` keyed by the event source); then leave the identifier unmapped or map it only from the key's own property |
 | literal (`key literal "global"`) | leave it unmapped (scoped seeds it from the key) | refused: Stage keys are an event property or the event source (`STAGE-ESM-017`); keep the singleton in design or executable scope and record the gap |
 
 The full rule, with the sources, is in `cratis-stage-rendering-and-sandbox`
@@ -95,11 +95,13 @@ has children, not a single value.
 
 ## Building it
 
-- Event properties fill read-model properties of the same name and type automatically (AutoMap;
-  names match case-insensitively, as in Chronicle - Screenplay v4.64.0
-  `SemanticModelBinder.ProjectionValues.cs` `AutoMapped`); map explicitly when names differ or
-  when AutoMap would copy a value you do not want, and use `no automap` where an event property
-  would land on the identifier.
+- Event properties fill read-model properties of the same name automatically (AutoMap), but the
+  match differs by binding: a scoped projection matches names case-insensitively and only for
+  the same type (Screenplay v4.64.0 `ProjectionValues.cs` `AutoMapped`); a flat-bound projection
+  matches exact names only and does not check the type, so a same-named property of another
+  type makes the model invalid (`Projections.cs` `BindFlatTransition`). Do not rely on AutoMap
+  where it matters: map explicitly when names or types differ, and use `no automap` where an
+  event property would land on the identifier.
 - Status words are literals per event (`state = "waiting"` on the request event).
 - Removal is a fact: `remove with <Event>` when the business ends the instance's visibility.
 - Projection mechanics (keys, joins, children, counters): `cratis-screenplay-projections`.

@@ -135,8 +135,10 @@ bodies still leave their owner non-executable.
   ESM and "the identifier" in rendered Arc code. Always write `for`.
 - A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`), so no specification in the application runs; Chronicle wires it as a child pull. See the blocked-plan rows above.
 - A projection mapping to a property the read model does not declare, and an undeclared
-  event in `remove with` or a capture `append`: neither V1 nor V3 reports them. Check by
-  hand.
+  event in `remove with` or a capture `append`: V1 does not report them; binding (V3) does,
+  with PLAY0273 (Screenplay v4.64.0 `BindMapping`, `LevelEvent`, `BindCaptureAppends`). A
+  declared read-model property that nothing maps is different: no tool reports it, so check
+  field lineage by hand.
 
 ## Never do this to reach V3
 

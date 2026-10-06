@@ -138,7 +138,7 @@ assumption into the phase report and the slice `description`, and continue.
 - A `unique` constraint names a property the event declares directly; the constraint name is
   its identity (renaming starts an empty index).
 - Unauthorized is `then denied`; a broken rule is `then error`; authorization runs first.
-- Missing projection targets are not reported (also after a one-sided rename): check by hand.
+- A mapping to an undeclared target fails only at binding (V3, PLAY0273); a declared property that nothing maps (for example after a one-sided rename that AutoMap relied on) is reported by no tool: check field lineage by hand.
 
 ### Modeling defaults (follow unless the domain gives a reason not to)
 

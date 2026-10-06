@@ -113,7 +113,7 @@ or actor that nobody confirmed. Transcript-shaped worked example: `references/wo
 - Clock triggers take no values (PLAY0450) and no `by` on reads (PLAY0443). `for each <View>` is
   reserved, not available.
 - Capture `when` cannot mix `and` and `or` (PLAY0089). A capture without `key` does not bind.
-- Undeclared events in capture `append` and `remove with` are not reported: check by hand.
+- Undeclared events in capture `append` and `remove with` pass V1 and fail only at binding (V3, PLAY0273): run V3.
 - A trigger with `reads` that `produces` directly fails binding: decide in a command. `reads` never protects.
 - An authorized command exercised in a spec without `given caller` is PLAY0389 at binding.
 - A list query (`=> Item[]`) and a clock sweep that iterates items do not bind; show them only as marked

@@ -31,8 +31,9 @@ available). Mark each such spec in the coverage matrix as
 
 ## Executable mode
 - Every gated spec has `given caller`; every production and every given/expected event has `for`.
-- One keyed `=> RM optional` query per read model, `by` named like the read-model property,
-  projected from `$eventSourceId`: view specs assert through it.
+- Each read model has one key shared by its keyed `=> RM optional` queries; the identifier equals
+  the projection's effective key (`cratis-screenplay-slice-design` `references/read-model-design.md`
+  decision table). View specs assert through a keyed query.
 - Run V3 (binding-ready, per `cratis-screenplay-toolchain`); binding-only codes (PLAY0273/0350/0352/0388/0389) appear only there.
 - V4 (reference specs run) needs a runner route; otherwise report "V4 not run: no route". Unsupported is not passed.
 

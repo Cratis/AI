@@ -22,7 +22,7 @@ command properties; literals; `$context.occurred`; caller identity (`$context.id
 Those are the portable sources. The event-source id is the `for` value, not a property.
 
 **Read-model property** - set by the projection (PDL) or a reducer, from:
-an event field (same name and type map automatically - AutoMap is on and matches names case-insensitively);
+an event field (same-named fields map automatically - AutoMap is on; its matching differs between flat and scoped projections, see `read-model-design.md` "Building it");
 `$eventSourceId` (the instance identity); a literal (status words); a counter or arithmetic;
 a join on another event stream; children for collections. A reducer is opaque: write its
 lineage in the slice `description`. A read model built by a query `performer` (no events)
@@ -106,8 +106,9 @@ hop before editing:
 5. Concept, if the value deserves one.
 6. Specifications that set or expect the field.
 
-7. After renaming one side of a projection mapping, check the other: AutoMap matches names only (case-insensitively, same type)
-   and a target that no longer matches is **not reported** - the field silently stays empty.
+7. After renaming one side of a projection mapping, check the other: AutoMap matches by name (rules in `read-model-design.md` "Building it")
+   An explicit mapping to a renamed-away target fails binding (V3, PLAY0273); a property AutoMap
+   used to fill and no longer matches is **not reported** - the field silently stays empty.
 
 Report the walk hop by hop: element, field, `updated` or `skipped` with the reason (already
 present; not on this element). Run V1 after the chain edit; if a hop cannot be applied, stop
