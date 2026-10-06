@@ -330,7 +330,7 @@ projection diagnostic codes, and worked examples.
 
 - [ ] Standalone `screenplay <model> --warnaserror` (4.66.0) reports zero errors and zero
       warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
-      (3.28.2 bundles the same Screenplay 4.66.0; 3.27.1 and earlier bundled 4.60.1, ESM v5
+      (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
       or lower). Name which tool produced the result.
 - [ ] Each read model has **exactly one** builder.
 - [ ] No projection-level `key`; every `from` that must address the same

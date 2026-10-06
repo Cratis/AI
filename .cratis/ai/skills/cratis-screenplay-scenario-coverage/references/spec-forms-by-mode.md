@@ -15,8 +15,8 @@ design model: keep it and record the gap.
 | `then query` on list, filtered or observable queries | yes | no (query does not bind) | no |
 | `then no readmodel <RM> for "<key>"` | yes | yes | no |
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
-| `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | Screenplay 4.61 or later yes (standalone, cratis 3.28.2 or later); a cratis 3.27.1 or earlier bundle no (see versions.md) | no |
-| Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis 3.27.1 or earlier bundle only; see SKILL.md "Version skew" | no (no reactions) |
+| `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | Screenplay 4.61 or later yes (standalone, cratis 3.28.2 or later); a cratis before 3.28.2 bundle no (see versions.md) | no |
+| Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no (no reactions) |
 | `then events in any order` | yes | yes | yes |
 | Composite (JSON) values in specs | yes | yes | no |
 | Rules over dates or `today`, nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
@@ -25,7 +25,7 @@ design model: keep it and record the gap.
 
 ## Design mode
 Write the full intended behaviour, including scenarios the executable subset cannot run
-(list views; clock, trigger and capture scenarios when only a cratis 3.27.1 or earlier
+(list views; clock, trigger and capture scenarios when only a cratis before 3.28.2
 bundle is available). Mark each such spec in the coverage matrix as
 `gap: <reason>` for the narrower modes so the verification and render phases know what will not execute.
 

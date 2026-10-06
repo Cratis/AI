@@ -5,7 +5,7 @@ that tag. Rule: the compiler you ran decides what the tool accepts today; the do
 and the domain decide what the model should mean. When they disagree, follow the compiler
 for syntax, keep the intended semantics in the model, and record the gap (an issue).
 Tool names mean the standalone `screenplay` 4.66.0 and `cratis` 3.28.2 (bundled Screenplay
-4.66.0; 3.27.1 and earlier bundled 4.60.1); see `versions.md`. [probed] marks a row re-checked by running a tool; the rest are
+4.66.0; before 3.28.2 bundled 4.60.1); see `versions.md`. [probed] marks a row re-checked by running a tool; the rest are
 read from source or documentation.
 
 | # | Topic | Conflict | Trust |
@@ -41,7 +41,7 @@ read from source or documentation.
 | 28 | `visualize-model` kind | the tool filters on the kind "Reactor" (`McpVisualization.cs:21`) although the construct is a Reaction; its added/removed summary never counts reactions (Screenplay#379, open) | the model, not the summary |
 | 29 | bodied reducers in Stage | cli `Documentation/reference/screenplay.md:38` says bodied reducers are unsupported (STAGE-ESM-019) | Stage 4.24 code admits pure allowlisted reducer bodies (`PureTransitionAdmission.cs`); trust the code |
 | 30 | `cratis screenplay validate <file>` | the command reads as a document validator | file mode ignores the file's imports and reports false unknown-name warnings (cli#244, open): validate the folder [probed] |
-| 31 | cli false PLAY0285 | `D/diagnostics.md:640` defines PLAY0285 as a contradiction against every possible producer | cratis 3.27.1 and earlier reported it falsely on reaction cascades (cli#242); not reproduced on cratis 3.28.2 [probed] |
+| 31 | cli false PLAY0285 | `D/diagnostics.md:640` defines PLAY0285 as a contradiction against every possible producer | cratis before 3.28.2 reported it falsely on reaction cascades (cli#242); not reproduced on cratis 3.28.2 [probed] |
 
 Rows 0 to 12, 14 to 21 and 23 were re-read at the v4.66.0 line numbers above; rows 14, 15,
 19, 20 and 23 are properties of the language rather than documentation defects and were

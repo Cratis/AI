@@ -69,7 +69,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Version skew: cascades and the false `PLAY0285` (cratis 3.27.1 and earlier)"
+      "value": "Version skew: cascades and the false `PLAY0285` (cratis before 3.28.2)"
     },
     {
       "kind": "skill-contains",

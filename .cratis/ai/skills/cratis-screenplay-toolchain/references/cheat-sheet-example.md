@@ -254,7 +254,7 @@ module Housekeeping                                   // no gates: a reaction's 
       event InvoiceMarkedOverdue
         overdueAt DateTime
       // No command spec here: under ESM v6 it must list the ReminderSent cascade. The file is
-      // RecordingAPayment's cascade got a false PLAY0285 on cratis 3.27.1 and earlier; 3.28.2 accepts it.
+      // RecordingAPayment's cascade got a false PLAY0285 on cratis before 3.28.2; 3.28.2 accepts it.
       // The cascade form: automation-translate-example.md (SubscribingAMember).
 
     slice Automation RemindOverdue

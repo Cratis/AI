@@ -19,7 +19,7 @@ lives only in code, or only in a description, is a finding, not a solution.
 | Screenplay | v4.66.0 (`c89198b`) | `identifier`, `for`, constraints, generations, `id` pins, diagnostics PLAY0019/0135/0268/0271/0273/0391-0393/0446-0449/0469/0471 |
 | Chronicle | v19.32.0 (`f17a2ff`) | CHR0012, CHR0034; open defects #3744, #4123, #4131 |
 | Arc | v22.50.5 | `[ProtectedDecision]` and `DecisionRead<T>` (since v22.39.0) |
-| Stage | v4.24.0 | rendered apps pin Arc 22.25.0 and Chronicle client 19.8.1 |
+| Stage | v4.24.1 | rendered apps pin Arc 22.25.0 and Chronicle client 19.8.1 (unchanged from 4.24.0) |
 
 Full pin table: `references/versions.md` in `cratis-screenplay-toolchain`. Re-check the three
 Chronicle issues before relying on a constraint in a later release.

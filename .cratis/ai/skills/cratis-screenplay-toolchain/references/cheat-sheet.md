@@ -7,10 +7,10 @@ examples belong to `cheat-sheet-example.md` and its siblings.
 
 | File | Mode | V1, warnings as errors | V3 (binds) |
 | --- | --- | --- | --- |
-| `cheat-sheet-example.md` | design: every construct family | 0 diagnostics, both tools (cratis 3.27.1 and earlier reported a false PLAY0285 on the `RecordingAPayment` cascade spec) | not ready by design (its header lists why; fewer blockers on the standalone tool) |
+| `cheat-sheet-example.md` | design: every construct family | 0 diagnostics, both tools (cratis before 3.28.2 reported a false PLAY0285 on the `RecordingAPayment` cascade spec) | not ready by design (its header lists why; fewer blockers on the standalone tool) |
 | `executable-example.md` | executable, StateChange and StateView | 0 diagnostics, both tools | ready, both tools |
 | `pdl-example.md` | executable projections | 0 diagnostics, both tools | ready, both tools |
-| `automation-translate-example.md` | executable Automation and Translate (ESM v6) | 0 diagnostics, both tools (cratis 3.27.1 and earlier could not bind it) | ready, both tools (cratis 3.28.2 or later) |
+| `automation-translate-example.md` | executable Automation and Translate (ESM v6) | 0 diagnostics, both tools (cratis before 3.28.2 could not bind it) | ready, both tools (cratis 3.28.2 or later) |
 
 Screenplay sources: `Documentation/screenplay/grammar.md` (EBNF; checked against the parsers
 by `for_Documentation/when_comparing_the_grammar_against_the_parsers.cs`),

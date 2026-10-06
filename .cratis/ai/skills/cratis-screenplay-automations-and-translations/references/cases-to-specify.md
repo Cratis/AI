@@ -63,7 +63,7 @@ One spec in the slice does not cover the others.
   V4 as "not run: no route"; never as passed.
 - With Screenplay 4.66.0 (standalone or cratis 3.28.2), a command spec lists the cascade (v6 semantics: after
   `when <Command>`, `then` lists every new fact, including reaction appends). Only when a
-  cratis 3.27.1 or earlier bundle (4.60.1) is the V1 tool does it report a false PLAY0285 on a cascade (cli#242):
+  cratis before 3.28.2 bundle (4.60.1) is the V1 tool does it report a false PLAY0285 on a cascade (cli#242):
   then keep the cascade out of the command spec, specify it in the Automation slice
   (`when append <Trigger>`) and record the expectation. See `cratis-screenplay-scenario-coverage`.
 - `given capture` never persists between specs: state the baseline in each spec that needs it.

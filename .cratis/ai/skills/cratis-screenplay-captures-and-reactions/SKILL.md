@@ -52,7 +52,7 @@ decides, not the slice type:
   `executableReady` over `screenplay mcp`.
 - **`cratis` 3.28.2 (bundles Screenplay 4.66.0, ESM v1-v6):** the same as the standalone
   tool. Probed: the complete examples validate with warnings as errors and are
-  `executableReady` over `cratis screenplay mcp`. `cratis` 3.27.1 and earlier (Screenplay
+  `executableReady` over `cratis screenplay mcp`. `cratis` before 3.28.2 (Screenplay
   4.60.1, ESM v1-v5) failed an `Automation` or `Translate` slice at binding with `PLAY0268`
   (*Slice '<name>' of type '<type>' is not admitted by ESM v1*), reported reactions as
   *requires portable occurrence and effect semantics* and captures as *require a portable
@@ -84,7 +84,7 @@ specification IssuingTheWeeklyDigest
     issuedAt = "2026-10-05T07:30:00Z"
 ```
 
-Under `cratis` 3.27.1 and earlier these actions parsed and were checked against the application
+Under `cratis` before 3.28.2 these actions parsed and were checked against the application
 but bound to nothing (`PLAY0268` names ESM v6, decision 0022); on 3.28.2 they bind. Either way
 no command runs them: report such a specification as authored, not executed. Clock rules: the clock is UTC and exact; an
 occurrence fires once when it is **due after `given clock` and at or before
@@ -472,7 +472,7 @@ command's own reads. Command `reads` give none yet either (`PLAY0271`, #129).
 Decision 0006 leaves `where` over read paths out of scope, and `where` needs
 every operand to resolve from the trigger's declared scalar occurrence shape (listed in
 the input selection or not; nested paths and read aliases fail binding): keep the logic that uses the state in
-the invoked command or the implementation. Under `cratis` 3.27.1 and earlier none of this
+the invoked command or the implementation. Under `cratis` before 3.28.2 none of this
 bound at all (`PLAY0268`); `cratis` 3.28.2 binds it like the standalone tool.
 
 ## `trigger`
@@ -534,7 +534,7 @@ something is reported. `Startup` and `Shutdown` are registered the second way.
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.66.0, or `cratis` 3.28.2 or later). Under `cratis` 3.27.1 or earlier expect
+      (standalone 4.66.0, or `cratis` 3.28.2 or later). Under `cratis` before 3.28.2 expect
       `PLAY0268` at binding and a false `PLAY0285` on cascade specifications, and report them
       as tool skew.
 - [ ] The tool that bound the model is named (Screenplay 4.61 or later, so standalone or

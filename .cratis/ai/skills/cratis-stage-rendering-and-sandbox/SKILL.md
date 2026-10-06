@@ -21,7 +21,7 @@ reading in this skill is not a render result.
 | Source | Pin | Notes |
 | --- | --- | --- |
 | Stage | `v4.24.1` (`2cadf59`) | Renderer, sandbox host, spec runner; pins Screenplay 4.66.0, Arc 22.50.5, Chronicle 19.32.0 (v4.24.0, `fa48546`, pinned Screenplay 4.60.0) |
-| cratis CLI | `v3.28.2` (`141c499`) | `cratis render`, `cratis run`; bundles Stage 4.24.1 and Screenplay 4.66.0 (Cratis/cli#253, shipped in Cratis/cli#257). v3.27.1 and v3.28.0 bundled Stage 4.24.0 and Screenplay 4.60.1 |
+| cratis CLI | `v3.28.2` (`141c499`) | `cratis render`, `cratis run`; bundles Stage 4.24.1 and Screenplay 4.66.0 (Cratis/cli#253, shipped in Cratis/cli#257). v3.28.1 and earlier (v3.28.0 and v3.28.1 verified in `Directory.Packages.props`) bundled Stage 4.24.0 and Screenplay 4.60.1 |
 | Rendered applications | Arc `22.25.0`, Chronicle `19.8.1`, .NET 10 | The scaffold profile (`CratisBackendApplicationScaffoldProfile.cs`), unchanged at 4.24.1 although Stage itself builds on Arc 22.50.5 and Chronicle 19.32.0; frontend Components 4.14.0, Scene 4.2.0 |
 
 Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.md`,
@@ -73,7 +73,7 @@ Facts that surprise:
 - **Binding uses the CLI's bundled Screenplay** (4.66.0 in cratis 3.28.2, the same compiler
   as the standalone tool, ESM up to v6). A v6 model (Automation, Translate, reactions,
   captures, application triggers, clock specifications) binds and is then refused whole by
-  Stage with `STAGE-ESM-016` (probed on 3.28.2); on cratis 3.27.1 and earlier the bundled
+  Stage with `STAGE-ESM-016` (probed on 3.28.2); on cratis before 3.28.2 the bundled
   4.60.1 binder stopped it first with `PLAY0268`. A model that binds is not necessarily
   renderable: Stage admits ESM v1 to v3 only.
 - **Render never builds, tests or runs** the output. A published render is admission and

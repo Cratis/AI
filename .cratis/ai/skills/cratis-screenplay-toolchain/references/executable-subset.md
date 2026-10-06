@@ -2,7 +2,7 @@
 
 What the binder admits, and what it refuses with which code. The answer depends on the
 compiler version: Screenplay 4.66.0, standalone or bundled in cratis 3.28.2, admits ESM v1 to
-v6; the 4.60.1 compiler bundled in cratis 3.27.1 and earlier admits v1 to v5. Tool facts and the exact v6 messages: `versions.md`. Always name
+v6; the 4.60.1 compiler bundled in cratis before 3.28.2 admits v1 to v5. Tool facts and the exact v6 messages: `versions.md`. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass.
@@ -104,7 +104,7 @@ bodies still leave their owner non-executable.
 
 | Construct | Code | Note |
 | --- | --- | --- |
-| `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis 3.27.1 and earlier bundles only** (4.60.1); messages in `versions.md` |
+| `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
 | `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.66.0. `@sensitive` has no verified portable meaning (Screenplay#384, open) |
 | `query` returning a collection (`RM[]`), or without exactly one caller-supplied `by` | PLAY0268 | "must declare one caller-supplied 'by' argument" or "must return one optional read model" |

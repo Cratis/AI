@@ -22,7 +22,7 @@ the executable profile and a complete compiled model.
 | `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Current compiler, MCP (29/30 tools), roots fix; examples compiled with `--warnaserror` |
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs, rename/extraction and `optional` |
 | `Cratis.Screenplay` | `4.31.0` | Original compiler, ESM and workspace evidence |
-| `cratis` CLI | `3.28.2` | Bundles Screenplay 4.66.0 and Stage 4.24.1 (3.27.1 and earlier: 4.60.1, ESM v5 at most, roots bug) |
+| `cratis` CLI | `3.28.2` | Bundles Screenplay 4.66.0 and Stage 4.24.1 (before 3.28.2: 4.60.1, ESM v5 at most, roots bug) |
 
 Facts about the MCP connection, source-map, `whenAppendedEvent`, identity
 persistence and the syntax-only constructs were read at tag `v4.66.0`
@@ -47,7 +47,7 @@ folder the user names. Without a project, the server works in `Documents/Screenp
 in the user's home folder, so do not invent a location. A root fixed at launch
 cannot be switched: another `path` returns `RootChangeRefused`.
 
-**Prefer a fixed root.** Screenplay up to 4.63.1 (so Cratis CLI 3.27.1 and earlier; fixed in
+**Prefer a fixed root.** Screenplay up to 4.63.1 (so Cratis CLI before 3.28.2; fixed in
 4.63.2, so not in CLI 3.28.2 or later, probed) fails a
 dynamic-root server right after `notifications/initialized` when the client
 advertises roots; real hosts then drop the connection, and `open-workspace.path`

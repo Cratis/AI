@@ -14,7 +14,7 @@ installed tool.
 | Source | Pin | Notes |
 | --- | --- | --- |
 | Screenplay (language, compiler, standalone tool, MCP server) | **v4.66.0** (`c89198b`), published as `Cratis.Screenplay.Tool` 4.66.0 | Most behaviour below was probed on 4.63.1 (`7769dc4`) and re-checked on 4.66.0. 4.63.1 to 4.64.0 added only the `numbers exact` syntax (binding refuses it), the MCP roots fix from 4.63.2 and fence-registry plumbing. 4.65.0 adds the command named-rule `implementation` block and rejects `implementation` on concept rules, built-in property rules and whole-command `require`/`validate` bodies (a hints-only block binds as PLAY0268). 4.66.0 adds only an experimental VS Code repair bridge. `Semantics/Execution` is unchanged since 4.63.1. Example compile and the toolchain commands in this skill were run on 4.66.0 |
-| cratis CLI | **v3.28.2** (`141c499`, Cratis/cli#257, closes #253) | Bundles **Screenplay 4.66.0** (ESM v1 to v6), **Stage 4.24.1**, `Cratis.Arc.Screenplay` 22.50.5, Chronicle 19.32.0, Fundamentals 7.22.8, Generation 0.18.0 (`Directory.Packages.props` at the tag). Same compiler as the standalone tool, so the two agree on binding and diagnostics; they still differ on file-mode imports. v3.27.1 and v3.28.0 bundled Screenplay 4.60.1 and Stage 4.24.0 (ESM v1 to v5, MCP roots bug, false PLAY0285, Automation/Translate refused at binding) |
+| cratis CLI | **v3.28.2** (`141c499`, Cratis/cli#257, closes #253) | Bundles **Screenplay 4.66.0** (ESM v1 to v6), **Stage 4.24.1**, `Cratis.Arc.Screenplay` 22.50.5, Chronicle 19.32.0, Fundamentals 7.22.8, Generation 0.18.0 (`Directory.Packages.props` at the tag). Same compiler as the standalone tool, so the two agree on binding and diagnostics; they still differ on file-mode imports. v3.28.1 and earlier (including v3.28.0 and the probed v3.27.1) bundled Screenplay 4.60.1 and Stage 4.24.0 (ESM v1 to v5, MCP roots bug, false PLAY0285, Automation/Translate refused at binding) |
 | Stage | **v4.24.1** (`2cadf59`) | Pins Screenplay 4.66.0, Arc 22.50.5 and Chronicle 19.32.0 for its own build and the sandbox host image (`cratis/chronicle:19.32.0-development`); admits ESM schema v1 to v3 (v4.24.0, `fa48546`, pinned Screenplay 4.60.0); bundled by cratis 3.28.2. 4.24.1 adds `STAGE-ESM-024` to the surface ledger only; no admission change. The scaffold profile is unchanged at 4.24.1: rendered apps use .NET 10, **Arc 22.25.0**, **Chronicle 19.8.1** and a React/Vite frontend scaffold (Components 4.14.0, Scene 4.2.0) |
 | Arc | **v22.50.5** (`eefd098`) | `[ExecuteCommandsAsSystem]` since v20.56.0; `[ProtectedDecision]` and `DecisionRead<T>` since v22.39.0. A Stage-rendered application is on 22.25.0, so `[ProtectedDecision]` is **not** available there |
 | Chronicle | **v19.32.0** (`f17a2ff`) | CHR0012 (`EventTypeShouldAvoidNullableProperties`) and CHR0034 (`PiiOnEventSourceId`) exist. Open runtime defects at v19.32.0: #3744 (unique claims not settled by the store on SQL and InMemory), #4123 (constraint index updates run after commit and fail silently), #4131 (composite unique constraints collide when a component contains the separator) |
@@ -29,10 +29,10 @@ global `dotnet` tool) shadows a newer one; confirm with `which -a cratis`.
 
 | | Standalone `screenplay` | `cratis screenplay ...` |
 | --- | --- | --- |
-| Version | 4.66.0 (this pin) | 3.28.2, bundling Screenplay 4.66.0 (3.27.1 and 3.28.0 bundled 4.60.1) |
+| Version | 4.66.0 (this pin) | 3.28.2, bundling Screenplay 4.66.0 (3.28.1 and earlier bundled 4.60.1) |
 | ESM admitted by the binder | v1 to v6 (v6: clocks, application triggers, captures, reactions, Automation and Translate slices) | v1 to v6, the same binder (probed on 3.28.2: the Automation, Translate and capture examples of this corpus are `executableReady` over `cratis screenplay mcp`) |
 | `numbers exact` | syntax parses; binding refuses (PLAY0268, `executableReady: false`). Absent from the grammar page; documented only in `diagnostics.md` (PLAY0508 to PLAY0513) | same (probed on 3.28.2; 3.27.1 reported PLAY0001 "Unexpected 'numbers'") |
-| Cascade specs (a command spec listing events a reaction appends) | compiles | compiles on 3.28.2 (probed); 3.27.1 and earlier reported a **false PLAY0285** (cli#242, still open on GitHub at the time of writing) |
+| Cascade specs (a command spec listing events a reaction appends) | compiles | compiles on 3.28.2 (probed); before 3.28.2 reported a **false PLAY0285** (cli#242, still open on GitHub at the time of writing) |
 | Imports in file mode | follows imports | still ignores imports, reports false unknown-name warnings (PLAY0165, cli#244, open; probed on 3.28.2): validate the folder |
 | Used for | V1, V2, V3; MCP | `render`, `screenplay generate`, `prologue`, `run`; V1, V2 and V3 as well, since it bundles the same compiler |
 
@@ -40,7 +40,7 @@ global `dotnet` tool) shadows a newer one; confirm with `which -a cratis`.
 4.66.0, so either gives V1 to V3. Prefer the standalone tool when it is installed (file mode
 follows imports); `cratis` is the route for rendering (V5), generation and Prologue. Projects
 set up by `cratis ai install` register `cratis screenplay mcp`, which runs the bundled
-compiler: on cratis 3.27.1 and earlier that is 4.60.1 and lags (ESM v5, false PLAY0285,
+compiler: on cratis 3.28.1 or earlier (all releases before 3.28.2) that is 4.60.1 and lags (ESM v5, false PLAY0285,
 roots bug), so read `cratis --version` first. **Name the tool and its version with every
 verdict**; a verdict from one tool does not carry to the other when their versions differ.
 
@@ -51,7 +51,7 @@ Only binding (MCP or `render`) prints these; neither `screenplay <folder>` nor
 `SemanticModelBinder.Structure.cs`, `SemanticModelBinder.SliceMembers.cs`,
 `SemanticModelBinder.Specifications.cs`.
 
-| Construct | cratis 3.27.1 and earlier (Screenplay 4.60.1) reported (PLAY0268) | 4.66.0, standalone and cratis 3.28.2 |
+| Construct | cratis before 3.28.2 (Screenplay 4.60.1) reported (PLAY0268) | 4.66.0, standalone and cratis 3.28.2 |
 | --- | --- | --- |
 | Automation or Translate slice | `Slice '<name>' of type '<type>' is not admitted by ESM v1.` | binds as ESM v6 |
 | Reaction | `Reaction '<n>' requires portable occurrence and effect semantics.` | binds |
@@ -102,7 +102,7 @@ treat that as fatal. It happens right after `notifications/initialized`, before 
 call, and only when the root is dynamic. **Passing `open-workspace.path` does not avoid
 it.** Avoid it with a fixed root: `screenplay mcp <model-folder>`, `cratis screenplay mcp
 <path>`, or `cratis screenplay mcp` inside a project with `.cratis/ai.json`; or use 4.63.2
-or later. cratis 3.27.1 and earlier bundled 4.60.1, which has the bug, so only the fixed-root
+or later. cratis before 3.28.2 bundled 4.60.1, which has the bug, so only the fixed-root
 forms were safe there. Probed on cratis 3.28.2 (Screenplay 4.66.0): with a roots-capable
 client and no fixed root, `cratis screenplay mcp` answers `initialize`, sends a well-formed
 `roots/list` request, and serves `tools/list` (29 tools) after the client replies; no `id: null`

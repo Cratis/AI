@@ -8,7 +8,7 @@ probe reports and choosing what to do. Do not copy the code table here.
 
 ## Pipeline that produces the codes
 1. The CLI compiles and binds the model with its **bundled** Screenplay (4.66.0 in cratis 3.28.2,
-   ESM up to v6; 4.60.1, ESM up to v5, in 3.27.1 and earlier). Binding errors are `PLAY0268` (outside the admitted vertical), `PLAY0269`
+   ESM up to v6; 4.60.1, ESM up to v5, before 3.28.2). Binding errors are `PLAY0268` (outside the admitted vertical), `PLAY0269`
    (deferred), `PLAY0270` (report-only information), `PLAY0271` (legacy semantics) and `PLAY0273`
    (a specification shape).
 2. Execution planning builds the plan and can emit `PLAN-*` diagnostics before Stage runs.
@@ -27,7 +27,7 @@ ESM). Only the probe answers renderability. `PLAY0270` entries are information, 
 | --- | --- | --- | --- |
 | **Model fix (in mode)** | the model is in, or the user chose, renderable mode and breaks its own subset in a way that has a renderable equivalent with the same meaning | a `produces` whose `for` is not the command identifier; one `StateChange` slice with two commands (`STAGE-ESM-004`); two projections for one read model (`-007`); a policy without `authenticated` (`-015`) | edit request to the modeler session with address, change and rationale |
 | **Capability gap** | the intended meaning needs a construct Stage does not render yet | list, observable and filtered queries (`PLAY0268` "must declare one caller-supplied 'by'", `-010`); Automation and Translate slices (`PLAY0268` "not admitted by ESM v1", `-001`, Stage#79); reactions, clocks, captures and triggers (v6, `-016`); event generations (`CLI-RENDER-003`); conditional `produces when` (`-006`); `reads` (`PLAY0271`); code validation (`-005`); opaque policies (`-015`); compliance attributes (`PLAY0268` "require portable data-subject semantics"); a command `handler` (`PLAY0268`) | keep the model; ledger entry; options a to c in `SKILL.md`; link the Stage issue |
-| **Tool skew** | the bundled compiler disagrees with documented semantics | the false `PLAY0285` on reaction cascades from a cratis 3.27.1 or earlier bundle (cli#242); codes the standalone compiler does not raise | record in the session state and the ledger; never "fix" a correct model |
+| **Tool skew** | the bundled compiler disagrees with documented semantics | the false `PLAY0285` on reaction cascades from a cratis before 3.28.2 bundle (cli#242); codes the standalone compiler does not raise | record in the session state and the ledger; never "fix" a correct model |
 | **Environment** | not the model | restore failures, missing SDK, a destination that is not writable | fix the environment or report blocked |
 
 ## Triage rules

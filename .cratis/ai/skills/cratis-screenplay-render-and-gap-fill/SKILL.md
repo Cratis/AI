@@ -25,7 +25,7 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `v3.28.2` (`141c499`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.1 (3.27.1 and earlier bundled 4.60.1 and 4.24.0) |
+| cratis CLI | `v3.28.2` (`141c499`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.1 (before 3.28.2 bundled 4.60.1 and 4.24.0) |
 | Stage | `v4.24.1` (`2cadf59`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
 | Screenplay | `v4.66.0` (`c89198b`) | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1` | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one |
