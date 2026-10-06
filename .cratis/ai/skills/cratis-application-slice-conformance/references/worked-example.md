@@ -1,6 +1,8 @@
 # Worked example: re-delivering a marina berth slice
 
-The contract is this model (complete document). After delivery one, the model changes: the
+The contract is this model (complete document). It compiles in design mode: the `ListBerths` list
+query blocks binding (V3, `PLAY0268`: a query must declare one caller-supplied `by` argument), so no
+specification runs against it here, and the list stays because the domain asks for a list. After delivery one, the model changes: the
 harbourmaster wants to retire berths, and the list must stop showing them.
 
 ```screenplay

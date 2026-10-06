@@ -163,8 +163,7 @@ slice StateView InvoiceList
     from InvoiceSent
       invoiceId = $eventSourceId
       status = "sent"
-  query InvoiceById => InvoiceListReadModel optional
-    by invoiceId InvoiceId
+  query ListInvoices => InvoiceListReadModel[]
 ```
 
 **Do not model infrastructure preconditions as read models.** "Does the directory

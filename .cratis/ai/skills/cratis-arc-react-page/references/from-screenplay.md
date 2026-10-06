@@ -23,7 +23,7 @@ screen as its contract. Screens are deferred by the backend profile: that deferr
 is information `PLAY0269` and does not block binding, but the authoring
 diagnostics still apply (syntax, unresolved or ambiguous references), and
 warnings fail a warnings-as-errors gate. A clean compile proves the model is
-well formed. It does not prove a hand-written React page conforms to it, and no
+authorable, not that every projection mapping resolves: binding reports `PLAY0273` for a mapped event property the event never declares. It does not prove a hand-written React page conforms to it, and no
 tool checks that. You do, with the reconciliation at the end.
 
 Stage 4.24 documents a frontend seam only for `Customizations/styles.css`
@@ -33,7 +33,7 @@ scaffold. If you cannot say where the page lives, that is a blocker to report.
 
 ## Worked model
 
-Every mapping below refers to this model. It is a complete document.
+Every mapping below refers to this model. It is a complete document that compiles in design mode: the `ListBerths` list query blocks binding (V3), so it does not run through binding or rendering. The list stays because the screen is a list of berths; `GetBerth` is the keyed query for the detail screen.
 
 ```screenplay
 concept BerthId : Uuid
@@ -46,6 +46,7 @@ module Marina
         berthId BerthId identifier
         boatName BoatName
         produces event BerthBooked
+          boatName BoatName = boatName
 
     slice StateChange CancelBerth
       command CancelBerth

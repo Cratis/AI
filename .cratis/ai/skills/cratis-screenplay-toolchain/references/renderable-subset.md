@@ -45,7 +45,7 @@ whole automation is hand-written (gap-fill).
   readmodel`). The seeded when-less `then query` only checks a lookup over a given read-model
   state; it proves no projection (Stage `SemanticSpecificationAdmission.Callers.cs`).
 - Use `$context.occurred` only; no `$context.identity.*` mappings.
-- A list is a design-only query: pair it with a keyed `XById` query for rendering.
+- A list is a design-only query and blocks binding, and so rendering, of the whole application on its own. A keyed `XById` sibling does not change that: while any list query remains, nothing in the model binds, runs or renders. Keep a list the domain needs and report the capability gap.
 - A `handler` (with or without `implementation` or `hint`) never binds; the slice is
   gap-fill, never "customized into" rendering.
 - Descriptions and documentation are never rendered (Stage#178): a rule that exists only in

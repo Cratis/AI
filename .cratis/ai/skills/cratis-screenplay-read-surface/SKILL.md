@@ -79,8 +79,9 @@ query ListInvoices => InvoiceListReadModel[]
 ⚠️ **A list query is design-only.** `=> RM[]`, `observable`, `filter`, `scoped to` and
 `performer` are valid model language, but neither the executable model nor Stage
 4.24.0 binds or renders them (`PLAY0268`). Model them when the application needs them,
-and pair each list with a keyed `XById => RM optional` query with one `by`, which is
-the shape that binds, runs in specifications and renders.
+and keep a list the domain needs. A keyed `XById => RM optional` query with one `by` is
+the shape that binds, runs in specifications and renders, but adding it beside a list
+does not unblock anything: while a list remains, the whole application stays unbound.
 
 Return-type forms after `=>`: `ReadModel`, `ReadModel optional`, `ReadModel[]`,
 each optionally prefixed `observable`. `ReadModel[] optional` permits an absent

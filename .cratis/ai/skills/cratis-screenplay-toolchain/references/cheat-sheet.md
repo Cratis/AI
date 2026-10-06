@@ -7,7 +7,7 @@ examples belong to `cheat-sheet-example.md` and its siblings.
 
 | File | Mode | V1, warnings as errors | V3 (binds) |
 | --- | --- | --- | --- |
-| `cheat-sheet-example.md` | design: every construct family | 0 diagnostics on both tools (v6 parts carry the marker below and skip cratis) | not ready by design (its header lists why; fewer blockers on the standalone tool) |
+| `cheat-sheet-example.md` | design: every construct family | 0 diagnostics on the standalone tool; cratis 3.27.1 (4.60.1) reports a false PLAY0285 on the `RecordingAPayment` cascade spec, so the fence carries the marker below and skips cratis | not ready by design (its header lists why; fewer blockers on the standalone tool) |
 | `executable-example.md` | executable, StateChange and StateView | 0 diagnostics, both tools | ready, both tools |
 | `pdl-example.md` | executable projections | 0 diagnostics, both tools | ready, both tools |
 | `automation-translate-example.md` | executable Automation and Translate (ESM v6) | standalone tool only (first line `// Needs the standalone screenplay compiler (ESM v6)`) | ready on the standalone tool only |
@@ -69,19 +69,19 @@ collections (path below them: PLAY0297 E). Unknown member: PLAY0295/0296 W.
 `$eventSourceId` is the short form used in mappings. `occurred.Week` compiles but does not bind
 (PLAY0273: derived value). Any `$eventContext` path other than `eventSourceId` binds, but the execution plan refuses it ("An event-context value other than the event source identity needs occurrence context that ESM v1 facts do not carry"), so a model that must run uses `$context.occurred` in the command `produces` instead (it executes when the scenario has `given clock`). Catalogue: `Documentation/screenplay/projections/event-context.md`.
 
-## PDL quick reference (forms compiled in `pdl-example.md` or `cheat-sheet-example.md`)
+## PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
 - Header `projection Name => ReadModel`; variant group `projection Name` + `variant RM` /
   `enters on Event [key k]`.
 - Directives: `no automap` (AutoMap is on by default, case-sensitive name match), `every`
   (mappings applied for every event), `all` (per event source, never global), `from Event [key k]`.
-- Mappings: `target = source`, `"literal"`, `$eventSourceId`, `$eventContext.occurred`,
+- Mappings: `target = source`, `"literal"`, `$eventSourceId`, `$eventContext.occurred` (binds, but blocks the execution plan),
   `increment n`, `decrement n`, `count n` (in `all`), `add t by x`, `subtract t by x`,
   `set t to "v"`, `clear t`.
 - `join Label on rmProperty` + `with Event` (matches the joined event's source id against the
   property; the label is decoration; joins never create instances).
 - `children prop identified by k` + `from E key k` + `remove with E key k`; `nested prop` +
   `from` + `clear with E`.
-- Removal: `remove with Event`, `remove via join on Event`.
+- Removal: `remove with Event`; `remove via join on Event` is compile-only and bind-only: at projection level it blocks the whole reference execution plan (`UnsupportedProjectionBlock`), so no specification runs.
 - Keys: only on `from` (a projection-level `key` routes nothing: PLAY0381 W).
 - One `every`/`all` block per level for the executable model (else PLAY0268).
 - Templates (`` `${a}` ``) and `$causedBy` parse but do not bind (PLAY0268).

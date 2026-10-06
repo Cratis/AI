@@ -1,6 +1,6 @@
 # Projection (PDL) example
 
-Projection forms that compile warning-free, bind and run on both tools (`RejectingAnEmptyCode` passes in the reference runner): every, join, children, nested, clear with, remove with, increment/decrement, all + count, add/subtract by, set to, clear, no automap, literal mapping, variant group (no `=> RM`), concept rules not empty/max/length ==. Rejected by the binder: more than one every/all block on one level (PLAY0268); `$eventContext.occurred.Week` (PLAY0273, derived value). Not in this example because they block the whole execution plan in the reference runner (Screenplay v4.64.0): a `remove via join` on a projection's own (root) level (`UnsupportedProjectionBlock`; it binds, but on Chronicle v19.32.0 it creates no removal subscription, so `CustomerDeleted` would not remove an `OrderView`), and any event-context value other than the event source identity in a projection, such as `$eventContext.occurred` (`UnsupportedEventContext`). Quick reference: [cheat-sheet.md](cheat-sheet.md). The `every` block here maps a literal to show the form. Carry a timestamp on the event with `$context.occurred` in the producing command when a view must show it.
+Projection forms that compile warning-free, bind on both tools and run in the reference runner without Unsupported results (`PlacingAnOrder`, `CancellingAnOrder`, `Depositing` and `RejectingAnEmptyCode` pass). The specifications exercise every, from, `set`, increment, remove with, all + count, add/subtract by, `clear` and the concept rules; join, children, nested and variant groups bind but no specification drives them. `lineCount` is initialized in `OrderPlaced` and `shipping` is optional, because a required read-model property must be set after every fact: every, join, children, nested, clear with, remove with, increment/decrement, all + count, add/subtract by, set to, clear, no automap, literal mapping, variant group (no `=> RM`), concept rules not empty/max/length ==. Rejected by the binder: more than one every/all block on one level (PLAY0268); `$eventContext.occurred.Week` (PLAY0273, derived value). Not in this example because they block the whole execution plan in the reference runner (Screenplay v4.64.0): a `remove via join` on a projection's own (root) level (`UnsupportedProjectionBlock`; it binds, but on Chronicle v19.32.0 it creates no removal subscription, so `CustomerDeleted` would not remove an `OrderView`), and any event-context value other than the event source identity in a projection, such as `$eventContext.occurred` (`UnsupportedEventContext`). Quick reference: [cheat-sheet.md](cheat-sheet.md). The `every` block here maps a literal to show the form. Carry a timestamp on the event with `$context.occurred` in the producing command when a view must show it.
 
 ```screenplay
 // PDL forms that bind executable on both tools.
@@ -39,6 +39,27 @@ module Shop
       event LineAdded
         lineNumber Int
         sku        String
+      specification PlacingAnOrder
+        when PlaceOrder
+          orderId    = "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
+          customerId = "1b2c3d4e-5f60-4718-9a2b-3c4d5e6f7a8b"
+          total      = 25
+        then OrderPlaced
+          for "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
+          customerId = "1b2c3d4e-5f60-4718-9a2b-3c4d5e6f7a8b"
+          total      = 25
+        then LineAdded
+          for "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
+          lineNumber = 1
+          sku        = "A-1"
+        then query OrderViewById
+          arguments
+            orderId = "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
+          result
+            total     = 25
+            status    = "placed"
+            lastSeen  = "seen"
+            lineCount = 1
     slice StateChange RemoveLine
       command RemoveLine
         orderId    OrderId identifier
@@ -66,6 +87,16 @@ module Shop
         produces OrderCancelled
           for orderId
       event OrderCancelled
+      specification CancellingAnOrder
+        given OrderPlaced
+          for "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
+          customerId = "1b2c3d4e-5f60-4718-9a2b-3c4d5e6f7a8b"
+          total      = 25
+        when CancelOrder
+          orderId = "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
+        then OrderCancelled
+          for "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
+        then no readmodel OrderView for "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
     slice StateChange RenameCustomer
       command RenameCustomer
         customerId CustomerId identifier
@@ -88,7 +119,7 @@ module Shop
         lineCount    Int
         status       String
         lines        OrderLine[]
-        shipping     Shipping
+        shipping     Shipping optional
       query OrderViewById => OrderView optional
         by orderId OrderId
       projection OrderOverview => OrderView
@@ -100,6 +131,7 @@ module Shop
           customerId = customerId
           total      = total
           status     = "placed"
+          set lineCount to 0
         from LineAdded
           increment lineCount
         from LineRemoved
@@ -188,6 +220,25 @@ module Bank
       event Withdrawn
         amount Decimal
       event Frozen
+      specification Depositing
+        when Deposit
+          accountId = "5d1f0c2e-8a47-4c1b-9b3e-6f2a7c9d1e10"
+          amount    = 10
+          code      = "ABCD"
+        then Deposited
+          for "5d1f0c2e-8a47-4c1b-9b3e-6f2a7c9d1e10"
+          amount = 10
+        then Withdrawn
+          for "5d1f0c2e-8a47-4c1b-9b3e-6f2a7c9d1e10"
+          amount = 10
+        then Frozen
+          for "5d1f0c2e-8a47-4c1b-9b3e-6f2a7c9d1e10"
+        then query AccountById
+          arguments
+            accountId = "5d1f0c2e-8a47-4c1b-9b3e-6f2a7c9d1e10"
+          result
+            balance  = 0
+            deposits = 3
       specification RejectingAnEmptyCode           // one concept rejection spec, through this command
         when Deposit
           accountId = "5d1f0c2e-8a47-4c1b-9b3e-6f2a7c9d1e10"

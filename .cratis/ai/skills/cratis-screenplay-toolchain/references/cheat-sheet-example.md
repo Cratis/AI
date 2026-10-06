@@ -2,7 +2,7 @@
 
 One complete document with every construct family. Design mode, not executable. Prose rules: [cheat-sheet.md](cheat-sheet.md); tool versions: [versions.md](versions.md); what binds: [executable-subset.md](executable-subset.md).
 
-Blocking on every compiler: unquoted import, `@pii`, `reads` (PLAY0271), `starts with`, observable/list/filter query. Also blocking on the cratis-bundled compiler only: trigger, `given clock`, Automation and Translate slices, reactions, capture. Executable shapes are in the sibling examples. The first line marks ESM v6 content, so the cratis pass skips it.
+Blocking on every compiler: unquoted import, `@pii`, `reads` (PLAY0271), `starts with`, observable/list/filter query. Also blocking on the cratis-bundled compiler only: trigger, `given clock`, Automation and Translate slices, reactions, capture. Executable shapes are in the sibling examples. The first line of the fence marks it standalone-only, so the cratis pass skips it: `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis-bundled 4.60.1 compiler rejects with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'").
 
 ```screenplay
 // Needs the standalone screenplay compiler (ESM v6)
@@ -254,8 +254,8 @@ module Housekeeping                                   // no gates: a reaction's 
           overdueAt = $context.occurred
       event InvoiceMarkedOverdue
         overdueAt DateTime
-      // No command spec here so this file compiles on both compilers: under ESM v6 it must list the
-      // ReminderSent cascade, which the cratis-bundled compiler rejects with a false PLAY0285.
+      // No command spec here: under ESM v6 it must list the ReminderSent cascade. The file is
+      // standalone-only because RecordingAPayment's cascade already gets a false PLAY0285 on cratis.
       // The cascade form: automation-translate-example.md (SubscribingAMember).
 
     slice Automation RemindOverdue

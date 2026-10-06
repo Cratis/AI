@@ -3,7 +3,8 @@
 A small model with one seeded design defect, reviewed in critic mode. The model file is
 `berths.play`; line numbers below refer to it. The report follows `report-template.md` and is
 shortened: it shows the flagged checks of each phase and elides the passing ones, which a real
-report lists in full.
+report lists in full. The model compiles in design mode: the `ListBerths` list query blocks V3
+(`PLAY0268`), which is why the report below does not run V3.
 
 ## The model under review
 
@@ -161,7 +162,7 @@ Confidence: medium (design mode; V2 to V5 not run)
 
 ## After the fix
 The same scope after the modeler applied the edit request and added denial specifications.
-This model binds (the list query became a keyed query with a `by` argument), so its specifications run; the review is re-run only on the changed scope.
+The review is re-run only on the changed scope. The query contract is unchanged: no edit request asked for a different query, so `ListBerths => BerthSummary[]` stays. This document compiles (design mode), but the list query blocks V3 (binding reports PLAY0268, a query must declare one caller-supplied `by` argument), so its specifications do not run here. Adding a keyed `BerthById` next to the list would not unblock binding; replacing the list would change the contract and needs its own domain-justified edit request.
 
 ```screenplay
 concept BerthId : Uuid
@@ -247,9 +248,8 @@ module Moorings
           berthId = $eventSourceId
         from BerthLengthLimitRaised
           berthId = $eventSourceId
-      query BerthById => BerthSummary optional
-        by berthId BerthId
+      query ListBerths => BerthSummary[]
 ```
 
 The re-review marks finding 1 `fixed` (the event names the reason and carries one property), finding
-2 `fixed` for both commands, and leaves finding 3 open: the view still has no specification.
+2 `fixed` for both commands, and leaves finding 3 open: the view still has no specification. It reports no other contract change, because there is none; had the list query been replaced, the re-review would flag it as an unrequested change.

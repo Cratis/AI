@@ -36,7 +36,7 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 - A `readmodel` with exactly one keyed query `query XById => RM optional` and one `by xId
   XId` whose name equals a read-model property (plus optional `authorize`).
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
-  `children`, `nested`, `remove with`, `remove via join`, `clear with`, counters, `add`,
+  `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
   `subtract`, `set`, `clear`, variants, and `xId = $eventSourceId`.
 - Specifications: `given caller`, `given <Event> for`, `when <Command>`, `when append
   <Event> for`, `then <Event> for`, `then error "msg"`, `then denied`, `then query ...
@@ -115,6 +115,9 @@ bodies still leave their owner non-executable.
 | Template `` `${x}` `` or `$causedBy` in a projection | PLAY0268 | |
 | More than one `every`/`all` on one projection level | PLAY0268 | Chronicle keeps only the last |
 | `$eventContext.<path>` other than `eventSourceId` | blocked plan | binds, but execution refuses: "An event-context value other than the event source identity needs occurrence context that ESM v1 facts do not carry". `$context.occurred` in command `produces` is different and executes when the scenario has `given clock` |
+| Projection-level `remove via join` | blocked plan | binds, but `UnsupportedProjectionBlock` blocks the whole reference execution plan: no specification in the application runs |
+| `all` beside removals, children or nested on one level | blocked plan | binds; `UnsupportedProjectionBlock` |
+| `join`, `children` or `remove via join` inside `nested` | blocked plan | binds; `UnsupportedProjectionBlock` |
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
 | `generated` or `returns` (v8), operations or systems (v9), eventsource or stream (v10), `numbers exact` (v7) | PLAY0268 | syntax only; one such construct leaves the **whole** application without an executable model |
@@ -128,7 +131,7 @@ bodies still leave their owner non-executable.
 
 - Plain `produces` without `for` binds (PLAY0478, information) but means allocation in the
   ESM and "the identifier" in rendered Arc code. Always write `for`.
-- Root `remove via join` binds; Chronicle wires it as a child pull.
+- A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`), so no specification in the application runs; Chronicle wires it as a child pull. See the blocked-plan rows above.
 - A projection mapping to a property the read model does not declare, and an undeclared
   event in `remove with` or a capture `append`: neither V1 nor V3 reports them. Check by
   hand.
