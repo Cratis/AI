@@ -83,4 +83,26 @@ public class AIProviderOptions
     /// Gets or sets how long a vendor's usage surface may take before the read is abandoned.
     /// </summary>
     public TimeSpan UsageReportTimeout { get; set; } = TimeSpan.FromSeconds(8);
+
+    /// <summary>
+    /// Gets or sets how much of a provider's tightest usage window must be left for work to be
+    /// started on it, from 0 to 1 - see <see cref="Capacity.AIProviderCapacity.CanStartWork"/>.
+    /// </summary>
+    /// <remarks>
+    /// Slightly above zero on purpose: a window at 99% used admits a few more calls at best, and a
+    /// worker session started on it is likely to be turned away part-way through, which costs more
+    /// than starting it on another pool member.
+    /// </remarks>
+    public double MinimumHeadroomToStartWork { get; set; } = 0.02;
+
+    /// <summary>
+    /// Gets or sets how long a vendor's reported capacity stays good enough to answer from without
+    /// asking the vendor again. Also the first back-off after a failed read, doubling up to an hour.
+    /// </summary>
+    public TimeSpan CapacityFreshness { get; set; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Gets or sets how long a vendor's capacity surface may take before the read is abandoned.
+    /// </summary>
+    public TimeSpan CapacityReportTimeout { get; set; } = TimeSpan.FromSeconds(10);
 }
