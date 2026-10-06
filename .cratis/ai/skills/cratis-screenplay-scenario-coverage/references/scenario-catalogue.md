@@ -126,7 +126,7 @@ name them as unfinished.
   facts. There is no `then no events` syntax. A command spec with no `then` events but with a
   view or query assertion is still executable as a zero-fact check: the runner compares the
   command's facts with the (empty) expected list by exact count, so any fact produced fails it
-  (Screenplay v4.64.0). Write it that way, name it for the zero-fact outcome, and keep the view
+  (Screenplay v4.66.0). Write it that way, name it for the zero-fact outcome, and keep the view
   assertion for the visible state. Record the obligation as unasserted only where the runner is
   not available.
 
@@ -137,7 +137,7 @@ name them as unfinished.
   capture, a reaction) the view or translation must cope with any order.
 - Shape: view family whose givens are in a different order; translation specs where the
   external record arrives before our own fact; `given clock`/`when clock` for deadlines
-  (binds on the current compiler, not the cratis-bundled one: `cratis-screenplay-toolchain` `references/versions.md`; see
+  (binds on Screenplay 4.61 or later, so not on a cratis before 3.28.2 bundle: `cratis-screenplay-toolchain` `references/versions.md`; see
   `cratis-screenplay-automations-and-translations`).
 - n/a: a single event source, with no external or cross-source input.
 

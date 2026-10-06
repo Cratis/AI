@@ -43,7 +43,7 @@ an unproven pass.
 | An accepted model covers the scope | **Model** | Change the `.play`, verify V1-V3, review, then render or gap-fill |
 | Opted in, but this scope has no model yet | **Model** | New behavior starts in discovery, then slice design |
 | A computed rule inside a modeled slice | **Model + code attachment** | `csharp`/`file` block; it binds only as the construct allows (`cratis-screenplay-model-authoring`) |
-| Scope Stage cannot render yet, including every modeled automation and translation (Stage `v4.24.0` renders neither; the whole behavior is gap-fill, not just its outside call) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
+| Scope Stage cannot render yet, including every modeled automation and translation (Stage `v4.24.1` renders neither; the whole behavior is gap-fill, not just its outside call) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
 | Outside call, transport or credentials | **Adapter code** | `Customizations/` or the host, applying `cratis-engineering-effect-boundaries` |
 | Infrastructure, clients, framework-profile repositories, brownfield not opted in | **Code** | Arc, Chronicle, spec and React skills; trivial changes keep the proportional-delegation policy |
 
@@ -213,11 +213,11 @@ the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
 Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here: Screenplay
-`v4.64.0` (`7e16162`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
+`v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
-cratis CLI `v3.27.1` (`cratis screenplay validate --warnings-as-errors`, older bundled compiler);
-Stage `v4.24.0` (admits ESM v1-v3); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.27.1`
+cratis CLI `v3.28.2` (`cratis screenplay validate --warnings-as-errors`, bundled Screenplay 4.66.0);
+Stage `v4.24.1` (admits ESM v1-v3); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.2`
 `Documentation/reference/screenplay-mcp.md`. The worked example compiles with both tools.
 ## Verify
 ```shell

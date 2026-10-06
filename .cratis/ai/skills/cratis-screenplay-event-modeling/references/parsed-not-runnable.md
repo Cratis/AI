@@ -1,6 +1,6 @@
 # Parsed is not runnable: ESM versions and dispositions
 
-Facts read at Screenplay `v4.64.0` (`7e16162`): `Source/DotNET/Screenplay/Semantics/Versions.cs`,
+Facts read at Screenplay `v4.66.0` (`c89198b`): `Source/DotNET/Screenplay/Semantics/Versions.cs`,
 `SemanticModelBinder.cs` (`ReportTopLevelDispositions`), `SemanticModelBinder.CommandProductions.cs`,
 `Documentation/screenplay/{commands,operations,event-sources}.md`. Tool versions and which tool
 reports what: `cratis-screenplay-toolchain` `references/versions.md`.
@@ -22,7 +22,7 @@ reports what: `cratis-screenplay-toolchain` `references/versions.md`.
 
 ## Dispositions to keep apart
 
-| Construct | Authoring | Binding at 4.64.0 |
+| Construct | Authoring | Binding at 4.66.0 |
 | --- | --- | --- |
 | `persona` | accepted | information `PLAY0270` ("authoring metadata and is not part of ESM v1 behavior"). Never blocks; an unknown policy on a persona is an error |
 | `domain`, `authentication` | accepted | report-only information (`PLAY0270`) |
@@ -42,9 +42,9 @@ the construct to make a tool pass; record the gap against its address
 ## The Step 7 clock example
 
 The complete example in [nine-steps.md](nine-steps.md) (Step 7) compiled with
-`screenplay <folder> --warnaserror` 4.64.0 (0 errors, 0 warnings) and opened through
+`screenplay <folder> --warnaserror` 4.66.0 (0 errors, 0 warnings) and opened through
 `screenplay mcp <folder>` with `executableReady: true` and five `PLAY0270` information
 diagnostics. It binds as a scheduled invocation; its `reads` is intent only, so the overdue
-decision is not executed by the model. The `cratis` 3.27.1 bundle (Screenplay 4.60.1, ESM v1
-to v5) compiles it but rejects the Automation slice at binding. Report reaction
+decision is not executed by the model. The `cratis` 3.28.2 bundle (Screenplay 4.66.0) binds it the same way (probed); the 3.27.1 bundle
+(Screenplay 4.60.1, ESM v1 to v5) compiled it but rejected the Automation slice at binding. Report reaction
 specifications as authored, not as run, unless a V4 run says otherwise.

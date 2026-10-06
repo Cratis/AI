@@ -117,7 +117,7 @@ execution/rendering limit.
   being current (a booking screen that must not offer a taken berth), that is not protection:
   the command needs its own constraint, or the rule is `recorded` as target-enforced.
 - **Rebuild**: a view rebuilt from all facts must give the same rows. Mappings from
-  `$eventContext.occurred` or other occurrence data cannot be executed at Screenplay v4.64.0:
+  `$eventContext.occurred` or other occurrence data cannot be executed at Screenplay v4.66.0:
   the plan blocks every event-context path except the event source id
   (`UnsupportedEventContext`). `given clock` does not change that; it supplies `$context.occurred`
   to command productions only. Record such projection cases as capability gaps (keep the

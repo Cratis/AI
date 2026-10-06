@@ -30,7 +30,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original examples and executable boundaries |
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs and canonical `optional`; changed examples compiled |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Binding behaviour of `handler`, code attachments, `persona` and compliance attributes: `Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs` |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Binding behaviour of `handler`, code attachments, `persona` and compliance attributes: `Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs` |
 
 The update follows `commands.md`, `events.md`, `types.md`, `diagnostics.md`,
 `mcp/authoring-tools.md` and decision 0023 at that main commit (after v4.52.0).
@@ -319,7 +319,7 @@ An empty block or an unknown dimension is an error. Omitting `concurrency` does
 not mean unchecked appends: Chronicle's default optimistic concurrency applies
 to the routed scope. This does not make command `reads` protected.
 
-Decision 0023's constructs differ in availability. **Authorable at 4.64.0, never
+Decision 0023's constructs differ in availability. **Authorable at 4.66.0, never
 executable yet** (binding reports `PLAY0268`, so they stop a model at V1): generated
 values and `returns` responses, operations, and named event sources and streams with
 command routes (`eventsource`, `stream`, `streamId`). Their ESM versions are allocated,
@@ -466,10 +466,10 @@ Four contexts, and **what each omits is load-bearing** — read
 
 ## Verify
 
-- [ ] Standalone `screenplay <model> --warnaserror` (4.64.0) reports zero errors and zero
-      warnings; with only the bundled compiler, `cratis screenplay validate
-      --warnings-as-errors` on the model folder (3.27.1 bundles Screenplay 4.60.1, ESM v5 or
-      lower). Name which tool produced the result.
+- [ ] Standalone `screenplay <model> --warnaserror` (4.66.0) reports zero errors and zero
+      warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
+      (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
+      or lower). Name which tool produced the result.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
 - [ ] Format rules live on the `concept`; state-dependent rules are specifications.

@@ -1,7 +1,7 @@
 # Event sources, streams and command routes
 
 What a model that uses `eventsource`, `stream`, `streamId` or a command route can and
-cannot do today. Facts read at Screenplay v4.64.0 (`SemanticModelBinder.CommandProductions.cs`),
+cannot do today. Facts read at Screenplay v4.66.0 (`SemanticModelBinder.CommandProductions.cs`),
 Stage v4.24.0 (`SemanticCratisAdmission.cs`) and Chronicle v19.30.0 / Arc v22.49.0.
 
 | Activity | Today |
@@ -13,7 +13,7 @@ Stage v4.24.0 (`SemanticCratisAdmission.cs`) and Chronicle v19.30.0 / Arc v22.49
 | Deliver as code | gap-fill by hand with the model as the contract (`cratis-screenplay-render-and-gap-fill`, case C) |
 
 Why binding refuses: the constructs need an ESM version that is **allocated** but **not
-implemented**. The highest **implemented** ESM version is v6. At 4.64.0 the `PLAY0268`
+implemented**. The highest **implemented** ESM version is v6. At 4.66.0 the `PLAY0268`
 message names the allocated version; do not copy a number into a model, a skill or a
 decision, because the numbering is under decision (Cratis/Screenplay PR #401). Tracked in
 Cratis/Screenplay#407 (increment 2 of #302).

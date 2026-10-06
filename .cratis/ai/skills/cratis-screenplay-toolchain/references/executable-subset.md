@@ -1,8 +1,8 @@
 # Executable subset (what binds: V2 and V3)
 
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler: the standalone tool (4.64.0) admits ESM v1 to v6; the cratis-bundled compiler
-(4.60.1) admits v1 to v5. Tool facts and the exact v6 messages: `versions.md`. Always name
+compiler version: Screenplay 4.66.0, standalone or bundled in cratis 3.28.2, admits ESM v1 to
+v6; the 4.60.1 compiler bundled in cratis before 3.28.2 admits v1 to v5. Tool facts and the exact v6 messages: `versions.md`. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass.
@@ -12,7 +12,7 @@ render. `screenplay <folder>` and `cratis screenplay validate` never bind (`verd
 
 Complete examples that bind live in `executable-example.md` (both compilers),
 `pdl-example.md` (projections, both compilers) and `automation-translate-example.md`
-(ESM v6, standalone tool only).
+(ESM v6; standalone tool and cratis 3.28.2 or later).
 
 ## Admitted on both compilers
 
@@ -47,7 +47,7 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 - `seed`. Personas, screens and descriptions are PLAY0270/PLAY0269 information, not
   blocking.
 
-## Admitted on the standalone tool only (ESM v6)
+## Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 
 - `slice Automation` with `reaction`: `when <Event>` (with values) then `produces` (no
   `for` means the trigger's event source) or `invokes <Command>`; `where`; clock `at ... on
@@ -83,9 +83,13 @@ bodies still leave their owner non-executable.
 
 - A command `handler` **never binds**: PLAY0268 "Command '<n>' handler requires a
   constrained implementation attachment." This holds with a `file`, with a fence, and with
-  `implementation` or `hint` (including a pending intent with no payload). `implementation`
-  and `hint` are valid only on command handlers and are authoring intent: no execution, lock
-  or confirmation.
+  `implementation` or `hint` (including a pending intent with no payload). On a handler,
+  `implementation` and `hint` are authoring intent: no execution, lock or confirmation.
+- From 4.65.0 a command property named rule also accepts an `implementation` block (ordered
+  `hint` lines, at most one `file` or tagged fence). With a source attached it binds like a
+  direct source; hints-only or empty is pending intent: valid source, PLAY0268 at binding.
+  The block is rejected on concept rules, built-in property rules and whole-command
+  `require`/`validate` bodies (`v4.66.0:Documentation/screenplay/commands.md`, `context.md`).
 - A handler therefore makes the slice non-executable and non-renderable: it is gap-fill
   with the model as the contract.
 - Stage 4.24 admits only pure reducer bodies (Roslyn allowlist, STAGE-ESM-019 and 022);
@@ -100,9 +104,9 @@ bodies still leave their owner non-executable.
 
 | Construct | Code | Note |
 | --- | --- | --- |
-| `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis-bundled compiler only**; messages in `versions.md` |
+| `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
-| `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.64.0. `@sensitive` has no verified portable meaning (Screenplay#384, open) |
+| `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.66.0. `@sensitive` has no verified portable meaning (Screenplay#384, open) |
 | `query` returning a collection (`RM[]`), or without exactly one caller-supplied `by` | PLAY0268 | "must declare one caller-supplied 'by' argument" or "must return one optional read model" |
 | `observable`, `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` goes in the return position (`=> observable RM optional`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
@@ -136,7 +140,7 @@ bodies still leave their owner non-executable.
 - A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`), so no specification in the application runs; Chronicle wires it as a child pull. See the blocked-plan rows above.
 - A projection mapping to a property the read model does not declare, and an undeclared
   event in `remove with` or a capture `append`: V1 does not report them; binding (V3) does,
-  with PLAY0273 (Screenplay v4.64.0 `BindMapping`, `LevelEvent`, `BindCaptureAppends`). A
+  with PLAY0273 (Screenplay v4.66.0 `BindMapping`, `LevelEvent`, `BindCaptureAppends`). A
   declared read-model property that nothing maps is different: no tool reports it, so check
   field lineage by hand.
 

@@ -37,7 +37,7 @@ not why: a signal, so confirm the hidden reason before reporting. The fix names 
 change (`BerthReassigned`, `BerthLengthLimitRaised`), one event per reason, each with its own
 rules and consumers. A shared payload shape alone is not a defect: full generations repeat the
 prior shape on purpose and different facts may look alike. Cratis/Screenplay#393 proposes an
-advisory report for exactly these signals; at v4.64.0 no such report exists among the 29 MCP
+advisory report for exactly these signals; at v4.66.0 no such report exists among the 29 MCP
 tools, so the sweep is done by hand.
 
 ## Phase 2. Entity walk (5 checks, T1-T5; feeds F1-F3 and scenario coverage)

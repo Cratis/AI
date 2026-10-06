@@ -3,20 +3,34 @@
 The decision rule is in `SKILL.md` ("Decide the level first"). This file holds the evidence.
 
 ## Why an empty directory or an MCP entry is not opt-in
-Through cratis CLI `v3.27.1` the `cratis/screenplay` profile (and composed profiles such as Stage)
-made `cratis ai install`/`update` create the selected model directory, normally `.cratis/screenplay`
-(`Documentation/ai/index.md`: "Install/update creates the selected
-empty model directory ... but does not start the server or create source files"), and register
-a Screenplay MCP entry for it. Uninstall keeps the directory. Both therefore appear in every
-repository that merely installed the language skills, so neither can signal consent.
+Up to cratis CLI `v3.27.1`, `cratis ai install`/`update` created an empty `.cratis/screenplay`
+model directory for the `cratis/screenplay` profile (and composed profiles such as Stage) and
+registered a Screenplay MCP entry for it. From `v3.28.x` (read at `v3.28.2`) install no longer
+creates a model directory by default: `AiMcpDescriptor.Root(configuration)` returns only an
+explicitly configured `mcpServers.screenplay.root` (null otherwise; there is no `DefaultRoot`), and
+`AiMcpPlan` creates a directory only for a configured root. The MCP entry is still registered,
+and uninstall keeps any model directory. With no configured root, `cratis screenplay mcp` locates the model
+itself (`Source/Cli/Commands/Screenplay/ScreenplayModelLocation.cs`): a legacy `.cratis/screenplay`
+that already holds `.play` files, else the common ancestor of existing `.play` files, else a `Source`
+or `src` folder, else a new `Screenplay/` folder at the project root. Nothing is chosen under
+`.cratis` for new work. The MCP entry and any directory a tool created therefore appear in every
+repository that merely installed the language skills, so neither can signal consent. The old
+documentation text (`Documentation/ai/index.md` at `v3.28.2`: "Install/update creates the selected
+empty model directory (normally `.cratis/screenplay`)") is stale against that source.
 
 ## The explicit signal
-`mcpServers.screenplay.root` in `.cratis/ai.json` is the project-owned property that overrides the
-model directory (`Documentation/reference/screenplay-mcp.md` at `v3.27.1`: "The optional
+`mcpServers.screenplay.root` in `.cratis/ai.json` is the project-owned property that sets the
+model directory (`Documentation/reference/screenplay-mcp.md` at `v3.28.2`: "The optional
 project-owned `mcpServers` property in `.cratis/ai.json` overrides the model directory or
-disables registration"; `AiConfiguration.McpServers`, read by `AiMcpDescriptor` as
-`configuration.McpServers?.GetValueOrDefault(Id)?.Root ?? DefaultRoot`). Verify with
-`git -C <cli checkout> show v3.27.1:Documentation/reference/screenplay-mcp.md`.
+disables registration"; `AiConfiguration.McpServers`, read by `AiMcpDescriptor.Root`). Verify with
+`git -C <cli checkout> show v3.28.2:Source/Cli/Commands/Ai/AiMcpDescriptor.cs`.
+
+## Model root and the committed-`.play` test
+The corpus rule keeps `.cratis/screenplay/` as the default root for the committed-`.play` test.
+Because a 3.28.x MCP server may place a new model under `Source/`, `src/` or `Screenplay/`, a
+repository whose accepted model lives elsewhere is not opted in by rule (a) alone: it must set
+`mcpServers.screenplay.root` to that directory, which is rule (b). When such a model exists
+without the setting, report the mismatch instead of treating the repository as opted in.
 
 ## Edge cases
 - `.play` files only under `.ai-work/`, a docs folder or a sample: not under the root, so not opt-in.

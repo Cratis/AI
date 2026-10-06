@@ -184,8 +184,8 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 `produces` blocks, not an `Automation` slice.
 
 **Output:** the `reaction`, in an `Automation` slice. It binds on the standalone
-`screenplay` 4.64.0 (ESM v6); the `cratis` 3.27.1 bundle rejects the slice at binding and
-Stage 4.24.0 renders none, so the automation is gap-fill there (versions:
+`screenplay` 4.66.0 and the `cratis` 3.28.2 bundle (ESM v6; the 3.27.1 bundle rejected the slice
+at binding) and Stage 4.24.1 renders none, so the automation is gap-fill there (versions:
 `cratis-screenplay-toolchain`). When the automation decides from a view, declare it under
 the trigger with `reads` (see `cratis-screenplay-captures-and-reactions`).
 
@@ -197,7 +197,7 @@ event source, so the invoked command binds its own identifier (`weekly`).
 
 **What the model does and does not do.** The view stores the deadline (`dueDate`), never an
 "overdue" flag: overdue is a comparison with the clock, not a fact to materialize. The
-reaction's `reads UnpaidInvoice` is report-only metadata at 4.64.0 (information `PLAY0270`);
+reaction's `reads UnpaidInvoice` is report-only metadata at 4.66.0 (information `PLAY0270`);
 it does not make the model consult the view. Binding therefore admits only a scheduled
 invocation that records a timestamp. Choosing which invoices are overdue (due date before the
 clock instant) is a target-side decision: record it as gap-fill with the model as the
@@ -205,7 +205,6 @@ contract (`cratis-screenplay-render-and-gap-fill`), and say so in the slice desc
 the example does. Do not claim the specification proves the overdue decision.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 domain Acme.Invoicing
 
 concept InvoiceId : Uuid

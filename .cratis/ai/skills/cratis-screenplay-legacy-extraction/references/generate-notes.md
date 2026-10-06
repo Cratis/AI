@@ -2,7 +2,7 @@
 
 Flags verified with `cratis screenplay generate --help` on the version recorded in
 cratis-screenplay-toolchain `references/versions.md`; behaviour from the cratis CLI
-(`v3.27.1:Source/Cli/Commands/Screenplay/`), Arc `v22.50.5`
+(`v3.28.2:Source/Cli/Commands/Screenplay/`; the generate files are unchanged since `v3.27.1`), Arc `v22.50.5`
 (`Documentation/backend/csharp/generating-a-screenplay.md`,
 `Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`), Screenplay.Generation `v0.18.0` and
 Screenplay.CritterStack `v0.24.0`. Version-specific capability facts belong in cratis-screenplay-toolchain

@@ -30,17 +30,17 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original parser, binder and reference execution evidence |
 | `Cratis.Screenplay` | main `fd18129` | Inline facts, `optional` and clock spelling; changed examples compiled |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | ESM v6 specification actions and reaction cascades, `then no readmodel`, `$strings` rejections, `invokes` caller rule; probed with the standalone tool and its MCP server |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | ESM v6 specification actions and reaction cascades, `then no readmodel`, `$strings` rejections, `invokes` caller rule; probed with the standalone tool and its MCP server |
 
 The update follows `commands.md`, `events.md`, `types.md` and
 `specifications.md` at that main commit (after v4.52.0). This pass compiles the
 changed examples; it does not rerun the reference runner.
 
-**Which tool says what.** The standalone `screenplay` tool 4.64.0 admits ESM v1-v6.
-The `cratis` CLI 3.27.1 bundles Screenplay 4.60.1, which admits ESM v1-v5 only and
-reports a false `PLAY0285` on reaction cascades (see "Version skew"). Facts below
-marked **ESM v6** hold for the standalone tool from 4.61.0 and for `cratis` only
-after it bundles a newer compiler. The full table is in `cratis-screenplay-toolchain`
+**Which tool says what.** The standalone `screenplay` tool 4.66.0 admits ESM v1-v6.
+The `cratis` CLI 3.28.2 bundles the same Screenplay 4.66.0. Before `cratis` 3.28.2 the
+bundle was Screenplay 4.60.1, which admitted ESM v1-v5 only and reported a false
+`PLAY0285` on reaction cascades (see "Version skew"). Facts below marked **ESM v6**
+hold for Screenplay 4.61.0 and later: the standalone tool and `cratis` 3.28.2 or later. The full table is in `cratis-screenplay-toolchain`
 (`references/versions.md`). Neither tool runs specifications: `screenplay` and
 `cratis screenplay validate` parse and check consistency, the MCP server also binds,
 and spec outcomes come only from the reference runner as a library, Stage's
@@ -77,7 +77,7 @@ decision 0022. They do not exist before v4.48.0.
 | `then <EventType>` | an expected new event |
 | `then events in any order` | compare the new events without regard to order |
 | `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
-| `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent (v4.64.0); the key is concrete and typed |
+| `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent (v4.66.0); the key is concrete and typed |
 | `then query <Query> [exactly]` | query results for explicit `arguments`; one `result` per row; none means empty |
 | `then error "<message>"` | a validation or constraint rejection, for that reason; a localized rule is pinned by its quoted key, `then error "$strings.<key>"` |
 | `then error` | a validation or constraint rejection, reason unnamed |
@@ -257,21 +257,21 @@ assert a value mapped from `$context.occurred`. In a command's `produces`, that
 mapping executes when the scenario has `given clock`. It is not the same as
 `$eventContext.occurred` in a projection, which the execution plan refuses (below).
 
-**Which tools bind these actions** (probed: the standalone `screenplay mcp` 4.64.0
-reports the complete example below `executableReady` with no executable error, in
+**Which tools bind these actions** (probed: `screenplay mcp` 4.66.0 and `cratis screenplay mcp` 3.28.2
+report the complete example below `executableReady` with no executable error, in
 `open-workspace` readiness and `read-workspace` view `executable-diagnostics`;
-`cratis` 3.27.1 bundles 4.60.1 and does not):
+`cratis` before 3.28.2 bundled 4.60.1 and did not):
 
-- **Standalone tool, Screenplay 4.64.0 (ESM v6, from 4.61.0):** the clock, trigger
+- **Screenplay 4.66.0 (ESM v6, from 4.61.0), standalone and `cratis` 3.28.2:** the clock, trigger
   and capture actions, and the `Automation` and `Translate` slices, reactions and
   captures they drive, bind. The reference runner executes them as library code, with
   the semantics in "Reactions and cascades" below.
-- **`cratis` 3.27.1 (Screenplay 4.60.1, ESM v1-v5):**
-  **`when query` executes today. The clock, trigger and capture actions do not.** They parse, print and are
-  checked against the application, but binding reports `PLAY0268` naming the
-  proposed ESM v6 (decision 0022), and an `Automation` or `Translate` slice reports
-  *is not admitted by ESM v1*. Only binding shows this: `cratis screenplay validate`
-  does not bind, so it stays green.
+- **`cratis` before 3.28.2 (Screenplay 4.60.1, ESM v1-v5):**
+  **`when query` executed. The clock, trigger and capture actions did not.** They parsed, printed and were
+  checked against the application, but binding reported `PLAY0268` naming the
+  proposed ESM v6 (decision 0022), and an `Automation` or `Translate` slice reported
+  *is not admitted by ESM v1*. Only binding showed this: `cratis screenplay validate`
+  does not bind, so it stayed green.
 
 Write the actions either way - they state what sets the slice off. Report each as
 bound and not executed, or as parsed only, naming the tool that said so.
@@ -284,7 +284,6 @@ and what those append or invoke runs more, until nothing is left. `then` events
 compare every new fact, the action's and the reactions'.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 concept InvoiceId : Uuid
 module Collections
   feature Invoices
@@ -333,21 +332,22 @@ module Collections
 - A reached reaction with a code body (`file` or inline) returns unsupported, as
   does a reaction that never settles. The reference stops at 1,000 new facts per
   scenario and 10,000 due occurrences per clock advance.
-- A model that uses these forms selects ESM v6 (`schemaVersion: 6`). Stage 4.24.0
+- A model that uses these forms selects ESM v6 (`schemaVersion: 6`). Stage 4.24.1
   admits ESM v1-v3 and renders no `Automation` or `Translate` slice, so the whole
   automation is gap-fill against this contract: `cratis-screenplay-render-and-gap-fill`.
 
-### Version skew: cascades and the false `PLAY0285`
+### Version skew: cascades and the false `PLAY0285` (cratis before 3.28.2)
 
 `PLAY0285` (a specification's expected event contradicts every producer of its
 `when` command) runs in the syntax pass, with no binding. Reachability through
 reactions and `invokes` was added after Screenplay 4.60.1. So the example above
-passes `screenplay` 4.64.0 (and is executable-ready over its MCP server) and fails `cratis screenplay
-validate` 3.27.1 with `PLAY0285` "Specification outcome 'ReminderScheduled' cannot be
-produced by 'SendInvoice'", exit 5 (Cratis/cli#242, open). It is a tool skew, not a
+passes `screenplay` 4.66.0 (and is executable-ready over its MCP server) and also passes
+`cratis screenplay validate` 3.28.2 (probed); it failed `cratis screenplay validate` 3.27.1 with
+`PLAY0285` "Specification outcome 'ReminderScheduled' cannot be produced by 'SendInvoice'",
+exit 5 (Cratis/cli#242). If an older bundle still reports it, it is a tool skew, not a
 modeling error: do not delete the `then` line or move the event to make `cratis`
-green. Validate with the standalone tool, record which tool gave which verdict, and
-see `cratis-screenplay-toolchain`.
+green. Validate with the standalone tool or a current `cratis`, record which tool gave which
+verdict, and see `cratis-screenplay-toolchain`.
 
 ## Rejections and denials say different things
 
@@ -474,8 +474,9 @@ target has one normalized behavior to match.
   the ones that never touch the refused construct.
 - Reactions: before ESM v6 they never run, not even after `when append`. From ESM
   v6 (standalone tool from 4.61.0) they run after every action, as in "Reactions and
-  cascades". Under `cratis` 3.27.1 (Screenplay 4.60.1) `when clock`, `when trigger`
-  and `when capture` fail binding with `PLAY0268`, and so do reactions and captures.
+  cascades". Under `cratis` before 3.28.2 (Screenplay 4.60.1) `when clock`, `when trigger`
+  and `when capture` failed binding with `PLAY0268`, and so did reactions and captures; they
+  bind on 4.66.0 and `cratis` 3.28.2.
 - A rejected individual command or append leaves the world unchanged; an accepted
   one commits once, then the read models and queries are compared. There is no
   scenario-wide transaction in v6: when a later effect of a cascade or capture
@@ -517,8 +518,8 @@ For view specifications:
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.64.0; under `cratis` 3.27.1 expect the false `PLAY0285` on
-      reaction cascades and record that it is skew).
+      (standalone 4.66.0 or `cratis` 3.28.2; under `cratis` before 3.28.2 expect the false
+      `PLAY0285` on reaction cascades and record that it is skew).
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.
 - [ ] Every slice has at least one boundary specification.

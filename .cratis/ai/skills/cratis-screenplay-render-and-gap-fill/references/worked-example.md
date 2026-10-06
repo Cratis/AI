@@ -7,7 +7,7 @@ refuses it, so nothing is published. The example shows how to classify, decide a
 
 ```screenplay
 // cratis-screenplay-render-and-gap-fill: complete model for the refused-render example.
-// Compiles with warnings as errors; `cratis render` 3.27.1 refuses the list query.
+// Compiles with warnings as errors; `cratis render` 3.28.2 refuses the list query.
 domain Harbour.Marina
 
 concept BerthId : Uuid
@@ -57,7 +57,7 @@ module Berths
 
 ## The probe
 
-Source identity recorded first (`<commit>+<digest>`), tools named: `screenplay 4.64.0`, `cratis 3.27.1`.
+Source identity recorded first (`<commit>+<digest>`), tools named: `screenplay 4.66.0`, `cratis 3.28.2`.
 V1 passed on both. Then:
 
 ```text
@@ -104,10 +104,10 @@ what the reference execution route supports).
 ## The report
 
 ```text
-Mode: renderable (user chose)   Source: <commit>+<digest>   tools: screenplay 4.64.0, cratis 3.27.1
-V1 authorable:  pass (1 file, screenplay 4.64.0; cratis validate also pass)
+Mode: renderable (user chose)   Source: <commit>+<digest>   tools: screenplay 4.66.0, cratis 3.28.2
+V1 authorable:  pass (1 file, screenplay 4.66.0; cratis validate also pass)
 V2 diagnostics: not run: no MCP in this session (the bundled binder's PLAY0268 came from the render probe)
-V3 binding:     blocked: PLAY0268 x2 (cratis 3.27.1 bundled binder)
+V3 binding:     blocked: PLAY0268 x2 (cratis 3.28.2 bundled binder)
 V4 specs:       not run: no reference execution route in this toolchain (1 specification written, none run)
 V5 admission:   refused, 2 blocking diagnostics (list query), nothing published
 V5 publication: not run: admission refused

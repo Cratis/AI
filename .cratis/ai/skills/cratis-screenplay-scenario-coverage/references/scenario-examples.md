@@ -138,7 +138,7 @@ A reversal needs a paid history, the reversal action and the exact consequence. 
 lists the declared consequence (`RefundRequested`); the reaction is also specified on its own.
 `RefundRequested` is a recorded request, not proof that money moved, and there is no
 `then <Command>` form. What the target must do to deliver the refund is a requirement, not a spec.
-From `invoicing-dues-design.md` (design mode; the specs do not run at 4.64.0):
+From `invoicing-dues-design.md` (design mode; the specs do not run at 4.66.0):
 ```screenplay excerpt
 specification ReversingAReceivedPayment
   given caller

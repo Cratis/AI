@@ -26,7 +26,7 @@ then STAGE (V5 admission). Tool differences: `versions.md`.
 ## Not caught at V1 (fail binding: V2/V3, PLAY0273)
 - Projection mapping to a property the read model does not declare.
 - Undeclared event in `remove with` or in a capture `append`.
-(Screenplay v4.64.0 `SemanticModelBinder` `BindMapping`, `LevelEvent`, `BindCaptureAppends`.)
+(Screenplay v4.66.0 `SemanticModelBinder` `BindMapping`, `LevelEvent`, `BindCaptureAppends`.)
 
 ## Silent at every level
 - A declared read-model property that nothing maps (it stays empty): walk field lineage by hand.
@@ -37,7 +37,7 @@ then STAGE (V5 admission). Tool differences: `versions.md`.
 | PLAY0282 | `validate` rule targets a field absent from the command |
 | PLAY0283 | `reads View by field` type matches no `by` param of the view's queries |
 | PLAY0284 | `children`/`nested` never populates a declared element field |
-| PLAY0285 | a spec's `then` event contradicts every possible declared producer of its `when` command (decidable literals, property copies, equality conditions). Fix the model or the spec deliberately. **False positive** on reaction cascades with the cratis-bundled compiler 4.60.1 (cli#242, open; reachability through reactions and `invokes` was added later): confirm with the standalone tool, record a tool gap, do not "fix" a correct model |
+| PLAY0285 | a spec's `then` event contradicts every possible declared producer of its `when` command (decidable literals, property copies, equality conditions). Fix the model or the spec deliberately. **False positive** on reaction cascades with the compiler bundled in cratis before 3.28.2 (4.60.1; cli#242; reachability through reactions and `invokes` was added later); gone in 4.66.0 and cratis 3.28.2 (probed). On an older bundle confirm with the standalone tool, record a tool gap, do not "fix" a correct model |
 | PLAY0286 | spec value is not a member of the enum |
 | PLAY0287 | producer/capture/spec assigns a field the event lacks |
 | PLAY0291-0294 | bad single-line JSON / unknown key / wrong shape / duplicate key |
@@ -45,7 +45,7 @@ then STAGE (V5 admission). Tool differences: `versions.md`.
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
 | Code | Meaning | Fix |
 |---|---|---|
-| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists the common ones: handler, list or observable query, `@pii`, `produces when` over read models, v6 constructs on cratis 3.27.1) | stay in design mode, or change the construct if the domain allows; never strip `@pii`/authorization |
+| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists the common ones: handler, list or observable query, `@pii`, `produces when` over read models, v6 constructs on cratis before 3.28.2) | stay in design mode, or change the construct if the domain allows; never strip `@pii`/authorization |
 | PLAY0269 / 0270 | UI deferred / authoring metadata (I) | none |
 | PLAY0271 | legacy `reads` or a `concurrency` block keeps its legacy meaning and cannot bind (error) | design gap; a constraint for uniqueness; protected decisions are a target requirement |
 | PLAY0273 | incoherent: ambiguous `for`, property not on event revision, operand type mismatch, derived `$eventContext` path | fix the reference |
@@ -93,6 +93,7 @@ Full table with causes: `renderable-subset.md`. Codes you meet most:
 | Code | Meaning |
 |---|---|
 | STAGE-ESM-016 | model above ESM schema v3 (or v4 generations, v5 absence, v6 constructs): whole model refused |
+| STAGE-ESM-024 | ledger-only (Stage 4.24.1): the ESM v6 members are dispositioned Rejected; a v6 model is still refused whole by STAGE-ESM-016, so this is not the code a user sees |
 | CLI-RENDER-003 | the CLI pre-check for ESM v4 generations |
 | STAGE-ESM-001 | slice kind is not `StateChange`/`StateView` (Automation, Translate: Stage#79) |
 | STAGE-ESM-004 / 006 / 013 | more than one command per `StateChange`; conditional or value-expression production; other context value |

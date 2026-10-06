@@ -112,7 +112,7 @@ Every event has a consumer (BerthList). Terminal reason: none needed.
 Mode: design   Stance: critic   Review kind: independent
 Source identity: 4f1c2ab+3e9a1c0b7d42 (source-identity helper)
 Scope: feature Moorings/Berths
-V1 authorable: pass (screenplay 4.64.0, 1 file)
+V1 authorable: pass (screenplay 4.66.0, 1 file)
 V2 executable diagnostics: not run: design mode
 V3 binding-ready: not run: design mode
 V4 reference specs run: not run: no route

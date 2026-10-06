@@ -106,7 +106,7 @@ source is the single flow model.
 | `Cratis.Screenplay` | `4.31.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
 | `Cratis.Screenplay.Tool` | `4.31.0` | The `screenplay` dotnet tool |
 | `Cratis.Screenplay` | main `fd18129` | Inline contracts and event context; changed nine-step examples compiled |
-| `Cratis.Screenplay.Tool` | `4.64.0` (`7e16162`) | Current pin: the Step 7 clock example compiles and binds; persona, generated, operation and stream dispositions below were read at this tag |
+| `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Current pin: the Step 7 clock example compiles and binds; persona, generated, operation and stream dispositions below were read at this tag |
 
 The pin set for the whole Screenplay family, and which tool reports what, lives only in
 `cratis-screenplay-toolchain` `references/versions.md`. The `fd18129` update follows
@@ -114,7 +114,7 @@ The pin set for the whole Screenplay family, and which tool reports what, lives 
 compilation does not establish reference execution. The original baseline was checked at
 tag `v4.31.0` (commit `355dffb`): `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
 `projections/keys.md`, and decisions 0001 to 0014. Changed [nine-step examples](references/nine-steps.md)
-use the newer commit and the 4.64.0 tool; do not attribute them to the old tag.
+use the newer commit and the 4.66.0 tool; do not attribute them to the old tag.
 
 > **Method lineage.** The two-phase process, the nine steps, the four patterns and
 > the GWT discipline follow **Event Modeling** (Adam Dymitruk; Martin Dilger,
@@ -342,7 +342,7 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
 - [ ] If the model must reach a runtime, check it binds with the tool that will
-      consume it. The standalone 4.64.0 binder admits Automation and Translate slices
+      consume it. The standalone 4.66.0 binder admits Automation and Translate slices
       (ESM v6); Stage 4.24.0 admits ESM v1 to v3 and renders only `StateChange` and
       `StateView` slices, so automations and translations are gap-fill there.
 
@@ -360,9 +360,9 @@ The independent verdicts V1 to V5 that report them are in
 What binds depends on **which tool** you ask, so name the tool and its version:
 
 - `Automation` and `Translate` slices, reactions, captures and triggers: the
-  standalone `screenplay` 4.64.0 binds them (ESM v6). The `cratis` 3.27.1 bundle
-  (Screenplay 4.60.1) reports *Slice '<name>' of type '<type>'
-  is not admitted by ESM v1.* Stage 4.24.0 admits only ESM v1 to v3 and renders none of them.
+  standalone `screenplay` 4.66.0 and the `cratis` 3.28.2 bundle (same compiler) bind them (ESM v6).
+  The `cratis` 3.27.1 bundle (Screenplay 4.60.1) reported *Slice '<name>' of type '<type>'
+  is not admitted by ESM v1.* Stage 4.24.1 admits only ESM v1 to v3 and renders none of them.
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).

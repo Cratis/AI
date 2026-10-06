@@ -1,9 +1,10 @@
 # Complete examples for the excerpts in SKILL.md
 
-Each document below is complete and compiles with the standalone `screenplay` 4.64.0
+Each document below is complete and compiles with the standalone `screenplay` 4.66.0
 (`--warnaserror`). The SKILL.md excerpts show the reaction, capture or trigger part of
-these documents. Documents marked ESM v6 need the standalone compiler; `cratis` 3.27.1
-(Screenplay 4.60.1) reports `PLAY0268` when it binds them.
+these documents. Documents marked ESM v6 need Screenplay 4.61 or later: the standalone tool and `cratis` 3.28.2
+(bundled 4.66.0) validate and bind them (probed); `cratis` 3.27.1 (Screenplay 4.60.1) reported
+`PLAY0268` when it bound them.
 
 ## Capture with `source`, `map`, `append` and `children`
 
@@ -61,7 +62,6 @@ Parent of the `NotifyOnBuildFailure` excerpt. A trigger value needs a type to be
 executable (`PLAY0268` otherwise).
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 concept Repository : String
 trigger BuildFinished
   description "CI reported a finished build on a watched repository"
@@ -93,7 +93,6 @@ Parent of the `Provisioner` excerpt. The invoked command runs with no caller in 
 reference execution.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 concept WorkspaceId : Uuid
 module Onboarding
   feature Workspaces
@@ -129,13 +128,12 @@ module Onboarding
 ## Trigger `reads` on an event and on the clock
 
 Parent of the `ChaseOverdueInvoices` excerpt. This document is authoring-valid but does
-**not** bind at ESM v6: the standalone tool's MCP server reports `PLAY0268` "reads
+**not** bind at ESM v6: the MCP server of Screenplay 4.66.0 (standalone and `cratis screenplay mcp` 3.28.2, probed) reports `PLAY0268` "reads
 'InvoiceBalance' before producing directly, but ESM v6 cannot protect that decision
 dependency (decision 0006)" because a `file` body is an opaque effect. Drop the `file`
 lines and keep only `invokes` for an executable reaction.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 concept InvoiceId : Uuid
 module Collections
   feature Overdue

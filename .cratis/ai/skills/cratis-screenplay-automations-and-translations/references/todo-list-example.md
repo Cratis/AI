@@ -1,14 +1,15 @@
 # Example: a todo-list automation
 
 A complete model: a result opens a work item, a reaction invokes a command, the command's fact
-closes the item. It binds on Screenplay 4.64.0 (`executableReady: true`); the cratis 3.27.1
-bundled compiler (Screenplay 4.60.1) rejects the Automation slice at binding with PLAY0268. Versions: `cratis-screenplay-toolchain` `references/versions.md`.
+closes the item. It binds on Screenplay 4.66.0 (`executableReady: true`), standalone and through `cratis screenplay mcp`
+3.28.2; `cratis render` 3.28.2 refuses it whole (`STAGE-ESM-016`). The cratis 3.27.1 bundle (4.60.1)
+rejected the Automation slice at binding with PLAY0268. Versions: `cratis-screenplay-toolchain` `references/versions.md`.
 
 The first spec lists the whole cascade (`then` names every new fact: `CoursePassed`, and
 `CertificateSent` through the reaction), and `given clock` supplies the instant that
-`$context.occurred` needs. The cratis 3.27.1 bundled compiler reports a false PLAY0285 on that
-cascade (cli#242), so the fence carries the standalone-compiler marker. These specs were not
-run (V4: not run, no route); the expectations follow the v4.64.0 reference semantics.
+`$context.occurred` needs. Both 4.66.0 tools accept that cascade; the cratis 3.27.1 bundle reported a false PLAY0285 on it
+(cli#242). These specs were not
+run (V4: not run, no route); the expectations follow the v4.66.0 reference semantics.
 
 What the model proves and what it does not:
 
@@ -21,7 +22,6 @@ What the model proves and what it does not:
 - No local engine runs Automation specifications: report them as authored, not as run.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 // Todo-list automation. Shape: CoursePassed opens an item -> CertificateSender invokes
 // SendCertificate -> CertificateSent closes the item. The once-only FACT is
 // `unique event CertificateSent`; the external send is NOT proven once-only by this model.
@@ -183,7 +183,7 @@ module Certification
 
 ## Design-only additions
 
-Two things a real queue often wants do not bind on 4.64.0 and stay out of the complete model
+Two things a real queue often wants do not bind on 4.66.0 and stay out of the complete model
 above: a list query (the visible queue) and a retry sweep that reads the whole view. Both parse
 (V1) and report PLAY0268 at binding; durable per-item fan-out is outside the language
 (Screenplay#286). Keep them in the model only when the document is the deliverable and say so

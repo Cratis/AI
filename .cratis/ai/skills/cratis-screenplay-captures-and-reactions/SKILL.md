@@ -30,7 +30,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | CDL parser, reaction and trigger parsers, diagnostics, semantic binder |
 | `Cratis.Screenplay` | main `fd18129` | Command-only inline event boundary |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | ESM v6: reactions, clock, trigger and capture specifications bind; `invokes` caller rule; probed with the standalone tool and its MCP server |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | ESM v6: reactions, clock, trigger and capture specifications bind; `invokes` caller rule; probed with the standalone tool and its MCP server |
 
 The update follows `commands.md`, `events.md` and `diagnostics.md` at that main
 commit (after v4.52.0).
@@ -39,24 +39,26 @@ Historical baseline evidence: the original examples were checked against the Scr
 `Documentation/screenplay/{captures,captures/grammar,reactions,triggers,interactions,file-references,grammar,diagnostics}.md`
 and decisions 0003, 0006 and 0009; those original examples compiled with that
 version's compiler. The specification actions and ESM v6 text were checked at
-`v4.64.0` (see its row above), and the complete examples here and in
-`references/complete-examples.md` compile with the standalone 4.64.0 compiler.
+`v4.66.0` (see its row above), and the complete examples here and in
+`references/complete-examples.md` compile with the standalone 4.66.0 compiler.
 Reverify before claiming another version behaves the same.
 
 ⚠️ **Which tool admits them depends on its Screenplay version.** The ESM level
 decides, not the slice type:
 
-- **Standalone `screenplay` 4.64.0 (ESM v1-v6, from 4.61.0):** `Automation` and
+- **Standalone `screenplay` 4.66.0 (ESM v1-v6, from 4.61.0):** `Automation` and
   `Translate` slices, reactions, declared triggers and captures bind, and the
   reference runner executes them. Probed: the complete example below is
   `executableReady` over `screenplay mcp`.
-- **`cratis` 3.27.1 (Screenplay 4.60.1, ESM v1-v5):** an `Automation` or `Translate`
-  slice fails binding with `PLAY0268` (*Slice '<name>' of type '<type>' is not
-  admitted by ESM v1*), reactions report *requires portable occurrence and effect
-  semantics*, and captures *require a portable compiled CDL plan*. Only binding
-  shows this; `cratis screenplay validate` does not bind. It also reports a false
-  `PLAY0285` on a specification that follows a reaction cascade (Cratis/cli#242).
-- **Stage 4.24.0** admits ESM v1-v3 and renders no `Automation` or `Translate`
+- **`cratis` 3.28.2 (bundles Screenplay 4.66.0, ESM v1-v6):** the same as the standalone
+  tool. Probed: the complete examples validate with warnings as errors and are
+  `executableReady` over `cratis screenplay mcp`. `cratis` before 3.28.2 (Screenplay
+  4.60.1, ESM v1-v5) failed an `Automation` or `Translate` slice at binding with `PLAY0268`
+  (*Slice '<name>' of type '<type>' is not admitted by ESM v1*), reported reactions as
+  *requires portable occurrence and effect semantics* and captures as *require a portable
+  compiled CDL plan*, and gave a false `PLAY0285` on a specification that follows a reaction
+  cascade (Cratis/cli#242).
+- **Stage 4.24.1** admits ESM v1-v3 and renders no `Automation` or `Translate`
   slice. The automation is gap-fill, with the `.play` slice and its specifications
   as the contract: `cratis-screenplay-render-and-gap-fill`.
 
@@ -66,7 +68,7 @@ Method (the four-part automation test, loops, translations versus automations):
 `cratis-screenplay-automations-and-translations`.
 
 **Specify what sets them off** (v4.48.0, checked at tag `v4.48.0`, commit
-`3baf4a4`; execution from ESM v6, checked at `v4.64.0`): `when clock "<instant>"`
+`3baf4a4`; execution from ESM v6, checked at `v4.66.0`): `when clock "<instant>"`
 for a reaction on `every` or `at`, `when trigger <Trigger>` with its values for one
 on an application trigger, and `given capture` / `when capture <Capture>` with the
 source record's fields for a capture, then the events that should follow.
@@ -82,9 +84,9 @@ specification IssuingTheWeeklyDigest
     issuedAt = "2026-10-05T07:30:00Z"
 ```
 
-Under `cratis` 3.27.1 these actions parse and are checked against the application
-but bind to nothing (`PLAY0268` names ESM v6, decision 0022): report such a
-specification as parsed, not executed. Clock rules: the clock is UTC and exact; an
+Under `cratis` before 3.28.2 these actions parsed and were checked against the application
+but bound to nothing (`PLAY0268` names ESM v6, decision 0022); on 3.28.2 they bind. Either way
+no command runs them: report such a specification as authored, not executed. Clock rules: the clock is UTC and exact; an
 occurrence fires once when it is **due after `given clock` and at or before
 `when clock`**, in time order; intervals count from the Unix epoch; `when clock`
 needs `given clock`, so equal instants fire nothing. Limits: 10,000 occurrences per
@@ -99,7 +101,6 @@ a capture with its specifications. The excerpts later in this skill have their o
 complete parent documents in `references/complete-examples.md`.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 concept InvoiceId : Uuid
 trigger PaymentFileArrived
   description "The bank's payment file listed a payment for an invoice"
@@ -471,8 +472,8 @@ command's own reads. Command `reads` give none yet either (`PLAY0271`, #129).
 Decision 0006 leaves `where` over read paths out of scope, and `where` needs
 every operand to resolve from the trigger's declared scalar occurrence shape (listed in
 the input selection or not; nested paths and read aliases fail binding): keep the logic that uses the state in
-the invoked command or the implementation. Under `cratis` 3.27.1 none of this
-binds at all (`PLAY0268`).
+the invoked command or the implementation. Under `cratis` before 3.28.2 none of this
+bound at all (`PLAY0268`); `cratis` 3.28.2 binds it like the standalone tool.
 
 ## `trigger`
 
@@ -533,10 +534,11 @@ something is reported. `Startup` and `Shutdown` are registered the second way.
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.64.0). Under `cratis` 3.27.1 expect `PLAY0268` at binding and a
-      false `PLAY0285` on cascade specifications, and report them as tool skew.
-- [ ] The tool that bound the model is named: ESM v6 constructs are "bound" only by
-      the standalone tool; no tool runs the specifications.
+      (standalone 4.66.0, or `cratis` 3.28.2 or later). Under `cratis` before 3.28.2 expect
+      `PLAY0268` at binding and a false `PLAY0285` on cascade specifications, and report them
+      as tool skew.
+- [ ] The tool that bound the model is named (Screenplay 4.61 or later, so standalone or
+      `cratis` 3.28.2 or later, for ESM v6 constructs); no tool runs the specifications.
 - [ ] Each automation has all four components — occurrence, state consulted,
       conditional logic, resulting command or event. If it always fires
       unconditionally it is co-production, not an automation.

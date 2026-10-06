@@ -30,7 +30,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | PDL parser, validator, diagnostics, semantic binder |
 | `Cratis.Screenplay` | main `fd18129` | Inline event extraction and context identity guidance |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Reducer-body binding (`Semantics/`); no PDL syntax change affects the examples |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Reducer-body binding (`Semantics/`); no PDL syntax change affects the examples |
 
 The update follows `commands.md`, `events.md` and `mcp/authoring-tools.md` at
 that main commit (after v4.52.0); no PDL example changes in this update.
@@ -328,10 +328,10 @@ projection diagnostic codes, and worked examples.
 
 ## Verify
 
-- [ ] Standalone `screenplay <model> --warnaserror` (4.64.0) reports zero errors and zero
-      warnings; with only the bundled compiler, `cratis screenplay validate
-      --warnings-as-errors` on the model folder (3.27.1 bundles Screenplay 4.60.1, ESM v5 or
-      lower). Name which tool produced the result.
+- [ ] Standalone `screenplay <model> --warnaserror` (4.66.0) reports zero errors and zero
+      warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
+      (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
+      or lower). Name which tool produced the result.
 - [ ] Each read model has **exactly one** builder.
 - [ ] No projection-level `key`; every `from` that must address the same
       instance is keyed on the same identity.
