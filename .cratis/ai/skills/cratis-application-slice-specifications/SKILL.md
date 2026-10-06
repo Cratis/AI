@@ -8,12 +8,14 @@ metadata:
 
 # Cratis application slice specifications
 
-A slice is specified from the outside, through the pipeline it actually runs on.
-The scenario family exercises the real Arc and Chronicle code paths in-process —
-no HTTP, no fixture, no server — so a specification says what the slice does
-rather than what its classes do.
+Start a pure decision with a plain method call: `Handle()`,
+`Handle(providedValue)`, reducer logic or a reactor's decision needs no host,
+services or harness. Add a scenario where the pipeline, validation,
+authorization, constraints or projections contribute proof. The scenario family
+exercises the real Arc and Chronicle code paths in-process — no HTTP, no fixture,
+no server.
 
-This skill decides **which scenario** and **what to cover**. The C# mechanics
+This skill decides **when to add a scenario** and **what to cover**. The C# mechanics
 (`Establish`/`Because`, substitutes, contexts) live in
 `cratis-specifications-csharp`.
 
@@ -76,8 +78,9 @@ you did.
 ## Step 1 — Place the files
 
 Specifications live **in the slice folder**, beside the `.cs` they specify, each
-file wrapped in `#if DEBUG … #endif` so specification code compiles only in
-Debug.
+file wrapped in `#if DEBUG … #endif` when it compiles into the application
+assembly, so specification code ships only in Debug. A dedicated `<Source>.Specs`
+project is not shipped and needs no wrapper.
 
 ```
 <Feature>/<Slice>/
@@ -94,11 +97,16 @@ Debug.
 A behavior covering several subjects groups under
 `<Slice>/for_<Subject>/when_<behavior>/`.
 
-## Step 2 — Pick the scenario by slice type
+## Step 2 — Start with the decision; add the scenario by slice type
+
+Specify a pure decision with the plain `Specification` base first. A direct
+`Handle()` call does not run validation, authorization, `Provide()` or operations;
+keep a scenario for that wiring and for appended-event behavior.
 
 | Slice type | Scenario | Skill |
 | --- | --- | --- |
-| State Change — a command appends events | `CommandScenario<TCommand>` | this one |
+| Pure command decision, reducer logic or reactor decision | Plain method call with `Specification` (default) | `cratis-specifications-csharp` |
+| State Change — command pipeline and appended events | `CommandScenario<TCommand>` | this one |
 | Append semantics, a constraint | `EventScenario` | `cratis-chronicle-event-specifications` |
 | State View — a projection or reducer | `ReadModelScenario<TReadModel>` | `cratis-chronicle-read-model-specifications` |
 | Automation or Translation — a reactor | `ReactorScenario<TReactor>` | `cratis-specifications-csharp` |
@@ -193,10 +201,11 @@ the concrete validator itself is discovered automatically.
 ```
 
 `ShouldNotBeSuccessful()` alone cannot distinguish a validation rejection from an
-unhandled exception, so both facts are required. **Never assert on a message
-string** — it is presentation text. A `.play` specification may pin the message
-(`then error "<message>"`); the C# specification for the same rejection pins the
-*kind* instead, and the two together cover the rule.
+unhandled exception, so both facts are required. **Do not assert on a message
+string by default** — it is presentation text; assert one only when that exact
+text is the specified behavior, and name that requirement in the fact. A `.play`
+specification may pin the message (`then error "<message>"`); prefer pinning the
+*kind* in C# unless the exact wording is part of the behavior being specified.
 
 **Isolate the rule.** Each rejection specification violates **only** the rule it
 is named after: build the command valid in every other respect. Otherwise

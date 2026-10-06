@@ -1,9 +1,11 @@
 # In-process scenario specifications
 
 The four scenario helpers exercise the real Arc and Chronicle pipelines
-in-process. They are the default for event-sourced *application* behavior. A
-library or framework repository reaches for one only to test the very engine it
-provides.
+in-process. Use them for event-sourced *application* behavior where the pipeline,
+validation, constraints or projections matter; a pure decision (`Handle()`,
+`Handle(providedValue)`, reducer or reactor logic) is specified first as a plain
+call. A library or framework repository reaches for a scenario only to test the
+very engine it provides.
 
 Verified against `Cratis.Arc.Testing` `22.16.0` and `Cratis.Chronicle.Testing`
 `18.3.0`.

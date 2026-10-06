@@ -12,23 +12,43 @@ profile: application
 
 Specs are **mandatory for every slice type**, including reactors.
 
-## Lead with the in-process scenario family
+## Start with the plain call; add a scenario where it adds proof
 
-For Cratis application behavior, prefer the four in-process scenario helpers over full out-of-process Chronicle host specs. They target different concerns and are additive.
+A command's `Handle()` is an ordinary method; with dependencies resolved by `Provide()`, its decision can be a pure function of its arguments. Reducer logic and a reactor's decision can be pure functions too. **Write the plain call as the default spec for a pure decision**, with no host, services or harness. Add a scenario helper where the framework's composition is part of what you must prove: the command pipeline, validation, authorization, constraints, and projections (declarative, so only a scenario can exercise them). The scenario helpers are additive; a slice normally has both. For application behavior prefer the in-process helpers over full out-of-process Chronicle host specs.
 
 | Tool | Tests | Use when |
 |---|---|---|
-| `Specification` (unit) | an isolated class with mocked collaborators | pure function / injected services to mock |
-| `CommandScenario<TCommand>` | the real Arc command pipeline — authorization + validators + `Provide()` + `Handle()` + appended events | **default for State Change slices** |
+| `Specification` (plain call) | `Handle()`, `Handle(providedValue)`, reducer logic or a reactor's decision as a method call; or an isolated class with mocked collaborators | **default** for a decision that is a pure function of its arguments |
+| `CommandScenario<TCommand>` | the real Arc command pipeline — authorization + validators + `Provide()` + `Handle()` + appended events | the pipeline, validation, authorization, or appended events matter (State Change slices) |
 | `EventScenario` | Chronicle-level append semantics, no command pipeline | constraint violations, raw stream sequencing/concurrency |
-| `ReadModelScenario<TReadModel>` | projection/reducer state from a sequence of events (auto-detects model-bound / fluent / reducer) | **default for State View slices** |
-| `ReactorScenario<TReactor>` | reactor handler invocation + side effects via mocked services | Automation / Translation slices |
+| `ReadModelScenario<TReadModel>` | projection/reducer state from a sequence of events (auto-detects model-bound / fluent / reducer) | **default for projections**, which are declarative (State View slices) |
+| `ReactorScenario<TReactor>` | reactor handler invocation + side effects via mocked services | the reactor wiring and side effects (Automation / Translation slices) |
 
 > **Out-of-process Chronicle integration specs are an advanced case** — reserve them for host wiring, real infrastructure, serialization/transport, or end-to-end boundaries the scenario helpers can't exercise. They are not the default vertical-slice test shape.
 
-**Every spec file is wrapped in `#if DEBUG … #endif`** so spec code ships only in Debug (the Debug build gate validates it and also regenerates proxies).
+**Wrap every spec file in `#if DEBUG … #endif` when the specs live in the application assembly** beside the slice, as vertical slices place them, so spec code ships only in Debug (the Debug build gate validates it and also regenerates proxies). A dedicated spec project (`<Source>.Specs`) is never shipped and needs no wrapper; that is the case Arc's documentation describes.
 
-### `CommandScenario<TCommand>` — State Change default
+### The plain call — the default for a pure decision
+
+```csharp
+#if DEBUG
+namespace MyApp.Authors.Registration.when_registering_an_author;
+
+public class and_all_information_is_valid : Specification
+{
+    readonly AuthorId _id = AuthorId.New();
+    AuthorRegistered _event;
+
+    void Because() => _event = new RegisterAuthor(_id, "Jane Austen").Handle();
+
+    [Fact] void should_register_the_author() => _event.Name.ShouldEqual("Jane Austen");
+}
+#endif
+```
+
+Calling `Handle()` yourself runs no validation, authorization, `Provide()` or operations, so it proves the decision only. Add a `CommandScenario` spec for what the pipeline contributes.
+
+### `CommandScenario<TCommand>` — the command pipeline
 
 Runs authorization, validators, `Provide()` (when present), and `Handle()` in-process, and exposes the appended events.
 
@@ -56,7 +76,7 @@ public class and_all_information_is_valid : Specification
 - **`CommandResult` assertions** (Arc extensions): `ShouldBeSuccessful()`, `ShouldNotBeSuccessful()`, `ShouldBeValid()`, `ShouldHaveValidationErrors()`, `ShouldHaveValidationErrorFor(message)`, `ShouldBeAuthorized()`, `ShouldNotBeAuthorized()`, `ShouldHaveExceptions()`/`ShouldNotHaveExceptions()`.
 - **Seed prior state through `_scenario.Given` or `_scenario.Services`.** `_scenario.Given.ForEventSource(id).Events(...)` materializes the seeded events into an **in-memory read-model dictionary** the harness answers keyed reads from — it never reaches the event log (see the false-greens list below). To populate the DCB read models the validator/`Provide()`/`Handle()` inject, substitute `IReadModels` and register it (`_scenario.Services.Replace(new ServiceDescriptor(typeof(IReadModels), mock))`, mocking `GetInstanceById(...)`) or register projections with `_scenario.Services.AddReadModels(...)`.
 - **Validator/`Provide()` dependencies:** register them in `_scenario.Services`; Arc testing discovers the concrete validator automatically. When several specs need different injected validator states, test rejected variants by instantiating the validator directly (per-scenario state can be order-sensitive under parallel xUnit).
-- **`Provide()`:** drive it through `CommandScenario` end-to-end; when the handler's decision is pure given provided data, also test `Handle(providedValue)` directly.
+- **`Provide()`:** drive it through `CommandScenario` end-to-end; when the handler's decision is pure given provided data, test `Handle(providedValue)` directly as the default decision spec and keep the scenario for the wiring.
 - **Command operations:** use **cratis-arc-command-operation** for decision/adapter specs and real `CommandScenario` execution, forward failure, compensation, and Chronicle commit rejection; a direct `Handle()` does not execute operations.
 
 #### Validation-failure assertions — non-negotiable
@@ -68,7 +88,7 @@ Every unhappy-path spec asserts **both**:
 [Fact] void should_have_validation_errors() => _result.ShouldHaveValidationErrors();
 ```
 
-`ShouldNotBeSuccessful()` alone can't tell a validation rejection from an unhandled exception. **Never assert on message strings** — they're presentation text. Authorization failures use `ShouldNotBeAuthorized()` (an unauthorized result has *no* validation errors, so `ShouldHaveValidationErrors()` would silently flip). To exercise a command that carries authorization attributes, register the identity the authorization evaluator reads into `_scenario.Services` (substitute the identity provider your app uses). **Adding `[Roles]` to an existing command breaks its happy-path AND validation-failure `.Execute()` specs** — an unauthorized result is not successful and carries no validation errors; switch those assertions to `ShouldNotBeAuthorized()`.
+`ShouldNotBeSuccessful()` alone can't tell a validation rejection from an unhandled exception. **Do not assert on message strings by default** — they're presentation text; say which kind of rejection happened with `ShouldHaveValidationErrorBecauseOf(reason)`, or a constraint by name. Assert a message with `ShouldHaveValidationErrorFor(message)` only when that exact text is the specified behavior, for example a rule whose wording the model pins, and say so in the fact's name. Authorization failures use `ShouldNotBeAuthorized()` (an unauthorized result has *no* validation errors, so `ShouldHaveValidationErrors()` would silently flip). To exercise a command that carries authorization attributes, register the identity the authorization evaluator reads into `_scenario.Services` (substitute the identity provider your app uses). **Adding `[Roles]` to an existing command breaks its happy-path AND validation-failure `.Execute()` specs** — an unauthorized result is not successful and carries no validation errors; switch those assertions to `ShouldNotBeAuthorized()`.
 
 `CommandResult` assertions (from `Cratis.Arc.Testing.Commands`; failures throw `CommandResultAssertionException`): `ShouldBeSuccessful()` (`isAuthorized && isValid && !hasExceptions`), `ShouldNotBeSuccessful()`, `ShouldBeValid()` (no validation errors — does *not* check authz/exceptions), `ShouldHaveValidationErrors()`, `ShouldHaveValidationErrorFor(message)`, `ShouldHaveValidationErrorBecauseOf(ValidationResultReason)`, `ShouldHaveConstraintViolationFor(name)`, `ShouldBeAuthorized()`, `ShouldNotBeAuthorized()`, `ShouldHaveExceptions()`.
 
@@ -106,7 +126,7 @@ async Task Because() =>
 
 `IAppendResult` assertions (failures throw `AppendResultAssertionException`): `ShouldBeSuccessful()`, `ShouldBeFailed()`, `ShouldHaveConstraintViolations()`/`ShouldNotHave…`, `ShouldHaveConstraintViolationFor(name)`, `ShouldHaveConcurrencyViolations()`/`ShouldNotHave…`, `ShouldHaveErrors()`/`ShouldNotHave…`. Assert the constraint **name**, never the message.
 
-### `ReadModelScenario<TReadModel>` — State View default
+### `ReadModelScenario<TReadModel>` — projections, the State View default
 
 Drives events into the projection/reducer and asserts the resulting state. Use xUnit `Assert.*` on `_scenario.Instance`.
 
