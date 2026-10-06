@@ -8,7 +8,7 @@ profile: application
 
 # Application Specs — the in-process scenario family
 
-> **Application profile.** This file covers spec-writing for **event-sourced Cratis applications** — exercising commands, projections, reducers, reactors, and constraints with the in-process scenario family. It builds on the universal [specs.csharp.md](./specs.csharp.md) (the `Specification` base + NSubstitute). **Framework / library** specs predominantly use that plain base instead; a framework repo reaches for a scenario helper here only when testing the very engine it provides — Arc tests its command pipeline with `CommandScenario`, Chronicle tests its event/projection/reactor engine with `EventScenario`/`ReadModelScenario`/`ReactorScenario`. That is the minority case, not the general framework testing mode.
+> **Application profile.** This file covers spec-writing for **event-sourced Cratis applications** — exercising commands, projections, reducers, reactors, and constraints with plain-call specs for pure decisions and the in-process scenario family where the pipeline matters. It builds on the universal [specs.csharp.md](./specs.csharp.md) (the `Specification` base + NSubstitute). **Framework / library** specs predominantly use that plain base instead; a framework repo reaches for a scenario helper here only when testing the very engine it provides — Arc tests its command pipeline with `CommandScenario`, Chronicle tests its event/projection/reactor engine with `EventScenario`/`ReadModelScenario`/`ReactorScenario`. That is the minority case, not the general framework testing mode.
 
 Specs are **mandatory for every slice type**, including reactors.
 
