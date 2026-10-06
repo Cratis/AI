@@ -25,12 +25,12 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `v3.28.2` (`141c499`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.1 (before 3.28.2 bundled 4.60.1 and 4.24.0) |
+| cratis CLI | `v3.28.3` (`8b43fef`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled Stage 4.24.1; before 3.28.2: 4.60.1 and 4.24.0) |
 | Stage | `v4.24.2` (`32dcac4`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
 | Screenplay | `v4.66.0` (`c89198b`) | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1` | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one |
 
-Facts were read at those tags and `cratis render` was run at 3.28.2 for the worked example
+Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
 (`references/worked-example.md`). The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
 this skill links them and never restates the admission table.
 
@@ -62,7 +62,7 @@ assume an answer to 4, and record it as `blocked` for the user.
 | **B. Generated base plus authorized gap-fill** | an earlier admitted whole-model render exists and the user separately authorized hand-written scope, or a seam the model names needs an adapter | the generated output stays managed and untouched; hand-written code lives in `Customizations/` or a separate project (seam adapters by this skill, business gap-fill by `slice-implementer`), serves named model elements only, never claims render admission, and V5 is reported for the generated base **with its scope stated** |
 | **C. Fully hand-written delivery** | the scope cannot render and no generated base is wanted | `slice-implementer` delivers it with the model as the contract (`references/gap-fill-handoff.md`); V5 is `not run: no render` |
 
-Evolved events (a model that selects ESM v4) are gap-fill too: Stage 4.24.2 admits the v4 model but refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract. The cratis CLI bundles Stage 4.24.1 until a CLI release bundles 4.24.2, so until then it refuses a v4 model with `STAGE-ESM-016`.
+Evolved events (a model that selects ESM v4) are gap-fill too: Stage 4.24.2 admits the v4 model but refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract. The cratis CLI bundles Stage 4.24.2 since 3.28.3 and reports an evolved event with `STAGE-ESM-026` (probed); 3.28.2 and earlier bundled Stage 4.24.1 and refused a v4 model with `STAGE-ESM-016`.
 
 Models with event sources, streams or command routes are case A or C today: they cannot
 bind or render (`PLAY0268`, `STAGE-ESM-016`), so hand-write the code with the model as the

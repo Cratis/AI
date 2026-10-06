@@ -25,8 +25,8 @@ The only version table is `references/versions.md`; other skills point to it.
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | standalone compiler, binder and MCP server |
-| cratis CLI | `3.28.2` (`141c499`) | bundles Screenplay 4.66.0 and Stage 4.24.1 (3.28.1 and earlier bundled 4.60.1 and 4.24.0); `render`, `generate`, `prologue`, and the same compiler for `screenplay validate` and `screenplay mcp` |
-| Stage | `4.24.2` (`32dcac4`) | renders ESM v1 to v4 (C# backend plus a React/Vite scaffold on Arc 22.25.0); an evolved event is refused with `STAGE-ESM-026`; the cratis CLI 3.28.2 still bundles 4.24.1 (ESM v1 to v3) until a CLI release bundles 4.24.2 |
+| cratis CLI | `3.28.3` (`8b43fef`) | bundles Screenplay 4.66.0 and Stage 4.24.2 (3.28.2: Stage 4.24.1; 3.28.1 and earlier bundled 4.60.1 and 4.24.0); `render`, `generate`, `prologue`, and the same compiler for `screenplay validate` and `screenplay mcp` |
+| Stage | `4.24.2` (`32dcac4`) | renders ESM v1 to v4 (C# backend plus a React/Vite scaffold on Arc 22.25.0); an evolved event is refused with `STAGE-ESM-026`; the cratis CLI bundles it since 3.28.3 |
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour

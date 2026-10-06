@@ -5,9 +5,9 @@ the automation-and-translation addendum to `cratis-screenplay-render-and-gap-fil
 skill for the admission, publication and ownership rules.
 
 ## What Stage does not do
-Stage 4.24.1 renders no Automation or Translate slice (Stage#79). A model that contains one is not
-admitted: it needs ESM v6, and Stage admits ESM v1 to v4 (v1 to v3 on 4.24.1; STAGE-ESM-016 for the whole model; probed
-with `cratis render` 3.28.2, whose bundled compiler binds these slices, where 3.27.1 stopped earlier
+Stage 4.24.2 renders no Automation or Translate slice (Stage#79). A model that contains one is not
+admitted: it needs ESM v6, and Stage admits ESM v1 to v4 (STAGE-ESM-016 for the whole model; probed
+with `cratis render` 3.28.2 and 3.28.3, whose bundled compiler binds these slices, where 3.27.1 stopped earlier
 with PLAY0268). So the automation or translation is
 hand-written delivery with the model as its contract. A `Customizations/` file never makes a
 rejected model renderable, and never claim a whole-application V5 from a subset. Choose the route

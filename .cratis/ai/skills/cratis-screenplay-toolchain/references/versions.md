@@ -5,7 +5,7 @@ or a tool capability. When a tool changes, update this file first, then re-run t
 example compile gate with both tools (see `verdicts.md`, "Example gate").
 
 Pinned and re-verified against product source on 2026-10-05; the cratis CLI rows were
-re-probed on cratis 3.28.2 (Screenplay 4.66.0 bundled) after it shipped. Facts marked
+re-probed on cratis 3.28.2 and 3.28.3 (Screenplay 4.66.0 bundled in both). Facts marked
 *source* were read with `git show <tag>:<path>`; facts marked *probed* were run against the
 installed tool.
 
@@ -14,8 +14,8 @@ installed tool.
 | Source | Pin | Notes |
 | --- | --- | --- |
 | Screenplay (language, compiler, standalone tool, MCP server) | **v4.66.0** (`c89198b`), published as `Cratis.Screenplay.Tool` 4.66.0 | Most behaviour below was probed on 4.63.1 (`7769dc4`) and re-checked on 4.66.0. 4.63.1 to 4.64.0 added only the `numbers exact` syntax (binding refuses it), the MCP roots fix from 4.63.2 and fence-registry plumbing. 4.65.0 adds the command named-rule `implementation` block and rejects `implementation` on concept rules, built-in property rules and whole-command `require`/`validate` bodies (a hints-only block binds as PLAY0268). 4.66.0 adds only an experimental VS Code repair bridge. `Semantics/Execution` is unchanged since 4.63.1. Example compile and the toolchain commands in this skill were run on 4.66.0 |
-| cratis CLI | **v3.28.2** (`141c499`, Cratis/cli#257, closes #253) | Bundles **Screenplay 4.66.0** (ESM v1 to v6), **Stage 4.24.1**, `Cratis.Arc.Screenplay` 22.50.5, Chronicle 19.32.0, Fundamentals 7.22.8, Generation 0.18.0 (`Directory.Packages.props` at the tag). Same compiler as the standalone tool, so the two agree on binding and diagnostics; they still differ on file-mode imports. v3.28.1 and earlier (including v3.28.0 and the probed v3.27.1) bundled Screenplay 4.60.1 and Stage 4.24.0 (ESM v1 to v5, MCP roots bug, false PLAY0285, Automation/Translate refused at binding) |
-| Stage | **v4.24.2** (`32dcac4`, Cratis/Stage#205, closes #165) | Admits ESM v4: initial-revision events render as before, any evolved event and its dependent scope is refused with `STAGE-ESM-026`, historical typed-context references with `STAGE-ESM-025`; migration rendering is Stage#204 (needs Screenplay#71); v5 and v6 stay `STAGE-ESM-016`; the Host runtime still refuses evolved events. The cratis CLI 3.28.2 bundles 4.24.1 instead (v4.24.1, `2cadf59`: below). Pins Screenplay 4.66.0, Arc 22.50.5 and Chronicle 19.32.0 for its own build and the sandbox host image (`cratis/chronicle:19.32.0-development`); admits ESM schema v1 to v3 at 4.24.1 (v4.24.0, `fa48546`, pinned Screenplay 4.60.0); bundled by cratis 3.28.2 (until a CLI release bundles 4.24.2, in progress). 4.24.1 adds `STAGE-ESM-024` to the surface ledger only; no admission change. The scaffold profile is unchanged at 4.24.1: rendered apps use .NET 10, **Arc 22.25.0**, **Chronicle 19.8.1** and a React/Vite frontend scaffold (Components 4.14.0, Scene 4.2.0) |
+| cratis CLI | **v3.28.3** (`8b43fef`, Cratis/cli#260) | Bundles **Screenplay 4.66.0** (ESM v1 to v6), **Stage 4.24.2**, `Cratis.Arc.Screenplay` 22.50.5, Chronicle 19.32.0, Fundamentals 7.22.8, Generation 0.18.0 (`Directory.Packages.props` at the tag): otherwise as v3.28.2, so Screenplay behaviour is identical. `cratis render` no longer emits `CLI-RENDER-003`; an evolved event is reported with Stage's `STAGE-ESM-026` (`ScreenplayPlanning.cs` at the tag; probed). v3.28.2 (`141c499`, Cratis/cli#257, closes #253) bundled Stage 4.24.1 and the same Screenplay. Same compiler as the standalone tool, so the two agree on binding and diagnostics; they still differ on file-mode imports. v3.28.1 and earlier (including v3.28.0 and the probed v3.27.1) bundled Screenplay 4.60.1 and Stage 4.24.0 (ESM v1 to v5, MCP roots bug, false PLAY0285, Automation/Translate refused at binding) |
+| Stage | **v4.24.2** (`32dcac4`, Cratis/Stage#205, closes #165) | Admits ESM v4: initial-revision events render as before, any evolved event and its dependent scope is refused with `STAGE-ESM-026`, historical typed-context references with `STAGE-ESM-025`; migration rendering is Stage#204 (needs Screenplay#71); v5 and v6 stay `STAGE-ESM-016`; the Host runtime still refuses evolved events. The cratis CLI bundles it since 3.28.3; 3.28.2 bundled 4.24.1 (v4.24.1, `2cadf59`: below). Pins Screenplay 4.66.0, Arc 22.50.5 and Chronicle 19.32.0 for its own build and the sandbox host image (`cratis/chronicle:19.32.0-development`); admits ESM schema v1 to v3 at 4.24.1 (v4.24.0, `fa48546`, pinned Screenplay 4.60.0); bundled by cratis 3.28.2. 4.24.1 adds `STAGE-ESM-024` to the surface ledger only; no admission change. The scaffold profile is unchanged at 4.24.1: rendered apps use .NET 10, **Arc 22.25.0**, **Chronicle 19.8.1** and a React/Vite frontend scaffold (Components 4.14.0, Scene 4.2.0) |
 | Arc | **v22.50.5** (`eefd098`) | `[ExecuteCommandsAsSystem]` since v20.56.0; `[ProtectedDecision]` and `DecisionRead<T>` since v22.39.0. A Stage-rendered application is on 22.25.0, so `[ProtectedDecision]` is **not** available there |
 | Chronicle | **v19.32.0** (`f17a2ff`) | CHR0012 (`EventTypeShouldAvoidNullableProperties`) and CHR0034 (`PiiOnEventSourceId`) exist. Open runtime defects at v19.32.0: #3744 (unique claims not settled by the store on SQL and InMemory), #4123 (constraint index updates run after commit and fail silently), #4131 (composite unique constraints collide when a component contains the separator) |
 
@@ -29,7 +29,7 @@ global `dotnet` tool) shadows a newer one; confirm with `which -a cratis`.
 
 | | Standalone `screenplay` | `cratis screenplay ...` |
 | --- | --- | --- |
-| Version | 4.66.0 (this pin) | 3.28.2, bundling Screenplay 4.66.0 (3.28.1 and earlier bundled 4.60.1) |
+| Version | 4.66.0 (this pin) | 3.28.3 or 3.28.2, bundling Screenplay 4.66.0 (3.28.1 and earlier bundled 4.60.1) |
 | ESM admitted by the binder | v1 to v6 (v6: clocks, application triggers, captures, reactions, Automation and Translate slices) | v1 to v6, the same binder (probed on 3.28.2: the Automation, Translate and capture examples of this corpus are `executableReady` over `cratis screenplay mcp`) |
 | `numbers exact` | syntax parses; binding refuses (PLAY0268, `executableReady: false`). Absent from the grammar page; documented only in `diagnostics.md` (PLAY0508 to PLAY0513) | same (probed on 3.28.2; 3.27.1 reported PLAY0001 "Unexpected 'numbers'") |
 | Cascade specs (a command spec listing events a reaction appends) | compiles | compiles on 3.28.2 (probed); before 3.28.2 reported a **false PLAY0285** (cli#242, still open on GitHub at the time of writing) |
@@ -76,7 +76,7 @@ producing directly (decision 0006).
 | Empty root | `state: "empty"`, `authoringAccepted: true`, PLAY0289 | probed |
 | Pin of the roots bug | fixed (from 4.63.2); see "MCP roots bug" below | source `McpConnection.cs` |
 
-## cratis 3.28.2 (Screenplay 4.66.0)
+## cratis 3.28.3 and 3.28.2 (Screenplay 4.66.0)
 
 | Fact | Value | Evidence |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ producing directly (decision 0006).
 | Output | JSON lines: a `diagnostics` array with `severity`, `code`, `message`, `location`, then either `{"path","files","diagnostics":N}` (N counts information too) or an error object. A passing folder run prints the file count | probed on 3.28.2 |
 | File versus folder | file mode compiles one document and **ignores imports** (cli#244). Validate the folder | probed |
 | MCP | `cratis screenplay mcp <root>`, or no argument inside a project: the server locates the model itself (existing `.play` files, else `Source/`/`src/`, else a new `Screenplay/` folder) unless `.cratis/ai.json` sets `mcpServers.screenplay.root`; 29 tools and the same `read-workspace` views as the standalone tool, including `event-sources`, `event-streams` and `command-routes` (probed on 3.28.2; the 4.60.1 bundle had no such views). Fails fast only when an explicitly configured root does not exist | source `ScreenplayMcpRoot.cs:20-37` |
-| Render | `cratis render` binds with the bundled compiler first, then the bundled Stage (4.24.1; 4.24.2 once a CLI release bundles it) admits; a v6 model reaches Stage and is refused whole with `STAGE-ESM-016` (probed on 3.28.2). See `renderable-subset.md` | source, probed |
+| Render | `cratis render` binds with the bundled compiler first, then the bundled Stage (4.24.2 since 3.28.3; 4.24.1 in 3.28.2) admits; a v6 model reaches Stage and is refused whole with `STAGE-ESM-016` (probed on 3.28.2), and an evolved event is `STAGE-ESM-026` with no `CLI-RENDER-003` (probed on 3.28.3). See `renderable-subset.md` | source, probed |
 | `prologue interpret` | no `--no-llm` flag; LLM resolution and `screenplay generate` flags were checked on 3.27.0 and are unchanged in 3.28.2 (`--help` shows no `--no-llm`; the Prologue and Screenplay generate sources have no diff between the tags) | source, probed |
 
 ## Event sources and streams

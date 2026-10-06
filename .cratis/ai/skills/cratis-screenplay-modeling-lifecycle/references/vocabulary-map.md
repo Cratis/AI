@@ -42,7 +42,7 @@ Screenplay meaning, and when you meet the older usage, translate it and say so.
 - Screenplay **`reaction`**: the construct that models it (`when` trigger, optional `where`,
   `invokes` a command or `produces` events).
 - Chronicle **reactor**: C# observer, usually for side effects; it does not by itself define
-  business decisions. A Screenplay reaction is authorable and bindable, but Stage `v4.24.1` renders no Automation or
+  business decisions. A Screenplay reaction is authorable and bindable, but Stage `v4.24.2` renders no Automation or
   Translate slice: the reactor and command are gap-fill code.
 
 ## Scenario vs specification

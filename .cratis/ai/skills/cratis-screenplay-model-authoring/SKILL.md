@@ -22,7 +22,7 @@ the executable profile and a complete compiled model.
 | `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Current compiler, MCP (29/30 tools), roots fix; examples compiled with `--warnaserror` |
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs, rename/extraction and `optional` |
 | `Cratis.Screenplay` | `4.31.0` | Original compiler, ESM and workspace evidence |
-| `cratis` CLI | `3.28.2` | Bundles Screenplay 4.66.0 and Stage 4.24.1 (before 3.28.2: 4.60.1, ESM v5 at most, roots bug) |
+| `cratis` CLI | `3.28.3` | Bundles Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled 4.24.1; before 3.28.2: 4.60.1, ESM v5 at most, roots bug) |
 
 Facts about the MCP connection, source-map, `whenAppendedEvent`, identity
 persistence and the syntax-only constructs were read at tag `v4.66.0`

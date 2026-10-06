@@ -362,7 +362,7 @@ What binds depends on **which tool** you ask, so name the tool and its version:
 - `Automation` and `Translate` slices, reactions, captures and triggers: the
   standalone `screenplay` 4.66.0 and the `cratis` 3.28.2 bundle (same compiler) bind them (ESM v6).
   The `cratis` 3.27.1 bundle (Screenplay 4.60.1) reported *Slice '<name>' of type '<type>'
-  is not admitted by ESM v1.* Stage 4.24.1 admits only ESM v1 to v3 (4.24.2: v1 to v4) and renders none of them.
+  is not admitted by ESM v1.* Stage 4.24.2 admits only ESM v1 to v4 and renders none of them.
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
