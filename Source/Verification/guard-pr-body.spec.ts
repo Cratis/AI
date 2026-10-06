@@ -253,7 +253,7 @@ test('selectorless edits pass command-local and inherited GH_REPO to metadata lo
     } finally { f.cleanup(); }
 });
 
-test('selectorless edits leave GH_REPO absent for gh default resolution in multi-remote checkouts', () => {
+test('edits without a repository leave selectors and GH_REPO to gh default resolution in multi-remote checkouts', () => {
     const f = fixture();
     try {
         assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Cratis/AI.git']).status, 0);
@@ -261,17 +261,27 @@ test('selectorless edits leave GH_REPO absent for gh default resolution in multi
         assert.equal(spawnSync('git', ['-C', f.directory, 'config', 'remote.github.gh-resolved', 'base']).status, 0);
         for (const prefix of ['', 'GH_REPO=', 'env GH_REPO=']) {
             const environment = { GH_REPO: prefix ? 'Cratis/Other' : undefined };
-            for (const flags of ['--add-assignee woksin', `--body-file '${f.body}'`]) {
-                const result = f.hook(`${prefix} gh pr edit ${flags}`, environment);
+            for (const target of ['', '471', 'feature-branch']) {
+                for (const flags of ['--add-assignee woksin', `--body-file '${f.body}'`]) {
+                    const result = f.hook(`${prefix} gh pr edit ${target} ${flags}`, environment);
+                    assert.equal(result.status, 0, result.stderr);
+                    const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+                    assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', ...(target ? [target] : []), '--json', 'labels,body,author,baseRefName']);
+                    const environments = readFileSync(f.prEnvironments, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+                    assert.deepEqual(environments.at(-1), {});
+                }
+                const rejected = f.hook(`${prefix} gh pr edit ${target} --add-assignee woksin`, { ...environment, TEST_PR_BODY: 'reject-me' });
+                assert.equal(rejected.status, 2);
+                assert.match(rejected.stderr, /rejected by downloaded program/);
+            }
+            for (const target of ['471', 'feature-branch']) {
+                const result = f.hook(`${prefix} gh pr edit ${target} --repo Cratis/X --add-assignee woksin`, environment);
                 assert.equal(result.status, 0, result.stderr);
                 const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
-                assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', '--json', 'labels,body,author,baseRefName']);
+                assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', target, '--repo', 'Cratis/X', '--json', 'labels,body,author,baseRefName']);
                 const environments = readFileSync(f.prEnvironments, 'utf8').trim().split('\n').map(line => JSON.parse(line));
-                assert.deepEqual(environments.at(-1), {});
+                assert.deepEqual(environments.at(-1), { GH_REPO: 'Cratis/X' });
             }
-            const rejected = f.hook(`${prefix} gh pr edit --add-assignee woksin`, { ...environment, TEST_PR_BODY: 'reject-me' });
-            assert.equal(rejected.status, 2);
-            assert.match(rejected.stderr, /rejected by downloaded program/);
         }
     } finally { f.cleanup(); }
 });
@@ -472,7 +482,7 @@ test('metadata edit options consume values before selecting an explicit or curre
                 assert.equal(result.status, 0, result.stderr);
                 const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
                 const view = calls.filter(args => args[0] === 'pr').at(-1);
-                assert.deepEqual(view, ['pr', 'view', ...(target ? [target, '--repo', 'Cratis/Example'] : []), '--json', 'labels,body,author,baseRefName']);
+                assert.deepEqual(view, ['pr', 'view', ...(target ? [target] : []), '--json', 'labels,body,author,baseRefName']);
             }
         }
         for (const flags of ['--head branch --template template.md', '-H branch -T template.md', '-Hbranch -Ttemplate.md']) {

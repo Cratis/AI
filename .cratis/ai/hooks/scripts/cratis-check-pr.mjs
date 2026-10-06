@@ -143,7 +143,8 @@ function check(argv, repositoryCallers, lookupOptions) {
     const warn = message => { warned = true; warning(`Warning: ${message}`); };
     let pull;
     // gh requires a selector when --repo is supplied; otherwise preserve current-branch lookup.
-    const repoArgs = values.pr && values.repo ? ['--repo', values.repo] : [];
+    const lookupRepository = lookupOptions ? lookupOptions.env.GH_REPO : values.repo;
+    const repoArgs = values.pr && lookupRepository ? ['--repo', lookupRepository] : [];
     if (values.pr !== undefined) {
         pull = JSON.parse(gh(['pr', 'view', ...(values.pr ? [values.pr] : []), ...repoArgs,
             '--json', 'labels,body,author,baseRefName'], lookupOptions || (values.repo ? { env: { ...process.env, GH_REPO: values.repo } } : {})));
