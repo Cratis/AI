@@ -83,8 +83,10 @@ Filled example (invoicing, synthetic provider): `payment.settled`.
 - Success: one `InvoicePaymentSettled`; a second delivery of the same occurrence appends nothing new
   (atomic `unique event`, not a preliminary lookup).
 - Failures: unknown `paymentRef` -> failure fact `PaymentReferenceUnknown`, finance reviews and
-  resumes with the same occurrence id; invoice not issued -> deferred; currency mismatch -> failure
-  fact; amount mismatch on an issued, unpaid invoice (underpayment, partial payment or overpayment)
+  resumes with the same occurrence id; invoice not issued -> deferred until the later `InvoiceIssued`
+  for that number retries the same occurrence, and finance reconciles it if no invoice is issued
+  within the agreed window; currency mismatch -> failure fact `PaymentCurrencyMismatch`, finance
+  decides and resumes with the same occurrence id; amount mismatch on an issued, unpaid invoice (underpayment, partial payment or overpayment)
   -> failure fact `PaymentAmountMismatch` carrying expected and received minor units, finance
   decides (request the balance, accept as a partial payment against the invoice, or refund the
   excess) and resumes with the same occurrence id, so a settled amount is never guessed; invoice already paid (a distinct payment occurrence, double payment or overpayment) ->
