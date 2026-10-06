@@ -63,10 +63,16 @@ it stays.
 
 Never drop a list query from a design model just to make it bind; record the capability gap.
 The keyed query also defines the read model's identity: its `by` property must be a read-model
-property. Executable-only: fill it with `$eventSourceId`. Renderable (Stage): never map it
-from `$eventSourceId`; a flat projection (every `from` has `key <eventProperty>`, mappings
-copy event properties or literals) maps `xId = <thatProperty>`, and every other projection is
-scoped, where the key establishes the identifier and it stays unmapped.
+property. The identifier always equals the projection's effective key:
+
+| Effective key | Executable model | Renderable model (Stage) |
+|---|---|---|
+| event source (default or `key $eventSourceId`) | `xId = $eventSourceId`, or leave it unmapped in a scoped projection | scoped: leave it unmapped; the event must not carry a same-named, same-typed property unless `no automap` |
+| event property (`key invoiceId`) | `xId = invoiceId` (never `$eventSourceId`) | flat admission only if one `from`, every property mapped from an event property and the key an identifier concept filled by each producing command's `for`; otherwise scoped and unmapped |
+| literal (`key literal "global"`) | leave it unmapped (scoped seeds it from the key) | scoped, unmapped |
+
+The full rule, with the sources, is in `cratis-stage-rendering-and-sandbox`
+`references/admission.md` ("Identity and key rule").
 
 ## No clock-relative state
 
@@ -186,7 +192,6 @@ module Berths
 - Every consumer has its read model; every read model has a consumer.
 - Every field traced (`field-lineage.md`).
 - Executable/renderable scope: one unambiguous key per read model (one or more keyed queries,
-  all with the same `by` property), mapped from `$eventSourceId` (executable-only) or, when
-  renderable, from the event property of a flat projection's key or left to the key of a
-  scoped projection (never `$eventSourceId`); no list queries.
+  all with the same `by` property), identifier equal to the projection's key (table above);
+  no list queries.
 - Design-only shapes listed with the V3 code they cause.

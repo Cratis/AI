@@ -39,7 +39,7 @@ Complete examples that bind live in `executable-example.md` (both compilers),
   PLAY0268; a list query (`=> RM[]`) is a separate blocker.
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
   `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
-  `subtract`, `set`, `clear`, variants, and `xId = $eventSourceId`.
+  `subtract`, `set`, `clear`, variants, and the identifier mapped from the projection's key (`xId = $eventSourceId` only for an event-source key).
 - Specifications: `given caller`, `given <Event> for`, `when <Command>`, `when append
   <Event> for`, `then <Event> for`, `then error "msg"`, `then denied`, `then query ...
   arguments ... result`, `then no readmodel RM for "key"` (ESM v5), and when-less view

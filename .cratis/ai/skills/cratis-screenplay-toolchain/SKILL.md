@@ -133,8 +133,8 @@ changes with the root folder name.
 5. Missing projection target properties and undeclared events in `remove with` or capture
    `append` are never reported: check by hand.
 6. A reaction's `invokes` has no caller: a gated command rejects it; keep the gate.
-7. Read-model identity is one `query XById => RM optional` with `by xId XId`, and `xId =
-   $eventSourceId` (executable-only; renderable scope: see trap 12); never `identifier` on a read model.
+7. Read-model identity is one `query XById => RM optional` with `by xId XId`, and the identifier equal to the
+   projection's key (see trap 12); never `identifier` on a read model.
 8. Projection `key` routes only on `from`; joins never create; `all` is per source.
 9. `null` only for optional read-model properties in specifications.
 10. `then` events are exhaustive and ordered; after `when append` they list only what followed.

@@ -66,11 +66,30 @@ publication is journaled and recoverable.
 
 Stage renders two projection forms; the restrictions differ.
 
-- **Flat**: a projection binds flat (Screenplay `SemanticModelBinder.Projections.cs` `IsFlat`)
-  only when every `from` names `key <eventProperty>` and every mapping copies an event
-  property or a literal. It must resolve to one transition and one affected instance keyed by
-  an event property that carries the event source (`STAGE-ESM-008`, `-009`), with matching
-  mappings (`SemanticFlatProjectionSupport`).
+- **Identity and key rule** (the one place the full rule lives; other files point here).
+  1. The identifier always equals the projection's effective key: the inline `key`, else the
+     `from` block `key`, else the event source. An event-source key (default or
+     `key $eventSourceId`) makes the identifier the event source; an event-property or literal
+     key makes it that key. Never map `$eventSourceId` onto the identifier when the key is
+     something else (`from PaymentRecorded key invoiceId`): the runtime fails with "affected key
+     disagrees with read-model identifier" (Screenplay v4.64.0
+     `SemanticScopedProjection.State.cs:182-184`, `SemanticEvaluator.cs:733-736`).
+  2. Executable model. A flat-bound projection must map the identifier like any required
+     property (the flat evaluator does not seed it): `xId = <keyProperty>`. A scoped projection
+     needs no mapping: `RootDocument` seeds the identifier from the key when it creates the
+     instance (`SemanticScopedProjection.cs:279-290`). Mapping it from its key (`xId =
+     $eventSourceId` for an event-source key, `xId = <keyProperty>` for an event-property key)
+     is also valid.
+  3. Renderable model (Stage v4.24.0). Binding flat (Screenplay `SemanticModelBinder.Projections.cs`
+     `IsFlat`: every `from` has `key <eventProperty>` and every mapping copies an event property
+     or a literal) is not Stage admission.
+- **Flat admission** (`SemanticCratisAdmission.StateView.cs:94-114`) holds only when all of these
+  are true: one `from` naming one event (`STAGE-ESM-008`); every read-model property, optional
+  ones included, is mapped from an event property (auto-map counts; a literal is refused,
+  `STAGE-ESM-009`, `SemanticFlatProjectionSupport.MappingsMatch`); and the key property is an
+  identifier concept that every producing command's `for` fills (`UsesEventSourceIdentity`).
+  Anything else that binds flat is refused. When the key is the event source, drop the explicit
+  key and the projection is scoped, which admits literals.
 - **Scoped** (`SemanticScopedProjectionSupport.cs`, fixture `when_rendering_scoped_projections`):
   every other projection, including a plain single `from E` with the default or
   `$eventSourceId` key. Forms: several distinct `from` blocks, `remove with`, root
@@ -78,9 +97,15 @@ Stage renders two projection forms; the restrictions differ.
   inside a child; `remove with` and `remove via join` inside a child are admitted, fixture
   `when_executing_re_admitted_scoped_projections`, `children.RemovedWithJoin`), `nested` over
   an optional composite property, and `every` with set-from-event-source mappings. Keys are
-  an event property or the event source; the identifier is established by the key and must
-  not be mapped. Observed: `from E key $eventSourceId` is scoped and renders even when the
-  event does not repeat the identifier, provided the identifier is left unmapped.
+  an event property or the event source. The key establishes the identifier, so it must end up
+  unmapped: `Rejection` refuses a mapping onto it unless it copies the key's own event property
+  (`MatchesKey`, `SemanticScopedProjectionSupport.cs:104-110, 360-363`), so an event-source key
+  admits no mapping at all (`STAGE-ESM-017`). Auto-map counts as a mapping
+  (Screenplay `SemanticModelBinder.ProjectionValues.cs` `AutoMapped`, which does not skip the
+  identifier): if the event carries a property with the identifier's name and type, declare
+  `no automap` and map the other properties explicitly. `from E` and `from E key
+  $eventSourceId` render when the identifier ends up unmapped, whether or not the event repeats
+  the identifier.
 - Refused in a scope (`STAGE-ESM-017`): composite keys; `all` (FromAll); `every` with
   children included beside children or nested blocks; root `remove via join`; joins,
   children or join removals inside `nested`; a `clear` inside `nested`; recursive children
