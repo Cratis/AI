@@ -173,7 +173,8 @@ whose description would not publish as release notes.
 
 ## Acknowledgments
 
-The Screenplay event-modeling skills and agents adapt material from
+The Screenplay event-modeling skills, several Arc and Chronicle code skills and the
+Screenplay and slice agents adapt material from
 [agentic-engineer](https://github.com/Nebulit-GmbH/agentic-engineer) by
 Martin Dilger and [Nebulit GmbH](https://nebulit.de), with their agreement,
 and from the MIT-licensed
