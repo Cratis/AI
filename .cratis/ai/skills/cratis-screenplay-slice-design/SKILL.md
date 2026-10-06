@@ -96,8 +96,11 @@ assumption into the phase report and the slice `description`, and continue.
    component or automation need. Pick the builder (declarative projection first, reducer when
    guards cannot be expressed). The query follows the business view: a list where people scan a
    list, a keyed lookup where they open one thing. For **executable or renderable scope**, every
-   read model also needs exactly one keyed shape `query XById => RM optional` + `by xId XId`,
-   with `xId = $eventSourceId`; keep the list query in design mode and record that it blocks V3.
+   read model also needs one unambiguous key: keyed queries `query XById => RM optional` all
+   using the same `by xId XId`. Map `xId = $eventSourceId` for the executable model; a Stage
+   scoped projection (several `from`, `remove with`, children...) establishes the identifier
+   from the key and refuses that mapping (`STAGE-ESM-017`, `cratis-stage-rendering-and-sandbox`
+   `references/admission.md`). Keep the list query in design mode and record that it blocks V3.
    Whose rows is part of the view; a caller-supplied filter is not access control.
 7. **Screens, Level 1.** `data <RM> via query <Q>` plus `action <Command>` per thing the user
    can do there. Build each slice as read model, screen, command, event. A screen acting on an
