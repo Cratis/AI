@@ -1,6 +1,6 @@
 {
   "skill": "cratis-screenplay-modeling-lifecycle",
-  "input": "Add a berth allocation feature to this Cratis application that already has a .cratis/screenplay model. How should the work be done and verified?",
+  "input": "Add a berth allocation feature to this Cratis application that already has a Screenplay model. How should the work be done and verified?",
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "Model first" },

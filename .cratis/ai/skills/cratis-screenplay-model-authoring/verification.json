@@ -45,11 +45,11 @@
     },
     {
       "kind": "skill-contains",
-      "value": ".cratis/screenplay/"
+      "value": "Look first for the project's existing `.play` files"
     },
     {
       "kind": "skill-contains",
-      "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`"
+      "value": "`cratis ai install` manages `.cratis/ai/`, never model files"
     },
     {
       "kind": "skill-contains",
@@ -69,7 +69,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "cratis screenplay mcp .cratis/screenplay"
+      "value": "cratis screenplay mcp <model-folder>"
     },
     {
       "kind": "skill-contains",

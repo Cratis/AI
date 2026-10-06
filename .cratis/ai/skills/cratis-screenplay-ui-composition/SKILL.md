@@ -12,11 +12,14 @@ entries other modules contribute are all declared in the `.play` model.
 
 ## Locate the model
 
-Look first in `.cratis/screenplay/` at the repository root. This is the
+Look first for the project's existing `.play` files: the folder holding them is the
+model. A new model goes under the repository's `Source/` or `src/` folder, else in a
+`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
+configuration and the shared AI corpus only. This is the
 conventional home for consumer-owned `.play` source; do not invent another
 location or search the whole repository before checking it.
 
-`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`. Never
+`cratis ai install` manages `.cratis/ai/`, never model files. Never
 hand-copy Screenplay source between repositories. Keep Markdown that explains,
 questions or navigates the model in the repository's documentation; the `.play`
 source is the single flow model.

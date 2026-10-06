@@ -149,7 +149,7 @@ LC_ALL=C sort -u "$tmp/manifest" > "$tmp/sorted" || fail "sort failed"
 d=$(shasum -a 256 < "$tmp/sorted") || fail "digest failed"
 echo "$commit+${d:0:12}"
 ```
-Example: `ident.sh .cratis/screenplay .cratis/screenplay/.screenplay/identities.json src/Billing/Rule.cs`
+Example: `ident.sh Source/Screenplay Source/Screenplay/.screenplay/identities.json src/Billing/Rule.cs`
 (the identity catalog sits inside the root, so list it only if it lives elsewhere; duplicates are
 merged). Record the output as the source identity; a changed digest invalidates acceptance. After the P6
 commit, recompute it: the digest must equal the one reviewed at P5 (only the commit part may differ). Add the

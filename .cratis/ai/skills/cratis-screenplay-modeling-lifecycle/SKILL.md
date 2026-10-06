@@ -3,7 +3,7 @@ name: cratis-screenplay-modeling-lifecycle
 description: "Model first: load before any Cratis application work where a Screenplay `.play` model is, or should become, the source of truth. Holds the model-first decision rule, modes, independent verdicts V1-V5, the P0-P9 phases with Input / Carry-forward / Gate, stop-or-assume, identity ownership, approvals, untrusted content, session state and handoffs, then routes to ONE phase skill. Not for: Screenplay syntax or the compiler (use `cratis-screenplay-toolchain`), a single construct (use the `cratis-screenplay-*` construct skills), or Chronicle runtime diagnosis (use `cratis-chronicle-cli-operations`)."
 license: MIT
 metadata:
-  cratis-hint-paths: ".cratis/screenplay/**/*.play"
+  cratis-hint-paths: "**/*.play"
 ---
 
 # Screenplay modeling lifecycle
@@ -18,10 +18,10 @@ an unproven pass.
 
 ## Decide the level first (master copy; run once per request, from any entry point)
 
-1. **Opted in?** Only when (a) the model root (default `.cratis/screenplay/`, or the project's
-   configured root) holds a `.play` file **in the committed tree** (`git ls-tree -r --name-only HEAD -- <root>` lists it), or (b)
+1. **Opted in?** Only when (a) the model root (the folder holding the project's `.play` files, or the project's
+   configured root) holds a `.play` file **in the committed tree** (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or (b)
    the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json` (an empty configured
-   root counts). **Not opt-in:** an empty `.cratis/screenplay/` or the MCP entry that `cratis ai
+   root counts). **Not opt-in:** an empty model folder or the MCP entry that `cratis ai
    install`/`update` creates; an installed profile or skill; a `.play` file outside the root; a
    staged or untracked `.play` file under the root (a draft). Committing a model under the root
    is the team's act of acceptance and opts the repository in.
@@ -221,7 +221,7 @@ Stage `v4.24.0` (admits ESM v1-v3); opt-in key `mcpServers.screenplay.root` in c
 `Documentation/reference/screenplay-mcp.md`. The worked example compiles with both tools.
 ## Verify
 ```shell
-screenplay .cratis/screenplay/ --warnaserror --no-color
+screenplay <model-folder> --warnaserror --no-color
 ```
 - [ ] The first output line states the mode; the last block opens with `Outcome:`; five verdict lines, each a result or "not run: <reason>".
 - [ ] One phase skill per step; STATE.md names the next phase; no code for modeled behavior, no managed output edited.

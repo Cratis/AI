@@ -42,27 +42,29 @@ Never ask the user which folder to use before trying. Call `open-workspace` with
 arguments first: a server started without a fixed root binds the folder the host or
 launch directory offers (the client's single workspace root, else the working
 directory when it holds `.play` files). Only when it answers that no root was given,
-or that several roots are offered, pass `path`: `.cratis/screenplay` in a repository
-that has one, otherwise the folder the user names. In Claude or ChatGPT desktop the
-host manages the files, so do not invent a location; work in what the host provides
-and carry a model between sessions with `workspaceJson`. A root fixed at launch
+or that several roots are offered, pass `path`: the folder holding the project's `.play` files, otherwise the
+folder the user names. Without a project, the server works in `Documents/Screenplay`
+in the user's home folder, so do not invent a location. A root fixed at launch
 cannot be switched: another `path` returns `RootChangeRefused`.
 
 **Prefer a fixed root.** Screenplay up to 4.63.1 (so Cratis CLI 3.27.1) fails a
 dynamic-root server right after `notifications/initialized` when the client
 advertises roots; real hosts then drop the connection, and `open-workspace.path`
 cannot prevent it. Start `screenplay mcp <model-folder>` or `cratis screenplay mcp`
-in a project with `.cratis/ai.json` (fixed root `.cratis/screenplay`).
+in a project (it locates the model: the project's `.play` files, else `Source/` or `src/`, else `Screenplay/`).
 Send `initialize` and `notifications/initialized` before any tool call;
 `tools/list` returns 29 tools (30 on MCP-Apps hosts). Details:
 [MCP loop](references/mcp-loop.md).
 
 
-Look first in `.cratis/screenplay/` at the repository root. This is the
+Look first for the project's existing `.play` files: the folder holding them is the
+model. A new model goes under the repository's `Source/` or `src/` folder, else in a
+`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
+configuration and the shared AI corpus only. This is the
 conventional home for consumer-owned `.play` source. The source is the single flow model;
 keep explanatory Markdown in the owning repository's documentation.
 
-`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`. Select the
+`cratis ai install` manages `.cratis/ai/`, never model files. Select the
 `cratis/screenplay` profile in the project's AI configuration. The corpus-owned
 `mcp-servers.json` declares the Screenplay server; supported client registration
 is owned by the Cratis CLI, which preserves other servers and user configuration.
@@ -70,7 +72,7 @@ is owned by the Cratis CLI, which preserves other servers and user configuration
 The CLI entry point is:
 
 ```shell
-cratis screenplay mcp .cratis/screenplay
+cratis screenplay mcp <model-folder>
 ```
 
 It runs the bundled server. Do not ask the user to install a second global .NET
@@ -196,7 +198,7 @@ imports afterwards. See the
 [language reference](references/language-reference.md) for placement rules.
 
 Parent scaffolding carries no duplicated module forms or contributions. Compile
-and validate the whole `.cratis/screenplay/` folder, or its root file, not just
+and validate the whole model folder, or its root file, not just
 the edited fragment.
 
 ## Preserve state and recover explicitly
@@ -254,7 +256,7 @@ that the code compiles or behaves. Path resolution and `PLAY0430`-`PLAY0434`:
 The ordinary CLI remains useful for whole-folder validation:
 
 ```shell
-cratis screenplay validate .cratis/screenplay --warnings-as-errors
+cratis screenplay validate <model-folder> --warnings-as-errors
 ```
 
 Repair and refactoring guidance follows Screenplay main `fd18129`. The Cratis

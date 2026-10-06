@@ -9,11 +9,11 @@ Write **comprehensive specs** for an existing slice. Invoke the **cratis-applica
 
 ## What to provide
 
-The slice file (`.cs`) **and its contract**: the `.play` slice with its specifications when the slice is modeled (search the model root, default `.cratis/screenplay/`), otherwise the agreed slice outline.
+The slice file (`.cs`) **and its contract**: the `.play` slice with its specifications when the slice is modeled (search the model root, the folder holding the project's `.play` files), otherwise the agreed slice outline.
 
 If no contract can be found, decide once:
 
-- **An accepted model under the model root covers the scope, or the repository is opted in** (the model root (default `.cratis/screenplay/`) holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it) or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed skill, a `.play` file outside the root or an untracked or uncommitted draft is not opt-in (master: `cratis-screenplay-modeling-lifecycle`)): do not write code-derived specs in its place. Route to the `cratis-screenplay-*` skills (`cratis-screenplay-specifications`, `cratis-screenplay-scenario-coverage`) to add the slice's specifications to the model first. If those skills are not installed, say so and stop; do not author `.play` from memory.
+- **An accepted model under the model root covers the scope, or the repository is opted in** (the model root (the folder holding the project's `.play` files) holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured) or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed skill, a `.play` file outside the root or an untracked or uncommitted draft is not opt-in (master: `cratis-screenplay-modeling-lifecycle`)): do not write code-derived specs in its place. Route to the `cratis-screenplay-*` skills (`cratis-screenplay-specifications`, `cratis-screenplay-scenario-coverage`) to add the slice's specifications to the model first. If those skills are not installed, say so and stop; do not author `.play` from memory.
 - **No model coverage and no opt-in:** stay code-first. Write from the code, report every case as a proposal rather than as agreed behavior. A model is proposed only by the entry-point session, at most once per session, and not for trivial, bug-fix, infrastructure, client, framework or brownfield-maintenance work.
 
 ## Coverage (every slice type)

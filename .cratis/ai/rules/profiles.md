@@ -151,7 +151,7 @@ Standalone Chronicle client usage (no Arc) in TypeScript is
 ### Event modeling with Screenplay
 
 **Model first.** A repository is opted in only when its model root (where the project's
-`.play` files live: normally under `Source/` or `src/`, else `Screenplay/`) holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it) or the project explicitly set
+`.play` files live: normally under `Source/` or `src/`, else `Screenplay/`) holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured) or the project explicitly set
 `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an
 installed profile or skill, a `.play` file outside the root or an untracked or uncommitted draft is not
 opt-in. An accepted model under the root covering the scope is the contract and the source
@@ -205,8 +205,9 @@ The profile also selects the corpus-owned Screenplay MCP declaration from
 `mcp-servers.json`. The Cratis CLI hosts the server as `cratis screenplay mcp`
 and registers a scoped entry for supported clients without replacing their other
 servers. Inspect install/status results for adapter support or configuration
-conflicts. The conventional model root is `.cratis/screenplay/`; project-owned
-configuration can choose another root.
+conflicts. The model is wherever the project keeps its `.play` files, else under `Source/` or
+`src/`, else in a `Screenplay/` folder at the repository root; never under `.cratis/`.
+Project-owned configuration can name a root explicitly.
 
 ## How to Use Profiles
 

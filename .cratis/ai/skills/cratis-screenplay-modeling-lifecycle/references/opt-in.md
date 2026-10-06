@@ -3,9 +3,9 @@
 The decision rule is in `SKILL.md` ("Decide the level first"). This file holds the evidence.
 
 ## Why an empty directory or an MCP entry is not opt-in
-At cratis CLI `v3.27.1` the `cratis/screenplay` profile (and composed profiles such as Stage)
-makes `cratis ai install`/`update` create the selected model directory, normally the corpus
-default `.cratis/screenplay` (`Documentation/ai/index.md`: "Install/update creates the selected
+Through cratis CLI `v3.27.1` the `cratis/screenplay` profile (and composed profiles such as Stage)
+made `cratis ai install`/`update` create the selected model directory, normally `.cratis/screenplay`
+(`Documentation/ai/index.md`: "Install/update creates the selected
 empty model directory ... but does not start the server or create source files"), and register
 a Screenplay MCP entry for it. Uninstall keeps the directory. Both therefore appear in every
 repository that merely installed the language skills, so neither can signal consent.
@@ -21,7 +21,7 @@ disables registration"; `AiConfiguration.McpServers`, read by `AiMcpDescriptor` 
 ## Edge cases
 - `.play` files only under `.ai-work/`, a docs folder or a sample: not under the root, so not opt-in.
 - Acceptance is visible in the repository: the model root holds at least one `.play` file in
-  the committed tree (`git ls-tree -r --name-only HEAD -- <root>` lists it). Committing a model
+  the committed tree (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured). Committing a model
   under the root is the team's act of acceptance and opts the repository in. P6 commits the
   accepted `.play` files and `.screenplay/identities.json` when present.
 - Staged or untracked files under the root are drafts: they do not opt the repository in and

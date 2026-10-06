@@ -44,11 +44,11 @@ to these tags; when the Screenplay skills are installed their `references/versio
 Find the contract before touching code; say which one you are using. These steps are enough on
 their own when the Screenplay skills are not installed; the master decision rule, when they
 are, is `cratis-screenplay-modeling-lifecycle` ("Decide the level first").
-1. An accepted `.play` model under the model root (default `.cratis/screenplay/`, or the root
+1. An accepted `.play` model under the model root (the folder holding the project's `.play` files, or the root
    set by `mcpServers.screenplay.root` in `.cratis/ai.json`) covers the slice (search
    `**/*.play` for the slice, command, event and read-model names): the `.play` slice and its
    specifications are the contract. "Accepted" means the `.play` file is in the committed tree
-   (`git ls-tree -r --name-only HEAD -- <root>` lists it). Staged or untracked files under the
+   (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured). Staged or untracked files under the
    root are drafts, not contracts; a file outside the root is not a contract. A committed file
    with uncommitted working-tree edits is a model change in progress: its HEAD version is the
    contract until the change is committed.
