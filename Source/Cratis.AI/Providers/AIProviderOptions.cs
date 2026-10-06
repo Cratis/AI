@@ -58,14 +58,16 @@ public class AIProviderOptions
     public TimeSpan SubscriptionRefreshMargin { get; set; } = TimeSpan.FromMinutes(30);
 
     /// <summary>
-    /// Gets or sets how long a provider is left alone after it turned work away over its own usage
-    /// limit.
+    /// Gets or sets the shortest time a provider is left alone after it turned work away over its own
+    /// usage limit - and the whole of it when nothing says when the limit lifts.
     /// </summary>
     /// <remarks>
-    /// Vendors do not say when the allowance resets, so this is a guess that corrects itself: too
-    /// short and the provider is tried again and re-parked, costing one worker session; too long and
-    /// capacity sits idle. An hour is short enough to recover promptly and long enough not to spend a
-    /// session every few minutes discovering the same answer.
+    /// When the failure states its reset ("resets Oct 9, 2am (UTC)"), or the provider's capacity says
+    /// when its exhausted windows reset, the provider is parked until then instead - see
+    /// <see cref="RateLimiting.ProviderRateLimit.ResetIndicatedBy"/>. Otherwise this is a guess that
+    /// corrects itself: too short and the provider is tried again and re-parked, costing one worker
+    /// session; too long and capacity sits idle. An hour is short enough to recover promptly and long
+    /// enough not to spend a session every few minutes discovering the same answer.
     /// </remarks>
     public TimeSpan RateLimitCooldown { get; set; } = TimeSpan.FromHours(1);
 
@@ -83,4 +85,26 @@ public class AIProviderOptions
     /// Gets or sets how long a vendor's usage surface may take before the read is abandoned.
     /// </summary>
     public TimeSpan UsageReportTimeout { get; set; } = TimeSpan.FromSeconds(8);
+
+    /// <summary>
+    /// Gets or sets how much of a provider's tightest usage window must be left for work to be
+    /// started on it, from 0 to 1 - see <see cref="Capacity.AIProviderCapacity.CanStartWork"/>.
+    /// </summary>
+    /// <remarks>
+    /// Slightly above zero on purpose: a window at 99% used admits a few more calls at best, and a
+    /// worker session started on it is likely to be turned away part-way through, which costs more
+    /// than starting it on another pool member.
+    /// </remarks>
+    public double MinimumHeadroomToStartWork { get; set; } = 0.02;
+
+    /// <summary>
+    /// Gets or sets how long a vendor's reported capacity stays good enough to answer from without
+    /// asking the vendor again. Also the first back-off after a failed read, doubling up to an hour.
+    /// </summary>
+    public TimeSpan CapacityFreshness { get; set; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// Gets or sets how long a vendor's capacity surface may take before the read is abandoned.
+    /// </summary>
+    public TimeSpan CapacityReportTimeout { get; set; } = TimeSpan.FromSeconds(10);
 }

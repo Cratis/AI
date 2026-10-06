@@ -167,6 +167,16 @@ public record PoolSelectionData(
         new Dictionary<AIProviderId, int>(),
         new Dictionary<AIProviderId, int>(),
         new Dictionary<AIProviderId, long>());
+
+    /// <summary>
+    /// Gets how much of each provider's tightest usage window is left, from 0 to 1, keyed by
+    /// provider - see <see cref="Capacity.AIProviderCapacity.Headroom"/>. A provider missing from the
+    /// map counts as fully available (1.0), the same way an unknown capacity does: not knowing must not
+    /// rank a member behind one that is known to be nearly spent. Ranked ahead of
+    /// <see cref="RemainingCapacityByProvider"/> and burn, since it is what the vendor itself says is
+    /// left; a member with no headroom at all ranks after every member that has some.
+    /// </summary>
+    public IReadOnlyDictionary<AIProviderId, double> HeadroomByProvider { get; init; } = new Dictionary<AIProviderId, double>();
 }
 
 /// <summary>

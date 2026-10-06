@@ -30,6 +30,7 @@ export * from './generated/Providers';
 export * from './generated/Providers/Adding';
 export * from './generated/Providers/AvailableModels';
 export * from './generated/Providers/Capabilities';
+export * from './generated/Providers/Capacity';
 export * from './generated/Providers/Codex';
 export * from './generated/Providers/Copilot';
 export * from './generated/Providers/Listing';
