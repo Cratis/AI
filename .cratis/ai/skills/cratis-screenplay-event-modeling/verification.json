@@ -17,11 +17,11 @@
     },
     {
       "kind": "skill-contains",
-      "value": ".cratis/screenplay/"
+      "value": "Look first for the project's existing `.play` files"
     },
     {
       "kind": "skill-contains",
-      "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`"
+      "value": "`cratis ai install` manages `.cratis/ai/`, never model files"
     },
     {
       "kind": "skill-contains",

@@ -104,7 +104,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 > **Building an application on Cratis?** Project layout, slice types, slice naming, the seventeen slice rules, the implementation workflow and the application quality gates are in [application-profile.md](./application-profile.md), which loads only for repositories that select an application profile. If you are contributing to a Cratis framework repo, see **Framework profile** below.
 
-**Model first.** When an accepted `.play` model covers the scope, or the repository has opted in, the `.play` model is the source of truth for behavior: change the model first, verify it, then render it or gap-fill from it, and never edit Stage-managed output, take code as a shortcut around the model, or weaken protection (authorization, `@pii`, rules) to make a model compile or render. Opted in means the model root (default `.cratis/screenplay/`) holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed profile or skill, a `.play` file outside the root or an untracked or uncommitted draft is not opt-in, and a behavior is a contract only when an accepted model under the root covers it (accepted means committed: staged or untracked files under the root are drafts; a committed file with uncommitted working-tree edits is a model change in progress, and its HEAD version is the contract until the change is committed; committing a model under the root is the team's act of acceptance and opts the repository in; an explicitly configured but empty root also counts as opted in). Otherwise stay code-first; the entry-point session may propose a model at most once per session (never for trivial, bug-fix, infrastructure, client, framework or brownfield-maintenance work), and infrastructure, client and adapter work stays in code at any level. Trivial changes keep the proportional-delegation policy. The master decision rule is in **cratis-screenplay-modeling-lifecycle** (router: **cratis-screenplay-event-modeling**); if the Screenplay skills are not installed, say so and do not author `.play` from memory.
+**Model first.** When an accepted `.play` model covers the scope, or the repository has opted in, the `.play` model is the source of truth for behavior: change the model first, verify it, then render it or gap-fill from it, and never edit Stage-managed output, take code as a shortcut around the model, or weaken protection (authorization, `@pii`, rules) to make a model compile or render. Opted in means the model root (the folder holding the project's `.play` files) holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed profile or skill, a `.play` file outside the root or an untracked or uncommitted draft is not opt-in, and a behavior is a contract only when an accepted model under the root covers it (accepted means committed: staged or untracked files under the root are drafts; a committed file with uncommitted working-tree edits is a model change in progress, and its HEAD version is the contract until the change is committed; committing a model under the root is the team's act of acceptance and opts the repository in; an explicitly configured but empty root also counts as opted in). Otherwise stay code-first; the entry-point session may propose a model at most once per session (never for trivial, bug-fix, infrastructure, client, framework or brownfield-maintenance work), and infrastructure, client and adapter work stays in code at any level. Trivial changes keep the proportional-delegation policy. The master decision rule is in **cratis-screenplay-modeling-lifecycle** (router: **cratis-screenplay-event-modeling**); if the Screenplay skills are not installed, say so and do not author `.play` from memory.
 
 ---
 
@@ -146,6 +146,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | What must stop and ask a human | `capability-is-not-authority.md` (absent authority for a consequential effect: stop and ask) |
 | What counts as evidence that something works | `verification-discipline.md` |
 | Where session notes, plans and handovers may live | `local-work-artifacts.md` |
+| What may be written into the `.cratis/` folder (configuration and the corpus only, never deliverables) | `cratis-folder-is-configuration.md` |
 | Exit-code meaning and wrappers that lose a verdict | `exit-codes-and-wrappers.md` |
 | Writing a scan, allowlist or destructive pass that cannot pass vacuously | `guards-and-fuses.md` |
 | How the shared corpus is installed, updated and rolled back | `ai-distribution.md` |
@@ -176,6 +177,10 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 ```
+
+## `.cratis/` is configuration only
+
+Never produce deliverables - Screenplay models, source, generated code, specifications, documentation, anything that can ship - into `.cratis/`. It holds configuration and the shared AI corpus itself. Full rule: [cratis-folder-is-configuration.md](./cratis-folder-is-configuration.md).
 
 ## Local AI work artifacts — `.ai-work/` only
 

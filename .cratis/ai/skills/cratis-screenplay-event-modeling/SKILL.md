@@ -37,7 +37,7 @@ into the work that acts on them. Flag a real trade-off to the user instead of re
 **1. Decide the level (short form; master copy in `cratis-screenplay-modeling-lifecycle`).**
 Check first that the method skills are installed; installing them never opts a
 repository in. The work is **model-first** only in an opted-in repository: the model
-root (default `.cratis/screenplay/`) holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project explicitly set
+root (the folder holding the project's `.play` files) holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project explicitly set
 `mcpServers.screenplay.root` in `.cratis/ai.json`. An empty directory, install output,
 an installed skill, a `.play` file outside the root or an untracked or uncommitted draft is not
 opt-in; staged or untracked files under the root are drafts. A committed file with uncommitted
@@ -87,11 +87,14 @@ keeps the activities, Screenplay output and facilitation questions of each step:
 
 ## Locate the model
 
-Look first in `.cratis/screenplay/` at the repository root. This is the
+Look first for the project's existing `.play` files: the folder holding them is the
+model. A new model goes under the repository's `Source/` or `src/` folder, else in a
+`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
+configuration and the shared AI corpus only. This is the
 conventional home for consumer-owned `.play` source; do not invent another
 location or search the whole repository before checking it.
 
-`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`. Never
+`cratis ai install` manages `.cratis/ai/`, never model files. Never
 hand-copy Screenplay source between repositories. Keep Markdown that explains,
 questions or navigates the model in the repository's documentation; the `.play`
 source is the single flow model.
@@ -232,7 +235,7 @@ The full critic pass (evidence, severity, business-question review) is
 
 ## Choose a file layout
 
-Treat `.cratis/screenplay/` as one application and choose the coarsest layout
+Treat the model folder as one application and choose the coarsest layout
 that keeps both the source and its diffs readable:
 
 - Keep one `application.play` while it stays readable top to bottom.
@@ -323,10 +326,10 @@ order of modules, features or slices.
 ## Verify
 
 ```shell
-screenplay .cratis/screenplay/ --warnaserror
+screenplay <model-folder> --warnaserror
 ```
 
-(The standalone tool; `cratis screenplay validate .cratis/screenplay --warnings-as-errors`
+(The standalone tool; `cratis screenplay validate <model-folder> --warnings-as-errors`
 is the fallback, and neither names the other's verdict. Versions and commands:
 `cratis-screenplay-toolchain`.)
 

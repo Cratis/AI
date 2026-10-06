@@ -24,8 +24,8 @@ causes. It is the adapter side of a **translation** only when its input is
 outside data that becomes our own facts.
 
 > **Model first.** If an accepted model under the model root covers this scope, or
-> the repository is opted in (the root, default `.cratis/screenplay/`, holds a
-> committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project explicitly set `mcpServers.screenplay.root` in
+> the repository is opted in (the root, the folder holding the project's `.play` files, holds a
+> committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project explicitly set `mcpServers.screenplay.root` in
 > `.cratis/ai.json`; master definition in `cratis-screenplay-modeling-lifecycle`), the automation is
 > a modeled slice: find it (`Automation` or `Translate`), treat its `produces` /
 > `invokes`, conditions and fields as the contract, and write the reactor only as

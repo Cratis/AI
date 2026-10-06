@@ -31,7 +31,7 @@ phase, a decision important enough that a later reader could misread the model (
 `reasoning-notes.md` for when it belongs in a `description`).
 
 ## P0 Intake
-- **Input**: the request, the repository, `.cratis/screenplay/` or the configured root.
+- **Input**: the request, the repository, the project's model folder or the configured root.
 - **Carry-forward**: mode; model root; tool check (versions per `cratis-screenplay-toolchain`);
   the decision-rule outcome (model or code-first); STATE.md.
 - **Gate**: mode stated; STATE.md exists; the five intake points (domain, source, goal, constraints,
