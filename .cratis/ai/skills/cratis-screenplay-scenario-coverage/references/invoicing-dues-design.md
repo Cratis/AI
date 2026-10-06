@@ -14,7 +14,6 @@ replaced by prose. The runnable counterpart, which holds no stored-state rule, i
 `invoicing-dues-example.md`; `scenario-examples.md` copies `ReversingAReceivedPayment` from here.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 // Scenario coverage design-mode example: stored-state rules of invoicing club dues (complete document).
 // Design mode: `reads` is PLAY0271 and `require` over a view is PLAY0268 at binding (the only
 // blockers), so this model compiles but is not executable; the specifications below do not run. The runnable counterpart

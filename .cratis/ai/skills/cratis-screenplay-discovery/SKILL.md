@@ -35,7 +35,7 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
 
 ## Verified product sources
 
-Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.27.1, Stage v4.24.0, Arc v22.50.5, Chronicle
+Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.2, Stage v4.24.1, Arc v22.50.5, Chronicle
 v19.32.0) are listed once in `cratis-screenplay-toolchain` `references/versions.md`.
 Statements here were checked at those tags:
 
@@ -49,7 +49,7 @@ Statements here were checked at those tags:
 | Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
 
 Every complete `screenplay` fence in this skill compiles with the standalone compiler
-4.66.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.27.1.
+4.66.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.28.2.
 
 ## Interview phase
 

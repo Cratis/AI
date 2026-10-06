@@ -9,8 +9,8 @@ refusals are in the [MCP tool guide](mcp-tools.md); verdict names (V1 to V5) are
 defined by `cratis-screenplay-modeling-lifecycle`. Facts here were read at
 Screenplay v4.66.0 (`Source/DotNET/Screenplay.Mcp/`, `Documentation/screenplay/mcp/`)
 and probed against the standalone 4.66.0 tool and, for the connection behavior,
-4.63.1. Cratis CLI 3.27.1 bundles Screenplay 4.60.1, whose tool set and views can
-differ: read `tools/list`.
+4.63.1. Cratis CLI 3.28.2 bundles Screenplay 4.66.0 (probed: 29 tools and the same views);
+Cratis CLI 3.27.1 and earlier bundled 4.60.1, whose tool set and views differ: read `tools/list`.
 
 ## Connect
 
@@ -41,8 +41,9 @@ treat that as fatal and drop the connection. Passing `open-workspace.path` does
 **not** avoid it, because the error is sent before `open-workspace` runs.
 
 Avoid it by fixing the root at launch (the forms in step 1). The `cratis/screenplay`
-profile registration is not affected in an installed project, and the CLI now locates the model itself, so no model directory has to exist. Cratis CLI 3.27.1 bundles 4.60.1: for a
-dynamic root there, fix the root.
+profile registration is not affected in an installed project, and the CLI now locates the model itself, so no model directory has to exist. Cratis CLI 3.27.1 and earlier bundled 4.60.1: for a
+dynamic root there, fix the root. Cratis CLI 3.28.2 bundles 4.66.0, which is fixed (probed:
+the server sends `roots/list` and serves `tools/list` after the reply).
 
 ## Who owns the connection
 

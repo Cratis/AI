@@ -1,7 +1,7 @@
 # Prologue capture and interpretation: safety
 
 Sources: Prologue `ad4bbe7` (Extractor, Configuration, Interpretation) and cratis CLI
-`v3.27.1` (`Source/Cli/Commands/Prologue/*`, `LlmOptionsResolver.cs`,
+`v3.28.2` (`Source/Cli/Commands/Prologue/*`, unchanged since `v3.27.1`; `LlmOptionsResolver.cs`,
 `Documentation/reference/prologue.md`). Tool versions: `cratis-screenplay-toolchain`
 `references/versions.md`.
 Everything here that touches a target system is

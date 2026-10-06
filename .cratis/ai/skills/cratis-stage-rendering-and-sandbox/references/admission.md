@@ -2,8 +2,8 @@
 
 Read at Stage `v4.24.0`, re-read at `v4.24.1` (`Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`, `Documentation/guides/build-renderer-target.md`; 4.24.1 changed only the ledger, dependency pins and the Dockerfile) (`Source/Rendering.Cratis/CratisArtifactRenderPlanner.cs`,
 `Semantics/SemanticCratisAdmission*.cs`, `SemanticSpecificationAdmission*.cs`,
-`PureTransitionAdmission.cs`, `SemanticImplementationAdmission.cs`) and cli `v3.27.1`
-(`Commands/Render/ScreenplayPlanning.cs`). Items marked *observed* were reproduced with
+`PureTransitionAdmission.cs`, `SemanticImplementationAdmission.cs`) and cli `v3.28.2`
+(`Commands/Render/ScreenplayPlanning.cs`, unchanged since `v3.27.1`). Items marked *observed* were reproduced with
 `cratis render` 3.27.1 while building [render-example.md](render-example.md). Anything else
 is a reading of source: render the model before claiming it.
 
@@ -11,7 +11,7 @@ One blocking diagnostic fails the **whole** plan and nothing is published (exit 
 Informational diagnostics (`PLAY0270` authoring metadata, `PLAY0469`, `STAGE-ESM-023`) do not.
 
 A refusal can come from four layers, and the code tells you which: compilation and binding
-(`PLAY*`, from the CLI's bundled Screenplay 4.60.1), execution planning (`PLAN-*`), Stage
+(`PLAY*`, from the CLI's bundled Screenplay: 4.66.0 in cratis 3.28.2), execution planning (`PLAN-*`), Stage
 admission (`STAGE-*`) and the CLI itself (`CLI-RENDER-*`). A publication conflict (a
 modified managed file, an unmanaged file at a planned path, a manifest from another
 target or renderer) is a plain ownership error with no code. Keep the actual diagnostic or
@@ -160,7 +160,7 @@ From `SemanticSpecificationAdmission*.cs`; the first rule was also observed.
 
 ## Observed refusals
 
-Each came from the first draft of the example model, rendered with cratis 3.27.1:
+Each came from the first draft of the example model, rendered with cratis 3.27.1 (the marina model still renders on 3.28.2 with 30 artifacts):
 
 | Draft | Diagnostic | Fix that rendered |
 | --- | --- | --- |
@@ -174,5 +174,5 @@ Each came from the first draft of the example model, rendered with cratis 3.27.1
 | --- | --- |
 | Stage README: application scope adds "exactly eight" backend files | The scaffold creates nine (adds `GeneratedPolicyRegistration.cs`), plus the frontend scaffold |
 | cli reference: bodied reducers are unsupported (`STAGE-ESM-019`) | `PureTransitionAdmission` admits pure allowlisted bodies |
-| Stage customization guide: an Automation slice blocks with `STAGE-ESM-001`; Stage pins Screenplay 4.35.0 | With cli 3.27.1 an Automation or Translate slice fails binding (`PLAY0268`) first; Stage 4.24.0 pins Screenplay 4.60.0 (4.24.1: 4.66.0) |
+| Stage customization guide: an Automation slice blocks with `STAGE-ESM-001`; Stage pins Screenplay 4.35.0 | With cli 3.27.1 an Automation or Translate slice failed binding (`PLAY0268`) first; with cli 3.28.2 it binds and Stage refuses the whole model with `STAGE-ESM-016` (probed). Stage 4.24.0 pinned Screenplay 4.60.0 (4.24.1: 4.66.0) |
 | An earlier version of this skill: Stage has no authorization contract for queries | Query authorization is admitted and rendered; an unauthorized query renders `[AllowAnonymous]` (observed) |

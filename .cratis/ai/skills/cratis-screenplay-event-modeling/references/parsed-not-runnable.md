@@ -45,6 +45,6 @@ The complete example in [nine-steps.md](nine-steps.md) (Step 7) compiled with
 `screenplay <folder> --warnaserror` 4.66.0 (0 errors, 0 warnings) and opened through
 `screenplay mcp <folder>` with `executableReady: true` and five `PLAY0270` information
 diagnostics. It binds as a scheduled invocation; its `reads` is intent only, so the overdue
-decision is not executed by the model. The `cratis` 3.27.1 bundle (Screenplay 4.60.1, ESM v1
-to v5) compiles it but rejects the Automation slice at binding. Report reaction
+decision is not executed by the model. The `cratis` 3.28.2 bundle (Screenplay 4.66.0) binds it the same way (probed); the 3.27.1 bundle
+(Screenplay 4.60.1, ESM v1 to v5) compiled it but rejected the Automation slice at binding. Report reaction
 specifications as authored, not as run, unless a V4 run says otherwise.

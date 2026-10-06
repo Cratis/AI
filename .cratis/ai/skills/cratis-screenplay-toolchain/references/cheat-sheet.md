@@ -7,16 +7,16 @@ examples belong to `cheat-sheet-example.md` and its siblings.
 
 | File | Mode | V1, warnings as errors | V3 (binds) |
 | --- | --- | --- | --- |
-| `cheat-sheet-example.md` | design: every construct family | 0 diagnostics on the standalone tool; cratis 3.27.1 (4.60.1) reports a false PLAY0285 on the `RecordingAPayment` cascade spec, so the fence carries the marker below and skips cratis | not ready by design (its header lists why; fewer blockers on the standalone tool) |
+| `cheat-sheet-example.md` | design: every construct family | 0 diagnostics, both tools (cratis 3.27.1 and earlier reported a false PLAY0285 on the `RecordingAPayment` cascade spec) | not ready by design (its header lists why; fewer blockers on the standalone tool) |
 | `executable-example.md` | executable, StateChange and StateView | 0 diagnostics, both tools | ready, both tools |
 | `pdl-example.md` | executable projections | 0 diagnostics, both tools | ready, both tools |
-| `automation-translate-example.md` | executable Automation and Translate (ESM v6) | standalone tool only (first line `// Needs the standalone screenplay compiler (ESM v6)`) | ready on the standalone tool only |
+| `automation-translate-example.md` | executable Automation and Translate (ESM v6) | 0 diagnostics, both tools (cratis 3.27.1 and earlier could not bind it) | ready, both tools (cratis 3.28.2 or later) |
 
 Screenplay sources: `Documentation/screenplay/grammar.md` (EBNF; checked against the parsers
 by `for_Documentation/when_comparing_the_grammar_against_the_parsers.cs`),
 `projections/grammar.md`, `captures/grammar.md`. Documentation examples compile in
 Screenplay CI (`when_compiling_every_example.cs`) against repository main: the standalone
-compiler, not necessarily the cratis-bundled one (`versions.md`).
+compiler (4.66.0), which `cratis` 3.28.2 or later bundles; older cratis bundles differ (`versions.md`).
 
 ## Lexical and structural rules
 - Spaces only, 2 per level (tabs: PLAY0006 W). Offside rule.

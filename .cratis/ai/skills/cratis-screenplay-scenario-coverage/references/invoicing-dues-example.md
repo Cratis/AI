@@ -14,7 +14,6 @@ needs a received payment, `reads` + `require`): those rules cannot bind or run a
 never in prose here. It shows the category shapes; for a coverage example see `berth-reservations.md`.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 // Scenario coverage worked example: invoicing club dues (complete document).
 // Backs the excerpts in scenario-examples.md and view-and-story-specs.md: issue an invoice,
 // request payment, an external gateway result captured and translated, an open-invoices todo list family and an accumulating credit balance.

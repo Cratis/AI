@@ -137,7 +137,7 @@ name them as unfinished.
   capture, a reaction) the view or translation must cope with any order.
 - Shape: view family whose givens are in a different order; translation specs where the
   external record arrives before our own fact; `given clock`/`when clock` for deadlines
-  (binds on the current compiler, not the cratis-bundled one: `cratis-screenplay-toolchain` `references/versions.md`; see
+  (binds on Screenplay 4.61 or later, so not on a cratis 3.27.1 or earlier bundle: `cratis-screenplay-toolchain` `references/versions.md`; see
   `cratis-screenplay-automations-and-translations`).
 - n/a: a single event source, with no external or cross-source input.
 

@@ -66,7 +66,7 @@ never "specifications pass".
   `@sensitive`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.
 - A model is "executable" only on the compiler that bound it. A V3 from the standalone tool
-  does not carry to `cratis render` (bundled 4.60.1, ESM v1 to v5; Stage v1 to v3).
+  does not carry to `cratis render`: Stage admits ESM v1 to v3 only (and on cratis 3.27.1 and earlier the bundled 4.60.1 binder, ESM v1 to v5, refused v6 first).
 
 ## V4: reference specifications run
 
@@ -114,7 +114,7 @@ V1 pass (screenplay 4.66.0, 3 files)
 V2 read (screenplay 4.66.0 via MCP): 0 blocking, 3 informational (PLAY0270)
 V3 ready (screenplay 4.66.0, ESM v3)
 V4 not run: no route
-V5 admission pass (cratis 3.27.1, Stage 4.24.0); publication written 14 files; build not run; tests not run
+V5 admission pass (cratis 3.28.2, Stage 4.24.1); publication written 14 files; build not run; tests not run
 ```
 
 Rules: a clean verdict never implies a later one; a verdict names the **source identity** it
@@ -124,9 +124,11 @@ source change makes earlier verdicts stale.
 ## Example gate (for skill and documentation authors)
 
 Every complete `screenplay` fence in this corpus compiles with the standalone tool at the
-pin and `--warnaserror`. Every fence without the marker `// Needs the standalone screenplay
-compiler (ESM v6)` also passes `cratis screenplay validate --warnings-as-errors` (3.27.1) on
-a folder holding that one file. Examples meant to execute are also opened through MCP and
+pin and `--warnaserror`. Every such fence also passes `cratis screenplay validate
+--warnings-as-errors` (3.28.2, bundling the same compiler) on a folder holding that one file.
+The `// Needs the standalone screenplay compiler (ESM v6)` first-line marker belonged to cratis
+3.27.1 and earlier, which could not validate those fences; no fence carries it now, and a
+checker that still skips marked fences under `cratis` skips nothing. Examples meant to execute are also opened through MCP and
 must be `executableReady`. No example uses `numbers exact`.
 
 Edit strategy for `.play` changes (typed identity-preserving operations preferred, bounded text

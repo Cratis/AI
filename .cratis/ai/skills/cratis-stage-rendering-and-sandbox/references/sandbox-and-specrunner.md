@@ -2,7 +2,7 @@
 
 Read at Stage `v4.24.0` (`README.md`, `Documentation/docker/index.md`,
 `Documentation/docker/spec-runner.md`, `Documentation/reference/urls.md`) and cli
-`v3.27.1` (`Commands/Run/*`). Docker was **not run** for this skill: every behaviour here
+`v3.28.2` (`Commands/Run/*`, unchanged since `v3.27.1`). Docker was **not run** for this skill: every behaviour here
 is documented behaviour, not an observed result. Both images are still shipped.
 
 ## The sandbox: a partial, disposable runtime

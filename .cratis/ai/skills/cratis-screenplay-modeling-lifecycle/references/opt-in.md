@@ -3,7 +3,7 @@
 The decision rule is in `SKILL.md` ("Decide the level first"). This file holds the evidence.
 
 ## Why an empty directory or an MCP entry is not opt-in
-Through cratis CLI `v3.27.1` the `cratis/screenplay` profile (and composed profiles such as Stage)
+Through cratis CLI `v3.28.2` (documented in `Documentation/ai/index.md`; same in `v3.27.1`) the `cratis/screenplay` profile (and composed profiles such as Stage)
 made `cratis ai install`/`update` create the selected model directory, normally `.cratis/screenplay`
 (`Documentation/ai/index.md`: "Install/update creates the selected
 empty model directory ... but does not start the server or create source files"), and register
@@ -12,11 +12,11 @@ repository that merely installed the language skills, so neither can signal cons
 
 ## The explicit signal
 `mcpServers.screenplay.root` in `.cratis/ai.json` is the project-owned property that overrides the
-model directory (`Documentation/reference/screenplay-mcp.md` at `v3.27.1`: "The optional
+model directory (`Documentation/reference/screenplay-mcp.md` at `v3.28.2`: "The optional
 project-owned `mcpServers` property in `.cratis/ai.json` overrides the model directory or
 disables registration"; `AiConfiguration.McpServers`, read by `AiMcpDescriptor` as
 `configuration.McpServers?.GetValueOrDefault(Id)?.Root ?? DefaultRoot`). Verify with
-`git -C <cli checkout> show v3.27.1:Documentation/reference/screenplay-mcp.md`.
+`git -C <cli checkout> show v3.28.2:Documentation/reference/screenplay-mcp.md`.
 
 ## Edge cases
 - `.play` files only under `.ai-work/`, a docs folder or a sample: not under the root, so not opt-in.

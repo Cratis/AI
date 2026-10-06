@@ -5,7 +5,7 @@
 This skill is an original Cratis work, condensed from verified research on the Screenplay
 language, the standalone tool, the cratis CLI and Stage, then re-verified against product
 source at the tags in `versions.md` and probed on the installed tools (Screenplay 4.66.0 and
-cratis 3.27.1). Every version, diagnostic and exit-code row cites its evidence there or in
+cratis 3.28.2). Every version, diagnostic and exit-code row cites its evidence there or in
 the file that holds it.
 
 ## External material
@@ -32,11 +32,11 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
   specifications, reactions, diagnostics, mcp), `decisions/0017`, `0020`, `0022` to `0024`,
   `Source/DotNET/Screenplay/Semantics/` (binder, versions, execution),
   `Source/DotNET/Screenplay.Mcp/` (connection, catalog, schemas, workspaces, visualization),
-  `Source/DotNET/Tool/Program.cs`. Also `v4.60.1` and `v4.63.1` for the bundled-compiler and
-  cascade differences.
-- Stage `v4.24.0` (`fa48546`): `Source/Rendering.Cratis/` (surface ledger, planner, pure
+  `Source/DotNET/Tool/Program.cs`. Also `v4.60.1` and `v4.63.1` for the differences from the compiler bundled in cratis 3.27.1
+  and earlier.
+- Stage `v4.24.0` (`fa48546`, unchanged in `Rendering.Cratis` admission at `v4.24.1`): `Source/Rendering.Cratis/` (surface ledger, planner, pure
   transition admission, scaffold), `Documentation/guides/customize-rendered-application.md`.
-- cratis `v3.27.1` (`a327e89`): `Source/Cli/Commands/Render/`, `ScreenplayMcpRoot.cs`,
+- cratis `v3.28.2` (`141c499`; `Render/`, `Run/`, `Prologue/` and `Screenplay/Generate*` are unchanged since `v3.27.1`, `a327e89`): `Source/Cli/Commands/Render/`, `ScreenplayMcpRoot.cs`,
   `Documentation/reference/screenplay.md`.
 - Arc `v22.50.5` and Chronicle `v19.32.0` for the code-level facts cited in `versions.md`.
 - Open issues cited as limits: cli#242, #243, #244, #245; Screenplay#377, #379, #383, #384,

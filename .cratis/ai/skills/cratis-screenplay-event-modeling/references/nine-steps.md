@@ -184,8 +184,8 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 `produces` blocks, not an `Automation` slice.
 
 **Output:** the `reaction`, in an `Automation` slice. It binds on the standalone
-`screenplay` 4.66.0 (ESM v6); the `cratis` 3.27.1 bundle rejects the slice at binding and
-Stage 4.24.0 renders none, so the automation is gap-fill there (versions:
+`screenplay` 4.66.0 and the `cratis` 3.28.2 bundle (ESM v6; the 3.27.1 bundle rejected the slice
+at binding) and Stage 4.24.1 renders none, so the automation is gap-fill there (versions:
 `cratis-screenplay-toolchain`). When the automation decides from a view, declare it under
 the trigger with `reads` (see `cratis-screenplay-captures-and-reactions`).
 
@@ -205,7 +205,6 @@ contract (`cratis-screenplay-render-and-gap-fill`), and say so in the slice desc
 the example does. Do not claim the specification proves the overdue decision.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 domain Acme.Invoicing
 
 concept InvoiceId : Uuid

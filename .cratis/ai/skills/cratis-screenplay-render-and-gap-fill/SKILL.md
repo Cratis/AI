@@ -25,12 +25,12 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `v3.27.1` (`a327e89`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.60.1 and Stage 4.24.0 |
-| Stage | `v4.24.0` (`fa48546`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
+| cratis CLI | `v3.28.2` (`141c499`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.1 (3.27.1 and earlier bundled 4.60.1 and 4.24.0) |
+| Stage | `v4.24.1` (`2cadf59`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
 | Screenplay | `v4.66.0` (`c89198b`) | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1` | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one |
 
-Facts were read at those tags and `cratis render` was run at 3.27.1 for the worked example
+Facts were read at those tags and `cratis render` was run at 3.28.2 for the worked example
 (`references/worked-example.md`). The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
 this skill links them and never restates the admission table.
 
@@ -77,8 +77,9 @@ import-only root file.
    when present; uncommitted model changes return to P6 before delivery. Record the source identity (`cratis-screenplay-modeling-lifecycle`
    `references/verdicts-and-modes.md` "Source identity"), the model root, `--name`,
    `--project-name`, `--root-namespace` and target `cratis`. Take V1 and V3 from
-   `cratis-screenplay-toolchain`; report each with tool and version. V3 from the standalone
-   compiler does not prove the cratis-bundled binder admits the model.
+   `cratis-screenplay-toolchain`; report each with tool and version. V3 from a different
+   compiler version does not prove the cratis-bundled binder admits the model (they agree on
+   4.66.0 and cratis 3.28.2; an older cratis bundle binds less).
 2. **Probe.** `cratis render <model-root> --name <App> --destination <probe-dir> -o json`
    (exit 0 published, 5 refused with nothing published, 1 missing input). Classify every
    diagnostic with `references/renderability-gate.md`: model fix in the chosen mode,

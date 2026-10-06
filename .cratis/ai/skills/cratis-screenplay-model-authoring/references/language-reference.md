@@ -145,10 +145,11 @@ The ESM version is selected by what a model uses, never by the author:
   distinct revision property identities. Historical declarations are not migration
   implementations; a target without migration support must reject the contract.
 - **v5** adds keyed read-model absence assertions (`then no readmodel`).
-- **v6** (standalone tool 4.61 and later; v4.66.0 `Versions.cs`) admits reactions,
+- **v6** (Screenplay 4.61 and later; v4.66.0 `Versions.cs`) admits reactions,
   captures, application triggers and the clock, hence `Automation` and
-  `Translate` slices. The Cratis CLI 3.27.1 bundles Screenplay 4.60.1 (ESM 5 at
-  most): there these constructs fail binding with `PLAY0268`. Name the tool
+  `Translate` slices. The Cratis CLI 3.28.2 bundles Screenplay 4.66.0 and binds them;
+  3.27.1 and earlier bundled 4.60.1 (ESM 5 at most), where these constructs failed
+  binding with `PLAY0268`. Name the tool
   with every bound result; `cratis-screenplay-toolchain` (`references/versions.md`)
   holds the per-tool table.
 
@@ -164,14 +165,14 @@ the model runs, including specifications that never touch it.
 What binds today, what the reference execution plan refuses, what is opaque, what is
 authorable but not executable, and what blocks binding. The snapshot comes from the
 v4.31.0 table, re-read against v4.66.0 documentation and probed through the MCP of
-the standalone 4.66.0 tool for the rows marked "probed"; Cratis CLI 3.27.1
-(Screenplay 4.60.1) differs where stated.
+the standalone 4.66.0 tool for the rows marked "probed"; Cratis CLI 3.28.2 bundles the
+same Screenplay 4.66.0 (3.27.1 and earlier, Screenplay 4.60.1, differ where stated).
 
 | Disposition | Constructs |
 | --- | --- |
 | Binds and runs in the reference runner | `StateChange`/`StateView` slices; `produces` including `when` conditions over command properties and literal tags; the portable validation rules, `matches email`, quoted `matches` patterns and `require` over command properties; declarative policies and `authorize` on modules, features, commands and keyed queries; `unique` constraints; projections as Chronicle lowers them, including variants, except the projection constructs in the next row; specifications, including `given caller`, `then denied` and `when append` |
 | Binds, but the reference execution plan refuses it | A projection-level `remove via join`; `all` beside removals, `children` or `nested`; a `join`, `children` or `remove via join` inside `nested`; any event-context value other than the event source identity in a projection mapping or key, such as `$eventContext.occurred`, `$eventContext.sequenceNumber` or `$eventContext.causedBy.subject` (`$eventSourceId` and `$eventContext.eventSourceId` run) |
-| Binds as ESM v6 on the standalone tool (probed), `PLAY0268` on Cratis CLI 3.27.1 | `Automation` and `Translate` slices, reactions that produce or invoke, captures, top-level `trigger`, clock, trigger and capture specifications. The library reference runner evaluates them (v6 actions); no `screenplay` command or MCP tool runs it, and Stage 4.24.0 renders none of them (the whole automation is gap-fill) |
+| Binds as ESM v6 on Screenplay 4.66.0, standalone and Cratis CLI 3.28.2 (probed); `PLAY0268` on Cratis CLI 3.27.1 and earlier | `Automation` and `Translate` slices, reactions that produce or invoke, captures, top-level `trigger`, clock, trigger and capture specifications. The library reference runner evaluates them (v6 actions); no `screenplay` command or MCP tool runs it, and Stage 4.24.1 renders none of them (the whole automation is gap-fill) |
 | Reaction with trigger `reads` | Direct-producing (or code-bodied) reaction with `reads`: `PLAY0268` ("ESM v6 cannot protect that decision dependency", decision 0006), non-executable. Invokes-only reaction with `reads`: information only; the invoked command must declare and protect its own decision reads. Keep the `reads`; never remove them to obtain binding |
 | Binds as opaque code (v3); reference runner reports unsupported | Bodied reducers, bodied named rules, fenced `validate` blocks, code or file policies. A pure reducer body is the only attachment Stage 4.24.0 admits |
 | Information only, never blocks (probed) | `persona` (report-only: `PLAY0270`, the policies it lists must exist), `authentication`, `domain`, `seed`, descriptions and `file` provenance. A persona does not block binding and does not change behavior, so state persona scope in a description or a policy the model uses |
@@ -196,7 +197,7 @@ Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger may declare
 `cratis-screenplay-captures-and-reactions`). At v4.66.0 a direct-producing
 reaction with `reads` fails binding (`PLAY0268`); an invokes-only reaction reports
 the reads as information, and the invoked command must protect its own
-dependencies. On Cratis CLI 3.27.1 every reaction fails binding.
+dependencies. On Cratis CLI 3.27.1 and earlier every reaction failed binding.
 
 Do not infer availability from an accepted decision. Event generations and typed
 diagnostic repairs now exist; see the event and MCP references rather than the

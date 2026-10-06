@@ -1,6 +1,6 @@
 {
   "skill": "cratis-screenplay-toolchain",
-  "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and why does cratis reject my Automation slice?",
+  "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and what does the cratis CLI do with my Automation slice?",
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "references/versions.md" },

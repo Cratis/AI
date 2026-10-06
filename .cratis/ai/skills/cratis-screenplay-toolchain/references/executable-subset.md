@@ -1,8 +1,8 @@
 # Executable subset (what binds: V2 and V3)
 
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler: the standalone tool (4.66.0) admits ESM v1 to v6; the cratis-bundled compiler
-(4.60.1) admits v1 to v5. Tool facts and the exact v6 messages: `versions.md`. Always name
+compiler version: Screenplay 4.66.0, standalone or bundled in cratis 3.28.2, admits ESM v1 to
+v6; the 4.60.1 compiler bundled in cratis 3.27.1 and earlier admits v1 to v5. Tool facts and the exact v6 messages: `versions.md`. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass.
@@ -12,7 +12,7 @@ render. `screenplay <folder>` and `cratis screenplay validate` never bind (`verd
 
 Complete examples that bind live in `executable-example.md` (both compilers),
 `pdl-example.md` (projections, both compilers) and `automation-translate-example.md`
-(ESM v6, standalone tool only).
+(ESM v6; standalone tool and cratis 3.28.2 or later).
 
 ## Admitted on both compilers
 
@@ -47,7 +47,7 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 - `seed`. Personas, screens and descriptions are PLAY0270/PLAY0269 information, not
   blocking.
 
-## Admitted on the standalone tool only (ESM v6)
+## Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 
 - `slice Automation` with `reaction`: `when <Event>` (with values) then `produces` (no
   `for` means the trigger's event source) or `invokes <Command>`; `where`; clock `at ... on
@@ -104,7 +104,7 @@ bodies still leave their owner non-executable.
 
 | Construct | Code | Note |
 | --- | --- | --- |
-| `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis-bundled compiler only**; messages in `versions.md` |
+| `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis 3.27.1 and earlier bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
 | `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.66.0. `@sensitive` has no verified portable meaning (Screenplay#384, open) |
 | `query` returning a collection (`RM[]`), or without exactly one caller-supplied `by` | PLAY0268 | "must declare one caller-supplied 'by' argument" or "must return one optional read model" |

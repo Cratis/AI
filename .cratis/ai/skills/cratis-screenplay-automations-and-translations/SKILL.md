@@ -23,11 +23,13 @@ verdict discipline: `cratis-screenplay-modeling-lifecycle`; tools, versions and 
 identity, effect and pending-work contract at that point; do not postpone it to the final review.
 
 ## Tool and realization facts (read before promising anything)
-- Reactions, clocks, triggers, captures and Automation/Translate slices compile (V1) on both tools
-  and bind (V3) only on the standalone compiler 4.61 or later. The cratis 3.27.1 bundled compiler
-  (4.60.1) reports PLAY0268 at binding: report "V3 blocked: PLAY0268 (ESM v6)", never remove them.
+- Reactions, clocks, triggers, captures and Automation/Translate slices compile (V1) and bind (V3)
+  on Screenplay 4.61 or later: the standalone tool and the cratis CLI 3.28.2 or later (bundled
+  4.66.0). Probed on 3.28.2: the complete examples are `executableReady`. A cratis 3.27.1 or
+  earlier bundle (4.60.1) reports PLAY0268 at binding: report "V3 blocked: PLAY0268 (ESM v6)" and
+  name the tool, never remove them.
 - No MCP tool, `validate` or render runs Automation or Translate specs. V4 is "not run: no route".
-- Stage 4.24.0 renders no Automation or Translate slice (Stage#79): the whole automation is
+- Stage 4.24.1 (bundled in cratis 3.28.2) renders no Automation or Translate slice (Stage#79); `cratis render` refuses the whole v6 model with STAGE-ESM-016: the whole automation is
   gap-fill or hand-written delivery with the model as contract (`references/realization-and-gap-fill.md`).
 - Invoked commands run with no caller; `.play` cannot name an actor (Screenplay#383).
 
@@ -35,8 +37,8 @@ identity, effect and pending-work contract at that point; do not postpone it to 
 | Package | Version | Used for |
 | --- | --- | --- |
 | Screenplay | v4.66.0 (`c89198b`) | `Documentation/screenplay/{reactions,captures,triggers,specifications,diagnostics}.md`; examples compiled with the standalone tool |
-| cratis CLI | v3.27.1 | bundled compiler 4.60.1 (PLAY0268 on v6 constructs, false PLAY0285 on cascades, cli#242) |
-| Stage | v4.24.0 | admits ESM v1 to v3; renders no Automation or Translate slice |
+| cratis CLI | v3.28.2 | bundles Screenplay 4.66.0 and Stage 4.24.1 (3.27.1 and earlier: 4.60.1, which gave PLAY0268 on v6 constructs and a false PLAY0285 on cascades, cli#242) |
+| Stage | v4.24.1 | admits ESM v1 to v3; renders no Automation or Translate slice |
 | Arc | v22.50.5 | `ExecuteCommandsAsSystemAttribute` (since v20.56.0) |
 | Chronicle | v19.32.0 | `OnceOnlyAttribute`, `ReactorDelivery` and `Documentation/reactors/delivery-identity.mdx` |
 
@@ -147,8 +149,8 @@ direct effect states "not applicable: no queue" with its reason (per-chain quest
 Never report a verdict without the tool and version that produced it.
 
 ## Verify
-- V1 and V3 per `cratis-screenplay-toolchain`, each with tool and version. On the cratis-bundled
-  compiler report "V3 blocked: PLAY0268 (ESM v6)". V4 is "not run: no route" for these slices.
+- V1 and V3 per `cratis-screenplay-toolchain`, each with tool and version. On a cratis 3.27.1 or earlier
+  bundle report "V3 blocked: PLAY0268 (ESM v6)"; on 4.66.0 (standalone or cratis 3.28.2) these slices bind. V4 is "not run: no route" for these slices.
 - For each external source and type: its translation, or an explicit out-of-scope reason; check
   target-field completeness as well as source-field dispositions.
 - One happy path is not coverage: cite the spec or the missing case for each branch, denial, competing

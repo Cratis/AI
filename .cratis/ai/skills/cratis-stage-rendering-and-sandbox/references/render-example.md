@@ -1,6 +1,6 @@
 # Example: a model inside the Stage 4.24 renderable subset
 
-A complete marina-berth model that `cratis render` 3.27.1 accepts, followed by what the
+A complete marina-berth model that `cratis render` 3.28.2 accepts, followed by what the
 render produced and how each claim was checked. Use it as a shape to stay inside when a
 model must be renderable; it is not a template for richer slices (see `admission.md`).
 
@@ -105,7 +105,7 @@ Why it is shaped this way:
 
 ## What was run
 
-All with cratis 3.27.1 on a folder holding only `berths.play`:
+All with cratis 3.28.2 (re-run end to end from 3.27.1: same counts) on a folder holding only `berths.play`:
 
 | Step | Command | Result |
 | --- | --- | --- |

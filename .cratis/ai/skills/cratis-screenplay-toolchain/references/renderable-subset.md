@@ -2,15 +2,16 @@
 
 Sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
 (an exhaustive map of every ESM member to Rendered, Rejected(code) or Ignored),
-`CratisArtifactRenderPlanner.cs`, `PureTransitionAdmission.cs`; cli v3.27.1
+`CratisArtifactRenderPlanner.cs`, `PureTransitionAdmission.cs`; cli v3.28.2
 `Commands/Render/RenderSettings.cs` and `Documentation/reference/screenplay.md`. Re-run the
 render itself before claiming renderability: this table is a reading of the source, not a
 render result.
 
 Renderable is a strict subset of executable (`executable-subset.md`). Order of events in
-`cratis render`: the CLI binds the model with its **bundled Screenplay 4.60.1** (so PLAY0268
-and friends appear first, and anything above ESM v5 fails there), then Stage admits or
-rejects members. A model that binds only on the standalone tool is not renderable.
+`cratis render`: the CLI binds the model with its **bundled Screenplay** (4.66.0 in cratis 3.28.2, so PLAY0268
+and friends appear first), then Stage admits or
+rejects members. An ESM v6 model binds but Stage refuses it whole with `STAGE-ESM-016`
+(probed on 3.28.2; on 3.27.1 and earlier it failed binding first, with PLAY0268).
 
 ## What Stage 4.24 admits
 

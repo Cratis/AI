@@ -62,4 +62,4 @@ payload field the event never declares, so the event payload line matters.
   ESM v8).
 - The form is found through `action BookBerth`; neither screen names it.
 - Compiled with `screenplay` 4.66.0 `--warnaserror` and `cratis screenplay validate
-  --warnings-as-errors` 3.27.1.
+  --warnings-as-errors` 3.28.2.

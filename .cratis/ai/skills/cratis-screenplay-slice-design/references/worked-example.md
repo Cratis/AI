@@ -2,7 +2,7 @@
 
 One complete model for `cratis-screenplay-slice-design`. It is in **design mode**: V1 clean
 (compiles with warnings as errors); V3 is blocked on purpose by the `ListLockers` list query
-(`PLAY0268` at binding); `given clock` also fails binding on the cratis-bundled compiler only
+(`PLAY0268` at binding); `given clock` also failed binding on a cratis 3.27.1 or earlier bundle (3.28.2 binds it)
 (`cratis-screenplay-toolchain` `references/versions.md`). Personas and screens are informational.
 The stored-state rules in `AssignLocker` (`reads` + `require`) are intent, not enforced today,
 and they also fail binding on their own: `PLAY0271` on each `reads`, and `PLAY0268` because the
