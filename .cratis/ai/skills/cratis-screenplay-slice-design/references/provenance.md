@@ -1,8 +1,8 @@
 # Provenance
 
 Sources are pinned. TrogonStack/agentskills is MIT, Copyright (c) 2025 Straw Hat, LLC (full
-notice in this skill's `LICENSE`). Nebulit GmbH's agentic-engineer carries no licence file; its material is adapted with
-Nebulit GmbH's agreement (see *Adapted closely* below).
+notice in this skill's `LICENSE`). agentic-engineer by Martin Dilger and Nebulit GmbH carries no licence file; its material is adapted with
+the agreement of Martin Dilger and Nebulit GmbH (see *Adapted closely* below).
 Event Modeling practice (Adam Dymitruk, Martin Dilger) is cited as practice; no text taken.
 
 | Item | Source | Licence | Treatment | Where in this skill |
@@ -15,10 +15,11 @@ Event Modeling practice (Adam Dymitruk, Martin Dilger) is cited as practice; no 
 | Slice dependency record (events consumed, producing slice) | TrogonStack/agentskills@7b249d3:.../eventmodeling-slicing-event-models/SKILL.md | MIT | ADAPT as a table | references/slicing.md |
 | Generic-edit ban, rule coverage, state-transition table, rule layers, refusal inventory, worked example | Cratis/AI corpus (original) | MIT | original | references/*.md |
 
-## Adapted closely (Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Nebulit GmbH. The repository carries no licence file; this material is adapted with Nebulit GmbH's agreement.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|

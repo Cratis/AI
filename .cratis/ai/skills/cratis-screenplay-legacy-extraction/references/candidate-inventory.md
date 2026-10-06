@@ -4,7 +4,7 @@ Run this over the candidate folder (`.ai-work/screenplay/<model-slug>/candidate/
 root) before handoff to review, and over any existing `.play` model you are asked to
 characterize. It is read-only: it never edits the model and never writes review findings. It
 summarizes what exists and where the visible gaps are; it is not the independent review
-(`cratis-screenplay-model-review`). Adapted from Nebulit's analyze-existing-model, translated to
+(`cratis-screenplay-model-review`). Adapted from Martin Dilger and Nebulit GmbH's analyze-existing-model, translated to
 `.play` constructs.
 
 ## 1. Scope
@@ -61,7 +61,7 @@ orphan is usually unevidenced behavior or a lost origin:
 list it with its evidence row. If the tooling cannot tell, say that this check was skipped.
 
 ## 7. Structural shapes
-Thresholds and explanations adapted from Nebulit's core rules (see provenance). Check the wiring against four shapes. Internal shorthand only; in anything a business
+Thresholds and explanations adapted from Martin Dilger and Nebulit GmbH's core rules (see provenance). Check the wiring against four shapes. Internal shorthand only; in anything a business
 stakeholder reads, describe the concern in plain words.
 - **One screen, several commands** (the bed): a screen may legitimately offer several
   independently selected actions (an invoice list with RegisterInvoice and CancelInvoice). Report

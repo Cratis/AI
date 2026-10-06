@@ -175,5 +175,5 @@ contract is implemented in code, and no specification lacks an executable equiva
 ## Lineage
 
 Merges the fallback-conformance checklist of the render workflow with the final-verification
-checklists and build prompts of Nebulit's slice build kit, adapted closely; see
+checklists and build prompts of Martin Dilger and Nebulit GmbH's slice build kit, adapted closely; see
 `references/provenance.md`.

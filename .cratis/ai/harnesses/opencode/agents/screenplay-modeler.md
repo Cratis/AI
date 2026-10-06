@@ -58,4 +58,4 @@ Write `.ai-work/screenplay/<model-slug>/STATE.md` (overwrite, untracked) only wh
 
 ## Lineage
 
-The per-run protocol and the corner-cutting self-check (both by pointer to the lifecycle skill) adapt Nebulit GmbH's agentic-engineer (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`), used with Nebulit GmbH's agreement.
+The per-run protocol and the corner-cutting self-check (both by pointer to the lifecycle skill) adapt agentic-engineer by Martin Dilger and Nebulit GmbH (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`; https://nebulit.de), used with their agreement.

@@ -170,3 +170,15 @@ the corpus and packages, checks semantic release intent, uses
 `.github/workflows/verify-release-notes.yml` is a thin caller of the
 organization release-notes check, which fails a release-bound pull request
 whose description would not publish as release notes.
+
+## Acknowledgments
+
+The Screenplay event-modeling skills and agents adapt material from
+[agentic-engineer](https://github.com/Nebulit-GmbH/agentic-engineer) by
+Martin Dilger and [Nebulit GmbH](https://nebulit.de), with their agreement,
+and from the MIT-licensed
+[TrogonStack agentskills](https://github.com/TrogonStack/agentskills) by
+Straw Hat, LLC. Event Modeling itself is the work of Adam Dymitruk; Martin
+Dilger's *Understanding Eventsourcing* shapes much of the method. Each skill's
+`references/provenance.md` lists exactly what it adapts, and its `LICENSE`
+carries the notices.

@@ -15,16 +15,17 @@ defaults for missing data) is replaced by "never fabricate a default"; its log-a
 handling is replaced by recorded failure facts. `plugins/trogonstack-eda` was skimmed; nothing
 adopted.
 
-## Adapted closely (Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Nebulit GmbH. The repository carries no licence file; this material is adapted with Nebulit GmbH's agreement.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|
 | `.claude/skills/eventmodeling-designing-automation-chains/SKILL.md`: resolve the chain when introduced; exhaustive per-automation verification | `SKILL.md` intro and "Gate", `references/audit-format.md` | restored from #493; the six verification questions adapted closely as "Per-chain questions", translated to Screenplay (no board, no `validate_model`) |
 | same: pending membership not status; opening and closing events | `references/automation-patterns.md` section 2, `references/audit-format.md` question 6 | adapted closely; our todo-list example kept |
-| same: worker only for a new decision; redundant second stage and the `Synced` tell | `references/automation-patterns.md` section 7 "Redundant second stage" | adapted closely, marina berth example in place of Nebulit's |
+| same: worker only for a new decision; redundant second stage and the `Synced` tell | `references/automation-patterns.md` section 7 "Redundant second stage" | adapted closely, marina berth example in place of Martin Dilger and Nebulit GmbH's |
 | same: silently skipping a missing target | `SKILL.md` "Gate", `references/audit-format.md` | idea inverted: an absent target is an unresolved dependency |
 | same: compulsory queue for every automation, "every trigger is an event", never-closing translation queue, mandatory translation command, board placement and connections | not adopted | wrong for Screenplay (direct reactions, clock and application triggers, `capture` are supported); idea only |
 | `.claude/skills/eventmodeling-translating-external-events/SKILL.md` step 5 and its examples reference (section 5): per-record scenario format | `references/integration-contracts.md` "Per-record-type contract" | adapted closely, invoicing example; log-and-drop failure handling replaced by failure facts |

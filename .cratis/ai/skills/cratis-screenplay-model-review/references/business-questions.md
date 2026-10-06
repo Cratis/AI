@@ -52,7 +52,7 @@ case, unclear ownership). Short questions land better than long ones; one senten
 
 ## Question categories
 Generate specific, pointed questions, not generic filler; skip a category that does not apply.
-Adapted closely from Nebulit's business-analyst pass (`provenance.md`).
+Adapted closely from Martin Dilger and Nebulit GmbH's business-analyst pass (`provenance.md`).
 - **A Failure paths.** Ask simply "Can this fail?" of each decision, one sentence, and let the
   domain expert answer; do not list technical failure modes. If a refusal is already specified,
   move on. Where an automation or other system is wired to a fact, ask what happens if it does

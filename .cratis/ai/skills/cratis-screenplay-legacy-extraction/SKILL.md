@@ -234,5 +234,5 @@ The candidate may go to review only when all hold, each a result or "not run: <r
 
 Sources, licences and adaptation notes: `references/provenance.md`. The interview protocol and
 side-car planning adapt TrogonStack agentskills (MIT); the bounded UI walk and the candidate
-inventory adapt Nebulit GmbH's discover-storyboard and analyze-existing-model, with their
+inventory adapt Martin Dilger and Nebulit GmbH's discover-storyboard and analyze-existing-model, with their
 agreement; the rest is Cratis.

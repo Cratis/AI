@@ -10,10 +10,11 @@
 - Three delivery cases (admission failure, generated base plus authorized gap-fill, fully
   hand-written delivery) and the whole-model rule: from the #493 plan review of render versus gap-fill.
 
-## Adapted closely (Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Nebulit GmbH. The repository carries no licence file; this material is adapted with Nebulit GmbH's agreement.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|

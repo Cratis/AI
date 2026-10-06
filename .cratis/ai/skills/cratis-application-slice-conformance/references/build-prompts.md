@@ -2,7 +2,7 @@
 
 Standing instructions for an implementer, or an unattended loop, that builds one slice at a
 time from its contract. Paste or reference them in the brief; they restate rules already in
-`SKILL.md` as an operating procedure. Adapted from Nebulit's build kit (see
+`SKILL.md` as an operating procedure. Adapted from Martin Dilger and Nebulit GmbH's build kit (see
 `references/provenance.md`); the board, `slice.json` and status-API steps are translated to
 the `.play` slice (or the agreed outline) and the code skills. They sit inside the existing
 authority, gate and ownership rules: the contract precedence in

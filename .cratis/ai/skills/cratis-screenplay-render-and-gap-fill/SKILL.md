@@ -178,5 +178,5 @@ Before reporting done:
 
 ## Lineage
 
-Draws on the earlier model render workflow and, for the gap-fill brief, on Nebulit's slice
+Draws on the earlier model render workflow and, for the gap-fill brief, on Martin Dilger and Nebulit GmbH's slice
 build instructions (adapted closely); see `references/provenance.md`.

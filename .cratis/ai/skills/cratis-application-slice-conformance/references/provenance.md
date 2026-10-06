@@ -5,10 +5,11 @@
   State Change, State View, Chronicle runtime guarantees, evidence. Now `references/checklists.md`;
   the render workflow links here and keeps no second copy. References renamed to the corpus skills.
 
-## Adapted closely (Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Nebulit GmbH. The repository carries no licence file; this material is adapted with Nebulit GmbH's agreement.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|

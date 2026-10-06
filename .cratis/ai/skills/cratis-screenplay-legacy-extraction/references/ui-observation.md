@@ -1,7 +1,7 @@
 # Bounded UI observation
 
 Use this branch when watching a running application answers an extraction question. It is
-evidence gathering, not screen redesign and not application testing. Adapted from Nebulit's
+evidence gathering, not screen redesign and not application testing. Adapted from Martin Dilger and Nebulit GmbH's
 discover-storyboard (see provenance), with the board and HTML-reconstruction steps removed.
 
 ## Before navigating

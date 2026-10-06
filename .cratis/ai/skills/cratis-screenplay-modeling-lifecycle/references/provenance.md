@@ -11,7 +11,7 @@ sections, in this order:
    not empty, the skill `LICENSE` carries the "Third-party notices" section with the **complete**
    MIT text (copyright line, permission notice and disclaimer). Closely adapted material is
    attributed to the source it came from, not to a neighboring one.
-2. **Adapted closely (Nebulit GmbH, with agreement).** One row per item taken from Nebulit's
+2. **Adapted closely (Martin Dilger and Nebulit GmbH, with agreement).** One row per item taken from Martin Dilger and Nebulit GmbH's
    agentic-engineer: source file, where it is used, how. Mark "idea; our wording kept" where only
    the idea was taken. The skill `LICENSE` carries the Nebulit notice.
 3. **Method lineage.** Public method sources (books, talks, standards), cited as sources of ideas.
@@ -34,17 +34,18 @@ full notice is in this skill's `LICENSE` ("Third-party notices").
 | same file, "Mid-Workflow Entry" | `SKILL.md`, `phases.md` "Resume mid-workflow" | Entry points table and identity recomputation added |
 | same file, "Final Output" and "Quality Checklist" | `phases.md` "Final output" and "Quality checklist (closing)" | Items rewritten around Screenplay verdicts, specifications and review |
 
-## 2. Adapted closely (Nebulit GmbH, with agreement)
+## 2. Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Nebulit GmbH. The repository carries no licence file; this material is adapted with Nebulit GmbH's agreement.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|
 | `.claude/skills/eventmodeling-orchestrating-event-modeling/SKILL.md`: "Do not cut corners to save tokens or effort" (forbidden rationalizations, self-catch trigger, flag trade-offs to the user) | `SKILL.md` "Do not cut corners to save tokens or effort", `references/completeness-self-check.md` | Adapted closely; restored from #493. Board rationalizations (delete a node to dodge a placement conflict, "session-context" read model, collapsed translation chain) translated to Screenplay (modeled reaction, missing view, translation merged into worker behavior, denial and protection) |
 | same file: "Phase Transition Protocol" (what was done, carry-forward, open questions; trail row to Done) | `SKILL.md` "Lifecycle", `references/phases.md` "Phase transition protocol" | Adapted closely; restored from #493. Memory file replaced by STATE.md |
 | same file: "Documenting decisions inline" and Step 11 "What the note should actually contain" (cold reader, simple chapter stays brief) | `references/reasoning-notes.md` | Adapted closely; restored from #493. Feedback-lane note translated to a `description`; counts and verdicts stay in STATE.md |
-| same file: "Interview Phase" and "Mid-Workflow Entry" | `SKILL.md` "Interview phase (P0)" | Already adapted from TrogonStack (section 1); Nebulit's confirmation sentence kept |
+| same file: "Interview Phase" and "Mid-Workflow Entry" | `SKILL.md` "Interview phase (P0)" | Already adapted from TrogonStack (section 1); Martin Dilger and Nebulit GmbH's confirmation sentence kept |
 | `.claude/skills/eventmodeling-interview-protocol/SKILL.md`: "When to ask", "Unless told not to ask", "Recording the outcome" | `references/stop-or-assume.md` "Interview protocol" | Adapted closely; restored from #493. Interview file replaced by the STATE.md Interview Trail |
 | `.agent-modeling-kit/CLAUDE.md`: per-turn steps (screen the prompt, connect once, resolve context, start marker, invoke the matched skill never raw calls, questioning rule, close, learnings) | `references/per-turn-protocol.md`, `SKILL.md` "Run protocol" | Adapted closely; restored from #493. Board prompts and status calls translated to briefs, `Active:` in STATE.md and the `Outcome:` line; `<promise>` sentinels, `progress.txt` and learnings promotion not adopted |
 | `.agent-modeling-kit/AGENTS.md`: diagnose why a command failed before retrying it | `references/per-turn-protocol.md` step 5 | Adapted closely, restored; unknown-outcome MCP applies are never retried (toolchain trap 42) |

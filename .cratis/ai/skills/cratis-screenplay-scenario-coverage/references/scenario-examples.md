@@ -8,7 +8,7 @@ compensation excerpts in section 4 come from `invoicing-dues-design.md` instead:
 holds the stored-state rules (`reads` + `require`), compiles but does not bind (PLAY0271,
 PLAY0268), so its specifications are design mode and do not run. A second
 complete example, with competing claims and denial fixtures, is `berth-reservations.md`. The category structure and the good/bad contrast follow the worked
-examples in TrogonStack's and Nebulit GmbH's `eventmodeling-elaborating-scenarios` (`provenance.md`), translated to
+examples in `eventmodeling-elaborating-scenarios` by TrogonStack and by Martin Dilger and Nebulit GmbH (`provenance.md`), translated to
 Screenplay specifications.
 
 ## Good and bad forms
