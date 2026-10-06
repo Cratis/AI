@@ -93,8 +93,9 @@ not host these production-repair transactions. Use MCP for production repairs.
 ## Syntax-only constructs through the MCP
 
 `generated` properties and `returns` responses, `system`/`operation`, and
-`eventsource`/`stream` are authorable but not executable (`PLAY0268`, ESM v8, v9,
-v10). The server reads and edits them: `declaration-details` exposes `isGenerated`
+`eventsource`/`stream` are authorable but not executable (`PLAY0268`; the first two
+are allocated to ESM v8 and v9, sources and streams are allocated, not implemented:
+`cratis-screenplay-toolchain` `references/sources-and-streams.md`). The server reads and edits them: `declaration-details` exposes `isGenerated`
 and a command `response` view, `route` and `streams` views; `read-workspace` offers
 the views `event-sources`, `event-streams`, `event-source-details`,
 `event-stream-details`, `command-routes` and `event-source-diagnostics` (detail
