@@ -43,7 +43,7 @@ v19.32.0): `cratis-screenplay-toolchain` `references/versions.md`. Checked at th
 | `then error`, `then denied`, `unique ... released by` | Screenplay `v4.66.0:Documentation/screenplay/{specifications,constraints}.md` |
 | No semantic diff or equivalence check exists (Screenplay#387 open) | `gh issue view 387 --repo Cratis/Screenplay` |
 
-Every complete `screenplay` fence here compiles with the standalone compiler 4.66.0 (`--warnaserror`) and
+Every complete `screenplay` fence here compiles with the standalone compiler 4.68.0 (`--warnaserror`) and
 `cratis screenplay validate --warnings-as-errors` 3.28.2.
 
 ## Interview phase

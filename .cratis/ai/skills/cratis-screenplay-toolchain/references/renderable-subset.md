@@ -11,7 +11,7 @@ Renderable is a strict subset of executable (`executable-subset.md`). Order of e
 `cratis render`: the CLI binds the model with its **bundled Screenplay** (4.66.0 in cratis 3.28.2, so PLAY0268
 and friends appear first), then Stage admits or
 rejects members. An ESM v6 model binds but Stage refuses it whole with `STAGE-ESM-016`
-(probed on 3.28.2; on before 3.28.2 it failed binding first, with PLAY0268).
+(probed on 3.28.2; an ESM v7 model with generated values or responses fails binding first on the bundled 4.66.0 with `PLAY0268`, and Stage 4.24.2 would refuse it with `STAGE-ESM-016` too, tracked in Stage#201; on before 3.28.2 it failed binding first, with PLAY0268).
 
 ## What Stage 4.24 admits
 
@@ -28,7 +28,7 @@ whole automation is hand-written (gap-fill).
 
 | Area | Renders | Rejected (code) |
 | --- | --- | --- |
-| ESM version | schema v1 to v4 (4.24.2; initial-revision events only) | evolved events: STAGE-ESM-026 (4.24.2); historical references: STAGE-ESM-025; v5 `then no readmodel`, v6 constructs: STAGE-ESM-016 for the whole model (Stage 4.24.1 also ledgers the v6 members as `STAGE-ESM-024`; users still see STAGE-ESM-016) |
+| ESM version | schema v1 to v4 (4.24.2; initial-revision events only) | evolved events: STAGE-ESM-026 (4.24.2); historical references: STAGE-ESM-025; v5 `then no readmodel`, v6 constructs, v7 generated values and responses: STAGE-ESM-016 for the whole model (Stage 4.24.1 also ledgers the v6 members as `STAGE-ESM-024`; users still see STAGE-ESM-016) |
 | Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`: STAGE-ESM-001 |
 | Types | concepts over Uuid, String, Int, Decimal, Bool, Date, DateTime; composite types; collections; optional | unknown types: 002 and 003 |
 | Validation | not empty, min, max, equal, not equal, comparisons, length, `all >`/`all >=`, matches, `$strings` keys (missing default keys: 018) | code rules and code validation: 005 |

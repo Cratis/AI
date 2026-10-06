@@ -75,7 +75,13 @@
     },
     {
       "kind": "skill-contains",
-      "value": "not implemented"
-    }
+      "value": "No supported ESM version admits them"
+    },
+    { "kind": "skill-contains", "value": "Generated values and responses (ESM v7)" },
+    { "kind": "skill-contains", "value": "A generated value is not a request input" },
+    { "kind": "skill-contains", "value": "(`PLAY0273`), and a concept with any validation rule cannot back a\n  generated property (`PLAY0268`)" },
+    { "kind": "skill-contains", "value": "A response exists only on acceptance" },
+    { "kind": "skill-contains", "value": "**not rendered yet**" },
+    { "kind": "skill-contains", "value": "4.68.0" }
   ]
 }

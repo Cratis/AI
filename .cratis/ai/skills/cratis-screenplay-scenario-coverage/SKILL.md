@@ -24,8 +24,9 @@ language cannot express today are recorded, not faked. Grammar and outcome compa
   `cratis-specification-by-example`); a full audit (`cratis-screenplay-model-review`).
 
 ## Verified product sources
-Screenplay v4.66.0 (`c89198b`): `Documentation/screenplay/specifications.md` and the standalone
-compiler; `cratis` 3.28.2 bundles the same Screenplay 4.66.0 (before 3.28.2 it bundled 4.60.1). The full pin table and the probes are in
+Screenplay v4.66.0 (`c89198b`) and v4.68.0 (`79801bf`, ESM v7 fixtures and `then returns`):
+`Documentation/screenplay/specifications.md` and the standalone compiler; `cratis` 3.28.2 and
+3.28.3 bundle Screenplay 4.66.0 (before 3.28.2 it bundled 4.60.1). The full pin table and the probes are in
 `cratis-screenplay-toolchain` `references/versions.md`. Specification obligations reported by
 the MCP (Screenplay#390) and multi-step storylines (Screenplay#394) are **not available**: the
 coverage matrix is built by hand and lifecycle families emulate storylines.

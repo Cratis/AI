@@ -24,13 +24,13 @@ The only version table is `references/versions.md`; other skills point to it.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | standalone compiler, binder and MCP server |
-| cratis CLI | `3.28.3` (`8b43fef`) | bundles Screenplay 4.66.0 and Stage 4.24.2 (3.28.2: Stage 4.24.1; 3.28.1 and earlier bundled 4.60.1 and 4.24.0); `render`, `generate`, `prologue`, and the same compiler for `screenplay validate` and `screenplay mcp` |
+| `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | standalone compiler, binder and MCP server; admits ESM v7 (generated values and responses) |
+| cratis CLI | `3.28.3` (`8b43fef`) | bundles Screenplay 4.66.0 (ESM v1 to v6) and Stage 4.24.2 (3.28.2: Stage 4.24.1; 3.28.1 and earlier bundled 4.60.1 and 4.24.0); `render`, `generate`, `prologue`, and the same compiler for `screenplay validate` and `screenplay mcp` |
 | Stage | `4.24.2` (`32dcac4`) | renders ESM v1 to v4 (C# backend plus a React/Vite scaffold on Arc 22.25.0); an evolved event is refused with `STAGE-ESM-026`; the cratis CLI bundles it since 3.28.3 |
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour
-was probed on 4.63.1 and re-checked on 4.66.0. 4.65.0 adds command named-rule `implementation` blocks (handlers and operation phases already had the wrapper; it is rejected on concept rules, built-in property rules and whole-command `require`/`validate` bodies); 4.66.0 is editor tooling only. Neither changes execution.
+was probed on 4.63.1 and re-checked on 4.66.0 and 4.68.0 (the example gates). 4.65.0 adds command named-rule `implementation` blocks (handlers and operation phases already had the wrapper; it is rejected on concept rules, built-in property rules and whole-command `require`/`validate` bodies); 4.66.0 is editor tooling only. Neither changes execution.
 Re-verify before claiming another version behaves the same.
 
 ## Ground rules
@@ -42,7 +42,7 @@ Re-verify before claiming another version behaves the same.
    `cratis screenplay validate <folder> --warnings-as-errors`. Warnings hide defects:
    PLAY0029 (a misspelt keyword or a `type` inside a slice) drops a construct silently.
 3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for V1 to V3 (file
-   mode follows imports); `cratis` 3.28.2 or later bundles the same 4.66.0 compiler and is the
+   mode follows imports); `cratis` 3.28.2 or later bundles the 4.66.0 compiler (same up to ESM v6, no ESM v7) and is the
    route for `render`. A cratis before 3.28.2 bundle (4.60.1) rejects ESM v6 and reports a
    false PLAY0285 on cascades (cli#242). Report tool and version with every verdict.
 4. **Know the mode** (design, executable, renderable) and write from its subset.
@@ -61,10 +61,10 @@ Re-verify before claiming another version behaves the same.
 
 ## The two compilers
 
-| | Standalone `screenplay` 4.66.0 | `cratis screenplay ...` 3.28.2 (bundles Screenplay 4.66.0) |
+| | Standalone `screenplay` 4.68.0 | `cratis screenplay ...` 3.28.3 and 3.28.2 (bundle Screenplay 4.66.0) |
 | --- | --- | --- |
 | Check a folder | `screenplay <folder> --warnaserror --no-color` (exit 0 pass, 1 fail; an empty folder also exits 0, so read "N file(s) compiled") | `cratis screenplay validate <folder> --warnings-as-errors -o json-compact` (0 pass, 5 fail, 1 missing path or no files) |
-| ESM admitted | v1 to v6 | v1 to v6 (the same compiler; before 3.28.2 bundled 4.60.1: v1 to v5) |
+| ESM admitted | v1 to v7 | v1 to v6 (generated values and responses report `PLAY0268`; before 3.28.2 bundled 4.60.1: v1 to v5) |
 | Automation, Translate, reactions, captures, clocks, triggers | bind | bind (before 3.28.2: PLAY0268 "Slice '<name>' of type '<type>' is not admitted by ESM v1.") |
 | Cascade specs | compile | compile (before 3.28.2: false PLAY0285, cli#242) |
 | File argument | follows imports | ignores imports, false PLAY0165 warnings (cli#244, probed on 3.28.2): validate the folder |
@@ -86,9 +86,9 @@ Independent results, not a ladder. Commands and report format: `references/verdi
 
 V2 and V3 need MCP: send `initialize`, then `notifications/initialized`, and start the
 server with a fixed root when the tool is older than 4.63.2 (the roots bug hit 4.63.1 and the
-4.60.1 bundled by cratis before 3.28.2; 4.66.0 and cratis 3.28.2 are fine). A subagent without MCP reports "V2 not run: no MCP in this agent".
+4.60.1 bundled by cratis before 3.28.2; 4.66.0 and later and cratis 3.28.2 are fine). A subagent without MCP reports "V2 not run: no MCP in this agent".
 
-One line per verdict, tool first, for example `V1 pass (screenplay 4.66.0, 3 files)` and
+One line per verdict, tool first, for example `V1 pass (screenplay 4.68.0, 3 files)` and
 `V3 blocked: PLAY0268 x3 (list query, @pii)`. Name the source identity (commit plus the digest from
 the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")) the verdict ran on; keep it apart from the MCP
 `modelRevision`, which is semantic and, without `.screenplay/identities.json`,
@@ -101,11 +101,12 @@ changes with the root folder name.
 - **Executable** (binds, V3): `references/executable-subset.md`. Keyed optional queries
   only; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs bind on Screenplay 4.61 or
-  later (standalone, and cratis 3.28.2 or later).
+  later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
+  only on standalone 4.68.0 or later (`references/generated-responses-example.md`).
 - **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24.2 renders ESM v1 to v4 (evolved events refused, `STAGE-ESM-026`)
-  `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79).
-- **Event sources, streams and command routes**: authorable and validatable, but never
-  bound (`PLAY0268`: allocated, not implemented ESM version), run or rendered
+  `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79), and so are generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, tracked in Stage#201).
+- **Event sources, streams and command routes** (and operations): authorable and validatable, but never
+  bound (`PLAY0268`: not admitted by any supported ESM version), run or rendered
   (`STAGE-ESM-016`); gap-fill with the model as contract (`references/sources-and-streams.md`).
 
 ## Edit strategy

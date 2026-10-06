@@ -45,6 +45,7 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 ## Changes from the earlier toolkit
 
 - Folded the version facts into one `versions.md` (the only version table in the corpus).
+- Moved the pin to Screenplay 4.68.0 (ESM v7: generated values and responses, decision 0026, `generated-responses-example.md`); re-ran the example compile and reference-runner gates unchanged; replaced every fixed number for unadmitted features with "not admitted by any supported ESM version" (decision 0025).
 - Replaced the readiness script with the MCP view and field that carry the same result; no
   script ships.
 - Moved the MCP loop to `cratis-screenplay-model-authoring`; this skill keeps only the facts

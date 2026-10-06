@@ -60,13 +60,13 @@ do not block. The ESM then binds (and `read-workspace view=executable-model` rep
 comparison needs it). Binding is what makes a model renderable at all. V3 means "binds",
 never "specifications pass".
 
-- Report the ESM version the model needs: `V3 ready (screenplay 4.66.0, ESM v6)`,
+- Report the ESM version the model needs: `V3 ready (screenplay 4.68.0, ESM v6)`,
   `V3 blocked: PLAY0268 x3 (list query, @pii) - design scope kept`.
 - A blocked V3 is not repaired by deleting protection or domain rules. Never remove `@pii`,
   `@sensitive`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.
 - A model is "executable" only on the compiler that bound it. A V3 from the standalone tool
-  does not carry to `cratis render`: Stage admits ESM v1 to v4 only on 4.24.2 (v1 to v3 on 4.24.1, bundled by cratis 3.28.2; cratis 3.28.3 bundles 4.24.2; evolved events are STAGE-ESM-026) (and on cratis before 3.28.2 the bundled 4.60.1 binder, ESM v1 to v5, refused v6 first).
+  does not carry to `cratis render`: Stage admits ESM v1 to v4 only on 4.24.2 (v1 to v3 on 4.24.1, bundled by cratis 3.28.2; cratis 3.28.3 bundles 4.24.2; evolved events are STAGE-ESM-026) (and on cratis before 3.28.2 the bundled 4.60.1 binder, ESM v1 to v5, refused v6 first; the 4.66.0 bundled by cratis 3.28.x refuses ESM v7 generated values and responses at binding with `PLAY0268`).
 
 ## V4: reference specifications run
 

@@ -58,8 +58,8 @@ payload field the event never declares, so the event payload line matters.
 - `identifier` marks which property names the event source. It neither generates the value nor
   fills it. Here the user supplies the berth. Other sources are a prefill (`populate via query`
   or `populate from item` when the user chose a berth on the previous screen) or a modeled
-  selection. `generated identifier` is syntax-only at v4.66.0 (binding reports `PLAY0268` until
-  ESM v8).
+  selection. `generated identifier` is ESM v7: it binds on standalone Screenplay 4.68.0 and reports `PLAY0268`
+  on the 4.66.0 bundled in `cratis` 3.28.x; Stage 4.24.2 does not render it.
 - The form is found through `action BookBerth`; neither screen names it.
-- Compiled with `screenplay` 4.66.0 `--warnaserror` and `cratis screenplay validate
+- Compiled with `screenplay` 4.68.0 `--warnaserror` and `cratis screenplay validate
   --warnings-as-errors` 3.28.2.
