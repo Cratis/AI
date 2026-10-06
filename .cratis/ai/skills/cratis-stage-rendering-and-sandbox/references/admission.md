@@ -52,7 +52,7 @@ model owner's decision.
 | `STAGE-ESM-023` | Information: transition bodies analysed | none |
 | `STAGE-CRATIS-001` to `-005` | Profile or `scene.json` not the package-owned shape; unrecognized or missing scaffold input; artifact path collision; a modeled module or feature that would render into the reserved `Customizations/` | Rename the module or feature (005) |
 | `STAGE-AUTH-001` | Authorization cannot be rendered faithfully | As `STAGE-ESM-015` |
-| `CLI-RENDER-001`, `-002` | Unknown target; invalid rendering name (`CLI-RENDER-003`, event generations, was reported by cratis 3.28.2 and earlier only) | Fix the option, or the model |
+| `CLI-RENDER-001`, `-002` | Unknown target; invalid rendering name (`CLI-RENDER-003`, event generations, was reported by cratis 3.28.2 only) | Fix the option, or the model |
 
 `STAGE-CRATIS-FILE-001`, `-INLINE-001`, `-QUERY-001`, `-KEY-001`, `-KEY-002`,
 `-PROJECTION-001` and `STAGE-EVENT-001` come from the legacy syntax renderer and the direct

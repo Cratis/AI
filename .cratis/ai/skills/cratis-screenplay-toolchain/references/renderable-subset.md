@@ -20,7 +20,7 @@ binding (`PLAY0268`) and Stage refuses their ESM version (`STAGE-ESM-016`); rend
 appends never carry event source type, event stream type or event stream id, so
 Chronicle's defaults apply (Stage#177, #200, #201). See `sources-and-streams.md`.
 
-Whole-model admission requires ESM schema v1 to v4 on Stage 4.24.2 (v1 to v3 on the 4.24.1 that cratis 3.28.2 and earlier bundled, where a v4 model was STAGE-ESM-016 and also failed the CLI pre-check CLI-RENDER-003; cratis 3.28.3 bundles 4.24.2); v5 and v6 are STAGE-ESM-016. On 4.24.2 a selected event above its initial revision, or any scope depending on it, is STAGE-ESM-026 (migrations are not rendered, Stage#204), and a historical typed-context reference is STAGE-ESM-025. The admitted vertical is concepts,
+Whole-model admission requires ESM schema v1 to v4 on Stage 4.24.2 (v1 to v3 on the 4.24.1 that cratis 3.28.2 bundled, where a v4 model was STAGE-ESM-016 and also failed the CLI pre-check CLI-RENDER-003; cratis 3.28.3 bundles 4.24.2); v5 and v6 are STAGE-ESM-016. On 4.24.2 a selected event above its initial revision, or any scope depending on it, is STAGE-ESM-026 (migrations are not rendered, Stage#204), and a historical typed-context reference is STAGE-ESM-025. The admitted vertical is concepts,
 composite types, one command to its events, a one-instance projection, an optional keyed
 snapshot query, declarative authorization (including query authorization) and modeled
 specifications. **Automation and Translate slices are not rendered** (Stage#79, open): the

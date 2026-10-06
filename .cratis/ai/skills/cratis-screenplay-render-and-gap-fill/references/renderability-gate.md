@@ -15,8 +15,8 @@ probe reports and choosing what to do. Do not copy the code table here.
 3. Stage plans the target and admits or rejects each member: `STAGE-ESM-0xx`; profile and path
    problems `STAGE-CRATIS-0xx`. An ESM v4 model with an evolved event is reported with Stage's
    own `STAGE-ESM-026` (Stage 4.24.2 admits v4 but not evolved events); the CLI adds nothing
-   since 3.28.3 (3.28.2 and earlier also reported `CLI-RENDER-003`, and refused a v4 model
-   with `STAGE-ESM-016` on their bundled Stage 4.24.1).
+   since 3.28.3 (3.28.2 also reported `CLI-RENDER-003`, and refused a v4 model
+   with `STAGE-ESM-016` on its bundled Stage 4.24.1).
 4. Any error anywhere publishes nothing: the run ends with exit 5 and the diagnostics.
 
 The standalone `screenplay` tool can report V3 ready where the bundled binder refuses (newer

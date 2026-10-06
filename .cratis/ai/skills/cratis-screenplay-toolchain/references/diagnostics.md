@@ -96,7 +96,7 @@ Full table with causes: `renderable-subset.md`. Codes you meet most:
 | STAGE-ESM-025 | Stage 4.24.2: a typed-context member references a historical event revision or property identity; only the current revision renders |
 | STAGE-ESM-026 | Stage 4.24.2: a selected event, or an event a selected scope depends on, is above its initial revision; Stage cannot render event-type migrations yet (Stage#204, needs Screenplay#71); gap-fill and hand-write the migrations |
 | STAGE-ESM-024 | ledger-only (Stage 4.24.1 and later): the ESM v6 members are dispositioned Rejected; a v6 model is still refused whole by STAGE-ESM-016, so this is not the code a user sees |
-| CLI-RENDER-003 | historical: reported by cratis 3.28.2 and earlier for an ESM v4 model with generations; not emitted since 3.28.3, which reports an evolved event with `STAGE-ESM-026` |
+| CLI-RENDER-003 | historical: reported by cratis 3.28.2 for an ESM v4 model with generations; not emitted since 3.28.3, which reports an evolved event with `STAGE-ESM-026` |
 | STAGE-ESM-001 | slice kind is not `StateChange`/`StateView` (Automation, Translate: Stage#79) |
 | STAGE-ESM-004 / 006 / 013 | more than one command per `StateChange`; conditional or value-expression production; other context value |
 | STAGE-ESM-005 / 015 | code rule or code validation; opaque policy or an ownership claim against a Uuid-backed target |
