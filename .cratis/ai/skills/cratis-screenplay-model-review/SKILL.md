@@ -153,9 +153,10 @@ never blocked as a matter of authority.
 
 ## Rules
 - Compiler contracts (defects when the mode needs them): V1 must pass with warnings as errors;
-  PLAY0029 means a construct was silently dropped. Unresolved names, missing projection targets
-  and undeclared events in `remove with` or capture `append` are not fully reported by the
-  compiler: check by hand. Binding codes appear only in V3.
+  PLAY0029 means a construct was silently dropped. Missing projection targets and undeclared
+  events in `remove with` or capture `append` pass V1 and are reported at V3 (PLAY0273); check
+  by hand only unresolved-name warnings and declared properties that nothing maps. Binding
+  codes appear only in V3.
 - Modeling defaults (deviation needs a recorded reason, otherwise a finding): one business
   decision, one event by default; one view per screen component; one command per `StateChange`
   (renderable: required); facts carry decided or supplied data and running figures belong in
