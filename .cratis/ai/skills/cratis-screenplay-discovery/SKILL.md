@@ -35,7 +35,7 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
 
 ## Verified product sources
 
-Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.2, Stage v4.24.1, Arc v22.50.5, Chronicle
+Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3, Stage v4.24.2, Arc v22.50.5, Chronicle
 v19.32.0) are listed once in `cratis-screenplay-toolchain` `references/versions.md`.
 Statements here were checked at those tags:
 

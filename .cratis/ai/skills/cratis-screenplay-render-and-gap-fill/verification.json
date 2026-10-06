@@ -38,6 +38,10 @@
     {
       "kind": "skill-contains",
       "value": "case A or C today"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "STAGE-ESM-026"
     }
   ]
 }
