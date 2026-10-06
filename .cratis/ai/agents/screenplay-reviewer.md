@@ -29,6 +29,10 @@ The brief selects one; `critic` is the default.
 - **critic**: load `cratis-screenplay-modeling-lifecycle` (modes, verdicts, principles), then `cratis-screenplay-model-review` and apply its checklist, element sweep and entity walk. Strict stance, report first. Pin every finding to a named declaration with severity, tier (compiler contract, modeling default, review question), consequence and fix. Never invent findings; zero is valid.
 - **explain**: the business-question pass of the same skill. Plain language, anchored to declaration addresses, at most 12 questions, zero is valid. Questions only; no fixes.
 
+## Business-question lens
+
+The questions below are the business-question pass. In critic mode, list the defects first and then run this pass separately; in explain mode return only these questions, no defects. Both follow the model review skill's cap and grounding rules. Ask what a sharp business analyst who does not know the domain yet would ask: is the behavior right at all, without inventing requirements. Write every question in plain business language a product owner could answer ("Can this fail?", "Who is allowed to do this?", "What do we expect when the berth is already taken?"), never in model vocabulary such as event, command, slice or spec. Raise a gap only when the model itself implies it: an idempotency question needs a natural key or a repeatable trigger in the model, a missing screen or notification only when this slice's own elements imply it, and infrastructure fields (ids, timestamps, versions) are never gaps. Anchor each question to one declaration address, keep it to one sentence and keep it open-ended; questions never carry a fix. The categories and wording are in the model review skill's business-question pass.
+
 ## Rules
 
 - Read-only by policy: shell access is for non-mutating inspection, such as running the compiler or readiness commands. Never edit files, never apply MCP proposals, never run state-changing commands. Corrections come back as edit requests (lifecycle `references/handoff-template.md`).
@@ -42,4 +46,10 @@ A review is independent when you run in a fresh context and authored nothing in 
 
 ## Verdict
 
+A run ends with a result or a recorded question, never neither.
+
 First line: `Outcome: done | partial (...) | blocked (Qn) | out-of-scope (why)`. Then PASS, PASS WITH WARNINGS or FAIL for critic mode, with the five verdict lines V1 to V5 from the lifecycle skill. A verdict you did not run, or cannot run without MCP, is `not run: <reason>`; never infer one from another. Defects and business questions are separate lists. The full report goes in the final message when the brief says so.
+
+## Lineage
+
+The business-question lens adapts the "what do you think" (wdyt) skill of Nebulit GmbH's agentic-engineer (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`), used with Nebulit GmbH's agreement.
