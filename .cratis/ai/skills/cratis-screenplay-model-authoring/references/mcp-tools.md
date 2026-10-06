@@ -4,12 +4,12 @@
 # Working with the Screenplay MCP
 
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
-alone inside a project with `.cratis/ai.json`, which resolves the fixed default root
-`.cratis/screenplay`. The standalone form is `screenplay mcp <model-folder>`. A
+alone inside a project, where the CLI locates the model (the project's `.play` files, else
+`Source/` or `src/`, else a new `Screenplay/` folder). The standalone form is `screenplay mcp <model-folder>`. A
 server started with no root at all binds one on first use from `open-workspace`'s
 `path`, the client's roots, or the working directory; that dynamic form hit the
 roots bug in Screenplay up to 4.63.1 (see the [MCP loop](mcp-loop.md#roots-bug-and-the-workaround)),
-so prefer a fixed root. The default consumer model location is `.cratis/screenplay/`. AI distribution provides the
+so prefer a fixed root. Without a project the server works in `Documents/Screenplay`. Model files never go under `.cratis/`. AI distribution provides the
 profile-selected declaration and guidance; the CLI owns executable hosting and
 client registration. Installation must preserve user-owned MCP servers and
 report unsupported adapters or drift.

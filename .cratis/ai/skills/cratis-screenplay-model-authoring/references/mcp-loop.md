@@ -16,8 +16,8 @@ differ: read `tools/list`.
 
 1. Launch with a **fixed root**: `screenplay mcp <model-folder>`, or
    `cratis screenplay mcp <model-folder>`, or `cratis screenplay mcp` inside a
-   project whose `.cratis/ai.json` resolves the default root `.cratis/screenplay`
-   (what the `cratis/screenplay` profile registers). Stdio, newline-delimited
+   project, where the CLI locates the model (the project's `.play` files, else `Source/`
+   or `src/`, else a new `Screenplay/` folder; what the `cratis/screenplay` profile registers). Stdio, newline-delimited
    JSON-RPC, one sequential connection.
 2. Send `initialize`, then the `notifications/initialized` notification, **before
    any tool call**. Earlier calls fail with `-32600` "Initialize and send
@@ -41,8 +41,7 @@ treat that as fatal and drop the connection. Passing `open-workspace.path` does
 **not** avoid it, because the error is sent before `open-workspace` runs.
 
 Avoid it by fixing the root at launch (the forms in step 1). The `cratis/screenplay`
-profile registration is not affected in an installed project, but fails fast when
-`.cratis/screenplay/` does not exist. Cratis CLI 3.27.1 bundles 4.60.1: for a
+profile registration is not affected in an installed project, and the CLI now locates the model itself, so no model directory has to exist. Cratis CLI 3.27.1 bundles 4.60.1: for a
 dynamic root there, fix the root.
 
 ## Who owns the connection
