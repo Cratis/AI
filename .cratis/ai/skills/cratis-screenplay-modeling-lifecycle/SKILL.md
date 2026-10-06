@@ -52,14 +52,16 @@ edit Stage-managed output; leave a modeled rule living only in code; weaken prot
 (authorization, `@pii`, rules) so a model compiles or renders. Principles and rejected
 anti-patterns behind this rule: `references/principles.md`.
 
-## Completeness over economy
+## Do not cut corners to save tokens or effort
 Token economy governs what you read and print, never what the model contains. If a rule needs
-another slice, event, read model, translation step or specification, write it. Self-catch
-prompt, asked before any gate: "am I leaving something out because it is expensive, not
-because the domain says so?" Tells: "one success plus one error spec is enough"; "other gated
-commands need no `then denied`"; "n/a" without a domain reason; "one `XUpdated` covers these
-edits"; "drop `@pii`, authorization or a rule so a check passes". This never widens your scope
-(note other gaps in STATE.md); a real time or budget trade-off is the user's call.
+another slice, event, read model, translation step or specification, write it. Self-catch prompt,
+asked before any gate: "am I leaving something out because it is expensive, not because the
+domain says so?" Tells: "one success plus one error spec is enough"; "other gated commands need
+no `then denied`"; "n/a" without a domain reason; "one `XUpdated` covers these edits"; "accepted
+debt" for a missing view; merging translation into worker behavior; "drop `@pii`,
+authorization or a rule so a check passes". This never widens your scope (note other gaps in
+STATE.md); a real trade-off is flagged to the user, never resolved by cutting the model
+(`references/completeness-self-check.md`).
 
 Three unresolved things, never conflated: an **open question** (business meaning nobody decided:
 record it against a declaration address with the assumption in use; it closes when answered, never
@@ -102,26 +104,28 @@ fixed, accepted by the user, or recorded as an open question with its assumption
 carried silently. Skip a phase only on its stated skip condition and record why. Review fix
 loop: at most 2 rounds, then the user decides. Small changes enter where they belong
 (slice: P2, specs: P3, review: P5, render: P8) and run downstream gates for the changed scope.
-Legacy systems replace P1-P2 with the legacy entry (`cratis-screenplay-legacy-extraction`).
+After each phase write a phase summary (done, carry-forward, open questions) to STATE.md before
+the next skill loads (`references/phases.md`). Legacy: `cratis-screenplay-legacy-extraction`.
 
 ## Interview phase (P0)
 **Skip if** the request already states the domain, the source, the goal and the constraints.
 Otherwise ask only what is missing:
 1. **Domain**: what business process, in two or three sentences?
-2. **Source**: requirements, rough ideas, an existing system (legacy entry), an existing `.play` (change entry)?
-3. **Goal**: learning, documentation, validation, executable behavior, generated code (fixes the mode)?
+2. **Source**: requirements, ideas, an existing system (legacy entry), a `.play` (change entry)?
+3. **Goal**: learning, documentation, validation, executable behavior, generated code (the mode)?
 4. **Constraints**: outside systems, data sensitivity, who can answer, target stack.
 5. **Starting point**: from scratch, or which phase outputs exist?
 
 Confirm in one sentence only when something was inferred: "So we model <domain>, goal <goal>,
-mode <mode>, starting at <phase>. Right?" Unattended: assume visibly, record each assumption
-and what was asked versus assumed in STATE.md. Mid-workflow entry: ask which phases are done
-and what artifacts exist; never rerun a completed phase, start at the first incomplete one.
+mode <mode>, starting at <phase>. Right?" Unattended: assume visibly and record asked versus
+assumed in STATE.md (`references/stop-or-assume.md`). Mid-workflow entry: ask which phases are
+done; never rerun a completed one, start at the first incomplete.
 
 ## Run protocol: stop or assume
 1. **Start**: read STATE.md; check the source identity; load the phase skill before authoring
    or judging; read the slice, specs and skill fully before concluding something is missing.
-   Discover tool capabilities once per session (`cratis-screenplay-toolchain`).
+   Discover tool capabilities once per session (`cratis-screenplay-toolchain`). One brief per
+   turn, one closed outcome: `references/per-turn-protocol.md`.
 2. **Scope**: only the addresses and phase the brief names; other defects go in the packet.
    One authoring agent per model root; reviewers and explainers are read-only.
 3. **Modeling**: assume visibly and continue (attended: ask the one question that changes the
@@ -209,28 +213,24 @@ address and assumption; every decided rejection is a specification; no protectio
 the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
-Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here: Screenplay
-`v4.64.0` (`7e16162`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
-`Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
-cratis CLI `v3.27.1` (`cratis screenplay validate --warnings-as-errors`, older bundled compiler);
-Stage `v4.24.0` (admits ESM v1-v3); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.27.1`
-`Documentation/reference/screenplay-mcp.md`. The worked example compiles with both tools.
+Pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here: Screenplay `v4.64.0`
+(`7e16162`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
+`Semantics/SemanticModelBinder.cs:209-216` (personas are report-only), `Documentation/screenplay/{constraints,specifications}.md`,
+`mcp/reference.md` (`modelRevision`); cratis CLI `v3.27.1` (`screenplay validate --warnings-as-errors`,
+`Documentation/reference/screenplay-mcp.md` for `mcpServers.screenplay.root`); Stage `v4.24.0` (ESM v1-v3).
 
 ## Verify
 ```shell
 screenplay .cratis/screenplay/ --warnaserror --no-color
 ```
-- [ ] The first output line states the mode; the last block opens with `Outcome:`.
-- [ ] Five verdict lines, each a result or "not run: <reason>".
+- [ ] The first output line states the mode; the last block opens with `Outcome:`; five verdict lines, each a result or "not run: <reason>".
 - [ ] One phase skill per step; STATE.md names the next phase; no code for modeled behavior, no managed output edited.
 
 ## Route near misses
 | Need | Skill |
 |---|---|
 | Where `.play` files live, the four patterns, quick gate | `cratis-screenplay-event-modeling` |
-| Language mechanics, MCP authoring | `cratis-screenplay-model-authoring` |
-| Given/when/then grammar | `cratis-screenplay-specifications` |
+| Language mechanics, MCP authoring; given/when/then grammar | `cratis-screenplay-model-authoring`; `cratis-screenplay-specifications` |
 | Stage rendering facts | `cratis-stage-rendering-and-sandbox` |
 | Code-level event modeling in an app with no model | `cratis-chronicle-event-modeling` |
 | Checking hand-written code against its slice | `cratis-application-slice-conformance` |

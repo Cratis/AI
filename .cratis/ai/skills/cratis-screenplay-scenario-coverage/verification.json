@@ -8,6 +8,9 @@
     { "kind": "skill-contains", "value": "Unauthorized is never `then error`" },
     { "kind": "skill-contains", "value": "Screenplay#390" },
     { "kind": "skill-contains", "value": "false PLAY0285" },
-    { "kind": "skill-contains", "value": "One behaviour per spec" }
+    { "kind": "skill-contains", "value": "One behaviour per spec" },
+    { "kind": "skill-contains", "value": "No command has only two specs" },
+    { "kind": "skill-contains", "value": "not scenario-complete" },
+    { "kind": "skill-contains", "value": "per-view judgment was skipped" }
   ]
 }

@@ -10,6 +10,10 @@
     { "kind": "skill-contains", "value": "what can happen next *instead*" },
     { "kind": "skill-contains", "value": "No generic edit event or command name" },
     { "kind": "skill-contains", "value": "V2 to V5 are not run in discovery" },
-    { "kind": "skill-contains", "value": "`description` text is never rendered" }
+    { "kind": "skill-contains", "value": "`description` text is never rendered" },
+    { "kind": "skill-contains", "value": "do not ask questions whose answers you" },
+    { "kind": "skill-contains", "value": "Storyline" },
+    { "kind": "skill-contains", "value": "do not pad events with fields just to reach a count" },
+    { "kind": "skill-contains", "value": "whose turn it is" }
   ]
 }

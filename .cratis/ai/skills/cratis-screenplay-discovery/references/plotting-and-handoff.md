@@ -72,6 +72,43 @@ Compensation:   withdrawal frees the berth for the waiting list (open question)
 
 For a diagram use `cratis-event-model-diagram`.
 
+## Whose turn is it in the story?
+
+Tell the story from one persona's perspective as far as the process allows. At each event ask
+whose turn it is. While it is still the same persona, stay there: a long stretch of events
+belonging to one persona, with another persona's views changing in the background, is normal.
+Switch only at a genuine handoff (a boat owner requests a berth, then the Harbourmaster must
+act on it) or as a deliberate cutaway to show what another persona sees. A change to another
+persona's read model is not automatically a new beat; it earns one only when that persona
+would look at it as the next step. Do not alternate personas for symmetry. Carry each real
+handoff into the feature `description` and the slice-design handoff packet; a cutaway is
+marked as such there.
+
+```text
+Consistent:  BoatOwner: BerthRequested, RequestWithdrawn... then Harbourmaster: BerthAssigned, BoatArrived
+Alternating: Harbourmaster, BoatOwner, Harbourmaster, BoatOwner with no handoff behind each switch
+```
+
+## Storyline: one view walked through its states
+
+When the story is about a *view* rather than a stream (a waiting list, a work queue, a berth
+board), a set of isolated before/after pairs hides what the user cares about: the same read
+model changing over time. Note it as one narrated walkthrough in STATE.md and the feature
+`description`: empty, then an item added, then the item done or failed, then removed, naming
+the event that causes each step. It is a seed only; discovery writes no specification.
+`cratis-screenplay-scenario-coverage` turns it into cumulative lifecycle specifications on
+the read model, and `cratis-screenplay-automations-and-translations` owns the work-queue
+(todo-list) shape. Each step must be caused by a modeled event; a step with no cause is an
+open question.
+
+```text
+Waiting list (view): empty
+  BerthRequested (Dana, 9 m)        -> one row, waiting
+  BerthRequested (Ola, 12 m)        -> two rows
+  BerthAssigned (Dana)              -> Dana leaves the list
+  BerthAssignmentWithdrawn (Dana)   -> open question: does Dana return to the list?
+```
+
 ## 5. Plot checks
 
 - Every event except a starting one has a predecessor *and* a cause.

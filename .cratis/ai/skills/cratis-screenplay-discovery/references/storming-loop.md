@@ -26,7 +26,7 @@ then reports what changed and asks one question. The user should always be able 
    | drop | not a fact after all | record why in STATE.md |
    | none | already modeled | say so briefly |
 
-5. **Write the edits** with essential fields (identity is implicit; one to three facts).
+5. **Write the edits** with essential fields (identity is implicit; the one or two facts that make the event meaningful, none for a plain transition; never padding).
 6. **Validate after a coherent batch** (`--warnings-as-errors`), not after every sentence.
 7. **Report the change** in a few lines, then ask **one** question.
 

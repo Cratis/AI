@@ -24,6 +24,24 @@ are built and checked independently. A command or reaction may consult another s
 command except through `invokes`. Dependencies run in one direction; a cycle through events
 means the story is a feedback loop that belongs in an `Automation` slice.
 
+The contract between slices is events: slice B depends on slice A because B's command, rule
+or view needs an event A produces. Two other edges are supported and recorded explicitly, never
+implied: `reads <View>` from another slice (unprotected, so a stored-state rule over it stays
+NOT enforced, `rule-layers.md`) and `invokes <Command>` from a reaction. No shared state or
+other direct call. Name each
+slice after its element (the command, the view, the automation), not a broader feature name
+that spans several. Per slice, record:
+
+```text
+Slice:       <CommandName | ViewName | AutomationName>   (StateChange | StateView | Automation)
+Produces:    <events, and when they occur>
+Consumes:    <events from other slices, and why this slice needs them>
+Upstream:    <slice X: needed because it produces <Event>>
+Downstream:  <slice Y: consumes <Event> this slice produces>
+Reads:       <views of other slices, with the rule they feed; NOT enforced>
+Invokes:     <commands of other slices called by a reaction, and the trusted actor>
+```
+
 For `worked-example.md`:
 
 | Slice | Consumes | Produced by | Also reads |
@@ -110,13 +128,23 @@ If the request names the capability, build that one. Otherwise, when the current
 fully designed, read the slices in story order and choose, preferring in order:
 
 1. the next stage of an existing lifecycle (a locker can be assigned; can it be released?);
-2. an action a screen implies but nothing implements, or a state change with no confirmation
-   view (in the example, the attendant needs a waiting-request view to pick a request);
+2. an action a screen implies but nothing implements (a button with nothing behind it), or a
+   state change with no confirmation view (in the example, the attendant needs a waiting-request view to pick a request);
 3. a missing ending, correction or reversal - a correction or reversal names what it corrects
    or reverses (`CorrectLockerVolume`), never `Update<Entity>`;
 4. a notification or follow-up the business expects.
 
-Prefer what continues the current story over a new thread. In a modeling session, act: write
+Apply this heuristic only when the brief authorizes selecting another capability; when the
+requested scope is complete or no supported candidate remains, close the turn without inventing
+work (scope ownership: `cratis-screenplay-modeling-lifecycle`). Prefer what continues the
+current story over a new thread. When selecting is authorized, not knowing the next capability
+is never a reason to stop: a plausible next slice (the next lifecycle stage, an unaddressed
+affordance, a missing confirmation or ending) usually exists, and a wrong guess is one slice
+that is easy to rename or delete. Posting a question and ending the turn with no slice
+written is not an acceptable outcome; flag the assumption and write the slice in the same
+turn. Report the capability chosen and why, and the slice type and elements created. A
+slice with a command and a view is two slices (`StateChange` and `StateView`): write them one
+at a time. In a modeling session, act: write
 the slice, note the assumption that chose it, and ask for correction afterwards. A wrong guess
 costs one edit; an empty turn costs a round-trip. Record why the slice was chosen in the
 handoff.

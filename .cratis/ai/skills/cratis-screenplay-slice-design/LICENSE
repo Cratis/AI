@@ -7,6 +7,11 @@ Parts of this skill (the interview-phase format and the quality-checklist items)
 from the TrogonStack event modeling skills (TrogonStack/agentskills, commit
 7b249d3ee42d8b7e11fa564141ebd5fbc37aadf1). See `references/provenance.md`.
 
+This skill also adapts material from Nebulit GmbH's agentic-engineer
+(https://github.com/Nebulit-GmbH/agentic-engineer, commit 07b0f30648d663cb588d7e2c7aa031af9dfc21f2),
+used with Nebulit GmbH's agreement. That repository carries no licence file; the adapted material
+remains credited to Nebulit GmbH.
+
 MIT License
 
 Copyright (c) 2025 Straw Hat, LLC

@@ -110,6 +110,8 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 (field inventory, specification mapping, delta delivery, never weaken a spec-derived test, the
 `done | partial | blocked` status). They are linked here, not duplicated. What this skill adds:
 
+- Hand-written scope is `done` only when no specification lacks an executable equivalent
+  (`cratis-application-slice-conformance` `references/build-prompts.md`).
 - One ledger scope per `slice-implementer` brief; the brief carries addresses and paths, not contents.
 - Model-enforced rules realized in code (state-dependent rules) need a protected read or
   concurrency scope; never claim them from prose. In a Stage-rendered app, Arc is 22.25.0.
@@ -175,5 +177,5 @@ Before reporting done:
 
 ## Lineage
 
-Draws on the earlier model render workflow and on the ideas of Nebulit's slice build
-instructions (own words); see `references/provenance.md`.
+Draws on the earlier model render workflow and, for the gap-fill brief, on Nebulit's slice
+build instructions (adapted closely); see `references/provenance.md`.

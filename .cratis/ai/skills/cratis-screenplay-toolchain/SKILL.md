@@ -55,7 +55,8 @@ Re-verify before claiming another version behaves the same.
    result. Specifications written or bound are never specifications passing.
 8. **Let the tool resolve what it can.** Revisions, identities and renames come from the
    tool, never from hand computation; discover tool, version and root once per session and
-   reuse them until the root, the tool or a call changes.
+   reuse them until the root, the tool or a call changes. Re-resolve only when a value actually
+   needs to change: a failed or stale call, a different model root, or an explicit override.
 
 ## The two compilers
 

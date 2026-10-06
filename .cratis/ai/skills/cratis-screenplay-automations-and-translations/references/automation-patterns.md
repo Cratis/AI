@@ -26,6 +26,9 @@ Outcomes:
 - A `readmodel` for one pending item: the identity plus what the worker needs to act. **No
   status field**: being in the list is the state. If another consumer needs history, that is a
   different read model.
+- Every pending-item field names its origin (event property or key), source and target type, and
+  cardinality (single value or list). A transformation the language cannot express is a recorded
+  gap with the intended behavior, never an invented mapping. The same holds for every reaction input.
 - A projection that adds an item `from <OpeningFact>` and removes it with
   `remove with <ClosingFact>`. Several facts may open or close; they need not match one to one.
 - A keyed query (`…ById => Item optional` + `by itemId`) for specs and executable scope; a
@@ -104,6 +107,17 @@ occurrences; hitting that is a modeling defect, not a limit to tune.
 - An automation with no visible pending state where failures are likely.
 - A gated command invoked by a reaction with no recorded actor decision.
 - A reaction that `reads` and `produces`.
+
+**Redundant second stage.** The tell is a follow-up fact with the same identity, no new field, no
+invariant checked and no choice made. Example: an external harbor system sends `BerthAssigned`
+already carrying `berthId`, `boatId` and `memberId`; the berth was chosen upstream. Translating it
+into our own `BerthAssigned` is required: an outside fact must not drive a local domain decision
+until it is translated and accepted (a translator reaction over an imported external event is
+supported). Adding a
+second queue, an `ApplyBerth` automation and a `BerthOccupied` fact on top restates the same fact
+under another name. Project the "occupied berths" view from our translated fact instead. A
+`...Synced` name is itself the tell. Equal payloads alone do not prove equal responsibility: keep
+a worker when it adds a local obligation or effect, such as notifying the member.
 
 ## 8. Chain completion checkpoint
 Walk each affected chain from occurrence to terminal outcome.

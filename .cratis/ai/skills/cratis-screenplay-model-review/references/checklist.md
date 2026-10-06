@@ -1,6 +1,6 @@
 # Review checklist
 
-Eleven phases, 82 checks and three closing questions. Each phase header says how many checks it holds; the report lists
+Eleven phases, 89 checks and three closing questions. Each phase header says how many checks it holds; the report lists
 every phase with its count and, per check, a status, the element and the evidence
 (`report-template.md`). Each check names what to look at, the Screenplay evidence source and the
 tier:
@@ -102,7 +102,7 @@ the format in `worked-example.md`.
 | D6 | Every `from` event in a projection sets or affects at least one read-model field (AutoMap counts), or the reason it stays is recorded | projections | D |
 | D7 | Decision state is derived, never kept as its own record: a read model has exactly one builder (a projection or a reducer), and no command or reaction writes view state except by producing a fact | projections, reducers, `produces` | C (two builders is PLAY0191) / D |
 
-## Phase 7. Rules and their layer (8 checks, E1-E8)
+## Phase 7. Rules and their layer (9 checks, E1-E9)
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
 | E1 | Value formats on `concept`s; input rules on the command; uniqueness as `constraint`; access as `authorize` | declarations | D |
@@ -113,8 +113,9 @@ the format in `worked-example.md`.
 | E6 | Each invariant has an atomic enforcement point (name the storage provider where constraint admission matters); the race loser's outcome is specified | constraints, specs | D |
 | E7 | Append-time constraints on a claim cover every event that sets the claimed value; value invariants live in the concept; command-specific conditions are reviewed per path, not copied blindly | constraints, concepts, producers | D |
 | E8 | No rule exists only in a `description` when a layer could express it (descriptions never reach rendered code); each rule a description states has a property, validation, constraint or spec behind it | descriptions vs layers | D (minor; major for renderable scope) |
+| E9 | A decided refusal is a `then error` or `then denied` specification (permanent behavior), never a lingering open question; only a genuinely unanswered question counts as open, and resolving it means answering it | specs, `STATE.md` questions, descriptions | D |
 
-## Phase 8. Flow and lifecycle (7 checks, F1-F7)
+## Phase 8. Flow and lifecycle (13 checks, F1-F13)
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
 | F1 | Each entity has a first fact, a state-transition table (including refused transitions) and terminal states | slices, constraints, `description` | D |
@@ -124,6 +125,19 @@ the format in `worked-example.md`.
 | F5 | External facts enter through `Translate`; in-app follow-ups through `Automation` | slice kinds | C semantics |
 | F6 | No cycle where fact A's reaction needs fact B and B's needs A, or two features each wait on the other | reactions, MCP `dependencies` | D (redesign the boundary) |
 | F7 | Each slice's consumed events and their producing slices are known; a slice calls another's command only through `invokes` | reactions, `reads` | Q |
+| F8 | Every Automation has a pending-work view (a todo list: membership is the pending work), or a written reason a direct effect needs none (immediate, internal, cannot fail). A "simple relay" is not exempt from the question | reactions, `reads`, views | D |
+| F9 | A worker's pending-work view is opened only by our own facts. An outside fact that reaches a decision directly means the translation step is missing: split it into a `Translate` slice plus the worker | reactions, captures, `dependencies direction=incoming` | D (major when an external system can trigger domain work with no translation) |
+| F10 | A translation that holds real pending work has a completion or terminal disposition; an artificial queue that never closes only hides recovery (omit it when nothing is pending). The local fact is named for its business meaning, never the transport (`...Synced`, `...Received`) | `Translate` slices, views, event names | D |
+| F11 | A worker after a translation adds a distinct local decision, obligation or effect (an invariant, a choice, data to compute, a send or other external effect). If its identity, meaning, logic and effects add nothing the translated fact did not already carry, it is a redundant stage: remove it and project downstream views from the fact | worker reaction, commands, events | D |
+| F12 | A worker's pending-work view has a closing path for its own result fact, for cancellation and for supersession, and no `status` field: membership in the list is the state | views, projections `remove with` | D (major when work can never leave the list) |
+| F13 | Every command has a reachable, supported origin: a screen or form action, or a reaction to any modeled event, clock or application trigger (a capture starts a process by appending facts; a later command is reached through a reaction). No unmotivated command; two commands are not chained without such an origin between them | slice order, origins, triggers, captures | D |
+
+Automation-chain audit (F8-F13): enumerate every Automation and Translate slice with its
+location and write one line each: pending-work view, opened by, closed by, result (`complete`,
+`open: <decision>`, `blocked: <gap>`). An undeclared opening or closing fact is an unresolved
+dependency, never skipped and never called complete. The per-chain questions are in
+`cratis-screenplay-automations-and-translations` `references/audit-format.md`; adapted from
+Nebulit (`provenance.md`).
 
 ## Phase 9. Personas, reach and authorization (8 checks, G1-G8)
 | Id | Check | Evidence | Tier |

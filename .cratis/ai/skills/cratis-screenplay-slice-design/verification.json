@@ -38,6 +38,30 @@
     {
       "kind": "skill-contains",
       "value": "## Gate"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "read model -> screen -> command -> event"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Events or views"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "does that match your expectation"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Not knowing the next capability"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "origin classified [USER] or [AUTO]"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "one `data` line per component"
     }
   ]
 }

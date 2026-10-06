@@ -77,7 +77,9 @@ Reading a question is not resolving it. Details: `references/contract-and-preced
 | State View | each read-model property and its source event; subscribed events; removal and update events; query cardinality, filters and caller scope |
 | Automation / Translation | trigger event(s); each field of the produced command or event with its source (trigger, injected read model, contract mapping); filter conditions; repeat behaviour |
 
-Slice-type checklists and the Chronicle runtime guarantees: `references/checklists.md`.
+Slice-type checklists and the Chronicle runtime guarantees: `references/checklists.md`. The
+standing build prompts for an implementer or an unattended loop (mandatory flow, one slice per
+iteration, ownership, result packet, learning candidates): `references/build-prompts.md`.
 
 ### 3. Reconcile in both directions
 - Contract to code: every listed element has a realization; list each gap.
@@ -139,7 +141,9 @@ Before reporting `done`, all hold:
 - Deliberate divergences are listed with who approved them; none is called equivalent.
 - Unresolved conflicts are `blocked`, never absorbed.
 
-Passing specs are the evidence; the inventory is an aid, never a receipt.
+Passing specs are the evidence; the inventory is an aid, never a receipt. A slice is only
+`done` if the business logic is implemented as the contract defines it, every scenario in the
+contract is implemented in code, and no specification lacks an executable equivalent.
 
 ## Verify
 
@@ -163,6 +167,7 @@ Passing specs are the evidence; the inventory is an aid, never a receipt.
 ## References (load on demand)
 
 - `references/contract-and-precedence.md` - sources, precedence, conflicting evidence.
+- `references/build-prompts.md` - standing instructions, mandatory build flow, loop prompt, result packet, learning candidates.
 - `references/checklists.md` - State Change, State View, Automation final checklists; Chronicle runtime guarantees; evidence.
 - `references/worked-example.md` - a marina slice reconciled and re-delivered, with the report.
 - `references/provenance.md` - sources and attribution.
@@ -170,4 +175,5 @@ Passing specs are the evidence; the inventory is an aid, never a receipt.
 ## Lineage
 
 Merges the fallback-conformance checklist of the render workflow with the final-verification
-idea of Nebulit's slice build instructions (own words); see `references/provenance.md`.
+checklists and build prompts of Nebulit's slice build kit, adapted closely; see
+`references/provenance.md`.

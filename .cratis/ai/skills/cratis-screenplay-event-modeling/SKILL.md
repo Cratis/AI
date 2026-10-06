@@ -17,6 +17,20 @@ assumptions. Keep asking *"and then what happens?"* after every event, every
 command, every answer. Use business language. Do not discuss databases, APIs, or
 frameworks during modeling.
 
+**Ask only what the step needs.** Missing or ambiguous information: ask, one question that
+changes the model most, and follow a vague answer ("it depends", "usually") with "what decides
+it?". Already known: do not ask. Told not to stop for questions (an unattended run): assume the
+most reasonable answer, say so visibly where it can be corrected, never guess silently. Assume
+visibly during modeling; delivery blocks unresolved consequential rules. Contradictions, missing
+approvals and a third review round always stop
+(`cratis-screenplay-modeling-lifecycle`, `references/stop-or-assume.md`).
+
+**Do not cut corners to save tokens or effort.** A rule that needs more slices, events, views,
+translation steps or specifications gets them written; budget is never a reason to delete a
+modeled behavior, label a gap "accepted debt" or merge translating outside data into our facts
+into the work that acts on them. Flag a real trade-off to the user instead of resolving it by cutting the model
+(`cratis-screenplay-modeling-lifecycle`, `references/completeness-self-check.md`).
+
 ## Start here
 
 **1. Decide the level (short form; master copy in `cratis-screenplay-modeling-lifecycle`).**
@@ -383,3 +397,6 @@ The lifecycle, toolchain and phase skills are in "Start here" above. Construct a
 | Rendering a settled model into an application | `cratis-stage-rendering-and-sandbox` |
 | Drawing the model as a Mermaid diagram | `cratis-event-model-diagram` |
 | Modeling against hand-written Chronicle C# | `cratis-chronicle-event-modeling` |
+
+## Lineage
+Method lineage, Nebulit and TrogonStack material and licenses: `references/provenance.md`.

@@ -18,6 +18,18 @@ Before loading the next phase skill, overwrite STATE.md (`handoff-template.md`):
 Add one Interview Trail row (phase, skill, status, key output). Then load the next skill. A phase
 whose gate fails stays open; it is never "carried" into the next one.
 
+Phase summary block, appended under Carry-forward in STATE.md after every phase and before the
+next skill loads (never skipped, also after a small change):
+```markdown
+### P<n> complete - <skill>
+- **What was done**: 2-4 bullets: artifacts changed (addresses), decisions made, gates passed
+- **Carry-forward**: what the next phase needs from this one
+- **Open questions**: anything unresolved or deferred, each with its address and assumption
+```
+The Interview Trail row's status becomes `done` and its key output one line. Also record, at any
+phase, a decision important enough that a later reader could misread the model (see
+`reasoning-notes.md` for when it belongs in a `description`).
+
 ## P0 Intake
 - **Input**: the request, the repository, `.cratis/screenplay/` or the configured root.
 - **Carry-forward**: mode; model root; tool check (versions per `cratis-screenplay-toolchain`);

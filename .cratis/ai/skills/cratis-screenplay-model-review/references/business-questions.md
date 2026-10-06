@@ -34,13 +34,62 @@ case, unclear ownership). Short questions land better than long ones; one senten
   implies it.
 - Identifiers, timestamps, correlation values and versions are modeler concerns, not business
   gaps.
-- Never write "no spec", "not modeled", "no actor", "event", "command" or "read model" in a
-  question. Ask "What do we expect when ...?", "Who does this?", "What happens if ... fails?".
+- **Language rule.** Write every question and every theme in plain business language, as a
+  product manager would to a stakeholder, not as a developer reviewing a model. Never say "no
+  error event", "no actor", "no spec", "not modeled", "no failure modeling", "command", "event",
+  "read model", "slice", "scenario". Say "what happens when this fails?", "who does this?",
+  "what do we expect when X?", "what does the person see?", "what if they do Y?". Test each
+  question: could a non-technical product owner read it and immediately understand what is
+  being asked?
 - At most 12 questions per pass. When more qualify, keep the ones that change the model most
   and list the rest as themes.
 - Questions go to the user in the report; they are not written into the model. Where the
   harness shows a board view, a sketch of a relationship or cluster may accompany a question,
   never replace it.
+- Be curious and direct, not polite and vague: "What happens when X fails?", not "I wonder if
+  ...". One sentence each. Do not second-guess a case the model clearly handles; zero questions
+  is a valid outcome.
+
+## Question categories
+Generate specific, pointed questions, not generic filler; skip a category that does not apply.
+Adapted closely from Nebulit's business-analyst pass (`provenance.md`).
+- **A Failure paths.** Ask simply "Can this fail?" of each decision, one sentence, and let the
+  domain expert answer; do not list technical failure modes. If a refusal is already specified,
+  move on. Where an automation or other system is wired to a fact, ask what happens if it does
+  not respond, unless a specification already covers it.
+- **B Duplicates and replays.** Only where the model gives a concrete reason (a natural key, a
+  specification that implies uniqueness, an automation that could fire twice). Can a person
+  trigger this twice given the flow as modeled (a submit with no confirmation step)? Can the same
+  fact be handled twice by an automation reacting to it? Never invent duplicate-prevention rules.
+- **C Missing preconditions.** What must be true before this is allowed, is it enforced, is it
+  visible? In which states must it be refused (can you cancel what has already shipped)? Is a
+  lifecycle implied (created, active, suspended, closed) that nothing says out loud?
+- **D Missing views.** Only when the step clearly implies one and it is absent from this
+  slice's own parts: an action no screen reaches, a view nothing reads. A confirmation page, a
+  list or a success state is not missing just because it is not here: the model may not have
+  reached that step yet.
+- **E Missing examples.** Never "missing specification". Ask as a business question grounded in
+  the actual details ("What happens when a member registers without a name?"). With no example
+  at all, ask two or three: the smooth path and one or two edge cases the details suggest. With
+  only the smooth path, ask what the team expects when the obvious edge case occurs.
+- **F Permissions.** "Who does this?", "Who is allowed to?" (not "no actor"). Can one person do
+  it on someone else's behalf, and is that intended? Does a company or team boundary matter?
+- **G Time and ordering.** Does the order matter, and what if things arrive out of order? Is a
+  timeout or deadline implied (an invitation expires, a payment window closes)? Are schedules or
+  recurring moments implied but not modeled?
+- **H Data completeness.** Only when something downstream within the model needs a detail that
+  is not there (a screen shows a figure the view does not carry). Never flag identifiers,
+  timestamps, correlation values or versions, and do not assume a notification is missing
+  because it is not modeled; ask only when the model implies one and nothing connects to it.
+- **I Shape of the model** (once, after reading everything; never name the shape to a business
+  person): one screen action that settles several separate things in a single submit (assertive,
+  not a soft maybe): "This lets someone trigger more than one thing from the same place; should
+  these be separate steps so it is clear which one they are choosing?" Then, only if it holds up
+  against the domain: "When this succeeds, do all of these always happen together, or could some
+  happen without the others?"; "Is this screen answering one question, or several bundled
+  together?"; "This step has many more cases than the ones around it: is it doing more, or
+  covering something that should be its own step?" Name every element involved, since the
+  relation is the finding.
 
 ## Method: walk each journey
 1. List the personas in scope and, for each, the story they live through the model in time
@@ -122,7 +171,9 @@ Flows read: <persona: story in business words; one line each>
    Why it matters: <one sentence, business consequence>
 2. ...
 
-Themes: <2-3 business themes phrased as questions, or "none">
+Questions: n
+Themes: <2-3 business themes phrased as questions ("What happens when a booking fails?", "Who may
+register a member?"), never as modeling observations ("no failure modeling"), or "none">
 Next step: <one suggestion, e.g. "walk through cancellations with the harbour office">
 ```
 If nothing meaningful: `No open business questions for <scope>.` plus the flows read.

@@ -11,10 +11,9 @@ sections, in this order:
    not empty, the skill `LICENSE` carries the "Third-party notices" section with the **complete**
    MIT text (copyright line, permission notice and disclaimer). Closely adapted material is
    attributed to the source it came from, not to a neighboring one.
-2. **Ideas from unlicensed sources.** One row per idea, in the form
-   `idea from <repository>@<commit>:<path>, written independently`. These are written in our own
-   words with no passage beyond a short phrase. If a substantial reuse is ambiguous, flag it to the
-   maintainer instead of resolving it silently.
+2. **Adapted closely (Nebulit GmbH, with agreement).** One row per item taken from Nebulit's
+   agentic-engineer: source file, where it is used, how. Mark "idea; our wording kept" where only
+   the idea was taken. The skill `LICENSE` carries the Nebulit notice.
 3. **Method lineage.** Public method sources (books, talks, standards), cited as sources of ideas.
 
 Do not name a person's tooling, a harness's model or a private path. Update the commit pins here
@@ -35,20 +34,26 @@ full notice is in this skill's `LICENSE` ("Third-party notices").
 | same file, "Mid-Workflow Entry" | `SKILL.md`, `phases.md` "Resume mid-workflow" | Entry points table and identity recomputation added |
 | same file, "Final Output" and "Quality Checklist" | `phases.md` "Final output" and "Quality checklist (closing)" | Items rewritten around Screenplay verdicts, specifications and review |
 
-## 2. Ideas from unlicensed sources
+## 2. Adapted closely (Nebulit GmbH, with agreement)
 
-The Nebulit-GmbH/agentic-engineer repository carries no licence. These are ideas only, written
-independently.
+Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
+by Nebulit GmbH. The repository carries no licence file; this material is adapted with Nebulit GmbH's agreement.
 
-| Idea | Where it appears |
-|---|---|
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:.claude/skills/eventmodeling-core-rules/SKILL.md, written independently: modeling and critic postures are never mixed in one pass | `SKILL.md` "Modes" stance sentence |
-| same file: a refusal that is known is a documented rule, so a decided rejection is a specification | `SKILL.md` "Completeness over economy" |
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:.claude/skills/eventmodeling-interview-protocol/SKILL.md, written independently: when unattended, assume visibly and record what was asked versus assumed | `stop-or-assume.md` |
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:.claude/skills/request-feedback/SKILL.md, written independently: questions are readable cold and anchored to a model element | `stop-or-assume.md`, `handoff-template.md` section 4 |
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:.agent-modeling-kit/CLAUDE.md, written independently: a run ends with one closed outcome, never neither progressed nor closed; load the skill before authoring instead of calling raw tools | `SKILL.md` "Run protocol", `stop-or-assume.md` |
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:.claude/skills/connect/SKILL.md, written independently: discover capabilities once per session | `SKILL.md` "Run protocol", `identity-and-edits.md` |
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:.claude/skills/eventmodeling-orchestrating-event-modeling/SKILL.md, written independently: a self-catch prompt against cutting corners; a phase transition protocol | `SKILL.md` "Completeness over economy", `phases.md` |
+| Source file | Used in | How |
+|---|---|---|
+| `.claude/skills/eventmodeling-orchestrating-event-modeling/SKILL.md`: "Do not cut corners to save tokens or effort" (forbidden rationalizations, self-catch trigger, flag trade-offs to the user) | `SKILL.md` "Do not cut corners to save tokens or effort", `references/completeness-self-check.md` | Adapted closely; restored from #493. Board rationalizations (delete a node to dodge a placement conflict, "session-context" read model, collapsed translation chain) translated to Screenplay (modeled reaction, missing view, translation merged into worker behavior, denial and protection) |
+| same file: "Phase Transition Protocol" (what was done, carry-forward, open questions; trail row to Done) | `SKILL.md` "Lifecycle", `references/phases.md` "Phase transition protocol" | Adapted closely; restored from #493. Memory file replaced by STATE.md |
+| same file: "Documenting decisions inline" and Step 11 "What the note should actually contain" (cold reader, simple chapter stays brief) | `references/reasoning-notes.md` | Adapted closely; restored from #493. Feedback-lane note translated to a `description`; counts and verdicts stay in STATE.md |
+| same file: "Interview Phase" and "Mid-Workflow Entry" | `SKILL.md` "Interview phase (P0)" | Already adapted from TrogonStack (section 1); Nebulit's confirmation sentence kept |
+| `.claude/skills/eventmodeling-interview-protocol/SKILL.md`: "When to ask", "Unless told not to ask", "Recording the outcome" | `references/stop-or-assume.md` "Interview protocol" | Adapted closely; restored from #493. Interview file replaced by the STATE.md Interview Trail |
+| `.agent-modeling-kit/CLAUDE.md`: per-turn steps (screen the prompt, connect once, resolve context, start marker, invoke the matched skill never raw calls, questioning rule, close, learnings) | `references/per-turn-protocol.md`, `SKILL.md` "Run protocol" | Adapted closely; restored from #493. Board prompts and status calls translated to briefs, `Active:` in STATE.md and the `Outcome:` line; `<promise>` sentinels, `progress.txt` and learnings promotion not adopted |
+| `.agent-modeling-kit/AGENTS.md`: diagnose why a command failed before retrying it | `references/per-turn-protocol.md` step 5 | Adapted closely, restored; unknown-outcome MCP applies are never retried (toolchain trap 42) |
+| orchestrating `SKILL.md`: cross-context and integration gaps stated with the finding and the viable resolutions, matching the posted question | `references/reasoning-notes.md` item 6 | Adapted closely; the comment becomes an open question or STATE.md decision |
+| `.agent-modeling-kit/CLAUDE.md`: "never leave a prompt neither progressed nor closed" | `SKILL.md` "Run protocol", `references/stop-or-assume.md` | Idea; our wording kept |
+| `.claude/skills/request-feedback/SKILL.md`: when escalation applies and when it does not; do not guess and build anyway; write the question for a cold reader | `references/stop-or-assume.md`, `references/handoff-template.md` section 4 | Idea; our wording kept (question format, calibration) |
+| `.claude/skills/update-prompt-status/SKILL.md` and kit "exactly two status updates per prompt" | `references/per-turn-protocol.md` step 7 | Idea; one start marker and one closing outcome per turn, our wording |
+| `.claude/skills/eventmodeling-core-rules/SKILL.md`: modeling and critic postures never mixed; a known refusal is a documented rule | `SKILL.md` "Modes", "Completeness over economy" | Idea; our wording kept |
+| `.claude/skills/connect/SKILL.md`: discover capabilities once per session | `SKILL.md` "Run protocol", `references/identity-and-edits.md` | Idea; our wording kept |
 
 ## 3. Method lineage
 

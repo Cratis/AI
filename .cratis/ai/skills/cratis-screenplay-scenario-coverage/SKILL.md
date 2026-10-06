@@ -62,7 +62,9 @@ question is not four approvals.
    `open: <case>`, `question: <id>` or `gap: <code>`. "Fewer specs" is never a reason; a
    declaration (constraint, policy) or another command's denial is not a spec.
 5. **Per read model, decide the shape**: single-transition specs only, or also a lifecycle
-   family (cumulative givens). Write the decision and reason in the matrix.
+   family (cumulative givens). Write the decision and reason in the matrix, before drafting any
+   payload: one line per read model. One schema reused for every command and view may indicate
+   the per-view judgment was skipped: check for a recorded reason per view before concluding.
 6. **Example data**: a small cast per feature; reuse only where meaning agrees; preserve
    existing intentional fixtures (`references/scenario-catalogue.md` "Example data").
 7. **Draft commands**: happy path, each rule, denial, duplicates and retries, competing claims,
@@ -141,6 +143,13 @@ target requirements.
 - Every read model has population, update and (where it removes) removal specs.
 - Alternative paths, compensation and external failure are specified or carry a reason.
 - Each matrix cell holds a value; each `n/a` is a domain reason.
+- No command has only two specs (success and one rejection) unless every other type was reviewed
+  and found inapplicable for a domain reason.
+- Read models are a separate, equally mandatory pass: a model with dozens of command specs and no
+  read-model spec is not scenario-complete. Population, then update or removal where an event
+  supersedes a row.
+- The why behind each business rule is written down (slice `description`), not only the what.
+- Good and bad forms of givens, outcomes and rejections: `references/scenario-examples.md`.
 
 ### Review questions
 - Where is this invariant enforced, and what does the loser of a race see (enforced or declared)?
@@ -191,6 +200,8 @@ scope is reported as explicitly incomplete); V1 passes with the tool named in
 - `references/scenario-catalogue.md` - each type: ask, applies when, n/a when, shape, traps; example data.
 - `references/view-and-story-specs.md` - view specs, lifecycle families, ordering, lag.
 - `references/coverage-matrix.md` - obligations from declarations, template, worked matrix.
+- `references/scenario-examples.md` - compact worked examples per category, good and bad forms,
+  list and todo-list views; all copied from the complete `references/invoicing-dues-example.md`.
 - `references/scenario-workshop.md` - facilitation guide for group scenario sessions.
 - `references/chronicle-verification.md` - guarantees that need more than a `.play` outcome.
 - `references/spec-forms-by-mode.md` - admitted forms in design, executable, renderable.

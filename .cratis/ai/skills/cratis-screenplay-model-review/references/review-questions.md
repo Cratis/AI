@@ -28,8 +28,18 @@ needs; a "no" is a finding only when it has a business consequence.
 3. Could its figures change because a rule changed, without rewriting stored facts (D3)?
 4. Does one query shape serve one question (H1)?
 
+## For each Automation or Translate slice
+1. Which pending-work view says what is outstanding, and which facts open and close it (F8, F12)?
+2. Is it opened only by our own facts, or does an outside fact reach a decision directly (F9)?
+3. Does the step after a translation add a distinct decision, obligation or effect, or does it only restate the translated fact (F11)?
+4. Would this work exist if the whole process ran on paper? A step that exists only because of
+   the system (a cache refresh, a loading state, a session check) is not a business step (C2).
+
 ## For each slice and the model as a whole
-1. Does each slice depend on other slices only through event contracts and `invokes` (F7)?
+1. Does each slice depend on other slices only through event contracts, `invokes` and explicitly
+   recorded cross-slice `reads` of another slice's view (F7)? A `reads` is unprotected (a
+   stored-state rule over it stays not enforced) and couples the slice to that view's interface:
+   check that it is recorded, not implied.
 2. Could two people work on two slices at the same time without reading each other's
    declarations, given only the events' fields (A8)?
 3. Is every shared artifact an event contract or a concept (B6)?

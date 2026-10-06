@@ -31,7 +31,9 @@ Gaps: <capability gaps and tool-version gaps, e.g. false PLAY0285 on cascades in
 
 ## Inventory (read-only audit; MCP describe-application view=summary, find-assertion-gaps)
 Modules n, features n, slices n (StateChange n, StateView n, Automation n, Translate n),
-events n, commands n, read models n, specs n, slices with no assertion n.
+events n, commands n, read models n, specs n.
+Slices with at least one assertion: n of total (pct). Without: <names, at most 10, then "and N more">.
+Structural gaps per slice (skip gaps a description calls intentional): <slice: what is missing, or none>.
 
 ## Phase 1: Element sweep (7 checks)
 Check S1: <short title>
@@ -45,6 +47,9 @@ Evidence: <the sweep line: names, counts, the spec found or NONE>
 (one section per phase of checklist.md, in order, each stating its check count)
 
 Sweep summary: gated elements n, with denial spec n, NONE: <names>; field-copy signals: <names or none>.
+
+## Automation chains (F8-F13; every Automation and Translate slice)
+| Declaration | Location | Pending-work view | Opened by | Closed by | Result (complete / open / blocked) |
 
 ## Lineage matrix (scope)
 | Element.field | Origin | Destinations | Status |
@@ -82,6 +87,8 @@ Status: PASS | PASS WITH WARNINGS | FAIL
 Ready to accept (P6): YES | NO - <what first>
 Delivery readiness: <design only | executable | renderable>  (as far as the verdict lines allow)
 Confidence: high | medium | low (why)
+Blockers: <n critical findings>   Fixes: <n targeted, or "redesign">
+Next steps: <1-3, in order>
 Summary: <2-4 sentences: maturity, the most important risk, one concrete next step>
 ```
 
@@ -120,6 +127,8 @@ constraint or projection).
 - Business question: only a domain person can answer it ("Can this be undone?", "Who may do
   this for someone else?"). It becomes a defect only after the answer contradicts the model.
 - Do not disguise a defect as a question, nor raise a question you could answer from the model.
+- An open question is genuinely unanswered. A refusal the business already decided is a
+  `then error` or `then denied` specification, not a question (E9).
 
 ## Verdict rules
 - **FAIL**: any critical finding, or a verdict line the mode requires fails.
