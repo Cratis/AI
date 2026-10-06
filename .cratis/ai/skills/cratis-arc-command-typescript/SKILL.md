@@ -406,6 +406,10 @@ Express's `cratisArc(arc)` **before** any body parser, or every command answers
 
 ## Specify the command
 
+Start with a direct `handle()` call for pure command decisions, passing any
+provided values explicitly. Add `CommandScenario` only where binding,
+authorization, validation or dependency wiring contribute proof.
+
 `@cratis/arc.testing` runs a command through the real pipeline in-process —
 binding, authorization, validators, services, `provide()`, `handle()` — without
 a listener. From `Samples/Tasks`:
@@ -461,6 +465,10 @@ describe('when registering a task with a valid title', given(a_task_registration
   `shouldHaveValidationErrorForMember(member)`, `shouldHaveValidationErrorFor(text)`,
   `shouldHaveValidationErrorBecauseOf(reason)`, `shouldBeAuthorized()`,
   `shouldNotBeAuthorized()`, `shouldHaveExceptions()`, `shouldNotHaveExceptions()`.
+  Do not assert presentation text by default; assert exact wording only when it
+  is the specified behavior, named in the fact. A text-matching helper alone
+  does not prove exact equality; compare the actual message when equality is
+  the requirement.
 - Specify authorization for three callers — anonymous, without the role, with
   it — and on `validate()` too.
 
@@ -489,7 +497,7 @@ Folder and naming conventions for specs are `cratis-specifications-typescript`.
   results, never thrown errors.
 - Generated metadata is regenerated and `--check-metadata` passes; `build()`
   succeeds at startup.
-- The command's `CommandScenario` specs pass, including the unauthorized and
-  `/validate` cases.
+- Plain-call specs cover pure command decisions; `CommandScenario` specs
+  cover the pipeline, including the unauthorized and `/validate` cases.
 - Guidance never claims the server packages are on npm, and never substitutes
   `@cratis/arc` (the client) for `@cratis/arc.core` (the server).

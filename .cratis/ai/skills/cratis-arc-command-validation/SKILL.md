@@ -212,8 +212,10 @@ and that it failed *as a validation*:
 ```
 
 `ShouldNotBeSuccessful()` alone cannot tell a rejection from an unhandled
-exception, which is precisely the mistake this skill exists to prevent. Never
-assert on a message string — it is presentation text. See
+exception, which is precisely the mistake this skill exists to prevent. Do not
+assert on a message string by default — it is presentation text. Assert exact
+wording only when it is the specified behavior, and name that requirement in
+the fact. See
 `cratis-application-slice-specifications` for the scenario mechanics.
 
 ## What breaks

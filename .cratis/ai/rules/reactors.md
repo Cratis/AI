@@ -264,7 +264,7 @@ The command is returned, not executed: Arc runs it through validation and author
 
 ## Testing Reactors
 
-Use `ReactorScenario<TReactor>` (from `Cratis.Chronicle.Testing.Reactors`) — construct it with an `IServiceProvider` of NSubstitute mocks, fire events through `Given`, and assert on the mocks:
+Start with `Specification` plus a direct call for pure reactor decisions, passing the event and supplied values explicitly. Add `ReactorScenario<TReactor>` (from `Cratis.Chronicle.Testing.Reactors`) only where invocation, dependency wiring or side effects contribute proof — construct it with an `IServiceProvider` of NSubstitute mocks, fire events through `Given`, and assert on the mocks:
 
 ```csharp
 void Establish()
@@ -275,7 +275,7 @@ void Establish()
 
 async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new InvoiceIssued("INV-1001"));
 
-[Fact] async Task should_notify() => await _notifications.Received(1).Notify("Invoice 'INV-1001' was issued.");
+[Fact] async Task should_notify() => await _notifications.Received(1).Notify(Arg.Any<string>());
 ```
 
 For reactors that return side-effect events, assert the resulting appends through the scenario's event store; for non-event side effects, assert on the mocked services (as above). See [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) for the full `*Scenario` family.

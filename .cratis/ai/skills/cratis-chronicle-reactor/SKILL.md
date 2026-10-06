@@ -375,11 +375,14 @@ when they serve that concern.
 
 ## Specifications
 
-Drive events through the reactor scenario helper with a service provider of
-substitutes, and assert on those substitutes for non-event side effects. For
-handlers that return events, assert the resulting appends through the scenario's
-event store. Cover the replay path separately when the reactor has `[OnceOnly]`
-or `[Replay]` handlers.
+Start with `Specification` plus a direct call for pure reactor decisions,
+passing the trigger and supplied values explicitly and asserting the returned
+command or event. Add `ReactorScenario<TReactor>` only where invocation,
+dependency wiring or side effects contribute proof. In those scenarios, drive
+events with a service provider of substitutes and assert on the substitutes for
+non-event side effects; for handlers that return events, assert the resulting
+appends through the scenario's event store. Cover the replay path separately
+when the reactor has `[OnceOnly]` or `[Replay]` handlers.
 
 Specify the contract, not only the happy path:
 

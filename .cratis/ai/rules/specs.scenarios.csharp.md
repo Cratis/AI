@@ -14,7 +14,7 @@ Specs are **mandatory for every slice type**, including reactors.
 
 ## Start with the plain call; add a scenario where it adds proof
 
-A command's `Handle()` is an ordinary method; with dependencies resolved by `Provide()`, its decision can be a pure function of its arguments. Reducer logic and a reactor's decision can be pure functions too. **Write the plain call as the default spec for a pure decision**, with no host, services or harness. Add a scenario helper where the framework's composition is part of what you must prove: the command pipeline, validation, authorization, constraints, and projections (declarative, so only a scenario can exercise them). The scenario helpers are additive; a slice normally has both. For application behavior prefer the in-process helpers over full out-of-process Chronicle host specs.
+A command's `Handle()` is an ordinary method; with dependencies resolved by `Provide()`, its decision can be a pure function of its arguments. Reducer logic and a reactor's decision can be pure functions too. **Write the plain call as the default spec for a pure decision**, with no host, services or harness. Add a scenario helper where the framework's composition is part of what you must prove: the command pipeline, validation, authorization, constraints, and projections (declarative, so only a scenario can exercise them). The scenario helpers are additive; use both only when the slice needs both kinds of proof. For application behavior prefer the in-process helpers over full out-of-process Chronicle host specs.
 
 | Tool | Tests | Use when |
 |---|---|---|
@@ -126,9 +126,9 @@ async Task Because() =>
 
 `IAppendResult` assertions (failures throw `AppendResultAssertionException`): `ShouldBeSuccessful()`, `ShouldBeFailed()`, `ShouldHaveConstraintViolations()`/`ShouldNotHave…`, `ShouldHaveConstraintViolationFor(name)`, `ShouldHaveConcurrencyViolations()`/`ShouldNotHave…`, `ShouldHaveErrors()`/`ShouldNotHave…`. Assert the constraint **name** by default; assert exact message text only when that wording is the specified behavior, and name that behavior in the fact.
 
-### `ReadModelScenario<TReadModel>` — projections, the State View default
+### `ReadModelScenario<TReadModel>` — declarative projections and reducer wiring
 
-Drives events into the projection/reducer and asserts the resulting state. Use xUnit `Assert.*` on `_scenario.Instance`.
+The default for declarative projections; pure reducer decisions start with a direct call. Add this scenario for reducer dispatch, filtering, metadata or read-model wiring. It drives events into the projection/reducer and asserts the resulting state. Use xUnit `Assert.*` on `_scenario.Instance`.
 
 ```csharp
 ReadModelScenario<Author> _scenario = null!;

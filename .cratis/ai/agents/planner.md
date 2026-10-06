@@ -84,7 +84,7 @@ For an explicitly requested large application scope, adapt this optional numbere
 1. Create `<AppSourceRoot>/<Module?>/<Feature>/<Slice>/<Slice>.cs` with all backend artifacts. Omit `<Module?>` when no natural domain grouping exists; never introduce a top-level `Features/` wrapper.
 
 ### Phase 2 — Specs  [delegate to: spec-writer]
-2. Write in-process scenario specs in `<AppSourceRoot>/<Module?>/<Feature>/<Slice>/when_<behavior>/` for every slice type.
+2. Write specs in `<AppSourceRoot>/<Module?>/<Feature>/<Slice>/when_<behavior>/` for every slice type: `Specification` plus a direct call by default for pure decisions; add in-process scenarios only where the pipeline, validation, constraints, projections or wiring contribute proof.
 
 ### Phase 3 — Build  [run: Debug, then Release]
 3. Run `dotnet build -c Debug` to validate spec code and generate TypeScript proxies.

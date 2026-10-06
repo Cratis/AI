@@ -230,7 +230,8 @@ edge someone chose is a different thing from one nobody saw.
 - One specification per file; one outcome per specification.
 - No action and no assertion sits on a `given/` context.
 - Nothing trivial, delegated, or compiler-verified is specified.
-- No code assertion reads a presentation message string; a `.play` rejection
-  pins its message or key deliberately.
+- Code assertions do not pin presentation messages by default. Exact wording
+  is asserted only when it is the specified behavior, named in the fact; a
+  `.play` rejection pins its message or key deliberately.
 - No sleep, bare delay, or poll loop stands in for a completion signal.
 - The suite runs green, and the report names what was not covered.

@@ -86,7 +86,9 @@ and invokers, not a recording stub. Register substitutes through `Services`
 before first execution; do not register a production external client.
 
 This case fails the second reservation. Both entered invocations must be
-compensated; the third must never start.
+compensated; the third must never start. It also explicitly specifies that the
+original provider error wording is preserved verbatim, so the fact names that
+requirement and asserts the exact message.
 
 ```csharp
 public class ReservationProviderUnavailable() : Exception("Reservation provider unavailable.");
@@ -120,7 +122,7 @@ public class when_the_second_reservation_fails : Specification
     ]));
 
     [Fact] void should_preserve_failure() => _result.ShouldNotBeSuccessful();
-    [Fact] void should_preserve_the_original_error() =>
+    [Fact] void should_preserve_the_specified_provider_error_wording() =>
         _result.ExceptionMessages.ShouldContain("Reservation provider unavailable.");
     [Fact] void should_record_only_entered_invocations() => _scenario.Operations.Count.ShouldEqual(2);
     [Fact] void should_observe_the_first_execution_completing() =>
