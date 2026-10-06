@@ -4,7 +4,8 @@ Complete executable model (harbor club dues) holding every declaration the excer
 `scenario-examples.md` and `view-and-story-specs.md` rely on, except the stored-state rules. Each
 of those excerpts is copied verbatim from the fence below (names are the specification names),
 except `ReversingAReceivedPayment` and `RequestingARefundAfterAReversal`, which come from
-`invoicing-dues-design.md` (a reaction needs the command that produces the event it reacts to).
+`invoicing-dues-design.md` (`RefundRequester` stays with `ReversePayment` there to keep that example's source declaration and
+destination-type information; a reaction can also consume events from a capture or another reaction).
 
 **Scope.** This document is the runnable demonstration only. It deliberately holds no rule that
 depends on stored state (the invoice must exist, only an open invoice may be voided, a reversal

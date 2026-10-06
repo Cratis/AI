@@ -3,22 +3,30 @@
 **Design mode, not binding-ready by design.** This document states the stored-state rules of the
 invoicing example as the skill requires (`reads <View>` + `require ... message`, marked NOT
 enforced in the slice `description`, target named). It compiles (V1, warnings as errors) but
-does not bind at Screenplay 4.64.0: `reads` is PLAY0271 and `require` over a view is PLAY0268, so
-no specification here runs (V3 blocked). Keep those lines: they state real intent and are never
+does not bind at Screenplay 4.64.0, and the only blockers are `reads` (PLAY0271) and `require` over
+a view (PLAY0268), so no specification here runs (V3 blocked). `PaymentReceived` has its producer
+here (the capture and `ReceivedTranslator`), so nothing else blocks: with every `reads` and
+`require` line removed the document binds. The rules cover an unknown invoice, voiding a paid
+invoice, reversing without a received payment and a second reversal (`ReceivedPayments` drops the
+row on `PaymentReversed`). It is not a full coverage example: for that see `berth-reservations.md`.
+Keep those lines: they state real intent and are never
 replaced by prose. The runnable counterpart, which holds no stored-state rule, is
 `invoicing-dues-example.md`; `scenario-examples.md` copies `ReversingAReceivedPayment` from here.
 
 ```screenplay
 // Needs the standalone screenplay compiler (ESM v6)
 // Scenario coverage design-mode example: stored-state rules of invoicing club dues (complete document).
-// Design mode: `reads` is PLAY0271 and `require` over a view is PLAY0268 at binding, so this model
-// compiles but is not executable; the specifications below do not run. The runnable counterpart
+// Design mode: `reads` is PLAY0271 and `require` over a view is PLAY0268 at binding (the only
+// blockers), so this model compiles but is not executable; the specifications below do not run. The runnable counterpart
 // is invoicing-dues-example.md.
 // Target enforcement of every rule here: Arc [ProtectedDecision] with DecisionRead<T> (Arc v22.39.0
 // or later, not in a Stage-rendered application), or a Chronicle DCB; Screenplay#129/#209.
 
 concept InvoiceId : Uuid
 concept MemberId : Uuid
+concept GatewayOutcome : Enum
+  captured
+  declined
 
 policy IsAccounts
   require role "Accounts"
@@ -59,10 +67,8 @@ module Invoicing
         remove with PaymentReceived
         remove with InvoiceVoided
         remove with InvoiceSettled
-      event PaymentReceived
-
     slice StateView ReceivedPayments
-      description "Which invoices have a received payment."
+      description "Which invoices have a received, not yet reversed payment: PaymentReversed removes the row, so a second reversal finds none."
       readmodel ReceivedPayment
         invoiceId InvoiceId
       query ReceivedPaymentById => ReceivedPayment optional
@@ -70,6 +76,31 @@ module Invoicing
       projection ReceivedPayments => ReceivedPayment
         from PaymentReceived
           invoiceId = $eventSourceId
+        remove with PaymentReversed
+
+    slice Translate PaymentGatewayResults
+      description "Gives PaymentReceived its producer (the same capture and translator as invoicing-dues-example.md): reference -> correlation key (our invoice id); outcome -> translated to our enum. PaymentReceived is OUR fact; PaymentGatewayResultReceived is the provider's."
+      capture PaymentGatewayResults
+        source webhook
+          path /webhooks/payments/results
+        key reference
+        map
+          outcome = outcome translate
+            "C" => captured
+            "D" => declined
+        append PaymentGatewayResultReceived
+          when outcome
+            outcome = $.outcome
+            reason  = $.reason
+      reaction ReceivedTranslator
+        when PaymentGatewayResultReceived
+          outcome
+          produces PaymentReceived
+        where outcome == "captured"
+      event PaymentGatewayResultReceived
+        outcome GatewayOutcome
+        reason  String
+      event PaymentReceived
 
     slice StateChange SettleOrVoidInvoice
       description "An invoice ends either settled or voided, never both (SettleOrVoid, enforced at append). NOT enforced in the model today: that the invoice exists and is still open (settling) and that only an open, unpaid invoice may be voided. Stated as `reads OpenInvoice` + `require` (PLAY0271/PLAY0268 at binding; Screenplay#129/#209). Target: Arc [ProtectedDecision] with DecisionRead, or a Chronicle DCB. Requirements to test in the target: settling an unknown invoice is rejected; voiding a paid invoice is rejected; voiding an open invoice succeeds."
@@ -135,14 +166,14 @@ module Invoicing
         then error "Only an open, unpaid invoice can be voided"
 
     slice StateChange ReversePayment
-      description "Compensation for a received payment. NOT enforced in the model today: that a payment was received. Stated as `reads ReceivedPayment` + `require` (PLAY0271/PLAY0268 at binding). Target: a protected decision read of the payment (keyed by the invoice source id). RefundRequested is the request recorded by the reaction; it does not show a refund was delivered, and the gateway's own answer is a later external fact. Requirements to test in the target: reversing without a received payment is rejected; a correct reversal records PaymentReversed and RefundRequested."
+      description "Compensation for a received payment. NOT enforced in the model today: that a payment was received and not yet reversed (so a second reversal is refused). Stated as `reads ReceivedPayment` + `require` (PLAY0271/PLAY0268 at binding). Target: a protected decision read of the payment (keyed by the invoice source id). RefundRequested is the request recorded by the reaction; it does not show a refund was delivered, and the gateway's own answer is a later external fact. Requirements to test in the target: reversing without a received payment is rejected; a second reversal of the same payment is rejected; a correct reversal records PaymentReversed and RefundRequested."
       command ReversePayment
         invoiceId InvoiceId identifier
         amount    Decimal
         reads ReceivedPayment as payment by invoiceId   // stated intent, unprotected (PLAY0271 at binding)
         validate
           require payment.invoiceId == invoiceId
-            message "A payment must have been received before it can be reversed"   // NOT enforced: the view lags (PLAY0268 at binding)
+            message "Only a received, not yet reversed payment can be reversed"   // NOT enforced: the view lags (PLAY0268 at binding)
         produces PaymentReversed
           for invoiceId
           amount = amount
@@ -180,7 +211,33 @@ module Invoicing
         when ReversePayment
           invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
           amount    = 130
-        then error "A payment must have been received before it can be reversed"
+        then error "Only a received, not yet reversed payment can be reversed"
+
+      specification RejectingASecondReversal
+        given caller
+          authenticated
+          role "Accounts"
+        given InvoiceIssued
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 130
+        given PaymentReceived
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+        given PaymentReversed
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          amount = 130
+        when ReversePayment
+          invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          amount    = 130
+        then error "Only a received, not yet reversed payment can be reversed"
+
+      specification RefusingAReversalWithoutTheAccountsRole
+        given caller
+          authenticated
+        when ReversePayment
+          invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          amount    = 130
+        then denied
 
     slice Automation RequestRefunds
       reaction RefundRequester

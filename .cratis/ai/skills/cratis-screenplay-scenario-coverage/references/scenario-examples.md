@@ -85,7 +85,9 @@ specification RejectingTheVoidingOfASettledInvoice
   then error "Constraint 'SettleOrVoid' is violated: the event source already has the constrained event."
 ```
 A rule over stored state that no constraint can hold (for example, "the invoice must exist") is
-`recorded` in the matrix with its target, never a spec that pretends to enforce it.
+written as `reads <View>` + `require ... message`, marked NOT enforced with its target, given a
+design-mode rejection spec and `recorded` in the matrix. See `RejectingSettlementOfAnUnknownInvoice`
+in `invoicing-dues-design.md`; it is never prose and never a spec that pretends to enforce it.
 
 ## 3. External failure: the capture, then the retry
 Two separate obligations. First, the **capture specification**: concrete external input in, our
@@ -167,7 +169,7 @@ specification RequestingARefundAfterAReversal
     amount = 130
 ```
 If nothing in the model can reverse a fact the business can reverse, the model lacks an event:
-ask. Voiding an issued invoice that is not yet paid (`SettleOrVoid`) is the other compensation.
+ask. Voiding an issued invoice that is not yet paid is the other compensation (the `VoidInvoice` rule in `invoicing-dues-design.md`; `SettleOrVoid` only keeps settle and void exclusive).
 
 ## 5. Views: population, update, accumulation
 A repeated event type can matter as much as a multi-event lifecycle. Two top-ups of 40 and 70
