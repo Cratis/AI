@@ -95,8 +95,9 @@ export function selectedServer(project: string, corpus: string) {
         JSON.stringify(server.profiles) !== '["cratis/screenplay"]' || server.env !== undefined) {
         throw new Error('Only the distributed native Cratis Screenplay MCP command is supported.');
     }
-    const root = object(screenplay) && screenplay.root !== undefined ? screenplay.root : server.defaultRoot;
-    if (typeof root !== 'string') throw new Error('Screenplay MCP root must be a project-relative string.');
+    // Without an explicit root the Cratis CLI locates the model itself: the existing .play files, else Source/src, else Screenplay/.
+    const root = object(screenplay) ? screenplay.root : undefined;
+    if (root !== undefined && typeof root !== 'string') throw new Error('Screenplay MCP root must be a project-relative string.');
     const physicalProject = realpathSync(project);
-    return { project: physicalProject, root: physicalRoot(physicalProject, root) };
+    return { project: physicalProject, root: root === undefined ? undefined : physicalRoot(physicalProject, root) };
 }

@@ -59,7 +59,7 @@ export function registerBridge(pi: ExtensionAPI, corpus: string, connect = start
         failures.clear();
         if (!selection) return;
         if (uncertain) throw new Error('Screenplay mutation outcome remains unknown. Explicitly reload, inspect workspace-state, and obtain authorization before any recovery.');
-        const modelRoot = selection.root;
+        const modelRoot = selection.root ?? "the project's Screenplay model";
         const activeConnection = connect(selection.project);
         connection = activeConnection;
         try {
