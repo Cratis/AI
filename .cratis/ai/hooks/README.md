@@ -18,7 +18,9 @@ Three layers:
 The Claude Code wiring that fires them is tracked here, in
 [`settings.template.json`](./settings.template.json). Claude reads `.claude/settings.json`. In a
 repository set up with `cratis ai install`, that file is a **symlink** to this template and follows
-every `cratis ai update`; there is nothing to copy. Where the corpus is present without the CLI,
+every `cratis ai update`; there is nothing to copy. The template runs each script through `bash`, so
+a checkout or install that lost the scripts' execute bit still enforces every guard. Where the corpus
+is present without the CLI,
 activate the hooks by copying the template once:
 
 ```bash
@@ -498,22 +500,22 @@ pointing them at a repository that *has* the thing under test; where it is absen
 # Run from an application checkout; <Module>/<Feature>/<Slice> is the layout general.md documents.
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", tool_name:"Edit",
          tool_input:{file_path:"'"$PWD"'/Source/<Module>/<Feature>/<Slice>/<Slice>.cs"}}' \
-  | .cratis/ai/hooks/scripts/cratis-pattern-scan.sh; echo "exit=$?"
+  | bash .cratis/ai/hooks/scripts/cratis-pattern-scan.sh; echo "exit=$?"
 
 # Hard block — expect exit 2
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", tool_name:"Edit",
          tool_input:{file_path:"'"$PWD"'/Directory.Packages.props", new_string:"x"}}' \
-  | .cratis/ai/hooks/scripts/cratis-guard-writes.sh; echo "exit=$?"
+  | bash .cratis/ai/hooks/scripts/cratis-guard-writes.sh; echo "exit=$?"
 
 # Store-mutation guard, both directions: expect exit 2, then exit 0 for the read-only neighbor
 jq -nc '{tool_name:"Bash", tool_input:{command:"cratis chronicle observers replay my-observer --yes"}}' \
-  | .cratis/ai/hooks/scripts/cratis-guard-store-mutations.sh; echo "exit=$?"
+  | bash .cratis/ai/hooks/scripts/cratis-guard-store-mutations.sh; echo "exit=$?"
 jq -nc '{tool_name:"Bash", tool_input:{command:"cratis chronicle observers list -o plain"}}' \
-  | .cratis/ai/hooks/scripts/cratis-guard-store-mutations.sh; echo "exit=$?"
+  | bash .cratis/ai/hooks/scripts/cratis-guard-store-mutations.sh; echo "exit=$?"
 
 # Quality gate — show the dispatch plan without running anything
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", stop_hook_active:false}' \
-  | CRATIS_HOOKS_GATE_DRYRUN=1 .cratis/ai/hooks/scripts/cratis-quality-gate.sh
+  | CRATIS_HOOKS_GATE_DRYRUN=1 bash .cratis/ai/hooks/scripts/cratis-quality-gate.sh
 ```
 
 The subpath guard takes corpus roots as arguments, so it is testable in both directions without
@@ -524,10 +526,10 @@ roots. A one-sided test passes vacuously; run both.
 # Negative — expect a warning naming the file and line
 mkdir -p /tmp/scratch-corpus
 echo "import x from '@cratis/components/ThisDoesNotExist';" > /tmp/scratch-corpus/drift.md
-.cratis/ai/hooks/scripts/validate-package-subpaths.sh .cratis/ai/rules /tmp/scratch-corpus
+bash .cratis/ai/hooks/scripts/validate-package-subpaths.sh .cratis/ai/rules /tmp/scratch-corpus
 
 # Positive — expect silence, and the report to show every real reference resolving
-CRATIS_HOOKS_SUBPATH_REPORT=1 .cratis/ai/hooks/scripts/validate-package-subpaths.sh
+CRATIS_HOOKS_SUBPATH_REPORT=1 bash .cratis/ai/hooks/scripts/validate-package-subpaths.sh
 ```
 
 Tier 2 is testable the same way, and wants a third run the subpath guard does not: a probe of names
@@ -539,15 +541,15 @@ a correct one, so prove it stays quiet when it should.
 mkdir -p /tmp/scratch-corpus
 echo "import { CommandDialog, ThisNameDoesNotExist } from '@cratis/components/CommandDialog';" \
   > /tmp/scratch-corpus/drift.md
-.cratis/ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
+bash .cratis/ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
 
 # Discrimination — every name real, expect silence
 echo "import { DataPage, MenuItem } from '@cratis/components/DataPage';" \
   > /tmp/scratch-corpus/drift.md
-.cratis/ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
+bash .cratis/ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
 
 # Positive — the real corpus, with the report showing every binding resolving
-CRATIS_HOOKS_IMPORT_REPORT=1 .cratis/ai/hooks/scripts/validate-package-imports.sh
+CRATIS_HOOKS_IMPORT_REPORT=1 bash .cratis/ai/hooks/scripts/validate-package-imports.sh
 ```
 
 Tier 3 wants the same three runs, and its negative case is the one that motivated it. Put
@@ -559,15 +561,15 @@ own motivating case is the wrong design.
 mkdir -p /tmp/scratch-corpus
 printf 'A reactor may return a `ReactorSideEffect` to control where the event is appended.\n' \
   > /tmp/scratch-corpus/drift.md
-.cratis/ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
+bash .cratis/ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
 
 # Discrimination — every name real, expect silence
 printf 'Return `EventForEventSourceId`, or a `ReactorSideEffectFailure` from an `IReactor`.\n' \
   > /tmp/scratch-corpus/drift.md
-.cratis/ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
+bash .cratis/ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
 
 # Positive — the real corpus, expect silence, with the report showing how each name resolved
-CRATIS_HOOKS_TYPE_REPORT=1 .cratis/ai/hooks/scripts/validate-type-references.sh
+CRATIS_HOOKS_TYPE_REPORT=1 bash .cratis/ai/hooks/scripts/validate-type-references.sh
 ```
 
 Run `bash -n` on every script and `jq .` on every JSON file before committing. The owning

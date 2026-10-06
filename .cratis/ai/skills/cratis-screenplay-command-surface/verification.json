@@ -68,6 +68,14 @@
     {
       "kind": "skill-contains",
       "value": "never both (`PLAY0440`)"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "sources-and-streams.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "not implemented"
     }
   ]
 }

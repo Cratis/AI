@@ -68,7 +68,7 @@
         { "command": "observers retry-partition", "effect": "retries a failed partition from the sequence number where it failed" },
         { "command": "observers clear-quarantine", "effect": "clears an observer's quarantine so it resumes processing" },
         { "command": "jobs stop", "effect": "stops a running background job" },
-        { "command": "jobs resume", "effect": "resumes a stopped or failed background job" },
+        { "command": "jobs resume", "effect": "resumes a stopped background job" },
         { "command": "recommendations perform", "effect": "executes a server recommendation, such as a schema or replay maintenance action" },
         { "command": "recommendations ignore", "effect": "marks a recommendation as ignored so it no longer appears" },
         { "command": "subscriptions add", "effect": "adds an event store subscription to a target event store" },

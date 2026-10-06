@@ -122,7 +122,7 @@ bodies still leave their owner non-executable.
 | `join`, `children` or `remove via join` inside `nested` | blocked plan | binds; `UnsupportedProjectionBlock` |
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
-| `generated` or `returns` (v8), operations or systems (v9), eventsource or stream (v10), `numbers exact` (v7) | PLAY0268 | syntax only; one such construct leaves the **whole** application without an executable model |
+| `generated` or `returns` (v8), operations or systems (v9), `numbers exact` (v7), eventsource or stream (allocated, not implemented; `sources-and-streams.md`) | PLAY0268 | syntax only; one such construct leaves the **whole** application without an executable model |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
 | `given` or `then readmodel` missing the key property | PLAY0351 | key is the keyed query's `by` |
 | When-less spec asserting events or errors | PLAY0352 | |
