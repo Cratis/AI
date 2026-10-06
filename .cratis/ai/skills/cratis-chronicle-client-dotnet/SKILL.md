@@ -255,6 +255,31 @@ Task<AppendManyResult> AppendMany(EventSourceId eventSourceId, IEnumerable<objec
 Task<AppendManyResult> AppendMany(IEnumerable<EventForEventSourceId> events, /* ... */);                            // :167
 ```
 
+Event source definitions (Chronicle 19.30.0 and later): a never-instantiated type marked
+`IEventSource`, named by `[EventSource(name)]` (default: the type name without a trailing
+`EventSource`) and declaring streams with `[EventStream(name)]` (all in
+`Cratis.Chronicle.EventSources`; both take `Description` and `Concurrency`). Append through
+it with `EventForEventSourceId { EventSource = typeof(<Definition>), EventStream = "<stream>" }`;
+the source and stream types come from the definition and contradicting explicit
+`EventSourceType`/`EventStreamType` values are rejected. The stream id stays with the caller
+(`EventStreamId`, or `ICanProvideEventStreamId.GetEventStreamId()` on a reactor or command).
+
+```csharp
+[EventSource("Account")]
+[EventStream("Transactions")]
+public class Account : IEventSource;
+
+await eventStore.EventLog.AppendMany(
+[
+    new EventForEventSourceId(<accountId>, new <Deposited>(<amount>))
+    {
+        EventSource = typeof(Account),
+        EventStream = "Transactions",
+        EventStreamId = <streamId>
+    }
+]);
+```
+
 ```csharp
 var result = await eventStore.EventLog.Append(<eventSourceId>, new <EventName>(<value>));
 if (!result.IsSuccess)

@@ -83,6 +83,12 @@ not prove the older compiler: read the construct it names.
 | Render | `cratis render` binds with the bundled compiler first, then Stage 4.24.0 admits. See `renderable-subset.md` | source |
 | `prologue interpret` | no `--no-llm` flag; LLM resolution and `screenplay generate` flags were checked on 3.27.0 | source |
 
+## Event sources and streams
+
+Declared since Screenplay v4.62.0 but not bound: PLAY0268, allocated-not-implemented ESM
+version (highest implemented: v6). Stage 4.24.0 admits ESM v1 to v3 and refuses with
+STAGE-ESM-016. Details and trackers: `sources-and-streams.md`.
+
 ## MCP roots bug (4.63.1 and earlier; fixed in 4.63.2)
 
 A dynamic-root server (`screenplay mcp` with no folder) asks a roots-capable client for

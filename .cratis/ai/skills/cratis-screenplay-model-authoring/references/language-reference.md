@@ -209,7 +209,7 @@ Decision 0023's generated values and `returns`, operations and named event
 sources/streams are **authorable** at v4.64.0 (syntax only, see the table above and
 `commands.md`, `operations.md`, `event-sources.md` in the Screenplay documentation):
 write them, but binding reports `PLAY0268` and nothing executes them until
-ESM v8, v9 and v10 are admitted. Do not drop them for the sake of a green bind.
+the allocated ESM versions are implemented (the highest implemented is v6). Do not drop them for the sake of a green bind.
 Protected reads and `derive`/`provide` (allocated v11) have no documented syntax at
 v4.64.0: do not teach or invent one. Affected-instance declarations, per-event data
 subjects, external event origin and query paging/sorting/change-set delivery also

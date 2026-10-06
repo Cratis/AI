@@ -103,6 +103,9 @@ changes with the root folder name.
   `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs only on the standalone tool.
 - **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24 renders ESM v1 to v3
   `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79).
+- **Event sources, streams and command routes**: authorable and validatable, but never
+  bound (`PLAY0268`: allocated, not implemented ESM version), run or rendered
+  (`STAGE-ESM-016`); gap-fill with the model as contract (`references/sources-and-streams.md`).
 
 ## Edit strategy
 

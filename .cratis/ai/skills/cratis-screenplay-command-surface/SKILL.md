@@ -318,9 +318,12 @@ to the routed scope. This does not make command `reads` protected.
 
 Decision 0023's constructs differ in availability. **Authorable at 4.64.0, never
 executable yet** (binding reports `PLAY0268`, so they stop a model at V1): generated
-values and `returns` responses (execution awaits ESM v8), operations (ESM v9), and
-named event sources and streams (ESM v10). Syntax or MCP acceptance is not proof of
-execution. `derive` and `provide` have no documented syntax at that tag; treat them as
+values and `returns` responses, operations, and named event sources and streams with
+command routes (`eventsource`, `stream`, `streamId`). Their ESM versions are allocated,
+not implemented (the highest implemented is v6). Syntax or MCP acceptance is not proof of
+execution. A model using sources, streams or routes can be authored and validated, but
+not bound, run or rendered; hand-write the code with the model as contract
+(`cratis-screenplay-toolchain` `references/sources-and-streams.md`). `derive` and `provide` have no documented syntax at that tag; treat them as
 planned and do not write them.
 
 ## `constraint` — uniqueness at append time
