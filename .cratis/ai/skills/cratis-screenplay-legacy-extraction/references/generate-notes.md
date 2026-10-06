@@ -58,9 +58,12 @@ cratis screenplay generate <solution|project|folder> \
 
 ## Known lag
 The generators are built against older Screenplay packages than the CLI's compiler. Expect
-no event generations, no `when append` specifications, no reactions or triggers, and no
-absence assertions in generated output, even when the code has them. Record these as losses,
-then read the code for them.
+no event generations, no `when append` specifications, and no absence assertions in
+generated output, even when the code has them. Reactors are emitted as file-backed
+reactions with one named event trigger per observed event (a reactor observing no events
+is dropped with a warning), but their bodies and declarative effects are not recovered.
+Application triggers (clock, application-defined) are not generated. Record these as
+losses, then read the code for them.
 
 ## Reading the output cheaply
 1. V1 on `.ai-work/screenplay/<model-slug>/legacy/static` (folder mode) with the tool and

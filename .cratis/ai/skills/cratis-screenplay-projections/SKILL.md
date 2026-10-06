@@ -101,7 +101,10 @@ update the same instance only if the event source id happens to equal
 `invoiceId`.
 
 For same-source events, map the read-model identity from `$eventSourceId`
-(or `$eventContext.eventSourceId`), not a duplicated payload field. An event
+(or `$eventContext.eventSourceId`), not a duplicated payload field. That holds for
+executable or design scope; in renderable scope (Stage) never map it from `$eventSourceId`:
+the key of a scoped projection establishes it (`cratis-stage-rendering-and-sandbox`
+`references/admission.md`). An event
 declared by `produces event` is still a named slice-owned contract: projections
 subscribe to it exactly like a standalone event. Verified extraction preserves
 canonical ESM and identities, so it changes no projection contract. Removing a

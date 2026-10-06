@@ -63,7 +63,10 @@ it stays.
 
 Never drop a list query from a design model just to make it bind; record the capability gap.
 The keyed query also defines the read model's identity: its `by` property must be a read-model
-property, filled with `$eventSourceId` (or a `key` on another stream's event).
+property. Executable-only: fill it with `$eventSourceId`. Renderable (Stage): never map it
+from `$eventSourceId`; a flat projection (every `from` has `key <eventProperty>`, mappings
+copy event properties or literals) maps `xId = <thatProperty>`, and every other projection is
+scoped, where the key establishes the identifier and it stays unmapped.
 
 ## No clock-relative state
 
@@ -183,5 +186,7 @@ module Berths
 - Every consumer has its read model; every read model has a consumer.
 - Every field traced (`field-lineage.md`).
 - Executable/renderable scope: one unambiguous key per read model (one or more keyed queries,
-  all with the same `by` property), mapped from `$eventSourceId` or a key; no list queries.
+  all with the same `by` property), mapped from `$eventSourceId` (executable-only) or, when
+  renderable, from the event property of a flat projection's key or left to the key of a
+  scoped projection (never `$eventSourceId`); no list queries.
 - Design-only shapes listed with the V3 code they cause.

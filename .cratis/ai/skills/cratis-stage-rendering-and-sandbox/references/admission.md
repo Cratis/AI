@@ -66,20 +66,25 @@ publication is journaled and recoverable.
 
 Stage renders two projection forms; the restrictions differ.
 
-- **Flat**: one `from <Event> [key ...]` block and nothing else. It must resolve to one
-  transition and one affected instance keyed by the event source or by an event property
-  that carries it (`STAGE-ESM-008`, `-009`), with matching mappings. Observed: `from E key
-  $eventSourceId` renders even when the event does not repeat the identifier.
+- **Flat**: a projection binds flat (Screenplay `SemanticModelBinder.Projections.cs` `IsFlat`)
+  only when every `from` names `key <eventProperty>` and every mapping copies an event
+  property or a literal. It must resolve to one transition and one affected instance keyed by
+  an event property that carries the event source (`STAGE-ESM-008`, `-009`), with matching
+  mappings (`SemanticFlatProjectionSupport`).
 - **Scoped** (`SemanticScopedProjectionSupport.cs`, fixture `when_rendering_scoped_projections`):
-  several distinct `from` blocks, `remove with`, root `join ... on`, `children` with an
-  identified element (one level, no joins or children inside a child), `nested` over an
-  optional composite property, and `every` with set-from-event-source mappings. Keys are an
-  event property or the event source; the identifier is established by the key and must not
-  be mapped.
+  every other projection, including a plain single `from E` with the default or
+  `$eventSourceId` key. Forms: several distinct `from` blocks, `remove with`, root
+  `join ... on`, `children` with an identified element (one level, no children or joins
+  inside a child; `remove with` and `remove via join` inside a child are admitted, fixture
+  `when_executing_re_admitted_scoped_projections`, `children.RemovedWithJoin`), `nested` over
+  an optional composite property, and `every` with set-from-event-source mappings. Keys are
+  an event property or the event source; the identifier is established by the key and must
+  not be mapped. Observed: `from E key $eventSourceId` is scoped and renders even when the
+  event does not repeat the identifier, provided the identifier is left unmapped.
 - Refused in a scope (`STAGE-ESM-017`): composite keys; `all` (FromAll); `every` with
   children included beside children or nested blocks; root `remove via join`; joins,
-  children or join removals inside `nested`; a `clear` inside `nested`; join removals
-  inside a child; recursive children; duplicate event contracts among `from`, join or
+  children or join removals inside `nested`; a `clear` inside `nested`; recursive children
+  and joins inside a child; duplicate event contracts among `from`, join or
   removal blocks; event or read-model property names that collide with Chronicle syntax.
   Several of these are tracked upstream (Chronicle#4125, #4166).
 - A scope cannot also carry flat transitions.

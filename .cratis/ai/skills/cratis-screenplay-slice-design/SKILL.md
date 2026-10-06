@@ -97,9 +97,12 @@ assumption into the phase report and the slice `description`, and continue.
    guards cannot be expressed). The query follows the business view: a list where people scan a
    list, a keyed lookup where they open one thing. For **executable or renderable scope**, every
    read model also needs one unambiguous key: keyed queries `query XById => RM optional` all
-   using the same `by xId XId`. Map `xId = $eventSourceId` for the executable model; a Stage
-   scoped projection (several `from`, `remove with`, children...) establishes the identifier
-   from the key and refuses that mapping (`STAGE-ESM-017`, `cratis-stage-rendering-and-sandbox`
+   using the same `by xId XId`. The mapping depends on scope. Executable-only: map
+   `xId = $eventSourceId`. Renderable (Stage): never map the identifier from `$eventSourceId`
+   (`STAGE-ESM-017`). A projection binds flat only when every `from` names `key <eventProperty>`
+   and every mapping copies an event property or a literal; then map `xId = <thatProperty>`.
+   Every other projection, including a plain single `from E`, is scoped: the key establishes
+   the identifier, so leave it unmapped (`cratis-stage-rendering-and-sandbox`
    `references/admission.md`). Keep the list query in design mode and record that it blocks V3.
    Whose rows is part of the view; a caller-supplied filter is not access control.
 7. **Screens, Level 1.** `data <RM> via query <Q>` plus `action <Command>` per thing the user

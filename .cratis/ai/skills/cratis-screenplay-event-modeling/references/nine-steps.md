@@ -144,7 +144,8 @@ builds it. **Exactly one thing may build a read model** — two builders is a
 compile error (`PLAY0191`).
 
 Route each `from` deliberately. When the instance is the event source, omit the
-key and map its identity from `$eventSourceId`; do not duplicate it in payload.
+key and map its identity from `$eventSourceId` (design or executable scope; a renderable
+projection leaves it unmapped, see `cratis-screenplay-slice-design`); do not duplicate it in payload.
 A `from` without a key never inherits another `from`'s key, and a projection-level
 `key` routes nothing (`PLAY0381`). Excerpt: the complete document is
 [invoicing-example.md](invoicing-example.md); both events target the invoice's event source.
