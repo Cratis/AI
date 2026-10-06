@@ -117,15 +117,70 @@ repository_paths() {
     printf '%s\n' "$repo_paths"
 }
 
-# Print the repository path a gate should be located by, given newline-separated globs.
-# The globs are tried IN ORDER and the first one with a match wins, so a configuration can
-# state a preference ("a solution at the root, else one anywhere") rather than depending on
-# where a path happens to sort. Prints nothing when nothing matches.
+# An install manifest distinguishes a managed copy from the corpus's authored source.
+# Resolve actual targets, not adapter names: a product may legitimately own .agents (etc.).
+physical_root="$(cd "$root" && pwd -P)"
+managed_root=""
+if [ -f "$root/.cratis/ai.manifest.json" ] && [ -d "$root/.cratis/ai" ]; then
+    managed_root="$(cd "$root/.cratis/ai" && pwd -P)"
+fi
+
+repository_project_path() {
+    local path="$root/$1" dir target hops=0
+    [ -f "$path" ] || return 1
+    # cd -P resolves directory adapters; readlink also covers package-file adapters.
+    while :; do
+        dir="$(cd "$(dirname "$path")" 2>/dev/null && pwd -P)" || return 1
+        path="$dir/$(basename "$path")"
+        [ -L "$path" ] || break
+        hops=$((hops + 1))
+        [ "$hops" -le 40 ] || return 1
+        target="$(readlink "$path")" || return 1
+        path="$(hook_abspath "$target" "$dir")"
+    done
+    case "$path" in
+        "$physical_root"/*) ;;
+        *) return 1 ;; # Never build a different repository through a symlink.
+    esac
+    if [ -n "$managed_root" ]; then
+        case "$path" in
+            "$managed_root"/*) return 1 ;;
+        esac
+    fi
+}
+
+# Globs retain their ordered preference (root project, else nested). Within a glob,
+# prefer the deepest project containing a change, then the first sorted eligible path.
+# This selects the affected fixture in a library with multiple authored Node packages.
 discover_path() {
-    local g match
+    local g candidates candidate match dir p score best
     while IFS= read -r g; do
         [ -n "$g" ] || continue
-        match="$(repository_paths | hook_glob_first_match "$g" || true)"
+        candidates="$(repository_paths | CRATIS_GLOB="$g" awk "$hook_glob_awk_lib"'
+            BEGIN { re = g2re(ENVIRON["CRATIS_GLOB"]) }
+            $0 ~ re { print }
+        ')"
+        match=""
+        best=-1
+        while IFS= read -r candidate; do
+            [ -n "$candidate" ] || continue
+            repository_project_path "$candidate" || continue
+            score=0
+            dir="$(dirname "$candidate")"
+            while IFS= read -r p; do
+                case "$p" in
+                    "$dir"/*) score=${#dir}; break ;;
+                esac
+            done <<EOF
+$changed
+EOF
+            if [ "$score" -gt "$best" ]; then
+                match="$candidate"
+                best="$score"
+            fi
+        done <<EOF
+$candidates
+EOF
         [ -n "$match" ] && { printf '%s\n' "$match"; return 0; }
     done <<EOF
 $1
@@ -284,4 +339,5 @@ done
 
 [ "${failed:-0}" -eq 0 ] || exit 2
 [ "$dryrun" = "1" ] && printf 'cratis-quality-gate: dry run complete — %s gate(s) would run.\n' "$ran" >&2
+[ "$ran" -eq 0 ] && printf 'cratis-quality-gate: no gates selected — product verification was not performed.\n' >&2
 exit 0

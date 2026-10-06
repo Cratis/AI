@@ -12,7 +12,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
@@ -21,7 +21,7 @@ const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const scripts = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts');
 
 /** Dry-run the shipped gates against a committed scratch repository holding `files` as uncommitted changes. */
-function plan(committed: Record<string, string>, changed: Record<string, string>): string {
+function plan(committed: Record<string, string>, changed: Record<string, string>, links: Record<string, string> = {}): string {
     const root = mkdtempSync(join(tmpdir(), 'cratis-shipped-gates-'));
     try {
         const git = (...args: string[]) => spawnSync('git', ['-C', root, '-c', 'user.email=gate@cratis.io', '-c', 'user.name=gate', ...args], { encoding: 'utf8' });
@@ -33,6 +33,10 @@ function plan(committed: Record<string, string>, changed: Record<string, string>
         };
         git('init', '-q');
         write({ 'README.md': '# scratch\n', ...committed });
+        for (const [path, target] of Object.entries(links)) {
+            mkdirSync(dirname(join(root, path)), { recursive: true });
+            symlinkSync(target, join(root, path));
+        }
         git('add', '.');
         git('commit', '-q', '-m', 'initial');
         write(changed);
@@ -102,6 +106,90 @@ test('a compile gate runs when the root package.json defines its global script',
     );
     assert.ok(ran(output, 'frontend-compile'), output);
     assert.ok(ran(output, 'frontend-compile-specs'), output);
+});
+
+const frontendPackage = JSON.stringify({ scripts: { 'lint:ci': 'x', 'g:compile': 'x', 'g:compile:specs': 'x', test: 'x' } });
+const harnessPackage = '.cratis/ai/harnesses/pi/extensions/package.json';
+const installedCorpus = {
+    '.cratis/ai.manifest.json': JSON.stringify({ Files: [{ Destination: 'harnesses/pi/extensions/package.json' }] }),
+    [harnessPackage]: frontendPackage,
+};
+const harnessLinks = {
+    '.agents/package.json': '../.cratis/ai/harnesses/pi/extensions/package.json',
+    '.pi/extensions': '../.cratis/ai/harnesses/pi/extensions',
+    '.claude/extensions': '../.cratis/ai/harnesses/pi/extensions',
+    '.opencode/extensions': '../.cratis/ai/harnesses/pi/extensions',
+    '.codex/extensions': '../.cratis/ai/harnesses/pi/extensions',
+    '.cursor/extensions': '../.cratis/ai/harnesses/pi/extensions',
+    '.github/agents': '../.cratis/ai/harnesses/pi/extensions',
+    'adapter/package.json': '../.pi/extensions/package.json',
+};
+const frontendGates = ['frontend-lint', 'frontend-compile', 'frontend-compile-specs', 'frontend-specs'];
+
+for (const folder of ['ContractTests/ProxyComparison', 'ContractTests/observables/frontend']) {
+    test(`an installed corpus and harness links do not displace the affected authored package in ${folder}`, () => {
+        const output = plan(
+            {
+                ...installedCorpus,
+                'ContractTests/ProxyComparison/package.json': frontendPackage,
+                'ContractTests/observables/frontend/package.json': frontendPackage,
+            },
+            { [`${folder}/view.ts`]: 'export {};\n' },
+            harnessLinks,
+        );
+        for (const gate of frontendGates) assert.ok(ran(output, gate), output);
+        assert.equal((output.match(new RegExp(`cwd: ${folder}\\)`, 'g')) ?? []).length, 4, output);
+        assert.doesNotMatch(output, /cwd: (?:\.cratis|\.agents|adapter)/);
+    });
+}
+
+test('a consuming library with only installed packages reports an empty frontend plan', () => {
+    const output = plan(installedCorpus, { 'ContractTests/fixture.ts': 'export {};\n' }, harnessLinks);
+    for (const gate of frontendGates) {
+        assert.ok(!ran(output, gate), output);
+        assert.ok(noOp(output, gate), output);
+    }
+    assert.match(output, /dry run complete — 0 gate\(s\) would run/);
+    assert.match(output, /no gates selected — product verification was not performed/);
+});
+
+test('the owning AI repository can discover its authored harness package without an install manifest', () => {
+    const output = plan({ [harnessPackage]: frontendPackage }, { 'Source/Verification/example.ts': 'export {};\n' });
+    for (const gate of frontendGates) assert.ok(ran(output, gate), output);
+    assert.equal((output.match(/cwd: \.cratis\/ai\/harnesses\/pi\/extensions/g) ?? []).length, 4, output);
+});
+
+for (const folder of ['.agents', '.cratis/custom', '.cratis/ai-product', '.codex', 'harnesses/pi/extensions']) {
+    test(`an authored package in ${folder} is not excluded by its name`, () => {
+        const output = plan(
+            { ...installedCorpus, [`${folder}/package.json`]: frontendPackage },
+            { 'Source/example.ts': 'export {};\n' },
+        );
+        for (const gate of frontendGates) assert.ok(ran(output, gate), output);
+        assert.ok(output.includes(`cwd: ${folder})`), output);
+    });
+}
+
+test('a root package symlink into the installed corpus cannot override an authored package', () => {
+    const output = plan(
+        { ...installedCorpus, 'Source/Client/package.json': frontendPackage },
+        { 'Source/Client/view.ts': 'export {};\n' },
+        { 'package.json': harnessPackage },
+    );
+    for (const gate of frontendGates) assert.ok(ran(output, gate), output);
+    assert.equal((output.match(/cwd: Source\/Client/g) ?? []).length, 4, output);
+});
+
+test('discovery never runs a package reached through a symlink outside the task-owning repository', () => {
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-unrelated-package-'));
+    try {
+        writeFileSync(join(outside, 'package.json'), frontendPackage);
+        const output = plan({}, { 'Source/example.ts': 'export {};\n' }, { 'package.json': join(outside, 'package.json') });
+        for (const gate of frontendGates) assert.ok(!ran(output, gate), output);
+        assert.match(output, /no gates selected — product verification was not performed/);
+    } finally {
+        rmSync(outside, { recursive: true, force: true });
+    }
 });
 
 const overrideFile = '.cratis/ai/quality-gates.project.json';
