@@ -400,4 +400,4 @@ The lifecycle, toolchain and phase skills are in "Start here" above. Construct a
 | Modeling against hand-written Chronicle C# | `cratis-chronicle-event-modeling` |
 
 ## Lineage
-Method lineage, Nebulit and TrogonStack material and licenses: `references/provenance.md`.
+Method lineage, Nebulit material and licenses: `references/provenance.md`.
