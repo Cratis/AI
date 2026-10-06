@@ -58,14 +58,16 @@ public class AIProviderOptions
     public TimeSpan SubscriptionRefreshMargin { get; set; } = TimeSpan.FromMinutes(30);
 
     /// <summary>
-    /// Gets or sets how long a provider is left alone after it turned work away over its own usage
-    /// limit.
+    /// Gets or sets the shortest time a provider is left alone after it turned work away over its own
+    /// usage limit - and the whole of it when nothing says when the limit lifts.
     /// </summary>
     /// <remarks>
-    /// Vendors do not say when the allowance resets, so this is a guess that corrects itself: too
-    /// short and the provider is tried again and re-parked, costing one worker session; too long and
-    /// capacity sits idle. An hour is short enough to recover promptly and long enough not to spend a
-    /// session every few minutes discovering the same answer.
+    /// When the failure states its reset ("resets Oct 9, 2am (UTC)"), or the provider's capacity says
+    /// when its exhausted windows reset, the provider is parked until then instead - see
+    /// <see cref="RateLimiting.ProviderRateLimit.ResetIndicatedBy"/>. Otherwise this is a guess that
+    /// corrects itself: too short and the provider is tried again and re-parked, costing one worker
+    /// session; too long and capacity sits idle. An hour is short enough to recover promptly and long
+    /// enough not to spend a session every few minutes discovering the same answer.
     /// </remarks>
     public TimeSpan RateLimitCooldown { get; set; } = TimeSpan.FromHours(1);
 
