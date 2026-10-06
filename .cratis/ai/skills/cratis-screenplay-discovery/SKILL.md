@@ -54,10 +54,12 @@ Every complete `screenplay` fence in this skill compiles with the standalone com
 ## Interview phase
 
 **Skip if** the input is a written spec with rules, the named experts are present, and the
-existing model already lists the workflows and personas. Otherwise ask. Ask only for what is
-missing, one question per turn, the one that unblocks the most; offer two to four likely
-answers when the domain suggests them; use the harness's question tool if it has one. Full
-menu with follow-up triggers: `references/interview-questions.md`.
+existing model already lists the workflows and personas. Otherwise ask when information is
+missing or ambiguous, guided by the critical questions below and their follow-ups; with
+everything in hand, go straight to the procedure and do not ask questions whose answers you
+already have. One question per turn, the one that unblocks the most; offer two to four likely
+answers when the domain suggests them; use the harness's question tool if it has one. Findings
+feed plotting and the handoff. Full menu with follow-up triggers: `references/interview-questions.md`.
 
 Critical questions:
 
@@ -109,8 +111,9 @@ decided apart from what you assumed. Never guess silently.
    before the process starts, everything after differs: its own feature). Name every terminal
    state and every undo or correction path; a dead end is an open question.
 6. **Essential fields.** Each event gets the identity it belongs to (implicit through the
-   slice's future `for`; name the subject and what tells two apart in STATE.md) plus one to
-   three business facts. Domain names; `<Type>[]` for collections (declare the `type`); a
+   slice's future `for`; name the subject and what tells two apart in STATE.md) plus the one or
+   two business facts that make it meaningful. A simple state transition may carry no payload
+   beyond its identity: do not pad events with fields just to reach a count. Domain names; `<Type>[]` for collections (declare the `type`); a
    `concept` for a value with its own meaning; classify personal data on the concept with
    `@pii` and a reason now. `@pii` compiles but does not bind (PLAY0268 at 4.64.0): record it
    as a known target gap; never drop it to get a clean result.
@@ -217,7 +220,7 @@ and the report says which verdicts were not run (V2 to V5 are not run in discove
 - `references/event-naming.md` - naming rules, not-an-event filter, repairs.
 - `references/personas-and-causes.md` - role catalogue, Cannot resolved to executable gates.
 - `references/divergent-sweep.md` - lenses for the wide pass.
-- `references/plotting-and-handoff.md` - after / caused by / only if, plot format, handoff packet.
+- `references/plotting-and-handoff.md` - after / caused by / only if, plot format, whose turn it is, Storyline seed, handoff packet.
 - `references/facilitation.md` - running sessions, disagreement, closing, unattended runs.
 - `references/human-workshop.md` - supporting a human workshop: preparation, run sheet, live scribing.
 - `references/worked-session.md` - a short session end to end.

@@ -26,9 +26,22 @@ paths and addresses, not pasted contents:
   the specification. Do not invent fields, rules or defaults. Each specification becomes a test
   with the same name; never weaken, skip or delete one to pass. Do not edit managed files.
   Return a field inventory (command, event and read-model properties mapped to code locations)
-  and list anything you added that the model does not state (expected: none). Realization notes
-  in the slice description bind adapters and fallback code. The repository's pattern wins over a
+  and list anything you added that the model does not state (expected: none). Explicit
+  realization requirements in the slice description bind adapters and fallback code, cannot
+  contradict executable parts and are never supplemented with inferred rules; descriptive prose
+  that is not an explicit requirement is a hint. The repository's pattern wins over a
   generic template; report the mismatch. Stop on a contradiction and return an edit request.*
+
+The brief also carries, from the slice build prompts (`cratis-application-slice-conformance`
+`references/build-prompts.md`): the contract is always true and the code follows it; a slice is
+`done` only if every scenario in the contract is implemented and no specification lacks an
+executable equivalent; a re-delivery can be only added specifications; touch only the slice's
+own paths; do not change existing specification files unless an approved contract revision says so (`build-prompts.md` section 1); when the
+requirements are genuinely ambiguous or contradictory, do not guess and do not build anyway,
+return an edit request and report `blocked`. Ownership is assigned per brief, one implementer
+per scope; a ledger or `STATE.md` line records it and is not a lock, and atomic claiming is used
+only where a tracker provides a verified operation. Git effects follow the brief's separate
+authorization.
 
 Before coding, the implementer reads each scoped slice completely: descriptions,
 specifications, concepts, inherited authorization, referenced events and views, and resolves
@@ -53,8 +66,10 @@ hand-written application on a newer Arc may use it), or a Chronicle constraint. 
 a caller-supplied status is not enforcement.
 
 ## Automation and Translate scope
-Stage 4.24 renders no Automation or Translate slice, so the whole automation is gap-fill: the
-reactor and its adapter, written against the slice and its specifications. Where they are
+Stage 4.24 renders no Automation or Translate slice, so the whole automation is gap-fill, written
+against the slice and its specifications. The realization follows the actual construct and
+trigger, not the slice label: a capture is an ingestion adapter, an event reaction (including a
+translator reaction) is a reactor, a clock or application trigger is a scheduler or host signal. Where they are
 registered depends on the case. Case B (a generated base exists, and the user authorized the
 gap-fill): the registration goes through the seams in `Customizations/Program.cs`, which does
 not bind a modeled reaction or capture. Case C (no generated application): there is no generated

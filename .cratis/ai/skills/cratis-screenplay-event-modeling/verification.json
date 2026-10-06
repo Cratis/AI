@@ -78,6 +78,14 @@
     {
       "kind": "skill-contains",
       "value": "`cratis-screenplay-render-and-gap-fill`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Do not cut corners to save tokens or effort"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Ask only what the step needs"
     }
   ]
 }

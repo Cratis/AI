@@ -192,5 +192,9 @@ rules, gates, mappings or contracts to make an example pass.
   condition. Denial: valid business input, vary only the caller. Validation: satisfy every other
   rule.
 - Unknown domain values stay questions, not plausible inventions.
-- After editing, report new or changed spec names and any corrected fixture; a clean compile does
-  not show the expected outcomes are right.
+- Handoff after fixture work reports: the spec names added or changed; each meaningful fixture
+  change and why (a demonstrated contradiction, never a rule changed to fit); which existing
+  intentional examples were preserved; where a reused value came from (the event, command input
+  or mapping it is traced to) and where values could not be traced; and unresolved
+  inconsistencies between specs. Check the resulting source, not just that a write succeeded; a
+  clean compile does not show the expected outcomes are right.

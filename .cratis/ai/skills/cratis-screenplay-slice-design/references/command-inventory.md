@@ -13,7 +13,10 @@ durable rationale goes in the slice `description`.
 
 ```text
 Command:        <ImperativeBusinessName>  (one decision)
-Origins:        <screen action / form / reaction invokes / capture>, persona, gate chain
+Origins:        <screen action / form / reaction invokes (event, clock or application trigger)>,
+                persona, gate chain; classify each as [USER] (a person on a screen) or [AUTO]
+                (a reaction; a capture only appends facts, a later command is reached through
+                a reaction)
 Inputs:         <property: Concept - who supplies it - why the caller decides it>
 Identifier:     <property naming the instance, or "allocation" with the reason>
 Rules by layer: <concept validate | command validate/require | authorize | claim policy
@@ -37,6 +40,15 @@ Questions that fill it (ask them of the domain expert, or assume visibly when un
    message in the user's words.
 6. What new fact becomes true on success, and who reacts to it? If nobody can say, the event
    may be a form in disguise (`slicing.md` *Generic edits*).
+
+Group the commands of a slice set by origin: user-issued (each attributed to a named persona,
+never a generic "user") and automation-issued (attributed to the reaction or integration, with
+the trusted actor behind it). A command with no screen is started by a clock or application
+trigger (a reaction trigger), or by a reaction over any modeled event: an ordinary local event,
+an imported event or a translated event. A capture starts a process by appending facts and
+issues no command; any later command is reached through a reaction. Design
+these in `cratis-screenplay-automations-and-translations`. Every automation-issued command states
+what happens when it fails or is retried.
 
 ## The inventory
 

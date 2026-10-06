@@ -16,7 +16,7 @@ permission:
 
 Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.cratis/ai/rules/`. For framework contributions, load `.cratis/ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.
 
-Scope verification to affected projects/packages and behavior. Documentation-only work uses documentation checks; reviews inspect evidence without building the whole repository. Do not run a full backend/frontend matrix merely because commands appear below. Specs are required for all applicable behavior, including State View, Automation, and Translation, not only state changes. Report skipped or unavailable checks honestly.
+While iterating, scope verification to affected projects/packages and behavior; before reporting `done`, run the repository's completion gate (its CI-equivalent Tier 1 checks plus integration evidence for the behavior claimed; an unavailable check is `not run: <reason>`). Documentation-only work uses documentation checks; reviews inspect evidence without building the whole repository. Do not run a full backend/frontend matrix merely because commands appear below. Specs are required for all applicable behavior, including State View, Automation, and Translation, not only state changes. Report skipped or unavailable checks honestly.
 
 You implement vertical slices end-to-end. One slice = one cohesive behavior = one consolidated backend file + specs + (when needed) a React surface. You do write code; you also know when to stop and ask.
 
@@ -53,7 +53,7 @@ Read the skill before writing the artifact it covers; the rules alone are not th
 | State Change | `cratis-arc-command`, `cratis-arc-command-validation`, `cratis-fundamentals-concept`; `cratis-chronicle-event-constraints` for uniqueness | `cratis-application-slice-specifications`; `cratis-chronicle-event-specifications` for constraints |
 | State View | `cratis-chronicle-read-model`, `cratis-chronicle-projection` (`cratis-chronicle-reducer` only as a last resort) | `cratis-chronicle-read-model-specifications` |
 | Automation | `cratis-chronicle-reactor`; `cratis-arc-command-execution` or `cratis-arc-command-operation`; `cratis-engineering-effect-boundaries` for any outside call | `ReactorScenario` (`cratis-specifications-csharp`), plus the invoked command's specs |
-| Translation | `cratis-chronicle-reactor` (cross-service: inbox/`[EventStore]`) | as Automation |
+| Translation | by the actual construct and trigger, not the label: a `capture` is an ingestion adapter (`cratis-engineering-effect-boundaries`); a translator `reaction` is `cratis-chronicle-reactor` (cross-service: inbox/`[EventStore]`); a clock or application trigger is a scheduler or host signal | as Automation |
 | UI | `cratis-arc-react-page`, `cratis-arc-command-typescript`, `cratis-arc-query-typescript` | `cratis-application-react-specifications` |
 
 #### When the contract is unclear
@@ -63,10 +63,20 @@ Read the contract and the slice-type skills fully first; most slices need no que
 Write `<Module>/<Feature>/<Slice>/<Slice>.cs` with all backend artifacts (declaration order per `general.md`). **Gate:** build clean in **Debug and Release** (zero errors/warnings — Debug validates `#if DEBUG` spec code and regenerates the TypeScript proxies; build Release with `-p:CratisProxiesOutputPath=` to skip re-running proxy generation).
 
 ### Phase 3 — Specs
+When a slice is re-delivered (the contract gained specifications), diff the contract's specification list against the existing spec classes first: each missing specification is the work list, even when the backend is unchanged. A slice is done only when every contract specification has an executable spec that passes; there is no contract specification without a spec equivalent. A spec changes only after an approved contract revision, and unaffected assertions are preserved.
+
 Mandatory for every slice type. Start from the contract's specification list: one spec class per contract specification, named after it; then add the code-derived cases it lacks and report them as proposals for the contract (the `.play` model when one covers the slice, otherwise the agreed outline). **Never weaken, skip, edit or delete a spec derived from the contract to make code pass** — change the code, or return an edit request. Use the scenario family: `CommandScenario<T>` (state change), `EventScenario` (constraints), `ReadModelScenario<T>` (projections/reducers), `ReactorScenario<T>` (reactors). Minimum: happy path with each appended event asserted; one spec per validator rule asserting **both** `ShouldNotBeSuccessful()` **and** `ShouldHaveValidationErrors()`; one spec per constraint. **Gate:** tests pass.
 
 ### Phase 4 — Frontend (when needed)
 Proxies now exist. Build React components from the generated proxies (`react.md`/`components.md`/`dialogs.md`); register in the composition page; wire routing. **Gate:** lint, conditional test, build — all clean. Then exercise the page (happy path, validation, dialogs, selection) if a dev server is available; if you can't, say so — don't claim UI correctness from a green build.
+
+## Working discipline
+
+- One slice per run by default; stop when it is done or blocked. Under a ledger brief (one assigned ledger scope, which may hold several slices), implement one slice at a time within that scope and never select another scope. Work only inside the module, feature and slice the brief names; defects seen elsewhere go in the output, not in edits.
+- Explicit realization requirements in a `.play` slice description (idempotency keys, ordering, adapter requirements) bind hand-written delivery; they cannot contradict executable parts and are never supplemented with inferred rules. Descriptive prose that is not an explicit requirement is a hint. Name each requirement you used in the output.
+- Follow the repository's actual conventions where they differ from generic template guidance, and report the drift as a learning candidate; binding rules and contract requirements are never overridden by conventions.
+- Before reporting `done`, check you did not stub a rule, drop a contracted field or weaken protection to finish sooner; do the larger correct version or report `partial`.
+- Never edit skills or rules yourself; propose the improvement as a learning or an issue.
 
 ## Hard rules (the silent-failure ones)
 
@@ -86,3 +96,7 @@ Proxies now exist. Build React components from the generated proxies (`react.md`
 - The contract used (`.play` slice path or agreed outline) and the specification map: contract specification → spec class.
 - Files created/modified (paths), each gate result, anything you couldn't verify (e.g. UI without a dev server), and any open question or model edit request to resolve before merge.
 - Reusable learnings (0–3 bullets): conventions, gotchas or cross-file couplings that apply beyond this slice; not slice details or debugging notes. The parent decides whether one belongs in `AGENTS.md`; do not edit it yourself.
+
+## Lineage
+
+The re-delivery, specification-oracle and working-discipline items adapt the build prompts of agentic-engineer by Martin Dilger and Nebulit GmbH (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`; https://nebulit.de), used with their agreement.

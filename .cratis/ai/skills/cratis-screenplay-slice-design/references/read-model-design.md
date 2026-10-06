@@ -14,6 +14,47 @@ A screen that acts on an existing instance needs a view: it supplies the identif
 needs and the state the person decides on. Only a creation screen with nothing to show is
 exempt; state the exemption.
 
+## The typical slice pattern
+
+Most screens follow `read model -> screen -> command -> event`: the read model feeds the
+screen, the screen triggers a command, the command produces an event. Not only status screens:
+a command screen that shows current state before the person acts (a berth booking form that
+shows the berth's availability, an invoice payment form that shows the amount still owed) also needs its view. A pure
+view screen is the shorter `read model -> screen`. An automation whose work can wait, retry,
+fail or need people is `read model -> automation -> command -> event`, where the read model is
+its todo list; an immediate, internal, always-possible direct reaction needs no todo list when
+its reason is recorded (`cratis-screenplay-automations-and-translations`). Treat a screen with
+no incoming view as a gap; only a blank creation form with no prior state to show is exempt.
+
+## Events or views
+
+The most important distinction in event sourcing: events are immutable facts someone caused;
+views are derived from them and may change every time a source event arrives. Ask in order:
+
+| Question | Yes means | Example |
+|---|---|---|
+| Did an actor decide or do something? | event | a member confirmed the membership |
+| Is it pure calculation from facts already recorded? | view | berths free, total invoiced |
+| Does it recalculate whenever source facts change? | view | outstanding balance |
+| Is it derived from several other events? | view | membership status |
+
+A calculation is not the business act that adopts it. Running or recomputable figures (totals,
+balances, counts, averages, search indexes) are views, never events. But a value someone agrees
+or certifies stays a fact: an invoice total the customer accepted (`InvoiceIssued` carries it),
+a balance an accountant certified (`BalanceCertified`), a quoted price, a set fee. Test: if the
+source facts change, should the figure change with them (view) or stay as decided (fact)? Wrong:
+`BerthsFreeRecalculated` with `free = 84` (it recalculates). Right: a `BerthAvailability` view
+built from `BerthBooked`, `BookingCancelled` and `BerthAdded`. History of a running figure is
+kept in a separate view, not as events.
+
+Classify what an automation outputs. A new fact it establishes is an event (`PaymentTaken`). A
+pure calculation is projection or reducer work, built from events with lineage
+(`cratis-screenplay-projections`), never a direct write by the automation. A notification is an
+external effect: it always gets a delivery outcome, a closing fact (sent, failed, abandoned)
+and a recovery contract, or a pending-work view; only an immediate, internal, always-possible
+effect may leave no trace
+(`cratis-screenplay-automations-and-translations`).
+
 ## Components
 
 - A component is an area of a screen a person would describe as one thing ("the locker list",
@@ -21,7 +62,19 @@ exempt; state the exemption.
 - One read model per component. Split when a person would point at two areas and name them
   differently, or when one area needs facts from many events and another needs only one or
   two - they change for different reasons and at different speeds.
-- A homogeneous list is one component.
+- A homogeneous list is one component, even when its rows draw on many event types (a berth
+  list whose status is set by booking, cancellation and maintenance events). Do not use that
+  as a reason to fold in fields without the same wide fan-in: a berth's name and pier (set by
+  one or two events) and its live availability (derived across its whole lifecycle) are two
+  kinds of computation even on one page. Split them when you can name the consequence; if
+  you keep one view, note which field has the irreducible fan-in and why (in the slice
+  `description`).
+- A screen with several components has one `data` line per component, each
+  `data <RM> via query <Q>` from its own read model (several `data` lines per screen are
+  valid; `cratis-screenplay-read-surface`). A split component sits next to its own source
+  events instead of one view reaching across the whole timeline.
+- Do not re-derive a view from a screen's title: take its fields, group them by the read model
+  each draws from, and build the read model from that grouping.
 
 ## Fan-in per field
 
@@ -192,8 +245,21 @@ module Berths
 ## Checks before handing off
 
 - The StateView slice `description` gives, per contributing event, the fields it sets and why
-  (see `LockerBoard` in `worked-example.md`); extend it whenever a `from` is added.
-- Every consumer has its read model; every read model has a consumer.
+  (see `LockerBoard` in `worked-example.md`); extend it whenever a `from` is added. Shape of
+  the note: `BerthBooked sets bookingId, status="booked": the view's creation event; the booking
+  does not exist before it.` / `BoatArrived sets status="arrived", arrivedAt: the only
+  event carrying an arrival time.` / `BookingCancelled sets status="cancelled": terminal.`
+  Re-check every field against the fan-in signal each time a `from` is added; an earlier note
+  about one field does not clear the others.
+- Before completing, re-read every read model in scope from the `.play` files and recheck each
+  field and each reason note, including roll-up views, AutoMap-supplied fields, joins and
+  fields added since: a note about one field never clears the others. Apply the named-
+  consequence threshold above, not a blanket split.
+- Every screen and automation re-checked one by one, not from an earlier list: connected to a
+  view, exempt (blank creation form with reason stated; direct reaction with its documented
+  no-pending-work reason), or a gap fixed or reported.
+- Every consumer that needs state has its read model (a blank creation form and a direct reaction
+  with a documented no-pending-work reason need none); every read model has a consumer.
 - Every field traced (`field-lineage.md`).
 - Executable/renderable scope: one unambiguous key per read model (one or more keyed queries,
   all with the same `by` property), identifier equal to the projection's key (table above);

@@ -47,6 +47,23 @@ and which slice produces them, for orientation, not as a build order. A command 
 consult another slice's view (`reads`; unprotected in `.play`, see `consistency-and-concurrency.md`
 section 3); a slice calls another slice's command only through `invokes`.
 
+### Responsibility matrix and ownership timeline
+One compact matrix per feature shows who owns what; the timeline shows where a fact crosses.
+Neither is a model element, and display order is not a global event order or a deployment
+topology. Do not create a module per team name just to draw it.
+
+```text
+Boundary        Commands handled        Facts produced         Views maintained      Depends on
+Harbour Office  BookBerth, CancelStay   BerthBooked (public)   BerthAvailability     none
+Billing         IssueStayInvoice        StayInvoiceDue         OutstandingInvoices   BerthBooked
+
+Time ->   BerthBooked        StayInvoiceDue       StayPaymentRefused
+Harbour   [BerthBooked]
+Billing                      [StayInvoiceDue]     [StayPaymentRefused]
+```
+Check: each fact has one producing boundary, each command one owner, and each arrow crossing a
+row is a published fact or interface, not a private event.
+
 ### Boundary record (compact output, one per boundary)
 ```text
 Boundary: <module or context>        Owner: <team/person or ASSUMED>
@@ -137,7 +154,9 @@ An acknowledgement returning to its initiator is not automatically a bad depende
 
 Record the concrete consequence and proposed repair. Independent development, deployment and
 scaling are separate claims; establish each only when the dependencies support it. A shared view
-is a versioned interface and an availability dependency, not free decoupling.
+is a versioned interface and an availability dependency, not free decoupling. Team and system
+are not the same boundary by law: separate teams often own separate modules, but independence
+is shown by the dependencies, not assumed from the org chart.
 
 ## Boundary checklist
 - [ ] every boundary has a named owner or an `ASSUMED` mark in `STATE.md`

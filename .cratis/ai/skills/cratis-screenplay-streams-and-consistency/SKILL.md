@@ -139,6 +139,10 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
 - Match duplicate protection to scope. A property constraint lets a source re-claim its own
   value; use `unique event` for a fact that is genuinely once-only in its lifecycle, without
   blocking legitimate repeated operations just to make retries safe.
+- No calculated events: a value recomputed as source data changes is a read model; a figure
+  the business recorded at a point in time (a quoted price) is a fact. Keep an unanswered
+  choice as an open question in `STATE.md`; write a decided rejection as `then error`
+  (`references/stream-patterns.md`, Core rules that bear on stream design).
 - Prefer short business lifecycles (a new stream per period, case or attempt) over an eternal
   stream, when the business has natural ends.
 - Compatible change is a new generation; changed meaning is a new event. Corrections are new
@@ -149,6 +153,8 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
 **Review questions** (findings only with a domain consequence)
 - What single question does this stream answer? Does it grow for the right reason?
 - What happens when two people do this at the same moment? When the reply is lost?
+- Is any stream a collection or a log wearing an instance's name (decision tree and red flags in
+  `references/stream-patterns.md`)?
 - Does an optional property cover two situations that the business names differently?
 - Does a consumer in another module depend on an event we treat as internal?
 - Could this calculated value matter historically (price, assessment)? Then it may be a fact.

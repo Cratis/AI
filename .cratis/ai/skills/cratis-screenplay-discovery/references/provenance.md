@@ -20,15 +20,24 @@ the `.trogonai/interviews/` trail file (replaced by bounded STATE.md); e-commerc
 Gherkin forms; the `total (calculated)` field example (contradicts the calculated-value rule);
 "capture every error condition as an event" (most failures are rejections).
 
-## Ideas only (written independently)
+## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
 
-- Idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/timeline/SKILL.md`, written independently:
-  a fixed opening question when there is no input, the build-first-then-summarise turn and explicit
-  stop conditions (`SKILL.md` "Interview phase", `references/storming-loop.md`,
-  `references/interview-questions.md`).
-- Idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/eventmodeling-interview-protocol/SKILL.md`,
-  written independently: skip what is already known; assume visibly when told not to ask; keep what
-  was decided apart from what was assumed (`SKILL.md` "Interview phase").
+Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+
+| Source file | Used in | How |
+|---|---|---|
+| `.claude/skills/timeline/SKILL.md`: fixed opening question, build first then summarize, one question per turn, stop conditions | `SKILL.md` "Interview phase", `references/storming-loop.md`, `references/interview-questions.md` | translated to Screenplay; opening question kept close to the original |
+| `.claude/skills/eventmodeling-interview-protocol/SKILL.md`: when to ask, skip what is known, assume visibly when told not to ask | `SKILL.md` "Interview phase" | restored from #493: wording now adapted closely; trail file replaced by STATE.md |
+| same: findings recorded per step | `SKILL.md` "Interview phase", `references/interview-questions.md` "Interview flow" | translated: Decisions and Assumptions lists in STATE.md |
+| `.claude/skills/eventmodeling-storyboarding-events/SKILL.md`: step 6, processor todo list walked as a storyline | `references/plotting-and-handoff.md` "Storyline" | restored from #493 (item 5, storyline): translated to a view walkthrough seed for lifecycle specifications |
+| `.claude/skills/eventmodeling-brainstorming-events/SKILL.md`: divergent journey vs decision point (Nebulit addition) | `SKILL.md` step 5 | idea; our own wording kept (outcome branch vs separate story) |
+| same: essential fields only, no padding, payload-free simple transitions (lines 159-160) | `SKILL.md` step 6, `references/storming-loop.md` | now adapted closely; identity, concepts and `@pii` rules kept |
+| same: handover from an outside party is a single moment, not a relocation | `SKILL.md` Modeling defaults | idea; our own wording kept |
+| `.claude/skills/eventmodeling-storyboarding-events/SKILL.md`: "whose turn is it in the story?" (consistent actor perspective) | `references/plotting-and-handoff.md` "Whose turn is it in the story?" | adapted closely; lanes, columns and screen placement not adopted |
+
+Not adopted: board, chapter, column and `place-element` mechanics; the board API and `connect` skill.
 
 ## Original to this corpus
 

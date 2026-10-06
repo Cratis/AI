@@ -13,9 +13,18 @@ the file that holds it.
 | Source | Use | Licence handling |
 | --- | --- | --- |
 | TrogonStack/agentskills `7b249d3ee42d8b7e11fa564141ebd5fbc37aadf1` (MIT, Copyright (c) 2025 Straw Hat, LLC) | none: no passage of this skill is adapted from it | no third-party notice needed in `LICENSE` |
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/connect/SKILL.md`, written independently | resolve the tool connection once per session and reuse it until something changes (Ground rule 8, `references/verdicts.md` V2 start-up) | no text reused; repository has no licence |
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/load-slice/SKILL.md`, written independently | scoped, identity-first reads instead of loading the whole model | no text reused |
-| idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/learn-eventmodelers-api/SKILL.md`, written independently | load tool reference on demand; "let the tool resolve what it can" (Ground rule 8) | no text reused |
+
+## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+
+Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+
+| Source file | Used in | How |
+|---|---|---|
+| `.claude/skills/connect/SKILL.md`: resolve the connection once per session, reuse it, re-resolve only when a value actually needs to change | `SKILL.md` "Ground rules" 8, `references/verdicts.md` V2 start-up | Now adapted closely; board token/config prompts not adopted, translated to tool, version and model root |
+| `.claude/skills/load-slice/SKILL.md`: scoped, identity-first reads instead of loading everything | `SKILL.md` "Edit strategy" | Idea; our own wording kept |
+| `.claude/skills/learn-eventmodelers-api/SKILL.md`: load the tool reference on demand; prefer the typed tool over raw calls | `SKILL.md` "Ground rules" 8, "Edit strategy" | Idea; our own wording kept; the 934-line API catalog has no Screenplay equivalent to adopt |
 
 ## Sources read for facts
 

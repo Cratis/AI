@@ -110,8 +110,10 @@ hop before editing:
    An explicit mapping to a renamed-away target fails binding (V3, PLAY0273); a property AutoMap
    used to fill and no longer matches is **not reported** - the field silently stays empty.
 
-Report the walk hop by hop: element, field, `updated` or `skipped` with the reason (already
-present; not on this element). Run V1 after the chain edit; if a hop cannot be applied, stop
+Skip a hop and log why when the field already exists there (add) or is not found on that
+element (rename); never skip silently. Report the walk hop by hop: element, field, `updated`
+or `skipped` with the reason (already present; not on this element); name the chain from
+the consuming element back to the source. Run V1 after the chain edit; if a hop cannot be applied, stop
 and report that hop. Rename only through the identity-aware path when any hop is persisted
 (SKILL.md).
 

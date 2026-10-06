@@ -10,6 +10,8 @@
     { "kind": "skill-contains", "value": "**One meaning of Translation:**" },
     { "kind": "skill-contains", "value": "complete, open or blocked" },
     { "kind": "skill-contains", "value": "never write a mapping" },
-    { "kind": "skill-contains", "value": "V4 is \"not run: no route\"" }
+    { "kind": "skill-contains", "value": "V4 is \"not run: no route\"" },
+    { "kind": "skill-contains", "value": "never skipped silently" },
+    { "kind": "skill-contains", "value": "not applicable: no queue" }
   ]
 }

@@ -29,8 +29,8 @@ thing by it. Keep it as a property when it is needed to correlate or deduplicate
   each guarded by our constraints.
 - A further worker needs a distinct local decision, obligation or external effect; otherwise
   project views from our fact directly.
-- Name our facts for what they mean to us, not for the transport (`…Synced`,
-  `…WebhookReceived` are smells).
+- Name our facts for what they mean to us, not for the transport (`<X>Synced`,
+  `<X>WebhookReceived` are smells; a business fact such as `PaymentReceived` is fine).
 
 ## 4. Per-field disposition
 For every field of the outside record, decide and write in the slice `description`:

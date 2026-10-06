@@ -1,9 +1,13 @@
 # Provenance
 
-## Ideas from Nebulit, written independently
+## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
 
-| Idea | Used in | Source |
+Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+
+| Source file | Used in | How |
 |---|---|---|
-| Reactor build checklist: output fields traced to a stated source, skip conditions stated in the contract, repeated-input cases | `SKILL.md` "Specifications" (field lineage, contract-authorized filtering, repeated delivery) and "Verify" | idea from Nebulit-GmbH/agentic-engineer@07b0f30:.claude/skills/build-automation/SKILL.md, written independently; no passages reused |
+| `.claude/skills/build-automation/SKILL.md`: reactor checklist: output fields traced to a stated source, skip conditions stated in the contract, repeated-input cases | `SKILL.md` "Specifications" and "Verify" | idea; our own wording kept |
 
 The `WithStrictEventSubscription()` scope statement and the scenario sequence-number behavior are verified against Chronicle `v19.32.0` source (`Source/Clients/Testing/ReadModels/ReadModelScenario.cs`, `Source/Clients/Testing/Reactors/ReactorScenario.cs`).

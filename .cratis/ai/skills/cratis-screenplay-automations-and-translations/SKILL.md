@@ -140,7 +140,10 @@ or actor that nobody confirmed. Transcript-shaped worked example: `references/wo
 ## Gate
 Not done until, for every affected reaction and capture, there is a line in the audit
 (`references/audit-format.md`) with a location and a result of complete, open or blocked, and any
-unreviewed scope is named. Open decisions and target requirements are in `STATE.md`.
+unreviewed scope is named. Open decisions and target requirements are in `STATE.md`. A missing required or
+referenced queue opening or closing fact is an unresolved dependency, never skipped silently; a
+direct effect states "not applicable: no queue" with its reason (per-chain questions in
+`references/audit-format.md`).
 Never report a verdict without the tool and version that produced it.
 
 ## Verify

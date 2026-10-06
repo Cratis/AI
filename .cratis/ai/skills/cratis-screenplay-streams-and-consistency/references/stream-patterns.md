@@ -82,6 +82,75 @@ exempt from that signal, not from the naming rule.
 - Closing a study needs no rewrite into an ArchivedStudy stream; a separately managed legal-custody
   case may warrant a linked identity.
 
+## Boundary decision tree
+Work top to bottom for each stream; stop at the first answer that applies.
+
+```text
+Does the stream have a natural business identity (one booking, one invoice, one member)?
+ no  -> it is a collection or a log: keep facts on the real instances, build a read model
+ yes -> does every event in it belong to that one instance's own lifecycle?
+         yes -> boundary is right, however long the history gets
+         no  -> the boundary is too wide: split by the instance each event is about, then
+                re-check every rule and reference that crossed the split
+```
+
+## Red flags that the boundary, not the volume, is wrong
+Each is a signal that needs the lost business meaning named before it is a finding:
+- events with no shared business meaning (a technical log, `SystemMetricRecorded`): use an
+  observability system or a view, not a domain stream;
+- one stream holds several unrelated instances (every member's events under one constant id);
+- nobody can say which single business question the stream answers, or the answer is a list
+  of unrelated questions: look for a collection or a log;
+- a stream is appended to for a reporting need, not a business decision.
+
+Do not use "no natural end" on its own as a red flag: an open membership has none and is still
+one identity.
+
+## Boundary patterns by domain
+Each entry names the identity and the question that tests it. Durations are not part of the
+test; they vary by business.
+
+| Domain | Identity (one stream per) | Test question | Counterexample to watch for |
+|---|---|---|---|
+| Invoicing | invoice | Is every event a fact about this invoice (issued, line added, paid, credited)? | an "all invoices of the month" stream: that is a query |
+| Invoicing | payment attempt | Can a payment be attempted, refused and retried independently of the invoice's other decisions? | folding attempts into the invoice makes retries race the issuing decisions |
+| Marina | berth booking | Does the booking have one owner (vessel) and a natural end (departure, cancellation)? | a berth stream that holds the whole stay history (billing, vessel changes): keep the booking's own history on the booking |
+| Marina | berth (as a managed resource) | Does the berth itself make decisions (closed for repair, re-priced) or must occupancy be decided atomically (one vessel at a time)? | none for reserve and release facts: they may belong on the berth when it is the authoritative decision point (`consistency-and-concurrency.md` section 3); carry the booking id as a reference and keep the booking's own history on the booking |
+| Memberships | membership | Is it one lifecycle (joined, renewed, lapsed, ended)? A thirty-year membership is still one stream | profile, preferences and login history bundled: three concerns with different decisions; split when they have independent lifecycles |
+| Memberships | "all members" | none: it is a collection | model as a view |
+| Course enrolment | enrolment | One member in one course, from enrolment to completion or withdrawal | a "course" stream that also carries every member's progress |
+| Hire | hire agreement | From reservation to return, one customer and one item | an "active hires" stream beside a "completed hires" stream: lifecycle stages of one instance, not two identities |
+
+A composite can be one stream when parent and children are decided together under shared
+invariants (an invoice and its lines: lines are added and removed under invoice-wide totals and
+status rules). Examine those shared invariants first. Split a child only when it has its own
+business identity, its own decision authority and its own lifecycle, not merely because it is
+created, changed or removed separately: then the child is an identity and the parent holds a
+reference.
+
+## Core rules that bear on stream design
+- **Facts are immutable; a correction is a new event.** Never design a stream that needs an
+  edit of history to be right (`consistency-and-concurrency.md` section 9).
+- **No calculated events.** An event whose value is recomputed as source data changes (a running
+  total, an average, "seats left") is a read model, not a fact. The exception is a calculation
+  the business itself recorded at a point in time (the price quoted, an assessment): that is
+  a fact, and later recomputation must not rewrite it.
+- **Every command has an explained business origin.** A human action, a reaction to any
+  modeled event, or a clock or application trigger can invoke a command; an external capture
+  starts a process by appending facts, and any later command is reached through a reaction. Name
+  the origin; do not infer a missing slice merely because no prior event exists. An origin
+  nobody can explain (a command no persona or reaction issues) is the finding.
+- **Open question versus decided failure.** An unanswered ownership or consistency choice is
+  an open question: keep it visible in `STATE.md` with an owner. A rejection whose behavior is
+  decided (the second claim is refused with a fixed message) is specified behavior: write it
+  as a `then error` specification, not as a lingering note that makes it look unresolved.
+- **Fan-out is a signal.** One command producing more than two events may be doing more than
+  one job, or may be one outcome that always happens together. Check whether the facts can
+  occur independently before reporting it; the business may recognize all of them.
+- **Offline first.** Model how the work would run with people and paper before streams: a
+  step that exists only because of the system (cache refresh, session check) is not a fact
+  and needs no stream.
+
 ## Growth and snapshots
 Design first, snapshot second. If a stream seems too long, first ask whether the identity is wrong
 (split by the narrower business instance), whether events are too fine-grained, and whether

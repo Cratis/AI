@@ -9,6 +9,8 @@
     { "kind": "skill-contains", "value": "`[ProtectedDecision]`" },
     { "kind": "skill-contains", "value": "ownership interview" },
     { "kind": "skill-contains", "value": "retry identity" },
-    { "kind": "skill-contains", "value": "CHR0034" }
+    { "kind": "skill-contains", "value": "CHR0034" },
+    { "kind": "skill-contains", "value": "No calculated events" },
+    { "kind": "skill-contains", "value": "decision tree and red flags" }
   ]
 }

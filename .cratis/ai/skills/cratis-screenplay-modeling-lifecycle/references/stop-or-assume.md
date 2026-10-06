@@ -1,6 +1,22 @@
 # Stop or assume: triggers, question format and the interview protocol
 
 ## Interview protocol (attended and unattended)
+Assume visibly during modeling; delivery blocks any guess that could encode a wrong rule,
+authorization, money or time behavior. Contradictions, a third review round, a gate only the
+user can accept, and approvals not yet given always stop.
+
+- **When to ask.** Information this phase needs is missing or ambiguous: ask, using the phase
+  skill's critical questions as the guide, and follow its listed follow-up trigger on the answer.
+  The phase already has what it needs: skip straight to its work and do not ask for what you hold.
+- **Unless told not to ask** (an unattended run, or the user said not to stop for questions), in
+  modeling: do not block. Proceed on the most reasonable assumption for anything missing and state
+  it plainly in this phase's record, visibly, so it can be corrected later. Never guess silently.
+  This does not extend to delivery (P7-P9, gap-fill), where a guess that could encode a wrong rule,
+  authorization, money or time behavior blocks as in "Delivery triggers" below. Modeling assumptions about such rules are
+  recorded visibly with their address. Unconditionally, contradictions, a third review round, a gate only the user can accept, and approvals not yet given always stop.
+- **Recording the outcome.** Under the phase's Interview Trail row in STATE.md write what was
+  asked and decided, or, if nothing was asked, what was assumed and why
+  (`handoff-template.md` section 1).
 - Ask the one question that changes the model most; follow up on vague answers ("it depends",
   "usually", "sometimes") with "what decides it?". Do not interrogate for what a skill, the tool
   or the Screenplay docs already answer.

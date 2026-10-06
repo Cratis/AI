@@ -18,6 +18,23 @@ list query that does not bind) with the intended behaviour.
 | Source and type | Location | Correlation | Field dispositions | Target fields traced | Dedup and ordering | Trust boundary | Recovery owner | Named cases | Result |
 |---|---|---|---|---|---|---|---|---|---|
 
+## Per-chain questions (ask of every automation checked)
+1. Does it have a pending-work view, or a stated reason a direct effect needs none (immediate,
+   internal, cannot fail)? A "simple relay" is not exempt from the question.
+2. Is a worker's pending view opened only by our own facts? An outside fact reaching a decision
+   directly means the translation step is missing: split it.
+3. Does a translation that holds real pending work have a completion or terminal disposition? An
+   artificial queue that never closes conceals recovery; omit it if there is no pending work.
+4. Does a worker after a translation add a distinct decision, obligation or effect (for example
+   notifying a member), even if it reuses the translated identity? If it adds none and only
+   restates the fact, project downstream views from the fact instead.
+5. Does a worker's view have a closing path for its own result fact, and for cancellation and
+   supersession?
+6. Does the pending view avoid a status field (membership is the state)?
+Record a missing required or referenced queue opening or closing fact as an unresolved dependency
+(a direct effect with no queue is "not applicable", with the reason);
+never skip it silently or call the chain complete.
+
 ## Filled example (from `todo-list-example.md`)
 | Declaration | Check | Result |
 |---|---|---|

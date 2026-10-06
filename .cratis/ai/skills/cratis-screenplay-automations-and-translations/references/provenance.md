@@ -15,16 +15,23 @@ defaults for missing data) is replaced by "never fabricate a default"; its log-a
 handling is replaced by recorded failure facts. `plugins/trogonstack-eda` was skimmed; nothing
 adopted.
 
-## Ideas only (written independently)
-Nebulit-GmbH/agentic-engineer has no licence; nothing is copied.
-- idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/eventmodeling-designing-automation-chains`:
-  resolve the automation chain at the moment it is introduced, and audit every automation
-  exhaustively with a per-declaration result. Written independently as `SKILL.md` Gate and
-  `references/audit-format.md`. Its compulsory queue and never-closing translation queue were rejected.
-- idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/build-automation`: keep the model
-  authoritative, exact input mappings, explicit filtering, repeated-command cases. Written
-  independently in `references/realization-and-gap-fill.md` and `references/cases-to-specify.md`.
-  Its implementation recipe was dropped.
+## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+
+Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
+by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
+is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+
+| Source file | Used in | How |
+|---|---|---|
+| `.claude/skills/eventmodeling-designing-automation-chains/SKILL.md`: resolve the chain when introduced; exhaustive per-automation verification | `SKILL.md` intro and "Gate", `references/audit-format.md` | restored from #493; the six verification questions adapted closely as "Per-chain questions", translated to Screenplay (no board, no `validate_model`) |
+| same: pending membership not status; opening and closing events | `references/automation-patterns.md` section 2, `references/audit-format.md` question 6 | adapted closely; our todo-list example kept |
+| same: worker only for a new decision; redundant second stage and the `Synced` tell | `references/automation-patterns.md` section 7 "Redundant second stage" | adapted closely, marina berth example in place of Martin Dilger and Nebulit GmbH's |
+| same: silently skipping a missing target | `SKILL.md` "Gate", `references/audit-format.md` | idea inverted: an absent target is an unresolved dependency |
+| same: compulsory queue for every automation, "every trigger is an event", never-closing translation queue, mandatory translation command, board placement and connections | not adopted | wrong for Screenplay (direct reactions, clock and application triggers, `capture` are supported); idea only |
+| `.claude/skills/eventmodeling-translating-external-events/SKILL.md` step 5 and its examples reference (section 5): per-record scenario format | `references/integration-contracts.md` "Per-record-type contract" | adapted closely, invoicing example; log-and-drop failure handling replaced by failure facts |
+| `.claude/skills/eventmodeling-designing-automation-chains/SKILL.md`: field mapping and cardinality on every todo-list field | `references/automation-patterns.md` section 2 | adapted closely; board mapping syntax not used |
+| `.claude/skills/eventmodeling-translating-external-events/SKILL.md`: interview, catalog, target-field check, recovery ownership | `SKILL.md` "Interview phase", `references/integration-contracts.md`, `references/worked-integration.md` | idea; our own wording kept (TrogonStack base above) |
+| `.claude/skills/build-automation/SKILL.md`: model authoritative, no invented mappings or filters, repeated-command cases | `references/realization-and-gap-fill.md`, `references/cases-to-specify.md` | idea; our own wording kept; implementation recipe not adopted |
 
 ## Carried forward
 `references/automation-patterns.md`, `translation-patterns.md`, `effects-and-idempotency.md`,

@@ -41,6 +41,60 @@ independent specs that share a cast and carry cumulative givens:
   it rather than copying it.
 - A command never gets a family. Commands get one spec per transition.
 
+## Worked family: a todo list
+A read model whose rows appear when work is opened and disappear when it is done is the prime
+candidate for a family. Walk one row through three states (`OpenInvoices`: empty, one entry after
+`InvoiceIssued`, empty again after `PaymentReceived`) as three independent specs, each with its
+own full givens. The excerpt is copied from `invoicing-dues-example.md`; the last spec asserts
+both that the stored row is gone and that the keyed query returns nothing. The whole-list query
+(no key) is a design-mode expectation here: a list-query collection check does not run on the
+reference route, so record it in the matrix rather than asserting it.
+The source document also asserts the other terminal outcomes (`InvoiceVoided`, `InvoiceSettled`) the same way; they are not copied here.
+```screenplay excerpt
+specification OpenInvoicesLifecycle1Empty
+  given caller
+    authenticated
+    role "Accounts"
+  then query OpenInvoiceById
+    arguments
+      invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+
+specification OpenInvoicesLifecycle2Issued
+  given caller
+    authenticated
+    role "Accounts"
+  given InvoiceIssued
+    for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+    member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+    amount = 130
+  then query OpenInvoiceById
+    arguments
+      invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+    result
+      invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+      member    = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+      amount    = 130
+
+specification OpenInvoicesLifecycle3Paid
+  given caller
+    authenticated
+    role "Accounts"
+  given InvoiceIssued
+    for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+    member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+    amount = 130
+  when append PaymentReceived
+    for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+  then no readmodel OpenInvoice for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+  then query OpenInvoiceById
+    arguments
+      invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+```
+One walkthrough would assert the lifecycle; three specs assert each transition and, with the
+same cast, read as one. Where a view also has single-transition specs, read the family first: a
+single spec that repeats a state the family already asserts is redundant (link, do not copy), and
+one that contradicts it is wrong.
+
 ## Removal is a positive obligation
 `remove with` existing is not coverage. Establish the row with its real source events, append
 the removing event, assert `then no readmodel <RM> for "<key>"`. Where a wrong key could remove

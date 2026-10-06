@@ -32,8 +32,7 @@ then hands off to review (P5) and acceptance (P6).
 ## Verified product sources
 
 Pins (Screenplay v4.64.0 `7e16162`, cratis CLI v3.27.1, Stage v4.24.0, Arc v22.50.5, Chronicle
-v19.32.0) are listed once in `cratis-screenplay-toolchain` `references/versions.md`.
-Statements here were checked at these sources:
+v19.32.0): `cratis-screenplay-toolchain` `references/versions.md`. Checked at these sources:
 
 | Fact used here | Source |
 | --- | --- |
@@ -44,15 +43,13 @@ Statements here were checked at these sources:
 | `then error`, `then denied`, `unique ... released by` | Screenplay `v4.64.0:Documentation/screenplay/{specifications,constraints}.md` |
 | No semantic diff or equivalence check exists (Screenplay#387 open) | `gh issue view 387 --repo Cratis/Screenplay` |
 
-Every complete `screenplay` fence here compiles with the standalone compiler 4.64.0
-(`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.27.1.
+Every complete `screenplay` fence here compiles with the standalone compiler 4.64.0 (`--warnaserror`) and
+`cratis screenplay validate --warnings-as-errors` 3.27.1.
 
 ## Interview phase
-
 **Skip if** the brief already records the freeze or "not applicable", the observable
 environments, the evidence-disclosure policy and the domain experts. Otherwise ask only what is
-missing, one question per turn, the one that unblocks the most. Use the harness's question tool
-if it has one. Record answers in `.ai-work/screenplay/<model-slug>/legacy/INTERVIEW.md`
+missing, one question per turn, the most blocking first (the harness's question tool if any). Record answers in `.ai-work/screenplay/<model-slug>/legacy/INTERVIEW.md`
 (`references/interview-findings.md`) and in the Interview Trail of `STATE.md`.
 
 Critical questions (full wording, why they matter and follow-up triggers:
@@ -115,10 +112,10 @@ traffic. The extractor proposes; the main session asks the user and the DBA:
    fraction), then confirm cleanup ran. Prologue ignores status codes: recover rejections from
    the script and the code.
 
-**Optional UI evidence** (`references/ui-observation.md`): a bounded, state-aware walk of
-approved workflows with before/after states. A screen proves what was shown, not the server rule
-or event behind it. Screens and real query usage are the source for read models, not table
-mirrors.
+**Optional UI evidence** (`references/ui-observation.md`): after a capability check, a bounded,
+state-aware walk of approved workflows with before/after states, grouped into flows. A screen proves what was shown,
+not the server rule or event behind it. Screens and real query usage are the source for read
+models, not table mirrors.
 
 **L3 Evidence table.** One row per observed fact (`references/evidence-table-template.md`):
 source, locator, fact, strength, classification (intent / consequence / infrastructure / noise /
@@ -162,7 +159,9 @@ chain per slice before handoff (evidence template); never manufacture references
    and (where gated) denied spec per command; validation, state, retry, competing-claim and
    conditional cases per command; population, update and removal per view. Unobserved behaviour
    is `unknown`; expert-approved target requirements are labelled as such.
-5. Validate the candidate folder with warnings as errors (`cratis-screenplay-toolchain`).
+5. Validate the candidate folder with warnings as errors (`cratis-screenplay-toolchain`), then
+   run the read-only candidate inventory (`references/candidate-inventory.md`: counts,
+   specification coverage, structural gaps, orphans, one-screen-several-commands).
 6. Write the loss report (`references/loss-report-template.md`) and the expert question list
    (`references/expert-verification.md`).
 
@@ -171,8 +170,7 @@ exact `file:line` locator (or `file:start-end`) inline, file name exactly as giv
 or a pointer to another file is not enough. A claim without a locator is `unknown`.
 
 Report in the final message when the brief says so (locators, mapping, assumptions, questions),
-handoff packet appended, first line `Outcome:`; never prose reports in the model root. Then hand
-off: independent review (`cratis-screenplay-model-review`), expert verification, acceptance (P6).
+handoff packet appended, first line `Outcome:`; no prose reports in the model root. Then hand off: independent review (`cratis-screenplay-model-review`), expert verification, acceptance (P6).
 
 ## Rules
 
@@ -209,7 +207,7 @@ The candidate may go to review only when all hold, each a result or "not run: <r
 - Evidence ids resolve to inspected `path:start-end` at the recorded source identity, and the
   report shows the compact locators (a UI-only extraction says it has none).
 - Scenario applicability was reconciled (missing denials, competing claims, branches, removals
-  named); V1 clean on the candidate folder, warnings as errors.
+  named); V1 clean on the candidate folder, warnings as errors; inventory report produced.
 - Capture: approvals, snapshot and cleanup confirmation, or "no capture"; interpret: effective
   provider and approved disclosure, or "not run".
 
@@ -228,12 +226,13 @@ The candidate may go to review only when all hold, each a result or "not run: <r
   `cratis-screenplay-automations-and-translations`; coverage: `cratis-screenplay-scenario-coverage`;
   review of the candidate: `cratis-screenplay-model-review`; rendering:
   `cratis-screenplay-render-and-gap-fill`.
-- Syntax and verdict commands: `cratis-screenplay-toolchain`; phases, verdicts, identity and
-  approvals: `cratis-screenplay-modeling-lifecycle`; running Chronicle systems:
-  `cratis-chronicle-cli-operations` and `cratis-chronicle-mcp-inspection`.
+- Syntax and verdicts: `cratis-screenplay-toolchain`; phases, identity and approvals:
+  `cratis-screenplay-modeling-lifecycle`; running Chronicle: `cratis-chronicle-cli-operations`,
+  `cratis-chronicle-mcp-inspection`.
 
 ## Lineage
 
 Sources, licences and adaptation notes: `references/provenance.md`. The interview protocol and
-side-car planning adapt TrogonStack agentskills (MIT); the bounded UI walk is an independently
-written idea from Nebulit; the rest is Cratis.
+side-car planning adapt TrogonStack agentskills (MIT); the bounded UI walk and the candidate
+inventory adapt Martin Dilger and Nebulit GmbH's discover-storyboard and analyze-existing-model, with their
+agreement; the rest is Cratis.

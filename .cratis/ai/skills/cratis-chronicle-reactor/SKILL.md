@@ -432,4 +432,4 @@ Specify the contract, not only the happy path:
 
 ## Lineage
 
-The specification checklist (field lineage, contract-authorized filtering, repeated delivery) follows an idea from Nebulit's reactor build checklist, written independently. See `references/provenance.md`.
+The specification checklist (field lineage, contract-authorized filtering, repeated delivery) follows an idea from Martin Dilger and Nebulit GmbH's reactor build checklist, credited in `references/provenance.md`.
