@@ -30,7 +30,7 @@ The only version table is `references/versions.md`; other skills point to it.
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour
-was probed on 4.63.1 and re-checked on 4.66.0. 4.65.0 adds command named-rule `implementation` blocks (and rejects them elsewhere); 4.66.0 is editor tooling only. Neither changes execution.
+was probed on 4.63.1 and re-checked on 4.66.0. 4.65.0 adds command named-rule `implementation` blocks (handlers and operation phases already had the wrapper; it is rejected on concept rules, built-in property rules and whole-command `require`/`validate` bodies); 4.66.0 is editor tooling only. Neither changes execution.
 Re-verify before claiming another version behaves the same.
 
 ## Ground rules
