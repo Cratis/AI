@@ -1,16 +1,13 @@
 # Provenance
 
-Lineage of the #493 additions to `cratis-application-slice-specifications`. No third-party
-text is reproduced and no TrogonStack material was adapted, so no third-party notice applies.
+Lineage of the #493 additions to `cratis-application-slice-specifications`. No TrogonStack material was adapted. Nebulit material is credited below.
 
-## Ideas written independently
-- Idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/build-automation/SKILL.md`
-  (checklist question "what happens if the command fires twice"), written independently:
-  Step 3 item 5, repeat execution.
-- Idea from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/build-automation/SKILL.md`
-  and its slice-specification examples (one error specification per rule), written
-  independently: Step 6 rule isolation.
-- Contract-first specification list (Step 0) and contract example values: written
-  independently from the Cratis Screenplay model-first method; the idea of building from a
-  slice definition is from Nebulit-GmbH/agentic-engineer@07b0f30:`.claude/skills/build-automation/SKILL.md`,
-  written independently.
+## Adapted closely (Nebulit GmbH, with agreement)
+
+Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
+by Nebulit GmbH. The repository carries no licence file; this material is adapted with Nebulit GmbH's agreement.
+
+| Source file | Used in | How |
+|---|---|---|
+| `.claude/skills/build-automation/SKILL.md`: checklist question "what happens if the command fires twice" | `SKILL.md` Step 3 item 5 | idea; our own wording kept |
+| `.claude/skills/build-automation/SKILL.md`: one error specification per rule; build from the slice definition first | `SKILL.md` Step 0 and Step 6 | idea; our own wording kept |
