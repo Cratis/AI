@@ -133,7 +133,7 @@ function rules(warn, repositoryCallers) {
     }
 }
 
-function check(argv, repositoryCallers) {
+function check(argv, repositoryCallers, lookupOptions) {
     const { values } = parseArgs({ args: argv, options: {
         'body-file': { type: 'string' }, label: { type: 'string', multiple: true },
         'add-label': { type: 'string', multiple: true }, 'remove-label': { type: 'string', multiple: true },
@@ -146,7 +146,7 @@ function check(argv, repositoryCallers) {
     const repoArgs = values.pr && values.repo ? ['--repo', values.repo] : [];
     if (values.pr !== undefined) {
         pull = JSON.parse(gh(['pr', 'view', ...(values.pr ? [values.pr] : []), ...repoArgs,
-            '--json', 'labels,body,author,baseRefName'], values.repo ? { env: { ...process.env, GH_REPO: values.repo } } : {}));
+            '--json', 'labels,body,author,baseRefName'], lookupOptions || (values.repo ? { env: { ...process.env, GH_REPO: values.repo } } : {})));
     }
     if (!values['body-file'] && !pull) throw new Error('--body-file is required when creating a pull request');
     const split = labels => (labels || []).flatMap(label => label.split(',')).map(label => label.trim()).filter(Boolean);
@@ -345,7 +345,7 @@ function hook() {
         if (words.includes('--help') || words.includes('-h')) continue;
         const repository = effectiveRepository(words, knownDirectory ? cwd : undefined, environmentRepository);
         if (!knownDirectory && !repository) {
-            if (!optedIn(cwd)) return 0;
+            if (!optedIn(cwd)) continue;
             throw new Error('Use a literal directory before gh pr create/edit.');
         }
         if (!/^Cratis\/[^/]+$/i.test(repository)) continue;
@@ -378,10 +378,14 @@ function hook() {
         }
         if (words[2] === 'create' && !hasBody) throw new Error('write the body to `.ai-work/pr-body.md` and use `--body-file` when creating a pull request.');
         if (words[2] === 'edit') args.push('--pr', target);
-        // Use the same resolved target for opt-in, PR metadata and repository metadata.
         args.push('--repo', repository);
+        // Pin PR lookup only for a command-targeted repository; otherwise let gh resolve its base repo.
+        const lookupEnvironment = { ...process.env };
+        const targetedRepository = effectiveRepository(words, undefined, environmentRepository);
+        if (targetedRepository) lookupEnvironment.GH_REPO = targetedRepository;
+        else delete lookupEnvironment.GH_REPO;
         process.chdir(cwd);
-        const code = check(args, repositoryCallers);
+        const code = check(args, repositoryCallers, { env: lookupEnvironment });
         if (code !== 0 && code !== 3) throw new Error('The pull-request body or release intent failed cratis-check-pr. Fix the reported violations before retrying.');
     }
     return 0;
