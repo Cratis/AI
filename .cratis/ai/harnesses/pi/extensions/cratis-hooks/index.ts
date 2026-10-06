@@ -287,7 +287,7 @@ export default function (pi: ExtensionAPI) {
 		const gates = parseGatePlan(run.stderr);
 		if (run.aborted) return { gates: [], problem: "its dry run was cancelled" };
 		if (run.timedOut) return { gates, problem: `its dry run did not finish within ${PLAN_TIMEOUT_MS / 1000}s` };
-		if (run.failed || run.code !== 0) return { gates, problem: `its dry run could not be completed (exit ${run.code ?? "none"})` };
+		if (run.failed || run.code !== 0) return { gates, problem: `its dry run could not be completed (exit ${run.code ?? "none"})${run.stderr.trim() ? `\n\n${run.stderr.trim()}` : ""}` };
 		return { gates };
 	}
 

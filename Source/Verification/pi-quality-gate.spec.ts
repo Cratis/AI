@@ -222,6 +222,33 @@ test('a failing explicit gate is an error; a passing explicit gate verifies the 
     }
 });
 
+test('a rejected Pi gate plan preserves the script diagnostic and configuration remedy', async () => {
+    const repo = scratch(['/bin/true']);
+    try {
+        for (const directory of ['a', 'b']) {
+            mkdirSync(join(repo.root, directory));
+            writeFileSync(join(repo.root, directory, 'package.json'), '{}');
+        }
+        const config = process.env.CRATIS_HOOKS_GATES;
+        assert.ok(config);
+        writeFileSync(config, JSON.stringify({ gates: [{
+            id: 'scratch-gate', changed: ['*.txt'], workingDirectoryFrom: ['**/package.json'],
+            command: ['/bin/true'],
+        }] }));
+        repo.change('uncontained.txt');
+        const { tool } = bridge();
+        await assert.rejects(() => tool.execute('call', {}, undefined, undefined, repo.ctx()), (error: Error) => {
+            assert.match(error.message, /dry run could not be completed \(exit 2\)/);
+            assert.match(error.message, /UNVERIFIED — no containing project for uncontained\.txt/);
+            assert.match(error.message, /Configure workingDirectory/);
+            assert.match(error.message, /Nothing was verified/);
+            return true;
+        });
+    } finally {
+        repo.dispose();
+    }
+});
+
 test('a known gate failure keeps its stderr without starting a post-run fingerprint or accepting a late abort', async () => {
     const repo = scratch(['bash', '-c', 'echo distinctive-gate-failure >&2; exit 2']);
     const shim = mkdtempSync(join(dirname(repo.root), 'gate-git-shim-'));

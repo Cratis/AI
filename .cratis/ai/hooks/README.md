@@ -183,8 +183,9 @@ property is only reported when it really sits inside an `[EventType]`.
 ### Project-specific gate configuration
 
 The shipped gates discover the repository's own solution and package, so most repositories need no
-configuration at all. Discovery uses only each gate's matching, non-excluded changes and runs it once
-per affected project directory, choosing the deepest containing project for each path. A repository
+configuration at all. An eligible root workspace or solution keeps repository-wide dispatch. Without
+one, discovery uses only each gate's matching, non-excluded changes and runs it once per affected
+project directory, choosing the deepest containing project for each path. A repository
 that needs a different location or has changes outside several candidate projects states only what differs in its own
 `.cratis/ai/quality-gates.project.json`, which the gate merges over the managed file by gate id:
 
@@ -427,8 +428,10 @@ checks nothing. So the .NET and frontend gates state *what kind of project* they
 gate script find it — `workingDirectoryFrom: ["*.slnx", "*.sln", "**/*.slnx", "**/*.sln"]` runs
 `dotnet build` in the directories holding the affected solutions. The frontend gates discover
 `package.json` the same way. For each changed path surviving the gate's `changed`/`excludeChanged`
-filters, discovery selects its deepest containing project across the globs and runs once per distinct
-affected directory. Glob order breaks ties between project files in the same directory. Unrelated
+filters, discovery preserves an eligible root project and otherwise selects its deepest containing
+project within the first glob holding eligible candidates, running once per affected directory.
+The default root-first glob order retains dependent-workspace coverage; explicit glob preferences
+remain honored. Unrelated
 README edits and excluded `dist`, `bin`, or `obj` changes never influence that selection. A single
 eligible project may own source outside its directory; multiple candidates with an uncontained
 trigger report `UNVERIFIED` and exit 2, requiring explicit configuration rather than checking one
@@ -437,8 +440,14 @@ arbitrary package.
 When `.cratis/ai.manifest.json` exists, discovery excludes the installed `.cratis/ai/` tree and
 symlinks resolving into it. Without the install manifest, authored corpus packages remain eligible.
 Containment resolves paths physically with `cd -P`, including directory symlinks followed by `..`;
-no discovered target outside the task-owning repository is run. This depends on actual targets,
-not a global exclusion of similarly named authored directories.
+both the project-file target and the execution directory must be inside the task-owning repository
+and outside the managed tree. This depends on actual targets, not a global exclusion of similarly
+named authored directories. Candidate resolution is cached across gates, and path filtering and
+prefix selection use batch passes rather than per-path subprocesses.
+
+Gate commands read from `/dev/null`, never the remaining directory list. If some affected directories
+run while others have unmet requirements, the gate reports `UNVERIFIED` and exits 2; a wholly
+inapplicable gate remains a no-op. Pi preserves the script's diagnostics when planning fails.
 
 The same shipped file therefore activates in application and framework repositories, and reports
 an empty plan without running gates in a repository that has no project at all.

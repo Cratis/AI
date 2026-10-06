@@ -125,98 +125,136 @@ if [ -f "$root/.cratis/ai.manifest.json" ] && [ -d "$root/.cratis/ai" ]; then
     managed_root="$(cd -P "$root/.cratis/ai" && pwd -P)"
 fi
 
-repository_project_path() {
-    local path="$root/$1" dir target hops=0
-    [ -f "$path" ] || return 1
-    # cd -P resolves directory adapters; readlink also covers package-file adapters.
-    while :; do
-        dir="$(cd -P "$(dirname "$path")" 2>/dev/null && pwd -P)" || return 1
-        path="$dir/$(basename "$path")"
-        [ -L "$path" ] || break
-        hops=$((hops + 1))
-        [ "$hops" -le 40 ] || return 1
-        target="$(readlink "$path")" || return 1
-        path="$(hook_abspath "$target" "$dir")"
-    done
-    case "$path" in
-        "$physical_root"/*) ;;
-        *) return 1 ;; # Never build a different repository through a symlink.
+repository_contains_path() {
+    case "$1" in
+        "$physical_root"|"$physical_root"/*) ;;
+        *) return 1 ;;
     esac
     if [ -n "$managed_root" ]; then
-        case "$path" in
-            "$managed_root"/*) return 1 ;;
+        case "$1" in
+            "$managed_root"|"$managed_root"/*) return 1 ;;
         esac
     fi
 }
 
-# Find the deepest containing project for EACH triggering path, not unrelated or excluded
-# changes. Globs break ties between project files in the same directory. A single eligible
-# project can own source outside its directory; several ambiguous projects require configuration.
-discover_paths() {
-    local g candidates candidate eligible="" count=0 first="" match dir p depth best selected=""
-    while IFS= read -r g; do
-        [ -n "$g" ] || continue
-        candidates="$(repository_paths | CRATIS_GLOB="$g" awk "$hook_glob_awk_lib"'
-            BEGIN { re = g2re(ENVIRON["CRATIS_GLOB"]) }
-            $0 ~ re { print }
-        ')"
-        while IFS= read -r candidate; do
-            [ -n "$candidate" ] || continue
-            repository_project_path "$candidate" || continue
-            # Several globs can match the same project file.
-            case "
-$eligible
-" in
-                *"
-$candidate
-"*) continue ;;
-            esac
-            eligible="${eligible}${eligible:+
-}$candidate"
-            count=$((count + 1))
-            [ -n "$first" ] || first="$candidate"
-        done <<EOF
+repository_execution_directory() {
+    local dir
+    dir="$(cd -P "$root/$1" 2>/dev/null && pwd -P)" || return 1
+    repository_contains_path "$dir"
+}
+
+repository_project_path() {
+    local path="$root/$1" parent dir target hops=0
+    [ -f "$path" ] || return 1
+    parent=${1%/*}
+    [ "$parent" != "$1" ] || parent=.
+    # The execution directory must be owned too, even if the file links back into the repo.
+    repository_execution_directory "$parent" || return 1
+    while :; do
+        dir="$(cd -P "${path%/*}" 2>/dev/null && pwd -P)" || return 1
+        path="$dir/${path##*/}"
+        [ -L "$path" ] || break
+        hops=$((hops + 1))
+        [ "$hops" -le 40 ] || return 1
+        target="$(readlink "$path")" || return 1
+        case "$target" in
+            /*) path="$target" ;;
+            *) path="$dir/$target" ;;
+        esac
+    done
+    repository_contains_path "$path"
+}
+
+# Indexed arrays work on Bash 3.2. Populate caches in the parent shell, not a command
+# substitution: identical frontend gates share one listing and one physical resolution.
+project_cache_paths=()
+project_cache_valid=()
+candidate_cache_globs=()
+candidate_cache_dirs=()
+candidate_dirs=""
+prepare_candidates() {
+    local globs="$1" i group selected_group="" candidate dir candidates valid
+    for ((i=0; i<${#candidate_cache_globs[@]}; i++)); do
+        if [ "${candidate_cache_globs[$i]}" = "$globs" ]; then
+            candidate_dirs="${candidate_cache_dirs[$i]}"
+            return 0
+        fi
+    done
+    repository_paths >/dev/null
+    # One pass matches all globs; the first group with an eligible candidate retains priority.
+    candidates="$(printf '%s\n' "$repo_paths" | CRATIS_GLOBS="$globs" awk "$hook_glob_awk_lib"'
+        BEGIN {
+            count = split(ENVIRON["CRATIS_GLOBS"], globs, "\n")
+            for (i = 1; i <= count; i++) res[i] = g2re(globs[i])
+        }
+        { paths[++n] = $0 }
+        END {
+            for (i = 1; i <= count; i++) for (j = 1; j <= n; j++)
+                if (!seen[paths[j]] && paths[j] ~ res[i]) { print i "\t" paths[j]; seen[paths[j]] = 1 }
+        }
+    ')"
+    candidate_dirs=""
+    while IFS=$'\t' read -r group candidate; do
+        [ -n "$candidate" ] || continue
+        if [ -n "$selected_group" ] && [ "$group" != "$selected_group" ]; then
+            break
+        fi
+        valid=""
+        for ((i=0; i<${#project_cache_paths[@]}; i++)); do
+            if [ "${project_cache_paths[$i]}" = "$candidate" ]; then
+                valid="${project_cache_valid[$i]}"
+                break
+            fi
+        done
+        if [ -z "$valid" ]; then
+            valid=0
+            repository_project_path "$candidate" && valid=1
+            project_cache_paths+=("$candidate")
+            project_cache_valid+=("$valid")
+        fi
+        [ "$valid" = 1 ] || continue
+        selected_group="$group"
+        dir=${candidate%/*}
+        [ "$dir" != "$candidate" ] || dir=.
+        candidate_dirs="${candidate_dirs}${candidate_dirs:+
+}$dir"
+        # Keep main's root workspace/solution dispatch; it owns dependent-workspace coverage.
+        [ "$dir" != "." ] || { candidate_dirs="."; break; }
+    done <<EOF
 $candidates
 EOF
-    done <<EOF
-$1
-EOF
-    [ "$count" -gt 0 ] || return 1
-    while IFS= read -r p; do
-        [ -n "$p" ] || continue
-        match=""
-        best=-1
-        while IFS= read -r candidate; do
-            dir="$(dirname "$candidate")"
-            case "$p" in
-                "$dir"/*) ;;
-                *) [ "$dir" = "." ] || continue ;;
-            esac
-            # All containing directories are ancestors of this same path, so length
-            # orders their depth; unrelated directory names never enter this comparison.
-            depth=${#dir}
-            [ "$dir" = "." ] && depth=0
-            if [ "$depth" -gt "$best" ]; then
-                match="$candidate"
-                best=$depth
-            fi
-        done <<EOF
-$eligible
-EOF
-        if [ -z "$match" ]; then
-            if [ "$count" -eq 1 ]; then
-                match="$first"
-            else
-                printf 'cratis-quality-gate: UNVERIFIED — no containing project for %s among multiple candidates. Configure workingDirectory.\n' "$p" >&2
-                return 2
-            fi
-        fi
-        selected="${selected}${selected:+
-}$match"
-    done <<EOF
-$2
-EOF
-    printf '%s\n' "$selected" | LC_ALL=C sort -u
+    candidate_cache_globs+=("$globs")
+    candidate_cache_dirs+=("$candidate_dirs")
+}
+
+# With no eligible root project, select the deepest containing directory per trigger.
+# Prefix lookup is one awk pass, not a subprocess for every path/candidate pair.
+discover_workdirs() {
+    [ -n "$candidate_dirs" ] || return 1
+    [ "$candidate_dirs" != "." ] || { printf '.\n'; return 0; }
+    printf '%s\n' "$1" | CRATIS_PROJECT_DIRS="$candidate_dirs" awk '
+        BEGIN {
+            n = split(ENVIRON["CRATIS_PROJECT_DIRS"], dirs, "\n")
+            for (i = 1; i <= n; i++) if (!known[dirs[i]]++) ordered[++count] = dirs[i]
+        }
+        NF {
+            parent = $0; found = 0
+            while (sub("/[^/]*$", "", parent)) {
+                if (known[parent]) { selected[parent] = 1; found = 1; break }
+            }
+            if (!found) {
+                if (count == 1) selected[ordered[1]] = 1
+                else {
+                    printf "cratis-quality-gate: UNVERIFIED — no containing project for %s among multiple candidates. Configure workingDirectory.\n", $0 > "/dev/stderr"
+                    failed = 1
+                }
+            }
+        }
+        END {
+            if (failed) exit 2
+            for (i = 1; i <= count; i++) if (selected[ordered[i]]) print ordered[i]
+        }
+    '
 }
 
 gate_count="$(jq -r '.gates | length' "$config")"
@@ -230,21 +268,24 @@ mkdir -p "$log_dir" 2>/dev/null || log_dir="${TMPDIR:-/tmp}"
 
 # Collect ALL paths matching this gate's globs after its exclusions, for discovery too.
 gate_changed_paths() {
-    local idx="$1" inc exc p
+    local idx="$1" inc exc
     inc="$(jq -r --argjson i "$idx" '.gates[$i].changed // [] | .[]' "$config")"
     exc="$(jq -r --argjson i "$idx" '.gates[$i].excludeChanged // [] | .[]' "$config")"
-    [ -n "$inc" ] || return 0
-    while IFS= read -r p; do
-        [ -n "$p" ] || continue
-        printf '%s\n' "$inc" | hook_glob_match "$p" || continue
-        if [ -n "$exc" ]; then
-            printf '%s\n' "$exc" | hook_glob_match "$p" && continue
-        fi
-        printf '%s\n' "$p"
-    done <<EOF
-$changed
-EOF
-    return 0
+    printf '%s\n' "$changed" | CRATIS_INCLUDES="$inc" CRATIS_EXCLUDES="$exc" awk "$hook_glob_awk_lib"'
+        BEGIN {
+            ni = split(ENVIRON["CRATIS_INCLUDES"], includes, "\n")
+            ne = split(ENVIRON["CRATIS_EXCLUDES"], excludes, "\n")
+            for (i = 1; i <= ni; i++) if (includes[i] != "") inc[++ic] = g2re(includes[i])
+            for (i = 1; i <= ne; i++) if (excludes[i] != "") exc[++ec] = g2re(excludes[i])
+        }
+        NF {
+            matches = 0
+            for (i = 1; i <= ic; i++) if ($0 ~ inc[i]) { matches = 1; break }
+            if (!matches) next
+            for (i = 1; i <= ec; i++) if ($0 ~ exc[i]) { matches = 0; break }
+            if (matches) print
+        }
+    '
 }
 
 # Does the package.json at $1 define the script named $2? A missing file or a file that is not
@@ -253,21 +294,21 @@ package_defines_script() {
     [ -f "$1" ] && jq -e --arg s "$2" '.scripts[$s] != null' "$1" >/dev/null 2>&1
 }
 
-# Report the first unmet requirement, or nothing when the gate can run here. $2 is the directory,
-# relative to the repository root, the gate runs in.
+# Requirements are read once per gate, not once per affected directory.
+# Report the first unmet requirement for the repo-relative execution directory $1.
 gate_unmet() {
-    local idx="$1" dir="$2" c p s
+    local dir="$1" c p s
     while IFS= read -r c; do
         [ -n "$c" ] || continue
         hook_have "$c" || { printf "command '%s' is not on PATH" "$c"; return 0; }
     done <<EOF
-$(jq -r --argjson i "$idx" '.gates[$i].requires.commands // [] | .[]' "$config")
+$required_commands
 EOF
     while IFS= read -r p; do
         [ -n "$p" ] || continue
         [ -e "$root/$p" ] || { printf "'%s' does not exist in this repository" "$p"; return 0; }
     done <<EOF
-$(jq -r --argjson i "$idx" '.gates[$i].requires.paths // [] | .[]' "$config")
+$required_paths
 EOF
     # A package.json script a gate invokes must exist, or yarn fails with "Couldn't find a script"
     # instead of the gate being a NO-OP. A global script (g:) may live in the root package.json
@@ -283,7 +324,7 @@ EOF
         printf "script '%s' is not defined in %s" "$s" "$dir/package.json"
         return 0
     done <<EOF
-$(jq -r --argjson i "$idx" '.gates[$i].requires.packageScripts // [] | .[]' "$config")
+$required_scripts
 EOF
     return 0
 }
@@ -307,47 +348,54 @@ while [ "$idx" -lt "$gate_count" ]; do
     if [ -z "$workdirs" ]; then
         wd_globs="$(jq -r --argjson i "$idx" '.gates[$i].workingDirectoryFrom // [] | .[]' "$config")"
         if [ -n "$wd_globs" ]; then
+            prepare_candidates "$wd_globs"
             discovery_rc=0
-            wd_paths="$(discover_paths "$wd_globs" "$gate_changes")" || discovery_rc=$?
+            workdirs="$(discover_workdirs "$gate_changes")" || discovery_rc=$?
             if [ "$discovery_rc" -eq 2 ]; then
                 printf 'cratis-quality-gate: UNVERIFIED %-24s — ambiguous project discovery.\n' "$id" >&2
                 exit 2
             fi
-            if [ -z "$wd_paths" ]; then
+            if [ -z "$workdirs" ]; then
                 printf 'cratis-quality-gate: NO-OP %-24s — no repository path matches %s. Configure it in %s.\n' \
                     "$id" "$(printf '%s' "$wd_globs" | tr '\n' ' ')" "${config#"$root"/}" >&2
                 idx=$((idx + 1))
                 continue
             fi
-            workdirs="$(while IFS= read -r wd_path; do dirname "$wd_path"; done <<EOF
-$wd_paths
-EOF
-)"
-            workdirs="$(printf '%s\n' "$workdirs" | LC_ALL=C sort -u)"
         fi
     fi
     [ -n "$workdirs" ] || workdirs="."
 
+    required_commands="$(jq -r --argjson i "$idx" '.gates[$i].requires.commands // [] | .[]' "$config")"
+    required_paths="$(jq -r --argjson i "$idx" '.gates[$i].requires.paths // [] | .[]' "$config")"
+    required_scripts="$(jq -r --argjson i "$idx" '.gates[$i].requires.packageScripts // [] | .[]' "$config")"
+    cmd=()
+    while IFS= read -r arg; do
+        cmd+=("$arg")
+    done <<EOF
+$(jq -r --argjson i "$idx" '.gates[$i].command // [] | .[]' "$config")
+EOF
+
     project_index=0
+    gate_ran=0
+    gate_noops=0
     while IFS= read -r wd; do
         project_index=$((project_index + 1))
-        unmet="$(gate_unmet "$idx" "$wd")"
+        if ! repository_execution_directory "$wd"; then
+            printf 'cratis-quality-gate: UNVERIFIED %-24s — execution directory %s is outside the repository or inside the managed corpus.\n' "$id" "$wd" >&2
+            exit 2
+        fi
+        unmet="$(gate_unmet "$wd")"
         if [ -n "$unmet" ]; then
             printf 'cratis-quality-gate: NO-OP %-24s — %s. Configure it in %s.\n' \
                 "$id" "$unmet" "${config#"$root"/}" >&2
+            gate_noops=$((gate_noops + 1))
             continue
         fi
-
-        cmd=()
-        while IFS= read -r arg; do
-            cmd+=("$arg")
-        done <<EOF
-$(jq -r --argjson i "$idx" '.gates[$i].command // [] | .[]' "$config")
-EOF
         if [ "${#cmd[@]}" -eq 0 ]; then
             continue
         fi
 
+        gate_ran=$((gate_ran + 1))
         if [ "$dryrun" = "1" ]; then
             printf 'cratis-quality-gate: RUN   %-24s %s\n                            $ %s   (cwd: %s)\n' \
                 "$id" "$desc" "${cmd[*]}" "$wd" >&2
@@ -358,7 +406,7 @@ EOF
         log="$log_dir/$id.log"
         [ "$project_index" -eq 1 ] || log="$log_dir/$id-$project_index.log"
         rc=0
-        (cd -P "$root/$wd" && "${cmd[@]}") >"$log" 2>&1 || rc=$?
+        (cd -P "$root/$wd" && "${cmd[@]}") </dev/null >"$log" 2>&1 || rc=$?
         ran=$((ran + 1))
 
         if [ "$rc" -ne 0 ]; then
@@ -378,6 +426,11 @@ EOF
     done <<EOF
 $workdirs
 EOF
+    if [ "$gate_ran" -gt 0 ] && [ "$gate_noops" -gt 0 ]; then
+        printf 'cratis-quality-gate: UNVERIFIED %-24s — %s affected project(s) did not meet requirements; the gate is incomplete.\n' "$id" "$gate_noops" >&2
+        [ "$fail_fast" = "true" ] && exit 2
+        failed=1
+    fi
     idx=$((idx + 1))
 done
 

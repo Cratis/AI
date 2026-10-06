@@ -25,7 +25,7 @@ function plan(
     committed: Record<string, string>,
     changed: Record<string, string>,
     links: Record<string, string> = {},
-    options: { dryrun?: boolean; expectedStatus?: number } = {},
+    options: { dryrun?: boolean; expectedStatus?: number; beforeChanges?: (root: string) => void; onPlan?: (elapsedMs: number) => void } = {},
 ): string {
     const root = mkdtempSync(join(tmpdir(), 'cratis-shipped-gates-'));
     try {
@@ -44,7 +44,9 @@ function plan(
         }
         git('add', '.');
         git('commit', '-q', '-m', 'initial');
+        options.beforeChanges?.(root);
         write(changed);
+        const started = performance.now();
         const result = spawnSync(process.env.CRATIS_GATE_SPEC_SHELL ?? 'bash', [join(scripts, 'cratis-quality-gate.sh')], {
             input: '',
             encoding: 'utf8',
@@ -56,6 +58,7 @@ function plan(
                 CRATIS_HOOKS_SKIP_GATE: '',
             },
         });
+        options.onPlan?.(performance.now() - started);
         assert.equal(result.status, options.expectedStatus ?? 0, result.stderr);
         return result.stderr;
     } finally {
@@ -224,16 +227,30 @@ test('excluded frontend changes never influence package discovery', () => {
     assert.doesNotMatch(output, /cwd: \.github/);
 });
 
-test('the deepest containing package wins over its parent and the root package', () => {
+test('a root workspace retains dispatch across dependent workspaces', () => {
     const output = plan(
         { 'package.json': frontendPackage, 'Source/package.json': frontendPackage, [workbenchPackage]: frontendPackage },
         { 'Source/Workbench/Web/a.ts': 'export {};\n' },
     );
-    assert.equal((output.match(/cwd: Source\/Workbench\)/g) ?? []).length, 4, output);
+    assert.equal((output.match(/cwd: \.\)/g) ?? []).length, 4, output);
     assert.match(output, /dry run complete — 4 gate\(s\) would run/);
 });
 
-test('frontend gates execute once for every package holding triggering changes', () => {
+test('ordered project globs retain an explicitly preferred location ahead of a root workspace', () => {
+    const output = plan(
+        {
+            'package.json': frontendPackage,
+            [workbenchPackage]: frontendPackage,
+            [overrideFile]: JSON.stringify({ gates: frontendGates.map(id => ({
+                id, workingDirectoryFrom: ['Source/**/package.json', 'package.json', '**/package.json'],
+            })) }),
+        },
+        { 'Source/Workbench/Web/a.ts': 'export {};\n' },
+    );
+    assert.equal((output.match(/cwd: Source\/Workbench\)/g) ?? []).length, 4, output);
+});
+
+test('stdin-reading commands still execute once for every affected package', () => {
     const outside = mkdtempSync(join(tmpdir(), 'cratis-gate-invocations-'));
     const calls = join(outside, 'calls');
     try {
@@ -243,7 +260,7 @@ test('frontend gates execute once for every package holding triggering changes',
                 [workbenchPackage]: frontendPackage,
                 [overrideFile]: JSON.stringify({ gates: frontendGates.map(id => ({
                     id,
-                    command: ['/bin/sh', '-c', 'printf "%s\\n" "$PWD" >> "$1"', 'gate', calls],
+                    command: ['/bin/sh', '-c', 'cat >/dev/null; printf "%s\\n" "$PWD" >> "$1"', 'gate', calls],
                 })) }),
             },
             {
@@ -322,6 +339,101 @@ test('physical discovery refuses a managed target containing a directory symlink
     );
     for (const gate of frontendGates) assert.ok(!ran(output, gate), output);
     assert.match(output, /no gates selected — product verification was not performed/);
+});
+
+for (const dryrun of [true, false]) {
+    test(`a partially applicable gate is incomplete in ${dryrun ? 'planning' : 'execution'}`, () => {
+        const output = plan(
+            {
+                'a/package.json': frontendPackage,
+                'b/package.json': JSON.stringify({ scripts: { 'lint:ci': 'x', test: 'x' } }),
+                [overrideFile]: JSON.stringify({ gates: frontendGates.map(id => ({
+                    id,
+                    command: ['/bin/sh', '-c', ':'],
+                    requires: id === 'frontend-compile' ? { packageScripts: ['g:compile'] } : {},
+                })) }),
+            },
+            { 'a/view.ts': 'export {};\n', 'b/view.ts': 'export {};\n' },
+            {},
+            { dryrun, expectedStatus: 2 },
+        );
+        assert.match(output, /NO-OP\s+frontend-compile.*script 'g:compile' is not defined in b\/package.json/);
+        assert.match(output, /UNVERIFIED\s+frontend-compile.*1 affected project\(s\).*incomplete/);
+    });
+}
+
+test('a managed execution directory cannot be admitted by a package file linking to authored content', () => {
+    const output = plan(
+        { '.cratis/ai.manifest.json': '{}', 'payload.json': frontendPackage },
+        { 'Source/view.ts': 'export {};\n' },
+        { [harnessPackage]: '../../../../../payload.json' },
+    );
+    for (const gate of frontendGates) assert.ok(!ran(output, gate), output);
+    assert.match(output, /no gates selected — product verification was not performed/);
+});
+
+test('an external execution directory cannot be admitted by a package file linking back into the repository', () => {
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-external-workdir-'));
+    try {
+        const output = plan(
+            { 'a/package.json': frontendPackage, 'payload.json': frontendPackage },
+            { 'Source/view.ts': 'export {};\n' },
+            {},
+            { beforeChanges: root => {
+                rmSync(join(root, 'a'), { recursive: true });
+                symlinkSync(join(root, 'payload.json'), join(outside, 'package.json'));
+                symlinkSync(outside, join(root, 'a'));
+            } },
+        );
+        for (const gate of frontendGates) assert.ok(!ran(output, gate), output);
+        assert.match(output, /no gates selected — product verification was not performed/);
+    } finally {
+        rmSync(outside, { recursive: true, force: true });
+    }
+});
+
+test('an explicit execution-directory override cannot escape the task-owning repository', () => {
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-explicit-workdir-'));
+    try {
+        const output = plan(
+            { [overrideFile]: JSON.stringify({ gates: [{ id: 'frontend-lint', workingDirectory: 'a', command: ['/bin/true'] }] }) },
+            { 'Source/view.ts': 'export {};\n' },
+            { a: outside },
+            { expectedStatus: 2 },
+        );
+        assert.match(output, /UNVERIFIED\s+frontend-lint.*execution directory a is outside the repository/);
+    } finally {
+        rmSync(outside, { recursive: true, force: true });
+    }
+});
+
+test('large monorepo plans stay comfortably within the Pi planning deadline', context => {
+    const gateIds = ['backend-build-debug', 'backend-specs', 'backend-build-release', ...frontendGates];
+    for (const rootWorkspace of [true, false]) {
+        const packages: Record<string, string> = {};
+        const changes: Record<string, string> = {};
+        for (let index = 0; index < 16; index++) {
+            packages[`packages/p${index}/package.json`] = frontendPackage;
+        }
+        for (let index = 0; index < 450; index++) changes[`packages/p${index % 16}/f${index}.ts`] = 'export {};\n';
+        let elapsed = 0;
+        const output = plan(
+            {
+                ...packages,
+                ...(rootWorkspace ? { 'package.json': frontendPackage } : {}),
+                [overrideFile]: JSON.stringify({ gates: gateIds.map(id => ({
+                    id, changed: ['**/*.ts'], workingDirectoryFrom: ['package.json', '**/package.json'],
+                    command: ['/bin/true'], requires: {},
+                })) }),
+            },
+            changes,
+            {},
+            { onPlan: milliseconds => { elapsed = milliseconds; } },
+        );
+        context.diagnostic(`450 changes × ${rootWorkspace ? 17 : 16} candidates × 7 gates (${rootWorkspace ? 'root' : 'nested'}): ${elapsed.toFixed(1)}ms`);
+        assert.ok(elapsed < 5_000, `planning took ${elapsed}ms, approaching Pi's 30s deadline`);
+        assert.match(output, new RegExp(`dry run complete — ${rootWorkspace ? 7 : 112} gate\\(s\\) would run`));
+    }
 });
 
 test('an override that replaces only the command still runs when the repository lacks the managed script', () => {
