@@ -178,7 +178,7 @@ Slice design is done when all of these hold; otherwise report what is open.
 - [ ] Every command has a refusal inventory (success, each refusal with layer and message,
       denied persona); every gated command and query has a `then denied` row.
 - [ ] Every event is past tense, a specific change, and consumed or justified.
-- [ ] Every read model has a consumer and one keyed query when the scope is executable.
+- [ ] Every read model has a consumer and, when the scope is executable, one unambiguous key (keyed queries all using the same `by` property).
 - [ ] Every StateView `description` gives a reason per contributing event; every read-model
       field and screen field is traced; every `from` event sets a field.
 - [ ] No `screen` without `data` or `action`; every acting screen has `data` or a stated
