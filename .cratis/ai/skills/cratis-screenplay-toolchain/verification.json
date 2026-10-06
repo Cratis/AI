@@ -1,0 +1,15 @@
+{
+  "skill": "cratis-screenplay-toolchain",
+  "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and why does cratis reject my Automation slice?",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "references/versions.md" },
+    { "kind": "skill-contains", "value": "PLAY0029" },
+    { "kind": "skill-contains", "value": "--warnaserror" },
+    { "kind": "skill-contains", "value": "4.64.0" },
+    { "kind": "skill-contains", "value": "cratis screenplay validate" },
+    { "kind": "skill-contains", "value": "cli#244" },
+    { "kind": "skill-contains", "value": "`notifications/initialized`" },
+    { "kind": "skill-contains", "value": "A handler never binds" }
+  ]
+}

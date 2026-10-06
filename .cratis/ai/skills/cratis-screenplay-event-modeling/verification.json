@@ -3,9 +3,18 @@
   "input": "Facilitate an event modeling session and land the model as .play source.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "main `fd18129`" },
-    { "kind": "skill-contains", "value": "Inline events remain slice-owned contracts" },
-    { "kind": "skill-contains", "value": "Storage identity is not payload identity" },
+    {
+      "kind": "skill-contains",
+      "value": "main `fd18129`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Inline events remain slice-owned contracts"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Storage identity is not payload identity"
+    },
     {
       "kind": "skill-contains",
       "value": ".cratis/screenplay/"
@@ -53,6 +62,22 @@
     {
       "kind": "skill-contains",
       "value": "it does **not** restate `module` or"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## Start here"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Never:** use code as a shortcut around the model"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`persona` declarations are report-only"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis-screenplay-render-and-gap-fill`"
     }
   ]
 }

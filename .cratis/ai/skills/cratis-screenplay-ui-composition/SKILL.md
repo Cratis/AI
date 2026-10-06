@@ -27,6 +27,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original UI composition parser evidence |
 | `Cratis.Screenplay` | main `fd18129` | Cancellation routing and `optional`; changed example compiled |
+| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Statements in this skill re-verified: the nine `Documentation/screenplay/` pages above are unchanged since `v4.31.0` except `file-references.md` (typed-context and `implementation` paragraphs); `PLAY0269` in `Diagnostics/DiagnosticCodes.cs`; the new section compiled with `screenplay` 4.64.0 and `cratis screenplay validate` 3.27.1 |
 
 The update follows `commands.md`, `events.md`, `queries.md` and decision 0023
 at that main commit (after v4.52.0). It does not verify UI rendering.
@@ -35,6 +36,9 @@ Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{templates,layout-arrangement,forms,contributions,interactions,ui-profile,theme,internationalization,file-references}.md`.
 Those checks established the original baseline. The changed cancellation
 example uses the newer main commit above, not the old tag.
+
+Versions of the tools that check these examples: `cratis-screenplay-toolchain`
+`references/versions.md`.
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
@@ -45,6 +49,36 @@ language service until `Cratis/Screenplay#199` gave every construct the parser
 dispatches on a keyword entry. On an older language-service version they still
 look unrecognized — **check `screenplay`, not the editor**, because absent
 highlighting was never evidence that a construct is wrong.
+
+## Compose in this order
+
+Decide what every screen is for before deciding how any of it is laid out. Layout
+work on a screen whose purpose is unsettled is rework.
+
+1. **Level 1 for every screen in the flow first** (`cratis-screenplay-read-surface`:
+   `data` plus `action`). Read the whole set, not one screen at a time.
+2. **Review the flow before adding layout.** Walk it screen by screen as text
+   (format in `references/flow-review.md`). When the host advertises the MCP-Apps
+   extension, `visualize-model` (a `proposalId` or a `sketch`) can also show it on
+   a board; that is optional, and the text review is enough on its own. Do not
+   use the Stage sandbox as the review: it renders only part of a screen, and
+   nothing here establishes that Stage renders an authored screen faithfully.
+3. **Add structure only to screens whose Level 1 is agreed**: template, sections,
+   forms, `on`/`uses`. Use Level 3 inline code last, and only where Level 2 cannot
+   say it.
+4. **Trace every field.** Each `form` `field` is a property of the form's command.
+   A prefilled value comes from `populate` or `from`; a derived one from
+   `compose using`. Each `summary` or `column` field is a property of the
+   screen's read model. A value with no origin means the command or read model is
+   missing it: fix the slice, never invent the value in the screen.
+5. **Read before editing.** Open the existing screen (or `read-workspace` /
+   `declaration-details` over MCP) and change only the directives that were asked
+   for. Adding `layout` must not rewrite the Level-1 intent beneath it.
+6. **Report each screen in two or three sentences**: what it shows and what the
+   user can do. Not everyone reviewing can see a board.
+
+A complete worked flow (two Level-1 screens, their command, read model and form,
+with the field trace): `references/worked-flow.md`.
 
 ## `layout` — the application shell
 
@@ -232,9 +266,12 @@ module Invoicing
 ```
 
 The inline event targets `invoiceId` without copying it into payload; the
-projection obtains it from event context. Command `returns` and response-field
-bindings in `on submit`/`on success` are planned in decision 0023, not available
-yet. An existing success continuation does not imply a response contract.
+projection obtains it from event context. At v4.64.0 a command `returns` clause
+(scalar or record) is authorable but syntax-only: binding reports `PLAY0268` until
+ESM v8 (`commands.md`, "Generated values and responses"). Form `on submit` and
+interaction `on success` response-name scopes, failure clearing and response
+execution remain unavailable.
+An existing success continuation does not imply a response contract.
 
 - Write the one-off case inline; name it with `behavior` when several places need
   the same wiring. A `uses` site must supply exactly the declared parameters
@@ -300,7 +337,8 @@ the printer emits it unquoted so a round trip preserves it.
 
 Three meanings, one word:
 
-- **Backend implementation attachment.** On a command `handler`, a validation
+- **Backend implementation attachment.** On a command `handler` (which never
+  binds, `PLAY0268`), a validation
   rule predicate, a query `performer`, a reducer rule, a reaction trigger, a
   `constraint` and a `policy`, `file` stands in for the inline body: the
   implementation lives there. These are the files a host inventories.
@@ -337,7 +375,12 @@ a trigger value named `file` is written `@file`.
 
 ## Verify
 
-- [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
+- [ ] `screenplay <model> --warnaserror` (standalone) reports zero errors and zero
+      warnings; `cratis screenplay validate --warnings-as-errors` says the same for
+      constructs its bundled compiler knows (versions: `cratis-screenplay-toolchain`
+      `references/versions.md`).
+- [ ] Every screen in the flow has Level 1 reviewed before any layout, and every
+      form field and screen field traces to a command or read-model property.
 - [ ] Every slot a `contribute` targets is declared `contributes <Point>` somewhere
       that encloses it.
 - [ ] No `dialog template` declares `fits slot`.
@@ -354,5 +397,10 @@ a trigger value named `file` is written `@file`.
 
 - A screen's own data, actions and name resolution: `cratis-screenplay-read-surface`.
 - Application triggers and reactions: `cratis-screenplay-captures-and-reactions`.
+- Reviewing the whole flow's design: `cratis-screenplay-model-review`.
 - Deriving wireframes from the model (step 4): `cratis-screenplay-event-modeling`.
 - Building the actual React application: `cratis-arc-react-page`, `cratis-components-styling`.
+
+## Lineage
+
+`references/provenance.md`.

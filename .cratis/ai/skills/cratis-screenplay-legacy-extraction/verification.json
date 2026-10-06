@@ -1,0 +1,17 @@
+{
+  "skill": "cratis-screenplay-legacy-extraction",
+  "input": "We inherited a legacy ASP.NET application with a SQL Server database and no documentation. Help us turn it into a Screenplay model before we modernize it.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "loss report" },
+    { "kind": "skill-contains", "value": "prologue start" },
+    { "kind": "skill-contains", "value": "unknown" },
+    { "kind": "skill-contains", "value": "## Interview phase" },
+    { "kind": "skill-contains", "value": "freeze agreement" },
+    { "kind": "skill-contains", "value": "path:start-end" },
+    { "kind": "skill-contains", "value": "cli#241" },
+    { "kind": "skill-contains", "value": "keep / change / remove" },
+    { "kind": "skill-contains", "value": "The final report itself carries exact locators." },
+    { "kind": "skill-contains", "value": "exact `file:line` locator" }
+  ]
+}

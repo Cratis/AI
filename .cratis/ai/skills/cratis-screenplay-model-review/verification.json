@@ -1,0 +1,13 @@
+{
+  "skill": "cratis-screenplay-model-review",
+  "input": "Review the marina berth .play model before we accept it: check the model and report findings, do not change anything.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "PASS WITH WARNINGS" },
+    { "kind": "skill-contains", "value": "Every finding is pinned to one declaration" },
+    { "kind": "skill-contains", "value": "edit request" },
+    { "kind": "skill-contains", "value": "business-question" },
+    { "kind": "skill-contains", "value": "Screenplay#393" },
+    { "kind": "skill-contains", "value": "entity walk" }
+  ]
+}

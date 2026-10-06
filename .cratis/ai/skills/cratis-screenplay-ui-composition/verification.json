@@ -15,6 +15,9 @@
     { "kind": "skill-contains", "value": "override-priority order" },
     { "kind": "skill-contains", "value": "A declared `trigger` is not a UI event" },
     { "kind": "skill-contains", "value": "**Loaded is not run.**" },
-    { "kind": "skill-contains", "value": "belong only on actions that can fail" }
+    { "kind": "skill-contains", "value": "belong only on actions that can fail" },
+    { "kind": "skill-contains", "value": "## Compose in this order" },
+    { "kind": "skill-contains", "value": "**Level 1 for every screen in the flow first**" },
+    { "kind": "skill-contains", "value": "**Read before editing.**" }
   ]
 }
