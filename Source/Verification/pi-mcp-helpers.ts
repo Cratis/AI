@@ -16,7 +16,7 @@ export function projectFixture(configuration: unknown = { profiles: ['cratis/scr
     const project = realpathSync(mkdtempSync(join(workspace, 'project-')));
     const corpus = join(project, 'corpus');
     mkdirSync(corpus);
-    mkdirSync(join(project, '.cratis', 'screenplay'), { recursive: true });
+    mkdirSync(join(project, '.cratis'), { recursive: true });
     const configure = (value: unknown) => writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(value));
     configure(configuration);
     writeFileSync(join(corpus, 'profile-catalog.json'), JSON.stringify({
@@ -27,7 +27,7 @@ export function projectFixture(configuration: unknown = { profiles: ['cratis/scr
         ], engineeringProfiles: [],
     }));
     const descriptor = {
-        schemaVersion: '1.0', servers: [{ id: 'screenplay', profiles: ['cratis/screenplay'], transport: 'stdio', command: 'cratis', args: ['screenplay', 'mcp'], defaultRoot: '.cratis/screenplay' }],
+        schemaVersion: '1.0', servers: [{ id: 'screenplay', profiles: ['cratis/screenplay'], transport: 'stdio', command: 'cratis', args: ['screenplay', 'mcp'] }],
     };
     writeFileSync(join(corpus, 'mcp-servers.json'), JSON.stringify(descriptor));
     return { project, corpus, configure, descriptor };

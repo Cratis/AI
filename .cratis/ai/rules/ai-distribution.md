@@ -45,7 +45,8 @@ remove only unchanged owned entries on uninstall. Unsupported adapters must be
 reported explicitly rather than presented as configured.
 
 Project model roots and opt-outs are consumer-owned configuration. Guidance
-installation never makes `.cratis/screenplay/` managed corpus content. Ordinary
+installation never creates or manages a model directory: the Screenplay MCP locates the model
+itself (existing `.play` files, else `Source/` or `src/`, else a new `Screenplay/` folder). Ordinary
 model writes still require the model-authoring proposal/apply contract and the
 user's in-scope request.
 

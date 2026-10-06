@@ -21,7 +21,10 @@ test('Screenplay is inactive without explicit or composed profile selection', ()
 
 test('Screenplay expands catalog composition and honors explicit opt-out', () => {
     const fixture = projectFixture({ profiles: ['composed'], languages: ['typescript'] });
-    assert.equal(selectedServer(fixture.project, fixture.corpus)?.root, join(fixture.project, '.cratis', 'screenplay'));
+    const selected = selectedServer(fixture.project, fixture.corpus);
+    assert.ok(selected);
+    assert.equal(selected.root, undefined);
+    assert.equal(existsSync(join(fixture.project, '.cratis', 'screenplay')), false);
     fixture.configure({ profiles: ['composed'], mcpServers: { screenplay: { enabled: false } } });
     assert.equal(selectedServer(fixture.project, fixture.corpus), undefined);
 });

@@ -79,7 +79,7 @@ not prove the older compiler: read the construct it names.
 | Exit codes | 0 pass; 5 errors (or warnings with `--warnings-as-errors`); 1 path missing **or no `.play` files**. Information never fails | probed |
 | Output | JSON lines: a `diagnostics` array with `severity`, `code`, `message`, `location`, then either `{"path","files","diagnostics":0}` or an error object. A passing folder run prints the file count | probed on 3.27.1 |
 | File versus folder | file mode compiles one document and **ignores imports** (cli#244). Validate the folder | probed |
-| MCP | `cratis screenplay mcp <root>`, or no argument inside a project whose `.cratis/ai.json` resolves the fixed `defaultRoot` `.cratis/screenplay`; 29 tools, no event-source, stream or route views. Fails fast when `.cratis/screenplay/` does not exist | source `ScreenplayMcpRoot.cs:20-37` |
+| MCP | `cratis screenplay mcp <root>`, or no argument inside a project: the server locates the model itself (existing `.play` files, else `Source/`/`src/`, else a new `Screenplay/` folder) unless `.cratis/ai.json` sets `mcpServers.screenplay.root`; 29 tools, no event-source, stream or route views. Fails fast only when an explicitly configured root does not exist | source `ScreenplayMcpRoot.cs:20-37` |
 | Render | `cratis render` binds with the bundled compiler first, then Stage 4.24.0 admits. See `renderable-subset.md` | source |
 | `prologue interpret` | no `--no-llm` flag; LLM resolution and `screenplay generate` flags were checked on 3.27.0 | source |
 

@@ -20,7 +20,7 @@ export function validateMcpServers(value: unknown, profileIds: ReadonlySet<strin
         if (!/^[a-z][a-z0-9-]*$/.test(id) || ids.has(id)) failures.push(`Invalid or duplicate MCP server id '${id}'.`);
         ids.add(id);
         for (const key of Object.keys(server)) {
-            if (!['id', 'profiles', 'transport', 'command', 'args', 'defaultRoot', 'description'].includes(key)) {
+            if (!['id', 'profiles', 'transport', 'command', 'args', 'description'].includes(key)) {
                 failures.push(`MCP server '${id}' has unknown member '${key}'.`);
             }
         }
@@ -32,11 +32,6 @@ export function validateMcpServers(value: unknown, profileIds: ReadonlySet<strin
         if (typeof server.command !== 'string' || !server.command.trim()) failures.push(`MCP server '${id}' requires a command.`);
         if (!Array.isArray(server.args) || server.args.some((argument: unknown) => typeof argument !== 'string')) {
             failures.push(`MCP server '${id}' requires string arguments.`);
-        }
-        if (typeof server.defaultRoot !== 'string' || !server.defaultRoot ||
-            server.defaultRoot.includes('\\') || server.defaultRoot.startsWith('/') || /^[a-z]:/i.test(server.defaultRoot) ||
-            server.defaultRoot.split('/').some((part: string) => part === '..' || part.length === 0)) {
-            failures.push(`MCP server '${id}' requires a portable project-relative default root.`);
         }
         if (typeof server.description !== 'string' || !server.description.trim()) failures.push(`MCP server '${id}' requires a description.`);
     }
