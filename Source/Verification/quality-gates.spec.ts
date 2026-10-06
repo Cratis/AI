@@ -236,6 +236,14 @@ test('a root workspace retains dispatch across dependent workspaces', () => {
     assert.match(output, /dry run complete — 4 gate\(s\) would run/);
 });
 
+test('the dry-run summary counts gates, project directories, and runs separately', () => {
+    const output = plan(
+        { 'a/package.json': frontendPackage, 'b/package.json': frontendPackage },
+        { 'a/view.ts': 'export {};\n', 'b/view.ts': 'export {};\n' },
+    );
+    assert.match(output, /dry run complete — 4 gate\(s\) would run across 2 project directory\(s\) \(8 run\(s\)\)/);
+});
+
 test('ordered project globs retain an explicitly preferred location ahead of a root workspace', () => {
     const output = plan(
         {
@@ -432,7 +440,7 @@ test('large monorepo plans stay comfortably within the Pi planning deadline', co
         );
         context.diagnostic(`450 changes × ${rootWorkspace ? 17 : 16} candidates × 7 gates (${rootWorkspace ? 'root' : 'nested'}): ${elapsed.toFixed(1)}ms`);
         assert.ok(elapsed < 5_000, `planning took ${elapsed}ms, approaching Pi's 30s deadline`);
-        assert.match(output, new RegExp(`dry run complete — ${rootWorkspace ? 7 : 112} gate\\(s\\) would run`));
+        assert.match(output, new RegExp(`dry run complete — 7 gate\\(s\\) would run across ${rootWorkspace ? 1 : 16} project directory\\(s\\) \\(${rootWorkspace ? 7 : 112} run\\(s\\)\\)`));
     }
 });
 

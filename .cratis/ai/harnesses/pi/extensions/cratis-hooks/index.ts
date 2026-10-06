@@ -342,7 +342,7 @@ export default function (pi: ExtensionAPI) {
 			const reportTimedOut = () => {
 				const last = latestGateLog(gateLogDirectory(sessionId), started);
 				const tail = last ? tailLines(last.file, TAIL_LINES) : "";
-				throw new Error(`The Cratis quality gate TIMED OUT after ${duration(timeoutSeconds * 1000)}${last ? ` while running '${last.gate}'` : ""}. This is not a pass: nothing was verified.` +
+				throw new Error(`The Cratis quality gate TIMED OUT after ${duration(timeoutSeconds * 1000)}${last ? ` while running '${last.gate}'${last.cwd ? ` (cwd: ${last.cwd})` : ""}` : ""}. This is not a pass: nothing was verified.` +
 					(last ? `\n\nGate log: ${last.file}` : "") +
 					(tail ? `\n\n--- last ${TAIL_LINES} lines ---\n${tail}\n--- end ---` : ""));
 			};
@@ -363,15 +363,16 @@ export default function (pi: ExtensionAPI) {
 			if (plan.problem) throw new Error(`The Cratis quality gate plan could not be completed: ${plan.problem}. Nothing was verified.`);
 			const planned = plan.gates.length > 0 ? plan.gates.join(", ") : "none planned";
 			const progress = (elapsedMs: number) => {
-				const current = latestGateLog(logDirectory, started)?.gate;
+				const currentLog = latestGateLog(logDirectory, started);
+				const current = currentLog?.gate;
 				onUpdate?.({
 					content: [
 						{
 							type: "text",
-							text: `Cratis quality gate running${current ? ` ${current}` : ""}: ${duration(elapsedMs)} of ${duration(timeoutSeconds * 1000)} (gates: ${planned}). Escape cancels.`,
+							text: `Cratis quality gate running${current ? ` ${current}${currentLog?.cwd ? ` (cwd: ${currentLog.cwd})` : ""}` : ""}: ${duration(elapsedMs)} of ${duration(timeoutSeconds * 1000)} (gates: ${planned}). Escape cancels.`,
 						},
 					],
-					details: { status: "running", gates: plan.gates, current, elapsedMs, timeoutSeconds },
+					details: { status: "running", gates: plan.gates, current, cwd: currentLog?.cwd, elapsedMs, timeoutSeconds },
 				});
 			};
 			progress(Date.now() - started);

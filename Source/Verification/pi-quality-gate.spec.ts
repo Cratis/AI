@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks, { QUALITY_GATE_TOOL_NAME } from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
-import { gateTimeoutSeconds, parseGatePlan, runBounded, tailLines, workingTreeFingerprint } from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/quality-gate.ts';
+import { gateTimeoutSeconds, latestGateLog, parseGatePlan, runBounded, tailLines, workingTreeFingerprint } from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/quality-gate.ts';
 
 type Handler = (event: unknown, ctx: unknown) => Promise<unknown> | unknown;
 type GateTool = {
@@ -142,6 +142,33 @@ test('a timed-out gate includes its bounded log tail and log path', async () => 
             assert.match(error.message, /TIMED OUT after 1s/);
             assert.match(error.message, /scratch-gate\.log/);
             assert.match(error.message, /distinctive-gate-output/);
+            return true;
+        });
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a timeout identifies the gate and directory rather than a per-directory log suffix', async () => {
+    const repo = scratch(['/bin/sh', '-c', 'case "$PWD" in */b) echo second-package-output; exec sleep 600 ;; esac']);
+    try {
+        for (const directory of ['a', 'b']) {
+            mkdirSync(join(repo.root, directory));
+            writeFileSync(join(repo.root, directory, 'package.json'), '{}');
+            repo.change(`${directory}/change.txt`);
+        }
+        const config = process.env.CRATIS_HOOKS_GATES;
+        assert.ok(config);
+        writeFileSync(config, JSON.stringify({ gates: [{
+            id: 'scratch-gate', changed: ['**/*.txt'], workingDirectoryFrom: ['**/package.json'],
+            command: ['/bin/sh', '-c', 'case "$PWD" in */b) echo second-package-output; exec sleep 600 ;; esac'],
+        }] }));
+        const { tool } = bridge();
+        await assert.rejects(() => tool.execute('call', { timeoutSeconds: 2 }, undefined, undefined, repo.ctx()), (error: Error) => {
+            assert.match(error.message, /while running 'scratch-gate' \(cwd: b\)/);
+            assert.match(error.message, /scratch-gate-2\.log/);
+            assert.match(error.message, /second-package-output/);
+            assert.doesNotMatch(error.message, /while running 'scratch-gate-2'/);
             return true;
         });
     } finally {
@@ -807,6 +834,37 @@ test('an untracked symlink hashes its link text without following a target outsi
     } finally {
         repo.dispose();
         rmSync(external, { force: true });
+    }
+});
+
+test('a multi-directory plan displays each gate once with its distinct package count', () => {
+    const output = [
+        'cratis-quality-gate: RUN   frontend-lint lint',
+        '                            $ yarn lint:ci   (cwd: a)',
+        'cratis-quality-gate: RUN   frontend-lint lint',
+        '                            $ yarn lint:ci   (cwd: b)',
+        'cratis-quality-gate: RUN   frontend-lint lint',
+        '                            $ yarn lint:ci   (cwd: c)',
+        'cratis-quality-gate: RUN   frontend-lint lint',
+        '                            $ yarn lint:ci   (cwd: c)',
+        'cratis-quality-gate: RUN   frontend-compile compile',
+        '                            $ yarn g:compile   (cwd: a)',
+        'cratis-quality-gate: RUN   frontend-compile compile',
+        '                            $ yarn g:compile   (cwd: b)',
+    ].join('\n');
+    assert.deepEqual(parseGatePlan(output), ['frontend-lint (3 packages)', 'frontend-compile (2 packages)']);
+});
+
+test('per-directory log identity retains the actual gate id and cwd, including ids ending in numbers', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-gate-log-display-'));
+    const file = join(directory, 'frontend-lint-2-3.log');
+    try {
+        writeFileSync(file, 'cratis-quality-gate: LOG frontend-lint-2 (cwd: Source/Client)\ncommand output\n');
+        assert.deepEqual(latestGateLog(directory, Date.now() - 1000), { gate: 'frontend-lint-2', cwd: 'Source/Client', file });
+        writeFileSync(file, 'legacy command output\n');
+        assert.deepEqual(latestGateLog(directory, Date.now() - 1000), { gate: 'frontend-lint-2-3', file });
+    } finally {
+        rmSync(directory, { recursive: true, force: true });
     }
 });
 

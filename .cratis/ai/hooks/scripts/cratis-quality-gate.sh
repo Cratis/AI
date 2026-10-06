@@ -331,6 +331,8 @@ EOF
 
 idx=0
 ran=0
+planned_gates=0
+planned_directories=()
 while [ "$idx" -lt "$gate_count" ]; do
     id="$(jq -r --argjson i "$idx" '.gates[$i].id' "$config")"
     desc="$(jq -r --argjson i "$idx" '.gates[$i].description // ""' "$config")"
@@ -397,6 +399,14 @@ EOF
 
         gate_ran=$((gate_ran + 1))
         if [ "$dryrun" = "1" ]; then
+            [ "$gate_ran" -ne 1 ] || planned_gates=$((planned_gates + 1))
+            directory_seen=0
+            if [ "${#planned_directories[@]}" -gt 0 ]; then
+                for directory in "${planned_directories[@]}"; do
+                    [ "$directory" != "$wd" ] || directory_seen=1
+                done
+            fi
+            [ "$directory_seen" -ne 0 ] || planned_directories+=("$wd")
             printf 'cratis-quality-gate: RUN   %-24s %s\n                            $ %s   (cwd: %s)\n' \
                 "$id" "$desc" "${cmd[*]}" "$wd" >&2
             ran=$((ran + 1))
@@ -406,7 +416,10 @@ EOF
         log="$log_dir/$id.log"
         [ "$project_index" -eq 1 ] || log="$log_dir/$id-$project_index.log"
         rc=0
-        (cd -P "$root/$wd" && "${cmd[@]}") </dev/null >"$log" 2>&1 || rc=$?
+        {
+            printf 'cratis-quality-gate: LOG %s (cwd: %s)\n' "$id" "$wd"
+            (cd -P "$root/$wd" && "${cmd[@]}") </dev/null
+        } >"$log" 2>&1 || rc=$?
         ran=$((ran + 1))
 
         if [ "$rc" -ne 0 ]; then
@@ -435,6 +448,7 @@ EOF
 done
 
 [ "${failed:-0}" -eq 0 ] || exit 2
-[ "$dryrun" = "1" ] && printf 'cratis-quality-gate: dry run complete — %s gate(s) would run.\n' "$ran" >&2
+[ "$dryrun" = "1" ] && printf 'cratis-quality-gate: dry run complete — %s gate(s) would run across %s project directory(s) (%s run(s)).\n' \
+    "$planned_gates" "${#planned_directories[@]}" "$ran" >&2
 [ "$ran" -eq 0 ] && printf 'cratis-quality-gate: no gates selected — product verification was not performed.\n' >&2
 exit 0
