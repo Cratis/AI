@@ -25,8 +25,8 @@ const warning = message => {
 const run = (command, args, options = {}) => spawnSync(command, args, {
     encoding: 'utf8', timeout: commandTimeout, maxBuffer: 32 * 1024 * 1024, ...options,
 });
-const gh = args => {
-    const result = run('gh', args);
+const gh = (args, options = {}) => {
+    const result = run('gh', args, options);
     if (result.error || result.status !== 0) throw new Error(`gh ${args[0]} failed: ${result.stderr?.trim() || result.error?.message || result.status}`);
     return result.stdout;
 };
@@ -62,7 +62,7 @@ function originRepository(cwd) {
 }
 
 function targetCallers(repository, cwd) {
-    if (repository?.toLowerCase() === originRepository(cwd)?.toLowerCase()) return callers(cwd);
+    if (cwd && repository?.toLowerCase() === originRepository(cwd)?.toLowerCase()) return callers(cwd);
     let files;
     try { files = JSON.parse(gh(['api', `repos/${repository}/contents/.github/workflows`])); }
     catch (error) {
@@ -146,7 +146,7 @@ function check(argv, repositoryCallers) {
     const repoArgs = values.pr && values.repo ? ['--repo', values.repo] : [];
     if (values.pr !== undefined) {
         pull = JSON.parse(gh(['pr', 'view', ...(values.pr ? [values.pr] : []), ...repoArgs,
-            '--json', 'labels,body,author,baseRefName']));
+            '--json', 'labels,body,author,baseRefName'], values.repo ? { env: { ...process.env, GH_REPO: values.repo } } : {}));
     }
     if (!values['body-file'] && !pull) throw new Error('--body-file is required when creating a pull request');
     const split = labels => (labels || []).flatMap(label => label.split(',')).map(label => label.trim()).filter(Boolean);
@@ -312,7 +312,7 @@ function effectiveRepository(words, cwd, environmentRepository) {
         if (/[$`]/.test(environmentRepository)) throw new Error('Use a literal value for GH_REPO, not a shell expansion.');
         return repositoryName(environmentRepository);
     }
-    return originRepository(cwd);
+    return cwd ? originRepository(cwd) : undefined;
 }
 
 function hook() {
@@ -343,14 +343,15 @@ function hook() {
         }
         if (words[0] !== 'gh' || words[1] !== 'pr' || !['create', 'edit'].includes(words[2])) continue;
         if (words.includes('--help') || words.includes('-h')) continue;
-        if (!knownDirectory) {
+        const repository = effectiveRepository(words, knownDirectory ? cwd : undefined, environmentRepository);
+        if (!knownDirectory && !repository) {
             if (!optedIn(cwd)) return 0;
             throw new Error('Use a literal directory before gh pr create/edit.');
         }
-        const repository = effectiveRepository(words, cwd, environmentRepository);
         if (!/^Cratis\/[^/]+$/i.test(repository)) continue;
-        const repositoryCallers = targetCallers(repository, cwd);
+        const repositoryCallers = targetCallers(repository, knownDirectory ? cwd : undefined);
         if (!repositoryCallers.length) continue;
+        if (!knownDirectory) throw new Error('Use a literal directory before gh pr create/edit.');
         const args = [];
         let target = '', hasBody = false;
         for (let index = 3; index < words.length; index++) {

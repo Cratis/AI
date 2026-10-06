@@ -87,6 +87,10 @@ else if (args[0] === 'pr') {
         process.exit(1);
     }
     if (process.env.TEST_PR_FAILURE === '1') process.exit(1);
+    if (process.env.TEST_EXPECTED_PR_REPOSITORY && process.env.GH_REPO !== process.env.TEST_EXPECTED_PR_REPOSITORY) {
+        console.error('PR lookup used GH_REPO=' + process.env.GH_REPO);
+        process.exit(1);
+    }
     console.log(JSON.stringify({ labels: JSON.parse(process.env.TEST_PR_LABELS || '[{"name":"minor"},{"name":"dependencies"}]'), body: process.env.TEST_PR_BODY || 'current-body', author: JSON.parse(process.env.TEST_PR_AUTHOR || '{"login":"woksin"}'), baseRefName: 'main' }));
 } else process.exit(1);
 `, { mode: 0o755 });
@@ -224,6 +228,89 @@ test('current-branch edits preserve selectorless lookup for body and metadata ch
             assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', '--json', 'labels,body,author,baseRefName']);
             assert.deepEqual(calls.filter(args => args[0] === 'repo').at(-1), ['repo', 'view', 'Cratis/Example', '--json', 'nameWithOwner,defaultBranchRef']);
         }
+    } finally { f.cleanup(); }
+});
+
+test('selectorless edits pass command-local and inherited GH_REPO to metadata lookup without --repo', () => {
+    const f = fixture();
+    try {
+        for (const prefix of ['GH_REPO=Cratis/Other', 'env GH_REPO=Cratis/Other', 'env GH_REPO=Someone/Personal GH_REPO=Cratis/Other', '']) {
+            const environment = { GH_REPO: prefix ? 'Someone/Personal' : 'Cratis/Other', TEST_EXPECTED_PR_REPOSITORY: 'Cratis/Other' };
+            for (const flags of ['--add-assignee woksin', `--body-file '${f.body}'`]) {
+                const result = f.hook(`${prefix} gh pr edit ${flags}`, environment);
+                assert.equal(result.status, 0, result.stderr);
+                const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+                assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', '--json', 'labels,body,author,baseRefName']);
+                assert.deepEqual(calls.filter(args => args[0] === 'repo').at(-1), ['repo', 'view', 'Cratis/Other', '--json', 'nameWithOwner,defaultBranchRef']);
+            }
+            const rejected = f.hook(`${prefix} gh pr edit --add-assignee woksin`, { ...environment, TEST_PR_BODY: 'reject-me' });
+            assert.equal(rejected.status, 2);
+            assert.match(rejected.stderr, /rejected by downloaded program/);
+        }
+    } finally { f.cleanup(); }
+});
+
+test('cleared command-local GH_REPO uses the checkout for selectorless edits instead of inherited values', () => {
+    const f = fixture();
+    try {
+        for (const prefix of ['GH_REPO=', 'env GH_REPO=']) {
+            const environment = { GH_REPO: 'Cratis/Other', TEST_EXPECTED_PR_REPOSITORY: 'Cratis/Example' };
+            const result = f.hook(`${prefix} gh pr edit --add-assignee woksin`, environment);
+            assert.equal(result.status, 0, result.stderr);
+            const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+            assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', '--json', 'labels,body,author,baseRefName']);
+            assert.deepEqual(calls.filter(args => args[0] === 'repo').at(-1), ['repo', 'view', 'Cratis/Example', '--json', 'nameWithOwner,defaultBranchRef']);
+            const rejected = f.hook(`${prefix} gh pr edit --add-assignee woksin`, { ...environment, TEST_PR_BODY: 'reject-me' });
+            assert.equal(rejected.status, 2);
+            assert.match(rejected.stderr, /rejected by downloaded program/);
+        }
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        const before = readFileSync(f.calls, 'utf8');
+        for (const prefix of ['GH_REPO=', 'env GH_REPO=']) {
+            const result = f.hook(`${prefix} gh pr edit --add-assignee woksin`, { GH_REPO: 'Cratis/Other' });
+            assert.equal(result.status, 0, result.stderr);
+            assert.equal(result.stderr, '');
+        }
+        assert.equal(readFileSync(f.calls, 'utf8'), before);
+    } finally { f.cleanup(); }
+});
+
+test('dynamic directories resolve explicit repositories before deciding whether PR edits are guarded', () => {
+    const f = fixture();
+    try {
+        for (const origin of ['Cratis/Example', 'Someone/Personal']) {
+            assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', `https://github.com/${origin}.git`]).status, 0);
+            for (const directory of ['', 'cd "$HOME" && ']) {
+                for (const command of [
+                    'gh pr edit https://github.com/Cratis/AI/pull/471 --body inline',
+                    'gh pr edit 471 --repo Cratis/AI --body inline',
+                    'GH_REPO=Cratis/AI gh pr edit 471 --body inline',
+                    'env GH_REPO=Cratis/AI gh pr edit 471 --body inline',
+                ]) {
+                    const result = f.hook(`${directory}${command}`, { GH_REPO: 'Someone/Personal' });
+                    assert.equal(result.status, 2, `${origin}: ${directory}${command}`);
+                    assert.match(result.stderr, directory ? /Use a literal directory/ : /inline --body/);
+                    assert.match(readFileSync(f.calls, 'utf8'), /repos\/Cratis\/AI\/contents\/\.github\/workflows/);
+                }
+                const before = readFileSync(f.calls, 'utf8');
+                for (const command of [
+                    'gh pr edit https://github.com/Someone/Personal/pull/471 --body inline',
+                    'gh pr edit 471 --repo Someone/Personal --body inline',
+                    'GH_REPO=Someone/Personal gh pr edit 471 --body inline',
+                    'env GH_REPO=Someone/Personal gh pr edit 471 --body inline',
+                ]) {
+                    const result = f.hook(`${directory}${command}`, { GH_REPO: 'Cratis/AI' });
+                    assert.equal(result.status, 0, result.stderr);
+                    assert.equal(result.stderr, '');
+                }
+                assert.equal(readFileSync(f.calls, 'utf8'), before);
+            }
+        }
+        assert.equal(f.hook('cd "$HOME" && gh pr edit 471 --body inline', { GH_REPO: 'Cratis/AI' }).status, 2);
+        const personal = f.hook('cd "$HOME" && gh pr edit 471 --body inline', { GH_REPO: 'Someone/Personal' });
+        assert.equal(personal.status, 0, personal.stderr);
+        assert.equal(personal.stderr, '');
+        assert.equal(f.hook('cd "$HOME" && gh pr edit 471 --repo Cratis/AI --body inline', { TEST_REMOTE_CALLERS: '0' }).status, 0);
     } finally { f.cleanup(); }
 });
 
