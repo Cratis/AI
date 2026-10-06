@@ -115,3 +115,21 @@ for (const [label, name] of [['a tab', 'a.cs\tdeadbeef'], ['a newline', 'a.cs\nb
         assert.match(result.stderr, /ident: filename contains a newline or tab/);
     });
 }
+
+for (const [label, kind] of [['file', 'file'], ['directory', 'directory']] as const) {
+    test(`source-identity helper rejects an explicit ${label} argument ending in a newline even when the newline-free ${label} exists`, options, t => {
+        const { repo, run } = fixture(t);
+        if (kind === 'file') {
+            writeFileSync(join(repo, 'root/Rule.cs'), 'rule\n');
+        } else {
+            mkdirSync(join(repo, 'root/attachments'));
+            writeFileSync(join(repo, 'root/attachments/Rule.cs'), 'rule\n');
+        }
+        const argument = kind === 'file' ? 'root/Rule.cs\n' : 'root/attachments\n';
+        const result = run(['root', argument]);
+        assert.equal(result.error, undefined);
+        assert.equal(result.status, 1, result.stderr);
+        assert.equal(result.stdout, '');
+        assert.match(result.stderr, /ident: argument contains a newline or tab/);
+    });
+}

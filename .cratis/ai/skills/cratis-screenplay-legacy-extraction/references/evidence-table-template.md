@@ -44,8 +44,8 @@ Example rows:
 
 ## Traceability reconciliation
 
-Record the examined source identity once per repository: the commit, plus a hash of the
-inspected files that differ from it (dirty or untracked); a dirty flag alone is not enough.
+Record the examined source identity once per repository: the commit, plus the digest from
+the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity"); a dirty flag alone is not enough.
 Keep it apart from any tool revision (for example the MCP `modelRevision`).
 
 Before handoff, for every candidate slice and rule:

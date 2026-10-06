@@ -51,9 +51,9 @@ Unattended: assume visibly, write each assumption in the report header, and lowe
 ## Procedure
 Hold the stance: critic. Apply every check; do not soften a finding because its fix is large.
 
-1. **Scope and independence.** Record mode, model root, source identity (the commit plus a hash of
-   the relevant dirty and untracked files and attachments, kept apart from the MCP
-   `modelRevision`), scope, and each contributing author's model when the harness exposes it
+1. **Scope and independence.** Record mode, model root, source identity (the commit plus the digest from
+   the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity"); run the helper, do not
+   hand-roll a hash; kept apart from the MCP `modelRevision`), scope, and each contributing author's model when the harness exposes it
    (`model: not exposed` otherwise) with your own. See "Independent review" below.
 2. **Evidence first** (cheap, deterministic). V1 on the folder with warnings as errors
    (`cratis-screenplay-toolchain` for commands and version gaps); V2 and V3 through MCP

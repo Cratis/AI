@@ -78,8 +78,8 @@ has a claim policy. Add one row per gated query, not only per command.
 | Element | Happy | Rules | Denial | State | Duplicate/retry | Competing | Alt path | Ordering | External | Compensation | Evolution |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | ReserveBerth | spec ReservingAGuestBerth | spec RejectingAZeroLength; spec RejectingAnOversizedBoat; spec RejectingANightInThePast; spec RejectingAnEmptyBerthCode (concept rule); spec ReservingABoatAtTheMaximumLength | spec RefusingASkipper | spec RejectingANightInThePast (declarative `night >= today`; binding blocked: PLAY0268) | spec RejectingARetriedReservation; recorded: retry should answer "already reserved" | spec RejectingASecondBoatForTheSameBerthNight | n/a: one outcome | n/a: single source | n/a: no external system | spec ReservingABerthNightFreedByACancellation | n/a: new contract |
-| CancelReservation | spec CancellingAReservation | spec RejectingACancellationWithoutAReason | spec RefusingASkipperCancellation | spec RejectingACancellationAfterDeparture; recorded: live reservation required (`reads BerthBooking` + `require`; NOT enforced; target DCB or `[ProtectedDecision]`) | spec RejectingASecondCancellation | n/a: one reservation, one office action | n/a: one outcome | n/a: single source | n/a: no external system | question Q1: can a cancelled reservation be reinstated? | n/a: new contract |
-| RecordDeparture | spec RecordingACleanDeparture | n/a: input is only an id and a flag, no value rule | spec RefusingASkipperDeparture | spec RejectingADepartureAfterCancellation; recorded: live reservation required (`reads BerthBooking` + `require`; NOT enforced; target DCB or `[ProtectedDecision]`) | spec RejectingARepeatedDeparture | n/a: one departure per reservation | spec RecordingACleanDeparture (condition false); spec RecordingADepartureWithDamage (condition true) | n/a: single source | n/a: no external system | question Q2: who clears a damage report? | n/a: new contract |
+| CancelReservation | spec CancellingAReservation | spec RejectingACancellationWithoutAReason | spec RefusingASkipperCancellation | spec RejectingACancellationAfterDeparture (live-reservation message); spec AppendingACancellationAfterDeparture (constraint, append time); recorded: live reservation required (`reads BerthBooking` + `require`; NOT enforced; target DCB or `[ProtectedDecision]`) | spec RejectingASecondCancellation (live-reservation message); spec AppendingASecondCancellation (constraint, append time) | n/a: one reservation, one office action | n/a: one outcome | n/a: single source | n/a: no external system | question Q1: can a cancelled reservation be reinstated? | n/a: new contract |
+| RecordDeparture | spec RecordingACleanDeparture | n/a: input is only an id and a flag, no value rule | spec RefusingASkipperDeparture | spec RejectingADepartureAfterCancellation (live-reservation message); spec AppendingADepartureAfterCancellation (constraint, append time); recorded: live reservation required (`reads BerthBooking` + `require`; NOT enforced; target DCB or `[ProtectedDecision]`) | spec RejectingARepeatedDeparture (live-reservation message); spec AppendingARepeatedDeparture (constraint, append time) | n/a: one departure per reservation | spec RecordingACleanDeparture (condition false); spec RecordingADepartureWithDamage (condition true) | n/a: single source | n/a: no external system | question Q2: who clears a damage report? | n/a: new contract |
 
 | Read model | Family? (reason) | Population | Updates | Removal/absence | Ordering | Denial |
 |---|---|---|---|---|---|---|
@@ -89,6 +89,11 @@ Notes on the example:
 - A constraint explains enforcement but does not replace an example of its outcome:
   `RecordDeparture` needs `RejectingARepeatedDeparture`; until it exists the cell is
   `open: repeated departure`.
+- When a command's own validation rejects the same history first (here `require booking.status ==
+  "reserved"`), a command specification can only pin that validation message. Test the constraint
+  in isolation with `when append <Event>` (append-time constraints are checked there, Screenplay
+  `specifications.md`); `when append` is not renderable, so keep it as a design or executable-mode
+  spec.
 - The numbered view specs share fixtures, not execution state. Departure and cancellation are
   sibling branches from the reserved state; cancellation does not follow departure.
 - Stored-state rules stay in the model as `reads` + `require`; the example is design-complete

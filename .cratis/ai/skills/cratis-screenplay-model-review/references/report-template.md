@@ -13,7 +13,7 @@ write the report into the model root.
 # Model review: <model or scope>
 Mode: <design|executable|renderable>   Stance: critic   Review kind: <self-check|independent|audit|proposal>
 Model root: <path>
-Source identity: <commit + hash of the relevant dirty and untracked files and attachments>
+Source identity: <commit + digest from the source-identity helper, cratis-screenplay-modeling-lifecycle references/verdicts-and-modes.md "Source identity">
 Workspace: <modelRevision / catalogRevision from MCP, when connected>  (a different thing; never the source identity)
 Scope: <whole model | module/feature/slice list | edit request id>
 Authors: <agent>, model: <model or "not exposed">, one entry per contributing author

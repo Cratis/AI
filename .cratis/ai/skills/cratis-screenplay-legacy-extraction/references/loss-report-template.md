@@ -5,7 +5,7 @@ does **not** know, so nobody mistakes it for a complete description of the syste
 short; cite evidence rows (`E12`) and questions (`Q3`) instead of repeating content.
 
 ```markdown
-# Loss report: <system> -> <model> (source identity <commit | commit + hash of dirty files>)
+# Loss report: <system> -> <model> (source identity <commit + digest from the source-identity helper>)
 
 ## Scope
 - Systems, repositories and environments examined; dates.

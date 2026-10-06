@@ -8,7 +8,9 @@ Facts verified with `cratis render` 3.27.1 on one model: the same files rendered
 `Marina` and `Harbour` gave different `semanticRevision` values, so **the application name is part
 of the revision**. The MCP workspace names the application after the model root folder (without
 `.screenplay/identities.json`), so its `modelRevision` is not comparable with a render's manifest
-revision by assumption. It also moves with the root folder name and file locations.
+revision by assumption. Without `.screenplay/identities.json` it changes when the root folder is
+renamed (relocating the root while keeping its name does not); source positions and descriptions do
+not change it, and a file move changes it only if it changes logical placement or application identity.
 
 Compare in this order:
 1. **Source identity** (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md`):

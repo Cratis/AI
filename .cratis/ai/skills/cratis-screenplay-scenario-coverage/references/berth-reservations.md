@@ -217,7 +217,7 @@ module Berths
           boatLength = 9
 
     slice StateChange CancelReservation
-      description "Compensation for ReserveBerth: ReservationCancelled releases the berth-night claim. Cancelling and departing are mutually exclusive per reservation (CancelOrDepart). NOT enforced in the model today: a cancellation needs a live reservation. The `reads BerthBooking` + `require` below states the intent; it protects nothing (an unguarded materialized read). Target: Chronicle DCB on the reservation stream, or Arc `[ProtectedDecision]` + `DecisionRead<BerthBooking>`. No specification fakes it."
+      description "Compensation for ReserveBerth: ReservationCancelled releases the berth-night claim. Cancelling and departing are mutually exclusive per reservation (CancelOrDepart). NOT enforced in the model today: a cancellation needs a live reservation. The `reads BerthBooking` + `require` below states the intent; it protects nothing (an unguarded materialized read). Target: Chronicle DCB on the reservation stream, or Arc `[ProtectedDecision]` + `DecisionRead<BerthBooking>`. The command specifications after a departure or cancellation pin that target validation message, which fires before the constraint; the constraint itself is tested separately with `when append`."
       command CancelReservation
         reservationId ReservationId identifier
         reason        String
@@ -283,7 +283,7 @@ module Berths
         when CancelReservation
           reservationId = "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
           reason        = "Weather"
-        then error "Constraint 'CancelOrDepart' is violated: the event source already has the constrained event."
+        then error "Only a live reservation can be cancelled"
 
       specification RejectingACancellationAfterDeparture
         given caller
@@ -300,6 +300,37 @@ module Berths
         when CancelReservation
           reservationId = "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
           reason        = "Changed plans"
+        then error "Only a live reservation can be cancelled"
+
+      // The CancelOrDepart constraint is only reachable at append time: a command first fails its own
+      // live-reservation validation once the history has a departure or cancellation.
+      specification AppendingACancellationAfterDeparture
+        given BerthReserved
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+          berth      = "C7"
+          night      = "2027-07-14"
+          boatName   = "Silje"
+          boatLength = 11.5
+        given BoatDeparted
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+        when append ReservationCancelled
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+          reason = "Changed plans"
+        then error "Constraint 'CancelOrDepart' is violated: the event source already has the constrained event."
+
+      specification AppendingASecondCancellation
+        given BerthReserved
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+          berth      = "C7"
+          night      = "2027-07-14"
+          boatName   = "Silje"
+          boatLength = 11.5
+        given ReservationCancelled
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+          reason = "Weather"
+        when append ReservationCancelled
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+          reason = "Weather"
         then error "Constraint 'CancelOrDepart' is violated: the event source already has the constrained event."
 
       specification RefusingASkipperCancellation
@@ -377,7 +408,7 @@ module Berths
         when RecordDeparture
           reservationId  = "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
           damageObserved = false
-        then error "Constraint 'CancelOrDepart' is violated: the event source already has the constrained event."
+        then error "Only a live reservation can record a departure"
 
       specification RejectingADepartureAfterCancellation
         given caller
@@ -395,6 +426,33 @@ module Berths
         when RecordDeparture
           reservationId  = "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
           damageObserved = false
+        then error "Only a live reservation can record a departure"
+
+      specification AppendingARepeatedDeparture
+        given BerthReserved
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+          berth      = "C7"
+          night      = "2027-07-14"
+          boatName   = "Silje"
+          boatLength = 11.5
+        given BoatDeparted
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+        when append BoatDeparted
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+        then error "Constraint 'CancelOrDepart' is violated: the event source already has the constrained event."
+
+      specification AppendingADepartureAfterCancellation
+        given BerthReserved
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+          berth      = "C7"
+          night      = "2027-07-14"
+          boatName   = "Silje"
+          boatLength = 11.5
+        given ReservationCancelled
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
+          reason = "Weather"
+        when append BoatDeparted
+          for "6a1d2c3b-4e5f-4a6b-8c7d-9e0f1a2b3c01"
         then error "Constraint 'CancelOrDepart' is violated: the event source already has the constrained event."
 
       specification RefusingASkipperDeparture

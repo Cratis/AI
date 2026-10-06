@@ -112,7 +112,7 @@ target requirements.
   or query spec needs `given caller` (module and feature gates count); an authorized scenario
   gets no inferred fixture (PLAY0389). Unauthorized is never `then error`.
 - Duplicate and competing specs use `when <Command>`; `when append` is for projection and
-  automation triggers only.
+  automation triggers, and for a constraint the command's own validation would reject first.
 - `null` only for optional read-model properties; constraint messages are copied verbatim.
 - Executable-only binding checks (PLAY0350/0352/0388/0389/0273) do not show in V1: run V3.
 

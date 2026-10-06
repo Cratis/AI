@@ -108,8 +108,8 @@ MCP loop procedure and proposals: `cratis-screenplay-model-authoring`.
   with a render manifest.** Drift is detected by comparing successive `semanticRevision`
   values from renders made with the same name and inputs. Unverified: whether 4.60.1 and
   4.64.0 produce byte-identical `rev1` values for the same v1 to v3 model.
-- Source identity for a verdict is the commit plus a hash of the relevant dirty and
-  untracked files and attachments. Keep it apart from the MCP `modelRevision`.
+- Source identity for a verdict is the commit plus the digest from
+  the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity"). Keep it apart from the MCP `modelRevision`.
 - `description` and `documentation` never reach rendered code (Stage#178, open).
 
 ## Roadmap items that would change a verdict (all open at the pin)

@@ -64,7 +64,7 @@ Run from the repository root with repository-relative paths. It fails closed (no
 digest) on: a missing model-root argument, an empty input inventory, a missing, unreadable,
 non-regular input, any input that resolves outside the repository, any symlink (the input itself
 with or without a trailing slash, a symlinked parent component, or anything below an input
-directory, including nested directory links), and any traversal, hashing or sort failure. Each
+directory, including nested directory links), a path containing a tab or newline (checked on every raw argument before normalization, and again on each enumerated file; the manifest is tab- and newline-delimited), and any traversal, hashing or sort failure. Each
 input is normalised first: trailing slashes are stripped, symlink components are rejected
 before `..` is collapsed, and the whole path is resolved with physical traversal (`set -P`,
 `pwd -P`) and compared with its lexical form. Thus `dir/` for a symlinked `dir`, `..`, `../x`,
@@ -110,6 +110,7 @@ reject_symlink_components() {
 }
 : > "$tmp/files"
 for arg in "$@"; do
+  case "$arg" in *$'\n'*|*$'\t'*) fail "argument contains a newline or tab" ;; esac
   p=$arg
   while [[ "$p" == */ && "$p" != "/" ]]; do p=${p%/}; done
   [[ -n "$p" ]] || fail "empty input"
@@ -157,7 +158,7 @@ in the Cratis AI spec `source-identity-helper.spec.ts` extract and execute the s
 a trailing-slash symlink (`link/`, `link//`), `..`, `../x`, `sub/../..`, `link/..`, a symlinked
 parent with `..` when both logical and physical destinations exist (`.github/skills/../workflows`),
 no argument, an empty argument, equal digests for `root`, `root/` and `./root`, and a changed
-file changing the digest, and a filename containing a tab or a newline (fail closed). The spec skips gracefully when bash is unavailable.
+file changing the digest, a filename containing a tab or a newline, and an explicit file or directory argument ending in a newline whose newline-free counterpart exists (all fail closed). The spec skips gracefully when bash is unavailable.
 
 ### Revisions are three different things
 - **Source identity** (above): bytes of the inputs. Used for acceptance.

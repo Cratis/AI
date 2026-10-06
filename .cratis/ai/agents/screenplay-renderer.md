@@ -39,4 +39,4 @@ You author nothing in the model. When your verdicts feed a review, record the mo
 
 ## Finish
 
-First line: `Outcome: done | partial (...) | blocked (Qn) | out-of-scope (why)`. Then the report: admission, publication, build and test results mapped to specifications, source identity (commit plus a hash of the relevant dirty and untracked files and attachments, kept apart from the MCP `modelRevision`), drift, the gap-fill ledger, UI omissions, and the handoff packet from the lifecycle skill with all five verdict lines.
+First line: `Outcome: done | partial (...) | blocked (Qn) | out-of-scope (why)`. Then the report: admission, publication, build and test results mapped to specifications, source identity (commit plus the digest from the source-identity helper, `cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity", kept apart from the MCP `modelRevision`), drift, the gap-fill ledger, UI omissions, and the handoff packet from the lifecycle skill with all five verdict lines.

@@ -118,7 +118,7 @@ V5 admission pass (cratis 3.27.1, Stage 4.24.0); publication written 14 files; b
 ```
 
 Rules: a clean verdict never implies a later one; a verdict names the **source identity** it
-ran on (commit plus a hash of the dirty and untracked files and attachments); a tool or
+ran on (commit plus the digest from the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")); a tool or
 source change makes earlier verdicts stale.
 
 ## Example gate (for skill and documentation authors)

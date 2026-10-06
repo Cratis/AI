@@ -178,9 +178,10 @@ dynamic root there, fix the root.
   value). References and dependencies carry that role instead of `thenEvent`, so a
   query for `then` events does not return the appended event.
 - **`executable-model`**: canonical ESM bytes; `modelRevision` (`rev1:<sha256>`)
-  exists only when the model binds. It changes when the root folder is renamed or
-  moved if no identities file exists, because application identity is bootstrapped
-  from the root. Do not compare it with a render manifest's revision. Do not read
+  exists only when the model binds. Without an identities file it changes when the root folder is
+  renamed (a relocation that keeps the name does not), because application identity is
+  bootstrapped from the root name. Source positions and descriptions do not change it, and a
+  file move changes it only if it changes logical placement or application identity. Do not compare it with a render manifest's revision. Do not read
   the bytes themselves.
 - **`implementation-requirements`**: attachments with `bodySpan`/`bodyLines`; see
   the [MCP tool guide](mcp-tools.md#code-attachments).

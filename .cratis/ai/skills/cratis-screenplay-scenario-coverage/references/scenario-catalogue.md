@@ -73,7 +73,8 @@ name them as unfinished.
 - Applies: lifecycle rules (cannot cancel after departure, cannot pay twice).
 - Expressible today: exclusivity of facts per event source (`unique event` lines sharing one
   constraint name), uniqueness of values across sources. See `CancelOrDepart` and
-  `RejectingACancellationAfterDeparture`.
+  `RejectingACancellationAfterDeparture` (command validation) and
+  `AppendingACancellationAfterDeparture` (the constraint).
 - Not enforced in the model today: rules over stored state such as "the reservation must exist"
   or "amount within the remaining balance". Write the rule as `reads <View>` + `require <expr>
   message "..."` (PLAY0268/0271 at binding are expected; report the model as
@@ -93,8 +94,9 @@ name them as unfinished.
     expressible as a constraint outcome; record it as a target requirement;
   - **exactly-once external effect**: an email, payment or shipment - never proven by the model.
 - Shape (once-only): `when <Command>` with the earlier fact as `given` (same `for`) -> the
-  constraint's fixed message. Use `when append <Event>` only for projection or automation
-  triggers, not for duplicates. See `RejectingARetriedReservation`, `RejectingARepeatedDeparture`.
+  constraint's fixed message. Use `when append <Event>` for projection or automation
+  triggers, and to isolate a constraint the command's own validation would reject first
+  (`AppendingARepeatedDeparture`); not otherwise for duplicates. See `RejectingARetriedReservation`, `RejectingARepeatedDeparture`.
 - n/a only when repeating is harmless and wanted (a note added twice is two notes).
 - Trap: claiming retry safety from a todo-list read model plus reaction; it shows intent, not
   delivery guarantees.
