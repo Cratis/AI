@@ -18,7 +18,10 @@
     { "kind": "skill-contains", "value": "Stage#177" },
     { "kind": "skill-contains", "value": "never carry event source type" },
     { "kind": "skill-contains", "value": "STAGE-ESM-024" },
-    { "kind": "skill-contains", "value": "`v4.24.1`" },
+    { "kind": "skill-contains", "value": "`v4.24.2`" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-026" },
+    { "kind": "skill-contains", "value": "Stage 4.24.2 admits ESM v4" },
+    { "kind": "skill-contains", "value": "`v4.24.2`" },
     { "kind": "skill-contains", "value": "Cratis/cli#253" }
   ]
 }

@@ -31,7 +31,7 @@ adapted to `.play` declarations (`references/provenance.md`).
 |---|---|---|
 | Screenplay | `v4.66.0` (`c89198b`) | MCP catalog (29 tools: `describe-application`, `search-declarations`, `dependencies`, `find-assertion-gaps`, `read-workspace`, `declaration-details`) in `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`; diagnostics PLAY0029, PLAY0191, PLAY0268, PLAY0271, PLAY0350, PLAY0381, PLAY0469 in `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`; decision 0008 (one data subject per event) |
 | Screenplay issues | open at v4.66.0 | Screenplay#393 advisory modeling-smell report (the sweep is its manual form); Screenplay#377 spec execution and Screenplay#388 lineage report: not available, so "specs written" is never "specs pass" and lineage is walked by hand |
-| cratis CLI | `v3.28.2` | bundles Screenplay 4.66.0 and Stage 4.24.1; see the toolchain skill |
+| cratis CLI | `v3.28.3` | bundles Screenplay 4.66.0 and Stage 4.24.2; see the toolchain skill |
 
 The full pin table lives in `cratis-screenplay-toolchain` `references/versions.md`; do not copy
 it here. Compilation (V1) does not establish reference execution.

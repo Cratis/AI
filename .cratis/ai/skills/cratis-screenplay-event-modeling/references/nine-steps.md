@@ -185,7 +185,7 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 
 **Output:** the `reaction`, in an `Automation` slice. It binds on the standalone
 `screenplay` 4.66.0 and the `cratis` 3.28.2 bundle (ESM v6; the 3.27.1 bundle rejected the slice
-at binding) and Stage 4.24.1 renders none, so the automation is gap-fill there (versions:
+at binding) and Stage 4.24.2 renders none, so the automation is gap-fill there (versions:
 `cratis-screenplay-toolchain`). When the automation decides from a view, declare it under
 the trigger with `reads` (see `cratis-screenplay-captures-and-reactions`).
 

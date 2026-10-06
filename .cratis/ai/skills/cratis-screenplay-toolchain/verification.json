@@ -13,6 +13,7 @@
     { "kind": "skill-contains", "value": "A handler never binds" },
     { "kind": "skill-contains", "value": "references/sources-and-streams.md" },
     { "kind": "skill-contains", "value": "STAGE-ESM-016" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-026" },
     { "kind": "skill-contains", "value": "authorable and validatable" }
   ]
 }

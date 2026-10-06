@@ -31,7 +31,7 @@ then hands off to review (P5) and acceptance (P6).
 
 ## Verified product sources
 
-Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.2, Stage v4.24.1, Arc v22.50.5, Chronicle
+Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3, Stage v4.24.2, Arc v22.50.5, Chronicle
 v19.32.0): `cratis-screenplay-toolchain` `references/versions.md`. Checked at these sources:
 
 | Fact used here | Source |

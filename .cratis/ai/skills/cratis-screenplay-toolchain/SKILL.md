@@ -25,8 +25,8 @@ The only version table is `references/versions.md`; other skills point to it.
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | standalone compiler, binder and MCP server |
-| cratis CLI | `3.28.2` (`141c499`) | bundles Screenplay 4.66.0 and Stage 4.24.1 (3.28.1 and earlier bundled 4.60.1 and 4.24.0); `render`, `generate`, `prologue`, and the same compiler for `screenplay validate` and `screenplay mcp` |
-| Stage | `4.24.1` (`2cadf59`) | renders ESM v1 to v3 (C# backend plus a React/Vite scaffold on Arc 22.25.0); bundled by the cratis CLI 3.28.2 |
+| cratis CLI | `3.28.3` (`8b43fef`) | bundles Screenplay 4.66.0 and Stage 4.24.2 (3.28.2: Stage 4.24.1; 3.28.1 and earlier bundled 4.60.1 and 4.24.0); `render`, `generate`, `prologue`, and the same compiler for `screenplay validate` and `screenplay mcp` |
+| Stage | `4.24.2` (`32dcac4`) | renders ESM v1 to v4 (C# backend plus a React/Vite scaffold on Arc 22.25.0); an evolved event is refused with `STAGE-ESM-026`; the cratis CLI bundles it since 3.28.3 |
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour
@@ -102,7 +102,7 @@ changes with the root folder name.
   only; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs bind on Screenplay 4.61 or
   later (standalone, and cratis 3.28.2 or later).
-- **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24 renders ESM v1 to v3
+- **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24.2 renders ESM v1 to v4 (evolved events refused, `STAGE-ESM-026`)
   `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79).
 - **Event sources, streams and command routes**: authorable and validatable, but never
   bound (`PLAY0268`: allocated, not implemented ESM version), run or rendered

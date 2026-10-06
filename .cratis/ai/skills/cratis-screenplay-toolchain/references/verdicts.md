@@ -66,7 +66,7 @@ never "specifications pass".
   `@sensitive`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.
 - A model is "executable" only on the compiler that bound it. A V3 from the standalone tool
-  does not carry to `cratis render`: Stage admits ESM v1 to v3 only (and on cratis before 3.28.2 the bundled 4.60.1 binder, ESM v1 to v5, refused v6 first).
+  does not carry to `cratis render`: Stage admits ESM v1 to v4 only on 4.24.2 (v1 to v3 on 4.24.1, bundled by cratis 3.28.2; cratis 3.28.3 bundles 4.24.2; evolved events are STAGE-ESM-026) (and on cratis before 3.28.2 the bundled 4.60.1 binder, ESM v1 to v5, refused v6 first).
 
 ## V4: reference specifications run
 
@@ -114,7 +114,7 @@ V1 pass (screenplay 4.66.0, 3 files)
 V2 read (screenplay 4.66.0 via MCP): 0 blocking, 3 informational (PLAY0270)
 V3 ready (screenplay 4.66.0, ESM v3)
 V4 not run: no route
-V5 admission pass (cratis 3.28.2, Stage 4.24.1); publication written 14 files; build not run; tests not run
+V5 admission pass (cratis 3.28.3, Stage 4.24.2); publication written 14 files; build not run; tests not run
 ```
 
 Rules: a clean verdict never implies a later one; a verdict names the **source identity** it
