@@ -69,6 +69,8 @@ function fixture() {
     writeFileSync(downloaded, workflow);
     const calls = join(directory, 'calls.jsonl');
     writeFileSync(calls, '');
+    const prEnvironments = join(directory, 'pr-environments.jsonl');
+    writeFileSync(prEnvironments, '');
     writeFileSync(join(bin, 'gh'), `#!${process.execPath}
 const fs = require('node:fs');
 const args = process.argv.slice(2);
@@ -82,24 +84,29 @@ else if (args[0] === 'api') {
     else console.log(fs.readFileSync(process.env.TEST_WORKFLOW, 'utf8').trimEnd());
 } else if (args[0] === 'repo') console.log(JSON.stringify({ nameWithOwner: args[2] === '--json' ? 'Cratis/Example' : args[2], defaultBranchRef: { name: 'main' } }));
 else if (args[0] === 'pr') {
+    fs.appendFileSync(process.env.TEST_PR_ENVIRONMENTS, JSON.stringify({ GH_REPO: process.env.GH_REPO }) + '\\n');
     if (args[1] === 'view' && args.includes('--repo') && args[2].startsWith('-')) {
         console.error('argument required when using the --repo flag');
         process.exit(1);
     }
     if (process.env.TEST_PR_FAILURE === '1') process.exit(1);
+    if (process.env.TEST_EXPECTED_PR_REPOSITORY && process.env.GH_REPO !== process.env.TEST_EXPECTED_PR_REPOSITORY) {
+        console.error('PR lookup used GH_REPO=' + process.env.GH_REPO);
+        process.exit(1);
+    }
     console.log(JSON.stringify({ labels: JSON.parse(process.env.TEST_PR_LABELS || '[{"name":"minor"},{"name":"dependencies"}]'), body: process.env.TEST_PR_BODY || 'current-body', author: JSON.parse(process.env.TEST_PR_AUTHOR || '{"login":"woksin"}'), baseRefName: 'main' }));
 } else process.exit(1);
 `, { mode: 0o755 });
     const cache = join(directory, 'cache');
     const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, XDG_CACHE_HOME: cache,
-        TEST_CALLS: calls, TEST_WORKFLOW: downloaded, TEST_OFFLINE: '0', TEST_PR_FAILURE: '0', GH_REPO: '',
+        TEST_CALLS: calls, TEST_PR_ENVIRONMENTS: prEnvironments, TEST_WORKFLOW: downloaded, TEST_OFFLINE: '0', TEST_PR_FAILURE: '0', GH_REPO: '',
         GH_TOKEN: 'must-not-reach-program', GITHUB_TOKEN: 'must-not-reach-program', TEST_SECRET: 'must-not-reach-program', NODE_OPTIONS: '--no-warnings',
         PR_JSON: 'must-not-reach-program', NUMBER: '123', GITHUB_STEP_SUMMARY: 'must-not-write' };
     const run = (args: string[], extra: NodeJS.ProcessEnv = {}) => spawnSync(process.execPath, [checker, ...args], { cwd: directory, env: { ...env, ...extra }, encoding: 'utf8', timeout: 15000 });
     const hook = (command: string, extra: NodeJS.ProcessEnv = {}, claude = false) => spawnSync('bash', [guard], {
         cwd: directory, env: { ...env, ...extra }, input: JSON.stringify({ cwd: directory, hook_event_name: claude ? 'PreToolUse' : undefined, tool_input: { command } }), encoding: 'utf8', timeout: 15000,
     });
-    return { directory, body, cache, callers, noNodePath, rulesCache: join(cache, 'cratis/release-notes', rulesRef), downloaded, calls, env, run, hook, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
+    return { directory, body, cache, callers, noNodePath, rulesCache: join(cache, 'cratis/release-notes', rulesRef), downloaded, calls, prEnvironments, env, run, hook, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
 }
 
 test('the checker extracts both marked programs, caches by blob SHA, and preserves no-release intent', () => {
@@ -227,6 +234,143 @@ test('current-branch edits preserve selectorless lookup for body and metadata ch
     } finally { f.cleanup(); }
 });
 
+test('selectorless edits pass command-local and inherited GH_REPO to metadata lookup without --repo', () => {
+    const f = fixture();
+    try {
+        for (const prefix of ['GH_REPO=Cratis/Other', 'env GH_REPO=Cratis/Other', 'env GH_REPO=Someone/Personal GH_REPO=Cratis/Other', '']) {
+            const environment = { GH_REPO: prefix ? 'Someone/Personal' : 'Cratis/Other', TEST_EXPECTED_PR_REPOSITORY: 'Cratis/Other' };
+            for (const flags of ['--add-assignee woksin', `--body-file '${f.body}'`]) {
+                const result = f.hook(`${prefix} gh pr edit ${flags}`, environment);
+                assert.equal(result.status, 0, result.stderr);
+                const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+                assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', '--json', 'labels,body,author,baseRefName']);
+                assert.deepEqual(calls.filter(args => args[0] === 'repo').at(-1), ['repo', 'view', 'Cratis/Other', '--json', 'nameWithOwner,defaultBranchRef']);
+            }
+            const rejected = f.hook(`${prefix} gh pr edit --add-assignee woksin`, { ...environment, TEST_PR_BODY: 'reject-me' });
+            assert.equal(rejected.status, 2);
+            assert.match(rejected.stderr, /rejected by downloaded program/);
+        }
+    } finally { f.cleanup(); }
+});
+
+test('edits without a repository leave selectors and GH_REPO to gh default resolution in multi-remote checkouts', () => {
+    const f = fixture();
+    try {
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Cratis/AI.git']).status, 0);
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'add', 'github', 'https://github.com/Cratis/Arc.git']).status, 0);
+        assert.equal(spawnSync('git', ['-C', f.directory, 'config', 'remote.github.gh-resolved', 'base']).status, 0);
+        for (const prefix of ['', 'GH_REPO=', 'env GH_REPO=']) {
+            const environment = { GH_REPO: prefix ? 'Cratis/Other' : undefined };
+            for (const target of ['', '471', 'feature-branch']) {
+                for (const flags of ['--add-assignee woksin', `--body-file '${f.body}'`]) {
+                    const result = f.hook(`${prefix} gh pr edit ${target} ${flags}`, environment);
+                    assert.equal(result.status, 0, result.stderr);
+                    const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+                    assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', ...(target ? [target] : []), '--json', 'labels,body,author,baseRefName']);
+                    const environments = readFileSync(f.prEnvironments, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+                    assert.deepEqual(environments.at(-1), {});
+                }
+                const rejected = f.hook(`${prefix} gh pr edit ${target} --add-assignee woksin`, { ...environment, TEST_PR_BODY: 'reject-me' });
+                assert.equal(rejected.status, 2);
+                assert.match(rejected.stderr, /rejected by downloaded program/);
+            }
+            for (const target of ['471', 'feature-branch']) {
+                const result = f.hook(`${prefix} gh pr edit ${target} --repo Cratis/X --add-assignee woksin`, environment);
+                assert.equal(result.status, 0, result.stderr);
+                const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+                assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', target, '--repo', 'Cratis/X', '--json', 'labels,body,author,baseRefName']);
+                const environments = readFileSync(f.prEnvironments, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+                assert.deepEqual(environments.at(-1), { GH_REPO: 'Cratis/X' });
+            }
+        }
+    } finally { f.cleanup(); }
+});
+
+test('cleared command-local GH_REPO leaves selectorless lookup to gh instead of inherited values', () => {
+    const f = fixture();
+    try {
+        for (const prefix of ['GH_REPO=', 'env GH_REPO=']) {
+            const environment = { GH_REPO: 'Cratis/Other' };
+            const result = f.hook(`${prefix} gh pr edit --add-assignee woksin`, environment);
+            assert.equal(result.status, 0, result.stderr);
+            const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+            assert.deepEqual(calls.filter(args => args[0] === 'pr').at(-1), ['pr', 'view', '--json', 'labels,body,author,baseRefName']);
+            assert.deepEqual(calls.filter(args => args[0] === 'repo').at(-1), ['repo', 'view', 'Cratis/Example', '--json', 'nameWithOwner,defaultBranchRef']);
+            const rejected = f.hook(`${prefix} gh pr edit --add-assignee woksin`, { ...environment, TEST_PR_BODY: 'reject-me' });
+            assert.equal(rejected.status, 2);
+            assert.match(rejected.stderr, /rejected by downloaded program/);
+        }
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        const before = readFileSync(f.calls, 'utf8');
+        for (const prefix of ['GH_REPO=', 'env GH_REPO=']) {
+            const result = f.hook(`${prefix} gh pr edit --add-assignee woksin`, { GH_REPO: 'Cratis/Other' });
+            assert.equal(result.status, 0, result.stderr);
+            assert.equal(result.stderr, '');
+        }
+        assert.equal(readFileSync(f.calls, 'utf8'), before);
+    } finally { f.cleanup(); }
+});
+
+test('dynamic directories resolve explicit repositories before deciding whether PR edits are guarded', () => {
+    const f = fixture();
+    try {
+        for (const origin of ['Cratis/Example', 'Someone/Personal']) {
+            assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', `https://github.com/${origin}.git`]).status, 0);
+            for (const directory of ['', 'cd "$HOME" && ']) {
+                for (const command of [
+                    'gh pr edit https://github.com/Cratis/AI/pull/471 --body inline',
+                    'gh pr edit 471 --repo Cratis/AI --body inline',
+                    'GH_REPO=Cratis/AI gh pr edit 471 --body inline',
+                    'env GH_REPO=Cratis/AI gh pr edit 471 --body inline',
+                ]) {
+                    const result = f.hook(`${directory}${command}`, { GH_REPO: 'Someone/Personal' });
+                    assert.equal(result.status, 2, `${origin}: ${directory}${command}`);
+                    assert.match(result.stderr, directory ? /Use a literal directory/ : /inline --body/);
+                    assert.match(readFileSync(f.calls, 'utf8'), /repos\/Cratis\/AI\/contents\/\.github\/workflows/);
+                }
+                const before = readFileSync(f.calls, 'utf8');
+                for (const command of [
+                    'gh pr edit https://github.com/Someone/Personal/pull/471 --body inline',
+                    'gh pr edit 471 --repo Someone/Personal --body inline',
+                    'GH_REPO=Someone/Personal gh pr edit 471 --body inline',
+                    'env GH_REPO=Someone/Personal gh pr edit 471 --body inline',
+                ]) {
+                    const result = f.hook(`${directory}${command}`, { GH_REPO: 'Cratis/AI' });
+                    assert.equal(result.status, 0, result.stderr);
+                    assert.equal(result.stderr, '');
+                }
+                assert.equal(readFileSync(f.calls, 'utf8'), before);
+            }
+        }
+        assert.equal(f.hook('cd "$HOME" && gh pr edit 471 --body inline', { GH_REPO: 'Cratis/AI' }).status, 2);
+        const personal = f.hook('cd "$HOME" && gh pr edit 471 --body inline', { GH_REPO: 'Someone/Personal' });
+        assert.equal(personal.status, 0, personal.stderr);
+        assert.equal(personal.stderr, '');
+        assert.equal(f.hook('cd "$HOME" && gh pr edit 471 --repo Cratis/AI --body inline', { TEST_REMOTE_CALLERS: '0' }).status, 0);
+    } finally { f.cleanup(); }
+});
+
+test('unguarded edits from unknown directories do not skip later guarded edits', () => {
+    const f = fixture();
+    try {
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        for (const prefix of ['', 'GH_REPO=', 'env GH_REPO=']) {
+            const environment = { GH_REPO: prefix ? 'Cratis/Other' : undefined };
+            const first = `cd "$HOME" && ${prefix} gh pr edit 1 --add-label x`;
+            const skipped = f.hook(first, environment);
+            assert.equal(skipped.status, 0, skipped.stderr);
+            assert.equal(skipped.stderr, '');
+            for (const directory of ['', 'cd /tmp && ']) {
+                const result = f.hook(`${first}; ${directory}gh pr edit https://github.com/Cratis/AI/pull/471 --body inline`, environment);
+                assert.equal(result.status, 2, result.stderr);
+                assert.match(result.stderr, directory ? /inline --body/ : /Use a literal directory/);
+                assert.match(readFileSync(f.calls, 'utf8'), /repos\/Cratis\/AI\/contents\/\.github\/workflows/);
+            }
+        }
+        assert.equal(f.hook('cd "$HOME" && GH_REPO= gh pr edit 1 --repo "$R" --add-label x', { GH_REPO: 'Cratis/Other' }).status, 2);
+    } finally { f.cleanup(); }
+});
+
 test('dynamic directories only block executable PR mutations, not quoted examples', () => {
     const f = fixture();
     try {
@@ -338,7 +482,7 @@ test('metadata edit options consume values before selecting an explicit or curre
                 assert.equal(result.status, 0, result.stderr);
                 const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
                 const view = calls.filter(args => args[0] === 'pr').at(-1);
-                assert.deepEqual(view, ['pr', 'view', ...(target ? [target, '--repo', 'Cratis/Example'] : []), '--json', 'labels,body,author,baseRefName']);
+                assert.deepEqual(view, ['pr', 'view', ...(target ? [target] : []), '--json', 'labels,body,author,baseRefName']);
             }
         }
         for (const flags of ['--head branch --template template.md', '-H branch -T template.md', '-Hbranch -Ttemplate.md']) {
