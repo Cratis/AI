@@ -32,7 +32,7 @@ reports what: `cratis-screenplay-toolchain` `references/versions.md`.
 | `reads` under a reaction trigger that `produces` directly | accepted | `PLAY0268` |
 | Generated properties, `returns` responses | authorable, syntax-only | `PLAY0268`; allocated to ESM v8 |
 | `system`, `operation` | authorable, syntax-only | `PLAY0268`; allocated to ESM v9 |
-| `eventsource`, `stream` | authorable, authoring-only | `PLAY0268`; allocated to ESM v10 |
+| `eventsource`, `stream` | authorable, authoring-only | `PLAY0268`; allocated, not implemented (`cratis-screenplay-toolchain` `references/sources-and-streams.md`) |
 | UI constructs | accepted | information `PLAY0269` |
 
 A model that carries one of the blocked constructs is still a valid design model. Never remove

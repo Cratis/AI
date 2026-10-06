@@ -85,6 +85,11 @@ Facts that surprise:
 
 ## What Stage 4.24 admits
 
+A model using `eventsource`, `stream` or command routes is refused (`STAGE-ESM-016`), and
+rendered appends never carry event source type, event stream type or event stream id, so
+Chronicle's defaults apply (Stage#177, #200, #201; Screenplay#407). Gap-fill the routing by
+hand; see `cratis-screenplay-toolchain` `references/sources-and-streams.md`.
+
 Whole-model admission needs ESM schema v1 to v3; anything else is `STAGE-ESM-016`. Event
 generations (v4) also fail the CLI pre-check `CLI-RENDER-003`. The admitted vertical:
 

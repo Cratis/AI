@@ -34,6 +34,10 @@
     {
       "kind": "skill-contains",
       "value": "no specification lacks an executable equivalent"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "case A or C today"
     }
   ]
 }

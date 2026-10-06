@@ -67,7 +67,10 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
    each event belongs, and decide retain, split, view instead, or unresolved, by lifecycle and
    invariant consequences, not names or length. For Chronicle keep event-source identity,
    namespace, process-stream routing and concurrency scope apart
-   (`references/chronicle-boundaries.md`).
+   (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
+   command routes can be authored and validated but not bound, run or rendered today
+   (`PLAY0268`, `STAGE-ESM-016`): keep them as intent and hand-write the routing
+   (`cratis-screenplay-toolchain` `references/sources-and-streams.md`).
 2. **Account for every invariant.** One row per rule in the table from
    `references/consistency-and-concurrency.md`: rule, authoritative inputs, all paths that can
    affect it, intended atomic decision point, exact construct, status (`enforced` / `recorded` /

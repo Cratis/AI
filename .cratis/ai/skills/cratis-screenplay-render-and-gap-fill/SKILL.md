@@ -62,6 +62,10 @@ assume an answer to 4, and record it as `blocked` for the user.
 | **B. Generated base plus authorized gap-fill** | an earlier admitted whole-model render exists and the user separately authorized hand-written scope, or a seam the model names needs an adapter | the generated output stays managed and untouched; hand-written code lives in `Customizations/` or a separate project (seam adapters by this skill, business gap-fill by `slice-implementer`), serves named model elements only, never claims render admission, and V5 is reported for the generated base **with its scope stated** |
 | **C. Fully hand-written delivery** | the scope cannot render and no generated base is wanted | `slice-implementer` delivers it with the model as the contract (`references/gap-fill-handoff.md`); V5 is `not run: no render` |
 
+Models with event sources, streams or command routes are case A or C today: they cannot
+bind or render (`PLAY0268`, `STAGE-ESM-016`), so hand-write the code with the model as the
+contract (`cratis-screenplay-toolchain` `references/sources-and-streams.md`).
+
 Two rules hold in every case: a customization never makes a rejected model renderable, and
 a whole-application V5 is never claimed from a subset. The CLI renders whole applications
 only; a dependency-closed scope selection does not exist, so do not fake one with an

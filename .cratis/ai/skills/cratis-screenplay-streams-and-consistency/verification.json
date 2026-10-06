@@ -11,6 +11,7 @@
     { "kind": "skill-contains", "value": "retry identity" },
     { "kind": "skill-contains", "value": "CHR0034" },
     { "kind": "skill-contains", "value": "No calculated events" },
-    { "kind": "skill-contains", "value": "decision tree and red flags" }
+    { "kind": "skill-contains", "value": "decision tree and red flags" },
+    { "kind": "skill-contains", "value": "not bound, run or rendered" }
   ]
 }

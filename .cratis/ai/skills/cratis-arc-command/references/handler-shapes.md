@@ -130,6 +130,29 @@ public IEnumerable<object> Handle() =>
 `EventForEventSourceId` also carries optional `Subject`, `EventStreamType` and
 `EventStreamId` init members when the target stream is not the default.
 
+A command that always appends through a Chronicle event source definition (Arc 22.49.0
+and later, definitions from Chronicle 19.30.0) declares it with
+`[EventSource<TSource>(stream)]` from `Cratis.Arc.Chronicle.Commands`; the definition
+supplies the event source type and validates the optional stream name:
+
+```csharp
+[EventSource]
+[EventStream("transactions")]
+public class Account : IEventSource;
+
+[Command]
+[EventSource<Account>("transactions")]
+public record RecordTransaction(AccountId AccountId, decimal Amount)
+{
+    public <TransactionRecorded> Handle() => new(Amount);
+}
+```
+
+An event that sets legacy `EventSourceType`/`EventStreamType` is appended by those
+strings, not through the definition. A command may also implement
+`ICanProvideEventStreamId` to supply the stream id. Do not combine a definition with
+contradicting `[EventSourceType]`/`[EventStreamType]` attributes.
+
 Concurrency scope is resolved **per target stream** — one expected tail per
 event source id, not one shared across the streams a cross-stream command writes
 to.

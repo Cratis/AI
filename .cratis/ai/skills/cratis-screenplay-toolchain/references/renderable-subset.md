@@ -14,6 +14,11 @@ rejects members. A model that binds only on the standalone tool is not renderabl
 
 ## What Stage 4.24 admits
 
+Models using `eventsource`, `stream` or command routes are not renderable: they fail
+binding (`PLAY0268`) and Stage refuses their ESM version (`STAGE-ESM-016`); rendered
+appends never carry event source type, event stream type or event stream id, so
+Chronicle's defaults apply (Stage#177, #200, #201). See `sources-and-streams.md`.
+
 Whole-model admission requires ESM schema v1 to v3; anything else is STAGE-ESM-016 (v4
 generations also fail the CLI pre-check CLI-RENDER-003). The admitted vertical is concepts,
 composite types, one command to its events, a one-instance projection, an optional keyed
