@@ -3,8 +3,8 @@
 #
 # Looks at what actually changed in the working tree, runs only the gates that change touches,
 # and exits 2 (blocking turn-end, stderr fed back to the model) when one fails. It never edits
-# code: it only builds, tests and lints. If nothing relevant changed it exits immediately and
-# silently, so a documentation- or corpus-only turn costs nothing.
+# code: it only builds, tests and lints. With no changes it exits silently. An empty plan for
+# a changed tree reports on stderr that no product verification was performed, without running gates.
 #
 # Gate commands are data (quality-gates.json), not code — see that file for the schema.
 #
@@ -31,7 +31,7 @@ if [ -n "$input" ] && [ "$(hook_json "$input" '.stop_hook_active')" = "true" ]; 
 fi
 
 root="$(hook_repo_root)"
-here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+here="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 config="${CRATIS_HOOKS_GATES:-$here/quality-gates.json}"
 dryrun="${CRATIS_HOOKS_GATE_DRYRUN:-0}"
 
@@ -119,10 +119,10 @@ repository_paths() {
 
 # An install manifest distinguishes a managed copy from the corpus's authored source.
 # Resolve actual targets, not adapter names: a product may legitimately own .agents (etc.).
-physical_root="$(cd "$root" && pwd -P)"
+physical_root="$(cd -P "$root" && pwd -P)"
 managed_root=""
 if [ -f "$root/.cratis/ai.manifest.json" ] && [ -d "$root/.cratis/ai" ]; then
-    managed_root="$(cd "$root/.cratis/ai" && pwd -P)"
+    managed_root="$(cd -P "$root/.cratis/ai" && pwd -P)"
 fi
 
 repository_project_path() {
@@ -130,7 +130,7 @@ repository_project_path() {
     [ -f "$path" ] || return 1
     # cd -P resolves directory adapters; readlink also covers package-file adapters.
     while :; do
-        dir="$(cd "$(dirname "$path")" 2>/dev/null && pwd -P)" || return 1
+        dir="$(cd -P "$(dirname "$path")" 2>/dev/null && pwd -P)" || return 1
         path="$dir/$(basename "$path")"
         [ -L "$path" ] || break
         hops=$((hops + 1))
@@ -149,43 +149,74 @@ repository_project_path() {
     fi
 }
 
-# Globs retain their ordered preference (root project, else nested). Within a glob,
-# prefer the deepest project containing a change, then the first sorted eligible path.
-# This selects the affected fixture in a library with multiple authored Node packages.
-discover_path() {
-    local g candidates candidate match dir p score best
+# Find the deepest containing project for EACH triggering path, not unrelated or excluded
+# changes. Globs break ties between project files in the same directory. A single eligible
+# project can own source outside its directory; several ambiguous projects require configuration.
+discover_paths() {
+    local g candidates candidate eligible="" count=0 first="" match dir p depth best selected=""
     while IFS= read -r g; do
         [ -n "$g" ] || continue
         candidates="$(repository_paths | CRATIS_GLOB="$g" awk "$hook_glob_awk_lib"'
             BEGIN { re = g2re(ENVIRON["CRATIS_GLOB"]) }
             $0 ~ re { print }
         ')"
-        match=""
-        best=-1
         while IFS= read -r candidate; do
             [ -n "$candidate" ] || continue
             repository_project_path "$candidate" || continue
-            score=0
-            dir="$(dirname "$candidate")"
-            while IFS= read -r p; do
-                case "$p" in
-                    "$dir"/*) score=${#dir}; break ;;
-                esac
-            done <<EOF
-$changed
-EOF
-            if [ "$score" -gt "$best" ]; then
-                match="$candidate"
-                best="$score"
-            fi
+            # Several globs can match the same project file.
+            case "
+$eligible
+" in
+                *"
+$candidate
+"*) continue ;;
+            esac
+            eligible="${eligible}${eligible:+
+}$candidate"
+            count=$((count + 1))
+            [ -n "$first" ] || first="$candidate"
         done <<EOF
 $candidates
 EOF
-        [ -n "$match" ] && { printf '%s\n' "$match"; return 0; }
     done <<EOF
 $1
 EOF
-    return 1
+    [ "$count" -gt 0 ] || return 1
+    while IFS= read -r p; do
+        [ -n "$p" ] || continue
+        match=""
+        best=-1
+        while IFS= read -r candidate; do
+            dir="$(dirname "$candidate")"
+            case "$p" in
+                "$dir"/*) ;;
+                *) [ "$dir" = "." ] || continue ;;
+            esac
+            # All containing directories are ancestors of this same path, so length
+            # orders their depth; unrelated directory names never enter this comparison.
+            depth=${#dir}
+            [ "$dir" = "." ] && depth=0
+            if [ "$depth" -gt "$best" ]; then
+                match="$candidate"
+                best=$depth
+            fi
+        done <<EOF
+$eligible
+EOF
+        if [ -z "$match" ]; then
+            if [ "$count" -eq 1 ]; then
+                match="$first"
+            else
+                printf 'cratis-quality-gate: UNVERIFIED — no containing project for %s among multiple candidates. Configure workingDirectory.\n' "$p" >&2
+                return 2
+            fi
+        fi
+        selected="${selected}${selected:+
+}$match"
+    done <<EOF
+$2
+EOF
+    printf '%s\n' "$selected" | LC_ALL=C sort -u
 }
 
 gate_count="$(jq -r '.gates | length' "$config")"
@@ -197,23 +228,23 @@ tmp_root="$(hook_state_dir "$(hook_json "$input" '.session_id')")" || tmp_root="
 log_dir="$tmp_root/gate-logs"
 mkdir -p "$log_dir" 2>/dev/null || log_dir="${TMPDIR:-/tmp}"
 
-# Does any changed path match this gate's globs (and survive its excludes)?
-gate_triggered() {
+# Collect ALL paths matching this gate's globs after its exclusions, for discovery too.
+gate_changed_paths() {
     local idx="$1" inc exc p
     inc="$(jq -r --argjson i "$idx" '.gates[$i].changed // [] | .[]' "$config")"
     exc="$(jq -r --argjson i "$idx" '.gates[$i].excludeChanged // [] | .[]' "$config")"
-    [ -n "$inc" ] || return 1
+    [ -n "$inc" ] || return 0
     while IFS= read -r p; do
         [ -n "$p" ] || continue
         printf '%s\n' "$inc" | hook_glob_match "$p" || continue
         if [ -n "$exc" ]; then
             printf '%s\n' "$exc" | hook_glob_match "$p" && continue
         fi
-        return 0
+        printf '%s\n' "$p"
     done <<EOF
 $changed
 EOF
-    return 1
+    return 0
 }
 
 # Does the package.json at $1 define the script named $2? A missing file or a file that is not
@@ -264,76 +295,89 @@ while [ "$idx" -lt "$gate_count" ]; do
     desc="$(jq -r --argjson i "$idx" '.gates[$i].description // ""' "$config")"
     wd="$(jq -r --argjson i "$idx" '.gates[$i].workingDirectory // ""' "$config")"
 
-    if ! gate_triggered "$idx"; then
+    gate_changes="$(gate_changed_paths "$idx")"
+    if [ -z "$gate_changes" ]; then
         [ "$dryrun" = "1" ] && printf 'cratis-quality-gate: SKIP  %-24s (no matching change)\n' "$id" >&2
         idx=$((idx + 1))
         continue
     fi
 
-    # workingDirectoryFrom is discovery AND requirement in one: the gate runs in the directory
-    # of the discovered project file, and a repository holding no such file is a NO-OP.
-    if [ -z "$wd" ]; then
+    # Discovery is a requirement and can select multiple affected project directories.
+    workdirs="$wd"
+    if [ -z "$workdirs" ]; then
         wd_globs="$(jq -r --argjson i "$idx" '.gates[$i].workingDirectoryFrom // [] | .[]' "$config")"
         if [ -n "$wd_globs" ]; then
-            wd_path="$(discover_path "$wd_globs" || true)"
-            if [ -z "$wd_path" ]; then
+            discovery_rc=0
+            wd_paths="$(discover_paths "$wd_globs" "$gate_changes")" || discovery_rc=$?
+            if [ "$discovery_rc" -eq 2 ]; then
+                printf 'cratis-quality-gate: UNVERIFIED %-24s — ambiguous project discovery.\n' "$id" >&2
+                exit 2
+            fi
+            if [ -z "$wd_paths" ]; then
                 printf 'cratis-quality-gate: NO-OP %-24s — no repository path matches %s. Configure it in %s.\n' \
                     "$id" "$(printf '%s' "$wd_globs" | tr '\n' ' ')" "${config#"$root"/}" >&2
                 idx=$((idx + 1))
                 continue
             fi
-            wd="$(dirname "$wd_path")"
+            workdirs="$(while IFS= read -r wd_path; do dirname "$wd_path"; done <<EOF
+$wd_paths
+EOF
+)"
+            workdirs="$(printf '%s\n' "$workdirs" | LC_ALL=C sort -u)"
         fi
     fi
-    [ -n "$wd" ] || wd="."
+    [ -n "$workdirs" ] || workdirs="."
 
-    unmet="$(gate_unmet "$idx" "$wd")"
-    if [ -n "$unmet" ]; then
-        printf 'cratis-quality-gate: NO-OP %-24s — %s. Configure it in %s.\n' \
-            "$id" "$unmet" "${config#"$root"/}" >&2
-        idx=$((idx + 1))
-        continue
-    fi
+    project_index=0
+    while IFS= read -r wd; do
+        project_index=$((project_index + 1))
+        unmet="$(gate_unmet "$idx" "$wd")"
+        if [ -n "$unmet" ]; then
+            printf 'cratis-quality-gate: NO-OP %-24s — %s. Configure it in %s.\n' \
+                "$id" "$unmet" "${config#"$root"/}" >&2
+            continue
+        fi
 
-    cmd=()
-    while IFS= read -r arg; do
-        cmd+=("$arg")
-    done <<EOF
+        cmd=()
+        while IFS= read -r arg; do
+            cmd+=("$arg")
+        done <<EOF
 $(jq -r --argjson i "$idx" '.gates[$i].command // [] | .[]' "$config")
 EOF
-    if [ "${#cmd[@]}" -eq 0 ]; then
-        idx=$((idx + 1))
-        continue
-    fi
+        if [ "${#cmd[@]}" -eq 0 ]; then
+            continue
+        fi
 
-    if [ "$dryrun" = "1" ]; then
-        printf 'cratis-quality-gate: RUN   %-24s %s\n                            $ %s   (cwd: %s)\n' \
-            "$id" "$desc" "${cmd[*]}" "$wd" >&2
-        idx=$((idx + 1))
+        if [ "$dryrun" = "1" ]; then
+            printf 'cratis-quality-gate: RUN   %-24s %s\n                            $ %s   (cwd: %s)\n' \
+                "$id" "$desc" "${cmd[*]}" "$wd" >&2
+            ran=$((ran + 1))
+            continue
+        fi
+
+        log="$log_dir/$id.log"
+        [ "$project_index" -eq 1 ] || log="$log_dir/$id-$project_index.log"
+        rc=0
+        (cd -P "$root/$wd" && "${cmd[@]}") >"$log" 2>&1 || rc=$?
         ran=$((ran + 1))
-        continue
-    fi
 
-    log="$log_dir/$id.log"
-    rc=0
-    (cd "$root/$wd" && "${cmd[@]}") >"$log" 2>&1 || rc=$?
-    ran=$((ran + 1))
-
-    if [ "$rc" -ne 0 ]; then
-        {
-            printf 'QUALITY GATE FAILED: %s (exit %s)\n' "$id" "$rc"
-            printf '  %s\n' "$desc"
-            printf '  $ %s   (cwd: %s)\n\n' "${cmd[*]}" "$wd"
-            printf -- '--- last %s lines ---\n' "$max_lines"
-            tail -n "$max_lines" "$log" 2>/dev/null || true
-            printf -- '--- end ---\n\n'
-            printf 'Fix the failure and re-run the gate. Never change code merely to make a gate pass,\n'
-            printf 'and never suppress warnings. Full log: %s\n' "$log"
-        } >&2
-        [ "$fail_fast" = "true" ] && exit 2
-        failed=1
-    fi
-
+        if [ "$rc" -ne 0 ]; then
+            {
+                printf 'QUALITY GATE FAILED: %s (exit %s)\n' "$id" "$rc"
+                printf '  %s\n' "$desc"
+                printf '  $ %s   (cwd: %s)\n\n' "${cmd[*]}" "$wd"
+                printf -- '--- last %s lines ---\n' "$max_lines"
+                tail -n "$max_lines" "$log" 2>/dev/null || true
+                printf -- '--- end ---\n\n'
+                printf 'Fix the failure and re-run the gate. Never change code merely to make a gate pass,\n'
+                printf 'and never suppress warnings. Full log: %s\n' "$log"
+            } >&2
+            [ "$fail_fast" = "true" ] && exit 2
+            failed=1
+        fi
+    done <<EOF
+$workdirs
+EOF
     idx=$((idx + 1))
 done
 
