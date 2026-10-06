@@ -13,6 +13,8 @@
     { "kind": "skill-contains", "value": "No calculated events" },
     { "kind": "skill-contains", "value": "decision tree and red flags" },
     { "kind": "skill-contains", "value": "not bound, run or rendered" },
-    { "kind": "skill-contains", "value": "STAGE-ESM-026" }
+    { "kind": "skill-contains", "value": "STAGE-ESM-026" },
+    { "kind": "skill-contains", "value": "generated values give no\n   idempotency, retry or deduplication guarantee" },
+    { "kind": "skill-contains", "value": "no supported ESM version\n   admits them" }
   ]
 }

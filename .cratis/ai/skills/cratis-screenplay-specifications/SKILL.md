@@ -30,14 +30,15 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original parser, binder and reference execution evidence |
 | `Cratis.Screenplay` | main `fd18129` | Inline facts, `optional` and clock spelling; changed examples compiled |
+| `Cratis.Screenplay` | `4.68.0` (`79801bf`) | ESM v7 generated fixtures and `then returns` (decision 0026, `specifications.md` "Generated fixtures and return expectations"): the excerpt matches the compiled example in `cratis-screenplay-toolchain`, whose specifications run in the reference runner |
 | `Cratis.Screenplay` | `4.66.0` (`c89198b`) | ESM v6 specification actions and reaction cascades, `then no readmodel`, `$strings` rejections, `invokes` caller rule; probed with the standalone tool and its MCP server |
 
 The update follows `commands.md`, `events.md`, `types.md` and
 `specifications.md` at that main commit (after v4.52.0). This pass compiles the
 changed examples; it does not rerun the reference runner.
 
-**Which tool says what.** The standalone `screenplay` tool 4.66.0 admits ESM v1-v6.
-The `cratis` CLI 3.28.2 bundles the same Screenplay 4.66.0. Before `cratis` 3.28.2 the
+**Which tool says what.** The standalone `screenplay` tool 4.68.0 admits ESM v1-v7.
+The `cratis` CLI 3.28.2 and 3.28.3 bundle Screenplay 4.66.0 (ESM v1-v6: generated fixtures and `then returns` report `PLAY0268`). Before `cratis` 3.28.2 the
 bundle was Screenplay 4.60.1, which admitted ESM v1-v5 only and reported a false
 `PLAY0285` on reaction cascades (see "Version skew"). Facts below marked **ESM v6**
 hold for Screenplay 4.61.0 and later: the standalone tool and `cratis` 3.28.2 or later. The full table is in `cratis-screenplay-toolchain`
@@ -74,6 +75,8 @@ decision 0022. They do not exist before v4.48.0.
 | `when clock "<instant>"` | the clock reaches an instant; scheduled reactions that are due run (v4.48.0) |
 | `when trigger <Trigger>` | an application trigger fires with the values beneath it (v4.48.0) |
 | `given capture` / `when capture <Capture>` | an earlier and the current record of a capture's source (v4.48.0) |
+| `generated <name> = <value>` | beneath `when <Command>`: the fixture for a generated property other than the identifier (ESM v7); `for` beneath the `when` supplies the generated identifier |
+| `then returns [<value>]` | the command's response (ESM v7): `then returns "<uuid>"` for a scalar, `then returns` with named `field = value` lines for a subset of a record |
 | `then <EventType>` | an expected new event |
 | `then events in any order` | compare the new events without regard to order |
 | `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
@@ -241,6 +244,46 @@ module Invoicing
   exactly what `then query` with `arguments` and `result` would, so on a version
   before v4.48.0 write it that way instead.
 
+## Generated fixtures and return expectations (ESM v7)
+
+Standalone `screenplay` 4.68.0 or later binds and runs these; the cratis CLI 3.28.3 (bundled 4.66.0) does not
+bind them, and Stage does not render ESM v7 yet (`STAGE-ESM-016`, Stage#201 in progress), so they pin the
+contract of a hand-written command. The model and rules are in `cratis-screenplay-command-surface`; the
+complete example is `cratis-screenplay-toolchain` `references/generated-responses-example.md`.
+
+```screenplay excerpt
+specification RegisteringReturnsIdentifiers
+  when RegisterProject
+    for "11111111-1111-1111-1111-111111111111"
+    generated receiptId = "22222222-2222-2222-2222-222222222222"
+    name = "Apollo"
+  then ProjectRegistered
+    for "11111111-1111-1111-1111-111111111111"
+    name = "Apollo"
+  then returns
+    receiptId = "22222222-2222-2222-2222-222222222222"
+```
+
+- `for` beneath `when` supplies the generated identifier and an indented `generated <name> = <value>` supplies any other
+  generated value; neither goes on the `when` header, and neither is a request mapping. Ordinary `generated = <value>`
+  is an input mapping for a property named `generated`.
+- A scalar response is `then returns <value>`; a record uses `then returns` with a non-empty subset of its named
+  fields (unknown, duplicate, nongenerated or identifier fixture targets are rejected). Values are concrete literals or
+  structured values. A return expectation needs a command action, occurs at most once and cannot accompany
+  `then error` or `then denied`; event and state assertions may coexist.
+- The reference runner compares scalar values by semantic equality and records by the asserted subset, reporting
+  differences in response field order. An absent optional source yields `Null`; arrays compare in order.
+- `then returns` counts as a success outcome but does not relax event comparison: a command specification with
+  no expected events still asserts that no facts were produced.
+- If execution reaches generation without every generated value supplied, the run is `Unsupported(IdentityAllocation)` and
+  the specification never passes; nothing is invented. A denial or validation failure happens before generation and
+  keeps its own outcome.
+- For a generated identifier `for` is the generation fixture, not a destination assertion: expected events state their
+  own destinations. For commands without a generated identifier `when ... for` keeps the destination assertion.
+  UUID spellings on generated values normalize to lowercase hyphenated form.
+- A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)` (no fixture channel); a
+  response-only command runs and its response is discarded.
+
 ## Actions beyond commands
 
 A slice is not always set off by a command. Name what does:
@@ -341,7 +384,7 @@ module Collections
 `PLAY0285` (a specification's expected event contradicts every producer of its
 `when` command) runs in the syntax pass, with no binding. Reachability through
 reactions and `invokes` was added after Screenplay 4.60.1. So the example above
-passes `screenplay` 4.66.0 (and is executable-ready over its MCP server) and also passes
+passes `screenplay` 4.68.0 (and is executable-ready over its MCP server) and also passes
 `cratis screenplay validate` 3.28.2 (probed); it failed `cratis screenplay validate` 3.27.1 with
 `PLAY0285` "Specification outcome 'ReminderScheduled' cannot be produced by 'SendInvoice'",
 exit 5 (Cratis/cli#242). If an older bundle still reports it, it is a tool skew, not a
@@ -518,7 +561,7 @@ For view specifications:
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.66.0 or `cratis` 3.28.2; under `cratis` before 3.28.2 expect the false
+      (standalone 4.68.0 or `cratis` 3.28.2 or later, bundling 4.66.0; under `cratis` before 3.28.2 expect the false
       `PLAY0285` on reaction cascades and record that it is skew).
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.

@@ -4,7 +4,7 @@
 that tag. Rule: the compiler you ran decides what the tool accepts today; the documentation
 and the domain decide what the model should mean. When they disagree, follow the compiler
 for syntax, keep the intended semantics in the model, and record the gap (an issue).
-Tool names mean the standalone `screenplay` 4.66.0 and `cratis` 3.28.2 (bundled Screenplay
+Tool names mean the standalone `screenplay` 4.68.0 and `cratis` 3.28.2 (bundled Screenplay
 4.66.0; before 3.28.2 bundled 4.60.1); see `versions.md`. [probed] marks a row re-checked by running a tool; the rest are
 read from source or documentation.
 
@@ -32,9 +32,9 @@ read from source or documentation.
 | 19 | `$strings` constraint messages | `D/constraints.md:31` vs `D/internationalization.md:55` | the compiler keeps the key; realization localizes |
 | 20 | composite key braces | optional in the EBNF; both forms in docs | both fine |
 | 21 | counters list | `D/projections/index.md:54` lists only increment and decrement | `count` exists too [probed] |
-| 22 | ESM version allocation | `numbers exact` is **ESM v7** (decision 0024, proposed); decision reads are **v11** (decision 0023) | the decisions (`decisions/0023`, `0024`) |
+| 22 | ESM version allocation | older text and decisions 0023 and 0024 give exact numbers, operations, streams and reads fixed numbers (v7 to v11) | decision 0025 (accepted 2026-10-06): v7 is generated values and responses (decision 0026, released in 4.68.0); every other feature has no number until its release-ready admission, so say "not admitted by any supported ESM version" |
 | 23 | claim conditions | the condition grammar lists `==` | claims need `matches` (PLAY0120) [probed] |
-| 24 | `numbers exact` | released in 4.64.0 as syntax only, but absent from `D/grammar.md`; documented only in `D/diagnostics.md` (PLAY0508 to PLAY0513) | the compiler: it parses, never binds (PLAY0268), PLAY0001 on older compilers [probed] |
+| 24 | `numbers exact` | released in 4.64.0 as syntax only, but absent from `D/grammar.md`; documented only in `D/diagnostics.md` (PLAY0508 to PLAY0513) | the compiler: it parses, never binds (PLAY0268, "not admitted by any supported executable model (ESM) version yet"), PLAY0001 on older compilers [probed] |
 | 25 | command `concurrency` | `D/commands.md:609` says the executable model "does not bind the `concurrency` block yet" | the binder reports PLAY0271 as an **error**, not a silent skip (`SemanticModelBinder.Commands.cs:32-38`) |
 | 26 | MCP approval policy | `D/mcp/reference.md:37` "Keep client approval enabled for both" vs the server instructions (`McpConnection.cs:14`) "hosts need not confirm them each time" | keep approval on; this skill's rule is explicit user approval before `apply` |
 | 27 | decision index | `decisions/README.md` row 0020 shows stage `none` while v5 is implemented | the code: v5 `then no readmodel` binds |

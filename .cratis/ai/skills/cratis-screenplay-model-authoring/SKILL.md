@@ -19,10 +19,11 @@ the executable profile and a complete compiled model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Current compiler, MCP (29/30 tools), roots fix; examples compiled with `--warnaserror` |
+| `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | Current compiler; admits ESM v7 (generated values and responses, decision 0026); examples compiled with `--warnaserror` and their specifications run |
+| `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | MCP (29/30 tools), roots fix; the MCP behaviour below was probed on it |
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs, rename/extraction and `optional` |
 | `Cratis.Screenplay` | `4.31.0` | Original compiler, ESM and workspace evidence |
-| `cratis` CLI | `3.28.3` | Bundles Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled 4.24.1; before 3.28.2: 4.60.1, ESM v5 at most, roots bug) |
+| `cratis` CLI | `3.28.3` | Bundles Screenplay 4.66.0 (no ESM v7) and Stage 4.24.2 (3.28.2 bundled 4.24.1; before 3.28.2: 4.60.1, ESM v5 at most, roots bug) |
 
 Facts about the MCP connection, source-map, `whenAppendedEvent`, identity
 persistence and the syntax-only constructs were read at tag `v4.66.0`
@@ -245,9 +246,10 @@ that the code compiles or behaves. Path resolution and `PLAY0430`-`PLAY0434`:
   defines them and maps them onto V1 to V5. `screenplay --warnaserror` checks
   syntax plus the consistency rules (`PLAY0282`-`PLAY0294`) but never binds, so a
   clean run is not a bound or executable result.
-- Personas are report-only and `generated`/`returns`, operations and event
-  sources/streams are authorable but not executable: neither is a reason to drop or
-  stub the construct.
+- Personas are report-only, operations and event sources/streams are authorable but
+  not executable (not admitted by any supported ESM version), and `generated`/`returns`
+  bind only from standalone 4.68.0 (ESM v7; not on the cratis 3.28.x bundle, not rendered by
+  Stage 4.24.2): none is a reason to drop or stub the construct.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
 - If execution is intended, validate with the owning downstream runtime as well.

@@ -40,13 +40,13 @@ Historical baseline evidence: the original examples were checked against the Scr
 and decisions 0003, 0006 and 0009; those original examples compiled with that
 version's compiler. The specification actions and ESM v6 text were checked at
 `v4.66.0` (see its row above), and the complete examples here and in
-`references/complete-examples.md` compile with the standalone 4.66.0 compiler.
+`references/complete-examples.md` compile with the standalone 4.68.0 compiler.
 Reverify before claiming another version behaves the same.
 
 ⚠️ **Which tool admits them depends on its Screenplay version.** The ESM level
 decides, not the slice type:
 
-- **Standalone `screenplay` 4.66.0 (ESM v1-v6, from 4.61.0):** `Automation` and
+- **Standalone `screenplay` 4.61.0 or later (ESM v6 from 4.61.0, v7 from 4.68.0; probed on 4.66.0, examples recompiled on 4.68.0):** `Automation` and
   `Translate` slices, reactions, declared triggers and captures bind, and the
   reference runner executes them. Probed: the complete example below is
   `executableReady` over `screenplay mcp`.
@@ -534,7 +534,7 @@ something is reported. `Startup` and `Shutdown` are registered the second way.
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.66.0, or `cratis` 3.28.2 or later). Under `cratis` before 3.28.2 expect
+      (standalone 4.68.0, or `cratis` 3.28.2 or later). Under `cratis` before 3.28.2 expect
       `PLAY0268` at binding and a false `PLAY0285` on cascade specifications, and report them
       as tool skew.
 - [ ] The tool that bound the model is named (Screenplay 4.61 or later, so standalone or

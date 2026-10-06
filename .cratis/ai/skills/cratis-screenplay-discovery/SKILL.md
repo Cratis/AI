@@ -49,7 +49,7 @@ Statements here were checked at those tags:
 | Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
 
 Every complete `screenplay` fence in this skill compiles with the standalone compiler
-4.66.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.28.2.
+4.68.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.28.2.
 
 ## Interview phase
 

@@ -27,7 +27,7 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 | --- | --- | --- |
 | cratis CLI | `v3.28.3` (`8b43fef`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled Stage 4.24.1; before 3.28.2: 4.60.1 and 4.24.0) |
 | Stage | `v4.24.2` (`32dcac4`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
-| Screenplay | `v4.66.0` (`c89198b`) | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules |
+| Screenplay | `v4.68.0` (`79801bf`) | standalone compiler for V1 to V3 (admits ESM v7); binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0` |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1` | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
@@ -64,8 +64,14 @@ assume an answer to 4, and record it as `blocked` for the user.
 
 Evolved events (a model that selects ESM v4) are gap-fill too: Stage 4.24.2 admits the v4 model but refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract. The cratis CLI bundles Stage 4.24.2 since 3.28.3 and reports an evolved event with `STAGE-ESM-026` (probed); 3.28.2 bundled Stage 4.24.1 (3.28.1 and earlier: 4.24.0) and refused a v4 model with `STAGE-ESM-016`.
 
+Generated command values and `returns` responses (ESM v7) bind and run in the reference runner on standalone
+Screenplay 4.68.0 but are not rendered: the cratis CLI 3.28.3 bundles 4.66.0 and reports `PLAY0268`, and Stage
+4.24.2 refuses ESM v7 with `STAGE-ESM-016` (Stage#201 in progress). A command that uses them is case A or C: keep
+the model, hand-write the command and its response with the model (and its fixtures and `then returns`
+specifications) as the contract, and report V3 from the standalone tool and V5 as `not run: no render`.
+
 Models with event sources, streams or command routes are case A or C today: they cannot
-bind or render (`PLAY0268`, `STAGE-ESM-016`), so hand-write the code with the model as the
+bind or render (`PLAY0268`: not admitted by any supported ESM version, so also `STAGE-ESM-016`), so hand-write the code with the model as the
 contract (`cratis-screenplay-toolchain` `references/sources-and-streams.md`).
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and

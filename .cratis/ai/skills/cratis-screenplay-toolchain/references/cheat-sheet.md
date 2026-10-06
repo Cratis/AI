@@ -16,7 +16,7 @@ Screenplay sources: `Documentation/screenplay/grammar.md` (EBNF; checked against
 by `for_Documentation/when_comparing_the_grammar_against_the_parsers.cs`),
 `projections/grammar.md`, `captures/grammar.md`. Documentation examples compile in
 Screenplay CI (`when_compiling_every_example.cs`) against repository main: the standalone
-compiler (4.66.0), which `cratis` 3.28.2 or later bundles; older cratis bundles differ (`versions.md`).
+compiler (4.68.0; `cratis` 3.28.2 or later bundles 4.66.0, which lacks ESM v7); older cratis bundles differ (`versions.md`).
 
 ## Lexical and structural rules
 - Spaces only, 2 per level (tabs: PLAY0006 W). Offside rule.

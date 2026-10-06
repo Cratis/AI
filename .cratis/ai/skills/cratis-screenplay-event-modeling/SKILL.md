@@ -106,7 +106,8 @@ source is the single flow model.
 | `Cratis.Screenplay` | `4.31.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
 | `Cratis.Screenplay.Tool` | `4.31.0` | The `screenplay` dotnet tool |
 | `Cratis.Screenplay` | main `fd18129` | Inline contracts and event context; changed nine-step examples compiled |
-| `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Current pin: the Step 7 clock example compiles and binds; persona, generated, operation and stream dispositions below were read at this tag |
+| `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | Current pin: the nine-step examples compile and their specifications run in the reference runner; generated values and responses (ESM v7) were read at this tag |
+| `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Persona, operation and stream dispositions below were read at this tag, and the Step 7 clock example was probed through MCP on it |
 
 The pin set for the whole Screenplay family, and which tool reports what, lives only in
 `cratis-screenplay-toolchain` `references/versions.md`. The `fd18129` update follows
@@ -114,7 +115,7 @@ The pin set for the whole Screenplay family, and which tool reports what, lives 
 compilation does not establish reference execution. The original baseline was checked at
 tag `v4.31.0` (commit `355dffb`): `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
 `projections/keys.md`, and decisions 0001 to 0014. Changed [nine-step examples](references/nine-steps.md)
-use the newer commit and the 4.66.0 tool; do not attribute them to the old tag.
+use the newer commit and the 4.66.0 and 4.68.0 tools; do not attribute them to the old tag.
 
 > **Method lineage.** The two-phase process, the nine steps, the four patterns and
 > the GWT discipline follow **Event Modeling** (Adam Dymitruk; Martin Dilger,
@@ -342,8 +343,8 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
 - [ ] If the model must reach a runtime, check it binds with the tool that will
-      consume it. The standalone 4.66.0 binder admits Automation and Translate slices
-      (ESM v6); Stage 4.24.0 admits ESM v1 to v3 (4.24.2: v1 to v4, evolved events refused with `STAGE-ESM-026`) and renders only `StateChange` and
+      consume it. The standalone 4.68.0 binder admits Automation and Translate slices
+      (ESM v6) and generated values and responses (ESM v7); Stage 4.24.0 admits ESM v1 to v3 (4.24.2: v1 to v4, evolved events refused with `STAGE-ESM-026`) and renders only `StateChange` and
       `StateView` slices, so automations and translations are gap-fill there.
 
 ## Parsed is not runnable
@@ -360,7 +361,7 @@ The independent verdicts V1 to V5 that report them are in
 What binds depends on **which tool** you ask, so name the tool and its version:
 
 - `Automation` and `Translate` slices, reactions, captures and triggers: the
-  standalone `screenplay` 4.66.0 and the `cratis` 3.28.2 bundle (same compiler) bind them (ESM v6).
+  standalone `screenplay` 4.66.0 or later and the `cratis` 3.28.2 bundle (4.66.0) bind them (ESM v6).
   The `cratis` 3.27.1 bundle (Screenplay 4.60.1) reported *Slice '<name>' of type '<type>'
   is not admitted by ESM v1.* Stage 4.24.2 admits only ESM v1 to v4 and renders none of them.
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
@@ -369,8 +370,11 @@ What binds depends on **which tool** you ask, so name the tool and its version:
 - `persona` declarations are report-only and never block; `@pii` and `@sensitive`
   concepts do block binding (`PLAY0268`). Keep them anyway: the classification is
   part of the model. Report the block.
-- Generated values and responses, operations and systems, and event sources and
-  streams are authorable but non-executable (`PLAY0268`); a command `handler` never binds.
+- Generated values and `returns` responses bind and execute from standalone 4.68.0 (ESM v7) but fail binding
+  with `PLAY0268` on the 4.66.0 bundled in `cratis` 3.28.x, and Stage 4.24.2 does not render them
+  (`STAGE-ESM-016`, Stage#201 in progress): gap-fill. Operations and systems, and event sources and
+  streams, are authorable but non-executable (`PLAY0268`; not admitted by any supported ESM version);
+  a command `handler` never binds.
 
 The ESM versions, the full disposition table and the Step 7 clock example's binding
 result are in [references/parsed-not-runnable.md](references/parsed-not-runnable.md)

@@ -1,8 +1,9 @@
 # Executable subset (what binds: V2 and V3)
 
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler version: Screenplay 4.66.0, standalone or bundled in cratis 3.28.2, admits ESM v1 to
-v6; the 4.60.1 compiler bundled in cratis before 3.28.2 admits v1 to v5. Tool facts and the exact v6 messages: `versions.md`. Always name
+compiler version: standalone Screenplay 4.68.0 admits ESM v1 to v7; the 4.66.0 compiler bundled in
+cratis 3.28.2 and 3.28.3 admits v1 to v6; the 4.60.1 compiler bundled in cratis before 3.28.2 admits v1 to v5.
+Tool facts and the exact v6 messages: `versions.md`. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass.
@@ -12,7 +13,8 @@ render. `screenplay <folder>` and `cratis screenplay validate` never bind (`verd
 
 Complete examples that bind live in `executable-example.md` (both compilers),
 `pdl-example.md` (projections, both compilers) and `automation-translate-example.md`
-(ESM v6; standalone tool and cratis 3.28.2 or later).
+(ESM v6; standalone tool and cratis 3.28.2 or later) and `generated-responses-example.md`
+(ESM v7; standalone tool 4.68.0 or later only).
 
 ## Admitted on both compilers
 
@@ -63,6 +65,40 @@ Complete examples that bind live in `executable-example.md` (both compilers),
   facts per scenario. A scenario with given equal to when fires nothing.
 - Command specifications that list reaction cascades (no false PLAY0285).
 - In a `then` list after `when append`, only what followed the appended event.
+
+## Generated values and responses (ESM v7): standalone 4.68.0 or later only
+
+Facts read at `v4.68.0`: decision 0026 and `Documentation/screenplay/{commands,specifications,interoperability}.md`.
+A model selects ESM v7 only when it uses a generated property, a response, a generated fixture or a `then returns`
+expectation; every other model keeps its version, bytes and revision. The cratis CLI 3.28.3 (bundled 4.66.0)
+reports `PLAY0268` for these constructs, and Stage 4.24.2 refuses ESM v7 with `STAGE-ESM-016` (Stage#201 in
+progress), so they bind and run but are not rendered: gap-fill with the model as contract. Complete example:
+`generated-responses-example.md`.
+
+- A generated property is command-only, required, scalar and a concept backed by `Uuid`; bare `Uuid`, optional and collection
+  types are invalid. Modifier order is `Type optional generated identifier`.
+- Generated values are not request inputs, form fields, invocation arguments or ordinary `when` values. Generation
+  runs after authorization and validation and before productions, so a denial or a validation failure never
+  reaches it.
+- A policy (including inherited or composed ones and the implicit `subject` of a generated identifier), a property
+  rule or a requirement that references a generated value reports `PLAY0273`; reference input properties only. A
+  generated property whose concept declares any validation rule (declarative, named or code) reports `PLAY0268`.
+  A reaction mapping into a generated property is invalid.
+- Responses: `returns <property>` is scalar; bare `returns` opens an ordered record of `<name> [<Type>] = <property>` fields
+  over direct properties of the same command (collections, read aliases, arithmetic and whole read models are not
+  supported). A response exists only on acceptance; a later reaction or scenario-query failure keeps the accepted facts and
+  no response. No response differs from a response whose optional source is `Null`.
+- A two-token `returns name` is a response when `name` is another property of this command; otherwise it declares a
+  property named `returns`. Use `returns @name` or `@returns Type` to force one reading.
+- Specifications: `when ... for "<uuid>"` supplies the generated identifier, an indented `generated <name> = <value>`
+  any other generated value, and `then returns` asserts the response (scalar value, or a non-empty named subset of a
+  record). A reached generated value without a fixture is `Unsupported(IdentityAllocation)`; the specification never
+  passes. `then returns` is a success outcome but does not relax the events comparison.
+- `for` on a generated identifier does not assert that explicitly routed productions target it. A plain `produces`
+  without `for` keeps its own allocation channel, which a fixture never satisfies; a generated identifier combined
+  with a reached plain production is `Unsupported(IdentityAllocation)` from source specifications.
+- A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)`; response-only commands run
+  and discard the response. Generated values give no idempotency, retry or deduplication guarantee.
 
 ## Code attachments (what binds, what never does)
 
@@ -126,7 +162,8 @@ bodies still leave their owner non-executable.
 | `join`, `children` or `remove via join` inside `nested` | blocked plan | binds; `UnsupportedProjectionBlock` |
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
-| `generated` or `returns` (v8), operations or systems (v9), `numbers exact` (v7), eventsource or stream (allocated, not implemented; `sources-and-streams.md`) | PLAY0268 | syntax only; one such construct leaves the **whole** application without an executable model |
+| `generated` or `returns` on a compiler before 4.68.0 (4.66.0 and 4.67.0 refuse; 4.66.0 is bundled in cratis 3.28.x) | PLAY0268 | admitted from standalone 4.68.0 (ESM v7), see above |
+| Operations or systems, `numbers exact`, eventsource or stream | PLAY0268 | not admitted by any supported ESM version; syntax only (`sources-and-streams.md`); one such construct leaves the **whole** application without an executable model |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
 | `given` or `then readmodel` missing the key property | PLAY0351 | key is the keyed query's `by` |
 | When-less spec asserting events or errors | PLAY0352 | |

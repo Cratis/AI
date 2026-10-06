@@ -1,6 +1,6 @@
 # Complete examples for the excerpts in SKILL.md
 
-Each document below is complete and compiles with the standalone `screenplay` 4.66.0
+Each document below is complete and compiles with the standalone `screenplay` 4.68.0
 (`--warnaserror`). The SKILL.md excerpts show the reaction, capture or trigger part of
 these documents. Documents marked ESM v6 need Screenplay 4.61 or later: the standalone tool and `cratis` 3.28.2
 (bundled 4.66.0) validate and bind them (probed); `cratis` 3.27.1 (Screenplay 4.60.1) reported

@@ -28,6 +28,12 @@ name them as unfinished.
   order, with full payloads and `for`. See `ReservingAGuestBerth`.
 - Traps: asserting a subset of events (lists are exact); leaving out `given caller` on a gated
   command; omitting `for` so the event lands on an allocated source.
+- Generated values and responses (ESM v7, standalone Screenplay 4.68.0; syntax in `cratis-screenplay-specifications`):
+  when the command has a `generated` property or a `returns` response, the happy path also supplies the
+  fixtures (`for` on the generated identifier, `generated <name> = <value>`) and asserts `then returns`.
+  Add the failing counterparts as separate specs: a rule rejection or denial (which happens before
+  generation and has no response), and a missing fixture, which is `Unsupported(IdentityAllocation)` and
+  never passes. A generated identifier is no retry identity (section 5).
 
 ## 2. Rule rejection (one per rule)
 - Ask: "Which values would you refuse, and what would you tell the person?"
