@@ -59,7 +59,7 @@ the format in `worked-example.md`.
 
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
-| A1 | Every read-model field maps from an event field, `$eventSourceId`, `$eventContext`, a literal, or a documented derivation (`count`, `add ... by`) | projection blocks; AutoMap name matches (on by default) | D (a missing target property is not reported by the compiler) |
+| A1 | Every read-model field maps from an event field, `$eventSourceId`, `$eventContext`, a literal, or a documented derivation (`count`, `add ... by`) | projection blocks; AutoMap name matches (on by default) | D (a declared field that nothing maps is reported by no tool; a mapping to an undeclared property fails binding at V3, PLAY0273, tier C when executable) |
 | A2 | Every event field comes from a command input, `$context` value, literal, capture field or reaction mapping | `produces` mappings, capture `map`, reaction `invokes` | C for undeclared names (warning), D for meaning |
 | A3 | Every command input is supplied by someone: screen form field, reaction mapping, capture, or a caller who knows it | screens, forms, reactions | D |
 | A4 | Every command input ends in an event field or is used by a rule | `produces`, `validate`, `require` | Q (an unused input is often a missed fact) |
