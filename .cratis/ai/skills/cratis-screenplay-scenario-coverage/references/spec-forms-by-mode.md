@@ -20,7 +20,8 @@ design model: keep it and record the gap.
 | `then events in any order` | yes | yes | yes |
 | Composite (JSON) values in specs | yes | yes | no |
 | Rules over dates or `today`, nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
-| Bodied rules, handlers, code policies | spec them | spec reported **unsupported**, never passed | no |
+| Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
+| Command handlers, `file` constraints | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
 
 ## Design mode
 Write the full intended behaviour, including scenarios the executable subset cannot run

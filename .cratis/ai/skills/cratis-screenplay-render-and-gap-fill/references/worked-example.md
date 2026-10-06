@@ -51,6 +51,7 @@ module Berths
       query AllBerths => BerthEntry[]
       projection BerthEntryProjection => BerthEntry
         from BerthReserved
+          berthId  = $eventSourceId
           boatName = boatName
 ```
 

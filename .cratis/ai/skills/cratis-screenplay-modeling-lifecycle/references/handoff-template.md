@@ -12,7 +12,7 @@ follows the structure used by the TrogonStack orchestrating skill (see `provenan
 Updated: <date> by <agent> (<actual model, or "model: not exposed">)
 Mode: design | executable | renderable
 Model root: <path>
-Source identity: <commit | commit+hash> / ws <revision> cat <catalogRevision> (ws only where available)
+Source identity: <commit+digest from the source-identity helper> / ws <revision> cat <catalogRevision> (ws only where available)
 Phase: <current>  Next: <phase + skill>
 Active: <scope> by <agent> since <time> | none   (a stale value means an interrupted run)
 
@@ -72,7 +72,7 @@ Source identity is defined in `verdicts-and-modes.md`. A dirty flag is never a r
 
 ```markdown
 Outcome: done | partial (<what is missing>) | blocked (<question ids>) | out-of-scope (<why>)
-Mode: <mode>   Model root: <path>   Source identity: <commit | commit+hash> [ws <revision>]
+Mode: <mode>   Model root: <path>   Source identity: <commit+digest from the source-identity helper> [ws <revision>]
 Agent: <name> on <actual model, or "model: not exposed">
 Changed declarations:
 - <kind> <address> - <address-preserving | identity-affecting>

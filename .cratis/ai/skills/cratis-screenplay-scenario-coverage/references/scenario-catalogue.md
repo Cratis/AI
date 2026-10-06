@@ -96,7 +96,8 @@ name them as unfinished.
 - Shape (once-only): `when <Command>` with the earlier fact as `given` (same `for`) -> the
   constraint's fixed message. Use `when append <Event>` for projection or automation
   triggers, and to isolate a constraint the command's own validation would reject first
-  (`AppendingARepeatedDeparture`); not otherwise for duplicates. See `RejectingARetriedReservation`, `RejectingARepeatedDeparture`.
+  (`AppendingARepeatedDeparture`); not otherwise for duplicates. See `RejectingARetriedReservation` (constraint message through `when <Command>`),
+  `RejectingARepeatedDeparture` (validation first) and `AppendingARepeatedDeparture` (isolated constraint).
 - n/a only when repeating is harmless and wanted (a note added twice is two notes).
 - Trap: claiming retry safety from a todo-list read model plus reaction; it shows intent, not
   delivery guarantees.

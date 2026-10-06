@@ -210,11 +210,31 @@ module Lockers
         given caller
           authenticated
           role "Attendant"
+        given LockerInstalled
+          for "6d1f0a52-4b8e-4c33-9d0e-1a2b3c4d5e01"
+          number = "B-07"
+          volume = 120
+        given LockerRequested
+          for "0c9e7b1d-2f3a-4e5b-8c6d-7e8f9a0b1c02"
+          preferredVolume = 100
+          requestedAt   = "2026-03-02T10:00:00Z"
+        given LockerRequested
+          for "5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c03"
+          preferredVolume = 90
+          requestedAt   = "2026-03-02T10:05:00Z"
         given LockerAssigned
           for "6d1f0a52-4b8e-4c33-9d0e-1a2b3c4d5e01"
           requestId = "0c9e7b1d-2f3a-4e5b-8c6d-7e8f9a0b1c02"
         when AssignLocker
           lockerId        = "6d1f0a52-4b8e-4c33-9d0e-1a2b3c4d5e01"
+          requestId = "5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c03"
+        then error "The locker is not free"
+      specification AppendingASecondAssignmentOfALocker
+        given LockerAssigned
+          for "6d1f0a52-4b8e-4c33-9d0e-1a2b3c4d5e01"
+          requestId = "0c9e7b1d-2f3a-4e5b-8c6d-7e8f9a0b1c02"
+        when append LockerAssigned
+          for "6d1f0a52-4b8e-4c33-9d0e-1a2b3c4d5e01"
           requestId = "5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c03"
         then error "The locker is already assigned"
 

@@ -51,11 +51,13 @@ module Courses
           CoursePassed
             for enrolmentId
             enrolmentId = enrolmentId          // copied on purpose: the reaction selects it as a value
+            completedAt = $context.occurred    // carried on the fact: a projection cannot read $eventContext.occurred
         produces when passed == false
           CourseFailed
             for enrolmentId
       event CoursePassed
         enrolmentId EnrolmentId
+        completedAt DateTime
       event CourseFailed
       constraint OneResultPerEnrolment
         unique event CoursePassed
@@ -71,6 +73,7 @@ module Courses
         then CoursePassed
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           enrolmentId = "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
+          completedAt = "2026-10-05T08:00:00Z"
         then CertificateSent
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           sentAt = "2026-10-05T08:00:00Z"
@@ -86,6 +89,7 @@ module Courses
         given caller
           authenticated
           role "Coordinator"
+        given clock "2026-10-05T08:00:00Z"
         when RecordCompletion
           enrolmentId = "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           passed      = false
@@ -105,21 +109,24 @@ module Certification
       projection CertificatesToSend => PendingCertificate
         from CoursePassed
           enrolmentId = $eventSourceId
-          completedAt = $eventContext.occurred
+          completedAt = completedAt
         remove with CertificateSent
       specification OpeningAnItem
         given CoursePassed
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           enrolmentId = "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
+          completedAt = "2026-10-05T08:00:00Z"
         then query PendingCertificateById
           arguments
             enrolmentId = "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           result
             enrolmentId = "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
+            completedAt = "2026-10-05T08:00:00Z"
       specification ClosingAnItem
         given CoursePassed
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           enrolmentId = "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
+          completedAt = "2026-10-05T08:00:00Z"
         when append CertificateSent
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           sentAt = "2026-10-05T08:00:00Z"
@@ -148,6 +155,7 @@ module Certification
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           sentAt = "2026-10-05T08:00:00Z"
       specification RefusingASecondSend
+        given clock "2026-10-05T08:00:00Z"
         given CertificateSent
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           sentAt = "2026-10-05T08:00:00Z"
@@ -167,6 +175,7 @@ module Certification
         when append CoursePassed
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           enrolmentId = "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
+          completedAt = "2026-10-05T08:00:00Z"
         then CertificateSent
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           sentAt = "2026-10-05T08:00:00Z"

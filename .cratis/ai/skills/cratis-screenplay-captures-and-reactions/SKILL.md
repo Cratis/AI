@@ -107,12 +107,15 @@ module Collections
     slice StateChange SendInvoice
       command SendInvoice
         invoiceId InvoiceId identifier
+        amount Decimal
         produces InvoiceSent
           for invoiceId
           invoiceId = invoiceId
+          amount = amount
           sentAt = $context.occurred
       event InvoiceSent
         invoiceId InvoiceId
+        amount Decimal
         sentAt DateTime
     slice StateChange CloseInvoice
       command CloseInvoice
@@ -136,6 +139,7 @@ module Collections
       projection InvoiceBalances => InvoiceBalance
         from InvoiceSent
           invoiceId = $eventSourceId
+          outstanding = amount
     slice StateChange SendPaymentReminder
       command SendPaymentReminder
         invoiceId InvoiceId identifier
@@ -184,6 +188,7 @@ module Collections
         when append InvoiceSent
           for "9c858901-8a57-4791-81fe-4c455b099bc9"
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
+          amount = 120
           sentAt = "2026-10-02T09:00:00Z"
         then ReminderScheduled
           for "9c858901-8a57-4791-81fe-4c455b099bc9"

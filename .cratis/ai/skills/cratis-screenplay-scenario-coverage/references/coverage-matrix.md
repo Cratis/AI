@@ -87,7 +87,7 @@ has a claim policy. Add one row per gated query, not only per command.
 
 Notes on the example:
 - A constraint explains enforcement but does not replace an example of its outcome:
-  `RecordDeparture` needs `RejectingARepeatedDeparture`; until it exists the cell is
+  `RecordDeparture` needs `AppendingARepeatedDeparture`; until it exists the cell is
   `open: repeated departure`.
 - When a command's own validation rejects the same history first (here `require booking.status ==
   "reserved"`), a command specification can only pin that validation message. Test the constraint

@@ -65,10 +65,17 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 ## Code attachments (what binds, what never does)
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
-code to an owner. Version 3 binds these as **opaque requirements**: reducer transitions,
-rule predicates, command and concept code validation, policy predicates, constraint
-predicates, query performers and reaction effects. Query performers and reaction bodies
-still leave their owner non-executable.
+code to an owner. Two kinds block binding (PLAY0268, V3 blocked, no specification runs):
+the command `handler` and the `file` constraint (see below). Everything else binds as an
+**opaque requirement** that needs a target to execute: reducer transitions, rule
+predicates, command and concept code validation, policy predicates, query performers and
+reaction effects. Query performers and reaction bodies still leave their owner
+non-executable.
+
+- A `file` constraint **never binds**: PLAY0268 "file implementation is not admitted by
+  the executable model" (`SemanticModelBinder.Constraints.cs`). Chronicle file constraints
+  can only declare uniqueness: declare it with `unique ...`, and put other rules in command
+  validation or a `require` condition.
 
 - A command `handler` **never binds**: PLAY0268 "Command '<n>' handler requires a
   constrained implementation attachment." This holds with a `file`, with a fence, and with
@@ -79,8 +86,10 @@ still leave their owner non-executable.
   with the model as the contract.
 - Stage 4.24 admits only pure reducer bodies (Roslyn allowlist, STAGE-ESM-019 and 022);
   code validation (STAGE-ESM-005) and opaque policies (STAGE-ESM-015) are refused.
-- The reference runner returns Unsupported for opaque bodies; a specification that needs
-  one never passes.
+- The reference runner returns Unsupported for the opaque bodies that do bind (rule and
+  policy predicates, code validation, reducer transitions); a specification that needs one
+  never passes. Handlers and file constraints are different: they leave the whole model
+  unbound, so no specification runs at all.
 
 ## Refused (code, reason): fix, or record as a mode gap
 

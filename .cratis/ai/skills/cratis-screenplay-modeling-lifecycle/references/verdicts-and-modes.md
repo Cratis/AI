@@ -43,7 +43,7 @@ V5 rules:
 ## Report template
 
 ```text
-Mode: executable   Source: <commit | commit+<hash>> / ws <revision> cat <catalogRevision>
+Mode: executable   Source: <commit+digest from the source-identity helper> / ws <revision> cat <catalogRevision>
 V1 authorable:   pass (N files)                      | fail: PLAYnnnn at file:line - meaning
 V2 diagnostics:  none (executable model)             | n diagnostics | not run: <reason>
 V3 binding:      ready                               | blocked: PLAYnnnn ... | not run: design mode

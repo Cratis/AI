@@ -317,6 +317,18 @@ module Courses
         when WithdrawEnrolment
           enrolmentId = "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
           courseId    = "a4e7c1d2-3b5f-4a6e-9c8d-7f1e2d3c4b02"
+        then error "The enrolment does not belong to that course"
+      specification AppendingASecondWithdrawal
+        given MemberEnrolled
+          for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
+          courseId = "a4e7c1d2-3b5f-4a6e-9c8d-7f1e2d3c4b02"
+          memberId = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+        given EnrolmentWithdrawn
+          for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
+          courseId = "a4e7c1d2-3b5f-4a6e-9c8d-7f1e2d3c4b02"
+        when append EnrolmentWithdrawn
+          for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
+          courseId = "a4e7c1d2-3b5f-4a6e-9c8d-7f1e2d3c4b02"
         then error "Constraint 'WithdrawOnce' is violated: the event source already has the constrained event."
 
     slice StateView ActiveEnrolment

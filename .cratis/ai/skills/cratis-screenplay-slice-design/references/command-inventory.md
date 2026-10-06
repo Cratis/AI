@@ -80,9 +80,9 @@ Rules for filling it:
 | AssignLocker | LockerAssigned for the locker id | | | AssigningALocker |
 | AssignLocker | caller is anonymous | module `authorize IsAuthenticated` | denied: no caller | gap (inherited gate; the Customer row proves the command is gated) |
 | AssignLocker | caller is not an attendant | `authorize IsAttendant` | denied: Customer | RefusingACustomerAssigningALocker |
-| AssignLocker | locker already has a request | constraint `OneRequestPerLocker` | "The locker is already assigned" | RejectingASecondAssignmentOfALocker |
+| AssignLocker | locker already has a request | constraint `OneRequestPerLocker` | "The locker is already assigned" | AppendingASecondAssignmentOfALocker (`when append`: the command's own `require` would reject first) |
 | AssignLocker | request already has a locker | constraint `OneLockerPerRequest` | "The request already has a locker" | gap |
-| AssignLocker | locker is not free | `reads` + `require`, NOT enforced today | "The locker is not free"; target: `[ProtectedDecision]` (Arc 22.39.0+; unavailable in Stage-rendered apps, so a capability gap there) or DCB on the locker stream | gap (blocked until the target exists) |
+| AssignLocker | locker is not free | `reads` + `require`, NOT enforced today | "The locker is not free"; target: `[ProtectedDecision]` (Arc 22.39.0+; unavailable in Stage-rendered apps, so a capability gap there) or DCB on the locker stream | RejectingASecondAssignmentOfALocker (pins the message; blocked until the target exists) |
 | AssignLocker | request is not waiting | `reads` + `require`, NOT enforced today | "The request is not waiting for a locker" | gap (same) |
 | LockerById, ListLockers | caller is anonymous | module `authorize IsAuthenticated` | denied: no caller | RefusingAnAnonymousLockerLookup, RefusingAnAnonymousLockerList |
 | RequestById | caller is anonymous | module `authorize IsAuthenticated` | denied: no caller | RefusingAnAnonymousRequestLookup |
