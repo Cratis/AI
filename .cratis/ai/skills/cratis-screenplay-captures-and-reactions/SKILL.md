@@ -30,7 +30,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | CDL parser, reaction and trigger parsers, diagnostics, semantic binder |
 | `Cratis.Screenplay` | main `fd18129` | Command-only inline event boundary |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | ESM v6: reactions, clock, trigger and capture specifications bind; `invokes` caller rule; probed with the standalone tool and its MCP server |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | ESM v6: reactions, clock, trigger and capture specifications bind; `invokes` caller rule; probed with the standalone tool and its MCP server |
 
 The update follows `commands.md`, `events.md` and `diagnostics.md` at that main
 commit (after v4.52.0).
@@ -39,14 +39,14 @@ Historical baseline evidence: the original examples were checked against the Scr
 `Documentation/screenplay/{captures,captures/grammar,reactions,triggers,interactions,file-references,grammar,diagnostics}.md`
 and decisions 0003, 0006 and 0009; those original examples compiled with that
 version's compiler. The specification actions and ESM v6 text were checked at
-`v4.64.0` (see its row above), and the complete examples here and in
-`references/complete-examples.md` compile with the standalone 4.64.0 compiler.
+`v4.66.0` (see its row above), and the complete examples here and in
+`references/complete-examples.md` compile with the standalone 4.66.0 compiler.
 Reverify before claiming another version behaves the same.
 
 ⚠️ **Which tool admits them depends on its Screenplay version.** The ESM level
 decides, not the slice type:
 
-- **Standalone `screenplay` 4.64.0 (ESM v1-v6, from 4.61.0):** `Automation` and
+- **Standalone `screenplay` 4.66.0 (ESM v1-v6, from 4.61.0):** `Automation` and
   `Translate` slices, reactions, declared triggers and captures bind, and the
   reference runner executes them. Probed: the complete example below is
   `executableReady` over `screenplay mcp`.
@@ -66,7 +66,7 @@ Method (the four-part automation test, loops, translations versus automations):
 `cratis-screenplay-automations-and-translations`.
 
 **Specify what sets them off** (v4.48.0, checked at tag `v4.48.0`, commit
-`3baf4a4`; execution from ESM v6, checked at `v4.64.0`): `when clock "<instant>"`
+`3baf4a4`; execution from ESM v6, checked at `v4.66.0`): `when clock "<instant>"`
 for a reaction on `every` or `at`, `when trigger <Trigger>` with its values for one
 on an application trigger, and `given capture` / `when capture <Capture>` with the
 source record's fields for a capture, then the events that should follow.
@@ -533,7 +533,7 @@ something is reported. `Startup` and `Shutdown` are registered the second way.
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.64.0). Under `cratis` 3.27.1 expect `PLAY0268` at binding and a
+      (standalone 4.66.0). Under `cratis` 3.27.1 expect `PLAY0268` at binding and a
       false `PLAY0285` on cascade specifications, and report them as tool skew.
 - [ ] The tool that bound the model is named: ESM v6 constructs are "bound" only by
       the standalone tool; no tool runs the specifications.

@@ -30,7 +30,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original UI composition parser evidence |
 | `Cratis.Screenplay` | main `fd18129` | Cancellation routing and `optional`; changed example compiled |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Statements in this skill re-verified: the nine `Documentation/screenplay/` pages above are unchanged since `v4.31.0` except `file-references.md` (typed-context and `implementation` paragraphs); `PLAY0269` in `Diagnostics/DiagnosticCodes.cs`; the new section compiled with `screenplay` 4.64.0 and `cratis screenplay validate` 3.27.1 |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Statements in this skill re-verified: the nine `Documentation/screenplay/` pages above are unchanged since `v4.31.0` except `file-references.md` (typed-context and `implementation` paragraphs); `PLAY0269` in `Diagnostics/DiagnosticCodes.cs`; the new section compiled with `screenplay` 4.66.0 and `cratis screenplay validate` 3.27.1 |
 
 The update follows `commands.md`, `events.md`, `queries.md` and decision 0023
 at that main commit (after v4.52.0). It does not verify UI rendering.
@@ -269,7 +269,7 @@ module Invoicing
 ```
 
 The inline event targets `invoiceId` without copying it into payload; the
-projection obtains it from event context. At v4.64.0 a command `returns` clause
+projection obtains it from event context. At v4.66.0 a command `returns` clause
 (scalar or record) is authorable but syntax-only: binding reports `PLAY0268` until
 ESM v8 (`commands.md`, "Generated values and responses"). Form `on submit` and
 interaction `on success` response-name scopes, failure clearing and response

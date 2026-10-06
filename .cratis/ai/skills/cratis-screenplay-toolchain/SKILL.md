@@ -24,13 +24,13 @@ The only version table is `references/versions.md`; other skills point to it.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay.Tool` | `4.64.0` (`7e16162`) | standalone compiler, binder and MCP server |
-| cratis CLI | `3.27.1` (`a327e89`) | bundles Screenplay 4.60.1 and Stage 4.24.0; `render`, `generate`, `prologue` |
-| Stage | `4.24.0` (`fa48546`) | renders ESM v1 to v3 (C# backend plus a React/Vite scaffold on Arc 22.25.0) |
+| `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | standalone compiler, binder and MCP server |
+| cratis CLI | `3.27.1` (`a327e89`) | bundles Screenplay 4.60.1 and Stage 4.24.0 (also v3.28.0 and `main`, until cli#253 ships); `render`, `generate`, `prologue` |
+| Stage | `4.24.1` (`2cadf59`) | renders ESM v1 to v3 (C# backend plus a React/Vite scaffold on Arc 22.25.0); the cratis CLI still bundles 4.24.0 |
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour
-was probed on 4.63.1; the 4.63.1 to 4.64.0 diff does not touch binding or execution.
+was probed on 4.63.1 and re-checked on 4.66.0. 4.65.0 adds command named-rule `implementation` blocks (and rejects them elsewhere); 4.66.0 is editor tooling only. Neither changes execution.
 Re-verify before claiming another version behaves the same.
 
 ## Ground rules
@@ -61,7 +61,7 @@ Re-verify before claiming another version behaves the same.
 
 ## The two compilers
 
-| | Standalone `screenplay` 4.64.0 | `cratis screenplay ...` 3.27.1 |
+| | Standalone `screenplay` 4.66.0 | `cratis screenplay ...` 3.27.1 |
 | --- | --- | --- |
 | Check a folder | `screenplay <folder> --warnaserror --no-color` (exit 0 pass, 1 fail; an empty folder also exits 0, so read "N file(s) compiled") | `cratis screenplay validate <folder> --warnings-as-errors -o json-compact` (0 pass, 5 fail, 1 missing path or no files) |
 | ESM admitted | v1 to v6 | v1 to v5 (bundled Screenplay 4.60.1) |
@@ -88,7 +88,7 @@ V2 and V3 need MCP: send `initialize`, then `notifications/initialized`, and sta
 server with a fixed root (a dynamic root hits the roots bug on 4.63.1 and the bundled
 4.60.1). A subagent without MCP reports "V2 not run: no MCP in this agent".
 
-One line per verdict, tool first, for example `V1 pass (screenplay 4.64.0, 3 files)` and
+One line per verdict, tool first, for example `V1 pass (screenplay 4.66.0, 3 files)` and
 `V3 blocked: PLAY0268 x3 (list query, @pii)`. Name the source identity (commit plus the digest from
 the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")) the verdict ran on; keep it apart from the MCP
 `modelRevision`, which is semantic and, without `.screenplay/identities.json`,

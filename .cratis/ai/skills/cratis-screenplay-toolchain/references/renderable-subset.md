@@ -1,6 +1,6 @@
 # Renderable subset (V5): what `cratis render` admits
 
-Sources, all read at tags: Stage v4.24.0 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
+Sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
 (an exhaustive map of every ESM member to Rendered, Rejected(code) or Ignored),
 `CratisArtifactRenderPlanner.cs`, `PureTransitionAdmission.cs`; cli v3.27.1
 `Commands/Render/RenderSettings.cs` and `Documentation/reference/screenplay.md`. Re-run the
@@ -28,7 +28,7 @@ whole automation is hand-written (gap-fill).
 
 | Area | Renders | Rejected (code) |
 | --- | --- | --- |
-| ESM version | schema v1 to v3 | v4 generations, v5 `then no readmodel`, v6 constructs: STAGE-ESM-016 for the whole model |
+| ESM version | schema v1 to v3 | v4 generations, v5 `then no readmodel`, v6 constructs: STAGE-ESM-016 for the whole model (Stage 4.24.1 also ledgers the v6 members as `STAGE-ESM-024`; users still see STAGE-ESM-016) |
 | Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`: STAGE-ESM-001 |
 | Types | concepts over Uuid, String, Int, Decimal, Bool, Date, DateTime; composite types; collections; optional | unknown types: 002 and 003 |
 | Validation | not empty, min, max, equal, not equal, comparisons, length, `all >`/`all >=`, matches, `$strings` keys (missing default keys: 018) | code rules and code validation: 005 |

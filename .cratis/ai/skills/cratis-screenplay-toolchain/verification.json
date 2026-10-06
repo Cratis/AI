@@ -6,7 +6,7 @@
     { "kind": "skill-contains", "value": "references/versions.md" },
     { "kind": "skill-contains", "value": "PLAY0029" },
     { "kind": "skill-contains", "value": "--warnaserror" },
-    { "kind": "skill-contains", "value": "4.64.0" },
+    { "kind": "skill-contains", "value": "4.66.0" },
     { "kind": "skill-contains", "value": "cratis screenplay validate" },
     { "kind": "skill-contains", "value": "cli#244" },
     { "kind": "skill-contains", "value": "`notifications/initialized`" },

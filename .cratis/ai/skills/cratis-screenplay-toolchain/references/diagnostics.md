@@ -26,7 +26,7 @@ then STAGE (V5 admission). Tool differences: `versions.md`.
 ## Not caught at V1 (fail binding: V2/V3, PLAY0273)
 - Projection mapping to a property the read model does not declare.
 - Undeclared event in `remove with` or in a capture `append`.
-(Screenplay v4.64.0 `SemanticModelBinder` `BindMapping`, `LevelEvent`, `BindCaptureAppends`.)
+(Screenplay v4.66.0 `SemanticModelBinder` `BindMapping`, `LevelEvent`, `BindCaptureAppends`.)
 
 ## Silent at every level
 - A declared read-model property that nothing maps (it stays empty): walk field lineage by hand.
@@ -93,6 +93,7 @@ Full table with causes: `renderable-subset.md`. Codes you meet most:
 | Code | Meaning |
 |---|---|
 | STAGE-ESM-016 | model above ESM schema v3 (or v4 generations, v5 absence, v6 constructs): whole model refused |
+| STAGE-ESM-024 | ledger-only (Stage 4.24.1): the ESM v6 members are dispositioned Rejected; a v6 model is still refused whole by STAGE-ESM-016, so this is not the code a user sees |
 | CLI-RENDER-003 | the CLI pre-check for ESM v4 generations |
 | STAGE-ESM-001 | slice kind is not `StateChange`/`StateView` (Automation, Translate: Stage#79) |
 | STAGE-ESM-004 / 006 / 013 | more than one command per `StateChange`; conditional or value-expression production; other context value |

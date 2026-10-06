@@ -24,7 +24,7 @@ language cannot express today are recorded, not faked. Grammar and outcome compa
   `cratis-specification-by-example`); a full audit (`cratis-screenplay-model-review`).
 
 ## Verified product sources
-Screenplay v4.64.0 (`7e16162`): `Documentation/screenplay/specifications.md` and the standalone
+Screenplay v4.66.0 (`c89198b`): `Documentation/screenplay/specifications.md` and the standalone
 compiler; `cratis` 3.27.1 bundles Screenplay 4.60.1. The full pin table and the probes are in
 `cratis-screenplay-toolchain` `references/versions.md`. Specification obligations reported by
 the MCP (Screenplay#390) and multi-step storylines (Screenplay#394) are **not available**: the

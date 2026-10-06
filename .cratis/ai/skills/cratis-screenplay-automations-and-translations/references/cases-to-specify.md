@@ -58,7 +58,7 @@ One spec in the slice does not cover the others.
   The decision must not depend on it (it is not protected).
 
 ## Spec limits (tool differences: `cratis-screenplay-toolchain` `references/versions.md`)
-- These Automation/Translate specs parse and bind (V3) on Screenplay 4.64.0, but no MCP tool,
+- These Automation/Translate specs parse and bind (V3) on Screenplay 4.66.0, but no MCP tool,
   `validate` or Stage render runs them (Stage renders no Automation or Translate slice). Report
   V4 as "not run: no route"; never as passed.
 - With the standalone compiler, a command spec lists the cascade (v6 semantics: after

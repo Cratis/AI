@@ -10,7 +10,7 @@ destination-type information; a reaction can also consume events from a capture 
 **Scope.** This document is the runnable demonstration only. It deliberately holds no rule that
 depends on stored state (the invoice must exist, only an open invoice may be voided, a reversal
 needs a received payment, `reads` + `require`): those rules cannot bind or run at Screenplay
-4.64.0 (PLAY0271, PLAY0268) and are stated in the design-mode document `invoicing-dues-design.md`,
+4.66.0 (PLAY0271, PLAY0268) and are stated in the design-mode document `invoicing-dues-design.md`,
 never in prose here. It shows the category shapes; for a coverage example see `berth-reservations.md`.
 
 ```screenplay
@@ -411,4 +411,4 @@ module Invoicing
   `invoicing-dues-design.md`, because the command needs a stored-state rule.
 - The query answers "absent" with no `result` block; the whole-list query and the `OpenInvoices`
   list view in the excerpts are design-mode expectations (list queries compile but do not bind at
-  4.64.0, PLAY0268, `cratis-screenplay-toolchain`, so they are retained as design-mode expectations): see `view-and-story-specs.md`.
+  4.66.0, PLAY0268, `cratis-screenplay-toolchain`, so they are retained as design-mode expectations): see `view-and-story-specs.md`.

@@ -1,6 +1,6 @@
 # Automation patterns
 
-Complete compiled example: `todo-list-example.md` (binds on Screenplay 4.64.0; the list query
+Complete compiled example: `todo-list-example.md` (binds on Screenplay 4.66.0; the list query
 and retry sweep that do not bind are shown there as marked excerpts).
 
 ## 1. Deciding whether it is an automation
@@ -32,7 +32,7 @@ Outcomes:
 - A projection that adds an item `from <OpeningFact>` and removes it with
   `remove with <ClosingFact>`. Several facts may open or close; they need not match one to one.
 - A keyed query (`…ById => Item optional` + `by itemId`) for specs and executable scope; a
-  list query for the visible queue (design-only: a list query reports PLAY0268 at binding on 4.64.0).
+  list query for the visible queue (design-only: a list query reports PLAY0268 at binding on 4.66.0).
 - A reaction `when <OpeningFact>` that invokes the command producing the closing fact.
   The trigger may `reads` the item view to document its input; that is not protection.
 - A retry sweep on a clock reads the whole view (no `by` on clock reads). Iterating its items

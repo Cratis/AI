@@ -59,4 +59,4 @@ that decision. If not, note the need as a view and move on.
 6. Propose the next step: the next workflow, or `cratis-screenplay-slice-design` for this one.
 7. Update STATE.md (phase, status, carry-forward); keep durable rationale in model
    `description` text, which is rendered and queryable; `//` comments survive printing at
-   Screenplay v4.64.0, but check the dropped-comments report after any edit that cannot retain them.
+   Screenplay v4.66.0, but check the dropped-comments report after any edit that cannot retain them.

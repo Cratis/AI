@@ -7,8 +7,8 @@ The working loop for the session that owns the model connection: connect, orient
 choose an edit route, propose, review, apply, verify. Tool-by-tool arguments and
 refusals are in the [MCP tool guide](mcp-tools.md); verdict names (V1 to V5) are
 defined by `cratis-screenplay-modeling-lifecycle`. Facts here were read at
-Screenplay v4.64.0 (`Source/DotNET/Screenplay.Mcp/`, `Documentation/screenplay/mcp/`)
-and probed against the standalone 4.64.0 tool and, for the connection behavior,
+Screenplay v4.66.0 (`Source/DotNET/Screenplay.Mcp/`, `Documentation/screenplay/mcp/`)
+and probed against the standalone 4.66.0 tool and, for the connection behavior,
 4.63.1. Cratis CLI 3.27.1 bundles Screenplay 4.60.1, whose tool set and views can
 differ: read `tools/list`.
 
@@ -33,7 +33,7 @@ differ: read `tools/list`.
 
 ### Roots bug and the workaround
 
-Screenplay up to 4.63.1 (fixed in 4.63.2; the 4.64.0 tool is fixed) read the
+Screenplay up to 4.63.1 (fixed in 4.63.2; the 4.66.0 tool is fixed) read the
 client's roots reply from the wrong member. A server started **without** a root,
 facing a client that advertises roots, answered with an error with `id: null`
 immediately after `notifications/initialized`, before any tool call. Real hosts

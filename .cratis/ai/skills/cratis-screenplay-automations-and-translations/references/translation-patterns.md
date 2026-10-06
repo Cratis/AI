@@ -1,6 +1,6 @@
 # Translation patterns
 
-Complete compiled example: `translate-example.md` (binds on Screenplay 4.64.0; the cratis 3.27.1
+Complete compiled example: `translate-example.md` (binds on Screenplay 4.66.0; the cratis 3.27.1
 bundled compiler compiles it but rejects the slice at binding).
 
 ## 1. Where outside facts may enter

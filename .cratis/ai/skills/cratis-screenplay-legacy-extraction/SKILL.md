@@ -31,7 +31,7 @@ then hands off to review (P5) and acceptance (P6).
 
 ## Verified product sources
 
-Pins (Screenplay v4.64.0 `7e16162`, cratis CLI v3.27.1, Stage v4.24.0, Arc v22.50.5, Chronicle
+Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.27.1, Stage v4.24.0, Arc v22.50.5, Chronicle
 v19.32.0): `cratis-screenplay-toolchain` `references/versions.md`. Checked at these sources:
 
 | Fact used here | Source |
@@ -40,10 +40,10 @@ v19.32.0): `cratis-screenplay-toolchain` `references/versions.md`. Checked at th
 | `SP0016` (rule in code, computed message, `When`/`Unless` written as unconditional), `SP0024` (source did not compile) | Arc `v22.50.5:Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`, `Documentation/backend/csharp/generating-a-screenplay.md` |
 | `prologue start` is an interactive wizard that writes `cratis-prologue.json`; `interpret` resolves its language model from the Prologue file, then the global CLI configuration (cli#241 open) | cli `v3.27.1:Source/Cli/Commands/Prologue/{StartPrologueCommand,LlmOptionsResolver}.cs`, `Documentation/reference/prologue.md` |
 | Extractor effects (CDC enable, publication and replication slot), POST/PUT/DELETE only, 2 s correlation window, interpret payload (uncapped model outline and names, observed lists capped at 50, schema tables capped per schema observation), existing slot/publication reused; cleanup missing (Prologue#37) | Prologue `ad4bbe7:Source/Extractor/Sources/**`, `Source/Configuration/*`, `Source/Interpretation/EvidenceFormatter.cs` |
-| `then error`, `then denied`, `unique ... released by` | Screenplay `v4.64.0:Documentation/screenplay/{specifications,constraints}.md` |
+| `then error`, `then denied`, `unique ... released by` | Screenplay `v4.66.0:Documentation/screenplay/{specifications,constraints}.md` |
 | No semantic diff or equivalence check exists (Screenplay#387 open) | `gh issue view 387 --repo Cratis/Screenplay` |
 
-Every complete `screenplay` fence here compiles with the standalone compiler 4.64.0 (`--warnaserror`) and
+Every complete `screenplay` fence here compiles with the standalone compiler 4.66.0 (`--warnaserror`) and
 `cratis screenplay validate --warnings-as-errors` 3.27.1.
 
 ## Interview phase

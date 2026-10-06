@@ -36,7 +36,7 @@ to these tags; when the Screenplay skills are installed their `references/versio
 | --- | --- |
 | Where each rule lives (validator, `Provide()`, handler result, constraint, exception) | `rules/vertical-slices.md` "The decision matrix" (Arc `v22.50.5` behaviour verified there) |
 | A customization never makes a rejected model renderable; managed output is never hand-edited | Stage `v4.24.0` (`Customizations/` is the unmanaged seam; managed output is regenerated) |
-| A command `handler` never binds (PLAY0268), so that slice is gap-fill with the model as contract | Screenplay `v4.64.0` (diagnostic PLAY0268) |
+| A command `handler` never binds (PLAY0268), so that slice is gap-fill with the model as contract | Screenplay `v4.66.0` (diagnostic PLAY0268) |
 
 ## Procedure
 

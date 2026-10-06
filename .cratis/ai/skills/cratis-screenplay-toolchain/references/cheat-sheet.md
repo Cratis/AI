@@ -53,7 +53,7 @@ description, properties, `reads`, `authorize`, `validate`, `produces`/`handler`,
 ## `$context.` paths (command `produces`)
 `occurred`, `tenant`, `command.<p>`, `arguments.<p>`, `causedBy.subject|name|userName`,
 `causation.type`, `identity.id|name|userName|isAuthenticated|roles|claims.<n>`.
-Binder-supported (`BindOccurrence`, v4.64.0): `occurred`, `identity.id` (= `causedBy.subject`),
+Binder-supported (`BindOccurrence`, v4.66.0): `occurred`, `identity.id` (= `causedBy.subject`),
 `identity.name` (= `causedBy.name`), `identity.userName` (= `causedBy.userName`). `tenant`,
 roles, claims, causation, `command.<p>`, `arguments.<p>`: PLAY0268. Binding is not execution:
 a reference scenario that supplies only a clock carries no caller audit identity, so check the

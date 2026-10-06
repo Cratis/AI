@@ -126,7 +126,7 @@ name them as unfinished.
   facts. There is no `then no events` syntax. A command spec with no `then` events but with a
   view or query assertion is still executable as a zero-fact check: the runner compares the
   command's facts with the (empty) expected list by exact count, so any fact produced fails it
-  (Screenplay v4.64.0). Write it that way, name it for the zero-fact outcome, and keep the view
+  (Screenplay v4.66.0). Write it that way, name it for the zero-fact outcome, and keep the view
   assertion for the visible state. Record the obligation as unasserted only where the runner is
   not available.
 

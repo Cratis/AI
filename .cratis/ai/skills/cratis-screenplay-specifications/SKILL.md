@@ -30,13 +30,13 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original parser, binder and reference execution evidence |
 | `Cratis.Screenplay` | main `fd18129` | Inline facts, `optional` and clock spelling; changed examples compiled |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | ESM v6 specification actions and reaction cascades, `then no readmodel`, `$strings` rejections, `invokes` caller rule; probed with the standalone tool and its MCP server |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | ESM v6 specification actions and reaction cascades, `then no readmodel`, `$strings` rejections, `invokes` caller rule; probed with the standalone tool and its MCP server |
 
 The update follows `commands.md`, `events.md`, `types.md` and
 `specifications.md` at that main commit (after v4.52.0). This pass compiles the
 changed examples; it does not rerun the reference runner.
 
-**Which tool says what.** The standalone `screenplay` tool 4.64.0 admits ESM v1-v6.
+**Which tool says what.** The standalone `screenplay` tool 4.66.0 admits ESM v1-v6.
 The `cratis` CLI 3.27.1 bundles Screenplay 4.60.1, which admits ESM v1-v5 only and
 reports a false `PLAY0285` on reaction cascades (see "Version skew"). Facts below
 marked **ESM v6** hold for the standalone tool from 4.61.0 and for `cratis` only
@@ -77,7 +77,7 @@ decision 0022. They do not exist before v4.48.0.
 | `then <EventType>` | an expected new event |
 | `then events in any order` | compare the new events without regard to order |
 | `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
-| `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent (v4.64.0); the key is concrete and typed |
+| `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent (v4.66.0); the key is concrete and typed |
 | `then query <Query> [exactly]` | query results for explicit `arguments`; one `result` per row; none means empty |
 | `then error "<message>"` | a validation or constraint rejection, for that reason; a localized rule is pinned by its quoted key, `then error "$strings.<key>"` |
 | `then error` | a validation or constraint rejection, reason unnamed |
@@ -257,12 +257,12 @@ assert a value mapped from `$context.occurred`. In a command's `produces`, that
 mapping executes when the scenario has `given clock`. It is not the same as
 `$eventContext.occurred` in a projection, which the execution plan refuses (below).
 
-**Which tools bind these actions** (probed: the standalone `screenplay mcp` 4.64.0
+**Which tools bind these actions** (probed: the standalone `screenplay mcp` 4.66.0
 reports the complete example below `executableReady` with no executable error, in
 `open-workspace` readiness and `read-workspace` view `executable-diagnostics`;
 `cratis` 3.27.1 bundles 4.60.1 and does not):
 
-- **Standalone tool, Screenplay 4.64.0 (ESM v6, from 4.61.0):** the clock, trigger
+- **Standalone tool, Screenplay 4.66.0 (ESM v6, from 4.61.0):** the clock, trigger
   and capture actions, and the `Automation` and `Translate` slices, reactions and
   captures they drive, bind. The reference runner executes them as library code, with
   the semantics in "Reactions and cascades" below.
@@ -342,7 +342,7 @@ module Collections
 `PLAY0285` (a specification's expected event contradicts every producer of its
 `when` command) runs in the syntax pass, with no binding. Reachability through
 reactions and `invokes` was added after Screenplay 4.60.1. So the example above
-passes `screenplay` 4.64.0 (and is executable-ready over its MCP server) and fails `cratis screenplay
+passes `screenplay` 4.66.0 (and is executable-ready over its MCP server) and fails `cratis screenplay
 validate` 3.27.1 with `PLAY0285` "Specification outcome 'ReminderScheduled' cannot be
 produced by 'SendInvoice'", exit 5 (Cratis/cli#242, open). It is a tool skew, not a
 modeling error: do not delete the `then` line or move the event to make `cratis`
@@ -517,7 +517,7 @@ For view specifications:
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.64.0; under `cratis` 3.27.1 expect the false `PLAY0285` on
+      (standalone 4.66.0; under `cratis` 3.27.1 expect the false `PLAY0285` on
       reaction cascades and record that it is skew).
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.

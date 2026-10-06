@@ -19,15 +19,15 @@ the executable profile and a complete compiled model.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.64.0` (`7e16162`) | Current compiler, MCP (29/30 tools), roots fix; examples compiled with `--warnaserror` |
+| `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Current compiler, MCP (29/30 tools), roots fix; examples compiled with `--warnaserror` |
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs, rename/extraction and `optional` |
 | `Cratis.Screenplay` | `4.31.0` | Original compiler, ESM and workspace evidence |
 | `cratis` CLI | `3.27.1` | Bundles Screenplay 4.60.1 (ESM v5 at most, roots bug) |
 
 Facts about the MCP connection, source-map, `whenAppendedEvent`, identity
-persistence and the syntax-only constructs were read at tag `v4.64.0`
+persistence and the syntax-only constructs were read at tag `v4.66.0`
 (`Documentation/screenplay/mcp/{reference,install,edit}.md`,
-`Source/DotNET/Screenplay.Mcp/`) and probed against the 4.64.0 tool (persona,
+`Source/DotNET/Screenplay.Mcp/`) and probed against the 4.66.0 tool (persona,
 trigger, `@pii`, generated values, operations, streams, automation binding).
 Repair and refactoring guidance follows main `fd18129` (`commands.md`,
 `events.md`, `types.md`, `diagnostics.md`, `mcp/authoring-tools.md`, `vscode.md`,

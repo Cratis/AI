@@ -61,7 +61,7 @@ members or translating names from memory.
 
 This registration model uses an inline event and context identity rather than
 copying the identifier into payload. It was compiled at main `fd18129` with zero
-source diagnostics and recompiled with standalone 4.64.0 `--warnaserror`; neither
+source diagnostics and recompiled with standalone 4.66.0 `--warnaserror`; neither
 check runs its specifications. Inline lowering
 and `optional` spelling do not themselves select a newer ESM version.
 
@@ -145,7 +145,7 @@ The ESM version is selected by what a model uses, never by the author:
   distinct revision property identities. Historical declarations are not migration
   implementations; a target without migration support must reject the contract.
 - **v5** adds keyed read-model absence assertions (`then no readmodel`).
-- **v6** (standalone tool 4.61 and later; v4.64.0 `Versions.cs`) admits reactions,
+- **v6** (standalone tool 4.61 and later; v4.66.0 `Versions.cs`) admits reactions,
   captures, application triggers and the clock, hence `Automation` and
   `Translate` slices. The Cratis CLI 3.27.1 bundles Screenplay 4.60.1 (ESM 5 at
   most): there these constructs fail binding with `PLAY0268`. Name the tool
@@ -163,8 +163,8 @@ the model runs, including specifications that never touch it.
 
 What binds today, what the reference execution plan refuses, what is opaque, what is
 authorable but not executable, and what blocks binding. The snapshot comes from the
-v4.31.0 table, re-read against v4.64.0 documentation and probed through the MCP of
-the standalone 4.64.0 tool for the rows marked "probed"; Cratis CLI 3.27.1
+v4.31.0 table, re-read against v4.66.0 documentation and probed through the MCP of
+the standalone 4.66.0 tool for the rows marked "probed"; Cratis CLI 3.27.1
 (Screenplay 4.60.1) differs where stated.
 
 | Disposition | Constructs |
@@ -182,7 +182,7 @@ the standalone 4.64.0 tool for the rows marked "probed"; Cratis CLI 3.27.1
 | Metadata only (`PLAY0270`, information) | `domain`, `seed`, `persona`, trigger and other descriptions, and `file` provenance on declarations |
 
 The table is a snapshot, not a contract (rows without "probed" are carried from
-v4.31.0 and v4.64.0 documentation): ask the binder (MCP `executable-diagnostics`
+v4.31.0 and v4.66.0 documentation): ask the binder (MCP `executable-diagnostics`
 view) rather than extrapolating from it. Neither `screenplay` nor
 `cratis screenplay validate` binds, so a clean validation says nothing about this table. Retain valid source that the
 backend cannot represent rather than downgrading it to a stub. The MCP does not
@@ -193,7 +193,7 @@ realization files. Stage owns rendering and runtime admission.
 
 Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger may declare
 `reads <View> [as <alias>] [by <trigger value>]` (see
-`cratis-screenplay-captures-and-reactions`). At v4.64.0 a direct-producing
+`cratis-screenplay-captures-and-reactions`). At v4.66.0 a direct-producing
 reaction with `reads` fails binding (`PLAY0268`); an invokes-only reaction reports
 the reads as information, and the invoked command must protect its own
 dependencies. On Cratis CLI 3.27.1 every reaction fails binding.
@@ -206,12 +206,12 @@ Code attachment/source-map support likewise does not prove code round-trip
 execution equivalence.
 
 Decision 0023's generated values and `returns`, operations and named event
-sources/streams are **authorable** at v4.64.0 (syntax only, see the table above and
+sources/streams are **authorable** at v4.66.0 (syntax only, see the table above and
 `commands.md`, `operations.md`, `event-sources.md` in the Screenplay documentation):
 write them, but binding reports `PLAY0268` and nothing executes them until
 the allocated ESM versions are implemented (the highest implemented is v6). Do not drop them for the sake of a green bind.
 Protected reads and `derive`/`provide` (allocated v11) have no documented syntax at
-v4.64.0: do not teach or invent one. Affected-instance declarations, per-event data
+v4.66.0: do not teach or invent one. Affected-instance declarations, per-event data
 subjects, external event origin and query paging/sorting/change-set delivery also
 remain unavailable here.
 

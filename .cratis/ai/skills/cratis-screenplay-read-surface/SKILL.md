@@ -29,7 +29,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original parser, validator and binder evidence |
 | `Cratis.Screenplay` | main `fd18129` | Canonical optionality; changed examples compiled |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Which query shapes bind and render (`Semantics/`, `Documentation/screenplay/queries.md`) |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Which query shapes bind and render (`Semantics/`, `Documentation/screenplay/queries.md`) |
 
 The update follows `types.md`, `queries.md` and `vscode.md` at that main commit
 (after v4.52.0). Compilation does not establish query execution.
@@ -258,7 +258,7 @@ binding failures are errors.
 
 ## Verify
 
-- [ ] Standalone `screenplay <model> --warnaserror` (4.64.0) reports zero errors and zero
+- [ ] Standalone `screenplay <model> --warnaserror` (4.66.0) reports zero errors and zero
       warnings; with only the bundled compiler, `cratis screenplay validate
       --warnings-as-errors` on the model folder (3.27.1 bundles Screenplay 4.60.1, ESM v5 or
       lower). Name which tool produced the result.

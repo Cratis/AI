@@ -4,7 +4,7 @@
 
 This skill is an original Cratis work, condensed from verified research on the Screenplay
 language, the standalone tool, the cratis CLI and Stage, then re-verified against product
-source at the tags in `versions.md` and probed on the installed tools (Screenplay 4.64.0 and
+source at the tags in `versions.md` and probed on the installed tools (Screenplay 4.66.0 and
 cratis 3.27.1). Every version, diagnostic and exit-code row cites its evidence there or in
 the file that holds it.
 
@@ -28,7 +28,7 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 ## Sources read for facts
 
-- Screenplay `v4.64.0` (`7e16162`): `Documentation/screenplay/` (grammar, commands, queries,
+- Screenplay `v4.66.0` (`c89198b`): `Documentation/screenplay/` (grammar, commands, queries,
   specifications, reactions, diagnostics, mcp), `decisions/0017`, `0020`, `0022` to `0024`,
   `Source/DotNET/Screenplay/Semantics/` (binder, versions, execution),
   `Source/DotNET/Screenplay.Mcp/` (connection, catalog, schemas, workspaces, visualization),
@@ -49,7 +49,7 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
   script ships.
 - Moved the MCP loop to `cratis-screenplay-model-authoring`; this skill keeps only the facts
   needed to run a verdict and the edit strategy summary.
-- Re-checked every documentation contradiction at v4.64.0; resolved the clock boundary and the
+- Re-checked every documentation contradiction at v4.66.0; resolved the clock boundary and the
   ESM v7 and v11 allocations; added numbers-exact, concurrency, approval-policy, visualization,
   bodied-reducer, file-mode and cascade rows.
 - Corrected the code-attachment rule (a handler never binds, with or without `hint`), the

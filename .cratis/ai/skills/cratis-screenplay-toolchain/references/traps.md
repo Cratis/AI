@@ -1,13 +1,13 @@
 # Traps (one line each, with the fix)
 
-Re-checked against Screenplay v4.64.0 and cli v3.27.1 where marked [probed] or [source]. Tool and version facts: `versions.md`. Compiler-verified syntax: `cheat-sheet.md`.
+Re-checked against Screenplay v4.66.0 and cli v3.27.1 where marked [probed] or [source]. Tool and version facts: `versions.md`. Compiler-verified syntax: `cheat-sheet.md`.
 
 1. Clean V1 is not executable: binding errors appear only through MCP (V2) or `render`. Neither `screenplay <folder>` nor `cratis screenplay validate` binds. [probed]
 2. The Screenplay samples validate clean but are not all executable; copying their idioms (list queries, `@pii`, `today`, `reads`, `$causedBy`, templates, performers) breaks V3. [probed]
 3. Know the target mode (design/executable/renderable) before writing; state it.
 4. Plain `produces` without `for` means allocation in the ESM but "the identifier" in rendered code. Always write `for <identifier>`. [PLAY0478 probed]
 5. PLAY0029 is a warning: a misspelled keyword (or `type` inside a slice) drops the construct silently. Use `--warnings-as-errors`. [probed]
-6. Validate the folder: `cratis screenplay validate file.play` ignores imports and reports false unknown-name warnings (cli#244, open); the standalone tool follows them. [probed on 3.27.1 and 4.64.0]
+6. Validate the folder: `cratis screenplay validate file.play` ignores imports and reports false unknown-name warnings (cli#244, open); the standalone tool follows them. [probed on 3.27.1 and 4.66.0]
 7. Unresolved names are warnings by design. Mappings to undeclared projection targets and undeclared events in `remove with`/capture `append` pass V1 and fail binding (V3, PLAY0273); a declared read-model property that nothing maps is reported by no tool. Run V3 and check field lineage by hand.
 8. Severity does not soften a rule: `severity warning` still rejects the command.
 9. Authorization (module AND feature AND construct) runs before validation; unauthorized is `then denied`, never `then error`.
@@ -42,9 +42,9 @@ Re-checked against Screenplay v4.64.0 and cli v3.27.1 where marked [probed] or [
 37. Personas are not in the ESM (Screenplay#254); specs cannot reference them. Write `given caller` as the roles/claims that stand for the persona.
 38. A rule that depends on stored state is `reads <View>` + `require <expr> message "..."` (stated intent; PLAY0268/0271 at binding are expected in design mode). The slice `description` must mark it NOT enforced in the model today (Screenplay#129/#209) and name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc v22.39.0 and later; not available in a Stage-rendered app on Arc 22.25.0), Chronicle DCB (`concurrency` scope), or a constraint where one fits. Forbidden: caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX == true`), rules hidden in `handler`/implementation-hint prose. An unguarded materialized read is unsafe for a protected decision.
 
-The SKILL.md top 12: 1, 4, 5, 6, 7, 10, 12, 13, 17, 18, 20, 21 (+ mode/version notes there). Traps 39 to 44 are tool traps added at the 4.64.0 pin.
+The SKILL.md top 12: 1, 4, 5, 6, 7, 10, 12, 13, 17, 18, 20, 21 (+ mode/version notes there). Traps 39 to 44 are tool traps added at the 4.66.0 pin.
 39. A handler never binds: PLAY0268 "Command '<n>' handler requires a constrained implementation attachment", with a file, a fence, `implementation` or `hint` alike. `hint` is handler-only authoring intent (no execution, lock or confirmation). A handler slice is gap-fill, not a customization of a rendered slice. [source, probed]
-40. `numbers exact` parses on 4.64.0 but never binds (PLAY0268; ESM v7 is not admitted) and is PLAY0001 on older compilers; it is absent from `grammar.md`. Never use it in a model or example meant to execute. [probed]
+40. `numbers exact` parses on 4.66.0 but never binds (PLAY0268; ESM v7 is not admitted) and is PLAY0001 on older compilers; it is absent from `grammar.md`. Never use it in a model or example meant to execute. [probed]
 41. MCP roots bug (4.63.1 and earlier, including cratis 3.27.1's bundled 4.60.1): a dynamic-root server answers the roots request with an `id: null` error right after `notifications/initialized`; hosts treat it as fatal. `open-workspace.path` does not help. Start with a fixed root (`screenplay mcp <folder>`, `cratis screenplay mcp` in a project with `.cratis/ai.json`) or use 4.63.2 or later. [source, probed]
 42. A symlinked model path is refused by the MCP server (macOS `/tmp` is a symlink); pass the physical path. Proposals are connection-local (at most 16); `apply` persists identities to `.screenplay/identities.json` and is not crash-atomic across files; never retry `apply` after `ApplyOutcomeUnknown`. [source]
 43. `modelRevision` is canonical semantic (line positions and descriptions do not change it; a file move only if it changes logical placement or application identity) and, without `identities.json`, changes with the root folder name; it is not comparable with a render's `semanticRevision`. Source identity for verdicts is the commit plus the digest from the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity"). [probed]

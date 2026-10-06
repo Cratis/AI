@@ -201,9 +201,9 @@ Slice design is done when these hold; otherwise report what is open.
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| Screenplay | `v4.64.0` (`7e16162`) | `commands.md`, `constraints.md`, `specifications.md`, `diagnostics.md` (`PLAY0191`, `PLAY0268`, `PLAY0271`, `PLAY0350`, `PLAY0381`, `PLAY0397`), `projections/keys.md` |
+| Screenplay | `v4.66.0` (`c89198b`) | `commands.md`, `constraints.md`, `specifications.md`, `diagnostics.md` (`PLAY0191`, `PLAY0268`, `PLAY0271`, `PLAY0350`, `PLAY0381`, `PLAY0397`), `projections/keys.md` |
 
-Examples compile with `screenplay` 4.64.0 `--warnaserror` and `cratis screenplay validate
+Examples compile with `screenplay` 4.66.0 `--warnaserror` and `cratis screenplay validate
 --warnings-as-errors` (cratis 3.27.1); other pins: `cratis-screenplay-toolchain`
 `references/versions.md`. Compiling proves syntax, not that the model is executable or renders.
 

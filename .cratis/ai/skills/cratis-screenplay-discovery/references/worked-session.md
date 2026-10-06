@@ -76,7 +76,7 @@ Rules:       AssignBerth only if a free berth is at least as long as the boat (i
 Denial candidates: BoatOwner cannot assign berths -> gate IsHarbourmaster + denial spec
 Competition: last free berth wanted by two owners
 Open:        forfeit rule; season fee fixed or recalculated; office staff on behalf
-Verdicts:    V1 passed (screenplay 4.64.0, --warnaserror, exit 0); V2 to V5 not run (discovery)
+Verdicts:    V1 passed (screenplay 4.66.0, --warnaserror, exit 0); V2 to V5 not run (discovery)
 ```
 
 ## Resulting model

@@ -2,7 +2,7 @@
 
 A complete model: a webhook record from an outside proctoring service is captured, kept as an
 external fact in the provider's vocabulary, then translated by reactions into our facts. It
-binds on Screenplay 4.64.0 (`executableReady: true`); the cratis 3.27.1 bundled compiler
+binds on Screenplay 4.66.0 (`executableReady: true`); the cratis 3.27.1 bundled compiler
 (Screenplay 4.60.1) compiles it (V1) but rejects the Translate slice at binding (PLAY0268).
 
 Read the slice `description`: it is the per-field disposition (map, translate, ignore) and it

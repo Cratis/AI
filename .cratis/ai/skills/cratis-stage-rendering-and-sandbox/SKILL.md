@@ -20,15 +20,15 @@ reading in this skill is not a render result.
 
 | Source | Pin | Notes |
 | --- | --- | --- |
-| Stage | `v4.24.0` (`fa48546`) | Renderer, sandbox host, spec runner; pins Screenplay 4.60.0 |
-| cratis CLI | `v3.27.1` (`a327e89`) | `cratis render`, `cratis run`; bundles Stage 4.24.0 and Screenplay 4.60.1 |
-| Rendered applications | Arc `22.25.0`, Chronicle `19.8.1`, .NET 10 | The scaffold profile; frontend Components 4.14.0, Scene 4.2.0 |
+| Stage | `v4.24.1` (`2cadf59`) | Renderer, sandbox host, spec runner; pins Screenplay 4.66.0, Arc 22.50.5, Chronicle 19.32.0 (v4.24.0, `fa48546`, pinned Screenplay 4.60.0) |
+| cratis CLI | `v3.27.1` (`a327e89`) | `cratis render`, `cratis run`; bundles Stage 4.24.0 and Screenplay 4.60.1. v3.28.0 and `main` still bundle Stage 4.24.0; Stage 4.24.1 reaches the CLI with Cratis/cli#253 |
+| Rendered applications | Arc `22.25.0`, Chronicle `19.8.1`, .NET 10 | The scaffold profile (`CratisBackendApplicationScaffoldProfile.cs`), unchanged at 4.24.1 although Stage itself builds on Arc 22.50.5 and Chronicle 19.32.0; frontend Components 4.14.0, Scene 4.2.0 |
 
 Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.md`,
 `Documentation/**` in Stage; `Source/Cli/Commands/Render/**` and
 `Documentation/reference/screenplay.md` in the CLI), and the vertical in
 [references/render-example.md](references/render-example.md) was rendered, built and
-tested with cratis 3.27.1. The full version table (Screenplay 4.64.0, Arc 22.50.5,
+tested with cratis 3.27.1. The full version table (Screenplay 4.66.0, Arc 22.50.5,
 Chronicle 19.32.0 and the tool split) is in the `cratis-screenplay-toolchain` skill,
 `references/versions.md`. Rendered apps are on Arc 22.25.0, so `[ProtectedDecision]`
 (Arc 22.39.0 and later) is not available in code written into one.
@@ -71,7 +71,7 @@ receipt.
 Facts that surprise:
 
 - **Binding uses the CLI's bundled Screenplay 4.60.1** (ESM up to v5), not the standalone
-  4.64.0 tool. Anything above ESM v5 (v6 constructs) fails binding first; a model that
+  4.66.0 tool. Anything above ESM v5 (v6 constructs) fails binding first; a model that
   binds only on the standalone tool is not renderable.
 - **Render never builds, tests or runs** the output. A published render is admission and
   publication only; build and tests are separate results (see "Verify"). Admission can be
@@ -90,7 +90,7 @@ rendered appends never carry event source type, event stream type or event strea
 Chronicle's defaults apply (Stage#177, #200, #201; Screenplay#407). Gap-fill the routing by
 hand; see `cratis-screenplay-toolchain` `references/sources-and-streams.md`.
 
-Whole-model admission needs ESM schema v1 to v3; anything else is `STAGE-ESM-016`. Event
+Whole-model admission needs ESM schema v1 to v3; anything else is `STAGE-ESM-016`. Stage 4.24.1 also lists the ESM v6 members (reactions, captures, application triggers, clock and capture specifications) as rejected `STAGE-ESM-024` in its surface ledger, but the version gate refuses the model first, so a v6 model reports `STAGE-ESM-016` only. Event
 generations (v4) also fail the CLI pre-check `CLI-RENDER-003`. The admitted vertical:
 
 - concepts, composite types, collections and optional values;

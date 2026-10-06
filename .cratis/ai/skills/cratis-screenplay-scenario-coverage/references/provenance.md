@@ -1,7 +1,7 @@
 # Provenance
 
 Lineage of `cratis-screenplay-scenario-coverage`. The method was first drafted for the Cratis
-corpus from Screenplay specification semantics (verified at tag v4.64.0) and refined against two
+corpus from Screenplay specification semantics (verified at tag v4.66.0) and refined against two
 external event-modeling skill sets.
 
 ## Adapted closely (MIT)
@@ -40,7 +40,7 @@ Chronicle verification obligations, version skew for reaction cascades, spec for
 the berth reservations example.
 
 ## Product facts checked
-- Screenplay v4.64.0 (`7e16162`): `Documentation/screenplay/specifications.md` (actions, outcomes,
+- Screenplay v4.66.0 (`c89198b`): `Documentation/screenplay/specifications.md` (actions, outcomes,
   `then denied`, `then no readmodel`, `then query`, `then events in any order`, PLAY0352,
   PLAY0389) and the probes recorded in the version table of `cratis-screenplay-toolchain`
   `references/versions.md`.

@@ -1,10 +1,10 @@
 # Documentation contradictions and which side to trust
 
-`D/` is Screenplay `Documentation/screenplay/` at **v4.64.0**; line numbers were re-read at
+`D/` is Screenplay `Documentation/screenplay/` at **v4.66.0**; line numbers were re-read at
 that tag. Rule: the compiler you ran decides what the tool accepts today; the documentation
 and the domain decide what the model should mean. When they disagree, follow the compiler
 for syntax, keep the intended semantics in the model, and record the gap (an issue).
-Tool names mean the standalone `screenplay` 4.64.0 and `cratis` 3.27.1 (bundled Screenplay
+Tool names mean the standalone `screenplay` 4.66.0 and `cratis` 3.27.1 (bundled Screenplay
 4.60.1); see `versions.md`. [probed] marks a row re-checked by running a tool; the rest are
 read from source or documentation.
 
@@ -43,6 +43,6 @@ read from source or documentation.
 | 30 | `cratis screenplay validate <file>` | the command reads as a document validator | file mode ignores the file's imports and reports false unknown-name warnings (cli#244, open): validate the folder [probed] |
 | 31 | cli false PLAY0285 | `D/diagnostics.md:640` defines PLAY0285 as a contradiction against every possible producer | cratis 3.27.1 reports it falsely on reaction cascades (cli#242, open): confirm with the standalone tool [probed] |
 
-Rows 0 to 12, 14 to 21 and 23 were re-read at the v4.64.0 line numbers above; rows 14, 15,
+Rows 0 to 12, 14 to 21 and 23 were re-read at the v4.66.0 line numbers above; rows 14, 15,
 19, 20 and 23 are properties of the language rather than documentation defects and were
-not re-probed on 4.64.0.
+not re-probed on 4.66.0.

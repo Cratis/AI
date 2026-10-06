@@ -27,7 +27,7 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 - Warnings are failures here. PLAY0029 (a construct dropped silently) and the unresolved-name
   warnings are the defects this verdict exists to catch.
 - Syntax and consistency checks (PLAY0282 to PLAY0294) run; binding does not.
-- Report: `V1 pass (screenplay 4.64.0, 3 files)`, `V1 fail: PLAY0029 a.play:12 ...`.
+- Report: `V1 pass (screenplay 4.66.0, 3 files)`, `V1 fail: PLAY0029 a.play:12 ...`.
 
 ## V2: executable diagnostics
 
@@ -60,7 +60,7 @@ do not block. The ESM then binds (and `read-workspace view=executable-model` rep
 comparison needs it). Binding is what makes a model renderable at all. V3 means "binds",
 never "specifications pass".
 
-- Report the ESM version the model needs: `V3 ready (screenplay 4.64.0, ESM v6)`,
+- Report the ESM version the model needs: `V3 ready (screenplay 4.66.0, ESM v6)`,
   `V3 blocked: PLAY0268 x3 (list query, @pii) - design scope kept`.
 - A blocked V3 is not repaired by deleting protection or domain rules. Never remove `@pii`,
   `@sensitive`, authorization, list queries, automations or rules to reach V3; record the
@@ -110,9 +110,9 @@ What Stage admits: `renderable-subset.md`.
 One line per verdict, tool and version first, evidence second:
 
 ```text
-V1 pass (screenplay 4.64.0, 3 files)
-V2 read (screenplay 4.64.0 via MCP): 0 blocking, 3 informational (PLAY0270)
-V3 ready (screenplay 4.64.0, ESM v3)
+V1 pass (screenplay 4.66.0, 3 files)
+V2 read (screenplay 4.66.0 via MCP): 0 blocking, 3 informational (PLAY0270)
+V3 ready (screenplay 4.66.0, ESM v3)
 V4 not run: no route
 V5 admission pass (cratis 3.27.1, Stage 4.24.0); publication written 14 files; build not run; tests not run
 ```

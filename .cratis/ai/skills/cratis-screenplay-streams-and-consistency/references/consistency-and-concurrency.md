@@ -1,6 +1,6 @@
 # Consistency and concurrency
 
-Pins: Screenplay v4.64.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.0 (table in `versions.md` of
+Pins: Screenplay v4.66.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.1 (table in `versions.md` of
 `cratis-screenplay-toolchain`).
 
 ## 1. Invariant table (fill before writing constraints)

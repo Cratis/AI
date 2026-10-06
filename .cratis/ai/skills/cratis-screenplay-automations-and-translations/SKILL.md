@@ -34,7 +34,7 @@ identity, effect and pending-work contract at that point; do not postpone it to 
 ## Verified product sources
 | Package | Version | Used for |
 | --- | --- | --- |
-| Screenplay | v4.64.0 (`7e16162`) | `Documentation/screenplay/{reactions,captures,triggers,specifications,diagnostics}.md`; examples compiled with the standalone tool |
+| Screenplay | v4.66.0 (`c89198b`) | `Documentation/screenplay/{reactions,captures,triggers,specifications,diagnostics}.md`; examples compiled with the standalone tool |
 | cratis CLI | v3.27.1 | bundled compiler 4.60.1 (PLAY0268 on v6 constructs, false PLAY0285 on cascades, cli#242) |
 | Stage | v4.24.0 | admits ESM v1 to v3; renders no Automation or Translate slice |
 | Arc | v22.50.5 | `ExecuteCommandsAsSystemAttribute` (since v20.56.0) |
@@ -106,7 +106,7 @@ or actor that nobody confirmed. Transcript-shaped worked example: `references/wo
    named cases to `cratis-screenplay-scenario-coverage`. Produce the audit in `references/audit-format.md`.
 
 ## Rules
-**Compiler contracts** (diagnostics at 4.64.0)
+**Compiler contracts** (diagnostics at 4.66.0)
 - No inline `produces event` in a reaction (PLAY0474); declare reaction-produced events in the slice.
 - Effects sit under a trigger; only `description` and `where` are reaction-level; one `where` per
   reaction (PLAY0252); a trigger may not repeat (PLAY0253).
