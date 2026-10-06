@@ -75,6 +75,41 @@ internal static class CapacityRequests
             throw new HttpRequestException($"The usage read did not answer within {timeout}", exception);
         }
     }
+
+    /// <summary>
+    /// Sends a request and answers with its status, body and every response header.
+    /// </summary>
+    /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> the request is sent with.</param>
+    /// <param name="request">The request.</param>
+    /// <param name="timeout">How long the vendor has to answer.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The status, body and headers.</returns>
+    /// <exception cref="HttpRequestException">Thrown when the vendor did not answer within the timeout.</exception>
+    public static async Task<(HttpStatusCode Status, string Body, IReadOnlyDictionary<string, string> Headers)> Send(
+        IHttpClientFactory httpClientFactory,
+        HttpRequestMessage request,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
+        using var httpClient = httpClientFactory.CreateClient();
+        request.Headers.TryAddWithoutValidation("User-Agent", "Cratis.AI");
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(timeout);
+        try
+        {
+            using var response = await httpClient.SendAsync(request, deadline.Token);
+            var body = await response.Content.ReadAsStringAsync(deadline.Token);
+            var headers = response.Headers
+                .Concat(response.Content.Headers)
+                .GroupBy(header => header.Key, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(group => group.Key, group => string.Join(',', group.SelectMany(header => header.Value)), StringComparer.OrdinalIgnoreCase);
+            return (response.StatusCode, body, headers);
+        }
+        catch (OperationCanceledException exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new HttpRequestException($"The usage read did not answer within {timeout}", exception);
+        }
+    }
 }
 
 /// <summary>
