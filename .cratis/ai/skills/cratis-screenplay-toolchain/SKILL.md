@@ -104,7 +104,7 @@ changes with the root folder name.
   later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
   only on standalone 4.68.0 or later (`references/generated-responses-example.md`).
 - **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24.2 renders ESM v1 to v4 (evolved events refused, `STAGE-ESM-026`)
-  `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79), and so are generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, Stage#201 in progress).
+  `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79), and so are generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, tracked in Stage#201).
 - **Event sources, streams and command routes** (and operations): authorable and validatable, but never
   bound (`PLAY0268`: not admitted by any supported ESM version), run or rendered
   (`STAGE-ESM-016`); gap-fill with the model as contract (`references/sources-and-streams.md`).

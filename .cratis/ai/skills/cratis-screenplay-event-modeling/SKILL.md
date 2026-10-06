@@ -372,7 +372,7 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   part of the model. Report the block.
 - Generated values and `returns` responses bind and execute from standalone 4.68.0 (ESM v7) but fail binding
   with `PLAY0268` on the 4.66.0 bundled in `cratis` 3.28.x, and Stage 4.24.2 does not render them
-  (`STAGE-ESM-016`, Stage#201 in progress): gap-fill. Operations and systems, and event sources and
+  (`STAGE-ESM-016`, tracked in Stage#201): gap-fill. Operations and systems, and event sources and
   streams, are authorable but non-executable (`PLAY0268`; not admitted by any supported ESM version);
   a command `handler` never binds.
 

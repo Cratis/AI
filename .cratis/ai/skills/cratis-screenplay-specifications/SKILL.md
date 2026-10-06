@@ -247,7 +247,7 @@ module Invoicing
 ## Generated fixtures and return expectations (ESM v7)
 
 Standalone `screenplay` 4.68.0 or later binds and runs these; the cratis CLI 3.28.3 (bundled 4.66.0) does not
-bind them, and Stage does not render ESM v7 yet (`STAGE-ESM-016`, Stage#201 in progress), so they pin the
+bind them, and Stage does not render ESM v7 yet (`STAGE-ESM-016`, tracked in Stage#201), so they pin the
 contract of a hand-written command. The model and rules are in `cratis-screenplay-command-surface`; the
 complete example is `cratis-screenplay-toolchain` `references/generated-responses-example.md`.
 

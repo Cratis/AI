@@ -66,7 +66,7 @@ Evolved events (a model that selects ESM v4) are gap-fill too: Stage 4.24.2 admi
 
 Generated command values and `returns` responses (ESM v7) bind and run in the reference runner on standalone
 Screenplay 4.68.0 but are not rendered: the cratis CLI 3.28.3 bundles 4.66.0 and reports `PLAY0268`, and Stage
-4.24.2 refuses ESM v7 with `STAGE-ESM-016` (Stage#201 in progress). A command that uses them is case A or C: keep
+4.24.2 refuses ESM v7 with `STAGE-ESM-016` (tracked in Stage#201). A command that uses them is case A or C: keep
 the model, hand-write the command and its response with the model (and its fixtures and `then returns`
 specifications) as the contract, and report V3 from the standalone tool and V5 as `not run: no render`.
 

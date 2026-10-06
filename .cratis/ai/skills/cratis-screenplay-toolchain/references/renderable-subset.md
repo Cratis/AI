@@ -11,7 +11,7 @@ Renderable is a strict subset of executable (`executable-subset.md`). Order of e
 `cratis render`: the CLI binds the model with its **bundled Screenplay** (4.66.0 in cratis 3.28.2, so PLAY0268
 and friends appear first), then Stage admits or
 rejects members. An ESM v6 model binds but Stage refuses it whole with `STAGE-ESM-016`
-(probed on 3.28.2; an ESM v7 model with generated values or responses fails binding first on the bundled 4.66.0 with `PLAY0268`, and Stage 4.24.2 would refuse it with `STAGE-ESM-016` too, Stage#201 in progress; on before 3.28.2 it failed binding first, with PLAY0268).
+(probed on 3.28.2; an ESM v7 model with generated values or responses fails binding first on the bundled 4.66.0 with `PLAY0268`, and Stage 4.24.2 would refuse it with `STAGE-ESM-016` too, tracked in Stage#201; on before 3.28.2 it failed binding first, with PLAY0268).
 
 ## What Stage 4.24 admits
 

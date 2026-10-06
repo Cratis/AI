@@ -34,7 +34,7 @@ reports what: `cratis-screenplay-toolchain` `references/versions.md`.
 | `reads`, `concurrency` on a command | accepted | `PLAY0271` |
 | `reads` under a reaction trigger that only `invokes` | accepted | information `PLAY0270`: report-only intent, the model does not consult the view |
 | `reads` under a reaction trigger that `produces` directly | accepted | `PLAY0268` |
-| Generated properties, `returns` responses | authorable | binds and runs as ESM v7 on standalone 4.68.0; `PLAY0268` on the 4.66.0 in `cratis` 3.28.x; not rendered (Stage 4.24.2: `STAGE-ESM-016`, Stage#201 in progress) |
+| Generated properties, `returns` responses | authorable | binds and runs as ESM v7 on standalone 4.68.0; `PLAY0268` on the 4.66.0 in `cratis` 3.28.x; not rendered (Stage 4.24.2: `STAGE-ESM-016`, tracked in Stage#201) |
 | A policy, rule or requirement that references a generated value | accepted | `PLAY0273`; a generated property on a concept with validation rules: `PLAY0268` |
 | `system`, `operation` | authorable, syntax-only | `PLAY0268`; not admitted by any supported ESM version |
 | `eventsource`, `stream` | authorable, authoring-only | `PLAY0268`; not admitted by any supported ESM version (`cratis-screenplay-toolchain` `references/sources-and-streams.md`) |

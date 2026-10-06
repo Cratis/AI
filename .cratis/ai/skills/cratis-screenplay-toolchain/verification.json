@@ -10,7 +10,7 @@
     { "kind": "skill-contains", "value": "4.66.0" },
     { "kind": "skill-contains", "value": "references/generated-responses-example.md" },
     { "kind": "skill-contains", "value": "not admitted by any supported ESM version" },
-    { "kind": "skill-contains", "value": "generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, Stage#201 in progress)" },
+    { "kind": "skill-contains", "value": "generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, tracked in Stage#201)" },
     { "kind": "skill-contains", "value": "cratis screenplay validate" },
     { "kind": "skill-contains", "value": "cli#244" },
     { "kind": "skill-contains", "value": "`notifications/initialized`" },

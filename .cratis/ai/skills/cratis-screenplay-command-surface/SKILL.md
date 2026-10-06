@@ -325,7 +325,7 @@ to the routed scope. This does not make command `reads` protected.
 A `generated` command property and a `returns` response bind and execute from the standalone
 `screenplay` 4.68.0 (ESM v7, decision 0026; `commands.md` "Generated values and responses" at
 `v4.68.0`). The cratis CLI 3.28.3 bundles 4.66.0 and reports `PLAY0268` for them, and Stage 4.24.2
-refuses ESM v7 with `STAGE-ESM-016` (Stage#201 in progress), so a command that uses them is
+refuses ESM v7 with `STAGE-ESM-016` (tracked in Stage#201), so a command that uses them is
 **not rendered yet**: hand-write it (gap-fill) with the model as the contract. Complete compiled example:
 `cratis-screenplay-toolchain` `references/generated-responses-example.md`.
 

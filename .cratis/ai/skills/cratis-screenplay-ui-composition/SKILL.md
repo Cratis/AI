@@ -272,7 +272,7 @@ The inline event targets `invoiceId` without copying it into payload; the
 projection obtains it from event context. A command `returns` clause (scalar or
 record) binds and executes from standalone Screenplay 4.68.0 (ESM v7, `commands.md`,
 "Generated values and responses"); the 4.66.0 bundled in `cratis` 3.28.x reports `PLAY0268`, and
-Stage 4.24.2 does not render ESM v7 (`STAGE-ESM-016`, Stage#201 in progress). Form `on submit` and
+Stage 4.24.2 does not render ESM v7 (`STAGE-ESM-016`, tracked in Stage#201). Form `on submit` and
 interaction `on success` response-name scopes, failure clearing and response
 execution remain unavailable.
 An existing success continuation does not imply a response contract.
