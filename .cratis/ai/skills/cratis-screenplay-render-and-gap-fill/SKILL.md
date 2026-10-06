@@ -117,8 +117,9 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   concurrency scope; never claim them from prose. In a Stage-rendered app, Arc is 22.25.0.
 - Adapters that call outside systems follow `cratis-engineering-effect-boundaries`; slice
   specifications follow `cratis-application-slice-specifications`.
-- Realization notes in a slice `description` bind adapters and fallback code; executable parts
-  (specifications, mappings, constraints) win over prose, and a contradicting description is a model defect to report.
+- Realization notes are the explicit realization requirements stated in a slice `description`; they bind
+  adapters and fallback code, are never supplemented with inferred rules, and other description prose is only a hint.
+  Executable parts (specifications, mappings, constraints) win over prose, and a contradicting description is a model defect to report.
 
 ## Rules
 

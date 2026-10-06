@@ -268,6 +268,8 @@ module Invoicing
           member    = member
           amount    = amount
         remove with PaymentReceived
+        remove with InvoiceVoided
+        remove with InvoiceSettled
 
       specification OpenInvoicesLifecycle1Empty
         given caller
@@ -302,6 +304,37 @@ module Invoicing
           member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
           amount = 130
         when append PaymentReceived
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+        then no readmodel OpenInvoice for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+        then query OpenInvoiceById
+          arguments
+            invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+
+      specification OpenInvoicesLifecycle4Voided
+        given caller
+          authenticated
+          role "Accounts"
+        given InvoiceIssued
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 130
+        when append InvoiceVoided
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          reason = "Issued in error"
+        then no readmodel OpenInvoice for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+        then query OpenInvoiceById
+          arguments
+            invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+
+      specification OpenInvoicesLifecycle5Settled
+        given caller
+          authenticated
+          role "Accounts"
+        given InvoiceIssued
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 130
+        when append InvoiceSettled
           for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
         then no readmodel OpenInvoice for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
         then query OpenInvoiceById

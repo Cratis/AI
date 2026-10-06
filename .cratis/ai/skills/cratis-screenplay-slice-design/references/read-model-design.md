@@ -19,7 +19,7 @@ exempt; state the exemption.
 Most screens follow `read model -> screen -> command -> event`: the read model feeds the
 screen, the screen triggers a command, the command produces an event. Not only status screens:
 a command screen that shows current state before the person acts (a berth booking form that
-shows the berth's availability, a checkout that shows the basket) also needs its view. A pure
+shows the berth's availability, an invoice payment form that shows the amount still owed) also needs its view. A pure
 view screen is the shorter `read model -> screen`. An automation whose work can wait, retry,
 fail or need people is `read model -> automation -> command -> event`, where the read model is
 its todo list; an immediate, internal, always-possible direct reaction needs no todo list when
@@ -246,9 +246,9 @@ module Berths
 
 - The StateView slice `description` gives, per contributing event, the fields it sets and why
   (see `LockerBoard` in `worked-example.md`); extend it whenever a `from` is added. Shape of
-  the note: `OrderPlaced sets orderId, status="placed": the view's creation event; the order
-  does not exist before it.` / `OrderShipped sets status="shipped", trackingNumber: the only
-  event carrying a tracking number.` / `OrderCancelled sets status="cancelled": terminal.`
+  the note: `BerthBooked sets bookingId, status="booked": the view's creation event; the booking
+  does not exist before it.` / `BoatArrived sets status="arrived", arrivedAt: the only
+  event carrying an arrival time.` / `BookingCancelled sets status="cancelled": terminal.`
   Re-check every field against the fan-in signal each time a `from` is added; an earlier note
   about one field does not clear the others.
 - Before completing, re-read every read model in scope from the `.play` files and recheck each

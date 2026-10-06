@@ -10,9 +10,9 @@ missing approvals and a third review round always stop.
 - **Unless told not to ask** (an unattended run, or the user said not to stop for questions), in
   modeling: do not block. Proceed on the most reasonable assumption for anything missing and state
   it plainly in this phase's record, visibly, so it can be corrected later. Never guess silently.
-  This does not extend to delivery (P7-P9, gap-fill) or to a rule that could encode wrong
-  authorization, money or time behavior: those scopes block as in "Delivery triggers" below, and
-  contradictions, approvals not given and a third review round always stop.
+  This does not extend to delivery (P7-P9, gap-fill), where a consequential rule (authorization,
+  money or time) blocks as in "Delivery triggers" below. Modeling assumptions about such rules are
+  recorded visibly with their address. Unconditionally, contradictions, approvals not given and a third review round always stop.
 - **Recording the outcome.** Under the phase's Interview Trail row in STATE.md write what was
   asked and decided, or, if nothing was asked, what was assumed and why
   (`handoff-template.md` section 1).

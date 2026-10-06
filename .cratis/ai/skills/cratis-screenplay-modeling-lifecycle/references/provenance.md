@@ -52,7 +52,7 @@ by Nebulit GmbH. The repository carries no licence file; this material is adapte
 | `.agent-modeling-kit/CLAUDE.md`: "never leave a prompt neither progressed nor closed" | `SKILL.md` "Run protocol", `references/stop-or-assume.md` | Idea; our wording kept |
 | `.claude/skills/request-feedback/SKILL.md`: when escalation applies and when it does not; do not guess and build anyway; write the question for a cold reader | `references/stop-or-assume.md`, `references/handoff-template.md` section 4 | Idea; our wording kept (question format, calibration) |
 | `.claude/skills/update-prompt-status/SKILL.md` and kit "exactly two status updates per prompt" | `references/per-turn-protocol.md` step 7 | Idea; one start marker and one closing outcome per turn, our wording |
-| `.claude/skills/eventmodeling-core-rules/SKILL.md`: modeling and critic postures never mixed; a known refusal is a documented rule | `SKILL.md` "Modes", "Completeness over economy" | Idea; our wording kept |
+| `.claude/skills/eventmodeling-core-rules/SKILL.md`: modeling and critic postures never mixed; a known refusal is a documented rule | `SKILL.md` "Modes", "Do not cut corners to save tokens or effort" | Idea; our wording kept |
 | `.claude/skills/connect/SKILL.md`: discover capabilities once per session | `SKILL.md` "Run protocol", `references/identity-and-edits.md` | Idea; our wording kept |
 
 ## 3. Method lineage

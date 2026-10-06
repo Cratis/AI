@@ -204,8 +204,7 @@ labelled as such. The user decides whether it is enough
 | Render, gap-fill, fallback, drift | `cratis-screenplay-render-and-gap-fill` |
 
 Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes:
-`references/vocabulary-map.md`; worked example: `references/worked-example.md`; quality
-checklist before reporting done: `references/phases.md`.
+`references/vocabulary-map.md`; worked example: `references/worked-example.md`; done checklist: `references/phases.md`.
 
 ## Gate
 Done when: the mode's "done when" holds with fresh verdict lines; every open question has an
@@ -213,12 +212,13 @@ address and assumption; every decided rejection is a specification; no protectio
 the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
-Pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here: Screenplay `v4.64.0`
-(`7e16162`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
-`Semantics/SemanticModelBinder.cs:209-216` (personas are report-only), `Documentation/screenplay/{constraints,specifications}.md`,
-`mcp/reference.md` (`modelRevision`); cratis CLI `v3.27.1` (`screenplay validate --warnings-as-errors`,
-`Documentation/reference/screenplay-mcp.md` for `mcpServers.screenplay.root`); Stage `v4.24.0` (ESM v1-v3).
-
+Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here: Screenplay
+`v4.64.0` (`7e16162`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
+`Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
+cratis CLI `v3.27.1` (`cratis screenplay validate --warnings-as-errors`, older bundled compiler);
+Stage `v4.24.0` (admits ESM v1-v3); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.27.1`
+`Documentation/reference/screenplay-mcp.md`. The worked example compiles with both tools.
 ## Verify
 ```shell
 screenplay .cratis/screenplay/ --warnaserror --no-color

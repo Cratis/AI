@@ -49,6 +49,7 @@ own full givens. The excerpt is copied from `invoicing-dues-example.md`; the las
 both that the stored row is gone and that the keyed query returns nothing. The whole-list query
 (no key) is a design-mode expectation here: a list-query collection check does not run on the
 reference route, so record it in the matrix rather than asserting it.
+The source document also asserts the other terminal outcomes (`InvoiceVoided`, `InvoiceSettled`) the same way; they are not copied here.
 ```screenplay excerpt
 specification OpenInvoicesLifecycle1Empty
   given caller

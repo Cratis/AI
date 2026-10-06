@@ -29,11 +29,11 @@ or view needs an event A produces. Two other edges are supported and recorded ex
 implied: `reads <View>` from another slice (unprotected, so a stored-state rule over it stays
 NOT enforced, `rule-layers.md`) and `invokes <Command>` from a reaction. No shared state or
 other direct call. Name each
-slice after its element (the command, the view, the automation), not a broader feature name
+slice after its element (the command, the view, the automation, the translation (capture or translator reaction)), not a broader feature name
 that spans several. Per slice, record:
 
 ```text
-Slice:       <CommandName | ViewName | AutomationName>   (StateChange | StateView | Automation)
+Slice:       <CommandName | ViewName | AutomationName>   (StateChange | StateView | Automation | Translate)
 Produces:    <events, and when they occur>
 Consumes:    <events from other slices, and why this slice needs them>
 Upstream:    <slice X: needed because it produces <Event>>
