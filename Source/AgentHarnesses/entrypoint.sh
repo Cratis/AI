@@ -1333,9 +1333,15 @@ run_pi() {
         [[ -f "$DIRECT_AI_PROFILE_PROMPT_FILE" ]] || { log "Reviewed AI profile prompt is missing"; exit 1; }
         PI_PROFILE_ARGS+=(--append-system-prompt "$(cat "$DIRECT_AI_PROFILE_PROMPT_FILE")")
     fi
-    if [[ -n "${DIRECT_MODEL:-}" ]]; then
-        PI_MODEL_ARGS+=(--model "${DIRECT_MODEL}")
+    # Pi 1.x rejects --provider without --model ("--provider requires --model") and exits before
+    # reading a single command, so a worker with no model fails here, loudly, rather than at the
+    # CLI. Dropping --provider instead would let Pi fall back to its own default provider, which is
+    # never the server-side approved one.
+    if [[ -z "${DIRECT_MODEL:-}" ]]; then
+        log "Pi 1.x selects a provider only together with a model; DIRECT_MODEL is required"
+        exit 1
     fi
+    PI_MODEL_ARGS+=(--model "${DIRECT_MODEL}")
 
     PI_STREAM_FILE=/tmp/pi-stream.jsonl
     : > "$PI_STREAM_FILE"

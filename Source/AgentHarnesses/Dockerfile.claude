@@ -57,10 +57,10 @@ RUN cd /usr/local/lib/direct-progress-mcp && npm ci --omit=dev
 # the `agent` user read on every file and traversal/execute on directories and anything already
 # executable (the Chromium binary itself and its helper executables) without making ordinary data
 # files spuriously executable.
-ARG SEQUENTIAL_THINKING_MCP_VERSION=2026.7.4
-ARG CONTEXT7_MCP_VERSION=4.0.4
-ARG MEMORY_MCP_VERSION=2026.7.4
-ARG PLAYWRIGHT_MCP_VERSION=0.0.79
+ARG SEQUENTIAL_THINKING_MCP_VERSION=2026.8.31
+ARG CONTEXT7_MCP_VERSION=4.1.1
+ARG MEMORY_MCP_VERSION=2026.8.31
+ARG PLAYWRIGHT_MCP_VERSION=0.0.83
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
 RUN npm install -g \
         @modelcontextprotocol/server-sequential-thinking@${SEQUENTIAL_THINKING_MCP_VERSION} \
