@@ -36,7 +36,7 @@ The brief also carries, from the slice build prompts (`cratis-application-slice-
 `references/build-prompts.md`): the contract is always true and the code follows it; a slice is
 `done` only if every scenario in the contract is implemented and no specification lacks an
 executable equivalent; a re-delivery can be only added specifications; touch only the slice's
-own paths; do not change existing specification files unless the brief says so; when the
+own paths; do not change existing specification files unless an approved contract revision says so (`build-prompts.md` section 1); when the
 requirements are genuinely ambiguous or contradictory, do not guess and do not build anyway,
 return an edit request and report `blocked`. Ownership is assigned per brief, one implementer
 per scope; a ledger or `STATE.md` line records it and is not a lock, and atomic claiming is used

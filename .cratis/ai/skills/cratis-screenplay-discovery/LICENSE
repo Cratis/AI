@@ -3,11 +3,6 @@ Licensed under the MIT license. See LICENSE file in the canonical Cratis/AI repo
 
 Third-party notices
 
-This skill also adapts material from Nebulit GmbH's agentic-engineer
-(https://github.com/Nebulit-GmbH/agentic-engineer, commit 07b0f30648d663cb588d7e2c7aa031af9dfc21f2),
-used with Nebulit GmbH's agreement. That repository carries no licence file; the adapted material
-remains credited to Nebulit GmbH.
-
 This skill adapts parts of the TrogonStack eventmodeling skills
 (https://github.com/TrogonStack/agentskills, plugins/trogonstack-eventmodeling,
 commit 7b249d3ee42d8b7e11fa564141ebd5fbc37aadf1). Their licence follows.
@@ -33,3 +28,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This skill also adapts material from Nebulit GmbH's agentic-engineer
+(https://github.com/Nebulit-GmbH/agentic-engineer, commit 07b0f30648d663cb588d7e2c7aa031af9dfc21f2),
+used with Nebulit GmbH's agreement. That repository carries no licence file; the adapted material
+remains credited to Nebulit GmbH.

@@ -50,9 +50,9 @@ kept in a separate view, not as events.
 Classify what an automation outputs. A new fact it establishes is an event (`PaymentTaken`). A
 pure calculation is projection or reducer work, built from events with lineage
 (`cratis-screenplay-projections`), never a direct write by the automation. A notification is an
-external effect: when delivery can fail or retry it needs a delivery outcome, a closing fact
-(sent, failed, abandoned) and a recovery contract; only an effect that cannot fail and that
-nobody follows up may leave no trace
+external effect: it always gets a delivery outcome, a closing fact (sent, failed, abandoned)
+and a recovery contract, or a pending-work view; only an immediate, internal, always-possible
+effect may leave no trace
 (`cratis-screenplay-automations-and-translations`).
 
 ## Components

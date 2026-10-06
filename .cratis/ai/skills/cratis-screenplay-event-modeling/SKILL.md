@@ -21,8 +21,9 @@ frameworks during modeling.
 changes the model most, and follow a vague answer ("it depends", "usually") with "what decides
 it?". Already known: do not ask. Told not to stop for questions (an unattended run): assume the
 most reasonable answer, say so visibly where it can be corrected, never guess silently. Assume
-visibly during modeling; delivery blocks unresolved consequential rules. Contradictions, missing
-approvals and a third review round always stop
+visibly during modeling; delivery blocks any guess that could encode a wrong rule, authorization,
+money or time behavior. Contradictions, a third review round, a gate only the user can accept,
+and approvals not yet given always stop
 (`cratis-screenplay-modeling-lifecycle`, `references/stop-or-assume.md`).
 
 **Do not cut corners to save tokens or effort.** A rule that needs more slices, events, views,

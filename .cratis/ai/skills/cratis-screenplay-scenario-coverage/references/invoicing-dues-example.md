@@ -1,18 +1,25 @@
 # Invoicing and dues: worked example for the scenario-examples excerpts
 
-Complete model (harbor club dues) holding every declaration the excerpts in
-`scenario-examples.md` and `view-and-story-specs.md` rely on. Each of those excerpts is copied
-verbatim from the fence below (names are the specification names). Read the header comment for
-the compile and run status.
+Complete executable model (harbor club dues) holding every declaration the excerpts in
+`scenario-examples.md` and `view-and-story-specs.md` rely on, except the stored-state rules. Each
+of those excerpts is copied verbatim from the fence below (names are the specification names),
+except `ReversingAReceivedPayment` and `RequestingARefundAfterAReversal`, which come from
+`invoicing-dues-design.md` (a reaction needs the command that produces the event it reacts to).
+
+**Scope.** This document is the runnable demonstration only. It deliberately holds no rule that
+depends on stored state (the invoice must exist, only an open invoice may be voided, a reversal
+needs a received payment, `reads` + `require`): those rules cannot bind or run at Screenplay
+4.64.0 (PLAY0271, PLAY0268) and are stated in the design-mode document `invoicing-dues-design.md`,
+never in prose here. It shows the category shapes; for a coverage example see `berth-reservations.md`.
 
 ```screenplay
 // Needs the standalone screenplay compiler (ESM v6)
 // Scenario coverage worked example: invoicing club dues (complete document).
 // Backs the excerpts in scenario-examples.md and view-and-story-specs.md: issue an invoice,
-// request payment, an external gateway result captured and translated, a payment reversal that
-// requests a refund, an open-invoices todo list family and an accumulating credit balance.
-// Stored-state rules (the invoice must exist, a reversal needs a received payment) are NOT
-// enforced in the model: they are target requirements recorded in the slice descriptions.
+// request payment, an external gateway result captured and translated, an open-invoices todo list family and an accumulating credit balance.
+// Scope: executable demonstration only. No stored-state rule is declared or pretended here; those
+// (invoice exists, void only if open, reversal needs a received payment) live in the design-mode
+// document invoicing-dues-design.md.
 // The external payment outcome is a fact (PaymentGatewayResultReceived); a refund request is a
 // fact of intent, never proof that money moved.
 
@@ -80,7 +87,7 @@ module Invoicing
         then denied
 
     slice StateChange SettleOrVoidInvoice
-      description "An invoice ends either settled or voided, never both: SettleOrVoid declares the exclusivity per invoice. NOT enforced in the model: that the invoice exists, and that a void is only for an unpaid invoice (target: Arc [ProtectedDecision] with DecisionRead, or a Chronicle DCB)."
+      description "An invoice ends either settled or voided, never both: SettleOrVoid declares the exclusivity per invoice, enforced at append. Rules about the invoice's stored state are in invoicing-dues-design.md."
       command SettleInvoice
         invoiceId InvoiceId identifier
         produces InvoiceSettled
@@ -97,6 +104,41 @@ module Invoicing
       constraint SettleOrVoid
         unique event InvoiceSettled
         unique event InvoiceVoided
+
+      specification SettlingAnInvoice
+        given caller
+          authenticated
+          role "Accounts"
+        when SettleInvoice
+          invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+        then InvoiceSettled
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+
+      specification VoidingAnInvoice
+        given caller
+          authenticated
+          role "Accounts"
+        when VoidInvoice
+          invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          reason    = "Issued in error"
+        then InvoiceVoided
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          reason = "Issued in error"
+
+      specification RefusingSettlementWithoutTheAccountsRole
+        given caller
+          authenticated
+        when SettleInvoice
+          invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+        then denied
+
+      specification RefusingAVoidWithoutTheAccountsRole
+        given caller
+          authenticated
+        when VoidInvoice
+          invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          reason    = "Issued in error"
+        then denied
 
       specification RejectingSettlementOfAVoidedInvoice
         given caller
@@ -205,55 +247,6 @@ module Invoicing
           for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
           reason = "Card declined"
 
-    slice StateChange ReversePayment
-      description "Compensation for a received payment. NOT enforced in the model: that a payment was received (target requirement). RefundRequested is the request recorded by the reaction; it does not show a refund was delivered, and the gateway's own answer is a later external fact."
-      command ReversePayment
-        invoiceId InvoiceId identifier
-        amount    Decimal
-        produces PaymentReversed
-          for invoiceId
-          amount = amount
-      event PaymentReversed
-        amount Decimal
-
-      specification ReversingAReceivedPayment
-        given caller
-          authenticated
-          role "Accounts"
-        given InvoiceIssued
-          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
-          amount = 130
-        given PaymentReceived
-          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-        when ReversePayment
-          invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-          amount    = 130
-        then PaymentReversed
-          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-          amount = 130
-        then RefundRequested
-          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-          amount = 130
-
-    slice Automation RequestRefunds
-      reaction RefundRequester
-        description "Records a refund request for every reversed payment; ends at RefundRequested"
-        when PaymentReversed
-          amount
-          produces RefundRequested
-            amount = amount
-      event RefundRequested
-        amount Decimal
-
-      specification RequestingARefundAfterAReversal
-        when append PaymentReversed
-          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-          amount = 130
-        then RefundRequested
-          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-          amount = 130
-
     slice StateView OpenInvoices
       description "Todo list: membership means 'still to collect'; there is no status flag."
       readmodel OpenInvoice
@@ -341,6 +334,47 @@ module Invoicing
           arguments
             invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
 
+    slice StateChange TopUpCredit
+      description "Adds credit to a member. Why an amount above zero: a zero top-up changes nothing and hides a mistake."
+      command TopUpCredit
+        member MemberId identifier
+        amount Decimal
+        validate
+          amount > 0 message "A top-up needs an amount above zero"
+        produces CreditToppedUp
+          for member
+          amount = amount
+      event CreditToppedUp
+        amount Decimal
+
+      specification ToppingUpCredit
+        given caller
+          authenticated
+          role "Accounts"
+        when TopUpCredit
+          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 40
+        then CreditToppedUp
+          for "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 40
+
+      specification RejectingATopUpWithoutAnAmount
+        given caller
+          authenticated
+          role "Accounts"
+        when TopUpCredit
+          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 0
+        then error "A top-up needs an amount above zero"
+
+      specification RefusingATopUpWithoutTheAccountsRole
+        given caller
+          authenticated
+        when TopUpCredit
+          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 40
+        then denied
+
     slice StateView MemberCredit
       description "Running credit balance per member: every top-up adds to it."
       readmodel Credit
@@ -348,14 +382,6 @@ module Invoicing
         balance Decimal
       query CreditByMember => Credit optional
         by member MemberId
-      command TopUpCredit
-        member MemberId identifier
-        amount Decimal
-        produces CreditToppedUp
-          for member
-          amount = amount
-      event CreditToppedUp
-        amount Decimal
       projection MemberCredit => Credit
         from CreditToppedUp
           member = $eventSourceId
@@ -379,8 +405,9 @@ module Invoicing
 ```
 
 ## Notes
-- `RefundRequested` is listed by `ReversingAReceivedPayment` because the reaction cascades from the
-  command; `RequestingARefundAfterAReversal` specifies the reaction on its own.
+- The command that reverses a payment, the refund reaction and their specifications
+  (`ReversingAReceivedPayment`, `RequestingARefundAfterAReversal`) are in
+  `invoicing-dues-design.md`, because the command needs a stored-state rule.
 - The query answers "absent" with no `result` block; the whole-list query and the `OpenInvoices`
   list view in the excerpts are design-mode expectations (list queries compile but do not bind at
   4.64.0, PLAY0268, `cratis-screenplay-toolchain`, so they are retained as design-mode expectations): see `view-and-story-specs.md`.

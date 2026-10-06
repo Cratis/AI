@@ -201,7 +201,9 @@ scope is reported as explicitly incomplete); V1 passes with the tool named in
 - `references/view-and-story-specs.md` - view specs, lifecycle families, ordering, lag.
 - `references/coverage-matrix.md` - obligations from declarations, template, worked matrix.
 - `references/scenario-examples.md` - compact worked examples per category, good and bad forms,
-  list and todo-list views; all copied from the complete `references/invoicing-dues-example.md`.
+  list and todo-list views; copied from the complete `references/invoicing-dues-example.md`
+  (runnable) and, for compensation, `references/invoicing-dues-design.md` (design mode: holds the
+  stored-state rules, does not bind).
 - `references/scenario-workshop.md` - facilitation guide for group scenario sessions.
 - `references/chronicle-verification.md` - guarantees that need more than a `.play` outcome.
 - `references/spec-forms-by-mode.md` - admitted forms in design, executable, renderable.

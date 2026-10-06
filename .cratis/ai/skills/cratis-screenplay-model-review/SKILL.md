@@ -135,7 +135,7 @@ every candidate has an accepted, corrected or rejected state and its evidence.
 2. No PLAY0029 ever (a dropped construct); no unresolved-name warnings.
 3. Every event production has `for` (operation productions take none); no event-source id copied into a payload without a consumer.
 4. Every read-model field has an origin; every event has a consumer or terminal reason.
-5. Every command has a reachable, authorized origin (screen action, form, reaction, capture).
+5. Every command has a reachable, authorized origin (screen or form action, or a reaction to an event, clock or application trigger; a capture appends facts and a command after it is reached through a reaction).
 6. No gated command is invoked by a reaction without a recorded trusted-path decision.
 7. State-dependent rules are `reads` + `require ... message` marked NOT enforced; no
    caller-supplied state, attestation boolean (`confirmsX == true`) or handler/hint prose.

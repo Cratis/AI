@@ -24,7 +24,10 @@ or the unmanaged extension code.
 ## Precedence (highest first)
 1. Executable parts: specifications, mappings, constraints, authorization, rules.
 2. The slice `description` and realization notes: they explain intent and never license a
-   contradiction or an undocumented default.
+   contradiction or an undocumented default. Realization notes are the explicit realization
+   requirements stated in a description: they bind adapters and fallback code, cannot contradict
+   executable parts, and are never supplemented with inferred rules; other description prose is
+   only a hint.
 3. Issue or ticket text.
 4. Existing code: no authority.
 

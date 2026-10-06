@@ -38,8 +38,8 @@ owning session records both. Parallel overwrites of one STATE.md are never allow
    rules. In modeling, ambiguity with a reasonable default (including authorization, money or
    time): continue and record the assumption with its address. In delivery (P7-P9, gap-fill),
    where a guess could encode a wrong rule, authorization, money or time behavior: post the
-   question (`stop-or-assume.md` format), block that scope only, continue the rest. Contradictions, approvals not given and a
-   third review round always stop. Never leave a turn neither progressed nor closed.
+   question (`stop-or-assume.md` format), block that scope only, continue the rest. Contradictions, a third review round, a gate
+   only the user can accept, and approvals not yet given always stop. Never leave a turn neither progressed nor closed.
 7. **Close it.** The owning session overwrites STATE.md (clear `Active`, update trail, verdicts,
    carry-forward); every agent ends its packet with `Outcome:` as the first line. A no-op turn
    still closes: exactly one start and one closing outcome, never zero, never one.

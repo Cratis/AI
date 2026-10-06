@@ -2,8 +2,11 @@
 
 Compact examples for each scenario category, in one invoicing domain so the shapes compare
 easily. Every excerpt below is copied verbatim from the complete document in
-`invoicing-dues-example.md`, which compiles with warnings as errors and whose 14 specifications
-pass in the reference evaluator; it also holds the declarations the excerpts depend on. A second
+`invoicing-dues-example.md`, which compiles with warnings as errors and whose 21 specifications
+pass in the reference evaluator; it also holds the declarations the excerpts depend on. The two
+compensation excerpts in section 4 come from `invoicing-dues-design.md` instead: that document
+holds the stored-state rules (`reads` + `require`), compiles but does not bind (PLAY0271,
+PLAY0268), so its specifications are design mode and do not run. A second
 complete example, with competing claims and denial fixtures, is `berth-reservations.md`. The category structure and the good/bad contrast follow the worked
 examples in Nebulit GmbH's `eventmodeling-elaborating-scenarios` (`provenance.md`), translated to
 Screenplay specifications.
@@ -133,6 +136,7 @@ A reversal needs a paid history, the reversal action and the exact consequence. 
 lists the declared consequence (`RefundRequested`); the reaction is also specified on its own.
 `RefundRequested` is a recorded request, not proof that money moved, and there is no
 `then <Command>` form. What the target must do to deliver the refund is a requirement, not a spec.
+From `invoicing-dues-design.md` (design mode; the specs do not run at 4.64.0):
 ```screenplay excerpt
 specification ReversingAReceivedPayment
   given caller
