@@ -222,7 +222,7 @@ proven*.
 | `ShouldBeSuccessful()` / `ShouldNotBeSuccessful()` | Authorized, valid, no exceptions — or not |
 | `ShouldBeValid()` | Validation only; it checks neither authorization nor exceptions |
 | `ShouldHaveValidationErrors()` | At least one validation error |
-| `ShouldHaveValidationErrorFor(message)` | A validation error with that **message** |
+| `ShouldHaveValidationErrorFor(message)` | A validation error whose message **contains** that text (a substring match; compare messages for equality when exact wording is specified) |
 | `ShouldHaveValidationErrorBecauseOf(reason)` | A validation error with that `ValidationResultReason` |
 | `ShouldBeAuthorized()` / `ShouldNotBeAuthorized()` | The authorization outcome |
 | `ShouldHaveExceptions()` / `ShouldNotHaveExceptions()` | Whether the handler threw |

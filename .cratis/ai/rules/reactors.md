@@ -275,7 +275,7 @@ void Establish()
 
 async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new InvoiceIssued("INV-1001"));
 
-[Fact] async Task should_notify() => await _notifications.Received(1).Notify(Arg.Any<string>());
+[Fact] async Task should_notify_about_the_issued_invoice() => await _notifications.Received(1).Notify(Arg.Is<string>(_ => _.Contains("INV-1001")));
 ```
 
 For reactors that return side-effect events, assert the resulting appends through the scenario's event store; for non-event side effects, assert on the mocked services (as above). See [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) for the full `*Scenario` family.
