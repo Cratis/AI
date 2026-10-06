@@ -71,8 +71,8 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 Facts read at `v4.68.0`: decision 0026 and `Documentation/screenplay/{commands,specifications,interoperability}.md`.
 A model selects ESM v7 only when it uses a generated property, a response, a generated fixture or a `then returns`
 expectation; every other model keeps its version, bytes and revision. The cratis CLI 3.28.3 (bundled 4.66.0)
-reports `PLAY0268` for these constructs, and Stage 4.24.2 refuses ESM v7 with `STAGE-ESM-016` (Stage#201 in
-progress), so they bind and run but are not rendered: gap-fill with the model as contract. Complete example:
+reports `PLAY0268` for these constructs, and Stage 4.24.2 refuses ESM v7 with `STAGE-ESM-016` (tracked in
+Stage#201), so they bind and run but are not rendered: gap-fill with the model as contract. Complete example:
 `generated-responses-example.md`.
 
 - A generated property is command-only, required, scalar and a concept backed by `Uuid`; bare `Uuid`, optional and collection
