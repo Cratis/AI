@@ -20,8 +20,7 @@ binding (`PLAY0268`) and Stage refuses their ESM version (`STAGE-ESM-016`); rend
 appends never carry event source type, event stream type or event stream id, so
 Chronicle's defaults apply (Stage#177, #200, #201). See `sources-and-streams.md`.
 
-Whole-model admission requires ESM schema v1 to v3; anything else is STAGE-ESM-016 (v4
-generations also fail the CLI pre-check CLI-RENDER-003). The admitted vertical is concepts,
+Whole-model admission requires ESM schema v1 to v4 on Stage 4.24.2 (v1 to v3 on the 4.24.1 the cratis CLI 3.28.2 bundles, where a v4 model is STAGE-ESM-016 and also fails the CLI pre-check CLI-RENDER-003); v5 and v6 are STAGE-ESM-016. On 4.24.2 a selected event above its initial revision, or any scope depending on it, is STAGE-ESM-026 (migrations are not rendered, Stage#204), and a historical typed-context reference is STAGE-ESM-025. The admitted vertical is concepts,
 composite types, one command to its events, a one-instance projection, an optional keyed
 snapshot query, declarative authorization (including query authorization) and modeled
 specifications. **Automation and Translate slices are not rendered** (Stage#79, open): the
@@ -29,7 +28,7 @@ whole automation is hand-written (gap-fill).
 
 | Area | Renders | Rejected (code) |
 | --- | --- | --- |
-| ESM version | schema v1 to v3 | v4 generations, v5 `then no readmodel`, v6 constructs: STAGE-ESM-016 for the whole model (Stage 4.24.1 also ledgers the v6 members as `STAGE-ESM-024`; users still see STAGE-ESM-016) |
+| ESM version | schema v1 to v4 (4.24.2; initial-revision events only) | evolved events: STAGE-ESM-026 (4.24.2); historical references: STAGE-ESM-025; v5 `then no readmodel`, v6 constructs: STAGE-ESM-016 for the whole model (Stage 4.24.1 also ledgers the v6 members as `STAGE-ESM-024`; users still see STAGE-ESM-016) |
 | Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`: STAGE-ESM-001 |
 | Types | concepts over Uuid, String, Int, Decimal, Bool, Date, DateTime; composite types; collections; optional | unknown types: 002 and 003 |
 | Validation | not empty, min, max, equal, not equal, comparisons, length, `all >`/`all >=`, matches, `$strings` keys (missing default keys: 018) | code rules and code validation: 005 |

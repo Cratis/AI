@@ -60,6 +60,9 @@ Procedure and ownership: the identity procedure in `cratis-screenplay-modeling-l
 owning session, or a brief that asks for the rename, applies it; a subagent without MCP returns
 the catalog-changing request to the owner; never leave a requested change silently unapplied).
 - Several generations select ESM v4; that binds executably on both tools (compiled
-  with `evolution-example.md`).
+  with `evolution-example.md`). Stage 4.24.2 admits v4 but refuses any evolved event and its
+  dependent scope with `STAGE-ESM-026` (it cannot render event-type migrations yet, Stage#204,
+  which depends on Screenplay#71), and its runtime still refuses evolved events: the evolved
+  events are gap-fill, with migrations hand-written per `cratis-chronicle-event-type-migration`.
 
 Complete compiled example: `evolution-example.md` (generation, rename pin, meaning change).

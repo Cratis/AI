@@ -217,7 +217,7 @@ Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here:
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
 cratis CLI `v3.28.2` (`cratis screenplay validate --warnings-as-errors`, bundled Screenplay 4.66.0);
-Stage `v4.24.1` (admits ESM v1-v3); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.2`
+Stage `v4.24.1` (admits ESM v1-v3; Stage `v4.24.2` admits v1-v4 and refuses evolved events with `STAGE-ESM-026`); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.2`
 `Documentation/reference/screenplay-mcp.md`. The worked example compiles with both tools.
 ## Verify
 ```shell

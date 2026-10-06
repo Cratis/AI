@@ -58,7 +58,7 @@ decides, not the slice type:
   *requires portable occurrence and effect semantics* and captures as *require a portable
   compiled CDL plan*, and gave a false `PLAY0285` on a specification that follows a reaction
   cascade (Cratis/cli#242).
-- **Stage 4.24.1** admits ESM v1-v3 and renders no `Automation` or `Translate`
+- **Stage 4.24.1** admits ESM v1-v3 (4.24.2: v1-v4) and renders no `Automation` or `Translate`
   slice. The automation is gap-fill, with the `.play` slice and its specifications
   as the contract: `cratis-screenplay-render-and-gap-fill`.
 

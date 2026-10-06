@@ -9,7 +9,7 @@ Stage v4.24.0 (`SemanticCratisAdmission.cs`) and Chronicle v19.30.0 / Arc v22.49
 | Author in `.play` (syntax, MCP views `event-sources`, `event-streams`, `command-routes`) | yes, since Screenplay v4.62.0 |
 | Validate (V1: authorable) | yes |
 | Bind (V3) and run specifications | no: binding reports `PLAY0268`; the whole application then has no executable model. V2 (executable diagnostics) shows that blocking `PLAY0268` as the evidence for the blocked V3 |
-| Render (V5) | no: Stage admits ESM v1 to v3 only, so the model is refused with `STAGE-ESM-016` |
+| Render (V5) | no: Stage admits ESM v1 to v4 only (v1 to v3 on 4.24.1), so the model is refused with `STAGE-ESM-016` |
 | Deliver as code | gap-fill by hand with the model as the contract (`cratis-screenplay-render-and-gap-fill`, case C) |
 
 Why binding refuses: the constructs need an ESM version that is **allocated** but **not

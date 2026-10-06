@@ -333,7 +333,7 @@ module Collections
   does a reaction that never settles. The reference stops at 1,000 new facts per
   scenario and 10,000 due occurrences per clock advance.
 - A model that uses these forms selects ESM v6 (`schemaVersion: 6`). Stage 4.24.1
-  admits ESM v1-v3 and renders no `Automation` or `Translate` slice, so the whole
+  admits ESM v1-v3 (4.24.2: v1-v4) and renders no `Automation` or `Translate` slice, so the whole
   automation is gap-fill against this contract: `cratis-screenplay-render-and-gap-fill`.
 
 ### Version skew: cascades and the false `PLAY0285` (cratis before 3.28.2)

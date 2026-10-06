@@ -14,8 +14,9 @@ probe reports and choosing what to do. Do not copy the code table here.
 2. Execution planning builds the plan and can emit `PLAN-*` diagnostics before Stage runs.
 3. Stage plans the target and admits or rejects each member: `STAGE-ESM-0xx`; profile and path
    problems `STAGE-CRATIS-0xx`. For an ESM v4 model with evolved events the CLI adds
-   `CLI-RENDER-003` after Stage's own `STAGE-ESM-016` version refusal, as a supplementary
-   generation diagnostic, not as a pre-check.
+   `CLI-RENDER-003` after Stage's own refusal (`STAGE-ESM-016` on the bundled Stage 4.24.1;
+   `STAGE-ESM-026` on Stage 4.24.2, which admits v4 but not evolved events), as a
+   supplementary generation diagnostic, not as a pre-check.
 4. Any error anywhere publishes nothing: the run ends with exit 5 and the diagnostics.
 
 The standalone `screenplay` tool can report V3 ready where the bundled binder refuses (newer

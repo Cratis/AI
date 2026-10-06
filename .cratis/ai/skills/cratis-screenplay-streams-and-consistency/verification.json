@@ -12,6 +12,7 @@
     { "kind": "skill-contains", "value": "CHR0034" },
     { "kind": "skill-contains", "value": "No calculated events" },
     { "kind": "skill-contains", "value": "decision tree and red flags" },
-    { "kind": "skill-contains", "value": "not bound, run or rendered" }
+    { "kind": "skill-contains", "value": "not bound, run or rendered" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-026" }
   ]
 }

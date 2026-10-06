@@ -343,7 +343,7 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Specifications name the rejections, not only the happy path.
 - [ ] If the model must reach a runtime, check it binds with the tool that will
       consume it. The standalone 4.66.0 binder admits Automation and Translate slices
-      (ESM v6); Stage 4.24.0 admits ESM v1 to v3 and renders only `StateChange` and
+      (ESM v6); Stage 4.24.0 admits ESM v1 to v3 (4.24.2: v1 to v4, evolved events refused with `STAGE-ESM-026`) and renders only `StateChange` and
       `StateView` slices, so automations and translations are gap-fill there.
 
 ## Parsed is not runnable
@@ -362,7 +362,7 @@ What binds depends on **which tool** you ask, so name the tool and its version:
 - `Automation` and `Translate` slices, reactions, captures and triggers: the
   standalone `screenplay` 4.66.0 and the `cratis` 3.28.2 bundle (same compiler) bind them (ESM v6).
   The `cratis` 3.27.1 bundle (Screenplay 4.60.1) reported *Slice '<name>' of type '<type>'
-  is not admitted by ESM v1.* Stage 4.24.1 admits only ESM v1 to v3 and renders none of them.
+  is not admitted by ESM v1.* Stage 4.24.1 admits only ESM v1 to v3 (4.24.2: v1 to v4) and renders none of them.
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
