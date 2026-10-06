@@ -182,6 +182,6 @@ module Berths
   (see `LockerBoard` in `worked-example.md`); extend it whenever a `from` is added.
 - Every consumer has its read model; every read model has a consumer.
 - Every field traced (`field-lineage.md`).
-- Executable/renderable scope: one keyed query per read model, `by` property mapped from
-  `$eventSourceId` or a key.
+- Executable/renderable scope: one unambiguous key per read model (one or more keyed queries,
+  all with the same `by` property), mapped from `$eventSourceId` or a key; no list queries.
 - Design-only shapes listed with the V3 code they cause.

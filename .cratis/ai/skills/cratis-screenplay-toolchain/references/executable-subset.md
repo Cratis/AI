@@ -33,8 +33,10 @@ Complete examples that bind live in `executable-example.md` (both compilers),
   <commandProperty>`.
 - `constraint ... unique <prop> on <Event>`. Admission is separate from the open Chronicle
   durability defects (`versions.md`): never treat admission as proof of uniqueness.
-- A `readmodel` with exactly one keyed query `query XById => RM optional` and one `by xId
-  XId` whose name equals a read-model property (plus optional `authorize`).
+- A `readmodel` with one unambiguous key: one or more keyed queries `query XById => RM optional`
+  in its slice, all using the same `by xId XId` property, whose name equals a read-model
+  property (each with optional `authorize`). Two different `by` properties on one read model are
+  PLAY0268; a list query (`=> RM[]`) is a separate blocker.
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
   `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
   `subtract`, `set`, `clear`, variants, and `xId = $eventSourceId`.
