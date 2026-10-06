@@ -65,12 +65,14 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 ## Code attachments (what binds, what never does)
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
-code to an owner. Two kinds block binding (PLAY0268, V3 blocked, no specification runs):
-the command `handler` and the `file` constraint (see below). Everything else binds as an
-**opaque requirement** that needs a target to execute: reducer transitions, rule
-predicates, command and concept code validation, policy predicates, query performers and
-reaction effects. Query performers and reaction bodies still leave their owner
-non-executable.
+code to an owner. Three kinds block binding (PLAY0268, V3 blocked, no specification runs):
+the command `handler`, the `file` constraint (see below) and a query `performer`
+("uses delivery, filtering, scope, or implementation behavior outside the first ESM v1
+vertical"). Everything else binds as an **opaque requirement** that needs a target to
+execute: reducer transitions, rule predicates, command and concept code validation, policy
+predicates and reaction effects. Reaction effects bind only when the trigger has no
+`reads`; a trigger with `reads` plus a `file` or inline effect fails binding. Reaction
+bodies still leave their owner non-executable.
 
 - A `file` constraint **never binds**: PLAY0268 "file implementation is not admitted by
   the executable model" (`SemanticModelBinder.Constraints.cs`). Chronicle file constraints
@@ -88,8 +90,9 @@ non-executable.
   code validation (STAGE-ESM-005) and opaque policies (STAGE-ESM-015) are refused.
 - The reference runner returns Unsupported for the opaque bodies that do bind (rule and
   policy predicates, code validation, reducer transitions); a specification that needs one
-  never passes. Handlers and file constraints are different: they leave the whole model
-  unbound, so no specification runs at all.
+  never passes. Handlers, file constraints and query performers (and reaction effects on a trigger with
+  `reads`) are different: they leave the whole model unbound, so no specification runs at
+  all.
 
 ## Refused (code, reason): fix, or record as a mode gap
 

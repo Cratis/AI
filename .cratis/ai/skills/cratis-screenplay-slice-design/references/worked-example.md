@@ -4,7 +4,12 @@ One complete model for `cratis-screenplay-slice-design`. It is in **design mode*
 (compiles with warnings as errors); V3 is blocked on purpose by the `ListLockers` list query
 (`PLAY0268` at binding); `given clock` also fails binding on the cratis-bundled compiler only
 (`cratis-screenplay-toolchain` `references/versions.md`). Personas and screens are informational.
-The stored-state rules in `AssignLocker` (`reads` + `require`) are intent, not enforced today.
+The stored-state rules in `AssignLocker` (`reads` + `require`) are intent, not enforced today,
+and they also fail binding on their own: `PLAY0271` on each `reads`, and `PLAY0268` because the
+`require` operands (`locker.assigned`, `request.state`) must be command properties. So this
+document is design mode as a whole: V3 is blocked twice over and no specification runs here.
+The specifications still seed every read-model source (`LockerInstalled`, `LockerRequested`,
+complete givens) so they are the right form once binding is possible.
 Lineage matrix: `field-lineage.md`. State-transition table and rule coverage: `slicing.md`.
 Per-command refusal inventory: `command-inventory.md`.
 
@@ -230,6 +235,18 @@ module Lockers
           requestId = "5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c03"
         then error "The locker is not free"
       specification AppendingASecondAssignmentOfALocker
+        given LockerInstalled
+          for "6d1f0a52-4b8e-4c33-9d0e-1a2b3c4d5e01"
+          number = "B-07"
+          volume = 120
+        given LockerRequested
+          for "0c9e7b1d-2f3a-4e5b-8c6d-7e8f9a0b1c02"
+          preferredVolume = 100
+          requestedAt   = "2026-03-02T10:00:00Z"
+        given LockerRequested
+          for "5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c03"
+          preferredVolume = 90
+          requestedAt   = "2026-03-02T10:05:00Z"
         given LockerAssigned
           for "6d1f0a52-4b8e-4c33-9d0e-1a2b3c4d5e01"
           requestId = "0c9e7b1d-2f3a-4e5b-8c6d-7e8f9a0b1c02"
@@ -262,6 +279,10 @@ module Lockers
       specification FollowingARequestToAssignment
         given caller
           authenticated
+        given LockerInstalled
+          for "6d1f0a52-4b8e-4c33-9d0e-1a2b3c4d5e01"
+          number = "B-07"
+          volume = 120
         given LockerRequested
           for "0c9e7b1d-2f3a-4e5b-8c6d-7e8f9a0b1c02"
           preferredVolume = 100

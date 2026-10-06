@@ -1,7 +1,8 @@
 # Complete invoicing example (parent of the Step 5 and Step 6 excerpts)
 
-One compiling document holding the `RegisterInvoice` slice (Step 5) and the `InvoiceList`
-slice (Step 6) with the concepts, policy and events they rely on. The excerpts in
+One compiling document that also binds (the list is a keyed query with a `by` argument; it
+declares no specification, so the runner has nothing to run) holding the `RegisterInvoice` slice
+(Step 5) and the `InvoiceList` slice (Step 6) with the concepts, policy and events they rely on. The excerpts in
 [nine-steps.md](nine-steps.md) are these slices, verbatim.
 
 ```screenplay
@@ -46,5 +47,6 @@ module Invoicing
         from InvoiceSent
           invoiceId = $eventSourceId
           status = "sent"
-      query ListInvoices => InvoiceListReadModel[]
+      query InvoiceById => InvoiceListReadModel optional
+        by invoiceId InvoiceId
 ```

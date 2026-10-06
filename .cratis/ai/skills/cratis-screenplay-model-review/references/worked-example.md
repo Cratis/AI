@@ -161,7 +161,7 @@ Confidence: medium (design mode; V2 to V5 not run)
 
 ## After the fix
 The same scope after the modeler applied the edit request and added denial specifications.
-Every complete example compiles; the review is re-run only on the changed scope.
+This model binds (the list query became a keyed query with a `by` argument), so its specifications run; the review is re-run only on the changed scope.
 
 ```screenplay
 concept BerthId : Uuid
@@ -218,6 +218,10 @@ module Moorings
         given caller
           authenticated
           role "Harbourmaster"
+        given BerthRegistered
+          for "9c858901-8a57-4791-81fe-4c455b099bc9"
+          name      = "A-12"
+          maxLength = 9
         when RaiseBerthLengthLimit
           berthId      = "9c858901-8a57-4791-81fe-4c455b099bc9"
           newMaxLength = 12
@@ -243,7 +247,8 @@ module Moorings
           berthId = $eventSourceId
         from BerthLengthLimitRaised
           berthId = $eventSourceId
-      query ListBerths => BerthSummary[]
+      query BerthById => BerthSummary optional
+        by berthId BerthId
 ```
 
 The re-review marks finding 1 `fixed` (the event names the reason and carries one property), finding

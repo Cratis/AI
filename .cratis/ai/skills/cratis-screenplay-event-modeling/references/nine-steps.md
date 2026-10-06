@@ -163,7 +163,8 @@ slice StateView InvoiceList
     from InvoiceSent
       invoiceId = $eventSourceId
       status = "sent"
-  query ListInvoices => InvoiceListReadModel[]
+  query InvoiceById => InvoiceListReadModel optional
+    by invoiceId InvoiceId
 ```
 
 **Do not model infrastructure preconditions as read models.** "Does the directory
@@ -295,8 +296,8 @@ clause).
 
 ```screenplay
 trigger BuildFinished
-  repository
-  outcome
+  repository String
+  outcome    String
 ```
 
 A `trigger` declares that the name exists and what an occurrence hands the

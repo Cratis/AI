@@ -1,6 +1,6 @@
 # Projection (PDL) example
 
-Projection forms that compile warning-free and bind executable on both tools: every, join, children, nested, clear with, remove with, remove via join, increment/decrement, all + count, add/subtract by, set to, clear, no automap, literal mapping, variant group (no `=> RM`), concept rules not empty/max/length ==. Rejected by the binder: more than one every/all block on one level (PLAY0268); `$eventContext.occurred.Week` (PLAY0273, derived value). Root `remove via join` binds, but on Chronicle v19.32.0 it creates no removal subscription (the factory logs that none was created for a root path), so `CustomerDeleted` does not remove an `OrderView`; do not rely on it. Quick reference: [cheat-sheet.md](cheat-sheet.md). The `every` block maps `$eventContext.occurred` to show the form: it binds, but the reference execution plan refuses any event-context value other than the event source identity in a projection (Screenplay v4.64.0), so no specification can run this view. Carry a timestamp on the event with `$context.occurred` in the producing command when a view must show it.
+Projection forms that compile warning-free, bind and run on both tools (`RejectingAnEmptyCode` passes in the reference runner): every, join, children, nested, clear with, remove with, increment/decrement, all + count, add/subtract by, set to, clear, no automap, literal mapping, variant group (no `=> RM`), concept rules not empty/max/length ==. Rejected by the binder: more than one every/all block on one level (PLAY0268); `$eventContext.occurred.Week` (PLAY0273, derived value). Not in this example because they block the whole execution plan in the reference runner (Screenplay v4.64.0): a `remove via join` on a projection's own (root) level (`UnsupportedProjectionBlock`; it binds, but on Chronicle v19.32.0 it creates no removal subscription, so `CustomerDeleted` would not remove an `OrderView`), and any event-context value other than the event source identity in a projection, such as `$eventContext.occurred` (`UnsupportedEventContext`). Quick reference: [cheat-sheet.md](cheat-sheet.md). The `every` block here maps a literal to show the form. Carry a timestamp on the event with `$context.occurred` in the producing command when a view must show it.
 
 ```screenplay
 // PDL forms that bind executable on both tools.
@@ -84,7 +84,7 @@ module Shop
         customerId   CustomerId
         customerName String optional
         total        Decimal
-        lastSeen     DateTime
+        lastSeen     String
         lineCount    Int
         status       String
         lines        OrderLine[]
@@ -94,7 +94,7 @@ module Shop
       projection OrderOverview => OrderView
         no automap
         every
-          lastSeen = $eventContext.occurred
+          lastSeen = "seen"
         from OrderPlaced
           orderId    = $eventSourceId
           customerId = customerId
@@ -116,7 +116,6 @@ module Shop
             carrier = carrier
           clear with ShippingCleared
         remove with OrderCancelled
-        remove via join on CustomerDeleted   // binds; no removal subscription at the root on Chronicle v19.32.0
   feature Items
 
 module Work

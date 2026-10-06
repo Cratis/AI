@@ -228,6 +228,8 @@ module Billing
           for "0b6f3f7e-3c1e-4a53-9f7e-2a1c3b4d5e6f"
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
           amount    = 100
+        then InvoiceClosed                            // ESM v6: the Reconciler cascade (amount > 0)
+          for "9c858901-8a57-4791-81fe-4c455b099bc9"
 
 module Housekeeping                                   // no gates: a reaction's `invokes` has no caller
   description "Background follow-up"

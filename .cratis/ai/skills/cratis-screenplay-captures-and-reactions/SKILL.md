@@ -474,6 +474,8 @@ binds at all (`PLAY0268`).
 ## `trigger`
 
 ```screenplay
+concept Repository : String
+
 trigger BuildFinished
   description "CI reported a finished build on a watched repository"
   repository Repository
