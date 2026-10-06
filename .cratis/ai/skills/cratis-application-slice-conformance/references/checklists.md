@@ -72,8 +72,10 @@ the renderer no right to browse managed output or implement rejected semantics.
   or specifications; no condition was invented.
 - Exercise the reaction boundary itself: for a reactor, `ReactorScenario<TReactor>` invokes it
   with the trigger event and asserts what it produced (`ShouldHaveProduced<T>(predicate)`), which
-  covers the field mapping from the trigger; the command it runs is specified separately with
-  `CommandScenario`. Where the boundary cannot be reached in process, use an integration
+  covers the field mapping from the trigger. Specify the invoked command's pure decision
+  separately with `Specification` plus a direct call by default; add `CommandScenario` only
+  where its pipeline, validation, constraints or wiring contribute proof. Where the reaction
+  boundary cannot be reached in process, use an integration
   specification.
 - A failed handling is not swallowed: failure behavior follows `cratis-chronicle-reactor`
   (failure and quarantine), never a catch that continues.

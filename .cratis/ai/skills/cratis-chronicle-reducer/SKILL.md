@@ -166,8 +166,11 @@ Mind the parameter order on `Append`: `eventStreamType` comes before
 
 ## Specifications
 
-Drive a sequence of events through the read-model scenario helper for the read
-model and assert on the resulting instance. Cover, at minimum:
+Start with `Specification` plus a direct call for pure reducer decisions:
+pass the event and current state explicitly and assert the returned next state.
+Add `ReadModelScenario<TReadModel>` only where event dispatch, filtering,
+metadata or read-model wiring contribute proof; drive the event sequence and
+assert on the resulting instance there. Cover, at minimum:
 
 - the first event, where `current` is `null`;
 - accumulation across several events on one event source;

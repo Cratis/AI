@@ -129,13 +129,18 @@ degradations a reviewer can see without measuring:
 
 ## Step 6 — Specification coverage
 
+- Pure command, reducer and reactor decisions have plain-call specifications
+  (`Specification` plus a direct call); scenarios are added where pipelines,
+  validation, constraints, projections or wiring contribute proof.
 - Every State Change command has a happy-path specification.
 - Every validation rule has a failure specification asserting **both**
   `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()`.
 - Every business-rule rejection has a specification.
 - Every constraint has an `EventScenario` specification asserting the constraint
-  **name**, not its message.
-- No specification asserts on a presentation message string.
+  **name** by default.
+- Presentation message strings are not asserted by default. Exact wording is
+  asserted only when it is the specified behavior, and the fact names that
+  requirement.
 - Nothing trivial is specified — a property getter, a constructor pass-through,
   a delegation.
 - No specification sleeps to let the system catch up.

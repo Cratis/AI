@@ -20,7 +20,7 @@ This file is the reference for *what* goes in each part of a slice. Layout, slic
 
 - .NET / C# (ASP.NET Core) — **Cratis Arc** for CQRS / model-bound commands and queries, **Cratis Chronicle** for event sourcing, MongoDB or EF Core for read models.
 - React + TypeScript (Vite) — Cratis Components 4.x + Arc-generated proxies, MVVM. Vitest + Mocha/Chai/Sinon for frontend specs.
-- xUnit + Cratis.Specifications + NSubstitute for C# specs (the `*Scenario` family — see [specs.md](./specs.md)).
+- xUnit + Cratis.Specifications + NSubstitute for C# specs (`Specification` plus a direct call by default for pure decisions; add the `*Scenario` family only where pipelines, validation, constraints, projections or wiring contribute proof — see [specs.md](./specs.md)).
 
 ## Proxy generation — the build dependency
 

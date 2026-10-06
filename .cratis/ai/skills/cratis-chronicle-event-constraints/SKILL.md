@@ -176,8 +176,12 @@ plaintext-derived hashes, not the personal value itself.
 Specify the constraint with `EventScenario`: seed the conflicting state through
 `Given`, append again, and assert
 `ShouldHaveConstraintViolationFor(<Module>ConstraintNames.UniqueX)` — **the
-constraint name, never the message**. A message is presentation text and will
-change without the behavior changing.
+constraint name by default**. A message is presentation text and will change
+without the behavior changing. Assert exact message text only when that wording
+is the specified behavior, and name that behavior in the fact.
+
+The example compiles into the application assembly, so it uses `#if DEBUG`.
+Dedicated spec projects need no wrapper.
 
 ```csharp
 #if DEBUG
@@ -240,5 +244,6 @@ exercisable there; concurrency violations need the real kernel.
   `CHR0020` are all clean.
 - Every constraint has an `EventScenario` specification that seeds the conflict
   and asserts `ShouldHaveConstraintViolationFor(<name>)` on the name.
-- No specification asserts on a violation message string.
+- Violation message strings are not asserted by default. Exact wording is
+  asserted only when it is the specified behavior, named in the fact.
 - Build clean in Debug and Release, and the specifications pass.
