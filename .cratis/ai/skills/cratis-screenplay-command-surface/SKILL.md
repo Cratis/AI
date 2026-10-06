@@ -27,6 +27,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original examples and executable boundaries |
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs and canonical `optional`; changed examples compiled |
+| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Binding behaviour of `handler`, code attachments, `persona` and compliance attributes: `Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs` |
 
 The update follows `commands.md`, `events.md`, `types.md`, `diagnostics.md`,
 `mcp/authoring-tools.md` and decision 0023 at that main commit (after v4.52.0).
@@ -74,8 +75,10 @@ Keep to it.
 
 ⚠️ **`produces` and `handler` are mutually exclusive** — declaring both is an
 error. Everything else may repeat except `description` (one) and `concurrency`
-(one). A `handler` parses but does not bind to the executable model yet
-(`PLAY0268`); prefer `produces` when the model must run.
+(one). A `handler` parses but **never binds**, with or without an `implementation`
+or `hint`: the binder reports `PLAY0268` ("handler requires a constrained
+implementation attachment"), and a `handler` is not one of the opaque bodies below.
+Prefer `produces` when the model must run or render.
 
 ## `identifier` — the stream boundary decision
 
@@ -165,8 +168,12 @@ validate
     file Validations/BeAValidOrganizationNumber.cs
 ```
 
-A bodied rule or fenced block binds as opaque code (ESM v3): the reference runner
-reports it unsupported, and a target must supply the implementation. Prefer a
+A bodied rule or fenced block on a validation, rule or policy binds as opaque code
+(ESM v3): the reference runner reports it unsupported, and a target must supply the
+implementation. Two exceptions never bind: the command `handler`, and a `file`
+constraint (the binder records the requirement, then rejects it with `PLAY0268`;
+only `unique` constraints bind).
+Stage 4.24 admits only pure reducer bodies, so such a body is gap-fill code there. Prefer a
 declarative rule when one can say it.
 
 **Put format rules on the `concept`, not the command.** A concept carries its own
@@ -309,8 +316,12 @@ An empty block or an unknown dimension is an error. Omitting `concurrency` does
 not mean unchecked appends: Chronicle's default optimistic concurrency applies
 to the routed scope. This does not make command `reads` protected.
 
-Decision 0023's generated values, `returns`, operations, named event sources and
-streams, `derive` and `provide` are planned, not available yet.
+Decision 0023's constructs differ in availability. **Authorable at 4.64.0, never
+executable yet** (binding reports `PLAY0268`, so they stop a model at V1): generated
+values and `returns` responses (execution awaits ESM v8), operations (ESM v9), and
+named event sources and streams (ESM v10). Syntax or MCP acceptance is not proof of
+execution. `derive` and `provide` have no documented syntax at that tag; treat them as
+planned and do not write them.
 
 ## `constraint` — uniqueness at append time
 
@@ -370,8 +381,18 @@ is why the compiler says *expected … or Enum* rather than listing it among the
 Attributes `@pii` and `@sensitive`, each with at most one `reason`; a
 reason for an attribute the concept does not declare is an error. **Compliance is
 inherited** — a property typed with a `@pii` concept is PII everywhere. The
-executable model does not bind compliance attributes yet (`PLAY0268`); keep them,
-because the classification is the point.
+executable model does not bind compliance attributes (`PLAY0268`, "compliance attributes
+require portable data-subject semantics"), so a `@pii` model stops at authorable (V1);
+keep the attribute, because the classification is the point, and never drop it to bind
+or render.
+
+⚠️ **Identifiers are not `@pii`.** `@pii` on a concept that types an identifier
+compiles silently, but Chronicle rejects PII on an event source id (`CHR0034`). Keep
+the stream identity a surrogate `Uuid` concept and carry the personal value (name,
+email) as a separate `@pii` property. **`@sensitive` is unverified:** it has no
+defined portable meaning (Screenplay#384). Stage 4.24.0's legacy syntax renderer maps
+`@sensitive` to `[PII]` (`ConceptRenderer.cs:84`, Stage#197), while the current
+`cratis render` path rejects the model with `PLAY0268`. Do not promise a behaviour for it; both issues are open.
 
 ⚠️ **Enum trap.** A value literally named `validate` is read as an empty validate
 block. Write `@validate` for the value; the compiler warns when it sees the
@@ -406,8 +427,8 @@ Three condition forms: `authenticated`, `role "<name>"`, and
 a second (`PLAY0441`) — **or** one implementation (a tagged ` ```csharp ` block or
 `file`), never both (`PLAY0440`). Declarative policies run in the reference
 runner; a code policy binds as opaque ESM v3 and needs a target to evaluate it.
-A `persona` is documentation for people; it blocks executable binding
-(`PLAY0268`).
+A `persona` is authoring metadata: the binder reports it as information `PLAY0270`
+(report-only) and it does not block binding; an unknown policy it lists is an error.
 
 ## `seed`
 
@@ -439,7 +460,10 @@ Four contexts, and **what each omits is load-bearing** — read
 
 ## Verify
 
-- [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
+- [ ] Standalone `screenplay <model> --warnaserror` (4.64.0) reports zero errors and zero
+      warnings; with only the bundled compiler, `cratis screenplay validate
+      --warnings-as-errors` on the model folder (3.27.1 bundles Screenplay 4.60.1, ESM v5 or
+      lower). Name which tool produced the result.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
 - [ ] Format rules live on the `concept`; state-dependent rules are specifications.
@@ -448,8 +472,14 @@ Four contexts, and **what each omits is load-bearing** — read
       is stated.
 - [ ] Constraints are `unique` forms; no `file` constraint stands in for another rule.
 - [ ] Each policy has one `require` or one implementation, not both.
-- [ ] Personal data is `@pii` on the concept, with a reason.
+- [ ] Personal data is `@pii` on the concept, with a reason; no identifier concept is `@pii`;
+      no behaviour is claimed for `@sensitive`.
+- [ ] No `handler` where the model must bind, and no bodied construct described as
+      runnable or renderable without saying which tool admits it.
 - [ ] No event carries an optional property covering two situations.
+
+Versions, tool capabilities and the executable and renderable subsets: `cratis-screenplay-toolchain` (`references/versions.md`). Where a construct sits in the
+method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses
 

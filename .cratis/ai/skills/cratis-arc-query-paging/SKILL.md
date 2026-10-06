@@ -181,3 +181,13 @@ pinning, keep it in a method a specification can supply arguments to.
 - Creating the read model or its projection: the Chronicle read-model guidance.
 - Inspecting an observable query over HTTP: `cratis-arc-observable-query-http`.
 - Whole-slice performance work: the performance review guidance.
+- An accepted `.play` model under the model root covers the behavior, or the
+  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD -- <root>` lists it), or the project set
+  `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
+  output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
+  `cratis-screenplay-modeling-lifecycle`): change the model first with
+  `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
+  say so and do not author `.play` from memory.
+  Edit code here only for infrastructure, clients, adapters, Screenplay code
+  attachments, or gap-fill scope (`cratis-screenplay-render-and-gap-fill`);
+  never edit Stage-managed output.

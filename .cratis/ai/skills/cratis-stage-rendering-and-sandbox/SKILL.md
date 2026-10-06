@@ -1,245 +1,212 @@
 ---
 name: cratis-stage-rendering-and-sandbox
-description: Understand what Cratis Stage actually does with a Screenplay `.play` model today — the deterministic artifact render plan and the narrow model shape it admits, the disposable `cratis/stage` sandbox container, and the `cratis/stage-specrunner` model-level specification job. Use when deciding whether Stage can render a model, when interpreting a blocked render plan, or when running the sandbox. Do not use for authoring the `.play` model itself.
+description: "What Cratis Stage and `cratis render` actually do with a Screenplay `.play` model today: the narrow model shape Stage 4.24 admits and refuses (STAGE-ESM-*), what it emits (C# Arc/Chronicle backend, React/Vite scaffold, Debug specifications), managed publication, `--force` and recovery, the unmanaged `Customizations/` seam, and the `cratis/stage` sandbox and `cratis/stage-specrunner` job. Use when deciding whether Stage can render a model, reading a blocked render, re-rendering safely, or running the sandbox. Not for: authoring the model (use `cratis-screenplay-model-authoring`) or the render and gap-fill workflow (use `cratis-screenplay-render-and-gap-fill`)."
 license: MIT
 ---
 
 # What Stage renders, and what it refuses
 
-Stage turns a Screenplay `.play` model into Cratis Arc + Chronicle application
-source. It ships three things: a **renderer** exposed as a .NET library, a
-**disposable runtime sandbox** container, and a **specification runner**
-container.
+Stage turns a Screenplay `.play` model into a Cratis Arc + Chronicle application. It
+ships a **renderer** (a .NET library, driven from a terminal by `cratis render`), a
+disposable **sandbox** container (`cratis/stage`, started by `cratis run`) and a
+**specification runner** container (`cratis/stage-specrunner`).
 
-⚠️ **Stage is experimental, and its admitted model shape is very small.** The
-renderer accepts one command per state-change slice, one produced event,
-`not empty` validation only, one read model with one projection, and at most one
-by-identifier snapshot query. Anything richer produces **no artifacts at all**,
-not thinner ones. Read the admission rules below before promising a model can be
-rendered.
+Stage is experimental and its admitted model shape is small. A model it cannot render
+exactly produces **no artifacts at all**, never thinner ones. Read the admission rules
+before promising that a model can be rendered, and render it to find out: the source
+reading in this skill is not a render result.
 
 ## Verified product sources
 
-| Artifact | Version | What it is |
+| Source | Pin | Notes |
 | --- | --- | --- |
-| `Cratis.Stage.Contracts` | `3.15.1` | `ArtifactRenderPlan`, `EventModelLoader`, specification-result contracts |
-| `Cratis.Stage.Rendering.Cratis` | `3.15.1` | The one rendering target and the `CratisRendering` facade |
-| `Cratis.Stage.Rendering.Cratis.Scaffolding` | `3.15.1` | Scaffolds the Cratis project a rendered application is placed into |
-| `Cratis.Stage` | `3.15.1` | The partial direct runtime engine |
-| `cratis/stage` | `3.15.1`, `latest` | Disposable HTTP host plus an in-memory Chronicle kernel |
-| `cratis/stage-specrunner` | `3.15.1`, `latest` | Run-to-completion specification job |
+| Stage | `v4.24.0` (`fa48546`) | Renderer, sandbox host, spec runner; pins Screenplay 4.60.0 |
+| cratis CLI | `v3.27.1` (`a327e89`) | `cratis render`, `cratis run`; bundles Stage 4.24.0 and Screenplay 4.60.1 |
+| Rendered applications | Arc `22.25.0`, Chronicle `19.8.1`, .NET 10 | The scaffold profile; frontend Components 4.14.0, Scene 4.2.0 |
 
-Behavior below is read from the repository at tag `v3.15.1`. Packing is opt-in
-per project (`<IsPackable>true</IsPackable>` on `Contracts`, `Rendering.Cratis`,
-`Rendering.Cratis.Scaffolding` and `Stage`); `Cratis.Stage.Host` and
-`Cratis.Stage.SpecRunner` never opt in and exist only as the two container
-images.
+Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.md`,
+`Documentation/**` in Stage; `Source/Cli/Commands/Render/**` and
+`Documentation/reference/screenplay.md` in the CLI), and the vertical in
+[references/render-example.md](references/render-example.md) was rendered, built and
+tested with cratis 3.27.1. The full version table (Screenplay 4.64.0, Arc 22.50.5,
+Chronicle 19.32.0 and the tool split) is in the `cratis-screenplay-toolchain` skill,
+`references/versions.md`. Rendered apps are on Arc 22.25.0, so `[ProtectedDecision]`
+(Arc 22.39.0 and later) is not available in code written into one.
 
-## Input
+## Model-first rule
 
-The authoritative input is Screenplay source: a folder of `.play` files,
-compiled recursively over `**/*.play` and merged into one model. There is no
-other supported entry format — an `event-model.json` file is **not** the current
-startup or rendering contract, and the loader cannot read one.
+The `.play` model is the source of truth; Stage-managed output is derived from it.
 
-## The renderer
+- Change the model, then render again. Never edit a file listed in `.cratis-render.json`:
+  the next render replaces it or refuses.
+- Hand-written code goes in `Customizations/` (unmanaged), in a separate project, or in
+  an explicitly authorized gap-fill for scope Stage cannot render (`cratis-screenplay-render-and-gap-fill`).
+- A customization never makes a rejected model renderable, and never weakens modeled
+  authorization, validation or `@pii` to get past a refusal.
+- Never claim a whole-application result from a subset of the model.
 
-There is **no CLI, no dotnet tool, and no container for rendering.** The entry
-point is a static facade in `Cratis.Stage.Rendering.Cratis`:
-
-```csharp
-var options = new CratisRenderingOptions("Projects", "Projects");
-var scope = new ArtifactRenderScope(ArtifactRenderScopeKind.Application, model.Application.Id);
-var plan = CratisRendering.Plan(model, executionPlan, scope, options);
-```
-
-⚠️ Two things make this harder than it looks:
-
-1. It takes a Screenplay `ExecutableSemanticModel` and a `SemanticExecutionPlan`,
-   **not** a folder path. Stage ships no helper that turns `.play` files into
-   those — `EventModelLoader` produces the other, syntax-shaped model that the
-   renderer does not accept. Producing the semantic model is the caller's job,
-   using `Cratis.Screenplay`'s `SemanticModelCompiler` and
-   `SemanticExecutionPlan.Compile`.
-2. The intended callers are the Cratis CLI and Studio. Rendering from a terminal
-   today means writing C# against this facade.
-
-Callers pass only a project name and a root namespace. The facade owns every
-target, renderer, profile, package and runtime version itself; do not
-reconstruct or modify the profile — the planner rejects changed identities,
-versions, input rosters, bytes and hashes.
-
-`Plan` performs no file-system, process, network, environment, clock or random
-access. It returns an `ArtifactRenderPlan` holding normalized relative paths,
-exact bytes and a SHA-256 per artifact, plus typed diagnostics. **Publish only
-when `plan.Success` is true; a failed plan carries diagnostics and no candidate
-artifacts.**
-
-### What it admits
-
-Every rule below is enforced, and each failure is a blocking `STAGE-ESM-0xx`
-diagnostic that stops the whole plan. Before these per-slice rules run, three
-admission diagnostics reject the model outright — `STAGE-ESM-001` (a slice kind
-other than `StateChange`/`StateView`), `STAGE-ESM-002` (concept values or
-validation the renderer cannot express) and `STAGE-ESM-003` (an unresolved
-property type) — and `STAGE-ESM-011` rejects a specification the runtime cannot
-execute.
-
-For a `StateChange` slice:
-
-- exactly one `command` (`STAGE-ESM-004`);
-- exactly one `produces` on it, no optional event properties, and validation
-  limited to `not empty` with no operand (`STAGE-ESM-005`);
-- an unconditional `produces` whose destination is a command identifier property
-  and whose mappings match the event's properties one for one
-  (`STAGE-ESM-006`).
-
-For a `StateView` slice:
-
-- exactly one `readmodel`, exactly one `projection`, at most one `query`
-  (`STAGE-ESM-007`);
-- one resolvable read-model transition on that projection (`STAGE-ESM-008`);
-- an affected-instance cardinality of one, keyed by an event property, carrying
-  the event-source identity (`STAGE-ESM-009`);
-- if a query is present: an optional (`ZeroOrOne`) snapshot lookup by the read
-  model's single identifier (`STAGE-ESM-010`).
-
-Screenplay's own executable semantic model already rejects `Automation` and
-`Translate` slices before Stage sees them, so those never reach the renderer at
-all.
-
-### What it emits
-
-At application scope, exactly eight deterministic backend scaffold files:
-`Directory.Build.props`, `Directory.Build.targets`, `Directory.Packages.props`,
-the `.csproj`, the `.slnx`, `Program.cs`, `appsettings.json` and
-`docker-compose.yml`. The generated `Program.cs` is the whole application host:
-
-```csharp
-using Cratis.Arc.MongoDB;
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddHealthChecks();
-builder.AddCratis(
-    configureArcBuilder: arc => arc.WithMongoDB(),
-    configureChronicleBuilder: chronicle => chronicle.WithCamelCaseNamingPolicy());
-
-var app = builder.Build();
-app.UseCratis();
-app.MapHealthChecks("/healthz");
-
-await app.RunAsync();
-```
-
-Per model, it emits concept types (`ConceptAs<T>` and `EventSourceId<T>`), a file
-per state-change slice holding the `[Command]` record with its `Handle()`, the
-`[EventType]` record it produces and a `CommandValidator<T>`, a file per
-state-view slice holding the `[FromEvent<T>] [ReadModel]` record and its static
-query method, and one xunit specification file per modeled `specification`,
-wrapped in `#if DEBUG`.
-
-The profile pins .NET 10, Cratis/Arc `22.3.0`, and the Chronicle image
-`16.35.3-development` in the generated compose file. It emits **no frontend** —
-screens, layouts and forms are outside the current backend milestone — and no
-`.gitignore`, repository marker, floating version or random identifier.
-
-The generated compose binds local ports `27017` and `35000`. Start it with
-`docker compose up --detach`, run the generated project, and probe `/healthz`.
-
-⚠️ There is **no committed generated output anywhere in the repository** — no
-golden files, no approval snapshots, no sample `.play` fixtures. Every claim
-about output is proven instead by a specification that plans the frozen
-`RegisterProject` corpus, writes the bytes to a temporary directory, runs
-`dotnet build`, `dotnet test` and `dotnet build -c Release` over them with zero
-warnings, and — when Docker is available — boots the result against a real
-Chronicle container and polls `/healthz`. That is a genuine end-to-end proof, for
-exactly one model.
-
-### "Reviewable" means deterministic, not reviewed
-
-The plan is destination-independent, ordered, hashed, LF-normalized and UTF-8
-without a BOM, and re-planning the same input produces identical paths, hashes
-and bytes. That is what lets a caller diff a plan.
-
-⚠️ **No review, diff, approval or staged-commit mechanism is implemented.** Safe
-staged publication and stale-file removal are explicitly deferred to work outside
-this repository. Do not describe Stage as reviewing or approving anything.
-
-The older syntax-based `IRenderer` and the optional
-`Cratis.Stage.Rendering.Cratis.Scaffolding` package cover more of the language
-but write straight to disk, and the repository is blunt about them: direct
-rendering has no managed staging or safe stale-file removal, and a failure can
-leave its target **unsafe and incomplete**. Treat them as legacy compatibility
-only.
-
-## The sandbox
+## Rendering with `cratis render`
 
 ```bash
-docker run --rm \
-    -p 9090:9090 \
-    -p 35000:35000 \
-    -v "$PWD":/eventmodel \
-    cratis/stage:latest
+cratis render ./model --name Marina --destination ./out
+cratis render --workspace ./application.workspace.json --destination ./out
 ```
 
-The image pairs the Stage host with an in-memory Chronicle kernel and reads the
-model from the fixed `/eventmodel` directory (mount your folder there; the
-entrypoint takes no arguments — passing a folder is a documented override form). The Stage API is on `9090`, the Chronicle
-Workbench on `35000`. Deployment configuration is read from `cratis-stage.json`,
-overridable through the `STAGE_CONFIG` environment variable — not from
-`appsettings.json`.
+| Option | Meaning |
+| --- | --- |
+| `[PATH]` | A `.play` file or a folder (all `**/*.play`, one application). Defaults to the current directory; exclusive with `--workspace` |
+| `--workspace <FILE>` | Canonical workspace envelope (Screenplay MCP `export-workspace`, at most 32 MiB). Keeps its application name and identities |
+| `--name <NAME>` | **Required for plain source**, a C# identifier; sets the application identity (Chronicle event store, MongoDB database). With `--workspace` optional, and it must equal the workspace name |
+| `--destination <DIR>` | Publication directory, default `./out`. It never defines identity |
+| `--target` | Only `cratis` is bundled |
+| `--project-name`, `--root-namespace` | Rendering overrides (dot-separated C# identifiers); do not change identity |
+| `--force` | See "Publication and recovery" |
 
-⚠️ It is a **partial** runtime, not a generated application. Commands evaluate
-their modeled `produces` mappings, append the facts to Chronicle and echo the
-payload; **modeled validation and authorization are not enforced on this path.**
-Modeled queries are **served without authorization**: the query performer's
-`IsAuthorized` returns `true` unconditionally, and `Perform` reads the projected
-documents (by id when the query declares one, otherwise all instances). There is
-no executable query authorization contract in Screenplay yet, so a sandbox
-query answering is not evidence that the model's authorization is right —
-it is evidence that Stage does not enforce it. (Earlier Stage releases returned
-nothing from every query; that is no longer the case at 3.15.1.)
+Order of events: recover any interrupted earlier publication, compile, bind, build the
+execution plan, plan the target (Stage admission), validate artifacts, then publish.
+Exit `0` is a published render, `5` is a refusal with nothing published (diagnostics are
+printed), `1` is a missing input. Add `-o json` for the counts and the publication
+receipt.
 
-## Modeled specifications
+Facts that surprise:
 
-```bash
-docker run --rm \
-    -v /path/to/screenplays:/model \
-    -v /path/to/results:/output \
-    cratis/stage-specrunner:latest
-```
+- **Binding uses the CLI's bundled Screenplay 4.60.1** (ESM up to v5), not the standalone
+  4.64.0 tool. Anything above ESM v5 (v6 constructs) fails binding first; a model that
+  binds only on the standalone tool is not renderable.
+- **Render never builds, tests or runs** the output. A published render is admission and
+  publication only; build and tests are separate results (see "Verify"). Admission can be
+  green while a rendered Debug test fails (the example hit this with a query assertion).
+- **Implementation attachments are read from the model root**: the folder, or the single
+  file's parent directory. Use a dedicated model folder. A required body that is missing
+  or changed blocks the render with `STAGE-ESM-020`. A workspace envelope has no
+  attachment root, so `file` references there fail the same way.
+- `cratis render` and `cratis screenplay validate` are different gates: a model can
+  validate and still refuse here.
 
-A run-to-completion job: it compiles the `.play` files, checks the modeled
-specifications against the model, writes `results.json` and exits. It accepts
-`--model <folder>` and `--output <file>`, plus optional `--slice <guid>` and
-`--spec <guid>` filters, and defaults to `/model` and `/output/results.json`.
+## What Stage 4.24 admits
 
-⚠️ Verification is **model-level**. It checks that the modeled facts and
-expectations are consistent; it does not execute each slice against a live
-runtime. A green `results.json` is not a passing integration test.
+Whole-model admission needs ESM schema v1 to v3; anything else is `STAGE-ESM-016`. Event
+generations (v4) also fail the CLI pre-check `CLI-RENDER-003`. The admitted vertical:
+
+- concepts, composite types, collections and optional values;
+- `StateChange` slices with exactly one command and an unconditional `produces` whose
+  `for` is the command identifier, with portable validation;
+- `StateView` slices with exactly one projection (or reducer) per read model: a flat
+  `from` block, or a scoped projection (several `from`, `remove with`, root `join`,
+  one-level `children`, `nested`), keyed by the event source or an event property; and
+  any number of optional snapshot queries by the read-model identifier;
+- declarative authorization (including query authorization) that requires authentication;
+- unique constraints, and modeled specifications that fit the shapes in the reference;
+- reducers whose bodies pass the **pure** allowlist (Roslyn analysis).
+
+Not rendered: `Automation` and `Translate` slices (Stage#79, open: the whole automation
+is gap-fill), reactions and captures, list, observable, filtered and scoped queries,
+`produces when`, command `handler`s, code validation and opaque policies (they refuse),
+composite-key projections, `all`, and compliance attributes (`@pii`, `@sensitive`, which
+already fail binding with `PLAY0268`). Any one blocking diagnostic fails the whole plan.
+A refusal is not a licence to weaken the model: drop no specification, event generation
+or protection to get a render; keep the model, record the capability gap and gap-fill.
+The code table, the projection and specification rules and three refusals reproduced while
+building the example are in [references/admission.md](references/admission.md); the exhaustive ledger
+is `references/renderable-subset.md` in `cratis-screenplay-toolchain`.
+
+Descriptions and documentation are never rendered, so a rule that exists only in prose
+is not enforced in the generated code.
+
+## What it emits
+
+At application scope the plan holds the scaffold plus the modeled artifacts, for the
+example 30 files: a `.csproj` and `.slnx`, `Program.cs`, `appsettings.json`,
+`docker-compose.yml`, the Directory props files, a policy registration and generated
+policies, `Common/<Concept>.cs`, one `<Module>/<Feature>/<Slice>/` folder per slice with
+the `[Command]` record and `Handle()`, the `[EventType]` event, the validator and the
+`[ReadModel]` with its query, `scene.json`, and a React/Vite frontend scaffold
+(`.frontend/`, `package.json`, `tsconfig.json`, `.gitignore`). Per-file detail, the
+scaffold pins and the `Customizations/` contract are in
+[references/rendered-application.md](references/rendered-application.md).
+
+Modeled specifications become xunit classes compiled in **Debug only**
+(`IsTestProject` when Debug): a command spec `when_<snake>` in namespace
+`<slice namespace>.when_<snake>` (so `when_x.when_x`), queries `when_<snake>_is_queried`,
+read models `when_<snake>_is_projected`.
+
+## Publication and recovery
+
+Ownership is the destination's **`.cratis-render.json`** manifest (semantic revision,
+identity, path and SHA-256 per artifact); there are no in-file markers. Interrupted
+commits are journaled in the **`.cratis-render/`** control directory (journal, staging,
+backups). Never stage `.cratis-render/` in git; commit the manifest with the output.
+
+- An unmanaged file at a planned path is refused, even with `--force`.
+- A user-modified managed file is refused unless it is still active **and** `--force` is
+  given; `--force` replaces it. It never overwrites unmanaged files and never deletes a
+  modified stale file. A stale managed file is removed only if its bytes still match.
+- Recovery runs before planning, even when planning then fails. **`recovered: true` in the
+  result means stop and reconcile**: the receipt does not describe what recovery changed.
+- An unchanged re-render writes nothing (`unchanged` equals the artifact count).
+- Use exclusive access to the destination; a receipt is a filesystem result, not a Git
+  commit, and the command creates no branch, commit or PR.
+- Drift: compare successive manifests' `semanticRevision` for renders with the same
+  `--name` and inputs. Do not compare the MCP `modelRevision` with the manifest: their
+  application identities can differ.
+
+## Sandbox and specification runner
+
+`cratis run [PATH]` (Docker required) starts `cratis/stage` on the folder or file: Stage
+API on `9090`, Chronicle Workbench on `https://localhost:35000`. It is a **partial,
+disposable runtime**, not a generated application. The default engine appends modeled
+`produces` facts and echoes the payload but enforces no modeled validation or
+authorization and no query authorization; `Stage__Runtime__Engine=semantic` opts in to
+an engine that does, and refuses what it cannot execute (HTTP 501). Callers are built
+from unsigned headers, so authorization there is not a security boundary.
+
+`cratis/stage-specrunner` checks modeled specifications and writes a results file. The
+default `structural` engine is deprecated and model-level only; `--engine semantic`
+executes admitted specs through Arc's in-memory pipeline and reports `Passed`, `Failed`,
+`Unsupported` or `Cancelled`. A green result is Stage semantic-engine evidence: not V4 and not a rendered Debug test run. Commands,
+the semantic report schema and limits: [references/sandbox-and-specrunner.md](references/sandbox-and-specrunner.md).
 
 ## Verify
 
-- The model reaches the renderer as an `ExecutableSemanticModel` plus a
-  `SemanticExecutionPlan`, not as a folder path.
-- `plan.Success` is true before any byte is written; a blocked plan's
-  `STAGE-ESM-00x` diagnostics name the construct to simplify.
-- Every state-change slice has one command, one `produces`, and only
-  `not empty` validation; every state-view slice has one read model, one
-  projection, and at most a by-id snapshot query.
-- Re-planning the same input yields identical hashes.
-- Expectations about the sandbox account for unenforced validation and
-  authorization and for queries that return nothing.
-- No claim is made that Stage reviewed, staged or approved anything.
+- `cratis render` exits 0 and reports `recovered: false`, with `written + unchanged`
+  equal to the artifact count; otherwise the render is not a result.
+- Report V5 as separate results, each a result or "not run": admission, publication,
+  Debug build (`dotnet build <destination>/<Project>.csproj -c Debug`), Debug tests
+  (`dotnet test` on the same project) and runtime. Render alone is the first two.
+- A refusal is kept verbatim as reported: `PLAY*` (compile or bind), `PLAN-*` (execution
+  plan), `STAGE-*` (admission), `CLI-RENDER-*`, or a plain ownership error for a managed
+  file. The fix is an intent-preserving model change or a recorded gap, never an edit of
+  managed output and never a weakened model.
+- No file under `.cratis-render/` is staged; managed files carry no local edits.
+- No claim that Stage reviewed, staged or approved anything; its plan is deterministic
+  (same input, same bytes and hashes), which is not a review.
+- Sandbox expectations account for unenforced validation, authorization and query
+  authorization on the default engine.
 
 ## Route near misses
 
-- Writing or verifying the `.play` model itself: `cratis-screenplay-model-authoring`
-  for the compiler and the admitted set, `cratis-screenplay-event-modeling` for the
-  modeling method, and the per-surface `cratis-screenplay-*` skills for the
-  constructs — command surface, projections, read surface, UI composition,
-  captures and reactions, specifications.
-- Understanding the generated Arc command, validator or read model as C#:
-  `cratis-arc-command` and the Chronicle read-model guidance.
-- Inspecting the Chronicle store the sandbox writes into: the Chronicle CLI or
-  Workbench guidance.
+- Writing or checking the `.play` model: `cratis-screenplay-model-authoring` (compiler and
+  MCP), `cratis-screenplay-event-modeling` (method), and the per-surface
+  `cratis-screenplay-*` skills.
+- Which tool says what, versions and diagnostics: `cratis-screenplay-toolchain`.
+- Running the render workflow end to end, gap-fill and the field ledger:
+  `cratis-screenplay-render-and-gap-fill`.
+- Understanding the generated command, validator or read model as C#: `cratis-arc-command`
+  and `cratis-chronicle-read-model`; checking hand-written code against its slice:
+  `cratis-application-slice-conformance`.
+- Inspecting the Chronicle store the sandbox writes into: `cratis-chronicle-cli-operations`
+  and `cratis-chronicle-web-workbench`.
+
+## Legacy direct-write rendering
+
+The syntax-based `IRenderer` and the optional `Cratis.Stage.Rendering.Cratis.Scaffolding`
+package write directly to disk, with no managed staging and no safe stale-file removal; a
+failure can leave the target unsafe and incomplete. They are legacy compatibility only.
+Use `cratis render` (journaled, recoverable publication) instead.
+
+## Lineage
+
+Rewritten for #493. The earlier version described Stage 3.15.1 (no CLI, eight-file
+backend scaffold, `not empty`-only validation, no frontend, Arc 22.3.0); each claim was
+re-verified at Stage 4.24.0 and cli 3.27.1 and replaced. See
+[references/admission.md](references/admission.md) for source disagreements.

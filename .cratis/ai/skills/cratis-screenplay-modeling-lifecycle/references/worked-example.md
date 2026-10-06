@@ -1,0 +1,86 @@
+# Worked example: reasoning description, constraint, decided rejection
+
+A marina berth allocation feature. The feature `description` carries the reasoning (scope, an
+assumption tied to Q1, a rule kept as a constraint). The refusal for a boat that already holds a
+berth is a specification, not a note. Complete and compiling with the standalone compiler and with
+`cratis screenplay validate`.
+
+
+```screenplay
+domain Marina.Berths
+
+concept BerthId : Uuid
+concept BoatName : String
+
+policy HarbourOffice
+  require role "HarbourOffice"
+
+persona HarbourMaster
+  description "Allocates berths. Does: allocate a berth to a boat. Cannot: allocate without the HarbourOffice role."
+  policy HarbourOffice
+
+module Berths
+  feature Allocation
+    description "Allocating a berth to a boat. A boat holds one berth at a time; that rule is the OneBerthPerBoat constraint, not a second event type. Assumption Q1: allocation is always manual, so no automation is modeled."
+    authorize HarbourOffice
+
+    slice StateChange AllocateBerth
+      command AllocateBerth
+        berthId BerthId identifier
+        boat    BoatName
+        produces BerthAllocated
+          for berthId
+          boat = boat
+
+      event BerthAllocated
+        boat BoatName
+
+      constraint OneBerthPerBoat
+        unique boat on BerthAllocated
+        message "That boat already holds a berth"
+
+      specification AllocatingABerth
+        given caller
+          authenticated
+          role "HarbourOffice"
+        when AllocateBerth
+          berthId = "5d3c2a52-27c4-4d2b-a0ee-0a6a8a9f7b11"
+          boat    = "Sea Wren"
+        then BerthAllocated
+          for "5d3c2a52-27c4-4d2b-a0ee-0a6a8a9f7b11"
+          boat = "Sea Wren"
+
+      specification RejectingASecondBerthForABoat
+        given caller
+          authenticated
+          role "HarbourOffice"
+        given BerthAllocated
+          for "5d3c2a52-27c4-4d2b-a0ee-0a6a8a9f7b11"
+          boat = "Sea Wren"
+        when AllocateBerth
+          berthId = "8e1f6c3a-6b7d-4c0e-9d5a-3f2b1a4c9e22"
+          boat    = "Sea Wren"
+        then error "That boat already holds a berth"
+
+      specification RefusingACaller
+        given caller
+          authenticated
+          role "Visitor"
+        when AllocateBerth
+          berthId = "5d3c2a52-27c4-4d2b-a0ee-0a6a8a9f7b11"
+          boat    = "Sea Wren"
+        then denied
+```
+
+
+## Why it is shaped this way
+- The one-berth-per-boat rule (`unique boat` across berth event sources) is a constraint with a pinned message, so the competing-claim
+  specification can state the exact rejection. No `BerthReassigned` event was added to carry it.
+- The `Cannot` line in the persona resolves to the `HarbourOffice` policy and a `then denied`
+  specification whose caller fixture carries a non-matching role.
+- Assumption Q1 lives in the feature description and in STATE.md (Open questions) with its address,
+  `Berths.Allocation`.
+- The description is rationale only: the rules themselves are enforced by the constraint, the policy
+  and the specifications, not by the prose.
+- The constraint does not say a berth holds one boat at a time: a berth source may replace its
+  claimed boat. If berth occupancy must be unique too, model and specify that as its own invariant.

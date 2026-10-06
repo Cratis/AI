@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-screenplay-render-and-gap-fill",
+  "input": "The marina .play model is accepted. Render it with cratis render, tell me whether it builds and its generated specs pass, and say what to do about anything Stage cannot render.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "A. Admission failure" },
+    { "kind": "skill-contains", "value": "a customization never makes a rejected model renderable" },
+    { "kind": "skill-contains", "value": "slice-implementer" },
+    { "kind": "skill-contains", "value": "cratis-application-slice-conformance" },
+    { "kind": "skill-contains", "value": "**Debug" },
+    { "kind": "skill-contains", "value": "`--force` needs approval" },
+    { "kind": "skill-contains", "value": "a whole-application V5 is never claimed from a subset" }
+  ]
+}

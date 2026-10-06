@@ -17,7 +17,7 @@ const piToolFor: Record<string, string | null> = { Read: 'read', Grep: 'grep', G
 const canonicalAgents = readCanonicalAgents(corpusRoot);
 
 test('every canonical agent declares a non-empty tools list in the canonical vocabulary', () => {
-    assert.equal(canonicalAgents.length, 12);
+    assert.equal(canonicalAgents.length, 15);
     for (const agent of canonicalAgents) {
         assert.ok(agent.tools.length > 0, `${agent.file} declares no tools`);
         assert.equal(agent.model, undefined, `${agent.file} must inherit the session model`);
@@ -26,7 +26,7 @@ test('every canonical agent declares a non-empty tools list in the canonical voc
 });
 
 test('read-only roles are readonly and never declare Edit or Write', () => {
-    const readOnlyRoles = ['code-reviewer.md', 'security-reviewer.md', 'performance-reviewer.md', 'repository-investigator.md', 'repository-investigation-reviewer.md'];
+    const readOnlyRoles = ['code-reviewer.md', 'security-reviewer.md', 'performance-reviewer.md', 'repository-investigator.md', 'repository-investigation-reviewer.md', 'screenplay-reviewer.md'];
     for (const file of readOnlyRoles) {
         const agent = canonicalAgents.find(candidate => candidate.file === file);
         assert.ok(agent, file);

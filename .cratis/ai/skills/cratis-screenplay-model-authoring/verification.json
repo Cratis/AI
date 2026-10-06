@@ -3,16 +3,46 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "main `fd18129`" },
-    { "kind": "skill-contains", "value": "Never ask the user which folder to use before trying" },
-    { "kind": "skill-contains", "value": "`readiness.authoringAccepted`" },
-    { "kind": "skill-contains", "value": "It follows the files" },
-    { "kind": "skill-contains", "value": "view: \"repairs\"" },
-    { "kind": "skill-contains", "value": "propose-repair" },
-    { "kind": "skill-contains", "value": "propose-extract-inline-event" },
-    { "kind": "skill-contains", "value": "eventNeverPersisted: true" },
-    { "kind": "skill-contains", "value": "No automatic generation-evolution repair ships" },
-    { "kind": "skill-contains", "value": "`PLAY0479`: migrate optionality spelling with `PreserveTrivia`" },
+    {
+      "kind": "skill-contains",
+      "value": "main `fd18129`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Never ask the user which folder to use before trying"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`readiness.authoringAccepted`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "It follows the files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "view: \"repairs\""
+    },
+    {
+      "kind": "skill-contains",
+      "value": "propose-repair"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "propose-extract-inline-event"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "eventNeverPersisted: true"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "No automatic generation-evolution repair ships"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`PLAY0479`: migrate optionality spelling with `PreserveTrivia`"
+    },
     {
       "kind": "skill-contains",
       "value": ".cratis/screenplay/"
@@ -72,6 +102,30 @@
     {
       "kind": "skill-contains",
       "value": "Each level above the slices is a barrel file"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Prefer a fixed root.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "29 tools (30 on MCP-Apps hosts)"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**One edit strategy.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "an `id` pin is not enough for a rename or move"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "never a way around an MCP refusal"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`PLAY0282`-`PLAY0294`"
     }
   ]
 }

@@ -842,6 +842,7 @@ test('the corpus skills produce exactly the globs they did before the hint form 
         'cratis-application-slice-specifications': ['**/when_*/**/*.cs', '**/for_*/**/*.cs'],
         'cratis-documentation-writing': ['**/Documentation/**/*.{md,mdx}'],
         'cratis-engineering-docs-authoring': ['**/Documentation/**/*.{md,mdx}'],
+        'cratis-screenplay-modeling-lifecycle': ['.cratis/screenplay/**/*.play'],
         'cratis-specifications-csharp': ['**/for_*/**/*.cs'],
         'cratis-specifications-typescript': ['**/for_*/**/*.ts', '**/for_*/**/*.tsx'],
         'cratis-technical-examples': ['**/Samples/**/*.{cs,ts,tsx}'],

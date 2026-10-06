@@ -3,10 +3,22 @@
   "input": "Write given/when/then specifications for a Screenplay slice.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "main `fd18129`" },
-    { "kind": "skill-contains", "value": "Inline events are ordinary named facts" },
-    { "kind": "skill-contains", "value": "Use `given clock`, never `given time`" },
-    { "kind": "skill-contains", "value": "query InvoiceById => InvoiceSummary optional" },
+    {
+      "kind": "skill-contains",
+      "value": "main `fd18129`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Inline events are ordinary named facts"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Use `given clock`, never `given time`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "query InvoiceById => InvoiceSummary optional"
+    },
     {
       "kind": "skill-contains",
       "value": ".cratis/screenplay/"
@@ -50,6 +62,18 @@
     {
       "kind": "skill-contains",
       "value": "A clock instant is ISO 8601 with an offset or `Z`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "one rejection specification per concept rule"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Version skew: cascades and the false `PLAY0285`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Cratis/cli#242"
     }
   ]
 }

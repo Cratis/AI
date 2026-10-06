@@ -27,6 +27,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | PDL parser, validator, diagnostics, semantic binder |
 | `Cratis.Screenplay` | main `fd18129` | Inline event extraction and context identity guidance |
+| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Reducer-body binding (`Semantics/`); no PDL syntax change affects the examples |
 
 The update follows `commands.md`, `events.md` and `mcp/authoring-tools.md` at
 that main commit (after v4.52.0); no PDL example changes in this update.
@@ -100,7 +101,10 @@ update the same instance only if the event source id happens to equal
 `invoiceId`.
 
 For same-source events, map the read-model identity from `$eventSourceId`
-(or `$eventContext.eventSourceId`), not a duplicated payload field. An event
+(or `$eventContext.eventSourceId`), not a duplicated payload field. That holds for
+executable or design scope; in renderable scope (Stage) never map it from `$eventSourceId`:
+the key of a scoped projection establishes it (`cratis-stage-rendering-and-sandbox`
+`references/admission.md`). An event
 declared by `produces event` is still a named slice-owned contract: projections
 subscribe to it exactly like a standalone event. Verified extraction preserves
 canonical ESM and identities, so it changes no projection contract. Removing a
@@ -310,7 +314,8 @@ What the executable model does with it (ESM v3):
 - The body is an opaque attachment identified by a content hash, never compiled
   or run by Screenplay. The reference runner cannot compute reducer state, so a
   specification that reads a reducer-built read model reports unsupported and
-  never passes. A target must supply the transition.
+  never passes. A target must supply the transition. Stage 4.24.0 admits only pure reducer bodies
+(Roslyn allowlist); an impure body is gap-fill code, and the model stays the contract.
 
 **Prefer a projection where one will do.** A reducer is code, and code is the part
 of a document a reader cannot check at a glance.
@@ -320,7 +325,10 @@ projection diagnostic codes, and worked examples.
 
 ## Verify
 
-- [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
+- [ ] Standalone `screenplay <model> --warnaserror` (4.64.0) reports zero errors and zero
+      warnings; with only the bundled compiler, `cratis screenplay validate
+      --warnings-as-errors` on the model folder (3.27.1 bundles Screenplay 4.60.1, ESM v5 or
+      lower). Name which tool produced the result.
 - [ ] Each read model has **exactly one** builder.
 - [ ] No projection-level `key`; every `from` that must address the same
       instance is keyed on the same identity.
@@ -339,6 +347,9 @@ projection diagnostic codes, and worked examples.
       identifier.
 - [ ] A reducer is present only because a projection genuinely could not express it,
       and every rule has a body in a tagged fence or a `file`.
+
+Versions, tool capabilities and the executable and renderable subsets: `cratis-screenplay-toolchain` (`references/versions.md`). Where a construct sits in the
+method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses
 
