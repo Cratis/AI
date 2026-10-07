@@ -196,7 +196,9 @@ var other = await readModels.GetInstanceById<Other>((EventSourceId)otherId);
 A missing instance resolves to `null`, never to a default object. A nullable
 parameter receives that `null`; a non-nullable one is **rejected as a validation
 failure (400)**, not crashed. `ARC0006` warns on a non-nullable command-scoped
-read-model parameter for exactly this reason. `cratis-arc-command` carries the
+read-model parameter for exactly this reason. Handle a nullable parameter by rejecting (a validator,
+`Provide()`, or `Result<TEvent, ValidationResult>`), never by returning a
+nullable event from `Handle()`. `cratis-arc-command` carries the
 full resolution and nullability reference, including the passive-projection case
 where absence is *not* `null`.
 
