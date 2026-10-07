@@ -24,4 +24,13 @@ public interface IAIChatClients
     /// <param name="purpose">The purpose - the agent's identity - the client talks as.</param>
     /// <returns>A chat client whose provider is resolved from the agent, per call.</returns>
     IChatClient For(LanguageModelPurpose purpose);
+
+    /// <summary>
+    /// Gets a chat client for an agent the caller defines itself - for an application that keeps its agents
+    /// in its own read models rather than in this package's.
+    /// </summary>
+    /// <param name="purpose">The purpose the usage is attributed to.</param>
+    /// <param name="target">Where the agent runs: its provider or pool, tier and skills.</param>
+    /// <returns>A chat client dispatched to the target the same way <see cref="For(LanguageModelPurpose)"/> dispatches.</returns>
+    IChatClient For(LanguageModelPurpose purpose, ChatAgentTarget target);
 }
