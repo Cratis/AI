@@ -51,7 +51,23 @@ public class AIChatClients(
     ILoggerFactory loggerFactory) : IAIChatClients
 {
     /// <inheritdoc/>
-    public IChatClient For(LanguageModelPurpose purpose)
+    public IChatClient For(LanguageModelPurpose purpose) => Create(purpose, null);
+
+    /// <inheritdoc/>
+    public IChatClient For(LanguageModelPurpose purpose, ChatAgentTarget target) =>
+        Create(
+            purpose,
+            new Agents.Listing.Agent(
+                AgentId.For(purpose),
+                purpose,
+                target.Name,
+                target.Description,
+                target.Tier,
+                target.ProviderId,
+                target.PoolId,
+                target.Skills));
+
+    PooledChatClient Create(LanguageModelPurpose purpose, Agents.Listing.Agent? role)
     {
         var logger = loggerFactory.CreateLogger<PooledChatClient>();
         return new PooledChatClient(
@@ -70,6 +86,7 @@ public class AIChatClients(
             new ProviderRateLimitRecorder(providerCapacities, commandPipeline, timeProvider, options, logger),
             timeProvider,
             options,
-            logger);
+            logger,
+            role);
     }
 }

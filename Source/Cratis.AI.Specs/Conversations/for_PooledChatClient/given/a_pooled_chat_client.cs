@@ -31,6 +31,13 @@ public class a_pooled_chat_client : Specification
     protected IRecentProviderFailures _failures;
     protected IAIAgents _agents;
     protected PooledChatClient _client;
+    protected IOptions<AIProviderOptions> _options;
+    protected ProviderRateLimitRecorder _recorder;
+    protected IAgentProviderCompatibility _compatibility;
+    protected IProviderUsageLevels _usageLevels;
+    protected IAIProviderCapacities _capacities;
+    protected IAgentExecution _execution;
+    protected ProviderBurn _burn;
 
     void Establish()
     {
@@ -43,30 +50,35 @@ public class a_pooled_chat_client : Specification
         _factory.Create(Arg.Is<ConfiguredAIProvider>(provider => provider.Type == AIProviderType.Anthropic), Arg.Any<ModelName>()).Returns(_anthropicChat);
         _factory.Create(Arg.Is<ConfiguredAIProvider>(provider => provider.Type == AIProviderType.OpenAI), Arg.Any<ModelName>()).Returns(_openAIChat);
 
-        var compatibility = Substitute.For<IAgentProviderCompatibility>();
+        _compatibility = Substitute.For<IAgentProviderCompatibility>();
+        var compatibility = _compatibility;
         compatibility.Supports(Arg.Any<LanguageModelPurpose>(), Arg.Any<AIProviderType>()).Returns(true);
 
         var sessions = Substitute.For<IRecordedAgentSessions>();
         sessions.RecordedSince(Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>()).Returns([]);
-        var usageLevels = Substitute.For<IProviderUsageLevels>();
+        _usageLevels = Substitute.For<IProviderUsageLevels>();
+        var usageLevels = _usageLevels;
         usageLevels.RefreshMany(Arg.Any<IReadOnlyCollection<AIProviderId>>(), Arg.Any<CancellationToken>())
             .Returns(new Dictionary<AIProviderId, ProviderUsageLevel>());
-        var capacities = Substitute.For<IAIProviderCapacities>();
+        _capacities = Substitute.For<IAIProviderCapacities>();
+        var capacities = _capacities;
         capacities.ForMany(Arg.Any<IReadOnlyCollection<AIProviderId>>(), Arg.Any<CancellationToken>())
             .Returns(new Dictionary<AIProviderId, AIProviderCapacity>());
         _failures = Substitute.For<IRecentProviderFailures>();
         _failures.CountsSince(Arg.Any<TimeSpan>()).Returns(new Dictionary<AIProviderId, int>());
         _commandPipeline = Substitute.For<ICommandPipeline>();
         _agents = Substitute.For<IAIAgents>();
-        var execution = Substitute.For<IAgentExecution>();
+        _execution = Substitute.For<IAgentExecution>();
+        var execution = _execution;
         execution.As(Arg.Any<LanguageModelPurpose>(), Arg.Any<IDictionary<string, string>?>()).Returns(Substitute.For<IDisposable>());
 
-        var options = Options.Create(new AIProviderOptions());
+        _options = Options.Create(new AIProviderOptions());
+        var options = _options;
         _client = new(
             (LanguageModelPurpose)Purpose,
             _readModels,
             compatibility,
-            new ProviderBurn(sessions, TimeProvider.System),
+            _burn = new ProviderBurn(sessions, TimeProvider.System),
             usageLevels,
             capacities,
             _failures,
@@ -75,7 +87,7 @@ public class a_pooled_chat_client : Specification
             _agents,
             execution,
             _commandPipeline,
-            new ProviderRateLimitRecorder(capacities, _commandPipeline, TimeProvider.System, options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance),
+            _recorder = new ProviderRateLimitRecorder(capacities, _commandPipeline, TimeProvider.System, options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance),
             TimeProvider.System,
             options,
             Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);

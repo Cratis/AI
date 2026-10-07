@@ -51,6 +51,7 @@ namespace Cratis.AI.Conversations;
 /// <param name="timeProvider">The <see cref="TimeProvider"/> cooldowns are measured against.</param>
 /// <param name="providerOptions">The <see cref="AIProviderOptions"/>.</param>
 /// <param name="logger">The logger.</param>
+/// <param name="explicitRole">The agent to talk as, when the caller owns where the agent is defined - read from the configured agents when <see langword="null"/>.</param>
 public sealed class PooledChatClient(
     LanguageModelPurpose purpose,
     IReadModels readModels,
@@ -67,7 +68,8 @@ public sealed class PooledChatClient(
     ProviderRateLimitRecorder rateLimitRecorder,
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> providerOptions,
-    ILogger logger) : IChatClient
+    ILogger logger,
+    ConfiguredAgent? explicitRole = null) : IChatClient
 {
     /// <inheritdoc/>
     public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
@@ -179,7 +181,7 @@ public sealed class PooledChatClient(
     async Task<(ConfiguredAgent? Role, IReadOnlyList<AIProviderId> Direct)> Resolve(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var role = await ConfiguredAgent.For(readModels, purpose);
+        var role = explicitRole ?? await ConfiguredAgent.For(readModels, purpose);
         var hasProvider = role?.ProviderId is { } providerId && !providerId.Equals(AIProviderId.NotSet);
         return (role, hasProvider ? [role!.ProviderId!] : []);
     }
