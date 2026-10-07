@@ -35,6 +35,22 @@ namespace Cratis.AI.Conversations;
 /// A streaming call can only move to another pool member until its first update has arrived; once the
 /// vendor has started answering, a failure is surfaced to the caller rather than replayed on another member.
 /// </remarks>
+/// <param name="purpose">The purpose - the agent's identity - the client talks as.</param>
+/// <param name="readModels">The <see cref="IReadModels"/> the agent, provider and pool are resolved from.</param>
+/// <param name="compatibility">Checks that a provider can serve the agent.</param>
+/// <param name="providerBurn">The recent burn per provider.</param>
+/// <param name="providerUsageLevels">Refreshes every pool member's usage level.</param>
+/// <param name="providerCapacities">The headroom each pool member's vendor reports.</param>
+/// <param name="recentProviderFailures">The recent-failure memory pool members are ranked by.</param>
+/// <param name="providerConcurrencyGate">Bounds concurrent calls to each provider.</param>
+/// <param name="chatClientFactory">Builds the vendor client for a chosen provider.</param>
+/// <param name="agents">The configured agents, to attribute usage.</param>
+/// <param name="agentExecution">Scopes usage recording to the calling agent.</param>
+/// <param name="commandPipeline">The <see cref="ICommandPipeline"/> usage is recorded through.</param>
+/// <param name="rateLimitRecorder">Records a provider's rate limit.</param>
+/// <param name="timeProvider">The <see cref="TimeProvider"/> cooldowns are measured against.</param>
+/// <param name="providerOptions">The <see cref="AIProviderOptions"/>.</param>
+/// <param name="logger">The logger.</param>
 public sealed class PooledChatClient(
     LanguageModelPurpose purpose,
     IReadModels readModels,
@@ -50,11 +66,11 @@ public sealed class PooledChatClient(
     ICommandPipeline commandPipeline,
     ProviderRateLimitRecorder rateLimitRecorder,
     TimeProvider timeProvider,
-    IOptions<AIProviderOptions> options,
+    IOptions<AIProviderOptions> providerOptions,
     ILogger logger) : IChatClient
 {
     /// <inheritdoc/>
-    public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? chatOptions = null, CancellationToken cancellationToken = default)
+    public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
     {
         var (role, candidates) = await Resolve(cancellationToken);
         var prompt = WithSkills(messages, role);
@@ -62,7 +78,7 @@ public sealed class PooledChatClient(
         var dispatch = await Dispatch(
             role,
             candidates,
-            async (client, model, ct) => await client.GetResponseAsync(prompt, WithModel(chatOptions, model), ct),
+            async (client, model, ct) => await client.GetResponseAsync(prompt, WithModel(options, model), ct),
             cancellationToken);
 
         if (dispatch.Outcome != PoolDispatchOutcome.Succeeded)
@@ -71,14 +87,14 @@ public sealed class PooledChatClient(
         }
 
         var response = dispatch.Value!;
-        await RecordUsage(role, response.ModelId, response.Usage, dispatch.ProviderId);
+        await RecordUsage(response.ModelId, response.Usage, dispatch.ProviderId);
         return response;
     }
 
     /// <inheritdoc/>
     public async IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(
         IEnumerable<ChatMessage> messages,
-        ChatOptions? chatOptions = null,
+        ChatOptions? options = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var (role, candidates) = await Resolve(cancellationToken);
@@ -87,7 +103,7 @@ public sealed class PooledChatClient(
         var dispatch = await Dispatch(
             role,
             candidates,
-            async (client, model, ct) => await StartedStream.Open(client.GetStreamingResponseAsync(prompt, WithModel(chatOptions, model), ct), ct),
+            async (client, model, ct) => await StartedStream.Open(client.GetStreamingResponseAsync(prompt, WithModel(options, model), ct), ct),
             cancellationToken,
             holdSlot: true);
 
@@ -124,7 +140,7 @@ public sealed class PooledChatClient(
                 stream.Slot?.Dispose();
             }
 
-            await RecordUsage(role, modelId, usage, dispatch.ProviderId);
+            await RecordUsage(modelId, usage, dispatch.ProviderId);
         }
     }
 
@@ -147,9 +163,9 @@ public sealed class PooledChatClient(
 
     static bool IsTransientStatus(int status) => status is 0 or (int)HttpStatusCode.TooManyRequests or >= 500;
 
-    static ChatOptions WithModel(ChatOptions? chatOptions, ModelName model)
+    static ChatOptions WithModel(ChatOptions? options, ModelName model)
     {
-        var result = chatOptions?.Clone() ?? new ChatOptions();
+        var result = options?.Clone() ?? new ChatOptions();
         result.ModelId = model.Value;
         return result;
     }
@@ -192,7 +208,7 @@ public sealed class PooledChatClient(
                 var selection = new PoolSelectionData(
                     burn.Tokens,
                     burn.Sessions,
-                    recentProviderFailures.CountsSince(options.Value.RecentFailureWindow),
+                    recentProviderFailures.CountsSince(providerOptions.Value.RecentFailureWindow),
                     usageLevels.Where(pair => pair.Value.RemainingCapacity is not null).ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value))
                 {
                     HeadroomByProvider = capacities.ToDictionary(pair => pair.Key, pair => pair.Value.Headroom)
@@ -343,7 +359,7 @@ public sealed class PooledChatClient(
         }
     }
 
-    async Task RecordUsage(ConfiguredAgent? role, string? modelId, UsageDetails? usage, AIProviderId providerId)
+    async Task RecordUsage(string? modelId, UsageDetails? usage, AIProviderId providerId)
     {
         if (usage is null)
         {
