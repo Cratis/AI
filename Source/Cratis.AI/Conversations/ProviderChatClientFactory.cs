@@ -17,6 +17,6 @@ public class ProviderChatClientFactory : IProviderChatClientFactory
         AIChatClientFactory.CanServe(provider.Type, provider.ApiKey, provider.Endpoint, model);
 
     /// <inheritdoc/>
-    public IChatClient? Create(ConfiguredAIProvider provider, ModelName model) =>
-        AIChatClientFactory.Create(provider.Type, provider.ApiKey, provider.Endpoint, model.Value)?.Client;
+    public Task<IChatClient?> Create(ConfiguredAIProvider provider, ModelName model) =>
+        Task.FromResult(AIChatClientFactory.Create(provider.Type, provider.ApiKey, provider.Endpoint, model.Value)?.Client);
 }

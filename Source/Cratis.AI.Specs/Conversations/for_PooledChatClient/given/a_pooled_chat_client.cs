@@ -47,8 +47,8 @@ public class a_pooled_chat_client : Specification
 
         _factory = Substitute.For<IProviderChatClientFactory>();
         _factory.CanServe(Arg.Any<ConfiguredAIProvider>(), Arg.Any<ModelName>()).Returns(true);
-        _factory.Create(Arg.Is<ConfiguredAIProvider>(provider => provider.Type == AIProviderType.Anthropic), Arg.Any<ModelName>()).Returns(_anthropicChat);
-        _factory.Create(Arg.Is<ConfiguredAIProvider>(provider => provider.Type == AIProviderType.OpenAI), Arg.Any<ModelName>()).Returns(_openAIChat);
+        _factory.Create(Arg.Is<ConfiguredAIProvider>(provider => provider.Type == AIProviderType.Anthropic), Arg.Any<ModelName>()).Returns(Task.FromResult<IChatClient?>(_anthropicChat));
+        _factory.Create(Arg.Is<ConfiguredAIProvider>(provider => provider.Type == AIProviderType.OpenAI), Arg.Any<ModelName>()).Returns(Task.FromResult<IChatClient?>(_openAIChat));
 
         _compatibility = Substitute.For<IAgentProviderCompatibility>();
         var compatibility = _compatibility;
