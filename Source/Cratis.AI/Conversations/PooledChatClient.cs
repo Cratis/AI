@@ -308,7 +308,7 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is saturated");
         }
 
-        var client = chatClientFactory.Create(provider, model);
+        var client = await chatClientFactory.Create(provider, model);
         if (client is null)
         {
             slot.Dispose();

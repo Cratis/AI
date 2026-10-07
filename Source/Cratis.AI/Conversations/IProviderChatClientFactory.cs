@@ -26,5 +26,9 @@ public interface IProviderChatClientFactory
     /// <param name="provider">The configured provider.</param>
     /// <param name="model">The model to talk to.</param>
     /// <returns>The client, or <see langword="null"/> when the vendor has no conversational client.</returns>
-    IChatClient? Create(ConfiguredAIProvider provider, ModelName model);
+    /// <remarks>
+    /// Asynchronous because an application that keeps credentials protected has to reveal one before the vendor
+    /// can be called, and that is usually a call to a key service.
+    /// </remarks>
+    Task<IChatClient?> Create(ConfiguredAIProvider provider, ModelName model);
 }
