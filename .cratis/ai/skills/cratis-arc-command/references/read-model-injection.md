@@ -46,7 +46,10 @@ failure rather than a server fault.
 `ARC0006` warns when a read-model parameter is non-nullable, precisely because a
 command-scoped read model can be missing. Make it nullable when absence is part
 of the command's valid behavior; keep it non-nullable when absence really is a
-rejection.
+rejection. When absence is a rejection, check the nullable parameter and return
+`ValidationResult.Error(...)` through `Result<TEvent, ValidationResult>`; never
+return a nullable event or `null` from `Handle()`, which Arc treats as success
+with nothing appended.
 
 ## `null` is not always what absence looks like
 

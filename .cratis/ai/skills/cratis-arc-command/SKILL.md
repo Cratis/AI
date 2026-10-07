@@ -105,6 +105,15 @@ after-commit work belongs in reactors/outboxes/workflows. Use
 `cratis-arc-command-operation` rather than a custom response handler or rollback
 stack for this application work.
 
+**Never return a nullable event or `null` to mean "nothing to do".** Arc only
+processes a non-null result, so a `null` is success with nothing appended and the
+caller is told a command succeeded that never happened. Missing state or a failed
+rule is a rejection: return `Result<TEvent, ValidationResult>` with
+`ValidationResult.Error(...)`, or reject in a validator or `Provide()`. Optional
+`ICommandOperation` returns are a separate contract and unaffected. A nullable
+read-model parameter (`ARC0006`) is handled by rejecting, never by returning a
+nullable event.
+
 Two consequences worth knowing before writing the first command:
 
 - **The tuple is how a create command returns its new id.** An
