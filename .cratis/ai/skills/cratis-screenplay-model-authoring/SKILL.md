@@ -16,9 +16,9 @@ When selecting construct syntax or distinguishing source validity from execution
 the executable profile and a complete compiled model.
 
 For screen-heavy work, use the same MCP loop but keep the parity contract explicit:
-discover the installed UI node schemas, propose/apply with revisions, then pass the
+discover installed UI node schemas, propose/apply with revisions, then pass the
 same model root or workspace export to validate/render/runtime checks. The full
-workflow is `references/screen-authoring-workflow.md`; the UI syntax/support-level
+workflow is `references/screen-authoring-workflow.md`; the UI syntax/support
 contract is in `cratis-screenplay-ui-composition`.
 
 ## Verified product sources
@@ -107,8 +107,8 @@ can keep that entry point; use the project's supported installation channel.
 5. Echo `sourceRevision` on subsequent pages. Restart the query after drift;
    never combine pages from different snapshots.
 6. For screens, also discover the template, form, toolbar, package/icon and
-   outlet declarations that provide context. A component binding with no traced
-   data source is not an authoring shortcut; fix the model source.
+   outlet declarations. A component binding with no traced data source is not
+   an authoring shortcut; fix the model source.
 
 Keep reads scoped to the relevant module, feature, slice or document. Do not
 request a whole merged AST when a bounded declaration/property query answers the

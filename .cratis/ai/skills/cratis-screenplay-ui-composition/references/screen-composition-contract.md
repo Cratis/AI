@@ -3,6 +3,17 @@
 
 # Screen composition contract
 
+## Contents
+
+- Support levels
+- Data context and component bindings
+- Exposed template configuration
+- Forms and columns
+- Packages, icons and template catalogs
+- Routes, outlets, toolbars and dialogs
+- Design-time generation results
+- Canonical fixture ownership
+
 This reference is the authoring checklist for the screens-release UI surface. It
 records the contract an agent must look for in the installed Screenplay tool and
 in peer runtime/render contracts; it is not a second language definition. When a
