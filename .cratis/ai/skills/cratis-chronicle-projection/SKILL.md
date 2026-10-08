@@ -26,6 +26,15 @@ Reverify product sources before claiming support for another version.
 > target needs no `[ReadModel]` at all — that attribute is what gives it an Arc
 > query surface.
 
+## What makes a type a model-bound projection
+
+Chronicle treats a type as a model-bound projection when the class, its primary
+constructor parameters, or its public instance properties carry an
+`[EventSequence]` attribute or any projection annotation — **except
+`[Passive]`**, which is deliberately excluded. `[Passive]` on its own therefore
+does not make a read model a projection; it changes how an existing projection
+is registered.
+
 ## Model-bound projections — the default
 
 Put the projection on the read model with attributes. No separate class.
@@ -47,7 +56,7 @@ except inside a scope where you disabled it.
 `[Key]` is `Cratis.Chronicle.Keys.KeyAttribute`. It has no arguments and targets
 a property or a record constructor parameter, never the class.
 
-Read [references/model-bound-attributes.md](references/model-bound-attributes.md)
+When authoring a model-bound projection, read [references/model-bound-attributes.md](references/model-bound-attributes.md)
 for the complete attribute list with exact arities, parameter names, and valid
 targets. Two things there are worth knowing before you write anything:
 
@@ -78,7 +87,7 @@ public class <ReadModelName>Projection : IProjectionFor<<ReadModelName>>
 the interface** — do not add one. Use `[Projection(id: "<id>")]` when the
 identity must be explicit.
 
-Read [references/fluent-builder.md](references/fluent-builder.md) for the real
+When attributes cannot express the shape and you use the fluent builder, read [references/fluent-builder.md](references/fluent-builder.md) for the real
 member list. The trap that costs the most time: **`UsingKey`, `UsingParentKey`,
 `UsingCompositeKey`, and `UsingConstantKey` are not on the projection builder.**
 They live on the per-event builder that `From<TEvent>` hands to your callback.
@@ -171,7 +180,7 @@ join, so an out-of-order or replayed event can never resurrect a variant the
 entity has since left. A variant that declares no entering event at all throws
 `VariantMustDeclareEntersOnEvent` at startup.
 
-Read [references/variants.md](references/variants.md) for the complete group
+When declaring a variant group or shared variant mappings, read [references/variants.md](references/variants.md) for the complete group
 declaration, the update-only reclassification in full, `[GlobalFor<T>]` rules
 and its declaration-error trap, and best practices for picking an identity
 type.
