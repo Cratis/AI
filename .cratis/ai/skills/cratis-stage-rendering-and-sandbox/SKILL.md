@@ -1,6 +1,6 @@
 ---
 name: cratis-stage-rendering-and-sandbox
-description: "What Cratis Stage and `cratis render` actually do with a Screenplay `.play` model today: the narrow model shape Stage 4.24 admits and refuses (STAGE-ESM-*), what it emits (C# Arc/Chronicle backend, React/Vite scaffold, Debug specifications), managed publication, `--force` and recovery, the unmanaged `Customizations/` seam, and the `cratis/stage` sandbox and `cratis/stage-specrunner` job. Use when deciding whether Stage can render a model, reading a blocked render, re-rendering safely, or running the sandbox. Not for: authoring the model (use `cratis-screenplay-model-authoring`) or the render and gap-fill workflow (use `cratis-screenplay-render-and-gap-fill`)."
+description: "What Cratis Stage and `cratis render` actually do with a Screenplay `.play` model today: the narrow model shape Stage 4.24 admits and refuses (STAGE-ESM-*), what it emits (C# Arc/Chronicle backend, React/Vite scaffold, Debug specifications), managed publication, `--force` and recovery, authored-UI omission/parity checks, the unmanaged `Customizations/` seam, and the `cratis/stage` sandbox and `cratis/stage-specrunner` job. Use when deciding whether Stage can render a model, reading a blocked render, re-rendering safely, checking generated/runtime screen parity, or running the sandbox. Not for: authoring the model (use `cratis-screenplay-model-authoring`) or the render and gap-fill workflow (use `cratis-screenplay-render-and-gap-fill`)."
 license: MIT
 ---
 
@@ -15,6 +15,13 @@ Stage is experimental and its admitted model shape is small. A model it cannot r
 exactly produces **no artifacts at all**, never thinner ones. Read the admission rules
 before promising that a model can be rendered, and render it to find out: the source
 reading in this skill is not a render result.
+
+Authored UI has its own parity hazard. Stage 4.24 renders a default React/Vite
+scaffold and does not prove that modeled screens, templates, forms, toolbars,
+components, outlets, package icons or routes were implemented. A newer Stage or
+runtime contract may add those outputs, but then it must report every unsupported
+UI directive as a diagnostic. Silent fallback to a default screen is a failure,
+not a partial render.
 
 ## Verified product sources
 
@@ -31,7 +38,10 @@ Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.m
 tested with cratis 3.28.2 (re-run on 3.28.3). The full version table (Screenplay 4.66.0, Arc 22.50.5,
 Chronicle 19.32.0 and the tool split) is in the `cratis-screenplay-toolchain` skill,
 `references/versions.md`. Rendered apps are on Arc 22.25.0, so `[ProtectedDecision]`
-(Arc 22.39.0 and later) is not available in code written into one.
+(Arc 22.39.0 and later) is not available in code written into one. Screen UI
+runtime/render parity for the screens-release work is pending the Stage/CLI and
+Scene package contracts; until those shipped versions are named, keep the Stage
+4.24 limitation above.
 
 ## Model-first rule
 
@@ -138,6 +148,12 @@ Modeled specifications become xunit classes compiled in **Debug only**
 `<slice namespace>.when_<snake>` (so `when_x.when_x`), queries `when_<snake>_is_queried`,
 read models `when_<snake>_is_projected`.
 
+For UI, record what the generated output claims separately from what the model
+authored. On Stage 4.24 the generated scaffold is not screen parity evidence. On
+newer Stage/CLI builds, require an explicit plan or manifest entry for each
+screen/template/form/toolbar/component/outlet/route/package-icon use, or a
+blocking diagnostic explaining why it was not generated.
+
 ## Publication and recovery
 
 Ownership is the destination's **`.cratis-render.json`** manifest (semantic revision,
@@ -190,6 +206,9 @@ the semantic report schema and limits: [references/sandbox-and-specrunner.md](re
   (same input, same bytes and hashes), which is not a review.
 - Sandbox expectations account for unenforced validation, authorization and query
   authorization on the default engine.
+- Runtime screen smoke coverage uses the same model root or workspace export as
+  `cratis render`, names package/image versions, and fails on dropped authored UI
+  or silent default composition.
 
 ## Route near misses
 

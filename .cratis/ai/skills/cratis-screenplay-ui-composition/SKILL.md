@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-ui-composition
-description: Compose the user interface of a Cratis Screenplay `.play` model — `layout` and its responsive `arrangement`, `screen template` and `dialog template`, command-bound `form` declarations, navigation `contribute` blocks, interaction `behavior`/`on`/`uses` wiring, `ui profile`, `theme`, localized `$strings`, and `file` references. Use when declaring the application shell, a reusable screen shape, a command form, a navigation entry, what a click or submit does, or theming in a `.play` model. Do not use for a screen's own data and actions.
+description: Compose the user interface of a Cratis Screenplay `.play` model — `layout` and responsive `arrangement`, screen/dialog templates, component data-context bindings, exposed template configuration, command forms and columns, navigation contributions, hierarchical outlets/routes, toolbar dialogs, package/icon selection, interaction `behavior`/`on`/`uses` wiring, `ui profile`, `theme`, localized `$strings`, and `file` references. Use when declaring the application shell, reusable screen shapes, component/package configuration, command forms, navigation/toolbars, click or submit behavior, or theming. Do not use for a screen's own data and actions.
 license: MIT
 ---
 
@@ -46,6 +46,16 @@ Versions of the tools that check these examples: `cratis-screenplay-toolchain`
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
 target renders it.
+
+The screens-release surface adds component data-context bindings, exposed template
+configuration, package/icon catalogs, manual form columns, hierarchical outlets,
+routes, toolbars and dialog destinations. Treat those as a **support-level**
+contract: authoring accepted, executable admitted and runtime implemented are
+separate results. Discover the exact installed shape through MCP `syntax-schema`
+and the Screenplay-owned canonical corpus
+(`Source/DotNET/Screenplay.CanonicalCorpus/Corpus/` in the Screenplay repository);
+do not copy fixtures into AI or invent a parallel syntax. Details and examples:
+`references/screen-composition-contract.md`.
 
 These constructs went unhighlighted and uncompleted by the Monaco and VS Code
 language service until `Cratis/Screenplay#199` gave every construct the parser
@@ -181,6 +191,10 @@ form RegisterInvoiceForm for RegisterInvoice
   `populate from item`.
 - `field <property>` takes at most one of `from <source>` or `compose using
   <Callback>`, plus an optional `label`.
+- When the installed language supports it, `columns auto` keeps generated form
+  columns tied to the command, and `columns manual` lists command properties in
+  the intended order. A manual column that is not a command property is a model
+  defect.
 - At most one `on submit navigate to <Screen> [by <param>]`, the one-line form.
   Any other `on` in a form body is a behavior attached to the form.
 
@@ -189,7 +203,7 @@ directive tree the way a `table` or `summary` does — it is found by its
 `for <Command>` binding wherever that command is invoked. A form sits at module
 level, so it disambiguates by module rather than by feature or slice.
 
-## `contribute` — navigation from elsewhere
+## `contribute`, toolbars, outlets and routes — navigation from elsewhere
 
 Excerpt, inside a `module` or `feature`; `Navigation` is the contribution point
 the layout above declares.
@@ -212,9 +226,11 @@ module-level.
 `navigate to <Screen> by <param>` is **not** string interpolation; it reuses the
 same typed navigate binding a screen action uses.
 
-⚠️ This iteration ships `navigate`, `label` and `order` only. Grouping beyond a
-flat ordered list, and an explicit override for when nearest-enclosing is not the
-point you mean, are deliberately left for later.
+⚠️ The older shipped iteration has `navigate`, `label` and `order` only. Newer
+screens-release contracts add typed destinations for named outlets, routes,
+toolbar items and dialog targets. Use the installed MCP schema and the Scene/Stage
+runtime contract before writing those forms, and report unsupported toolbar or
+outlet delivery as a capability gap rather than falling back to a flat list.
 
 ## Interactions — what a click does
 
@@ -321,6 +337,9 @@ theme Nordic
 - `packages` are listed **in override-priority order** — a later package's `Button`
   shadows an earlier one's — and `core`, the built-in vocabulary, is always the
   final fallback.
+- Component package metadata (kind, icon, applicability, scope-aware template
+  categories) is owned by the package/runtime catalog. The model selects packages
+  and icon sets; it does not copy package metadata into `.play`.
 - `compatible with` lists the packages a theme actually supports, each at most
   once. A profile selecting a theme not declared compatible with one of its own
   packages gets a compile-time **warning**.
@@ -396,13 +415,20 @@ a trigger value named `file` is written `@file`.
 - [ ] No `file` reference is doing work the declaration should be doing.
 - [ ] Every click, submit and screen entry that does something has an `on` or
       `uses`; continuations sit only on actions that can fail.
+- [ ] Component bindings, exposed template values, manual form columns, toolbar
+      items, outlets and routes all trace to typed data; no runtime fallback is
+      counted as delivery.
+- [ ] The result reports authoring acceptance, executable admission and runtime
+      implementation separately, with tool/package versions.
 
 ## Route near misses
 
 - A screen's own data, actions and name resolution: `cratis-screenplay-read-surface`.
+- Revision-checked MCP edits of screens and multi-file applications: `cratis-screenplay-model-authoring` (`references/screen-authoring-workflow.md`).
 - Application triggers and reactions: `cratis-screenplay-captures-and-reactions`.
 - Reviewing the whole flow's design: `cratis-screenplay-model-review`.
 - Deriving wireframes from the model (step 4): `cratis-screenplay-event-modeling`.
+- Rendering/running screen output and detecting omissions: `cratis-stage-rendering-and-sandbox` and `cratis-screenplay-render-and-gap-fill`.
 - Building the actual React application: `cratis-arc-react-page`, `cratis-components-styling`.
 
 ## Lineage
