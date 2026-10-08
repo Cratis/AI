@@ -124,8 +124,8 @@ operates on the subject and the subject follows the stream.
 - Set `[Subject]` only when the person is not the event source. A stored
   read-model document carries one subject — do not mix several people's personal
   data into one document.
-- Never place `[PII]` on an event-source id: Chronicle cannot encrypt it, and
-  analyzer `CHR0034` rejects it. When the natural identifier is itself
+- Never place `[PII]` or `[Encrypted]` on an event-source id: Chronicle cannot encrypt it, and
+  analyzers `CHR0034` and `CHR0052` reject them. When the natural identifier is itself
   sensitive, model a surrogate stream id and carry the sensitive value as a
   `[PII]` property.
 - Do not place `[Key]` or `[Subject]` on an `EventSourceId<T>` value — it is

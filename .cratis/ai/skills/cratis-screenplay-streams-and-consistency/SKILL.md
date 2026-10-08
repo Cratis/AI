@@ -100,8 +100,8 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
    is a fact the business recognises. Different meanings get different events, not a flag with
    nullable siblings. Event properties are required by default (CHR0012, PLAY0350): an optional
    detail is a separate event, and any deviation is justified in the description. One data
-   subject per event and stream; never personal data or a `@pii` concept as the identifier (CHR0034):
-   use a surrogate `Uuid` and a `@pii` property.
+   subject per event and stream; never personal data, a secret, or a `@pii` or `@sensitive` concept as the identifier (CHR0034, CHR0052):
+   use a surrogate `Uuid` and a `@pii` or `@sensitive` property.
 5. **Plan evolution** with `references/evolution.md`: classify each event change (additive,
    meaning change, rename, removal, split or merge) and write its compatibility scenarios before
    editing. Renames and other identity-affecting edits are made by the identity owner (the

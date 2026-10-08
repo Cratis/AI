@@ -39,15 +39,20 @@ does not need a `ConceptAs<T>` wrapper.
 - `NotSet` or `Empty` is optional domain policy. Add one only when the backing
   value is impossible or explicitly reserved in that domain. Do not assume
   empty string, zero, or `Guid.Empty` is universally invalid.
-- Mark a concept that holds **personal data** `[PII]` and one that holds a
-  **secret** `[NotAudited]`. Both markings travel with the type, so marking it
+- Mark a concept that holds **personal data** `[PII]` alone, and one that holds an
+  **operational secret** (API key, token, password, a company's bank account
+  number) `[Encrypted]` (`Cratis.Chronicle.ProtectedValues`, Chronicle 19.32.0+)
+  **plus** `[NotAudited]`. The markings travel with the type, so marking it
   once covers every command and event that uses it - which is the point of
   having the concept. A command's property values are written to the causation
   chain of every event it appends, so an unmarked `ApiKey` or `AccessToken`
-  concept reaches the event log in the clear and stays there. The two are not
-  interchangeable: `[PII]` also encrypts and enrolls the value in erasure, which
-  is wrong for a password, and `[NotAudited]` does nothing for an erasure
-  request, which is wrong for a name.
+  concept reaches the event log in the clear and stays there. `[Encrypted]`
+  protects the value at rest on the event; `[NotAudited]` keeps the command
+  input off the causation chain - either alone leaves a gap. `[PII]` already
+  encrypts, enrolls the value in erasure and withholds it from the chain, so
+  never combine it with `[Encrypted]` (analyzer `CHR0053`). The two kinds are
+  not interchangeable: `[PII]` is wrong for a password because it enrolls it in
+  erasure, and `[Encrypted]` does not erase a name.
 
 ```csharp
 public record AuthorName(string Value) : ConceptAs<string>(Value)
@@ -77,7 +82,8 @@ public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
   `EventSourceId<T>` property does not select the stream.
 - Do not put `[Key]` or `[Subject]` on an `EventSourceId<T>`-derived member;
   Chronicle analyzer `CHR0026` reports it.
-- Do not put `[PII]` on an event-source ID; analyzer `CHR0034` rejects it.
+- Do not put `[PII]` or `[Encrypted]` on an event-source ID; analyzers `CHR0034`
+  and `CHR0052` reject them.
   Sensitive natural identifiers use a random surrogate stream ID and a separate
   compliance-managed value.
 - `EventSourceId.Unspecified` is the untyped string-backed sentinel. Typed empty

@@ -44,8 +44,8 @@ whether uniqueness and completion are per tenant or genuinely cross-tenant.
 
 Decide the data subject before the event and view shape. One data subject per event and per
 stream; one per read-model instance. Never put PII on the event-source id and never mark the
-identifier's concept `@pii`: Chronicle cannot encrypt a source id (analyzer CHR0034). Use a surrogate `Uuid`
-identity and carry the sensitive value as a `@pii` property. Bearer tokens, magic links and
+identifier's concept `@pii` or `@sensitive`: Chronicle cannot encrypt a source id (analyzers CHR0034 and CHR0052; Screenplay PLAY0515 reports it from 4.69.1 for `@pii` and 4.84.1 for `@sensitive`, not on the pinned tools). Use a surrogate `Uuid`
+identity and carry the value as a `@pii` property (personal data) or a `@sensitive` property (operational secret). Bearer tokens, magic links and
 signed URLs are never facts; record a keyed hash or a reference.
 
 Redaction (payload replacement keeping the sequence slot) and crypto-erasure serve compliance

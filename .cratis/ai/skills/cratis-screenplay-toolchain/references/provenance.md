@@ -39,8 +39,8 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 - cratis `v3.28.2` (`141c499`; `Render/`, `Run/`, `Prologue/` and `Screenplay/Generate*` are unchanged since `v3.27.1`, `a327e89`): `Source/Cli/Commands/Render/`, `ScreenplayMcpRoot.cs`,
   `Documentation/reference/screenplay.md`.
 - Arc `v22.50.5` and Chronicle `v19.32.0` for the code-level facts cited in `versions.md`.
-- Open issues cited as limits: cli#242, #243, #244, #245; Screenplay#377, #379, #383, #384,
-  #388; Stage#79, #165, #178, #197; Chronicle#3744, #4123, #4131.
+- Open issues cited as limits: cli#242, #243, #244, #245; Screenplay#377, #379, #383,
+  #388; Stage#79, #165, #178; Chronicle#3744, #4123, #4131.
 
 ## Changes from the earlier toolkit
 

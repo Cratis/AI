@@ -105,18 +105,19 @@ for the versioned boundary and supported alternatives.
 
 A command's **property values** are recorded on the causation of every event it appends, alongside the command's name, so an event says not only which command produced it but what that command was asked to do. The causation is written into the event log and stays there for as long as the events do — a value recorded there cannot be taken back out by changing code.
 
-Two markings keep a value off the chain, and both are honored on the property, the declaring type, the positional record parameter, **and the property's type**:
+Two markings keep a value off the chain (`[PII]` from Chronicle, `[NotAudited]` from Arc), and both are honored on the property, the declaring type, the positional record parameter, **and the property's type**:
 
 | Marking | For | Also does |
 | --- | --- | --- |
 | `[PII]` | personal data | encrypts it in the event, enrolls it in erasure |
-| `[NotAudited]` | a secret that is not personal data — password, token, API key, card number | nothing else; it only withholds |
+| `[NotAudited]` | a secret that is not personal data — a password or token given as a command input, an API key, a card number | nothing else; it only withholds. A credential (password, token) is never put on an event: store a hash or a reference. A secret the system must retain on an event is also `[Encrypted]` |
 
-They are **not interchangeable**: `[PII]` on a password would encrypt it and enroll it in GDPR erasure, which is wrong; `[NotAudited]` on a name does nothing for an erasure request, which is also wrong.
+They are **not interchangeable**: `[PII]` on a password would encrypt it and enroll it in GDPR erasure, which is wrong; `[NotAudited]` on a name does nothing for an erasure request, which is also wrong. An operational secret the system retains on an event (a third-party API key, a company's bank account number) needs **both** `[Encrypted]` (`Cratis.Chronicle.ProtectedValues`, Chronicle 19.32.0+; at rest, no erasure) and `[NotAudited]` (off the chain); either alone leaves a gap. A credential used for authentication is never retained: the command marks it `[NotAudited]` and the event carries only a hash or a reference. Never combine `[PII]` with `[Encrypted]` (`CHR0053`), and neither goes on an event source id (`CHR0034`, `CHR0052`).
 
 **Prefer marking the concept**, exactly as with `[PII]` — mark `ApiKey` once and every command taking one is covered:
 
 ```csharp
+[Encrypted]
 [NotAudited]
 public record ApiKey(string Value) : ConceptAs<string>(Value);
 ```
@@ -332,7 +333,7 @@ public Task AuthorRegistered(AuthorRegistered @event, EventContext context) => .
 **[contract]** Chronicle encrypts `[PII]`-marked values per subject; decryption is transparent to observers and queries (read models injected into a `CommandValidator<T>` or `Handle()` decrypt transparently under the command's resolved subject before validation/handler logic runs).
 
 - Prefer **concept-level `[PII]`** (on the `ConceptAs<T>` type) so the marker travels everywhere automatically; use property-level `[PII]` only when a value is personal in one event context but not everywhere.
-- `[PII]` also keeps the value **off the causation chain** when it is a command property — see [Causation](#causation--what-a-command-records-contract). A secret that is not personal data needs `[NotAudited]` instead; `[PII]` is the wrong tool for a password.
+- `[PII]` also keeps the value **off the causation chain** when it is a command property — see [Causation](#causation--what-a-command-records-contract). A retained operational secret that is not personal data needs `[Encrypted]` plus `[NotAudited]` instead; `[PII]` is the wrong tool for it, and a password is never retained at all (store a hash).
 - **`[PII]` is found at any nesting depth, and may mark a whole value object.** A `[PII]` concept inside a value object is encrypted where it sits (siblings stay readable). Marking the **value object type** (or a property typed as one) with `[PII]` classifies every value it holds — Chronicle pushes the marker down to the individual values, so the document keeps its shape and each value is separately encrypted rather than fused into one blob.
 - Projection-backed read models inherit PII lineage automatically — don't add `[PII]` to their properties. Reducer-backed models: a `[PII]`-concept-typed property is detected automatically; add property-level `[PII]` only for a primitive/non-PII-concept property populated from PII source data.
 - ⚠️ **`[PII]` cannot be applied to `EventSourceId`/`EventSourceId<T>`** — Chronicle throws `PIINotSupportedOnEventSourceId` at runtime because the identifier is the encryption-key lookup. If the identifier itself is sensitive, use a random `Guid`-backed surrogate as the event source id and store the sensitive value in a `[PII]` property.
