@@ -186,4 +186,4 @@ bodies still leave their owner non-executable.
 Do not remove `@pii`, `@sensitive`, `authorize` or policies, list queries, automations or
 rules a domain needs just to make binding pass. Report `V3 blocked: <codes>` and record the
 slice in the gap list. A `@pii` or `@sensitive` attribute blocks V3 and rendering, and
-either attribute on an event-source identifier is rejected by Screenplay (`PLAY0515`) and by Chronicle (CHR0034 for `[PII]`, CHR0052 for `[Encrypted]`) in addition.
+either attribute on an event-source identifier is not reported by the pinned tools (`PLAY0515` ships for `@pii` in Screenplay 4.69.1 and for `@sensitive` in 4.84.1); only Chronicle rejects it, at build time of the generated code (CHR0034 for `[PII]`, CHR0052 for `[Encrypted]`).

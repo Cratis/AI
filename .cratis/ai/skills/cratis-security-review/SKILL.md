@@ -53,7 +53,7 @@ command's properties as well as grepping them.
 
 ## Step 1 — Event sourcing: the permanent-record checks
 
-- **Every `[Command]` property holding a secret is marked `[NotAudited]`, and the secret is `[Encrypted]` on the event.** A
+- **Every `[Command]` property holding a secret or credential is marked `[NotAudited]`, and the secret is `[Encrypted]` on the event.** A
   command's property values are written to the causation of every event it
   appends, and causation is as permanent as the events. Prefer the marking on
   the concept type so it travels everywhere the value appears. `[NotAudited]`
@@ -65,10 +65,10 @@ command's properties as well as grepping them.
   They are different mechanisms with different consequences: `[NotAudited]`
   withholds a value from the causation chain; `[Encrypted]` encrypts it at rest
   without erasure; `[PII]` encrypts, enrolls it in per-subject erasure and
-  withholds it. A password is `[Encrypted]` + `[NotAudited]`. An email address is
-  `[PII]`. Never combine `[PII]` with `[Encrypted]` (`CHR0053`), and neither goes
+  withholds it. A third-party API key is `[Encrypted]` + `[NotAudited]`. An email address is
+  `[PII]`. A password is stored as a hash, never as a retained secret. Never combine `[PII]` with `[Encrypted]` (`CHR0053`), and neither goes
   on an event-source id (`CHR0034`, `CHR0052`).
-- No unprotected secret, token, API key or password in an event property or a read model; a secret an event must carry is `[Encrypted]`.
+- Credentials used for authentication (passwords, bearer or session tokens) are never stored; keep a hash or a reference. An operational secret the system must retain and use (a third-party API key, a company's bank account number) is stored only as an `[Encrypted]` + `[NotAudited]` concept, and never in a read model returned to clients in plaintext.
 - Event-source ids are generated server-side, never accepted from an untrusted
   client where the id grants access to a stream.
 - Upcasting and event-type migration logic cannot introduce a property the

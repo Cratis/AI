@@ -130,7 +130,7 @@ MCP loop procedure and proposals: `cratis-screenplay-model-authoring`.
   the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity"). Keep it apart from the MCP `modelRevision`.
 - `description` and `documentation` never reach rendered code (Stage#178, open).
 
-## Roadmap items that would change a verdict (all open at the pin; the `@sensitive` meaning, Screenplay#384, and `PLAY0515` identifier refusal, Stage#197, are settled in decision 0034)
+## Roadmap items that would change a verdict (all open at the pin; the `@sensitive` meaning, Screenplay#384, and the identifier refusal and C# mapping, Stage#197, are settled in decision 0034; the pinned tools predate `PLAY0515`)
 
 Screenplay#377 (run specifications from MCP or the tool), #388 (completeness and lineage
 report), #383 (identity for an `invokes` caller), #379 (`visualize-model` counts reactions); Stage#79 (render Automation and

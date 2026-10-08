@@ -105,7 +105,7 @@ for the versioned boundary and supported alternatives.
 
 A command's **property values** are recorded on the causation of every event it appends, alongside the command's name, so an event says not only which command produced it but what that command was asked to do. The causation is written into the event log and stays there for as long as the events do — a value recorded there cannot be taken back out by changing code.
 
-Two Arc markings keep a value off the chain, and both are honored on the property, the declaring type, the positional record parameter, **and the property's type**:
+Two markings keep a value off the chain (`[PII]` from Chronicle, `[NotAudited]` from Arc), and both are honored on the property, the declaring type, the positional record parameter, **and the property's type**:
 
 | Marking | For | Also does |
 | --- | --- | --- |

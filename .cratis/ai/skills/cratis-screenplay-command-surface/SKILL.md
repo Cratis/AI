@@ -443,8 +443,9 @@ renders this from v4.29.0. The executable model still stops at `PLAY0268` for ei
 
 ⚠️ **Identifiers are neither `@pii` nor `@sensitive`.** Chronicle rejects `[PII]` on an
 event source id (`CHR0034`) and `[Encrypted]` on one (`CHR0052`); Screenplay reports
-`PLAY0515` (4.69.1 and later) for either on a command identifier, an explicit `for`
-destination or an event source identifier. Keep the stream identity a surrogate `Uuid`
+`PLAY0515` for `@pii` from Screenplay 4.69.1 and for `@sensitive` from 4.84.1, on a
+command identifier, an explicit `for` destination or an event source identifier; earlier
+versions compile it silently and only Chronicle catches it. Keep the stream identity a surrogate `Uuid`
 concept and carry the personal value (name, email) as a separate `@pii` property and a
 secret as a `@sensitive` property.
 

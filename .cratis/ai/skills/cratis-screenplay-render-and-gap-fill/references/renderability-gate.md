@@ -48,7 +48,7 @@ ESM). Only the probe answers renderability. `PLAY0270` entries are information, 
 Read at the time of writing (all open): portable query semantics Stage#58 (list, observable and
 filtered queries); Automation and Translate slices Stage#79; mapping expressions and projection
 blocks Stage#117; modeled authentication Stage#120; event generation v4 Stage#165; per-persona
-screens Stage#194; compliance attributes Stage#197. Check that an issue is still open before citing
+screens Stage#194. Check that an issue is still open before citing
 it, and cite only numbers you have just read. A closed issue is a trigger to probe again.
 
 ## Reference outcomes
