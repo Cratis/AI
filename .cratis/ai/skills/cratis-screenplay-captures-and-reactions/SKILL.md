@@ -63,182 +63,49 @@ decides, not the slice type:
   as the contract: `cratis-screenplay-render-and-gap-fill`.
 
 Model them whenever the `.play` file is the deliverable, and say which tool bound
-them. Versions and messages: `cratis-screenplay-toolchain` (`references/versions.md`).
+them. Read `cratis-screenplay-toolchain` (`references/versions.md`) when selecting a compiler version or interpreting version-dependent messages.
 Method (the four-part automation test, loops, translations versus automations):
 `cratis-screenplay-automations-and-translations`.
 
-**Specify what sets them off** (v4.48.0, checked at tag `v4.48.0`, commit
-`3baf4a4`; execution from ESM v6, checked at `v4.66.0`): `when clock "<instant>"`
-for a reaction on `every` or `at`, `when trigger <Trigger>` with its values for one
-on an application trigger, and `given capture` / `when capture <Capture>` with the
-source record's fields for a capture, then the events that should follow.
-`given clock` fixes the occurrence time, so values mapped from `$context.occurred`
-can be asserted. Excerpt of the complete example below:
+## Specify what sets them off
 
-```screenplay excerpt
-specification IssuingTheWeeklyDigest
-  given clock "2026-10-05T07:00:00Z"
-  when clock "2026-10-05T07:30:00Z"
-  then DigestIssued
-    for "weekly"
-    issuedAt = "2026-10-05T07:30:00Z"
-```
+A specification names what sets the automation off: `when clock`, `when trigger` or `when capture`. No command runs these specifications; report one as authored, not executed.
 
-Under `cratis` before 3.28.2 these actions parsed and were checked against the application
-but bound to nothing (`PLAY0268` names ESM v6, decision 0022); on 3.28.2 they bind. Either way
-no command runs them: report such a specification as authored, not executed. Clock rules: the clock is UTC and exact; an
-occurrence fires once when it is **due after `given clock` and at or before
-`when clock`**, in time order; intervals count from the Unix epoch; `when clock`
-needs `given clock`, so equal instants fire nothing. Limits: 10,000 occurrences per
-advance, 1,000 new facts per scenario. Spec grammar and outcome comparison:
-`cratis-screenplay-specifications`.
+Read [references/specifying-triggers-and-clock.md](references/specifying-triggers-and-clock.md) when writing a specification for a reaction, trigger or capture, or when the clock, occurrence or limit rules matter.
+
+## Caller-less invokes and unprotected reads
+
+**Who is the caller of an `invokes`?** Nobody. In the reference execution the invoked
+command runs its full pipeline - authorization, validation, requirements,
+constraints - **with no caller**; a command that needs one rejects, and the
+rejection ends the scenario. Each invoked command is atomic, but the cascade is not,
+so facts accepted earlier remain. There is no syntax for a trusted identity in the verified Screenplay versions
+(Screenplay#383, open): never invent `runs as` or a `given caller` for a reaction.
+Say so in the model: a `description` on the reaction that names the trusted actor
+the target must use. At code level a rendered or hand-written target runs such a
+command as the system with `[ExecuteCommandsAsSystem]` (Arc 20.56.0 and later, so
+also in a rendered application's Arc 22.25.0). An authorized command a reaction
+invokes needs that decision made explicit, in the model's description and in the
+gap-fill code, not left to a rejection nobody expected. Cascades and their
+specification limits: `cratis-screenplay-specifications`.
+
+⚠️ **Declared, not enforced.** A trigger `reads` gives no runtime protection. From
+ESM v6 the binder refuses to treat it as one: a trigger with `reads` that **produces
+directly**, or whose effect is an opaque body (`file` or an inline block), fails
+binding, because its decision dependency cannot be protected. A reaction that only
+`invokes` a command binds, and the decision, and any protection, belong to that
+command's own reads. Command `reads` give none yet either (`PLAY0271`, #129).
+Decision 0006 leaves `where` over read paths out of scope, and `where` needs
+every operand to resolve from the trigger's declared scalar occurrence shape (listed in
+the input selection or not; nested paths and read aliases fail binding): keep the logic that uses the state in
+the invoked command or the implementation. Under `cratis` before 3.28.2 none of this
+bound at all (`PLAY0268`); `cratis` 3.28.2 binds it like the standalone tool.
 
 ## Complete example (ESM v6)
 
-One document with every construct below: an application trigger, a reaction on an
-event, on a trigger (with `where` and `invokes`), on a view read and on the clock, and
-a capture with its specifications. The excerpts later in this skill have their own
-complete parent documents in `references/complete-examples.md`.
+One document with every construct (application trigger, reactions on an event, a trigger, a view read and the clock, and a capture with specifications) is kept in the reference file.
 
-```screenplay
-concept InvoiceId : Uuid
-trigger PaymentFileArrived
-  description "The bank's payment file listed a payment for an invoice"
-  invoiceId InvoiceId
-  amount Decimal
-module Collections
-  feature Invoices
-    slice StateChange SendInvoice
-      command SendInvoice
-        invoiceId InvoiceId identifier
-        amount Decimal
-        produces InvoiceSent
-          for invoiceId
-          invoiceId = invoiceId
-          amount = amount
-          sentAt = $context.occurred
-      event InvoiceSent
-        invoiceId InvoiceId
-        amount Decimal
-        sentAt DateTime
-    slice StateChange CloseInvoice
-      command CloseInvoice
-        invoiceId InvoiceId identifier
-        reason String
-        validate
-          reason not empty message "A reason is required"
-        produces InvoiceClosed
-          for invoiceId
-          reason = reason
-      event InvoiceClosed
-        reason String
-      constraint OnlyClosedOnce
-        unique event InvoiceClosed
-    slice StateView InvoiceBalances
-      readmodel InvoiceBalance
-        invoiceId InvoiceId
-        outstanding Decimal
-      query InvoiceBalanceById => InvoiceBalance optional
-        by invoiceId InvoiceId
-      projection InvoiceBalances => InvoiceBalance
-        from InvoiceSent
-          invoiceId = $eventSourceId
-          outstanding = amount
-    slice StateChange SendPaymentReminder
-      command SendPaymentReminder
-        invoiceId InvoiceId identifier
-        produces PaymentReminderSent
-          for invoiceId
-          reminderNumber = 1
-      event PaymentReminderSent
-        reminderNumber Int
-    slice Automation Reminders
-      reaction RemindOnDueDate
-        description "Reminds the customer when an invoice falls due unpaid"
-        when InvoiceFellDue
-          invoiceId
-          reads InvoiceBalance as balance by invoiceId
-          invokes SendPaymentReminder
-            invoiceId = invoiceId
-      reaction ReminderScheduler
-        description "Schedules a reminder when an invoice is sent"
-        when InvoiceSent
-          invoiceId
-          produces ReminderScheduled
-            scheduledAt = $context.occurred
-      reaction PaymentImporter
-        description "Closes an invoice the bank file shows as paid"
-        when PaymentFileArrived
-          invoiceId
-          amount
-          invokes CloseInvoice
-            invoiceId = invoiceId
-            reason = "paid"
-        where amount > 0
-      reaction WeeklyDigest
-        description "Issues the collections digest every Monday morning"
-        at 07:30 on Monday
-          produces DigestIssued
-            for "weekly"
-            issuedAt = $context.occurred
-      event InvoiceFellDue
-        invoiceId InvoiceId
-      event ReminderScheduled
-        scheduledAt DateTime
-      event DigestIssued
-        issuedAt DateTime
-      specification SchedulingAReminderWhenAnInvoiceIsSent
-        given clock "2026-10-02T09:00:00Z"
-        when append InvoiceSent
-          for "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          amount = 120
-          sentAt = "2026-10-02T09:00:00Z"
-        then ReminderScheduled
-          for "9c858901-8a57-4791-81fe-4c455b099bc9"
-          scheduledAt = "2026-10-02T09:00:00Z"
-      specification ClosingAPaidInvoice
-        when trigger PaymentFileArrived
-          invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          amount = 120
-        then InvoiceClosed
-          for "9c858901-8a57-4791-81fe-4c455b099bc9"
-          reason = "paid"
-      specification IssuingTheWeeklyDigest
-        given clock "2026-10-05T07:00:00Z"
-        when clock "2026-10-05T07:30:00Z"
-        then DigestIssued
-          for "weekly"
-          issuedAt = "2026-10-05T07:30:00Z"
-    slice Translate LegacyInvoiceSync
-      capture LegacyInvoiceCapture
-        source api
-          api   LegacyInvoicingApi
-          route /invoices
-          poll  5m
-        key id
-        map
-          status = status translate
-            "sendt"  => sent
-            "betalt" => paid
-        append LegacyInvoicePaid
-          tag legacy
-          when status from "sent" to "paid"
-            paidAt = $context.occurred
-      event LegacyInvoicePaid
-        paidAt DateTime
-      specification SeeingALegacyPayment
-        given clock "2026-10-02T12:00:00Z"
-        given capture LegacyInvoiceCapture
-          id     = "inv-42"
-          status = "sendt"
-        when capture LegacyInvoiceCapture
-          id     = "inv-42"
-          status = "betalt"
-        then LegacyInvoicePaid
-          for "inv-42"
-          paidAt = "2026-10-02T12:00:00Z"
-```
+Read [references/complete-examples.md](references/complete-examples.md) when you need a complete, compiling parent document for an excerpt or want to check the authoring and binding prerequisites.
 
 ## `capture` — the Change Data Capture Language
 
@@ -246,34 +113,9 @@ Captures live in `Translate` slices and are the anti-corruption layer: external
 shapes in, domain events out. Excerpt; complete document: `references/complete-examples.md`,
 "Capture with `source`, `map`, `append` and `children`".
 
-```screenplay excerpt
-slice Translate LegacyInvoiceSync
-  capture LegacyInvoiceCapture
-    source api
-      api   LegacyInvoicingApi
-      route /invoices
-      poll  5m
-    key id
-    map
-      status = status translate
-        "utkast" => draft
-        "sendt"  => sent
-        "betalt" => paid
-    append InvoiceStatusChanged
-      tag legacy
-      when status
-        invoiceId = $.id
-        status    = $.status
-        changedAt = $context.occurred
-    append InvoicePaidFromSent
-      when status from "sent" to "paid"
-        invoiceId = $.id
-    children lineItems identified by lineNumber
-      append InvoiceLineItemAdded
-        when added
-          invoiceId  = $.id
-          lineNumber = $.lineNumber
-```
+The full capture excerpt (`source`, `key`, `map` with `translate`, two `append` blocks and `children`) is in the reference file.
+
+Read [references/capture-map-and-example.md](references/capture-map-and-example.md) when writing a capture's `map` block, or when you need the excerpt of a capture with `append` and `children`.
 
 **`source <kind>`** with indented settings. The documented kinds and settings are
 `api` (`api`, `route`, `poll`), `webhook` (`path`) and `message` (`topic`).
@@ -289,15 +131,9 @@ record's `key` names, and `$context.occurred` is the scenario's `given clock`.
 
 Declaring an event's external origin on the `event` itself is accepted as
 Screenplay decision 0009 but **not in the language**; a `capture` in a
-`Translate` slice is how outside data enters a model today.
+`Translate` slice is how outside data enters a model in the verified Screenplay versions.
 
-**`map`** reshapes before events are appended: direct rename
-(`productName = name`), a backtick template, `translate` with indented
-`"source" => target` entries, and `split <source> by "<sep>"` with indented target
-properties.
-
-**Mapping sources:** `$.` for a value from the current source item, `$context.` for
-capture context, `$env.` for an environment variable, plus literals and templates.
+**`map`** reshapes properties before events are appended (rename, template, `translate`, `split`; mapping sources are `$.`, `$context.` and `$env.`); syntax is in the reference file linked above.
 
 **`append <Event>`** with optional `tag` lines and one `when` clause:
 
@@ -402,19 +238,7 @@ append-time constraints. `invokes` asks for a command, which additionally runs t
 command's authorization, validation and requirements, and may reject.
 Using `produces` for both would say those are the same kind of consequence.
 
-**Who is the caller of an `invokes`?** Nobody. In the reference execution the invoked
-command runs its full pipeline - authorization, validation, requirements,
-constraints - **with no caller**; a command that needs one rejects, and the
-rejection ends the scenario. Each invoked command is atomic, but the cascade is not,
-so facts accepted earlier remain. There is no syntax for a trusted identity today
-(Screenplay#383, open): never invent `runs as` or a `given caller` for a reaction.
-Say so in the model: a `description` on the reaction that names the trusted actor
-the target must use. At code level a rendered or hand-written target runs such a
-command as the system with `[ExecuteCommandsAsSystem]` (Arc 20.56.0 and later, so
-also in a rendered application's Arc 22.25.0). An authorized command a reaction
-invokes needs that decision made explicit, in the model's description and in the
-gap-fill code, not left to a rejection nobody expected. Cascades and their
-specification limits: `cratis-screenplay-specifications`.
+**Who is the caller of an `invokes`?** Nobody; see *Caller-less invokes and unprotected reads* above before writing one.
 
 Both are declarations of *what happens*, not of how — a trigger can state its
 consequences **and** carry a `file` or an inline block in a tagged fence
@@ -429,23 +253,9 @@ a command's `reads`: the state the behavior decides from. Excerpt; complete
 document: `references/complete-examples.md`, "Trigger `reads` on an event and on the
 clock" (authoring-valid; the `file` bodies stop it binding at ESM v6).
 
-```screenplay excerpt
-slice Automation ChaseOverdueInvoices
-  reaction RemindOnDueDate
-    description "Reminds the customer when an invoice falls due unpaid"
-    when InvoiceFellDue
-      invoiceId
-      reads InvoiceBalance as balance by invoiceId
-      invokes SendPaymentReminder
-        invoiceId = invoiceId
-        channel   = "email"
-      file Reactions/RemindOnDueDate.cs
-  reaction SweepOverdueInvoices
-    description "Re-checks every overdue invoice each morning"
-    at 08:00
-      reads OverdueInvoice
-      file Reactions/SweepOverdueInvoices.cs
-```
+The excerpt of a reaction with `reads` on an event and on the clock is in the reference file.
+
+Read [references/trigger-reads-example.md](references/trigger-reads-example.md) when writing a trigger `reads` with `by` or an alias, or a clock trigger that reads a whole view.
 
 - `reads` sits **under a trigger**, beside the values it takes and its effects.
   Each trigger declares its own.
@@ -461,19 +271,9 @@ slice Automation ChaseOverdueInvoices
   written `@reads`. A bare `reads` line is error `PLAY0175`, and
   `reads <PrimitiveType>` is warning `PLAY0444`; both messages name the escape.
 - `for each <View>` is reserved for a future view-driven trigger. It is not a
-  trigger today (`PLAY0137`).
+  trigger in the verified Screenplay versions (`PLAY0137`).
 
-⚠️ **Declared, not enforced.** A trigger `reads` gives no runtime protection. From
-ESM v6 the binder refuses to treat it as one: a trigger with `reads` that **produces
-directly**, or whose effect is an opaque body (`file` or an inline block), fails
-binding, because its decision dependency cannot be protected. A reaction that only
-`invokes` a command binds, and the decision, and any protection, belong to that
-command's own reads. Command `reads` give none yet either (`PLAY0271`, #129).
-Decision 0006 leaves `where` over read paths out of scope, and `where` needs
-every operand to resolve from the trigger's declared scalar occurrence shape (listed in
-the input selection or not; nested paths and read aliases fail binding): keep the logic that uses the state in
-the invoked command or the implementation. Under `cratis` before 3.28.2 none of this
-bound at all (`PLAY0268`); `cratis` 3.28.2 binds it like the standalone tool.
+⚠️ **Declared, not enforced.** See *Caller-less invokes and unprotected reads* above.
 
 ## `trigger`
 
