@@ -24,8 +24,8 @@ This skill is verified against these exact sources:
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Events`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.ReadModels` |
-| `Cratis.Arc.Core` | current | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute` and `PathAttribute` |
-| `Cratis.Arc.MongoDB` | current | the `Observe` family of `IMongoCollection<T>` extensions |
+| `Cratis.Arc.Core` | `22.16.0` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute` and `PathAttribute` |
+| `Cratis.Arc.MongoDB` | `22.16.0` | the `Observe` family of `IMongoCollection<T>` extensions |
 
 Reverify product sources before claiming support for another version. Confirm
 the exact Arc package version in the consuming project before citing one.

@@ -1,5 +1,17 @@
 # View specifications and lifecycle families
 
+## Contents
+
+- Per read model, decide before drafting
+- Required specs per projected read model
+- Lifecycle families (storyline emulation)
+- Worked family: a todo list
+- Removal is a positive obligation
+- Ordering, lag and rebuild
+- Performer-backed views (no events build them)
+- Cross-context views
+- Gated views
+
 Views cannot reject a stored fact, so view specs have no error cases. They answer: after these
 facts, what does the screen (or automation input) show?
 

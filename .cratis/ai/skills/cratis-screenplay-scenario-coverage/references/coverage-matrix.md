@@ -1,5 +1,13 @@
 # Coverage matrix
 
+## Contents
+
+- Cell values
+- Derive obligations from the model
+- Template: commands, reactions, captures
+- Template: read models
+- Worked example (`berth-reservations.md`, design mode)
+
 Write it **before** drafting specs, keep it in `.ai-work/screenplay/<model-slug>/coverage.md` (or the
 `STATE.md` beside it), and update it with the specs. Reviewers check it against the model. The Screenplay MCP does not yet report which specifications a command, read model, policy or constraint still lacks (Screenplay#390, open, not available): the matrix is that report, built by hand from the declarations.
 

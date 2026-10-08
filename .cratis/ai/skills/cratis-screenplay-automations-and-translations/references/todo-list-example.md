@@ -1,5 +1,9 @@
 # Example: a todo-list automation
 
+## Contents
+
+- Design-only additions
+
 A complete model: a result opens a work item, a reaction invokes a command, the command's fact
 closes the item. It binds on Screenplay 4.66.0 (`executableReady: true`), standalone and through `cratis screenplay mcp`
 3.28.2; `cratis render` 3.28.2 refuses it whole (`STAGE-ESM-016`). The cratis 3.27.1 bundle (4.60.1)
@@ -18,7 +22,7 @@ What the model proves and what it does not:
 - Not proven: that the certificate email reaches the person once. See
   `references/effects-and-idempotency.md`.
 - The actor behind `SendCertificate` is a recorded security decision in the `Certification`
-  module `description`, because reaction invocations carry no caller today (Screenplay#383).
+  module `description`, because reaction invocations carry no caller on Screenplay 4.66.0 (Screenplay#383).
 - No local engine runs Automation specifications: report them as authored, not as run.
 
 ```screenplay
@@ -198,7 +202,7 @@ query PendingCertificates => PendingCertificate[]
 // Parent: the complete document above, slice Automation SendCertificates, after CertificateSender.
 // The sweep reads the whole view (a clock trigger takes no `by`); iterating items needs code.
 reaction CertificateRetrySweep
-  description "Retries items still pending; per-item fan-out needs code today (#286)"
+  description "Retries items still pending; per-item fan-out needs code on Screenplay 4.66.0 (#286)"
   every 15 minutes
     reads PendingCertificate
     file Reactions/RetryPendingCertificates.cs

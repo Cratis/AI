@@ -20,7 +20,7 @@ files is one application: always check the folder, never one file of it.
 
 ## Verified product sources
 
-The only version table is `references/versions.md`; other skills point to it.
+When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
@@ -70,11 +70,13 @@ Re-verify before claiming another version behaves the same.
 | File argument | follows imports | ignores imports, false PLAY0165 warnings (cli#244, probed on 3.28.2): validate the folder |
 | MCP | `screenplay mcp <folder>`; 29 tools | `cratis screenplay mcp [root]`; 29 tools; registered by `cratis ai install` |
 
-Exact messages, exit codes and the MCP roots bug: `references/versions.md`.
+Read `references/versions.md` when you need the exact messages, exit codes or the MCP roots bug.
+
+MCP calls below use the `screenplay` server declared in `.cratis/ai/mcp-servers.json`, for example `screenplay` → `read-workspace`.
 
 ## Verdicts
 
-Independent results, not a ladder. Commands and report format: `references/verdicts.md`.
+Independent results, not a ladder. Read `references/verdicts.md` for the commands and the report format when obtaining or reporting V1–V5 verdicts.
 
 | Verdict | Meaning | How |
 | --- | --- | --- |
@@ -97,12 +99,12 @@ changes with the root folder name.
 ## Subsets (write from the one your mode needs)
 
 - **Design**: every construct family parses; use it to model first. Compiled shapes:
-  `references/cheat-sheet.md`.
+  `references/cheat-sheet.md`. Read [references/cheat-sheet-example.md](references/cheat-sheet-example.md) when you need one complete design-mode document with every construct family.
 - **Executable** (binds, V3): `references/executable-subset.md`. Keyed optional queries
   only; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs bind on Screenplay 4.61 or
   later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
-  only on standalone 4.68.0 or later (`references/generated-responses-example.md`).
+  only on standalone 4.68.0 or later (`references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
 - **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24.2 renders ESM v1 to v4 (evolved events refused, `STAGE-ESM-026`)
   `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79), and so are generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, tracked in Stage#201).
 - **Event sources, streams and command routes** (and operations): authorable and validatable, but never
@@ -131,7 +133,11 @@ changes with the root folder name.
   and is not crash-atomic; never retry `apply` after `ApplyOutcomeUnknown`. Loop details:
   `cratis-screenplay-model-authoring`.
 
-## Top traps (all 44, with fixes: `references/traps.md`)
+## Top traps
+
+All 44, with fixes: `references/traps.md`. Read `references/traps.md` when diagnosing an unexpected compile, binding, rendering or MCP result.
+
+Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. Read [references/doc-contradictions.md](references/doc-contradictions.md) when the Screenplay documentation and the compiler disagree and you must decide which to trust.
 
 1. Clean V1 is not executable: only MCP (V2) or `render` binds.
 2. Write `for <identifier>` on every `produces`.
@@ -181,4 +187,4 @@ reason; blocked verdicts list codes and keep the protection they blocked on.
 
 ## Lineage
 
-Attribution and sources: `references/provenance.md`.
+Read `references/provenance.md` when checking attribution or the sources behind this guidance.

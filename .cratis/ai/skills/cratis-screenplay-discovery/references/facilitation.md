@@ -42,12 +42,7 @@ that decision. If not, note the need as a view and move on.
 - Prefer assumptions that keep the model honest (fewer, clearly named facts) over ones that
   invent detail.
 
-## Evidence and privacy
-
-- Do not paste production data, customer records or personal data into hosted models or
-  sub-agents without the user's approval. Use invented examples in the model and in
-  specifications.
-- Classify personal data on the concept as soon as it shows up.
+See "Evidence and privacy" in SKILL.md.
 
 ## Closing a session
 

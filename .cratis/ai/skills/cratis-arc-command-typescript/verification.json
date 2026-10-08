@@ -10,6 +10,6 @@
     { "kind": "skill-contains", "value": "Authorization belongs on the **class**." },
     { "kind": "skill-contains", "value": "is created through its **constructor** in `handle()`" },
     { "kind": "skill-contains", "value": "`--check-metadata`" },
-    { "kind": "skill-contains", "value": "CommandScenario.for(RegisterTask, RegisterTaskValidator)" }
+    { "kind": "skill-contains", "value": "CommandScenario.for(RegisterTask, RegisterTaskValidator)", "file": "references/command-specifications.md" }
   ]
 }

@@ -1,5 +1,24 @@
 # Phases: Input, Carry-forward, Gate
 
+## Contents
+
+- Phase transition protocol
+- P0 Intake
+- P1 Discover (`cratis-screenplay-discovery`; modeling stance)
+- P2 Model (`cratis-screenplay-slice-design`, `-streams-and-consistency`, `-automations-and-translations`)
+- P3 Specify (`cratis-screenplay-scenario-coverage`; modeling stance)
+- P4 Self-check (`cratis-screenplay-model-review`, self-check; critic stance)
+- P5 Independent review (`cratis-screenplay-model-review`)
+- P6 Accept (the user)
+- P7 Execute (executable mode; modeling stance)
+- P8 Render or fall back (`cratis-screenplay-render-and-gap-fill`)
+- P9 Verify
+- Entry points for changes to an existing model
+- Resume mid-workflow
+- Final output of a modeling engagement
+- Quality checklist (closing)
+- Legacy entry (replaces P1-P2)
+
 Every phase uses the same template, adapted from the per-step "Input / Output to carry forward /
 Gate" structure of the TrogonStack orchestrating skill (see `provenance.md`). Owners are roles:
 the **main session** orchestrates and owns the MCP connection while it is the identity owner;

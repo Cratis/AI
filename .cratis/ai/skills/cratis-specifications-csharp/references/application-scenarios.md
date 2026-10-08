@@ -1,5 +1,13 @@
 # In-process scenario specifications
 
+## Contents
+
+- `CommandScenario<TCommand>`
+- `EventScenario`
+- `ReadModelScenario<TReadModel>`
+- `ReactorScenario<TReactor>`
+- Application conventions
+
 The four scenario helpers exercise the real Arc and Chronicle pipelines
 in-process. Use them for event-sourced *application* behavior where the pipeline,
 validation, constraints or projections matter; a pure decision (`Handle()`,
@@ -96,11 +104,7 @@ Do not assert on message strings by default — they are presentation text.
 Assert exact text only when that wording is the specified behavior, and name
 that behavior in the fact.
 
-> **Validator state can be order-sensitive.** The command-scenario pipeline can
-> cache enough state that injected-validator branches depend on execution order
-> when xUnit runs classes in parallel. Use `CommandScenario` for the valid path,
-> test rejected state variants by instantiating the validator directly, and only
-> for that case put the command's specifications in a small xUnit `[Collection]`.
+See "Step 1" in SKILL.md for the order-sensitive validator caveat.
 
 ## `EventScenario`
 
@@ -130,11 +134,7 @@ and `ShouldNotHaveConstraintViolations()`,
 its negation. Assert the constraint **name** by default. Assert exact message
 text only when that wording is the specified behavior, and name it in the fact.
 
-⚠️ `EventScenario` wires a strategy that always answers `ConcurrencyScope.None`,
-which the validator skips, so an append that lets the strategy choose the scope
-never produces a concurrency violation. `ShouldHaveConcurrencyViolations()`
-cannot pass for such an append and its negation passes vacuously — specify concurrency against the
-real kernel with an out-of-process integration specification instead.
+See "Step 1" in SKILL.md for the vacuous concurrency assertions caveat.
 
 ## `ReadModelScenario<TReadModel>`
 

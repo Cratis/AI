@@ -1,5 +1,15 @@
 # Scenario examples, category by category
 
+## Contents
+
+- Good and bad forms
+- 1. Command: success, rule rejection and denial
+- 2. Command: state violations
+- 3. External failure: the capture, then the retry
+- 4. Compensation
+- 5. Views: population, update, accumulation
+- 6. Views: list contents and the empty list
+
 Compact examples for each scenario category, in one invoicing domain so the shapes compare
 easily. Every excerpt below is copied verbatim from the complete document in
 `invoicing-dues-example.md`, which compiles with warnings as errors and whose 21 specifications

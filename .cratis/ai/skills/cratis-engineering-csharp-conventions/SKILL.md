@@ -108,6 +108,11 @@ The fix is almost always to drop `[Singleton]`, not to reach for
 `IServiceScopeFactory`. See
 [exceptions-logging-and-di.md](references/exceptions-logging-and-di.md).
 
+Enable it on an existing codebase in this order, or it will simply refuse to
+start: turn it on locally first, fix everything it names, and only then let it
+reach the deployed environments. Turning it on before the sweep converts a
+silent multi-tenant bug into a production outage.
+
 **Use `IInstancesOf<T>`, never `IEnumerable<T>`, to enumerate implementations of
 an abstraction.** `IEnumerable<T>` only works when every implementation is
 hand-registered, which defeats convention-based discovery.

@@ -1,5 +1,21 @@
 # Stream patterns
 
+## Contents
+
+- Identity and event-membership review
+- Interpret the evidence
+- Event meaning is a separate check
+- Contrasting examples
+- Boundary decision tree
+- Red flags that the boundary, not the volume, is wrong
+- Boundary patterns by domain
+- Core rules that bear on stream design
+- Growth and snapshots
+- Short lifecycles
+- Consistency questions per stream
+- Constraint scope and what it implies for stream choice
+- Decision-scoped consistency (note)
+
 A stream in Screenplay is the event source a production lands on: `identifier` on the
 command, `for <identifier>` on each `produces`, `$eventSourceId` in projections, `for "<id>"`
 in specifications. Choosing the identifier *is* choosing the stream.

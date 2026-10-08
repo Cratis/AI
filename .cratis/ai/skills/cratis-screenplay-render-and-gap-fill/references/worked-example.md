@@ -1,5 +1,13 @@
 # Worked example: a refused render, the classification and the report
 
+## Contents
+
+- The model
+- The probe
+- Classification
+- Decision and ledger entry
+- The report
+
 A marina model with one renderable command and one list view. The model compiles; `cratis render`
 refuses it, so nothing is published. The example shows how to classify, decide and report.
 

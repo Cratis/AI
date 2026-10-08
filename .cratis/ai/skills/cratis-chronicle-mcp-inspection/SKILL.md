@@ -18,7 +18,7 @@ contract is unverified, so every tool and prompt remains evidence-blocked.
 Read the generated classifications before answering:
 
 - [Observational guidance](references/observational-tools.md) records subjects
-  admitted for bounded read-only guidance. It is currently empty.
+  admitted for bounded read-only guidance. The admitted observational inventory is empty.
 - [Blocked guidance](references/blocked-tools.md) records the deny-all boundary.
 
 Do not invoke, simulate, install, configure, or provide an invocation payload

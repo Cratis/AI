@@ -17,3 +17,13 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 |---|---|---|
 | `.claude/skills/eventmodeling-orchestrating-event-modeling/SKILL.md`: "Do not cut corners to save tokens or effort" | `SKILL.md` paragraph "Do not cut corners to save tokens or effort" (short form; full text in the lifecycle skill) | Adapted closely; restored from #493; translated to Screenplay |
 | `.claude/skills/eventmodeling-interview-protocol/SKILL.md`: when to ask, unless told not to ask | `SKILL.md` paragraph "Ask only what the step needs" (short form; full text in the lifecycle skill) | Adapted closely; restored from #493; recording moved to STATE.md |
+
+## Method lineage in SKILL.md
+
+> **Method lineage.** The two-phase process, the nine steps, the four patterns and
+> the GWT discipline follow **Event Modeling** (Adam Dymitruk; Martin Dilger,
+> *Understanding Eventsourcing*), as structured in
+> [jwilger/agent-skills `event-modeling`](https://github.com/jwilger/agent-skills/tree/main/skills/event-modeling).
+> Screenplay adopts that vocabulary directly: *"Slices are the atom - everything
+> lives inside a typed slice aligned with Event Modeling's vocabulary."*
+> Where Cratis deliberately diverges, this skill says so.

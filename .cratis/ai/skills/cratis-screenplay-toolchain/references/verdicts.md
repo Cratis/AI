@@ -1,5 +1,15 @@
 # Verdict commands, V1 to V5
 
+## Contents
+
+- V1: authorable
+- V2: executable diagnostics
+- V3: binding-ready
+- V4: reference specifications run
+- V5: rendered and target-verified
+- Report format
+- Example gate (for skill and documentation authors)
+
 The five verdicts are independent results, not a ladder: each proves only its own layer,
 and each is either a result or "not run" with the reason. The verdict names are frozen
 (`cratis-screenplay-modeling-lifecycle` owns when each is required; this file owns how to

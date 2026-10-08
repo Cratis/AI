@@ -1,5 +1,16 @@
 # Scenario workshop (human facilitation guide)
 
+## Contents
+
+- Before the workshop
+- During: one command at a time
+- During: one view at a time
+- Reading back
+- Multi-role check (before leaving the room)
+- Common mistakes
+- Tips for rapid capture
+- Rules of thumb, deliberately different from the source guide
+
 Use this when scenarios are written together with business people, developers and testers
 instead of by one author. The facilitation structure is adapted from the Workshop Facilitation
 Guide in TrogonStack `eventmodeling-elaborating-scenarios` (MIT; see `provenance.md`) and

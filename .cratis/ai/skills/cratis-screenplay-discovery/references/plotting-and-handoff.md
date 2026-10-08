@@ -1,5 +1,16 @@
 # Plotting the story and handing it on
 
+## Contents
+
+- 1. Sequence
+- 2. Record after / caused by / only if
+- 3. Ask what can happen instead
+- 4. Plot output format
+- Whose turn is it in the story?
+- Storyline: one view walked through its states
+- 5. Plot checks
+- Handoff packet to `cratis-screenplay-slice-design`
+
 Plotting arranges the discovered events as a narrative: what happens first, what depends on
 what, what can happen instead, where it ends. In Screenplay the plot is written into the
 model (slice and feature `description` text) and into STATE.md; files sort by name, so story

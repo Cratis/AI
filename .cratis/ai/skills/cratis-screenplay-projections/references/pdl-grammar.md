@@ -1,5 +1,13 @@
 # PDL — syntax grammar, meaning and diagnostics
 
+## Contents
+
+- Grammar
+- Parser regexes
+- Diagnostics
+- Syntax that parses but means something else
+- Worked examples
+
 Checked against `Documentation/screenplay/projections/{grammar,semantic-model,keys,variants}.md`
 and `Source/DotNET/Screenplay/Parsing/ProjectionParser.cs` at Screenplay tag
 `v4.31.0` (commit `355dffb`).

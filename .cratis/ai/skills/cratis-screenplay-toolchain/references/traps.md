@@ -20,7 +20,7 @@ Re-checked against Screenplay v4.66.0 and cli v3.28.2 where marked [probed] or [
 16. PLAY0285/0286/0287 are static spec checks: do not edit expectations blindly; PLAY0285 had a cascade false positive on the compiler bundled in cratis before 3.28.2 (4.60.1, cli#242); gone in 4.66.0 and cratis 3.28.2. [probed]
 17. `null` in specs only for optional read-model properties (PLAY0350); omit the property or record a gap; whether an optional detail is really a separate fact is a review question, not the fix for this code.
 18. `then` events are exhaustive and ordered (use `then events in any order` for order only). From ESM v6 they include reaction cascades; after `when append` they list only what followed the append.
-19. `reads` without `by` means a singleton view today (decision 0017 will change it); `reads` never binds (PLAY0271), and neither does a command `concurrency` block (PLAY0271, error). [probed, source]
+19. `reads` without `by` means a singleton view at Screenplay 4.66.0 (decision 0017 will change it); `reads` never binds (PLAY0271), and neither does a command `concurrency` block (PLAY0271, error). [probed, source]
 20. Declare each event once, in its producing slice; renaming a persisted event needs `id "OldName"`; renaming a constraint discards its index.
 21. Quoted `import "x/*.play"` = my files; unquoted `import Ctx.Event` = another context's contract (does not bind: PLAY0268). [probed]
 22. Construct keywords are closed (`aggregate`, `saga`, `workflow` do not exist): PLAY0029 or PLAY0001/0022/0024.

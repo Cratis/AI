@@ -1,5 +1,9 @@
 # Invoicing and dues: worked example for the scenario-examples excerpts
 
+## Contents
+
+- Notes
+
 Complete executable model (harbor club dues) holding every declaration the excerpts in
 `scenario-examples.md` and `view-and-story-specs.md` rely on, except the stored-state rules. Each
 of those excerpts is copied verbatim from the fence below (names are the specification names),

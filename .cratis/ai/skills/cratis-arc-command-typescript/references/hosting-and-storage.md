@@ -1,5 +1,15 @@
 # Hosting and storage for Arc for TypeScript
 
+## Contents
+
+- The host only delivers requests
+- Express
+- Fastify
+- Hono
+- Fetch API entry
+- Observable-query WebSockets from a dev server
+- Storage integrations
+
 Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
 `v0.33.0` plus three commits): `Documentation/overview.md`, `hosts/**`,
 `mongodb/getting-started.md`, `sql/getting-started.md`,

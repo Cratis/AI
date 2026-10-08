@@ -3,6 +3,17 @@
 
 # Working with the Screenplay MCP
 
+## Contents
+
+- Tool groups
+- Diagnostic repairs and refactorings
+- Syntax-only constructs through the MCP
+- Source map and appended-event fixtures
+- Revision and ownership rules
+- Refusals are useful information
+- Formatting and recovery limits
+- Code attachments
+
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
 alone inside a project, where the CLI locates the model (the project's `.play` files, else
 `Source/` or `src/`, else a new `Screenplay/` folder). The standalone form is `screenplay mcp <model-folder>`. A

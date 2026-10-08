@@ -1,5 +1,10 @@
 # Example: a model inside the Stage 4.24 renderable subset
 
+## Contents
+
+- What was run
+- What came out
+
 A complete marina-berth model that `cratis render` 3.28.2 and 3.28.3 accept, followed by what the
 render produced and how each claim was checked. Use it as a shape to stay inside when a
 model must be renderable; it is not a template for richer slices (see `admission.md`).

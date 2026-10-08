@@ -1,5 +1,14 @@
 # Review report template
 
+## Contents
+
+- Finding fields
+- Root causes
+- Defect or business question?
+- Verdict rules
+- Findings across a re-review
+- Wording
+
 Keep the report to findings and evidence; no file dumps. Addresses and paths, not contents.
 The check-by-check layout (per phase: how many checks; per check: status, element, evidence;
 anti-patterns; final questions; verdict; success criteria) is adapted from TrogonStack
