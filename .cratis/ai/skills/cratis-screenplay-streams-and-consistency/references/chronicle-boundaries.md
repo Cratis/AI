@@ -14,7 +14,7 @@ later); Stage-rendered apps pin Arc 22.25.0 and Chronicle client 19.8.1, so it i
 there (see `consistency-and-concurrency.md` section 3). Re-check the issues before relying on a
 constraint in a new release.
 A concurrency scope's first append is unchecked by default at v19.32.0; see
-`consistency-and-concurrency.md` section 4.
+SKILL.md, ‘First append into a scope’.
 
 ## Identity, routing and claims
 Name four things separately: the event store/namespace, the business event-source identity, any

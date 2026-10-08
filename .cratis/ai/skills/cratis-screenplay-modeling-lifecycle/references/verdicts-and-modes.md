@@ -1,5 +1,15 @@
 # Verdicts and modes
 
+## Contents
+
+- Five independent results
+- Commands (enough to check without loading the toolchain skill)
+- Report template
+- Source identity
+- Render revision drift
+- Tool-version gaps
+- Modes
+
 Exact commands, exit codes, admitted subsets and every version-specific fact live in
 `cratis-screenplay-toolchain` (`references/versions.md` and its subset references). This file
 defines what each result means and how to report it. Do not copy version facts here.
@@ -163,7 +173,7 @@ file changing the digest, a filename containing a tab or a newline, and an expli
 ### Revisions are three different things
 - **Source identity** (above): bytes of the inputs. Used for acceptance.
 - **Workspace revision** (MCP `expectedRevision` and catalog revision): guards edits in one workspace session.
-- **`modelRevision`** (MCP `read-workspace view=executable-model`): the canonical semantic revision
+- **`modelRevision`** (the `screenplay` server's `read-workspace` tool with `view=executable-model`): the canonical semantic revision
   of the bound executable model. It exists only when the model binds. Descriptions and source
   locations are not part of it; the application identity is (without `identities.json` it is
   bootstrapped from the root folder name, so renaming the root changes it). Moving a file changes

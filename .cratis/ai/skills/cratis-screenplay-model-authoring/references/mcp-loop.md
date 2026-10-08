@@ -3,6 +3,17 @@
 
 # The Screenplay MCP loop
 
+## Contents
+
+- Connect
+- Who owns the connection
+- The loop
+- One edit strategy
+- Identity state (`.screenplay/identities.json`)
+- Read-only views worth knowing
+- Failures (use `failureKind`, never message text)
+- Provenance
+
 The working loop for the session that owns the model connection: connect, orient,
 choose an edit route, propose, review, apply, verify. Tool-by-tool arguments and
 refusals are in the [MCP tool guide](mcp-tools.md); verdict names (V1 to V5) are
@@ -162,8 +173,7 @@ the server sends `roots/list` and serves `tools/list` after the reply).
   to persisted Chronicle event types (use `id` pins).
 - Do not read the file for content (token cost); `read-workspace` with `view:
   "semantics"` returns identity assignments, not a model summary.
-- Apply is not crash-atomic across files: it journals its inverse first. The model
-  root must be trusted and exclusively writable during effects.
+- See "Make one coherent proposal" in SKILL.md for the exclusive-write prerequisite of `apply`.
 
 ## Read-only views worth knowing
 
@@ -188,21 +198,7 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 
 ## Failures (use `failureKind`, never message text)
 
-| failureKind | Response |
-| --- | --- |
-| `StaleRevision`, `DiskDrift`, `IdentityStateDrift` | Reopen and re-propose |
-| `ProposalRejected` | Read `conflicts`; change the request |
-| `FormattingConsentRequired` | Pass `formatting` |
-| `UnknownProposal` | The connection was reopened or the proposal applied: re-propose |
-| `LimitExceeded` | Discard unused proposals (16 cap) |
-| `PendingOperation`, `RecoveryRequired` | `workspace-state`, then ask before `recover-workspace` |
-| `RootChangeRefused` | Keep the fixed root, or start a new connection |
-| `ApplyOutcomeUnknown`, or EOF during `apply` | **Never retry `apply`.** Reconnect, read `workspace-state`, ask the user |
-
-Never delete `.screenplay/pending.json`. Limits reject and never truncate: 512
-files, 8 MiB total, 2 MiB per file, 1 MiB structured result, 200 items or 192 KiB
-per page. Excluded directories: `.git`, `.ai-work`, `.screenplay`, `bin`, `obj`,
-`node_modules`.
+See "Failures (use `failureKind`, never message text)" in SKILL.md.
 
 ## Provenance
 

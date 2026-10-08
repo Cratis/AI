@@ -106,10 +106,30 @@ composition is a failure.
 ## 6. Use Screenplay-owned fixtures
 
 The canonical multi-file application belongs to the Screenplay/conformance corpus,
-not to the AI corpus. Link to the fixture path (for example
-`Source/DotNET/Screenplay.CanonicalCorpus/Corpus/` in the Screenplay repository)
-and run its published checks. Do not copy those `.play` files into `.cratis/ai/`
-or into a skill reference as a maintained duplicate.
+not to the AI corpus. Link to the fixture path and run its published checks; do not
+copy those `.play` files into `.cratis/ai/` or into a skill reference as a
+maintained duplicate.
+
+Verified screens-release vector (executed 2026-10-08 against the installed
+toolchain):
+
+- fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
+  in the Screenplay repository;
+- Screenplay repo tool (4.97.0-era): `dotnet run --project Source/DotNET/Tool --
+  <corpus-folder> --warnaserror` → exit `0`, `10 file(s) compiled - 0 error(s), 0
+  warning(s)`;
+- MCP (`cratis screenplay mcp <corpus-folder>`, CLI 3.39.0 bundling Screenplay
+  4.93.0): `sourceSuccess true`, 10 documents, `sourceDiagnosticCount 0`,
+  `executableReady false`, 15 diagnostics — authoring is accepted, execution is
+  not, on this pairing;
+- render (`cratis render <corpus-folder> --name ScreenComposition --destination
+  <dir> -o json`, CLI 3.39.0): exit `5`, “Nothing was published — planning
+  reported 4 error(s)” — `PLAY0268` on `AllWorkItems` and `CommentsForWorkItem`
+  (observable array queries without a caller-supplied `by` argument are outside
+  the admitted ESM v1 vertical).
+
+Report a corpus the released compiler refuses as a capability/version-pairing
+gap with the exact diagnostics; never soften it to a pass.
 
 When the fixture is not yet published, report the parity checks as blocked by the
 fixture contract and continue verifying the independently authored guidance and

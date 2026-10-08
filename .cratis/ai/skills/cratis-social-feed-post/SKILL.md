@@ -20,6 +20,14 @@ Other skills own the neighboring questions. Use them instead of improvising here
 - The code on a code card: **cratis-technical-examples**. A card links to the complete,
   versioned source and never stands in for it.
 
+## Stop conditions
+
+Nothing is ever published, scheduled or replied to by an agent. Drafting a post doesn't
+authorize publishing, scheduling, tagging, mentioning, uploading or replying.
+
+Stop and ask when the account owner, the author's perspective, the evidence behind a claim,
+an asset's permission or its branding is unresolved.
+
 ## What the platform actually says
 
 LinkedIn described its current feed in March 2026. An LLM-based retrieval system feeds a
@@ -38,8 +46,8 @@ LinkedIn describing its own system, not an outside measurement, and it points th
 as everything else here: the post needs an author with something to say.
 
 The reviewed sources disclose no first-hour windows, hashtag counts, link penalties or save
-weights. The folklore table in
-[the engagement evidence](references/engagement-evidence.md) lists the common claims and what
+weights. Read
+[the engagement evidence](references/engagement-evidence.md) when checking ranking or engagement claims, media evidence, preview approximations, or platform limits; its folklore table lists the common claims and what
 the sources do and don't support.
 
 ## The preview decides what the post is judged on
@@ -219,11 +227,3 @@ channel's current rules before posting.
 - Every technical claim is one the underlying source supports, and any limitation the post
   depends on is stated rather than implied.
 - The named author has reviewed the perspective the post speaks in.
-
-## Stop conditions
-
-Nothing is ever published, scheduled or replied to by an agent. Drafting a post doesn't
-authorize publishing, scheduling, tagging, mentioning, uploading or replying.
-
-Stop and ask when the account owner, the author's perspective, the evidence behind a claim,
-an asset's permission or its branding is unresolved.

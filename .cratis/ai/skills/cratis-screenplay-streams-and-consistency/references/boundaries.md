@@ -1,5 +1,18 @@
 # Boundaries: modules, teams and contracts
 
+## Contents
+
+- Establish the boundary, not an organizational formula
+- Ownership interview
+- Ownership and interface inventory
+- Cross-boundary walkthrough
+- Internal and public events
+- Crossing a boundary in Screenplay
+- Change data capture is not a domain event
+- Check coupling rather than banning every cycle
+- Boundary checklist
+- Review questions
+
 Read when you split, merge or connect modules, or when a fact crosses between owners. Grammar
 for reactions and translations lives in `cratis-screenplay-automations-and-translations`.
 

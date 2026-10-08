@@ -1,5 +1,16 @@
 # Read-model queries
 
+## Contents
+
+- Where the pieces live
+- Discovery rules
+- Snapshot queries
+- Observable queries
+- The `Observe` family — exact signatures
+- Cost and composition
+- Custom routes
+- Reading without a query surface
+
 Verified against `Cratis.Arc.Core` and `Cratis.Arc.MongoDB` as checked out
 alongside `Cratis.Chronicle` `18.3.0`. Confirm the exact Arc package version in
 the consuming project before citing one.

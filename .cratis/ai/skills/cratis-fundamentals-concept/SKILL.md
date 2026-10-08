@@ -1,6 +1,6 @@
 ---
 name: cratis-fundamentals-concept
-description: Create strongly typed Cratis domain values with ConceptAs<T> and Chronicle event-source identities with EventSourceId<T>. Use when a C# domain value has meaning beyond its primitive or when an identity is actually used as a Chronicle event-source/stream ID. Do not use for enums, DTO-only transport values, arbitrary non-stream entity IDs, or event schema migration.
+description: Create strongly typed Cratis domain values with ConceptAs and Chronicle event-source identities with EventSourceId. Use when a C# domain value has meaning beyond its primitive or when an identity is actually used as a Chronicle event-source/stream ID. Do not use for enums, DTO-only transport values, arbitrary non-stream entity IDs, or event schema migration.
 license: MIT
 ---
 

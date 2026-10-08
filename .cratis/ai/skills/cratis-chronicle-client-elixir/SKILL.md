@@ -125,6 +125,54 @@ depends on it, and nothing is left holding a dead channel.
 Pass `name:` to `Chronicle.Client` and `client:` to every API call. Every public
 function takes a `:client` option.
 
+## Connecting is asynchronous — wait for the lifecycle
+
+The client connects in the background. `Chronicle.Connections.Lifecycle`
+broadcasts `{:chronicle_lifecycle, phase, connection_id}` with three phases
+(`lib/chronicle/connections/lifecycle.ex:54`):
+
+| Phase | Meaning |
+| --- | --- |
+| `:disconnected` | no live session with the kernel |
+| `:connected` | the session handshake completed |
+| `:registered` | the registration coordinator registered the base artifacts |
+
+**Wait for `:registered`, never merely `:connected`** — the module's own docs say
+so at `:27-29`, because reducers and reactors are not attached until registration
+finishes.
+
+```elixir
+config = Chronicle.Client.config()
+
+case Chronicle.Connections.Lifecycle.wait_until(config.lifecycle, :registered, 30_000) do
+  :ok -> :ok
+  {:error, :timeout} -> # decide what a not-yet-registered client means for you
+end
+```
+
+`wait_until(lifecycle, target_phase, timeout \\ 30_000)` is at `:141`.
+`subscribe/1` (`:90`) returns the current phase **and** sends it as a message,
+which closes the subscribe-after-transition race; `phase/1` (`:98`) is the plain
+read.
+
+## Keepalive — the failure mode is silence
+
+The contract is spelled out in `lib/chronicle/connections/keep_alive.ex:7-17`:
+the kernel pushes a `ConnectionKeepAlive` down the `Connect` server stream once
+per second, and for each one **the client must call back the separate unary
+`ConnectionKeepAlive` RPC** (`answer/2` at `:56`). A client that only consumes the
+stream is evicted once the kernel's `LastSeen` falls more than five seconds
+behind, and the kernel then unsubscribes its observers.
+
+The consequence is stated in that same comment and is worth carrying into any
+diagnosis: **reactors and reducers go quiet while the `Connect` stream stays open
+and every append keeps working.** Nothing raises. If observers stop firing but
+appends succeed, look at the connection before you look at the observer.
+
+Reconnect is exponential backoff — `:retry_attempts` 5, `:reconnect_base_delay`
+1000 ms, `:reconnect_max_delay` 10000 ms — re-resolving addresses on every
+attempt.
+
 ## Connection strings
 
 `Chronicle.Connections.ConnectionString` accepts `chronicle://` and
@@ -205,21 +253,8 @@ raises at compile time.
 sequence number, and `append_and_wait_for_completion/3` exists for when you need
 the outcome.
 
-| Function | Arity | Line in `event_log.ex` |
-| --- | --- | --- |
-| `append/3` | `(event_source_id, event, opts)` | `:99` |
-| `append_many/3` | `(event_source_id, events, opts)` | `:120` |
-| `append_many_for_event_sources/2` | `(events, opts)` | `:155` |
-| `append_and_wait_for_completion/3` | returns `{:ok, %{success: _, failed_partitions: _}}` | `:215` |
-| `get_for_event_source/2` | | `:326` |
-| `get_from_sequence_number/2` | | `:369` |
-| `get_tail_sequence_number/2` | | `:408` |
-
-Append options (`event_log.ex:79-94`, plus `:occurred` read at `:720`): `:client`, `:namespace`,
-`:event_sequence_id` (default `"event-log"`), `:event_source_type` (default
-`"Default"`), `:event_stream_type` (default **`"All"`**), `:event_stream_id`
-(default `"Default"`), `:tags`, `:subject`, `:correlation_id`, `:identity`,
-`:causation`, `:concurrency_scope`, `:occurred`.
+The other append functions (`append_many/3`, `append_many_for_event_sources/2`, `append_and_wait_for_completion/3`, the `get_*` readers) and the full option list are in the reference.
+Read [references/append-api.md](references/append-api.md) when you need an append variant, a read-back function, or an append option such as `:event_stream_type`, `:concurrency_scope` or `:tags`.
 
 Errors are normalized to one of two shapes:
 
@@ -313,75 +348,9 @@ process**, so the reduction is Elixir code you own.
 
 #### Variants — mutually exclusive read models for one entity's lifecycle
 
-> Requires `cratis_chronicle` `3.4.0` or later — newer than this skill's
-> `3.1.0` baseline (`lib/chronicle/projections/variant_reclassifier.ex` and
-> siblings). Reverify before claiming support; take the version from hex.pm.
+Requires `cratis_chronicle` `3.4.0` or later (newer than this skill's `3.1.0` baseline). `variant_of/2` requires `:key`; a variant with no `enters_on` raises `Chronicle.Projections.VariantMustDeclareEntersOnEvent` at registration.
 
-Some entities do not have one shape for their whole lifetime — a work item is a
-backlog entry until a pull request exists for it, then it is a pull request
-until it merges. `variant_of/2` and `enters_on/1,2` are macros imported by
-**both** `use Chronicle.ReadModels.ReadModel` and
-`use Chronicle.Projections.Projection`, so the model-bound and declarative
-paths declare a variant identically:
-
-```elixir
-defmodule MyApp.ReadModels.WorkItem do
-end
-
-defmodule MyApp.ReadModels.BacklogItem do
-  use Chronicle.ReadModels.ReadModel
-  defstruct id: nil, title: nil
-
-  variant_of MyApp.ReadModels.WorkItem, key: :id
-  enters_on MyApp.Events.IssueCreated
-
-  from MyApp.Events.IssueCreated, set: [id: :event_source_id, title: :title]
-end
-
-defmodule MyApp.ReadModels.PullRequestItem do
-  use Chronicle.ReadModels.ReadModel
-  defstruct id: nil, pull_request_url: nil, build_status: nil
-
-  variant_of MyApp.ReadModels.WorkItem, key: :id
-  enters_on MyApp.Events.PullRequestCreated
-
-  from MyApp.Events.PullRequestCreated,
-    set: [id: :event_source_id, pull_request_url: :pull_request_url]
-
-  # not the entering event -> automatically reclassified into an update-only join
-  from MyApp.Events.BuildCompleted, set: [build_status: :build_status]
-end
-```
-
-`variant_of/2` takes `:key` — **required** — the field on this variant that
-carries the shared identity. `enters_on/1,2` is repeatable and its own `:key`
-option names an *event* property (defaults to `:event_source_id`); every
-`from`/`join` this variant declares for a non-entering event, whether declared
-locally or merged from a shared handler, is automatically reclassified into an
-update-only join keyed on `variant_of`'s `:key`.
-
-A mapping shared across every variant of an identity is a
-`Chronicle.Projections.GlobalHandler`, never registered as a projection on its
-own:
-
-```elixir
-defmodule MyApp.Projections.WorkItemTitleHandler do
-  use Chronicle.Projections.GlobalHandler, identity: MyApp.ReadModels.WorkItem
-
-  from MyApp.Events.TitleChanged, set: [title: :title]
-end
-```
-
-Register it explicitly with `global_handlers: [...]` on `Chronicle.Client`, or
-let `:otp_app` auto-discovery find it (modules exporting
-`__chronicle_global_handler__/1`). A mapping that targets a field some variant
-lacks raises `Chronicle.Projections.GlobalHandlerPropertyNotOnVariant` at
-registration, not a silently skipped mapping.
-
-**A variant with no `enters_on` raises
-`Chronicle.Projections.VariantMustDeclareEntersOnEvent`** at registration — a
-variant that could never be entered could never be written to at all, since
-every other handler on it is update-only.
+Read [references/variants.md](references/variants.md) when an entity has mutually exclusive lifecycle shapes (for example a backlog entry that becomes a pull request) and you need variant read models or a `GlobalHandler`.
 
 Querying (`lib/chronicle/read_models.ex`):
 
@@ -401,54 +370,6 @@ Querying (`lib/chronicle/read_models.ex`):
 `{:chronicle_read_model_watch_error, module, reason}` to the calling process. This
 is the Elixir analogue of the other clients' observable APIs, and it means the
 receiving process must have a `handle_info` for both.
-
-## Connecting is asynchronous — wait for the lifecycle
-
-The client connects in the background. `Chronicle.Connections.Lifecycle`
-broadcasts `{:chronicle_lifecycle, phase, connection_id}` with three phases
-(`lib/chronicle/connections/lifecycle.ex:54`):
-
-| Phase | Meaning |
-| --- | --- |
-| `:disconnected` | no live session with the kernel |
-| `:connected` | the session handshake completed |
-| `:registered` | the registration coordinator registered the base artifacts |
-
-**Wait for `:registered`, never merely `:connected`** — the module's own docs say
-so at `:27-29`, because reducers and reactors are not attached until registration
-finishes.
-
-```elixir
-config = Chronicle.Client.config()
-
-case Chronicle.Connections.Lifecycle.wait_until(config.lifecycle, :registered, 30_000) do
-  :ok -> :ok
-  {:error, :timeout} -> # decide what a not-yet-registered client means for you
-end
-```
-
-`wait_until(lifecycle, target_phase, timeout \\ 30_000)` is at `:141`.
-`subscribe/1` (`:90`) returns the current phase **and** sends it as a message,
-which closes the subscribe-after-transition race; `phase/1` (`:98`) is the plain
-read.
-
-## Keepalive — the failure mode is silence
-
-The contract is spelled out in `lib/chronicle/connections/keep_alive.ex:7-17`:
-the kernel pushes a `ConnectionKeepAlive` down the `Connect` server stream once
-per second, and for each one **the client must call back the separate unary
-`ConnectionKeepAlive` RPC** (`answer/2` at `:56`). A client that only consumes the
-stream is evicted once the kernel's `LastSeen` falls more than five seconds
-behind, and the kernel then unsubscribes its observers.
-
-The consequence is stated in that same comment and is worth carrying into any
-diagnosis: **reactors and reducers go quiet while the `Connect` stream stays open
-and every append keeps working.** Nothing raises. If observers stop firing but
-appends succeed, look at the connection before you look at the observer.
-
-Reconnect is exponential backoff — `:retry_attempts` 5, `:reconnect_base_delay`
-1000 ms, `:reconnect_max_delay` 10000 ms — re-resolving addresses on every
-attempt.
 
 ## Idioms worth knowing
 

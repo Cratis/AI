@@ -1,5 +1,16 @@
 # DataPage reference
 
+## Contents
+
+- Compound members
+- `DataPageProps`
+- Snapshot versus observable
+- `MenuItemProps`
+- `IDetailsComponentProps<TDataType>`
+- `Column`
+- Type name caution
+- Layout
+
 `DataPage` is the standard list page: an action menubar, a data table, and an
 optional details pane in one component. Import from
 `@cratis/components/DataPage`.

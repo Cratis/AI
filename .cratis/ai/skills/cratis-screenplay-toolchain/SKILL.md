@@ -20,13 +20,14 @@ files is one application: always check the folder, never one file of it.
 
 ## Verified product sources
 
-The only version table is `references/versions.md`; other skills point to it.
+When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | standalone compiler, binder and MCP server; admits ESM v7 (generated values and responses) |
-| cratis CLI | `3.28.3` (`8b43fef`) | bundles Screenplay 4.66.0 (ESM v1 to v6) and Stage 4.24.2 (3.28.2: Stage 4.24.1; 3.28.1 and earlier bundled 4.60.1 and 4.24.0); `render`, `generate`, `prologue`, and the same compiler for `screenplay validate` and `screenplay mcp` |
-| Stage | `4.24.2` (`32dcac4`) | renders ESM v1 to v4 (C# backend plus a React/Vite scaffold on Arc 22.25.0); an evolved event is refused with `STAGE-ESM-026`; the cratis CLI bundles it since 3.28.3 |
+| cratis CLI | `3.39.0` (installed; worktree `6b2beb5`) | `Directory.Packages.props` pins `StageVersion` 4.43.0 and `ScreenplayVersion` 4.93.0; the `cratis run` container defaults to `cratis/stage` at the rendered Stage version (`cratis/stage:4.43.0`). Reading baselines: 3.28.3 (`8b43fef`) bundled Screenplay 4.66.0 (ESM v1 to v6) and Stage 4.24.2; 3.28.2 bundled Stage 4.24.1; 3.28.1 and earlier bundled 4.60.1 and 4.24.0 |
+| Screenplay | `4.97.0` release (repo-tool era) | admits the canonical `ScreenComposition` corpus v1 with zero authoring diagnostics (`dotnet run --project Source/DotNET/Tool -- <corpus> --warnaserror` → `10 file(s) compiled - 0 error(s), 0 warning(s)`); the 4.93.0 bundled by CLI 3.39.0 reports `executableReady false` on the same corpus (`PLAY0268` ×4) — check the CLI/compiler pairing |
+| Stage | `4.43.0` (worktree `b9a7c76`) | pins `Cratis.Scene.Engine`/`Cratis.Scene.Model` 4.10.0 and composes Arc `CommandForm` shells in the Scene output; render admission over the canonical screen corpus is refused at CLI 3.39.0 before publication. Reading baseline: 4.24.2 (`32dcac4`) rendered ESM v1 to v4 and refused evolved events (`STAGE-ESM-026`) |
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour
@@ -70,11 +71,13 @@ Re-verify before claiming another version behaves the same.
 | File argument | follows imports | ignores imports, false PLAY0165 warnings (cli#244, probed on 3.28.2): validate the folder |
 | MCP | `screenplay mcp <folder>`; 29 tools | `cratis screenplay mcp [root]`; 29 tools; registered by `cratis ai install` |
 
-Exact messages, exit codes and the MCP roots bug: `references/versions.md`.
+Read `references/versions.md` when you need the exact messages, exit codes or the MCP roots bug.
+
+MCP calls below use the `screenplay` server declared in `.cratis/ai/mcp-servers.json`, for example `screenplay` → `read-workspace`.
 
 ## Verdicts
 
-Independent results, not a ladder. Commands and report format: `references/verdicts.md`.
+Independent results, not a ladder. Read `references/verdicts.md` for the commands and the report format when obtaining or reporting V1–V5 verdicts.
 
 | Verdict | Meaning | How |
 | --- | --- | --- |
@@ -97,12 +100,12 @@ changes with the root folder name.
 ## Subsets (write from the one your mode needs)
 
 - **Design**: every construct family parses; use it to model first. Compiled shapes:
-  `references/cheat-sheet.md`.
+  `references/cheat-sheet.md`. Read [references/cheat-sheet-example.md](references/cheat-sheet-example.md) when you need one complete design-mode document with every construct family.
 - **Executable** (binds, V3): `references/executable-subset.md`. Keyed optional queries
   only; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs bind on Screenplay 4.61 or
   later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
-  only on standalone 4.68.0 or later (`references/generated-responses-example.md`).
+  only on standalone 4.68.0 or later (`references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
 - **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24.2 renders ESM v1 to v4 (evolved events refused, `STAGE-ESM-026`)
   `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79), and so are generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, tracked in Stage#201).
 - **Event sources, streams and command routes** (and operations): authorable and validatable, but never
@@ -131,7 +134,11 @@ changes with the root folder name.
   and is not crash-atomic; never retry `apply` after `ApplyOutcomeUnknown`. Loop details:
   `cratis-screenplay-model-authoring`.
 
-## Top traps (all 44, with fixes: `references/traps.md`)
+## Top traps
+
+All 44, with fixes: `references/traps.md`. Read `references/traps.md` when diagnosing an unexpected compile, binding, rendering or MCP result.
+
+Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. Read [references/doc-contradictions.md](references/doc-contradictions.md) when the Screenplay documentation and the compiler disagree and you must decide which to trust.
 
 1. Clean V1 is not executable: only MCP (V2) or `render` binds.
 2. Write `for <identifier>` on every `produces`.
@@ -181,4 +188,4 @@ reason; blocked verdicts list codes and keep the protection they blocked on.
 
 ## Lineage
 
-Attribution and sources: `references/provenance.md`.
+Read `references/provenance.md` when checking attribution or the sources behind this guidance.

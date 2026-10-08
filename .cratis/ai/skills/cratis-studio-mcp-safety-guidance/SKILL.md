@@ -18,8 +18,8 @@ does not mean the upstream product has no capabilities.
 
 Read the generated classifications before answering:
 
-- [Observational guidance](references/observational-tools.md) is currently
-  empty.
+- [Observational guidance](references/observational-tools.md) contains no
+  admitted observational operations.
 - [Blocked guidance](references/blocked-tools.md) records the deny-all boundary.
 
 Do not infer an operation from private implementation knowledge, a remembered

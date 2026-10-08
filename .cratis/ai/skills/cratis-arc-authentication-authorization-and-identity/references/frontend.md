@@ -1,5 +1,12 @@
 # Frontend identity
 
+## Contents
+
+- `@cratis/arc/identity`
+- `@cratis/arc.react/identity`
+- `RequireRole`
+- MVVM
+
 Verified against `@cratis/arc` and `@cratis/arc.react` `22.41.1`.
 
 ## `@cratis/arc/identity`

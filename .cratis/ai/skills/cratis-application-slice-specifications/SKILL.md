@@ -262,7 +262,7 @@ single append is `0`, never `1`.
 ## Lineage
 
 Step 0, repeat execution and rule isolation are adapted in our own words from
-ideas recorded in `references/provenance.md`.
+ideas recorded in `references/provenance.md`. Read `references/provenance.md` when checking attribution or the origin of Step 0, repeat-execution coverage, and rule isolation.
 
 ## What breaks
 

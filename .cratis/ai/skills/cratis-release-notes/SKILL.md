@@ -101,6 +101,7 @@ Only when asked to fix a release that violates the contract:
    `https://` URLs. Do not invent changes, versions or issue numbers.
 2. Publish the corrected text with `gh release edit TAG --notes-file FILE`,
    only when the request authorizes editing that release.
+   Read back the body with `gh release view TAG --json body` and compare it with the corrected text. If it differs, correct and repeat the authorized edit and readback, or report the blocker rather than claiming the repair succeeded.
 3. In a repository released by `cratis/release-action`, editing a release
    does not re-run release-action, so an issue that a `(#n)` would have
    closed stays open. For each one, confirm the release

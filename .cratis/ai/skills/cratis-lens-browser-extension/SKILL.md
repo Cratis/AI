@@ -29,6 +29,20 @@ a Chrome Web Store, Edge Add-ons, AMO, or App Store entry — the only store URL
 present are developer-console links inside its own publishing guide. Building
 from source and loading unpacked is the only install path that exists.
 
+## Safety
+
+The manifest asks for `storage`, `scripting`, `cookies`, `declarativeNetRequest`,
+`declarativeNetRequestWithHostAccess` and `<all_urls>`. That combination lets the
+extension present a chosen identity to any origin, read and delete cookies, and
+inject into any page.
+
+- Keep it out of a browser profile used for anything but development.
+- The user roster, including claims, is stored unencrypted in
+  `chrome.storage.local`.
+- An application reachable outside a developer's machine while trusting the
+  forwarded headers is impersonatable by anyone who can set them. Lens does not
+  create that exposure — it demonstrates it.
+
 ## Install
 
 ```bash
@@ -109,7 +123,7 @@ application needs no change.
 ⚠️ **`tenantHeaderName` has no user interface.** It is a stored setting with a
 default and nothing binds it to an input. An application that resolves tenancy
 by query parameter, claim, subdomain, or a renamed header **cannot be driven by
-Lens today** without editing `chrome.storage.local` by hand. Guidance describing
+Lens at manifest `1.0.0` (`3ee4882`)** without editing `chrome.storage.local` by hand. Guidance describing
 a "Tenant Header Name" field on an options page is describing something that
 does not exist — there is no `options_page` in the manifest at all.
 
@@ -169,8 +183,8 @@ and the active context headers, and a body built by the schema-driven editor. A
 query is always `GET`, with `{name}` segments in the route substituted from the
 path-parameter inputs and the same context headers.
 
-⚠️ **The schema-driven payload form does not currently receive a schema from
-Arc.** Lens reads an optional property named `schema` off each introspection
+⚠️ **The schema-driven payload form does not receive a schema from
+Arc `22.16.0`.** Lens reads an optional property named `schema` off each introspection
 item, and falls back to trying `/.cratis/types/{type}`, `/.cratis/schema/{type}`,
 `/.cratis/schemas/{type}` and `/.cratis/types?type={type}` in turn. Arc names the
 property **`payloadSchema`** on a command and **`argumentsSchema`** on a query,
@@ -205,20 +219,6 @@ The Query Diagnostics tab is read-only and polls every 2 seconds. It requires th
 detected Arc context to expose `observableQueryDiagnostics.getSnapshot()`; when
 it does not, the panel reports no data. Nothing else in Lens depends on it.
 
-## Safety
-
-The manifest asks for `storage`, `scripting`, `cookies`, `declarativeNetRequest`,
-`declarativeNetRequestWithHostAccess` and `<all_urls>`. That combination lets the
-extension present a chosen identity to any origin, read and delete cookies, and
-inject into any page.
-
-- Keep it out of a browser profile used for anything but development.
-- The user roster, including claims, is stored unencrypted in
-  `chrome.storage.local`.
-- An application reachable outside a developer's machine while trusting the
-  forwarded headers is impersonatable by anyone who can set them. Lens does not
-  create that exposure — it demonstrates it.
-
 ## Verify
 
 - `yarn ci` is clean, and Chrome loaded `Source/dist` without errors.
@@ -236,6 +236,6 @@ inject into any page.
 
 - Designing authentication, authorization, identity details or tenancy in the
   application: `cratis-arc-authentication-authorization-and-identity`.
-- Calling a command over HTTP without the extension: `cratis-arc-command-execution`.
+- Executing an existing command from backend code without the extension: `cratis-arc-command-execution`.
 - Observable query transports and their HTTP shapes: `cratis-arc-observable-query-http`.
 - Inspecting a Chronicle event store: the Chronicle CLI or Workbench guidance.

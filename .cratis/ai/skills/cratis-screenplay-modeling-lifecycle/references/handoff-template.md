@@ -1,5 +1,13 @@
 # Handoff templates
 
+## Contents
+
+- 1. State file: `.ai-work/screenplay/<model-slug>/STATE.md`
+- 2. Phase report and handoff packet (two artifacts)
+- 3. Edit request (identity-affecting or MCP-only changes)
+- 4. Cold-readable questions
+- 5. Who records the model used
+
 ## 1. State file: `.ai-work/screenplay/<model-slug>/STATE.md`
 
 One file per model, untracked (`rules/local-work-artifacts.md`). **Overwrite** every section on

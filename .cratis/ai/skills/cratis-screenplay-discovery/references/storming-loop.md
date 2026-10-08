@@ -1,5 +1,12 @@
 # The storming loop on `.play`
 
+## Contents
+
+- One turn
+- Choosing the next question
+- When to stop
+- A discovery skeleton
+
 The model is the whiteboard. Every piece of input is turned into model edits first; the chat
 then reports what changed and asks one question. The user should always be able to look at the
 `.play` source and see the conversation so far.

@@ -12,6 +12,25 @@ which it only records, and what a retry, a race or a replay does. Grammar lives 
 skills; this skill owns the decisions. The `.play` model is the source of truth: a rule that
 lives only in code, or only in a description, is a finding, not a solution.
 
+**First append into a scope (Chronicle v19.32.0, version-qualified).** The default optimistic
+strategy compares the scope's tail sequence number. When nothing matches the scope yet (the
+first event on a new event source, or the first event of a new source type, stream type or
+stream id), there is no tail and the append is **not checked**: two writers opening the same
+source or narrowed partition can both succeed. This is the append most exposed to a race, so a
+concurrency scope alone does not protect "only one writer may open this". For a target that
+needs it:
+- enable the check, application-wide with `ConcurrencyOptions.CheckFirstAppendIntoAScope`
+  (default `false`) or per append with `ConcurrencyScopeBuilder.ExpectingNoMatchingEvent()`,
+  and handle the `ConcurrencyViolation` it can now raise; or
+- use a unique event constraint, which the kernel enforces for every writer whether or not the
+  append declared a scope (the model's `unique event`).
+Require target evidence that the check ran: a concurrent first-append scenario against a real
+Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
+is `true` (a skipped check and a passing one look identical otherwise; a current client against
+an older kernel always reads `false`). This was source- and documentation-inspected, not
+concurrency-tested here. Stage-rendered apps pin Chronicle client 19.8.1: do not assume these
+APIs exist there; confirm the package version before recommending them.
+
 ## Verified product sources
 
 | Product | Pin | Used for |
@@ -186,7 +205,7 @@ Do not report done until all hold; otherwise report what is open:
   fixed message with `then error`. Report target-side concurrency evidence separately.
 - Retry answers cover a lost acknowledgement, reuse of the operation identity, conflicting
   payloads and duplicate intent under a new identity, where applicable.
-- Examples that compile (`references/streams-example.md`, `references/evolution-example.md`):
+- Read `references/streams-example.md` when designing stream membership, constraints or a recorded state-dependent rule; read `references/evolution-example.md` when planning a generation, identity-preserving rename or change of event meaning. Examples that compile (`references/streams-example.md`, `references/evolution-example.md`):
   `bash` the repository's compile check over this skill folder.
 
 ## Route near misses
@@ -202,3 +221,4 @@ Do not report done until all hold; otherwise report what is open:
 ## Lineage
 Adapted in part from TrogonStack/agentskills (MIT); attribution and provenance entries are in
 `references/provenance.md`; the notice is in `LICENSE`.
+Read `references/provenance.md` when checking attribution, licenses or the origin of an adapted modeling practice.

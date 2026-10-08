@@ -21,17 +21,18 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 
 ## Verified product sources
 
-Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`.
+Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`. Read that file before selecting the compiler and renderer versions for delivery.
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `v3.28.3` (`8b43fef`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled Stage 4.24.1; before 3.28.2: 4.60.1 and 4.24.0) |
-| Stage | `v4.24.2` (`32dcac4`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
-| Screenplay | `v4.68.0` (`79801bf`) | standalone compiler for V1 to V3 (admits ESM v7); binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0` |
+| cratis CLI | `3.39.0` (installed; worktree `6b2beb5`) | `cratis render` options, exit codes, publication receipt; `Directory.Packages.props` pins Stage 4.43.0 and bundled Screenplay 4.93.0, `cratis/stage:4.43.0` as the default run image. Reading baselines: 3.28.3 (`8b43fef`) bundled Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled Stage 4.24.1; before 3.28.2: 4.60.1 and 4.24.0) |
+| Stage | `4.43.0` (worktree `b9a7c76`) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, Scene 4.10.0 pins. Reading baseline: `v4.24.2` (`32dcac4`) |
+| Screenplay | `4.97.0` release (repo-tool era) | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; CLI 3.39.0 bundles 4.93.0, which refuses the canonical screen corpus the 4.97.0 tool admits |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1` | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
-(`references/worked-example.md`). The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
+(`references/worked-example.md`); at CLI 3.39.0 it was run over the canonical `ScreenComposition`
+corpus and refused with `PLAY0268` ×4 before publication. The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
 this skill links them and never restates the admission table.
 
 ## When to use / when not
@@ -190,8 +191,8 @@ Before reporting done:
 - `references/delivery-protocol.md` - inputs, commands, reading results, `Customizations/`.
 - `references/gap-fill-handoff.md` - the brief for `slice-implementer`, ledger flow.
 - `references/drift-and-ledger.md` - drift, publication refusals, the fallback ledger.
-- `references/worked-example.md` - a refused render and its report, with a complete model.
-- `references/provenance.md` - sources and attribution.
+- Read `references/worked-example.md` when preparing the classification and report for a refused render; it contains a complete model.
+- Read `references/provenance.md` when checking sources and attribution for the render workflow or gap-fill brief.
 
 ## Lineage
 

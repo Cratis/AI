@@ -1,11 +1,18 @@
 # Specify decisions, adapters, and pipeline composition
 
+## Contents
+
+- Decision: direct Handle
+- Adapter: direct Execute and Compensate
+- Composition: forward failure and reverse compensation
+- Chronicle: a real commit rejection
+- Extend the failure coverage
+- Migrate an existing service-backed Handle
+
 Verified at **Arc v22.48.1**. These class excerpts follow the product's
 [standalone lesson](https://github.com/Cratis/Arc/blob/v22.48.1/Documentation/backend/csharp/testing/command-operations.md)
 and [Chronicle rejection lesson](https://github.com/Cratis/Arc/blob/v22.48.1/Documentation/backend/csharp/testing/command-operations-with-chronicle.md).
-Use `Cratis.Specifications.XUnit`, NSubstitute, and matching Arc packages in a
-separate spec project. Keep standalone and Chronicle scenarios in separate
-projects: Chronicle's discovered scenario extender changes the test environment.
+See "Observe and test on the backend" in SKILL.md.
 
 The standalone examples reuse `ReservationId`, `SeatId`, `ISeatReservations`,
 `ReserveSeat`, `BookSeat`, `SeatReservation`, and `BookSeats` from the

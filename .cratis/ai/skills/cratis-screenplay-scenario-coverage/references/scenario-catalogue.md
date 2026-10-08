@@ -1,5 +1,22 @@
 # Scenario catalogue
 
+## Contents
+
+- Eliciting cases
+- 1. Happy path
+- 2. Rule rejection (one per rule)
+- 3. Authorization denial
+- 4. State violation
+- 5. Duplicate action and retry
+- 6. Competing claim (concurrency)
+- 7. Alternative path
+- 8. Ordering and timing
+- 9. External failure
+- 10. Compensation
+- 11. Evolution compatibility
+- 12. Views
+- Example data
+
 For each type: the question to put to the domain, when it applies, when "n/a" is a legitimate
 answer, the Screenplay shape, and traps. Excerpts point to the complete compiled example
 `berth-reservations.md` (marina guest berths). An `n/a` must name a domain reason; a

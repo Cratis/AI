@@ -204,6 +204,7 @@ one, derive it from the projection and say so. Then check each line:
 ## Lineage
 
 Step 6 is adapted in our own words from ideas recorded in `references/provenance.md`.
+Read `references/provenance.md` when checking attribution or the origin of Step 6’s coverage inventory.
 
 ## What breaks
 

@@ -11,6 +11,17 @@ Arc discovers it, runs authorization and validation, calls `Handle()`, and turns
 whatever `Handle()` returns into events, server-executed operations, a response,
 or a combination.
 
+- An accepted `.play` model under the model root covers the behavior, or the
+  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project set
+  `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
+  output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
+  `cratis-screenplay-modeling-lifecycle`): change the model first with
+  `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
+  say so and do not author `.play` from memory.
+  Edit code here only for infrastructure, clients, adapters, Screenplay code
+  attachments, or gap-fill scope (`cratis-screenplay-render-and-gap-fill`);
+  never edit Stage-managed output.
+
 ## Verified product sources
 
 | Package | Version | Purpose |
@@ -94,8 +105,12 @@ the *declared* return type must name `ICommandOperation`/`CommandOperations`
 | `Result<TEvent, ValidationResult>` | Success appends the event; failure becomes a validation failure |
 | `Task<T>` / `ValueTask<T>` of any of the above | Awaited first, then dispatched |
 
-See [handler shapes](references/handler-shapes.md) for the dispatch order, the
+When choosing a return shape or diagnosing dispatch failures, read [handler shapes](references/handler-shapes.md) for the dispatch order, the
 tuple rule, and the exact failure modes.
+
+⚠️ **An unregistered event type is not an error.** No handler claims it, so it
+silently becomes the HTTP response body instead of being appended. A command
+that "runs fine" but appends nothing is almost always a missing `[EventType]`.
 
 For immediate inline side effects chosen by the command, prefer returning an
 operation rather than calling the service inside `Handle()`. Arc executes the
@@ -257,7 +272,7 @@ either way, so the reading is all a reviewer has to go on.
 
 `dotnet build` runs the generator after the build, and only when
 `CratisProxiesOutputPath` is set. Output folders mirror the C# namespace, not the
-file path. See [proxy generation](references/proxy-generation.md) for the full
+file path. When configuring proxy generation or diagnosing missing or stale output, read [proxy generation](references/proxy-generation.md) for the full
 set of MSBuild knobs and the common failures.
 
 ## The generated client contract
@@ -278,15 +293,15 @@ whatever renders it:
 | `setInitialValuesFromCurrentValues()` | Rebaselines onto the current values |
 | `revertChanges()` / `clear()` | Restore the baseline / reset everything |
 
-Branch on the specific flag, not only on `isSuccess`. The exact `CommandResult`
+Read `references/command-result.md` when branching on a command result or matching validation failures to fields. Branch on the specific flag, not only on `isSuccess`. The exact `CommandResult`
 and `ValidationResult` shapes are in
 [command result](references/command-result.md) — in particular, a validation
 failure carries `members: string[]` (camelCased) and a numeric `severity`, not a
 `propertyName` string.
 
 `validateClientSide()` runs only the rules the generator could extract, so it can
-pass where `execute()` still fails validation — see
-[proxy generation](references/proxy-generation.md) for the exact extractable set.
+pass where `execute()` still fails validation — read
+[proxy generation](references/proxy-generation.md) when checking which validation rules are extractable.
 
 Binding this proxy into a React component — the generated `use()` hook and the
 Cratis Components command dialog and form fields — belongs to the Arc React and
@@ -302,16 +317,6 @@ Components guidance, not to this skill.
 - Append-time uniqueness or concurrency constraints: the Chronicle event
   constraints guidance.
 - Choosing the concept or identity type for a value: `cratis-fundamentals-concept`.
-- An accepted `.play` model under the model root covers the behavior, or the
-  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project set
-  `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
-  output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
-  `cratis-screenplay-modeling-lifecycle`): change the model first with
-  `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
-  say so and do not author `.play` from memory.
-  Edit code here only for infrastructure, clients, adapters, Screenplay code
-  attachments, or gap-fill scope (`cratis-screenplay-render-and-gap-fill`);
-  never edit Stage-managed output.
 
 ## Verify
 

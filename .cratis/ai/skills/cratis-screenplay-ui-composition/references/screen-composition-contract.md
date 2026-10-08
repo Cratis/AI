@@ -20,9 +20,14 @@ hand-writing an alternate shape.
   without dropping it, silently falling back or replacing it with a default.
 
 Keep those three lines separate in reports. Correct an old limitation only when
-the package/version you are using proves the new level. If Stage 4.24.2 or cratis
-3.28.x is the renderer, authored screens are still reported as omitted/default
-composition unless a newer Stage contract says otherwise.
+the package/version you are using proves the new level. Verified against the
+screens-release vector (2026-10-08): Screenplay 4.97.0 accepts the canonical
+`ScreenComposition` corpus v1 with zero authoring diagnostics; CLI 3.39.0’s
+bundled Screenplay 4.93.0 reports `executableReady false` (`PLAY0268` ×4) and its
+`cratis render` publishes nothing (exit `5`); Stage 4.43.0 adds Arc `CommandForm`
+shell emission over Scene 4.10 typed bindings but has not rendered that corpus.
+On Stage 4.24.2 or cratis 3.28.x renderers, authored screens are still reported
+as omitted/default composition.
 
 ## Data context and component bindings
 
@@ -178,7 +183,11 @@ bug in the consumer.
 
 ## Canonical fixture ownership
 
-Use the Screenplay-owned canonical corpus when it exists, normally under
-`Source/DotNET/Screenplay.CanonicalCorpus/Corpus/` in the Screenplay repository.
+Use the Screenplay-owned canonical corpus: the positive typed screen case lives
+at `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
+in the Screenplay repository. It demonstrates the released syntax for screens
+with templates (`MasterDetail`), `data … via query` bindings, typed table
+columns, `on row-click navigate to <Screen> by <param>`, sections, conditional
+`when … execute … with … from …` actions and localized labels.
 The AI corpus may link to that path and name the expected checks, but must not copy
 the `.play` source into `.cratis/ai/` or maintain a second canonical application.

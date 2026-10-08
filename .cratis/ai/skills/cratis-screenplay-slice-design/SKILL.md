@@ -211,7 +211,7 @@ Examples compile with `screenplay` 4.68.0 `--warnaserror` and `cratis screenplay
 
 - V1 (V3 if executable/renderable) passes, naming tool and version. Walk the Gate (every element ok / exempt with reason / gap); each persona `Cannot` line has a
   gate plus a denied spec, or is a gap.
-- Worked reference: `references/worked-example.md` (design mode, compiles clean).
+- Worked reference: `references/worked-example.md` (design mode, compiles clean). Read when you need a complete design-mode example to compare with command inventories, lineage, and state-transition tables.
 
 ## Route near misses
 
@@ -235,4 +235,4 @@ Examples compile with `screenplay` 4.68.0 `--warnaserror` and `cratis screenplay
 
 ## Lineage
 
-Attribution: `references/provenance.md`.
+Attribution: `references/provenance.md`. Read when checking source attribution or adaptation history.

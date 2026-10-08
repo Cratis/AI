@@ -82,3 +82,34 @@ test('model authoring and rendering guidance require one source through MCP, ren
     assert.match(render, /authored-UI parity/);
     assert.match(render, /responsible tool version/);
 });
+
+test('stage, render and toolchain guidance carry the verified screens-release vector', () => {
+    const stage = skill('cratis-stage-rendering-and-sandbox');
+    const render = skill('cratis-screenplay-render-and-gap-fill');
+    const toolchain = skill('cratis-screenplay-toolchain');
+    const workflow = readFileSync(
+        join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'),
+        'utf8',
+    );
+    const composition = readFileSync(
+        join(corpus, 'skills', 'cratis-screenplay-ui-composition', 'references', 'screen-composition-contract.md'),
+        'utf8',
+    );
+
+    for (const required of ['4.43.0', '3.39.0', 'cratis/stage:4.43.0', 'PLAY0268']) {
+        assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
+    }
+    for (const required of ['3.39.0', '4.93.0', 'PLAY0268']) {
+        assert.ok(render.includes(required), `render guidance is missing ${required}`);
+    }
+    for (const required of ['3.39.0', '4.43.0', '4.93.0', '4.97.0']) {
+        assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
+    }
+    assert.ok(
+        workflow.includes('ScreenComposition/v1/source/folder'),
+        'the authoring workflow must link the canonical screen corpus v1 folder',
+    );
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'PLAY0268']) {
+        assert.ok(composition.includes(required), `composition contract is missing ${required}`);
+    }
+});

@@ -10,6 +10,11 @@ Event Modeling's wireframe step is a first-class part of the language. The shell
 the reusable shapes inside it, the forms bound to commands, and the navigation
 entries other modules contribute are all declared in the `.play` model.
 
+⚠️ `file <Identifier>` is read as a **property** named `file`, not a directive —
+the type-reference shape wins the tie. `file Invoices/Register.cs` is a directive;
+`file Attachment` is a property. In a `trigger` body the directive always wins, so
+a trigger value named `file` is written `@file`.
+
 ## Locate the model
 
 Look first for the project's existing `.play` files: the folder holding them is the
@@ -40,8 +45,7 @@ Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 Those checks established the original baseline. The changed cancellation
 example uses the newer main commit above, not the old tag.
 
-Versions of the tools that check these examples: `cratis-screenplay-toolchain`
-`references/versions.md`.
+Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing or checking tool versions for these examples.
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
@@ -72,7 +76,7 @@ work on a screen whose purpose is unsettled is rework.
    `data` plus `action`). Read the whole set, not one screen at a time.
 2. **Review the flow before adding layout.** Walk it screen by screen as text
    (format in `references/flow-review.md`). When the host advertises the MCP-Apps
-   extension, `visualize-model` (a `proposalId` or a `sketch`) can also show it on
+   extension for the `screenplay` MCP server, `visualize-model` (a `proposalId` or a `sketch`) can also show it on
    a board; that is optional, and the text review is enough on its own. Do not
    use the Stage sandbox as the review: it renders only part of a screen, and
    nothing here establishes that Stage renders an authored screen faithfully.
@@ -85,13 +89,12 @@ work on a screen whose purpose is unsettled is rework.
    screen's read model. A value with no origin means the command or read model is
    missing it: fix the slice, never invent the value in the screen.
 5. **Read before editing.** Open the existing screen (or `read-workspace` /
-   `declaration-details` over MCP) and change only the directives that were asked
+   `declaration-details` through the `screenplay` MCP server) and change only the directives that were asked
    for. Adding `layout` must not rewrite the Level-1 intent beneath it.
 6. **Report each screen in two or three sentences**: what it shows and what the
    user can do. Not everyone reviewing can see a board.
 
-A complete worked flow (two Level-1 screens, their command, read model and form,
-with the field trace): `references/worked-flow.md`.
+Read `references/worked-flow.md` when a complete example is needed before composing a flow; it contains two Level-1 screens, their command, read model and form, with the field trace.
 
 ## `layout` — the application shell
 
@@ -226,11 +229,17 @@ module-level.
 `navigate to <Screen> by <param>` is **not** string interpolation; it reuses the
 same typed navigate binding a screen action uses.
 
-⚠️ The older shipped iteration has `navigate`, `label` and `order` only. Newer
-screens-release contracts add typed destinations for named outlets, routes,
-toolbar items and dialog targets. Use the installed MCP schema and the Scene/Stage
-runtime contract before writing those forms, and report unsupported toolbar or
-outlet delivery as a capability gap rather than falling back to a flat list.
+⚠️ The v4.31.0 baseline, re-verified at v4.66.0, ships `navigate`, `label` and `order` only. Grouping beyond a
+flat ordered list, and an explicit override for when nearest-enclosing is not the
+point you mean, are deliberately left for later. The screens-release vector
+(Screenplay 4.97.0; canonical `ScreenComposition` corpus v1) adds typed screen
+composition — screen templates with `data … via query`, table columns, and
+`on row-click navigate to <Screen> by <param>` — which the 4.97.0 compiler admits
+with zero authoring diagnostics. Use the installed MCP schema and the Scene/Stage
+runtime contract before writing those forms, and report what the installed
+toolchain refuses — `cratis render` from CLI 3.39.0 still refuses observable
+array queries without `by` (`PLAY0268`) — as a capability gap rather than
+falling back to a flat list.
 
 ## Interactions — what a click does
 
@@ -391,11 +400,6 @@ The rules:
 - **Loaded is not run.** Screenplay hashes attached code and can map an inline
   body back to its source for an editor, but never compiles or executes it.
 
-⚠️ `file <Identifier>` is read as a **property** named `file`, not a directive —
-the type-reference shape wins the tie. `file Invoices/Register.cs` is a directive;
-`file Attachment` is a property. In a `trigger` body the directive always wins, so
-a trigger value named `file` is written `@file`.
-
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` (standalone) reports zero errors and zero
@@ -433,4 +437,4 @@ a trigger value named `file` is written `@file`.
 
 ## Lineage
 
-`references/provenance.md`.
+Read `references/provenance.md` when checking source attribution or adaptation permissions.

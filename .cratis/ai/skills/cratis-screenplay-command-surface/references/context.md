@@ -1,5 +1,15 @@
 # Contexts and context expressions
 
+## Contents
+
+- The four contexts
+- The values they carry
+- Reaching the context declaratively
+- Production metadata is not a context expression
+- The other expression roots
+- Templates and literals
+- Escaping
+
 Four contexts, one per job. What each **omits** is as deliberate as what it
 carries: a validation rule cannot see the caller's roles, and a policy cannot see
 the causation chain.

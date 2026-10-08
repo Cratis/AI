@@ -154,8 +154,7 @@ value.should.be.instanceOf(<Type>);
 (() => <throwingCall>()).should.throw(<ErrorType>);
 ```
 
-Full Sinon and Chai detail is in
-[typescript-patterns.md](references/typescript-patterns.md).
+Read [typescript-patterns.md](references/typescript-patterns.md) when choosing detailed assertions, configuring or restoring Sinon stubs, or arranging asynchronous specifications.
 
 ## Step 6 — Apply the naming conventions
 

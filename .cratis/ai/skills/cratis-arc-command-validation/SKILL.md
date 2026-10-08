@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-command-validation
-description: Add a rejection rule to an existing Arc command — choosing between ConceptValidator, CommandValidator, a short-circuiting Provide, and a read-model-injected Handle returning Result<TEvent, ValidationResult>. Use when a command must refuse work under some condition. Do not use to define a new command, and do not use for append-time Chronicle constraints.
+description: Add a rejection rule to an existing Arc command — choosing between ConceptValidator, CommandValidator, a short-circuiting Provide, and a read-model-injected Handle returning a Result of either the event or a ValidationResult. Use when a command must refuse work under some condition. Do not use to define a new command, and do not use for append-time Chronicle constraints.
 license: MIT
 ---
 

@@ -3,6 +3,14 @@
 
 # Screenplay language reference for authoring
 
+## Contents
+
+- Accepted constructs
+- Complete model
+- Source validity is not execution
+- Not in the language yet
+- Editor support
+
 The `.play` source is plain UTF-8 text. Nesting is indentation-based, without
 braces or terminators. A construct owns the content indented beneath it. `//`
 starts a comment; escape reserved words inside a block with a leading `@`.

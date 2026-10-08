@@ -1,5 +1,13 @@
 # Prologue capture and interpretation: safety
 
+## Contents
+
+- 1. What each step does to the target
+- 2. Configuration and privacy
+- 3. LLM use in `interpret` (preflight by the main session; a subagent runs interpret only
+- 4. Cleanup DDL to propose (run by the DBA after the Extractor is stopped)
+- 5. Capture verification before interpreting
+
 Sources: Prologue `ad4bbe7` (Extractor, Configuration, Interpretation) and cratis CLI
 `v3.28.2` (`Source/Cli/Commands/Prologue/*`, unchanged since `v3.27.1`; `LlmOptionsResolver.cs`,
 `Documentation/reference/prologue.md`). Tool versions: `cratis-screenplay-toolchain`

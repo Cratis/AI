@@ -12,7 +12,7 @@ the compiler already knows declarations, references, hierarchy and source owners
 
 Screenplay remains experimental. **Valid source is not necessarily executable.**
 It does not generate or run an application; Stage owns rendering/runtime admission.
-See the [language reference](references/language-reference.md) for constructs,
+When selecting construct syntax or distinguishing source validity from execution, read the [language reference](references/language-reference.md) for constructs,
 the executable profile and a complete compiled model.
 
 For screen-heavy work, use the same MCP loop but keep the parity contract explicit:
@@ -40,10 +40,12 @@ Repair and refactoring guidance follows main `fd18129` (`commands.md`,
 `events.md`, `types.md`, `diagnostics.md`, `mcp/authoring-tools.md`, `vscode.md`,
 decision 0023); the `v4.31.0` documents (`ast-authoring`, `mcp`, `mcp-authoring`,
 `printing`, `file-references`, `diagnostics`) and release notes v4.17.0 to v4.31.0
-established the original baseline. The full version table lives in
+established the original baseline. When checking compiler, CLI or MCP compatibility, read the full version table in
 `cratis-screenplay-toolchain` (`references/versions.md`).
 
 ## Locate and connect
+
+All MCP tool calls below use the `screenplay` server declared in `.cratis/ai/mcp-servers.json`, for example `screenplay` → `open-workspace`.
 
 Never ask the user which folder to use before trying. Call `open-workspace` with no
 arguments first: a server started without a fixed root binds the folder the host or
@@ -61,7 +63,7 @@ advertises roots; real hosts then drop the connection, and `open-workspace.path`
 cannot prevent it. Start `screenplay mcp <model-folder>` or `cratis screenplay mcp`
 in a project (it locates the model: the project's `.play` files, else `Source/` or `src/`, else `Screenplay/`).
 Send `initialize` and `notifications/initialized` before any tool call;
-`tools/list` returns 29 tools (30 on MCP-Apps hosts). Details:
+`tools/list` returns 29 tools (30 on MCP-Apps hosts). Read `references/mcp-loop.md` when connecting, coordinating connection ownership, or handling proposal and recovery failures. Details:
 [MCP loop](references/mcp-loop.md).
 
 
@@ -127,6 +129,9 @@ request to the owning session, saying first it is NOT done.
 Proposals are connection-local (at most 16), so only the connection owner proposes
 and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
 
+- Apply is not crash-atomic across files: it journals its inverse first. The model
+  root must be trusted and exclusively writable during effects.
+
 1. `open-workspace` obtains workspace/catalog revisions and restores root-local
    identity state. `read-workspace` locates document identities.
 2. `read-ast` returns original occurrence handles and existing semantic IDs.
@@ -153,6 +158,24 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
 Node handles are revision-bound occurrences, not durable IDs. A logical module
 or feature can have multiple physical fragments. Do not edit one header and
 assume every fragment changed. After apply, fetch fresh handles/revisions.
+
+### Failures (use `failureKind`, never message text)
+
+| failureKind | Response |
+| --- | --- |
+| `StaleRevision`, `DiskDrift`, `IdentityStateDrift` | Reopen and re-propose |
+| `ProposalRejected` | Read `conflicts`; change the request |
+| `FormattingConsentRequired` | Pass `formatting` |
+| `UnknownProposal` | The connection was reopened or the proposal applied: re-propose |
+| `LimitExceeded` | Discard unused proposals (16 cap) |
+| `PendingOperation`, `RecoveryRequired` | `workspace-state`, then ask before `recover-workspace` |
+| `RootChangeRefused` | Keep the fixed root, or start a new connection |
+| `ApplyOutcomeUnknown`, or EOF during `apply` | **Never retry `apply`.** Reconnect, read `workspace-state`, ask the user |
+
+Never delete `.screenplay/pending.json`. Limits reject and never truncate: 512
+files, 8 MiB total, 2 MiB per file, 1 MiB structured result, 200 items or 192 KiB
+per page. Excluded directories: `.git`, `.ai-work`, `.screenplay`, `bin`, `obj`,
+`node_modules`.
 
 Formatting is explicit. Prefer `PreserveTrivia` for identifier, literal-value and
 whole-mapping edits; it rewrites only the changed span. Structural edits (add,
@@ -183,7 +206,7 @@ Only verified repairs are listed, and the selected repair gets a fresh transacti
 Use `propose-extract-inline-event` on the inline `EventSyntax` handle before adding
 a generation (canonical formatting consent; refuses comment loss; no reverse
 operation). Event `propose-rename` pins `id "<old name>"` by default; use
-`eventNeverPersisted: true` only when that is known. Exact limits and refusals:
+`eventNeverPersisted: true` only when that is known. Read `references/mcp-tools.md` before proposing a repair, rename or inline-event extraction, for exact limits and refusals:
 [MCP tool guide](references/mcp-tools.md).
 
 ## Choose a readable layout
@@ -205,7 +228,7 @@ import places it in its feature. When you write or reorganize files yourself,
 do not restate `module`/`feature` in a slice file, and do not leave a barrel
 that declares a scope but imports nothing. `expand-layout` still writes that
 older merge-only layout; it compiles as a folder, and you can compose it with
-imports afterwards. See the
+imports afterwards. When choosing file placement, read the
 [language reference](references/language-reference.md) for placement rules.
 
 Parent scaffolding carries no duplicated module forms or contributions. Compile
@@ -242,7 +265,7 @@ Policy, validation-rule, reducer, handler, performer and reaction bodies, and
 Screenplay never compiles or runs them. A `screen`'s `file` is a UI realization file, not an attachment.
 `read-workspace` or `read-proposal` with `view: "implementation-requirements"`
 lists each attachment with a content hash and source map; a hash is not evidence
-that the code compiles or behaves. Path resolution and `PLAY0430`-`PLAY0434`:
+that the code compiles or behaves. Read `references/mcp-tools.md#code-attachments` when resolving an attachment or diagnosing attachment warnings. Path resolution and `PLAY0430`-`PLAY0434`:
 [MCP tool guide](references/mcp-tools.md#code-attachments).
 
 ## Verify and report honestly
@@ -250,9 +273,9 @@ that the code compiles or behaves. Path resolution and `PLAY0430`-`PLAY0434`:
 - Require zero source errors and investigate every warning.
 - Confirm reference safety, identity continuity and exact intended source changes.
 - Report which of the four states you checked: **parsed**, **bound**,
-  **reference-executed**, **target-executed**. The
-  [language reference](references/language-reference.md#source-validity-is-not-execution)
-  defines them and maps them onto V1 to V5. `screenplay --warnaserror` checks
+  **reference-executed**, **target-executed**. When distinguishing source validity from execution, read the
+  [language reference](references/language-reference.md#source-validity-is-not-execution);
+  it defines them and maps them onto V1 to V5. `screenplay --warnaserror` checks
   syntax plus the consistency rules (`PLAY0282`-`PLAY0294`) but never binds, so a
   clean run is not a bound or executable result.
 - Personas are report-only, operations and event sources/streams are authorable but
@@ -302,4 +325,4 @@ parameter, syntax node or downstream capability.
 
 ## Lineage
 
-Provenance of the connection and edit-route guidance: [provenance](references/provenance.md).
+Read `references/provenance.md` when checking the sources or attribution of the connection and edit-route guidance: [provenance](references/provenance.md).
