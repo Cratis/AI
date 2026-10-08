@@ -99,11 +99,6 @@ sample's `UniqueAuthorName` does).
   exception, because Arc cannot tell what was stored.
 - An SDK `eventLog.append(...)` inside `handle()` is outside the batch. Return
   events instead.
-- Appending and projecting are separate: a query sent right after the command
-  may not see the event yet. Prefer an observable query on the client.
-  `completionTimeoutMs` makes the command wait for observers, but Chronicle waits
-  for **every** observer on the log (Cratis/Chronicle#4132), so a projection or
-  reactor that does not handle the event makes every command time out with 500.
 
 ## Read current state in the command
 
@@ -147,6 +142,3 @@ await scenario.dispose();
   6.14.0 or later).
 - `shouldHaveAppendedEvent` does not check count or order — assert
   `appendedEvents` when either matters.
-- The in-memory scenario does **not** run projections, aggregates, constraints
-  or concurrency checks. `ChronicleKernelScenario` runs against a live kernel at
-  `ARC_CHRONICLE_TEST_URL` for those.
