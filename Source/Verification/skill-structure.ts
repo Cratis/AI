@@ -118,10 +118,46 @@ function contentsSections(content: string) {
     });
 }
 
+/** Share of lines that must sit inside fences for a heading-less reference to count as one example listing. */
+export const exampleListingFencedShare = 0.8;
+/** A partial read previews about the first 100 lines; the listing's description must come well before that. */
+export const exampleListingIntroductionLines = 30;
+
+/**
+ * A long reference that is one complete example (for example a whole `.play` model) has no sections to list:
+ * its scope is stated by the prose before the fence, which a partial read sees. Headings inside the listing
+ * would change the example itself, so it is exempt from Contents when nearly all of it is fenced and the
+ * first fence opens within the introduction window.
+ */
+export function isExampleListing(content: string): boolean {
+    let fence: { character: string; length: number } | undefined;
+    let fenced = 0;
+    let firstFence: number | undefined;
+    const lines = linesOf(content);
+    lines.forEach((line, index) => {
+        if (fence) {
+            fenced++;
+            const closing = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(line.text);
+            if (closing && closing[1][0] === fence.character && closing[1].length >= fence.length) fence = undefined;
+            return;
+        }
+        const opening = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line.text);
+        if (opening && (opening[1][0] !== '`' || !opening[2].includes('`'))) {
+            fence = { character: opening[1][0], length: opening[1].length };
+            fenced++;
+            firstFence ??= index;
+        }
+    });
+    return firstFence !== undefined && firstFence < exampleListingIntroductionLines && fenced / lines.length >= exampleListingFencedShare;
+}
+
 export function referenceContentsProblems(subject: string, content: string): string[] {
     if (lineCount(content) <= longReferenceLines) return [];
     const entries = contentsEntries(content);
-    if (entries.length === 0) return [`${subject} is a long reference with no H2/H3 headings outside fences; a human must add headings before Contents can be generated.`];
+    if (entries.length === 0) {
+        if (isExampleListing(content)) return [];
+        return [`${subject} is a long reference with no H2/H3 headings outside fences and is not a single example listing; add headings so a Contents list can be generated.`];
+    }
     const sections = contentsSections(content);
     if (sections.length !== 1 || sections[0].start !== contentsPosition(content)) {
         return [`${subject} requires one '## Contents' list at the top, directly after its H1 title and blank line (or at line 1 without an H1).`];

@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-    lineCount, markdownHeadings, maximumSkillBodyCharacters, maximumSkillBodyLines,
+    exampleListingIntroductionLines, isExampleListing, lineCount, markdownHeadings, maximumSkillBodyCharacters, maximumSkillBodyLines,
     referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems,
     skillReferenceProblems, skillStructureProblems, withReferenceContents,
 } from './skill-structure.ts';
@@ -124,10 +124,26 @@ test('H3 fallback handles zero H2s and nests H3s under a sole H2', () => {
     assert.match(referenceContentsProblems('reference.md', nested.replace('  - First', '  - Wrong'))[0], /exactly match/);
 });
 
-test('long references without H2 or H3 headings require human resolution', () => {
+test('long prose references without H2 or H3 headings must add headings', () => {
     const original = longReference('```markdown\n## Fenced only\n```\n');
-    assert.match(referenceContentsProblems('reference.md', original)[0], /reference.md.*human must add headings/);
+    assert.match(referenceContentsProblems('reference.md', original)[0], /reference.md.*not a single example listing; add headings/);
     assert.equal(withReferenceContents(original), original);
+});
+
+test('a long single example listing introduced near the top needs no Contents', () => {
+    const listing = '# Example\n\nWhat this model shows.\n\n```screenplay\n' + 'module Example\n'.repeat(120) + '```\n';
+    assert.equal(isExampleListing(listing), true);
+    assert.deepEqual(referenceContentsProblems('example.md', listing), []);
+    assert.equal(withReferenceContents(listing), listing);
+});
+
+test('an example listing whose fence opens late or covers too little still needs headings', () => {
+    const late = '# Example\n\n' + 'Prose.\n'.repeat(exampleListingIntroductionLines) + '```screenplay\n' + 'module Example\n'.repeat(300) + '```\n';
+    assert.equal(isExampleListing(late), false);
+    assert.equal(referenceContentsProblems('late.md', late).length, 1);
+    const mostlyProse = '# Example\n\n```screenplay\nmodule Example\n```\n' + 'Prose.\n'.repeat(120);
+    assert.equal(isExampleListing(mostlyProse), false);
+    assert.equal(referenceContentsProblems('prose.md', mostlyProse).length, 1);
 });
 
 test('Contents checker detects missing, misplaced, duplicate, reordered and non-bullet entries', () => {
