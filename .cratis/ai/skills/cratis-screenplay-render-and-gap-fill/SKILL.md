@@ -110,8 +110,11 @@ import-only root file.
    the generated types the adapter touches (bounded), write the adapter behind a small interface
    with no business decisions, rebuild, retest. Never edit a managed file; never add behaviour the
    model does not state. Detail: `references/delivery-protocol.md` section 4.
-7. **Report authored-UI omissions.** Stage renders the default composition only; list each
-   modeled screen, form, layout, theme and persona view as "not rendered".
+7. **Report authored-UI parity.** On Stage 4.24, Stage renders the default composition only;
+   list each modeled screen, form, layout, template, toolbar, component, outlet, route, package/icon
+   use, theme and persona view as "not rendered". On a newer screens-capable Stage/CLI, require
+   explicit plan/runtime evidence for each authored UI element or a blocking diagnostic; silent
+   fallback to default composition is a failure.
 8. **Drift:** compare the published manifest's `semanticRevision` with a fresh render of the
    current model under the same inputs (`references/drift-and-ledger.md`).
 9. **Hand off** the packet: verdict lines, spec mapping, edit requests for the modeler, ledger
@@ -169,6 +172,7 @@ Before reporting done:
 - A passing test does not claim runtime guarantees (namespace, subject, constraint scope, guarded
   reads, migrations, replay) or omitted UI were delivered.
 - Re-render: drift line present. `Customizations/` changes name the seam and the model element served.
+- Screen delivery: every authored screen/template/form/toolbar/component/outlet/route/package-icon use is either present in generated/runtime evidence or listed as not rendered/unsupported with the responsible tool version.
 
 ## Route near misses
 

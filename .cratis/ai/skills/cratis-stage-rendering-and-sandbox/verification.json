@@ -22,6 +22,9 @@
     { "kind": "skill-contains", "value": "STAGE-ESM-026" },
     { "kind": "skill-contains", "value": "Stage 4.24.2 admits ESM v4" },
     { "kind": "skill-contains", "value": "`v4.24.2`" },
-    { "kind": "skill-contains", "value": "Cratis/cli#253" }
+    { "kind": "skill-contains", "value": "Cratis/cli#253" },
+    { "kind": "skill-contains", "value": "Silent fallback to a default screen is a failure" },
+    { "kind": "skill-contains", "value": "package/image versions" },
+    { "kind": "skill-contains", "value": "dropped authored UI" }
   ]
 }
