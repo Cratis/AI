@@ -15,7 +15,7 @@ It does not generate or run an application; Stage owns rendering/runtime admissi
 When selecting construct syntax or distinguishing source validity from execution, read the [language reference](references/language-reference.md) for constructs,
 the executable profile and a complete compiled model.
 
-For screen-heavy work, use the same MCP loop but keep the parity contract explicit:
+For screen-heavy work, keep the parity contract explicit:
 discover the installed UI node schemas, propose/apply with revisions, then pass the
 same model root or workspace export to validate/render/runtime checks. The full
 workflow is `references/screen-authoring-workflow.md`; the UI syntax/support-level
@@ -108,7 +108,7 @@ can keep that entry point; use the project's supported installation channel.
    never combine pages from different snapshots.
 6. For screens, also discover the template, form, toolbar, package/icon and
    outlet declarations that provide context. A component binding with no traced
-   data source is not an authoring shortcut; fix the model source.
+   data source is not a shortcut; fix the model source.
 
 Keep reads scoped to the relevant module, feature, slice or document. Do not
 request a whole merged AST when a bounded declaration/property query answers the
@@ -315,7 +315,7 @@ parameter, syntax node or downstream capability.
 | Commands, events, validation and concurrency | `cratis-screenplay-command-surface` |
 | Projections and reducers | `cratis-screenplay-projections` |
 | Read models, queries and screens | `cratis-screenplay-read-surface` |
-| Layouts, forms, contributions, component bindings, packages, toolbars, outlets, themes and localization | `cratis-screenplay-ui-composition` |
+| Layouts, forms, contributions, component bindings, toolbars, outlets, themes and localization | `cratis-screenplay-ui-composition` |
 | Captures, reactions and triggers | `cratis-screenplay-captures-and-reactions` |
 | Behavioral examples and assertions | `cratis-screenplay-specifications` |
 | Rendering/running an admitted model | `cratis-stage-rendering-and-sandbox` |

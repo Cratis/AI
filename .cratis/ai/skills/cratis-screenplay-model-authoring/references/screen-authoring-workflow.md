@@ -3,6 +3,17 @@
 
 # End-to-end screen authoring workflow
 
+## Contents
+
+- Inputs to keep identical
+- 1. Open and discover through MCP
+- 2. Propose the multi-file application change
+- 3. Review and apply with revision checks
+- 4. Validate authoring and executable readiness
+- 5. Run/render using the same configuration
+- 6. Use Screenplay-owned fixtures
+- Transcript checklist
+
 Use this workflow when an agent must create or iteratively edit the canonical
 multi-file Screenplay application and then prove the same source reaches the
 runtime/render path. It relies on the existing MCP discovery/proposal/apply loop;

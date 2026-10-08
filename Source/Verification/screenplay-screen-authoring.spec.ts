@@ -43,11 +43,18 @@ test('UI composition guidance covers the screens-release authoring contract with
         'hierarchical outlets',
         'toolbar',
         'runtime fallback',
-        'Source/DotNET/Screenplay.CanonicalCorpus/Corpus/',
     ]) {
         assert.match(content, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     }
     assert.ok(referenceExists('cratis-screenplay-ui-composition', 'screen-composition-contract.md'));
+    const compositionReference = readFileSync(
+        join(corpus, 'skills', 'cratis-screenplay-ui-composition', 'references', 'screen-composition-contract.md'),
+        'utf8',
+    );
+    assert.match(
+        compositionReference,
+        /Source\/DotNET\/Screenplay\.CanonicalCorpus\/Corpus\/ScreenComposition\/v1\/source\/folder/,
+    );
 
     const corpusPlayFiles = readdirSync(join(corpus, 'skills'), { recursive: true })
         .map(entry => String(entry))

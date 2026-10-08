@@ -53,12 +53,9 @@ target renders it.
 
 The screens-release surface adds component data-context bindings, exposed template
 configuration, package/icon catalogs, manual form columns, hierarchical outlets,
-routes, toolbars and dialog destinations. Treat those as a **support-level**
-contract: authoring accepted, executable admitted and runtime implemented are
-separate results. Discover the exact installed shape through MCP `syntax-schema`
-and the Screenplay-owned canonical corpus
-(`Source/DotNET/Screenplay.CanonicalCorpus/Corpus/` in the Screenplay repository);
-do not copy fixtures into AI or invent a parallel syntax. Details and examples:
+routes, toolbars and dialog destinations, each with a separate support level
+(authoring accepted, executable admitted, runtime implemented). Discover the
+installed shape through MCP `syntax-schema`; details:
 `references/screen-composition-contract.md`.
 
 These constructs went unhighlighted and uncompleted by the Monaco and VS Code
@@ -194,10 +191,6 @@ form RegisterInvoiceForm for RegisterInvoice
   `populate from item`.
 - `field <property>` takes at most one of `from <source>` or `compose using
   <Callback>`, plus an optional `label`.
-- When the installed language supports it, `columns auto` keeps generated form
-  columns tied to the command, and `columns manual` lists command properties in
-  the intended order. A manual column that is not a command property is a model
-  defect.
 - At most one `on submit navigate to <Screen> [by <param>]`, the one-line form.
   Any other `on` in a form body is a behavior attached to the form.
 
@@ -232,14 +225,10 @@ same typed navigate binding a screen action uses.
 ⚠️ The v4.31.0 baseline, re-verified at v4.66.0, ships `navigate`, `label` and `order` only. Grouping beyond a
 flat ordered list, and an explicit override for when nearest-enclosing is not the
 point you mean, are deliberately left for later. The screens-release vector
-(Screenplay 4.97.0; canonical `ScreenComposition` corpus v1) adds typed screen
-composition — screen templates with `data … via query`, table columns, and
-`on row-click navigate to <Screen> by <param>` — which the 4.97.0 compiler admits
-with zero authoring diagnostics. Use the installed MCP schema and the Scene/Stage
-runtime contract before writing those forms, and report what the installed
-toolchain refuses — `cratis render` from CLI 3.39.0 still refuses observable
-array queries without `by` (`PLAY0268`) — as a capability gap rather than
-falling back to a flat list.
+(Screenplay 4.97.0, canonical `ScreenComposition` corpus v1) adds typed screen
+composition; CLI 3.39.0's render (bundling 4.93.0) still refuses parts of it —
+observable array queries without `by` get `PLAY0268`. Report a refused form as a
+capability gap, never a flat-list fallback.
 
 ## Interactions — what a click does
 
@@ -346,9 +335,8 @@ theme Nordic
 - `packages` are listed **in override-priority order** — a later package's `Button`
   shadows an earlier one's — and `core`, the built-in vocabulary, is always the
   final fallback.
-- Component package metadata (kind, icon, applicability, scope-aware template
-  categories) is owned by the package/runtime catalog. The model selects packages
-  and icon sets; it does not copy package metadata into `.play`.
+- Component package metadata is owned by the package/runtime catalog; the model
+  selects packages and icons, never copying metadata into `.play`.
 - `compatible with` lists the packages a theme actually supports, each at most
   once. A profile selecting a theme not declared compatible with one of its own
   packages gets a compile-time **warning**.
@@ -419,20 +407,17 @@ The rules:
 - [ ] No `file` reference is doing work the declaration should be doing.
 - [ ] Every click, submit and screen entry that does something has an `on` or
       `uses`; continuations sit only on actions that can fail.
-- [ ] Component bindings, exposed template values, manual form columns, toolbar
-      items, outlets and routes all trace to typed data; no runtime fallback is
-      counted as delivery.
-- [ ] The result reports authoring acceptance, executable admission and runtime
-      implementation separately, with tool/package versions.
+- [ ] Component bindings, exposed template values, manual form columns, toolbar items, outlets and routes all trace to typed data; no runtime fallback counts as delivery. Report authoring acceptance, executable admission and runtime
+      implementation separately.
 
 ## Route near misses
 
 - A screen's own data, actions and name resolution: `cratis-screenplay-read-surface`.
-- Revision-checked MCP edits of screens and multi-file applications: `cratis-screenplay-model-authoring` (`references/screen-authoring-workflow.md`).
+- Revision-checked MCP edits `cratis-screenplay-model-authoring` (`references/screen-authoring-workflow.md`).
 - Application triggers and reactions: `cratis-screenplay-captures-and-reactions`.
 - Reviewing the whole flow's design: `cratis-screenplay-model-review`.
 - Deriving wireframes from the model (step 4): `cratis-screenplay-event-modeling`.
-- Rendering/running screen output and detecting omissions: `cratis-stage-rendering-and-sandbox` and `cratis-screenplay-render-and-gap-fill`.
+- Rendering/omissions: `cratis-stage-rendering-and-sandbox`, `cratis-screenplay-render-and-gap-fill`.
 - Building the actual React application: `cratis-arc-react-page`, `cratis-components-styling`.
 
 ## Lineage
