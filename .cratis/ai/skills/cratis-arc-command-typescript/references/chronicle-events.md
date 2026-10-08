@@ -1,5 +1,16 @@
 # Returning Chronicle events from an Arc for TypeScript command
 
+## Contents
+
+- Register the integration
+- What `handle()` may return
+- The event source
+- Routing defaults and concurrency
+- Rejections and the batch
+- Read current state in the command
+- Reactors that return commands
+- Specify it without a kernel
+
 Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
 `v0.33.0` plus three commits): `Documentation/chronicle/**`,
 `Documentation/testing/chronicle.md`, `Source/Chronicle/index.ts`, and

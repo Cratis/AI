@@ -1,5 +1,15 @@
 # Executable subset (what binds: V2 and V3)
 
+## Contents
+
+- Admitted on both compilers
+- Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
+- Generated values and responses (ESM v7): standalone 4.68.0 or later only
+- Code attachments (what binds, what never does)
+- Refused (code, reason): fix, or record as a mode gap
+- Not refused, but do not rely on it
+- Never do this to reach V3
+
 What the binder admits, and what it refuses with which code. The answer depends on the
 compiler version: standalone Screenplay 4.68.0 admits ESM v1 to v7; the 4.66.0 compiler bundled in
 cratis 3.28.2 and 3.28.3 admits v1 to v6; the 4.60.1 compiler bundled in cratis before 3.28.2 admits v1 to v5.

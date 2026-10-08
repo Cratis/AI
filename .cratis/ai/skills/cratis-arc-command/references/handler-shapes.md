@@ -1,5 +1,14 @@
 # Handler shapes and how Arc dispatches them
 
+## Contents
+
+- The pipeline around `Handle`
+- Dispatch
+- What claims an event
+- The tuple rule
+- Cross-stream appends
+- Failure shapes
+
 Verified against `Cratis.Arc.Core` and `Cratis.Arc.Chronicle` `22.16.0` with
 `Cratis.Chronicle` `18.3.0`. Operation dispatch additions are verified against
 Arc **v22.48.1**, `CommandPipeline` and `CommandOperationExecution`.

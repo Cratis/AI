@@ -1,5 +1,17 @@
 # Automation patterns
 
+## Contents
+
+- 1. Deciding whether it is an automation
+- 2. Todo list in Screenplay
+- 3. Effects: `produces` vs `invokes`
+- 4. The actor behind an invoke
+- 5. Termination
+- 6. Clock and trigger occurrences
+- 7. Shapes to question in review
+- 8. Chain completion checkpoint
+- 9. Fan-out
+
 Complete compiled example: `todo-list-example.md` (binds on Screenplay 4.66.0; the list query
 and retry sweep that do not bind are shown there as marked excerpts).
 

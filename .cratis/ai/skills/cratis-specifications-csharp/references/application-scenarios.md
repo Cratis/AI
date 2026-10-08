@@ -1,5 +1,13 @@
 # In-process scenario specifications
 
+## Contents
+
+- `CommandScenario<TCommand>`
+- `EventScenario`
+- `ReadModelScenario<TReadModel>`
+- `ReactorScenario<TReactor>`
+- Application conventions
+
 The four scenario helpers exercise the real Arc and Chronicle pipelines
 in-process. Use them for event-sourced *application* behavior where the pipeline,
 validation, constraints or projections matter; a pure decision (`Handle()`,

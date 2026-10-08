@@ -1,5 +1,14 @@
 # Stage 4.24 admission: codes, specification rules and observed refusals
 
+## Contents
+
+- Diagnostic codes
+- Projections
+- Pure reducer bodies
+- Specification rules (`STAGE-ESM-011`)
+- Observed refusals
+- Source disagreements (trust the code)
+
 Read at Stage `v4.24.0`, re-read at `v4.24.1` and `v4.24.2` (`SemanticCratisAdmission.EventRevisions.cs`, `SemanticEventLineageAdmission.cs`, ESM v4 section of `Documentation/guides/build-renderer-target.md`) (`Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`, `Documentation/guides/build-renderer-target.md`; 4.24.1 changed only the ledger, dependency pins and the Dockerfile) (`Source/Rendering.Cratis/CratisArtifactRenderPlanner.cs`,
 `Semantics/SemanticCratisAdmission*.cs`, `SemanticSpecificationAdmission*.cs`,
 `PureTransitionAdmission.cs`, `SemanticImplementationAdmission.cs`) and cli `v3.28.2`

@@ -1,5 +1,17 @@
 # Operation execution and recovery reference
 
+## Contents
+
+- Declaration contract
+- Returned values
+- Nine-step ordering
+- Commit and recovery
+- Backend observations
+- Optional failure context
+- Cancellation and budget
+- Supported scopes
+- Troubleshooting
+
 Verified at **Arc v22.48.1** against the
 [product reference](https://github.com/Cratis/Arc/blob/v22.48.1/Documentation/backend/csharp/commands/operations/reference.md)
 and `Source/DotNET/Arc.Core/Commands/`. Types below are in

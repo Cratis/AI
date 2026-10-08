@@ -1,5 +1,13 @@
 # Field lineage
 
+## Contents
+
+- Where values come from, per element
+- The matrix
+- The reason line per contributing event
+- Gap handling
+- Adding or renaming a field along a chain (manual checklist)
+
 Every value in the model has a place it comes from and a place it goes. If you cannot say
 where a field comes from, the model is missing an input, an event field or a decision. If an
 event field goes nowhere, ask why it is recorded (audit and history are valid answers; say so).

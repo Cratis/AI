@@ -1,5 +1,20 @@
 # Authorization
 
+## Contents
+
+- Versions differ — check the one you run
+- Attributes
+- Composition and precedence
+- Named policies
+- Guests and anonymous policies
+- Evaluation order
+- Baselines: two separate mechanisms
+- Default access by hosting model
+- The filters and results
+- Direct calls bypass authorization
+- The principal and system actors
+- Protected decisions and validators
+
 Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.41.1`. Everything below
 describes that version and is in `Cratis.Arc.Authorization` unless stated.
 

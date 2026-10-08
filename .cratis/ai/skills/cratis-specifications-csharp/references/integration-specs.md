@@ -1,5 +1,14 @@
 # Out-of-process Chronicle integration specifications
 
+## Contents
+
+- Structure
+- Seeding preconditions
+- Command execution overloads
+- Assertion helpers
+- Asynchronous follow-ups
+- Rules
+
 Reserve these for the host, transport, serialization, or real-infrastructure
 boundary the in-process scenario helpers cannot reach. They exercise a complete
 behavior — HTTP request through command handling, append, constraint checking,

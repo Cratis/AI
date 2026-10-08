@@ -1,5 +1,18 @@
 # Consistency and concurrency
 
+## Contents
+
+- 1. Invariant table (fill before writing constraints)
+- 2. Where a rule can be enforced
+- 3. Record each state-dependent rule that the model cannot enforce
+- 4. Concurrency scenarios
+- 5. Three different guarantees (do not conflate)
+- 6. Lost acknowledgements
+- 7. Ordering
+- 8. Projection lag and rebuild
+- 9. Corrections and backdated facts
+- 10. Specification limits (no local spec engine)
+
 Pins: Screenplay v4.66.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.2 (table in `versions.md` of
 `cratis-screenplay-toolchain`).
 

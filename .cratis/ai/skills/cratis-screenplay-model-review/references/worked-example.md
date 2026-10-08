@@ -1,5 +1,14 @@
 # Worked example: reviewing a marina berth model
 
+## Contents
+
+- The model under review
+- Phase 1: element sweep (working notes)
+- Phase 2: entity walk (Berth)
+- Phase 3: field lineage
+- The report (excerpt)
+- After the fix
+
 A small model with one seeded design defect, reviewed in critic mode. The model file is
 `berths.play`; line numbers below refer to it. The report follows `report-template.md` and is
 shortened: it shows the flagged checks of each phase and elides the passing ones, which a real

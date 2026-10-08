@@ -1,5 +1,18 @@
 # The nine-step workflow design process
 
+## Contents
+
+- Step 1 — Identify the user goal
+- Step 2 — Brainstorm events
+- Step 3 — Order events chronologically
+- Step 4 — Create wireframes
+- Step 5 — Identify commands
+- Step 6 — Design read models
+- Step 7 — Find automations
+- Step 8 — Map external integrations
+- Step 9 — Decompose into vertical slices
+- Facilitation questions quick reference
+
 Follow all nine steps for each workflow. Do not skip steps, do not combine them,
 and do not start workflow 2 while workflow 1 is incomplete — **discovery is
 design**. Each step has a defined Screenplay output; produce it.

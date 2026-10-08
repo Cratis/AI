@@ -1,5 +1,15 @@
 # Verdicts and modes
 
+## Contents
+
+- Five independent results
+- Commands (enough to check without loading the toolchain skill)
+- Report template
+- Source identity
+- Render revision drift
+- Tool-version gaps
+- Modes
+
 Exact commands, exit codes, admitted subsets and every version-specific fact live in
 `cratis-screenplay-toolchain` (`references/versions.md` and its subset references). This file
 defines what each result means and how to report it. Do not copy version facts here.

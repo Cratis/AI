@@ -1,5 +1,12 @@
 # Complete examples for the excerpts in SKILL.md
 
+## Contents
+
+- Capture with `source`, `map`, `append` and `children`
+- Reaction on a declared trigger with `where` and `invokes`
+- Reaction with `produces` and `invokes`
+- Trigger `reads` on an event and on the clock
+
 Each document below is complete and compiles with the standalone `screenplay` 4.68.0
 (`--warnaserror`). The SKILL.md excerpts show the reaction, capture or trigger part of
 these documents. Documents marked ESM v6 need Screenplay 4.61 or later: the standalone tool and `cratis` 3.28.2

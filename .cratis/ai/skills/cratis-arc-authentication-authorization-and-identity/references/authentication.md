@@ -1,5 +1,15 @@
 # Authentication
 
+## Contents
+
+- The contract
+- The Microsoft Identity Platform handler
+- The reserved claim
+- ASP.NET Core hosting
+- Forwarded headers, ingress requirements and protected introspection
+- What is not here
+- The security boundary, stated plainly
+
 Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.41.1`. Types are in
 `Cratis.Arc.Authentication` and `Cratis.Arc.Identity`.
 

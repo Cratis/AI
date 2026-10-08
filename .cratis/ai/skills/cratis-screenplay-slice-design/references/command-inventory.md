@@ -1,5 +1,12 @@
 # Command design and the per-command refusal inventory
 
+## Contents
+
+- Command card
+- The inventory
+- Filled for `worked-example.md`
+- Common mistakes
+
 For every command, record what it needs, where each input comes from, how it can succeed and
 every way it can be refused. The inventory is the design output that
 `cratis-screenplay-scenario-coverage` consumes: each refusal becomes a specification there,

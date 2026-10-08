@@ -1,5 +1,15 @@
 # C# specification patterns
 
+## Contents
+
+- Phases
+- Layered contexts
+- Substitution patterns
+- Assertion extension methods
+- Catching exceptions
+- Usings
+- One outcome per file
+
 Detail for the plain `Cratis.Specifications` surface: phases, substitution,
 assertions, and exception capture. Verified against `Cratis.Specifications`
 `4.1.1` and NSubstitute as consumed by that package.

@@ -1,5 +1,17 @@
 # Versions and capabilities by tool (the only version table)
 
+## Contents
+
+- Pin set
+- Two compilers, one rule
+- Standalone `screenplay` 4.68.0
+- cratis 3.28.3 and 3.28.2 (Screenplay 4.66.0)
+- Event sources and streams
+- MCP roots bug (4.63.1 and earlier; fixed in 4.63.2; not present in cratis 3.28.2)
+- Revisions and descriptions
+- Roadmap items that would change a verdict (all open at the pin; the `@sensitive` meaning, Screenplay#384, and the identifier refusal and C# mapping, Stage#197, are settled in decision 0034; the pinned tools predate `PLAY0515`)
+- Upgrade checklist
+
 Every other Screenplay skill and reference points here instead of repeating a version
 or a tool capability. When a tool changes, update this file first, then re-run the
 example compile gate with both tools (see `verdicts.md`, "Example gate").

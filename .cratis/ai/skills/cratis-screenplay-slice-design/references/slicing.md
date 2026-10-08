@@ -1,5 +1,15 @@
 # Slicing, state transitions and the next slice
 
+## Contents
+
+- Slices are the authoring unit
+- Slice dependencies
+- State-transition table (per entity)
+- Generic edits
+- Rule coverage
+- Slice audit
+- The next slice
+
 ## Slices are the authoring unit
 
 In Screenplay every construct already lives in a typed slice, so slicing is not a separate

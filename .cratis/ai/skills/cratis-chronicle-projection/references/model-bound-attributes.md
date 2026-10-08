@@ -1,5 +1,18 @@
 # Model-bound projection attributes
 
+## Contents
+
+- Namespaces that are not `Projections.ModelBound`
+- Source and shape
+- Setting values
+- Counters
+- Variants
+- Relationships
+- Source selection
+- Labels, not filters
+- What makes a type a model-bound projection
+- AutoMap
+
 Verified against `Cratis.Chronicle` `18.3.0`.
 
 Unless noted, every attribute below lives in

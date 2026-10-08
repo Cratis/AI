@@ -1,5 +1,20 @@
 # Review checklist
 
+## Contents
+
+- Phase 1. Element sweep (7 checks, S1-S7; run first)
+- Phase 2. Entity walk (5 checks, T1-T5; feeds F1-F3 and scenario coverage)
+- Phase 3. Completeness and field lineage (8 checks, A1-A8)
+- Phase 4. Ownership and identity (6 checks, B1-B6)
+- Phase 5. Event quality (9 checks, C1-C9)
+- Phase 6. Events versus views (7 checks, D1-D7)
+- Phase 7. Rules and their layer (9 checks, E1-E9)
+- Phase 8. Flow and lifecycle (13 checks, F1-F13)
+- Phase 9. Personas, reach and authorization (8 checks, G1-G8)
+- Phase 10. Views, queries and screens (4 checks, H1-H4)
+- Phase 11. Strategy checks (13 checks, R1-R13)
+- Closing questions (3, Q1-Q3; each needs an answer in the report; a "no" is a finding)
+
 Eleven phases, 89 checks and three closing questions. Each phase header says how many checks it holds; the report lists
 every phase with its count and, per check, a status, the element and the evidence
 (`report-template.md`). Each check names what to look at, the Screenplay evidence source and the

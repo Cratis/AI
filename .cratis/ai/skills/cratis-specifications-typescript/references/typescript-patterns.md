@@ -1,5 +1,15 @@
 # TypeScript specification patterns
 
+## Contents
+
+- Frameworks
+- Chai assertions
+- Sinon stubbing
+- The `given()` helper
+- Reusable context class
+- Asynchronous specifications
+- One outcome per file
+
 Detail for the `given()` surface: assertions, stubbing, asynchronous
 specifications, and folder layout.
 

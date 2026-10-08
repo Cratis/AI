@@ -1,5 +1,14 @@
 # Final checklists
 
+## Contents
+
+- Contract reconciliation
+- State Change
+- State View
+- Automation and Translation
+- Chronicle runtime guarantees
+- Evidence
+
 Reconcile in both directions with each list. Moved here from the render workflow; it gives
 the renderer no right to browse managed output or implement rejected semantics.
 

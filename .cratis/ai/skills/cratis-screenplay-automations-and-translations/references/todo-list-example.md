@@ -1,5 +1,9 @@
 # Example: a todo-list automation
 
+## Contents
+
+- Design-only additions
+
 A complete model: a result opens a work item, a reaction invokes a command, the command's fact
 closes the item. It binds on Screenplay 4.66.0 (`executableReady: true`), standalone and through `cratis screenplay mcp`
 3.28.2; `cratis render` 3.28.2 refuses it whole (`STAGE-ESM-016`). The cratis 3.27.1 bundle (4.60.1)

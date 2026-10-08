@@ -1,5 +1,13 @@
 # Exceptions, logging, and dependency injection
 
+## Contents
+
+- Exceptions
+- Logging
+- Dependency injection
+- Service lifetimes — anything taking a scoped dependency is scoped or transient
+- Discovering implementations — `IInstancesOf<T>`, never `IEnumerable<T>`
+
 ## Exceptions
 
 Every exception type communicates *what went wrong in domain terms*. A built-in

@@ -1,5 +1,21 @@
 # Read-model design
 
+## Contents
+
+- Start from the consumer
+- The typical slice pattern
+- Events or views
+- Components
+- Fan-in per field
+- Builder and freshness
+- Query shape follows the business view
+- No clock-relative state
+- Who may see what
+- Collections and many-at-once
+- Building it
+- Omissions are decisions
+- Checks before handing off
+
 ## Start from the consumer
 
 List every consumer before designing any read model: each screen area a person looks at, and

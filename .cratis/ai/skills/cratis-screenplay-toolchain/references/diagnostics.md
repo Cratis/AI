@@ -1,5 +1,15 @@
 # Diagnostics: meaning -> fix
 
+## Contents
+
+- Warnings that hide defects (always validate with `--warnings-as-errors`)
+- Not caught at V1 (fail binding: V2/V3, PLAY0273)
+- Silent at every level
+- Consistency errors (V1: the model contradicts itself)
+- Binding (V2 and V3) - see `executable-subset.md` for the full table
+- Frequent errors
+- Render admission (V5): `STAGE-*`, `CLI-RENDER-*`, `STAGE-CRATIS-*`
+
 Authority: Screenplay `Documentation/screenplay/diagnostics.md` and
 `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`. Codes are permanent; match the code,
 never the message. Severities: E (does not compile), W (compiles; usually an unresolved name),

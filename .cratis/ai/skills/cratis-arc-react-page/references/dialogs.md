@@ -1,5 +1,15 @@
 # Dialogs reference
 
+## Contents
+
+- Choose the dialog
+- Opening a dialog
+- The enums
+- `CommandDialog`
+- `CommandForm` fields
+- `Dialog` — data without a command
+- Host-registered confirmation and busy indicators
+
 The Cratis dialog wrappers own command execution, validation timing, busy
 state, and footer buttons. Never use a vendor or hand-rolled modal — dialogs are Components-owned.
 

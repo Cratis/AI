@@ -3,6 +3,17 @@
 
 # The Screenplay MCP loop
 
+## Contents
+
+- Connect
+- Who owns the connection
+- The loop
+- One edit strategy
+- Identity state (`.screenplay/identities.json`)
+- Read-only views worth knowing
+- Failures (use `failureKind`, never message text)
+- Provenance
+
 The working loop for the session that owns the model connection: connect, orient,
 choose an edit route, propose, review, apply, verify. Tool-by-tool arguments and
 refusals are in the [MCP tool guide](mcp-tools.md); verdict names (V1 to V5) are
