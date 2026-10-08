@@ -53,7 +53,7 @@ command's properties as well as grepping them.
 
 ## Step 1 — Event sourcing: the permanent-record checks
 
-- **Every `[Command]` property holding a secret or credential is marked `[NotAudited]`, and the secret is `[Encrypted]` on the event.** A
+- **Every `[Command]` property holding a secret or credential is marked `[NotAudited]`; a retained operational secret is also `[Encrypted]` on the event, and a credential reaches the event only as a hash or a reference.** A
   command's property values are written to the causation of every event it
   appends, and causation is as permanent as the events. Prefer the marking on
   the concept type so it travels everywhere the value appears. `[NotAudited]`
