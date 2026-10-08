@@ -238,6 +238,10 @@ the claim Arc reserves, and the ASP.NET Core scheme variant.
 
 ## Tenancy
 
+Anything that must be isolated per tenant has to enforce that isolation itself,
+downstream of resolution. Never treat a resolved tenant id as an authorization
+decision.
+
 `Cratis.Arc.Tenancy` resolves a tenant per request. The default resolver is
 **header-based** on `x-cratis-tenant-id`; `TenantResolverType` also offers
 `Query`, `Claim`, `Development`, `Subdomain` and `Fixed`, configured through

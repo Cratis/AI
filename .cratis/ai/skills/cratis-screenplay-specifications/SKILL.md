@@ -40,7 +40,7 @@ changed examples; it does not rerun the reference runner.
 **Which tool says what.** The standalone `screenplay` tool 4.68.0 admits ESM v1-v7.
 The `cratis` CLI 3.28.2 and 3.28.3 bundle Screenplay 4.66.0 (ESM v1-v6: generated fixtures and `then returns` report `PLAY0268`). Before `cratis` 3.28.2 the
 bundle was Screenplay 4.60.1, which admitted ESM v1-v5 only and reported a false
-`PLAY0285` on reaction cascades (see "Version skew"). Facts below marked **ESM v6**
+`PLAY0285` on reaction cascades (see "Version skew" in [references/reactions-and-cascades.md](references/reactions-and-cascades.md)). Facts below marked **ESM v6**
 hold for Screenplay 4.61.0 and later: the standalone tool and `cratis` 3.28.2 or later. The full table is in `cratis-screenplay-toolchain`
 (`references/versions.md`; read it before choosing a compiler or interpreting version-dependent binding diagnostics). Neither tool runs specifications: `screenplay` and
 `cratis screenplay validate` parse and check consistency, the MCP server also binds,
@@ -189,7 +189,7 @@ Read [references/generated-fixtures.md](references/generated-fixtures.md) when w
 
 ## Actions beyond commands
 
-A slice is not always set off by a command: `given clock`, `when clock`, `when trigger`, `given capture`, `when capture` and `when query` (with `then result` / `then no result`) name what does. Use `given clock`, never `given time`; the reference runner executed `when query` only, not the clock, trigger and capture actions.
+A slice is not always set off by a command: `given clock`, `when clock`, `when trigger`, `given capture`, `when capture` and `when query` (with `then result` / `then no result`) name what does. Use `given clock`, never `given time`. From ESM v6 (Screenplay 4.61.0 and later, `cratis` 3.28.2 and later) the reference runner executes the clock, trigger and capture actions; before ESM v6 only `when query` executed among them.
 Read [references/actions-beyond-commands.md](references/actions-beyond-commands.md) when the slice is an automation, translation or query view, or you need the action table, grammar and what the reference runner executes for each.
 
 ## Reactions and cascades (ESM v6)
