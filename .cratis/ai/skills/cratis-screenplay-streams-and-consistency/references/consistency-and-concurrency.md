@@ -67,7 +67,7 @@ Right: write the rule as stated intent and mark it unenforced.
   - Decision inputs: the authoritative facts or state.
   - Missing guarantee: why the construct does not protect the decision.
   - Race consequence: what two individually plausible commands could jointly violate.
-  - Intended enforcement: the target mechanism (SKILL.md, ‘First append into a scope’), or the options awaiting agreement.
+  - Intended enforcement: the target mechanism ("Target realization" below), or the options awaiting agreement.
   - Business outcome: what a rejected, delayed or compensated request means.
 - A `STATE.md` row with owner and revisit condition. A general note "some state rules are
   unsupported" does not replace these per-rule blocks.
@@ -77,7 +77,7 @@ Right: write the rule as stated intent and mark it unenforced.
 Options to discuss with the domain expert (decide, do not assume):
 a. **one stream is the boundary**: put the decision on the stream that owns the state (often a
    different identity choice) and enforce it in the target with a concurrency scope, plus the
-   first-append check described under "First append into a scope" below (a scope on an empty
+   first-append check described under "First append into a scope" in SKILL.md (a scope on an empty
    source or partition is not checked by default);
 b. **reservation by identity**: if the scarce things can be named (seat 1..N, slot at 09:00),
    give each its own identity and use uniqueness, after checking it expresses the invariant;

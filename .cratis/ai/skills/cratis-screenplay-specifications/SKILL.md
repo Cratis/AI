@@ -86,7 +86,7 @@ target has one normalized behavior to match.
   the ones that never touch the refused construct.
 - Reactions: before ESM v6 they never run, not even after `when append`. From ESM
   v6 (standalone tool from 4.61.0) they run after every action, as in "Reactions and
-  cascades". Under `cratis` before 3.28.2 (Screenplay 4.60.1) `when clock`, `when trigger`
+  cascades" ([references/reactions-and-cascades.md](references/reactions-and-cascades.md)). Under `cratis` before 3.28.2 (Screenplay 4.60.1) `when clock`, `when trigger`
   and `when capture` failed binding with `PLAY0268`, and so did reactions and captures; they
   bind on 4.66.0 and `cratis` 3.28.2.
 - A rejected individual command or append leaves the world unchanged; an accepted

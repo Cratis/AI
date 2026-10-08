@@ -72,6 +72,12 @@ test('direct references accept both links and code spans, but not references onl
     assert.match(problems[0], /path\/SKILL.md.*references\/a.md.*only reachable through another file, or not at all/);
 });
 
+test('a path inside another skill or a longer file name does not count as a direct reference', () => {
+    const body = 'Versions: `cratis-screenplay-toolchain/references/versions.md`; see references/old-a.md and references/a.md.bak.';
+    assert.equal(skillReferenceProblems('SKILL.md', body, ['references/versions.md', 'references/a.md']).length, 2);
+    assert.deepEqual(skillReferenceProblems('SKILL.md', 'Read ./references/versions.md, then (references/a.md).', ['references/versions.md', 'references/a.md']), []);
+});
+
 test('headings in backtick and tilde fences with info strings are ignored', () => {
     const content = '# Title\n```play\n## Hidden\n```\n~~~markdown\n## Also hidden\n~~~\n````markdown\n```\n## Still hidden\n````\n## Real ###\n### Child\n';
     assert.deepEqual(markdownHeadings(content).map(heading => [heading.level, heading.text]), [[1, 'Title'], [2, 'Real'], [3, 'Child']]);

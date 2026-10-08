@@ -222,7 +222,7 @@ compile or will not be safe. Both are deliberate.
   the executable model rejects `reads` and `concurrency` (`PLAY0271`), and adding
   `concurrency` does not make the decision safe (decision 0003, Screenplay #129).
   Write a state-dependent rule as `reads <View>` plus `require <expr> message "..."`
-  and mark it in the slice `description` as **not enforced in the model at Screenplay 4.68.0**,
+  and mark it in the slice `description` as **not enforced in the model today**,
   naming the target that must enforce it (Arc `[ProtectedDecision]` with
   `DecisionRead<T>`, Chronicle's dynamic consistency boundary, or a constraint where
   one fits). Model uniqueness as a `unique` constraint. Never copy state into a

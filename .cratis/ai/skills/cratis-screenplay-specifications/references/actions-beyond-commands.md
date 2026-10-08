@@ -12,10 +12,10 @@ A slice is not always set off by a command. Name what does:
 Use `given clock`, never `given time`, to state the scenario occurrence time and
 assert a value mapped from `$context.occurred`. In a command's `produces`, that
 mapping executes when the scenario has `given clock`. It is not the same as
-`$eventContext.occurred` in a projection, which the execution plan refuses (below).
+`$eventContext.occurred` in a projection, which the execution plan refuses (SKILL.md, "Reference execution — what actually runs").
 
 **Which tools bind these actions** (probed: `screenplay mcp` 4.66.0 and `cratis screenplay mcp` 3.28.2
-report the complete example below `executableReady` with no executable error, in
+report the complete example in [reactions-and-cascades.md](reactions-and-cascades.md) `executableReady` with no executable error, in
 `open-workspace` readiness and `read-workspace` view `executable-diagnostics`;
 `cratis` before 3.28.2 bundled 4.60.1 and did not):
 

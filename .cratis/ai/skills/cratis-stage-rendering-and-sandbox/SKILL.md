@@ -18,7 +18,7 @@ reading in this skill is not a render result.
 
 ## Specification runner exit codes
 
-Exit `0` means the run completed and the file was written **even when a specification
+`cratis/stage-specrunner` exit `0` means the run completed and the results file was written **even when a specification
 failed**: read the outcomes. `1` is a missing or uncompilable input, `2` a missing required
 argument or an invalid semantic option.
 

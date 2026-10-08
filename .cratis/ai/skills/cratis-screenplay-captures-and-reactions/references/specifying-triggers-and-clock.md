@@ -6,7 +6,7 @@ for a reaction on `every` or `at`, `when trigger <Trigger>` with its values for 
 on an application trigger, and `given capture` / `when capture <Capture>` with the
 source record's fields for a capture, then the events that should follow.
 `given clock` fixes the occurrence time, so values mapped from `$context.occurred`
-can be asserted. Excerpt of the complete example below:
+can be asserted. Excerpt of the complete example in [complete-examples.md](complete-examples.md):
 
 ```screenplay excerpt
 specification IssuingTheWeeklyDigest

@@ -64,8 +64,17 @@ export function skillStructureProblems(subject: string, content: string): string
     return problems;
 }
 
+/**
+ * True when the body names the skill-relative path itself, not the same path inside another skill
+ * (`other-skill/references/x.md`): the path must not follow a path-segment character, except an optional `./`.
+ */
+export function referencesPath(body: string, path: string): boolean {
+    const escaped = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(?<![\\w./-])(?:\\./)?${escaped}(?![\\w/-]|\\.\\w)`).test(body);
+}
+
 export function skillReferenceProblems(subject: string, body: string, paths: string[]): string[] {
-    return paths.filter(path => !body.includes(path)).map(path =>
+    return paths.filter(path => !referencesPath(body, path)).map(path =>
         `${subject} must directly reference '${path}'; that file is only reachable through another file, or not at all.`);
 }
 
