@@ -16,7 +16,7 @@ Cover, briefly and only where real:
 1. Scope: the business process and the identities its streams are keyed by.
 2. Assumptions beyond the brief, and why (each also listed in STATE.md).
 3. Rules kept as constraints or specifications rather than events, so a missing event is not read
-   as an oversight; state-dependent rules marked NOT enforced in the model today, with the named
+   as an oversight; state-dependent rules marked NOT enforced in the model at the verified Screenplay v4.66.0, with the named
    target enforcement.
 4. Corrections made mid-way (re-ordering, re-slicing) that a reader might otherwise undo.
 5. Read-model choices: shared views, deliberate fan-in, views split per component, and a

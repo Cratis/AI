@@ -88,12 +88,7 @@ the renderer no right to browse managed output or implement rejected semantics.
   specification.
 - A failed handling is not swallowed: failure behavior follows `cratis-chronicle-reactor`
   (failure and quarantine), never a catch that continues.
-- **Real startup participation.** A `ReactorScenario` bypasses observer registration, so it
-  cannot show that the application subscribes the reactor. Verify, through the repository's
-  integration route or a startup check, that the real application discovers the intended
-  reactor (its assembly is scanned, per the repository's discovery convention), that it observes
-  the intended event store and event sequence, and that a trigger event delivered there reaches
-  it. Report this apart from the in-process specifications.
+See "Startup verification for Automation and Translation" in SKILL.md.
 
 ## Chronicle runtime guarantees
 Follow the owning corpus skill. Verify the actual namespace, subject, constraint scope,

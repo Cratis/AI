@@ -173,7 +173,7 @@ file changing the digest, a filename containing a tab or a newline, and an expli
 ### Revisions are three different things
 - **Source identity** (above): bytes of the inputs. Used for acceptance.
 - **Workspace revision** (MCP `expectedRevision` and catalog revision): guards edits in one workspace session.
-- **`modelRevision`** (MCP `read-workspace view=executable-model`): the canonical semantic revision
+- **`modelRevision`** (the `screenplay` server's `read-workspace` tool with `view=executable-model`): the canonical semantic revision
   of the bound executable model. It exists only when the model binds. Descriptions and source
   locations are not part of it; the application identity is (without `identities.json` it is
   bootstrapped from the root folder name, so renaming the root changes it). Moving a file changes

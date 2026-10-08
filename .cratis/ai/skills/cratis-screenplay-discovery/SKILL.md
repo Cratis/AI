@@ -33,6 +33,13 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
   entry-point session proposes a model, at most once per session; the master definition is in
   `cratis-screenplay-modeling-lifecycle`. A direct request to model this scope is itself consent.
 
+## Evidence and privacy
+
+- Do not paste production data, customer records or personal data into hosted models or
+  sub-agents without the user's approval. Use invented examples in the model and in
+  specifications.
+- Classify personal data on the concept as soon as it shows up.
+
 ## Verified product sources
 
 Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3, Stage v4.24.2, Arc v22.50.5, Chronicle
@@ -221,10 +228,10 @@ and the report says which verdicts were not run (V2 to V5 are not run in discove
 - `references/personas-and-causes.md` - role catalogue, Cannot resolved to executable gates.
 - `references/divergent-sweep.md` - lenses for the wide pass.
 - `references/plotting-and-handoff.md` - after / caused by / only if, plot format, whose turn it is, Storyline seed, handoff packet.
-- `references/facilitation.md` - running sessions, disagreement, closing, unattended runs.
+- `references/facilitation.md` - running sessions, disagreement, closing, unattended runs. Read when facilitating a group, handling disagreement, or closing an attended or unattended session.
 - `references/human-workshop.md` - supporting a human workshop: preparation, run sheet, live scribing.
-- `references/worked-session.md` - a short session end to end.
-- `references/provenance.md` - sources and attribution.
+- `references/worked-session.md` - a short session end to end. Read when you need an end-to-end example of discovery from thin input.
+- `references/provenance.md` - sources and attribution. Read when checking source attribution or adaptation history.
 
 ## Lineage
 

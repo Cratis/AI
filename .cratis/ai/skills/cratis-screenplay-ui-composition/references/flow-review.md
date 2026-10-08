@@ -1,7 +1,7 @@
 # Flow review (text form)
 
 Use this before any layout work (`SKILL.md`, *Compose in this order*, step 2). It needs
-no board: the `.play` source and your own words are enough. If the host offers
+no board: the `.play` source and your own words are enough. If the host offers the `screenplay` MCP server's
 `visualize-model` (MCP-Apps hosts only) you may add a board view; it never replaces this.
 
 ## Procedure
