@@ -48,8 +48,8 @@ Outcomes:
 - A reaction `when <OpeningFact>` that invokes the command producing the closing fact.
   The trigger may `reads` the item view to document its input; that is not protection.
 - A retry sweep on a clock reads the whole view (no `by` on clock reads). Iterating its items
-  declaratively (`for each <View>`) is reserved syntax; today the sweep needs a code body,
-  which the reference never runs. Durable fan-out is outside the language today (Screenplay#286).
+  declaratively (`for each <View>`) is reserved syntax; on Screenplay 4.66.0 the sweep needs a code body,
+  which the reference never runs. Durable fan-out is outside Screenplay 4.66.0 (Screenplay#286).
 - Specify the list as a small story: empty -> item present (`then query …ById`) -> closed
   (`when append <Closing>` + `then no readmodel … for`), plus "not opened" for facts that
   must not queue work.
@@ -68,7 +68,7 @@ When a todo list is not needed: the effect is immediate, internal and cannot fai
 | caller | n/a | **none**: gated commands reject |
 
 ## 4. The actor behind an invoke
-Today there is no caller: the invoked command runs its full pipeline (authorization, validation,
+On Screenplay 4.66.0 there is no caller: the invoked command runs its full pipeline (authorization, validation,
 requirements, constraints) with no caller, a command that needs one rejects, and the rejection
 ends the scenario. Screenplay has no syntax for an identity (Screenplay#383, open); never invent
 `runs as` or a caller line. At code level the realization is a Chronicle reactor whose returned
@@ -86,7 +86,7 @@ Decide and record one of:
    should refuse it.
 3. **Gated command + trusted actor + recorded gap** - when the command must stay protected.
    Keep the gate (a policy requiring the service role), name the role as the intended actor,
-   and record that `.play` cannot declare it yet. The reference rejects the caller-less invoke,
+   and record that Screenplay 4.66.0 cannot declare it. The reference rejects the caller-less invoke,
    so the automation spec cannot pass: do not write a fake passing spec. Report V4 as "not run:
    no route" (no available route executes these specs) and record the expected rejection and
    the trusted-actor gap separately, citing the reaction semantics (a command that requires a

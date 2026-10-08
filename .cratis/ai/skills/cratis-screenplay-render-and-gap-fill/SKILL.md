@@ -21,7 +21,7 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 
 ## Verified product sources
 
-Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`.
+Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`. Read that file before selecting the compiler and renderer versions for delivery.
 
 | Source | Pin | Used for |
 | --- | --- | --- |
@@ -186,8 +186,8 @@ Before reporting done:
 - `references/delivery-protocol.md` - inputs, commands, reading results, `Customizations/`.
 - `references/gap-fill-handoff.md` - the brief for `slice-implementer`, ledger flow.
 - `references/drift-and-ledger.md` - drift, publication refusals, the fallback ledger.
-- `references/worked-example.md` - a refused render and its report, with a complete model.
-- `references/provenance.md` - sources and attribution.
+- Read `references/worked-example.md` when preparing the classification and report for a refused render; it contains a complete model.
+- Read `references/provenance.md` when checking sources and attribution for the render workflow or gap-fill brief.
 
 ## Lineage
 

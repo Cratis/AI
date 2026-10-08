@@ -6,7 +6,7 @@ diagnostics, binds, and its two specifications pass in the reference runner on S
 (`Documentation/screenplay/fixtures/generated-responses.play` at `v4.68.0`). It needs the standalone
 `screenplay` 4.68.0 or later: the cratis CLI 3.28.3 bundles 4.66.0, which does not bind these constructs
 (`PLAY0268`), and `cratis render` does not render ESM v7 (Stage 4.24.2 refuses it with `STAGE-ESM-016`,
-Cratis/tracked in Stage#201). Rules and refusals: [executable-subset.md](executable-subset.md#generated-values-and-responses-esm-v7).
+Cratis/tracked in Stage#201). Rules and refusals: [executable-subset.md](executable-subset.md#generated-values-and-responses-esm-v7-standalone-4680-or-later-only).
 
 ```screenplay
 // ESM v7 reference-executable example: deterministic generated fixtures, events and command responses.
