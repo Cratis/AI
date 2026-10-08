@@ -11,6 +11,28 @@ Chronicle server. It is not a browser library and it is not the Arc TypeScript
 proxy layer — an Arc frontend calls generated command and query proxies over
 HTTP and never sees this package.
 
+## Common pitfalls
+
+| Pitfall | Why it bites |
+| --- | --- |
+| Naming a reactor method after the handler's purpose | Dispatch is by the camelCase event class name; a mismatch is silently never called |
+| `instanceof` on the event inside a handler | It is a `JSON.parse`d plain object, not your class |
+| Event class with no default constructor values under `tsx` | No decorator metadata is emitted, so the schema comes out empty |
+| Two `@eventType()` classes sharing a class name | The id defaults to the class name and they collide |
+| Deploying compiled `dist/*.js` with default discovery | The default glob matches `**/*.ts`; nothing is discovered |
+| Omitting a side-effect import of an artifact module | Its decorator never runs, so it is never registered |
+| Forgetting `import 'reflect-metadata'` at the entry point | Decorators do not work at runtime |
+| Forgetting to install `@cratis/fundamentals` | It is a peer dependency and is not installed for you |
+| Importing `ChronicleConnectionString` | There is no `./connection` export; pass a string |
+| Expecting single `append()` to set a stream or subject | Those fields are hardcoded; use the `EventForEventSourceId[]` overload |
+| A connection string with no credentials | Silently falls back to the development client credentials |
+| Shipping the default TLS behavior | `skipTlsValidation` defaults to `true` |
+| Constructor-injecting a dependency into a reactor | There is no DI; the client constructs it |
+| Carrying a `3.x` example forward | Tags, the reducer context parameter, and two RPC names changed in `4.0.0` |
+| Reading `result.sequenceNumber` as a number | It is a `bigint` behind `.value` |
+| A `@globalFor` mapping targeting a property one variant lacks | `GlobalHandlerPropertyNotOnVariant` when the group is built, not a silently skipped mapping |
+| Expecting a `@globalFor`-only class to appear as a projection | It is never registered on its own; it is merged into its variants |
+
 ## Verified product sources
 
 This skill was written against `Cratis/Chronicle.TypeScript` at tag `v4.0.0`
@@ -295,91 +317,15 @@ Restrict an observer to tagged events with `@filterEventsByTag(value)` —
 
 ### Read models and projections
 
-`store.readModels` — `Source/readModels/IReadModels.ts`: `getInstanceById(type, key, sessionId?)`
-(`:38`), `getInstances(type, eventCount?)` (`:46`), `getSnapshotsById` (`:54`),
-`watch(type): AsyncIterable<ReadModelChangeset<T>>` (`:61`), plus `materialized`
-for paged access.
+Read models are read through `store.readModels`; projections are model-bound (decorators) or declarative (`@projection`), and constraints are class-plus-builder only.
 
-Two projection styles:
-
-- **Model-bound** — decorators on the read model, from
-  `@cratis/chronicle/projections`: `fromEvent`, `fromEvery`, `fromAll`, `setFrom`,
-  `setFromContext`, `setValue`, `join`, `addFrom`, `subtractFrom`, `increment`,
-  `decrement`, `count`, `childrenFrom`, `nested`, `clearWith`, `removedWith`,
-  `removedWithJoin`, `noAutoMap`, `notRewindable`, `passive`.
-- **Declarative** — `@projection(id?, readModelType?, eventSequenceId?)` on a class
-  implementing `IProjectionFor<TReadModel>` with
-  `define(builder: IProjectionBuilderFor<TReadModel>): void`.
-
-Constraints are `@constraint()` on a class implementing `IConstraint` with a
-`define(builder)`; the builder gives `unique(...)`, `uniqueFor(...)`,
-`perEventSourceType`, `perEventStreamType`, `perEventStreamId`. **There are no
-model-bound constraint decorators in this client** — the class-plus-builder form
-is the only one.
+Read [references/read-models-and-projections.md](references/read-models-and-projections.md) when reading a read model instance, choosing a projection style, or declaring a constraint.
 
 ### Variants — mutually exclusive read models for one entity's lifecycle
 
-> Requires `@cratis/chronicle` `6.2.0` or later — newer than this skill's
-> `5.1.0` baseline (`Source/projections/VariantReclassifier.ts` and siblings).
-> Reverify before claiming support; take the version from npm.
+One entity with mutually exclusive lifecycle shapes is modeled as variants, with `@variantOf`/`@entersOn`/`@globalFor` or the fluent `.variantOf()`/`.entersOn()`; every variant needs an entering event.
 
-Some entities do not have one shape for their whole lifetime — a work item is a
-backlog entry until a pull request exists for it, then it is a pull request
-until it merges. **Model-bound** — `@variantOf(identity, key)` and
-`@entersOn(eventType, key?)`, alongside the ordinary `@fromEvent`/`@setFrom`
-decorators:
-
-```typescript
-class WorkItem {}   // anchors the group; not itself a read model
-
-@variantOf(WorkItem, 'id')
-@entersOn(IssueCreated)
-@fromEvent(IssueCreated)
-@readModel()
-class BacklogItem {
-    id = '';
-    @setFrom(IssueCreated, 'title') title = '';
-}
-
-@variantOf(WorkItem, 'id')
-@entersOn(PullRequestCreated)
-@fromEvent(PullRequestCreated)
-@fromEvent(BuildCompleted)          // not the entering event -> update-only join
-@readModel()
-class PullRequestItem {
-    id = '';
-    @setFrom(PullRequestCreated, 'pullRequestUrl') pullRequestUrl = '';
-    @setFrom(BuildCompleted, 'buildStatus') buildStatus = '';
-}
-```
-
-`entersOn` is repeatable (a variant may enter on more than one event) and its
-`key` argument names an *event* property, defaulting to the event source id. A
-mapping shared by every variant of an identity goes on a class decorated
-`@globalFor(identity)` instead of being repeated on each variant — every
-variant it targets must actually declare the property it maps, or
-`GlobalHandlerPropertyNotOnVariant` is thrown when the group is built. A class
-carrying only `@globalFor` is never itself registered as a projection.
-
-**Declarative** — `variantOf` and `entersOn` are members of
-`IProjectionBuilderFor<TReadModel>` itself:
-
-```typescript
-@projection()
-class PullRequestItemProjection implements IProjectionFor<PullRequestItem> {
-    define(builder: IProjectionBuilderFor<PullRequestItem>): void {
-        builder
-            .variantOf(WorkItem, m => m.id)
-            .entersOn(PullRequestCreated)
-            .from(BuildCompleted);   // update-only, same reason
-    }
-}
-```
-
-**A variant that declares no `@entersOn`/`entersOn(...)` throws
-`VariantMustDeclareEntersOnEvent`** when the group is built — a variant that
-could never be entered could never be written to at all, since every other
-handler on it is update-only.
+Read [references/variants.md](references/variants.md) when a read model for one entity changes shape over its lifecycle, or when you meet `VariantMustDeclareEntersOnEvent` or `GlobalHandlerPropertyNotOnVariant`.
 
 ## Discovery is a runtime file glob — this is the biggest difference
 
@@ -426,28 +372,6 @@ There is none, and none is planned in the source: no container integration, no
 `addChronicle`-style registration. Reactors, reducers, projections, constraints,
 and seeders are instantiated by the client itself, so **constructor injection does
 not work**. Use module-scope collaborators, as the shipped sample does.
-
-## Common pitfalls
-
-| Pitfall | Why it bites |
-| --- | --- |
-| Naming a reactor method after the handler's purpose | Dispatch is by the camelCase event class name; a mismatch is silently never called |
-| `instanceof` on the event inside a handler | It is a `JSON.parse`d plain object, not your class |
-| Event class with no default constructor values under `tsx` | No decorator metadata is emitted, so the schema comes out empty |
-| Two `@eventType()` classes sharing a class name | The id defaults to the class name and they collide |
-| Deploying compiled `dist/*.js` with default discovery | The default glob matches `**/*.ts`; nothing is discovered |
-| Omitting a side-effect import of an artifact module | Its decorator never runs, so it is never registered |
-| Forgetting `import 'reflect-metadata'` at the entry point | Decorators do not work at runtime |
-| Forgetting to install `@cratis/fundamentals` | It is a peer dependency and is not installed for you |
-| Importing `ChronicleConnectionString` | There is no `./connection` export; pass a string |
-| Expecting single `append()` to set a stream or subject | Those fields are hardcoded; use the `EventForEventSourceId[]` overload |
-| A connection string with no credentials | Silently falls back to the development client credentials |
-| Shipping the default TLS behavior | `skipTlsValidation` defaults to `true` |
-| Constructor-injecting a dependency into a reactor | There is no DI; the client constructs it |
-| Carrying a `3.x` example forward | Tags, the reducer context parameter, and two RPC names changed in `4.0.0` |
-| Reading `result.sequenceNumber` as a number | It is a `bigint` behind `.value` |
-| A `@globalFor` mapping targeting a property one variant lacks | `GlobalHandlerPropertyNotOnVariant` when the group is built, not a silently skipped mapping |
-| Expecting a `@globalFor`-only class to appear as a projection | It is never registered on its own; it is merged into its variants |
 
 ## Verify
 

@@ -35,6 +35,57 @@ placeholder injected at pack time (`Source/Directory.Build.props`), so the
 repository never carries the real number. Reverify before claiming support for a
 version you have not checked.
 
+## Lifecycle
+
+- **Registration is wired to the connection, not called by you.**
+  `EventStore.cs:265-268` subscribes `RegisterAll` to `Connection.Lifecycle.OnConnected`
+  when `autoDiscoverAndRegister` is on, so a reconnect re-registers everything.
+- `DiscoverAll()` does event types first, then constraints, reactors, reducers,
+  projections, and seeding in parallel (`EventStore.cs:349-362`). `RegisterAll()`
+  is single-flighted with jittered backoff and a background retry loop (`:373-379`).
+- **Wait with `WaitForRegistration`, not by polling `IsConnected`.**
+  `RegistrationWaitExtensions.WaitForRegistration(this IEventStore, TimeSpan? timeout = default)`
+  (`Source/Clients/DotNET/Registrations/RegistrationWaitExtensions.cs:42`, default
+  5 seconds) exists precisely for this, and its own remarks warn against the
+  `IConnectionLifecycle.IsConnected` alternative (`:34-39`). Connected is not
+  registered.
+- **Keepalive is a bidirectional stream plus a watchdog.** The watchdog monitors
+  every `MonitorIntervalMilliseconds = 1000`
+  (`Source/Clients/Connections/ConnectionWatchdog.cs:34`) and a keepalive that
+  falls more than 5 seconds behind is treated as a lost connection, with
+  reconnect backoff capped at 30 seconds. **The failure mode is silence, not an
+  exception** — appends keep working while observers go quiet.
+- `Dispose()` disposes read model reactors for created stores, cancels the owned
+  connection, and disposes the connection
+  (`Source/Clients/DotNET/ChronicleClient.cs:225-246`).
+
+## What a standalone app owns that a host would have supplied
+
+Every one of these has a silent default. Read them as a checklist, because the
+defaults are reasonable for a sample and wrong for a service
+(`ChronicleClient.cs:121-127`):
+
+| Concern | Default when you pass nothing |
+| --- | --- |
+| `IClientArtifactsProvider` | `DefaultClientArtifactsProvider.Default` — full assembly scan |
+| `IServiceProvider` | `DefaultServiceProvider`, which activates everything through `Activator.CreateInstance` (`DefaultServiceProvider.cs:41`) |
+| `IIdentityProvider` | `BaseIdentityProvider` |
+| `ICorrelationIdAccessor` | `CorrelationIdAccessor` |
+| `IEventStoreNamespaceResolver` | `DefaultEventStoreNamespaceResolver` — always `"Default"` |
+| `ILoggerFactory` | `new LoggerFactory()` — **a silent one** |
+| Configuration binding | none; there is no `Cratis:Chronicle` section without a host |
+
+The `IServiceProvider` default is the sharp one: **a reactor or reducer with
+constructor dependencies is default-constructed** unless you pass a real
+container. Pass one, or keep observers dependency-free.
+
+The AspNetCore package additionally registers `AddUnitOfWork()`,
+`AddCompliance()`, `AddCausation()`, `AddChronicleHealthCheck()`, and
+`UseCratisChronicle()` — none of which the base package gives you.
+
+**Keep the process alive.** Observation is a live gRPC duplex stream; a console
+app that appends and returns from `Main` never sees a reactor run.
+
 ## Which package
 
 ```shell
@@ -149,62 +200,15 @@ from `string` (`:158`) and a `Redacted` form for logging (`:152`).
 
 ### In a host
 
-```csharp
-var builder = Host.CreateApplicationBuilder(args);
-builder.AddCratisChronicle(options => options.EventStore = "<EventStoreName>");
-builder.Services.AddHostedService<<WorkerName>>();
-await builder.Build().RunAsync();
-```
+`AddCratisChronicle` is an extension on `IHostApplicationBuilder` (and `WebApplicationBuilder`), not on `IServiceCollection`; there is no `WithClaimsBasedNamespaceResolver`.
 
-`AddCratisChronicle` is an extension on **`IHostApplicationBuilder`**
-(`Source/Clients/DotNET/ChronicleHostApplicationBuilderExtensions.cs:28`) and binds
-the `Cratis:Chronicle` configuration section by default (`:25`, `:37`), with
-`ValidateDataAnnotations().ValidateOnStart()`. The bound type is
-`ChronicleClientOptions : ChronicleOptions`, which adds a `[Required] EventStore`
-and an optional `EventStoreNamespaceResolverType`.
-
-> **`AddCratisChronicle` on `IServiceCollection` does not exist**, despite what
-> `Documentation/clients/dotnet/getting-started.md:61` shows. The real extensions
-> are on `IHostApplicationBuilder`, `WebApplicationBuilder` (in the AspNetCore
-> package), and Aspire's `IDistributedApplicationBuilder`. `IHostBuilder.AddCratisChronicle()`
-> also exists but only registers concept type converters
-> (`Source/Clients/DotNET/Hosting/HostBuilderExtensions.cs:18-23`) — it is not
-> the wiring entry point.
-
-`IChronicleBuilder` extensions are exactly five:
-`WithArtifactsProvider`, `WithIdentityProvider`, `WithCorrelationIdAccessor`,
-`WithNamespaceResolver`, `WithCamelCaseNamingPolicy`
-(`Source/Clients/DotNET/ChronicleBuilderExtensions.cs`). **There is no
-`WithClaimsBasedNamespaceResolver`**, despite a doc comment at
-`ChronicleOptions.cs:141` referring to one. Pass the resolver instead:
-`new ChronicleClient(options, namespaceResolver: new ClaimsBasedNamespaceResolver("tenant_id"))`.
+Read [references/hosting.md](references/hosting.md) when wiring Chronicle into a worker or ASP.NET Core host, or when `AddCratisChronicle` or a namespace resolver does not resolve.
 
 ## The client and the server check each other
 
-Since Chronicle 17 the compatibility check is a server-side RPC, and **the client
-runs it automatically inside `Connect()`** —
-`Source/Clients/Connections/ChronicleConnection.cs:310` calls
-`CheckCompatibility` (`:414`), sending the client type, client version, protocol
-version, and the descriptor set its contracts package was built with (`:420-426`).
-The rationale is at `:409-413`: Chronicle has clients in four languages and only
-some can build a descriptor set at runtime, so each ships the one it was built
-with and the server does the single comparison.
+The client runs the server-side compatibility check automatically inside `Connect()`; a genuine mismatch throws `IncompatibleServerException`, while a transport error is logged and ignored by design.
 
-Behavior you can rely on:
-
-- A server too old to have the RPC answers `Unimplemented`, and the client falls
-  back to the previous client-side exchange (`:428-434`) — upgrading the client
-  does not silently drop the check.
-- Any other transport error is **logged and ignored** (`:435-441`), on the stated
-  reasoning that failing to ask says nothing about whether the two sides agree.
-- A genuine mismatch throws `IncompatibleServerException`
-  (`Source/Clients/Connections/IncompatibleServerException.cs:10`) whose message
-  names the server address, its version, its protocol version, and the specific
-  incompatibilities (`:443-449`).
-
-The client identifies itself as `".NET"`
-(`Source/Clients/Connections/ChronicleClientIdentity.cs:22`) with its assembly
-informational version (`:27`) and the contracts protocol version (`:32`).
+Read [references/compatibility-check.md](references/compatibility-check.md) when diagnosing an `IncompatibleServerException`, a skipped compatibility check, or an old-server fallback.
 
 ## Event types
 
@@ -357,77 +361,9 @@ Read models are queried through `eventStore.ReadModels`
 
 ## Discovery
 
-Artifacts are found by **assembly scanning**, with no registration call and no DI
-container required. `DefaultClientArtifactsProvider.Default` composes the
-project-referenced and package-referenced assemblies
-(`Source/Clients/DotNET/DefaultClientArtifactsProvider.cs:37`), and the
-predicates are exactly (`:242-251`):
+Artifacts are found by assembly scanning, with no registration call and no DI container required.
 
-| Kind | Predicate |
-| --- | --- |
-| event types | `HasAttribute<EventTypeAttribute>()` or `HasAttribute<EventTypeGenerationForAttribute>()` |
-| projections | `HasInterface(typeof(IProjectionFor<>))` |
-| model-bound projections | `HasModelBoundProjectionAttributes()` |
-| reactors | `HasInterface<IReactor>()` and not generic |
-| read model reactors | `HasInterface<IReadModelReactor>()` and not generic |
-| reducers | `HasInterface(typeof(IReducerFor<>))` and not generic |
-
-Explicit registration is available per family as an alternative —
-`IEventTypes.Register`, `IConstraints.Register`, `IProjections.Register`,
-`IReducers.Register`, `IReactors.Register<TReactor>()`,
-`IReadModels.Register<TReadModel>()` — and is what you use with
-`AutoDiscoverAndRegister = false`.
-
-## Lifecycle
-
-- **Registration is wired to the connection, not called by you.**
-  `EventStore.cs:265-268` subscribes `RegisterAll` to `Connection.Lifecycle.OnConnected`
-  when `autoDiscoverAndRegister` is on, so a reconnect re-registers everything.
-- `DiscoverAll()` does event types first, then constraints, reactors, reducers,
-  projections, and seeding in parallel (`EventStore.cs:349-362`). `RegisterAll()`
-  is single-flighted with jittered backoff and a background retry loop (`:373-379`).
-- **Wait with `WaitForRegistration`, not by polling `IsConnected`.**
-  `RegistrationWaitExtensions.WaitForRegistration(this IEventStore, TimeSpan? timeout = default)`
-  (`Source/Clients/DotNET/Registrations/RegistrationWaitExtensions.cs:42`, default
-  5 seconds) exists precisely for this, and its own remarks warn against the
-  `IConnectionLifecycle.IsConnected` alternative (`:34-39`). Connected is not
-  registered.
-- **Keepalive is a bidirectional stream plus a watchdog.** The watchdog monitors
-  every `MonitorIntervalMilliseconds = 1000`
-  (`Source/Clients/Connections/ConnectionWatchdog.cs:34`) and a keepalive that
-  falls more than 5 seconds behind is treated as a lost connection, with
-  reconnect backoff capped at 30 seconds. **The failure mode is silence, not an
-  exception** — appends keep working while observers go quiet.
-- `Dispose()` disposes read model reactors for created stores, cancels the owned
-  connection, and disposes the connection
-  (`Source/Clients/DotNET/ChronicleClient.cs:225-246`).
-
-## What a standalone app owns that a host would have supplied
-
-Every one of these has a silent default. Read them as a checklist, because the
-defaults are reasonable for a sample and wrong for a service
-(`ChronicleClient.cs:121-127`):
-
-| Concern | Default when you pass nothing |
-| --- | --- |
-| `IClientArtifactsProvider` | `DefaultClientArtifactsProvider.Default` — full assembly scan |
-| `IServiceProvider` | `DefaultServiceProvider`, which activates everything through `Activator.CreateInstance` (`DefaultServiceProvider.cs:41`) |
-| `IIdentityProvider` | `BaseIdentityProvider` |
-| `ICorrelationIdAccessor` | `CorrelationIdAccessor` |
-| `IEventStoreNamespaceResolver` | `DefaultEventStoreNamespaceResolver` — always `"Default"` |
-| `ILoggerFactory` | `new LoggerFactory()` — **a silent one** |
-| Configuration binding | none; there is no `Cratis:Chronicle` section without a host |
-
-The `IServiceProvider` default is the sharp one: **a reactor or reducer with
-constructor dependencies is default-constructed** unless you pass a real
-container. Pass one, or keep observers dependency-free.
-
-The AspNetCore package additionally registers `AddUnitOfWork()`,
-`AddCompliance()`, `AddCausation()`, `AddChronicleHealthCheck()`, and
-`UseCratisChronicle()` — none of which the base package gives you.
-
-**Keep the process alive.** Observation is a live gRPC duplex stream; a console
-app that appends and returns from `Main` never sees a reactor run.
+Read [references/discovery.md](references/discovery.md) when an event type, reactor, reducer or projection is not being found, or when you need explicit registration with `AutoDiscoverAndRegister = false`.
 
 ## Common pitfalls
 
