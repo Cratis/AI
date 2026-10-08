@@ -434,13 +434,19 @@ require portable data-subject semantics"), so a `@pii` model stops at authorable
 keep the attribute, because the classification is the point, and never drop it to bind
 or render.
 
-⚠️ **Identifiers are not `@pii`.** `@pii` on a concept that types an identifier
-compiles silently, but Chronicle rejects PII on an event source id (`CHR0034`). Keep
-the stream identity a surrogate `Uuid` concept and carry the personal value (name,
-email) as a separate `@pii` property. **`@sensitive` is unverified:** it has no
-defined portable meaning (Screenplay#384). Stage 4.24.0's legacy syntax renderer maps
-`@sensitive` to `[PII]` (`ConceptRenderer.cs:84`, Stage#197), while the current
-`cratis render` path rejects the model with `PLAY0268`. Do not promise a behaviour for it; both issues are open.
+`@pii` is personal data (erasable); `@sensitive` is an **operational secret** (API key,
+token, a company's bank account number): encrypted at rest without erasure and withheld
+from the causation chain (Screenplay decision 0034, Screenplay#384). C# providers render
+`@sensitive` as `[Encrypted]` + `[NotAudited]`, `@pii` as `[PII]`, and `@pii @sensitive`
+as `[PII]` only, because Chronicle rejects `[PII]` with `[Encrypted]` (`CHR0053`); Stage
+renders this from v4.29.0. The executable model still stops at `PLAY0268` for either.
+
+⚠️ **Identifiers are neither `@pii` nor `@sensitive`.** Chronicle rejects `[PII]` on an
+event source id (`CHR0034`) and `[Encrypted]` on one (`CHR0052`); Screenplay reports
+`PLAY0515` (4.69.1 and later) for either on a command identifier, an explicit `for`
+destination or an event source identifier. Keep the stream identity a surrogate `Uuid`
+concept and carry the personal value (name, email) as a separate `@pii` property and a
+secret as a `@sensitive` property.
 
 ⚠️ **Enum trap.** A value literally named `validate` is read as an empty validate
 block. Write `@validate` for the value; the compiler warns when it sees the
@@ -521,7 +527,7 @@ Four contexts, and **what each omits is load-bearing** — read
 - [ ] Constraints are `unique` forms; no `file` constraint stands in for another rule.
 - [ ] Each policy has one `require` or one implementation, not both.
 - [ ] Personal data is `@pii` on the concept, with a reason; no identifier concept is `@pii`;
-      no behaviour is claimed for `@sensitive`.
+      operational secrets are `@sensitive` (never `@pii`), and no identifier concept carries either.
 - [ ] No `handler` where the model must bind, and no bodied construct described as
       runnable or renderable without saying which tool admits it.
 - [ ] No event carries an optional property covering two situations.

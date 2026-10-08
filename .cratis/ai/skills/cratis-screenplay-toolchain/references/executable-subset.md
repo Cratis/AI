@@ -142,7 +142,7 @@ bodies still leave their owner non-executable.
 | --- | --- | --- |
 | `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
-| `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.66.0. `@sensitive` has no verified portable meaning (Screenplay#384, open) |
+| `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.66.0. `@sensitive` means an operational secret, rendered `[Encrypted]` + `[NotAudited]` (Screenplay decision 0034) |
 | `query` returning a collection (`RM[]`), or without exactly one caller-supplied `by` | PLAY0268 | "must declare one caller-supplied 'by' argument" or "must return one optional read model" |
 | `observable`, `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` goes in the return position (`=> observable RM optional`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
@@ -186,4 +186,4 @@ bodies still leave their owner non-executable.
 Do not remove `@pii`, `@sensitive`, `authorize` or policies, list queries, automations or
 rules a domain needs just to make binding pass. Report `V3 blocked: <codes>` and record the
 slice in the gap list. A `@pii` or `@sensitive` attribute blocks V3 and rendering, and
-`@pii` on an event-source identifier is rejected by Chronicle (CHR0034) in addition.
+either attribute on an event-source identifier is rejected by Screenplay (`PLAY0515`) and by Chronicle (CHR0034 for `[PII]`, CHR0052 for `[Encrypted]`) in addition.

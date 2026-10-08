@@ -39,7 +39,7 @@ whole automation is hand-written (gap-fill).
 | Constraints | unique property value, unique event occurrence; admitted even though Chronicle#4123 means index updates run after commit | intra-command multi-event change to one constraint; multi-claim in one command: 014 |
 | Authorization | authenticated, role, claim and logical policies; caller fixtures; ownership claims against text-backed targets | opaque policy code, role-claim URIs, a claim matched against a Uuid-backed subject or path: 015 |
 | Specifications | command-action scenarios: given events, `when <Command>`, `then` events (ordered or any order), `then readmodel`, `then query`, `then error` (naming a rendered constraint or message), `then denied`, `given caller`. Two narrow when-less routes: an unprotected single `then query` seeded by exactly one `given readmodel` whose key and values match (no given events, no caller), and a query-only denial (`given caller`, one `then query` with no results, `then denied`, a protected query, no role claims) | `then no readmodel`, `when append`, composite values, error codes not naming a rendered constraint: 011. Any other when-less specification (for example given events with `then query`) fails 011 |
-| Compliance | none | any `@pii` or `@sensitive` already fails binding (PLAY0268). Stage's `[PII]` attribute comes only from the legacy syntax renderer, which renders `@sensitive` as `[PII]` too (Stage#197) |
+| Compliance | none | any `@pii` or `@sensitive` already fails binding (PLAY0268). The C# provider mapping (Stage v4.29.0, Stage#197) is `@pii` to `[PII]`, `@sensitive` to `[Encrypted]` + `[NotAudited]`, both to `[PII]` only |
 
 ## Authoring consequences in renderable mode
 

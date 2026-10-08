@@ -63,6 +63,14 @@ well-known `ComplianceMetadataType`. Chronicle has no `[Redact]`, `[Erase]`,
 `[Anonymize]`, `[Encrypt]`, or `[NotAudited]` attribute; do not write one into
 an example. Redaction is an API call, not an annotation.
 
+`[Encrypted]` (`Cratis.Chronicle.ProtectedValues`, Chronicle 19.32.0+) is a
+security marker, not a compliance category: it encrypts an operational secret
+(API key, token, a company's bank account number) at rest with no data subject
+and no erasure. Never put it on a value that is also `[PII]` (analyzer
+**CHR0053**, which `[PII]` alone already covers), nor on an event source id
+(**CHR0052**). Arc's `[NotAudited]` is not a Chronicle attribute either; a secret
+that is also a command property takes both `[Encrypted]` and `[NotAudited]`.
+
 Mark only genuinely personal values. Business metadata, identifiers of
 non-persons, and amounts stay unmarked — every marked value costs an encryption
 round trip and becomes unreadable the moment the subject is erased.
@@ -232,8 +240,9 @@ storage, configured under `Cratis:Chronicle:Compliance:Encryption`.
 - Bearer tokens, magic links, and signed URLs are secrets, not durable facts.
   Store a keyed hash or an opaque reference. Chronicle has no attribute that
   withholds a secret from the log (Arc's `[NotAudited]` keeps a *command
-  property* out of the causation chain — see **cratis-arc-command** — but a
-  secret placed in an event payload is in the log for good).
+  property* out of the causation chain — see **cratis-arc-command**), and a
+  secret placed in an event payload is in the log for good; `[Encrypted]`
+  protects it at rest but it stays recoverable, so prefer a hash or reference.
 - **Erasure is wider than the event log.** Crypto-shredding removes readability
   of `[PII]` values in events and read models. It does nothing for a copy that
   left Chronicle: an exported CSV, a generated PDF, a search index, an email

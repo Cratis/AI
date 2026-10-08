@@ -130,13 +130,11 @@ MCP loop procedure and proposals: `cratis-screenplay-model-authoring`.
   the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity"). Keep it apart from the MCP `modelRevision`.
 - `description` and `documentation` never reach rendered code (Stage#178, open).
 
-## Roadmap items that would change a verdict (all open at the pin)
+## Roadmap items that would change a verdict (all open at the pin; the `@sensitive` meaning, Screenplay#384, and `PLAY0515` identifier refusal, Stage#197, are settled in decision 0034)
 
 Screenplay#377 (run specifications from MCP or the tool), #388 (completeness and lineage
-report), #383 (identity for an `invokes` caller), #384 (`@pii` on identifiers, `@sensitive`
-meaning), #379 (`visualize-model` counts reactions); Stage#79 (render Automation and
-Translate slices), Stage#165 (admit ESM v4), Stage#197 (`@pii` identifier renders as
-`[PII]` event source id); cli#242 (false PLAY0285 on the 4.60.1 bundle; fixed in effect by the 4.66.0 bundle but still open on GitHub), cli#243 (`validate --executable`),
+report), #383 (identity for an `invokes` caller), #379 (`visualize-model` counts reactions); Stage#79 (render Automation and
+Translate slices), Stage#165 (admit ESM v4); cli#242 (false PLAY0285 on the 4.60.1 bundle; fixed in effect by the 4.66.0 bundle but still open on GitHub), cli#243 (`validate --executable`),
 cli#244 (file mode ignores imports), cli#245 (`render --check`). The standalone tool at
 4.68.0 has only the compile command and `mcp` (no `test`; `screenplay --help` checked); the reference runner is library
 only. Until these land, "specifications written" or "bound" is never "specifications
