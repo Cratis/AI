@@ -3,7 +3,7 @@
 
 import { createHash } from 'node:crypto';
 import { constants } from 'node:fs';
-import { access, readFile, readdir, stat } from 'node:fs/promises';
+import { access, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { basename, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
@@ -12,6 +12,7 @@ import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
 import { danglingSkillReferences } from './skill-references.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
+import { referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
 
 interface Profile {
     id: string;
@@ -22,7 +23,7 @@ interface Profile {
 interface Scenario {
     skill: string;
     input: string;
-    assertions: Array<{ kind: string; value: string }>;
+    assertions: Array<{ kind: string; value: string; file?: string }>;
 }
 
 const root = resolve(process.argv[2] ?? '../..');
@@ -159,6 +160,13 @@ for (const directory of skillDirectories) {
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, skillFile)} must declare name and description.`);
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
     failures.push(...skillFrontmatterProblems(relative(root, skillFile), skillContent));
+    failures.push(...skillStructureProblems(relative(root, skillFile), skillContent));
+    const skillDirectory = join(corpus, 'skills', directory.name);
+    const referenceFiles = (await files(skillDirectory)).filter(path => path.endsWith('.md') && path !== skillFile);
+    failures.push(...skillReferenceProblems(relative(root, skillFile), skillBody(skillContent), referenceFiles.map(path => relative(skillDirectory, path).replaceAll('\\', '/'))));
+    for (const referenceFile of referenceFiles) {
+        failures.push(...referenceContentsProblems(relative(root, referenceFile), await readFile(referenceFile, 'utf8')));
+    }
 }
 
 for (const prompt of (await readdir(join(corpus, 'prompts'))).filter(name => name.endsWith('.md'))) {
@@ -195,9 +203,19 @@ for (const scenarioPath of (await files(join(corpus, 'skills'))).filter(path => 
     const skillPath = join(corpus, 'skills', scenario.skill, 'SKILL.md');
     const content = await readFile(skillPath, 'utf8');
     for (const assertion of scenario.assertions) {
-        if (assertion.kind !== 'skill-contains' || !content.includes(assertion.value)) {
-            failures.push(`${relative(root, scenarioPath)} assertion failed: ${JSON.stringify(assertion)}.`);
+        let assertionContent: string | undefined = content;
+        if (assertion.file !== undefined) {
+            assertionContent = undefined;
+            if (!skillAssertionFileProblem(assertion.file)) {
+                const referencePath = join(corpus, 'skills', scenario.skill, assertion.file.replaceAll('\\', '/'));
+                if (await exists(referencePath) && (await stat(referencePath)).isFile()) {
+                    const skillDirectory = await realpath(join(corpus, 'skills', scenario.skill));
+                    const target = relative(skillDirectory, await realpath(referencePath));
+                    if (!skillAssertionFileProblem(target)) assertionContent = await readFile(referencePath, 'utf8');
+                }
+            }
         }
+        failures.push(...skillContainsAssertionProblems(relative(root, scenarioPath), assertion, assertionContent));
     }
     scenarioResults.push({
         scenario: relative(root, scenarioPath),
