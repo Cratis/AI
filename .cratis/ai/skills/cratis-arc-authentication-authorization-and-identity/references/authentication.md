@@ -134,7 +134,7 @@ whose `SchemeName` is `"MicrosoftIdentityPlatform"`. `builder.AddCratis()` (the
 `Cratis` package) calls this for you and makes it the **default** authentication
 scheme; `AddCratisArc()` from `Cratis.Arc` does not register it.
 
-⚠️ Today the default is that a plain `builder.AddCratis()` host trusts the unsigned
+⚠️ At `22.41.1` the default is that a plain `builder.AddCratis()` host trusts the unsigned
 `x-ms-client-principal*` headers from **any caller that can reach it** — it is safe
 only behind the ingress described below (tracked as open Arc#2946). If the host is
 not behind such an ingress, do not use this scheme: configure a credential-validating
@@ -159,7 +159,7 @@ Arc applies that rule to one place itself: the protected introspection catalogs
 | `Roles` | `null` | Comma-separated, any one grants access; needs `RequireAuthentication: true` and no empty entries |
 | `TrustForwardedIdentityHeaders` | `false` | Accepts identity from the unsigned forwarded headers for the protected catalog; needs `Enabled` and `RequireAuthentication` |
 
-Today the default is that the catalogs are public, and with
+At `22.41.1` the default is that the catalogs are public, and with
 `RequireAuthentication: true` the forwarded headers are **ignored** for them until
 you set `TrustForwardedIdentityHeaders: true`: the built-in
 `MicrosoftIdentityPlatformAuthenticationHandler` returns

@@ -142,7 +142,7 @@ opt-in:
 - Only a declaration made **entirely** of opted-in policies, with no roles and no
   schemes, can evaluate guests. Roles and schemes always require authentication.
 
-⚠️ The opt-in governs Arc's pipeline verdict only. Today the HTTP layer can reject
+⚠️ The opt-in governs Arc's pipeline verdict only. At `22.41.1` the HTTP layer can reject
 a guest before the policy runs: a Core host with any authentication handler, or an
 ASP.NET Core `FallbackPolicy` that requires authentication, returns 401 first
 (tracked in Cratis/Arc#2948). Test guest endpoints through the real HTTP host.

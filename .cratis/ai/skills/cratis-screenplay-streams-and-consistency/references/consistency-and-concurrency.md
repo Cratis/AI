@@ -67,7 +67,7 @@ Right: write the rule as stated intent and mark it unenforced.
   - Decision inputs: the authoritative facts or state.
   - Missing guarantee: why the construct does not protect the decision.
   - Race consequence: what two individually plausible commands could jointly violate.
-  - Intended enforcement: the target mechanism (below), or the options awaiting agreement.
+  - Intended enforcement: the target mechanism (SKILL.md, ‘First append into a scope’), or the options awaiting agreement.
   - Business outcome: what a rejected, delayed or compensated request means.
 - A `STATE.md` row with owner and revisit condition. A general note "some state rules are
   unsupported" does not replace these per-rule blocks.
@@ -125,24 +125,7 @@ Chronicle applies optimistic concurrency to appends by default; the `concurrency
 narrows the scope (eventSource, sourceType, streamType, streamId, events). It does not bind
 in the executable model; it documents intent for the target.
 
-**First append into a scope (Chronicle v19.32.0, version-qualified).** The default optimistic
-strategy compares the scope's tail sequence number. When nothing matches the scope yet (the
-first event on a new event source, or the first event of a new source type, stream type or
-stream id), there is no tail and the append is **not checked**: two writers opening the same
-source or narrowed partition can both succeed. This is the append most exposed to a race, so a
-concurrency scope alone does not protect "only one writer may open this". For a target that
-needs it:
-- enable the check, application-wide with `ConcurrencyOptions.CheckFirstAppendIntoAScope`
-  (default `false`) or per append with `ConcurrencyScopeBuilder.ExpectingNoMatchingEvent()`,
-  and handle the `ConcurrencyViolation` it can now raise; or
-- use a unique event constraint, which the kernel enforces for every writer whether or not the
-  append declared a scope (the model's `unique event`).
-Require target evidence that the check ran: a concurrent first-append scenario against a real
-Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
-is `true` (a skipped check and a passing one look identical otherwise; a current client against
-an older kernel always reads `false`). This was source- and documentation-inspected, not
-concurrency-tested here. Stage-rendered apps pin Chronicle client 19.8.1: do not assume these
-APIs exist there; confirm the package version before recommending them.
+See "First append into a scope" in SKILL.md.
 
 ## 5. Three different guarantees (do not conflate)
 | Guarantee | Meaning | Screenplay evidence |

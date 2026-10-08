@@ -68,6 +68,18 @@ one. Out-of-process integration specifications are an advanced case reserved for
 boundaries the scenario helpers cannot reach — see
 [integration-specs.md](references/integration-specs.md).
 
+> **Validator state can be order-sensitive.** The command-scenario pipeline can
+> cache enough state that injected-validator branches depend on execution order
+> when xUnit runs classes in parallel. Use `CommandScenario` for the valid path,
+> test rejected state variants by instantiating the validator directly, and only
+> for that case put the command's specifications in a small xUnit `[Collection]`.
+
+⚠️ `EventScenario` wires a strategy that always answers `ConcurrencyScope.None`,
+which the validator skips, so an append that lets the strategy choose the scope
+never produces a concurrency violation. `ShouldHaveConcurrencyViolations()`
+cannot pass for such an append and its negation passes vacuously — specify concurrency against the
+real kernel with an out-of-process integration specification instead.
+
 Specification projects are named `<Source>.Specs` and run on xUnit.
 
 ## Step 2 — Create the folder structure
@@ -172,8 +184,7 @@ public class a_<system_under_test> : all_dependencies
 ```
 
 Name a context `a_` or `an_` so it reads as "given an observer, when handling".
-Full substitution, assertion, and exception-catching patterns are in
-[csharp-patterns.md](references/csharp-patterns.md).
+Read [csharp-patterns.md](references/csharp-patterns.md) when implementing substitutions, assertions, or exception capture; it contains the full patterns.
 
 ## Step 5 — Never wait on the clock
 

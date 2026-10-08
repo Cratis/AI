@@ -43,7 +43,7 @@ is the trust boundary. But it means:
   the application itself to validate a token, that is ordinary ASP.NET Core
   authentication you configure yourself.
 
-Today the default is that a plain `builder.AddCratis()` host registers the
+At `22.41.1` the default is that a plain `builder.AddCratis()` host registers the
 unsigned-header scheme as its **default** authentication scheme, so any caller who
 can reach it can forge a principal for every authorized command and query (open
 Arc#2946). Run it only behind that ingress; otherwise use `AddCratisArc()` and
@@ -97,7 +97,7 @@ does its own 401/403. There is no public constant for the identity routes — th
 are string literals in the endpoint mapper.
 
 ⚠️ **A fallback policy does not protect an endpoint that is explicitly anonymous**,
-and the word "development" is not an environment check. Today the default is that
+and the word "development" is not an environment check. At `22.41.1` the default is that
 these routes are public and expose your command, query, user and tenant surface;
 the exposure is tracked in open Arc#2834. To change it:
 
@@ -119,7 +119,7 @@ is `Lax`, `Path` is `/`.
 
 ⚠️ A non-`HttpOnly` cookie the browser can read is a cookie the user can edit.
 Treat everything in it as a **display** input. Never let it decide anything the
-server has not already decided. Today the default is that `/.cratis/me` returns
+server has not already decided. At `22.41.1` the default is that `/.cratis/me` returns
 whatever a presented `.cratis-identity` cookie decodes to *before* it looks at the
 authenticated principal, so a client can make it report any identity or roles
 (open Arc#2939). Commands and queries authorize on the request principal and are
@@ -205,7 +205,7 @@ closed — the latter denies every observable query in the process. The principa
 from `ObservableQueryEmissionContext.Principal`, never from ambient accessors or
 `IHttpContextAccessor`; the guard is constructed per emission, so keep it cheap and
 cache in a singleton. Guards do not protect the HTTP snapshot path. Read
-[observable emission guards](references/observable-emission-guards.md).
+[observable emission guards](references/observable-emission-guards.md) when implementing or reviewing revocation of an observable-query subscription.
 
 ### Validators are not an authorization boundary
 
@@ -244,8 +244,8 @@ the claim Arc reserves, and the ASP.NET Core scheme variant.
 `ArcOptions.Tenancy` or the `Use*Tenancy` extension methods.
 
 `ITenantIdAccessor.Current` gives the current `TenantId`, which is
-`TenantId.NotSet` (`"[NotSet]"`) when nothing resolved. See
-[tenancy](references/tenancy.md) for the exact defaults and each resolver's
+`TenantId.NotSet` (`"[NotSet]"`) when nothing resolved. Read
+[tenancy](references/tenancy.md) when selecting or configuring a tenant resolver, or handling an unresolved tenant; it gives the exact defaults and each resolver's
 behavior.
 
 Arc tenancy is request-scoped tenant *resolution*. It is not Chronicle's tenant
@@ -284,7 +284,7 @@ filter.
 `Arc.React.MVVM` has **no** identity hook. It registers `IIdentityProvider` in
 its container so a view model can constructor-inject it; that is all.
 
-See [frontend](references/frontend.md) for the exact exported shapes.
+Read [frontend](references/frontend.md) when consuming identity in React or injecting it into a view model; it gives the exact exported shapes.
 
 ## Local development
 

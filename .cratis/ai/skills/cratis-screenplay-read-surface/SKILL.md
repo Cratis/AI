@@ -163,7 +163,7 @@ on the header line is a declaration error, not a shorthand.
 
 ### What runs
 
-In the executable model today, only the keyed snapshot shape binds:
+In the Screenplay 4.66.0 executable model, only the keyed snapshot shape binds:
 `=> <ReadModel> optional` with one caller-supplied `by` argument and no `observable`,
 `filter`, `scoped to` or `performer`. Anything else, including `=> <ReadModel>`
 and `=> <ReadModel>[]`, reports `PLAY0268`. Its `authorize` gate runs before
@@ -271,7 +271,7 @@ binding failures are errors.
 - [ ] Each read model has exactly one builder and every field traces to an event.
 - [ ] No screen reference is left ambiguous or unresolved.
 
-Versions, tool capabilities and the executable and renderable subsets: `cratis-screenplay-toolchain` (`references/versions.md`). Where a construct sits in the
+Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing a tool, checking versions, or assessing executable and renderable subsets. Where a construct sits in the
 method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses

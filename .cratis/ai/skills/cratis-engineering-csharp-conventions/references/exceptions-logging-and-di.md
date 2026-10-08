@@ -237,10 +237,7 @@ builder.Host.UseDefaultServiceProvider(options =>
 });
 ```
 
-Enable it on an existing codebase in this order, or it will simply refuse to
-start: turn it on locally first, fix everything it names, and only then let it
-reach the deployed environments. Turning it on before the sweep converts a
-silent multi-tenant bug into a production outage.
+See "The two rules most often got wrong" in SKILL.md.
 
 And add an architecture specification, because validation only catches what a
 run actually resolves. Reflect over the assembly, find every `[Singleton]` whose
