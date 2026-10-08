@@ -277,7 +277,7 @@ module Invoicing
           issuedAt = "2026-10-05T07:30:00Z"
 ```
 
-Iterating the overdue items needs code today (a clock trigger reads the whole view and takes
+At the example's verified Screenplay 4.66.0 version, iterating the overdue items needs code (a clock trigger reads the whole view and takes
 no `by`); see `cratis-screenplay-automations-and-translations`. A reaction that `produces`
 directly while it `reads` fails binding (`PLAY0268`): decide in a command instead.
 

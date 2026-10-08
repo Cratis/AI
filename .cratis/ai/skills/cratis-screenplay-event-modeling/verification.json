@@ -9,11 +9,13 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Inline events remain slice-owned contracts"
+      "value": "Inline events remain slice-owned contracts",
+      "file": "references/naming-primitives.md"
     },
     {
       "kind": "skill-contains",
-      "value": "Storage identity is not payload identity"
+      "value": "Storage identity is not payload identity",
+      "file": "references/naming-primitives.md"
     },
     {
       "kind": "skill-contains",
@@ -25,7 +27,8 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Use one file per slice"
+      "value": "Use one file per slice",
+      "file": "references/file-layout.md"
     },
     {
       "kind": "skill-contains",
@@ -53,15 +56,18 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Event generations and typed repairs now ship"
+      "value": "Event generations and typed repairs now ship",
+      "file": "references/parsed-not-runnable.md"
     },
     {
       "kind": "skill-contains",
-      "value": "every level above the slices is a **barrel file**"
+      "value": "every level above the slices is a **barrel file**",
+      "file": "references/file-layout.md"
     },
     {
       "kind": "skill-contains",
-      "value": "it does **not** restate `module` or"
+      "value": "it does **not** restate `module` or",
+      "file": "references/file-layout.md"
     },
     {
       "kind": "skill-contains",

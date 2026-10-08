@@ -53,3 +53,11 @@ diagnostics. It binds as a scheduled invocation; its `reads` is intent only, so 
 decision is not executed by the model. The `cratis` 3.28.2 bundle (Screenplay 4.66.0) binds it the same way (probed); the 3.27.1 bundle
 (Screenplay 4.60.1, ESM v1 to v5) compiled it but rejected the Automation slice at binding. Report reaction
 specifications as authored, not as run, unless a V4 run says otherwise.
+
+## Decision 0006 and shipped generations
+
+Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger can declare the
+views it decides from with `reads` (see `cratis-screenplay-captures-and-reactions`),
+but nothing enforces them yet. Event generations and typed repairs now ship;
+generations do not supply deployed migrations. Do not treat every accepted
+decision as implemented: check the construct's own page and the versions table.
