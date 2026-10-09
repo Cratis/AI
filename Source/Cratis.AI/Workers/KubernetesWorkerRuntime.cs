@@ -179,6 +179,9 @@ public class KubernetesWorkerRuntime(
         var name = DockerWorkerRuntime.NameFor(job.Session);
         var workspace = scratch ?? WorkerScratch.None;
 
+        // Removing checkout credentials alone cannot hide other repositories on a shared PVC.
+        var restricted = job.EnvironmentVariables.ContainsKey("DIRECT_REPOSITORY_CHECKOUTS");
+
         var volumes = new List<V1Volume>
         {
             new()
@@ -215,13 +218,14 @@ public class KubernetesWorkerRuntime(
         List<V1EnvVar> env =
         [
             .. job.EnvironmentVariables
-                .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName)
+                .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName &&
+                    (!restricted || (variable.Key != repositoryCacheEnvironmentVariable && variable.Key != "DIRECT_REPOSITORY_CACHE")))
                 .Select(variable => new V1EnvVar { Name = variable.Key, Value = variable.Value }),
             new() { Name = WorkerSecrets.PathVariableName, Value = WorkerSecrets.Path },
             new() { Name = WorkerPromptFile.PathVariableName, Value = WorkerPromptFile.Path }
         ];
 
-        if (!string.IsNullOrWhiteSpace(repositoryCachePath) && !string.IsNullOrWhiteSpace(repositoryCacheClaimName))
+        if (!restricted && !string.IsNullOrWhiteSpace(repositoryCachePath) && !string.IsNullOrWhiteSpace(repositoryCacheClaimName))
         {
             // Read-only, on the claim and on the mount both, and that is a security boundary rather
             // than an optimization: the consumer's own pod runs `git` inside these mirrors with far
