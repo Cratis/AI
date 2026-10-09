@@ -1,7 +1,7 @@
 # Translation patterns
 
-Complete compiled example: `translate-example.md` (binds on Screenplay 4.64.0; the cratis 3.27.1
-bundled compiler compiles it but rejects the slice at binding).
+Complete compiled example: `translate-example.md` (binds on Screenplay 4.66.0, also in cratis 3.28.2; the cratis 3.27.1
+bundle compiled it but rejected the slice at binding).
 
 ## 1. Where outside facts may enter
 Only two routes, both in a `Translate` slice:
@@ -42,12 +42,7 @@ For every field of the outside record, decide and write in the slice `descriptio
 | **ignore** | not needed, or not permitted for this purpose | keep it out of appended event payloads; define separately what source/last-seen records the target retains |
 Missing data our fact needs: either enrich from our side, or the fact is not ready yet
 (model a pending fact plus a case to specify), never invent defaults.
-A field left out of `map` still passes through the capture's working record: omission is not
-redaction. Check the append mappings and every resulting event property, and record whether
-the target stores raw or last-seen source records and how they are minimized.
-Personal data kept in events needs `@pii` on its concept and a purpose; keep the annotation
-even when it blocks binding. Never record bearer tokens, magic links or signed URLs as facts
-(a keyed hash or reference at most), and never put PII on the event-source id.
+See "Capture data-protection traps" in SKILL.md.
 Malformed or unmappable input becomes a recorded failure fact (or a dead-letter view), never
 a dropped record or a thrown error, which would pause the observer partition.
 

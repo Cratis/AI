@@ -21,16 +21,16 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 
 ## Verified product sources
 
-Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`.
+Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`. Read that file before selecting the compiler and renderer versions for delivery.
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `v3.27.1` (`a327e89`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.60.1 and Stage 4.24.0 |
-| Stage | `v4.24.0` (`fa48546`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
-| Screenplay | `v4.64.0` (`7e16162`) | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules |
+| cratis CLI | `v3.28.3` (`8b43fef`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled Stage 4.24.1; before 3.28.2: 4.60.1 and 4.24.0) |
+| Stage | `v4.24.2` (`32dcac4`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
+| Screenplay | `v4.68.0` (`79801bf`) | standalone compiler for V1 to V3 (admits ESM v7); binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0` |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1` | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one |
 
-Facts were read at those tags and `cratis render` was run at 3.27.1 for the worked example
+Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
 (`references/worked-example.md`). The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
 this skill links them and never restates the admission table.
 
@@ -62,8 +62,16 @@ assume an answer to 4, and record it as `blocked` for the user.
 | **B. Generated base plus authorized gap-fill** | an earlier admitted whole-model render exists and the user separately authorized hand-written scope, or a seam the model names needs an adapter | the generated output stays managed and untouched; hand-written code lives in `Customizations/` or a separate project (seam adapters by this skill, business gap-fill by `slice-implementer`), serves named model elements only, never claims render admission, and V5 is reported for the generated base **with its scope stated** |
 | **C. Fully hand-written delivery** | the scope cannot render and no generated base is wanted | `slice-implementer` delivers it with the model as the contract (`references/gap-fill-handoff.md`); V5 is `not run: no render` |
 
+Evolved events (a model that selects ESM v4) are gap-fill too: Stage 4.24.2 admits the v4 model but refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract. The cratis CLI bundles Stage 4.24.2 since 3.28.3 and reports an evolved event with `STAGE-ESM-026` (probed); 3.28.2 bundled Stage 4.24.1 (3.28.1 and earlier: 4.24.0) and refused a v4 model with `STAGE-ESM-016`.
+
+Generated command values and `returns` responses (ESM v7) bind and run in the reference runner on standalone
+Screenplay 4.68.0 but are not rendered: the cratis CLI 3.28.3 bundles 4.66.0 and reports `PLAY0268`, and Stage
+4.24.2 refuses ESM v7 with `STAGE-ESM-016` (tracked in Stage#201). A command that uses them is case A or C: keep
+the model, hand-write the command and its response with the model (and its fixtures and `then returns`
+specifications) as the contract, and report V3 from the standalone tool and V5 as `not run: no render`.
+
 Models with event sources, streams or command routes are case A or C today: they cannot
-bind or render (`PLAY0268`, `STAGE-ESM-016`), so hand-write the code with the model as the
+bind or render (`PLAY0268`: not admitted by any supported ESM version, so also `STAGE-ESM-016`), so hand-write the code with the model as the
 contract (`cratis-screenplay-toolchain` `references/sources-and-streams.md`).
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and
@@ -77,8 +85,9 @@ import-only root file.
    when present; uncommitted model changes return to P6 before delivery. Record the source identity (`cratis-screenplay-modeling-lifecycle`
    `references/verdicts-and-modes.md` "Source identity"), the model root, `--name`,
    `--project-name`, `--root-namespace` and target `cratis`. Take V1 and V3 from
-   `cratis-screenplay-toolchain`; report each with tool and version. V3 from the standalone
-   compiler does not prove the cratis-bundled binder admits the model.
+   `cratis-screenplay-toolchain`; report each with tool and version. V3 from a different
+   compiler version does not prove the cratis-bundled binder admits the model (they agree on
+   4.66.0 and cratis 3.28.2; an older cratis bundle binds less).
 2. **Probe.** `cratis render <model-root> --name <App> --destination <probe-dir> -o json`
    (exit 0 published, 5 refused with nothing published, 1 missing input). Classify every
    diagnostic with `references/renderability-gate.md`: model fix in the chosen mode,
@@ -177,8 +186,8 @@ Before reporting done:
 - `references/delivery-protocol.md` - inputs, commands, reading results, `Customizations/`.
 - `references/gap-fill-handoff.md` - the brief for `slice-implementer`, ledger flow.
 - `references/drift-and-ledger.md` - drift, publication refusals, the fallback ledger.
-- `references/worked-example.md` - a refused render and its report, with a complete model.
-- `references/provenance.md` - sources and attribution.
+- Read `references/worked-example.md` when preparing the classification and report for a refused render; it contains a complete model.
+- Read `references/provenance.md` when checking sources and attribution for the render workflow or gap-fill brief.
 
 ## Lineage
 

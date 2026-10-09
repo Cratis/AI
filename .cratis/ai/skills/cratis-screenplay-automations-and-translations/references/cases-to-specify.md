@@ -58,12 +58,12 @@ One spec in the slice does not cover the others.
   The decision must not depend on it (it is not protected).
 
 ## Spec limits (tool differences: `cratis-screenplay-toolchain` `references/versions.md`)
-- These Automation/Translate specs parse and bind (V3) on Screenplay 4.64.0, but no MCP tool,
+- These Automation/Translate specs parse and bind (V3) on Screenplay 4.66.0, but no MCP tool,
   `validate` or Stage render runs them (Stage renders no Automation or Translate slice). Report
   V4 as "not run: no route"; never as passed.
-- With the standalone compiler, a command spec lists the cascade (v6 semantics: after
-  `when <Command>`, `then` lists every new fact, including reaction appends). Only when the
-  cratis-bundled compiler is the V1 tool does it report a false PLAY0285 on a cascade (cli#242):
+- With Screenplay 4.66.0 (standalone or cratis 3.28.2), a command spec lists the cascade (v6 semantics: after
+  `when <Command>`, `then` lists every new fact, including reaction appends). Only when a
+  cratis before 3.28.2 bundle (4.60.1) is the V1 tool does it report a false PLAY0285 on a cascade (cli#242):
   then keep the cascade out of the command spec, specify it in the Automation slice
   (`when append <Trigger>`) and record the expectation. See `cratis-screenplay-scenario-coverage`.
 - `given capture` never persists between specs: state the baseline in each spec that needs it.

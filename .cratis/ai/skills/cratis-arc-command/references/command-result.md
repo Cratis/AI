@@ -1,5 +1,12 @@
 # CommandResult and ValidationResult
 
+## Contents
+
+- Server side
+- Severity filtering
+- Client side
+- Executing with a severity
+
 Verified against `Cratis.Arc.Core` `22.16.0` and `@cratis/arc` `22.16.0`.
 
 ## Server side

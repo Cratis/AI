@@ -4,7 +4,7 @@
 The ownership manifest `.cratis-render.json` at the destination records `semanticRevision`
 (`rev1:<sha256>`), the target, the renderer, the application name and a hash per managed file.
 
-Facts verified with `cratis render` 3.27.1 on one model: the same files rendered under the names
+Facts verified with `cratis render` 3.28.2 on one model: the same files rendered under the names
 `Marina` and `Harbour` gave different `semanticRevision` values, so **the application name is part
 of the revision**. The MCP workspace names the application after the model root folder (without
 `.screenplay/identities.json`), so its `modelRevision` is not comparable with a render's manifest

@@ -1,5 +1,14 @@
 # Worked example: reviewing a marina berth model
 
+## Contents
+
+- The model under review
+- Phase 1: element sweep (working notes)
+- Phase 2: entity walk (Berth)
+- Phase 3: field lineage
+- The report (excerpt)
+- After the fix
+
 A small model with one seeded design defect, reviewed in critic mode. The model file is
 `berths.play`; line numbers below refer to it. The report follows `report-template.md` and is
 shortened: it shows the flagged checks of each phase and elides the passing ones, which a real
@@ -112,7 +121,7 @@ Every event has a consumer (BerthList). Terminal reason: none needed.
 Mode: design   Stance: critic   Review kind: independent
 Source identity: 4f1c2ab+3e9a1c0b7d42 (source-identity helper)
 Scope: feature Moorings/Berths
-V1 authorable: pass (screenplay 4.64.0, 1 file)
+V1 authorable: pass (screenplay 4.66.0, 1 file)
 V2 executable diagnostics: not run: design mode
 V3 binding-ready: not run: design mode
 V4 reference specs run: not run: no route

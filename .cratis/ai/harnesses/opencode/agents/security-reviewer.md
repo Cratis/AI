@@ -43,7 +43,8 @@ Your responsibility is to perform a structured **security review** of all change
 
 ### Sensitive Data Exposure
 
-- [ ] No passwords, secrets, API keys, tokens stored in event properties or read models
+- [ ] Credentials used for authentication (passwords, bearer/session tokens) are never stored; keep a hash or a reference
+- [ ] Operational secrets the system must retain (third-party API key, a company's bank account number) are stored only as `[Encrypted]` + `[NotAudited]` concepts, never in a read model returned to clients in plaintext
 - [ ] No PII (email, phone, national ID, etc.) returned to clients that did not provide it
 - [ ] Query results are scoped to the requesting tenant/user — never return all-tenant data in a paged list
 

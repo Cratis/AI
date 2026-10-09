@@ -1,6 +1,11 @@
 # Example: a model inside the Stage 4.24 renderable subset
 
-A complete marina-berth model that `cratis render` 3.27.1 accepts, followed by what the
+## Contents
+
+- What was run
+- What came out
+
+A complete marina-berth model that `cratis render` 3.28.2 and 3.28.3 accept, followed by what the
 render produced and how each claim was checked. Use it as a shape to stay inside when a
 model must be renderable; it is not a template for richer slices (see `admission.md`).
 
@@ -105,11 +110,11 @@ Why it is shaped this way:
 
 ## What was run
 
-All with cratis 3.27.1 on a folder holding only `berths.play`:
+All with cratis 3.28.2 (re-run end to end from 3.27.1: same counts; admission and publication re-run on 3.28.3 with Stage 4.24.2: the same 30 artifacts) on a folder holding only `berths.play`:
 
 | Step | Command | Result |
 | --- | --- | --- |
-| Compile | `screenplay <folder> --warnaserror` (4.64.0) and `cratis screenplay validate <folder> --warnings-as-errors` | 0 errors, 0 warnings |
+| Compile | `screenplay <folder> --warnaserror` (4.66.0) and `cratis screenplay validate <folder> --warnings-as-errors` | 0 errors, 0 warnings |
 | Admission and publication | `cratis render <folder> --name Marina --destination out -o json` | exit 0, 30 artifacts written, `recovered: false` |
 | Re-render | the same command | `written: 0`, `unchanged: 30` |
 | Local edit | append a line to `out/Program.cs`, render again | exit 5: `Managed artifact 'Program.cs' was modified by the user; pass --force to replace it.` |

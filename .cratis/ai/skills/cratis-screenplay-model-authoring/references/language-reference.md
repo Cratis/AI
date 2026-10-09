@@ -3,6 +3,14 @@
 
 # Screenplay language reference for authoring
 
+## Contents
+
+- Accepted constructs
+- Complete model
+- Source validity is not execution
+- Not in the language yet
+- Editor support
+
 The `.play` source is plain UTF-8 text. Nesting is indentation-based, without
 braces or terminators. A construct owns the content indented beneath it. `//`
 starts a comment; escape reserved words inside a block with a leading `@`.
@@ -61,7 +69,7 @@ members or translating names from memory.
 
 This registration model uses an inline event and context identity rather than
 copying the identifier into payload. It was compiled at main `fd18129` with zero
-source diagnostics and recompiled with standalone 4.64.0 `--warnaserror`; neither
+source diagnostics and recompiled with standalone 4.68.0 `--warnaserror`; neither
 check runs its specifications. Inline lowering
 and `optional` spelling do not themselves select a newer ESM version.
 
@@ -145,12 +153,18 @@ The ESM version is selected by what a model uses, never by the author:
   distinct revision property identities. Historical declarations are not migration
   implementations; a target without migration support must reject the contract.
 - **v5** adds keyed read-model absence assertions (`then no readmodel`).
-- **v6** (standalone tool 4.61 and later; v4.64.0 `Versions.cs`) admits reactions,
+- **v6** (Screenplay 4.61 and later; v4.66.0 `Versions.cs`) admits reactions,
   captures, application triggers and the clock, hence `Automation` and
-  `Translate` slices. The Cratis CLI 3.27.1 bundles Screenplay 4.60.1 (ESM 5 at
-  most): there these constructs fail binding with `PLAY0268`. Name the tool
+  `Translate` slices. The Cratis CLI 3.28.2 bundles Screenplay 4.66.0 and binds them;
+  before 3.28.2 bundled 4.60.1 (ESM 5 at most), where these constructs failed
+  binding with `PLAY0268`. Name the tool
   with every bound result; `cratis-screenplay-toolchain` (`references/versions.md`)
   holds the per-tool table.
+- **v7** (Screenplay 4.68.0 and later; `Versions.cs`) admits generated command properties, `returns`
+  responses, generated fixtures and `then returns` expectations, and is selected only by a model that
+  uses one (decision 0026). The Cratis CLI 3.28.3 bundles 4.66.0 and reports `PLAY0268`; Stage 4.24.2
+  refuses v7 with `STAGE-ESM-016` (tracked in Stage#201). Details:
+  `cratis-screenplay-command-surface`.
 
 Inline events lower to slice-owned standalone contracts and preserve equivalent
 canonical bytes. Event `description`, `documentation` and rename-only `id` are
@@ -163,26 +177,27 @@ the model runs, including specifications that never touch it.
 
 What binds today, what the reference execution plan refuses, what is opaque, what is
 authorable but not executable, and what blocks binding. The snapshot comes from the
-v4.31.0 table, re-read against v4.64.0 documentation and probed through the MCP of
-the standalone 4.64.0 tool for the rows marked "probed"; Cratis CLI 3.27.1
-(Screenplay 4.60.1) differs where stated.
+v4.31.0 table, re-read against v4.66.0 and v4.68.0 documentation and probed through the MCP of
+the standalone 4.66.0 tool for the rows marked "probed"; Cratis CLI 3.28.2 and 3.28.3 bundle
+Screenplay 4.66.0 (before 3.28.2, Screenplay 4.60.1, differ where stated).
 
 | Disposition | Constructs |
 | --- | --- |
 | Binds and runs in the reference runner | `StateChange`/`StateView` slices; `produces` including `when` conditions over command properties and literal tags; the portable validation rules, `matches email`, quoted `matches` patterns and `require` over command properties; declarative policies and `authorize` on modules, features, commands and keyed queries; `unique` constraints; projections as Chronicle lowers them, including variants, except the projection constructs in the next row; specifications, including `given caller`, `then denied` and `when append` |
 | Binds, but the reference execution plan refuses it | A projection-level `remove via join`; `all` beside removals, `children` or `nested`; a `join`, `children` or `remove via join` inside `nested`; any event-context value other than the event source identity in a projection mapping or key, such as `$eventContext.occurred`, `$eventContext.sequenceNumber` or `$eventContext.causedBy.subject` (`$eventSourceId` and `$eventContext.eventSourceId` run) |
-| Binds as ESM v6 on the standalone tool (probed), `PLAY0268` on Cratis CLI 3.27.1 | `Automation` and `Translate` slices, reactions that produce or invoke, captures, top-level `trigger`, clock, trigger and capture specifications. The library reference runner evaluates them (v6 actions); no `screenplay` command or MCP tool runs it, and Stage 4.24.0 renders none of them (the whole automation is gap-fill) |
+| Binds as ESM v6 on Screenplay 4.66.0, standalone and Cratis CLI 3.28.2 (probed); `PLAY0268` on Cratis CLI before 3.28.2 | `Automation` and `Translate` slices, reactions that produce or invoke, captures, top-level `trigger`, clock, trigger and capture specifications. The library reference runner evaluates them (v6 actions); no `screenplay` command or MCP tool runs it, and Stage 4.24.2 renders none of them (the whole automation is gap-fill) |
 | Reaction with trigger `reads` | Direct-producing (or code-bodied) reaction with `reads`: `PLAY0268` ("ESM v6 cannot protect that decision dependency", decision 0006), non-executable. Invokes-only reaction with `reads`: information only; the invoked command must declare and protect its own decision reads. Keep the `reads`; never remove them to obtain binding |
 | Binds as opaque code (v3); reference runner reports unsupported | Bodied reducers, bodied named rules, fenced `validate` blocks, code or file policies. A pure reducer body is the only attachment Stage 4.24.0 admits |
 | Information only, never blocks (probed) | `persona` (report-only: `PLAY0270`, the policies it lists must exist), `authentication`, `domain`, `seed`, descriptions and `file` provenance. A persona does not block binding and does not change behavior, so state persona scope in a description or a policy the model uses |
-| Authorable, not executable (`PLAY0268`, probed) | `generated` properties and `returns` responses (allocated ESM v8), `system` and `operation` (v9), `eventsource` and `stream` (allocated, not implemented; see `cratis-screenplay-toolchain` `references/sources-and-streams.md`). The MCP reads and edits them (`declaration-details`, `find-fixtures`, `read-workspace` views `event-sources`/`event-streams`/`command-routes`) with `executionAvailable: false`. Keep them in the model as intent; do not strip them to make the model bind, and do not call the model executable |
+| Binds as ESM v7 on standalone Screenplay 4.68.0 (source and release notes; `PLAY0268` on the 4.66.0 in Cratis CLI 3.28.x, probed) | `generated` properties and `returns` responses, generated fixtures and `then returns`: bound and executed by the reference runner; a policy, rule or requirement that references a generated value is `PLAY0273`, and a generated property on a concept with validation rules is `PLAY0268`. Stage 4.24.2 does not render them (`STAGE-ESM-016`, tracked in Stage#201): gap-fill |
+| Authorable, not executable (`PLAY0268`, probed) | `system` and `operation`, `eventsource` and `stream` (not admitted by any supported ESM version; see `cratis-screenplay-toolchain` `references/sources-and-streams.md`). The MCP reads and edits them (`declaration-details`, `find-fixtures`, `read-workspace` views `event-sources`/`event-streams`/`command-routes`) with `executionAvailable: false`. Keep them in the model as intent; do not strip them to make the model bind, and do not call the model executable |
 | Blocks binding (`PLAY0268`) | `@pii`/`@sensitive` concepts (probed: "compliance attributes require portable data-subject semantics"), command `handler` (never binds; a command cannot declare both `produces` and `handler`, `PLAY0035`), bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, unquoted `import` of an external contract, a read model whose keyed queries in its own slice do not share one `by` property (none, or two different properties; several queries over the same property bind), any query other than `=> <ReadModel> optional` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
 | Blocks binding (`PLAY0271`, legacy meaning) | Command `reads` and `concurrency` |
 | Deferred (`PLAY0269`, information) | Screens, layouts, templates, forms, contributions, UI profiles, themes, behaviors and `on`/`uses` |
 | Metadata only (`PLAY0270`, information) | `domain`, `seed`, `persona`, trigger and other descriptions, and `file` provenance on declarations |
 
 The table is a snapshot, not a contract (rows without "probed" are carried from
-v4.31.0 and v4.64.0 documentation): ask the binder (MCP `executable-diagnostics`
+v4.31.0 and v4.66.0 documentation): ask the binder (MCP `executable-diagnostics`
 view) rather than extrapolating from it. Neither `screenplay` nor
 `cratis screenplay validate` binds, so a clean validation says nothing about this table. Retain valid source that the
 backend cannot represent rather than downgrading it to a stub. The MCP does not
@@ -193,10 +208,10 @@ realization files. Stage owns rendering and runtime admission.
 
 Decision 0006 shipped in Screenplay 4.31.0: a reaction trigger may declare
 `reads <View> [as <alias>] [by <trigger value>]` (see
-`cratis-screenplay-captures-and-reactions`). At v4.64.0 a direct-producing
+`cratis-screenplay-captures-and-reactions`). At v4.66.0 a direct-producing
 reaction with `reads` fails binding (`PLAY0268`); an invokes-only reaction reports
 the reads as information, and the invoked command must protect its own
-dependencies. On Cratis CLI 3.27.1 every reaction fails binding.
+dependencies. On Cratis CLI before 3.28.2 every reaction failed binding.
 
 Do not infer availability from an accepted decision. Event generations and typed
 diagnostic repairs now exist; see the event and MCP references rather than the
@@ -205,13 +220,14 @@ full historical shapes, not deployed-schema immutability or a working migrator.
 Code attachment/source-map support likewise does not prove code round-trip
 execution equivalence.
 
-Decision 0023's generated values and `returns`, operations and named event
-sources/streams are **authorable** at v4.64.0 (syntax only, see the table above and
-`commands.md`, `operations.md`, `event-sources.md` in the Screenplay documentation):
-write them, but binding reports `PLAY0268` and nothing executes them until
-the allocated ESM versions are implemented (the highest implemented is v6). Do not drop them for the sake of a green bind.
-Protected reads and `derive`/`provide` (allocated v11) have no documented syntax at
-v4.64.0: do not teach or invent one. Affected-instance declarations, per-event data
+Decision 0023's operations and named event sources/streams are **authorable** at
+v4.68.0 (syntax only, see the table above and `operations.md`, `event-sources.md` in
+the Screenplay documentation): write them, but binding reports `PLAY0268` and nothing
+executes them, because no supported ESM version admits them (a number is assigned only
+at a release-ready admission, decision 0025). Do not drop them for the sake of a green bind.
+Generated values and `returns` are no longer in this group: they bind from 4.68.0 (ESM v7).
+Protected reads and `derive`/`provide` (not admitted by any supported ESM version) have no documented
+syntax at v4.68.0: do not teach or invent one. Affected-instance declarations, per-event data
 subjects, external event origin and query paging/sorting/change-set delivery also
 remain unavailable here.
 

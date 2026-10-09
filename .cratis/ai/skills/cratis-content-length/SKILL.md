@@ -101,7 +101,7 @@ backs that number on that channel. It is still usable for planning.
 
 Sources, populations and dates for every ID are in
 [the length evidence](references/length-evidence.md), along with length claims that are
-folklore.
+folklore. Read `references/length-evidence.md` before citing a band's empirical basis or platform limit, or evaluating a length claim presented as established evidence.
 
 A few rows need a closer reading:
 

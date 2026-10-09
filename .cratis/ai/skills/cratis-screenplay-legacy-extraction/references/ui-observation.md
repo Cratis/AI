@@ -24,7 +24,7 @@ discover-storyboard (see provenance), with the board and HTML-reconstruction ste
 - Use approved test identities and data. Never guess credentials, fill credentials seen in a
   URL, or reuse a token found in one. Stop on unexpected production data, access boundaries
   or mutations.
-- Follow the disclosure policy from "Ask first" before sending page text or captures to a
+- Follow the hosted-model disclosure policy in `../SKILL.md`, under 'Rules', before sending page text or captures to a
   hosted model.
 
 ## Walk

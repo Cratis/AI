@@ -1,9 +1,19 @@
 # In-process scenario specifications
 
+## Contents
+
+- `CommandScenario<TCommand>`
+- `EventScenario`
+- `ReadModelScenario<TReadModel>`
+- `ReactorScenario<TReactor>`
+- Application conventions
+
 The four scenario helpers exercise the real Arc and Chronicle pipelines
-in-process. They are the default for event-sourced *application* behavior. A
-library or framework repository reaches for one only to test the very engine it
-provides.
+in-process. Use them for event-sourced *application* behavior where the pipeline,
+validation, constraints or projections matter; a pure decision (`Handle()`,
+`Handle(providedValue)`, reducer or reactor logic) is specified first as a plain
+call. A library or framework repository reaches for a scenario only to test the
+very engine it provides.
 
 Verified against `Cratis.Arc.Testing` `22.16.0` and `Cratis.Chronicle.Testing`
 `18.3.0`.
@@ -15,8 +25,10 @@ Verified against `Cratis.Arc.Testing` `22.16.0` and `Cratis.Chronicle.Testing`
 | `ReadModelScenario<TReadModel>` | Projection or reducer state from a sequence of events | State View behavior |
 | `ReactorScenario<TReactor>` | Reactor invocation and its side effects | Automation and Translation behavior |
 
-Wrap every scenario specification file in `#if DEBUG … #endif` so specification
-code compiles only in Debug.
+Wrap scenario specification files in `#if DEBUG … #endif` only when they compile
+into the application assembly, so specification code ships only in Debug.
+Dedicated spec projects need no wrapper. The example below uses the application
+assembly convention.
 
 ## `CommandScenario<TCommand>`
 
@@ -88,13 +100,11 @@ different: an unauthorized result carries **no** validation errors, so assert
 existing command therefore breaks both its happy-path and its validation-failure
 specifications — switch those assertions rather than patching around them.
 
-Never assert on a message string.
+Do not assert on message strings by default — they are presentation text.
+Assert exact text only when that wording is the specified behavior, and name
+that behavior in the fact.
 
-> **Validator state can be order-sensitive.** The command-scenario pipeline can
-> cache enough state that injected-validator branches depend on execution order
-> when xUnit runs classes in parallel. Use `CommandScenario` for the valid path,
-> test rejected state variants by instantiating the validator directly, and only
-> for that case put the command's specifications in a small xUnit `[Collection]`.
+See "Step 1" in SKILL.md for the order-sensitive validator caveat.
 
 ## `EventScenario`
 
@@ -121,13 +131,10 @@ async Task Because() =>
 and `ShouldNotHaveConstraintViolations()`,
 `ShouldHaveConstraintViolationFor(name)`,
 `ShouldHaveConcurrencyViolations()` and its negation, `ShouldHaveErrors()` and
-its negation. Assert the constraint **name**, never the message.
+its negation. Assert the constraint **name** by default. Assert exact message
+text only when that wording is the specified behavior, and name it in the fact.
 
-⚠️ `EventScenario` wires a strategy that always answers `ConcurrencyScope.None`,
-which the validator skips, so an append that lets the strategy choose the scope
-never produces a concurrency violation. `ShouldHaveConcurrencyViolations()`
-cannot pass for such an append and its negation passes vacuously — specify concurrency against the
-real kernel with an out-of-process integration specification instead.
+See "Step 1" in SKILL.md for the vacuous concurrency assertions caveat.
 
 ## `ReadModelScenario<TReadModel>`
 

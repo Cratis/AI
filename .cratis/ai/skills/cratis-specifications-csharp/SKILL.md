@@ -50,6 +50,7 @@ another version. Never translate an assertion or helper name from memory.
 
 | Situation | Surface |
 | --- | --- |
+| Pure `Handle()` / `Handle(providedValue)`, reducer logic or reactor decision (default) | Plain method call with `Specification` |
 | Isolated class, collaborators can be substituted | `Specification` + NSubstitute |
 | Arc command pipeline (validators, `Provide()`, `Handle()`, appended events) | `CommandScenario<TCommand>` |
 | Chronicle append semantics, constraints, concurrency | `EventScenario` |
@@ -59,12 +60,25 @@ another version. Never translate an assertion or helper name from memory.
 | Setup shared by many specifications | Reusable context under `given/` |
 
 The plain `Specification` base is the universal foundation and the dominant mode
-in library and framework code. The four scenario helpers are the default for
-event-sourced *application* behavior; read
+in library and framework code. In applications, start pure decisions with a
+plain call and add the scenario helpers where the pipeline, validation,
+constraints or declarative projections contribute proof; read
 [application-scenarios.md](references/application-scenarios.md) before using
 one. Out-of-process integration specifications are an advanced case reserved for
 boundaries the scenario helpers cannot reach — see
 [integration-specs.md](references/integration-specs.md).
+
+> **Validator state can be order-sensitive.** The command-scenario pipeline can
+> cache enough state that injected-validator branches depend on execution order
+> when xUnit runs classes in parallel. Use `CommandScenario` for the valid path,
+> test rejected state variants by instantiating the validator directly, and only
+> for that case put the command's specifications in a small xUnit `[Collection]`.
+
+⚠️ `EventScenario` wires a strategy that always answers `ConcurrencyScope.None`,
+which the validator skips, so an append that lets the strategy choose the scope
+never produces a concurrency violation. `ShouldHaveConcurrencyViolations()`
+cannot pass for such an append and its negation passes vacuously — specify concurrency against the
+real kernel with an out-of-process integration specification instead.
 
 Specification projects are named `<Source>.Specs` and run on xUnit.
 
@@ -170,8 +184,7 @@ public class a_<system_under_test> : all_dependencies
 ```
 
 Name a context `a_` or `an_` so it reads as "given an observer, when handling".
-Full substitution, assertion, and exception-catching patterns are in
-[csharp-patterns.md](references/csharp-patterns.md).
+Read [csharp-patterns.md](references/csharp-patterns.md) when implementing substitutions, assertions, or exception capture; it contains the full patterns.
 
 ## Step 5 — Never wait on the clock
 
@@ -234,8 +247,9 @@ between collaborators. That is where defects hide.
 - Field access modifiers and `_camelCase` naming match the surface.
 - No `Thread.Sleep`, bare `Task.Delay`, or poll loop stands in for a signal; any
   remaining delay carries a comment naming which allowed case it is.
-- Assertions use the `ShouldXxx` extension methods and never assert on a
-  presentation message string.
+- Assertions use the `ShouldXxx` extension methods. Do not assert on presentation
+  message strings by default; assert exact text only when it is the specified
+  behavior, and name that requirement in the fact.
 - Nothing trivial or compiler-verified is specified.
 - The file carries the repository license header.
 - The specification project builds and its specifications pass against the

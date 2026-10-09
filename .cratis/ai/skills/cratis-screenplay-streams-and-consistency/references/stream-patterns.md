@@ -1,5 +1,21 @@
 # Stream patterns
 
+## Contents
+
+- Identity and event-membership review
+- Interpret the evidence
+- Event meaning is a separate check
+- Contrasting examples
+- Boundary decision tree
+- Red flags that the boundary, not the volume, is wrong
+- Boundary patterns by domain
+- Core rules that bear on stream design
+- Growth and snapshots
+- Short lifecycles
+- Consistency questions per stream
+- Constraint scope and what it implies for stream choice
+- Decision-scoped consistency (note)
+
 A stream in Screenplay is the event source a production lands on: `identifier` on the
 command, `for <identifier>` on each `produces`, `$eventSourceId` in projections, `for "<id>"`
 in specifications. Choosing the identifier *is* choosing the stream.
@@ -26,7 +42,7 @@ Facts about another thing go on that thing's stream with a reference as payload
 keyed by the reference (`from MemberEnrolled key courseId`), never a shared stream. A command
 with no identifier allocates a new stream (executable mode needs explicit allocation, see
 `cratis-screenplay-toolchain`). Prefer an identifier the caller chooses before the first attempt: it
-is also the retry identity; one allocated afresh per retry can create a second history.
+is also the retry identity; one allocated afresh per retry (including a `generated identifier`, which is generated on every acceptance) can create a second history.
 Never use personal data as the identifier (see `chronicle-boundaries.md`).
 
 ### Event-by-event identity check (record the result)
@@ -189,7 +205,7 @@ Ask for each stream:
 Some event stores decide consistency by a query over tagged events instead of one stream
 (often called dynamic consistency boundaries). Chronicle's concurrency scopes can narrow a
 check to event types, source type or stream (`concurrency` block, Screenplay
-`commands.md`), and Screenplay has syntax-only event-source/stream declarations (allocated, not implemented ESM version;
+`commands.md`), and Screenplay has syntax-only event-source/stream declarations (not admitted by any supported ESM version;
 `event-sources.md`). None of this binds on either compiler (`versions.md` in `cratis-screenplay-toolchain`). Model the stream by business
 identity; when a rule truly needs a cross-stream decision, record it (see
 `consistency-and-concurrency.md`) rather than inventing a construct.

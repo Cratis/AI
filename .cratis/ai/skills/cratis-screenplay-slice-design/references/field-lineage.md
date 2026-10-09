@@ -1,5 +1,13 @@
 # Field lineage
 
+## Contents
+
+- Where values come from, per element
+- The matrix
+- The reason line per contributing event
+- Gap handling
+- Adding or renaming a field along a chain (manual checklist)
+
 Every value in the model has a place it comes from and a place it goes. If you cannot say
 where a field comes from, the model is missing an input, an event field or a decision. If an
 event field goes nowhere, ask why it is recorded (audit and history are valid answers; say so).
@@ -13,7 +21,7 @@ event field goes nowhere, ask why it is recorded (audit and history are valid an
 | the user types or picks it | screen `action`, form or dialog input | default for business decisions |
 | shown before the user acts | form `populate via query` from a read model | the read model must exist and be traced |
 | the instance being acted on | the `identifier` property, carried from the screen row or route | |
-| allocated by the runtime | design mode: `Type generated` on a required `Uuid`-backed concept (syntax-only, PLAY0268 at binding; remove before executable/renderable scope) | never a request input or form field; executable scope needs explicit allocation |
+| allocated by the runtime | `Type generated` on a required `Uuid`-backed concept (ESM v7: binds and runs on standalone Screenplay 4.68.0, `PLAY0268` on the 4.66.0 bundled in cratis 3.28.x, not rendered by Stage 4.24.2; no concept rules) | never a request input or form field; no policy, rule or requirement may read it (`PLAY0273`); return it with `returns`; where a tool cannot bind it, executable scope needs explicit allocation |
 | an outside party | capture field `$.x` or a reaction trigger value | `cratis-screenplay-automations-and-translations` |
 | the caller | not an input: `$context.identity.*` in `produces`; who may act in `authorize`; "acting on own X" is a claim policy matched to the identifier or a command property | never trust a caller-supplied "who am I" |
 

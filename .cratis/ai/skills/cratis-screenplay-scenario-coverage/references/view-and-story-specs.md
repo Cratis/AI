@@ -1,5 +1,17 @@
 # View specifications and lifecycle families
 
+## Contents
+
+- Per read model, decide before drafting
+- Required specs per projected read model
+- Lifecycle families (storyline emulation)
+- Worked family: a todo list
+- Removal is a positive obligation
+- Ordering, lag and rebuild
+- Performer-backed views (no events build them)
+- Cross-context views
+- Gated views
+
 Views cannot reject a stored fact, so view specs have no error cases. They answer: after these
 facts, what does the screen (or automation input) show?
 
@@ -117,7 +129,7 @@ execution/rendering limit.
   being current (a booking screen that must not offer a taken berth), that is not protection:
   the command needs its own constraint, or the rule is `recorded` as target-enforced.
 - **Rebuild**: a view rebuilt from all facts must give the same rows. Mappings from
-  `$eventContext.occurred` or other occurrence data cannot be executed at Screenplay v4.64.0:
+  `$eventContext.occurred` or other occurrence data cannot be executed at Screenplay v4.66.0:
   the plan blocks every event-context path except the event source id
   (`UnsupportedEventContext`). `given clock` does not change that; it supplies `$context.occurred`
   to command productions only. Record such projection cases as capability gaps (keep the

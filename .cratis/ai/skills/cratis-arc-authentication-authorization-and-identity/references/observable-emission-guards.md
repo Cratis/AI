@@ -1,5 +1,14 @@
 # Observable query emission guards
 
+## Contents
+
+- The opt-in
+- Verdicts
+- The context
+- Fail closed, and its blast radius
+- Cost
+- What a guard does not protect
+
 Verified against `Cratis.Arc.Core` `22.41.1` (`Cratis.Arc.Queries`).
 
 Authorization for an observable query runs **once, when the subscription is

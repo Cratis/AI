@@ -1,5 +1,15 @@
 # The fluent projection builder
 
+## Contents
+
+- The interfaces
+- `IProjectionBuilderFor<TReadModel>` — its own members
+- Inherited from `IProjectionBuilder<TReadModel, TBuilder>`
+- Keys live on the per-event builder
+- `Set(...).To(...)`
+- When the fluent form is the only option
+- AutoMap default
+
 Verified against `Cratis.Chronicle` `18.3.0`, namespace
 `Cratis.Chronicle.Projections`.
 

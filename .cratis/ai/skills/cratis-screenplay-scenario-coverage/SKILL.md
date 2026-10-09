@@ -24,8 +24,9 @@ language cannot express today are recorded, not faked. Grammar and outcome compa
   `cratis-specification-by-example`); a full audit (`cratis-screenplay-model-review`).
 
 ## Verified product sources
-Screenplay v4.64.0 (`7e16162`): `Documentation/screenplay/specifications.md` and the standalone
-compiler; `cratis` 3.27.1 bundles Screenplay 4.60.1. The full pin table and the probes are in
+Screenplay v4.66.0 (`c89198b`) and v4.68.0 (`79801bf`, ESM v7 fixtures and `then returns`):
+`Documentation/screenplay/specifications.md` and the standalone compiler; `cratis` 3.28.2 and
+3.28.3 bundle Screenplay 4.66.0 (before 3.28.2 it bundled 4.60.1). The full pin table and the probes are in
 `cratis-screenplay-toolchain` `references/versions.md`. Specification obligations reported by
 the MCP (Screenplay#390) and multi-step storylines (Screenplay#394) are **not available**: the
 coverage matrix is built by hand and lifecycle families emulate storylines.
@@ -79,7 +80,7 @@ question is not four approvals.
    caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX ==
    true`) and rules hidden in `handler`/hint prose. Never drop an unresolved given or assertion
    to make a spec compile: record the blocked case and continue.
-10. **Validate** the batch (V1, warnings as errors); V2/V3 when executable or renderable. The
+10. **Validate** the batch (V1, warnings as errors); V2/V3 when executable or renderable. Fix diagnostics without dropping intended rules, prerequisites or assertions, then rerun the applicable verdicts; if the chosen mode cannot admit the construct, preserve it and report the blocked scope explicitly. The
     phase report carries the matrix path, spec names added or changed, `recorded`, `open` and
     `gap` cells and open questions.
 
@@ -159,13 +160,14 @@ target requirements.
 - Cross-context views: are the real source contracts resolved, or is missing evidence a gap?
 
 ## Version skew: reaction cascades and false PLAY0285
-Under ESM v6 a command spec's `then` lists the events reactions cascade from it. The
-cratis-bundled compiler reports a **false PLAY0285** for such a spec (cli#242, open); the
-standalone `screenplay` tool accepts it. Neither checks that a cascade event is *missing*.
-- Standalone tool available: write the v6-correct spec (own productions plus cascade); validate
-  with `screenplay <folder> --warnaserror --no-color`; record the `cratis` PLAY0285 as a
-  tool-version gap. Examples with cascades start with `// Needs the standalone screenplay compiler (ESM v6)`.
-- `cratis` only: keep the command spec to its own productions, specify the reaction in its
+Under ESM v6 a command spec's `then` lists the events reactions cascade from it. The compiler
+bundled in `cratis` before 3.28.2 (Screenplay 4.60.1) reported a **false PLAY0285** for such
+a spec (cli#242); the standalone `screenplay` 4.66.0 and `cratis` 3.28.2 accept it (probed).
+Neither checks that a cascade event is *missing*.
+- Screenplay 4.61 or later (standalone, or `cratis` 3.28.2 or later): write the v6-correct spec
+  (own productions plus cascade); validate with `screenplay <folder> --warnaserror --no-color`
+  or `cratis screenplay validate <folder> --warnings-as-errors`.
+- Only a `cratis` before 3.28.2 bundle and no standalone tool: keep the command spec to its own productions, specify the reaction in its
   Automation slice (`when append <Trigger>` -> `then <Produced>`), record the pending cascade
   expectation in `STATE.md` as known-incomplete. Never delete the reaction.
 
@@ -197,17 +199,17 @@ scope is reported as explicitly incomplete); V1 passes with the tool named in
   `cratis-specifications-csharp`.
 
 ## References (load on demand)
-- `references/scenario-catalogue.md` - each type: ask, applies when, n/a when, shape, traps; example data.
-- `references/view-and-story-specs.md` - view specs, lifecycle families, ordering, lag.
-- `references/coverage-matrix.md` - obligations from declarations, template, worked matrix.
+- `references/scenario-catalogue.md` - each type: ask, applies when, n/a when, shape, traps; example data. Read when deciding applicability, eliciting cases or choosing example data.
+- `references/view-and-story-specs.md` - view specs, lifecycle families, ordering, lag. Read before deciding each view's lifecycle family and drafting view specifications.
+- `references/coverage-matrix.md` - obligations from declarations, template, worked matrix. Read before constructing or reconciling the coverage matrix.
 - `references/scenario-examples.md` - compact worked examples per category, good and bad forms,
   list and todo-list views; copied from the complete `references/invoicing-dues-example.md`
   (runnable) and, for compensation, `references/invoicing-dues-design.md` (design mode: holds the
-  stored-state rules, does not bind).
-- `references/scenario-workshop.md` - facilitation guide for group scenario sessions.
-- `references/chronicle-verification.md` - guarantees that need more than a `.play` outcome.
-- `references/spec-forms-by-mode.md` - admitted forms in design, executable, renderable.
-- `references/berth-reservations.md` - complete compiled example (marina guest berths).
+  stored-state rules, does not bind). Read `references/scenario-examples.md` when drafting a category and you need good/bad or worked specification forms; read `references/invoicing-dues-example.md` when you need the complete executable declarations behind the invoicing excerpts; read `references/invoicing-dues-design.md` when specifying stored-state invoicing rules or their compensation scenarios in design mode.
+- `references/scenario-workshop.md` - facilitation guide for group scenario sessions. Read when facilitating a group scenario session.
+- `references/chronicle-verification.md` - guarantees that need more than a `.play` outcome. Read when a claimed guarantee needs in-process or real-kernel evidence beyond `.play` outcomes.
+- `references/spec-forms-by-mode.md` - admitted forms in design, executable, renderable. Read after choosing the mode and before drafting its admitted specification forms.
+- `references/berth-reservations.md` - complete compiled example (marina guest berths). Read when you need a complete design-mode example of a coverage matrix realized as specifications.
 
 ## Lineage
-Attribution and adapted sources: `references/provenance.md`.
+Attribution and adapted sources: `references/provenance.md`. Read `references/provenance.md` when checking attribution or how an adapted practice differs from its source.

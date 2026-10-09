@@ -1,5 +1,18 @@
 # Supporting a human workshop
 
+## Contents
+
+- The agent's part
+- Before the workshop
+- Run sheet: discovery
+- Techniques
+- Remote adaptations
+- After the workshop
+- Multi-day plan mapped to phases
+- Checklists
+- Success indicators
+- Evidence and privacy
+
 Adapted in part from TrogonStack `eventmodeling-brainstorming-events/references/facilitating-event-modeling-workshops.md`
 (MIT; see `provenance.md`), reshaped for Screenplay and for an agent in a supporting role.
 

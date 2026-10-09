@@ -1,5 +1,15 @@
 # Scenario examples, category by category
 
+## Contents
+
+- Good and bad forms
+- 1. Command: success, rule rejection and denial
+- 2. Command: state violations
+- 3. External failure: the capture, then the retry
+- 4. Compensation
+- 5. Views: population, update, accumulation
+- 6. Views: list contents and the empty list
+
 Compact examples for each scenario category, in one invoicing domain so the shapes compare
 easily. Every excerpt below is copied verbatim from the complete document in
 `invoicing-dues-example.md`, which compiles with warnings as errors and whose 21 specifications
@@ -138,7 +148,7 @@ A reversal needs a paid history, the reversal action and the exact consequence. 
 lists the declared consequence (`RefundRequested`); the reaction is also specified on its own.
 `RefundRequested` is a recorded request, not proof that money moved, and there is no
 `then <Command>` form. What the target must do to deliver the refund is a requirement, not a spec.
-From `invoicing-dues-design.md` (design mode; the specs do not run at 4.64.0):
+From `invoicing-dues-design.md` (design mode; the specs do not run at 4.66.0):
 ```screenplay excerpt
 specification ReversingAReceivedPayment
   given caller

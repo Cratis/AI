@@ -23,15 +23,15 @@ adapted to `.play` declarations (`references/provenance.md`).
   (`cratis-screenplay-slice-design`); stream and invariant redesign
   (`cratis-screenplay-streams-and-consistency`); reviewing C# or rendered code
   (`cratis-code-review`, `cratis-application-slice-conformance`); diagnosing a running system
-  (`cratis-cli`).
+  (`cratis-chronicle-cli-operations`).
 - Code: none, except evidence files a legacy packet cites by file:line.
 
 ## Verified product sources
 | Source | Pin | Used for |
 |---|---|---|
-| Screenplay | `v4.64.0` (`7e16162`) | MCP catalog (29 tools: `describe-application`, `search-declarations`, `dependencies`, `find-assertion-gaps`, `read-workspace`, `declaration-details`) in `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`; diagnostics PLAY0029, PLAY0191, PLAY0268, PLAY0271, PLAY0350, PLAY0381, PLAY0469 in `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`; decision 0008 (one data subject per event) |
-| Screenplay issues | open at v4.64.0 | Screenplay#393 advisory modeling-smell report (the sweep is its manual form); Screenplay#377 spec execution and Screenplay#388 lineage report: not available, so "specs written" is never "specs pass" and lineage is walked by hand |
-| cratis CLI | `v3.27.1` | bundles an older compiler; see the toolchain skill |
+| Screenplay | `v4.66.0` (`c89198b`) | MCP catalog (29 tools: `describe-application`, `search-declarations`, `dependencies`, `find-assertion-gaps`, `read-workspace`, `declaration-details`) in `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`; diagnostics PLAY0029, PLAY0191, PLAY0268, PLAY0271, PLAY0350, PLAY0381, PLAY0469 in `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`; decision 0008 (one data subject per event) |
+| Screenplay issues | open at v4.66.0 | Screenplay#393 advisory modeling-smell report (the sweep is its manual form); Screenplay#377 spec execution and Screenplay#388 lineage report: not available, so "specs written" is never "specs pass" and lineage is walked by hand |
+| cratis CLI | `v3.28.3` | bundles Screenplay 4.66.0 and Stage 4.24.2; see the toolchain skill |
 
 The full pin table lives in `cratis-screenplay-toolchain` `references/versions.md`; do not copy
 it here. Compilation (V1) does not establish reference execution.
@@ -58,7 +58,7 @@ model's behalf.
    hand-roll a hash; kept apart from the MCP `modelRevision`), scope, and each contributing author's model when the harness exposes it
    (`model: not exposed` otherwise) with your own. See "Independent review" below.
 2. **Evidence first** (cheap, deterministic). V1 on the folder with warnings as errors
-   (`cratis-screenplay-toolchain` for commands and version gaps); V2 and V3 through MCP
+   (`cratis-screenplay-toolchain` for commands and version gaps); V2 and V3 through the `screenplay` MCP server
    `read-workspace view=executable-diagnostics` when the mode needs them; `describe-application
    view=summary`, `find-assertion-gaps` (slices with no assertion; authored, not executed) and
    `dependencies direction=incoming` for orphans. The verdict lines are independent: a V1 pass is
@@ -210,12 +210,12 @@ verdict follows the rules in `references/report-template.md`.
   `cratis-application-slice-conformance`.
 
 ## References (load on demand)
-- `references/checklist.md` - eleven phases, 89 checks, tiers and evidence sources.
-- `references/anti-patterns.md` - signal, why it matters, tier, Screenplay fix.
-- `references/report-template.md` - report, severity and verdict rules.
-- `references/worked-example.md` - a seeded model, sweep notes, a filled report, the fixed model.
-- `references/review-questions.md` - questions per subject; facts versus views by domain.
-- `references/business-questions.md` - explainer journey method, prompts, word translation.
+- Read `references/checklist.md` when performing the element sweep and phased audit; it contains eleven phases, 89 checks, tiers and evidence sources.
+- Read `references/anti-patterns.md` when investigating an anti-pattern signal; it gives the signal, why it matters, tier and Screenplay fix.
+- Read `references/report-template.md` when classifying findings, deciding the verdict, writing the report or conducting a re-review; it defines report, severity and verdict rules.
+- Read `references/worked-example.md` when an example of the sweep, lineage or report is needed, or when checking the complete examples; it contains a seeded model, sweep notes, a filled report and the fixed model.
+- Read `references/review-questions.md` when gathering evidence for subject-specific checks or distinguishing facts from views; it contains questions per subject and domain examples.
+- Read `references/business-questions.md` when conducting the business-question pass; it contains the explainer journey method, prompts and word translation.
 
 ## Lineage
-Method lineage and attribution: `references/provenance.md`.
+Read `references/provenance.md` when checking method lineage, attribution or adaptation permissions.

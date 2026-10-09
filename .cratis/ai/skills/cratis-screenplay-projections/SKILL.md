@@ -30,7 +30,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | PDL parser, validator, diagnostics, semantic binder |
 | `Cratis.Screenplay` | main `fd18129` | Inline event extraction and context identity guidance |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Reducer-body binding (`Semantics/`); no PDL syntax change affects the examples |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Reducer-body binding (`Semantics/`); no PDL syntax change affects the examples |
 
 The update follows `commands.md`, `events.md` and `mcp/authoring-tools.md` at
 that main commit (after v4.52.0); no PDL example changes in this update.
@@ -323,15 +323,14 @@ What the executable model does with it (ESM v3):
 **Prefer a projection where one will do.** A reducer is code, and code is the part
 of a document a reader cannot check at a glance.
 
-Read [pdl-grammar.md](references/pdl-grammar.md) for the syntax grammar, the
-projection diagnostic codes, and worked examples.
+Read [pdl-grammar.md](references/pdl-grammar.md) when checking exact syntax, interpreting a projection diagnostic code, or needing a worked example.
 
 ## Verify
 
-- [ ] Standalone `screenplay <model> --warnaserror` (4.64.0) reports zero errors and zero
-      warnings; with only the bundled compiler, `cratis screenplay validate
-      --warnings-as-errors` on the model folder (3.27.1 bundles Screenplay 4.60.1, ESM v5 or
-      lower). Name which tool produced the result.
+- [ ] Standalone `screenplay <model> --warnaserror` (4.68.0) reports zero errors and zero
+      warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
+      (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
+      or lower). Name which tool produced the result. If it reports diagnostics, correct the model and rerun the same command; report unresolved diagnostics as blockers rather than a passing verification.
 - [ ] Each read model has **exactly one** builder.
 - [ ] No projection-level `key`; every `from` that must address the same
       instance is keyed on the same identity.
@@ -351,7 +350,7 @@ projection diagnostic codes, and worked examples.
 - [ ] A reducer is present only because a projection genuinely could not express it,
       and every rule has a body in a tagged fence or a `file`.
 
-Versions, tool capabilities and the executable and renderable subsets: `cratis-screenplay-toolchain` (`references/versions.md`). Where a construct sits in the
+Read `cratis-screenplay-toolchain` (`references/versions.md`) when selecting a tool/version or checking tool capabilities and the executable and renderable subsets. Where a construct sits in the
 method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses

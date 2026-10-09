@@ -7,9 +7,13 @@
       "kind": "skill-contains",
       "value": "main `fd18129`"
     },
+    { "kind": "skill-contains", "value": "Generated fixtures and return expectations (ESM v7)" },
+    { "kind": "skill-contains", "value": "`then returns` counts as a success outcome but does not relax event comparison", "file": "references/generated-fixtures.md" },
+    { "kind": "skill-contains", "value": "`Unsupported(IdentityAllocation)`", "file": "references/generated-fixtures.md" },
+    { "kind": "skill-contains", "value": "4.68.0" },
     {
       "kind": "skill-contains",
-      "value": "Inline events are ordinary named facts"
+      "value": "Inline events are ordinary named facts", "file": "references/worked-example.md"
     },
     {
       "kind": "skill-contains",
@@ -17,7 +21,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "query InvoiceById => InvoiceSummary optional"
+      "value": "query InvoiceById => InvoiceSummary optional", "file": "references/worked-example.md"
     },
     {
       "kind": "skill-contains",
@@ -53,7 +57,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "**`when query` executes today. The clock, trigger and capture actions do not.**"
+      "value": "**`when query` executed. The clock, trigger and capture actions did not.**", "file": "references/actions-beyond-commands.md"
     },
     {
       "kind": "skill-contains",
@@ -69,11 +73,11 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Version skew: cascades and the false `PLAY0285`"
+      "value": "Version skew: cascades and the false `PLAY0285` (cratis before 3.28.2)"
     },
     {
       "kind": "skill-contains",
-      "value": "Cratis/cli#242"
+      "value": "Cratis/cli#242", "file": "references/reactions-and-cascades.md"
     }
   ]
 }

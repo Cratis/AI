@@ -201,17 +201,17 @@ Slice design is done when these hold; otherwise report what is open.
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| Screenplay | `v4.64.0` (`7e16162`) | `commands.md`, `constraints.md`, `specifications.md`, `diagnostics.md` (`PLAY0191`, `PLAY0268`, `PLAY0271`, `PLAY0350`, `PLAY0381`, `PLAY0397`), `projections/keys.md` |
+| Screenplay | `v4.66.0` (`c89198b`) | `commands.md`, `constraints.md`, `specifications.md`, `diagnostics.md` (`PLAY0191`, `PLAY0268`, `PLAY0271`, `PLAY0350`, `PLAY0381`, `PLAY0397`), `projections/keys.md` |
 
-Examples compile with `screenplay` 4.64.0 `--warnaserror` and `cratis screenplay validate
---warnings-as-errors` (cratis 3.27.1); other pins: `cratis-screenplay-toolchain`
+Examples compile with `screenplay` 4.68.0 `--warnaserror` and `cratis screenplay validate
+--warnings-as-errors` (cratis 3.28.2 or later); other pins: `cratis-screenplay-toolchain`
 `references/versions.md`. Compiling proves syntax, not that the model is executable or renders.
 
 ## Verify
 
 - V1 (V3 if executable/renderable) passes, naming tool and version. Walk the Gate (every element ok / exempt with reason / gap); each persona `Cannot` line has a
   gate plus a denied spec, or is a gap.
-- Worked reference: `references/worked-example.md` (design mode, compiles clean).
+- Worked reference: `references/worked-example.md` (design mode, compiles clean). Read when you need a complete design-mode example to compare with command inventories, lineage, and state-transition tables.
 
 ## Route near misses
 
@@ -235,4 +235,4 @@ Examples compile with `screenplay` 4.64.0 `--warnaserror` and `cratis screenplay
 
 ## Lineage
 
-Attribution: `references/provenance.md`.
+Attribution: `references/provenance.md`. Read when checking source attribution or adaptation history.

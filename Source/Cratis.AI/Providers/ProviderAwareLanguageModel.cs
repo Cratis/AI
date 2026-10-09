@@ -64,12 +64,7 @@ public class ProviderAwareLanguageModel(
     IOptions<AIProviderOptions> options,
     ILogger<ProviderAwareLanguageModel> logger) : ILanguageModel
 {
-    /// <summary>
-    /// The longest a rate limit is recorded for from a reset read out of a failure's own text - a
-    /// monthly allowance is the longest window any vendor meters, so a reset further out than this is
-    /// more likely a misread than a fact, and is not trusted to park a provider for that long.
-    /// </summary>
-    static readonly TimeSpan _longestStatedReset = TimeSpan.FromDays(31);
+    readonly ProviderRateLimitRecorder _rateLimitRecorder = new(providerCapacities, commandPipeline, timeProvider, options, logger);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProviderAwareLanguageModel"/> class without
@@ -372,53 +367,10 @@ public class ProviderAwareLanguageModel(
             // than waiting for a worker to report the same thing in words (issue #1060).
             if (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason))
             {
-                await RecordRateLimit(providerId, result.FailureReason);
+                await _rateLimitRecorder.Record(providerId, result.FailureReason);
             }
 
             return result;
         }
-    }
-
-    async Task RecordRateLimit(AIProviderId providerId, string reason)
-    {
-        try
-        {
-            // Parked until the limit actually lifts, when that is known - a weekly window resetting
-            // in three days is not worth retrying every hour, spending a call or a whole worker
-            // session each time. The stated reset in the failure itself wins; failing that, when the
-            // vendor's own windows said the provider would be available again; never shorter than
-            // the cooldown, which covers a limit nothing said anything about.
-            var now = timeProvider.GetUtcNow();
-            var cooldown = now.Add(options.Value.RateLimitCooldown);
-            var availableAgain = ProviderRateLimit.ResetIndicatedBy(reason, now) ?? await AvailableAgainAt(providerId);
-            if (availableAgain > now.Add(_longestStatedReset))
-            {
-                availableAgain = null;
-            }
-
-            var until = availableAgain > cooldown ? availableAgain.Value : cooldown;
-            providerCapacities.Forget(providerId);
-
-            // Reported, never discarded. A dropped result here is not a lost log line - it is the
-            // cooldown itself going missing, and the completion path then rediscovers the same 429 on
-            // every attempt. Production spent a day at thirty rejected calls a minute against a
-            // provider that had already said no, with nothing anywhere saying why the cooldown that
-            // was supposed to stop it never took.
-            await commandPipeline.ExecuteAndReport(
-                new RecordProviderRateLimited(providerId, until),
-                logger);
-        }
-        catch (Exception exception)
-        {
-            // Losing the rate-limit record is not worth failing the caller's actual completion over -
-            // the next attempt at this provider simply rediscovers the same 429.
-            logger.CouldNotRecordRateLimit(exception, providerId);
-        }
-    }
-
-    async Task<DateTimeOffset?> AvailableAgainAt(AIProviderId providerId)
-    {
-        var capacity = await providerCapacities.For(providerId);
-        return capacity.AvailableAgainAt;
     }
 }

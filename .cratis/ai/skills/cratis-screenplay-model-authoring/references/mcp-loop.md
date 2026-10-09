@@ -3,14 +3,25 @@
 
 # The Screenplay MCP loop
 
+## Contents
+
+- Connect
+- Who owns the connection
+- The loop
+- One edit strategy
+- Identity state (`.screenplay/identities.json`)
+- Read-only views worth knowing
+- Failures (use `failureKind`, never message text)
+- Provenance
+
 The working loop for the session that owns the model connection: connect, orient,
 choose an edit route, propose, review, apply, verify. Tool-by-tool arguments and
 refusals are in the [MCP tool guide](mcp-tools.md); verdict names (V1 to V5) are
 defined by `cratis-screenplay-modeling-lifecycle`. Facts here were read at
-Screenplay v4.64.0 (`Source/DotNET/Screenplay.Mcp/`, `Documentation/screenplay/mcp/`)
-and probed against the standalone 4.64.0 tool and, for the connection behavior,
-4.63.1. Cratis CLI 3.27.1 bundles Screenplay 4.60.1, whose tool set and views can
-differ: read `tools/list`.
+Screenplay v4.66.0 (`Source/DotNET/Screenplay.Mcp/`, `Documentation/screenplay/mcp/`)
+and probed against the standalone 4.66.0 tool and, for the connection behavior,
+4.63.1. Cratis CLI 3.28.2 bundles Screenplay 4.66.0 (probed: 29 tools and the same views);
+Cratis CLI before 3.28.2 bundled 4.60.1, whose tool set and views differ: read `tools/list`.
 
 ## Connect
 
@@ -33,7 +44,7 @@ differ: read `tools/list`.
 
 ### Roots bug and the workaround
 
-Screenplay up to 4.63.1 (fixed in 4.63.2; the 4.64.0 tool is fixed) read the
+Screenplay up to 4.63.1 (fixed in 4.63.2; the 4.66.0 tool is fixed) read the
 client's roots reply from the wrong member. A server started **without** a root,
 facing a client that advertises roots, answered with an error with `id: null`
 immediately after `notifications/initialized`, before any tool call. Real hosts
@@ -41,8 +52,9 @@ treat that as fatal and drop the connection. Passing `open-workspace.path` does
 **not** avoid it, because the error is sent before `open-workspace` runs.
 
 Avoid it by fixing the root at launch (the forms in step 1). The `cratis/screenplay`
-profile registration is not affected in an installed project, and the CLI now locates the model itself, so no model directory has to exist. Cratis CLI 3.27.1 bundles 4.60.1: for a
-dynamic root there, fix the root.
+profile registration is not affected in an installed project, and the CLI now locates the model itself, so no model directory has to exist. Cratis CLI before 3.28.2 bundled 4.60.1: for a
+dynamic root there, fix the root. Cratis CLI 3.28.2 bundles 4.66.0, which is fixed (probed:
+the server sends `roots/list` and serves `tools/list` after the reply).
 
 ## Who owns the connection
 
@@ -99,8 +111,8 @@ dynamic root there, fix the root.
    Proposed, and its `sketch` argument previews a what-if of whole documents
    without writing. An
    unintended executable regression is discarded (`discard-proposal`) and
-   re-proposed. Intent the user has accepted that does not run yet (`generated`/
-   `returns`, `system`/`operation`, `eventsource`/`stream`; `PLAY0268` by design)
+   re-proposed. Intent the user has accepted that does not run yet (`system`/`operation`, `eventsource`/`stream`, and `generated`/
+   `returns` on a tool older than 4.68.0; `PLAY0268` by design)
    may be applied from a reviewed `Authoring` proposal: disclose the new
    diagnostics, report V3 as not binding-ready, and never drop or stub the
    construct. The server's own guidance is to apply such a proposal only when
@@ -145,7 +157,7 @@ dynamic root there, fix the root.
 | Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479` (and recipe-only `0397`) | `propose-repair` with `formatting` |
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
 | Parser-invalid document | no editable handles | `propose-ast` `replace-document` with a whole typed document, or fix the text |
-| Syntax-only constructs | `generated`/`returns`, `system`/`operation`, `eventsource`/`stream` | typed `propose-ast` edits; no automatic rename or routing repair exists |
+| Syntax-only constructs | `system`/`operation`, `eventsource`/`stream` (and `generated`/`returns` before 4.68.0) | typed `propose-ast` edits; no automatic rename or routing repair exists |
 
 ## Identity state (`.screenplay/identities.json`)
 
@@ -161,8 +173,7 @@ dynamic root there, fix the root.
   to persisted Chronicle event types (use `id` pins).
 - Do not read the file for content (token cost); `read-workspace` with `view:
   "semantics"` returns identity assignments, not a model summary.
-- Apply is not crash-atomic across files: it journals its inverse first. The model
-  root must be trusted and exclusively writable during effects.
+- See "Make one coherent proposal" in SKILL.md for the exclusive-write prerequisite of `apply`.
 
 ## Read-only views worth knowing
 
@@ -187,21 +198,7 @@ dynamic root there, fix the root.
 
 ## Failures (use `failureKind`, never message text)
 
-| failureKind | Response |
-| --- | --- |
-| `StaleRevision`, `DiskDrift`, `IdentityStateDrift` | Reopen and re-propose |
-| `ProposalRejected` | Read `conflicts`; change the request |
-| `FormattingConsentRequired` | Pass `formatting` |
-| `UnknownProposal` | The connection was reopened or the proposal applied: re-propose |
-| `LimitExceeded` | Discard unused proposals (16 cap) |
-| `PendingOperation`, `RecoveryRequired` | `workspace-state`, then ask before `recover-workspace` |
-| `RootChangeRefused` | Keep the fixed root, or start a new connection |
-| `ApplyOutcomeUnknown`, or EOF during `apply` | **Never retry `apply`.** Reconnect, read `workspace-state`, ask the user |
-
-Never delete `.screenplay/pending.json`. Limits reject and never truncate: 512
-files, 8 MiB total, 2 MiB per file, 1 MiB structured result, 200 items or 192 KiB
-per page. Excluded directories: `.git`, `.ai-work`, `.screenplay`, `bin`, `obj`,
-`node_modules`.
+See "Failures (use `failureKind`, never message text)" in SKILL.md.
 
 ## Provenance
 

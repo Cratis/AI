@@ -29,7 +29,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original parser, validator and binder evidence |
 | `Cratis.Screenplay` | main `fd18129` | Canonical optionality; changed examples compiled |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Which query shapes bind and render (`Semantics/`, `Documentation/screenplay/queries.md`) |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Which query shapes bind and render (`Semantics/`, `Documentation/screenplay/queries.md`) |
 
 The update follows `types.md`, `queries.md` and `vscode.md` at that main commit
 (after v4.52.0). Compilation does not establish query execution.
@@ -163,7 +163,7 @@ on the header line is a declaration error, not a shorthand.
 
 ### What runs
 
-In the executable model today, only the keyed snapshot shape binds:
+In the Screenplay 4.66.0 executable model, only the keyed snapshot shape binds:
 `=> <ReadModel> optional` with one caller-supplied `by` argument and no `observable`,
 `filter`, `scoped to` or `performer`. Anything else, including `=> <ReadModel>`
 and `=> <ReadModel>[]`, reports `PLAY0268`. Its `authorize` gate runs before
@@ -258,10 +258,10 @@ binding failures are errors.
 
 ## Verify
 
-- [ ] Standalone `screenplay <model> --warnaserror` (4.64.0) reports zero errors and zero
-      warnings; with only the bundled compiler, `cratis screenplay validate
-      --warnings-as-errors` on the model folder (3.27.1 bundles Screenplay 4.60.1, ESM v5 or
-      lower). Name which tool produced the result.
+- [ ] Standalone `screenplay <model> --warnaserror` (4.68.0) reports zero errors and zero
+      warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
+      (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
+      or lower). Name which tool produced the result.
 - [ ] Every value the caller must not choose is a `from` parameter, not a `filter`.
 - [ ] Every `scoped to global` is deliberate and defensible.
 - [ ] `observable` is present exactly where the caller should see changes without
@@ -271,7 +271,7 @@ binding failures are errors.
 - [ ] Each read model has exactly one builder and every field traces to an event.
 - [ ] No screen reference is left ambiguous or unresolved.
 
-Versions, tool capabilities and the executable and renderable subsets: `cratis-screenplay-toolchain` (`references/versions.md`). Where a construct sits in the
+Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing a tool, checking versions, or assessing executable and renderable subsets. Where a construct sits in the
 method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses

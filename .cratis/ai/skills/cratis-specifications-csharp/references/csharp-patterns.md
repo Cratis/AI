@@ -1,5 +1,15 @@
 # C# specification patterns
 
+## Contents
+
+- Phases
+- Layered contexts
+- Substitution patterns
+- Assertion extension methods
+- Catching exceptions
+- Usings
+- One outcome per file
+
 Detail for the plain `Cratis.Specifications` surface: phases, substitution,
 assertions, and exception capture. Verified against `Cratis.Specifications`
 `4.1.1` and NSubstitute as consumed by that package.
@@ -94,8 +104,9 @@ From `Cratis.Specifications`:
 | `.ShouldBeOfExactType<T>()` | `_event.ShouldBeOfExactType<<EventType>>()` |
 | `.ShouldBeGreaterThan(n)` / `.ShouldBeLessThan(n)` | `_count.ShouldBeGreaterThan(0)` |
 
-Assert on values and types. Never assert on a presentation message string — it
-is text, not behavior.
+Assert on values and types. Do not assert on presentation message strings by
+default; assert exact text only when that wording is the specified behavior,
+and name that behavior in the fact.
 
 ## Catching exceptions
 

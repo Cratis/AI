@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-chronicle-projection",
+  "evals": [
+    {
+      "id": 1,
+      "name": "constant-count-and-source",
+      "prompt": "BoatStatistics already has string Id and int BookingCount. Every BoatBooked should increment the one row keyed fleet. It reads the inbox event sequence. Show the minimal model-bound C# mapping and explain whether I need a separate projection class or explicit AutoMap. Reply only.",
+      "expected_output": "Model-bound Count<BoatBooked>(ConstantKey = fleet), EventSequence(inbox), Chronicle Key where needed. AutoMap is default; no separate class or removed FromEventSequence attribute.",
+      "assertions": [
+        "Uses Count<BoatBooked> with ConstantKey as an initializer property rather than a constructor argument.",
+        "Uses the EventSequence attribute to select inbox, not the removed FromEventSequence attribute.",
+        "Uses model-bound attributes without a separate projection class and explains that AutoMap is on by default."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "joined-latch-and-filter",
+      "prompt": "Our existing BookingOverview projection joins BoatBlocked into IsBlocked=true while BookingUnblocked locally sets the same field false. It sticks true after unblocking. We also added [Tag(\"harbor\")] expecting to narrow events to that appended tag. Explain both failures and propose a safe shape. Reply only.",
+      "expected_output": "Joins resolve after local mappings and always win; CHR0042 diagnoses overlap. Separate BlockedAt/UnblockedAt facts and derive outcome at the query edge. Artifact Tag does not filter; projections have no metadata filter.",
+      "assertions": [
+        "Explains that joined values are applied after local mappings whenever own events are handled, so a local false cannot clear that joined field.",
+        "Names CHR0042 or JoinOverridesLocalWrite as the overlap diagnostic.",
+        "Proposes separate blocked/unblocked facts and derives the outcome at the query edge rather than writing the same joined property twice.",
+        "Explains that Tag labels the artifact and cannot filter appended metadata in a projection; metadata filtering belongs to reducers or reactors."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "variant-late-events",
+      "prompt": "Our work-item projections represent BacklogItem and PullRequestItem with genuinely different fields. On Chronicle 19.1.0, how do we keep exactly one active shape, avoid a replayed title change resurrecting an old backlog entry, and prevent a startup declaration error? Show the relevant attributes or fluent declarations. Reply only.",
+      "expected_output": "Each variant anchors to VariantOf<WorkItem> and has EntersOn. Entering removes other shapes; non-entering events become update-only joins and cannot resurrect. Missing EntersOn throws VariantMustDeclareEntersOnEvent.",
+      "assertions": [
+        "Declares VariantOf with the same identity type and EntersOn for each variant.",
+        "Explains that entering one variant removes the entity from other variants in the group.",
+        "Explains that non-entering mappings become update-only joins and cannot create or resurrect the old variant.",
+        "Names VariantMustDeclareEntersOnEvent as the startup error when a variant has no entering event."
+      ]
+    }
+  ]
+}

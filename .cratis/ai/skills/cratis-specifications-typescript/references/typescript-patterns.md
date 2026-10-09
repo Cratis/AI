@@ -1,5 +1,15 @@
 # TypeScript specification patterns
 
+## Contents
+
+- Frameworks
+- Chai assertions
+- Sinon stubbing
+- The `given()` helper
+- Reusable context class
+- Asynchronous specifications
+- One behavior per file
+
 Detail for the `given()` surface: assertions, stubbing, asynchronous
 specifications, and folder layout.
 
@@ -46,7 +56,9 @@ value.should.be.instanceOf(<Type>);
 (() => <throwingCall>()).should.throw(<ErrorType>);
 ```
 
-Assert on values and types, never on a presentation message string.
+Assert on values and types. Do not assert on presentation message strings by
+default; assert exact text only when that wording is the specified behavior,
+and name that behavior in the fact.
 
 ## Sinon stubbing
 
@@ -172,7 +184,7 @@ describe('when <behavior>', given(a_<system_under_test>, context => {
 Await the promise in `beforeEach` rather than inside each `it()`, so the action
 under specification runs exactly once.
 
-## One outcome per file
+## One behavior per file
 
 ```
 when_<behavior>/

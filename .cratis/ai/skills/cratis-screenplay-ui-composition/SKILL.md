@@ -10,6 +10,11 @@ Event Modeling's wireframe step is a first-class part of the language. The shell
 the reusable shapes inside it, the forms bound to commands, and the navigation
 entries other modules contribute are all declared in the `.play` model.
 
+⚠️ `file <Identifier>` is read as a **property** named `file`, not a directive —
+the type-reference shape wins the tie. `file Invoices/Register.cs` is a directive;
+`file Attachment` is a property. In a `trigger` body the directive always wins, so
+a trigger value named `file` is written `@file`.
+
 ## Locate the model
 
 Look first for the project's existing `.play` files: the folder holding them is the
@@ -30,7 +35,7 @@ source is the single flow model.
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original UI composition parser evidence |
 | `Cratis.Screenplay` | main `fd18129` | Cancellation routing and `optional`; changed example compiled |
-| `Cratis.Screenplay` | `4.64.0` (`7e16162`) | Statements in this skill re-verified: the nine `Documentation/screenplay/` pages above are unchanged since `v4.31.0` except `file-references.md` (typed-context and `implementation` paragraphs); `PLAY0269` in `Diagnostics/DiagnosticCodes.cs`; the new section compiled with `screenplay` 4.64.0 and `cratis screenplay validate` 3.27.1 |
+| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Statements in this skill re-verified: the nine `Documentation/screenplay/` pages above are unchanged since `v4.31.0` except `file-references.md` (typed-context and `implementation` paragraphs); `PLAY0269` in `Diagnostics/DiagnosticCodes.cs`; the new section compiled with `screenplay` 4.66.0 and `cratis screenplay validate` 3.28.2 |
 
 The update follows `commands.md`, `events.md`, `queries.md` and decision 0023
 at that main commit (after v4.52.0). It does not verify UI rendering.
@@ -40,8 +45,7 @@ Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 Those checks established the original baseline. The changed cancellation
 example uses the newer main commit above, not the old tag.
 
-Versions of the tools that check these examples: `cratis-screenplay-toolchain`
-`references/versions.md`.
+Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing or checking tool versions for these examples.
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
@@ -62,7 +66,7 @@ work on a screen whose purpose is unsettled is rework.
    `data` plus `action`). Read the whole set, not one screen at a time.
 2. **Review the flow before adding layout.** Walk it screen by screen as text
    (format in `references/flow-review.md`). When the host advertises the MCP-Apps
-   extension, `visualize-model` (a `proposalId` or a `sketch`) can also show it on
+   extension for the `screenplay` MCP server, `visualize-model` (a `proposalId` or a `sketch`) can also show it on
    a board; that is optional, and the text review is enough on its own. Do not
    use the Stage sandbox as the review: it renders only part of a screen, and
    nothing here establishes that Stage renders an authored screen faithfully.
@@ -75,13 +79,12 @@ work on a screen whose purpose is unsettled is rework.
    screen's read model. A value with no origin means the command or read model is
    missing it: fix the slice, never invent the value in the screen.
 5. **Read before editing.** Open the existing screen (or `read-workspace` /
-   `declaration-details` over MCP) and change only the directives that were asked
+   `declaration-details` through the `screenplay` MCP server) and change only the directives that were asked
    for. Adding `layout` must not rewrite the Level-1 intent beneath it.
 6. **Report each screen in two or three sentences**: what it shows and what the
    user can do. Not everyone reviewing can see a board.
 
-A complete worked flow (two Level-1 screens, their command, read model and form,
-with the field trace): `references/worked-flow.md`.
+Read `references/worked-flow.md` when a complete example is needed before composing a flow; it contains two Level-1 screens, their command, read model and form, with the field trace.
 
 ## `layout` — the application shell
 
@@ -212,7 +215,7 @@ module-level.
 `navigate to <Screen> by <param>` is **not** string interpolation; it reuses the
 same typed navigate binding a screen action uses.
 
-⚠️ This iteration ships `navigate`, `label` and `order` only. Grouping beyond a
+⚠️ The v4.31.0 baseline, re-verified at v4.66.0, ships `navigate`, `label` and `order` only. Grouping beyond a
 flat ordered list, and an explicit override for when nearest-enclosing is not the
 point you mean, are deliberately left for later.
 
@@ -269,9 +272,10 @@ module Invoicing
 ```
 
 The inline event targets `invoiceId` without copying it into payload; the
-projection obtains it from event context. At v4.64.0 a command `returns` clause
-(scalar or record) is authorable but syntax-only: binding reports `PLAY0268` until
-ESM v8 (`commands.md`, "Generated values and responses"). Form `on submit` and
+projection obtains it from event context. A command `returns` clause (scalar or
+record) binds and executes from standalone Screenplay 4.68.0 (ESM v7, `commands.md`,
+"Generated values and responses"); the 4.66.0 bundled in `cratis` 3.28.x reports `PLAY0268`, and
+Stage 4.24.2 does not render ESM v7 (`STAGE-ESM-016`, tracked in Stage#201). Form `on submit` and
 interaction `on success` response-name scopes, failure clearing and response
 execution remain unavailable.
 An existing success continuation does not imply a response contract.
@@ -371,16 +375,11 @@ The rules:
 - **Loaded is not run.** Screenplay hashes attached code and can map an inline
   body back to its source for an editor, but never compiles or executes it.
 
-⚠️ `file <Identifier>` is read as a **property** named `file`, not a directive —
-the type-reference shape wins the tie. `file Invoices/Register.cs` is a directive;
-`file Attachment` is a property. In a `trigger` body the directive always wins, so
-a trigger value named `file` is written `@file`.
-
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` (standalone) reports zero errors and zero
-      warnings; `cratis screenplay validate --warnings-as-errors` says the same for
-      constructs its bundled compiler knows (versions: `cratis-screenplay-toolchain`
+      warnings; `cratis screenplay validate --warnings-as-errors` says the same on
+      cratis 3.28.2 or later, which bundles the same compiler (versions: `cratis-screenplay-toolchain`
       `references/versions.md`).
 - [ ] Every screen in the flow has Level 1 reviewed before any layout, and every
       form field and screen field traces to a command or read-model property.
@@ -406,4 +405,4 @@ a trigger value named `file` is written `@file`.
 
 ## Lineage
 
-`references/provenance.md`.
+Read `references/provenance.md` when checking source attribution or adaptation permissions.

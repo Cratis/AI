@@ -1,9 +1,18 @@
 # Stage 4.24 admission: codes, specification rules and observed refusals
 
-Read at Stage `v4.24.0` (`Source/Rendering.Cratis/CratisArtifactRenderPlanner.cs`,
+## Contents
+
+- Diagnostic codes
+- Projections
+- Pure reducer bodies
+- Specification rules (`STAGE-ESM-011`)
+- Observed refusals
+- Source disagreements (trust the code)
+
+Read at Stage `v4.24.0`, re-read at `v4.24.1` and `v4.24.2` (`SemanticCratisAdmission.EventRevisions.cs`, `SemanticEventLineageAdmission.cs`, ESM v4 section of `Documentation/guides/build-renderer-target.md`) (`Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`, `Documentation/guides/build-renderer-target.md`; 4.24.1 changed only the ledger, dependency pins and the Dockerfile) (`Source/Rendering.Cratis/CratisArtifactRenderPlanner.cs`,
 `Semantics/SemanticCratisAdmission*.cs`, `SemanticSpecificationAdmission*.cs`,
-`PureTransitionAdmission.cs`, `SemanticImplementationAdmission.cs`) and cli `v3.27.1`
-(`Commands/Render/ScreenplayPlanning.cs`). Items marked *observed* were reproduced with
+`PureTransitionAdmission.cs`, `SemanticImplementationAdmission.cs`) and cli `v3.28.2`
+(`Commands/Render/ScreenplayPlanning.cs`, unchanged since `v3.27.1`). Items marked *observed* were reproduced with
 `cratis render` 3.27.1 while building [render-example.md](render-example.md). Anything else
 is a reading of source: render the model before claiming it.
 
@@ -11,7 +20,7 @@ One blocking diagnostic fails the **whole** plan and nothing is published (exit 
 Informational diagnostics (`PLAY0270` authoring metadata, `PLAY0469`, `STAGE-ESM-023`) do not.
 
 A refusal can come from four layers, and the code tells you which: compilation and binding
-(`PLAY*`, from the CLI's bundled Screenplay 4.60.1), execution planning (`PLAN-*`), Stage
+(`PLAY*`, from the CLI's bundled Screenplay: 4.66.0 in cratis 3.28.3), execution planning (`PLAN-*`), Stage
 admission (`STAGE-*`) and the CLI itself (`CLI-RENDER-*`). A publication conflict (a
 modified managed file, an unmanaged file at a planned path, a manifest from another
 target or renderer) is a plain ownership error with no code. Keep the actual diagnostic or
@@ -40,16 +49,19 @@ model owner's decision.
 | `STAGE-ESM-013` | An event-context value other than `$context.occurred` mapped in `produces` | Map a command property when that preserves the meaning; otherwise gap-fill |
 | `STAGE-ESM-014` | A constraint Chronicle cannot reproduce (kind, scope, message; multi-claim in one command; optional or composite targets) | A different constraint is a requirement change for the model owner; otherwise gap-fill |
 | `STAGE-ESM-015` | Authorization Stage cannot render exactly: opaque (code) policy, role-claim URI, expression not requiring authentication, claim compared with a non-text value, authorized command without exactly one identifier | `require authenticated and ...`; text-backed claim targets |
-| `STAGE-ESM-016` | Model language or semantic version is not ESM v1 to v3 (event generations are v4; v5 and v6 constructs also raise the version) | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
+| `STAGE-ESM-016` | Model language or semantic version is not ESM v1 to v4 (Stage 4.24.2; 4.24.1 and earlier: v1 to v3, so a v4 model was refused here); v5 and later constructs raise the version (v6 reactions and clocks; v7 generated values and responses, tracked in Stage#201) | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
 | `STAGE-ESM-017` | Read model or projection cannot render (property names that collide with Chronicle paths or expression syntax, mappings that overwrite the key or child identity, composite keys, `all`, the refused scope shapes below) | Reshape the projection without changing what it records, or record the gap |
 | `STAGE-ESM-018` | `$strings.` key missing in the default locale or containing formatting characters | Fix the strings |
 | `STAGE-ESM-019` | Reducer structure or body not admitted (outside a `StateView`, impure, does not compile) | An equivalent pure body, or gap-fill |
 | `STAGE-ESM-020` | Implementation body missing, changed (hash differs) or refused by the loader | Provide the body inside the model root |
 | `STAGE-ESM-021`, `-022` | Reducer typed-context or analysis failure; a construct outside the pure allowlist, or a generated name shadowing a reducer type | An equivalent pure body, or gap-fill |
+| `STAGE-ESM-025` | Typed context references a historical event revision or a historical property identity (Stage 4.24.2); checked before `-026` | Reference the current revision; a historical reference is not renderable, so gap-fill |
+| `STAGE-ESM-026` | A selected event, or an event a selected slice depends on (producing command, observing projection or reducer, specification, constraint target), is above its initial revision (Stage 4.24.2): `Event 'X' has evolved to revision N; Stage does not render event migrations yet.` The whole selection is refused, nothing is emitted | Not fixable by editing without dropping the evolution. Stage#204 (needs Screenplay#71) tracks migration rendering; gap-fill the evolved events and hand-write the migrations (`cratis-chronicle-event-type-migration`). A scoped slice of initial events that depends on no evolved event still renders |
+| `STAGE-ESM-024` | Ledger-only (4.24.1): every ESM v6 surface member is dispositioned Rejected. Not emitted on its own: the version gate raises `STAGE-ESM-016` first and refuses the whole v6 model | As `STAGE-ESM-016`: keep the model, record the gap, gap-fill |
 | `STAGE-ESM-023` | Information: transition bodies analysed | none |
 | `STAGE-CRATIS-001` to `-005` | Profile or `scene.json` not the package-owned shape; unrecognized or missing scaffold input; artifact path collision; a modeled module or feature that would render into the reserved `Customizations/` | Rename the module or feature (005) |
 | `STAGE-AUTH-001` | Authorization cannot be rendered faithfully | As `STAGE-ESM-015` |
-| `CLI-RENDER-001`, `-002`, `-003` | Unknown target; invalid rendering name; event generations (ESM v4) | Fix the option, or the model |
+| `CLI-RENDER-001`, `-002` | Unknown target; invalid rendering name (`CLI-RENDER-003`, event generations, was reported by cratis 3.28.2 only) | Fix the option, or the model |
 
 `STAGE-CRATIS-FILE-001`, `-INLINE-001`, `-QUERY-001`, `-KEY-001`, `-KEY-002`,
 `-PROJECTION-001` and `STAGE-EVENT-001` come from the legacy syntax renderer and the direct
@@ -73,7 +85,7 @@ Stage renders two projection forms; the restrictions differ.
      key makes it that key. Stage refuses a literal key (`STAGE-ESM-017`; scoped keys are an
      event property or the event source, `SemanticScopedProjectionSupport.KeySupported`). Never map `$eventSourceId` onto the identifier when the key is
      something else (`from PaymentRecorded key invoiceId`): the runtime fails with "affected key
-     disagrees with read-model identifier" (Screenplay v4.64.0
+     disagrees with read-model identifier" (Screenplay v4.66.0
      `SemanticScopedProjection.State.cs:182-184`, `SemanticEvaluator.cs:733-736`).
   2. Executable model. A flat-bound projection must map the identifier like any required
      property (the flat evaluator does not seed it): `xId = <keyProperty>`. A scoped projection
@@ -159,7 +171,7 @@ From `SemanticSpecificationAdmission*.cs`; the first rule was also observed.
 
 ## Observed refusals
 
-Each came from the first draft of the example model, rendered with cratis 3.27.1:
+Each came from the first draft of the example model, rendered with cratis 3.27.1 (the marina model still renders on 3.28.2 with 30 artifacts):
 
 | Draft | Diagnostic | Fix that rendered |
 | --- | --- | --- |
@@ -173,5 +185,5 @@ Each came from the first draft of the example model, rendered with cratis 3.27.1
 | --- | --- |
 | Stage README: application scope adds "exactly eight" backend files | The scaffold creates nine (adds `GeneratedPolicyRegistration.cs`), plus the frontend scaffold |
 | cli reference: bodied reducers are unsupported (`STAGE-ESM-019`) | `PureTransitionAdmission` admits pure allowlisted bodies |
-| Stage customization guide: an Automation slice blocks with `STAGE-ESM-001`; Stage pins Screenplay 4.35.0 | With cli 3.27.1 an Automation or Translate slice fails binding (`PLAY0268`) first; Stage pins Screenplay 4.60.0 |
+| Stage customization guide: an Automation slice blocks with `STAGE-ESM-001`; Stage pins Screenplay 4.35.0 | With cli 3.27.1 an Automation or Translate slice failed binding (`PLAY0268`) first; with cli 3.28.2 it binds and Stage refuses the whole model with `STAGE-ESM-016` (probed). Stage 4.24.0 pinned Screenplay 4.60.0 (4.24.1: 4.66.0) |
 | An earlier version of this skill: Stage has no authorization contract for queries | Query authorization is admitted and rendered; an unauthorized query renders `[AllowAnonymous]` (observed) |

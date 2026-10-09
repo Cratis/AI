@@ -2,7 +2,7 @@
 
 Read at Stage `v4.24.0` (`README.md`, `Documentation/docker/index.md`,
 `Documentation/docker/spec-runner.md`, `Documentation/reference/urls.md`) and cli
-`v3.27.1` (`Commands/Run/*`). Docker was **not run** for this skill: every behaviour here
+`v3.28.2` (`Commands/Run/*`, unchanged since `v3.27.1`). Docker was **not run** for this skill: every behaviour here
 is documented behaviour, not an observed result. Both images are still shipped.
 
 ## The sandbox: a partial, disposable runtime
@@ -61,11 +61,9 @@ docker run --rm -v /path/to/model:/model:ro -v /path/to/results:/output \
 | `--engine semantic` | `structural` | Opt in to executable specifications |
 | `--specification`, `--scope`, `--catalog`, `--application` | | Semantic engine only |
 
-Exit `0` means the run completed and the file was written **even when a specification
-failed**: read the outcomes. `1` is a missing or uncompilable input, `2` a missing required
-argument or an invalid semantic option.
+See "Specification runner exit codes" in SKILL.md.
 
-- **Structural** (default, deprecated, to be removed in the next major): verifies that the
+- **Structural** (default and deprecated at Stage v4.24.2, with removal planned for the following major release): verifies that the
   events and commands a specification names resolve to its slice and that modeled rules
   agree. Outcomes `Passed`, `Failed`, `Inconclusive` (not verifiable for that slice type
   yet; not a failure). It does not execute any slice.

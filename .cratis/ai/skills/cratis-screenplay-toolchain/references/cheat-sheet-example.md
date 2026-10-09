@@ -2,10 +2,9 @@
 
 One complete document with every construct family. Design mode, not executable. Prose rules: [cheat-sheet.md](cheat-sheet.md); tool versions: [versions.md](versions.md); what binds: [executable-subset.md](executable-subset.md).
 
-Blocking on every compiler: unquoted import, `@pii`, `reads` (PLAY0271), `starts with`, observable/list/filter query. Also blocking on the cratis-bundled compiler only: trigger, `given clock`, Automation and Translate slices, reactions, capture. Executable shapes are in the sibling examples. The first line of the fence marks it standalone-only, so the cratis pass skips it: `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis-bundled 4.60.1 compiler rejects with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'").
+Blocking on every compiler: unquoted import, `@pii`, `reads` (PLAY0271), `starts with`, observable/list/filter query. Executable shapes are in the sibling examples. The fence compiles warning-free on the standalone 4.66.0 tool and on `cratis screenplay validate` 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 // Design-mode cheat-sheet: every construct family; compiles warning-free on the standalone tool.
 domain Acme.Invoicing                      // optional; first line when present
 import Customers.CustomerRegistered        // unquoted = another bounded context's contract
@@ -255,7 +254,7 @@ module Housekeeping                                   // no gates: a reaction's 
       event InvoiceMarkedOverdue
         overdueAt DateTime
       // No command spec here: under ESM v6 it must list the ReminderSent cascade. The file is
-      // standalone-only because RecordingAPayment's cascade already gets a false PLAY0285 on cratis.
+      // RecordingAPayment's cascade got a false PLAY0285 on cratis before 3.28.2; 3.28.2 accepts it.
       // The cascade form: automation-translate-example.md (SubscribingAMember).
 
     slice Automation RemindOverdue

@@ -1,5 +1,21 @@
 # Read-model design
 
+## Contents
+
+- Start from the consumer
+- The typical slice pattern
+- Events or views
+- Components
+- Fan-in per field
+- Builder and freshness
+- Query shape follows the business view
+- No clock-relative state
+- Who may see what
+- Collections and many-at-once
+- Building it
+- Omissions are decisions
+- Checks before handing off
+
 ## Start from the consumer
 
 List every consumer before designing any read model: each screen area a person looks at, and
@@ -150,7 +166,7 @@ has children, not a single value.
 
 - Event properties fill read-model properties of the same name automatically (AutoMap), but the
   match differs by binding: a scoped projection matches names case-insensitively and only for
-  the same type (Screenplay v4.64.0 `ProjectionValues.cs` `AutoMapped`); a flat-bound projection
+  the same type (Screenplay v4.66.0 `ProjectionValues.cs` `AutoMapped`); a flat-bound projection
   matches exact names only and does not check the type, so a same-named property of another
   type makes the model invalid (`Projections.cs` `BindFlatTransition`). Do not rely on AutoMap
   where it matters: map explicitly when names or types differ, and use `no automap` where an

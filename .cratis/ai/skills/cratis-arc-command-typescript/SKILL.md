@@ -36,10 +36,19 @@ Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
 Chronicle SDK: `@cratis/chronicle` peer `^6.7.0`; the Library sample pins
 `6.14.0`. Fundamentals: `@cratis/fundamentals` `^7.19.6`.
 
-Host setup, the Fetch entry, and the storage integrations are in
-[references/hosting-and-storage.md](references/hosting-and-storage.md). Returned
-Chronicle events and their specs are in
-[references/chronicle-events.md](references/chronicle-events.md).
+Read [references/hosting-and-storage.md](references/hosting-and-storage.md) when setting up a host, using the Fetch entry, or wiring storage integrations. Read [references/chronicle-events.md](references/chronicle-events.md) when returning Chronicle events or specifying those commands.
+
+## Chronicle traps
+
+- Appending and projecting are separate: a query sent right after the command
+  may not see the event yet. Prefer an observable query on the client.
+  `completionTimeoutMs` makes the command wait for observers, but Chronicle waits
+  for **every** observer on the log (Cratis/Chronicle#4132), so a projection or
+  reactor that does not handle the event makes every command time out with 500.
+
+- The in-memory scenario does **not** run projections, aggregates, constraints
+  or concurrency checks. `ChronicleKernelScenario` runs against a live kernel at
+  `ARC_CHRONICLE_TEST_URL` for those.
 
 ## Set up a project
 
@@ -129,23 +138,9 @@ local machine only.
 
 ## Lay out the slice
 
-House convention (not a runtime requirement): one folder per behavior, one
-TypeScript file named for the behavior holding the command, its validator and —
-for Chronicle — its events. Concepts shared by several slices live one level up.
-Specs sit beside the slice in `for_<Subject>/when_<action>/<case>.ts`, which
-`discover()` skips.
+House convention (not a runtime requirement): one folder per behavior, one TypeScript file holding the command, its validator and its events; specs in `for_<Subject>/when_<action>/`, which `discover()` skips.
 
-```text
-Features/Tasks/
-├── TaskId.ts
-├── TaskTitle.ts
-├── Tasks.ts
-├── Registration/
-│   ├── Registration.ts
-│   └── for_RegisterTask/when_registering/with_valid_title.ts
-└── Listing/
-    └── Listing.ts
-```
+Read [references/slice-layout.md](references/slice-layout.md) when creating a new feature folder.
 
 ## Declare the command
 
@@ -358,42 +353,9 @@ are in [references/chronicle-events.md](references/chronicle-events.md).
 
 ## Generate metadata and proxies
 
-`arc-proxygenerator` (package `@cratis/arc.proxygenerator`, also unpublished)
-reads the TypeScript source with the compiler API — it never queries a running
-server. It writes server metadata and client proxies in one run. The CLI
-rejects relative paths, and the output folder must exist:
+`arc-proxygenerator` (`@cratis/arc.proxygenerator`, unpublished) reads the TypeScript source and writes server metadata and client proxies in one run. Regenerate after **every** change to a command, read model or validator — `useGeneratedMetadata` throws `Stale generated artifact metadata for <Type>` otherwise — and gate CI with `--check-metadata`. Never edit the committed metadata module.
 
-```javascript
-import { spawnSync } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
-import process from 'node:process';
-import { fileURLToPath } from 'node:url';
-
-const path = relative => fileURLToPath(new URL(relative, import.meta.url));
-const cli = fileURLToPath(new URL('./cli.js', import.meta.resolve('@cratis/arc.proxygenerator')));
-mkdirSync(path('./generated'), { recursive: true });
-const result = spawnSync(process.execPath, [cli,
-    '--project', path('./tsconfig.json'),
-    '--artifacts', path('./Features'),
-    '--output', path('./generated'),
-    '--metadata', path('./Features/generatedMetadata.ts'),
-    ...process.argv.slice(2)], { stdio: 'inherit' });
-process.exitCode = result.status ?? 1;
-```
-
-- Commit the metadata module; never edit it. Regenerate after **every** change
-  to a command, read model or validator — `useGeneratedMetadata` throws
-  `Stale generated artifact metadata for <Type>` otherwise. Reordering
-  parameters without changing their count goes undetected, so gate CI with
-  `--check-metadata` and keep `--watch` running beside `tsx` while developing.
-- `--artifacts` must be the folder passed to `discover()`. Match route options
-  (`--api-prefix`, `--segments-to-skip`, `--root-namespace`) to the server's
-  `generatedApis` options, or proxies call URLs the server does not serve.
-- Generated proxies import the **published** `@cratis/arc` and
-  `@cratis/arc.react` (the docs pin `22.19.1`) plus `@cratis/fundamentals`.
-  Compile them in `Bundler` resolution with `experimentalDecorators: true`, and
-  import `reflect-metadata` once in the frontend entry. Consuming the proxies in
-  React is `cratis-arc-react-page`.
+Read [references/proxy-generation.md](references/proxy-generation.md) when wiring the generator script, matching route options to the server, or compiling the generated proxies in a frontend.
 
 ## Host the application
 
@@ -406,63 +368,13 @@ Express's `cratisArc(arc)` **before** any body parser, or every command answers
 
 ## Specify the command
 
-`@cratis/arc.testing` runs a command through the real pipeline in-process —
-binding, authorization, validators, services, `provide()`, `handle()` — without
-a listener. From `Samples/Tasks`:
+Start with a direct `handle()` call for pure command decisions, passing any
+provided values explicitly. Add `CommandScenario` only where binding,
+authorization, validation or dependency wiring contribute proof.
 
-```typescript
-import { CommandScenario } from '@cratis/arc.testing';
-import { Tasks } from '../../../Tasks.js';
-import { RegisterTask, RegisterTaskValidator } from '../../Registration.js';
-import { metadata } from '../../../../generatedMetadata.js';
+`CommandScenario` from `@cratis/arc.testing` runs a command through the real pipeline in-process, without a listener. Register fakes on `scenario.services` before the first call, create one context per `describe` (act in `beforeAll`, dispose in `afterAll`), and specify authorization for three callers — anonymous, without the role, with it — and on `validate()` too.
 
-export class a_task_registration {
-    tasks = new Tasks();
-    scenario = CommandScenario.for(RegisterTask, RegisterTaskValidator);
-
-    constructor() {
-        this.scenario.extend(builder => builder.useGeneratedMetadata(metadata));
-        this.scenario.services.addSingleton(Tasks, this.tasks);
-    }
-}
-```
-
-```typescript
-import { given, type ScenarioCommandResult } from '@cratis/arc.testing';
-import { TaskId } from '../../../TaskId.js';
-import { TaskTitle } from '../../../TaskTitle.js';
-import { a_task_registration } from '../given/a_task_registration.js';
-
-describe('when registering a task with a valid title', given(a_task_registration, context => {
-    const id = TaskId.create();
-    let result: ScenarioCommandResult;
-
-    beforeAll(async () => {
-        result = await context.scenario.execute({ id, title: new TaskTitle('Plan release') });
-    });
-    afterAll(async () => { await context.scenario.dispose(); });
-
-    it('should succeed through the command pipeline', () => { result.shouldBeSuccessful(); });
-}));
-```
-
-- `CommandScenario.for(Command, ...artifacts)` — pass the validators and other
-  artifacts the command needs; it cannot discover classes that were never
-  imported.
-- Register fakes on `scenario.services` **before** the first call.
-  `extend(builder => ...)` installs builder setup such as generated metadata.
-- `execute(values)` runs everything; `validate(values)` stops before
-  `provide()`/`handle()`. `withContext({ principal, tenantId, correlationId })`
-  sets a trusted caller.
-- `given(Context, ...)` creates **one** context per `describe`: act in
-  `beforeAll`, dispose in `afterAll`. A disposed scenario cannot run again.
-- Assertions on the result: `shouldBeSuccessful()`, `shouldNotBeSuccessful()`,
-  `shouldBeValid()`, `shouldHaveValidationErrors()`,
-  `shouldHaveValidationErrorForMember(member)`, `shouldHaveValidationErrorFor(text)`,
-  `shouldHaveValidationErrorBecauseOf(reason)`, `shouldBeAuthorized()`,
-  `shouldNotBeAuthorized()`, `shouldHaveExceptions()`, `shouldNotHaveExceptions()`.
-- Specify authorization for three callers — anonymous, without the role, with
-  it — and on `validate()` too.
+Read [references/command-specifications.md](references/command-specifications.md) when writing a `CommandScenario` spec, choosing result assertions, or setting up the scenario context.
 
 Folder and naming conventions for specs are `cratis-specifications-typescript`.
 
@@ -489,7 +401,7 @@ Folder and naming conventions for specs are `cratis-specifications-typescript`.
   results, never thrown errors.
 - Generated metadata is regenerated and `--check-metadata` passes; `build()`
   succeeds at startup.
-- The command's `CommandScenario` specs pass, including the unauthorized and
-  `/validate` cases.
+- Plain-call specs cover pure command decisions; `CommandScenario` specs
+  cover the pipeline, including the unauthorized and `/validate` cases.
 - Guidance never claims the server packages are on npm, and never substitutes
   `@cratis/arc` (the client) for `@cratis/arc.core` (the server).

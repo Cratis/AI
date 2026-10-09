@@ -1,5 +1,12 @@
 # Queries and commands reference
 
+## Contents
+
+- Query proxy hooks
+- Observable query transport
+- Command proxy
+- `<Arc>` configuration
+
 A Debug build generates one typed proxy class per query and per command. The
 proxy exposes static React hooks; the page calls those. Never edit a generated
 file — fix the C# source and rebuild.

@@ -27,7 +27,7 @@ an unproven pass.
    is the team's act of acceptance and opts the repository in.
    A committed file with uncommitted working-tree edits is a model change in progress: its HEAD version is the contract until the change is committed.
    A behavior is a **contract** only when an accepted (committed) model under the root covers it.
-   A direct user request to model a scope is consent for that scope. Evidence: `references/opt-in.md`.
+   A direct user request to model a scope is consent for that scope. Evidence: `references/opt-in.md`. Read `references/opt-in.md` when checking opt-in evidence or model-root edge cases.
 2. **Not opted in:** continue code-first; never force a model (framework, brownfield,
    infrastructure, client and adapter work stays code-first). Only the entry-point agent or session
    may **propose a model**: at most once per session, never for trivial, bug-fix, infrastructure,
@@ -43,14 +43,14 @@ an unproven pass.
 | An accepted model covers the scope | **Model** | Change the `.play`, verify V1-V3, review, then render or gap-fill |
 | Opted in, but this scope has no model yet | **Model** | New behavior starts in discovery, then slice design |
 | A computed rule inside a modeled slice | **Model + code attachment** | `csharp`/`file` block; it binds only as the construct allows (`cratis-screenplay-model-authoring`) |
-| Scope Stage cannot render yet, including every modeled automation and translation (Stage `v4.24.0` renders neither; the whole behavior is gap-fill, not just its outside call) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
+| Scope Stage cannot render yet, including every modeled automation and translation (Stage `v4.24.2` renders neither; the whole behavior is gap-fill, not just its outside call) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
 | Outside call, transport or credentials | **Adapter code** | `Customizations/` or the host, applying `cratis-engineering-effect-boundaries` |
 | Infrastructure, clients, framework-profile repositories, brownfield not opted in | **Code** | Arc, Chronicle, spec and React skills; trivial changes keep the proportional-delegation policy |
 
 **Never:** use code as a shortcut around the model; change the model to match existing code;
 edit Stage-managed output; leave a modeled rule living only in code; weaken protection
 (authorization, `@pii`, rules) so a model compiles or renders. Principles and rejected
-anti-patterns behind this rule: `references/principles.md`.
+anti-patterns behind this rule: `references/principles.md`. Read `references/principles.md` when evaluating a proposed shortcut or classifying a finding.
 
 ## Do not cut corners to save tokens or effort
 Token economy governs what you read and print, never what the model contains. If a rule needs
@@ -93,12 +93,12 @@ or **critic** (P4-P5: strict, report first, fix in a separate batch).
 Report all five at checkpoints and handoffs (between edit batches only those you ran), each a
 result or "not run: <reason>" naming tool and version. Never infer one from another or "fix" a
 correct model to silence a diagnostic (record a tool-version gap). Commands, report template,
-source identity: `references/verdicts-and-modes.md`.
+source identity: `references/verdicts-and-modes.md`. Read `references/verdicts-and-modes.md` before recording verdicts or establishing the source identity for acceptance.
 
 ## Lifecycle
 P0 intake, P1 discover, P2 model, P3 specify, P4 self-check, P5 independent review, P6 accept
 (bound to a source identity), P7 execute, P8 render or fall back, P9 verify. Each phase has
-**Input / Carry-forward / Gate** in `references/phases.md`. Gates bind: a phase ends when its
+**Input / Carry-forward / Gate** in `references/phases.md`. Read `references/phases.md` when entering, skipping, or transitioning between phases. Gates bind: a phase ends when its
 gate holds against the current `.play` and fresh tool output, never memory. A failing item is
 fixed, accepted by the user, or recorded as an open question with its assumption; never
 carried silently. Skip a phase only on its stated skip condition and record why. Review fix
@@ -125,7 +125,7 @@ done; never rerun a completed one, start at the first incomplete.
 1. **Start**: read STATE.md; check the source identity; load the phase skill before authoring
    or judging; read the slice, specs and skill fully before concluding something is missing.
    Discover tool capabilities once per session (`cratis-screenplay-toolchain`). One brief per
-   turn, one closed outcome: `references/per-turn-protocol.md`.
+   turn, one closed outcome: `references/per-turn-protocol.md`. Read `references/per-turn-protocol.md` when running a long-lived or delegated session that receives one brief at a time.
 2. **Scope**: only the addresses and phase the brief names; other defects go in the packet.
    One authoring agent per model root; reviewers and explainers are read-only.
 3. **Modeling**: assume visibly and continue (attended: ask the one question that changes the
@@ -153,8 +153,15 @@ the report's first line says the requested change is NOT done. Ask only for what
 not name or that widens its scope.
 Procedure and edit-request template: `references/identity-and-edits.md`.
 
+**Document mappings count too.** With `identities.json` present, creating, deleting, renaming or
+moving a mapped `.play` file changes no catalog address but still breaks reopening: at Screenplay
+v4.66.0 `McpState.Open` throws `IdentityMappingConflict` ("mapped .play files are missing,
+renamed, or accompanied by unmapped files ... use an MCP proposal to move/add/delete documents
+explicitly"). Do these through MCP document operations (the `screenplay` server's `propose-ast` tool), never a file move or rename
+in the shell or editor.
+
 ## Safety, approvals, untrusted content
-Effect table: `references/safety.md`. State-changing or expensive effects (MCP `apply`,
+Effect table: `references/safety.md`. State-changing or expensive effects (the `screenplay` server's `apply` tool,
 `prologue start`, Extractor runs, traffic, load, `render --force`, non-read-only
 `cratis chronicle`) need approval naming the target, unless the request already named that
 effect and target. Ask again only when target or consequence expands
@@ -189,6 +196,7 @@ labelled as such. The user decides whether it is enough
   next phase, report pointer. Templates: `references/handoff-template.md`,
   `references/phase-report-inventories.md`; `references/reasoning-notes.md`;
   `references/code-reading-and-tokens.md`.
+  Read `references/handoff-template.md` when writing state, packets, questions, or edit requests; `references/phase-report-inventories.md` when producing a phase report; `references/reasoning-notes.md` when recording durable rationale in descriptions; and `references/code-reading-and-tokens.md` before choosing code-reading scope or compressing output.
 
 ## Route to one phase skill
 | Need | Skill |
@@ -205,6 +213,7 @@ labelled as such. The user decides whether it is enough
 
 Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes:
 `references/vocabulary-map.md`; worked example: `references/worked-example.md`; done checklist: `references/phases.md`.
+Read `references/worked-example.md` when needing an example of reasoning descriptions, constraints, and decided rejections.
 
 ## Gate
 Done when: the mode's "done when" holds with fresh verdict lines; every open question has an
@@ -212,12 +221,12 @@ address and assumption; every decided rejection is a specification; no protectio
 the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
-Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Used here: Screenplay
-`v4.64.0` (`7e16162`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
+Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Used here: Screenplay
+`v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
-cratis CLI `v3.27.1` (`cratis screenplay validate --warnings-as-errors`, older bundled compiler);
-Stage `v4.24.0` (admits ESM v1-v3); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.27.1`
+cratis CLI `v3.28.3` (`cratis screenplay validate --warnings-as-errors`, bundled Screenplay 4.66.0);
+Stage `v4.24.2` (admits ESM v1-v4 and refuses evolved events with `STAGE-ESM-026`); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.3`
 `Documentation/reference/screenplay-mcp.md`. The worked example compiles with both tools.
 ## Verify
 ```shell
@@ -236,4 +245,4 @@ screenplay <model-folder> --warnaserror --no-color
 | Checking hand-written code against its slice | `cratis-application-slice-conformance` |
 
 ## Lineage
-Event Modeling method, Nebulit and TrogonStack adoption, licences: `references/provenance.md`.
+Event Modeling method, Nebulit and TrogonStack adoption, licences: `references/provenance.md`. Read `references/provenance.md` when checking attribution or adapting material into a sibling method skill.

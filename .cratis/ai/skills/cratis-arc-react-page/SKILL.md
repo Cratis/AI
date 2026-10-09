@@ -9,6 +9,19 @@ license: MIT
 Build the page from the generated Arc proxies and the Cratis Components
 wrappers. Do not hand-roll a table, a dialog, or a fetch.
 
+- An accepted `.play` model under the model root covers the behavior, or the
+  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project set
+  `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
+  output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
+  `cratis-screenplay-modeling-lifecycle`): change the model first with
+  `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
+  say so and do not author `.play` from memory.
+  Read the model's `screen` and `form` with
+  [from-screenplay.md](references/from-screenplay.md). Edit code here only for
+  infrastructure, clients, adapters, Screenplay code attachments, or gap-fill
+  scope (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed
+  output.
+
 ## Verified product sources
 
 This skill is verified against these exact package contracts:
@@ -37,6 +50,16 @@ import { InputTextField } from '@cratis/components/CommandForm';
 import { Dialog } from '@cratis/components/Dialogs';
 import { DialogProps, DialogResult, useDialog } from '@cratis/arc.react/dialogs';
 ```
+
+## Initial focus
+
+`DialogInitialFocus.Confirm` is the default and *arms* the confirm button — a
+browser fires `click` from the `keydown` of Enter, so a held Enter confirms.
+For a destructive dialog use `DialogInitialFocus.Cancel`, which focuses the
+least destructive action and degrades to `Content` when the button set has
+nothing to dismiss with. `DialogInitialFocus.Content` focuses the title so
+nothing is armed. There is deliberately no "focus nothing" option — a modal
+must move focus into itself.
 
 ## Step 1 — Prerequisites
 
@@ -112,7 +135,7 @@ compound members; `MenuItem` and `Column` are also **named exports** of the
 subpath (there is no `DataPage.Column`). Pass `dataKey` whenever the read model has an
 identity.
 
-See [data-page.md](references/data-page.md) for every prop, and
+Read [data-page.md](references/data-page.md) when configuring DataPage props; it lists every prop, and
 [data-tables.md](references/data-tables.md) when you need a table without the
 page chrome.
 
@@ -142,8 +165,8 @@ const [CreateAccountWrapper, showCreateAccount] = useDialog(CreateAccountDialog)
 <CreateAccountWrapper />
 ```
 
-Render the wrapper returned by `useDialog` once in the tree. See
-[dialogs.md](references/dialogs.md) for the full dialog contract.
+Render the wrapper returned by `useDialog` once in the tree. Read
+[dialogs.md](references/dialogs.md) when implementing dialog opening, closing, input, response, validation, or focus behavior; it gives the full dialog contract.
 
 ## Step 5 — Command dialogs
 
@@ -248,7 +271,7 @@ and picks the snapshot or observable table itself. Pass an observable query and
 the page stays live; pass a snapshot query and call `onRefresh` after a command
 succeeds.
 
-Read [queries-and-commands.md](references/queries-and-commands.md) for the
+Read [queries-and-commands.md](references/queries-and-commands.md) when using generated proxy hooks, implementing paging, or handling command results; it covers the
 generated proxy hooks, their exact return tuples, paging, and how to read a
 command result.
 
@@ -280,8 +303,8 @@ export const AccountsPage = withViewModel(AccountsViewModel, ({ viewModel }) => 
 ```
 
 `withViewModel` applies `makeAutoObservable` itself — do not call it in the
-constructor. See [mvvm.md](references/mvvm.md) for injection, route parameters,
-props handling, and teardown.
+constructor. Read [mvvm.md](references/mvvm.md) when implementing view-model injection, route parameters,
+props handling, or teardown.
 
 ## Quick decision guide
 
@@ -336,19 +359,7 @@ props handling, and teardown.
 - The backend command or read model behind the page: `cratis-arc-command`,
   `cratis-chronicle-read-model`.
 - Specifying page behavior with specs: `cratis-application-react-specifications`.
-- An accepted `.play` model under the model root covers the behavior, or the
-  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project set
-  `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
-  output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
-  `cratis-screenplay-modeling-lifecycle`): change the model first with
-  `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
-  say so and do not author `.play` from memory.
-  Read the model's `screen` and `form` with
-  [from-screenplay.md](references/from-screenplay.md). Edit code here only for
-  infrastructure, clients, adapters, Screenplay code attachments, or gap-fill
-  scope (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed
-  output.
 
 ## Lineage
 
-See [references/provenance.md](references/provenance.md).
+Read [references/provenance.md](references/provenance.md) when checking source attribution or adaptation permissions.

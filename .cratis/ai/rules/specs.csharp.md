@@ -11,7 +11,7 @@ Extends the base [specs.md](./specs.md) (folder structure, naming, philosophy) w
 
 > **Which spec surface?**
 > - **Framework / library code** (Chronicle kernel, Arc pipeline, source generators, Fundamentals): the `Specification` base + NSubstitute in this file is the dominant mode — unit-test the classes under test in isolation. Reach for a `*Scenario` helper (in [specs.scenarios.csharp.md](./specs.scenarios.csharp.md)) **only** when testing the very engine your repo provides — Arc → `CommandScenario`, Chronicle → the event/projection/reactor scenarios. The **cratis-application-slice-specifications** skill is application-oriented, not for general framework specs.
-> - **Event-sourced applications on Cratis** (commands, projections, reducers, reactors, constraints): use this base **plus** the in-process scenario family — see **[specs.scenarios.csharp.md](./specs.scenarios.csharp.md)** (`profile: application`) and the **cratis-application-slice-specifications** skill.
+> - **Event-sourced applications on Cratis** (commands, projections, reducers, reactors, constraints): use this base plus a direct call by default for pure decisions; add the in-process scenario family only where pipelines, validation, constraints, projections or wiring contribute proof — see **[specs.scenarios.csharp.md](./specs.scenarios.csharp.md)** (`profile: application`) and the **cratis-application-slice-specifications** skill.
 
 `Cratis.Specifications` keeps the approach of Machine.Specifications (MSpec): `Establish → Because → should_` maps to "Given → When → Then" and keeps each spec focused on *one setup, one action, one set of assertions*.
 

@@ -1,5 +1,20 @@
 # Authorization
 
+## Contents
+
+- Versions differ — check the one you run
+- Attributes
+- Composition and precedence
+- Named policies
+- Guests and anonymous policies
+- Evaluation order
+- Baselines: two separate mechanisms
+- Default access by hosting model
+- The filters and results
+- Direct calls bypass authorization
+- The principal and system actors
+- Protected decisions and validators
+
 Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.41.1`. Everything below
 describes that version and is in `Cratis.Arc.Authorization` unless stated.
 
@@ -127,7 +142,7 @@ opt-in:
 - Only a declaration made **entirely** of opted-in policies, with no roles and no
   schemes, can evaluate guests. Roles and schemes always require authentication.
 
-⚠️ The opt-in governs Arc's pipeline verdict only. Today the HTTP layer can reject
+⚠️ The opt-in governs Arc's pipeline verdict only. At `22.41.1` the HTTP layer can reject
 a guest before the policy runs: a Core host with any authentication handler, or an
 ASP.NET Core `FallbackPolicy` that requires authentication, returns 401 first
 (tracked in Cratis/Arc#2948). Test guest endpoints through the real HTTP host.

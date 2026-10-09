@@ -1,5 +1,14 @@
 # Review report template
 
+## Contents
+
+- Finding fields
+- Root causes
+- Defect or business question?
+- Verdict rules
+- Findings across a re-review
+- Wording
+
 Keep the report to findings and evidence; no file dumps. Addresses and paths, not contents.
 The check-by-check layout (per phase: how many checks; per check: status, element, evidence;
 anti-patterns; final questions; verdict; success criteria) is adapted from TrogonStack
@@ -27,7 +36,7 @@ V2 executable diagnostics:    <clean | n diagnostics: codes | not run: reason>
 V3 binding-ready:             <ready | blocked: codes | not run: reason>
 V4 reference specs run:       <route, expected vs discovered, passed/failed/unsupported/cancelled | not run: no route>
 V5 rendered, target-verified: admission <...>; publication <...>; build <...>; tests <...>   (each "not run: reason" when absent)
-Gaps: <capability gaps and tool-version gaps, e.g. false PLAY0285 on cascades in cratis 3.27.1>
+Gaps: <capability gaps and tool-version gaps, e.g. a false PLAY0285 on cascades from a cratis before 3.28.2 bundle>
 
 ## Inventory (read-only audit; MCP describe-application view=summary, find-assertion-gaps)
 Modules n, features n, slices n (StateChange n, StateView n, Automation n, Translate n),

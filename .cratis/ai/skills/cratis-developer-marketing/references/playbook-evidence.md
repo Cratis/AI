@@ -1,5 +1,15 @@
 # Playbook evidence
 
+## Contents
+
+- How developers find and evaluate tools
+- Openings, hooks and clicks
+- Platform rules
+- How developer-tools companies work
+- Distribution, frequency and replies
+- Example: a specialist audience
+- Folklore sources
+
 The sources behind the developer-marketing skill, checked on 2026-09-25. Each entry says what
 the source found or describes, and how far it can be stretched. Company practices are
 summarized in our own words. Read the originals before quoting them.

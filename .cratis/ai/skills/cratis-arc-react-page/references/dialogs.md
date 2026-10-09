@@ -1,5 +1,15 @@
 # Dialogs reference
 
+## Contents
+
+- Choose the dialog
+- Opening a dialog
+- The enums
+- `CommandDialog`
+- `CommandForm` fields
+- `Dialog` — data without a command
+- Host-registered confirmation and busy indicators
+
 The Cratis dialog wrappers own command execution, validation timing, busy
 state, and footer buttons. Never use a vendor or hand-rolled modal — dialogs are Components-owned.
 
@@ -221,20 +231,12 @@ const handleConfirm = async (): Promise<boolean> => {
 `onClose(result)` is the combined handler for both outcomes and closes unless it
 returns `false`.
 
-### Initial focus
-
-`DialogInitialFocus.Confirm` is the default and *arms* the confirm button — a
-browser fires `click` from the `keydown` of Enter, so a held Enter confirms.
-For a destructive dialog use `DialogInitialFocus.Cancel`, which focuses the
-least destructive action and degrades to `Content` when the button set has
-nothing to dismiss with. `DialogInitialFocus.Content` focuses the title so
-nothing is armed. There is deliberately no "focus nothing" option — a modal
-must move focus into itself.
+See "Initial focus" in SKILL.md.
 
 ## Host-registered confirmation and busy indicators
 
 `ConfirmationDialog` takes no props at all; it reads its title, message, and
 buttons from the dialog request. `BusyIndicatorDialog` takes the busy-indicator
 request. Register both once at the app root through `DialogComponents` and
-raise them by hook — see the skill's step 5. From a view model, use the
+raise them by hook — see the skill's Step 6. From a view model, use the
 injectable `IDialogs` abstraction instead of the hooks.
