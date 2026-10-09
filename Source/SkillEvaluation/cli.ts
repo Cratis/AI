@@ -12,6 +12,7 @@ import { runBatch, runPath } from './batch.ts';
 import { gradeBatch } from './grading.ts';
 import { report } from './report.ts';
 import { readLines } from './storage.ts';
+import { withRunLock } from './locking.ts';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 try {
@@ -20,8 +21,10 @@ try {
     else {
         const directory = runPath(root, options.runDirectory!);
         if (options.command === 'grade') await gradeBatch(directory, options);
-        else console.log(report(JSON.parse(await readFile(join(directory, 'manifest.json'), 'utf8')) as Manifest,
-            await readLines<Result>(join(directory, 'results.jsonl')), await readLines<Grade>(join(directory, 'grades.jsonl'))));
+        else await withRunLock(directory, async () => {
+            console.log(report(JSON.parse(await readFile(join(directory, 'manifest.json'), 'utf8')) as Manifest,
+                await readLines<Result>(join(directory, 'results.jsonl')), await readLines<Grade>(join(directory, 'grades.jsonl'))));
+        });
     }
 } catch (error) {
     console.error(String(error));

@@ -20,6 +20,10 @@ export function appendLine(path: string, value: unknown): void {
     appendFileSync(path, JSON.stringify(value) + '\n');
 }
 
+export function uniqueByKey<T extends { key: string }>(rows: T[]): T[] {
+    return [...new Map(rows.map(row => [row.key, row])).values()];
+}
+
 export function pendingTasks<T extends { key: string }>(tasks: T[], completed: Array<{ key: string }>): T[] {
     const keys = new Set(completed.map(result => result.key));
     return tasks.filter(task => !keys.has(task.key));

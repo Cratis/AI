@@ -200,8 +200,11 @@ Use repeatable `--skill` options to select skills, `--limit 2` for a smoke batch
 `--thinking` to override models, `--concurrency` (default 4, maximum 16), and `--timeout` (default
 240 seconds per call, maximum 600). Claude's `--listing-budget 60000` avoids description truncation;
 its bundled skills and usage-dependent listing remain confounds. To resume, repeat the same command
-and options with `--run <directory>`; completed JSONL keys are skipped and changed evaluations or
-corpus revisions are rejected. Missing harnesses, login failures and timeouts exit 2, never pass.
+and options with `--run <directory>` (relative to the invocation directory, or the repository root
+when yarn's workspace dispatcher replaces `INIT_CWD` with the package directory); completed
+JSONL keys are skipped and changed evaluations or corpus revisions are rejected. Grading and reports
+read results under the run lock; a stale lock reports its PID and manual recovery instructions.
+Missing harnesses, login failures and timeouts exit 2, never pass.
 
 Follow [output evaluation](https://agentskills.io/skill-creation/evaluating-skills) and
 [description optimization](https://agentskills.io/skill-creation/optimizing-descriptions): realistic

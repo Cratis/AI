@@ -1,9 +1,10 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve, relative } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import type { Options } from './Options.ts';
 import type { Manifest } from './Manifest.ts';
 import type { Result } from './Result.ts';
@@ -12,12 +13,24 @@ import { execute } from './process.ts';
 import { appendLine, concurrent, pendingTasks, readLines } from './storage.ts';
 import { tasks } from './tasks.ts';
 import { isolateBatch } from './isolation.ts';
+import { withRunLock } from './locking.ts';
 
-export function runPath(root: string, directory: string): string {
+export function invocationDirectory(root: string, environment = process.env, cwd = process.cwd()): string {
+    const original = environment.INIT_CWD ?? cwd;
+    // Yarn 4's workspace dispatcher replaces INIT_CWD with the workspace cwd. PROJECT_CWD
+    // identifies that case; run directories remain repository-root-relative, not package-relative.
+    if (environment.PROJECT_CWD && original === cwd && cwd === join(root, 'Source/SkillEvaluation')) return root;
+    return original;
+}
+
+export function runPath(root: string, directory: string, originalDirectory = invocationDirectory(root)): string {
     const parent = join(root, '.ai-work/skill-evaluations');
-    const path = resolve(directory);
+    let path = resolve(originalDirectory, directory);
+    try { path = realpathSync(path); } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    }
     const child = relative(parent, path);
-    if (!child || child.startsWith('..') || child.includes('..') || child.startsWith('/')) throw new Error(`Run directory must be inside ${parent}`);
+    if (!child || child.startsWith('..') || child.includes('..') || child.startsWith('/')) throw new Error(`Run directory ${path} (resolved from ${originalDirectory}) must be inside ${parent}`);
     return path;
 }
 
@@ -34,9 +47,7 @@ async function runIsolatedBatch(root: string, options: Options, selected: Manife
     const directory = options.runDirectory ? runPath(root, options.runDirectory) : join(root, '.ai-work/skill-evaluations',
         `${new Date().toISOString().replaceAll(':', '-')}-${options.command}-${randomUUID().slice(0, 8)}`);
     await mkdir(directory, { recursive: true });
-    const lock = join(directory, '.lock');
-    await writeFile(lock, String(process.pid), { flag: 'wx' });
-    try {
+    return withRunLock(directory, async () => {
         const manifestPath = join(directory, 'manifest.json');
         if (options.runDirectory) {
             const existing = JSON.parse(await readFile(manifestPath, 'utf8')) as Manifest;
@@ -65,5 +76,5 @@ async function runIsolatedBatch(root: string, options: Options, selected: Manife
             }
         });
         return directory;
-    } finally { await unlink(lock); }
+    });
 }

@@ -45,4 +45,5 @@ test('output report computes paired deltas and distinguishes useful, both-pass a
     assert.match(text, /Non-discriminating: cratis-arc-command\/tuple: key/);
     assert.match(text, /Non-discriminating: cratis-arc-command\/tuple: types/);
     assert.match(report(manifest, [withRow, withoutRow], []), /No paired grades yet/);
+    assert.equal(report(manifest, [withRow, withoutRow], [...grades, ...grades]), text, 'duplicate grade keys must not inflate scores');
 });

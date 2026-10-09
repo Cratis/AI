@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Harness } from './Harness.ts';
 import type { Grade } from './Grade.ts';
@@ -11,7 +11,8 @@ import type { Result } from './Result.ts';
 import { graderCommand, harnessEnvironment } from './commands.ts';
 import { execute } from './process.ts';
 import { object } from './signals.ts';
-import { appendLine, concurrent, pendingTasks, readLines } from './storage.ts';
+import { appendLine, concurrent, pendingTasks, readLines, uniqueByKey } from './storage.ts';
+import { withRunLock } from './locking.ts';
 import { workspace } from './workspace.ts';
 
 export function gradePrompt(result: Result): string {
@@ -35,26 +36,29 @@ export function parseGrade(text: string, assertions: string[], answer: string): 
     });
 }
 
-export async function gradeBatch(directory: string, options: Options): Promise<void> {
-    const manifest = JSON.parse(await readFile(join(directory, 'manifest.json'), 'utf8')) as Manifest;
-    if (manifest.options.command !== 'outputs') throw new Error('grade requires an outputs run.');
-    const results = await readLines<Result>(join(directory, 'results.jsonl'));
-    if (pendingTasks(manifest.tasks, results).length) throw new Error('Output run is incomplete; resume it before grading.');
-    const path = join(directory, 'grades.jsonl');
-    const grades = await readLines<Grade>(path);
-    if (grades.some(grade => grade.graderModel !== options.graderModel)) throw new Error('Resume must use the same grader model.');
-    await writeFile(join(directory, '.lock'), String(process.pid), { flag: 'wx' });
-    try {
+export async function gradeBatch(directory: string, options: Options, grade = gradeOutput): Promise<void> {
+    await withRunLock(directory, async () => {
+        const manifest = JSON.parse(await readFile(join(directory, 'manifest.json'), 'utf8')) as Manifest;
+        if (manifest.options.command !== 'outputs') throw new Error('grade requires an outputs run.');
+        const results = uniqueByKey(await readLines<Result>(join(directory, 'results.jsonl')));
+        if (pendingTasks(manifest.tasks, results).length) throw new Error('Output run is incomplete; resume it before grading.');
+        const path = join(directory, 'grades.jsonl');
+        const grades = uniqueByKey(await readLines<Grade>(path));
+        if (grades.some(grade => grade.graderModel !== options.graderModel)) throw new Error('Resume must use the same grader model.');
         await mkdir(join(directory, 'raw/grades'), { recursive: true });
         await concurrent(pendingTasks(results, grades), options.concurrency, async result => {
-            const temporary = await workspace();
-            try {
-                const execution = await execute(graderCommand(gradePrompt(result), options.graderModel), Harness.Claude, temporary.path,
-                    harnessEnvironment(process.env), join(directory, 'raw/grades', `${result.key}.jsonl`), options.timeout);
-                appendLine(path, { key: result.key, graderModel: options.graderModel,
-                    results: parseGrade(execution.transcript.text, result.assertions!, result.text) } satisfies Grade);
-                console.log(`Graded ${result.key}`);
-            } finally { await temporary.remove(); }
+            appendLine(path, { key: result.key, graderModel: options.graderModel,
+                results: await grade(result, options, directory) } satisfies Grade);
+            console.log(`Graded ${result.key}`);
         });
-    } finally { await unlink(join(directory, '.lock')); }
+    });
+}
+
+async function gradeOutput(result: Result, options: Options, directory: string): Promise<Grade['results']> {
+    const temporary = await workspace();
+    try {
+        const execution = await execute(graderCommand(gradePrompt(result), options.graderModel), Harness.Claude, temporary.path,
+            harnessEnvironment(process.env), join(directory, 'raw/grades', `${result.key}.jsonl`), options.timeout);
+        return parseGrade(execution.transcript.text, result.assertions!, result.text);
+    } finally { await temporary.remove(); }
 }

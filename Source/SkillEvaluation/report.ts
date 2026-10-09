@@ -4,7 +4,7 @@
 import type { Grade } from './Grade.ts';
 import type { Manifest } from './Manifest.ts';
 import type { Result } from './Result.ts';
-import { pendingTasks } from './storage.ts';
+import { pendingTasks, uniqueByKey } from './storage.ts';
 
 export function triggerPass(triggered: number, runs: number, shouldTrigger: boolean): { rate: number; passed: boolean } {
     if (runs < 1) throw new Error('Cannot compute a trigger rate over zero runs.');
@@ -26,6 +26,7 @@ function metric(values: number[]): string {
 }
 
 export function report(manifest: Manifest, results: Result[], grades: Grade[]): string {
+    grades = uniqueByKey(grades);
     const pending = pendingTasks(manifest.tasks, results);
     const lines = ['# Skill evaluation', '', `Harness: ${manifest.options.harness}/${manifest.options.model}. ${results.length}/${manifest.tasks.length} runs recorded.`,
         `Listing budget: ${manifest.options.listingBudget ?? 'default'}; thinking: ${manifest.options.thinking}; repetitions: ${manifest.options.runs}; timeout: ${manifest.options.timeout}s.`,
