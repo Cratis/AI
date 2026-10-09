@@ -3,7 +3,7 @@
 
 import { access, chmod, mkdir, mkdtemp, readdir, rm, symlink } from 'node:fs/promises';
 import { homedir, tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { Harness } from './Harness.ts';
 import { corpusDigest } from './tasks.ts';
 import { workspace } from './workspace.ts';
@@ -25,7 +25,7 @@ export async function isolateBatch(source: string, harness: Harness, environment
         if (harness === Harness.Pi) {
             agentDirectory = join(path, 'agent');
             await mkdir(agentDirectory, { mode: 0o700 });
-            const authentication = join(environment.PI_CODING_AGENT_DIR ?? join(homedir(), '.pi/agent'), 'auth.json');
+            const authentication = resolve(environment.PI_CODING_AGENT_DIR ?? join(homedir(), '.pi/agent'), 'auth.json');
             try {
                 // Link, never copy: pi rotates OAuth refresh tokens and writes them back to auth.json. A copy would
                 // be deleted with the batch and take the only valid refresh token with it. pi writes through the link;
