@@ -167,10 +167,13 @@ jobs:
       - name: Run specs
         run: dotnet test Cratis.AI.slnx --configuration Debug --no-build --logger "console;verbosity=normal"
 
+      - name: Verify restricted workers cannot read the shared cache sentinel
+        run: dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
+
   release:
     name: Determine semantic version
     if: github.event_name != 'pull_request'
-    needs: verify
+    needs: [verify, dotnet-verify]
     runs-on: ubuntu-latest
     permissions:
       issues: write
