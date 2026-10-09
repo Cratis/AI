@@ -70,6 +70,36 @@ When a provider turns work away over its own limit, the rate limit is recorded u
 
 Its cached capacity is then forgotten, so the next read is fresh.
 
+## When a provider's quota is spent
+
+Throttling and a spent quota both tend to arrive as a 429, but they need different answers.
+Throttling clears in seconds, so the call keeps its retry after `Retry-After`. A spent quota, spend
+limit or credit balance does not come back until the vendor's period resets or someone tops it up,
+so retrying the same provider only wastes the wait.
+
+`QuotaExhaustion` tells them apart from the vendor's own error code or message:
+
+| Vendor | Signal |
+|---|---|
+| Anthropic | `enforced_spend_limit_reached`, or "Your credit balance is too low" |
+| OpenAI, Azure OpenAI | `insufficient_quota`, `billing_hard_limit_reached`, or "You exceeded your current quota" |
+| OpenAI-compatible gateways | HTTP 402 Payment Required |
+
+An ordinary `rate_limit_error` without one of these stays throttling. A spent quota comes back as a
+`LanguageModelResult` with `IsQuotaExhausted` set. It is not transient, so `ManagedLanguageModel`
+does not retry it. Instead:
+
+- The provider is parked exactly like a rate limit, until the stated reset, the capacity's
+  `AvailableAgainAt`, or `RateLimitCooldown`, so later calls skip it without spending a request.
+- A pool sends the same request on to the next member. For a completion that is the same prompt; for
+  a conversation it is the same messages and chat options.
+- When every member is out of quota, the call fails with a reason that says the pool is exhausted
+  and names each provider tried. `PoolDispatchResult` also exposes them as `TriedProviders` and
+  `QuotaExhaustedProviders`.
+
+A Claude Code conversation that has already attempted a tool call still does not fail over, quota or
+not, because replaying the turn elsewhere could repeat the tool's effects.
+
 ## Options
 
 Bound from `Cratis:AI:Providers` (`AIProviderOptions`):
