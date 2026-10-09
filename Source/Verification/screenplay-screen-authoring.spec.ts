@@ -125,20 +125,20 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
         'utf8',
     );
 
-    for (const required of ['4.49.5', 'cratis/stage:4.49.5', '4.113.0', '3.40.3', 'Studio 0.136.4']) {
+    for (const required of ['4.49.5', 'cratis/stage:4.49.5', '4.114.0', '3.40.3', 'Studio 0.136.4']) {
         assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
     }
-    for (const required of ['4.49.5', '4.113.0', '3.40.3', 'published successfully', 'screenplay-mcp-transcript.ts']) {
+    for (const required of ['4.49.5', '4.114.0', '3.40.3', 'published successfully', 'screenplay-mcp-transcript.ts']) {
         assert.ok(render.includes(required), `render guidance is missing ${required}`);
     }
-    for (const required of ['4.49.5', '4.113.0', '3.40.3', '4.105.0', 'executableReady true']) {
+    for (const required of ['4.49.5', '4.114.0', '3.40.3', '4.105.0', 'executableReady true']) {
         assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
     }
     assert.ok(
         workflow.includes('ScreenComposition/v1/source/folder'),
         'the authoring workflow must link the canonical screen corpus v1 folder',
     );
-    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'Stage 4.49.5', 'stale Pulumi lock']) {
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'Stage 4.49.5', 'Core CrashLoopBackOff']) {
         assert.ok(composition.includes(required), `composition contract is missing ${required}`);
     }
 });

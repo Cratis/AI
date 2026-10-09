@@ -19,7 +19,7 @@ reading in this skill is not a render result.
 Authored UI has its own parity hazard. Stage 4.24 rendered a default React/Vite
 scaffold and did not prove that modeled screens, templates, forms, toolbars,
 components, outlets, package icons or routes were implemented. The final public
-vector is Stage 4.49.5, Screenplay 4.113.0 (the post-#590 release), Scene 4.12.0,
+vector is Stage 4.49.5, Screenplay 4.114.0 (the final ABI release), Scene 4.12.0,
 CLI 3.40.3 and Studio 0.136.4; the sandbox image is `cratis/stage:4.49.5`.
 The packaged CLI 3.40.3 render/MCP transcript publishes the canonical corpus, but
 its tag still pins Screenplay 4.105.0, so keep the CLI/Screenplay pairing visible
@@ -40,8 +40,8 @@ argument or an invalid semantic option.
 | Source | Pin | Notes |
 | --- | --- | --- |
 | Stage | `4.49.5` (`v4.49.5`) | Renderer, sandbox host, spec runner; includes the 4.49.x generated query specs, guarded-action safety and frontend form-stability fixes. The Docker image is `cratis/stage:4.49.5`. Earlier executed baselines: 4.49.2, 4.49.1, 4.43.0 and `v4.24.2` (`32dcac4`) |
-| cratis CLI | `3.40.3` (`v3.40.3`, PR #295) | `cratis render`, `cratis run`; public packaged CLI 3.40.3 renders the canonical corpus and runs the stdio MCP transcript. Its tag pins Stage 4.49.5 and Screenplay 4.105.0, so mention that pairing until a CLI package consumes Screenplay 4.113.0. Older baseline: `v3.28.2` (`141c499`, Cratis/cli#253) |
-| Screenplay | `4.113.0` (`v4.113.0`, post-#590 release) | Standalone Screenplay final release after #590. The canonical screen corpus and MCP transcript were rerun through packaged CLI 3.40.3, which still bundles Screenplay 4.105.0; rerun if a CLI package moves to 4.113.0 |
+| cratis CLI | `3.40.3` (`v3.40.3`, PR #295) | `cratis render`, `cratis run`; public packaged CLI 3.40.3 renders the canonical corpus and runs the stdio MCP transcript. Its tag pins Stage 4.49.5 and Screenplay 4.105.0, so mention that pairing until a CLI package consumes Screenplay 4.114.0. Older baseline: `v3.28.2` (`141c499`, Cratis/cli#253) |
+| Screenplay | `4.114.0` (`v4.114.0`, final ABI release after #592) | Standalone Screenplay final release after #592. The canonical screen corpus and MCP transcript were rerun through packaged CLI 3.40.3, which still bundles Screenplay 4.105.0; rerun if a CLI package moves to 4.114.0 |
 | Rendered applications | Arc, Chronicle, Scene 4.12.0, .NET 10 | Stage 4.49.5 / CLI 3.40.3 renders the canonical corpus to `.cratis-render.json`, backend artifacts, `.frontend/**`, `scene.json`, `src/bindings.ts`. Verify the generated package set for each render before claiming exact Scene runtime parity |
 
 Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.md`,
@@ -54,7 +54,7 @@ Chronicle 19.32.0 and the tool split) is in the `cratis-screenplay-toolchain` sk
 (Arc 22.39.0 and later) is not available in code written into one. Screen UI render publication for the canonical corpus is verified on packaged
 CLI 3.40.3 / Stage 4.49.5. Browser runtime behavior, Studio Play and production
 deploy remain separate checks; Studio 0.136.4 production deploy proof is pending
-narrow recovery of the stale Pulumi lock.
+because Pulumi lock recovery cleared but deploy failed on Core CrashLoopBackOff.
 
 ## Model-first rule
 

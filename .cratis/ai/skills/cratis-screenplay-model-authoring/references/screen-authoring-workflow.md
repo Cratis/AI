@@ -123,9 +123,11 @@ maintained duplicate.
 
 Round-5 vector and executable checks (2026-10-09):
 
-- final public vector: Scene 4.12.0, Screenplay 4.113.0 (post-#590), Stage
-  4.49.5, Docker `cratis/stage:4.49.5`, CLI 3.40.3 and Studio 0.136.4; the CLI
-  3.40.3 tag still pins Screenplay 4.105.0, so keep the package pairing visible;
+- final public vector: Scene 4.12.0, Screenplay 4.114.0 (final ABI release after #592), Stage
+  4.49.5, Docker `cratis/stage:4.49.5`, CLI 3.40.3 and Studio 0.136.4; public
+  NuGet flat-container visibility was verified for `Cratis.Screenplay` and
+  `Cratis.Screenplay.CanonicalCorpus` 4.114.0, while CLI 3.40.3 still pins
+  Screenplay 4.105.0, so keep the package pairing visible;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
 - Screenplay repo tool (available checkout): `dotnet run --project Source/DotNET/Tool

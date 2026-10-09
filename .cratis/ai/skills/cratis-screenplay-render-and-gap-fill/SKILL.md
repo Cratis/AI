@@ -27,7 +27,7 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 | --- | --- | --- |
 | cratis CLI | `3.40.3` (public package/tag #295) | `cratis render` options, exit codes, publication receipt; tag pins Stage 4.49.5 and Screenplay 4.105.0, with `cratis/stage:4.49.5` as the runtime image. Reading baselines: 3.40.2, 3.39.0 and 3.28.3 (`8b43fef`) |
 | Stage | `4.49.5` | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, generated query specs, guarded-action safety and frontend form stability. Older baselines: 4.49.2, 4.49.1, 4.43.0 and `v4.24.2` (`32dcac4`) |
-| Screenplay | `4.113.0` post-#590 release | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; CLI 3.40.3 still bundles 4.105.0, so rerun if a later CLI consumes 4.113.0 |
+| Screenplay | `4.114.0` final ABI release | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; CLI 3.40.3 still bundles 4.105.0, so rerun if a later CLI consumes 4.114.0 |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1`, Scene packages | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one; verify the generated package set before claiming exact Scene 4.12.0 runtime parity |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
