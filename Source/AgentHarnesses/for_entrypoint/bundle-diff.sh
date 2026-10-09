@@ -23,7 +23,7 @@ BASE=$(git -C "$ROOT/seed" rev-parse HEAD)
 git -C "$ROOT/seed" bundle create "$ROOT/baseline.bundle" --all
 jq -cn --arg base "$BASE" '{baseCommit: $base}' > "$ROOT/request.json"
 # Only container-specific paths are changed; no shipped behavior is stripped out.
-sed -e "s#/workspace#$ROOT/workspace#g" -e "s#/tmp/#$ROOT/tmp/#g" \
+sed -e "s#/tmp/#$ROOT/tmp/#g" -e "s#/workspace#$ROOT/workspace#g" \
     -e "s#/usr/bin/time#$ROOT/bin/time#g" \
     -e "s#/usr/local/share/direct/pi-extension-allow-list.sh#$HERE/../pi-extensions/allow-list.sh#g" \
     "$HERE/../entrypoint.sh" > "$ROOT/entrypoint.sh"
