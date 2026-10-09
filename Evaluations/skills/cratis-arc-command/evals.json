@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-arc-command",
+  "evals": [
+    {
+      "id": 1,
+      "name": "register-returns-id",
+      "prompt": "Add a RegisterBoat command to the Boats feature. It takes the boat's name and registration number. The React page needs the new boat id back to navigate, and BoatRegistered must be appended. Give the complete C# for the command, identity, value types and event in your reply; do not write files.",
+      "expected_output": "A command returning a (BoatId, BoatRegistered) tuple, with an EventSourceId-derived identity and concept values. The tuple response supplies the stream id; the event contains only facts.",
+      "assertions": [
+        "Handle returns a tuple combining the new boat id and BoatRegistered event.",
+        "BoatId derives from EventSourceId rather than Guid or ConceptAs<Guid>.",
+        "Boat name and registration number are concept-typed in both the command and event.",
+        "Explains that the tuple's EventSourceId response also determines where the tuple's event is appended."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "silent-no-append",
+      "prompt": "CancelBooking runs without errors and returns HTTP 200 but nothing is appended. We have `[Command] public record CancelBooking(BookingId Id) { public BookingCancelled Handle() => new(); }` and `public record BookingCancelled();`. Explain what happens to this return value and show the fix. Also explain what would happen if Handle returned `(new BookingCancelled(), \"ok\", 42)` instead. Reply only.",
+      "expected_output": "Register BookingCancelled with EventType; otherwise it silently becomes the response. A tuple can have only one unhandled response element; two cause MultipleUnhandledTupleValues.",
+      "assertions": [
+        "Identifies and adds the missing EventType attribute to BookingCancelled.",
+        "Explains that the unregistered return value silently becomes the response payload rather than raising an append error.",
+        "Explains the single-unhandled-element tuple rule and names MultipleUnhandledTupleValues for the proposed tuple after the event is registered."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "retained-partner-secret",
+      "prompt": "Write ConnectPaymentProvider for our C# Arc and Chronicle app. An admin pastes a partner API key into a form; the system must retain it to call that partner later, so PaymentProviderConnected holds it. Show the command and event and explain the attribute effects and required Chronicle version. Reply only.",
+      "expected_output": "Withhold the command input from causation with NotAudited and encrypt the retained event key with Encrypted, using Chronicle 19.32.0 or later. Neither marking substitutes for the other.",
+      "assertions": [
+        "Marks the command's key with NotAudited and explains that it withholds values from causation.",
+        "Marks the event's key with Encrypted for encryption at rest.",
+        "Explains that command property values otherwise enter the immutable causation chain, and that Encrypted alone does not withhold them.",
+        "States that Encrypted requires Chronicle 19.32.0 or later."
+      ]
+    }
+  ]
+}

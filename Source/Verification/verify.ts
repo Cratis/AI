@@ -10,6 +10,7 @@ import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
+import { verifySkillEvaluations } from './skill-evaluations.ts';
 import { danglingSkillReferences } from './skill-references.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
 import { referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
@@ -140,6 +141,8 @@ for (const profile of manifest.profiles ?? []) {
 }
 
 const skillDirectories = (await readdir(join(corpus, 'skills'), { withFileTypes: true })).filter(entry => entry.isDirectory());
+const skillEvaluations = await verifySkillEvaluations(root, skillDirectories.map(entry => entry.name));
+failures.push(...skillEvaluations.problems);
 for (const name of unprofiledSkills(skillDirectories.map(entry => entry.name), profiles)) {
     failures.push(`Skill '${name}' is not reachable from any profile.`);
 }
@@ -229,4 +232,4 @@ if (failures.length > 0) {
     console.error(JSON.stringify({ passed: false, failures }, null, 2));
     process.exit(1);
 }
-console.log(JSON.stringify({ passed: true, skills: skillDirectories.length, profiles: profiles.length, mcpServers: (mcpCatalogue as { servers: unknown[] }).servers.length, scenarios: scenarioResults }, null, 2));
+console.log(JSON.stringify({ passed: true, skills: skillDirectories.length, profiles: profiles.length, evaluationSkills: skillEvaluations.skills, mcpServers: (mcpCatalogue as { servers: unknown[] }).servers.length, scenarios: scenarioResults }, null, 2));

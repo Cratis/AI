@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-screenplay-modeling-lifecycle",
+  "evals": [
+    {
+      "id": 1,
+      "name": "installed-profile-new-feature",
+      "prompt": "We installed the Cratis screenplay profile and now want Loyalty Points. Decide whether this repository requires a play model before implementation and explain what evidence establishes that decision. If the team wants a model anyway, how may an entry-point agent and delegated implementers suggest it? Reply only.",
+      "expected_output": "Installation is not opt-in. Check the committed model root or an explicit mcpServers.screenplay.root. Only the entry-point session may propose modeling once; delegates do not propose again.",
+      "assertions": [
+        "States that installing profiles or skills does not opt the repository in.",
+        "Names both opt-in routes: a committed play under the model root, or explicit mcpServers.screenplay.root in .cratis/ai.json, including an empty configured root.",
+        "Limits the optional proposal to the entry-point session at most once, with no re-proposal by delegated agents."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "draft-and-head-contract",
+      "prompt": "Compare two repositories. A has returns.play staged but never committed. B has bookings.play committed and is editing its cancellation rule locally. Neither has explicit root configuration. Which version is the behavioral contract in each, how would you check, and what changes acceptance? Reply only.",
+      "expected_output": "A is draft-only, B's HEAD is the contract while edits are in progress. Check git ls-tree narrowed to the root; committing under that root is acceptance and opts in.",
+      "assertions": [
+        "Treats staged but uncommitted returns.play as a draft, not repository opt-in.",
+        "Uses the committed tree via git ls-tree against HEAD, narrowed to the model root, rather than file existence alone.",
+        "States that committing a model under the root is the team's acceptance and opts the repository in.",
+        "States that B's HEAD model remains the contract until its working-tree model change is committed."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "delivery-contradiction-packet",
+      "prompt": "Our accepted booking model says cancellations stop at 24h but production C# allows 12h. Some C# is Stage-managed and some is gap-fill. An unattended delivery agent has no business decision resolving this and is asked to finish the change. What may it do, what must it stop, and what should its handoff contain? Reply only.",
+      "expected_output": "Block the contradicted scope with an addressed question, continue independent scopes. Never patch Stage-managed output. If the policy changes update and verify/review the model first; if code is defective fix delivery against the existing model. A bounded packet opens with Outcome and states all five verdicts honestly.",
+      "assertions": [
+        "Blocks the contradicted scope with a declaration address and question rather than silently choosing 12h or 24h, while allowing independent scopes to continue.",
+        "For a policy change requires model verification and review before delivery; for a code defect allows correction against the accepted contract without gratuitously changing the policy.",
+        "Explicitly prohibits hand-editing Stage-managed output and routes correction through rendering or contract-led gap-fill.",
+        "Specifies a handoff opening with Outcome and five independent V1–V5 verdict lines, including not-run reasons."
+      ]
+    }
+  ]
+}

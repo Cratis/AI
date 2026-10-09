@@ -1043,7 +1043,7 @@ test('invalid YAML in the frontmatter is reported', () => {
 test('verify.ts rejects a skill with a bad paths entry and accepts the corpus without it', () => {
     const workspace = mkdtempSync(join(tmpdir(), 'cratis-verify-'));
     try {
-        for (const entry of ['.cratis', '.claude-plugin', '.cursor-plugin', '.github/workflows', '.github/plugin']) {
+        for (const entry of ['.cratis', '.claude-plugin', '.cursor-plugin', '.github/workflows', '.github/plugin', 'Evaluations']) {
             cpSync(join(repositoryRoot, entry), join(workspace, entry), { recursive: true });
         }
         cpSync(join(repositoryRoot, '.agents', 'plugins'), join(workspace, '.agents', 'plugins'), { recursive: true });
