@@ -471,7 +471,7 @@ fail() {
 if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
     for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS \
         DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_BRANCH; do
-        [[ ! -v "$variable" ]] || fail "Bundle-diff mode refuses ${variable}"
+        [[ -z "${!variable+x}" ]] || fail "Bundle-diff mode refuses ${variable}"
     done
     [[ -n "${DIRECT_BUNDLE_URL:-}" && -n "${DIRECT_RESULT_URL:-}" ]] || fail "Bundle-diff mode requires DIRECT_BUNDLE_URL and DIRECT_RESULT_URL"
 fi
@@ -1405,7 +1405,11 @@ run_claude_code() {
         exit 1
     fi
 
-    complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    else
+        report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    fi
     log "Done"
 }
 
@@ -1854,7 +1858,11 @@ run_pi() {
         exit 1
     fi
 
-    complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$PI_CPU_SECONDS" "$PI_PEAK_MEMORY_BYTES"
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$PI_CPU_SECONDS" "$PI_PEAK_MEMORY_BYTES"
+    else
+        report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$PI_CPU_SECONDS" "$PI_PEAK_MEMORY_BYTES"
+    fi
     log "Done"
 }
 
@@ -2017,7 +2025,11 @@ run_copilot() {
         exit 1
     fi
 
-    complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    else
+        report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    fi
     log "Done"
 }
 
