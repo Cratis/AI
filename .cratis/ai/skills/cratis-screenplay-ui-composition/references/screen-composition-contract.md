@@ -31,15 +31,20 @@ hand-writing an alternate shape.
   without dropping it, silently falling back or replacing it with a default.
 
 Keep those three lines separate in reports. Correct an old limitation only when
-the package/version you are using proves the new level. Verified against the
-screens-release vector (2026-10-09): Screenplay 4.105.0 accepts the canonical
-`ScreenComposition` corpus v1 with zero authoring diagnostics; CLI 3.40.0’s
-bundled Screenplay 4.105.0 reports `executableReady true`; `cratis render` with
-Stage 4.49.1 publishes Scene output with Arc `commandForm` shells and query
-registrations. Runtime/browser behavior, Studio Play and production deploy are
-separate checks; Studio 0.136.3 production deploy proof remains pending behind the
-stale Pulumi lock. On Stage 4.24.2 or cratis 3.28.x renderers, authored screens
-are still reported as omitted/default composition.
+the package/version you are using proves the new level. Round-5 target vector:
+Scene 4.12.0, Screenplay 4.114.0 (final ABI release after #592), Stage 4.49.5, Docker
+`cratis/stage:4.49.5`, CLI 3.40.3 and Studio 0.136.4. Executed packaged-CLI
+protocol proof: the canonical `ScreenComposition` corpus opens with `sourceSuccess true`,
+`semanticSuccess true`, `executableReady true`; the stdio MCP harness sends real
+proposal/apply requests, rejects a stale revision and preserves an authored
+comment on disk. Render publication is verified on the available CLI checkout;
+the CLI 3.40.3 package still pins Screenplay 4.105.0, so rerun if a later CLI
+package consumes Screenplay 4.114.0. Runtime/browser
+behavior, Studio Play and production deploy are separate checks; Studio 0.136.4
+production deploy proof remains pending because Pulumi lock recovery cleared but
+deploy failed on Core CrashLoopBackOff. On Stage
+4.24.2 or cratis 3.28.x renderers, authored screens are still reported as
+omitted/default composition.
 
 ## Data context and component bindings
 

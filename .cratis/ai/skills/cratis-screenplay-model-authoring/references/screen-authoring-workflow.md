@@ -121,27 +121,32 @@ not to the AI corpus. Link to the fixture path and run its published checks; do 
 copy those `.play` files into `.cratis/ai/` or into a skill reference as a
 maintained duplicate.
 
-Verified screens-release vector (executed 2026-10-09 against the released
-checkout toolchain):
+Round-5 vector and executable checks (2026-10-09):
 
+- final public vector: Scene 4.12.0, Screenplay 4.114.0 (final ABI release after #592), Stage
+  4.49.5, Docker `cratis/stage:4.49.5`, CLI 3.40.3 and Studio 0.136.4; public
+  NuGet flat-container visibility was verified for `Cratis.Screenplay` and
+  `Cratis.Screenplay.CanonicalCorpus` 4.114.0, while CLI 3.40.3 still pins
+  Screenplay 4.105.0, so keep the package pairing visible;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
-- Screenplay repo tool (4.105.0 query-shapes era): `dotnet run --project
-  Source/DotNET/Tool -- <corpus-folder> --warnaserror` → exit `0`, `10 file(s)
-  compiled - 0 error(s), 0 warning(s)`;
-- MCP (`dotnet run --project cli/Source/Cli -- screenplay mcp <corpus-folder>`,
-  CLI 3.40.0 bundling Screenplay 4.105.0): `sourceSuccess true`, `semanticSuccess
-  true`, `executableReady true`, 10 documents; a scratch `propose-rename`
-  transcript proved revision/catalog checks but apply did not complete because
-  the target handle contract rejected the supplied target shape;
-- render (`dotnet run --project cli/Source/Cli -- render <corpus-folder> --name
-  ScreenComposition --destination <dir> -o json`, CLI 3.40.0 / Stage 4.49.1):
-  exit `0`, status `published`, `.cratis-render.json`, backend files, `.frontend`,
-  `scene.json` and `src/bindings.ts` written. The generated Scene includes Arc
-  `commandForm` components and query registrations.
+- Screenplay repo tool (available checkout): `dotnet run --project Source/DotNET/Tool
+  -- <corpus-folder> --warnaserror` → exit `0`, `10 file(s) compiled - 0 error(s),
+  0 warning(s)`;
+- stdio MCP protocol harness: the AI repository carries `screenplay-mcp-transcript.ts`;
+  run it with packaged `cratis` on `PATH`, `--corpus <corpus-folder>` and
+  `--scratch <scratch-folder>`. It sends `initialize`, `tools/list`,
+  `open-workspace`, `read-workspace`, `propose-source`, `read-proposal`, stale
+  `apply`, real `apply` and `open-workspace` again. It uses a scratch copy,
+  changes `application.play` with a comment-preservation probe, fails closed on a
+  stale revision, applies with the matching revision and verifies the comment
+  remains on disk;
+- render (`cratis render <corpus-folder> --name ScreenComposition --destination
+  <dir> -o json`) with packaged CLI 3.40.3 publishes the corpus.
 
-Report a corpus the released compiler or renderer refuses as a capability/version
-pairing gap with the exact diagnostics; never soften it to a pass.
+Report a corpus the released compiler, MCP server or renderer refuses as a
+capability/version-pairing gap with the exact diagnostics; never soften it to a
+pass.
 
 When the fixture is not yet published, report the parity checks as blocked by the
 fixture contract and continue verifying the independently authored guidance and

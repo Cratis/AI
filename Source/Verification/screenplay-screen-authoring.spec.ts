@@ -6,7 +6,8 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
 
-const corpus = resolve(import.meta.dirname, '../../.cratis/ai');
+const repositoryRoot = resolve(import.meta.dirname, '../..');
+const corpus = join(repositoryRoot, '.cratis/ai');
 const skill = (name: string) => readFileSync(join(corpus, 'skills', name, 'SKILL.md'), 'utf8');
 const referenceExists = (skillName: string, reference: string) => existsSync(join(corpus, 'skills', skillName, 'references', reference));
 
@@ -90,6 +91,27 @@ test('model authoring and rendering guidance require one source through MCP, ren
     assert.match(render, /responsible tool version/);
 });
 
+test('MCP transcript harness sends real protocol requests instead of returning a blocker stub', () => {
+    const harnessPath = join(repositoryRoot, 'Source', 'Verification', 'screenplay-mcp-transcript.ts');
+    const content = readFileSync(harnessPath, 'utf8');
+
+    for (const required of [
+        "request('initialize'",
+        "request('tools/list'",
+        "callTool<WorkspaceResult>('open-workspace'",
+        "callTool<ProposalResult>('propose-source'",
+        "callTool<unknown>('read-proposal'",
+        "callTool<ApplyResult>('apply'",
+        'StaleRevision',
+        'commentPreserved',
+        'SCREENPLAY_CLI_PROJECT',
+    ]) {
+        assert.ok(content.includes(required), `MCP transcript harness is missing ${required}`);
+    }
+    assert.ok(!content.includes('blocked-unimplemented-mcp-client'));
+    assert.ok(!content.includes('blocked-missing-mcp'));
+});
+
 test('stage, render and toolchain guidance carry the verified screens-release vector', () => {
     const stage = skill('cratis-stage-rendering-and-sandbox');
     const render = skill('cratis-screenplay-render-and-gap-fill');
@@ -103,20 +125,20 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
         'utf8',
     );
 
-    for (const required of ['4.49.1', '3.40.0', 'cratis/stage:4.49.1', '4.105.0', 'Studio 0.136.3']) {
+    for (const required of ['4.49.5', 'cratis/stage:4.49.5', '4.114.0', '3.40.3', 'Studio 0.136.4']) {
         assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
     }
-    for (const required of ['3.40.0', '4.49.1', '4.105.0', 'published successfully']) {
+    for (const required of ['4.49.5', '4.114.0', '3.40.3', 'published successfully', 'screenplay-mcp-transcript.ts']) {
         assert.ok(render.includes(required), `render guidance is missing ${required}`);
     }
-    for (const required of ['3.40.0', '4.49.1', '4.105.0', 'executableReady true']) {
+    for (const required of ['4.49.5', '4.114.0', '3.40.3', '4.105.0', 'executableReady true']) {
         assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
     }
     assert.ok(
         workflow.includes('ScreenComposition/v1/source/folder'),
         'the authoring workflow must link the canonical screen corpus v1 folder',
     );
-    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'Stage 4.49.1', 'stale Pulumi lock']) {
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'Stage 4.49.5', 'Core CrashLoopBackOff']) {
         assert.ok(composition.includes(required), `composition contract is missing ${required}`);
     }
 });
