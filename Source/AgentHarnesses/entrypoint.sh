@@ -17,6 +17,11 @@
 #                               first-listed repository's .claude/.ai are additionally symlinked up
 #                               to the workspace root so the agent's starting directory has *a*
 #                               corpus - see link_primary_corpus() below.
+#   DIRECT_REPOSITORY_CHECKOUTS - restricted clone-only JSON mapping of repository, url and relative
+#                               path (repos/<owner>/<name>). Every entry must clone before launch.
+#                               Uses DIRECT_CLONE_CREDENTIALS from the secrets file, a JSON array of
+#                               exact url/token pairs with contents:read only. No GITHUB_TOKEN,
+#                               GH_TOKEN, push refresh or automatic publish is allowed in this mode.
 #   DIRECT_REPOSITORY_CACHE - path to a shared, persistent cache of bare repository mirrors, one
 #                               per tracked repository at <cache>/<owner>/<name>.git, kept current by
 #                               the Direct's own backend from GitHub push webhooks. Mounted
@@ -452,7 +457,16 @@ fail() {
 }
 
 
-if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+# Restricted investigations must not inherit a general token or any push refresh route.
+if [[ -n "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]]; then
+    [[ -n "${DIRECT_CLONE_CREDENTIALS:-}" ]] || fail "Clone-read credentials are missing"
+    [[ -z "${GITHUB_TOKEN:-}${GH_TOKEN:-}${DIRECT_PUSH_TOKEN_URL:-}" ]] || fail "Restricted checkout received write-capable authentication"
+    git config --global credential.helper ''
+    git config --global credential.useHttpPath true
+    # Resolve only the exact HTTPS repository path; never offer a token for another repository.
+    # shellcheck disable=SC2016
+    git config --global --add credential.helper '!f() { [ "$1" = get ] || exit 0; protocol= host= path=; while IFS="=" read -r key value; do case "$key" in protocol) protocol=$value;; host) host=$value;; path) path=$value;; esac; done; [ "$protocol" = https ] && [ "$host" = github.com ] || exit 0; token=$(printf "%s" "$DIRECT_CLONE_CREDENTIALS" | jq -er --arg url "https://$host/$path" "map(select(.url == \$url)) | if length == 1 then .[0].token else empty end") || exit 0; printf "username=x-access-token\\npassword=%s\\n" "$token"; }; f'
+elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
     # The single quotes are the security property, not an oversight: ${GITHUB_TOKEN} must reach
     # ~/.gitconfig *unexpanded* so the shell git spawns resolves it per invocation. Expanding it
     # here would write the installation token into the git config file in plaintext.
@@ -617,6 +631,8 @@ refresh_git_token() {
 # already been pushed records that head as its new starting point, so the next call has nothing to
 # do for it. A push that *failed* records nothing, so it is retried instead.
 push_workspaces() {
+    # Clone-only investigations never publish, even if an agent makes local commits.
+    [[ -z "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]] || return 0
     [[ -z "${DIRECT_BRANCH:-}" ]] && return 0
     [[ ${#WORKSPACES[@]} -eq 0 ]] && return 0
     local index entry dest started_at url head failed=0
@@ -820,6 +836,29 @@ clone_into_workspace() {
     remember_workspace "$dest" "$url"
 }
 
+# Investigations use an explicit owner-qualified mapping, including single-repository work.
+# No cached fallback: every named private repository must authenticate and clone successfully before
+# the harness starts. A failed clone is reported through the ordinary failed callback, never success.
+clone_restricted_repositories() {
+    local rows url path repository first=""
+    rows=$(printf '%s' "$DIRECT_REPOSITORY_CHECKOUTS" | jq -er '
+        if type == "array" and length > 0 and
+           (map(.path) | unique | length) == length and
+           (map(.repository) | unique | length) == length and
+           all(.[]; (.repository | type == "string" and length > 0) and
+               (.url | test("^https://github.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\\.git$")) and
+               .path == ("repos/" + (.url | sub("^https://github.com/"; "") | sub("\\.git$"; ""))) and
+               (.path | split("/") | all(. != "." and . != "..")))
+        then .[] | [.repository, .url, .path] | @tsv else error("Invalid checkout mapping") end') || return 1
+    while IFS=$'\t' read -r repository url path; do
+        log "Checking out ${repository} at ${path}"
+        mkdir -p "/workspace/$(dirname "$path")" || return 1
+        GIT_TERMINAL_PROMPT=0 git clone "$url" "/workspace/$path" || return 1
+        [[ -n "$first" ]] || first="/workspace/$path"
+    done <<< "$rows"
+    link_primary_corpus "$first"
+}
+
 # Symlinks the first-listed repository's AI corpus (.claude, .ai) up to the workspace root, for the
 # genuinely-multiple-repositories case below.
 #
@@ -854,7 +893,9 @@ link_primary_corpus() {
 # merge-conflict resolution all populate the plural variable regardless of repository count, and
 # before this normalization a single-entry DIRECT_REPOSITORY_URLS still nested the checkout under
 # /workspace/<name>, leaving /workspace itself without a corpus (Cratis/Stagehand#603).
-if [[ -n "${DIRECT_REPOSITORY_URLS:-}" ]]; then
+if [[ -n "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]]; then
+    clone_restricted_repositories || fail "Could not check out every scheduled repository"
+elif [[ -n "${DIRECT_REPOSITORY_URLS:-}" ]]; then
     read -r -a urls <<< "${DIRECT_REPOSITORY_URLS}"
     if [[ ${#urls[@]} -eq 1 ]]; then
         clone_into_workspace "${urls[0]}" /workspace
