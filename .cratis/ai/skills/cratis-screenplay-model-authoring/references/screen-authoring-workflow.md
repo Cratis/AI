@@ -123,25 +123,24 @@ maintained duplicate.
 
 Round-5 vector and executable checks (2026-10-09):
 
-- target vector: Scene 4.12.0, Screenplay 4.111.0, Stage 4.49.4, Docker
-  `cratis/stage:4.49.4`, Studio 0.136.4; CLI packaging must be rerun when it
-  consumes Stage 4.49.4;
+- final public vector: Scene 4.12.0, Screenplay 4.113.0 (post-#590), Stage
+  4.49.5, Docker `cratis/stage:4.49.5`, CLI 3.40.3 and Studio 0.136.4; the CLI
+  3.40.3 tag still pins Screenplay 4.105.0, so keep the package pairing visible;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
 - Screenplay repo tool (available checkout): `dotnet run --project Source/DotNET/Tool
   -- <corpus-folder> --warnaserror` → exit `0`, `10 file(s) compiled - 0 error(s),
   0 warning(s)`;
 - stdio MCP protocol harness: the AI repository carries `screenplay-mcp-transcript.ts`;
-  run it with `SCREENPLAY_CLI_PROJECT=<cli/Source/Cli>`, `--corpus <corpus-folder>`
-  and `--scratch <scratch-folder>`. It sends `initialize`, `tools/list`,
+  run it with packaged `cratis` on `PATH`, `--corpus <corpus-folder>` and
+  `--scratch <scratch-folder>`. It sends `initialize`, `tools/list`,
   `open-workspace`, `read-workspace`, `propose-source`, `read-proposal`, stale
   `apply`, real `apply` and `open-workspace` again. It uses a scratch copy,
   changes `application.play` with a comment-preservation probe, fails closed on a
   stale revision, applies with the matching revision and verifies the comment
   remains on disk;
-- render (`dotnet run --project cli/Source/Cli -- render <corpus-folder> --name
-  ScreenComposition --destination <dir> -o json`) on the available CLI checkout
-  publishes the corpus. Rerun after CLI is rebuilt from Stage 4.49.4.
+- render (`cratis render <corpus-folder> --name ScreenComposition --destination
+  <dir> -o json`) with packaged CLI 3.40.3 publishes the corpus.
 
 Report a corpus the released compiler, MCP server or renderer refuses as a
 capability/version-pairing gap with the exact diagnostics; never soften it to a

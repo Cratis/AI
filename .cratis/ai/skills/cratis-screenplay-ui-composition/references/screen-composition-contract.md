@@ -32,13 +32,14 @@ hand-writing an alternate shape.
 
 Keep those three lines separate in reports. Correct an old limitation only when
 the package/version you are using proves the new level. Round-5 target vector:
-Scene 4.12.0, Screenplay 4.111.0, Stage 4.49.4, Docker `cratis/stage:4.49.4`,
-Studio 0.136.4 and a CLI rebuilt from Stage 4.49.4. Executed local protocol
-proof: the canonical `ScreenComposition` corpus opens with `sourceSuccess true`,
+Scene 4.12.0, Screenplay 4.113.0 (post-#590), Stage 4.49.5, Docker
+`cratis/stage:4.49.5`, CLI 3.40.3 and Studio 0.136.4. Executed packaged-CLI
+protocol proof: the canonical `ScreenComposition` corpus opens with `sourceSuccess true`,
 `semanticSuccess true`, `executableReady true`; the stdio MCP harness sends real
 proposal/apply requests, rejects a stale revision and preserves an authored
 comment on disk. Render publication is verified on the available CLI checkout;
-rerun on the final CLI package before final parity closure. Runtime/browser
+the CLI 3.40.3 package still pins Screenplay 4.105.0, so rerun if a later CLI
+package consumes Screenplay 4.113.0. Runtime/browser
 behavior, Studio Play and production deploy are separate checks; Studio 0.136.4
 production deploy proof remains pending behind the stale Pulumi lock. On Stage
 4.24.2 or cratis 3.28.x renderers, authored screens are still reported as
