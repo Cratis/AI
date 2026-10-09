@@ -63,7 +63,7 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
         HttpResponseMessage response;
         try
         {
-            response = await httpClient.SendAsync(request, cancellationToken);
+            response = await VendorResponses.Send(httpClient, request, cancellationToken);
         }
         catch (HttpRequestException exception)
         {
@@ -82,8 +82,9 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
 
             if (!response.IsSuccessStatusCode)
             {
-                logger.UnexpectedStatusCode(Type, (int)response.StatusCode);
-                return TransientProviderFailures.FromStatusCode(response);
+                var failure = await TransientProviderFailures.FromResponse(response, Type, model.Value, provider.Id, cancellationToken);
+                logger.UnexpectedStatusCode(provider.Id, Type, failure.Model, (int)response.StatusCode, failure.ErrorType, failure.ErrorCode, failure.RetryAfter, failure.Result.RetryAfter, failure.Body);
+                return failure.Result;
             }
 
             return await ReadCompletion(response, model, cancellationToken);

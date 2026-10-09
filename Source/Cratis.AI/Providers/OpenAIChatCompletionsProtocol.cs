@@ -59,7 +59,7 @@ public static class OpenAIChatCompletionsProtocol
         HttpResponseMessage response;
         try
         {
-            response = await httpClient.SendAsync(request, cancellationToken);
+            response = await VendorResponses.Send(httpClient, request, cancellationToken);
         }
         catch (HttpRequestException exception)
         {
@@ -80,8 +80,9 @@ public static class OpenAIChatCompletionsProtocol
 
             if (!response.IsSuccessStatusCode)
             {
-                logger.UnexpectedStatusCode(vendor, (int)response.StatusCode);
-                return TransientProviderFailures.FromStatusCode(response);
+                var failure = await TransientProviderFailures.FromResponse(response, vendor, model, providerId, cancellationToken);
+                logger.UnexpectedStatusCode(providerId, vendor, failure.Model, (int)response.StatusCode, failure.ErrorType, failure.ErrorCode, failure.RetryAfter, failure.Result.RetryAfter, failure.Body);
+                return failure.Result;
             }
 
             var body = JsonNode.Parse(await response.Content.ReadAsStringAsync(cancellationToken)) as JsonObject;
