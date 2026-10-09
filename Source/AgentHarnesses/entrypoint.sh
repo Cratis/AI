@@ -358,6 +358,13 @@ report() {
     local duration="${6:-0}"
     local cpu_seconds="${7:-0}"
     local memory_bytes="${8:-0}"
+    # Optional, failed callbacks only: a machine-readable reason the dispatching product can act on
+    # (today only "quotaExhausted"), with the provider, model and vendor code behind it where known.
+    # Absent fields are left out, so a callback without a reason is byte-for-byte what it always was.
+    local reason="${9:-}"
+    local provider="${10:-}"
+    local model="${11:-}"
+    local vendor_code="${12:-}"
     if [[ -n "${DIRECT_CALLBACK_URL:-}" ]]; then
         local auth_args=()
         if [[ -n "${DIRECT_CALLBACK_TOKEN:-}" ]]; then
@@ -379,7 +386,17 @@ report() {
             --argjson durationMs "$duration" \
             --argjson cpuSeconds "$cpu_seconds" \
             --argjson memoryBytes "$memory_bytes" \
-            '{status: $status, detail: $detail, inputTokens: $inputTokens, outputTokens: $outputTokens, costUsd: $costUsd, durationMs: $durationMs, cpuSeconds: $cpuSeconds, memoryBytes: $memoryBytes}' |
+            --arg reason "$reason" \
+            --arg provider "$provider" \
+            --arg model "$model" \
+            --arg vendorCode "$vendor_code" \
+            '{status: $status, detail: $detail, inputTokens: $inputTokens, outputTokens: $outputTokens, costUsd: $costUsd, durationMs: $durationMs, cpuSeconds: $cpuSeconds, memoryBytes: $memoryBytes}
+             + (if $reason == "" then {} else
+                   {reason: $reason}
+                   + (if $provider == "" then {} else {provider: $provider} end)
+                   + (if $model == "" then {} else {model: $model} end)
+                   + (if $vendorCode == "" then {} else {vendorCode: $vendorCode} end)
+                end)' |
         curl -fsS --retry 6 --retry-max-time 90 --retry-connrefused --retry-all-errors \
             -X POST "${DIRECT_CALLBACK_URL}" -H 'Content-Type: application/json' "${auth_args[@]}" -d @- \
             || log "Failed to report status '${status}' to ${DIRECT_CALLBACK_URL} after retries"
@@ -464,6 +481,35 @@ claude_memory_bytes_from_time_file() {
 fail() {
     report failed "$1"
     exit 1
+}
+
+# Whether a failed session's own error text says the provider's quota, spend limit or credit is used
+# up - as opposed to short-term throttling, which the CLIs retry themselves. A spent quota does not
+# come back for hours or until someone tops it up, so the dispatching product should continue the
+# work on another provider rather than retry this one; the failed callback says so with
+# reason "quotaExhausted" (Cratis/AI#423). Prints the vendor's error code when the text carries one
+# and returns 0; returns 1 otherwise. Only ever called on a session that already failed, so a
+# successful summary that merely mentions a quota is never misread.
+#
+# The vendor codes and messages, and where each comes from:
+#   enforced_spend_limit_reached - Anthropic, 429 rate_limit_error details.error_code when the
+#                                  organization's spend limit is enforced (Cratis/AI#346)
+#   insufficient_quota           - OpenAI and Azure OpenAI, 429 "You exceeded your current quota"
+#                                  (https://platform.openai.com/docs/guides/error-codes/api-errors)
+#   billing_hard_limit_reached   - OpenAI, "Billing hard limit has been reached"
+#   credit balance is too low    - Anthropic, 400 invalid_request_error (https://docs.anthropic.com/en/api/errors)
+# plus Claude Code's own words for a subscription allowance that has run out ("You've hit your
+# weekly limit", "Claude AI usage limit reached|<epoch>") - the same phrases the C# side's
+# ProviderRateLimit already reads as the account's allowance rather than a request problem.
+quota_exhaustion_code() {
+    local text="${1,,}"
+    local codes='(enforced_spend_limit_reached|insufficient_quota|billing_hard_limit_reached)'
+    local messages='credit balance is too low|exceeded your current quota|hit your ([a-z0-9-]+ )?limit|(usage|weekly|5-hour|session) limit reached'
+    if [[ "$text" =~ $codes ]]; then
+        printf '%s' "${BASH_REMATCH[1]}"
+        return 0
+    fi
+    [[ "$text" =~ $messages ]]
 }
 
 
@@ -1401,6 +1447,15 @@ run_claude_code() {
     CPU_SECONDS=$(claude_cpu_seconds_from_time_file "$TIME_FILE")
     MEMORY_BYTES=$(claude_memory_bytes_from_time_file "$TIME_FILE")
 
+    # A session the API turned away over a spent quota ends with an is_error result event naming it.
+    # Read only from an errored result, so a successful summary that mentions a quota is not misread.
+    QUOTA_EXHAUSTED=0
+    QUOTA_CODE=""
+    if [[ "$(jq -r '.is_error // false' <<<"$RESULT_EVENT" 2>/dev/null)" == "true" ]] \
+        && QUOTA_CODE=$(quota_exhaustion_code "$RESULT_EVENT"); then
+        QUOTA_EXHAUSTED=1
+    fi
+
     # The session is over, so the proxy has nothing left to serve - reported to the log and stopped
     # before the push, on both the success and the failure path below.
     stop_headroom
@@ -1409,6 +1464,13 @@ run_claude_code() {
     # the remote by the time it arrives. The EXIT trap pushes too, but only after that.
     if ! push_workspaces; then
         report failed "Could not push committed work"
+        exit 1
+    fi
+
+    if [[ $QUOTA_EXHAUSTED -eq 1 ]]; then
+        log "Claude session stopped because the provider's quota is used up (exit ${CLAUDE_EXIT})"
+        report failed "${RESULT:-Claude CLI exited with ${CLAUDE_EXIT}}" 0 0 0 0 "$CPU_SECONDS" "$MEMORY_BYTES" \
+            quotaExhausted "${DIRECT_PROVIDER:-anthropic}" "${DIRECT_MODEL:-}" "$QUOTA_CODE"
         exit 1
     fi
 
@@ -1865,6 +1927,13 @@ run_pi() {
         exit 1
     fi
 
+    if [[ "$STOP_REASON" == "error" ]] && QUOTA_CODE=$(quota_exhaustion_code "$ERROR_MESSAGE"); then
+        log "Pi agent turn stopped because the provider's quota is used up"
+        report failed "${ERROR_MESSAGE}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$PI_CPU_SECONDS" "$PI_PEAK_MEMORY_BYTES" \
+            quotaExhausted "${DIRECT_PROVIDER:-anthropic}" "${DIRECT_MODEL:-}" "$QUOTA_CODE"
+        exit 1
+    fi
+
     if [[ "$STOP_REASON" == "error" || "$STOP_REASON" == "aborted" ]]; then
         log "Pi agent turn ended with stopReason=${STOP_REASON}"
         report failed "${ERROR_MESSAGE:-Pi agent turn ended with stopReason ${STOP_REASON}}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$PI_CPU_SECONDS" "$PI_PEAK_MEMORY_BYTES"
@@ -2029,6 +2098,13 @@ run_copilot() {
     # on the remote by the time it arrives. The EXIT trap pushes too, but only after that.
     if ! push_workspaces; then
         report failed "Could not push committed work"
+        exit 1
+    fi
+
+    if [[ ${COPILOT_EXIT} -ne 0 ]] && QUOTA_CODE=$(quota_exhaustion_code "$RESULT"); then
+        log "Copilot session stopped because the provider's quota is used up (exit ${COPILOT_EXIT})"
+        report failed "${RESULT}" 0 0 0 0 "$CPU_SECONDS" "$MEMORY_BYTES" \
+            quotaExhausted "${DIRECT_PROVIDER:-github-copilot}" "${DIRECT_MODEL:-}" "$QUOTA_CODE"
         exit 1
     fi
 
