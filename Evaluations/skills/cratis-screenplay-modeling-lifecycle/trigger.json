@@ -11,15 +11,15 @@
     { "query": "Our agent is leaving open business questions, known refusal rules and a model/code contradiction all in one notes list. How should the lifecycle treat each?", "shouldTrigger": true },
     { "query": "The model root contains identities.json, but our unattended modeling agent cannot reach MCP. Its brief asks it to rename BookingCancelled. What outcome should it hand off?", "shouldTrigger": true },
     { "query": "A committed booking model allows cancellation until 24h before start but production C# allows 12h. How should we resolve this during delivery and report the outcome?", "shouldTrigger": true },
-    { "query": "In our code-first app, bookings ending at midnight show one day short in the React view model. Add a focused frontend spec and fix the calculation.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
-    { "query": "Add TotalRevenue to BoatStatistics using the C# projection builder from BoatBooked.Price.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
-    { "query": "Review bookings.play for event-sourcing mistakes and give findings pinned to declarations.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
-    { "query": "Our model is accepted. Run cratis render and report admission, publication and generated build results.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "In our code-first app with no Screenplay model or opt-in, bookings ending at midnight show one day short in the React view model. Add a focused frontend spec and fix the calculation.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "In our hand-written C# app with no Screenplay model or opt-in, add TotalRevenue to BoatStatistics using the projection builder from BoatBooked.Price.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Explain the Screenplay identifier clause grammar with a small placeholder command example; this is a syntax reference question, not a model change.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
+    { "query": "What exact Screenplay query grammar declares an observable collection result and a by argument? Show an isolated reference example, not a workflow plan.", "shouldTrigger": false, "note": "cratis-screenplay-read-surface" },
     { "query": "What is the exact PDL syntax for counting BookingExtended into ExtensionCount in a play projection?", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
     { "query": "screenplay reports PLAY0412 at line 30. Explain that diagnostic and the relevant compiler version.", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" },
     { "query": "The Chronicle observer has failed partitions in staging. Show how to inspect it read-only with the CLI.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
-    { "query": "Extract our legacy booking system into a model backed by bounded code and database evidence.", "shouldTrigger": false, "note": "cratis-screenplay-legacy-extraction; lifecycle may be loaded as prerequisite, count this confound" },
-    { "query": "Write given/when/then for CancelBooking in our model, including rejection after the booking starts.", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage and cratis-screenplay-specifications; prerequisite lifecycle loads are a known confound" },
-    { "query": "Design events and stream boundaries for damage reports in our code-first app; we do not use Screenplay.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+    { "query": "In the Chronicle framework library, fix the in-memory storage implementation to match persistent storage sentinel semantics. This is framework work, not application modeling.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions and framework profile guidance" },
+    { "query": "Explain the Screenplay then denied versus then error grammar and comparison semantics, using standalone placeholder examples rather than authoring a domain specification.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Our standalone C# Chronicle worker uses no Screenplay model or opt-in. Show how to construct ChronicleClient, connect, and append a known event type.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" }
   ]
 }
