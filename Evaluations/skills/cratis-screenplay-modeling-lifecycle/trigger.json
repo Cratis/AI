@@ -10,7 +10,7 @@
     { "query": "Plan a Screenplay engagement for the harbor booking domain, including acceptance, reviewer independence and done criteria for documentation-only mode.", "shouldTrigger": true },
     { "query": "Our agent is leaving open business questions, known refusal rules and a model/code contradiction all in one notes list. How should the lifecycle treat each?", "shouldTrigger": true },
     { "query": "The model root contains identities.json, but our unattended modeling agent cannot reach MCP. Its brief asks it to rename BookingCancelled. What outcome should it hand off?", "shouldTrigger": true },
-    { "query": "A committed booking model allows cancellation until 24h before start but production C# allows 12h. How should we resolve this during delivery and report the outcome?", "shouldTrigger": true },
+    { "query": "Our marina model just finished discovery. Which lifecycle phase comes next, and what must hold at the discovery gate before slice design starts?", "shouldTrigger": true },
     { "query": "In our code-first app with no Screenplay model or opt-in, bookings ending at midnight show one day short in the React view model. Add a focused frontend spec and fix the calculation.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
     { "query": "In our hand-written C# app with no Screenplay model or opt-in, add TotalRevenue to BoatStatistics using the projection builder from BoatBooked.Price.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
     { "query": "Explain the Screenplay identifier clause grammar with a small placeholder command example; this is a syntax reference question, not a model change.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
