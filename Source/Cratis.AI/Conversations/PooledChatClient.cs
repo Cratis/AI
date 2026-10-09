@@ -10,6 +10,7 @@ using Cratis.AI.Agents.Skills;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
+using Cratis.AI.Providers.Anthropic;
 using Cratis.AI.Providers.Capacity;
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.Pools.Listing;
@@ -34,6 +35,8 @@ namespace Cratis.AI.Conversations;
 /// <remarks>
 /// A streaming call can only move to another pool member until its first update has arrived; once the
 /// vendor has started answering, a failure is surfaced to the caller rather than replayed on another member.
+/// Claude Code turns also stop failover after any caller function invocation attempt, even before text
+/// arrives and even if the tool failed: its effects may already have occurred.
 /// </remarks>
 /// <param name="purpose">The purpose - the agent's identity - the client talks as.</param>
 /// <param name="readModels">The <see cref="IReadModels"/> the agent, provider and pool are resolved from.</param>
@@ -157,6 +160,7 @@ public sealed class PooledChatClient(
 
     static bool IsTransient(Exception exception) => exception switch
     {
+        ClaudeCodeConversationFailed { FunctionInvocationAttempted: true } => false,
         ClientResultException clientResult => IsTransientStatus(clientResult.Status),
         HttpRequestException http => http.StatusCode is null || IsTransientStatus((int)http.StatusCode),
         TimeoutException => true,
@@ -288,7 +292,7 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} cannot serve the {purpose.Value} agent");
         }
 
-        var model = TierModelResolution.Resolve(provider.TierModels, provider.AvailableModels, tier);
+        var model = TierModelResolution.Resolve(provider, tier);
         if (model.Equals(ModelName.NotSet) || !chatClientFactory.CanServe(provider, model))
         {
             logger.ChatProviderCannotServe(providerId, provider.Type, purpose);

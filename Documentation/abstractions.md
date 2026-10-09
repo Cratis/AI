@@ -27,6 +27,13 @@ The package still never sees a key vault - Chronicle holds the key. The `ISecret
 [`0015-chronicle-owns-credential-encryption.md`](./decisions/0015-chronicle-owns-credential-encryption.md),
 which also covers the credential re-recording an upgrade requires.
 
+Before passing a released provider or usage credential to HTTP, an SDK, or a CLI, use
+`AIProviderApiKey.ForUse()`. It preserves plaintext and the empty sentinel unchanged, but refuses
+remaining `enc:` envelopes (including legacy `enc:v1:` and unknown versions) with
+`AIProviderRequiresReconfiguration`. Reconfigure the affected credential in AI settings; do not
+add a consumer-side decryptor. This guard does not decrypt anything or replace Chronicle release,
+and its exception contains no credential value.
+
 ### `IAIAgents`
 
 ```csharp

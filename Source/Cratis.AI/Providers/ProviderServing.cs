@@ -46,5 +46,5 @@ public static class ProviderServing
     /// <returns><see langword="true"/> when at least one tier resolves.</returns>
     public static bool NamesAModel(this ConfiguredAIProvider provider) =>
         Enum.GetValues<ModelTier>().Any(tier =>
-            !TierModelResolution.Resolve(provider.TierModels, provider.AvailableModels, tier).Equals(ModelName.NotSet));
+            !TierModelResolution.Resolve(provider, tier).Equals(ModelName.NotSet));
 }
