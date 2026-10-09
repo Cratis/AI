@@ -6,7 +6,7 @@
     { "query": "We're adding a backend-only availability read model for booking decisions. Does it need Arc's ReadModel attribute or a public query?", "shouldTrigger": true },
     { "query": "My new observable query returns BehaviorSubject<IEnumerable<BoatSummary>> but Arc never discovers it. What declared type should the read surface use?", "shouldTrigger": true },
     { "query": "How do I read one BookingDecision model inside a service through IReadModels and handle a missing instance?", "shouldTrigger": true },
-    { "query": "Our new model identity derives from EventSourceId<Guid>. Should I add Key and defaults to the record fields?", "shouldTrigger": true },
+    { "query": "We need a read model of each boat's current bookings for the boat page. Should a projection or a reducer build it, and should its query be a snapshot or observable?", "shouldTrigger": true },
     { "query": "Create a passive decision read model for retained partner credentials and a separate safe list surface. Which read API computes passive state?", "shouldTrigger": true },
     { "query": "The new booking summary needs growing attempt history too. How should we shape the read-model and query surface without embedding all attempts?", "shouldTrigger": true },
     { "query": "I'm creating our first Chronicle read model. Explain when to use attributes, a fluent projection or a reducer and how discovery works.", "shouldTrigger": true },

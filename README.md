@@ -39,6 +39,13 @@ creates native harness adapters. It records hashes in
 `.cratis/ai.manifest.json`, refuses to overwrite user-owned paths, and stops
 update or uninstall when managed content was changed unless `--force` is used.
 
+Claude Code lists every installed skill's description within a budget of about 1% of
+the model's context window and drops the descriptions of the skills used least when the
+listing is larger; Codex shortens or omits entries in the same way. Large profiles such as
+`cratis/full` exceed that budget. Install the profiles a repository needs rather than
+everything, or raise the budget with Claude Code's `skillListingBudgetFraction` setting
+(for example `0.02`).
+
 ## Native plugins
 
 Native plugins remain an independent single-harness choice. Claude Code, Codex,
@@ -160,6 +167,10 @@ The verification enforces the structural rules:
 
 The guidance that cannot be checked mechanically:
 
+- Put the key use case first in the description and keep it short: listings truncate long
+  descriptions and drop rarely used ones. Change a description only with the trigger evaluation
+  before and after, and when a request goes to a neighbor, name that request in the right skill's
+  description rather than adding keywords.
 - Link a reference with the situation that calls for it: "Read `references/x.md` when ...", not
   "see `references/x.md`".
 - Keep the traps an agent must know before it acts in `SKILL.md`, near the top. Claude Code keeps only

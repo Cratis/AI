@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-command
-description: Define a Cratis Arc command — the [Command] record, its Handle() method and return shape, the optional Provide() step, and the generated TypeScript proxy. Use when adding a command, choosing what Handle() should return, deciding which values may reach the causation chain, or wiring a form or button to an Arc backend. Do not use for a validation-only change or merely to execute an existing command.
+description: Define a Cratis Arc command — the [Command] record, its Handle() method and return shape, the optional Provide() step, and the generated TypeScript proxy. Use when adding a command, choosing what Handle() should return, deciding which values may reach the causation chain (including API keys and other credentials passed to a command, which need [NotAudited] and, when retained, [Encrypted]), or wiring a form or button to an Arc backend. Do not use for a validation-only change or merely to execute an existing command.
 license: MIT
 ---
 
