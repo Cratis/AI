@@ -48,6 +48,9 @@ internal static partial class WorkerRuntimeLog
     [LoggerMessage(LogLevel.Warning, "Could not clear the finalizers holding worker job '{JobName}' - its name stays taken until they go")]
     internal static partial void CouldNotReleaseWorkerJob(this ILogger logger, Exception exception, string jobName);
 
+    [LoggerMessage(LogLevel.Error, "Worker configuration for session {Session} carries {TotalBytes} UTF-8 bytes, exceeding the {LimitBytes}-byte budget (Kubernetes Secret limit 1048576 bytes, safety margin 16384 bytes). Largest files: {LargestFiles}")]
+    internal static partial void WorkerConfigurationTooLarge(this ILogger logger, AgentSessionId session, long totalBytes, long limitBytes, string largestFiles);
+
     [LoggerMessage(LogLevel.Warning, "The cluster refused to launch a worker for session {Session} - this is about the cluster rather than the work, so it stays scheduled")]
     internal static partial void WorkerLaunchRefusedByCluster(this ILogger logger, Exception exception, AgentSessionId session);
 }

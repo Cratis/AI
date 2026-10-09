@@ -15,6 +15,7 @@ namespace Cratis.AI.Workers;
 /// <param name="EnvironmentVariables">The non-secret environment variables handed to the container - the session id, prompt, model and callback URL.</param>
 /// <param name="Secrets">The credentials the container runs with, keyed by the environment variable name the entrypoint expects.</param>
 /// <param name="ConfigurationFiles">Non-secret per-run configuration files mounted read-only into the worker.</param>
+/// <param name="Deadline">Optional Kubernetes Job deadline. Non-positive values fall back to the runtime option. Docker has no equivalent and ignores it.</param>
 /// <remarks>
 /// The two are separate because they travel differently. <paramref name="EnvironmentVariables"/> go
 /// on the container specification, which anyone who can read the specification can read; secrets
@@ -26,4 +27,5 @@ public record WorkerJob(
     string Image,
     IReadOnlyDictionary<string, string> EnvironmentVariables,
     IReadOnlyDictionary<string, string> Secrets,
-    IReadOnlyDictionary<string, string>? ConfigurationFiles = null);
+    IReadOnlyDictionary<string, string>? ConfigurationFiles = null,
+    TimeSpan? Deadline = null);
