@@ -171,6 +171,47 @@ The guidance that cannot be checked mechanically:
 - Use one term per concept throughout a skill.
 - Explain why a rule exists instead of raising its volume.
 
+### Evaluate skills
+
+Behavior evaluations live in `Evaluations/skills/<name>/trigger.json` and `evals.json`, outside the
+shipped corpus. CI checks their shape and runs runner specs; it never spends model usage. Locally,
+use an installed, logged-in `pi` or `claude` (default models: `openai-codex/gpt-6.1-sol` with medium
+thinking, or `sonnet`). These commands make paid model calls:
+
+```bash
+yarn workspace @cratis/ai-skill-evaluation run evaluate trigger --skill cratis-arc-command --harness pi --runs 3
+yarn workspace @cratis/ai-skill-evaluation run evaluate outputs --skill cratis-arc-command --harness claude --runs 1
+yarn workspace @cratis/ai-skill-evaluation run evaluate grade --run <output-run-directory> --grader-model opus
+yarn workspace @cratis/ai-skill-evaluation run evaluate report --run <run-directory>
+```
+
+Results and raw transcripts stay untracked in `.ai-work/skill-evaluations/`. Harnesses run in
+neutral temporary workspaces outside the repository, removed afterward. Each batch uses a private
+copy of the skills; pi's temporary agent directory contains only authentication, not host system
+prompts or settings. Claude has a read-only tool allowlist and no configured MCP servers; its init
+listing must contain the target in with-skills runs and no corpus skills in baseline runs. Output
+tasks run with all corpus skills and without them; graders have no tools, and passes require quoted
+answer evidence.
+Trigger runs stop at the first skill load or six tool calls; a rate ≥ 0.5 counts as triggered.
+Reports show failures, assertion discrimination, and paired token/time deltas. Review actual answers
+alongside grades: model grading and a few repetitions are signals, not proof of correctness.
+
+Use repeatable `--skill` options to select skills, `--limit 2` for a smoke batch, `--model` and
+`--thinking` to override models, `--concurrency` (default 4, maximum 16), and `--timeout` (default
+240 seconds per call, maximum 600). Claude's `--listing-budget 60000` avoids description truncation;
+its bundled skills and usage-dependent listing remain confounds. To resume, repeat the same command
+and options with `--run <directory>` (relative to the invocation directory, or the repository root
+when yarn's workspace dispatcher replaces `INIT_CWD` with the package directory); completed
+JSONL keys are skipped and changed evaluations or corpus revisions are rejected. Grading and reports
+read results under the run lock; a stale lock reports its PID and manual recovery instructions.
+Missing harnesses, login failures and timeouts exit 2, never pass.
+
+Follow [output evaluation](https://agentskills.io/skill-creation/evaluating-skills) and
+[description optimization](https://agentskills.io/skill-creation/optimizing-descriptions): realistic
+near-misses, repeated trigger queries, baseline outputs and objective assertions. Replace assertions
+that always pass or fail in both conditions; keep a fixed balanced train/validation split when tuning
+descriptions and do not use held-out failures to guide edits.
+
 ## Verify quality
 
 All quality checks live in `Source/Verification` or the package they compile:

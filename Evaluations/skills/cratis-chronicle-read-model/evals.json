@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-chronicle-read-model",
+  "evals": [
+    {
+      "id": 1,
+      "name": "observable-discovery",
+      "prompt": "Create BoatSummary and its query surface for our C# Arc and Chronicle application. BoatId is an existing EventSourceId<Guid>-derived type and BoatRegistered already exists. Include a snapshot and a live list query with a custom route. A colleague suggests an instance query returning BehaviorSubject<IEnumerable<BoatSummary>>. Explain your choice and whether Key is needed on BoatId. Reply only.",
+      "expected_output": "Arc ReadModel/Path on a record with static query methods. Declare ISubject for observable discovery; use Mongo Observe. No redundant Key on EventSourceId identity.",
+      "assertions": [
+        "Declares static query methods on a ReadModel record, with ReadModel and Path attributed to Cratis.Arc.Queries.ModelBound.",
+        "Declares the observable return as ISubject of the model collection, not concrete Subject or BehaviorSubject, and explains exact generic discovery.",
+        "Explains that EventSourceId already supplies the key and redundant Key on that value is flagged by CHR0026."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "passive-secret-access",
+      "prompt": "Create a PartnerCredentials decision model for a retained operational secret. It must use current event state without storing plaintext in a maintained list. Someone proposes making it passive but querying it through IMongoCollection, or removing passivity so the search page works. Explain the backend access path, missing-instance handling, and how to give search its safe metadata. Reply only.",
+      "expected_output": "Passive computes on demand without a sink; use Chronicle keyed reads and check absence despite non-null declared return. Mongo reads only sink and may be empty or stale. Separate safe metadata list, do not materialize secrets to fix search.",
+      "assertions": [
+        "Explains that Passive has no maintained sink and computes state from events on demand, while IMongoCollection only reads sink documents that can be absent or stale.",
+        "Uses IReadModels.GetInstanceById through Chronicle's keyed API and checks absence despite the nonnullable declared return type.",
+        "Keeps secret-bearing state on the protected access path and projects safe metadata into a separate list instead of removing passivity to materialize secrets.",
+        "Explains that Passive alone neither establishes a model-bound projection nor authorizes access or encrypts the secret."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "keyed-read-and-bounded-shape",
+      "prompt": "We need a new BookingSummary for a details page and a separately growing attempt timeline. Sketch the creation sequence and backend access: can IReadModels provide an IQueryable predicate for arbitrary status filters, and should we add default field values until the projection is wired? Explain how to prove the derived state works. Reply only.",
+      "expected_output": "Events, record, model-bound projection before fluent/reducer, then optional query. IReadModels has keyed rather than predicate reads; status filters use the sink. No masking defaults. Bounded summary plus paged history; drive contributing events into specs.",
+      "assertions": [
+        "States that IReadModels has no predicate or IQueryable surface and directs filtered reads through the sink.",
+        "Rejects property defaults that could mask an unwired projection.",
+        "Orders projection choices as model-bound attributes, then fluent builder, then reducer only when neither expresses the transition.",
+        "Keeps the summary and embedded children bounded and places growing attempts in a separately paged timeline.",
+        "Verifies materialized state by driving contributing events through read-model specifications, with separate event-source setup for each contributing stream."
+      ]
+    }
+  ]
+}
