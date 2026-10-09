@@ -125,6 +125,12 @@ if [[ "$FIXTURE_CASE" != empty ]]; then
     printf '\000\001\377' > binary.dat
 fi
 case "$FIXTURE_CASE" in
+    excluded-artifacts)
+        printf 'ignored-info.txt\n' >> .git/info/exclude
+        printf 'ignored-config.txt\n' > "$HOME/fixture-excludes"
+        git config core.excludesFile '~/fixture-excludes'
+        printf 'local artifact\n' > ignored-info.txt
+        printf 'configured artifact\n' > ignored-config.txt ;;
     latin1)
         printf 'caf\340 changed\n' > legacy.txt
         printf 'new caf\351\n' > latin1.txt
@@ -217,6 +223,12 @@ for harness in pi copilot; do
         [[ "$(cat "$ROOT/agent-args")" == *'@narumitw/pi-lsp'* ]]
     fi
 done
+run_worker excluded-artifacts claude-code
+await_worker
+[[ $STATUS == 0 && -s "$ROOT/workspace/ignored-info.txt" && -s "$ROOT/workspace/ignored-config.txt" ]]
+check_diff
+jq -e '(.diff | contains("ignored-info.txt") or contains("ignored-config.txt") | not) and (.structured.touchedFiles | index("new file.txt")) != null' "$ROOT/result.json" >/dev/null
+cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
 for label in empty refused malformed; do
     run_worker "$label" claude-code
     await_worker

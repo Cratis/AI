@@ -1076,7 +1076,20 @@ deliver_bundle_result() {
     printf '%s\n' "$objects" > "$snapshot/objects/info/alternates" || return 1
     # A private git directory also gives binary overrides the highest attributes priority, without
     # replacing the agent's .git/info/attributes or touching its possibly locked/half-written index.
-    local snapshot_git=(env "GIT_DIR=$snapshot" GIT_WORK_TREE=/workspace "GIT_INDEX_FILE=$snapshot/index" git -c core.bare=false)
+    local snapshot_git=(env "GIT_DIR=$snapshot" GIT_WORK_TREE=/workspace "GIT_INDEX_FILE=$snapshot/index" git -C /workspace -c core.bare=false)
+    local info_exclude excludes_file excludes_status=0
+    info_exclude=$(git -C /workspace rev-parse --path-format=absolute --git-path info/exclude) || return 1
+    if [[ -f "$info_exclude" ]]; then
+        cp "$info_exclude" "$snapshot/info/exclude" || return 1
+    else
+        rm -f "$snapshot/info/exclude" || return 1
+    fi
+    excludes_file=$(git -C /workspace config --path --get core.excludesFile) || excludes_status=$?
+    case "$excludes_status" in
+        0) snapshot_git+=(-c "core.excludesFile=$excludes_file") ;;
+        1) ;; # Unset: keep Git's ordinary global/default exclude behavior.
+        *) return 1 ;;
+    esac
     "${snapshot_git[@]}" read-tree "$head" || return 1
     "${snapshot_git[@]}" add -A || return 1
     "${snapshot_git[@]}" diff --cached --raw --no-abbrev --no-renames -z "$BUNDLE_BASE" -- > "$snapshot/paths" || return 1
