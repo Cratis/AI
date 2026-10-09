@@ -173,7 +173,7 @@ jobs:
   release:
     name: Determine semantic version
     if: github.event_name != 'pull_request'
-    needs: verify
+    needs: [verify, dotnet-verify]
     runs-on: ubuntu-latest
     permissions:
       issues: write
