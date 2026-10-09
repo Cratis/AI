@@ -101,6 +101,32 @@ public class KubernetesWorkerRuntime(
         [WorkerWorkloadLabel] = WorkerWorkloadLabelValue
     };
 
+    // Separate preferred terms express OR; expressions inside a single selector would express AND.
+    // An empty namespace selector selects every namespace, unlike an omitted selector.
+    static V1Affinity BatchPodAffinity => new()
+    {
+        PodAffinity = new V1PodAffinity
+        {
+            PreferredDuringSchedulingIgnoredDuringExecution = new Dictionary<string, string>
+            {
+                ["actions-ephemeral-runner"] = "True",
+                ["app.kubernetes.io/managed-by"] = "cratis-ai-agents"
+            }.Select(label => new V1WeightedPodAffinityTerm
+            {
+                Weight = 100,
+                PodAffinityTerm = new V1PodAffinityTerm
+                {
+                    TopologyKey = "kubernetes.io/hostname",
+                    NamespaceSelector = new V1LabelSelector(),
+                    LabelSelector = new V1LabelSelector
+                    {
+                        MatchLabels = new Dictionary<string, string> { [label.Key] = label.Value }
+                    }
+                }
+            }).ToList()
+        }
+    };
+
     /// <summary>
     /// Builds the Job specification for a worker - the object that ends up in
     /// <c>kubectl get job -o yaml</c>, and therefore the one that must carry no credential.
@@ -153,6 +179,9 @@ public class KubernetesWorkerRuntime(
         var name = DockerWorkerRuntime.NameFor(job.Session);
         var workspace = scratch ?? WorkerScratch.None;
 
+        // Removing checkout credentials alone cannot hide other repositories on a shared PVC.
+        var restricted = job.EnvironmentVariables.ContainsKey("DIRECT_REPOSITORY_CHECKOUTS");
+
         var volumes = new List<V1Volume>
         {
             new()
@@ -189,13 +218,14 @@ public class KubernetesWorkerRuntime(
         List<V1EnvVar> env =
         [
             .. job.EnvironmentVariables
-                .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName)
+                .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName &&
+                    (!restricted || (variable.Key != repositoryCacheEnvironmentVariable && variable.Key != "DIRECT_REPOSITORY_CACHE")))
                 .Select(variable => new V1EnvVar { Name = variable.Key, Value = variable.Value }),
             new() { Name = WorkerSecrets.PathVariableName, Value = WorkerSecrets.Path },
             new() { Name = WorkerPromptFile.PathVariableName, Value = WorkerPromptFile.Path }
         ];
 
-        if (!string.IsNullOrWhiteSpace(repositoryCachePath) && !string.IsNullOrWhiteSpace(repositoryCacheClaimName))
+        if (!restricted && !string.IsNullOrWhiteSpace(repositoryCachePath) && !string.IsNullOrWhiteSpace(repositoryCacheClaimName))
         {
             // Read-only, on the claim and on the mount both, and that is a security boundary rather
             // than an optimization: the consumer's own pod runs `git` inside these mirrors with far
@@ -256,7 +286,14 @@ public class KubernetesWorkerRuntime(
                     // it adds its own job-name and controller-uid and nothing else - and the spread
                     // constraint below selects on this one, so without it every worker is a topology
                     // domain of one and the constraint quietly does nothing.
-                    Metadata = new V1ObjectMeta { Labels = WorkerPodLabels },
+                    Metadata = new V1ObjectMeta
+                    {
+                        Labels = WorkerPodLabels,
+                        Annotations = new Dictionary<string, string>
+                        {
+                            ["cluster-autoscaler.kubernetes.io/safe-to-evict"] = "false"
+                        }
+                    },
                     Spec = new V1PodSpec
                     {
                         RestartPolicy = "Never",
@@ -317,25 +354,11 @@ public class KubernetesWorkerRuntime(
                                 }
                             ],
 
-                        // Spread the workers over the nodes rather than letting the scheduler stack
-                        // them. This is a preference on top of whatever `resources` declares, not a
-                        // substitute for it: the requests are what the scheduler actually prices a
-                        // worker at, and this only breaks ties between nodes that can take one.
-                        //
-                        // It used to be the only thing resisting a pile-up, because a worker declared
-                        // no resources at all and so cost nothing as far as the scheduler was
-                        // concerned. On 2026-09-01 that emptied two nodes' kubelets in one evening:
-                        // fourteen workers on compute-gphgj-bjt8k, then seven on compute-gphgj-9td8c,
-                        // each going NotReady with "Kubelet stopped posting node status" and taking
-                        // every worker on it with it. On 2026-09-02 it did it again to three more
-                        // nodes in ninety minutes, that time taking production down with them, which
-                        // is what finally produced the measurement the requests are sized from
-                        // (Cratis/Stagehand#438, Cratis/Stagehand#529).
-                        //
-                        // ScheduleAnyway, deliberately: a hard constraint would leave workers Pending
-                        // when the cluster genuinely has no room, which trades an occasional dead node
-                        // for a silent dispatch stall - a worse failure.
-                        TopologySpreadConstraints =
+                        // Batch workers prefer nodes already running batch work, across namespaces.
+                        // Keep the existing soft spread for every other pool; neither preference
+                        // overrides resource requests or the node selector and toleration above.
+                        Affinity = nodePoolWorkload == "batch" ? BatchPodAffinity : null,
+                        TopologySpreadConstraints = nodePoolWorkload == "batch" ? null :
                         [
                             new V1TopologySpreadConstraint
                             {

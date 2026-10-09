@@ -42,12 +42,7 @@ that decision. If not, note the need as a view and move on.
 - Prefer assumptions that keep the model honest (fewer, clearly named facts) over ones that
   invent detail.
 
-## Evidence and privacy
-
-- Do not paste production data, customer records or personal data into hosted models or
-  sub-agents without the user's approval. Use invented examples in the model and in
-  specifications.
-- Classify personal data on the concept as soon as it shows up.
+See "Evidence and privacy" in SKILL.md.
 
 ## Closing a session
 
@@ -59,4 +54,4 @@ that decision. If not, note the need as a view and move on.
 6. Propose the next step: the next workflow, or `cratis-screenplay-slice-design` for this one.
 7. Update STATE.md (phase, status, carry-forward); keep durable rationale in model
    `description` text, which is rendered and queryable; `//` comments survive printing at
-   Screenplay v4.64.0, but check the dropped-comments report after any edit that cannot retain them.
+   Screenplay v4.66.0, but check the dropped-comments report after any edit that cannot retain them.

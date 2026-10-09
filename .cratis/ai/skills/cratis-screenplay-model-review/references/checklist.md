@@ -1,5 +1,20 @@
 # Review checklist
 
+## Contents
+
+- Phase 1. Element sweep (7 checks, S1-S7; run first)
+- Phase 2. Entity walk (5 checks, T1-T5; feeds F1-F3 and scenario coverage)
+- Phase 3. Completeness and field lineage (8 checks, A1-A8)
+- Phase 4. Ownership and identity (6 checks, B1-B6)
+- Phase 5. Event quality (9 checks, C1-C9)
+- Phase 6. Events versus views (7 checks, D1-D7)
+- Phase 7. Rules and their layer (9 checks, E1-E9)
+- Phase 8. Flow and lifecycle (13 checks, F1-F13)
+- Phase 9. Personas, reach and authorization (8 checks, G1-G8)
+- Phase 10. Views, queries and screens (4 checks, H1-H4)
+- Phase 11. Strategy checks (13 checks, R1-R13)
+- Closing questions (3, Q1-Q3; each needs an answer in the report; a "no" is a finding)
+
 Eleven phases, 89 checks and three closing questions. Each phase header says how many checks it holds; the report lists
 every phase with its count and, per check, a status, the element and the evidence
 (`report-template.md`). Each check names what to look at, the Screenplay evidence source and the
@@ -37,7 +52,7 @@ not why: a signal, so confirm the hidden reason before reporting. The fix names 
 change (`BerthReassigned`, `BerthLengthLimitRaised`), one event per reason, each with its own
 rules and consumers. A shared payload shape alone is not a defect: full generations repeat the
 prior shape on purpose and different facts may look alike. Cratis/Screenplay#393 proposes an
-advisory report for exactly these signals; at v4.64.0 no such report exists among the 29 MCP
+advisory report for exactly these signals; at v4.66.0 no such report exists among the 29 MCP
 tools, so the sweep is done by hand.
 
 ## Phase 2. Entity walk (5 checks, T1-T5; feeds F1-F3 and scenario coverage)
@@ -85,7 +100,7 @@ the format in `worked-example.md`.
 | C2 | A fact, not a request, a running calculation, a UI action or a technical step | names and payloads | D |
 | C3 | No speculative or pending events ("MayBe...", "...Pending") where a decision is meant | names | Q |
 | C4 | No nullable or optional event property by default: a required value, or a separate event for the second situation (CHR0012; a `null` in a specification value is PLAY0350); a kept `optional` has its reason in the `description` | `optional` members | D |
-| C5 | Sensitive members marked (`@pii`/`@sensitive`) and not mixed across data subjects; no PII on the event-source id (no `@pii` identifier concept; use a surrogate id, CHR0034); one data subject per event or stream | concepts and members | D; removal to pass tools = critical |
+| C5 | Sensitive members marked (`@pii`/`@sensitive`) and not mixed across data subjects; operational secrets are `@sensitive`, not `@pii`; no `@pii` or `@sensitive` on the event-source id (no such identifier concept; use a surrogate id; Chronicle CHR0034 and CHR0052, and Screenplay PLAY0515 from 4.69.1 for `@pii` and 4.84.1 for `@sensitive`, only on tools at those versions - the pinned tools do not report it); one data subject per event or stream | concepts and members | D; removal to pass tools = critical |
 | C6 | No secret or bearer values as facts (tokens, magic links, signed URLs): record a keyed hash or a reference | event payloads | D |
 | C7 | No two events of one kind of event source mean the same thing (a shared property set is a signal, not a defect: distinct facts may share a shape and historical generations are exempt; major only when meaning is lost, a rule bypassed or consumers ambiguous); one fact is not recorded twice (aggregate event plus per-item fan-out) | event declarations side by side | D |
 | C8 | Corrections are new facts that name what they correct; redaction and crypto-erasure are compliance tools, not corrections | event names | D |

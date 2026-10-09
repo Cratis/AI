@@ -1,5 +1,15 @@
 # Verdicts and modes
 
+## Contents
+
+- Five independent results
+- Commands (enough to check without loading the toolchain skill)
+- Report template
+- Source identity
+- Render revision drift
+- Tool-version gaps
+- Modes
+
 Exact commands, exit codes, admitted subsets and every version-specific fact live in
 `cratis-screenplay-toolchain` (`references/versions.md` and its subset references). This file
 defines what each result means and how to report it. Do not copy version facts here.
@@ -8,7 +18,7 @@ defines what each result means and how to report it. Do not copy version facts h
 
 | Result | Evidence | Does NOT prove |
 |---|---|---|
-| V1 authorable | folder-mode validate with warnings as errors. The standalone compiler includes imports in folder and file mode; the pinned `cratis` CLI (v3.27.1) file validation ignores imports, so folder mode is the cross-tool check | semantics, binding, specs |
+| V1 authorable | folder-mode validate with warnings as errors. The standalone compiler includes imports in folder and file mode; the pinned `cratis` CLI (v3.28.2) file validation still ignores imports (cli#244, probed), so folder mode is the cross-tool check | semantics, binding, specs |
 | V2 executable diagnostics | the executable model reports no diagnostics for the scope | that any spec runs or passes |
 | V3 binding-ready | the model binds to the executable semantic model | that any spec runs or passes |
 | V4 reference specs run | the reference execution route only: engine, and per `.play` specification passed / failed / unsupported / cancelled | rendering, generated code, build or target tests |
@@ -163,7 +173,7 @@ file changing the digest, a filename containing a tab or a newline, and an expli
 ### Revisions are three different things
 - **Source identity** (above): bytes of the inputs. Used for acceptance.
 - **Workspace revision** (MCP `expectedRevision` and catalog revision): guards edits in one workspace session.
-- **`modelRevision`** (MCP `read-workspace view=executable-model`): the canonical semantic revision
+- **`modelRevision`** (the `screenplay` server's `read-workspace` tool with `view=executable-model`): the canonical semantic revision
   of the bound executable model. It exists only when the model binds. Descriptions and source
   locations are not part of it; the application identity is (without `identities.json` it is
   bootstrapped from the root folder name, so renaming the root changes it). Moving a file changes

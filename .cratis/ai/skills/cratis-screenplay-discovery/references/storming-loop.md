@@ -1,5 +1,12 @@
 # The storming loop on `.play`
 
+## Contents
+
+- One turn
+- Choosing the next question
+- When to stop
+- A discovery skeleton
+
 The model is the whiteboard. Every piece of input is turned into model edits first; the chat
 then reports what changed and asks one question. The user should always be able to look at the
 `.play` source and see the conversation so far.
@@ -60,7 +67,7 @@ open, start the sweep (`divergent-sweep.md`).
 What a model looks like after the first workflow has been stormed: no commands, read models
 or screens yet. Slices are named after the command expected to produce each event and are
 sorted by name when a folder layout is written back (a single document keeps authored order
-at v4.64.0), so the order of the story lives in the feature `description`, not in position. Persona
+at v4.66.0), so the order of the story lives in the feature `description`, not in position. Persona
 `description` text holds Does / Reads / Cannot on one quoted line here; the multi-line fenced
 form is in `personas-and-causes.md`.
 

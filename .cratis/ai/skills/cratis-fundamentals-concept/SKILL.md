@@ -1,6 +1,6 @@
 ---
 name: cratis-fundamentals-concept
-description: Create strongly typed Cratis domain values with ConceptAs<T> and Chronicle event-source identities with EventSourceId<T>. Use when a C# domain value has meaning beyond its primitive or when an identity is actually used as a Chronicle event-source/stream ID. Do not use for enums, DTO-only transport values, arbitrary non-stream entity IDs, or event schema migration.
+description: Create strongly typed Cratis domain values with ConceptAs and Chronicle event-source identities with EventSourceId. Use when a C# domain value has meaning beyond its primitive or when an identity is actually used as a Chronicle event-source/stream ID. Do not use for enums, DTO-only transport values, arbitrary non-stream entity IDs, or event schema migration.
 license: MIT
 ---
 
@@ -167,8 +167,8 @@ Pass the typed identity as the append/read event-source ID. Merely declaring an
 `EventSourceId<T>` property does not select the event stream.
 
 Do not add `[Key]` or `[Subject]` to an `EventSourceId<T>`-derived member;
-Chronicle analyzer `CHR0026` reports that misuse. Do not add `[PII]` to an
-event-source ID; analyzer `CHR0034` rejects it.
+Chronicle analyzer `CHR0026` reports that misuse. Do not add `[PII]` or
+`[Encrypted]` to an event-source ID; analyzers `CHR0034` and `CHR0052` reject them.
 
 ## Placement is an application convention
 
@@ -191,7 +191,7 @@ repository structure.
   the domain.
 - An `EventSourceId<T>` type represents a real Chronicle stream identity.
 - The typed identity is passed explicitly to Chronicle operations.
-- No `[Key]`, `[Subject]`, or `[PII]` attribute is placed on the stream identity.
+- No `[Key]`, `[Subject]`, `[PII]`, or `[Encrypted]` attribute is placed on the stream identity.
 - Sensitive natural identifiers use a surrogate stream ID.
 - The file carries the repository license header.
 - The project builds and its relevant specifications pass against the verified

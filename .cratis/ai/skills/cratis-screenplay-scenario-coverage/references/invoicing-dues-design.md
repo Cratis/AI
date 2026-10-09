@@ -3,7 +3,7 @@
 **Design mode, not binding-ready by design.** This document states the stored-state rules of the
 invoicing example as the skill requires (`reads <View>` + `require ... message`, marked NOT
 enforced in the slice `description`, target named). It compiles (V1, warnings as errors) but
-does not bind at Screenplay 4.64.0, and the only blockers are `reads` (PLAY0271) and `require` over
+does not bind at Screenplay 4.66.0, and the only blockers are `reads` (PLAY0271) and `require` over
 a view (PLAY0268), so no specification here runs (V3 blocked). `PaymentReceived` has its producer
 here (the capture and `ReceivedTranslator`), so nothing else blocks: with every `reads` and
 `require` line removed the document binds. The rules cover an unknown invoice, voiding a paid
@@ -14,7 +14,6 @@ replaced by prose. The runnable counterpart, which holds no stored-state rule, i
 `invoicing-dues-example.md`; `scenario-examples.md` copies `ReversingAReceivedPayment` from here.
 
 ```screenplay
-// Needs the standalone screenplay compiler (ESM v6)
 // Scenario coverage design-mode example: stored-state rules of invoicing club dues (complete document).
 // Design mode: `reads` is PLAY0271 and `require` over a view is PLAY0268 at binding (the only
 // blockers), so this model compiles but is not executable; the specifications below do not run. The runnable counterpart

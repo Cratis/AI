@@ -33,23 +33,30 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
   entry-point session proposes a model, at most once per session; the master definition is in
   `cratis-screenplay-modeling-lifecycle`. A direct request to model this scope is itself consent.
 
+## Evidence and privacy
+
+- Do not paste production data, customer records or personal data into hosted models or
+  sub-agents without the user's approval. Use invented examples in the model and in
+  specifications.
+- Classify personal data on the concept as soon as it shows up.
+
 ## Verified product sources
 
-Pins (Screenplay v4.64.0 `7e16162`, cratis CLI v3.27.1, Stage v4.24.0, Arc v22.50.5, Chronicle
+Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3, Stage v4.24.2, Arc v22.50.5, Chronicle
 v19.32.0) are listed once in `cratis-screenplay-toolchain` `references/versions.md`.
 Statements here were checked at those tags:
 
 | Fact used here | Source |
 | --- | --- |
-| Persona syntax, report-only, policies must be declared, `description` first and once | Screenplay `v4.64.0:Documentation/screenplay/personas.md` |
-| Single-line and fenced `description` (`FencedText`) | `v4.64.0:Documentation/screenplay/slices.md#descriptions`, `grammar.md:1084-1088` |
-| `<Type>[]`, shapes must be declared; `@pii` and `reason` on concepts | `v4.64.0:Documentation/screenplay/events.md`, `concepts.md` |
-| `then denied`, `given caller`, `then error` | `v4.64.0:Documentation/screenplay/specifications.md` |
+| Persona syntax, report-only, policies must be declared, `description` first and once | Screenplay `v4.66.0:Documentation/screenplay/personas.md` |
+| Single-line and fenced `description` (`FencedText`) | `v4.66.0:Documentation/screenplay/slices.md#descriptions`, `grammar.md:1084-1088` |
+| `<Type>[]`, shapes must be declared; `@pii` and `reason` on concepts | `v4.66.0:Documentation/screenplay/events.md`, `concepts.md` |
+| `then denied`, `given caller`, `then error` | `v4.66.0:Documentation/screenplay/specifications.md` |
 | PII on an event-source id is rejected by Chronicle (CHR0034); nullable event properties warn (CHR0012) | Chronicle `v19.32.0:Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs` |
-| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) | `v4.64.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
+| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
 
 Every complete `screenplay` fence in this skill compiles with the standalone compiler
-4.64.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.27.1.
+4.68.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.28.2.
 
 ## Interview phase
 
@@ -115,7 +122,7 @@ decided apart from what you assumed. Never guess silently.
    two business facts that make it meaningful. A simple state transition may carry no payload
    beyond its identity: do not pad events with fields just to reach a count. Domain names; `<Type>[]` for collections (declare the `type`); a
    `concept` for a value with its own meaning; classify personal data on the concept with
-   `@pii` and a reason now. `@pii` compiles but does not bind (PLAY0268 at 4.64.0): record it
+   `@pii` and a reason now. `@pii` compiles but does not bind (PLAY0268 at 4.66.0): record it
    as a known target gap; never drop it to get a clean result.
 7. **Validate, gate, hand off.** After a coherent batch of edits (not every sentence) run V1
    with the tool and version named (`cratis-screenplay-toolchain`). Stop storming a workflow
@@ -133,7 +140,7 @@ decided apart from what you assumed. Never guess silently.
   first body line and appears once.
 - Declare each event once in the whole application; other slices refer to it by name.
 - Folder-layout round-trips re-sort modules, features and slices by name (a single document
-  keeps authored order at v4.64.0): story order is documentation (feature `description`,
+  keeps authored order at v4.66.0): story order is documentation (feature `description`,
   STATE.md), never structure.
 - A misspelt keyword inside a slice is only warning PLAY0029 and the block disappears: always
   validate with warnings as errors.
@@ -221,10 +228,10 @@ and the report says which verdicts were not run (V2 to V5 are not run in discove
 - `references/personas-and-causes.md` - role catalogue, Cannot resolved to executable gates.
 - `references/divergent-sweep.md` - lenses for the wide pass.
 - `references/plotting-and-handoff.md` - after / caused by / only if, plot format, whose turn it is, Storyline seed, handoff packet.
-- `references/facilitation.md` - running sessions, disagreement, closing, unattended runs.
+- `references/facilitation.md` - running sessions, disagreement, closing, unattended runs. Read when facilitating a group, handling disagreement, or closing an attended or unattended session.
 - `references/human-workshop.md` - supporting a human workshop: preparation, run sheet, live scribing.
-- `references/worked-session.md` - a short session end to end.
-- `references/provenance.md` - sources and attribution.
+- `references/worked-session.md` - a short session end to end. Read when you need an end-to-end example of discovery from thin input.
+- `references/provenance.md` - sources and attribution. Read when checking source attribution or adaptation history.
 
 ## Lineage
 

@@ -116,7 +116,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
 # observer is stuck, replaying a partition, browsing events and read models. Installed to a shared
 # tool path rather than with `-g`, because a global install lands in the installing user's home and
 # this image runs as `agent` - the tool has to be on PATH for that user, not for root.
-ARG CRATIS_CLI_VERSION=3.27.1
+ARG CRATIS_CLI_VERSION=3.28.3
 RUN dotnet tool install --tool-path /usr/local/bin --version ${CRATIS_CLI_VERSION} Cratis.Cli \
     && rm -rf /tmp/NuGetScratch /root/.nuget/packages
 

@@ -1,5 +1,22 @@
 # Scenario catalogue
 
+## Contents
+
+- Eliciting cases
+- 1. Happy path
+- 2. Rule rejection (one per rule)
+- 3. Authorization denial
+- 4. State violation
+- 5. Duplicate action and retry
+- 6. Competing claim (concurrency)
+- 7. Alternative path
+- 8. Ordering and timing
+- 9. External failure
+- 10. Compensation
+- 11. Evolution compatibility
+- 12. Views
+- Example data
+
 For each type: the question to put to the domain, when it applies, when "n/a" is a legitimate
 answer, the Screenplay shape, and traps. Excerpts point to the complete compiled example
 `berth-reservations.md` (marina guest berths). An `n/a` must name a domain reason; a
@@ -28,6 +45,14 @@ name them as unfinished.
   order, with full payloads and `for`. See `ReservingAGuestBerth`.
 - Traps: asserting a subset of events (lists are exact); leaving out `given caller` on a gated
   command; omitting `for` so the event lands on an allocated source.
+- Generated values and responses (ESM v7, standalone Screenplay 4.68.0; syntax in `cratis-screenplay-specifications`):
+  when the command has a `generated` property, the happy path supplies its fixtures (`for` on the generated
+  identifier, `generated <name> = <value>`); only when the command declares a response does it assert
+  `then returns` (a return expectation without a response is rejected at compile time). Add the failing
+  counterparts as separate specs: a rule rejection or denial (which happens before generation and has no
+  response). A reached generated value without a fixture is `Unsupported(IdentityAllocation)`: the runner
+  reports it as not passed, so it is a known capability limit to record, not a specification to write.
+  A generated identifier is no retry identity (section 5).
 
 ## 2. Rule rejection (one per rule)
 - Ask: "Which values would you refuse, and what would you tell the person?"
@@ -126,7 +151,7 @@ name them as unfinished.
   facts. There is no `then no events` syntax. A command spec with no `then` events but with a
   view or query assertion is still executable as a zero-fact check: the runner compares the
   command's facts with the (empty) expected list by exact count, so any fact produced fails it
-  (Screenplay v4.64.0). Write it that way, name it for the zero-fact outcome, and keep the view
+  (Screenplay v4.66.0). Write it that way, name it for the zero-fact outcome, and keep the view
   assertion for the visible state. Record the obligation as unasserted only where the runner is
   not available.
 
@@ -137,7 +162,7 @@ name them as unfinished.
   capture, a reaction) the view or translation must cope with any order.
 - Shape: view family whose givens are in a different order; translation specs where the
   external record arrives before our own fact; `given clock`/`when clock` for deadlines
-  (binds on the current compiler, not the cratis-bundled one: `cratis-screenplay-toolchain` `references/versions.md`; see
+  (binds on Screenplay 4.61 or later, so not on a cratis before 3.28.2 bundle: `cratis-screenplay-toolchain` `references/versions.md`; see
   `cratis-screenplay-automations-and-translations`).
 - n/a: a single event source, with no external or cross-source input.
 

@@ -117,7 +117,8 @@ from the command's resolved key; a composite key throws
 (HTTP 400) rather than a server fault.
 
 `ARC0006` warns when such a parameter is non-nullable, because a command-scoped
-read model can be missing. It is the only Arc diagnostic that touches EF Core
+read model can be missing; reject a missing one rather than returning a nullable
+event from `Handle()`. It is the only Arc diagnostic that touches EF Core
 read models, and only because they share `[ReadModel]`.
 
 ## Write the migration

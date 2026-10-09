@@ -59,8 +59,13 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     public static CreateContainerParameters BuildContainerSpecification(
         WorkerJob job,
         string? repositoryCachePath = null,
-        string? repositoryCacheEnvironmentVariable = null) =>
-        new()
+        string? repositoryCacheEnvironmentVariable = null)
+    {
+        // A restricted checkout must not expose other repositories through the shared cache,
+        // even when the checkout contract is empty or invalid and the entrypoint will reject it.
+        var restricted = job.EnvironmentVariables.ContainsKey("DIRECT_REPOSITORY_CHECKOUTS");
+
+        return new()
         {
             Image = job.Image,
 
@@ -76,11 +81,12 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             Env =
             [
                 .. job.EnvironmentVariables
-                    .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName)
+                    .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName &&
+                        (!restricted || (variable.Key != repositoryCacheEnvironmentVariable && variable.Key != "DIRECT_REPOSITORY_CACHE")))
                     .Select(variable => $"{variable.Key}={variable.Value}"),
                 $"{WorkerSecrets.PathVariableName}={WorkerSecrets.Path}",
                 $"{WorkerPromptFile.PathVariableName}={WorkerPromptFile.Path}",
-                .. string.IsNullOrWhiteSpace(repositoryCachePath) || string.IsNullOrWhiteSpace(repositoryCacheEnvironmentVariable)
+                .. restricted || string.IsNullOrWhiteSpace(repositoryCachePath) || string.IsNullOrWhiteSpace(repositoryCacheEnvironmentVariable)
                     ? (string[])[]
                     : [$"{repositoryCacheEnvironmentVariable}={repositoryCachePath}"]
             ],
@@ -105,11 +111,12 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
                 // clone_into_workspace() in entrypoint.sh can `git clone --shared` against it
                 // instead of cloning fresh from GitHub every run. Host path equals container path,
                 // the same convention the Kubernetes PVC mount uses.
-                Binds = string.IsNullOrWhiteSpace(repositoryCachePath)
+                Binds = restricted || string.IsNullOrWhiteSpace(repositoryCachePath)
                     ? []
                     : [$"{repositoryCachePath}:{repositoryCachePath}"]
             }
         };
+    }
 
     /// <inheritdoc/>
     /// <remarks>

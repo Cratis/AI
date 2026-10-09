@@ -1,16 +1,17 @@
 # Renderable subset (V5): what `cratis render` admits
 
-Sources, all read at tags: Stage v4.24.0 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
+Sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
 (an exhaustive map of every ESM member to Rendered, Rejected(code) or Ignored),
-`CratisArtifactRenderPlanner.cs`, `PureTransitionAdmission.cs`; cli v3.27.1
+`CratisArtifactRenderPlanner.cs`, `PureTransitionAdmission.cs`; cli v3.28.2
 `Commands/Render/RenderSettings.cs` and `Documentation/reference/screenplay.md`. Re-run the
 render itself before claiming renderability: this table is a reading of the source, not a
 render result.
 
 Renderable is a strict subset of executable (`executable-subset.md`). Order of events in
-`cratis render`: the CLI binds the model with its **bundled Screenplay 4.60.1** (so PLAY0268
-and friends appear first, and anything above ESM v5 fails there), then Stage admits or
-rejects members. A model that binds only on the standalone tool is not renderable.
+`cratis render`: the CLI binds the model with its **bundled Screenplay** (4.66.0 in cratis 3.28.2, so PLAY0268
+and friends appear first), then Stage admits or
+rejects members. An ESM v6 model binds but Stage refuses it whole with `STAGE-ESM-016`
+(probed on 3.28.2; an ESM v7 model with generated values or responses fails binding first on the bundled 4.66.0 with `PLAY0268`, and Stage 4.24.2 would refuse it with `STAGE-ESM-016` too, tracked in Stage#201; on before 3.28.2 it failed binding first, with PLAY0268).
 
 ## What Stage 4.24 admits
 
@@ -19,8 +20,7 @@ binding (`PLAY0268`) and Stage refuses their ESM version (`STAGE-ESM-016`); rend
 appends never carry event source type, event stream type or event stream id, so
 Chronicle's defaults apply (Stage#177, #200, #201). See `sources-and-streams.md`.
 
-Whole-model admission requires ESM schema v1 to v3; anything else is STAGE-ESM-016 (v4
-generations also fail the CLI pre-check CLI-RENDER-003). The admitted vertical is concepts,
+Whole-model admission requires ESM schema v1 to v4 on Stage 4.24.2 (v1 to v3 on the 4.24.1 that cratis 3.28.2 bundled, where a v4 model was STAGE-ESM-016 and also failed the CLI pre-check CLI-RENDER-003; cratis 3.28.3 bundles 4.24.2); v5 and v6 are STAGE-ESM-016. On 4.24.2 a selected event above its initial revision, or any scope depending on it, is STAGE-ESM-026 (migrations are not rendered, Stage#204), and a historical typed-context reference is STAGE-ESM-025. The admitted vertical is concepts,
 composite types, one command to its events, a one-instance projection, an optional keyed
 snapshot query, declarative authorization (including query authorization) and modeled
 specifications. **Automation and Translate slices are not rendered** (Stage#79, open): the
@@ -28,7 +28,7 @@ whole automation is hand-written (gap-fill).
 
 | Area | Renders | Rejected (code) |
 | --- | --- | --- |
-| ESM version | schema v1 to v3 | v4 generations, v5 `then no readmodel`, v6 constructs: STAGE-ESM-016 for the whole model |
+| ESM version | schema v1 to v4 (4.24.2; initial-revision events only) | evolved events: STAGE-ESM-026 (4.24.2); historical references: STAGE-ESM-025; v5 `then no readmodel`, v6 constructs, v7 generated values and responses: STAGE-ESM-016 for the whole model (Stage 4.24.1 also ledgers the v6 members as `STAGE-ESM-024`; users still see STAGE-ESM-016) |
 | Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`: STAGE-ESM-001 |
 | Types | concepts over Uuid, String, Int, Decimal, Bool, Date, DateTime; composite types; collections; optional | unknown types: 002 and 003 |
 | Validation | not empty, min, max, equal, not equal, comparisons, length, `all >`/`all >=`, matches, `$strings` keys (missing default keys: 018) | code rules and code validation: 005 |
@@ -39,7 +39,7 @@ whole automation is hand-written (gap-fill).
 | Constraints | unique property value, unique event occurrence; admitted even though Chronicle#4123 means index updates run after commit | intra-command multi-event change to one constraint; multi-claim in one command: 014 |
 | Authorization | authenticated, role, claim and logical policies; caller fixtures; ownership claims against text-backed targets | opaque policy code, role-claim URIs, a claim matched against a Uuid-backed subject or path: 015 |
 | Specifications | command-action scenarios: given events, `when <Command>`, `then` events (ordered or any order), `then readmodel`, `then query`, `then error` (naming a rendered constraint or message), `then denied`, `given caller`. Two narrow when-less routes: an unprotected single `then query` seeded by exactly one `given readmodel` whose key and values match (no given events, no caller), and a query-only denial (`given caller`, one `then query` with no results, `then denied`, a protected query, no role claims) | `then no readmodel`, `when append`, composite values, error codes not naming a rendered constraint: 011. Any other when-less specification (for example given events with `then query`) fails 011 |
-| Compliance | none | any `@pii` or `@sensitive` already fails binding (PLAY0268). Stage's `[PII]` attribute comes only from the legacy syntax renderer, which renders `@sensitive` as `[PII]` too (Stage#197) |
+| Compliance | none | any `@pii` or `@sensitive` already fails binding (PLAY0268). The C# provider mapping (Stage v4.29.0, Stage#197) is `@pii` to `[PII]`, `@sensitive` to `[Encrypted]` + `[NotAudited]`, both to `[PII]` only |
 
 ## Authoring consequences in renderable mode
 

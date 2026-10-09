@@ -1,0 +1,14 @@
+<!-- Copyright (c) Cratis. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <TargetFramework>net10.0</TargetFramework>
+    <CratisProxiesOutputPath></CratisProxiesOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Cratis.AI/Cratis.AI.csproj" />
+  </ItemGroup>
+</Project>

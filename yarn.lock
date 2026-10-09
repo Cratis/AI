@@ -410,6 +410,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cratis/ai-skill-evaluation@workspace:Source/SkillEvaluation":
+  version: 0.0.0-use.local
+  resolution: "@cratis/ai-skill-evaluation@workspace:Source/SkillEvaluation"
+  dependencies:
+    "@types/node": "npm:^22.0.0"
+    tsx: "npm:^4.19.0"
+    typescript: "npm:^5.8.0"
+  languageName: unknown
+  linkType: soft
+
 "@cratis/ai-verification@workspace:Source/Verification":
   version: 0.0.0-use.local
   resolution: "@cratis/ai-verification@workspace:Source/Verification"

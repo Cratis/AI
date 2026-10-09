@@ -5,7 +5,8 @@
   "scripts": {
     "check": "tsc --noEmit",
     "test": "tsx --test *.spec.ts",
-    "verify": "tsx verify.ts ../.."
+    "verify": "tsx verify.ts ../..",
+    "contents": "tsx skill-contents.ts"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "*",

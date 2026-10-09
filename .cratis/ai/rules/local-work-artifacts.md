@@ -21,6 +21,19 @@ dumps, and similar coordination files. These are **work records, not documentati
 - Knowledge that must outlive the session (real documentation, ADRs, operator
   guides) is written deliberately into the repository's documentation structure
   through normal review — not left behind as a work record.
+- **A session prompt or handover states when it is valid.** A fresh-session prompt,
+  continuation prompt or handover in `.ai-work/` opens with its preconditions: the
+  repository, the branch, the expected `HEAD` commit, every worktree path it names,
+  and the date it was written. Without them nothing tells a later session whether
+  the prompt still describes reality.
+- **Check the preconditions before acting on a prompt.** A session that starts from
+  one compares them with `git rev-parse --show-toplevel`, `git rev-parse HEAD`,
+  `git branch --show-current` and `git worktree list` first. A mismatch (a moved
+  `HEAD`, a missing worktree, another branch) means **the prompt is stale — not
+  that the work is lost.** Do not recreate
+  a worktree, reset, or discard anything because of it; look at the branches, the
+  reflog and the open pull requests for where the work is now, then update or
+  replace the prompt.
 - **A worktree is a work record too.** Create it outside the repository tree, for
   example in a sibling `../.worktrees/` directory. A nested worktree inherits the
   parent's `.globalconfig` alongside its own, causing .NET's `MultipleGlobalAnalyzerKeys`

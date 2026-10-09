@@ -19,6 +19,6 @@ Add a reactor that observes events and produces side effects. Invoke the **crati
 - Reactors are **idempotent** and **stateless**; use event data directly (don't query the read model back).
 - To change state elsewhere, return side-effect events or inject `ICommandPipeline` — **never** `IEventLog`.
 - `[OnceOnly]` on any non-idempotent side effect (emails, payments, external writes).
-- Test with `ReactorScenario<TReactor>`, including a case for each skip condition and one for repeated delivery.
+- Specify pure reactor decisions with `Specification` plus a direct call by default; add `ReactorScenario<TReactor>` only where invocation, dependency wiring or side effects contribute proof. Cover each skip condition and repeated delivery.
 
 The skill carries the detail; don't duplicate it here.

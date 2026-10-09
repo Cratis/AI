@@ -1,5 +1,18 @@
 # Model-bound projection attributes
 
+## Contents
+
+- Namespaces that are not `Projections.ModelBound`
+- Source and shape
+- Setting values
+- Counters
+- Variants
+- Relationships
+- Source selection
+- Labels, not filters
+- What makes a type a model-bound projection
+- AutoMap
+
 Verified against `Cratis.Chronicle` `18.3.0`.
 
 Unless noted, every attribute below lives in
@@ -116,12 +129,7 @@ for reducers and reactors.
 
 ## What makes a type a model-bound projection
 
-Chronicle treats a type as a model-bound projection when the class, its primary
-constructor parameters, or its public instance properties carry an
-`[EventSequence]` attribute or any projection annotation — **except
-`[Passive]`**, which is deliberately excluded. `[Passive]` on its own therefore
-does not make a read model a projection; it changes how an existing projection
-is registered.
+See "What makes a type a model-bound projection" in SKILL.md.
 
 ## AutoMap
 

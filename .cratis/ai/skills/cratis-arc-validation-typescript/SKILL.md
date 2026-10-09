@@ -282,9 +282,12 @@ describe('when validating a task with an empty title', given(a_task_registration
 
 - Use `scenario.validate(...)` to prove the rule answers on `/validate`, and
   `execute(...)` to prove `handle()` never ran.
-- Assert the member with `shouldHaveValidationErrorForMember('title')`.
+- Assert the member with `shouldHaveValidationErrorForMember('title')` by
+  default, not presentation text. Assert exact wording only when it is the
+  specified behavior, and name that requirement in the fact.
   `shouldHaveValidationErrorFor(text)` passes for any message **containing** the
-  text; pass the full message when the wording matters.
+  text; even a full-message argument does not prove exact equality. Compare
+  the actual message for equality when exact wording is the requirement.
 - `validatorFailed` and `dependencyUnavailable` never satisfy
   `shouldHaveValidationErrors()` or the member assertion — they mean no authored
   rule was established. Assert them explicitly with

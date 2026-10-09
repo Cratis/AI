@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-command-validation
-description: Add a rejection rule to an existing Arc command — choosing between ConceptValidator, CommandValidator, a short-circuiting Provide, and a read-model-injected Handle returning Result<TEvent, ValidationResult>. Use when a command must refuse work under some condition. Do not use to define a new command, and do not use for append-time Chronicle constraints.
+description: Add a rejection rule to an existing Arc command — choosing between ConceptValidator, CommandValidator, a short-circuiting Provide, and a read-model-injected Handle returning a Result of either the event or a ValidationResult. Use when a command must refuse work under some condition. Do not use to define a new command, and do not use for append-time Chronicle constraints.
 license: MIT
 ---
 
@@ -196,7 +196,9 @@ var other = await readModels.GetInstanceById<Other>((EventSourceId)otherId);
 A missing instance resolves to `null`, never to a default object. A nullable
 parameter receives that `null`; a non-nullable one is **rejected as a validation
 failure (400)**, not crashed. `ARC0006` warns on a non-nullable command-scoped
-read-model parameter for exactly this reason. `cratis-arc-command` carries the
+read-model parameter for exactly this reason. Handle a nullable parameter by rejecting (a validator,
+`Provide()`, or `Result<TEvent, ValidationResult>`), never by returning a
+nullable event from `Handle()`. `cratis-arc-command` carries the
 full resolution and nullability reference, including the passive-projection case
 where absence is *not* `null`.
 
@@ -212,8 +214,10 @@ and that it failed *as a validation*:
 ```
 
 `ShouldNotBeSuccessful()` alone cannot tell a rejection from an unhandled
-exception, which is precisely the mistake this skill exists to prevent. Never
-assert on a message string — it is presentation text. See
+exception, which is precisely the mistake this skill exists to prevent. Do not
+assert on a message string by default — it is presentation text. Assert exact
+wording only when it is the specified behavior, and name that requirement in
+the fact. See
 `cratis-application-slice-specifications` for the scenario mechanics.
 
 ## What breaks

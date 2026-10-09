@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-chronicle-read-model",
+  "queries": [
+    { "query": "Create an ActiveBookings read model from scratch, including its key and live Arc query for the booking page.", "shouldTrigger": true },
+    { "query": "i need a new boat summary list built from events. where do events, the read-model record and its static queries fit?", "shouldTrigger": true },
+    { "query": "We're adding a backend-only availability read model for booking decisions. Does it need Arc's ReadModel attribute or a public query?", "shouldTrigger": true },
+    { "query": "My new observable query returns BehaviorSubject<IEnumerable<BoatSummary>> but Arc never discovers it. What declared type should the read surface use?", "shouldTrigger": true },
+    { "query": "How do I read one BookingDecision model inside a service through IReadModels and handle a missing instance?", "shouldTrigger": true },
+    { "query": "We need a read model of each boat's current bookings for the boat page. Should a projection or a reducer build it, and should its query be a snapshot or observable?", "shouldTrigger": true },
+    { "query": "Create a passive decision read model for retained partner credentials and a separate safe list surface. Which read API computes passive state?", "shouldTrigger": true },
+    { "query": "The new booking summary needs growing attempt history too. How should we shape the read-model and query surface without embedding all attempts?", "shouldTrigger": true },
+    { "query": "I'm creating our first Chronicle read model. Explain when to use attributes, a fluent projection or a reducer and how discovery works.", "shouldTrigger": true },
+    { "query": "Add a snapshot query and a custom route to a new BoatSummary record. Which attributes belong to Arc and which key attribute belongs to Chronicle?", "shouldTrigger": true },
+    { "query": "BookingsOverview already has queries. Just add a count mapping for BookingExtended with model-bound projection attributes.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Both projection forms cannot express this prior-state transition. Write the reducer with nullable current state.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
+    { "query": "Page and sort our existing AllBoats query server-side; it currently returns every row.", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "Inspect our observable query from curl, waiting for its first result and then streaming SSE.", "shouldTrigger": false, "note": "cratis-arc-observable-query-http" },
+    { "query": "Write a ReadModelScenario that seeds BoatRegistered and asserts the resulting BoatList row.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "Expose a live readmodel query in our Kotlin Arc Spring service using Flow.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" },
+    { "query": "Write the Node Arc for TypeScript static query method with RxJS over MongoDB.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Declare a readmodel and query in bookings.play, including the screen data binding grammar.", "shouldTrigger": false, "note": "cratis-screenplay-read-surface" },
+    { "query": "Our event schema changed after deployment. Add a generation and migration so existing events replay correctly.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Build a React DataPage around the generated ActiveBookings query, with row selection and an Edit dialog.", "shouldTrigger": false, "note": "cratis-arc-react-page" }
+  ]
+}

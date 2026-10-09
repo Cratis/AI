@@ -1,8 +1,19 @@
 # Executable subset (what binds: V2 and V3)
 
+## Contents
+
+- Admitted on both compilers
+- Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
+- Generated values and responses (ESM v7): standalone 4.68.0 or later only
+- Code attachments (what binds, what never does)
+- Refused (code, reason): fix, or record as a mode gap
+- Not refused, but do not rely on it
+- Never do this to reach V3
+
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler: the standalone tool (4.64.0) admits ESM v1 to v6; the cratis-bundled compiler
-(4.60.1) admits v1 to v5. Tool facts and the exact v6 messages: `versions.md`. Always name
+compiler version: standalone Screenplay 4.68.0 admits ESM v1 to v7; the 4.66.0 compiler bundled in
+cratis 3.28.2 and 3.28.3 admits v1 to v6; the 4.60.1 compiler bundled in cratis before 3.28.2 admits v1 to v5.
+Tool facts and the exact v6 messages: `versions.md`. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass.
@@ -12,7 +23,8 @@ render. `screenplay <folder>` and `cratis screenplay validate` never bind (`verd
 
 Complete examples that bind live in `executable-example.md` (both compilers),
 `pdl-example.md` (projections, both compilers) and `automation-translate-example.md`
-(ESM v6, standalone tool only).
+(ESM v6; standalone tool and cratis 3.28.2 or later) and `generated-responses-example.md`
+(ESM v7; standalone tool 4.68.0 or later only).
 
 ## Admitted on both compilers
 
@@ -47,7 +59,7 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 - `seed`. Personas, screens and descriptions are PLAY0270/PLAY0269 information, not
   blocking.
 
-## Admitted on the standalone tool only (ESM v6)
+## Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 
 - `slice Automation` with `reaction`: `when <Event>` (with values) then `produces` (no
   `for` means the trigger's event source) or `invokes <Command>`; `where`; clock `at ... on
@@ -63,6 +75,40 @@ Complete examples that bind live in `executable-example.md` (both compilers),
   facts per scenario. A scenario with given equal to when fires nothing.
 - Command specifications that list reaction cascades (no false PLAY0285).
 - In a `then` list after `when append`, only what followed the appended event.
+
+## Generated values and responses (ESM v7): standalone 4.68.0 or later only
+
+Facts read at `v4.68.0`: decision 0026 and `Documentation/screenplay/{commands,specifications,interoperability}.md`.
+A model selects ESM v7 only when it uses a generated property, a response, a generated fixture or a `then returns`
+expectation; every other model keeps its version, bytes and revision. The cratis CLI 3.28.3 (bundled 4.66.0)
+reports `PLAY0268` for these constructs, and Stage 4.24.2 refuses ESM v7 with `STAGE-ESM-016` (tracked in
+Stage#201), so they bind and run but are not rendered: gap-fill with the model as contract. Complete example:
+`generated-responses-example.md`.
+
+- A generated property is command-only, required, scalar and a concept backed by `Uuid`; bare `Uuid`, optional and collection
+  types are invalid. Modifier order is `Type optional generated identifier`.
+- Generated values are not request inputs, form fields, invocation arguments or ordinary `when` values. Generation
+  runs after authorization and validation and before productions, so a denial or a validation failure never
+  reaches it.
+- A policy (including inherited or composed ones and the implicit `subject` of a generated identifier), a property
+  rule or a requirement that references a generated value reports `PLAY0273`; reference input properties only. A
+  generated property whose concept declares any validation rule (declarative, named or code) reports `PLAY0268`.
+  A reaction mapping into a generated property is invalid.
+- Responses: `returns <property>` is scalar; bare `returns` opens an ordered record of `<name> [<Type>] = <property>` fields
+  over direct properties of the same command (collections, read aliases, arithmetic and whole read models are not
+  supported). A response exists only on acceptance; a later reaction or scenario-query failure keeps the accepted facts and
+  no response. No response differs from a response whose optional source is `Null`.
+- A two-token `returns name` is a response when `name` is another property of this command; otherwise it declares a
+  property named `returns`. Use `returns @name` or `@returns Type` to force one reading.
+- Specifications: `when ... for "<uuid>"` supplies the generated identifier, an indented `generated <name> = <value>`
+  any other generated value, and `then returns` asserts the response (scalar value, or a non-empty named subset of a
+  record). A reached generated value without a fixture is `Unsupported(IdentityAllocation)`; the specification never
+  passes. `then returns` is a success outcome but does not relax the events comparison.
+- `for` on a generated identifier does not assert that explicitly routed productions target it. A plain `produces`
+  without `for` keeps its own allocation channel, which a fixture never satisfies; a generated identifier combined
+  with a reached plain production is `Unsupported(IdentityAllocation)` from source specifications.
+- A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)`; response-only commands run
+  and discard the response. Generated values give no idempotency, retry or deduplication guarantee.
 
 ## Code attachments (what binds, what never does)
 
@@ -83,9 +129,13 @@ bodies still leave their owner non-executable.
 
 - A command `handler` **never binds**: PLAY0268 "Command '<n>' handler requires a
   constrained implementation attachment." This holds with a `file`, with a fence, and with
-  `implementation` or `hint` (including a pending intent with no payload). `implementation`
-  and `hint` are valid only on command handlers and are authoring intent: no execution, lock
-  or confirmation.
+  `implementation` or `hint` (including a pending intent with no payload). On a handler,
+  `implementation` and `hint` are authoring intent: no execution, lock or confirmation.
+- From 4.65.0 a command property named rule also accepts an `implementation` block (ordered
+  `hint` lines, at most one `file` or tagged fence). With a source attached it binds like a
+  direct source; hints-only or empty is pending intent: valid source, PLAY0268 at binding.
+  The block is rejected on concept rules, built-in property rules and whole-command
+  `require`/`validate` bodies (`v4.66.0:Documentation/screenplay/commands.md`, `context.md`).
 - A handler therefore makes the slice non-executable and non-renderable: it is gap-fill
   with the model as the contract.
 - Stage 4.24 admits only pure reducer bodies (Roslyn allowlist, STAGE-ESM-019 and 022);
@@ -100,9 +150,9 @@ bodies still leave their owner non-executable.
 
 | Construct | Code | Note |
 | --- | --- | --- |
-| `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis-bundled compiler only**; messages in `versions.md` |
+| `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
-| `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.64.0. `@sensitive` has no verified portable meaning (Screenplay#384, open) |
+| `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.66.0. `@sensitive` means an operational secret, rendered `[Encrypted]` + `[NotAudited]` (Screenplay decision 0034) |
 | `query` returning a collection (`RM[]`), or without exactly one caller-supplied `by` | PLAY0268 | "must declare one caller-supplied 'by' argument" or "must return one optional read model" |
 | `observable`, `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` goes in the return position (`=> observable RM optional`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
@@ -122,7 +172,8 @@ bodies still leave their owner non-executable.
 | `join`, `children` or `remove via join` inside `nested` | blocked plan | binds; `UnsupportedProjectionBlock` |
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
-| `generated` or `returns` (v8), operations or systems (v9), `numbers exact` (v7), eventsource or stream (allocated, not implemented; `sources-and-streams.md`) | PLAY0268 | syntax only; one such construct leaves the **whole** application without an executable model |
+| `generated` or `returns` on a compiler before 4.68.0 (4.66.0 and 4.67.0 refuse; 4.66.0 is bundled in cratis 3.28.x) | PLAY0268 | admitted from standalone 4.68.0 (ESM v7), see above |
+| Operations or systems, `numbers exact`, eventsource or stream | PLAY0268 | not admitted by any supported ESM version; syntax only (`sources-and-streams.md`); one such construct leaves the **whole** application without an executable model |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
 | `given` or `then readmodel` missing the key property | PLAY0351 | key is the keyed query's `by` |
 | When-less spec asserting events or errors | PLAY0352 | |
@@ -136,7 +187,7 @@ bodies still leave their owner non-executable.
 - A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`), so no specification in the application runs; Chronicle wires it as a child pull. See the blocked-plan rows above.
 - A projection mapping to a property the read model does not declare, and an undeclared
   event in `remove with` or a capture `append`: V1 does not report them; binding (V3) does,
-  with PLAY0273 (Screenplay v4.64.0 `BindMapping`, `LevelEvent`, `BindCaptureAppends`). A
+  with PLAY0273 (Screenplay v4.66.0 `BindMapping`, `LevelEvent`, `BindCaptureAppends`). A
   declared read-model property that nothing maps is different: no tool reports it, so check
   field lineage by hand.
 
@@ -145,4 +196,4 @@ bodies still leave their owner non-executable.
 Do not remove `@pii`, `@sensitive`, `authorize` or policies, list queries, automations or
 rules a domain needs just to make binding pass. Report `V3 blocked: <codes>` and record the
 slice in the gap list. A `@pii` or `@sensitive` attribute blocks V3 and rendering, and
-`@pii` on an event-source identifier is rejected by Chronicle (CHR0034) in addition.
+either attribute on an event-source identifier is not reported by the pinned tools (`PLAY0515` ships for `@pii` in Screenplay 4.69.1 and for `@sensitive` in 4.84.1); only Chronicle rejects it, at build time of the generated code (CHR0034 for `[PII]`, CHR0052 for `[Encrypted]`).

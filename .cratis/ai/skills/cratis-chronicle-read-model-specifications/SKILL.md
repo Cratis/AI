@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-read-model-specifications
-description: Specify projection and reducer behavior with ReadModelScenario from Cratis.Chronicle.Testing — seeding events through Given and asserting on the materialized instance. Use when the behavior under specification is how events become read-model state. Do not use to create a read model and do not use for raw event append behavior.
+description: Specify declarative projections and reducer wiring with ReadModelScenario from Cratis.Chronicle.Testing — seeding events through Given and asserting on the materialized instance; start with Specification plus a direct call for pure reducer decisions. Use when the behavior under specification is how events become read-model state. Do not use to create a read model and do not use for raw event append behavior.
 license: MIT
 ---
 
@@ -10,8 +10,13 @@ license: MIT
 against a sequence of events. No Chronicle server, no database, no network — the
 events go in, the materialized instance comes out.
 
-For a read-model specification the **`Given` *is* the act**. There is no
-separate `When`: seeding the events is what makes the projection run.
+Pure reducer decisions use `Specification` plus a direct method call by
+default, with the event and current state supplied explicitly. Add
+`ReadModelScenario<TReadModel>` only where declarative projection behavior,
+event dispatch, filtering, metadata or read-model wiring contribute proof.
+
+For a read-model scenario specification the **`Given` *is* the act**. There
+is no separate `When`: seeding the events is what makes the projection run.
 
 ## Verified product sources
 
@@ -56,7 +61,7 @@ version.
 
 ## When you need this
 
-- A reducer builds state from a sequence of events.
+- A reducer's event dispatch, filtering or read-model wiring needs proof.
 - A fluent `IProjectionFor<T>` maps event properties onto read-model properties.
 - A model-bound projection — `[FromEvent<T>]`, `[SetFrom<T>]`, `[Key]` — maps
   correctly.
@@ -167,8 +172,9 @@ public class and_two_items_are_priced : Specification
 #endif
 ```
 
-Wrap every file in `#if DEBUG … #endif` so specification code ships only in
-Debug, and keep one outcome per `should_` fact.
+Wrap files in `#if DEBUG … #endif` only when they compile into the application
+assembly, so specification code ships only in Debug. Dedicated spec projects
+need no wrapper. Keep one outcome per `should_` fact.
 
 ## Step 6 — Cover the read model, not just one event
 
@@ -198,6 +204,7 @@ one, derive it from the projection and say so. Then check each line:
 ## Lineage
 
 Step 6 is adapted in our own words from ideas recorded in `references/provenance.md`.
+Read `references/provenance.md` when checking attribution or the origin of Step 6’s coverage inventory.
 
 ## What breaks
 

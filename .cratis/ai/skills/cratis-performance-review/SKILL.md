@@ -22,7 +22,7 @@ storage and replay cost that never goes away.
 | --- | --- | --- |
 | `Cratis.Chronicle` | `18.3.0` | Observers, projections, reducers, reactors, replay |
 | `Cratis.Arc.Core` | `22.16.0` | Query return shapes and server-side paging |
-| `@cratis/components` | current | `DataTable` paging surface |
+| `@cratis/components` | `4.26.2` | `DataTable` paging surface |
 
 > Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-command
-description: Define a Cratis Arc command — the [Command] record, its Handle() method and return shape, the optional Provide() step, and the generated TypeScript proxy. Use when adding a command, choosing what Handle() should return, deciding which values may reach the causation chain, or wiring a form or button to an Arc backend. Do not use for a validation-only change or merely to execute an existing command.
+description: Define a Cratis Arc command — the [Command] record, its Handle() method and return shape, the optional Provide() step, and the generated TypeScript proxy. Use when adding a command, choosing what Handle() should return, deciding which values may reach the causation chain (including API keys and other credentials passed to a command, which need [NotAudited] and, when retained, [Encrypted]), or wiring a form or button to an Arc backend. Do not use for a validation-only change or merely to execute an existing command.
 license: MIT
 ---
 
@@ -10,6 +10,17 @@ A command is a record that carries the user's intent and owns its own handler.
 Arc discovers it, runs authorization and validation, calls `Handle()`, and turns
 whatever `Handle()` returns into events, server-executed operations, a response,
 or a combination.
+
+- An accepted `.play` model under the model root covers the behavior, or the
+  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project set
+  `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
+  output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
+  `cratis-screenplay-modeling-lifecycle`): change the model first with
+  `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
+  say so and do not author `.play` from memory.
+  Edit code here only for infrastructure, clients, adapters, Screenplay code
+  attachments, or gap-fill scope (`cratis-screenplay-render-and-gap-fill`);
+  never edit Stage-managed output.
 
 ## Verified product sources
 
@@ -94,8 +105,12 @@ the *declared* return type must name `ICommandOperation`/`CommandOperations`
 | `Result<TEvent, ValidationResult>` | Success appends the event; failure becomes a validation failure |
 | `Task<T>` / `ValueTask<T>` of any of the above | Awaited first, then dispatched |
 
-See [handler shapes](references/handler-shapes.md) for the dispatch order, the
+When choosing a return shape or diagnosing dispatch failures, read [handler shapes](references/handler-shapes.md) for the dispatch order, the
 tuple rule, and the exact failure modes.
+
+⚠️ **An unregistered event type is not an error.** No handler claims it, so it
+silently becomes the HTTP response body instead of being appended. A command
+that "runs fine" but appends nothing is almost always a missing `[EventType]`.
 
 For immediate inline side effects chosen by the command, prefer returning an
 operation rather than calling the service inside `Handle()`. Arc executes the
@@ -104,6 +119,15 @@ calls remain supported when their result is needed for the decision; durable
 after-commit work belongs in reactors/outboxes/workflows. Use
 `cratis-arc-command-operation` rather than a custom response handler or rollback
 stack for this application work.
+
+**Never return a nullable event or `null` to mean "nothing to do".** Arc only
+processes a non-null result, so a `null` is success with nothing appended and the
+caller is told a command succeeded that never happened. Missing state or a failed
+rule is a rejection: return `Result<TEvent, ValidationResult>` with
+`ValidationResult.Error(...)`, or reject in a validator or `Provide()`. Optional
+`ICommandOperation` returns are a separate contract and unaffected. A nullable
+read-model parameter (`ARC0006`) is handled by rejecting, never by returning a
+nullable event.
 
 Two consequences worth knowing before writing the first command:
 
@@ -208,7 +232,10 @@ property is added.
 | Marking | Use for | Effect |
 | --- | --- | --- |
 | `[PII]` (Chronicle) | personal data | encrypted in the event and enrolled in erasure; already withheld from causation |
-| `[NotAudited]` (Arc Chronicle) | a secret that is not personal data — password, token, API key | withheld from causation, nothing else |
+| `[Encrypted]` (Chronicle, `Cratis.Chronicle.ProtectedValues`, 19.32.0+) | an operational secret the system retains — a third-party API key, a company's bank account number | encrypted at rest on the event, no erasure; does not withhold it from causation |
+| `[NotAudited]` (Arc Chronicle) | the same operational secret, and any credential given as a command input | withheld from causation, nothing else |
+
+A retained operational secret needs **both** `[Encrypted]` and `[NotAudited]`; either alone leaves a gap. A credential used for authentication (password, token) is marked `[NotAudited]` on the command and reaches an event only as a hash or a reference, never encrypted. Never combine `[PII]` with `[Encrypted]` (`CHR0053`).
 
 ```csharp
 [Command]
@@ -245,7 +272,7 @@ either way, so the reading is all a reviewer has to go on.
 
 `dotnet build` runs the generator after the build, and only when
 `CratisProxiesOutputPath` is set. Output folders mirror the C# namespace, not the
-file path. See [proxy generation](references/proxy-generation.md) for the full
+file path. When configuring proxy generation or diagnosing missing or stale output, read [proxy generation](references/proxy-generation.md) for the full
 set of MSBuild knobs and the common failures.
 
 ## The generated client contract
@@ -266,15 +293,15 @@ whatever renders it:
 | `setInitialValuesFromCurrentValues()` | Rebaselines onto the current values |
 | `revertChanges()` / `clear()` | Restore the baseline / reset everything |
 
-Branch on the specific flag, not only on `isSuccess`. The exact `CommandResult`
+Read `references/command-result.md` when branching on a command result or matching validation failures to fields. Branch on the specific flag, not only on `isSuccess`. The exact `CommandResult`
 and `ValidationResult` shapes are in
 [command result](references/command-result.md) — in particular, a validation
 failure carries `members: string[]` (camelCased) and a numeric `severity`, not a
 `propertyName` string.
 
 `validateClientSide()` runs only the rules the generator could extract, so it can
-pass where `execute()` still fails validation — see
-[proxy generation](references/proxy-generation.md) for the exact extractable set.
+pass where `execute()` still fails validation — read
+[proxy generation](references/proxy-generation.md) when checking which validation rules are extractable.
 
 Binding this proxy into a React component — the generated `use()` hook and the
 Cratis Components command dialog and form fields — belongs to the Arc React and
@@ -290,16 +317,6 @@ Components guidance, not to this skill.
 - Append-time uniqueness or concurrency constraints: the Chronicle event
   constraints guidance.
 - Choosing the concept or identity type for a value: `cratis-fundamentals-concept`.
-- An accepted `.play` model under the model root covers the behavior, or the
-  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project set
-  `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
-  output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
-  `cratis-screenplay-modeling-lifecycle`): change the model first with
-  `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
-  say so and do not author `.play` from memory.
-  Edit code here only for infrastructure, clients, adapters, Screenplay code
-  attachments, or gap-fill scope (`cratis-screenplay-render-and-gap-fill`);
-  never edit Stage-managed output.
 
 ## Verify
 

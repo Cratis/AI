@@ -1,6 +1,6 @@
 ---
 name: cratis-stage-rendering-and-sandbox
-description: "What Cratis Stage and `cratis render` actually do with a Screenplay `.play` model today: the narrow model shape Stage 4.24 admits and refuses (STAGE-ESM-*), what it emits (C# Arc/Chronicle backend, React/Vite scaffold, Debug specifications), managed publication, `--force` and recovery, the unmanaged `Customizations/` seam, and the `cratis/stage` sandbox and `cratis/stage-specrunner` job. Use when deciding whether Stage can render a model, reading a blocked render, re-rendering safely, or running the sandbox. Not for: authoring the model (use `cratis-screenplay-model-authoring`) or the render and gap-fill workflow (use `cratis-screenplay-render-and-gap-fill`)."
+description: "What Cratis Stage and `cratis render` actually do with a Screenplay `.play` model today: the narrow model shape Stage 4.49.1 admits and refuses (`STAGE-ESM-*`, `PLAY0268` render refusals), what it emits (C# Arc/Chronicle backend, React/Vite scaffold with Arc `CommandForm` shell emission over Scene 4.12 typed bindings, Debug specifications), managed publication, `--force` and recovery, authored-UI omission/parity checks, the unmanaged `Customizations/` seam, and the `cratis/stage` sandbox and `cratis/stage-specrunner` job. Use when deciding whether Stage can render a model, reading a blocked render, re-rendering safely, checking generated/runtime screen parity, or running the sandbox. Not for: authoring the model (use `cratis-screenplay-model-authoring`) or the render and gap-fill workflow (use `cratis-screenplay-render-and-gap-fill`)."
 license: MIT
 ---
 
@@ -16,22 +16,43 @@ exactly produces **no artifacts at all**, never thinner ones. Read the admission
 before promising that a model can be rendered, and render it to find out: the source
 reading in this skill is not a render result.
 
+Authored UI has its own parity hazard. Stage 4.24 rendered a default React/Vite
+scaffold and did not prove that modeled screens, templates, forms, toolbars,
+components, outlets, package icons or routes were implemented. Stage 4.49.1 (via
+CLI 3.40.0, bundling Screenplay 4.105.0) renders the canonical screen corpus and
+publishes Scene 4.12 output with Arc `CommandForm` shells and query bindings;
+the sandbox image is `cratis/stage:4.49.1`. Runtime/browser parity is still a
+separate claim: require a generated plan or artifact entry for every authored UI
+construct, and report every unsupported UI directive as a diagnostic.
+Silent fallback to a default screen is a failure, not a partial render.
+
+## Specification runner exit codes
+
+`cratis/stage-specrunner` exit `0` means the run completed and the results file was written **even when a specification
+failed**: read the outcomes. `1` is a missing or uncompilable input, `2` a missing required
+argument or an invalid semantic option.
+
+
 ## Verified product sources
 
 | Source | Pin | Notes |
 | --- | --- | --- |
-| Stage | `v4.24.0` (`fa48546`) | Renderer, sandbox host, spec runner; pins Screenplay 4.60.0 |
-| cratis CLI | `v3.27.1` (`a327e89`) | `cratis render`, `cratis run`; bundles Stage 4.24.0 and Screenplay 4.60.1 |
-| Rendered applications | Arc `22.25.0`, Chronicle `19.8.1`, .NET 10 | The scaffold profile; frontend Components 4.14.0, Scene 4.2.0 |
+| Stage | `4.49.1` (worktree `f64c3da`) | Renderer, sandbox host, spec runner; Stage 4.49.0 generated query specs and 4.49.1 adds the guarded-action safety fix. It consumes Scene 4.12 in the released vector and renders Arc `CommandForm` shells plus query bindings for the canonical screen corpus. Earlier reading baselines: `4.43.0` (Scene 4.10, `b9a7c76`) and `v4.24.2` (`32dcac4`) |
+| cratis CLI | `3.40.0` (checkout `082df13`) | `cratis render`, `cratis run`; `Directory.Packages.props` pins `StageVersion` **4.49.1** and `ScreenplayVersion` **4.105.0**, and the `cratis run` container defaults to `cratis/stage:4.49.1`. Earlier reading baselines: 3.39.0 (`6b2beb5`) with Stage 4.43.0 / Screenplay 4.93.0; `v3.28.3` (`8b43fef`) with Stage 4.24.2 / Screenplay 4.66.0; `v3.28.2` (`141c499`, Cratis/cli#253) |
+| Screenplay | `4.105.0` query-shapes release | The canonical `ScreenComposition` corpus compiles `0 error(s), 0 warning(s)`, the MCP reports `sourceSuccess true`, `semanticSuccess true` and `executableReady true`, and CLI 3.40.0 renders it. Earlier baseline: 4.97.0 admitted what the CLI 3.39.0 bundle refused |
+| Rendered applications | Arc, Chronicle, Scene 4.12.0, .NET 10 | The Stage 4.49.1 render of the canonical corpus published `.cratis-render.json`, backend artifacts, `.frontend/**`, `scene.json`, `src/bindings.ts`, and package pins including Scene 4.10 packages in the generated app observed locally; verify the generated package set for each render before claiming a newer frontend runtime |
 
 Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.md`,
 `Documentation/**` in Stage; `Source/Cli/Commands/Render/**` and
 `Documentation/reference/screenplay.md` in the CLI), and the vertical in
 [references/render-example.md](references/render-example.md) was rendered, built and
-tested with cratis 3.27.1. The full version table (Screenplay 4.64.0, Arc 22.50.5,
+tested with cratis 3.28.2 (re-run on 3.28.3). Read `references/render-example.md` when you need a complete renderable model and the observed render, build, and test results. The full version table (Screenplay 4.66.0, Arc 22.50.5,
 Chronicle 19.32.0 and the tool split) is in the `cratis-screenplay-toolchain` skill,
-`references/versions.md`. Rendered apps are on Arc 22.25.0, so `[ProtectedDecision]`
-(Arc 22.39.0 and later) is not available in code written into one.
+`references/versions.md`. Rendered apps are on Arc `22.25.0`, so `[ProtectedDecision]`
+(Arc 22.39.0 and later) is not available in code written into one. Screen UI render parity for the canonical corpus is verified at CLI 3.40.0 / Stage
+4.49.1 for publication, command-form shell emission and query bindings. Browser
+runtime behavior, Studio Play and production deploy remain separate checks; Studio 0.136.3
+production deploy proof is pending the stale Pulumi lock.
 
 ## Model-first rule
 
@@ -44,6 +65,26 @@ The `.play` model is the source of truth; Stage-managed output is derived from i
 - A customization never makes a rejected model renderable, and never weakens modeled
   authorization, validation or `@pii` to get past a refusal.
 - Never claim a whole-application result from a subset of the model.
+
+## Publication and recovery
+
+Ownership is the destination's **`.cratis-render.json`** manifest (semantic revision,
+identity, path and SHA-256 per artifact); there are no in-file markers. Interrupted
+commits are journaled in the **`.cratis-render/`** control directory (journal, staging,
+backups). Never stage `.cratis-render/` in git; commit the manifest with the output.
+
+- An unmanaged file at a planned path is refused, even with `--force`.
+- A user-modified managed file is refused unless it is still active **and** `--force` is
+  given; `--force` replaces it. It never overwrites unmanaged files and never deletes a
+  modified stale file. A stale managed file is removed only if its bytes still match.
+- Recovery runs before planning, even when planning then fails. **`recovered: true` in the
+  result means stop and reconcile**: the receipt does not describe what recovery changed.
+- An unchanged re-render writes nothing (`unchanged` equals the artifact count).
+- Use exclusive access to the destination; a receipt is a filesystem result, not a Git
+  commit, and the command creates no branch, commit or PR.
+- Drift: compare successive manifests' `semanticRevision` for renders with the same
+  `--name` and inputs. Do not compare the MCP `modelRevision` with the manifest: their
+  application identities can differ.
 
 ## Rendering with `cratis render`
 
@@ -70,9 +111,13 @@ receipt.
 
 Facts that surprise:
 
-- **Binding uses the CLI's bundled Screenplay 4.60.1** (ESM up to v5), not the standalone
-  4.64.0 tool. Anything above ESM v5 (v6 constructs) fails binding first; a model that
-  binds only on the standalone tool is not renderable.
+- **Binding uses the CLI's bundled Screenplay** (4.66.0 in cratis 3.28.2, the same compiler
+  as the standalone tool, ESM up to v6). A v6 model (Automation, Translate, reactions,
+  captures, application triggers, clock specifications) binds and is then refused whole by
+  Stage with `STAGE-ESM-016` (probed on 3.28.2); on cratis before 3.28.2 the bundled
+  4.60.1 binder stopped it first with `PLAY0268`. A model that binds is not necessarily
+  renderable: Stage admits ESM v1 to v4, and a v4 model renders only while no selected
+  event has evolved (`STAGE-ESM-026`, Stage 4.24.2).
 - **Render never builds, tests or runs** the output. A published render is admission and
   publication only; build and tests are separate results (see "Verify"). Admission can be
   green while a rendered Debug test fails (the example hit this with a query assertion).
@@ -90,8 +135,7 @@ rendered appends never carry event source type, event stream type or event strea
 Chronicle's defaults apply (Stage#177, #200, #201; Screenplay#407). Gap-fill the routing by
 hand; see `cratis-screenplay-toolchain` `references/sources-and-streams.md`.
 
-Whole-model admission needs ESM schema v1 to v3; anything else is `STAGE-ESM-016`. Event
-generations (v4) also fail the CLI pre-check `CLI-RENDER-003`. The admitted vertical:
+Whole-model admission needs ESM schema v1 to v4; v5 and v6 are `STAGE-ESM-016`. Stage 4.24.2 admits ESM v4 (Screenplay compiles a model with evolved events to v4): an event at its initial revision renders exactly as before, but any selected event above the initial revision, and every scope depending on it (a command producing it, a projection or reducer observing it, a specification using it), is refused with `STAGE-ESM-026` and nothing is emitted. A typed-context reference to a historical revision or property identity is refused with `STAGE-ESM-025`. Stage cannot render Chronicle event-type migrations yet (Cratis/Stage#204, which depends on Cratis/Screenplay#71), and Stage's runtime (`cratis run`, the Host) still refuses evolved events, so deliver evolved events as gap-fill. Stage 4.24.1 also lists the ESM v6 members (reactions, captures, application triggers, clock and capture specifications) as rejected `STAGE-ESM-024` in its surface ledger, but the version gate refuses the model first, so a v6 model reports `STAGE-ESM-016` only. The bundled Stage 4.24.2 (cratis 3.28.3) reports an evolved event with `STAGE-ESM-026` only (probed); cratis 3.28.2 bundled Stage 4.24.1 (3.28.1 and earlier: 4.24.0), refused a v4 model with `STAGE-ESM-016` and also reported `CLI-RENDER-003`. The admitted vertical:
 
 - concepts, composite types, collections and optional values;
 - `StateChange` slices with exactly one command and an unconditional `produces` whose
@@ -114,6 +158,7 @@ or protection to get a render; keep the model, record the capability gap and gap
 The code table, the projection and specification rules and three refusals reproduced while
 building the example are in [references/admission.md](references/admission.md); the exhaustive ledger
 is `references/renderable-subset.md` in `cratis-screenplay-toolchain`.
+Read `cratis-screenplay-toolchain/references/renderable-subset.md` when you need the exhaustive surface ledger beyond the admission summary.
 
 Descriptions and documentation are never rendered, so a rule that exists only in prose
 is not enforced in the generated code.
@@ -129,31 +174,21 @@ the `[Command]` record and `Handle()`, the `[EventType]` event, the validator an
 (`.frontend/`, `package.json`, `tsconfig.json`, `.gitignore`). Per-file detail, the
 scaffold pins and the `Customizations/` contract are in
 [references/rendered-application.md](references/rendered-application.md).
+Read `references/rendered-application.md` when inspecting scaffold pins, managed-file ownership, or implementing a `Customizations/` extension.
 
 Modeled specifications become xunit classes compiled in **Debug only**
 (`IsTestProject` when Debug): a command spec `when_<snake>` in namespace
 `<slice namespace>.when_<snake>` (so `when_x.when_x`), queries `when_<snake>_is_queried`,
 read models `when_<snake>_is_projected`.
 
-## Publication and recovery
-
-Ownership is the destination's **`.cratis-render.json`** manifest (semantic revision,
-identity, path and SHA-256 per artifact); there are no in-file markers. Interrupted
-commits are journaled in the **`.cratis-render/`** control directory (journal, staging,
-backups). Never stage `.cratis-render/` in git; commit the manifest with the output.
-
-- An unmanaged file at a planned path is refused, even with `--force`.
-- A user-modified managed file is refused unless it is still active **and** `--force` is
-  given; `--force` replaces it. It never overwrites unmanaged files and never deletes a
-  modified stale file. A stale managed file is removed only if its bytes still match.
-- Recovery runs before planning, even when planning then fails. **`recovered: true` in the
-  result means stop and reconcile**: the receipt does not describe what recovery changed.
-- An unchanged re-render writes nothing (`unchanged` equals the artifact count).
-- Use exclusive access to the destination; a receipt is a filesystem result, not a Git
-  commit, and the command creates no branch, commit or PR.
-- Drift: compare successive manifests' `semanticRevision` for renders with the same
-  `--name` and inputs. Do not compare the MCP `modelRevision` with the manifest: their
-  application identities can differ.
+For UI, record what the generated output claims separately from what the model
+authored. On Stage 4.24 the generated scaffold is not screen parity evidence.
+On Stage 4.49.1 the canonical corpus publishes and `scene.json` contains Arc
+`commandForm` components while `src/bindings.ts` registers the modeled commands
+and queries. That is render-output evidence, not browser or Studio production
+proof. Require an explicit plan, manifest entry or generated artifact for each
+screen/template/form/toolbar/component/outlet/route/package-icon use, or a
+blocking diagnostic explaining why it was not generated.
 
 ## Sandbox and specification runner
 
@@ -170,6 +205,7 @@ default `structural` engine is deprecated and model-level only; `--engine semant
 executes admitted specs through Arc's in-memory pipeline and reports `Passed`, `Failed`,
 `Unsupported` or `Cancelled`. A green result is Stage semantic-engine evidence: not V4 and not a rendered Debug test run. Commands,
 the semantic report schema and limits: [references/sandbox-and-specrunner.md](references/sandbox-and-specrunner.md).
+Read `references/sandbox-and-specrunner.md` before launching either container or interpreting specification-runner outcomes.
 
 ## Verify
 
@@ -187,6 +223,9 @@ the semantic report schema and limits: [references/sandbox-and-specrunner.md](re
   (same input, same bytes and hashes), which is not a review.
 - Sandbox expectations account for unenforced validation, authorization and query
   authorization on the default engine.
+- Runtime screen smoke coverage uses the same model root or workspace export as
+  `cratis render`, names package/image versions, and fails on dropped authored UI
+  or silent default composition.
 
 ## Route near misses
 
@@ -213,5 +252,5 @@ Use `cratis render` (journaled, recoverable publication) instead.
 
 Rewritten for #493. The earlier version described Stage 3.15.1 (no CLI, eight-file
 backend scaffold, `not empty`-only validation, no frontend, Arc 22.3.0); each claim was
-re-verified at Stage 4.24.0 and cli 3.27.1 and replaced. See
+re-verified at Stage 4.24.0 and cli 3.27.1 and replaced, then re-run on Stage 4.24.1 and cli 3.28.2 and on Stage 4.24.2 and cli 3.28.3 (an evolved event reports `STAGE-ESM-026`). See
 [references/admission.md](references/admission.md) for source disagreements.

@@ -1,5 +1,15 @@
 # Data tables reference
 
+## Contents
+
+- Pick the component by query kind
+- Shared props
+- Paging, sorting and filtering scope
+- Selection event
+- Column filtering
+- Filter state shape
+- Custom match modes
+
 Use a standalone table when you need query-backed rows **without** the
 `DataPage` chrome — embedded in a panel, a card, or a dialog. Import from
 `@cratis/components/DataTables`.

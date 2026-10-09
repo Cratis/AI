@@ -126,6 +126,26 @@
     {
       "kind": "skill-contains",
       "value": "`PLAY0282`-`PLAY0294`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "references/screen-authoring-workflow.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "syntax-schema"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "same model root or workspace export"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Use the Screenplay-owned canonical\ncorpus fixture path"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "silently drops authored UI"
     }
   ]
 }

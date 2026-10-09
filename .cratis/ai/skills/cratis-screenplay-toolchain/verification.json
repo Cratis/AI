@@ -1,18 +1,23 @@
 {
   "skill": "cratis-screenplay-toolchain",
-  "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and why does cratis reject my Automation slice?",
+  "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and what does the cratis CLI do with my Automation slice?",
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "references/versions.md" },
     { "kind": "skill-contains", "value": "PLAY0029" },
     { "kind": "skill-contains", "value": "--warnaserror" },
-    { "kind": "skill-contains", "value": "4.64.0" },
+    { "kind": "skill-contains", "value": "4.68.0" },
+    { "kind": "skill-contains", "value": "4.66.0" },
+    { "kind": "skill-contains", "value": "references/generated-responses-example.md" },
+    { "kind": "skill-contains", "value": "not admitted by any supported ESM version" },
+    { "kind": "skill-contains", "value": "generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, tracked in Stage#201)" },
     { "kind": "skill-contains", "value": "cratis screenplay validate" },
     { "kind": "skill-contains", "value": "cli#244" },
     { "kind": "skill-contains", "value": "`notifications/initialized`" },
     { "kind": "skill-contains", "value": "A handler never binds" },
     { "kind": "skill-contains", "value": "references/sources-and-streams.md" },
     { "kind": "skill-contains", "value": "STAGE-ESM-016" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-026" },
     { "kind": "skill-contains", "value": "authorable and validatable" }
   ]
 }

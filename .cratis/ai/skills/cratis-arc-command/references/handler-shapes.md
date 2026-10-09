@@ -1,5 +1,14 @@
 # Handler shapes and how Arc dispatches them
 
+## Contents
+
+- The pipeline around `Handle`
+- Dispatch
+- What claims an event
+- The tuple rule
+- Cross-stream appends
+- Failure shapes
+
 Verified against `Cratis.Arc.Core` and `Cratis.Arc.Chronicle` `22.16.0` with
 `Cratis.Chronicle` `18.3.0`. Operation dispatch additions are verified against
 Arc **v22.48.1**, `CommandPipeline` and `CommandOperationExecution`.
@@ -72,9 +81,7 @@ type registry knows it.
 | `EventForEventSourceId` | single wrapper handler | the wrapper's own id |
 | A collection containing at least one `EventForEventSourceId`, every other element being a registered event | wrapper-collection handler | each wrapper to its own id, each plain event to the command's |
 
-⚠️ **An unregistered event type is not an error.** No handler claims it, so it
-silently becomes the HTTP response body instead of being appended. A command
-that "runs fine" but appends nothing is almost always a missing `[EventType]`.
+See "Choose the return shape" in SKILL.md.
 
 An empty collection statically typed as `IEnumerable<EventForEventSourceId>` is
 still recognised and appends nothing, rather than being serialized as the

@@ -1,5 +1,20 @@
 # C# code style
 
+## Contents
+
+- Records
+- Primary constructors
+- `var`
+- Expression-bodied members
+- Collections
+- Nullable reference types
+- Async
+- Immutability
+- Pattern matching
+- String interpolation
+- Interface bodies
+- XML documentation
+
 ## Records
 
 Use `record` for every immutable data structure — events, commands, read

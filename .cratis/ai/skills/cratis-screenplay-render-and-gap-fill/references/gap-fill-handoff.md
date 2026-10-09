@@ -75,7 +75,7 @@ gap-fill): the registration goes through the seams in `Customizations/Program.cs
 not bind a modeled reaction or capture. Case C (no generated application): there is no generated
 `Program.cs` or partial hook, so the registration follows the hand-written application's own
 composition conventions (`rules/vertical-slices.md`, `cratis-chronicle-reactor`).
-A reaction invokes a command with no caller (Screenplay has no caller syntax today), so the
+A reaction invokes a command with no caller (Screenplay 4.68.0 has no caller syntax), so the
 code needs a trusted path (`[ExecuteCommandsAsSystem]`, Arc 20.56.0 and later, in a rendered
 application's Arc 22.25.0 too); never invent `runs as`.
 

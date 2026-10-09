@@ -1,5 +1,16 @@
 # Candidate inventory (read-only analysis)
 
+## Contents
+
+- 1. Scope
+- 2. Count
+- 3. Slice status
+- 4. Specification coverage
+- 5. Structural gaps per slice
+- 6. Orphans
+- 7. Structural shapes
+- 8. Report
+
 Run this over the candidate folder (`.ai-work/screenplay/<model-slug>/candidate/` or the model
 root) before handoff to review, and over any existing `.play` model you are asked to
 characterize. It is read-only: it never edits the model and never writes review findings. It

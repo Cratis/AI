@@ -60,12 +60,15 @@ jobs:
           yarn workspace @cratis/harness-setup run check
           yarn workspace @cratis/pi run check
           yarn workspace @cratis/ai-verification run check
+          yarn workspace @cratis/ai-skill-evaluation run check
 
       - name: Verify corpus and skill behavior
         run: yarn workspace @cratis/ai-verification run verify
 
       - name: Test Pi package behavior
-        run: yarn workspace @cratis/ai-verification run test
+        run: |
+          yarn workspace @cratis/ai-verification run test
+          yarn workspace @cratis/ai-skill-evaluation run test
 
       - name: Verify Pi package contents
         run: cd Source/Pi.Plugin && yarn pack --dry-run
@@ -164,10 +167,13 @@ jobs:
       - name: Run specs
         run: dotnet test Cratis.AI.slnx --configuration Debug --no-build --logger "console;verbosity=normal"
 
+      - name: Verify restricted workers cannot read the shared cache sentinel
+        run: dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
+
   release:
     name: Determine semantic version
     if: github.event_name != 'pull_request'
-    needs: verify
+    needs: [verify, dotnet-verify]
     runs-on: ubuntu-latest
     permissions:
       issues: write

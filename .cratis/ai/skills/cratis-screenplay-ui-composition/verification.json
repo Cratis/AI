@@ -3,21 +3,105 @@
   "input": "Declare the application shell, a screen template and a command form.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "main `fd18129`" },
-    { "kind": "skill-contains", "value": "produces event InvoiceCancelled" },
-    { "kind": "skill-contains", "value": "invoiceId = $eventSourceId" },
-    { "kind": "skill-contains", "value": "InvoiceStatusView optional" },
-    { "kind": "skill-contains", "value": "An existing success continuation does not imply a response contract" },
-    { "kind": "skill-contains", "value": "Look first for the project's existing `.play` files" },
-    { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, never model files" },
-    { "kind": "skill-contains", "value": "A form is discovered, not referenced" },
-    { "kind": "skill-contains", "value": "declares no\n`fits slot`" },
-    { "kind": "skill-contains", "value": "override-priority order" },
-    { "kind": "skill-contains", "value": "A declared `trigger` is not a UI event" },
-    { "kind": "skill-contains", "value": "**Loaded is not run.**" },
-    { "kind": "skill-contains", "value": "belong only on actions that can fail" },
-    { "kind": "skill-contains", "value": "## Compose in this order" },
-    { "kind": "skill-contains", "value": "**Level 1 for every screen in the flow first**" },
-    { "kind": "skill-contains", "value": "**Read before editing.**" }
+    {
+      "kind": "skill-contains",
+      "value": "main `fd18129`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "produces event InvoiceCancelled"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "invoiceId = $eventSourceId"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "InvoiceStatusView optional"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "An existing success continuation does not imply a response contract"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Look first for the project's existing `.play` files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis ai install` manages `.cratis/ai/`, never model files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A form is discovered, not referenced"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "declares no\n`fits slot`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "override-priority order"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A declared `trigger` is not a UI event"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Loaded is not run.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "belong only on actions that can fail"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## Compose in this order"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Level 1 for every screen in the flow first**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Read before editing.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "references/screen-composition-contract.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "component data-context bindings"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "exposed template configuration"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "manual form columns"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "package/icon catalogs"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "hierarchical outlets"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "toolbar"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "runtime fallback"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "authoring acceptance, executable admission and runtime\n      implementation separately"
+    }
   ]
 }

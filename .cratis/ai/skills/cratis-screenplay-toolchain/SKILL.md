@@ -20,17 +20,18 @@ files is one application: always check the folder, never one file of it.
 
 ## Verified product sources
 
-The only version table is `references/versions.md`; other skills point to it.
+When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Screenplay.Tool` | `4.64.0` (`7e16162`) | standalone compiler, binder and MCP server |
-| cratis CLI | `3.27.1` (`a327e89`) | bundles Screenplay 4.60.1 and Stage 4.24.0; `render`, `generate`, `prologue` |
-| Stage | `4.24.0` (`fa48546`) | renders ESM v1 to v3 (C# backend plus a React/Vite scaffold on Arc 22.25.0) |
+| `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | standalone compiler, binder and MCP server; admits ESM v7 (generated values and responses) |
+| cratis CLI | `3.40.0` (checkout `082df13`) | `Directory.Packages.props` pins `StageVersion` 4.49.1 and `ScreenplayVersion` 4.105.0; the `cratis run` container defaults to `cratis/stage` at the rendered Stage version (`cratis/stage:4.49.1`). Reading baselines: 3.39.0 with Stage 4.43.0 / Screenplay 4.93.0; 3.28.3 (`8b43fef`) with Screenplay 4.66.0 and Stage 4.24.2 |
+| Screenplay | `4.105.0` query-shapes release | admits the canonical `ScreenComposition` corpus v1 with zero authoring diagnostics (`dotnet run --project Source/DotNET/Tool -- <corpus> --warnaserror` → `10 file(s) compiled - 0 error(s), 0 warning(s)`); the CLI 3.40.0 MCP reports `executableReady true` for the same corpus |
+| Stage | `4.49.1` (worktree `f64c3da`) | renders the canonical screen corpus through CLI 3.40.0 and publishes Scene output with Arc `CommandForm` shells plus query bindings. The generated app observed locally still pins Scene 4.10 packages, so check the generated package set before claiming Scene 4.12 runtime parity. Reading baselines: 4.43.0 and 4.24.2 (`32dcac4`) |
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour
-was probed on 4.63.1; the 4.63.1 to 4.64.0 diff does not touch binding or execution.
+was probed on 4.63.1 and re-checked on 4.66.0 and 4.68.0 (the example gates). 4.65.0 adds command named-rule `implementation` blocks (handlers and operation phases already had the wrapper; it is rejected on concept rules, built-in property rules and whole-command `require`/`validate` bodies); 4.66.0 is editor tooling only. Neither changes execution.
 Re-verify before claiming another version behaves the same.
 
 ## Ground rules
@@ -41,10 +42,10 @@ Re-verify before claiming another version behaves the same.
 2. **Check the folder, warnings as errors.** `screenplay <folder> --warnaserror` or
    `cratis screenplay validate <folder> --warnings-as-errors`. Warnings hide defects:
    PLAY0029 (a misspelt keyword or a `type` inside a slice) drops a construct silently.
-3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for V1 to V3 on
-   the current language; `cratis` for `render` and as the V1 fallback. The bundled compiler
-   rejects ESM v6 and reports a false PLAY0285 on cascades (cli#242). Report tool and
-   version with every verdict.
+3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for V1 to V3 (file
+   mode follows imports); `cratis` 3.28.2 or later bundles the 4.66.0 compiler (same up to ESM v6, no ESM v7) and is the
+   route for `render`. A cratis before 3.28.2 bundle (4.60.1) rejects ESM v6 and reports a
+   false PLAY0285 on cascades (cli#242). Report tool and version with every verdict.
 4. **Know the mode** (design, executable, renderable) and write from its subset.
 5. **Capability is not correctness.** The tool you ran decides what is accepted today; the
    domain and the documented semantics decide what is correct. On conflict keep the correct
@@ -61,20 +62,22 @@ Re-verify before claiming another version behaves the same.
 
 ## The two compilers
 
-| | Standalone `screenplay` 4.64.0 | `cratis screenplay ...` 3.27.1 |
+| | Standalone `screenplay` 4.68.0 | `cratis screenplay ...` 3.28.3 and 3.28.2 (bundle Screenplay 4.66.0) |
 | --- | --- | --- |
 | Check a folder | `screenplay <folder> --warnaserror --no-color` (exit 0 pass, 1 fail; an empty folder also exits 0, so read "N file(s) compiled") | `cratis screenplay validate <folder> --warnings-as-errors -o json-compact` (0 pass, 5 fail, 1 missing path or no files) |
-| ESM admitted | v1 to v6 | v1 to v5 (bundled Screenplay 4.60.1) |
-| Automation, Translate, reactions, captures, clocks, triggers | bind | PLAY0268, for example "Slice '<name>' of type '<type>' is not admitted by ESM v1." |
-| Cascade specs | compile | false PLAY0285 (cli#242) |
-| File argument | follows imports | ignores imports, false PLAY0165 warnings (cli#244): validate the folder |
+| ESM admitted | v1 to v7 | v1 to v6 (generated values and responses report `PLAY0268`; before 3.28.2 bundled 4.60.1: v1 to v5) |
+| Automation, Translate, reactions, captures, clocks, triggers | bind | bind (before 3.28.2: PLAY0268 "Slice '<name>' of type '<type>' is not admitted by ESM v1.") |
+| Cascade specs | compile | compile (before 3.28.2: false PLAY0285, cli#242) |
+| File argument | follows imports | ignores imports, false PLAY0165 warnings (cli#244, probed on 3.28.2): validate the folder |
 | MCP | `screenplay mcp <folder>`; 29 tools | `cratis screenplay mcp [root]`; 29 tools; registered by `cratis ai install` |
 
-Exact messages, exit codes and the MCP roots bug: `references/versions.md`.
+Read `references/versions.md` when you need the exact messages, exit codes or the MCP roots bug.
+
+MCP calls below use the `screenplay` server declared in `.cratis/ai/mcp-servers.json`, for example `screenplay` → `read-workspace`.
 
 ## Verdicts
 
-Independent results, not a ladder. Commands and report format: `references/verdicts.md`.
+Independent results, not a ladder. Read `references/verdicts.md` for the commands and the report format when obtaining or reporting V1–V5 verdicts.
 
 | Verdict | Meaning | How |
 | --- | --- | --- |
@@ -85,10 +88,10 @@ Independent results, not a ladder. Commands and report format: `references/verdi
 | V5 | rendered and target-verified | `cratis render`, then Debug build and tests; report admission, publication, build and tests separately |
 
 V2 and V3 need MCP: send `initialize`, then `notifications/initialized`, and start the
-server with a fixed root (a dynamic root hits the roots bug on 4.63.1 and the bundled
-4.60.1). A subagent without MCP reports "V2 not run: no MCP in this agent".
+server with a fixed root when the tool is older than 4.63.2 (the roots bug hit 4.63.1 and the
+4.60.1 bundled by cratis before 3.28.2; 4.66.0 and later and cratis 3.28.2 are fine). A subagent without MCP reports "V2 not run: no MCP in this agent".
 
-One line per verdict, tool first, for example `V1 pass (screenplay 4.64.0, 3 files)` and
+One line per verdict, tool first, for example `V1 pass (screenplay 4.68.0, 3 files)` and
 `V3 blocked: PLAY0268 x3 (list query, @pii)`. Name the source identity (commit plus the digest from
 the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")) the verdict ran on; keep it apart from the MCP
 `modelRevision`, which is semantic and, without `.screenplay/identities.json`,
@@ -97,14 +100,16 @@ changes with the root folder name.
 ## Subsets (write from the one your mode needs)
 
 - **Design**: every construct family parses; use it to model first. Compiled shapes:
-  `references/cheat-sheet.md`.
+  `references/cheat-sheet.md`. Read [references/cheat-sheet-example.md](references/cheat-sheet-example.md) when you need one complete design-mode document with every construct family.
 - **Executable** (binds, V3): `references/executable-subset.md`. Keyed optional queries
   only; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
-  `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs only on the standalone tool.
-- **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24 renders ESM v1 to v3
-  `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79).
-- **Event sources, streams and command routes**: authorable and validatable, but never
-  bound (`PLAY0268`: allocated, not implemented ESM version), run or rendered
+  `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs bind on Screenplay 4.61 or
+  later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
+  only on standalone 4.68.0 or later (`references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
+- **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24.2 renders ESM v1 to v4 (evolved events refused, `STAGE-ESM-026`)
+  `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79), and so are generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, tracked in Stage#201).
+- **Event sources, streams and command routes** (and operations): authorable and validatable, but never
+  bound (`PLAY0268`: not admitted by any supported ESM version), run or rendered
   (`STAGE-ESM-016`); gap-fill with the model as contract (`references/sources-and-streams.md`).
 
 ## Edit strategy
@@ -129,7 +134,11 @@ changes with the root folder name.
   and is not crash-atomic; never retry `apply` after `ApplyOutcomeUnknown`. Loop details:
   `cratis-screenplay-model-authoring`.
 
-## Top traps (all 44, with fixes: `references/traps.md`)
+## Top traps
+
+All 44, with fixes: `references/traps.md`. Read `references/traps.md` when diagnosing an unexpected compile, binding, rendering or MCP result.
+
+Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. Read [references/doc-contradictions.md](references/doc-contradictions.md) when the Screenplay documentation and the compiler disagree and you must decide which to trust.
 
 1. Clean V1 is not executable: only MCP (V2) or `render` binds.
 2. Write `for <identifier>` on every `produces`.
@@ -179,4 +188,4 @@ reason; blocked verdicts list codes and keep the protection they blocked on.
 
 ## Lineage
 
-Attribution and sources: `references/provenance.md`.
+Read `references/provenance.md` when checking attribution or the sources behind this guidance.

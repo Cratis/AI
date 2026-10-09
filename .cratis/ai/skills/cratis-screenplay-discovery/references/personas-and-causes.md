@@ -1,5 +1,13 @@
 # Personas and causes
 
+## Contents
+
+- Role catalogue on `persona`
+- What a Cannot line becomes
+- Cannot resolved to an executable gate
+- Checks while building
+- Non-human causes (STATE.md, until a reaction or translation exists)
+
 ## Role catalogue on `persona`
 
 Every actor the story mentions gets a catalogue entry. Human roles are `persona`

@@ -3,6 +3,17 @@
 
 # Working with the Screenplay MCP
 
+## Contents
+
+- Tool groups
+- Diagnostic repairs and refactorings
+- Syntax-only constructs through the MCP
+- Source map and appended-event fixtures
+- Revision and ownership rules
+- Refusals are useful information
+- Formatting and recovery limits
+- Code attachments
+
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
 alone inside a project, where the CLI locates the model (the project's `.play` files, else
 `Source/` or `src/`, else a new `Screenplay/` folder). The standalone form is `screenplay mcp <model-folder>`. A
@@ -92,10 +103,10 @@ not host these production-repair transactions. Use MCP for production repairs.
 
 ## Syntax-only constructs through the MCP
 
-`generated` properties and `returns` responses, `system`/`operation`, and
-`eventsource`/`stream` are authorable but not executable (`PLAY0268`; the first two
-are allocated to ESM v8 and v9, sources and streams are allocated, not implemented:
-`cratis-screenplay-toolchain` `references/sources-and-streams.md`). The server reads and edits them: `declaration-details` exposes `isGenerated`
+`system`/`operation` and `eventsource`/`stream` are authorable but not executable (`PLAY0268`; not admitted
+by any supported ESM version: `cratis-screenplay-toolchain` `references/sources-and-streams.md`).
+`generated` properties and `returns` responses are admitted as ESM v7 by Screenplay 4.68.0 and bind
+there (`PLAY0268` on the 4.66.0 in the cratis 3.28.x bundle). The server reads and edits them: `declaration-details` exposes `isGenerated`
 and a command `response` view, `route` and `streams` views; `read-workspace` offers
 the views `event-sources`, `event-streams`, `event-source-details`,
 `event-stream-details`, `command-routes` and `event-source-diagnostics` (detail
@@ -103,6 +114,14 @@ views need the exact `authoringKey` from the inventory). Each discloses
 `executionAvailable: false`. Discover the node kinds with `syntax-schema` and edit
 through typed `propose-ast`; there is no automatic source or stream rename and no
 routing repair. Inline-event extraction refuses response-bearing commands.
+
+For `generated`/`returns` on 4.68.0 (`mcp/reference.md` at `v4.68.0`): `propose-ast` accepts
+`validation: "Executable"` for the admitted subset (use `"Authoring"` for full-language syntax); a
+response-only command reports `syntaxOnly: false` and a null `executionReadiness`, while a command that
+also uses operations, streams, handlers or exact numeric mode keeps a readiness string naming each
+unadmitted feature. Null readiness does not prove the whole application binds or that every generation
+fixture exists. Canonical `executable-model` pages include `generated`, `response`, `generatedValues`
+and `thenReturns` when present. Form response scopes and a renderer response type remain downstream work.
 
 ## Source map and appended-event fixtures
 

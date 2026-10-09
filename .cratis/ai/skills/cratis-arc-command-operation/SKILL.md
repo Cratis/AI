@@ -103,7 +103,7 @@ operation-handler or response-value-handler registration is needed.
   public/internal operation types and accessible non-generic containing types.
 
 Omit `Compensate()` when there is no meaningful reversal; Arc does not invent
-one. Full contract: [execution and recovery](references/execution-and-recovery.md).
+one. Read [execution and recovery](references/execution-and-recovery.md) when checking declaration contracts, execution ordering, recovery observations, cancellation, or custom-scope compatibility.
 
 ## Return one, none, or many
 
@@ -222,6 +222,10 @@ integration. **EF Core and MongoDB have no built-in operation commit participant
 See the [custom-scope checklist](references/execution-and-recovery.md#supported-scopes).
 
 ## Observe and test on the backend
+
+Use `Cratis.Specifications.XUnit`, NSubstitute, and matching Arc packages in a
+separate spec project. Keep standalone and Chronicle scenarios in separate
+projects: Chronicle's discovered scenario extender changes the test environment.
 
 Backend `CommandResult.Recovery` and `OperationOutcomes` describe recovery and
 entered invocations. Both are excluded from HTTP JSON and the TypeScript result.

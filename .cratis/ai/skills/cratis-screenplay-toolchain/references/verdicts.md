@@ -1,5 +1,15 @@
 # Verdict commands, V1 to V5
 
+## Contents
+
+- V1: authorable
+- V2: executable diagnostics
+- V3: binding-ready
+- V4: reference specifications run
+- V5: rendered and target-verified
+- Report format
+- Example gate (for skill and documentation authors)
+
 The five verdicts are independent results, not a ladder: each proves only its own layer,
 and each is either a result or "not run" with the reason. The verdict names are frozen
 (`cratis-screenplay-modeling-lifecycle` owns when each is required; this file owns how to
@@ -27,7 +37,7 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 - Warnings are failures here. PLAY0029 (a construct dropped silently) and the unresolved-name
   warnings are the defects this verdict exists to catch.
 - Syntax and consistency checks (PLAY0282 to PLAY0294) run; binding does not.
-- Report: `V1 pass (screenplay 4.64.0, 3 files)`, `V1 fail: PLAY0029 a.play:12 ...`.
+- Report: `V1 pass (screenplay 4.66.0, 3 files)`, `V1 fail: PLAY0029 a.play:12 ...`.
 
 ## V2: executable diagnostics
 
@@ -60,13 +70,13 @@ do not block. The ESM then binds (and `read-workspace view=executable-model` rep
 comparison needs it). Binding is what makes a model renderable at all. V3 means "binds",
 never "specifications pass".
 
-- Report the ESM version the model needs: `V3 ready (screenplay 4.64.0, ESM v6)`,
+- Report the ESM version the model needs: `V3 ready (screenplay 4.68.0, ESM v6)`,
   `V3 blocked: PLAY0268 x3 (list query, @pii) - design scope kept`.
 - A blocked V3 is not repaired by deleting protection or domain rules. Never remove `@pii`,
   `@sensitive`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.
 - A model is "executable" only on the compiler that bound it. A V3 from the standalone tool
-  does not carry to `cratis render` (bundled 4.60.1, ESM v1 to v5; Stage v1 to v3).
+  does not carry to `cratis render`: Stage admits ESM v1 to v4 only on 4.24.2 (v1 to v3 on 4.24.1, bundled by cratis 3.28.2; cratis 3.28.3 bundles 4.24.2; evolved events are STAGE-ESM-026) (and on cratis before 3.28.2 the bundled 4.60.1 binder, ESM v1 to v5, refused v6 first; the 4.66.0 bundled by cratis 3.28.x refuses ESM v7 generated values and responses at binding with `PLAY0268`).
 
 ## V4: reference specifications run
 
@@ -110,11 +120,11 @@ What Stage admits: `renderable-subset.md`.
 One line per verdict, tool and version first, evidence second:
 
 ```text
-V1 pass (screenplay 4.64.0, 3 files)
-V2 read (screenplay 4.64.0 via MCP): 0 blocking, 3 informational (PLAY0270)
-V3 ready (screenplay 4.64.0, ESM v3)
+V1 pass (screenplay 4.66.0, 3 files)
+V2 read (screenplay 4.66.0 via MCP): 0 blocking, 3 informational (PLAY0270)
+V3 ready (screenplay 4.66.0, ESM v3)
 V4 not run: no route
-V5 admission pass (cratis 3.27.1, Stage 4.24.0); publication written 14 files; build not run; tests not run
+V5 admission pass (cratis 3.28.3, Stage 4.24.2); publication written 14 files; build not run; tests not run
 ```
 
 Rules: a clean verdict never implies a later one; a verdict names the **source identity** it
@@ -124,9 +134,11 @@ source change makes earlier verdicts stale.
 ## Example gate (for skill and documentation authors)
 
 Every complete `screenplay` fence in this corpus compiles with the standalone tool at the
-pin and `--warnaserror`. Every fence without the marker `// Needs the standalone screenplay
-compiler (ESM v6)` also passes `cratis screenplay validate --warnings-as-errors` (3.27.1) on
-a folder holding that one file. Examples meant to execute are also opened through MCP and
+pin and `--warnaserror`. Every such fence also passes `cratis screenplay validate
+--warnings-as-errors` (3.28.2, bundling the same compiler) on a folder holding that one file.
+The `// Needs the standalone screenplay compiler (ESM v6)` first-line marker belonged to cratis
+before 3.28.2, which could not validate those fences; no fence carries it now, and a
+checker that still skips marked fences under `cratis` skips nothing. Examples meant to execute are also opened through MCP and
 must be `executableReady`. No example uses `numbers exact`.
 
 Edit strategy for `.play` changes (typed identity-preserving operations preferred, bounded text
