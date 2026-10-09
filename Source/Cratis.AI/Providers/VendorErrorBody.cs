@@ -101,7 +101,7 @@ internal static partial class VendorErrorBody
     [GeneratedRegex(@"""(?:\\.|[^""\\])*""", RegexOptions.CultureInvariant, 100)]
     private static partial Regex JsonStrings();
 
-    [GeneratedRegex(@"sk-[A-Za-z0-9_+/=\-]*|Bearer\s+[^\s""'<>;,}]+|[A-Za-z0-9_+/=\-]{32,}", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, 100)]
+    [GeneratedRegex(@"\bsk-[A-Za-z0-9_+/=\-]*|Bearer\s+[^\s""'<>;,}]+|[A-Za-z0-9_+=\-]{32,}", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, 100)]
     private static partial Regex Credentials();
 
     [GeneratedRegex(@"[A-Za-z0-9_+/=\-]+$", RegexOptions.CultureInvariant, 100)]

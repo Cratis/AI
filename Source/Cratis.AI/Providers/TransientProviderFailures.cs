@@ -49,11 +49,10 @@ public static class TransientProviderFailures
         var classified = FromStatusCode(response);
         var body = await VendorErrorBody.Read(response, cancellationToken);
         var (errorType, errorCode) = ErrorFrom(body);
-        var safeModel = VendorErrorBody.Redact(model);
         var retryAfter = response.Headers.TryGetValues("Retry-After", out var values)
             ? VendorErrorBody.Redact(string.Join(", ", values))
             : null;
-        var reason = $"{vendor} model {safeModel} returned {(int)response.StatusCode}";
+        var reason = $"{vendor} model {model} returned {(int)response.StatusCode}";
         if (errorType is not null)
         {
             reason += $" {errorType}";
@@ -71,9 +70,9 @@ public static class TransientProviderFailures
         }
 
         reason += $"; vendor body: {body}";
-        var result = classified with { FailureReason = reason, Model = safeModel, ProviderId = providerId };
+        var result = classified with { FailureReason = reason, Model = model, ProviderId = providerId };
 
-        return new(result, safeModel, body, errorType, errorCode, retryAfter);
+        return new(result, model, body, errorType, errorCode, retryAfter);
     }
 
     static (string? Type, string? Code) ErrorFrom(string body)

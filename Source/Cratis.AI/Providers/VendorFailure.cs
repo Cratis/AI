@@ -9,7 +9,7 @@ namespace Cratis.AI.Providers;
 /// The shared failure result and its credential-free structured logging details.
 /// </summary>
 /// <param name="Result">The failure returned to the caller.</param>
-/// <param name="Model">The model asked for, redacted if it resembles a credential.</param>
+/// <param name="Model">The configured model asked for, preserved without redaction.</param>
 /// <param name="Body">The bounded, redacted vendor response body.</param>
 /// <param name="ErrorType">The vendor's error type, when provided.</param>
 /// <param name="ErrorCode">The vendor's error code, when provided.</param>
