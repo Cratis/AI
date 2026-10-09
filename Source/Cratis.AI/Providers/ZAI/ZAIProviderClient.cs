@@ -57,7 +57,7 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
         // Z.ai authenticates its gateway-style keys as a bearer token, the same credential contract
         // a Claude-style harness honors through ANTHROPIC_AUTH_TOKEN. An x-api-key header, the
         // Anthropic-native slot, is answered with a 401 that names neither.
-        request.Headers.Add("authorization", $"Bearer {provider.ApiKey.Value}");
+        request.Headers.Add("authorization", $"Bearer {provider.ApiKey.ForUse()}");
         request.Headers.Add("anthropic-version", "2023-06-01");
 
         HttpResponseMessage response;

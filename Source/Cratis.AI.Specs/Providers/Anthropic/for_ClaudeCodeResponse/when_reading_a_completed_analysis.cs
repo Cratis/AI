@@ -20,11 +20,10 @@ public class when_reading_a_completed_analysis : Specification
 
     [Fact] void should_succeed() => _result.Succeeded.ShouldBeTrue();
     [Fact] void should_return_the_analysis() => _result.Text.ShouldEqual("The analysis");
-    [Fact] void should_report_the_fresh_input_tokens() => _result.Usage!.InputTokens.ShouldEqual(new InputTokens(3));
+    [Fact] void should_report_the_fresh_input_tokens() => _result.Usage!.InputTokens.ShouldEqual(new InputTokens(43));
 
-    // Cache reads and cache writes are billed differently from fresh input, so they are reported on
-    // their own rather than summed into the input count.
-    [Fact] void should_report_the_cached_tokens_separately() => _result.Usage!.CachedTokens.ShouldEqual(new CachedTokens(60));
+    // Cache writes are fresh work; only reads are reported as cache hits.
+    [Fact] void should_report_the_cached_tokens_separately() => _result.Usage!.CachedTokens.ShouldEqual(new CachedTokens(20));
     [Fact] void should_not_invent_cost() => _result.Usage!.CostUsd.ShouldBeNull();
     [Fact] void should_record_output() => _result.Usage!.OutputTokens.ShouldEqual(new OutputTokens(5));
 }

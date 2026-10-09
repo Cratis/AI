@@ -77,7 +77,7 @@ public class ZAICodingPlanCapacity(IHttpClientFactory httpClientFactory, IOption
         var response = await CapacityRequests.Get(
             httpClientFactory,
             $"{BaseFor(provider.Endpoint)}{QuotaPath}",
-            [new("Authorization", $"Bearer {provider.ApiKey.Value.Trim()}")],
+            [new("Authorization", $"Bearer {provider.ApiKey.ForUse().Trim()}")],
             options.Value.CapacityReportTimeout,
             cancellationToken);
 

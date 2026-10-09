@@ -6,6 +6,7 @@ using Anthropic;
 using Anthropic.Core;
 using Cratis.AI.Common;
 using Cratis.AI.Providers;
+using Cratis.AI.Providers.Anthropic;
 using Microsoft.Extensions.AI;
 using OpenAI;
 
@@ -88,6 +89,13 @@ public static class AIChatClientFactory
     /// <param name="configuredModel">The model identifier the provider itself was configured with, if any.</param>
     /// <param name="modelOverride">A caller's own chosen model identifier, if it has one.</param>
     /// <returns><see langword="true"/> when <see cref="Create"/> can build a working client.</returns>
+    /// <remarks>
+    /// A Claude subscription credential is served through the official Claude Code CLI
+    /// (<see cref="ClaudeCodeChatClient"/>), never the Messages API SDK a Console key uses - the two
+    /// credential kinds authenticate completely differently (see <see cref="AnthropicCredential"/>).
+    /// This checks configuration, not whether the CLI is actually installed or the subscription is
+    /// actually entitled to the resolved model.
+    /// </remarks>
     public static bool CanServe(
         AIProviderType type,
         AIProviderApiKey? apiKey,
@@ -122,6 +130,9 @@ public static class AIChatClientFactory
     /// ones - see their own remarks).
     /// </returns>
     /// <remarks>
+    /// Subscription clients normalize generic Temperature and MaxOutputTokens preferences to
+    /// vendor-controlled defaults and report them in response metadata as vendor_controlled_options.
+    /// These preferences are not hard guarantees; direct ClaudeCodeChatClient callers reject them.
     /// Callers are expected to have already checked <see cref="CanServe"/> - this does not repeat that
     /// check, and dereferences <paramref name="apiKey"/>/<paramref name="endpoint"/> for the vendors
     /// that need them.
@@ -130,17 +141,24 @@ public static class AIChatClientFactory
         type switch
         {
             AIProviderType.OpenAI =>
-                (new OpenAI.Chat.ChatClient(modelId, apiKey!.Value).AsIChatClient(), modelId),
+                (new OpenAI.Chat.ChatClient(modelId, apiKey!.ForUse()).AsIChatClient(), modelId),
 
             AIProviderType.AzureOpenAI =>
                 (new OpenAI.Chat.ChatClient(
                     modelId,
-                    new ApiKeyCredential(apiKey!.Value),
+                    new ApiKeyCredential(apiKey!.ForUse()),
                     new OpenAIClientOptions
                     {
                         Endpoint = NormalizeAzureOpenAIEndpoint(endpoint!.Value),
                     }).AsIChatClient(),
                     modelId),
+
+            // A subscription token never reaches the Messages API SDK - it authenticates only through
+            // the Claude Code CLI transport (Providers.Anthropic.ClaudeCodeChatClient), which shells
+            // out to the unmodified official `claude` binary per call rather than forging CLI identity
+            // headers onto a raw Messages request.
+            AIProviderType.Anthropic when AnthropicCredential.IsOAuthToken(apiKey!) =>
+                (new ClaudeCodeChatClient(new ClaudeCodeStreamingProcess(), AnthropicCredential.Normalize(apiKey!), modelId) { UseVendorDefaults = true }, modelId),
 
             // AnthropicClient's own disposal is handed to the IChatClient wrapper AsIChatClient()
             // returns - the caller disposes the returned client, not this one, exactly as Studio's
@@ -150,7 +168,7 @@ public static class AIChatClientFactory
             AIProviderType.Anthropic =>
                 (new AnthropicClient(new ClientOptions
                 {
-                    ApiKey = apiKey!.Value,
+                    ApiKey = AnthropicCredential.Normalize(apiKey!).Value,
                 }).AsIChatClient(),
                     modelId),
 #pragma warning restore CA2000
@@ -158,7 +176,7 @@ public static class AIChatClientFactory
             AIProviderType.OpenAICompatible =>
                 (new OpenAI.Chat.ChatClient(
                     modelId,
-                    new ApiKeyCredential(HasValue(apiKey) ? apiKey!.Value : NoCredentialPlaceholder),
+                    new ApiKeyCredential(HasValue(apiKey) ? apiKey!.ForUse() : NoCredentialPlaceholder),
                     new OpenAIClientOptions
                     {
                         Endpoint = NormalizeOpenAICompatibleEndpoint(endpoint!.Value),

@@ -42,7 +42,7 @@ public static class CopilotCredential
     /// <param name="apiKey">The stored credential, already revealed.</param>
     /// <returns><see langword="true"/> when it is an OAuth record.</returns>
     public static bool IsOAuthRecord(AIProviderApiKey apiKey) =>
-        apiKey.Value.AsSpan().TrimStart().StartsWith("{");
+        apiKey.ForUse().AsSpan().TrimStart().StartsWith("{");
 
     /// <summary>
     /// Whether the credential can authenticate the Copilot CLI at all - a bare GitHub token in one
@@ -128,5 +128,5 @@ public static class CopilotCredential
     public static AIProviderApiKey Normalize(AIProviderApiKey apiKey) =>
         IsOAuthRecord(apiKey)
             ? apiKey
-            : new string([.. apiKey.Value.Where(character => !char.IsWhiteSpace(character))]);
+            : new string([.. apiKey.ForUse().Where(character => !char.IsWhiteSpace(character))]);
 }

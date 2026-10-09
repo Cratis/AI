@@ -20,6 +20,7 @@ public class and_the_provider_reports_cost : Specification
     }
 
     [Fact] void should_use_the_reported_total_once() => _result.Usage!.CostUsd.ShouldEqual(new CostUsd(0.123456m));
-    [Fact] void should_count_cached_input_once() => _result.Usage!.CachedTokens.ShouldEqual(new CachedTokens(60));
+    [Fact] void should_count_creation_as_fresh_input() => _result.Usage!.InputTokens.ShouldEqual(new InputTokens(43));
+    [Fact] void should_count_cached_input_once() => _result.Usage!.CachedTokens.ShouldEqual(new CachedTokens(20));
 }
 #endif

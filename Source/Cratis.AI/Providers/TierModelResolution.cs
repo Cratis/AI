@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.AI.Providers.Anthropic;
 
 namespace Cratis.AI.Providers;
 
@@ -21,9 +22,34 @@ namespace Cratis.AI.Providers;
 /// lands on whatever the harness defaults to. Deriving from the catalog cannot name a model the
 /// provider did not publish, which is the property the table could never have.
 /// </para>
+/// <para>
+/// The provider-aware overload also recognizes subscription-only Claude Code transport defaults.
+/// Its official CLI aliases are not a replacement catalog and are never sent to API-key providers.
+/// </para>
 /// </remarks>
 public static class TierModelResolution
 {
+    /// <summary>
+    /// Resolves a provider's tier, using official Claude Code aliases only for an unmapped
+    /// subscription tier without a discovered model. Aliases are transport defaults, not a catalog
+    /// or a guarantee that the account is entitled to use the model.
+    /// </summary>
+    /// <param name="provider">The configured provider with its revealed credential.</param>
+    /// <param name="tier">The tier being asked for.</param>
+    /// <returns>The mapped or discovered model, a subscription CLI alias, or <see cref="ModelName.NotSet"/>.</returns>
+    public static ModelName Resolve(ConfiguredAIProvider provider, ModelTier tier)
+    {
+        var resolved = Resolve(provider.TierModels, provider.AvailableModels, tier);
+        if (!resolved.Equals(ModelName.NotSet))
+        {
+            return resolved;
+        }
+
+        return provider.Type == AIProviderType.Anthropic && AnthropicCredential.IsOAuthToken(provider.ApiKey)
+            ? ClaudeCodeModels.For(tier)
+            : ModelName.NotSet;
+    }
+
     /// <summary>
     /// Resolves a tier to a concrete model on a provider.
     /// </summary>

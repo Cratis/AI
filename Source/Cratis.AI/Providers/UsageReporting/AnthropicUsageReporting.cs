@@ -75,7 +75,7 @@ public class AnthropicUsageReporting(IHttpClientFactory httpClientFactory, TimeP
     static async Task<string> Send(HttpClient httpClient, ConfiguredAIProvider provider, string url)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.TryAddWithoutValidation("x-api-key", provider.UsageApiKey.Value);
+        request.Headers.TryAddWithoutValidation("x-api-key", provider.UsageApiKey.ForUse());
         request.Headers.TryAddWithoutValidation("anthropic-version", ApiVersion);
 
         using var response = await httpClient.SendAsync(request);
