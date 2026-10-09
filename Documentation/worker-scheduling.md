@@ -29,6 +29,22 @@ no packing affinity. Resource requests, limits, node selectors, and tolerations 
 apply. Packing is a preference, not a requirement: the first worker can start without
 an existing matching pod, and capacity can place subsequent workers elsewhere.
 
+## Restricted checkout cache isolation
+
+A shared repository cache exposes source from repositories beyond a job's checkout list,
+even when mounted read-only. When `WorkerJob.EnvironmentVariables` contains
+`DIRECT_REPOSITORY_CHECKOUTS`, both `KubernetesWorkerRuntime` and `DockerWorkerRuntime`
+omit the configured repository-cache PVC or bind mount and its environment variable.
+They also remove caller-supplied `DIRECT_REPOSITORY_CACHE` and the configured cache
+variable. Presence of the checkout key is sufficient, including an empty contract;
+invalid checkout contracts remain the entrypoint's responsibility to reject.
+
+Ordinary jobs retain their existing cache mounts and environment. Restricted jobs
+clone fresh instead. Upgrade the `Cratis.AI` runtime package as well as the harness
+images: an entrypoint-only upgrade cannot remove a mount supplied by an older runtime.
+This closes the shared-cache source-read path, not every possible credential, network,
+or consumer-supplied file exposure.
+
 ## Running-worker protection
 
 Every worker pod template carries
