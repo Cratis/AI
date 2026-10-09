@@ -148,8 +148,13 @@ The result POST carries this shape:
 }
 ```
 
-The worker stages committed, uncommitted, and untracked non-ignored changes,
-then captures one `git diff --binary` against the baseline. The SHA-256 covers
+The worker snapshots committed, uncommitted, and untracked non-ignored changes
+through a temporary git directory and index, leaving the agent's index unchanged
+even when it holds a stale lock. It captures one `git diff --binary` against the
+baseline. Paths whose old or new content is not valid UTF-8 use git binary patches;
+path names remain git-quoted. The worker validates the diff's UTF-8 and the JSON
+round-trip checksum before posting, failing without delivery on a mismatch.
+The SHA-256 covers
 the exact diff bytes in the JSON string, including trailing newlines. Both the
 diff and POST body travel through files, not command-line arguments.
 
@@ -185,10 +190,14 @@ with `note` plus these fields:
 
 Sequence numbers start at 1 and timestamps are UTC ISO-8601. A phase POST
 failure is logged and does not fail the run; its retries are short and bounded.
-Claude's existing `report_progress` MCP tool remains available independently.
+Result and phase requests run in the background with interruptible waits and
+bounded request/retry times. Claude's existing `report_progress` MCP tool remains
+available independently. Pi retains its reviewed extensions except the MCP adapter.
 
 On SIGTERM the worker stops the agent process tree, captures the partial diff,
 and attempts a `Cancelled` result POST with at most 35 seconds of HTTP retry
 and request time, within the pod's 120-second grace period. It exits 143 and
-never pushes or reports successful completion. Cancellation before checkout
-has no workspace diff to deliver. SIGINT follows the same path with exit 130.
+never pushes or reports successful completion. An in-flight result or phase
+request is stopped first. Once a result POST has succeeded, cancellation exits
+without sending a second, Cancelled result. Cancellation before checkout has no
+workspace diff to deliver. SIGINT follows the same path with exit 130.

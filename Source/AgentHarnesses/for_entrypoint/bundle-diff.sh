@@ -16,6 +16,7 @@ git -C "$ROOT/seed" config user.name fixture
 git -C "$ROOT/seed" config user.email fixture@localhost
 printf 'baseline\n' > "$ROOT/seed/committed.txt"
 printf 'baseline\n' > "$ROOT/seed/edited.txt"
+printf 'caf\351 baseline\n' > "$ROOT/seed/legacy.txt"
 git -C "$ROOT/seed" add -A
 git -c maintenance.auto=false -c gc.auto=0 -C "$ROOT/seed" commit -qm baseline
 BASE=$(git -C "$ROOT/seed" rev-parse HEAD)
@@ -48,16 +49,39 @@ cat > "$ROOT/bin/date" <<'STUB'
 #!/usr/bin/env bash
 if [[ "$1" == +%s%3N ]]; then printf '%s000\n' "$(/bin/date +%s)"; else exec /bin/date "$@"; fi
 STUB
+REAL_GIT=$(command -v git)
+REAL_JQ=$(command -v jq)
+# Plant faults after generation/JSON decoding to exercise the fail-closed encoding guards.
+cat > "$ROOT/bin/git" <<'STUB'
+#!/usr/bin/env bash
+if [[ "$FIXTURE_CASE" == invalid-diff && " $* " == *' --binary '* ]]; then
+    "$FIXTURE_GIT" "$@" || exit $?
+    printf '\377'
+else
+    exec "$FIXTURE_GIT" "$@"
+fi
+STUB
+cat > "$ROOT/bin/jq" <<'STUB'
+#!/usr/bin/env bash
+if [[ "$FIXTURE_CASE" == json-corruption && "$1" == -j && "$*" == *result.json* ]]; then
+    "$FIXTURE_JQ" "$@" || exit $?
+    printf 'corrupted'
+else
+    exec "$FIXTURE_JQ" "$@"
+fi
+STUB
 cat > "$ROOT/bin/curl" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
-root="$BUNDLE_FIXTURE_ROOT" url= data= dest= auth=
+root="$BUNDLE_FIXTURE_ROOT" url= data= dest= auth= timeout= retry_time=
 while [[ $# -gt 0 ]]; do
     case "$1" in
         http://fixture/*) url="$1" ;;
         -d|--data-binary) shift; data="$1" ;;
         -o) shift; dest="$1" ;;
         -H) shift; [[ "$1" != Authorization:* ]] || auth="$1" ;;
+        --max-time) shift; timeout="$1" ;;
+        --retry-max-time) shift; retry_time="$1" ;;
     esac
     shift
 done
@@ -66,6 +90,15 @@ case "$url" in
     */bundle) cp "$root/baseline.bundle" "$dest"; printf 'GET\n' >> "$root/http.log" ;;
     *)
         if [[ "$data" == @- ]]; then body=$(cat); else body=$(cat "${data#@}"); fi
+        case "$url" in
+            */result|*/progress) [[ -n "$timeout" && -n "$retry_time" && $((timeout + retry_time)) -lt 60 ]] ;;
+        esac
+        if [[ "$FIXTURE_CASE" == stalled-result && "$url" == */result && "$(jq -r .structured.outcome <<< "$body")" == Completed ]] ||
+           [[ "$FIXTURE_CASE" == delivered-then-termination && "$url" == */progress && "$(jq -r .phase <<< "$body")" == diffReady ]]; then
+            printf 'ready\n' > "$root/ready"
+            exec 8<> "$root/hold"
+            read -r -u 8 unused
+        fi
         printf '%s\n' "$body" >> "$root/http.jsonl"
         case "$url" in
             */result) printf '%s' "$body" > "$root/result.json"; [[ "$FIXTURE_CASE" != delivery-failure ]] || exit 22 ;;
@@ -92,17 +125,30 @@ if [[ "$FIXTURE_CASE" != empty ]]; then
     printf '\000\001\377' > binary.dat
 fi
 case "$FIXTURE_CASE" in
+    latin1)
+        printf 'caf\340 changed\n' > legacy.txt
+        printf 'new caf\351\n' > latin1.txt
+        printf 'glob caf\351\n' > 'latin[1]*.txt'
+        # macOS filesystems reject non-UTF-8 path names; Linux exercises git's octal path quoting.
+        [[ "$(uname)" != Linux ]] || printf 'name caf\351\n' > $'invalid-\351.txt'
+        printf '* diff\n' > .gitattributes ;;
     large) printf '%140000s' '' > large.txt ;;
     structured) printf '{"outcome":"Completed","summary":"Agent summary","gaps":["gap"],"selfChecks":["advisory"],"touchedFiles":["lie"]}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
     refused) printf '{"outcome":"Refused"}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
     malformed) printf 'not json' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
-    cancelled)
+    cancelled|index-lock)
+        if [[ "$FIXTURE_CASE" == index-lock ]]; then
+            touch .git/index.lock
+            printf 'half-written-index' > .git/index
+        fi
+        cp .git/index "$root/agent-index"
         printf 'ready\n' > "$root/ready"
         exec 8<> "$root/hold"
         read -r -u 8 unused
         exit 1 ;;
     agent-failure) exit 9 ;;
 esac
+cp .git/index "$root/agent-index"
 if [[ "$DIRECT_HARNESS" == pi ]]; then
     while read -r command; do
         case "$(jq -r .type <<< "$command")" in
@@ -125,11 +171,11 @@ run_worker() {
     local label="$1" harness="${2:-claude-code}"
     shift 2
     rm -rf "$ROOT/workspace" "$ROOT/home" "$ROOT/tmp"
-    rm -f "$ROOT/result.json" "$ROOT/http.jsonl" "$ROOT/http.log" "$ROOT/agent-args" "$ROOT/mcp.json"
+    rm -f "$ROOT/result.json" "$ROOT/http.jsonl" "$ROOT/http.log" "$ROOT/agent-args" "$ROOT/mcp.json" "$ROOT/agent-index"
     mkdir -p "$ROOT/home" "$ROOT/tmp"
     : > "$ROOT/http.jsonl"
     env -i HOME="$ROOT/home" PATH="$PATH_FOR_WORKER" TMPDIR="$ROOT/tmp" BUNDLE_FIXTURE_ROOT="$ROOT" \
-        FIXTURE_CASE="$label" DIRECT_RUN_MODE=bundle-diff DIRECT_HARNESS="$harness" \
+        FIXTURE_CASE="$label" FIXTURE_GIT="$REAL_GIT" FIXTURE_JQ="$REAL_JQ" DIRECT_RUN_MODE=bundle-diff DIRECT_HARNESS="$harness" \
         DIRECT_BUNDLE_URL=http://fixture/bundle DIRECT_RESULT_URL=http://fixture/result \
         DIRECT_REQUEST_FILE="$ROOT/request.json" DIRECT_PROMPT='do the work' DIRECT_MODEL=fixture \
         DIRECT_PROGRESS_URL=http://fixture/progress DIRECT_CALLBACK_URL=http://fixture/callback \
@@ -156,6 +202,7 @@ run_worker structured claude-code DIRECT_CONTEXT_MCP_URL=http://fixture/context 
 await_worker
 [[ $STATUS == 0 ]]
 check_diff
+cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
 jq -e '.structured.summary == "Agent summary" and .structured.gaps == ["gap"] and .structured.selfChecks == ["advisory"]' "$ROOT/result.json" >/dev/null
 jq -e '.mcpServers.context == {type:"http",url:"http://fixture/context",headers:{Authorization:"Bearer context-secret"}}' "$ROOT/mcp.json" >/dev/null
 for harness in pi copilot; do
@@ -165,6 +212,10 @@ for harness in pi copilot; do
     check_diff
     [[ "$(jq -r .usage.harness "$ROOT/result.json")" == "$harness" ]]
     [[ "$(cat "$ROOT/agent-args")" != *mcp* ]]
+    if [[ "$harness" == pi ]]; then
+        [[ "$(cat "$ROOT/agent-args")" == *'@gotgenes/pi-anthropic-auth'* ]]
+        [[ "$(cat "$ROOT/agent-args")" == *'@narumitw/pi-lsp'* ]]
+    fi
 done
 for label in empty refused malformed; do
     run_worker "$label" claude-code
@@ -202,20 +253,52 @@ for credential in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDE
     [[ $STATUS == 1 && ! -d "$ROOT/workspace" && ! -f "$ROOT/http.log" ]]
     jq -se 'any(.[]; .status == "failed" and (.detail | startswith("Bundle-diff mode refuses")))' "$ROOT/http.jsonl" >/dev/null
 done
-for label in delivery-failure agent-failure; do
+run_worker latin1 claude-code
+await_worker
+[[ $STATUS == 0 ]]
+jq -j .diff "$ROOT/result.json" > "$ROOT/received.diff"
+hash=$(shasum -a 256 "$ROOT/received.diff"); hash="${hash%% *}"
+[[ "$(jq -r .sha256 "$ROOT/result.json")" == "$hash" ]]
+# Apply in a separate synthetic repository and compare the exact bytes, not decoded text.
+git clone -q "$ROOT/seed" "$ROOT/applied"
+git -C "$ROOT/applied" apply "$ROOT/received.diff"
+paths=(legacy.txt latin1.txt 'latin[1]*.txt')
+[[ "$(uname)" != Linux ]] || paths+=($'invalid-\351.txt')
+for path in "${paths[@]}"; do cmp "$ROOT/workspace/$path" "$ROOT/applied/$path"; done
+cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
+for label in delivery-failure agent-failure invalid-diff json-corruption; do
     run_worker "$label" claude-code
     await_worker
     [[ $STATUS == 1 ]]
     jq -se 'any(.[]; .status == "failed") and all(.[]; .status != "completed" and .phase != "diffReady")' "$ROOT/http.jsonl" >/dev/null
-    [[ "$label" != agent-failure || ! -f "$ROOT/result.json" ]]
+    [[ "$label" == delivery-failure || ! -f "$ROOT/result.json" ]]
+    case "$label" in
+        invalid-diff) jq -se 'any(.[]; .detail == "Could not deliver the result: diff is not valid UTF-8")' "$ROOT/http.jsonl" >/dev/null ;;
+        json-corruption) jq -se 'any(.[]; .detail == "Could not deliver the result: decoded diff checksum does not match")' "$ROOT/http.jsonl" >/dev/null ;;
+    esac
 done
 mkfifo "$ROOT/ready"
 exec 9<> "$ROOT/ready"
-run_worker cancelled claude-code
-read -r -t 20 -u 9 ready
-kill -TERM "$WORKER"
-await_worker
-[[ $STATUS == 143 ]]
-jq -e '.structured.outcome == "Cancelled" and (.structured.touchedFiles | length) == 4 and (.diff | length) > 0' "$ROOT/result.json" >/dev/null
+for label in cancelled index-lock stalled-result delivered-then-termination; do
+    run_worker "$label" claude-code
+    read -r -t 20 -u 9 ready
+    started=$SECONDS
+    kill -TERM "$WORKER"
+    # This timer is a deadline, not a delay before asserting on the worker.
+    (sleep 15; kill -KILL "$WORKER" 2>/dev/null || true) &
+    watchdog=$!
+    scratch_track_pid "$watchdog"
+    await_worker
+    kill "$watchdog" 2>/dev/null || true
+    wait "$watchdog" 2>/dev/null || true
+    scratch_untrack_pid "$watchdog"
+    [[ $STATUS == 143 && $((SECONDS - started)) -lt 15 ]]
+    if [[ "$label" == delivered-then-termination ]]; then
+        jq -se '[.[] | select(.structured != null) | .structured.outcome] == ["Completed"]' "$ROOT/http.jsonl" >/dev/null
+    else
+        jq -e '.structured.outcome == "Cancelled" and (.structured.touchedFiles | length) == 4 and (.diff | length) > 0' "$ROOT/result.json" >/dev/null
+    fi
+    cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
+done
 exec 9>&-
 printf 'Passed %s bundle-diff cases\n' "$CASES"

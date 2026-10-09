@@ -603,6 +603,8 @@ WORKSPACES=()
 # below. Only the termination trap reads it, to stop the agent making further commits while the
 # push it is about to do is in flight.
 AGENT_PID=""
+BUNDLE_CURL_PID=""
+BUNDLE_RESULT_DELIVERED=0
 
 remember_workspace() {
     local dest="$1" url="$2"
@@ -706,11 +708,13 @@ on_termination() {
     local signal="$1" number="$2"
     if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
         trap '' TERM INT
-        log "Received SIG${signal} - delivering a Cancelled partial diff"
+        log "Received SIG${signal} - preserving the bundle result before exit"
+        [[ -z "$BUNDLE_CURL_PID" ]] || stop_bundle_agent "$BUNDLE_CURL_PID"
+        BUNDLE_CURL_PID=""
         [[ -z "$AGENT_PID" ]] || stop_bundle_agent "$AGENT_PID"
         [[ -z "$HEADROOM_PID" ]] || kill "$HEADROOM_PID" 2>/dev/null || true
         stop_pipe_holder
-        if [[ "${BUNDLE_READY:-}" == 1 ]]; then
+        if [[ "${BUNDLE_READY:-}" == 1 && "$BUNDLE_RESULT_DELIVERED" == 0 ]]; then
             deliver_bundle_result Cancelled "Worker cancelled" || log "Could not deliver the Cancelled result"
         fi
         exit $((128 + number))
@@ -918,12 +922,31 @@ link_primary_corpus() {
 # Bundle mode's progress is entrypoint-owned, so all three harnesses emit the same phases.
 BUNDLE_SEQUENCE=0
 BUNDLE_READY=0
+
+# Background requests make wait interruptible by TERM. The active curl is stopped before a
+# Cancelled delivery, and neither a single request nor the retry window can exhaust pod grace.
+bundle_post() {
+    local kind="$1" url="$2" body="$3" status=0 auth_args=() timeout=10 retries=6 retry_time=25
+    [[ "$kind" != phase ]] || { timeout=3; retries=1; retry_time=5; }
+    [[ -z "${DIRECT_CALLBACK_TOKEN:-}" ]] || auth_args=(-H "Authorization: Bearer ${DIRECT_CALLBACK_TOKEN}")
+    curl -fsS --connect-timeout 2 --max-time "$timeout" --retry "$retries" --retry-max-time "$retry_time" \
+        --retry-connrefused --retry-all-errors -X POST "$url" -H 'Content-Type: application/json' \
+        "${auth_args[@]}" --data-binary "@$body" &
+    BUNDLE_CURL_PID=$!
+    if wait "$BUNDLE_CURL_PID"; then
+        [[ "$kind" != result ]] || BUNDLE_RESULT_DELIVERED=1
+    else
+        status=$?
+    fi
+    BUNDLE_CURL_PID=""
+    return "$status"
+}
+
 bundle_phase() {
     [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]] || return 0
     BUNDLE_SEQUENCE=$((BUNDLE_SEQUENCE + 1))
     [[ -n "${DIRECT_PROGRESS_URL:-}" ]] || return 0
-    local body="$BUNDLE_OUTPUT/phase.json" auth_args=()
-    [[ -z "${DIRECT_CALLBACK_TOKEN:-}" ]] || auth_args=(-H "Authorization: Bearer ${DIRECT_CALLBACK_TOKEN}")
+    local body="$BUNDLE_OUTPUT/phase.json"
     jq -cn --arg phase "$1" --argjson sequence "$BUNDLE_SEQUENCE" \
         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg harness "$BUNDLE_HARNESS" \
         --arg runId "${DIRECT_WORK_ID:-}" --slurpfile correlation "$BUNDLE_OUTPUT/correlation.json" \
@@ -931,9 +954,7 @@ bundle_phase() {
           timestamp: $timestamp, harness: $harness, runId: $runId, correlation: $correlation[0]}' > "$body" || {
         log "Could not encode phase $1"; return 0;
     }
-    curl -fsS --connect-timeout 2 --max-time 3 --retry 1 --retry-max-time 5 --retry-all-errors \
-        -X POST "$DIRECT_PROGRESS_URL" -H 'Content-Type: application/json' "${auth_args[@]}" \
-        --data-binary "@$body" || log "Could not report phase $1"
+    bundle_post phase "$DIRECT_PROGRESS_URL" "$body" || log "Could not report phase $1"
 }
 
 prepare_bundle_workspace() {
@@ -993,21 +1014,80 @@ stop_bundle_agent() {
     kill -KILL "$pid" 2>/dev/null || true
 }
 
+bundle_sha256() {
+    local hash
+    if command -v sha256sum >/dev/null 2>&1; then
+        hash=$(sha256sum "$1") || return 1
+    else
+        hash=$(shasum -a 256 "$1") || return 1
+    fi
+    printf '%s\n' "${hash%% *}"
+}
+
+# Blob IDs, not decoded path names, are used to inspect both sides. Attribute patterns are literal,
+# root-anchored and C-quoted, preserving even non-UTF-8 names without passing their bytes through jq.
+bundle_binary_attributes() {
+    GIT_DIR="$3" GIT_WORK_TREE=/workspace GIT_INDEX_FILE="$3/index" node - "$1" "$2" <<'NODE'
+const fs = require('node:fs');
+const { spawnSync } = require('node:child_process');
+const fields = fs.readFileSync(process.argv[2]).toString('latin1').split('\0');
+const decoder = new TextDecoder('utf-8', { fatal: true });
+const invalid = new Map();
+function invalidBlob(mode, oid) {
+    if (mode === '000000' || mode === '160000') return false;
+    if (invalid.has(oid)) return invalid.get(oid);
+    const blob = spawnSync('git', ['cat-file', 'blob', oid], { maxBuffer: 1024 * 1024 * 1024 });
+    if (blob.error || blob.status !== 0) throw blob.error ?? new Error('Could not inspect blob ' + oid);
+    let result = false;
+    try { decoder.decode(blob.stdout); } catch { result = true; }
+    invalid.set(oid, result);
+    return result;
+}
+function pattern(path) {
+    let quoted = '"/';
+    for (const byte of Buffer.from(path, 'latin1')) {
+        if ([42, 63, 91, 92].includes(byte)) quoted += '\\\\'; // literal glob metacharacter
+        if (byte === 34 || byte === 92) quoted += '\\' + String.fromCharCode(byte);
+        else if (byte < 32 || byte >= 127) quoted += '\\' + byte.toString(8).padStart(3, '0');
+        else quoted += String.fromCharCode(byte);
+    }
+    return quoted + '" binary\n';
+}
+let attributes = '';
+for (let i = 0; i + 1 < fields.length; i += 2) {
+    const [oldMode, newMode, oldOid, newOid] = fields[i].slice(1).split(' ');
+    if (invalidBlob(oldMode, oldOid) || invalidBlob(newMode, newOid)) attributes += pattern(fields[i + 1]);
+}
+fs.writeFileSync(process.argv[3], attributes);
+NODE
+}
+
 # Capture the tree, not just HEAD: stage edits, deletions and new files before diffing the baseline.
 # JSON and the exact diff bytes stay in files, never in argv (MAX_ARG_STRLEN applies to results too).
 deliver_bundle_result() {
     local requested="$1" summary="$2" input="${3:-0}" output="${4:-0}" cost="${5:-0}" \
         duration="${6:-0}" cpu="${7:-0}" memory="${8:-0}"
-    local diff="$BUNDLE_OUTPUT/changes.diff" names="$BUNDLE_OUTPUT/names" hash outcome provider auth_args=()
-    git -C /workspace add -A || return 1
-    git -C /workspace diff --cached --binary --no-ext-diff --no-textconv --no-renames "$BUNDLE_BASE" -- > "$diff" || return 1
-    git -C /workspace diff --cached --name-only -z --no-ext-diff --no-renames "$BUNDLE_BASE" -- > "$names" || return 1
-    if command -v sha256sum >/dev/null 2>&1; then
-        hash=$(sha256sum "$diff") || return 1
-    else
-        hash=$(shasum -a 256 "$diff") || return 1
+    local diff="$BUNDLE_OUTPUT/changes.diff" names="$BUNDLE_OUTPUT/names" hash outcome provider snapshot head objects
+    BUNDLE_DELIVERY_ERROR="Could not deliver the result"
+    snapshot=$(mktemp -d "$BUNDLE_OUTPUT/snapshot.XXXXXX") || return 1
+    head=$(git -C /workspace rev-parse HEAD) || return 1
+    objects=$(git -C /workspace rev-parse --path-format=absolute --git-path objects) || return 1
+    git init -q --bare "$snapshot" || return 1
+    printf '%s\n' "$objects" > "$snapshot/objects/info/alternates" || return 1
+    # A private git directory also gives binary overrides the highest attributes priority, without
+    # replacing the agent's .git/info/attributes or touching its possibly locked/half-written index.
+    local snapshot_git=(env "GIT_DIR=$snapshot" GIT_WORK_TREE=/workspace "GIT_INDEX_FILE=$snapshot/index" git -c core.bare=false)
+    "${snapshot_git[@]}" read-tree "$head" || return 1
+    "${snapshot_git[@]}" add -A || return 1
+    "${snapshot_git[@]}" diff --cached --raw --no-abbrev --no-renames -z "$BUNDLE_BASE" -- > "$snapshot/paths" || return 1
+    bundle_binary_attributes "$snapshot/paths" "$snapshot/info/attributes" "$snapshot" || return 1
+    "${snapshot_git[@]}" -c core.quotePath=true diff --cached --binary --no-ext-diff --no-textconv --no-renames "$BUNDLE_BASE" -- > "$diff" || return 1
+    "${snapshot_git[@]}" diff --cached --name-only -z --no-ext-diff --no-renames "$BUNDLE_BASE" -- > "$names" || return 1
+    if ! node -e 'new TextDecoder("utf-8", {fatal:true}).decode(require("node:fs").readFileSync(process.argv[1]))' "$diff"; then
+        BUNDLE_DELIVERY_ERROR="Could not deliver the result: diff is not valid UTF-8"
+        return 1
     fi
-    hash="${hash%% *}"
+    hash=$(bundle_sha256 "$diff") || return 1
     outcome=NoChanges
     [[ ! -s "$diff" ]] || outcome=Completed
     printf '%s' "$summary" > "$BUNDLE_OUTPUT/summary.txt"
@@ -1041,22 +1121,17 @@ deliver_bundle_result() {
           usage: {inputTokens: $input, outputTokens: $output, costUsd: $cost, durationMs: $duration,
             cpuSeconds: $cpu, memoryBytes: $memory, model: $model, provider: $provider, harness: $harness},
           correlation: $correlation[0]}' > "$BUNDLE_OUTPUT/result.json" || return 1
-    [[ -z "${DIRECT_CALLBACK_TOKEN:-}" ]] || auth_args=(-H "Authorization: Bearer ${DIRECT_CALLBACK_TOKEN}")
-    if [[ "$requested" == Cancelled ]]; then
-        # Worst case below is under 35 seconds, well inside the pod's 120-second grace period.
-        curl -fsS --connect-timeout 3 --max-time 10 --retry 2 --retry-max-time 25 --retry-all-errors \
-            -X POST "$DIRECT_RESULT_URL" -H 'Content-Type: application/json' "${auth_args[@]}" \
-            --data-binary "@$BUNDLE_OUTPUT/result.json"
-    else
-        curl -fsS --retry 6 --retry-max-time 90 --retry-connrefused --retry-all-errors \
-            -X POST "$DIRECT_RESULT_URL" -H 'Content-Type: application/json' "${auth_args[@]}" \
-            --data-binary "@$BUNDLE_OUTPUT/result.json"
+    jq -j '.diff' "$BUNDLE_OUTPUT/result.json" > "$BUNDLE_OUTPUT/decoded.diff" || return 1
+    if [[ "$(bundle_sha256 "$BUNDLE_OUTPUT/decoded.diff")" != "$hash" ]]; then
+        BUNDLE_DELIVERY_ERROR="Could not deliver the result: decoded diff checksum does not match"
+        return 1
     fi
+    bundle_post result "$DIRECT_RESULT_URL" "$BUNDLE_OUTPUT/result.json"
 }
 
 complete_worker() {
     if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
-        deliver_bundle_result Completed "$@" || fail "Could not deliver the result"
+        deliver_bundle_result Completed "$@" || fail "$BUNDLE_DELIVERY_ERROR"
         bundle_phase diffReady
     fi
     report completed "$@"
@@ -1553,8 +1628,16 @@ run_pi() {
     # discovery; these explicit local package roots are the only reviewed extension code Pi loads.
     # shellcheck source=/dev/null
     source /usr/local/share/direct/pi-extension-allow-list.sh
-    # Bundle mode's Pi session uses only built-ins, with no MCP adapter or extension discovery.
-    [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || PI_EXTENSION_ARGS=()
+    # Keep reviewed extensions (including authentication); only the MCP adapter is omitted.
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        local extensions=() index
+        for ((index=0; index<${#PI_EXTENSION_ARGS[@]}; index+=2)); do
+            if [[ "${PI_EXTENSION_ARGS[index+1]}" != */pi-mcp-adapter ]]; then
+                extensions+=("${PI_EXTENSION_ARGS[index]}" "${PI_EXTENSION_ARGS[index+1]}")
+            fi
+        done
+        PI_EXTENSION_ARGS=("${extensions[@]}")
+    fi
 
     PI_PEAK_MEMORY_BYTES=0
     PI_CPU_SECONDS=0
