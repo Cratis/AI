@@ -29,7 +29,7 @@ public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory
     {
         var endpoint = provider.Endpoint?.Value.TrimEnd('/') ?? string.Empty;
         var requestUri = new Uri($"{endpoint}/v1/chat/completions");
-        var apiKey = provider.ApiKey.Value;
+        var apiKey = provider.ApiKey.ForUse();
 
         using var httpClient = httpClientFactory.CreateClient();
         return await OpenAIChatCompletionsProtocol.Complete(

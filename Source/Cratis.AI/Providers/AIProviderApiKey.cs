@@ -35,4 +35,20 @@ public record AIProviderApiKey(string Value) : ConceptAs<string>(Value)
     /// </summary>
     /// <param name="value">The value to convert from.</param>
     public static implicit operator AIProviderApiKey(string value) => new(value);
+
+    /// <summary>
+    /// Releases an already Chronicle-released credential for provider execution.
+    /// This does not decrypt credentials or change their stored representation.
+    /// </summary>
+    /// <returns>The unchanged credential.</returns>
+    /// <exception cref="AIProviderRequiresReconfiguration">An encrypted envelope remains after Chronicle release.</exception>
+    public string ForUse()
+    {
+        if (Value.TrimStart().StartsWith("enc:", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new AIProviderRequiresReconfiguration();
+        }
+
+        return Value;
+    }
 }

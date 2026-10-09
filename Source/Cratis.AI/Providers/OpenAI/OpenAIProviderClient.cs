@@ -47,7 +47,7 @@ public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvi
             model,
             prompt,
             effort,
-            headers => headers.Authorization = new AuthenticationHeaderValue("Bearer", provider.ApiKey.Value),
+            headers => headers.Authorization = new AuthenticationHeaderValue("Bearer", provider.ApiKey.ForUse()),
             Type,
             provider.Id,
             quotaTracker,

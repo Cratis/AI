@@ -78,6 +78,7 @@ public class AIUsageReporting(
 
         try
         {
+            provider.UsageApiKey.ForUse();
             var data = await reporter.ReportFor(provider);
             return new(providerId, AIUsageReportAvailability.Available, data.TokenUsage, data.Costs);
         }

@@ -317,9 +317,9 @@ public class ProviderAwareLanguageModel(
             return null;
         }
 
-        // The tier translates through the provider's own mapping, with the catalog the provider
-        // actually published standing in for tiers the mapping leaves unset (#865, #1187).
-        var resolvedModel = TierModelResolution.Resolve(provider.TierModels, provider.AvailableModels, tier);
+        // Mappings and discovered models win. Subscription-only providers without a catalog use
+        // official Claude Code aliases, never a guessed Messages API model identifier.
+        var resolvedModel = TierModelResolution.Resolve(provider, tier);
         if (resolvedModel.Equals(ModelName.NotSet))
         {
             logger.NoModelResolved(providerId, provider.Type);
