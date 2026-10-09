@@ -10,7 +10,7 @@ import { isolateBatch } from './isolation.ts';
 import { corpusDigest } from './tasks.ts';
 import { workspace } from './workspace.ts';
 
-test('batch copies skills without links and copies only pi authentication, never host prompts or settings', async () => {
+test('batch copies skills without links and links only pi authentication, never host prompts or settings', async () => {
     const source = await workspace();
     try {
         const skill = join(source.path, 'skills/cratis-arc-command');
@@ -27,7 +27,9 @@ test('batch copies skills without links and copies only pi authentication, never
             assert.equal((await lstat(join(isolated.skillsDirectory, 'cratis-arc-command/reference.md'))).isSymbolicLink(), false);
             assert.equal(await readFile(join(isolated.skillsDirectory, 'cratis-arc-command/reference.md'), 'utf8'), 'reference body');
             assert.deepEqual(await readdir(isolated.agentDirectory!), ['auth.json']);
-            assert.equal((await lstat(join(isolated.agentDirectory!, 'auth.json'))).mode & 0o777, 0o600);
+            assert.equal((await lstat(join(isolated.agentDirectory!, 'auth.json'))).isSymbolicLink(), true);
+            await writeFile(join(isolated.agentDirectory!, 'auth.json'), 'refreshed token');
+            assert.equal(await readFile(join(host, 'auth.json'), 'utf8'), 'refreshed token');
             assert.equal(isolated.digest, await corpusDigest(isolated.skillsDirectory));
             await writeFile(join(skill, 'SKILL.md'), 'changed after snapshot');
             assert.equal(await readFile(join(isolated.skillsDirectory, 'cratis-arc-command/SKILL.md'), 'utf8'), 'skill body');
@@ -36,5 +38,6 @@ test('batch copies skills without links and copies only pi authentication, never
         } finally { await isolated.remove(); }
         await assert.rejects(access(isolated.withWorkspace));
         await assert.rejects(access(isolated.agentDirectory!));
+        assert.equal(await readFile(join(host, 'auth.json'), 'utf8'), 'refreshed token');
     } finally { await source.remove(); }
 });

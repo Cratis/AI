@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { chmod, copyFile, mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
+import { access, chmod, mkdir, mkdtemp, readdir, rm, symlink } from 'node:fs/promises';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Harness } from './Harness.ts';
@@ -27,8 +27,12 @@ export async function isolateBatch(source: string, harness: Harness, environment
             await mkdir(agentDirectory, { mode: 0o700 });
             const authentication = join(environment.PI_CODING_AGENT_DIR ?? join(homedir(), '.pi/agent'), 'auth.json');
             try {
-                await copyFile(authentication, join(agentDirectory, 'auth.json'));
-                await chmod(join(agentDirectory, 'auth.json'), 0o600);
+                // Link, never copy: pi rotates OAuth refresh tokens and writes them back to auth.json. A copy would
+                // be deleted with the batch and take the only valid refresh token with it. pi writes through the link;
+                // its lock is keyed on the unresolved path, so a host session refreshing at the same instant is not
+                // serialized with these runs.
+                await access(authentication);
+                await symlink(authentication, join(agentDirectory, 'auth.json'));
             } catch (error) {
                 // Environment API keys also work, so a missing auth file is not itself a login failure.
                 if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
