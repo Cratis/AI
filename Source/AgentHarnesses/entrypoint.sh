@@ -5,6 +5,15 @@
 # Entrypoint for the Direct worker container.
 #
 # The Direct provides work through environment variables:
+#   DIRECT_RUN_MODE         - "bundle-diff" fetches a baseline bundle and posts a diff; all other
+#                               values retain the existing clone/push behavior.
+#   DIRECT_BUNDLE_URL       - authenticated HTTP GET target for a self-contained git bundle.
+#   DIRECT_RESULT_URL       - authenticated HTTP POST target for the diff, structured result and usage.
+#   DIRECT_REQUEST_FILE     - mounted request.json path; .baseCommit is required in bundle-diff mode.
+#   DIRECT_CORRELATION      - optional JSON object forwarded unchanged; invalid input becomes {}.
+#   DIRECT_CONTEXT_MCP_URL  - optional read-only HTTP MCP endpoint, Claude only, paired with its token.
+#   DIRECT_STRUCTURED_RESULT_FILE - exported by bundle-diff as /tmp/agent-result.json, outside the tree;
+#                               the agent may write {outcome, gaps, summary, selfChecks} there.
 #   DIRECT_REPOSITORY_URL   - HTTPS clone URL of the repository to work on (issue work)
 #   DIRECT_REPOSITORY_URLS  - space-separated clone URLs (ad-hoc work, task runs, merge-conflict
 #                               resolution). Carries this even when there is only one repository -
@@ -197,7 +206,8 @@
 # readable with `kubectl get job -o yaml` or `docker inspect`, and outlives the container. They
 # arrive as a file of shell assignments this script sources, named by DIRECT_SECRETS_FILE
 # (Kubernetes mounts a Secret; Docker copies the file onto a tmpfs). From that file:
-#   DIRECT_CALLBACK_TOKEN   - bearer token the container authenticates its callbacks with
+#   DIRECT_CONTEXT_MCP_TOKEN - optional bearer token for DIRECT_CONTEXT_MCP_URL (Claude only).
+#   DIRECT_CALLBACK_TOKEN   - bearer token for callbacks, progress, bundle GET and result POST
 #   GITHUB_TOKEN             - a short-lived GitHub App installation token, used for git and the GitHub CLI;
 #                               refreshed through Direct before pushing committed work
 #   ANTHROPIC_API_KEY        - the acting agent's AI provider key when the provider is Anthropic and
@@ -457,6 +467,15 @@ fail() {
 }
 
 
+# Bundle mode never accepts a repository credential or a remote checkout input, even an empty one.
+if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+    for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS \
+        DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_BRANCH; do
+        [[ -z "${!variable+x}" ]] || fail "Bundle-diff mode refuses ${variable}"
+    done
+    [[ -n "${DIRECT_BUNDLE_URL:-}" && -n "${DIRECT_RESULT_URL:-}" ]] || fail "Bundle-diff mode requires DIRECT_BUNDLE_URL and DIRECT_RESULT_URL"
+fi
+
 # Restricted investigations must not inherit a general token or any push refresh route.
 if [[ -n "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]]; then
     [[ -n "${DIRECT_CLONE_CREDENTIALS:-}" ]] || fail "Clone-read credentials are missing"
@@ -584,6 +603,8 @@ WORKSPACES=()
 # below. Only the termination trap reads it, to stop the agent making further commits while the
 # push it is about to do is in flight.
 AGENT_PID=""
+BUNDLE_CURL_PID=""
+BUNDLE_RESULT_DELIVERED=0
 
 remember_workspace() {
     local dest="$1" url="$2"
@@ -631,6 +652,7 @@ refresh_git_token() {
 # already been pushed records that head as its new starting point, so the next call has nothing to
 # do for it. A push that *failed* records nothing, so it is retried instead.
 push_workspaces() {
+    [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || return 0
     # Clone-only investigations never publish, even if an agent makes local commits.
     [[ -z "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]] || return 0
     [[ -z "${DIRECT_BRANCH:-}" ]] && return 0
@@ -684,6 +706,19 @@ push_workspaces() {
 # after it does not - still strictly better than losing all of it.
 on_termination() {
     local signal="$1" number="$2"
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        trap '' TERM INT
+        log "Received SIG${signal} - preserving the bundle result before exit"
+        [[ -z "$BUNDLE_CURL_PID" ]] || stop_bundle_agent "$BUNDLE_CURL_PID"
+        BUNDLE_CURL_PID=""
+        [[ -z "$AGENT_PID" ]] || stop_bundle_agent "$AGENT_PID"
+        [[ -z "$HEADROOM_PID" ]] || kill "$HEADROOM_PID" 2>/dev/null || true
+        stop_pipe_holder
+        if [[ "${BUNDLE_READY:-}" == 1 && "$BUNDLE_RESULT_DELIVERED" == 0 ]]; then
+            deliver_bundle_result Cancelled "Worker cancelled" || log "Could not deliver the Cancelled result"
+        fi
+        exit $((128 + number))
+    fi
     log "Received SIG${signal} - pushing what has been committed before this container goes away"
     if [[ -n "$AGENT_PID" ]]; then
         kill "$AGENT_PID" 2>/dev/null || true
@@ -884,6 +919,237 @@ link_primary_corpus() {
     done
 }
 
+# Bundle mode's progress is entrypoint-owned, so all three harnesses emit the same phases.
+BUNDLE_SEQUENCE=0
+BUNDLE_READY=0
+
+# Background requests make wait interruptible by TERM. The active curl is stopped before a
+# Cancelled delivery, and neither a single request nor the retry window can exhaust pod grace.
+bundle_post() {
+    local kind="$1" url="$2" body="$3" status=0 auth_args=() timeout=10 retries=6 retry_time=25
+    [[ "$kind" != phase ]] || { timeout=3; retries=1; retry_time=5; }
+    [[ -z "${DIRECT_CALLBACK_TOKEN:-}" ]] || auth_args=(-H "Authorization: Bearer ${DIRECT_CALLBACK_TOKEN}")
+    curl -fsS --connect-timeout 2 --max-time "$timeout" --retry "$retries" --retry-max-time "$retry_time" \
+        --retry-connrefused --retry-all-errors -X POST "$url" -H 'Content-Type: application/json' \
+        "${auth_args[@]}" --data-binary "@$body" &
+    BUNDLE_CURL_PID=$!
+    if wait "$BUNDLE_CURL_PID"; then
+        [[ "$kind" != result ]] || BUNDLE_RESULT_DELIVERED=1
+    else
+        status=$?
+    fi
+    BUNDLE_CURL_PID=""
+    return "$status"
+}
+
+bundle_phase() {
+    [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]] || return 0
+    BUNDLE_SEQUENCE=$((BUNDLE_SEQUENCE + 1))
+    [[ -n "${DIRECT_PROGRESS_URL:-}" ]] || return 0
+    local body="$BUNDLE_OUTPUT/phase.json"
+    jq -cn --arg phase "$1" --argjson sequence "$BUNDLE_SEQUENCE" \
+        --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg harness "$BUNDLE_HARNESS" \
+        --arg runId "${DIRECT_WORK_ID:-}" --slurpfile correlation "$BUNDLE_OUTPUT/correlation.json" \
+        '{note: $phase, schemaVersion: 1, kind: "phase", phase: $phase, sequence: $sequence,
+          timestamp: $timestamp, harness: $harness, runId: $runId, correlation: $correlation[0]}' > "$body" || {
+        log "Could not encode phase $1"; return 0;
+    }
+    bundle_post phase "$DIRECT_PROGRESS_URL" "$body" || log "Could not report phase $1"
+}
+
+prepare_bundle_workspace() {
+    BUNDLE_OUTPUT=$(mktemp -d) || fail "Could not prepare bundle output"
+    case "${DIRECT_HARNESS:-}" in
+        pi|copilot) BUNDLE_HARNESS="$DIRECT_HARNESS" ;;
+        *) BUNDLE_HARNESS=claude-code ;;
+    esac
+    printf '%s' "${DIRECT_CORRELATION:-}" > "$BUNDLE_OUTPUT/correlation-input.json"
+    [[ -n "${DIRECT_CORRELATION:-}" ]] || printf '{}' > "$BUNDLE_OUTPUT/correlation-input.json"
+    if ! jq -ce -s 'if length == 1 and (.[0] | type == "object") then .[0] else error("Expected one object") end' \
+        "$BUNDLE_OUTPUT/correlation-input.json" > "$BUNDLE_OUTPUT/correlation.json"; then
+        log "Invalid DIRECT_CORRELATION - using {}"
+        printf '{}\n' > "$BUNDLE_OUTPUT/correlation.json"
+    fi
+    bundle_phase started
+    BUNDLE_BASE=$(jq -er -s 'if length == 1 then .[0].baseCommit | select(type == "string") else empty end' \
+        "${DIRECT_REQUEST_FILE:-/dev/null}") || fail "Bundle-diff request requires baseCommit"
+    [[ "$BUNDLE_BASE" =~ ^([a-fA-F0-9]{40}|[a-fA-F0-9]{64})$ ]] || fail "Bundle-diff baseCommit must be a full commit hash"
+    local auth_args=()
+    [[ -z "${DIRECT_CALLBACK_TOKEN:-}" ]] || auth_args=(-H "Authorization: Bearer ${DIRECT_CALLBACK_TOKEN}")
+    curl -fsS --retry 6 --retry-max-time 90 --retry-connrefused --retry-all-errors \
+        "$DIRECT_BUNDLE_URL" "${auth_args[@]}" -o "$BUNDLE_OUTPUT/baseline.bundle" || fail "Could not fetch the baseline bundle"
+    [[ ! -e /workspace/.git ]] || fail "Bundle-diff requires a fresh workspace"
+    git init -q /workspace || fail "Could not initialize bundle workspace"
+    git -C /workspace bundle verify "$BUNDLE_OUTPUT/baseline.bundle" || fail "Could not verify the baseline bundle"
+    git -C /workspace fetch --no-tags "$BUNDLE_OUTPUT/baseline.bundle" 'refs/*:refs/bundle/*' || fail "Could not import the baseline bundle"
+    git -C /workspace cat-file -e "$BUNDLE_BASE^{commit}" || fail "baseCommit is not in the baseline bundle"
+    git -C /workspace checkout -qb bundle-work "$BUNDLE_BASE" || fail "Could not check out baseCommit"
+    git -C /workspace config user.name "${DIRECT_GIT_USER_NAME:-Agent worker}"
+    git -C /workspace config user.email "${DIRECT_GIT_USER_EMAIL:-agent@localhost}"
+    export DIRECT_STRUCTURED_RESULT_FILE=/tmp/agent-result.json
+    rm -f "$DIRECT_STRUCTURED_RESULT_FILE" || fail "Could not prepare structured result file"
+    BUNDLE_READY=1
+    bundle_phase cloned
+}
+
+# Freeze parents before walking descendants: killing only Claude's pipeline subshell leaves the
+# actual CLI alive and able to modify the tree while cancellation takes its snapshot.
+stop_bundle_agent() {
+    local pid="$1" child children="" task descendants
+    kill -STOP "$pid" 2>/dev/null || return 0
+    if [[ -d "/proc/$pid/task" ]]; then
+        # The image need not carry procps. Include children spawned by any of the CLI's threads.
+        for task in /proc/"$pid"/task/*/children; do
+            if [[ -r "$task" ]]; then
+                read -r descendants < "$task" || true
+                children+=" ${descendants:-}"
+            fi
+        done
+    else
+        children=$(pgrep -P "$pid" || true)
+    fi
+    for child in $children; do
+        stop_bundle_agent "$child"
+    done
+    kill -KILL "$pid" 2>/dev/null || true
+}
+
+bundle_sha256() {
+    local hash
+    if command -v sha256sum >/dev/null 2>&1; then
+        hash=$(sha256sum "$1") || return 1
+    else
+        hash=$(shasum -a 256 "$1") || return 1
+    fi
+    printf '%s\n' "${hash%% *}"
+}
+
+# Blob IDs, not decoded path names, are used to inspect both sides. Attribute patterns are literal,
+# root-anchored and C-quoted, preserving even non-UTF-8 names without passing their bytes through jq.
+bundle_binary_attributes() {
+    GIT_DIR="$3" GIT_WORK_TREE=/workspace GIT_INDEX_FILE="$3/index" node - "$1" "$2" <<'NODE'
+const fs = require('node:fs');
+const { spawnSync } = require('node:child_process');
+const fields = fs.readFileSync(process.argv[2]).toString('latin1').split('\0');
+const decoder = new TextDecoder('utf-8', { fatal: true });
+const invalid = new Map();
+function invalidBlob(mode, oid) {
+    if (mode === '000000' || mode === '160000') return false;
+    if (invalid.has(oid)) return invalid.get(oid);
+    const blob = spawnSync('git', ['cat-file', 'blob', oid], { maxBuffer: 1024 * 1024 * 1024 });
+    if (blob.error || blob.status !== 0) throw blob.error ?? new Error('Could not inspect blob ' + oid);
+    let result = false;
+    try { decoder.decode(blob.stdout); } catch { result = true; }
+    invalid.set(oid, result);
+    return result;
+}
+function pattern(path) {
+    let quoted = '"/';
+    for (const byte of Buffer.from(path, 'latin1')) {
+        if ([42, 63, 91, 92].includes(byte)) quoted += '\\\\'; // literal glob metacharacter
+        if (byte === 34 || byte === 92) quoted += '\\' + String.fromCharCode(byte);
+        else if (byte < 32 || byte >= 127) quoted += '\\' + byte.toString(8).padStart(3, '0');
+        else quoted += String.fromCharCode(byte);
+    }
+    return quoted + '" binary\n';
+}
+let attributes = '';
+for (let i = 0; i + 1 < fields.length; i += 2) {
+    const [oldMode, newMode, oldOid, newOid] = fields[i].slice(1).split(' ');
+    if (invalidBlob(oldMode, oldOid) || invalidBlob(newMode, newOid)) attributes += pattern(fields[i + 1]);
+}
+fs.writeFileSync(process.argv[3], attributes);
+NODE
+}
+
+# Capture the tree, not just HEAD: stage edits, deletions and new files before diffing the baseline.
+# JSON and the exact diff bytes stay in files, never in argv (MAX_ARG_STRLEN applies to results too).
+deliver_bundle_result() {
+    local requested="$1" summary="$2" input="${3:-0}" output="${4:-0}" cost="${5:-0}" \
+        duration="${6:-0}" cpu="${7:-0}" memory="${8:-0}"
+    local diff="$BUNDLE_OUTPUT/changes.diff" names="$BUNDLE_OUTPUT/names" hash outcome provider snapshot head objects
+    BUNDLE_DELIVERY_ERROR="Could not deliver the result"
+    snapshot=$(mktemp -d "$BUNDLE_OUTPUT/snapshot.XXXXXX") || return 1
+    head=$(git -C /workspace rev-parse HEAD) || return 1
+    objects=$(git -C /workspace rev-parse --path-format=absolute --git-path objects) || return 1
+    git init -q --bare "$snapshot" || return 1
+    printf '%s\n' "$objects" > "$snapshot/objects/info/alternates" || return 1
+    # A private git directory also gives binary overrides the highest attributes priority, without
+    # replacing the agent's .git/info/attributes or touching its possibly locked/half-written index.
+    local snapshot_git=(env "GIT_DIR=$snapshot" GIT_WORK_TREE=/workspace "GIT_INDEX_FILE=$snapshot/index" git -C /workspace -c core.bare=false)
+    local info_exclude excludes_file excludes_status=0
+    info_exclude=$(git -C /workspace rev-parse --path-format=absolute --git-path info/exclude) || return 1
+    if [[ -f "$info_exclude" ]]; then
+        cp "$info_exclude" "$snapshot/info/exclude" || return 1
+    else
+        rm -f "$snapshot/info/exclude" || return 1
+    fi
+    excludes_file=$(git -C /workspace config --path --get core.excludesFile) || excludes_status=$?
+    case "$excludes_status" in
+        0) snapshot_git+=(-c "core.excludesFile=$excludes_file") ;;
+        1) ;; # Unset: keep Git's ordinary global/default exclude behavior.
+        *) return 1 ;;
+    esac
+    "${snapshot_git[@]}" read-tree "$head" || return 1
+    "${snapshot_git[@]}" add -A || return 1
+    "${snapshot_git[@]}" diff --cached --raw --no-abbrev --no-renames -z "$BUNDLE_BASE" -- > "$snapshot/paths" || return 1
+    bundle_binary_attributes "$snapshot/paths" "$snapshot/info/attributes" "$snapshot" || return 1
+    "${snapshot_git[@]}" -c core.quotePath=true diff --cached --binary --no-ext-diff --no-textconv --no-renames "$BUNDLE_BASE" -- > "$diff" || return 1
+    "${snapshot_git[@]}" diff --cached --name-only -z --no-ext-diff --no-renames "$BUNDLE_BASE" -- > "$names" || return 1
+    if ! node -e 'new TextDecoder("utf-8", {fatal:true}).decode(require("node:fs").readFileSync(process.argv[1]))' "$diff"; then
+        BUNDLE_DELIVERY_ERROR="Could not deliver the result: diff is not valid UTF-8"
+        return 1
+    fi
+    hash=$(bundle_sha256 "$diff") || return 1
+    outcome=NoChanges
+    [[ ! -s "$diff" ]] || outcome=Completed
+    printf '%s' "$summary" > "$BUNDLE_OUTPUT/summary.txt"
+    printf '{}\n' > "$BUNDLE_OUTPUT/structured.json"
+    if [[ -f "$DIRECT_STRUCTURED_RESULT_FILE" ]]; then
+        if ! jq -ce -s 'if length == 1 and (.[0] | type == "object") and
+            (.[0] | (.outcome == null or (.outcome | type == "string")) and
+                (.summary == null or (.summary | type == "string")) and
+                (.gaps == null or (.gaps | type == "array")) and
+                (.selfChecks == null or (.selfChecks | type == "array")))
+            then .[0] else error("Invalid structured result") end' \
+            "$DIRECT_STRUCTURED_RESULT_FILE" > "$BUNDLE_OUTPUT/structured.json"; then
+            log "Invalid structured agent result - using harness summary"
+            printf '{}\n' > "$BUNDLE_OUTPUT/structured.json"
+        fi
+    fi
+    [[ "$(jq -r '.outcome // empty' "$BUNDLE_OUTPUT/structured.json")" != Refused ]] || outcome=Refused
+    [[ "$requested" != Cancelled ]] || outcome=Cancelled
+    provider="${DIRECT_PROVIDER:-anthropic}"
+    [[ "$BUNDLE_HARNESS" != copilot || -n "${DIRECT_PROVIDER:-}" ]] || provider=github-copilot
+    jq -cn --rawfile diff "$diff" --rawfile names "$names" --rawfile summary "$BUNDLE_OUTPUT/summary.txt" \
+        --slurpfile structured "$BUNDLE_OUTPUT/structured.json" --slurpfile correlation "$BUNDLE_OUTPUT/correlation.json" \
+        --arg sha256 "$hash" --arg outcome "$outcome" --arg model "${DIRECT_MODEL:-}" \
+        --arg provider "$provider" --arg harness "$BUNDLE_HARNESS" --argjson input "$input" \
+        --argjson output "$output" --argjson cost "$cost" --argjson duration "$duration" \
+        --argjson cpu "$cpu" --argjson memory "$memory" \
+        '{diff: $diff, sha256: $sha256, structured: {outcome: $outcome,
+            touchedFiles: ($names | split("\u0000") | map(select(length > 0))),
+            gaps: ($structured[0].gaps // []), summary: ($structured[0].summary // $summary),
+            selfChecks: ($structured[0].selfChecks // [])},
+          usage: {inputTokens: $input, outputTokens: $output, costUsd: $cost, durationMs: $duration,
+            cpuSeconds: $cpu, memoryBytes: $memory, model: $model, provider: $provider, harness: $harness},
+          correlation: $correlation[0]}' > "$BUNDLE_OUTPUT/result.json" || return 1
+    jq -j '.diff' "$BUNDLE_OUTPUT/result.json" > "$BUNDLE_OUTPUT/decoded.diff" || return 1
+    if [[ "$(bundle_sha256 "$BUNDLE_OUTPUT/decoded.diff")" != "$hash" ]]; then
+        BUNDLE_DELIVERY_ERROR="Could not deliver the result: decoded diff checksum does not match"
+        return 1
+    fi
+    bundle_post result "$DIRECT_RESULT_URL" "$BUNDLE_OUTPUT/result.json"
+}
+
+complete_worker() {
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        deliver_bundle_result Completed "$@" || fail "$BUNDLE_DELIVERY_ERROR"
+        bundle_phase diffReady
+    fi
+    report completed "$@"
+}
+
 # Clone what the work covers: one repository at the workspace root, or - only when genuinely more
 # than one repository is involved - one folder per repository plus a symlinked primary corpus at the
 # root (see link_primary_corpus above).
@@ -893,7 +1159,9 @@ link_primary_corpus() {
 # merge-conflict resolution all populate the plural variable regardless of repository count, and
 # before this normalization a single-entry DIRECT_REPOSITORY_URLS still nested the checkout under
 # /workspace/<name>, leaving /workspace itself without a corpus (Cratis/Stagehand#603).
-if [[ -n "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]]; then
+if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+    prepare_bundle_workspace
+elif [[ -n "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]]; then
     clone_restricted_repositories || fail "Could not check out every scheduled repository"
 elif [[ -n "${DIRECT_REPOSITORY_URLS:-}" ]]; then
     read -r -a urls <<< "${DIRECT_REPOSITORY_URLS}"
@@ -915,7 +1183,9 @@ fi
 # work would be reported as completed. Fail the unit of work instead.
 cd /workspace || fail "Could not enter /workspace"
 
-fetch_build_log
+if [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]]; then
+    fetch_build_log
+fi
 
 # The prompt arrives as a file (DIRECT_PROMPT_FILE), because it is routinely larger than a
 # single environment variable may be - see WorkerPromptFile on the dispatch side. A prompt still
@@ -934,6 +1204,7 @@ else
 fi
 
 report started "Worker started"
+bundle_phase agentRunning
 
 # The Claude Code path - unchanged from before DIRECT_HARNESS existed. Runs whenever
 # DIRECT_HARNESS is unset, empty, "claude-code", or anything other than exactly "pi", so every
@@ -1043,6 +1314,13 @@ run_claude_code() {
             }
         }' > "$MCP_CONFIG"
 
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff && -n "${DIRECT_CONTEXT_MCP_URL:-}" && -n "${DIRECT_CONTEXT_MCP_TOKEN:-}" ]]; then
+        jq --arg url "$DIRECT_CONTEXT_MCP_URL" --arg token "$DIRECT_CONTEXT_MCP_TOKEN" \
+            '.mcpServers.context = {type: "http", url: $url, headers: {Authorization: ("Bearer " + $token)}}' \
+            "$MCP_CONFIG" > /tmp/mcp-context-config.json || fail "Could not configure context MCP"
+        mv /tmp/mcp-context-config.json "$MCP_CONFIG" || fail "Could not configure context MCP"
+    fi
+
     PIPE=/tmp/claude-in
     mkfifo "$PIPE"
 
@@ -1140,7 +1418,11 @@ run_claude_code() {
         exit 1
     fi
 
-    report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    else
+        report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    fi
     log "Done"
 }
 
@@ -1363,6 +1645,16 @@ run_pi() {
     # discovery; these explicit local package roots are the only reviewed extension code Pi loads.
     # shellcheck source=/dev/null
     source /usr/local/share/direct/pi-extension-allow-list.sh
+    # Keep reviewed extensions (including authentication); only the MCP adapter is omitted.
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        local extensions=() index
+        for ((index=0; index<${#PI_EXTENSION_ARGS[@]}; index+=2)); do
+            if [[ "${PI_EXTENSION_ARGS[index+1]}" != */pi-mcp-adapter ]]; then
+                extensions+=("${PI_EXTENSION_ARGS[index]}" "${PI_EXTENSION_ARGS[index+1]}")
+            fi
+        done
+        PI_EXTENSION_ARGS=("${extensions[@]}")
+    fi
 
     PI_PEAK_MEMORY_BYTES=0
     PI_CPU_SECONDS=0
@@ -1579,7 +1871,11 @@ run_pi() {
         exit 1
     fi
 
-    report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$PI_CPU_SECONDS" "$PI_PEAK_MEMORY_BYTES"
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$PI_CPU_SECONDS" "$PI_PEAK_MEMORY_BYTES"
+    else
+        report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$PI_CPU_SECONDS" "$PI_PEAK_MEMORY_BYTES"
+    fi
     log "Done"
 }
 
@@ -1653,6 +1949,9 @@ run_copilot() {
             }
         }' > "$COPILOT_MCP_CONFIG"
 
+    COPILOT_MCP_ARGS=(--additional-mcp-config "@${COPILOT_MCP_CONFIG}")
+    [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || COPILOT_MCP_ARGS=()
+
     COPILOT_STREAM_FILE=/tmp/copilot-stream.jsonl
     : > "$COPILOT_STREAM_FILE"
     COPILOT_EXIT_FILE=/tmp/copilot-exit
@@ -1685,7 +1984,7 @@ run_copilot() {
             --no-ask-user \
             --no-color \
             --output-format json \
-            --additional-mcp-config "@${COPILOT_MCP_CONFIG}" \
+            "${COPILOT_MCP_ARGS[@]}" \
             "${COPILOT_MODEL_ARGS[@]}" < /dev/null |
         while IFS= read -r event; do
             printf '%s\n' "$event"
@@ -1733,13 +2032,17 @@ run_copilot() {
         exit 1
     fi
 
-    if [[ ${COPILOT_EXIT} -ne 0 ]]; then
+    if [[ ${COPILOT_EXIT} -ne 0 ]] || { [[ "${DIRECT_RUN_MODE:-}" == bundle-diff && -z "$RESULT" ]]; }; then
         log "Copilot CLI exited with ${COPILOT_EXIT}"
         report failed "${RESULT:-Copilot CLI exited with ${COPILOT_EXIT}}" 0 0 0 0 "$CPU_SECONDS" "$MEMORY_BYTES"
         exit 1
     fi
 
-    report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
+        complete_worker "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    else
+        report completed "${RESULT:-Work completed}" "$INPUT_TOKENS" "$OUTPUT_TOKENS" "$COST" "$DURATION" "$CPU_SECONDS" "$MEMORY_BYTES"
+    fi
     log "Done"
 }
 

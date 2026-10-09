@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Cratis.AI.Usage;
 using k8s;
 using k8s.Autorest;
@@ -79,7 +80,10 @@ public class KubernetesWorkerRuntime(
     /// <c>Failed</c>, which flows into the existing <see cref="Aliveness"/> recovery path once the
     /// consumer's own process is healthy again to see it.
     /// </remarks>
-    const long ActiveDeadlineSeconds = 48 * 60 * 60;
+    const long DefaultDeadlineSeconds = 48 * 60 * 60;
+
+    // Reserve 16 KiB below the 1 MiB Secret limit for serialization and metadata overhead.
+    const long MountedFileByteLimit = (1024 * 1024) - (16 * 1024);
 
     /// <summary>
     /// The numeric UID (and GID) the <c>agent</c> user is pinned to, both here and in
@@ -165,6 +169,7 @@ public class KubernetesWorkerRuntime(
     /// <see langword="null"/> or <see cref="WorkerScratch.None"/> keeps the workspace in the
     /// container's writable layer.
     /// </param>
+    /// <param name="workerDeadline">The default Kubernetes Job deadline. Non-positive values use 48 hours; a positive job deadline takes precedence.</param>
     /// <returns>The Job specification.</returns>
     public static V1Job BuildJobSpecification(
         WorkerJob job,
@@ -174,7 +179,8 @@ public class KubernetesWorkerRuntime(
         string? imagePullSecretName = null,
         string? nodePoolWorkload = null,
         WorkerResources? resources = null,
-        WorkerScratch? scratch = null)
+        WorkerScratch? scratch = null,
+        TimeSpan? workerDeadline = null)
     {
         var name = DockerWorkerRuntime.NameFor(job.Session);
         var workspace = scratch ?? WorkerScratch.None;
@@ -279,7 +285,7 @@ public class KubernetesWorkerRuntime(
             {
                 BackoffLimit = 0,
                 TtlSecondsAfterFinished = 3600,
-                ActiveDeadlineSeconds = ActiveDeadlineSeconds,
+                ActiveDeadlineSeconds = DeadlineSeconds(job.Deadline, workerDeadline),
                 Template = new V1PodTemplateSpec
                 {
                     // The pod carries the label too, not just the Job. Kubernetes copies neither -
@@ -472,9 +478,19 @@ public class KubernetesWorkerRuntime(
     /// </remarks>
     public async Task<WorkerLaunchOutcome> Start(WorkerJob job, CancellationToken cancellationToken = default)
     {
+        var files = BuildMountedFiles(job);
+        var sizes = files.Select(file => new { file.Key, Bytes = (long)Encoding.UTF8.GetByteCount(file.Value) }).ToArray();
+        var totalBytes = sizes.Sum(file => file.Bytes);
+        if (totalBytes > MountedFileByteLimit)
+        {
+            var largestFiles = string.Join(", ", sizes.OrderByDescending(file => file.Bytes).Take(3).Select(file => $"{file.Key}: {file.Bytes} bytes"));
+            logger.WorkerConfigurationTooLarge(job.Session, totalBytes, MountedFileByteLimit, largestFiles);
+            return WorkerLaunchOutcome.ConfigurationTooLarge;
+        }
+
         try
         {
-            return await Launch(job, cancellationToken);
+            return await Launch(job, files, cancellationToken);
         }
         catch (Exception exception) when (IsAboutTheCluster(exception))
         {
@@ -659,7 +675,13 @@ public class KubernetesWorkerRuntime(
         await webSocket.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, "done", cancellationToken);
     }
 
-    async Task<WorkerLaunchOutcome> Launch(WorkerJob job, CancellationToken cancellationToken)
+    static long DeadlineSeconds(TimeSpan? jobDeadline, TimeSpan? workerDeadline)
+    {
+        var deadline = jobDeadline is { TotalSeconds: > 0 } ? jobDeadline : workerDeadline;
+        return deadline is { TotalSeconds: > 0 } positive ? (long)Math.Ceiling(positive.TotalSeconds) : DefaultDeadlineSeconds;
+    }
+
+    async Task<WorkerLaunchOutcome> Launch(WorkerJob job, Dictionary<string, string> files, CancellationToken cancellationToken)
     {
         using var client = _clients.Create();
 
@@ -710,7 +732,7 @@ public class KubernetesWorkerRuntime(
                 // across both runtimes and only knows the one wait. Without this key the marker
                 // never appears and every worker times out after the entrypoint's wait and starts
                 // with no credentials at all.
-                StringData = BuildMountedFiles(job)
+                StringData = files
             },
             options.Value.KubernetesNamespace,
             cancellationToken: cancellationToken);
@@ -729,7 +751,8 @@ public class KubernetesWorkerRuntime(
                 options.Value.MemoryLimit,
                 options.Value.EphemeralStorageRequest,
                 options.Value.EphemeralStorageLimit),
-            new WorkerScratch(options.Value.ScratchStorageClassName, options.Value.ScratchSize));
+            new WorkerScratch(options.Value.ScratchStorageClassName, options.Value.ScratchSize),
+            options.Value.WorkerDeadline);
 
         try
         {
