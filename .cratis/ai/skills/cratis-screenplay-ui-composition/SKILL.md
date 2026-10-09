@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-ui-composition
-description: Compose the user interface of a Cratis Screenplay `.play` model — `layout` and its responsive `arrangement`, `screen template` and `dialog template`, command-bound `form` declarations, navigation `contribute` blocks, interaction `behavior`/`on`/`uses` wiring, `ui profile`, `theme`, localized `$strings`, and `file` references. Use when declaring the application shell, a reusable screen shape, a command form, a navigation entry, what a click or submit does, or theming in a `.play` model. Do not use for a screen's own data and actions.
+description: Compose the user interface of a Cratis Screenplay `.play` model — `layout` and responsive `arrangement`, screen/dialog templates, component data-context bindings, exposed template configuration, command forms and columns, navigation contributions, hierarchical outlets/routes, toolbar dialogs, package/icon selection, interaction `behavior`/`on`/`uses` wiring, `ui profile`, `theme`, localized `$strings`, and `file` references. Use when declaring the application shell, reusable screen shapes, component/package configuration, command forms, navigation/toolbars, click or submit behavior, or theming. Do not use for a screen's own data and actions.
 license: MIT
 ---
 
@@ -50,6 +50,13 @@ Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing or 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
 target renders it.
+
+The screens-release surface adds component data-context bindings, exposed template
+configuration, package/icon catalogs, manual form columns, hierarchical outlets,
+routes, toolbars and dialog destinations, each with a separate support level
+(authoring accepted, executable admitted, runtime implemented). Discover the
+installed shape through MCP `syntax-schema`; details:
+`references/screen-composition-contract.md`.
 
 These constructs went unhighlighted and uncompleted by the Monaco and VS Code
 language service until `Cratis/Screenplay#199` gave every construct the parser
@@ -192,7 +199,7 @@ directive tree the way a `table` or `summary` does — it is found by its
 `for <Command>` binding wherever that command is invoked. A form sits at module
 level, so it disambiguates by module rather than by feature or slice.
 
-## `contribute` — navigation from elsewhere
+## `contribute`, toolbars, outlets and routes — navigation from elsewhere
 
 Excerpt, inside a `module` or `feature`; `Navigation` is the contribution point
 the layout above declares.
@@ -217,7 +224,11 @@ same typed navigate binding a screen action uses.
 
 ⚠️ The v4.31.0 baseline, re-verified at v4.66.0, ships `navigate`, `label` and `order` only. Grouping beyond a
 flat ordered list, and an explicit override for when nearest-enclosing is not the
-point you mean, are deliberately left for later.
+point you mean, are deliberately left for later. The screens-release vector
+(Screenplay 4.105.0, canonical `ScreenComposition` corpus v1) adds typed screen
+composition; CLI 3.40.0 renders it through Stage 4.49.1. Report a refused form as
+a capability gap, never a flat-list fallback, and keep browser/Studio production
+proof separate from render publication.
 
 ## Interactions — what a click does
 
@@ -324,6 +335,8 @@ theme Nordic
 - `packages` are listed **in override-priority order** — a later package's `Button`
   shadows an earlier one's — and `core`, the built-in vocabulary, is always the
   final fallback.
+- Component package metadata is owned by the package/runtime catalog; the model
+  selects packages and icons, never copying metadata into `.play`.
 - `compatible with` lists the packages a theme actually supports, each at most
   once. A profile selecting a theme not declared compatible with one of its own
   packages gets a compile-time **warning**.
@@ -394,13 +407,17 @@ The rules:
 - [ ] No `file` reference is doing work the declaration should be doing.
 - [ ] Every click, submit and screen entry that does something has an `on` or
       `uses`; continuations sit only on actions that can fail.
+- [ ] Component bindings, exposed template values, manual form columns, toolbar items, outlets and routes all trace to typed data; no runtime fallback counts as delivery. Report authoring acceptance, executable admission and runtime
+      implementation separately.
 
 ## Route near misses
 
 - A screen's own data, actions and name resolution: `cratis-screenplay-read-surface`.
+- Revision-checked MCP edits `cratis-screenplay-model-authoring` (`references/screen-authoring-workflow.md`).
 - Application triggers and reactions: `cratis-screenplay-captures-and-reactions`.
 - Reviewing the whole flow's design: `cratis-screenplay-model-review`.
 - Deriving wireframes from the model (step 4): `cratis-screenplay-event-modeling`.
+- Rendering/omissions: `cratis-stage-rendering-and-sandbox`, `cratis-screenplay-render-and-gap-fill`.
 - Building the actual React application: `cratis-arc-react-page`, `cratis-components-styling`.
 
 ## Lineage

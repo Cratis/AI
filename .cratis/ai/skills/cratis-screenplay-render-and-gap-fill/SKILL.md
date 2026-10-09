@@ -25,13 +25,14 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `v3.28.3` (`8b43fef`) | `cratis render` options, exit codes, publication receipt, bundled Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled Stage 4.24.1; before 3.28.2: 4.60.1 and 4.24.0) |
-| Stage | `v4.24.2` (`32dcac4`) | admission (`STAGE-ESM-*`), ownership manifest, `Customizations/` seams, Debug-only specifications |
-| Screenplay | `v4.68.0` (`79801bf`) | standalone compiler for V1 to V3 (admits ESM v7); binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0` |
-| Rendered apps | Arc `22.25.0`, Chronicle `19.8.1` | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one |
+| cratis CLI | `3.40.0` (checkout `082df13`) | `cratis render` options, exit codes, publication receipt; `Directory.Packages.props` pins Stage 4.49.1 and bundled Screenplay 4.105.0, `cratis/stage:4.49.1` as the default run image. Reading baselines: 3.39.0 (Stage 4.43.0 / Screenplay 4.93.0) and 3.28.3 (`8b43fef`) |
+| Stage | `4.49.1` (worktree `f64c3da`) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, generated query specs and guarded-action safety. Reading baselines: 4.43.0 and `v4.24.2` (`32dcac4`) |
+| Screenplay | `4.105.0` query-shapes release | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; CLI 3.40.0 bundles 4.105.0 and renders the canonical screen corpus |
+| Rendered apps | Arc `22.25.0`, Chronicle `19.8.1`, Scene packages | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one; verify the generated package set because the 4.49.1 corpus render observed Scene 4.10 packages even though the release vector names Scene 4.12.0 |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
-(`references/worked-example.md`). The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
+(`references/worked-example.md`); at CLI 3.40.0 it was run over the canonical `ScreenComposition`
+corpus and published successfully. The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
 this skill links them and never restates the admission table.
 
 ## When to use / when not
@@ -110,8 +111,11 @@ import-only root file.
    the generated types the adapter touches (bounded), write the adapter behind a small interface
    with no business decisions, rebuild, retest. Never edit a managed file; never add behaviour the
    model does not state. Detail: `references/delivery-protocol.md` section 4.
-7. **Report authored-UI omissions.** Stage renders the default composition only; list each
-   modeled screen, form, layout, theme and persona view as "not rendered".
+7. **Report authored-UI parity.** On Stage 4.24, Stage renders the default composition only;
+   list each modeled screen, form, layout, template, toolbar, component, outlet, route, package/icon
+   use, theme and persona view as "not rendered". On a newer screens-capable Stage/CLI, require
+   explicit plan/runtime evidence for each authored UI element or a blocking diagnostic; silent
+   fallback to default composition is a failure.
 8. **Drift:** compare the published manifest's `semanticRevision` with a fresh render of the
    current model under the same inputs (`references/drift-and-ledger.md`).
 9. **Hand off** the packet: verdict lines, spec mapping, edit requests for the modeler, ledger
@@ -169,6 +173,7 @@ Before reporting done:
 - A passing test does not claim runtime guarantees (namespace, subject, constraint scope, guarded
   reads, migrations, replay) or omitted UI were delivered.
 - Re-render: drift line present. `Customizations/` changes name the seam and the model element served.
+- Screen delivery: every authored screen/template/form/toolbar/component/outlet/route/package-icon use is either present in generated/runtime evidence or listed as not rendered/unsupported with the responsible tool version.
 
 ## Route near misses
 

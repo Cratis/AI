@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-read-surface
-description: Declare the read side of a Cratis Screenplay `.play` model — the `readmodel` shape, `query` with `by`/`filter`/`scoped to`/`observable`/`performer`, and `screen` at its three levels of detail, plus how a bare name resolves across slices. Use when adding or changing a query, a read-model shape, or a screen in a `.play` model, or when deciding what a caller may narrow a result by. Do not use for how events fill the read model, and do not use for layouts, templates or forms.
+description: Declare the read side of a Cratis Screenplay `.play` model — the `readmodel` shape, `query` with `by`/`filter`/`scoped to`/`observable`/`performer`, and `screen` at its three levels of detail, including the data/action contract that later component bindings, templates, forms, toolbars, routes and outlets consume. Use when adding or changing a query, a read-model shape, or a screen in a `.play` model, or when deciding what a caller may narrow a result by. Do not use for how events fill the read model, and do not use for layouts, templates or forms.
 license: MIT
 ---
 
@@ -217,6 +217,13 @@ Constructs: `title`, `data … via query … [by <param>]`, `action <Command>` w
 `on row-click navigate to <Screen> [by <param>]`, `summary <ReadModel>` with
 `field <property> label`, and `template <Name>` with slot bodies.
 
+The screen's `data` and `action` declarations are the typed context for later UI
+composition. Component `context`, toolbar parameters, dialog inputs, outlet routes
+and manual form columns must all trace back to this screen contract, a form's
+command, a selected item, or `$context`. If a generated app shows a default list
+or empty panel because it could not consume one of those directives, treat that as
+a dropped UI construct, not as an acceptable Level 1 screen.
+
 `on row-click navigate to …` is the one-line table navigation form. What a click,
 selection, submit or screen entry *does* beyond that — confirm, execute, refresh,
 open a dialog, branch on success or failure — is an interaction: an inline `on`
@@ -270,6 +277,9 @@ binding failures are errors.
       `then denied` case.
 - [ ] Each read model has exactly one builder and every field traces to an event.
 - [ ] No screen reference is left ambiguous or unresolved.
+- [ ] Every UI binding that consumes screen data (component context, toolbar
+      parameter, dialog input, outlet route) has a source in the screen contract
+      or an explicitly provided template/form context.
 
 Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing a tool, checking versions, or assessing executable and renderable subsets. Where a construct sits in the
 method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
@@ -277,6 +287,6 @@ method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-desi
 ## Route near misses
 
 - How events fill the read model: `cratis-screenplay-projections`.
-- Layouts, templates, forms, contributions, themes: `cratis-screenplay-ui-composition`.
+- Layouts, templates, forms, component bindings, toolbars, outlets, contributions, packages and themes: `cratis-screenplay-ui-composition`.
 - Asserting query results: `cratis-screenplay-specifications`.
 - Deciding which read models exist: `cratis-screenplay-event-modeling`.

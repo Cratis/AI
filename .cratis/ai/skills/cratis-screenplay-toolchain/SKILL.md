@@ -25,8 +25,9 @@ When choosing or upgrading a tool, or checking version-specific capabilities, re
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | standalone compiler, binder and MCP server; admits ESM v7 (generated values and responses) |
-| cratis CLI | `3.28.3` (`8b43fef`) | bundles Screenplay 4.66.0 (ESM v1 to v6) and Stage 4.24.2 (3.28.2: Stage 4.24.1; 3.28.1 and earlier bundled 4.60.1 and 4.24.0); `render`, `generate`, `prologue`, and the same compiler for `screenplay validate` and `screenplay mcp` |
-| Stage | `4.24.2` (`32dcac4`) | renders ESM v1 to v4 (C# backend plus a React/Vite scaffold on Arc 22.25.0); an evolved event is refused with `STAGE-ESM-026`; the cratis CLI bundles it since 3.28.3 |
+| cratis CLI | `3.40.0` (checkout `082df13`) | `Directory.Packages.props` pins `StageVersion` 4.49.1 and `ScreenplayVersion` 4.105.0; the `cratis run` container defaults to `cratis/stage` at the rendered Stage version (`cratis/stage:4.49.1`). Reading baselines: 3.39.0 with Stage 4.43.0 / Screenplay 4.93.0; 3.28.3 (`8b43fef`) with Screenplay 4.66.0 and Stage 4.24.2 |
+| Screenplay | `4.105.0` query-shapes release | admits the canonical `ScreenComposition` corpus v1 with zero authoring diagnostics (`dotnet run --project Source/DotNET/Tool -- <corpus> --warnaserror` → `10 file(s) compiled - 0 error(s), 0 warning(s)`); the CLI 3.40.0 MCP reports `executableReady true` for the same corpus |
+| Stage | `4.49.1` (worktree `f64c3da`) | renders the canonical screen corpus through CLI 3.40.0 and publishes Scene output with Arc `CommandForm` shells plus query bindings. The generated app observed locally still pins Scene 4.10 packages, so check the generated package set before claiming Scene 4.12 runtime parity. Reading baselines: 4.43.0 and 4.24.2 (`32dcac4`) |
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour

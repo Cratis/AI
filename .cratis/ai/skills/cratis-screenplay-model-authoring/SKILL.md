@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-authoring
-description: Author, inspect, refactor and verify a Cratis Screenplay .play model through its typed AST and MCP workspace tools. Use for creating or changing model elements, navigating large split models, reviewing references/specifications, or distinguishing source validity from executable readiness. Do not use for rendering a model into an application or hand-written Arc/Chronicle code.
+description: Author, inspect, refactor and verify a Cratis Screenplay .play model through its typed AST and MCP workspace tools. Use for creating or changing model elements, navigating large split models, reviewing references/specifications, revision-checked screen/UI authoring proposals, or distinguishing source validity from executable/runtime readiness. Do not use for rendering a model into an application or hand-written Arc/Chronicle code.
 license: MIT
 ---
 
@@ -14,6 +14,12 @@ Screenplay remains experimental. **Valid source is not necessarily executable.**
 It does not generate or run an application; Stage owns rendering/runtime admission.
 When selecting construct syntax or distinguishing source validity from execution, read the [language reference](references/language-reference.md) for constructs,
 the executable profile and a complete compiled model.
+
+For screen-heavy work, keep the parity contract explicit:
+discover the installed UI node schemas, propose/apply with revisions, then pass the
+same model root or workspace export to validate/render/runtime checks. The full
+workflow is `references/screen-authoring-workflow.md`; the UI syntax/support-level
+contract is in `cratis-screenplay-ui-composition`.
 
 ## Verified product sources
 
@@ -100,6 +106,9 @@ can keep that entry point; use the project's supported installation channel.
    assertion gaps. These tools do not execute specifications or prove coverage.
 5. Echo `sourceRevision` on subsequent pages. Restart the query after drift;
    never combine pages from different snapshots.
+6. For screens, also discover the template, form, toolbar, package/icon and
+   outlet declarations that provide context. A component binding with no traced
+   data source is not a shortcut; fix the model source.
 
 Keep reads scoped to the relevant module, feature, slice or document. Do not
 request a whole merged AST when a bounded declaration/property query answers the
@@ -285,6 +294,13 @@ The ordinary CLI remains useful for whole-folder validation:
 cratis screenplay validate <model-folder> --warnings-as-errors
 ```
 
+For end-to-end screen changes, record the MCP transcript in `.ai-work/` and then
+run the render/runtime checks with the exact same root or workspace export. A
+transcript that applies one source and renders another is not evidence; neither is
+a generated app that silently drops authored UI. Use the Screenplay-owned canonical
+corpus fixture path when it exists instead of copying `.play` examples into this
+repository.
+
 Repair and refactoring guidance follows Screenplay main `fd18129`. The Cratis
 CLI bundles its own Screenplay version, so check the installed `tools/list`
 schemas before relying on a view or argument named here (for example
@@ -299,7 +315,7 @@ parameter, syntax node or downstream capability.
 | Commands, events, validation and concurrency | `cratis-screenplay-command-surface` |
 | Projections and reducers | `cratis-screenplay-projections` |
 | Read models, queries and screens | `cratis-screenplay-read-surface` |
-| Layouts, forms, contributions, themes and localization | `cratis-screenplay-ui-composition` |
+| Layouts, forms, contributions, component bindings, toolbars, outlets, themes and localization | `cratis-screenplay-ui-composition` |
 | Captures, reactions and triggers | `cratis-screenplay-captures-and-reactions` |
 | Behavioral examples and assertions | `cratis-screenplay-specifications` |
 | Rendering/running an admitted model | `cratis-stage-rendering-and-sandbox` |
