@@ -36,6 +36,14 @@ public enum PoolAttemptOutcome
     /// not about which provider answered.
     /// </summary>
     PermanentFailure,
+
+    /// <summary>
+    /// A real call to the member failed because the provider's quota, spend limit or credit is used up
+    /// (<see cref="QuotaExhaustion"/>). Retrying it cannot help until the quota resets, but another
+    /// member can serve the same request - recorded against the provider, and the loop moves on.
+    /// Unlike <see cref="TransientFailure"/> it does not make an exhausted pool worth retrying soon.
+    /// </summary>
+    QuotaExhausted,
 }
 
 /// <summary>
@@ -98,6 +106,13 @@ public readonly record struct PoolAttempt<T>(PoolAttemptOutcome Outcome, T? Valu
     /// <param name="reason">Why the call failed.</param>
     /// <returns>The <see cref="PoolAttempt{T}"/>.</returns>
     public static PoolAttempt<T> PermanentFailure(T? value, string reason) => new(PoolAttemptOutcome.PermanentFailure, value, reason);
+
+    /// <summary>
+    /// Builds an attempt whose real call failed because the provider's quota is used up.
+    /// </summary>
+    /// <param name="reason">Why the call failed.</param>
+    /// <returns>The <see cref="PoolAttempt{T}"/>.</returns>
+    public static PoolAttempt<T> QuotaExhausted(string reason) => new(PoolAttemptOutcome.QuotaExhausted, default, reason);
 }
 
 /// <summary>
@@ -110,6 +125,28 @@ public readonly record struct PoolAttempt<T>(PoolAttemptOutcome Outcome, T? Valu
 /// <param name="AnyTransientFailure">Whether at least one member's real call failed transiently - worth another whole attempt later, as opposed to an exhaustion made only of members that were never really tried.</param>
 public readonly record struct PoolDispatchResult<T>(PoolDispatchOutcome Outcome, T? Value, string Reason, bool AnyTransientFailure)
 {
+    readonly IReadOnlyList<AIProviderId>? _triedProviders;
+    readonly IReadOnlyList<AIProviderId>? _quotaExhaustedProviders;
+
+    /// <summary>
+    /// Gets the providers a real call was made to, in the order they were tried.
+    /// </summary>
+    public IReadOnlyList<AIProviderId> TriedProviders
+    {
+        get => _triedProviders ?? [];
+        init => _triedProviders = value;
+    }
+
+    /// <summary>
+    /// Gets the providers that turned the call away because their quota is used up - each is worth
+    /// trying again only once its quota resets.
+    /// </summary>
+    public IReadOnlyList<AIProviderId> QuotaExhaustedProviders
+    {
+        get => _quotaExhaustedProviders ?? [];
+        init => _quotaExhaustedProviders = value;
+    }
+
     /// <summary>
     /// Builds a successful result.
     /// </summary>
@@ -217,6 +254,8 @@ public static class PoolDispatcher
         var remaining = members.ToList();
         var lastReason = exhaustedReason;
         var anyTransientFailure = false;
+        var tried = new List<AIProviderId>();
+        var quotaExhausted = new List<AIProviderId>();
 
         while (remaining.Count > 0)
         {
@@ -227,13 +266,28 @@ public static class PoolDispatcher
             }
 
             var attempt = await tryUse(member, cancellationToken);
+            if (attempt.Outcome != PoolAttemptOutcome.Skipped)
+            {
+                tried.Add(member.ProviderId);
+            }
+
             switch (attempt.Outcome)
             {
                 case PoolAttemptOutcome.Succeeded:
-                    return PoolDispatchResult<T>.Succeeded(attempt.Value!);
+                    return PoolDispatchResult<T>.Succeeded(attempt.Value!) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
 
                 case PoolAttemptOutcome.PermanentFailure:
-                    return PoolDispatchResult<T>.Stopped(attempt.Value, attempt.Reason);
+                    return PoolDispatchResult<T>.Stopped(attempt.Value, attempt.Reason) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
+
+                case PoolAttemptOutcome.QuotaExhausted:
+                    // The same request goes to the next member as it is - the caller's tryUse is
+                    // handed nothing but the member, so the messages and options it closes over
+                    // travel unchanged.
+                    failureMemory.Record(member.ProviderId);
+                    quotaExhausted.Add(member.ProviderId);
+                    lastReason = attempt.Reason;
+                    remaining.Remove(member);
+                    break;
 
                 case PoolAttemptOutcome.TransientFailure:
                     failureMemory.Record(member.ProviderId);
@@ -249,6 +303,12 @@ public static class PoolDispatcher
             }
         }
 
-        return PoolDispatchResult<T>.Exhausted(lastReason, anyTransientFailure);
+        // Out of quota is the one exhaustion a caller cannot wait out in seconds, so it names every
+        // provider the pool tried rather than only the last one's reason.
+        var reason = quotaExhausted.Count == 0
+            ? lastReason
+            : $"{exhaustedReason}: the pool is exhausted. Tried {string.Join(", ", tried)}; out of quota: {string.Join(", ", quotaExhausted)}. Last failure: {lastReason}";
+
+        return PoolDispatchResult<T>.Exhausted(reason, anyTransientFailure) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
     }
 }

@@ -342,6 +342,17 @@ public sealed class PooledChatClient(
         catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             logger.ChatCallFailed(exception, providerId, purpose);
+
+            // A spent quota moves the same messages and options on to the next member and parks this
+            // provider until it resets - unless a Claude Code turn may already have run a tool, where
+            // replaying the turn elsewhere could repeat its effects.
+            if (exception is not ClaudeCodeConversationFailed { FunctionInvocationAttempted: true } &&
+                QuotaExhaustion.IsIndicatedBy(exception.Message))
+            {
+                await rateLimitRecorder.Record(providerId, exception.Message);
+                return PoolAttempt<(T, AIProviderId)>.QuotaExhausted(exception.Message);
+            }
+
             if (!IsTransient(exception))
             {
                 return PoolAttempt<(T, AIProviderId)>.PermanentFailure(default, exception.Message);
