@@ -7,7 +7,7 @@
     { "query": "I'm new to Cratis event modeling. Explain the nine-step workflow from events through screens and integrations to slices.", "shouldTrigger": true },
     { "query": "Before we hand our .play model to review, walk me through the quick validation gate: what do we check across its commands, events and read models?", "shouldTrigger": true },
     { "query": "The generic method says commands never read views, but booking availability needs state. Explain the Cratis divergence and how to model the enforcement gap.", "shouldTrigger": true },
-    { "query": "We're designing a parcel-locker system from scratch. Which slice type is each behavior: a courier drops a parcel, the customer sees their locker code, a reminder goes out after 48 hours, and carrier status arrives from the carrier's webhook?", "shouldTrigger": true },
+    { "query": "We're modeling a parcel-locker system from scratch in Screenplay. Which .play slice type is each behavior: a courier drops a parcel, the customer sees their locker code, a reminder goes out after 48 hours, and carrier status arrives from the carrier's webhook?", "shouldTrigger": true },
     { "query": "We need a home for a new play model in this app and a readable split into files. Where should it live and how should we validate the whole thing?", "shouldTrigger": true },
     { "query": "Turn our whiteboard sketch of the boat booking flow into a first Screenplay model. What is the step-by-step order you work through for each behavior?", "shouldTrigger": true },
     { "query": "Before detailed workflow design for our rental business, how do we separate broad discovery from designing one workflow in Screenplay?", "shouldTrigger": true },
