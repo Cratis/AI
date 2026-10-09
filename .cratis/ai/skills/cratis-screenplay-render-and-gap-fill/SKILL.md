@@ -25,14 +25,14 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `3.39.0` (installed; worktree `6b2beb5`) | `cratis render` options, exit codes, publication receipt; `Directory.Packages.props` pins Stage 4.43.0 and bundled Screenplay 4.93.0, `cratis/stage:4.43.0` as the default run image. Reading baselines: 3.28.3 (`8b43fef`) bundled Screenplay 4.66.0 and Stage 4.24.2 (3.28.2 bundled Stage 4.24.1; before 3.28.2: 4.60.1 and 4.24.0) |
-| Stage | `4.43.0` (worktree `b9a7c76`) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, Scene 4.10.0 pins. Reading baseline: `v4.24.2` (`32dcac4`) |
-| Screenplay | `4.97.0` release (repo-tool era) | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; CLI 3.39.0 bundles 4.93.0, which refuses the canonical screen corpus the 4.97.0 tool admits |
-| Rendered apps | Arc `22.25.0`, Chronicle `19.8.1` | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one |
+| cratis CLI | `3.40.0` (checkout `082df13`) | `cratis render` options, exit codes, publication receipt; `Directory.Packages.props` pins Stage 4.49.1 and bundled Screenplay 4.105.0, `cratis/stage:4.49.1` as the default run image. Reading baselines: 3.39.0 (Stage 4.43.0 / Screenplay 4.93.0) and 3.28.3 (`8b43fef`) |
+| Stage | `4.49.1` (worktree `f64c3da`) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, generated query specs and guarded-action safety. Reading baselines: 4.43.0 and `v4.24.2` (`32dcac4`) |
+| Screenplay | `4.105.0` query-shapes release | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; CLI 3.40.0 bundles 4.105.0 and renders the canonical screen corpus |
+| Rendered apps | Arc `22.25.0`, Chronicle `19.8.1`, Scene packages | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one; verify the generated package set because the 4.49.1 corpus render observed Scene 4.10 packages even though the release vector names Scene 4.12.0 |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
-(`references/worked-example.md`); at CLI 3.39.0 it was run over the canonical `ScreenComposition`
-corpus and refused with `PLAY0268` ×4 before publication. The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
+(`references/worked-example.md`); at CLI 3.40.0 it was run over the canonical `ScreenComposition`
+corpus and published successfully. The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
 this skill links them and never restates the admission table.
 
 ## When to use / when not

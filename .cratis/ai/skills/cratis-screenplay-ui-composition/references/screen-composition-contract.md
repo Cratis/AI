@@ -32,13 +32,14 @@ hand-writing an alternate shape.
 
 Keep those three lines separate in reports. Correct an old limitation only when
 the package/version you are using proves the new level. Verified against the
-screens-release vector (2026-10-08): Screenplay 4.97.0 accepts the canonical
-`ScreenComposition` corpus v1 with zero authoring diagnostics; CLI 3.39.0’s
-bundled Screenplay 4.93.0 reports `executableReady false` (`PLAY0268` ×4) and its
-`cratis render` publishes nothing (exit `5`); Stage 4.43.0 adds Arc `CommandForm`
-shell emission over Scene 4.10 typed bindings but has not rendered that corpus.
-On Stage 4.24.2 or cratis 3.28.x renderers, authored screens are still reported
-as omitted/default composition.
+screens-release vector (2026-10-09): Screenplay 4.105.0 accepts the canonical
+`ScreenComposition` corpus v1 with zero authoring diagnostics; CLI 3.40.0’s
+bundled Screenplay 4.105.0 reports `executableReady true`; `cratis render` with
+Stage 4.49.1 publishes Scene output with Arc `commandForm` shells and query
+registrations. Runtime/browser behavior, Studio Play and production deploy are
+separate checks; Studio 0.136.3 production deploy proof remains pending behind the
+stale Pulumi lock. On Stage 4.24.2 or cratis 3.28.x renderers, authored screens
+are still reported as omitted/default composition.
 
 ## Data context and component bindings
 

@@ -103,20 +103,20 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
         'utf8',
     );
 
-    for (const required of ['4.43.0', '3.39.0', 'cratis/stage:4.43.0', 'PLAY0268']) {
+    for (const required of ['4.49.1', '3.40.0', 'cratis/stage:4.49.1', '4.105.0', 'Studio 0.136.3']) {
         assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
     }
-    for (const required of ['3.39.0', '4.93.0', 'PLAY0268']) {
+    for (const required of ['3.40.0', '4.49.1', '4.105.0', 'published successfully']) {
         assert.ok(render.includes(required), `render guidance is missing ${required}`);
     }
-    for (const required of ['3.39.0', '4.43.0', '4.93.0', '4.97.0']) {
+    for (const required of ['3.40.0', '4.49.1', '4.105.0', 'executableReady true']) {
         assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
     }
     assert.ok(
         workflow.includes('ScreenComposition/v1/source/folder'),
         'the authoring workflow must link the canonical screen corpus v1 folder',
     );
-    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'PLAY0268']) {
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'Stage 4.49.1', 'stale Pulumi lock']) {
         assert.ok(composition.includes(required), `composition contract is missing ${required}`);
     }
 });
