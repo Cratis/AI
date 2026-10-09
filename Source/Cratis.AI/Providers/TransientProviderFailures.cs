@@ -46,9 +46,13 @@ public static class TransientProviderFailures
     /// <returns>The failure and its structured diagnostic details.</returns>
     internal static async Task<VendorFailure> FromResponse(HttpResponseMessage response, AIProviderType vendor, string model, AIProviderId providerId, CancellationToken cancellationToken = default)
     {
-        var classified = FromStatusCode(response);
         var body = await VendorErrorBody.Read(response, cancellationToken);
         var (errorType, errorCode) = ErrorFrom(body);
+
+        // A spent quota is not throttling: retrying the same provider after Retry-After cannot help
+        // until the vendor's quota resets, so it is classified apart for a pool to fail over on.
+        var quotaExhausted = QuotaExhaustion.IsIndicatedBy((int)response.StatusCode, errorCode, body);
+        var classified = quotaExhausted ? LanguageModelResult.QuotaExhausted(string.Empty) : FromStatusCode(response);
         var retryAfter = response.Headers.TryGetValues("Retry-After", out var values)
             ? VendorErrorBody.Redact(string.Join(", ", values))
             : null;
@@ -61,6 +65,11 @@ public static class TransientProviderFailures
         if (errorCode is not null)
         {
             reason += $" ({errorCode})";
+        }
+
+        if (quotaExhausted)
+        {
+            reason += "; quota exhausted";
         }
 
         reason += $"; provider {providerId}";

@@ -201,3 +201,48 @@ never pushes or reports successful completion. An in-flight result or phase
 request is stopped first. Once a result POST has succeeded, cancellation exits
 without sending a second, Cancelled result. Cancellation before checkout has no
 workspace diff to deliver. SIGINT follows the same path with exit 130.
+
+## Failures caused by a spent quota
+
+A worker whose agent session is turned away because the provider's quota,
+spend limit or credit is used up still sends the `failed` callback, with up to
+four extra fields so the dispatching product can continue the work on another
+provider instead of retrying the same one:
+
+```json
+{
+  "status": "failed",
+  "detail": "API Error: 429 {\"type\":\"error\",\"error\":{\"type\":\"rate_limit_error\",\"details\":{\"error_code\":\"enforced_spend_limit_reached\"}}}",
+  "inputTokens": 0,
+  "outputTokens": 0,
+  "costUsd": 0,
+  "durationMs": 0,
+  "cpuSeconds": 1.2,
+  "memoryBytes": 3047424,
+  "reason": "quotaExhausted",
+  "provider": "anthropic",
+  "model": "sonnet",
+  "vendorCode": "enforced_spend_limit_reached"
+}
+```
+
+| Field | Contract |
+| --- | --- |
+| `reason` | `quotaExhausted` when the session's own error says the quota is spent. It is the only value today. |
+| `provider` | `DIRECT_PROVIDER` when set. Otherwise `anthropic` for Claude Code and `github-copilot` for Copilot. |
+| `model` | `DIRECT_MODEL`, when set. |
+| `vendorCode` | The vendor's error code (`enforced_spend_limit_reached`, `insufficient_quota`, `billing_hard_limit_reached`) when the error text carries one. |
+
+The worker reads the signal from what each harness already reports: Claude
+Code's errored `result` event, Pi's `stopReason: "error"` message, and
+Copilot's final text on a non-zero exit. Besides the vendor codes it recognizes
+Anthropic's "credit balance is too low", OpenAI's "exceeded your current
+quota", and Claude Code's own subscription-limit messages such as "You've hit
+your weekly limit". Short-term throttling is not reported this way.
+
+Every other failure sends the `failed` callback exactly as before, with no
+`reason` field. A Claude Code session that exits 0 but ends with an errored,
+quota-exhausted result is reported `failed` rather than `completed`.
+Scheduling the continuation belongs to the dispatching product. Outside
+bundle-diff mode the worker has already pushed whatever the agent committed, so
+the branch carries the work done so far.

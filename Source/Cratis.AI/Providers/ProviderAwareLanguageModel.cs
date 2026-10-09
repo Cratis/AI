@@ -144,17 +144,19 @@ public class ProviderAwareLanguageModel(
         var tier = role?.Tier ?? ModelTier.Balanced;
 
         var poolExhaustedTransiently = false;
+        string? poolOutOfQuota = null;
         try
         {
             if (hasPool)
             {
-                var (result, exhaustedTransiently) = await CompleteThroughPool(prompt, purpose, role!.PoolId!, tier, effort, cancellationToken);
+                var (result, exhaustedTransiently, outOfQuota) = await CompleteThroughPool(prompt, purpose, role!.PoolId!, tier, effort, cancellationToken);
                 if (result is not null)
                 {
                     return result;
                 }
 
                 poolExhaustedTransiently = exhaustedTransiently;
+                poolOutOfQuota = outOfQuota;
             }
 
             if (hasProvider)
@@ -193,6 +195,16 @@ public class ProviderAwareLanguageModel(
         // the time it tries again, which a same-provider hammering retry never gave the pool a chance
         // to benefit from (issue #1060).
         logger.NothingTheAgentNamedCouldServe(purpose);
+        if (poolOutOfQuota is not null)
+        {
+            // Members ran out of quota - say so and name them, rather than pointing at the log. Only
+            // worth the whole-call retry when some member also failed transiently; a spent quota does
+            // not come back within a retry's backoff.
+            return poolExhaustedTransiently
+                ? LanguageModelResult.TransientFailure(poolOutOfQuota)
+                : LanguageModelResult.QuotaExhausted(poolOutOfQuota);
+        }
+
         var reason = $"The AI provider configured for the {purpose.Value} agent could not serve this request. See the log for which step gave up.";
         return poolExhaustedTransiently ? LanguageModelResult.TransientFailure(reason) : LanguageModelResult.Failure(reason);
     }
@@ -202,20 +214,20 @@ public class ProviderAwareLanguageModel(
             .Where(pair => pair.Value.RemainingCapacity is not null)
             .ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value);
 
-    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently)> CompleteThroughPool(string prompt, LanguageModelPurpose purpose, AIProviderPoolId poolId, ModelTier tier, Effort effort, CancellationToken cancellationToken)
+    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota)> CompleteThroughPool(string prompt, LanguageModelPurpose purpose, AIProviderPoolId poolId, ModelTier tier, Effort effort, CancellationToken cancellationToken)
     {
         var pool = await readModels.GetInstanceById<AIProviderPool>((EventSourceId)poolId);
         if (pool is null)
         {
             logger.PoolNotConfigured(poolId);
-            return (null, false);
+            return (null, false, null);
         }
 
         var members = pool.Members?.ToList();
         if (members is null || members.Count == 0)
         {
             logger.PoolHasNoMembers(poolId);
-            return (null, false);
+            return (null, false, null);
         }
 
         var burn = await providerBurn.TrailingWeek(cancellationToken);
@@ -244,11 +256,11 @@ public class ProviderAwareLanguageModel(
                 // Succeeded hands back what was served; Stopped means a permanent failure said
                 // trying the rest of the pool could not help - either way, this is the pool's final
                 // answer and there is nothing transient about it.
-                return (dispatch.Value, false);
+                return (dispatch.Value, false, null);
 
             default:
                 logger.PoolExhausted(poolId);
-                return (null, dispatch.AnyTransientFailure);
+                return (null, dispatch.AnyTransientFailure, dispatch.QuotaExhaustedProviders.Count > 0 ? dispatch.Reason : null);
         }
     }
 
@@ -288,6 +300,12 @@ public class ProviderAwareLanguageModel(
         if (result.Succeeded)
         {
             return PoolAttempt<LanguageModelResult>.Succeeded(result);
+        }
+
+        if (result.IsQuotaExhausted)
+        {
+            logger.PoolMemberOutOfQuota(member.ProviderId, result.FailureReason);
+            return PoolAttempt<LanguageModelResult>.QuotaExhausted(result.FailureReason);
         }
 
         return result.IsTransient
@@ -365,7 +383,10 @@ public class ProviderAwareLanguageModel(
             // The completion path has the vendor's actual status code, unlike a worker's failure
             // text - so a 429/quota transient failure is recorded against the provider here rather
             // than waiting for a worker to report the same thing in words (issue #1060).
-            if (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason))
+            // A spent quota is recorded the same way, so the provider is skipped until it resets - the
+            // reset the vendor stated, else when its capacity says it is available again, else the
+            // bounded RateLimitCooldown.
+            if (result.IsQuotaExhausted || (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason)))
             {
                 await _rateLimitRecorder.Record(providerId, result.FailureReason);
             }

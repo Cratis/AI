@@ -118,6 +118,9 @@ public class AIProviderPoolDispatcher(
         var now = timeProvider.GetUtcNow();
         LanguageModelResult? last = null;
         var anyRateLimited = false;
+        var anyTransient = false;
+        var tried = new List<AIProviderId>();
+        var outOfQuota = new List<AIProviderId>();
         foreach (var member in candidates)
         {
             if (!configuredProviders.TryGetValue(member.ProviderId, out var provider))
@@ -141,13 +144,34 @@ public class AIProviderPoolDispatcher(
             }
 
             var result = await client.Complete(prompt, provider, model, effort, cancellationToken);
-            if (result.Succeeded || !result.IsTransient)
+            tried.Add(member.ProviderId);
+            if (result.Succeeded || !(result.IsTransient || result.IsQuotaExhausted))
             {
                 return result;
             }
 
-            logger.FailingOverToNextPoolMember(member.ProviderId, result.FailureReason);
+            // A spent quota fails over exactly like a transient failure - the same prompt goes to the
+            // next member - but is remembered, so an exhausted pool says which members ran out.
+            if (result.IsQuotaExhausted)
+            {
+                logger.PoolMemberQuotaExhausted(member.ProviderId, result.FailureReason);
+                outOfQuota.Add(member.ProviderId);
+            }
+            else
+            {
+                logger.FailingOverToNextPoolMember(member.ProviderId, result.FailureReason);
+                anyTransient = true;
+            }
+
             last = result;
+        }
+
+        if (outOfQuota.Count > 0)
+        {
+            var reason = $"No pool member could serve this completion: the pool is exhausted. Tried {string.Join(", ", tried)}; out of quota: {string.Join(", ", outOfQuota)}. Last failure: {last!.FailureReason}";
+            return anyTransient || anyRateLimited
+                ? LanguageModelResult.TransientFailure(reason)
+                : LanguageModelResult.QuotaExhausted(reason);
         }
 
         return last ?? (anyRateLimited
@@ -169,6 +193,9 @@ internal static partial class AIProviderPoolDispatcherLog
 
     [LoggerMessage(LogLevel.Information, "Pool member {ProviderId} is over its own usage limit until {Until:O} - skipping it")]
     internal static partial void PoolMemberRateLimited(this ILogger logger, AIProviderId providerId, DateTimeOffset until);
+
+    [LoggerMessage(LogLevel.Warning, "Provider {ProviderId} is out of quota ({Reason}) - failing over to the next pool member")]
+    internal static partial void PoolMemberQuotaExhausted(this ILogger logger, AIProviderId providerId, string reason);
 
     [LoggerMessage(LogLevel.Warning, "Provider {ProviderId} failed transiently ({Reason}) - failing over to the next pool member")]
     internal static partial void FailingOverToNextPoolMember(this ILogger logger, AIProviderId providerId, string reason);
