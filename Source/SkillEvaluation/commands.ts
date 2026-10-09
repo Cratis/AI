@@ -4,19 +4,20 @@
 import { Harness } from './Harness.ts';
 import type { Options } from './Options.ts';
 
-export function harnessEnvironment(environment: NodeJS.ProcessEnv, listingBudget?: number): NodeJS.ProcessEnv {
+export function harnessEnvironment(environment: NodeJS.ProcessEnv, listingBudget?: number, agentDirectory?: string): NodeJS.ProcessEnv {
     const clean = Object.fromEntries(Object.entries(environment).filter(([key]) => !key.startsWith('PI_')));
     // An inherited budget would make the default condition differ across hosts.
     delete clean.SLASH_COMMAND_TOOL_CHAR_BUDGET;
     if (listingBudget !== undefined) clean.SLASH_COMMAND_TOOL_CHAR_BUDGET = String(listingBudget);
+    // Restore only this deliberate override after stripping inherited PI_* state.
+    if (agentDirectory) clean.PI_CODING_AGENT_DIR = agentDirectory;
     return clean;
 }
 
 export function harnessCommand(options: Pick<Options, 'harness' | 'model' | 'thinking'>, prompt: string, skillsDirectory?: string): string[] {
     if (options.harness === Harness.Claude) return [
         'claude', '-p', prompt, '--model', options.model, '--output-format', 'stream-json', '--verbose',
-        '--no-session-persistence', '--setting-sources', 'project', '--disallowedTools',
-        'Edit', 'Write', 'Bash', 'NotebookEdit', 'WebFetch', 'WebSearch', 'Agent', 'Task',
+        '--no-session-persistence', '--setting-sources', 'project', '--strict-mcp-config', '--tools', 'Read,Glob,Grep,Skill',
     ];
     return [
         'pi', '-p', '--mode', 'json', '--no-session', '--no-context-files', '--no-extensions', '--no-mcp',
@@ -27,5 +28,5 @@ export function harnessCommand(options: Pick<Options, 'harness' | 'model' | 'thi
 
 export function graderCommand(prompt: string, model: string): string[] {
     return ['claude', '-p', prompt, '--model', model, '--output-format', 'stream-json', '--verbose',
-        '--no-session-persistence', '--setting-sources', 'project', '--tools', ''];
+        '--no-session-persistence', '--setting-sources', 'project', '--strict-mcp-config', '--disable-slash-commands', '--tools', ''];
 }

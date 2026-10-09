@@ -5,6 +5,7 @@ import type { Task } from './Task.ts';
 
 export interface Result extends Task {
     skillsRead: string[];
+    listedSkills?: string[];
     text: string;
     usage: { input: number; output: number; costUsd?: number } | undefined;
     durationSeconds: number;

@@ -186,8 +186,12 @@ yarn workspace @cratis/ai-skill-evaluation run evaluate report --run <run-direct
 ```
 
 Results and raw transcripts stay untracked in `.ai-work/skill-evaluations/`. Harnesses run in
-neutral temporary workspaces outside the repository, removed afterward. Output tasks run with
-all corpus skills and without them; graders have no tools, and passes require quoted answer evidence.
+neutral temporary workspaces outside the repository, removed afterward. Each batch uses a private
+copy of the skills; pi's temporary agent directory contains only authentication, not host system
+prompts or settings. Claude has a read-only tool allowlist and no configured MCP servers; its init
+listing must contain the target in with-skills runs and no corpus skills in baseline runs. Output
+tasks run with all corpus skills and without them; graders have no tools, and passes require quoted
+answer evidence.
 Trigger runs stop at the first skill load or six tool calls; a rate ≥ 0.5 counts as triggered.
 Reports show failures, assertion discrimination, and paired token/time deltas. Review actual answers
 alongside grades: model grading and a few repetitions are signals, not proof of correctness.

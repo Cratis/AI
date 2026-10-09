@@ -45,6 +45,29 @@ test('final text and cached usage are extracted with harness-specific accounting
     assert.equal(claude.completed, true);
 });
 
+test('Claude init requires the target with skills and forbids corpus skills in the baseline', () => {
+    const init = (skills: string[]) => JSON.stringify({ type: 'system', subtype: 'init', skills, tools: ['Read', 'Glob', 'Grep', 'Skill'] });
+    const expectation = { target: 'cratis-arc-command', corpusSkills: ['cratis-arc-command', 'cratis-chronicle-projection'], withSkills: true };
+    const valid = new Transcript(Harness.Claude, expectation);
+    valid.consume(init(['cratis-arc-command', 'debug']));
+    valid.validateInitialization();
+    assert.equal(valid.error, undefined);
+    assert.deepEqual(valid.listedSkills, ['cratis-arc-command', 'debug']);
+    const missing = new Transcript(Harness.Claude, expectation);
+    missing.consume(init(['debug']));
+    assert.match(missing.error!, /does not list target/);
+    const contaminated = new Transcript(Harness.Claude, { ...expectation, withSkills: false });
+    contaminated.consume(init(['cratis-chronicle-projection']));
+    assert.match(contaminated.error!, /without-skills.*corpus skill/);
+    const baseline = new Transcript(Harness.Claude, { ...expectation, withSkills: false });
+    baseline.consume(init(['debug']));
+    baseline.validateInitialization();
+    assert.equal(baseline.error, undefined);
+    const absent = new Transcript(Harness.Claude, expectation);
+    absent.validateInitialization();
+    assert.match(absent.error!, /did not emit/);
+});
+
 test('pi model errors remain errors even if the stream ends', () => {
     const transcript = new Transcript(Harness.Pi);
     transcript.consume('{"type":"message_end","message":{"role":"assistant","stopReason":"error","errorMessage":"Not logged in"}}');

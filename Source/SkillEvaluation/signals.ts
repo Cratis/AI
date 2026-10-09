@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { Harness } from './Harness.ts';
+import type { SkillExpectation } from './SkillExpectation.ts';
 
 export function object(value: unknown): Record<string, unknown> {
     return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -41,11 +42,29 @@ export class Transcript {
     usage: { input: number; output: number; costUsd?: number } | undefined;
     error: string | undefined;
     completed = false;
+    listedSkills: string[] | undefined;
 
-    constructor(readonly harness: Harness) {}
+    constructor(readonly harness: Harness, readonly expectation?: SkillExpectation) {}
+
+    validateInitialization(): void {
+        if (this.harness === Harness.Claude && this.expectation && this.listedSkills === undefined) this.error ??= 'Claude did not emit a valid system/init skills listing.';
+    }
 
     consume(line: string): void {
         const event = parseLine(line);
+        if (this.harness === Harness.Claude && event.type === 'system' && event.subtype === 'init') {
+            if (!Array.isArray(event.skills) || !event.skills.every(skill => typeof skill === 'string')) {
+                if (this.expectation) this.error = 'Claude system/init has no valid skills listing.';
+            } else {
+                this.listedSkills = event.skills;
+                if (this.expectation?.withSkills && !this.listedSkills.includes(this.expectation.target!)) {
+                    this.error = `Claude system/init does not list target skill '${this.expectation.target}'.`;
+                }
+                if (this.expectation && !this.expectation.withSkills && this.listedSkills.some(skill => this.expectation!.corpusSkills.includes(skill))) {
+                    this.error = 'Claude without-skills system/init lists a corpus skill.';
+                }
+            }
+        }
         for (const call of calls(this.harness, event)) {
             if (this.seenCalls.has(call.id)) continue;
             this.seenCalls.add(call.id);

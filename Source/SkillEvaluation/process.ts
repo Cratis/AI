@@ -6,14 +6,15 @@ import { openSync, closeSync, writeSync } from 'node:fs';
 import type { Harness } from './Harness.ts';
 import { Transcript } from './signals.ts';
 import { onInterrupt } from './cancellation.ts';
+import type { SkillExpectation } from './SkillExpectation.ts';
 
 /** Wall-clock timer fires even when the harness never writes a line. Kill the owned process group. */
 export async function execute(command: string[], harness: Harness, cwd: string, environment: NodeJS.ProcessEnv,
-    transcriptPath: string, timeoutSeconds: number, toolCap?: number): Promise<{
+    transcriptPath: string, timeoutSeconds: number, toolCap?: number, expectation?: SkillExpectation): Promise<{
         transcript: Transcript; durationSeconds: number; stopped?: 'skill-loaded' | 'tool-cap';
     }> {
     const started = performance.now();
-    const transcript = new Transcript(harness);
+    const transcript = new Transcript(harness, expectation);
     const file = openSync(transcriptPath, 'w');
     const child = spawn(command[0], command.slice(1), { cwd, env: environment, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
     let stopped: 'skill-loaded' | 'tool-cap' | undefined;
@@ -38,7 +39,8 @@ export async function execute(command: string[], harness: Harness, cwd: string, 
     const timer = setTimeout(() => { failure = `Timed out after ${timeoutSeconds}s`; stop(); }, timeoutSeconds * 1000);
     const consume = (line: string) => {
         transcript.consume(line);
-        if (toolCap && !stopped && !transcript.error) {
+        if (transcript.error) { stop(); return; }
+        if (toolCap && !stopped) {
             if (transcript.skillsRead.size) stopped = 'skill-loaded';
             else if (transcript.seenCalls.size >= toolCap) stopped = 'tool-cap';
             if (stopped) stop();
@@ -60,6 +62,7 @@ export async function execute(command: string[], harness: Harness, cwd: string, 
             child.on('close', resolve);
         });
         if (pending.trim()) consume(pending);
+        transcript.validateInitialization();
         failure ??= transcript.error;
         if (failure) throw new Error(`${command[0]}: ${failure}. Transcript: ${transcriptPath}`);
         if (!stopped && (exit !== 0 || !transcript.completed)) {

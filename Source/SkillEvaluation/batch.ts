@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { join, resolve, relative } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type { Options } from './Options.ts';
@@ -10,8 +10,8 @@ import type { Result } from './Result.ts';
 import { harnessCommand, harnessEnvironment } from './commands.ts';
 import { execute } from './process.ts';
 import { appendLine, concurrent, pendingTasks, readLines } from './storage.ts';
-import { corpusDigest, tasks } from './tasks.ts';
-import { workspace } from './workspace.ts';
+import { tasks } from './tasks.ts';
+import { isolateBatch } from './isolation.ts';
 
 export function runPath(root: string, directory: string): string {
     const parent = join(root, '.ai-work/skill-evaluations');
@@ -22,16 +22,20 @@ export function runPath(root: string, directory: string): string {
 }
 
 export async function runBatch(root: string, options: Options): Promise<string> {
-    const skillsDirectory = join(root, '.cratis/ai/skills');
+    const selected = await tasks(root, options);
+    const isolated = await isolateBatch(join(root, '.cratis/ai/skills'), options.harness);
+    try { return await runIsolatedBatch(root, options, selected, isolated); }
+    finally { await isolated.remove(); }
+}
+
+async function runIsolatedBatch(root: string, options: Options, selected: Manifest['tasks'], isolated: Awaited<ReturnType<typeof isolateBatch>>): Promise<string> {
     const manifest: Manifest = { version: 1, options: { ...options, runDirectory: undefined },
-        tasks: await tasks(root, options), corpusDigest: await corpusDigest(skillsDirectory) };
+        tasks: selected, corpusDigest: isolated.digest };
     const directory = options.runDirectory ? runPath(root, options.runDirectory) : join(root, '.ai-work/skill-evaluations',
         `${new Date().toISOString().replaceAll(':', '-')}-${options.command}-${randomUUID().slice(0, 8)}`);
     await mkdir(directory, { recursive: true });
-    // A lock also prevents separate CLI invocations from billing duplicate runs in one directory.
     const lock = join(directory, '.lock');
     await writeFile(lock, String(process.pid), { flag: 'wx' });
-    const { unlink } = await import('node:fs/promises');
     try {
         const manifestPath = join(directory, 'manifest.json');
         if (options.runDirectory) {
@@ -43,18 +47,22 @@ export async function runBatch(root: string, options: Options): Promise<string> 
         const pending = pendingTasks(manifest.tasks, await readLines<Result>(resultsPath));
         console.log(`Run: ${directory}\n${pending.length}/${manifest.tasks.length} calls pending; ${options.harness}/${options.model}, concurrency ${options.concurrency}`);
         await concurrent(pending, options.concurrency, async task => {
-            const temporary = await workspace(task.withSkills ? skillsDirectory : undefined);
             const transcriptPath = join(directory, 'raw', `${task.key}.jsonl`);
             try {
-                const result = await execute(harnessCommand(options, task.prompt, task.withSkills ? skillsDirectory : undefined),
-                    options.harness, temporary.path, harnessEnvironment(process.env, options.listingBudget), transcriptPath,
-                    options.timeout, options.command === 'trigger' ? 6 : undefined);
+                const result = await execute(harnessCommand(options, task.prompt, task.withSkills ? isolated.skillsDirectory : undefined),
+                    options.harness, task.withSkills ? isolated.withWorkspace : isolated.withoutWorkspace,
+                    harnessEnvironment(process.env, options.listingBudget, isolated.agentDirectory), transcriptPath,
+                    options.timeout, options.command === 'trigger' ? 6 : undefined,
+                    { target: task.skill, corpusSkills: isolated.corpusSkills, withSkills: task.withSkills });
                 if (options.command === 'outputs' && !result.transcript.text.trim()) throw new Error(`No answer text: ${transcriptPath}`);
-                appendLine(resultsPath, { ...task, skillsRead: [...result.transcript.skillsRead], text: result.transcript.text,
-                    usage: result.transcript.usage, durationSeconds: result.durationSeconds, stopped: result.stopped,
-                    transcript: relative(directory, transcriptPath) } satisfies Result);
+                appendLine(resultsPath, { ...task, skillsRead: [...result.transcript.skillsRead], listedSkills: result.transcript.listedSkills,
+                    text: result.transcript.text, usage: result.transcript.usage, durationSeconds: result.durationSeconds,
+                    stopped: result.stopped, transcript: relative(directory, transcriptPath) } satisfies Result);
                 console.log(`${task.key}: ${result.stopped ?? 'complete'}; skills: ${[...result.transcript.skillsRead].join(', ') || 'none'}`);
-            } finally { await temporary.remove(); }
+            } catch (error) {
+                appendLine(join(directory, 'errors.jsonl'), { key: task.key, error: String(error), transcript: relative(directory, transcriptPath) });
+                throw error;
+            }
         });
         return directory;
     } finally { await unlink(lock); }

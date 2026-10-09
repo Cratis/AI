@@ -21,10 +21,13 @@ test('commands isolate pi and Claude with the pilot flags and model choices', ()
     assert.deepEqual(command.slice(-7), ['--skill', '/corpus/skills', '--model', 'openai-codex/gpt-6.1-sol', '--thinking', 'medium', 'query']);
     assert.ok(!harnessCommand(options, 'query').includes('--skill'));
     const claude = harnessCommand({ ...options, harness: Harness.Claude }, 'query');
-    for (const tool of ['Edit', 'Write', 'Bash', 'Agent', 'Task', 'WebSearch', 'WebFetch', 'NotebookEdit']) assert.ok(claude.includes(tool));
+    assert.equal(claude[claude.indexOf('--tools') + 1], 'Read,Glob,Grep,Skill');
+    assert.ok(claude.includes('--strict-mcp-config'));
+    assert.ok(graderCommand('prompt', 'opus').includes('--strict-mcp-config'));
     assert.ok(claude.includes('--setting-sources'));
     assert.deepEqual(harnessEnvironment({ PATH: 'path', PI_MODEL: 'wrong', PI_SESSION_ID: 'session', SLASH_COMMAND_TOOL_CHAR_BUDGET: '99' }), { PATH: 'path' });
     assert.equal(harnessEnvironment({}, 60000).SLASH_COMMAND_TOOL_CHAR_BUDGET, '60000');
+    assert.deepEqual(harnessEnvironment({ PI_CODING_AGENT_DIR: '/host', PI_MODEL: 'wrong' }, undefined, '/isolated/agent'), { PI_CODING_AGENT_DIR: '/isolated/agent' });
     assert.deepEqual(graderCommand('prompt', 'opus').slice(-2), ['--tools', '']);
 });
 
@@ -67,8 +70,8 @@ test('concurrency never exceeds the bound and stops scheduling on failure', asyn
     assert.deepEqual(visited, [1]);
 });
 
-test('workspaces are neutral and removed, including the skills link', async () => {
-    const temporary = await workspace('/corpus/skills');
+test('workspaces are neutral and removed', async () => {
+    const temporary = await workspace();
     const content = await readFile(join(temporary.path, 'README.md'), 'utf8');
     assert.match(content, /Cratis Arc and Chronicle/);
     assert.doesNotMatch(content, /code-first|\.play|opted/);
