@@ -74,11 +74,11 @@ work on a screen whose purpose is unsettled is rework.
 2. **Review the flow before adding layout.** Walk it screen by screen as text
    (format in `references/flow-review.md`). When the host advertises the MCP-Apps
    extension for the `screenplay` MCP server, `visualize-model` (a `proposalId` or a `sketch`) can also show it on
-   a board; that is optional, and the text review is enough on its own. Do not
+   a board; that is optional, and the text review is enough. Do not
    use the Stage sandbox as the review: it renders only part of a screen, and
    nothing here establishes that Stage renders an authored screen faithfully.
 3. **Add structure only to screens whose Level 1 is agreed**: template, sections,
-   forms, `on`/`uses`. Use Level 3 inline code last, and only where Level 2 cannot
+   forms, `on`/`uses`. Use Level 3 inline code last, only where Level 2 cannot
    say it.
 4. **Trace every field.** Each `form` `field` is a property of the form's command.
    A prefilled value comes from `populate` or `from`; a derived one from
