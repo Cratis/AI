@@ -1,5 +1,14 @@
 # `cratis screenplay generate` notes
 
+## Contents
+
+- Command
+- Preconditions
+- Coverage (what a provider reads)
+- Diagnostics are the loss list
+- Arc recovery and authoring-only options
+- Reading the output cheaply
+
 Flags verified with `cratis screenplay generate --help` on the version recorded in
 cratis-screenplay-toolchain `references/versions.md`; behaviour from the cratis CLI
 (`v3.28.2:Source/Cli/Commands/Screenplay/`; the generate files are unchanged since `v3.27.1`), Arc `v22.50.5`
@@ -7,6 +16,12 @@ cratis-screenplay-toolchain `references/versions.md`; behaviour from the cratis 
 `Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`), Screenplay.Generation `v0.18.0` and
 Screenplay.CritterStack `v0.24.0`. Version-specific capability facts belong in cratis-screenplay-toolchain
 `references/versions.md`.
+
+Current CLI is 3.41.0, with Arc.Screenplay 22.54.0 (`references/versions.md` in
+the toolchain). Current option/admission evidence: CLI released
+`GenerateScreenplaySettings.cs`, `ArcScreenplayGeneration.cs`, v7 planning specs
+and `Documentation/reference/screenplay.md`; older diagnostic probes below keep
+their original labels. Arc#3054 and CLI#270 describe the recovered-source expansion.
 
 ## Command
 ```
@@ -56,14 +71,38 @@ cratis screenplay generate <solution|project|folder> \
   persistence, stream ownership or authorization.
 - "Success" only means no error diagnostic was produced. Read warnings and information too.
 
-## Known lag
-The generators are built against older Screenplay packages than the CLI's compiler. Expect
-no event generations, no `when append` specifications, and no absence assertions in
-generated output, even when the code has them. Reactors are emitted as file-backed
-reactions with one named event trigger per observed event (a reactor observing no events
-is dropped with a warning), but their bodies and declarative effects are not recovered.
-Application triggers (clock, application-defined) are not generated. Record these as
-losses, then read the code for them.
+## Arc recovery and authoring-only options
+
+`--authoring-only-constructs` maps to `ScreenplayOptions.AuthoringOnlyConstructs`
+in the Arc adapter (false by default). It includes operations/systems, source and
+stream declarations/routes, and reads/requirements recovered from Provide/Handle.
+Other providers warn CLI0014 and do not apply it. Added syntax does not realize
+code or waive admission: operations refuse PLAY0268 and legacy reads PLAY0271.
+Source/stream routes themselves bind as v8 on the current standalone compiler;
+older blanket authoring-only route caveats are not its current disposition.
+
+The expanded Arc recovery surface includes:
+- Proven command identifiers and event `for` destinations.
+- Inline events where one unconditional complete production uniquely owns them.
+- Event description/documentation and generation-1 stored-name rename pins.
+- Unconditional named Must(Method) rules with implementation-file provenance,
+  where no specification exercises the command.
+- Event scenarios as `when append`, and event-source-faithful `for` fixtures.
+  Scenarios whose sources cannot be stated faithfully are omitted with SP0039;
+  record the omission as a loss, never fabricate identities to retain a scenario.
+- Supported generated UUID command values and scalar/record responses by default,
+  without the authoring-only flag, where successful scenarios do not depend on
+  deterministic generation fixtures. Unsupported shapes/pre-generation protection
+  remain code with SP0052.
+
+Generated values/responses select ESM v7. CLI 3.41.0 admits v7 to planning, but
+Stage refuses those members with STAGE-ESM-028/029. CLI#261 is closed; do not say
+the compiler or CLI version gate universally refuses v7. Above v7 remains
+CLI-RENDER-004. A generated source model is evidence, not guaranteed render output.
+
+Handler/reaction bodies, unresolved conditions and unproven origins still need
+source review. Do not infer generation/evolution/absence-assertion coverage from
+a package upgrade; read diagnostics and reconcile each recovered scenario.
 
 ## Reading the output cheaply
 1. V1 on `.ai-work/screenplay/<model-slug>/legacy/static` (folder mode) with the tool and

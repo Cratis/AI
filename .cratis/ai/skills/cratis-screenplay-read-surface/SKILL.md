@@ -231,6 +231,16 @@ block or a named `behavior` attached with `uses`. See
 `cratis-screenplay-ui-composition`. Screens and interactions are deferred from the
 executable model (information `PLAY0269`); they never block binding.
 
+## Guarded screen actions
+
+One labeled user decision can choose among commands using ordered
+`when item.<path> ... execute <Command>` alternatives, with optional last
+`otherwise execute` or `otherwise hidden`. First match wins; no item or no match
+without an execute fallback hides it. Inputs use typed `with ... from ...`
+bindings; the selected command still enforces its own gate/rules/constraints.
+Read [guarded actions](references/guarded-actions.md) for the checked model,
+missing-versus-null behavior and source-versus-renderer boundary.
+
 ## How a bare name resolves
 
 **Inside out:** the slice, then the enclosing feature, then the module, then the

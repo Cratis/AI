@@ -44,7 +44,7 @@ v19.32.0): `cratis-screenplay-toolchain` `references/versions.md`. Checked at th
 | `prologue start` is an interactive wizard that writes `cratis-prologue.json`; `interpret` resolves its language model from the Prologue file, then the global CLI configuration (cli#241 open) | cli `v3.28.2:Source/Cli/Commands/Prologue/{StartPrologueCommand,LlmOptionsResolver}.cs`, `Documentation/reference/prologue.md` |
 | Extractor effects (CDC enable, publication and replication slot), POST/PUT/DELETE only, 2 s correlation window, interpret payload (uncapped model outline and names, observed lists capped at 50, schema tables capped per schema observation), existing slot/publication reused; cleanup missing (Prologue#37) | Prologue `ad4bbe7:Source/Extractor/Sources/**`, `Source/Configuration/*`, `Source/Interpretation/EvidenceFormatter.cs` |
 | `then error`, `then denied`, `unique ... released by` | Screenplay `v4.66.0:Documentation/screenplay/{specifications,constraints}.md` |
-| No semantic diff or equivalence check exists (Screenplay#387 open) | `gh issue view 387 --repo Cratis/Screenplay` |
+| MCP semantic-diff compares canonical workspace exports; structural comparison is not execution equivalence | Screenplay `v4.125.0:Documentation/screenplay/mcp/reference.md` |
 
 Every complete `screenplay` fence here compiles with the standalone compiler 4.68.0 (`--warnaserror`) and
 `cratis screenplay validate --warnings-as-errors` 3.28.2.
@@ -191,8 +191,10 @@ handoff packet appended, first line `Outcome:`; no prose reports in the model ro
   ask again only when target or consequence expands): capture setup and Extractor runs, traffic
   re-routing, load or scenario runs that write data, cleanup DDL, hosted language-model use.
   Production needs DBA sign-off (`rules/capability-is-not-authority.md`).
-- No claims of equivalence: Screenplay has no semantic diff or equivalence check yet
-  (Screenplay#387).
+- No claims of execution equivalence from structure. MCP `semantic-diff` compares
+  same-application canonical exports with authoritative catalogs; it does not guess
+  rename continuity, run specifications or prove recovered behavior. Inspect
+  incomplete sections and exclusions before using the result in the loss report.
 - Never weaken protection (authorization, `@pii`, rules) to make the candidate compile.
 
 ## Gate
