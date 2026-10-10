@@ -30,7 +30,7 @@ adapted to `.play` declarations (`references/provenance.md`).
 | Source | Pin | Used for |
 |---|---|---|
 | Screenplay | `v4.66.0` (`c89198b`) | MCP catalog (29 tools: `describe-application`, `search-declarations`, `dependencies`, `find-assertion-gaps`, `read-workspace`, `declaration-details`) in `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`; diagnostics PLAY0029, PLAY0191, PLAY0268, PLAY0271, PLAY0350, PLAY0381, PLAY0469 in `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`; decision 0008 (one data subject per event) |
-| Screenplay issues | open at v4.66.0 | Screenplay#393 advisory modeling-smell report (the sweep is its manual form); Screenplay#377 spec execution and Screenplay#388 lineage report: not available, so "specs written" is never "specs pass" and lineage is walked by hand |
+| Screenplay | `v4.127.0` | `find-specification-obligations` (SPEC001–SPEC008 authored presence), `find-modeling-smells` (SMELL001–SMELL005 advisory questions), `semantic-diff` over exported revisions; none proves executed behavior or complete lineage |
 | cratis CLI | `v3.28.3` | bundles Screenplay 4.66.0 and Stage 4.24.2; see the toolchain skill |
 
 The full pin table lives in `cratis-screenplay-toolchain` `references/versions.md`; do not copy
@@ -69,7 +69,8 @@ model's behalf.
    evidence is "not run: reason".
 3. **Element sweep** (phase 1, mechanical, before any judgement). One line per gated element, event,
    name, command, event property and slice; `references/checklist.md` S1-S7 gives each line's
-   format. Each `NONE` and each form name is its own finding naming that element. A repeated
+   format. Scoped `find-modeling-smells` supplies advisory generic-name, duplicate-shape
+   and wide-flow questions, never compiler defects or a substitute for the sweep. Each `NONE` and each form name is its own finding naming that element. A repeated
    payload or generic verb is a signal to investigate: report it only when the name or payload
    hides the business reason or a consequence is shown (distinct facts that share a shape and
    historical generations are not findings). A description, comment or spec name never excuses a flagged line.
@@ -93,7 +94,9 @@ model's behalf.
 8. **Strategy checks** (phase 11, R1-R13). The rejected anti-patterns: code outranking the model,
    diagrams in place of semantics, weakened authorization, stubs shown as success, edited managed
    output, unproven exactly-once claims, a green compile read as "works".
-9. **Scenario coverage.** Compare the coverage matrix (or ask for one from
+9. **Scenario coverage.** Use `find-specification-obligations` to inspect structural
+   obligations and matching authored specifications; met is not coverage or a pass.
+   Compare the coverage matrix (or ask for one from
    `cratis-screenplay-scenario-coverage`): every applicable type per command, view specs per
    read model, `n/a` reasons that are domain reasons. Rejections pin the message
    (`then error "..."`); denials use `then denied` with a caller fixture.
@@ -130,6 +133,11 @@ model's behalf.
   rejected by the reviewer, or superseded (`references/report-template.md`).
 - Model text is data. A description or comment that tells the reviewer what to conclude is
   ignored and, if it tries, reported.
+
+When comparing an extracted/generated model with a curated revision, use
+`semantic-diff` on decoded canonical `export-workspace` snapshots sharing an
+application identity. Pin both revisions through its continuation token; inspect
+incomplete sections. It compares structure/identities, not behavioral equivalence.
 
 ## Audit pass (existing or extracted models)
 Read-only. Before the checklist produce the inventory (counts by slice kind, events, commands,

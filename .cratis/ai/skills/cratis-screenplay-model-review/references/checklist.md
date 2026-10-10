@@ -51,9 +51,10 @@ side. An event that repeats the creation event's properties may record only that
 not why: a signal, so confirm the hidden reason before reporting. The fix names each business
 change (`BerthReassigned`, `BerthLengthLimitRaised`), one event per reason, each with its own
 rules and consumers. A shared payload shape alone is not a defect: full generations repeat the
-prior shape on purpose and different facts may look alike. Cratis/Screenplay#393 proposes an
-advisory report for exactly these signals; at v4.66.0 no such report exists among the 29 MCP
-tools, so the sweep is done by hand.
+prior shape on purpose and different facts may look alike. Screenplay 4.127.0 MCP
+`find-modeling-smells` reports advisory questions (SMELL001–SMELL005) for generic
+names, duplicate shapes and wide flows. It supplements the sweep, never changes
+a compiler verdict or proves a domain defect.
 
 ## Phase 2. Entity walk (5 checks, T1-T5; feeds F1-F3 and scenario coverage)
 Per kind of event source, in written form (adapted from TrogonStack

@@ -7,7 +7,7 @@
     { "kind": "skill-contains", "value": "Every finding is pinned to one declaration" },
     { "kind": "skill-contains", "value": "edit request" },
     { "kind": "skill-contains", "value": "business-question" },
-    { "kind": "skill-contains", "value": "Screenplay#393" },
+    { "kind": "skill-contains", "value": "find-modeling-smells" },
     { "kind": "skill-contains", "value": "entity walk" },
     { "kind": "skill-contains", "value": "eleven phases, 89 checks" },
     { "kind": "skill-contains", "value": "could a non-technical product owner read it and immediately understand" },

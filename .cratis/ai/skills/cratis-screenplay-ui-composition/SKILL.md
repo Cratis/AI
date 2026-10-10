@@ -240,8 +240,10 @@ acts. Three words carry it:
 | **Action** | a closed set: `execute`, `navigate to`/`navigate back`, `open dialog`/`close dialog`, `refresh`, `set … to`, `notify`, `confirm`, `raise` |
 | **Behavior** | a bundle of trigger-to-action bindings; inline (`on …`) or named (`behavior` + `uses`) |
 
-A complete example — a named behavior with parameters, attached with `uses`, and
-an inline `on` block with a continuation:
+Guarded alternatives and `where` deprecation:
+[guarded interactions](references/guarded-interactions.md).
+
+Complete named/inline behavior example:
 
 ```screenplay
 concept InvoiceId : Uuid
