@@ -23,25 +23,13 @@ contract is in `cratis-screenplay-ui-composition`.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | Current compiler; admits ESM v7 (generated values and responses, decision 0026); examples compiled with `--warnaserror` and their specifications run |
-| `Cratis.Screenplay` / `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | MCP (29/30 tools), roots fix; the MCP behaviour below was probed on it |
-| `Cratis.Screenplay` | main `fd18129` | Inline events, repairs, rename/extraction and `optional` |
-| `Cratis.Screenplay` | `4.31.0` | Original compiler, ESM and workspace evidence |
-| `cratis` CLI | `3.28.3` | Bundles Screenplay 4.66.0 (no ESM v7) and Stage 4.24.2 (3.28.2 bundled 4.24.1; before 3.28.2: 4.60.1, ESM v5 at most, roots bug) |
-
-Facts about the MCP connection, source-map, `whenAppendedEvent`, identity
-persistence and the syntax-only constructs were read at tag `v4.66.0`
-(`Documentation/screenplay/mcp/{reference,install,edit}.md`,
-`Source/DotNET/Screenplay.Mcp/`) and probed against the 4.66.0 tool (persona,
-trigger, `@pii`, generated values, operations, streams, automation binding).
-Repair and refactoring guidance follows main `fd18129` (`commands.md`,
-`events.md`, `types.md`, `diagnostics.md`, `mcp/authoring-tools.md`, `vscode.md`,
-decision 0023); the `v4.31.0` documents (`ast-authoring`, `mcp`, `mcp-authoring`,
-`printing`, `file-references`, `diagnostics`) and release notes v4.17.0 to v4.31.0
-established the original baseline. When checking compiler, CLI or MCP compatibility, read the full version table in
-`cratis-screenplay-toolchain` (`references/versions.md`).
+Current authoring/MCP guidance follows Screenplay v4.125.0
+`Documentation/screenplay/mcp/`, `ast-authoring.md`, `folders.md`, `vscode.md`.
+Discover installed tools and schemas; CLI bundles can differ from the standalone
+tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
+Historical connection/binding probes below remain labeled 4.66.0; the complete
+registration example was compiled/tested at 4.68.0, not reclassified as a current
+execution probe. Earlier source attribution is in `references/provenance.md`.
 
 ## Locate and connect
 
@@ -54,17 +42,16 @@ directory when it holds `.play` files). Only when it answers that no root was gi
 or that several roots are offered, pass `path`: the folder holding the project's `.play` files, otherwise the
 folder the user names. Without a project, the server works in `Documents/Screenplay`
 in the user's home folder, so do not invent a location. A root fixed at launch
-cannot be switched: another `path` returns `RootChangeRefused`.
+can switch only to the corresponding model folder in a registered Git worktree
+of the same repository. Pass the worktree checkout or exact model directory as
+`path`; unrelated roots return `RootChangeRefused`. Switching clears proposals
+and uses the destination's own identity state and journal; nothing migrates.
+Submodules and `--separate-git-dir` checkouts require another connection.
 
-**Prefer a fixed root.** Screenplay up to 4.63.1 (so Cratis CLI before 3.28.2; fixed in
-4.63.2, so not in CLI 3.28.2 or later, probed) fails a
-dynamic-root server right after `notifications/initialized` when the client
-advertises roots; real hosts then drop the connection, and `open-workspace.path`
-cannot prevent it. Start `screenplay mcp <model-folder>` or `cratis screenplay mcp`
-in a project (it locates the model: the project's `.play` files, else `Source/` or `src/`, else `Screenplay/`).
-Send `initialize` and `notifications/initialized` before any tool call;
-`tools/list` returns 29 tools (30 on MCP-Apps hosts). Read `references/mcp-loop.md` when connecting, coordinating connection ownership, or handling proposal and recovery failures. Details:
-[MCP loop](references/mcp-loop.md).
+Prefer a fixed root; the historical dynamic-roots bug and connection procedure
+are in [MCP loop](references/mcp-loop.md). Send `initialize` and
+`notifications/initialized` before any tool call, then discover `tools/list`
+schemas rather than relying on a remembered count.
 
 
 Look first for the project's existing `.play` files: the folder holding them is the
@@ -100,10 +87,14 @@ can keep that entry point; use the project's supported installation channel.
    of `.play` files is one application, not independent files.
 2. Use `search-declarations`, `declaration-details`, `find-references` and
    `dependencies` to locate the owning declaration and affected references.
-3. Read diagnostics and coverage limitations. Unknown or ambiguous bindings are
-   not an empty, successful dependency graph.
-4. Use `find-fixtures` for value occurrences and `find-assertion-gaps` for authored
-   assertion gaps. These tools do not execute specifications or prove coverage.
+3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
+   edges, declared-dependency coverage, cycles and advisory order; the board's
+   dependency-map toggle exposes this evidence visually. Unknown or ambiguous
+   bindings are not an empty, successful dependency graph.
+4. Use `find-fixtures` for value occurrences (including example/override origins
+   and event routes) and `find-assertion-gaps` for authored assertion gaps. Neither
+   executes specifications. `diagnostics` accepts `scope` and opt-in `checks`;
+   skipped completeness checks are not passes. Details: `references/mcp-tools.md`.
 5. Echo `sourceRevision` on subsequent pages. Restart the query after drift;
    never combine pages from different snapshots.
 6. For screens, also discover the template, form, toolbar, package/icon and
@@ -193,9 +184,15 @@ Read `read-workspace` with `view: "diagnostics"`, then `view: "repairs"` at the
 same revision. Pass the returned `diagnosticCode`, `subject`, required formatting
 and both revisions to `propose-repair`; preview with `read-proposal`, then `apply`.
 Only verified repairs are listed, and the selected repair gets a fresh transaction.
+For PLAY0166/PLAY0478, use the evidence-pinned loop in `references/mcp-tools.md`:
+`pinRepairEvidence` plus `expectedRepairEvidenceRevision` prevent attachment drift
+from silently changing the reviewed candidate.
 
 - `PLAY0166` declares a missing produced event; `PLAY0478` is a routing decision
-  (identifier destination); `PLAY0471` removes a redundant name-equal event pin.
+  (identifier destination, never fix-all); `PLAY0471` removes a redundant name-equal event pin.
+- `PLAY0516` repairs presentation order by moving a sibling or import, or pinning
+  a producer before a glob. It preserves semantics/identities and introduces no
+  new timeline findings; evidence pinning is unsupported for this repair.
 - `PLAY0469` removes an inline identifier payload copy: it **changes the event
   contract**, refuses consumer/opaque impact, has no fix-all, and the catalog does
   not prove events were persisted, so ask about stored contracts first.
@@ -226,9 +223,10 @@ module and its features, each feature importing its folder
 (`import "Orders/*.play"`); a slice file holds only its `slice`, because the
 import places it in its feature. When you write or reorganize files yourself,
 do not restate `module`/`feature` in a slice file, and do not leave a barrel
-that declares a scope but imports nothing. `expand-layout` still writes that
-older merge-only layout; it compiles as a folder, and you can compose it with
-imports afterwards. When choosing file placement, read the
+that declares a scope but imports nothing. At 4.125.0 `expand-layout` writes
+import barrels and slice-only leaves, preserving sibling and interleaved member
+order. It refuses a proposal that would change that order; without an ordering
+root its review discloses the path-order fallback. When choosing file placement, read the
 [language reference](references/language-reference.md) for placement rules.
 
 Parent scaffolding carries no duplicated module forms or contributions. Compile
@@ -242,6 +240,11 @@ Keep `.screenplay/identities.json` alongside the model in source control. Only
 a model only ever text-edited has none. A restart must not silently mint new IDs:
 do not delete or overwrite conflicting identity state to get a green result, and do
 not text-rename identity-affecting declarations in a model that has it.
+
+Default root discovery preserves ancestor identity state and journals. Inspect
+`rootBindingConflict` in `open-workspace`/`workspace-state` when several state roots
+compete; do not delete state or mint replacement identities. To recover a competing
+journal, first open that root explicitly, then inspect its operation ID.
 
 A pending journal blocks normal work. Inspect `workspace-state`; invoke
 `recover-workspace` only for the identified interrupted operation within the
@@ -301,7 +304,7 @@ a generated app that silently drops authored UI. Use the Screenplay-owned canoni
 corpus fixture path when it exists instead of copying `.play` examples into this
 repository.
 
-Repair and refactoring guidance follows Screenplay main `fd18129`. The Cratis
+Repair and refactoring guidance follows Screenplay v4.125.0. The Cratis
 CLI bundles its own Screenplay version, so check the installed `tools/list`
 schemas before relying on a view or argument named here (for example
 `dropped-comments` or `implementation-requirements`). Do not invent a command,

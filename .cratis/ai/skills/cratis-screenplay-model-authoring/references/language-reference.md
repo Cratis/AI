@@ -6,6 +6,7 @@
 ## Contents
 
 - Accepted constructs
+- Container dependencies and exact numbers
 - Complete model
 - Source validity is not execution
 - Not in the language yet
@@ -65,6 +66,35 @@ tagged fence (` ```csharp `); the older language-line form still parses with
 warning `PLAY0397`. Query the MCP's `syntax-schema` instead of inventing JSON
 members or translating names from memory.
 
+## Container dependencies and exact numbers
+
+At Screenplay 4.125.0, modules and features accept `depends on <Name>`, one
+per line. Bare targets resolve inside out (siblings, ancestor siblings, root
+modules); qualified targets match an unambiguous trailing address. Merged files
+accumulate each owner's declarations in file-path order; imports affect board
+order, not accumulation. Dependencies are optional authoring metadata, not runtime
+or implementation order. See `cratis-screenplay-slice-design` `references/slicing.md`
+for coverage diagnostics and MCP `dependency-graph` `declarations` evidence.
+
+A top-level `numbers exact` preamble opts each file into bounded decimal source
+literals without Double rounding. All files/import barrels must agree on mode
+(PLAY0508–PLAY0513 diagnose directive/range/mode errors). Exact mode is authorable,
+not admitted by any supported ESM version (`PLAY0268`). Do not confuse this with
+ESM v7 generated values and responses.
+
+Typed roots (`ApplicationSyntax`, `ProjectionSyntax`, `CaptureSyntax`,
+`SpecificationSyntax`) carry `sourceOptions: {"numericMode":"exact"}`. Missing
+options default independently to Legacy, including nested roots; null/unknown
+options and conflicting modes reject. Exact literal slots use
+`{"literalType":"ExactNumber","value":"9007199254740993"}`: a canonical fixed-point
+string, not a JSON number/JavaScript Number. Plain numbers, legacy envelopes and
+noncanonical/out-of-range strings reject in Exact trees. An ExactNumber tag does
+not opt a Legacy root in. Change mode as a whole-tree edit (leaves and all root
+options), not just a flag; fragment printing keeps the owner's mode without a
+nested preamble.
+
+Sources: v4.125.0 `slices.md`, `folders.md`, `ast-authoring.md`, `grammar.md`.
+
 ## Complete model
 
 This registration model uses an inline event and context identity rather than
@@ -120,6 +150,13 @@ module Projects
 ```
 
 ## Source validity is not execution
+
+The table and binding inventory below retain their historical 4.66.0/4.68.0
+probe labels; do not use them as current tool admission evidence. At 4.125.0,
+`screenplay test` and MCP `run-specifications` expose reference execution,
+and sources/streams/routes bind as ESM v8. Operations and exact numeric mode
+still refuse binding. Use the installed tool and the version table in
+`cratis-screenplay-toolchain` for current verdicts, not an older negative probe.
 
 A construct can be in one of four states. Say which one you checked.
 

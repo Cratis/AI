@@ -5,7 +5,7 @@
   "assertions": [
     {
       "kind": "skill-contains",
-      "value": "main `fd18129`"
+      "value": "Screenplay v4.125.0"
     },
     {
       "kind": "skill-contains",
@@ -105,11 +105,11 @@
     },
     {
       "kind": "skill-contains",
-      "value": "**Prefer a fixed root.**"
+      "value": "registered Git worktree"
     },
     {
       "kind": "skill-contains",
-      "value": "29 tools (30 on MCP-Apps hosts)"
+      "value": "schemas rather than relying on a remembered count"
     },
     {
       "kind": "skill-contains",

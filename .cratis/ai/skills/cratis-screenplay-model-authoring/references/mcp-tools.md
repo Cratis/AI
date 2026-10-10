@@ -8,6 +8,10 @@
 - Tool groups
 - Diagnostic repairs and refactorings
 - Syntax-only constructs through the MCP
+- Evidence-pinned production repairs
+- Scoped diagnostics and completeness
+- Dependencies and intent inventories
+- Semantic revision comparison
 - Source map and appended-event fixtures
 - Revision and ownership rules
 - Refusals are useful information
@@ -27,16 +31,17 @@ report unsupported adapters or drift.
 
 ## Tool groups
 
-`tools/list` returns 29 tools (30 on MCP-Apps hosts, which add `visualize-model`),
-after `initialize` and `notifications/initialized`. Discover current argument
-schemas with `tools/list`; do not infer arguments from these short descriptions.
+After `initialize` and `notifications/initialized`, discover current tools and
+argument schemas with `tools/list`; do not hard-code counts or infer arguments
+from these short descriptions. The additions below follow Screenplay v4.125.0's
+`Documentation/screenplay/mcp/reference.md`.
 The connection procedure, edit routes, identity state and failure handling are in
 the [MCP loop](mcp-loop.md).
 
 | Group | Tools | Intent |
 | --- | --- | --- |
 | Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details` | Navigate logical hierarchy and inspect bounded details |
-| References and examples | `find-references`, `dependencies`, `find-fixtures`, `find-assertion-gaps` | Inspect declared relationships and authored examples, not executed coverage |
+| References and examples | `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
 | Source and validation | `diagnostics`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
@@ -58,10 +63,11 @@ with `view: "diagnostics"`, then `view: "repairs"` at the current revision.
 | Code | Offered repair and boundary |
 | --- | --- |
 | `PLAY0166` | Declare a missing command-produced event in its slice. Infer known command-path types (retaining concepts) or `$context.occurred` as `DateTime`; refuse uncertain/conflicting shapes, imports, existing declarations, cross-file producers and parser-invalid workspaces. |
-| `PLAY0478` | Add `for <identifier>` to a plain production. Both models must be executable; refuse a version change or retargeting another production. Accept only if the identifier, not allocation, is intended. |
+| `PLAY0478` | Add `for <identifier>` to a plain production. Both models must be executable; refuse a version change or retargeting another production. This changes routing: accept only if the identifier, not allocation, is intended; `canFixAll: false`. |
 | `PLAY0471` | Remove a redundant event id only with unchanged executable model, catalog and comments. |
 | `PLAY0469` | Remove an inline same-source identifier property and mapping, retiring its semantic address. This changes the contract; `canFixAll` is false. Refuse other consumers, opaque impact, changed routing or comment loss. Plain contracts get guidance only. |
 | `PLAY0479` | Migrate one optional type spelling, or all in a document, preserving syntax and trivia. Exclude `query Q => observable?`. |
+| `PLAY0516` | Move a producing sibling declaration/import before its consumer, or pin an already placed file before a retained glob. Preserve catalogs, comments, placement and executable readiness; introduce no timeline findings. Own-sub-feature edges, cycles, unranked members and mixed/different-parent boundaries have no repair. Rediscover after each move; pinned evidence is unsupported. |
 
 These discoveries verify acceptance before listing a repair. Only compact
 acceptance/conflict verdicts are cached on the immutable snapshot, not diagnostics,
@@ -98,10 +104,22 @@ pin, but retains a pin for a different earlier name. Contradictory generation pi
 refuse the rename. Do not promise a generation-2 payload-removal repair or a
 `PLAY0470` repair: neither is available.
 
-VS Code and Monaco provide local optionality quick fixes without .NET; they do
-not host these production-repair transactions. Use MCP for production repairs.
+VS Code and Monaco provide local PLAY0479 optionality and PLAY0471 redundant-id
+fixes without .NET. PLAY0471 removes the whole id line; a trailing comment blocks
+it. VS Code also has an experimental opt-in trusted C# bridge for PLAY0166/PLAY0478:
+configure the executable/root in User settings, preview source and identity changes,
+then explicitly confirm Apply. Dirty/untitled buffers and evidence drift refuse;
+uncertain Apply outcomes are never retried. Restricted Mode cannot launch it.
+Monaco has no production-repair host bridge. See v4.125.0 `vscode.md`.
 
 ## Syntax-only constructs through the MCP
+
+The 4.66.0/4.68.0 negative probes below are historical. At 4.125.0,
+sources/streams and command/specification routes bind as ESM v8 and have
+catalog identities; `executionAvailable` still requires whole-workspace binding.
+Source/stream `propose-rename` repairs bound route references. Operations and
+exact numeric mode remain unadmitted. Check installed schemas, especially when
+the CLI bundle predates the standalone tool.
 
 `system`/`operation` and `eventsource`/`stream` are authorable but not executable (`PLAY0268`; not admitted
 by any supported ESM version: `cratis-screenplay-toolchain` `references/sources-and-streams.md`).
@@ -113,7 +131,10 @@ the views `event-sources`, `event-streams`, `event-source-details`,
 views need the exact `authoringKey` from the inventory). Each discloses
 `executionAvailable: false`. Discover the node kinds with `syntax-schema` and edit
 through typed `propose-ast`; there is no automatic source or stream rename and no
-routing repair. Inline-event extraction refuses response-bearing commands.
+routing repair in the historical 4.66.0 probe. At 4.125.0, inline-event extraction
+admits response-bearing commands when it proves byte-identical canonical ESM,
+unchanged catalog assignments and exact comment preservation; responses are not
+an automatic refusal.
 
 For `generated`/`returns` on 4.68.0 (`mcp/reference.md` at `v4.68.0`): `propose-ast` accepts
 `validation: "Executable"` for the admitted subset (use `"Authoring"` for full-language syntax); a
@@ -122,6 +143,83 @@ also uses operations, streams, handlers or exact numeric mode keeps a readiness 
 unadmitted feature. Null readiness does not prove the whole application binds or that every generation
 fixture exists. Canonical `executable-model` pages include `generated`, `response`, `generatedValues`
 and `thenReturns` when present. Form response scopes and a renderer response type remain downstream work.
+
+## Evidence-pinned production repairs
+
+For PLAY0166/PLAY0478, read `repair-capabilities` before opting in. Read workspace
+`diagnostics` and `repairs`, retain their `repairEvidenceRevision`, and send
+`pinRepairEvidence: true` with `expectedRepairEvidenceRevision` on `propose-repair`,
+alongside workspace/catalog revisions, subject and formatting. Both evidence fields
+are required together. The proposal retains `repairEvidence.beforeRevision` and
+`candidateRevision`; preview every document and identity-state change. Echo the
+before revision on `read-proposal`/`apply` if supplied; the retained pin is enforced
+even when omitted there.
+
+Evidence covers authoritative base/candidate attachment text and load/refusal
+states, including missing files, not unreferenced files or implementation locks.
+Changed inputs or loading diagnostics return `RepairEvidenceDrift`, not refreshed
+readiness. Attachment inputs overlapping source/state/recovery writes return
+`RepairEvidenceWriteConflict`; uncertain aliases fail closed. Never bypass these
+refusals with text edits. A pin is a reviewed snapshot, not a crash-atomic write.
+
+## Scoped diagnostics and completeness
+
+`diagnostics` accepts an exact case-sensitive module/feature/slice `scope` and
+optional `checks` (comma-separated names/codes or `all`). Unknown/ambiguous scopes
+or check names refuse. Whole-application compilation still resolves references;
+selection includes descendants and direct dependents, not transitive impact.
+`success`/severity counts describe the selected set before document filtering and
+paging; `wholeApplicationSuccess` retains the full verdict. Check `affectedScopes`
+and coverage rather than claiming full application validity from a scoped page.
+
+The six completeness families are `data-bindings`, `input-surfaces`, `field-origins`,
+`query-keys`, `event-consumers`, `navigation` (PLAY0530–PLAY0537). They opt into
+warnings, not execution proof. Whole-source errors skip them; report
+`completenessStatus` as skipped, never passed. `completenessCoverage` states their
+limits. Continue with `expectedSourceRevision`.
+
+## Dependencies and intent inventories
+
+`dependency-graph` edges point consumer → producer. Views: `edges`, `cycles`,
+`order`, `unresolved`, `declarations`; `from`/`to` select slice/feature/module
+aggregation (`to` also accepts context). `scope`, `direction`, `kinds` and
+`includeTestOnly` filter inferred views. Test-only `verifiedWith` edges are excluded
+by default. Other kinds: `usesFactsFrom`, `reactsTo`, `decidesFrom`, `asks`, `shows`,
+`outsideTheModel`. Code, expressions and property paths are not inferred.
+
+`declarations` checks each opted-in container's own `depends on` inventory,
+including descendant consumers. Rows retain declared/provisional/undeclared
+coverage and declaration status used/provisional/unused/invalid. Ambiguous owners
+are always provisional, never undeclared proof. Kind/direction/level filters do
+not narrow this check. `evidenceLimit` (0–20, default 3) limits evidence, not counts
+or checking. Pages default to 50, maximum 200; pin `expectedSourceRevision` on
+continuation. Failed compilation may leave a partial graph.
+
+Cycles and suggested order use only `usesFactsFrom`, `reactsTo`, `decidesFrom`.
+Mixed-level cycles return no groups. Order puts producers first after removing
+internal cycle edges, with authored ties and cycle-member order retained. It is
+advisory, never an edit or runtime order. MCP App and VS Code boards can toggle to
+a dependency map, with story-shaping edges by default and filters for other kinds;
+select an edge to inspect slice pairs and reference evidence (VS Code opens source).
+
+Workspace views `named-rule-intents`/`named-rule-intent-details` cover CommandNamedRule
+only, including pending hints without a requirement ID. Details select either
+`subject` or attached `requirementId`, not both. `handler-intents` and
+`handler-intent-details` cover CommandHandler only; handler details select
+`requirementId`. All page ordered hints, not implementation correctness. Continue
+with `expectedRevision` and `expectedCatalogRevision`; provisional owner IDs are
+not authoritative. Edit hints through reviewed `propose-ast`.
+
+## Semantic revision comparison
+
+`semantic-diff` takes `beforeWorkspaceJson` and `afterWorkspaceJson`: decoded,
+reassembled canonical `export-workspace` JSON, not Git refs or raw source. Exports
+must share the application identity and authoritative catalogs; the tool never
+guesses rename continuity. Invalid exports return `UnreadableRevision`, different
+applications `IncompatibleRevisions`. It does not open/replace the active workspace
+or write state. Inspect incomplete sections and exclusions: structure comparison
+is not executed behavior. Echo the ordered-pair `sourceRevision` on continuation.
+Use `read-proposal` `view: "semantic-diff"` for an uninstalled proposal instead.
 
 ## Source map and appended-event fixtures
 
@@ -132,6 +230,11 @@ span. Compilation must have succeeded for entries to exist (`available`).
 `whenAppendedEventDestination` and `thenEvent` (and others for commands and
 queries): a `when append` payload is labeled `whenAppendedEvent`, not `thenEvent`,
 in `declaration-details`, `find-fixtures`, references and dependencies.
+Event roles also have `…Stream`, `…StreamId` and `…NoStream` rows (`property`
+respectively `stream`, `streamId`, `no stream`). Effective fixture values expose
+`origin` (authored/example/override), example name and replaced value where present.
+A whole-route replacement records `overriddenValue` once on its stream/no-stream
+row; route parts retain their individual lineage. These are source facts, not execution.
 
 ## Revision and ownership rules
 
