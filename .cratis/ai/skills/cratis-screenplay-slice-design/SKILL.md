@@ -80,8 +80,8 @@ report and the slice `description`, and continue.
    standing in for a rule. Place each rule in its layer (`references/rule-layers.md`). A rule
    over stored state is written as `reads <View>` + `require ... message "..."` and marked
    **NOT enforced in the model today** in the slice `description`, with its target named (Arc
-   `[ProtectedDecision]` + `DecisionRead<T>` on Arc 22.39.0+, not available in Stage-rendered
-   apps; Chronicle DCB; or a constraint). Never copy state
+   `[ProtectedDecision]` + `DecisionRead<T>` on Arc 22.39.0+ (available to gap-fill
+   code with Stage 4.51.3's Arc 22.50.5/Chronicle 19.32.0); Chronicle DCB; or a constraint). Never copy state
    into the command as input or hide a rule in `handler` / hint prose; descriptions are not
    rendered (Stage#178). Fill the **refusal inventory**: success, each distinct refusal with
    layer and message, and the denied persona.
@@ -165,7 +165,11 @@ report and the slice `description`, and continue.
 - One business decision usually produces one event; a decision establishing several facts the
   business recognises separately may produce several (say why in the `description`).
 - Copy an identity into an event payload only when a consumer needs it as a value.
-- Keep durable design rationale in slice `description` text, not `//` comments.
+- Keep summaries in `description`; record durable reasoning, assumptions and rejected
+  alternatives in fenced Markdown `documentation` on the slice, command, read model
+  or reaction, not `//` comments or disconnected notes. These are report-only, not
+  enforcement. Read [model reasoning](references/model-reasoning.md) for owners,
+  syntax, folder merge and PLAY0558/0559.
 - Rule coverage: for each value carrying a rule, list every path that sets it
   (`references/slicing.md`). A constraint on a claim covers every event setting that claim;
   value invariants live in the concept so they travel; command-level conditions are reviewed

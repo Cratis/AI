@@ -13,6 +13,11 @@ Keep those lines: they state real intent and are never
 replaced by prose. The runnable counterpart, which holds no stored-state rule, is
 `invoicing-dues-example.md`; `scenario-examples.md` copies `ReversingAReceivedPayment` from here.
 
+The excerpt's Stage API-availability comment describes the historical Stage 4.24.x
+scaffold. Stage 4.51.3 pins Arc 22.50.5/Chronicle 19.32.0: protected-read APIs are
+available to gap-fill, not emitted protection or `.play` rule admission. The
+original compiled source is retained unchanged.
+
 ```screenplay
 // Scenario coverage design-mode example: stored-state rules of invoicing club dues (complete document).
 // Design mode: `reads` is PLAY0271 and `require` over a view is PLAY0268 at binding (the only

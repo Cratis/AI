@@ -17,6 +17,11 @@ The per-event reason lines in each StateView `description` are the lineage recor
 (`field-lineage.md`). Multi-line descriptions use a tagged ` ```text ` fence in a real model;
 they are written as one string here so this document stays a single compiling fence.
 
+The excerpt's Stage availability note is historical (Stage 4.24.x, Arc 22.25.0).
+Stage 4.51.3 pins Arc 22.50.5/Chronicle 19.32.0, so protected-read APIs are available
+to gap-fill; this neither admits these `.play` rules nor proves target protection.
+The original compiled excerpt is retained unchanged.
+
 ```screenplay
 domain Parcelpoint.Lockers
 

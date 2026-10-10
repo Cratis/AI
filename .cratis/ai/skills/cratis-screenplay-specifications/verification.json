@@ -41,7 +41,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "**Authorized commands and queries need `given caller`**"
+      "value": "**Authorized commands and queries need `given caller` or `given caller as <Persona>`**"
     },
     {
       "kind": "skill-contains",
