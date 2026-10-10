@@ -10,6 +10,7 @@ import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { verifyPlayExamples } from './play/index.ts';
+import { summary as contractSummary, verifyContract } from './contract/index.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
 import { verifySkillEvaluations } from './skill-evaluations.ts';
 import { danglingSkillReferences } from './skill-references.ts';
@@ -230,6 +231,16 @@ for (const scenarioPath of (await files(join(corpus, 'skills'))).filter(path => 
     });
 }
 if (scenarioResults.length === 0) failures.push('At least one executable skill verification scenario is required.');
+
+try {
+    const contract = await verifyContract(root);
+    failures.push(...contract.problems);
+    console.log(contractSummary(contract));
+    console.log(JSON.stringify({ screenplayContract: contract }, null, 2));
+} catch (error) {
+    console.error(`Screenplay contract could not run: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(2);
+}
 
 const screenplay = await verifyPlayExamples(root);
 failures.push(...screenplay.problems);

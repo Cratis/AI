@@ -24,7 +24,7 @@ then hands off to review (P5) and acceptance (P6).
 ## When to use / when not
 
 - Use: understanding an inherited system, planning a modernization or migration, documenting
-  behaviour as Screenplay, reconciling `screenplay generate` or Prologue output, planning a
+  behaviour as Screenplay, reconciling `cratis screenplay generate` or Prologue output, planning a
   side-car next to a frozen system (`references/side-car-migration.md`).
 - Not for: greenfield modeling, reviewing the candidate, diagnosing a running Chronicle system,
   rendering or delivering code, or changing code-first application code (routes below).

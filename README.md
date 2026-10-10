@@ -247,6 +247,54 @@ Skill checks live beside the skill as `verification.json`. `skill-contains`
 assertions check required guidance in `SKILL.md` or the assertion's `file`.
 They do not run the example input through a model or prove writing quality.
 
+### Checking the published Screenplay contract
+
+`yarn workspace @cratis/ai-verification run verify` also checks Screenplay/Stage skills,
+Screenplay agents and rules mentioning Screenplay offline against the unchanged release
+contract in the toolchain skill's `references/screenplay-contract.json`. Its adjacent
+`.version` must match the standalone pin in `versions.md`. PLAY codes (including expanded
+ranges with plain or backticked endpoints), MCP names and named invocation parameters, stated tool counts and standalone
+`screenplay` CLI commands/options produce file:line findings. Every subject kind must be
+nonempty. Run the planted-defect self-test with:
+
+```bash
+yarn workspace @cratis/ai-verification exec tsx contract/cli.ts --self-test
+```
+
+The MCP matcher checks backticked Tools table cells, explicit `MCP tool`/`tool` prefixes,
+and `tool(arguments)` in MCP paragraphs/headings. Published tool names are also recognized
+in that context; release comparisons retain the pinned names to catch removed tools.
+Views, protocol methods and arbitrary kebab-case strings are not tool claims. Named
+parameters are checked only in the same invocation span (`tool(key: value)`,
+`tool(key=value)` or `tool(key, otherKey)`). CLI invocations start a code span or shell line
+with `screenplay`; `cratis screenplay` and prose about a compiler are not standalone
+commands. Option-only spans inherit an earlier standalone command only in the same
+paragraph or table column; unowned options and general prose about parameters are not checked.
+The JSON report lists matched tool subjects and counts, plus advisory mention gaps for
+keywords/constructs, MCP tools, active diagnostic codes and hundred-code families.
+Coverage is not a teaching-quality or admission check and never fails verification.
+
+To compare another release without changing the pin, run:
+
+```bash
+yarn workspace @cratis/ai-verification exec tsx contract/cli.ts --root "$PWD" --contract /path/to/screenplay-contract.json --coverage-json /path/to/coverage.json
+```
+
+Without output flags the report goes only to stdout. Exit 0 means clean facts, 1 means
+findings, and 2 means it could not run. Historical exceptions match exact file/line text,
+kind and value and require a reason including when to remove them. Normal verification
+fails on unnecessary exceptions; an incoming-release comparison does not require an
+exception still to be needed by the newer contract.
+
+A Screenplay release dispatch and a weekly schedule in `publish.yml` download the release
+contract and create/update one open `screenplay-sync` issue with findings and coverage gaps.
+The issue closes when facts are clean; coverage gaps alone remain advisory in the run output.
+Download/parse/API failures fail the job and never close the issue. The job never edits the
+corpus, commits, pushes or publishes. To bump the pin, download the released asset from
+Cratis/Screenplay, replace the JSON without editing it, update its `.version` and the
+standalone row together, fix current facts, remove obsolete exceptions, then run verification,
+including the pinned example compiler, before committing.
+
 ### Compiling Screenplay examples
 
 Every skill with Screenplay fences must include `{ "kind": "play-compiles" }`
