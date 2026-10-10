@@ -80,7 +80,7 @@ public record AuthorId(Guid Value) : EventSourceId<Guid>(Value), IGeneratable<Au
   to generate; see the **cratis-fundamentals-concept** skill.
 - Arc and Chronicle can resolve an older Cratis.Fundamentals. Check the resolved
   version first; if it is below 7.23.0, add a direct `Cratis.Fundamentals`
-  7.23.0 or later reference, or keep a plain `static New()` until you can.
+  7.23.0 or later reference, or keep the existing `static New()` (without the interface) until you can.
 - The exact `EventSourceId<T>` base supports conversions among its underlying
   `T`, string, typed ID, and untyped `EventSourceId`, but those operators do not
   construct your derived domain record from every source form.
