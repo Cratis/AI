@@ -5,6 +5,7 @@
 - Admission
 - Declare and route
 - Specification routes
+- Canonical keys and evolution
 - Boundaries
 
 ## Admission
@@ -81,6 +82,26 @@ An event-level `stream = ...` or `streamId = ...` remains payload, not routing.
 Typed event examples may supply a route, replaced as a whole by step overrides;
 `for` is independent. No spelling restores a wildcard after an example supplies
 a route. See `cratis-screenplay-specifications` for fixture provenance.
+
+## Canonical keys and evolution
+
+At Screenplay 4.127.0, stream-id literals on command routes (PLAY0504) and
+specification routes (PLAY0549) must be nonempty, well-formed Unicode NFC text;
+invalid text is refused, never normalized. In Double numeric mode integer ids
+are within ±(2^53−1); Exact mode has no such bound but still refuses binding.
+Known routed command identifiers and production destination types must equal
+the source's nominal identifier type (PLAY0504 is an error, not a warning).
+Allocation is typed by the generated identifier, or without one requires a
+UUID-based source. Unrouted commands are unaffected.
+
+Composite schemas declare `streamId` with at least two named scalar parts.
+Command routes map every part once; specification parts are literals only.
+Format each part by the portable scalar rules, escape `%` to `%25` and `|` to
+`%7C`, then join with `|` in declaration order; decoding is strict. Specification
+route contradictions compare canonical values part by part (UUID case variants
+are equal). Changing a stored stream's key schema needs a new stream identity
+or migration. Keep hand-joined legacy ids as scalar text: never split by guesswork.
+Authority: v4.127.0 `event-sources.md`, `diagnostics.md`, decision 0033.
 
 ## Boundaries
 

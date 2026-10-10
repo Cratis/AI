@@ -1,6 +1,6 @@
 # Traps (one line each, with the fix)
 
-Current pins: Screenplay 4.125.0 / CLI 3.41.0 (`versions.md`). Unless explicitly
+Current pins: Screenplay 4.127.0 / CLI 3.41.0 (`versions.md`). Unless explicitly
 updated below, [probed]/[source] rows retain their historical v4.66.0/CLI 3.28.2
 scope; negative capability claims there are not current verdicts. Current routes
 bind as v8, v7 reaches Stage planning, reference tests have CLI/MCP routes, and
@@ -45,6 +45,23 @@ exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 36. One unadmitted construct (operations, exact numbers, refusal/redelivery) blocks whole-model binding. Routing is admitted v8, not one of those constructs; CLI render's v7 boundary is a separate refusal. Do not remove routing or authorization to render a model.
 37. Personas are not in the ESM (Screenplay#254); specs cannot reference them. Write `given caller` as the roles/claims that stand for the persona.
 38. A rule that depends on stored state is `reads <View>` + `require <expr> message "..."` (stated intent; PLAY0268/0271 at binding are expected in design mode). The slice `description` must mark it NOT enforced in the model today (Screenplay#129/#209) and name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc v22.39.0 and later; not available in a Stage-rendered app on Arc 22.25.0), Chronicle DCB (`concurrency` scope), or a constraint where one fits. Forbidden: caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX == true`), rules hidden in `handler`/implementation-hint prose. An unguarded materialized read is unsafe for a protected decision.
+
+Current identity/compliance traps (v4.127.0 `identity.md`, `concepts.md`, `events.md`,
+`purposes.md`, `diagnostics.md`):
+- `$identity` built-ins alias `$context.identity`; declared detail reads are PLAY0268,
+  while an identity block alone does not block readiness. `scoped to` is opaque,
+  not a detail reference. Query sources need keyed single compatible results and
+  token-only keys/gates that do not depend on details.
+- `pii personal` repeats one marker (PLAY0653). Legacy markers are accepted but
+  deprecated (PLAY0565); repairs preserve notes, never invent legal content.
+- Event `subject` is report-only (PLAY0270), not emitted C# `[Subject]` or runtime
+  lineage. Keep stream identity, data subject, encryption scope and policy subject apart.
+- Purpose metadata/checks/records declare processing, not lawfulness or retention.
+- PLAY0504 is an error; stream-id text is nonempty well-formed NFC (refuse, never
+  normalize), Double integer ids are within ±(2^53−1); canonical UUID comparison
+  ignores case. Protected concepts cannot be stream ids/parts/mapping sources (PLAY0515).
+- Run `--check privilege` on elevated event-trigger paths; opaque producers are
+  unknown, not safe. Arc needs `[ExecuteCommandsAsSystem]` to supply a principal.
 
 The SKILL.md top 12: 1, 4, 5, 6, 7, 10, 12, 13, 17, 18, 20, 21 (+ mode/version notes there). Traps 39 to 44 are tool traps added at the 4.66.0 pin.
 39. A handler never binds: PLAY0268 "Command '<n>' handler requires a constrained implementation attachment", with a file, a fence, `implementation` or `hint` alike. `implementation` and `hint` are accepted on a command handler, an operation execute/compensate phase and (from 4.65.0) a command property named rule, and are rejected on concept rules, built-in property rules and whole-command `require`/`validate` bodies; on a handler they are authoring intent only (no execution, lock or confirmation). A handler slice is gap-fill, not a customization of a rendered slice. [source, probed]

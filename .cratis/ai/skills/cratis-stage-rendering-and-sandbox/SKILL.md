@@ -135,7 +135,7 @@ Facts that surprise:
 
 ## Historical Stage 4.24 admission
 
-Current pins are standalone Screenplay 4.125.0 / CLI 3.41.0 / Stage 4.51.3.
+Current pins are standalone Screenplay 4.127.0 / CLI 3.41.0 / Stage 4.51.3.
 Routes bind/reference-execute as v8; reaction `runs as` identity as v10.
 CLI renders through v7 only (CLI-RENDER-004 for newer model versions) and its
 older 4.114.0 parser rejects `runs as` (PLAY0137). Stage 4.51.3's direct planner

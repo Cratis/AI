@@ -2,7 +2,7 @@
 
 One complete document with every construct family. Design mode, not executable. Prose rules: [cheat-sheet.md](cheat-sheet.md); tool versions: [versions.md](versions.md); what binds: [executable-subset.md](executable-subset.md).
 
-Blocking on every compiler: unquoted import, `@pii`, `reads` (PLAY0271), `starts with`, observable/list/filter query. Executable shapes are in the sibling examples. The fence compiles warning-free on the standalone 4.66.0 tool and on `cratis screenplay validate` 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
+Binding blockers: unquoted import, `pii`, `reads` (PLAY0271), `starts with`, observable/list/filter query. Executable shapes are in the sibling examples. The bare-marker fence compiles warning-free on standalone 4.127.0; the earlier legacy-marker version compiled on 4.66.0 and CLI 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
 
 ```screenplay
 // Design-mode cheat-sheet: every construct family; compiles warning-free on the standalone tool.
@@ -12,7 +12,7 @@ import Customers.CustomerRegistered        // unquoted = another bounded context
 
 concept InvoiceId : Uuid                   // primitives: Uuid String Int Decimal Bool Date DateTime Enum
 concept PaymentId : Uuid
-concept Email : String @pii                // @pii / @sensitive (blocks executability today)
+concept Email : String pii                 // pii / secret (blocks executability)
   pii reason "Identifies a person"
   validate
     not empty  message "An email is required"

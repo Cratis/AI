@@ -85,6 +85,14 @@ it. `then ... no stream` expects no route; no route in a then is a wildcard.
 steps replace the entire route, independently of `for`; an inherited route
 cannot be changed back to a wildcard. Literal compatibility/route contradiction
 checks use resolved source/stream types, not guessed text (PLAY0547–PLAY0551).
+At Screenplay 4.127.0, route literals must be nonempty, well-formed NFC text
+(refused, not normalized); Double integer ids are within ±(2^53−1), while Exact
+has no such bound but remains unadmitted. Invalid specification routes report
+PLAY0549. Contradictions compare canonical scalar ids and every composite part,
+so UUID casing is immaterial. Composite mappings supply each named part once,
+using literals only; encoding escapes `%`/`|` and preserves declaration order.
+Source: v4.127.0 `event-sources.md`, `specifications.md`, `diagnostics.md`.
+
 CLI 3.41.0 rendering rejects versions above v7 before planning, even though
 source compilation and reference routing pass.
 
