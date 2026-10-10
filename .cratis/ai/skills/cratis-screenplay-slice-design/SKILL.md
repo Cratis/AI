@@ -65,8 +65,9 @@ report and the slice `description`, and continue.
    origin must be **reachable** (some screen, form, reaction or integration leads to the
    command) and **authorized** (the persona's policies satisfy every gate on module, feature
    and command). A command may have several origins; each must be real. A reaction's `invokes`
-   has no caller, so a gated command it invokes is refused: design the trusted path, never
-   delete the gate.
+   has no caller unless the reaction declares `runs as system role "<Role>"` (ESM v10), so a
+   gated command it invokes is refused: declare that trusted path with the role the gate
+   admits, never delete the gate.
 3. **Design the command** (`references/command-inventory.md`). Imperative business name for
    **one** decision (`ReassignLocker`, `CorrectLockerVolume`). A form verb (`Update`, `Edit`,
    `Save`, `Set`, `Change`, `Manage` + noun) means several decisions share a form: ask which

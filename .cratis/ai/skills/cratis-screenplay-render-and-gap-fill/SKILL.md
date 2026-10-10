@@ -25,9 +25,9 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `3.40.7` (`v3.40.7`, `af9f18e`) | `cratis render` options, exit codes, publication receipt; tag pins Stage 4.51.1 and Screenplay 4.114.0, with `cratis/stage:4.51.1` as the runtime image. UI-profile rejection and render-then-recover fixes are pending in Cratis/cli#301. Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
-| Stage | `4.51.1` (CLI default; latest package 4.51.3) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, fail-closed guarded actions (`STAGE-SCENE-ACTION-001`) and interactions (`STAGE-SCENE-INTERACTION-001`). Older baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
-| Screenplay | bundled `4.114.0`; latest language package `4.122.0` | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; claims made through `cratis` are 4.114.0 claims |
+| cratis CLI | `3.41.0` (`v3.41.0`) | `cratis render` options, exit codes, publication receipt, UI-profile rejection (`CLI-RENDER-007` to `CLI-RENDER-010`); tag pins Stage 4.51.3, Screenplay 4.114.0 and `Cratis.Arc.Screenplay` 22.54.0, with `cratis/stage:4.51.3` as the runtime image. UI-profile rejection and render-then-recover shipped in 3.41.0 (Cratis/cli#301). The screens release vector was verified on 3.40.7 (`af9f18e`) with `cratis/stage:4.51.1`. Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
+| Stage | `4.51.3` (CLI 3.41.0 default) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, fail-closed guarded actions (`STAGE-SCENE-ACTION-001`) and interactions (`STAGE-SCENE-INTERACTION-001`). Older baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
+| Screenplay | bundled `4.114.0`; standalone `4.125.0` | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; claims made through `cratis` are 4.114.0 claims |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1`, Scene packages | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one; verify the generated package set before claiming exact Scene 4.14.0 runtime parity |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
@@ -68,13 +68,15 @@ assume an answer to 4, and record it as `blocked` for the user.
 Evolved events (a model that selects ESM v4) are gap-fill too: Stage 4.24.2 admits the v4 model but refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract. The cratis CLI bundles Stage 4.24.2 since 3.28.3 and reports an evolved event with `STAGE-ESM-026` (probed); 3.28.2 bundled Stage 4.24.1 (3.28.1 and earlier: 4.24.0) and refused a v4 model with `STAGE-ESM-016`.
 
 Generated command values and `returns` responses (ESM v7) bind and run in the reference runner on standalone
-Screenplay 4.68.0 but are not rendered: the cratis CLI 3.28.3 bundles 4.66.0 and reports `PLAY0268`, and Stage
-4.24.2 refuses ESM v7 with `STAGE-ESM-016` (tracked in Stage#201). A command that uses them is case A or C: keep
+Screenplay 4.68.0 and later but are not rendered: CLI 3.41.0 admits ESM v7 to Stage planning, and Stage 4.51.3
+refuses generated values and responses with `STAGE-ESM-028`/`STAGE-ESM-029` (`cratis-screenplay-toolchain`
+`references/versions.md`). A command that uses them is case A or C: keep
 the model, hand-write the command and its response with the model (and its fixtures and `then returns`
 specifications) as the contract, and report V3 from the standalone tool and V5 as `not run: no render`.
 
-Models with event sources, streams or command routes are case A or C today: they cannot
-bind or render (`PLAY0268`: not admitted by any supported ESM version, so also `STAGE-ESM-016`), so hand-write the code with the model as the
+Models with event sources, streams or command routes bind and reference-execute as ESM v8 on standalone
+Screenplay 4.125.0, so report V3 and V4 from that tool. They are still case A or C for rendering: CLI 3.41.0
+refuses models above ESM v7 with `CLI-RENDER-004`, so hand-write the code with the model as the
 contract (`cratis-screenplay-toolchain` `references/sources-and-streams.md`).
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and

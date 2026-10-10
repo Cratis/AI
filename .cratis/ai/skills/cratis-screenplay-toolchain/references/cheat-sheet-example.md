@@ -230,7 +230,7 @@ module Billing
         then InvoiceClosed                            // ESM v6: the Reconciler cascade (amount > 0)
           for "9c858901-8a57-4791-81fe-4c455b099bc9"
 
-module Housekeeping                                   // no gates: a reaction's `invokes` has no caller
+module Housekeeping                                   // no gates: this reaction declares no `runs as`, so its `invokes` has no caller
   description "Background follow-up"
   feature FollowUp
     slice StateChange CloseInvoice

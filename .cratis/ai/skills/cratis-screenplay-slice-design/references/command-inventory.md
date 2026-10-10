@@ -118,8 +118,9 @@ not been asked the refusal questions.
 - Copying state into the command so `require` can read it, instead of `reads <View>`.
 - An origin that is neither reachable (no screen, form or reaction leads there) nor authorized
   for the persona who should act.
-- A reaction invoking a gated command: the invocation has no caller and is refused; design the
-  trusted path (`cratis-screenplay-automations-and-translations`), never delete the gate.
+- A reaction invoking a gated command without `runs as system role "<Role>"`: the invocation has
+  no caller and is refused; declare the trusted path with the role the gate admits
+  (`cratis-screenplay-automations-and-translations`), never delete the gate.
 - Refusals recorded as prose in the `description` with no layer and no spec row.
 - Personal data or secrets as command input: values are by default recorded in the causation chain, so treat them as permanent
   (retention can be configured in newer Chronicle; verify it, never audit secrets).
