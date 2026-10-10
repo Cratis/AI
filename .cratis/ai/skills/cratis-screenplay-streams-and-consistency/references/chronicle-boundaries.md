@@ -10,8 +10,9 @@ event-source id) are present. Three runtime defects are **open at v19.32.0**: #3
 InMemory providers do not settle unique claims), #4123 (constraint index updates run after commit
 and fail silently) and #4131 (composite unique constraints collide when a component contains the
 separator). Arc **v22.50.5** has `[ProtectedDecision]` (since v22.39.0, needs Chronicle 19.23 or
-later); Stage-rendered apps pin Arc 22.25.0 and Chronicle client 19.8.1, so it is not available
-there (see `consistency-and-concurrency.md` section 3). Re-check the issues before relying on a
+later); Stage 4.51.3 rendered apps pin Arc 22.50.5 and Chronicle client/kernel
+19.32.0, so the APIs are available to gap-fill, not automatically emitted or
+protected (see `consistency-and-concurrency.md` section 3). Re-check the issues before relying on a
 constraint in a new release.
 A concurrency scope's first append is unchecked by default at v19.32.0; see
 SKILL.md, ‘First append into a scope’.

@@ -96,9 +96,12 @@ legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
   `Customizations/styles.css`. The planner never reads it, and it never binds a modeled
   reaction or capture. A customization never makes a rejected model renderable.
 - `cratis render` does **not** build, test or run the application.
-- The scaffold pins .NET 10, Arc 22.25.0, Chronicle 19.8.1 and emits a `.frontend/` React/Vite
-  app (Components 4.14.0, Scene 4.2.0). `Directory.Packages.props` is Stage-managed: do not
-  edit it. `[ProtectedDecision]` (Arc v22.39.0) is not available in a rendered application.
+- Stage 4.51.3's scaffold pins .NET 10, Arc 22.50.5, Chronicle client/kernel 19.32.0
+  and emits a `.frontend/` React/Vite app (Components 4.14.0, Scene 4.10.0).
+  `CratisEmbeddedScreenplayEnabled=false`; `Directory.Packages.props` is managed,
+  never edit it. `[ProtectedDecision]` / `DecisionRead<T>` are available to gap-fill,
+  not Stage-emitted enforcement; projection/key admission and unit-of-work enrollment
+  remain required. Source checks: Stage skill `references/rendered-application.md`.
 
 ## Reading V5
 

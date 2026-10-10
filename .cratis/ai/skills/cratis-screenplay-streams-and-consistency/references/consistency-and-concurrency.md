@@ -108,15 +108,17 @@ example a course capacity computed from enrolment streams, needs option a or b: 
 deciding fact on the source that owns the state, or give each scarce item its own identity. Sources: Arc `v22.50.5:Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md`;
 `chronicle-boundaries.md`.
 
-**Availability caveat for Stage-rendered applications.** `cratis render` scaffolds Arc 22.25.0 and
-Chronicle client 19.8.1 (Stage v4.24.0), which predate `[ProtectedDecision]` and `DecisionRead<T>`.
-In a rendered app that attribute is not available, so a gap-fill handler cannot use it unless the
-application's Arc and Chronicle packages are upgraded as a separately approved change. When they
-are not, choose option a or b (put the deciding fact on the stream that owns the state, or give
-each scarce item its own identity and claim it with a constraint), or option c, and keep the rule
-**NOT enforced in the model today** in the slice description with the race consequence. Never
-claim protection for a rendered app because the rule is written as `reads` + `require`, and never
-weaken the rule to make it render.
+**Availability in Stage-rendered applications.** Stage v4.51.3 scaffolds Arc 22.50.5
+and Chronicle client/kernel 19.32.0. `[ProtectedDecision]` and `DecisionRead<T>` /
+`IDecisionReads` exist in that package set; source checks are in
+`cratis-stage-rendering-and-sandbox` `references/rendered-application.md`.
+This does not mean Stage emits protected decisions. Gap-fill must opt into the
+protected command profile, use an admitted projection/key shape and enroll the
+read in the active unit of work. For refused shapes choose option a/b (state on
+its owning stream or one identity per scarce item), or agreed compensation c.
+Keep the rule **NOT enforced in the model today** with its race consequence.
+Never infer protection from `.play` `reads` + `require`, weaken the rule to render,
+or edit managed dependency files. Older Stage 4.24.x scaffolds predate these APIs.
 
 ## 4. Concurrency scenarios
 For each enforced or recorded rule write three short scenarios:

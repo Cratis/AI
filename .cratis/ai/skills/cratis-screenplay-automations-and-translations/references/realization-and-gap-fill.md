@@ -17,14 +17,16 @@ with `cratis-screenplay-render-and-gap-fill`.
 | Model element | Realization | Skill |
 |---|---|---|
 | reaction `when <Event>` with `invokes` or `produces` | Chronicle reactor returning commands or events | `cratis-chronicle-reactor` |
-| trusted actor for `invokes` | `[ExecuteCommandsAsSystem("<role>")]` on the reactor plus a policy requiring the role (Arc, since v20.56.0; available in a rendered app's Arc 22.25.0) | `cratis-chronicle-reactor` |
+| trusted actor for `invokes` | `[ExecuteCommandsAsSystem("<role>")]` on the reactor plus a policy requiring the role (Arc, since v20.56.0; available in Stage 4.51.3's rendered Arc 22.50.5) | `cratis-chronicle-reactor` |
 | clock trigger, application trigger | scheduler or host signal that raises the occurrence | `cratis-engineering-effect-boundaries` |
 | call to an outside system | adapter behind an effect boundary, keyed by the idempotency key in the model | `cratis-engineering-effect-boundaries` |
 | capture source (webhook, poll, topic) | adapter that authenticates, parses and appends | `cratis-engineering-effect-boundaries` |
 | replay versus recovery redelivery | `[OnceOnly]` for replay; a receipt keyed by `ReactorDelivery.Id` for recovery | `cratis-chronicle-reactor` |
 
-`[ProtectedDecision]` (Arc v22.39.0 and later) is not available in a Stage-rendered app (Arc
-22.25.0), and `Directory.Packages.props` there is Stage-managed: do not edit it to get a newer Arc.
+Stage 4.51.3 rendered apps pin Arc 22.50.5/Chronicle 19.32.0, so
+`[ProtectedDecision]` and `DecisionRead<T>` are available to gap-fill, not
+Stage-emitted enforcement. Admit the projection/key and enroll the read in the
+active unit of work; never edit managed `Directory.Packages.props`.
 
 ## Faithful realization
 A realization may choose the reactor, scheduler or queue mechanism. It may not: drop pending

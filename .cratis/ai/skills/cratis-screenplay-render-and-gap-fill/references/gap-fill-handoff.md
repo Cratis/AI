@@ -61,8 +61,8 @@ ambiguous addresses; contracts are never inferred from names.
 A rule that exists only in a description, or a state-dependent rule the model marks as not
 enforced, is unenforced in generated scope. List it in the ledger as a target requirement. In
 hand-written code it needs an atomic enforcement point: a protected read or a concurrency scope
-(in a Stage-rendered application Arc is 22.25.0, which has no `[ProtectedDecision]`; a
-hand-written application on a newer Arc may use it), or a Chronicle constraint. A stale view or
+(Stage 4.51.3 rendered apps have Arc 22.50.5/Chronicle 19.32.0: protected-read APIs
+are available to gap-fill, with projection/key admission and active enrollment), or a Chronicle constraint. A stale view or
 a caller-supplied status is not enforcement.
 
 ## Automation and Translate scope

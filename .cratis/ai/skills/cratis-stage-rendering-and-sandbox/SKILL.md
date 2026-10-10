@@ -52,8 +52,11 @@ Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.m
 [references/render-example.md](references/render-example.md) was rendered, built and
 tested with cratis 3.28.2 (re-run on 3.28.3). Read `references/render-example.md` when you need a complete renderable model and the observed render, build, and test results. The full version table (Screenplay 4.66.0, Arc 22.50.5,
 Chronicle 19.32.0 and the tool split) is in the `cratis-screenplay-toolchain` skill,
-`references/versions.md`. Rendered apps are on Arc `22.25.0`, so `[ProtectedDecision]`
-(Arc 22.39.0 and later) is not available in code written into one. Screen render
+`references/versions.md`. Stage 4.51.3 scaffolds Arc `22.50.5` and Chronicle
+`19.32.0`, with `CratisEmbeddedScreenplayEnabled=false`. `[ProtectedDecision]` and
+`DecisionRead<T>` are available to gap-fill code, not automatically emitted or
+protected by Stage; admission and unit-of-work enrollment still matter. See
+[rendered application](references/rendered-application.md) for the source checks. Screen render
 publication and browser behavior for the canonical corpus are verified on public
 CLI 3.40.7 / `cratis/stage:4.51.1`. Studio 0.141 is released and production runs
 v0.139.0 or later, but production UI automation is pending a
