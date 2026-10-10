@@ -65,16 +65,17 @@ When a todo list is not needed: the effect is immediate, internal and cannot fai
 | can it be refused? | only by append-time constraints | authorization, validation, `require`, constraints |
 | destination | `for` value; without `for`, the trigger fact's source | the command's identifier |
 | with trigger `reads` | fails binding (unprotected decision) | allowed; protection is the command's job |
-| caller | n/a | **none**: gated commands reject |
+| caller | n/a | declared reaction `runs as` actor (ESM v10), otherwise none |
 
 ## 4. The actor behind an invoke
-On Screenplay 4.66.0 there is no caller: the invoked command runs its full pipeline (authorization, validation,
-requirements, constraints) with no caller, a command that needs one rejects, and the rejection
-ends the scenario. Screenplay has no syntax for an identity (Screenplay#383, open); never invent
-`runs as` or a caller line. At code level the realization is a Chronicle reactor whose returned
-commands run as a trusted system actor: `[ExecuteCommandsAsSystem("<role>")]` (Arc, since
-v20.56.0; also in a Stage-rendered app, whose Arc is 22.25.0) with a policy that requires that
-role. Record the intended actor in the model; the attribute lives in gap-fill code.
+Screenplay 4.125.0 declares the actor with reaction-level `runs as system role
+"<Role>"` (ESM v10); without it a gated invocation has no caller and denies.
+`given caller` is not an invocation actor. Role requirements remain enforced;
+claim conditions for this system principal remain unknown. CLI 3.41.0's older
+compiler rejects the syntax (PLAY0137), and Stage 4.51.3 admits through v7 only.
+Use the checked model in captures-and-reactions `references/invocation-identity.md`.
+Arc gap-fill uses `[ExecuteCommandsAsSystem("<role>")]` for returned commands,
+not identity inferred from prose or an imperative pipeline call.
 
 Decide and record one of:
 1. **Internal ungated command** - only if the security design supports it: not reachable by
@@ -84,13 +85,10 @@ Decide and record one of:
    requirement in `STATE.md`.
 2. **Direct `produces`** - when no decision is left (the fact is already decided) and nothing
    should refuse it.
-3. **Gated command + trusted actor + recorded gap** - when the command must stay protected.
-   Keep the gate (a policy requiring the service role), name the role as the intended actor,
-   and record that Screenplay 4.66.0 cannot declare it. The reference rejects the caller-less invoke,
-   so the automation spec cannot pass: do not write a fake passing spec. Report V4 as "not run:
-   no route" (no available route executes these specs) and record the expected rejection and
-   the trusted-actor gap separately, citing the reaction semantics (a command that requires a
-   caller rejects the reaction).
+3. **Gated command + declared trusted actor** - keep the service-role policy and
+   declare matching `runs as system role` on the reaction. Reference-test the
+   scenario with standalone 4.125.0; separately record CLI/Stage target refusal.
+   A missing actor must not be excused by removing the gate or inventing a caller.
 Never remove an existing gate only to make a reaction spec pass.
 Omitting an HTTP route is not an authorization proof: the exposure requirement stays a target
 requirement with its negative case (an outside caller is refused).

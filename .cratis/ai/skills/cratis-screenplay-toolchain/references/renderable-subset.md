@@ -1,6 +1,13 @@
 # Renderable subset (V5): what `cratis render` admits
 
-Sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
+Current pins: standalone Screenplay 4.125.0; CLI 3.41.0 bundles Screenplay
+4.114.0 and Stage 4.51.3 (`versions.md`). CLI admits ESM v7 to Stage planning;
+above v7 is CLI-RENDER-004. Its v7 canonical corpus gets STAGE-ESM-028/029 for
+generated values/responses (`v3.41.0:Source/Cli.Specs/for_ScreenplayPlanning/when_planning_an_esm_v7_model.cs`).
+The following detailed Stage 4.24.x results are **historical**, not reverified
+4.51.3 claims. Run the bundled renderer before asserting current renderability.
+
+Historical sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
 (an exhaustive map of every ESM member to Rendered, Rejected(code) or Ignored),
 `CratisArtifactRenderPlanner.cs`, `PureTransitionAdmission.cs`; cli v3.28.2
 `Commands/Render/RenderSettings.cs` and `Documentation/reference/screenplay.md`. Re-run the

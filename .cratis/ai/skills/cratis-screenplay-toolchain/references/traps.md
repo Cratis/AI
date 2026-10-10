@@ -1,6 +1,10 @@
 # Traps (one line each, with the fix)
 
-Re-checked against Screenplay v4.66.0 and cli v3.28.2 where marked [probed] or [source]. Tool and version facts: `versions.md`. Compiler-verified syntax: `cheat-sheet.md`.
+Current pins: Screenplay 4.125.0 / CLI 3.41.0 (`versions.md`). Unless explicitly
+updated below, [probed]/[source] rows retain their historical v4.66.0/CLI 3.28.2
+scope; negative capability claims there are not current verdicts. Current routes
+bind as v8, v7 reaches Stage planning, reference tests have CLI/MCP routes, and
+exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 
 1. Clean V1 is not executable: binding errors appear only through MCP (V2) or `render`. Neither `screenplay <folder>` nor `cratis screenplay validate` binds. [probed]
 2. The Screenplay samples validate clean but are not all executable; copying their idioms (list queries, `@pii`, `today`, `reads`, `$causedBy`, templates, performers) breaks V3. [probed]
@@ -8,10 +12,10 @@ Re-checked against Screenplay v4.66.0 and cli v3.28.2 where marked [probed] or [
 4. Plain `produces` without `for` means allocation in the ESM but "the identifier" in rendered code. Always write `for <identifier>`. [PLAY0478 probed]
 5. PLAY0029 is a warning: a misspelled keyword (or `type` inside a slice) drops the construct silently. Use `--warnings-as-errors`. [probed]
 6. Validate the folder: `cratis screenplay validate file.play` ignores imports and reports false unknown-name warnings (cli#244, open); the standalone tool follows them. [probed on 3.28.2 and 4.66.0]
-7. Unresolved names are warnings by design. Mappings to undeclared projection targets and undeclared events in `remove with`/capture `append` pass V1 and fail binding (V3, PLAY0273); a declared read-model property that nothing maps is reported by no tool. Run V3 and check field lineage by hand.
+7. Current V1 warns on absent projection/children/nested targets (PLAY0514) and unknown removal/capture events (PLAY0166). Opt-in field-origins checks find unmapped declared fields (PLAY0534) where coverage is known; still walk lineage for skipped/opaque shapes.
 8. Severity does not soften a rule: `severity warning` still rejects the command.
 9. Authorization (module AND feature AND construct) runs before validation; unauthorized is `then denied`, never `then error`.
-10. A reaction's `invokes` runs with no caller (no syntax for an identity yet: Screenplay#383, open): a gated invoked command rejects and ends the scenario. Design the trusted path (`cratis-screenplay-automations-and-translations`): keep the gate and record the capability gap; at code level `[ExecuteCommandsAsSystem]` (Arc 20.56.0 and later, so also in a Stage-rendered app on Arc 22.25.0); never invent `runs as`. Never strip authorization.
+10. Without a declared actor an invocation is caller-less. At 4.125.0 declare reaction `runs as system role "<Role>"` (ESM v10), keep its gate, and reference-test the trusted path. CLI 3.41.0's 4.114.0 parser rejects this syntax (PLAY0137); Stage 4.51.3 audits through v7 only. Arc gap-fill uses `[ExecuteCommandsAsSystem]` for returned commands, not a fictional `given caller`.
 11. A reaction `produces` without `for` lands on the trigger's event source; clock and application triggers need an explicit `for`.
 12. Read-model identity comes from its keyed queries, which must all use the same `by` property: `query XById => RM optional` + `by xId XId` with `xId` a read-model property, and the identifier equals the projection's effective key (table in slice-design `references/read-model-design.md`; full rule, including Stage's narrower admission and `STAGE-ESM-017`, in `cratis-stage-rendering-and-sandbox` `references/admission.md`). Never mark a read-model property `identifier`. (PLAY0268 when the keyed queries do not share one `by` property; PLAY0351 when a `given`/`then` readmodel block omits that property.)
 13. Projection `key` routes only on `from` (projection-level: PLAY0381). `all` is per event source. Joins never create instances and match the joined event's source id. [probed]
@@ -27,10 +31,10 @@ Re-checked against Screenplay v4.66.0 and cli v3.28.2 where marked [probed] or [
 23. `@` escapes are mandatory for `tag`, `authorize`, `produces`, `reads`, `file`, `validate`, `sequence`, `occurred`, `causedBy`, `namespace`, `correlation`, `causation`, and projection `key`/`parent`/`with` as names.
 24. Comments do not survive canonicalizing edits (PLAY0288 reprint; `droppedCommentCount`); keep durable rationale in `description` text, not `//`.
 25. MCP writes: propose, review, approval, apply by the identity owner (the session that owns the MCP connection); other subagents return edit requests; proposals are connection-local, at most 16 (`cratis-screenplay-model-authoring`).
-26. Future syntax (operations, systems, eventsource/stream) parses but never binds (not admitted by any supported ESM version); `generated` and `returns` bind from standalone 4.68.0 (ESM v7) and still report PLAY0268 on the 4.66.0 bundled in cratis 3.28.x; never invent ADR-planned syntax (`derive`, `provide`, `advisory`, `origin`, subject marks, `order by`, paging, `occurred at`, `from` filters, `for each`).
+26. Operations/systems and exact numbers remain unadmitted. Sources/streams/routes bind and reference-execute as ESM v8 at 4.125.0; generated values/responses bind as v7. CLI 3.41.0 renders through v7 only, with construct-specific Stage refusals. Consult released grammar rather than inventing syntax from decisions.
 27. Translate vs Automation is semantic: external facts become local facts in `Translate`; in-app event-to-event goes in `Automation`.
 28. Personas drive the board: a persona must list every policy on the path, including module-level `IsAuthenticated`.
-29. Sample specifications are never executed; their expected values (e.g. `.0000000Z` clock fraction, given==when clock boundary) are illustrative only.
+29. A sample's source check is not execution. Run selected admitted specifications through `screenplay test`/MCP; given==when clock still fires no scheduled occurrence.
 30. Claims compare with `matches` (`claim "dept" matches "Finance"`); `==` is PLAY0120. Conditions with `contains`/`starts with` compile but do not bind. [probed]
 31. One `every`/`all` block per projection level for V3; `$eventContext.occurred.Week` does not bind. [probed]
 32. Concept rules: `min`/`max`/`length ==`, not `length 3 to 10` (PLAY0141). [probed]
@@ -38,7 +42,7 @@ Re-checked against Screenplay v4.66.0 and cli v3.28.2 where marked [probed] or [
 
 34. A `from <Event> key <property>` routes only if every such event carries that property: an event that frees or updates a row keyed by another stream's id must carry that id in its payload, or the row never changes. Whether the compiler reports a missing key property is unverified [to probe]; check by hand.
 35. `description`/`documentation` are authoring metadata: board, MCP and Prologue show them; `cratis render` never does (Stage#178). A rule only in prose is unenforced in rendered code; make it a rule layer, a spec or a recorded target requirement.
-36. Any `system`/`operation`, event source or stream (not admitted by any supported ESM version), and `generated`/`returns` on a compiler before 4.68.0 (including the 4.66.0 in cratis 3.28.x), leaves the whole application without an executable model (PLAY0268), not just the slice: keep them out of executable/renderable scope. Even on 4.68.0 Stage 4.24.2 refuses generated values and responses (ESM v7) whole with `STAGE-ESM-016`; gap-fill.
+36. One unadmitted construct (operations, exact numbers, refusal/redelivery) blocks whole-model binding. Routing is admitted v8, not one of those constructs; CLI render's v7 boundary is a separate refusal. Do not remove routing or authorization to render a model.
 37. Personas are not in the ESM (Screenplay#254); specs cannot reference them. Write `given caller` as the roles/claims that stand for the persona.
 38. A rule that depends on stored state is `reads <View>` + `require <expr> message "..."` (stated intent; PLAY0268/0271 at binding are expected in design mode). The slice `description` must mark it NOT enforced in the model today (Screenplay#129/#209) and name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc v22.39.0 and later; not available in a Stage-rendered app on Arc 22.25.0), Chronicle DCB (`concurrency` scope), or a constraint where one fits. Forbidden: caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX == true`), rules hidden in `handler`/implementation-hint prose. An unguarded materialized read is unsafe for a protected decision.
 

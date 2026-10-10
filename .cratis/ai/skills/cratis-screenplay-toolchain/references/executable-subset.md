@@ -10,6 +10,12 @@
 - Not refused, but do not rely on it
 - Never do this to reach V3
 
+Current pins are Screenplay 4.125.0 / CLI 3.41.0 (`versions.md`). Detailed
+4.66.0/4.68.0 binder probes below retain their historical labels. Current source
+admits sources/streams/routes as ESM v8 and policy negation as ESM v7; operations,
+exact numbers and reaction refusals/redelivery remain unadmitted. Use the actual
+binder before promoting an older probe to a current capability claim.
+
 What the binder admits, and what it refuses with which code. The answer depends on the
 compiler version: standalone Screenplay 4.68.0 admits ESM v1 to v7; the 4.66.0 compiler bundled in
 cratis 3.28.2 and 3.28.3 admits v1 to v6; the 4.60.1 compiler bundled in cratis before 3.28.2 admits v1 to v5.
@@ -63,9 +69,10 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 
 - `slice Automation` with `reaction`: `when <Event>` (with values) then `produces` (no
   `for` means the trigger's event source) or `invokes <Command>`; `where`; clock `at ... on
-  ...` with an explicit `for`. The invoked command runs its full pipeline with **no caller**
-  (Screenplay#383, open): a gated command rejects and the rejection ends the scenario.
-  Keep the gate and record the capability gap; never strip authorization.
+  ...` with an explicit `for`. Without a declared actor, a gated invocation denies.
+  On 4.125.0 reaction `runs as system role "<Role>"` supplies the actor and
+  selects ESM v10; keep the gate. CLI 3.41.0's older compiler rejects this syntax,
+  while standalone reference execution admits it.
 - Application `trigger` declarations and `when trigger` specifications.
 - `slice Translate` with `capture` (`key`, `map ... translate`, `append ... when x from "a"
   to "b"`), and `given capture` / `when capture` specifications.
@@ -173,7 +180,7 @@ bodies still leave their owner non-executable.
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
 | `generated` or `returns` on a compiler before 4.68.0 (4.66.0 and 4.67.0 refuse; 4.66.0 is bundled in cratis 3.28.x) | PLAY0268 | admitted from standalone 4.68.0 (ESM v7), see above |
-| Operations or systems, `numbers exact`, eventsource or stream | PLAY0268 | not admitted by any supported ESM version; syntax only (`sources-and-streams.md`); one such construct leaves the **whole** application without an executable model |
+| Operations or systems, `numbers exact`, reaction refusals/redelivery | PLAY0268 | not admitted by any supported ESM version; one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
 | `given` or `then readmodel` missing the key property | PLAY0351 | key is the keyed query's `by` |
 | When-less spec asserting events or errors | PLAY0352 | |
@@ -185,15 +192,17 @@ bodies still leave their owner non-executable.
 - Plain `produces` without `for` binds (PLAY0478, information) but means allocation in the
   ESM and "the identifier" in rendered Arc code. Always write `for`.
 - A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`), so no specification in the application runs; Chronicle wires it as a child pull. See the blocked-plan rows above.
-- A projection mapping to a property the read model does not declare, and an undeclared
-  event in `remove with` or a capture `append`: V1 does not report them; binding (V3) does,
-  with PLAY0273 (Screenplay v4.66.0 `BindMapping`, `LevelEvent`, `BindCaptureAppends`). A
-  declared read-model property that nothing maps is different: no tool reports it, so check
-  field lineage by hand.
+- At Screenplay 4.125.0, V1 reports absent projection/children/nested targets
+  with PLAY0514 and unknown removal/capture events with PLAY0166. An unmapped
+  declared field can be found by opt-in `--check field-origins` (PLAY0534);
+  unknown or opaque coverage is skipped, so still check lineage by hand.
 
 ## Never do this to reach V3
 
 Do not remove `@pii`, `@sensitive`, `authorize` or policies, list queries, automations or
 rules a domain needs just to make binding pass. Report `V3 blocked: <codes>` and record the
 slice in the gap list. A `@pii` or `@sensitive` attribute blocks V3 and rendering, and
-either attribute on an event-source identifier is not reported by the pinned tools (`PLAY0515` ships for `@pii` in Screenplay 4.69.1 and for `@sensitive` in 4.84.1); only Chronicle rejects it, at build time of the generated code (CHR0034 for `[PII]`, CHR0052 for `[Encrypted]`).
+either attribute on an identifier or typed destination is a source error
+PLAY0515 on the current compiler (including stream-id parts and route mapping
+sources). Chronicle also rejects `[PII]`/`[Encrypted]` on event-source identifiers
+(CHR0034/CHR0052). Keep surrogate identity and protected payload separate.

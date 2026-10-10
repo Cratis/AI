@@ -74,7 +74,7 @@ the format in `worked-example.md`.
 
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
-| A1 | Every read-model field maps from an event field, `$eventSourceId`, `$eventContext`, a literal, or a documented derivation (`count`, `add ... by`) | projection blocks; AutoMap name matches (on by default) | D (a declared field that nothing maps is reported by no tool; a mapping to an undeclared property fails binding at V3, PLAY0273, tier C when executable) |
+| A1 | Every read-model field maps from an event field, `$eventSourceId`, `$eventContext`, a literal, or a documented derivation (`count`, `add ... by`) | projection blocks; AutoMap name matches (on by default) | D (opt-in PLAY0534 detects known missing origins; unknown coverage still needs a walk. Absent mapping targets warn at V1 with PLAY0514, tier C for source validity) |
 | A2 | Every event field comes from a command input, `$context` value, literal, capture field or reaction mapping | `produces` mappings, capture `map`, reaction `invokes` | C for undeclared names (warning), D for meaning |
 | A3 | Every command input is supplied by someone: screen form field, reaction mapping, capture, or a caller who knows it | screens, forms, reactions | D |
 | A4 | Every command input ends in an event field or is used by a rule | `produces`, `validate`, `require` | Q (an unused input is often a missed fact) |
@@ -100,7 +100,7 @@ the format in `worked-example.md`.
 | C2 | A fact, not a request, a running calculation, a UI action or a technical step | names and payloads | D |
 | C3 | No speculative or pending events ("MayBe...", "...Pending") where a decision is meant | names | Q |
 | C4 | No nullable or optional event property by default: a required value, or a separate event for the second situation (CHR0012; a `null` in a specification value is PLAY0350); a kept `optional` has its reason in the `description` | `optional` members | D |
-| C5 | Sensitive members marked (`@pii`/`@sensitive`) and not mixed across data subjects; operational secrets are `@sensitive`, not `@pii`; no `@pii` or `@sensitive` on the event-source id (no such identifier concept; use a surrogate id; Chronicle CHR0034 and CHR0052, and Screenplay PLAY0515 from 4.69.1 for `@pii` and 4.84.1 for `@sensitive`, only on tools at those versions - the pinned tools do not report it); one data subject per event or stream | concepts and members | D; removal to pass tools = critical |
+| C5 | Sensitive members marked (`@pii`/`@sensitive`) and not mixed across data subjects; operational secrets are `@sensitive`, not `@pii`; no `@pii` or `@sensitive` on the event-source id (no such identifier concept; use a surrogate id; Chronicle CHR0034 and CHR0052, and Screenplay PLAY0515 from 4.69.1 for `@pii` and 4.84.1 for `@sensitive`, only on tools at those versions - current pins report it as a source error, including typed destinations and route-id parts); one data subject per event or stream | concepts and members | D; removal to pass tools = critical |
 | C6 | No secret or bearer values as facts (tokens, magic links, signed URLs): record a keyed hash or a reference | event payloads | D |
 | C7 | No two events of one kind of event source mean the same thing (a shared property set is a signal, not a defect: distinct facts may share a shape and historical generations are exempt; major only when meaning is lost, a rule bypassed or consumers ambiguous); one fact is not recorded twice (aggregate event plus per-item fan-out) | event declarations side by side | D |
 | C8 | Corrections are new facts that name what they correct; redaction and crypto-erasure are compliance tools, not corrections | event names | D |
@@ -131,6 +131,15 @@ the format in `worked-example.md`.
 | E9 | A decided refusal is a `then error` or `then denied` specification (permanent behavior), never a lingering open question; only a genuinely unanswered question counts as open, and resolving it means answering it | specs, `STATE.md` questions, descriptions | D |
 
 ## Phase 8. Flow and lifecycle (13 checks, F1-F13)
+
+Review PLAY0516 backward-flow and PLAY0517 sibling-cycle findings as
+**presentation-only** information: they do not fail `--warnaserror`, change
+execution or prove a business deadlock. An ordering root is required; without
+one the folder check is skipped. A real F6 defect needs a named domain
+consequence, not just the diagram's cycle. Suggested graph order and safe
+PLAY0516 moves preserve executable bytes/identities. Source: Screenplay
+`v4.125.0:Documentation/screenplay/imports.md`, `diagnostics.md`.
+
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
 | F1 | Each entity has a first fact, a state-transition table (including refused transitions) and terminal states | slices, constraints, `description` | D |

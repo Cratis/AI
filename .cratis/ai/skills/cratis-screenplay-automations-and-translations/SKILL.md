@@ -28,10 +28,15 @@ identity, effect and pending-work contract at that point; do not postpone it to 
   4.66.0). Probed on 3.28.2: the complete examples are `executableReady`. A cratis bundle before 3.28.2
   (4.60.1) reports PLAY0268 at binding: report "V3 blocked: PLAY0268 (ESM v6)" and
   name the tool, never remove them.
-- No MCP tool, `validate` or render runs Automation or Translate specs. V4 is "not run: no route".
-- Stage 4.24.2 (bundled in cratis 3.28.3) renders no Automation or Translate slice (Stage#79); `cratis render` refuses the whole v6 model with STAGE-ESM-016: the whole automation is
-  gap-fill or hand-written delivery with the model as contract (`references/realization-and-gap-fill.md`).
-- Invoked commands run with no caller; `.play` cannot name an actor (Screenplay#383).
+- Standalone 4.125.0 runs admitted scenarios through `screenplay test` or MCP
+  `run-specifications`; source validation and render publication do not run V4.
+- Stage 4.51.3 refuses Automation/Translate members with STAGE-ESM-024; its direct
+  planner audits through v7. Deliver that scope as authorized gap-fill
+  (`references/realization-and-gap-fill.md`).
+- Reaction `runs as system role "<Role>"` declares an invocation actor (ESM v10).
+  Without it the invoke has no caller. CLI 3.41.0's 4.114.0 compiler rejects the
+  new syntax (PLAY0137). Checked model/diagnostics: captures-and-reactions
+  `references/invocation-identity.md`.
 
 ## Effect guarantees and recovery traps
 | Guarantee | What it promises | What can show it |
@@ -113,12 +118,12 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
    supersession), the work-item key and the recovery path. Direct reaction only for an immediate,
    internal, always-possible effect; say why no pending state is needed. A translation is not
    automatically infallible.
-4. **Effect and actor.** `produces <Fact>` when nothing should refuse the fact. `invokes <Command>`
-   when the step is a decision that may reject; it carries **no caller**, so gated commands reject it.
-   Record one actor decision: internal ungated command (only when safe and unreachable), direct
-   `produces`, or gated command with a trusted actor and the capability gap (Screenplay#383). The code
-   realization of the actor is a reactor with `[ExecuteCommandsAsSystem("<role>")]` and a policy
-   requiring that role; never invent `runs as`. Never strip authorization to pass a tool.
+4. **Effect and actor.** `produces <Fact>` records a decided fact; `invokes <Command>`
+   requests a decision. Keep its gate and declare the trusted role with reaction
+   `runs as system role "<Role>"` (ESM v10). An undeclared actor remains caller-less.
+   CLI/Stage realization is a separate gap; a returned-command reactor uses
+   `[ExecuteCommandsAsSystem("<role>")]` and the matching policy. Never strip a
+   gate or supply `given caller` as a fictional reaction identity.
 5. **Trace inputs.** Every trigger value, command input, event property and destination needs a
    supported source; every filter a business reason. Gaps are questions, not invented mappings.
 6. **Repetition and termination.** Identify one logical work occurrence and what a retry is. Guard the
@@ -140,7 +145,8 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
 - Clock triggers take no values (PLAY0450) and no `by` on reads (PLAY0443). `for each <View>` is
   reserved, not available.
 - Capture `when` cannot mix `and` and `or` (PLAY0089). A capture without `key` does not bind.
-- Undeclared events in capture `append` and `remove with` pass V1 and fail only at binding (V3, PLAY0273): run V3.
+- Current V1 warns on undeclared capture/removal events (PLAY0166); V3 remains a
+  separate binder check.
 - A trigger with `reads` that `produces` directly fails binding: decide in a command. `reads` never protects.
 - An authorized command exercised in a spec without `given caller` is PLAY0389 at binding.
 - A list query (`=> Item[]`) and a clock sweep that iterates items do not bind; show them only as marked
@@ -175,7 +181,8 @@ Never report a verdict without the tool and version that produced it.
 
 ## Verify
 - V1 and V3 per `cratis-screenplay-toolchain`, each with tool and version. On a cratis before 3.28.2
-  bundle report "V3 blocked: PLAY0268 (ESM v6)"; on 4.66.0 (standalone or cratis 3.28.2) these slices bind. V4 is "not run: no route" for these slices.
+  bundle report "V3 blocked: PLAY0268 (ESM v6)". Current admitted scenarios use
+  standalone `screenplay test`/MCP for V4; unsupported or unbound is not passed.
 - For each external source and type: its translation, or an explicit out-of-scope reason; check
   target-field completeness as well as source-field dispositions.
 - One happy path is not coverage: cite the spec or the missing case for each branch, denial, competing

@@ -87,10 +87,10 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
    invariant consequences, not names or length. For Chronicle keep event-source identity,
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
-   command routes can be authored and validated but not bound, run or rendered today
-   (`PLAY0268`, `STAGE-ESM-016`): keep them as intent and hand-write the routing
-   (`cratis-screenplay-toolchain` `references/sources-and-streams.md`); no supported ESM version
-   admits them. A `generated identifier` (ESM v7, standalone 4.68.0; not rendered by Stage yet) is
+   command/specification routes bind and reference-execute as ESM v8 on 4.125.0.
+   CLI 3.41.0 rendering admits through v7 only (CLI-RENDER-004); keep the routing
+   contract and gap-fill its target realization. Forms/boundaries:
+   toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0; not rendered by Stage yet) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no
    idempotency, retry or deduplication guarantee. When a retry must find the same stream, the caller
    supplies the identifier before the first attempt.

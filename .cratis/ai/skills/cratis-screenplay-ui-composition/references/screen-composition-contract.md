@@ -7,6 +7,7 @@
 
 - Support levels
 - Data context and component bindings
+- Guarded actions
 - Exposed template configuration
 - Forms and columns
 - Packages, icons and template catalogs
@@ -90,6 +91,25 @@ Rules for agents:
 - An `outlet` is a nested replacement surface; it can hold screen directives and
   can be targeted by navigation or a dialog route when the runtime contract
   supports it.
+
+## Guarded actions
+
+A label-headed screen action can select one command through authored-order
+`when item.<path> ... execute ...` alternatives. First match wins; last
+`otherwise execute` supplies a fallback, while `otherwise hidden` or omission
+hides an unmatched action. With no item (loading/no selection), always hide it.
+Explicit with-bindings, matching subject fields, form inputs and renderer input
+fill the chosen command in that order. Authorization denial is not another
+selector and never falls through. Refresh if a click-time check changes the
+choice the user saw.
+
+Missing fields are not null; == null matches explicit null only. Guards are
+presentation offers, never access control. Downstream runtime support is separate
+from parsing; do not publish an empty plain action as equivalent behavior.
+The complete checked model and conditions are in
+`cratis-screenplay-read-surface` `references/guarded-actions.md`, grounded in
+Screenplay v4.125.0 `screens.md`. CLI 3.41.0/Stage 4.51.3 reports unsupported
+screen actions with STAGE-SCENE-ACTION-001, not proof of runtime selection.
 
 ## Exposed template configuration
 

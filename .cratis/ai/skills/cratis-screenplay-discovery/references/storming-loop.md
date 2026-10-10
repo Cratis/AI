@@ -29,7 +29,7 @@ then reports what changed and asks one question. The user should always be able 
    | rename | better business name for an existing fact | identity-affecting once persisted: see SKILL.md |
    | split | one name was covering two facts | keep the original if it is persisted; add the second |
    | merge | two names for one fact | only when they truly mean the same thing |
-   | reorder | the story order changed | update the feature `description`/STATE.md; files sort by name |
+   | reorder | the story order changed | change declaration/import order for the board; update the feature `description`/STATE.md for causes and branches |
    | drop | not a fact after all | record why in STATE.md |
    | none | already modeled | say so briefly |
 
@@ -65,10 +65,11 @@ open, start the sweep (`divergent-sweep.md`).
 ## A discovery skeleton
 
 What a model looks like after the first workflow has been stormed: no commands, read models
-or screens yet. Slices are named after the command expected to produce each event and are
-sorted by name when a folder layout is written back (a single document keeps authored order
-at v4.66.0), so the order of the story lives in the feature `description`, not in position. Persona
-`description` text holds Does / Reads / Cannot on one quoted line here; the multi-line fenced
+or screens yet. Slices are named after the command expected to produce each event. At
+Screenplay 4.125.0, boards use authored declaration/import order, and MCP `expand-layout`
+preserves it with imports. An import-less `PlayFileWriter.Expand` layout still falls back to
+path order. Order is presentation only; the feature `description` records causes and branches.
+Persona `description` text holds Does / Reads / Cannot on one quoted line here; the multi-line fenced
 form is in `personas-and-causes.md`.
 
 ```screenplay

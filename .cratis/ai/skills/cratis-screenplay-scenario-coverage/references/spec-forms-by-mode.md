@@ -3,7 +3,11 @@
 The subsets themselves (what binds, what renders) are owned by `cratis-screenplay-toolchain`
 (its executable and renderable subset references); version facts by its `references/versions.md`. This file
 says what that means for writing specs. A form outside the chosen mode is never deleted from a
-design model: keep it and record the gap.
+design model: keep it and record the gap. The detailed Stage 4.24.x rows below
+retain historical admission evidence; current pins are Screenplay 4.125.0 / CLI
+3.41.0. Run actual target admission instead of assuming old restrictions carry over.
+Typed example/override forms: `cratis-screenplay-specifications`
+`references/examples-and-routes.md`.
 
 | Form | design | executable | renderable |
 |---|---|---|---|
@@ -19,6 +23,10 @@ design model: keep it and record the gap.
 | Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no (no reactions) |
 | `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later; not on the 4.66.0 bundled in cratis 3.28.x (`PLAY0268`) | no (Stage does not render ESM v7) |
 | `then events in any order` | yes | yes | yes |
+| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | CLI 3.41.0 refuses models above v7 before planning |
+| Typed examples and overrides | yes | expanded and type-checked before binding; required fields remain required | depends on expanded contract, not fixture reuse |
+| `given operation ... fails`, `then operation`, `then compensated` | yes | unadmitted PLAY0268 | gap-fill |
+| Refusal branches, `when redelivered`, `then no events` | yes | unadmitted PLAY0268 | gap-fill |
 | Composite (JSON) values in specs | yes | yes | no |
 | Rules over dates or `today`, nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
@@ -36,7 +44,10 @@ bundle is available). Mark each such spec in the coverage matrix as
   the projection's effective key (`cratis-screenplay-slice-design` `references/read-model-design.md`
   decision table). View specs assert through a keyed query.
 - Run V3 (binding-ready, per `cratis-screenplay-toolchain`); binding-only codes (PLAY0273/0350/0352/0388/0389) appear only there.
-- V4 (reference specs run) needs a runner route; otherwise report "V4 not run: no route". Unsupported is not passed.
+- V4 runs through `screenplay test` or MCP `run-specifications`; record expected,
+  discovered/selected and passed/failed/unsupported counts. Unbound/unsupported
+  is not passed. Authoring-only refusal/redelivery/operation specs remain recorded
+  contracts; test them at the owning target after authorized gap-fill.
 
 ## Renderable mode
 - Specs use given events, a command `when`, and then events / readmodel / query / error /

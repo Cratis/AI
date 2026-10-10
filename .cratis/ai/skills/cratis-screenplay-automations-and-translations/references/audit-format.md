@@ -11,8 +11,8 @@ technique: partial work stays visible and nothing is skipped because it looked r
 
 Result is `complete` only when every column is filled or says why it does not apply (for example
 "direct effect: immediate, internal, cannot fail"). `open` names the unresolved decision and who
-answers. `blocked` names the capability gap (for example Screenplay#383 for the actor, or a
-list query that does not bind) with the intended behaviour.
+answers. `blocked` names the actual capability gap (for example CLI 3.41.0's
+older compiler cannot parse a declared ESM v10 reaction actor) with intended behavior.
 
 ## Per translation (capture or translator reaction)
 | Source and type | Location | Correlation | Field dispositions | Target fields traced | Dedup and ordering | Trust boundary | Recovery owner | Named cases | Result |
@@ -45,4 +45,5 @@ never skip it silently or call the chain complete.
 | Unreviewed | `RecordCompletion` denial for a non-coordinator is specified; query authorization not in scope | stated |
 
 Then the verdict line per `cratis-screenplay-toolchain`: tool and version on each of V1 to V4
-(V4 for these slices: "not run: no route").
+(V4 uses standalone `screenplay test` or MCP `run-specifications`; report the
+actual result, or a specific host/input limitation if not run).

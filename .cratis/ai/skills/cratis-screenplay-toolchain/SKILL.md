@@ -22,17 +22,16 @@ files is one application: always check the folder, never one file of it.
 
 When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it.
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | standalone compiler, binder and MCP server; admits ESM v7 (generated values and responses) |
-| cratis CLI | `3.40.7` (`v3.40.7`, `af9f18e`) | Tag pins Stage 4.51.1 and Screenplay 4.114.0, with `cratis/stage:4.51.1` as the runtime image. The public CLI executed render publication, the browser acceptance run and the real stdio MCP transcript harness (37 tools, `executableReady true`). Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
-| Screenplay | bundled `4.114.0`; latest language package `4.122.0` | CLI 3.40.7 bundles 4.114.0 and reports `sourceSuccess true`, `semanticSuccess true`, `executableReady true` for the canonical corpus; the repo tool compiles it with `10 file(s) compiled - 0 error(s), 0 warning(s)`. Language features newer than 4.114.0 need the standalone 4.122.0 tool until a CLI bundles them |
-| Stage | `4.51.1` (CLI default; latest package 4.51.3) | Docker image `cratis/stage:4.51.1`; renders the canonical screen corpus with Arc `CommandForm` shells and query bindings, and refuses guarded Close and double-click with `STAGE-SCENE-ACTION-001` / `STAGE-SCENE-INTERACTION-001`. Check generated package sets before claiming exact Scene 4.14 runtime parity |
-| Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
+The standalone pin is Screenplay 4.125.0. CLI 3.41.0 bundles Screenplay 4.114.0,
+Stage 4.51.3 and Cratis.Arc.Screenplay 22.54.0. The single version table records
+released source evidence and historical probes separately; do not relabel an old
+render/browser result as a probe of the current packages.
 
-Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour
-was probed on 4.63.1 and re-checked on 4.66.0 and 4.68.0 (the example gates). 4.65.0 adds command named-rule `implementation` blocks (handlers and operation phases already had the wrapper; it is rejected on concept rules, built-in property rules and whole-command `require`/`validate` bodies); 4.66.0 is editor tooling only. Neither changes execution.
-Re-verify before claiming another version behaves the same.
+Historical screens-release evidence: CLI 3.40.7 / Stage 4.51.1 / bundled
+Screenplay 4.114.0 opened the canonical corpus with `executableReady true`
+and the stdio transcript exposed 37 tools; standalone language 4.122.0 was
+recorded in that vector. These retained results are not a rerun on CLI 3.41.0
+or Screenplay 4.125.0.
 
 ## Ground rules
 
@@ -42,10 +41,10 @@ Re-verify before claiming another version behaves the same.
 2. **Check the folder, warnings as errors.** `screenplay <folder> --warnaserror` or
    `cratis screenplay validate <folder> --warnings-as-errors`. Warnings hide defects:
    PLAY0029 (a misspelt keyword or a `type` inside a slice) drops a construct silently.
-3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for V1 to V3 (file
-   mode follows imports); `cratis` 3.28.2 or later bundles the 4.66.0 compiler (same up to ESM v6, no ESM v7) and is the
-   route for `render`. A cratis before 3.28.2 bundle (4.60.1) rejects ESM v6 and reports a
-   false PLAY0285 on cascades (cli#242). Report tool and version with every verdict.
+3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for
+   current language checks and reference specifications; `cratis` for rendering
+   and generation. Bundled and standalone versions differ. Report both tool and
+   version, rather than transferring a verdict across releases.
 4. **Know the mode** (design, executable, renderable) and write from its subset.
 5. **Capability is not correctness.** The tool you ran decides what is accepted today; the
    domain and the documented semantics decide what is correct. On conflict keep the correct
@@ -62,14 +61,13 @@ Re-verify before claiming another version behaves the same.
 
 ## The two compilers
 
-| | Standalone `screenplay` 4.68.0 | `cratis screenplay ...` 3.28.3 and 3.28.2 (bundle Screenplay 4.66.0) |
+| | Standalone `screenplay` | `cratis screenplay ...` |
 | --- | --- | --- |
-| Check a folder | `screenplay <folder> --warnaserror --no-color` (exit 0 pass, 1 fail; an empty folder also exits 0, so read "N file(s) compiled") | `cratis screenplay validate <folder> --warnings-as-errors -o json-compact` (0 pass, 5 fail, 1 missing path or no files) |
-| ESM admitted | v1 to v7 | v1 to v6 (generated values and responses report `PLAY0268`; before 3.28.2 bundled 4.60.1: v1 to v5) |
-| Automation, Translate, reactions, captures, clocks, triggers | bind | bind (before 3.28.2: PLAY0268 "Slice '<name>' of type '<type>' is not admitted by ESM v1.") |
-| Cascade specs | compile | compile (before 3.28.2: false PLAY0285, cli#242) |
-| File argument | follows imports | ignores imports, false PLAY0165 warnings (cli#244, probed on 3.28.2): validate the folder |
-| MCP | `screenplay mcp <folder>`; 29 tools | `cratis screenplay mcp [root]`; 29 tools; registered by `cratis ai install` |
+| Check root | `screenplay <root> --warnaserror --no-color` | `cratis screenplay validate <root> --warnings-as-errors -o json-compact` |
+| Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | Discover installed validation options |
+| Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
+| MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
+| Render version boundary | Binder admission is not Stage admission | CLI 3.41.0 passes up to ESM v7 to Stage; newer versions: `CLI-RENDER-004` |
 
 Read `references/versions.md` when you need the exact messages, exit codes or the MCP roots bug.
 
@@ -84,7 +82,7 @@ Independent results, not a ladder. Read `references/verdicts.md` for the command
 | V1 | authorable (compiles, warnings as errors) | the folder command above |
 | V2 | executable diagnostics read | MCP `open-workspace`, then `read-workspace view=executable-diagnostics` |
 | V3 | binding-ready (binds, no blocking executable diagnostics) | `executableReady` true and no error-severity diagnostic in V2; informational PLAY0269/0270 are reported separately |
-| V4 | reference specifications run | the Screenplay reference execution route only (none ships in the pinned tools: `V4 not run: no route`); rendered Debug tests are V5.tests, never V4 |
+| V4 | reference specifications run | `screenplay test` or MCP `run-specifications`; unsupported/unbound is not a pass; rendered Debug tests are V5.tests, never V4 |
 | V5 | rendered and target-verified | `cratis render`, then Debug build and tests; report admission, publication, build and tests separately |
 
 V2 and V3 need MCP: send `initialize`, then `notifications/initialized`, and start the
@@ -105,12 +103,14 @@ changes with the root folder name.
   only; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs bind on Screenplay 4.61 or
   later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
-  only on standalone 4.68.0 or later (`references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
-- **Renderable** (V5): `references/renderable-subset.md`. Stage 4.24.2 renders ESM v1 to v4 (evolved events refused, `STAGE-ESM-026`)
-  `StateChange`/`StateView` slices; Automation and Translate are gap-fill (Stage#79), and so are generated values and responses (ESM v7: Stage refuses it with `STAGE-ESM-016`, tracked in Stage#201).
-- **Event sources, streams and command routes** (and operations): authorable and validatable, but never
-  bound (`PLAY0268`: not admitted by any supported ESM version), run or rendered
-  (`STAGE-ESM-016`); gap-fill with the model as contract (`references/sources-and-streams.md`).
+  from Screenplay 4.68.0 (also in the current CLI bundle) (`references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
+- **Renderable** (V5): `references/renderable-subset.md` retains explicitly labeled
+  older Stage probes. Current CLI admits v7 to planning, but its v7 corpus gets
+  Stage generated-value/response refusals `STAGE-ESM-028`/`029`, not a blanket
+  compiler refusal. Run admission before claiming a particular model renders.
+- **Event sources, streams and routes** bind as ESM v8 at 4.125.0; CLI 3.41.0
+  render refuses versions above v7 (`CLI-RENDER-004`). Operations and exact numeric
+  mode remain authorable/unadmitted. Details: `references/sources-and-streams.md`.
 
 ## Edit strategy
 
@@ -144,10 +144,12 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
 2. Write `for <identifier>` on every `produces`.
 3. PLAY0029 is a warning: validate with warnings as errors.
 4. Validate the folder; name the compiler (cli#244, cli#242).
-5. Mappings to undeclared projection targets and undeclared events in `remove with`/capture
-   `append` pass V1 and fail binding (V2/V3, PLAY0273); a declared read-model property that
-   nothing maps is reported by no tool: run V3 and walk field lineage by hand.
-6. A reaction's `invokes` has no caller: a gated command rejects it; keep the gate.
+5. V1 warns on undeclared projection targets (`PLAY0514`) and removal/capture
+   event references (`PLAY0166`). Unmapped declared fields can be reported by
+   opt-in `--check field-origins` (`PLAY0534`); unknown coverage is skipped, so
+   still walk lineage. See diagnostics for editor versus C#-only checks.
+6. Without reaction `runs as` an invoke is caller-less. Declare its trusted role
+   (ESM v10), keep the gate, and reference-test; CLI/Stage support is separate.
 7. Read-model identity is one `query XById => RM optional` with `by xId XId`, and the identifier equal to the
    projection's key (see trap 12); never `identifier` on a read model.
 8. Projection `key` routes only on `from`; joins never create; `all` is per source.

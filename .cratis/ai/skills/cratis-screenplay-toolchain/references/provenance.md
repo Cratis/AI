@@ -28,6 +28,7 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 ## Sources read for facts
 
+- Current baseline: Screenplay `v4.125.0` `Documentation/screenplay/{tool,diagnostics,editor-diagnostics,grammar,event-sources,specifications,policies}.md`, MCP reference/authoring guides and `Semantics/Versions.cs`; CLI `v3.41.0` dependency pins, `RenderedSemanticVersions.cs` and its v7 planning specification. Installed versions/CLI help and changed examples were checked separately. Pins are in `versions.md`; the older probes below retain their original labels.
 - Screenplay `v4.66.0` (`c89198b`): `Documentation/screenplay/` (grammar, commands, queries,
   specifications, reactions, diagnostics, mcp), `decisions/0017`, `0020`, `0022` to `0024`,
   `Source/DotNET/Screenplay/Semantics/` (binder, versions, execution),
@@ -39,8 +40,9 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 - cratis `v3.28.2` (`141c499`; `Render/`, `Run/`, `Prologue/` and `Screenplay/Generate*` are unchanged since `v3.27.1`, `a327e89`): `Source/Cli/Commands/Render/`, `ScreenplayMcpRoot.cs`,
   `Documentation/reference/screenplay.md`.
 - Arc `v22.50.5` and Chronicle `v19.32.0` for the code-level facts cited in `versions.md`.
-- Open issues cited as limits: cli#242, #243, #244, #245; Screenplay#377, #379, #383,
-  #388; Stage#79, #165, #178; Chronicle#3744, #4123, #4131.
+- Historical issue inventory at the old probes: cli#242, #243, #244, #245;
+  Stage#79, #165, #178; Chronicle#3744, #4123, #4131. Current invocation actor and
+  reference-execution availability are verified against v4.125.0, not old open-issue status.
 
 ## Changes from the earlier toolkit
 

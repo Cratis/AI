@@ -28,12 +28,20 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 
 | Tool | Command | Pass | Fail |
 | --- | --- | --- | --- |
-| Standalone (preferred) | `screenplay <model-folder> --warnaserror --no-color` | exit 0 and `N file(s) compiled - 0 error(s), 0 warning(s)` | exit 1 |
+| Standalone 4.125.0 (preferred) | `screenplay <model-root> --warnaserror --no-color` | exit 0 and a nonzero compiled file count | exit 1 defects; exit 2 could not run/invalid arguments or input |
 | cratis (fallback) | `cratis screenplay validate <model-folder> --warnings-as-errors -o json-compact` | exit 0 | exit 5; exit 1 means missing path or no files |
 
-- Always validate the **folder**. cratis file mode ignores imports (cli#244); the standalone
-  tool follows them, but a folder run is the same on both tools.
-- An empty folder exits 0 on the standalone tool: read the file count.
+- Validate the complete application root, not an independently selected fragment.
+  Standalone file mode follows imports; folder mode includes all files. The CLI
+  file-import limitation below was a 3.28.2 probe, not a current tool claim.
+- Require a nonzero file count; empty input is not a model-validation pass.
+- Optional `--scope <Module.Feature.Slice>` compiles the whole application but
+  reports descendants and direct dependent declarations, not transitive impact.
+  Exit/`--warnaserror` apply to that reported set; inspect the separate whole
+  application counts before a whole-model claim. Unknown/ambiguous scopes exit 2.
+- `--check <names>` (repeatable) or `--check all` opts into completeness warnings
+  PLAY0530–PLAY0537. Whole-source errors skip them; a skipped check is not passed.
+  Names/codes, coverage limits and editor support: `diagnostics.md`.
 - Warnings are failures here. PLAY0029 (a construct dropped silently) and the unresolved-name
   warnings are the defects this verdict exists to catch.
 - Syntax and consistency checks (PLAY0282 to PLAY0294) run; binding does not.
@@ -75,14 +83,21 @@ never "specifications pass".
 - A blocked V3 is not repaired by deleting protection or domain rules. Never remove `@pii`,
   `@sensitive`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.
-- A model is "executable" only on the compiler that bound it. A V3 from the standalone tool
-  does not carry to `cratis render`: Stage admits ESM v1 to v4 only on 4.24.2 (v1 to v3 on 4.24.1, bundled by cratis 3.28.2; cratis 3.28.3 bundles 4.24.2; evolved events are STAGE-ESM-026) (and on cratis before 3.28.2 the bundled 4.60.1 binder, ESM v1 to v5, refused v6 first; the 4.66.0 bundled by cratis 3.28.x refuses ESM v7 generated values and responses at binding with `PLAY0268`).
+- A model is executable only on the compiler that bound it. V3 does not carry
+  to render admission: CLI 3.41.0 passes up to ESM v7 to Stage, refuses newer
+  models with CLI-RENDER-004, and its v7 corpus receives STAGE-ESM-028/029.
+  The old 3.28.x/Stage 4.24.x probes remain historical in the subset references.
 
 ## V4: reference specifications run
 
-No MCP tool and no compile command runs specifications (Screenplay#377 is open). V4 comes
-only from an actually executed Screenplay **reference** route. Record the route, the expected
-versus discovered specification count, and passed, failed, unsupported and cancelled counts.
+Run `screenplay test <root> [--filter <exact-address>] [--format text|json]` on
+4.125.0, or MCP `run-specifications`. The compile command alone still does not
+execute scenarios. Reference execution is in-memory: no external services or
+opaque code run. Record route, expected versus discovered/selected counts,
+passed, failed and unsupported outcomes. Exit 0 means all selected passed; 1
+failed, 2 could not run/invalid input or selection, 3 unbound or unsupported.
+Unknown filters refuse rather than select zero. No discovered specifications
+is not proof of coverage.
 The reference runner returns unsupported for a specification that reads a reducer-built read
 model and for any construct whose evaluation needs an opaque body.
 
@@ -133,9 +148,11 @@ source change makes earlier verdicts stale.
 
 ## Example gate (for skill and documentation authors)
 
-Every complete `screenplay` fence in this corpus compiles with the standalone tool at the
-pin and `--warnaserror`. Every such fence also passes `cratis screenplay validate
---warnings-as-errors` (3.28.2, bundling the same compiler) on a folder holding that one file.
+Historical corpus fences were checked with standalone 4.68.0 and CLI 3.28.2.
+Do not promote those results to current pins without rerunning. Check each changed
+complete fence with standalone 4.125.0 `--warnaserror`; run `screenplay test` for
+specification examples, and verify expected-diagnostic examples against their
+claimed codes. Where bundle compatibility matters, also check CLI 3.41.0.
 The `// Needs the standalone screenplay compiler (ESM v6)` first-line marker belonged to cratis
 before 3.28.2, which could not validate those fences; no fence carries it now, and a
 checker that still skips marked fences under `cratis` skips nothing. Examples meant to execute are also opened through MCP and

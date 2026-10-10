@@ -48,7 +48,8 @@ Statements here were checked at those tags:
 
 | Fact used here | Source |
 | --- | --- |
-| Persona syntax, report-only, policies must be declared, `description` first and once | Screenplay `v4.66.0:Documentation/screenplay/personas.md` |
+| Persona syntax, report-only, policies must be declared | Screenplay `v4.66.0:Documentation/screenplay/personas.md` |
+| Description order; authored/import board order and order-preserving MCP layouts | Screenplay `v4.125.0:Documentation/screenplay/grammar.md`, `folders.md`, `imports.md` |
 | Single-line and fenced `description` (`FencedText`) | `v4.66.0:Documentation/screenplay/slices.md#descriptions`, `grammar.md:1084-1088` |
 | `<Type>[]`, shapes must be declared; `@pii` and `reason` on concepts | `v4.66.0:Documentation/screenplay/events.md`, `concepts.md` |
 | `then denied`, `given caller`, `then error` | `v4.66.0:Documentation/screenplay/specifications.md` |
@@ -136,12 +137,14 @@ decided apart from what you assumed. Never guess silently.
 - Slice types are a closed set: `StateChange`, `StateView`, `Automation`, `Translate`. In
   discovery an event lives in the `StateChange` slice that will produce it, named after the
   probable command; a slice with only an `event` compiles.
-- A `persona` names declared policies only (unknown policy = error); `description` is the
-  first body line and appears once.
+- A `persona` names declared policies only (unknown policy = error); `description` appears
+  at most once, anywhere in its body.
 - Declare each event once in the whole application; other slices refer to it by name.
-- Folder-layout round-trips re-sort modules, features and slices by name (a single document
-  keeps authored order at v4.66.0): story order is documentation (feature `description`,
-  STATE.md), never structure.
+- Boards keep authored declaration and import order: imports expand depth-first, glob
+  matches alphabetically. Unimported folder files remain visible after ranked siblings.
+  MCP `expand-layout` preserves this order with import barrels; an import-less
+  `PlayFileWriter.Expand` layout falls back to path order. Order is presentation, not
+  execution or identity. Keep causes and branches in the feature `description` and STATE.md.
 - A misspelt keyword inside a slice is only warning PLAY0029 and the block disappears: always
   validate with warnings as errors.
 

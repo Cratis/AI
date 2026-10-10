@@ -42,12 +42,11 @@ module Collections
 - A specification whose action is a command goes in the slice that declares that
   command, here `SendInvoice`, not in the `Automation` slice that reacts: a command
   from another slice is `PLAY0273` "command is unresolved in its slice" at binding.
-- A command a reaction `invokes` runs through its full pipeline **with no caller**.
-  A command that needs one rejects, and that rejection ends the scenario. Each
-  invoked command is atomic; the cascade is not, so earlier accepted facts stay.
-  There is no syntax for an identity (Screenplay#383). See
-  `cratis-screenplay-automations-and-translations` and
-  `cratis-screenplay-captures-and-reactions`.
+- A reaction invocation without a declared actor has no caller and a gated
+  command denies. At 4.125.0 reaction `runs as system role "<Role>"` supplies the
+  authenticated system actor (ESM v10); `given caller` does not. Each command is
+  atomic, not the cascade. Checked actor scenario and CLI/Stage limitations:
+  captures-and-reactions `references/invocation-identity.md`.
 - The clock is UTC and exact. An `every` or `at` occurrence fires once when it is
   due after `given clock` and at or before `when clock`; `when clock` needs
   `given clock`, so the same instant twice fires nothing.

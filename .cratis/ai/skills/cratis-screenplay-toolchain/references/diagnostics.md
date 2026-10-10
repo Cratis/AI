@@ -3,8 +3,9 @@
 ## Contents
 
 - Warnings that hide defects (always validate with `--warnings-as-errors`)
-- Not caught at V1 (fail binding: V2/V3, PLAY0273)
-- Silent at every level
+- Source reference and identifier checks
+- Structural completeness and timeline checks
+- Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
 - Binding (V2 and V3) - see `executable-subset.md` for the full table
 - Frequent errors
@@ -33,13 +34,56 @@ then STAGE (V5 admission). Tool differences: `versions.md`.
 | PLAY0455 | quoted import glob matches no file | fix the glob |
 | PLAY0196/0197/0198 | unknown query/screen; ambiguous bare name | declare or qualify `Slice.Name` |
 
-## Not caught at V1 (fail binding: V2/V3, PLAY0273)
-- Projection mapping to a property the read model does not declare.
-- Undeclared event in `remove with` or in a capture `append`.
-(Screenplay v4.66.0 `SemanticModelBinder` `BindMapping`, `LevelEvent`, `BindCaptureAppends`.)
+## Source reference and identifier checks
 
-## Silent at every level
-- A declared read-model property that nothing maps (it stays empty): walk field lineage by hand.
+At Screenplay 4.125.0 these are V1 source checks, not binding-only gaps:
+
+| Code | Severity | Meaning |
+| --- | --- | --- |
+| PLAY0514 | W | Projection mapping, children or nested target absent from the declared read-model/element shape; unknown/imported shapes are not guessed |
+| PLAY0166 | W | Unknown event, including `remove with`, `remove via join on` and capture `append` |
+| PLAY0515 | E | Personal/secret concept in a command identifier, typed `for` destination, event-source identity, stream-id type/part or route mapping source (including nested paths); keep a surrogate identity and protected data in payload |
+
+Legacy compliance spellings (`@pii`/`@sensitive`) do not evade PLAY0515.
+
+## Structural completeness and timeline checks
+
+Opt in with `--check <names>` or MCP diagnostics `checks`, then treat warnings
+as errors if gating. Ordinary compile success does not imply these ran:
+
+| Family | Codes | Checks |
+| --- | --- | --- |
+| data-bindings | PLAY0530/0531 | Conflicting visible bindings; binding/query read-model or cardinality mismatch |
+| input-surfaces | PLAY0532/0533 | Missing command input form/issuing screen; missing reachable issuer |
+| field-origins | PLAY0534 | Missing read-model builder or top-level field origin (AutoMap, identity and variants considered) |
+| query-keys | PLAY0535 | Query argument not representable by known identity/fields |
+| event-consumers | PLAY0536 | Latest local event generation lacks an operational consumer; a terminal fact can legitimately be reported |
+| navigation | PLAY0537 | Unreachable screens; unreachable cycles do not establish an entry point |
+
+Whole-source errors skip completeness checks. Unknown/opaque coverage is not
+invented: report skipped status/coverage and walk field lineage manually.
+
+PLAY0516/0517 are **information**, so never fail `--warnaserror`. They review
+presentation order, not execution: a backward event/read-model dependency or a
+mutually dependent sibling group. A cycle group replaces internal individual
+backward findings. Ordering roots are the sole source document, an importing
+`application.play`, or a unique importing root; without one, folder timeline
+checking is skipped. Safe PLAY0516 repairs move siblings/imports or pin files
+before a retained glob; cycles and own-sub-feature findings have no repair.
+
+## Editor versus C# verdicts
+
+Monaco/VS Code use the TypeScript syntax/authoring compiler. They share projection
+and protected-identifier checks (PLAY0514/0515), typed-example syntax (0518/0519),
+guarded actions (0341–0348), and reaction-refusal syntax/checks (0538–0545).
+A shared catalog code is not proof that a check is implemented in both compilers.
+
+C# CLI/MCP owns whole-application scoped diagnostics, opt-in completeness
+(PLAY0530–0537), semantic binding and PLAY0546 (a negated claim targets optional,
+unavailable-subject or non-text data). The VS Code repair bridge is not a general
+C# validator. A clean editor is not V1 for the complete application, V3 binding
+or V4 execution. Run the CLI or MCP for those verdicts. Authority:
+`v4.125.0:Documentation/screenplay/editor-diagnostics.md`, `diagnostics.md`.
 
 ## Consistency errors (V1: the model contradicts itself)
 | Code | Meaning |
@@ -99,7 +143,11 @@ Fix order: E at V1 -> W at V1 -> silent-gap check -> V2 codes (if the mode needs
 Report each as `code file:line one-line meaning`; never paste more than about 30 lines.
 
 ## Render admission (V5): `STAGE-*`, `CLI-RENDER-*`, `STAGE-CRATIS-*`
-Full table with causes: `renderable-subset.md`. Codes you meet most:
+Full table with causes: `renderable-subset.md`. The Stage 4.24.x rows below
+retain historical source/probe evidence. Current CLI 3.41.0 admits up to ESM v7
+for Stage planning; above that is CLI-RENDER-004. Its v7 corpus is refused by
+STAGE-ESM-028 (generated values) and -029 (responses), not the old v7 version gate.
+Codes in the historical snapshot:
 | Code | Meaning |
 |---|---|
 | STAGE-ESM-016 | model above the admitted ESM schema (v4 on Stage 4.24.2: v5 absence and v6 constructs; 4.24.1 admitted v3, so a v4 model with generations was refused): whole model refused |

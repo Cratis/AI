@@ -62,7 +62,11 @@ model's behalf.
    `read-workspace view=executable-diagnostics` when the mode needs them; `describe-application
    view=summary`, `find-assertion-gaps` (slices with no assertion; authored, not executed) and
    `dependencies direction=incoming` for orphans. The verdict lines are independent: a V1 pass is
-   necessary, never sufficient. Any line without evidence is "not run: reason".
+   necessary, never sufficient. Opt into completeness with `--check` or MCP
+   `checks` for bindings, input surfaces, field origins, query keys, event consumers
+   and navigation; whole-source errors skip these checks. Record selected families,
+   skipped status and coverage limits, never a vacuous pass. Any line without
+   evidence is "not run: reason".
 3. **Element sweep** (phase 1, mechanical, before any judgement). One line per gated element, event,
    name, command, event property and slice; `references/checklist.md` S1-S7 gives each line's
    format. Each `NONE` and each form name is its own finding naming that element. A repeated
@@ -164,11 +168,12 @@ labelled as such. The user decides whether it is enough (the user is sufficient 
 never blocked as a matter of authority.
 
 ## Rules
-- Compiler contracts (defects when the mode needs them): V1 must pass with warnings as errors;
-  PLAY0029 means a construct was silently dropped. Missing projection targets and undeclared
-  events in `remove with` or capture `append` pass V1 and are reported at V3 (PLAY0273); check
-  by hand only unresolved-name warnings and declared properties that nothing maps. Binding
-  codes appear only in V3.
+- Compiler contracts (defects when the mode needs them): V1 must pass with warnings
+  as errors; PLAY0029 means a construct was silently dropped. Current source checks
+  warn on missing projection targets (PLAY0514) and removal/capture events
+  (PLAY0166). Opt-in field-origin warnings (PLAY0534) do not replace a manual
+  lineage walk when coverage is unknown. PLAY0516/0517 are presentation-only
+  information, not broken execution or a reason to fail warnings-as-errors.
 - Modeling defaults (deviation needs a recorded reason, otherwise a finding): one business
   decision, one event by default; one view per screen component; one command per `StateChange`
   (renderable: required); facts carry decided or supplied data and running figures belong in

@@ -1,5 +1,10 @@
 # Documentation contradictions and which side to trust
 
+Current pins are Screenplay 4.125.0 / CLI 3.41.0 (`versions.md`). This is a
+**historical** contradiction inventory, not a claim that all listed defects still
+exist. Current grammar documents exact numbers and free description placement;
+sources/routes bind as ESM v8; PLAY0515 is a source error; CLI v7 reaches Stage.
+
 `D/` is Screenplay `Documentation/screenplay/` at **v4.66.0**; line numbers were re-read at
 that tag. Rule: the compiler you ran decides what the tool accepts today; the documentation
 and the domain decide what the model should mean. When they disagree, follow the compiler
@@ -32,7 +37,7 @@ read from source or documentation.
 | 19 | `$strings` constraint messages | `D/constraints.md:31` vs `D/internationalization.md:55` | the compiler keeps the key; realization localizes |
 | 20 | composite key braces | optional in the EBNF; both forms in docs | both fine |
 | 21 | counters list | `D/projections/index.md:54` lists only increment and decrement | `count` exists too [probed] |
-| 22 | ESM version allocation | older text and decisions 0023 and 0024 give exact numbers, operations, streams and reads fixed numbers (v7 to v11) | decision 0025 (accepted 2026-10-06): v7 is generated values and responses (decision 0026, released in 4.68.0); every other feature has no number until its release-ready admission, so say "not admitted by any supported ESM version" |
+| 22 | ESM version allocation | older text and decisions 0023 and 0024 give exact numbers, operations, streams and reads fixed numbers (v7 to v11) | use actual released binder selection: v7 generated values/responses, v8 routing, v10 reaction identity at 4.125.0; operations and exact numbers remain unadmitted. Never infer current admission from older proposed allocations |
 | 23 | claim conditions | the condition grammar lists `==` | claims need `matches` (PLAY0120) [probed] |
 | 24 | `numbers exact` | released in 4.64.0 as syntax only, but absent from `D/grammar.md`; documented only in `D/diagnostics.md` (PLAY0508 to PLAY0513) | the compiler: it parses, never binds (PLAY0268, "not admitted by any supported executable model (ESM) version yet"), PLAY0001 on older compilers [probed] |
 | 25 | command `concurrency` | `D/commands.md:609` says the executable model "does not bind the `concurrency` block yet" | the binder reports PLAY0271 as an **error**, not a silent skip (`SemanticModelBinder.Commands.cs:32-38`) |

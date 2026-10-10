@@ -37,15 +37,12 @@ The update follows `commands.md`, `events.md`, `types.md` and
 `specifications.md` at that main commit (after v4.52.0). This pass compiles the
 changed examples; it does not rerun the reference runner.
 
-**Which tool says what.** The standalone `screenplay` tool 4.68.0 admits ESM v1-v7.
-The `cratis` CLI 3.28.2 and 3.28.3 bundle Screenplay 4.66.0 (ESM v1-v6: generated fixtures and `then returns` report `PLAY0268`). Before `cratis` 3.28.2 the
-bundle was Screenplay 4.60.1, which admitted ESM v1-v5 only and reported a false
-`PLAY0285` on reaction cascades (see "Version skew" in [references/reactions-and-cascades.md](references/reactions-and-cascades.md)). Facts below marked **ESM v6**
-hold for Screenplay 4.61.0 and later: the standalone tool and `cratis` 3.28.2 or later. The full table is in `cratis-screenplay-toolchain`
-(`references/versions.md`; read it before choosing a compiler or interpreting version-dependent binding diagnostics). Neither tool runs specifications: `screenplay` and
-`cratis screenplay validate` parse and check consistency, the MCP server also binds,
-and spec outcomes come only from the reference runner as a library, Stage's
-specification runner or a rendered application's tests.
+Current specification syntax follows Screenplay v4.125.0 `specifications.md`;
+older probes in the table remain historical. Pins: `cratis-screenplay-toolchain`
+`references/versions.md`. Compile commands check source, not reference execution.
+Use `screenplay test` or MCP `run-specifications` for V4; Stage/target tests are
+separate evidence. Unsupported/unbound is never a pass. Typed examples and
+route assertions are in [examples and routes](references/examples-and-routes.md).
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{specifications,policies,constraints,readmodels,diagnostics}.md`.
@@ -95,9 +92,8 @@ target has one normalized behavior to match.
   rejects, the earlier accepted facts and their projections remain.
 
 Unsupported is not passed. Report it as "needs a target", not as green. "Specified"
-and "bound" are never "passing": no command-line tool runs these specifications, so a
-pass is claimed only from the reference runner, Stage's specification runner or a
-rendered application's tests, and named as such.
+and "bound" are never "passing": run the reference CLI/MCP route or the owning
+target tests, and name the engine, version and expected/discovered selection.
 
 ## The vocabulary
 
@@ -184,7 +180,7 @@ Read [references/worked-example.md](references/worked-example.md) when writing o
 
 ## Generated fixtures and return expectations (ESM v7)
 
-Standalone `screenplay` 4.68.0 or later binds and runs generated fixtures (`generated <name> = <value>`, `for` beneath `when`) and `then returns`; the cratis CLI 3.28.3 does not. If execution reaches generation without every generated value supplied, the run is unsupported and never passes.
+Current standalone and bundled compilers bind generated fixtures (`generated <name> = <value>`, `for` beneath `when`) and `then returns` as ESM v7. If execution reaches generation without every generated value supplied, the run is unsupported and never passes.
 Read [references/generated-fixtures.md](references/generated-fixtures.md) when writing generated-value fixtures or scalar and record return expectations for a command.
 
 ## Actions beyond commands
@@ -196,6 +192,18 @@ Read [references/actions-beyond-commands.md](references/actions-beyond-commands.
 
 From ESM v6 every action sets reactions off and `then` events compare every new fact, the action's and the reactions'. A specification whose action is a command goes in the slice that declares the command. A false `PLAY0285` on a cascade under `cratis` before 3.28.2 is tool skew, not a modeling error: never delete the `then` line to silence it.
 Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when `cratis` reports `PLAY0285` on a model that `screenplay` accepts (it holds the "Version skew: cascades and the false `PLAY0285` (cratis before 3.28.2)" section).
+
+## Reusable fixtures, routes and recovery intent
+
+Use typed `example` declarations for repeated event/command/read-model values;
+step overrides keep the action/outcome visible and carry authored/example/override
+provenance. Event `stream`/`no stream` assertions bind as ESM v8; typed `for` and
+stream ids are not guessed. Read [examples and routes](references/examples-and-routes.md).
+
+`given operation ... fails`, `then operation` and `then compensated` describe
+future external-work behavior. Reaction refusal branches, `when redelivered`
+and `then no events` are also authoring-only: compile them, but report their
+PLAY0268 binding refusal instead of an executed result. Preserve the contract.
 
 ## Rejections and denials say different things
 
@@ -252,9 +260,9 @@ For view specifications:
 
 ## Verify
 
-- [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.68.0 or `cratis` 3.28.2 or later, bundling 4.66.0; under `cratis` before 3.28.2 expect the false
-      `PLAY0285` on reaction cascades and record that it is skew).
+- [ ] Validate the complete root with warnings as errors, naming tool/version.
+      Current standalone pin: 4.125.0. Run specification examples through
+      `screenplay test`; expected unadmitted syntax reports unbound, not passed.
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.
 - [ ] Every slice has at least one boundary specification.

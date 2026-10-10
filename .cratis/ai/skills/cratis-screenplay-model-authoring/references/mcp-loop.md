@@ -35,12 +35,17 @@ Cratis CLI before 3.28.2 bundled 4.60.1, whose tool set and views differ: read `
    notifications/initialized before using tools".
 3. Pass a physical path. Symbolic links and reparse points are refused, including
    `.screenplay` metadata.
-4. `tools/list` returns **29 tools**, or **30 on hosts that advertise the MCP-Apps
-   UI extension** (the extra tool is `visualize-model`). Read the schemas once per
-   connection; never hard-code a count or an argument list.
-5. A root given at startup is fixed for the connection: `open-workspace.path` may
-   name the same directory, anything else returns `RootChangeRefused`. Start a
-   separately authorized connection to model another application.
+4. Read `tools/list` schemas once per connection; never hard-code counts or
+   argument lists. MCP-Apps hosts also expose `visualize-model`.
+5. At 4.125.0 a startup root may switch to the same relative model folder in a
+   registered Git worktree of its repository. `open-workspace.path` accepts the
+   checkout or exact model folder. Shared Git directory and registration
+   back-pointer must agree physically; unrelated/malformed/unregistered roots,
+   submodules and `--separate-git-dir` checkouts refuse (`RootChangeRefused`).
+   Switching clears proposals and cached state, then uses that worktree's own
+   identities/journal. A pending journal blocks only its root. If an opened
+   worktree is removed, explicitly return to the startup root; if the startup
+   root is removed, start a new connection. No simultaneous named workspaces.
 
 ### Roots bug and the workaround
 
@@ -93,7 +98,9 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 
 1. `tools/list` once per connection.
 2. Orient cheaply: `describe-application` summary, `diagnostics`, then scoped
-   `search-declarations`, `declaration-details`, `dependencies`. Paging with
+   `search-declarations`, `declaration-details`, `dependencies`/`dependency-graph`.
+   Diagnostics `scope` includes descendants and direct dependents; `checks` opts
+   into completeness warnings (skipped on whole-source errors). Paging with
    `offset > 0` requires `expectedSourceRevision`.
 3. `open-workspace` and keep `revision` and `catalogRevision`. Opening writes
    nothing. With `identityPersistence: "root-local-on-apply"` the identities file
@@ -111,8 +118,8 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    Proposed, and its `sketch` argument previews a what-if of whole documents
    without writing. An
    unintended executable regression is discarded (`discard-proposal`) and
-   re-proposed. Intent the user has accepted that does not run yet (`system`/`operation`, `eventsource`/`stream`, and `generated`/
-   `returns` on a tool older than 4.68.0; `PLAY0268` by design)
+   re-proposed. Intent the user has accepted that does not run yet (operations,
+   exact numbers or refusal/redelivery; PLAY0268 by design)
    may be applied from a reviewed `Authoring` proposal: disclose the new
    diagnostics, report V3 as not binding-ready, and never drop or stub the
    construct. The server's own guidance is to apply such a proposal only when
@@ -154,10 +161,11 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 | --- | --- | --- |
 | Address-preserving | descriptions; bodies of rules and expressions; mappings between members that already exist; any edit that adds, removes or renames no addressed element. Also every edit in a model with no `.screenplay/identities.json` except persisted names | bounded text edit of the `.play` file, then compile the folder; or `propose-ast` |
 | Catalog-changing (identity file present) | add, remove or rename a declaration (slice, command, event, read model, projection, ...), a property of a command, event, read model, composite type or trigger, a query, a query argument or a specification; create, delete, rename or move a mapped `.play` document (McpState refuses reopening with `IdentityMappingConflict`; use document operations in `propose-ast`); rename, remove or move an event, command, read model, constraint, module, feature or slice; move declarations between files; contract evolution of a persisted event (new generation, property added, removed or retyped) | `propose-rename` or a reviewed `propose-ast`; never a blind text rename. Renaming a constraint resets its uniqueness index: ask first unless the request names it, then report the reset. A persisted event rename needs `id "OldName"` (added by default) |
-| Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479` (and recipe-only `0397`) | `propose-repair` with `formatting` |
+| Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479`, `0516` (and recipe-only `0397`) | `propose-repair` with `formatting`; PLAY0166/0478 may pin attachment evidence (`pinRepairEvidence` and `expectedRepairEvidenceRevision`), never fix-all PLAY0478 |
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
 | Parser-invalid document | no editable handles | `propose-ast` `replace-document` with a whole typed document, or fix the text |
-| Syntax-only constructs | `system`/`operation`, `eventsource`/`stream` (and `generated`/`returns` before 4.68.0) | typed `propose-ast` edits; no automatic rename or routing repair exists |
+| Unadmitted constructs | systems/operations, exact numbers, refusal/redelivery | reviewed Authoring `propose-ast`; preserve intent and report PLAY0268 |
+| Admitted source/stream routing | ESM v8 at 4.125.0 | typed `propose-ast`; `propose-rename` repairs proven route references; target admission separate |
 
 ## Identity state (`.screenplay/identities.json`)
 
@@ -174,6 +182,22 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 - Do not read the file for content (token cost); `read-workspace` with `view:
   "semantics"` returns identity assignments, not a model summary.
 - See "Make one coherent proposal" in SKILL.md for the exclusive-write prerequisite of `apply`.
+
+### Root discovery conflicts
+
+At Screenplay 4.125.0 default discovery preserves `.screenplay/identities.json`
+or `pending.json` on the ancestor-or-self path from the offered project to the
+discovered model. Empty metadata folders/backups do not count. With several
+state roots, the nearest the offered project wins. `rootBindingConflict` in
+`open-workspace`/`workspace-state` contains `kind: "WorkspaceRootConflict"`,
+`boundRoot`, ordered `stateRoots` and `pendingRoots`; it is omitted without a
+conflict. A journal anywhere on that path blocks bound-root reads/writes too.
+
+To recover a competing journal, explicitly `open-workspace` on its root (which
+may return `PendingOperation`), inspect `workspace-state` there, then recover
+that operation within the approved scope. Recovery at the outer root cannot
+recover a nested journal. Never delete metadata, migrate identities implicitly
+or create a fallback folder to bypass the conflict.
 
 ## Read-only views worth knowing
 

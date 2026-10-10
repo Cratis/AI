@@ -18,8 +18,10 @@ specification IssuingTheWeeklyDigest
 ```
 
 Under `cratis` before 3.28.2 these actions parsed and were checked against the application
-but bound to nothing (`PLAY0268` names ESM v6, decision 0022); on 3.28.2 they bind. Either way
-no command runs them: report such a specification as authored, not executed. Clock rules: the clock is UTC and exact; an
+but bound to nothing (`PLAY0268` names ESM v6, decision 0022); on 3.28.2 they bind.
+Current standalone 4.125.0 executes admitted scenarios through `screenplay test`
+or MCP `run-specifications`; source compilation alone is authored evidence.
+Clock rules: the clock is UTC and exact; an
 occurrence fires once when it is **due after `given clock` and at or before
 `when clock`**, in time order; intervals count from the Unix epoch; `when clock`
 needs `given clock`, so equal instants fire nothing. Limits: 10,000 occurrences per

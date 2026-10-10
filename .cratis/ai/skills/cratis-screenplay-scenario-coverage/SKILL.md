@@ -183,8 +183,9 @@ scope is reported as explicitly incomplete); V1 passes with the tool named in
   populated-then-removed spec.
 - V1 passes (standalone `screenplay` required when cascades are specified); report tool and
   version.
-- V4 is "not run: no route" unless a Screenplay reference route was actually executed (Stage's spec runner is target-engine evidence, never V4); V1/V3 do not prove specs
-  pass. V5 is "not run" unless rendering was attempted; report admission, publication, build and
+- Run V4 through standalone `screenplay test` or MCP `run-specifications`;
+  if not executed, report the actual host/input reason, not a blanket no-route
+  claim. Stage's runner is target-engine evidence, never V4; V1/V3 do not prove pass. V5 is "not run" unless rendering was attempted; report admission, publication, build and
   tests separately.
 - Match guarantees to evidence: `.play` outcomes, in-process Chronicle scenarios and real-kernel
   tests are not interchangeable (`references/chronicle-verification.md`).

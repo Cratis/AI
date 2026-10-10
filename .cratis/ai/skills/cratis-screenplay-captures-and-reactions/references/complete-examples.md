@@ -97,7 +97,7 @@ module Delivery
 
 ## Reaction with `produces` and `invokes`
 
-Parent of the `Provisioner` excerpt. The invoked command runs with no caller in the
+Parent of the `Provisioner` excerpt. The reaction declares no `runs as system`, so the invoked command runs with no caller in the
 reference execution.
 
 ```screenplay

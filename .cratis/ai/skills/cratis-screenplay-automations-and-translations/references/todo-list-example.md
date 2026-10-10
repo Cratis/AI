@@ -13,7 +13,8 @@ The first spec lists the whole cascade (`then` names every new fact: `CoursePass
 `CertificateSent` through the reaction), and `given clock` supplies the instant that
 `$context.occurred` needs. Both 4.66.0 tools accept that cascade; the cratis 3.27.1 bundle reported a false PLAY0285 on it
 (cli#242). These specs were not
-run (V4: not run, no route); the expectations follow the v4.66.0 reference semantics.
+run in that historical probe; current admitted scenarios can be run with
+standalone `screenplay test` or MCP `run-specifications`.
 
 What the model proves and what it does not:
 
@@ -22,8 +23,10 @@ What the model proves and what it does not:
 - Not proven: that the certificate email reaches the person once. See
   `references/effects-and-idempotency.md`.
 - The actor behind `SendCertificate` is a recorded security decision in the `Certification`
-  module `description`, because reaction invocations carry no caller on Screenplay 4.66.0 (Screenplay#383).
-- No local engine runs Automation specifications: report them as authored, not as run.
+  module `description`: this example declares no reaction identity, so its
+  invocations remain caller-less. A gated trusted path can instead declare
+  `runs as system role` on 4.125.0 (ESM v10), with separate CLI/Stage refusal.
+- Report reference outcomes only after executing the selected scenarios.
 
 ```screenplay
 // Todo-list automation. Shape: CoursePassed opens an item -> CertificateSender invokes
@@ -101,7 +104,7 @@ module Courses
           for "0d3b9e2a-6c4f-4f1e-8b7a-5e2d1c3b4a01"
 
 module Certification
-  description "Trusted background boundary. No persona or screen issues SendCertificate; only the CertificateSender reaction invokes it, and reaction invocations carry no caller. Leaving the command ungated is a SECURITY DECISION, accepted only because: (1) it appends a fact keyed to one enrolment, (2) a repeat is rejected by IssueOnce, (3) the realization must not expose it to external callers (requirement to verify in the target). If (3) cannot hold, gate it with a service-actor policy and record the capability gap instead (reaction invocations carry no caller: Screenplay#383)."
+  description "Trusted background boundary. No persona or screen issues SendCertificate; only the CertificateSender reaction invokes it, and reaction invocations carry no caller. Leaving the command ungated is a SECURITY DECISION, accepted only because: (1) it appends a fact keyed to one enrolment, (2) a repeat is rejected by IssueOnce, (3) the realization must not expose it to external callers (requirement to verify in the target). If (3) cannot hold, gate it with a service-actor policy and declare runs as system role on the reaction (ESM v10), retaining the CLI/Stage realization gap."
   feature Certificates
     slice StateView CertificatesToSend
       description "Work queue: membership means 'still to send'; there is no status flag"
