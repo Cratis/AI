@@ -225,10 +225,9 @@ same typed navigate binding a screen action uses.
 ⚠️ The v4.31.0 baseline, re-verified at v4.66.0, ships `navigate`, `label` and `order` only. Grouping beyond a
 flat ordered list, and an explicit override for when nearest-enclosing is not the
 point you mean, are deliberately left for later. The screens-release vector
-(Screenplay 4.105.0, canonical `ScreenComposition` corpus v1) adds typed screen
-composition; CLI 3.40.0 renders it through Stage 4.49.1. Report a refused form as
-a capability gap, never a flat-list fallback, and keep browser/Studio production
-proof separate from render publication.
+(canonical `ScreenComposition` corpus v1) adds typed screen composition; public
+CLI 3.40.7 renders it and passes the browser run. Report a refused form as a
+capability gap, never a flat-list fallback; Studio production proof is separate.
 
 ## Interactions — what a click does
 

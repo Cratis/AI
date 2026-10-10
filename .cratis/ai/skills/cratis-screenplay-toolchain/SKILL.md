@@ -25,9 +25,9 @@ When choosing or upgrading a tool, or checking version-specific capabilities, re
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | standalone compiler, binder and MCP server; admits ESM v7 (generated values and responses) |
-| cratis CLI | `3.40.3` public package/tag #295 | Tag pins Stage 4.49.5 and Screenplay 4.105.0, with `cratis/stage:4.49.5` as the runtime image. The packaged CLI executed render publication and the real stdio MCP transcript harness. Reading baselines: 3.40.2, 3.39.0 and 3.28.3 (`8b43fef`) |
-| Screenplay | `4.114.0` final ABI release | Exact public Screenplay release after #592. CLI 3.40.3 still bundles 4.105.0 and reports `sourceSuccess true`, `semanticSuccess true`, `executableReady true`; the repo tool compiles the corpus with `10 file(s) compiled - 0 error(s), 0 warning(s)`. Rerun if a later CLI consumes 4.114.0 |
-| Stage | `4.49.5` | Docker image `cratis/stage:4.49.5`; includes the 4.49.x generated query spec, guarded-action safety and frontend form-stability line. Packaged CLI 3.40.3 renders the canonical screen corpus and publishes Scene output with Arc `CommandForm` shells plus query bindings. Check generated package sets before claiming exact Scene 4.12 runtime parity |
+| cratis CLI | `3.40.7` (`v3.40.7`, `af9f18e`) | Tag pins Stage 4.51.1 and Screenplay 4.114.0, with `cratis/stage:4.51.1` as the runtime image. The public CLI executed render publication, the browser acceptance run and the real stdio MCP transcript harness (37 tools, `executableReady true`). Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
+| Screenplay | bundled `4.114.0`; latest language package `4.122.0` | CLI 3.40.7 bundles 4.114.0 and reports `sourceSuccess true`, `semanticSuccess true`, `executableReady true` for the canonical corpus; the repo tool compiles it with `10 file(s) compiled - 0 error(s), 0 warning(s)`. Language features newer than 4.114.0 need the standalone 4.122.0 tool until a CLI bundles them |
+| Stage | `4.51.1` (CLI default; latest package 4.51.3) | Docker image `cratis/stage:4.51.1`; renders the canonical screen corpus with Arc `CommandForm` shells and query bindings, and refuses guarded Close and double-click with `STAGE-SCENE-ACTION-001` / `STAGE-SCENE-INTERACTION-001`. Check generated package sets before claiming exact Scene 4.14 runtime parity |
 | Arc / Chronicle | `22.50.5` / `19.32.0` | code-level facts cited here |
 
 Facts were read with `git show <tag>:<path>` and probed on the installed tools. Behaviour

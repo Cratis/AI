@@ -121,13 +121,12 @@ not to the AI corpus. Link to the fixture path and run its published checks; do 
 copy those `.play` files into `.cratis/ai/` or into a skill reference as a
 maintained duplicate.
 
-Round-5 vector and executable checks (2026-10-09):
+Verified public vector and executable checks:
 
-- final public vector: Scene 4.12.0, Screenplay 4.114.0 (final ABI release after #592), Stage
-  4.49.5, Docker `cratis/stage:4.49.5`, CLI 3.40.3 and Studio 0.136.4; public
-  NuGet flat-container visibility was verified for `Cratis.Screenplay` and
-  `Cratis.Screenplay.CanonicalCorpus` 4.114.0, while CLI 3.40.3 still pins
-  Screenplay 4.105.0, so keep the package pairing visible;
+- toolchain: public CLI 3.40.7 (`af9f18e`), whose default runtime is
+  `cratis/stage:4.51.1` and which bundles Screenplay 4.114.0. Latest public
+  packages are Scene 4.14.0, Screenplay 4.122.0, Stage 4.51.3 and Studio 0.141;
+  claims made through `cratis` are 4.114.0 compiler claims;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
 - Screenplay repo tool (available checkout): `dotnet run --project Source/DotNET/Tool
@@ -140,9 +139,15 @@ Round-5 vector and executable checks (2026-10-09):
   `apply`, real `apply` and `open-workspace` again. It uses a scratch copy,
   changes `application.play` with a comment-preservation probe, fails closed on a
   stale revision, applies with the matching revision and verifies the comment
-  remains on disk;
+  remains on disk. On CLI 3.40.7: 9 requests and 9 responses, 37 tools,
+  `executableReady true`, stale apply `StaleRevision`, comment preserved;
 - render (`cratis render <corpus-folder> --name ScreenComposition --destination
-  <dir> -o json`) with packaged CLI 3.40.3 publishes the corpus.
+  <dir> -o json`) with CLI 3.40.7 publishes the corpus, and its browser
+  acceptance run passes 51 assertions (Cratis/Screenplay#605);
+- still refused by design: guarded Close (`STAGE-SCENE-ACTION-001`) and
+  double-click (`STAGE-SCENE-INTERACTION-001`); still pending: UI-profile
+  rejection and render-then-recover (Cratis/cli#301) and Studio production Play
+  proof (test-account decision).
 
 Report a corpus the released compiler, MCP server or renderer refuses as a
 capability/version-pairing gap with the exact diagnostics; never soften it to a
