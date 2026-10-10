@@ -211,6 +211,36 @@ binding; a runtime default is not an authored contract.
 
 ## Design-time generation results
 
+Design-time actions belong to component packages, not to the model and not to an
+agent. Scene 4.14 declares them as data (`PackageDesignTimeMetadata`) and ships
+their code in an optional design-time bundle; a runtime host that does not set
+`loadDesignTime` loads none of it, so nothing a design-time action does can exist
+only at runtime. The one Cratis action today is **Generate fields**
+(`Cratis.Components.commandForm.generateFields`):
+
+- it is visible only on a `commandForm` and enabled only when the command's
+  metadata is known **and** the form has no `inputs` yet, so it never overwrites
+  fields someone already laid out;
+- it is deterministic: one field per command property, in command order,
+  labeled from the property name, alternating between two columns;
+- its result is a batch of `SetProperty` edits on the form's `inputs`, submitted
+  to the host whole or not at all.
+
+The model is where that result lives, not the callback. When you author a form as
+an agent:
+
+- Do not record, serialize or reproduce the package's generator code, and never
+  invent a design-time hook in `.play`. Screenplay holds no callbacks.
+- If the generated layout is the command shape, write `columns auto`; the
+  renderer reaches the same result from command metadata.
+- If someone changed it (order, labels, dropped fields), write `columns manual`
+  with one `column <property> label "..."` per kept command property, in order.
+  That is the durable representation of an edited Generate fields result, and it
+  is why the action stays disabled on that form afterwards.
+- Make the change through the MCP proposal/apply loop like any other edit, then
+  render: a manual column that is not a command property is a model defect, not a
+  generator defect.
+
 Generated design-time output is evidence only when it is compared with the model:
 
 - every screen, template, form, toolbar, component instance and outlet has an

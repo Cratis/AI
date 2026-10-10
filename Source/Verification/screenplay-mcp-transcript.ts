@@ -62,6 +62,12 @@ if (!corpus || !existsSync(corpus)) {
 const scratch = resolve(args.get('scratch') ?? process.env.SCREENPLAY_MCP_SCRATCH ?? '.ai-work/screenplay-mcp-transcript');
 const cliProject = args.get('cli-project') ?? process.env.SCREENPLAY_CLI_PROJECT;
 const serverCommand = args.get('server-command') ?? process.env.SCREENPLAY_MCP_SERVER_COMMAND;
+// Opt-in application edit, made in the same proposal as the comment probe: add a column to the WorkItemList table so
+// the edited application can be rendered, run and checked in a browser. The default transcript stays comment-only.
+const editTableColumn = (args.get('edit') ?? process.env.SCREENPLAY_MCP_EDIT) === 'work-item-id-column';
+const editedDocumentPath = 'Workspaces/Tracking/WorkItemList/WorkItemList.play';
+const editedColumnAnchor = '              column status label "Status"\n';
+const editedColumn = '              column workItemId label "Work item id"\n';
 
 rmSync(scratch, { recursive: true, force: true });
 mkdirSync(scratch, { recursive: true });
@@ -172,6 +178,21 @@ async function main() {
     const comment = '// AI MCP transcript comment preservation probe';
     const source = readFileSync(sourcePath, 'utf8');
     const changedSource = `${comment}\n${source}`;
+    const replacements = [{ operation: 'replace-document', documentId: application.documentId, source: changedSource }];
+
+    const editedSourcePath = join(scratch, editedDocumentPath);
+    if (editTableColumn) {
+        const editedDocument = documents.page.items.find(_ => _.path === editedDocumentPath);
+        assertCondition(editedDocument, `${editedDocumentPath} was not found in the workspace document list`);
+        const tableSource = readFileSync(editedSourcePath, 'utf8');
+        assertCondition(tableSource.includes(editedColumnAnchor), `${editedDocumentPath} no longer has the Status column the edit anchors on`);
+        assertCondition(!tableSource.includes(editedColumn), `${editedDocumentPath} already has the column this edit adds`);
+        replacements.push({
+            operation: 'replace-document',
+            documentId: editedDocument.documentId,
+            source: tableSource.replace(editedColumnAnchor, `${editedColumnAnchor}${editedColumn}`)
+        });
+    }
 
     const proposal = await callTool<ProposalResult>('propose-source', {
         expectedRevision: open.revision,
@@ -179,11 +200,7 @@ async function main() {
         formatting: 'CanonicalizeTouchedDocuments',
         validation: 'Executable',
         includeContent: false,
-        documents: [{
-            operation: 'replace-document',
-            documentId: application.documentId,
-            source: changedSource
-        }]
+        documents: replacements
     });
     assertCondition(proposal.success, `proposal was not accepted: ${JSON.stringify(proposal)}`);
     assertCondition(proposal.proposalId, 'proposal did not return an id');
@@ -215,6 +232,9 @@ async function main() {
     const finalSource = readFileSync(sourcePath, 'utf8');
     assertCondition(reopened.revision !== open.revision, 'revision did not change after apply');
     assertCondition(finalSource.includes(comment), 'comment was not preserved on disk after apply');
+    assertCondition(reopened.executableReady, 'workspace was not executable-ready after the apply');
+    const columnAdded = editTableColumn && readFileSync(editedSourcePath, 'utf8').includes('column workItemId label "Work item id"');
+    if (editTableColumn) assertCondition(columnAdded, 'the work item id column was not on disk after apply');
 
     const summary = {
         server: `${command.executable} ${command.args.join(' ')}`,
@@ -246,7 +266,8 @@ async function main() {
             executableReady: reopened.executableReady,
             revisionChanged: reopened.revision !== open.revision,
             commentPreserved: finalSource.includes(comment)
-        }
+        },
+        edit: editTableColumn ? { document: editedDocumentPath, columnAdded } : null
     };
 
     console.log(JSON.stringify(summary, null, 2));
