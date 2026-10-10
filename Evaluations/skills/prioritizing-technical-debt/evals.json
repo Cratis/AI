@@ -4,7 +4,7 @@
     {
       "id": 1,
       "name": "combine-hotspots-and-goals",
-      "prompt": "Our CodeScene project context is selected. Billing.cs has score 3.2, churn 90 and an explicit debt goal; Import.cs has score 5.4, churn 40 and no goal; Archive.cs has score 2.0, churn 1 and no goal. Rank next sprint's refactoring candidates and give a small plan for each top candidate. Treat these as supplied metrics; do not call tools.",
+      "prompt": "Our repository opted into cratis/codescene, has CodeScene MCP tools available, and the CodeScene project context is selected. Billing.cs has score 3.2, churn 90 and an explicit debt goal; Import.cs has score 5.4, churn 40 and no goal; Archive.cs has score 2.0, churn 1 and no goal. Rank next sprint's refactoring candidates and give a small plan for each top candidate. Treat these as supplied metrics; do not call tools.",
       "expected_output": "Prioritize Billing then Import using severity, churn and explicit goals together, not simply the lowest score; keep Archive lower and explain incremental plans.",
       "assertions": [
         "Ranks Billing ahead of Import and Archive using its churn, low health and explicit goal.",
@@ -14,26 +14,26 @@
     },
     {
       "id": 2,
-      "name": "correct-project-before-ranking",
-      "prompt": "We have two CodeScene projects, Retail and Logistics, and I have not said which one this backlog belongs to. What should you establish and gather before ranking our debt? Reply with the tool workflow only; do not call tools or invent metrics.",
-      "expected_output": "Clarify/select the correct project, gather hotspots and goals, shortlist and drill into top files, then use scores to support ranking.",
+      "name": "correct-project-and-roi-workflow",
+      "prompt": "Our repository opted into cratis/codescene and has CodeScene MCP tools available. We have two CodeScene projects, Retail and Logistics, and I have not said which one this backlog belongs to. Management also wants business justification for the top refactoring candidates. What should you establish and gather before ranking our debt, and when does ROI belong? Reply with the tool workflow only; do not call tools or invent metrics.",
+      "expected_output": "Select the correct project, combine hotspots and goals, shortlist and drill into top files, use scores to support ranking, and add ROI framing after identifying candidates.",
       "assertions": [
         "Establishes the correct project with select_project rather than mixing Retail and Logistics metrics.",
         "Gathers both list_technical_debt_hotspots_for_project and list_technical_debt_goals_for_project.",
         "Drills into shortlisted files using file-level hotspot and goal tools and code_health_score.",
-        "Does not invent a ranked file list without project evidence."
+        "Places code_health_refactoring_business_case after plausible candidates are identified, not before shortlisting."
       ]
     },
     {
       "id": 3,
-      "name": "roi-after-shortlisting",
-      "prompt": "We selected the CodeScene project and supplied these findings: Billing.cs is a high-churn red hotspot with a debt goal, Reports.cs is low-churn yellow without a goal. Management wants a ranked improvement plan with business justification. Without calling tools, explain which candidate to investigate first and where ROI belongs in your workflow; do not invent financial figures.",
-      "expected_output": "Shortlist Billing from combined signals, confirm file-level evidence and score, give incremental plans, then use the refactoring business-case tool when justification is wanted.",
+      "name": "profile-and-tools-guard",
+      "prompt": "A user with a CodeScene instance wants a ranked technical debt plan. Consider two independent repositories: A has CodeScene MCP tools but did not opt into cratis/codescene; B opted into cratis/codescene but has no CodeScene MCP tools available. Without calling tools, say whether this skill applies in each case and whether ordinary work must stop.",
+      "expected_output": "Skip the skill in both cases, explain the missing opt-in or tools, and do not block ordinary work.",
       "assertions": [
-        "Shortlists Billing ahead of Reports using hotspot severity, churn and the explicit goal.",
-        "Seeks file-level evidence and code_health_score to support the ranking.",
-        "Places code_health_refactoring_business_case after plausible candidates are identified, not before shortlisting.",
-        "Gives a ranked improvement plan without inventing quantified ROI."
+        "Does not apply this skill in repository A because it did not opt into cratis/codescene.",
+        "Skips the CodeScene steps in repository B because CodeScene MCP tools are unavailable.",
+        "Explicitly states the reason for skipping in each case.",
+        "Does not block ordinary work on either repository because this optional skill is inapplicable."
       ]
     }
   ]

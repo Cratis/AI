@@ -4,7 +4,7 @@
     {
       "id": 1,
       "name": "branch-risk-before-history",
-      "prompt": "Prepare a CodeScene-based QA plan for project_id 7, base_ref origin/main and git_repository_path /workspace/shop. Supplied analyze_change_set evidence: Checkout.cs changed from 9.2 to 7.8 with a failed gate; Receipt.cs changed and stays 9.5. Historical hotspots: untouched Archive.cs has score 2.0 and churn 100, Checkout.cs has churn 80. Checkout takes payment and Receipt emails confirmation. Owners: Checkout team Payments, Receipt team Messaging, Archive team Records. Do not call tools; return tester-ready charters and merge criteria from this evidence.",
+      "prompt": "Our repository opted into cratis/codescene and has CodeScene MCP tools available. Prepare a CodeScene-based QA plan for project_id 7, base_ref origin/main and git_repository_path /workspace/shop. Supplied analyze_change_set evidence: Checkout.cs changed from 9.2 to 7.8 with a failed gate; Receipt.cs changed and stays 9.5. Historical hotspots: untouched Archive.cs has score 2.0 and churn 100, Checkout.cs has churn 80. Checkout takes payment and Receipt emails confirmation. Owners: Checkout team Payments, Receipt team Messaging, Archive team Records. Do not call tools; return tester-ready charters and merge criteria from this evidence.",
       "expected_output": "Rank changed/degraded Checkout first, healthy changed Receipt next, and untouched Archive as systemic background. Produce the five required sections with concrete scenarios, outcomes, failure signals and routing.",
       "assertions": [
         "Ranks Checkout first from branch degradation and failed gate, without letting untouched Archive displace branch risk.",
@@ -17,18 +17,19 @@
     {
       "id": 2,
       "name": "missing-required-setup",
-      "prompt": "Use CodeScene to rank testing risks for this PR. I have not supplied project_id, git_repository_path or base_ref, and there are no tool results available. What do you need before producing a plan? Do not call tools.",
-      "expected_output": "Stop and give a concise setup checklist for project selection, valid absolute repository path and target base ref; do not produce speculative rankings.",
+      "prompt": "Compare three independent requests for a CodeScene-based PR testing plan. A opted into cratis/codescene and has CodeScene MCP tools, but lacks project_id, git_repository_path and base_ref. B has all inputs and CodeScene MCP tools but did not opt into cratis/codescene. C opted in and has all inputs but no CodeScene MCP tools available. Without calling tools, explain whether to request setup or skip this skill for each repository and whether ordinary work is blocked by the optional guard.",
+      "expected_output": "A needs a concise input checklist before a risk plan. B and C skip the skill with an explanation, without blocking ordinary work.",
       "assertions": [
-        "Requests the CodeScene project identifier or correct project selection.",
-        "Requests a valid absolute git_repository_path and target base_ref for the PR.",
-        "Stops at the setup checklist without inventing risk areas, rankings or CodeScene findings."
+        "For A, requests project selection, a valid absolute git_repository_path and target base_ref without inventing risk rankings.",
+        "Does not apply this skill in B because it did not opt into cratis/codescene.",
+        "Skips the CodeScene steps in C because CodeScene MCP tools are unavailable.",
+        "Explicitly explains why B and C skip the skill without blocking ordinary work."
       ]
     },
     {
       "id": 3,
       "name": "ad-hoc-hotspot-test-plan",
-      "prompt": "We have no active branch; this is an ad-hoc CodeScene test-planning exercise for project_id 7 and git_repository_path /workspace/shop. Supplied project hotspots: Checkout.cs score 3.1, churn 90, owner Payments; Reports.cs score 3.0, churn 2, owner Analytics. Checkout charges customer cards; Reports exports monthly totals. No debt goals exist. Without tools, make a practical testing plan from these historical findings and explain the limits of the evidence.",
+      "prompt": "Our repository opted into cratis/codescene and has CodeScene MCP tools available. We have no active branch; this is an ad-hoc CodeScene test-planning exercise for project_id 7 and git_repository_path /workspace/shop. Supplied project hotspots: Checkout.cs score 3.1, churn 90, owner Payments; Reports.cs score 3.0, churn 2, owner Analytics. Checkout charges customer cards; Reports exports monthly totals. No debt goals exist. Without tools, make a practical testing plan from these historical findings and explain the limits of the evidence.",
       "expected_output": "Use hotspots as the primary signal only because there is no branch context, rank churn-sensitive checkout risk first, and provide concrete user-facing charters with ownership and explicit evidence limits.",
       "assertions": [
         "Explicitly says there is no PR-local change-set evidence and uses hotspots as the primary signal for this ad-hoc exercise.",

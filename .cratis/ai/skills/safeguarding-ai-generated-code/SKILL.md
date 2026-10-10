@@ -1,12 +1,14 @@
 ---
 name: safeguarding-ai-generated-code
-description: Use when AI-generated or AI-modified changes need a Code Health gate before commit, handoff, or pull request.
+description: Use when AI-generated or AI-modified changes need a Code Health gate before commit, handoff, or pull request. Only in repositories that opted into the cratis/codescene profile and have CodeScene MCP tools available; otherwise do not use.
 license: Apache-2.0
 ---
 
+<!-- Modified by Cratis from CodeScene AB's original (Apache-2.0): added profile guard, policy note, license field and this notice. Upstream: https://github.com/codescene-oss/codescene-mcp-server/blob/96aad9180a4261e048a81806b510108896b3c576/skills/safeguarding-ai-generated-code/SKILL.md -->
+
 # Safeguarding AI-Generated Code
 
-The Cratis policy in `.cratis/ai/rules/codescene.md` overrides this skill where they differ.
+Use only in repositories that opted into `cratis/codescene` and have CodeScene MCP tools available; otherwise skip without blocking and say so. The Cratis policy in `.cratis/ai/rules/codescene.md` overrides this skill where they differ.
 
 ## Overview
 

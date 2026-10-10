@@ -4,36 +4,37 @@
     {
       "id": 1,
       "name": "baseline-before-steps",
-      "prompt": "Issue 42 authorizes a tested uplift of ImportParser.cs. CodeScene reports deep nesting, mixed parsing and persistence responsibilities, and score 3.5. Without calling tools or writing code, plan the Code Health-guided refactor and its checkpoints.",
+      "prompt": "Our repository opted into cratis/codescene and has CodeScene MCP tools available. We want to refactor ImportParser.cs; CodeScene reports deep nesting, mixed parsing and persistence responsibilities, and score 3.5. Without calling tools or writing code, plan the Code Health-guided refactor and its checkpoints.",
       "expected_output": "Establish a detailed review and numeric baseline, propose three to five small structural steps, and re-review and re-score after meaningful changes.",
       "assertions": [
         "Names code_health_review and records the initial code_health_score of 3.5 before refactoring.",
         "Proposes three to five incremental structural refactor steps addressing nesting or mixed responsibilities.",
         "Uses both detailed review and numeric scoring after meaningful steps, rather than scoring alone.",
-        "Preserves behavior through the task's tests rather than suggesting a single rewrite."
+        "Requires substantially reduced targeted issues and measurable score improvement, unless the user explicitly accepts partial uplift."
       ]
     },
     {
       "id": 2,
       "name": "cosmetics-do-not-finish-uplift",
-      "prompt": "We are doing an authorized, tested CodeScene uplift. Renaming locals and formatting OrderParser.cs left its score at 5.0 and its deep nesting finding unchanged. Without calling tools, assess progress and choose the next small step and evidence needed before completion.",
-      "expected_output": "Cosmetic work is not measurable structural progress. Target nesting in a small behavior-preserving step and re-run detailed review, score and tests; completion needs substantive improvement.",
+      "prompt": "Our repository opted into cratis/codescene and has CodeScene MCP tools available. Renaming locals and formatting OrderParser.cs left its score at 5.0 and its deep nesting finding unchanged. Without calling tools, assess refactoring progress and choose the next small step and evidence needed before completion.",
+      "expected_output": "Cosmetic work is not measurable structural progress. Target nesting in a small structural step and re-run detailed review and score; completion needs substantive improvement or accepted partial uplift.",
       "assertions": [
         "Rejects cosmetic cleanup as proof that the structural refactor is complete.",
         "Proposes a small structural step aimed at the reported nesting rather than a whole-file rewrite.",
         "Requires a fresh code_health_review and code_health_score checkpoint.",
-        "Does not claim completion while the targeted issue and baseline score remain unchanged."
+        "Does not claim completion while the targeted issue and baseline score remain unchanged without explicit acceptance of partial uplift."
       ]
     },
     {
       "id": 3,
-      "name": "partial-uplift-handoff",
-      "prompt": "Our dedicated issue-backed refactor with tests improved ImportParser.cs from 3.5 to 6.0 and reduced nesting, but mixed responsibilities remain. The user explicitly accepts this partial uplift. Without calling tools, write a concise handoff stating why we may stop and what remains.",
-      "expected_output": "User acceptance permits stopping at partial uplift, with measured baseline and final score, structural progress and remaining findings explicitly named.",
+      "name": "profile-and-tools-guard",
+      "prompt": "A user wants a CodeScene-guided parser refactor with score checkpoints. Consider two independent repositories: A has CodeScene MCP tools but did not opt into cratis/codescene; B opted into cratis/codescene but has no CodeScene MCP tools available. Without calling tools, say whether this skill applies in each case and whether ordinary work must stop.",
+      "expected_output": "Skip the skill in both cases, explain the missing opt-in or tools, and do not block ordinary work.",
       "assertions": [
-        "Names the baseline 3.5, final 6.0 and reduced nesting as measured progress.",
-        "Explains that explicit acceptance of a partial uplift permits stopping rather than claiming all problems are fixed.",
-        "Names the remaining mixed-responsibility issue and preserves it in the handoff."
+        "Does not apply this skill in repository A because it did not opt into cratis/codescene.",
+        "Skips the CodeScene steps in repository B because CodeScene MCP tools are unavailable.",
+        "Explicitly states the reason for skipping in each case.",
+        "Does not block ordinary work on either repository because this optional skill is inapplicable."
       ]
     }
   ]

@@ -1,12 +1,14 @@
 ---
 name: guiding-refactoring-with-code-health
-description: Use when refactoring unhealthy code and needing Code Health findings to choose small safe steps and verify improvement.
+description: Use when refactoring unhealthy code and needing Code Health findings to choose small safe steps and verify improvement. Only in repositories that opted into the cratis/codescene profile and have CodeScene MCP tools available; otherwise do not use.
 license: Apache-2.0
 ---
 
+<!-- Modified by Cratis from CodeScene AB's original (Apache-2.0): added profile guard, policy note, license field and this notice. Upstream: https://github.com/codescene-oss/codescene-mcp-server/blob/96aad9180a4261e048a81806b510108896b3c576/skills/guiding-refactoring-with-code-health/SKILL.md -->
+
 # Guiding Refactoring With Code Health
 
-The Cratis policy in `.cratis/ai/rules/codescene.md` overrides this skill where they differ.
+Use only in repositories that opted into `cratis/codescene` and have CodeScene MCP tools available; otherwise skip without blocking and say so. The Cratis policy in `.cratis/ai/rules/codescene.md` overrides this skill where they differ.
 
 ## Overview
 

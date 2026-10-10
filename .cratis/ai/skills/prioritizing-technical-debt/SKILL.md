@@ -1,12 +1,14 @@
 ---
 name: prioritizing-technical-debt
-description: Use when users with a CodeScene instance ask what to improve first across a project, which hotspots matter most, or how to rank refactoring candidates.
+description: Use when users with a CodeScene instance ask what to improve first across a project, which hotspots matter most, or how to rank refactoring candidates. Only in repositories that opted into the cratis/codescene profile and have CodeScene MCP tools available; otherwise do not use.
 license: Apache-2.0
 ---
 
+<!-- Modified by Cratis from CodeScene AB's original (Apache-2.0): added profile guard, policy note, license field and this notice. Upstream: https://github.com/codescene-oss/codescene-mcp-server/blob/96aad9180a4261e048a81806b510108896b3c576/skills/prioritizing-technical-debt/SKILL.md -->
+
 # Prioritizing Technical Debt
 
-The Cratis policy in `.cratis/ai/rules/codescene.md` overrides this skill where they differ.
+Use only in repositories that opted into `cratis/codescene` and have CodeScene MCP tools available; otherwise skip without blocking and say so. The Cratis policy in `.cratis/ai/rules/codescene.md` overrides this skill where they differ.
 
 ## Overview
 
