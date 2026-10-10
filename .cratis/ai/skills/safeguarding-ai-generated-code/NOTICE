@@ -1,0 +1,7 @@
+Safeguarding AI-Generated Code
+Copyright CodeScene AB
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Upstream: https://github.com/codescene-oss/codescene-mcp-server/blob/96aad9180a4261e048a81806b510108896b3c576/skills/safeguarding-ai-generated-code/SKILL.md
+
+SKILL.md was modified only to add license: Apache-2.0 to its frontmatter, append a profile-and-tool availability guard to its description, add an applicability and policy-precedence note directly under its H1, and add a modification notice after its frontmatter. All other wording is unchanged.

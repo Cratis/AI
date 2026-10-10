@@ -1,0 +1,40 @@
+{
+  "skill_name": "safeguarding-ai-generated-code",
+  "evals": [
+    {
+      "id": 1,
+      "name": "gate-ai-changes",
+      "prompt": "We explicitly selected cratis/codescene and have CodeScene MCP tools available. You edited OrderHandler.cs with AI assistance and will propose a commit and PR. Without calling tools, give the CodeScene check sequence and how you would respond to a new nesting smell introduced by the change.",
+      "expected_output": "Review the changed file after editing, fix the issue in small steps and re-review, then run the pre-commit safeguard and branch analysis before recommending delivery.",
+      "assertions": [
+        "Names code_health_review for the AI-modified file immediately after editing.",
+        "Proposes small refactor steps and re-review for the nesting smell rather than a broad rewrite.",
+        "Names pre_commit_code_health_safeguard before commit recommendations and analyze_change_set before PR recommendations.",
+        "If a later gate reports a regression, inspects affected files with code_health_review and iterates until removal or explicit user acceptance."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "profile-and-tools-guard",
+      "prompt": "A user wants a pre-commit Code Health check on AI edits. Consider two independent repositories: A has CodeScene MCP tools but did not opt into cratis/codescene; B opted into cratis/codescene but has no CodeScene MCP tools available. Without calling tools, say whether this skill applies in each case and whether ordinary work must stop.",
+      "expected_output": "Skip the skill in both cases, explain the missing opt-in or tools, and do not block ordinary work.",
+      "assertions": [
+        "Does not apply this skill in repository A because it did not opt into cratis/codescene.",
+        "Skips the CodeScene steps in repository B because CodeScene MCP tools are unavailable.",
+        "Explicitly states the reason for skipping in each case.",
+        "Does not block ordinary work on either repository because this optional skill is inapplicable."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "accepted-decline-is-visible",
+      "prompt": "For our AI-edited branch with cratis/codescene enabled and CodeScene MCP tools available, analyze_change_set reports Payment.cs fell from 9.3 to 8.8. The user explicitly accepts that decline for this delivery. Without calling tools, explain the normal response to a failed branch gate and give a concise handoff that reflects this acceptance.",
+      "expected_output": "Normally inspect affected files and iterate; explicit user acceptance permits stopping, but the remaining risk stays visible in the handoff.",
+      "assertions": [
+        "Names code_health_review on affected files as the normal response to a regression reported by a later gate.",
+        "Explains that explicit user acceptance permits stopping rather than requiring indefinite refactoring.",
+        "Names Payment.cs and the accepted 9.3-to-8.8 decline rather than treating the risk as invisible."
+      ]
+    }
+  ]
+}

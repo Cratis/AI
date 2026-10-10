@@ -33,6 +33,7 @@ function matchesProfile(rule: ManagedRule, selected: AiConfiguration | undefined
     const profiles = selected.profiles ?? [];
     if (rule.profile === 'application') return profiles.some(profile => profile.startsWith('cratis/application'));
     if (rule.profile === 'framework') return profiles.some(profile => profile.startsWith('cratis/engineering'));
+    if (rule.profile.startsWith('cratis/')) return profiles.some(profile => profile === rule.profile || profile.startsWith(`${rule.profile}/`));
     return true;
 }
 

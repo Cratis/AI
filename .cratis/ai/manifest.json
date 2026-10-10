@@ -51,6 +51,7 @@
     "cratis/chronicle/web-workbench",
     "cratis/cli",
     "cratis/cli/terminal-workbench",
+    "cratis/codescene",
     "cratis/components",
     "cratis/content",
     "cratis/documentation",

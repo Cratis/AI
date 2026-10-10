@@ -141,12 +141,29 @@ Standalone Chronicle client usage (no Arc) in TypeScript is
 | `cratis/documentation` | Reader-centered product docs, technical examples, release notes, and voice review |
 | `cratis/content` | Release notes, social feed posts, voice review, content length, and developer marketing and distribution |
 | `cratis/review` | Code review, performance, security |
+| `cratis/codescene` | Opt-in CodeScene Code Health change gates, refactoring, debt prioritization and risk-based testing; requires an account and available MCP tools; server registration may be manual (see below) |
 | `cratis/studio` | Studio MCP safety guidance |
 | `cratis/cli` | CLI operations |
 | `cratis/lens` | Lens browser extension |
 | `cratis/screenplay` | Model-first event modeling: lifecycle, phase skills, toolchain, review, render and gap-fill, plus the whole `.play` language |
 | `cratis/stage` | Stage rendering and sandbox |
 | `cratis/modeling/screenplay-stage` | Screenplay + Stage together |
+
+### Code Health with CodeScene
+
+Select `cratis/codescene` explicitly to load the four upstream CodeScene skills:
+`safeguarding-ai-generated-code`, `guiding-refactoring-with-code-health`,
+`prioritizing-technical-debt` and `risk-based-testing-with-code-health`.
+The [CodeScene policy](./codescene.md) overrides those skills where they differ.
+No other profile, including `cratis` and `cratis/full`, composes it.
+
+The profile selects the `codescene` stdio server (`cs-mcp`, no arguments) from
+`mcp-servers.json`, but selecting it does not register the server in every harness.
+Where registration is not supported, manually register `cs-mcp` as a stdio
+server in the harness's MCP configuration, or use `npx -y @codescene/codehealth-mcp`.
+CodeScene needs an account and OAuth `login`; without an account or available
+CodeScene tools, skip its steps and say so rather than blocking contributors.
+The MCP catalog has no install-hints field and does not install the executable.
 
 ### Event modeling with Screenplay
 

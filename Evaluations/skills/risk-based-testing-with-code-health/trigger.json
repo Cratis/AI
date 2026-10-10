@@ -1,0 +1,23 @@
+{
+  "skill": "risk-based-testing-with-code-health",
+  "queries": [
+    { "query": "We opted into cratis/codescene and have CodeScene MCP tools. Where should QA focus first for this PR based on CodeScene?", "shouldTrigger": true },
+    { "query": "Our repository selected cratis/codescene and has CodeScene MCP tools available. Translate these CodeScene hotspots into practical regression test charters.", "shouldTrigger": true },
+    { "query": "With cratis/codescene opted in and CodeScene MCP tools available, use our branch's Code Health degradation to plan the must-pass tests before release.", "shouldTrigger": true },
+    { "query": "We opted into cratis/codescene and have CodeScene MCP tools. Make a tester-friendly plan from these CodeScene technical debt findings.", "shouldTrigger": true },
+    { "query": "Our repository selected cratis/codescene and has CodeScene MCP tools available. Which changed areas are release blockers and what should testers verify? Use CodeScene evidence.", "shouldTrigger": true },
+    { "query": "With cratis/codescene opted in and CodeScene MCP tools available, we have limited QA time. Combine PR-local risk and historical hotspots to prioritize concrete scenarios.", "shouldTrigger": true },
+    { "query": "We opted into cratis/codescene and have CodeScene MCP tools. Explain the user impact of this PR's CodeScene risk signals and route the top test areas to owners.", "shouldTrigger": true },
+    { "query": "Our repository selected cratis/codescene and has CodeScene MCP tools available. What should we regression test based on CodeScene before shipping this branch?", "shouldTrigger": true },
+    { "query": "We have CodeScene MCP tools but did not opt into cratis/codescene. Use our PR's CodeScene findings to make a tester-ready plan.", "shouldTrigger": false, "note": "Profile opt-in guard: the skill must not apply." },
+    { "query": "We selected cratis/codescene but CodeScene MCP tools are unavailable. Rank the current branch's testing risks using CodeScene.", "shouldTrigger": false, "note": "Tool availability guard: skip without blocking." },
+    { "query": "Explain Code Health scoring and color bands without making a test plan.", "shouldTrigger": false, "note": "Conceptual definitions are explicitly excluded." },
+    { "query": "Calculate the financial ROI of this refactor from CodeScene metrics.", "shouldTrigger": false, "note": "Quantified ROI is explicitly excluded." },
+    { "query": "Rank project files for our next dedicated refactoring task.", "shouldTrigger": false, "note": "Debt prioritization, not testing." },
+    { "query": "Refactor the unhealthy parser in small steps using Code Health checkpoints.", "shouldTrigger": false, "note": "Refactoring mechanics." },
+    { "query": "Run the pre-commit CodeScene safeguard on your AI-generated changes.", "shouldTrigger": false, "note": "Change gate, not a tester-ready plan." },
+    { "query": "Who owns the billing file? I only need a reviewer name from CodeScene.", "shouldTrigger": false, "note": "Ownership lookup without test planning." },
+    { "query": "Install CodeScene and set up OAuth login.", "shouldTrigger": false, "note": "Installation and account setup." },
+    { "query": "Write a unit test for this pure addition function; no CodeScene findings or risk ranking are involved.", "shouldTrigger": false, "note": "Ordinary test authoring without risk signals." }
+  ]
+}

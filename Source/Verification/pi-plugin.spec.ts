@@ -95,6 +95,55 @@ test('managed Pi drops profile-specific rules the repository does not select', (
     }
 });
 
+test('managed and packaged Pi filter exact Cratis rule profiles without changing legacy selection', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const cases = [
+            { profiles: ['cratis/codescene'], codescene: true, application: false, framework: false },
+            { profiles: ['cratis/codescene/team'], codescene: true, application: false, framework: false },
+            { profiles: ['cratis/codescene-other'], codescene: false, application: false, framework: false },
+            { profiles: ['cratis'], codescene: false, application: false, framework: false },
+            { profiles: ['cratis/full'], codescene: false, application: false, framework: false },
+            { profiles: ['cratis/application/csharp'], codescene: false, application: true, framework: false },
+            { profiles: ['cratis/engineering/csharp'], codescene: false, application: false, framework: true },
+            { profiles: ['cratis/application'], codescene: false, application: true, framework: false },
+            { profiles: ['cratis/engineering'], codescene: false, application: false, framework: true },
+            { profiles: [], codescene: false, application: false, framework: false },
+        ];
+        for (const entry of cases) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: entry.profiles }));
+            const names = managedRules(project).map(rule => rule.name);
+            assert.equal(names.includes('codescene.md'), entry.codescene, JSON.stringify(entry));
+            assert.equal(names.includes('application-profile.md'), entry.application, JSON.stringify(entry));
+            assert.equal(names.includes('framework.md'), entry.framework, JSON.stringify(entry));
+            const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+            assert.equal(result.systemPrompt.includes('# CodeScene Code Health policy'), entry.codescene, JSON.stringify(entry));
+            assert.equal(result.systemPrompt.includes('## Project Layout (Cratis Application convention)'), entry.application, JSON.stringify(entry));
+            assert.equal(result.systemPrompt.includes('# Framework Profile — Contributing to Cratis Itself'), entry.framework, JSON.stringify(entry));
+            assert.equal(result.systemPrompt, `base\n\n${universalRules(project).map(rule => rule.content).join('\n\n')}`);
+        }
+        rmSync(join(project, '.cratis', 'ai.json'));
+        assert.ok(managedRules(project).some(rule => rule.name === 'codescene.md'), 'no configuration still keeps every rule');
+        const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+        assert.ok(result.systemPrompt.includes('# CodeScene Code Health policy'), 'no configuration still keeps every packaged rule');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('CodeScene resolves only through its explicit opt-in profile', () => {
+    const expected = [
+        'guiding-refactoring-with-code-health', 'prioritizing-technical-debt',
+        'risk-based-testing-with-code-health', 'safeguarding-ai-generated-code',
+    ];
+    assert.deepEqual(resolvedSkills({ profiles: ['cratis/codescene'], languages: ['csharp'] }), expected);
+    for (const profile of ['cratis', 'cratis/full']) {
+        const names = resolvedSkills({ profiles: [profile] });
+        for (const skill of expected) assert.ok(!names.includes(skill), `${profile}: ${skill}`);
+    }
+});
+
 test('managed Pi cratis-rules injects only the universal rules and delivers no path-scoped rule', () => {
     const handlers = new Map<string, (event: unknown, context: { cwd: string }) => unknown>();
     registerManagedRules({
