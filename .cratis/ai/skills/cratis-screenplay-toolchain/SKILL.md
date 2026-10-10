@@ -20,9 +20,9 @@ files is one application: always check the folder, never one file of it.
 
 ## Verified product sources
 
-When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it.
+When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it. For exact diagnostic codes, MCP names/parameters and standalone CLI options, search the large published [references/screenplay-contract.json](references/screenplay-contract.json), pinned by [references/screenplay-contract.version](references/screenplay-contract.version), rather than loading it in full. Locate a diagnostic by its exact `code` (for example `"code": "PLAY0029"`), a tool by its exact `name` (for example `"name": "read-workspace"`), or a command in `cliCommands`; read the matched object for retirement, parameters or options. [references/screenplay-contract-exceptions.json](references/screenplay-contract-exceptions.json) records reasoned exceptions for historical statements; it does not change the current contract.
 
-The standalone pin is Screenplay 4.125.0. CLI 3.41.0 bundles Screenplay 4.114.0,
+The standalone pin is Screenplay 4.127.0. CLI 3.41.0 bundles Screenplay 4.114.0,
 Stage 4.51.3 and Cratis.Arc.Screenplay 22.54.0. The single version table records
 released source evidence and historical probes separately; do not relabel an old
 render/browser result as a probe of the current packages.
@@ -31,7 +31,7 @@ Historical screens-release evidence: CLI 3.40.7 / Stage 4.51.1 / bundled
 Screenplay 4.114.0 opened the canonical corpus with `executableReady true`
 and the stdio transcript exposed 37 tools; standalone language 4.122.0 was
 recorded in that vector. These retained results are not a rerun on CLI 3.41.0
-or Screenplay 4.125.0.
+or Screenplay 4.127.0.
 
 ## Ground rules
 
@@ -49,7 +49,7 @@ or Screenplay 4.125.0.
 5. **Capability is not correctness.** The tool you ran decides what is accepted today; the
    domain and the documented semantics decide what is correct. On conflict keep the correct
    model and record a tool gap; never reshape a model to silence a tool.
-6. **Never remove `@pii`, `@sensitive`, authorization, list queries, automations or rules
+6. **Never remove `pii`, `secret`, authorization, list queries, automations or rules
    to reach V3 or a render.** Report the verdict as blocked with the codes.
 7. **A clean verdict proves only its own layer.** "Not run" with the reason is a valid
    result. Specifications written or bound are never specifications passing.
@@ -90,7 +90,7 @@ server with a fixed root when the tool is older than 4.63.2 (the roots bug hit 4
 4.60.1 bundled by cratis before 3.28.2; 4.66.0 and later and cratis 3.28.2 are fine). A subagent without MCP reports "V2 not run: no MCP in this agent".
 
 One line per verdict, tool first, for example `V1 pass (screenplay 4.68.0, 3 files)` and
-`V3 blocked: PLAY0268 x3 (list query, @pii)`. Name the source identity (commit plus the digest from
+`V3 blocked: PLAY0268 x3 (list query, pii)`. Name the source identity (commit plus the digest from
 the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")) the verdict ran on; keep it apart from the MCP
 `modelRevision`, which is semantic and, without `.screenplay/identities.json`,
 changes with the root folder name.
@@ -101,7 +101,7 @@ changes with the root folder name.
   `references/cheat-sheet.md`. Read [references/cheat-sheet-example.md](references/cheat-sheet-example.md) when you need one complete design-mode document with every construct family.
 - **Executable** (binds, V3): `references/executable-subset.md`. Keyed optional queries
   only; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
-  `concurrency` do not bind (PLAY0271); no `@pii`; v6 constructs bind on Screenplay 4.61 or
+  `concurrency` do not bind (PLAY0271); no compliance markers (`pii`/`secret`); v6 constructs bind on Screenplay 4.61 or
   later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
   from Screenplay 4.68.0 (also in the current CLI bundle) (`references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
 - **Renderable** (V5): `references/renderable-subset.md` retains explicitly labeled
@@ -111,6 +111,13 @@ changes with the root folder name.
 - **Event sources, streams and routes** bind as ESM v8 at 4.125.0; CLI 3.41.0
   render refuses versions above v7 (`CLI-RENDER-004`). Operations and exact numeric
   mode remain authorable/unadmitted. Details: `references/sources-and-streams.md`.
+
+- **Caller/compliance metadata** at 4.127.0: `$identity` aliases caller built-ins;
+  additional identity details are metadata and executable reads still refuse.
+  Bare `pii`/`secret` replace legacy spellings; `pii personal` repeats one marker
+  (PLAY0653). Purposes/checks/processing records and event `subject` are report-only,
+  not legal compliance, retention or runtime subject realization. See
+  command-surface `references/context.md` and `references/compliance.md`.
 
 ## Edit strategy
 

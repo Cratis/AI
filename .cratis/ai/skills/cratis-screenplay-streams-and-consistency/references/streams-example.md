@@ -5,16 +5,16 @@ cross-stream references as payload, three kinds of uniqueness constraint, a stat
 rule recorded as **NOT enforced in the model today**, a declared `concurrency` scope, and an
 active-state view with removal. Read it with `consistency-and-concurrency.md` (sections 1-4).
 
-The model compiles (V1, warnings as errors) but is not binding-ready by design: the `@pii`
+The model compiles at 4.127.0 (V1, warnings as errors) but is not binding-ready by design: the `pii`
 concept fails binding (PLAY0268), `reads` and the `concurrency` block are PLAY0271, and
 `require` over a view is PLAY0268. Keep those lines: they state real intent.
 
-```screenplay
+```screenplay expect PLAY0516 test=unbound
 // cratis-screenplay-streams-and-consistency: complete design-mode example (V1 with --warnings-as-errors).
 // Shows: one business identity per stream, cross-stream references as payload, uniqueness
 // constraints (single, composite with release, unique event), a recorded state-dependent rule
 // that Screenplay cannot enforce, a declared concurrency scope, and an active-state view with removal.
-// Not executable on either tool (probed): the @pii concept fails binding (PLAY0268), the
+// Historical binding probes refused compliance; the pii concept still fails binding (PLAY0268), the
 // concurrency block and `reads` are PLAY0271, `require` over a view is PLAY0268. Keep them: they state
 // real intent. The capacity rule is NOT enforced in the model today (see the slice description).
 
@@ -23,7 +23,7 @@ domain Acme.Academy
 concept MemberId : Uuid                    // event source id of one member stream
 concept CourseId : Uuid                    // event source id of one course stream
 concept EnrolmentId : Uuid                 // event source id of one enrolment stream
-concept Email : String @pii
+concept Email : String pii
   pii reason "Identifies a person"
   validate
     not empty  message "An email is required"

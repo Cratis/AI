@@ -3,6 +3,7 @@
   "input": "Write given/when/then specifications for a Screenplay slice.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
       "value": "main `fd18129`"
@@ -41,7 +42,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "**Authorized commands and queries need `given caller`**"
+      "value": "**Authorized commands and queries need `given caller` or `given caller as <Persona>`**"
     },
     {
       "kind": "skill-contains",

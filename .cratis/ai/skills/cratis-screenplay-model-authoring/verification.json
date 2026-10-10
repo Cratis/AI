@@ -3,9 +3,10 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.125.0"
+      "value": "Screenplay v4.127.0"
     },
     {
       "kind": "skill-contains",

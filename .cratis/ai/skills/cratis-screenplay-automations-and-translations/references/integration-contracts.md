@@ -1,7 +1,7 @@
 # Integration contracts
 
 Use before completing a new or changed translation. Keep accepted decisions in the relevant
-`.play` descriptions and specs; open questions and target requirements go to `STATE.md`. Do
+`.play` `documentation` and specs; open questions and target requirements go to `STATE.md`. Do
 not create a second canonical model.
 
 ## Resolve only the unknowns

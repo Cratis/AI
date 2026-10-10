@@ -3,6 +3,7 @@
   "input": "Build a read model from events with the Projection Declaration Language.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "main `fd18129`" },
     { "kind": "skill-contains", "value": "it changes no projection contract" },
     { "kind": "skill-contains", "value": "map the read-model identity from `$eventSourceId`" },

@@ -53,7 +53,7 @@ Framework repositories and brownfield work that has not opted in stay code-first
   handlers, adapters, and scope Stage cannot render yet (the model stays the contract).
 - **Never:** use code as a shortcut around the model; change the model to match
   existing code; edit Stage-managed output; leave a modeled rule living only in
-  code; weaken protection (authorization, `@pii`, rules) so a model compiles or renders.
+  code; weaken protection (authorization, `pii`, rules) so a model compiles or renders.
 
 **2. Run the lifecycle.** Load `cratis-screenplay-modeling-lifecycle` for modes, the
 independent verdicts V1-V5, the P0-P9 phases with their gates, stop-or-assume,
@@ -131,7 +131,7 @@ What binds depends on **which tool** you ask, so name the tool and its version:
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
-- `persona` declarations are report-only and never block; `@pii` and `@sensitive`
+- `persona` declarations are report-only and never block; bare `pii` and `secret`
   concepts do block binding (`PLAY0268`). Keep them anyway: the classification is
   part of the model. Report the block.
 - Generated values/responses bind and reference-execute as v7; sources, streams
@@ -191,6 +191,16 @@ do not assume; it lands as `module`, `persona` and `import`; protocol in
 `cratis-screenplay-discovery`). Phase 2 designs one workflow at a time through all nine steps
 ([nine-steps.md](references/nine-steps.md): activities, Screenplay output, questions).
 
+## Keep modeling reasoning with its declaration
+
+Use `description` for summaries and fenced Markdown `documentation` on modules,
+features, slices, commands, read models and reactions (also events) for assumptions,
+boundaries and rejected alternatives. Do not leave that reasoning only in comments
+or disconnected notes. Both are report-only (PLAY0270), never executable rules.
+Specifications use `description` to name the witnessed behavior; longer reasoning
+belongs to their slice. Syntax, merge rules and diagnostics:
+[model reasoning](../cratis-screenplay-slice-design/references/model-reasoning.md).
+
 ## The prime directive: do not lose information
 
 Store what happened (events), not just current state. Events are immutable
@@ -243,7 +253,7 @@ compile or will not be safe. Both are deliberate.
 ## Naming the primitives is the highest-value work
 
 Name concepts before events, classify personal data at the concept, keep events past tense and single-purpose, and never put the event-source identity in an event payload.
-Read [references/naming-primitives.md](references/naming-primitives.md) when declaring concepts, `@pii` classification, event shapes, `identifier`, inline events or `id "<old name>"` pins.
+Read [references/naming-primitives.md](references/naming-primitives.md) when declaring concepts, `pii` classification, event shapes, `identifier`, inline events or `id "<old name>"` pins.
 
 ## Quick gate - before specifications are called done
 

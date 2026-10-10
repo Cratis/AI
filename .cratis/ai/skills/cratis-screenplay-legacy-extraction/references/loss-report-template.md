@@ -31,7 +31,7 @@ and the question raised.
 One line per rule, named individually (never one generic platform caveat): the rule, its
 evidence row, the invariant and consistency risk, and the target enforcement. State-dependent
 checks are written as `reads` + `require` and marked NOT enforced in the slice description;
-date rules and opaque policies that no declaration can state stay in `description` and here.
+date rules and opaque policies that no declaration can state stay in the slice `documentation` and here.
 
 ## Unknowns and undecided target decisions
 | Row/question | What is unknown | Who can answer | Candidate assumption |

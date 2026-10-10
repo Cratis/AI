@@ -17,12 +17,15 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.125.0** (`4d818eb`) | Released tag `v4.125.0`; installed `screenplay --version` and `--help` |
+| Screenplay language, standalone tool and MCP | **4.127.0** (`e70435a4`) | Released tag `v4.127.0`; installed `screenplay --version`; changed identity/compliance examples compiled |
 | cratis CLI | **3.41.0** | Released tag `v3.41.0`; installed `cratis --version` |
 | Screenplay bundled by CLI | **4.114.0** | CLI `v3.41.0:Directory.Packages.props` |
 | Stage bundled by CLI | **4.51.3** | Same file; the CLI's runtime image follows its Stage package version |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
+| Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
+
+The published `screenplay-contract.json` beside this reference is the machine-readable authority for PLAY codes, MCP tools and parameters, and standalone CLI commands/options. Its unchanged release bytes are pinned by `screenplay-contract.version` to the standalone version above. Before adding a claim, search this large JSON file by exact `code` in `diagnostics`, or by exact `name` in `mcpTools`/`cliCommands`, and inspect that object's retirement flag, parameters or options; do not load the full file into context. For example, search for `"code": "PLAY0029"` or `"name": "read-workspace"`; `screenplay-contract-exceptions.json` preserves explicitly reasoned historical statements, not current-release exceptions. Coverage gaps are mention inventories, not proof that a skill teaches a feature.
 
 Check the actual executable before relying on this table: `screenplay --version`,
 `cratis --version`, MCP `initialize` → `serverInfo.version`. An older executable
@@ -30,7 +33,7 @@ on PATH can shadow a newer install; inspect `which -a cratis`.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.125.0 and the CLI's 4.114.0 bundle are different releases.
+Standalone Screenplay 4.127.0 and the CLI's 4.114.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -62,7 +65,7 @@ for identity-stable selection.
 
 ## Admission boundaries
 
-Screenplay `v4.125.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports schema
+Screenplay `v4.127.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports schema
 pairs through v10. Generated values/responses and policy negation select v7;
 sources/streams and command/specification routes select v8; reaction
 `runs as system [role "<Role>"]` selects v10 and reference-executes on 4.125.0.
@@ -85,6 +88,22 @@ omission or inferred support from package versions.
 The renderable-subset and Stage references retain older probes explicitly;
 read them as tested snapshots, not as a claim that Stage 4.51.3 shares every
 4.24.2 limitation. Query the actual bundled renderer before a V5 claim.
+
+At 4.127.0, `$identity` aliases built-in caller paths; declared identity details
+remain metadata and their executable reads report PLAY0268. Bare `pii`/`secret`
+still block binding; `personal` aliases `pii`. Legacy markers are accepted with
+PLAY0565 information, duplicates warn PLAY0653. Event `subject` and processing
+purposes are report-only metadata (PLAY0270); purpose checks/reports do not prove
+lawfulness or enforce retention. See command-surface context/compliance references.
+
+Authoring features source-checked in standalone 4.127.0: `propose-source`,
+`find-specification-obligations`, `find-modeling-smells`, specification descriptions,
+container/command/read-model/reaction documentation, routed redelivery locators,
+guarded item interactions, persona callers and named case tables. Discover schemas
+in the older CLI bundle rather than assuming parity. Cases/persona callers expand
+to ordinary ESM; metadata changes no executable bytes. Redelivery remains
+unadmitted even when its route is valid. Details: model-authoring MCP references,
+specifications, UI composition and `diagnostics.md`.
 
 ## Historical probes
 

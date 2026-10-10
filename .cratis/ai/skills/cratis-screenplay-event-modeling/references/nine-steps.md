@@ -113,7 +113,7 @@ identity), `authorize`, and `produces`. Excerpt: the complete document is
 fact, and fenced Markdown `documentation` when its meaning needs elaboration.
 Alternatively, declare it in the command with `produces event` and typed mappings.
 
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-example.md#1
 // Parent: references/invoicing-example.md (complete document), slice RegisterInvoice
 slice StateChange RegisterInvoice
   command RegisterInvoice
@@ -164,7 +164,7 @@ A `from` without a key never inherits another `from`'s key, and a projection-lev
 `key` routes nothing (`PLAY0381`). Excerpt: the complete document is
 [invoicing-example.md](invoicing-example.md); both events target the invoice's event source.
 
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-example.md#1
 // Parent: references/invoicing-example.md (complete document), slice InvoiceList
 slice StateView InvoiceList
   readmodel InvoiceListReadModel
@@ -215,8 +215,7 @@ reaction's `reads UnpaidInvoice` is report-only metadata at 4.66.0 (information 
 it does not make the model consult the view. Binding therefore admits only a scheduled
 invocation that records a timestamp. Choosing which invoices are overdue (due date before the
 clock instant) is a target-side decision: record it as gap-fill with the model as the
-contract (`cratis-screenplay-render-and-gap-fill`), and say so in the slice description as
-the example does. Do not claim the specification proves the overdue decision.
+contract (`cratis-screenplay-render-and-gap-fill`), and say so in the slice `documentation`. Do not claim the specification proves the overdue decision.
 
 ```screenplay
 domain Acme.Invoicing

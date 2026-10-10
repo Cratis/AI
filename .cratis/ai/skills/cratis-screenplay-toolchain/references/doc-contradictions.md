@@ -1,9 +1,16 @@
 # Documentation contradictions and which side to trust
 
-Current pins are Screenplay 4.125.0 / CLI 3.41.0 (`versions.md`). This is a
+Current pins are Screenplay 4.127.0 / CLI 3.41.0 (`versions.md`). This is a
 **historical** contradiction inventory, not a claim that all listed defects still
 exist. Current grammar documents exact numbers and free description placement;
 sources/routes bind as ESM v8; PLAY0515 is a source error; CLI v7 reaches Stage.
+
+At v4.127.0 `concepts.md` links the shipped purpose declarations/checks/record
+but its final identifier section still calls them later phases. `purposes.md`,
+the released grammar/tool and successful purpose probes take precedence. The same
+page's legacy `@pii` mentions do not change bare `pii`/`secret` canonical syntax;
+legacy forms compile with PLAY0565 information, duplicates with PLAY0653 warning.
+Event `subject` remains report-only, despite accepted future lineage work.
 
 `D/` is Screenplay `Documentation/screenplay/` at **v4.66.0**; line numbers were re-read at
 that tag. Rule: the compiler you ran decides what the tool accepts today; the documentation

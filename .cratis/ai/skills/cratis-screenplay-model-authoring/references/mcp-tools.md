@@ -6,11 +6,15 @@
 ## Contents
 
 - Tool groups
+- Whole-source authoring
 - Diagnostic repairs and refactorings
 - Syntax-only constructs through the MCP
+- Descriptions and specification views
+- Identity, compliance and processing views
 - Evidence-pinned production repairs
 - Scoped diagnostics and completeness
 - Dependencies and intent inventories
+- Specification obligations and advisory smells
 - Semantic revision comparison
 - Source map and appended-event fixtures
 - Revision and ownership rules
@@ -33,26 +37,52 @@ report unsupported adapters or drift.
 
 After `initialize` and `notifications/initialized`, discover current tools and
 argument schemas with `tools/list`; do not hard-code counts or infer arguments
-from these short descriptions. The additions below follow Screenplay v4.125.0's
-`Documentation/screenplay/mcp/reference.md`.
+from these short descriptions. Screenplay v4.127.0's `McpToolCatalog.cs` has
+37 tools without visualization, 38 with it; older issue counts are not this release.
+The additions below follow its `Documentation/screenplay/mcp/reference.md`.
 The connection procedure, edit routes, identity state and failure handling are in
 the [MCP loop](mcp-loop.md).
 
 | Group | Tools | Intent |
 | --- | --- | --- |
 | Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details` | Navigate logical hierarchy and inspect bounded details |
-| References and examples | `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
+| References and examples | `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `find-specification-obligations`, `find-modeling-smells`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
 | Source and validation | `diagnostics`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
-| Planning | `propose-ast`, `propose-rename`, `propose-repair`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
+| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-repair`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
 | Review | `read-proposal`, `discard-proposal` | Inspect exact changes, dropped comments and proposed attachments, or abandon a connection-local proposal |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
 
-`propose` is the executable-only whole-document interface. Prefer `propose-ast`
-for full-language authoring and `propose-rename` for proved logical renames. A
+`propose` is the executable-only whole-document interface. Prefer `propose-source`
+for whole `.play` text, `propose-ast` for focused typed edits, and `propose-rename`
+for proved logical renames. A
 source-only authoring proposal may be accepted while `executableReady` is false.
 That is not permission to claim the application runs.
+
+## Whole-source authoring
+
+`propose-source` takes `expectedRevision`, `expectedCatalogRevision`, explicit
+`formatting` and `documents`. Default `validation: "Authoring"` accepts syntax-only
+models; `"Executable"` requires binding and never falls back. Default
+`referencePolicy: "Safe"` and identity migrations/retirements work as for
+`propose-ast`. Whole-file authoring needs neither base64 nor typed node JSON.
+
+| Document operation | Shape members besides `operation` |
+| --- | --- |
+| `create-document` | `path`, `stableKey`, `source`; optional `encoding` (`Utf8` or `Utf8WithBom`) |
+| `replace-document` | `documentId`, `source` |
+| `remove-document` | `documentId` |
+| `move-document` | `documentId`, `path` |
+| `rename-document-key` | `documentId`, `stableKey` |
+
+No node `operations`; each document is targeted at most once per batch. Source
+is parsed in final-set import placement before the typed transaction. Parse/import
+errors return `SourceParseFailed` with located `authoringDiagnostics`, no proposal
+ID. Other validation failures use ordinary authoring rejection. Inspect exact bytes,
+dropped comments, identity changes and introduced executable errors through
+`read-proposal`, then `apply` with before revisions. Accepted authoring source with
+`executableReady: false` is not running behavior.
 
 ## Diagnostic repairs and refactorings
 
@@ -67,6 +97,7 @@ with `view: "diagnostics"`, then `view: "repairs"` at the current revision.
 | `PLAY0471` | Remove a redundant event id only with unchanged executable model, catalog and comments. |
 | `PLAY0469` | Remove an inline same-source identifier property and mapping, retiring its semantic address. This changes the contract; `canFixAll` is false. Refuse other consumers, opaque impact, changed routing or comment loss. Plain contracts get guidance only. |
 | `PLAY0479` | Migrate one optional type spelling, or all in a document, preserving syntax and trivia. Exclude `query Q => observable?`. |
+| `PLAY0563/0564` | Expand a one-line interaction alternative / turn a strict item `where` into one block-form `when`. Individual review, canonical formatting, no pinned evidence; refuse comment loss. Opaque non-item-condition text has no PLAY0564 repair. |
 | `PLAY0516` | Move a producing sibling declaration/import before its consumer, or pin an already placed file before a retained glob. Preserve catalogs, comments, placement and executable readiness; introduce no timeline findings. Own-sub-feature edges, cycles, unranked members and mixed/different-parent boundaries have no repair. Rediscover after each move; pinned evidence is unsupported. |
 
 These discoveries verify acceptance before listing a repair. Only compact
@@ -80,7 +111,7 @@ Send the selected `diagnosticCode` and original `subject` to `propose-repair`,
 with both revisions and the returned `requiredFormatting`. For optionality,
 select `scope: "document"` during discovery to get the document root handle;
 pass that handle, not a scope argument, to the proposal. Its default is
-`PreserveTrivia`; the other listed repairs need explicit
+`PreserveTrivia`; PLAY0565/PLAY0653 also support it; the other listed repairs need explicit
 `CanonicalizeTouchedDocuments` consent. Every proposal runs one fresh transaction
 for the selected subject. Review bytes before `apply`; no discovery writes files.
 
@@ -143,6 +174,38 @@ also uses operations, streams, handlers or exact numeric mode keeps a readiness 
 unadmitted feature. Null readiness does not prove the whole application binds or that every generation
 fixture exists. Canonical `executable-model` pages include `generated`, `response`, `generatedValues`
 and `thenReturns` when present. Form response scopes and a renderer response type remain downstream work.
+
+## Descriptions and specification views
+
+`declaration-details` `summary` exposes authoring-only `description` and
+`documentation` for every declaration kind supporting them. Persona `caller`
+shows synthesized roles/claims, policy contributions or refusal; specification
+`cases` pages parameters, effective case addresses, locations and values.
+`find-fixtures` accepts a table/effective address and optional `case`, retaining
+persona/policy and table/case/caseParameter provenance. Neither view executes.
+
+## Identity, compliance and processing views
+
+Screenplay v4.127.0 `mcp/reference.md` and `authoring-tools.md` describe these
+additions; discover installed schemas because CLI 3.41.0 bundles 4.114.0.
+
+- Identity/detail summaries expose declared sources; `$identity` has its own
+  expression node. The block alone stays executable-ready, but executable reads
+  of additional details report PLAY0268. `$context.identity` stays built-ins only.
+- Event summaries expose `subject.source` (`eventSource` or `property`) and properties
+  expose `isSubject`; the mark is report-only, not runtime or C# subject emission.
+- Composite streams expose typed `streamIdParts`; fixture part rows retain their
+  individual lineage. Route/schema edits must preserve assigned identities.
+- Purpose/container summaries expose fields/direct references. `processing-record`
+  pages the same declared/derived processing facts as the CLI report with
+  `offset`/`expectedSourceRevision`; optional controller inputs are explicit.
+  Invalid source prevents reporting; binding is not required, zero rows is not
+  compliance, and opaque/runtime facts are not inferred.
+- `screenplay_repair_capabilities` and `propose-repair` include PLAY0653: remove
+  later compliance markers on a concept header with `PreserveTrivia`, preserving
+  body settings/comments. No document-root repair or evidence pinning is offered.
+  PLAY0565 migrates a discovered concept `line`, or the document root, to bare
+  `pii`/`secret`; it never moves or interprets legal notes.
 
 ## Evidence-pinned production repairs
 
@@ -212,6 +275,29 @@ only, including pending hints without a requirement ID. Details select either
 with `expectedRevision` and `expectedCatalogRevision`; provisional owner IDs are
 not authoritative. Edit hints through reviewed `propose-ast`.
 
+## Specification obligations and advisory smells
+
+Use `find-specification-obligations` when building the coverage matrix. Optional
+`scope` selects exactly one module/feature/slice; `document` filters owners.
+SPEC001–SPEC008 cover command success, requirements, command/concept validations,
+authorization denials, competing value claims, read-model assertions, projection
+removals and reaction outcomes. Rows name declaration, subject, location, status
+met/unmet, reason and matching specifications (capped at 20, with count/truncation).
+Examples expand before matching; ambiguity never meets an obligation. A **met**
+row is authored presence, not full coverage, causation or a passing specification.
+Bare rejections cannot distinguish message-specific rules; syntax-only owners
+retain information-level readiness reasons. Never invent rules from opaque code.
+
+`find-modeling-smells` asks information-level questions, never changes compilation
+or `--warnaserror`: SMELL001 generic event endings, SMELL002 generic command verbs,
+SMELL003 duplicate nonempty event shapes from different commands, SMELL004 event
+fan-out, SMELL005 read-model property fan-in. Optional scope/document and
+`eventFanOutThreshold`/`propertyFanInThreshold` (default 5, integers 1–200) bound
+selection; equal to threshold is not flagged. Similar shape does not establish
+similar meaning: report a defect only with a domain consequence. No per-declaration
+suppression ships. Both tools page with `offset`/`limit` and
+`expectedSourceRevision`; pin the first page's revision on continuation.
+
 ## Semantic revision comparison
 
 `semantic-diff` takes `beforeWorkspaceJson` and `afterWorkspaceJson`: decoded,
@@ -229,10 +315,11 @@ Use `read-proposal` `view: "semantic-diff"` for an uninstalled proposal instead.
 by semantic id) with role, identity origin, document id, path and an exact UTF-16
 span. Compilation must have succeeded for entries to exist (`available`).
 `find-fixtures` roles are `givenEvent`, `whenAppendedEvent`,
-`whenAppendedEventDestination` and `thenEvent` (and others for commands and
+`whenAppendedEventDestination`, `whenRedeliveredEvent` and `thenEvent` (and others for commands and
 queries): a `when append` payload is labeled `whenAppendedEvent`, not `thenEvent`,
 in `declaration-details`, `find-fixtures`, references and dependencies.
-Event roles also have `…Stream`, `…StreamId` and `…NoStream` rows (`property`
+Redelivery locator payloads use `whenRedeliveredEvent`, with destination and route
+roles too. Event roles also have `…Stream`, `…StreamId` and `…NoStream` rows (`property`
 respectively `stream`, `streamId`, `no stream`). Effective fixture values expose
 `origin` (authored/example/override), example name and replaced value where present.
 A whole-route replacement records `overriddenValue` once on its stream/no-stream
@@ -271,6 +358,18 @@ row; route parts retain their individual lineage. These are source facts, not ex
 | Response too large | Narrow scope, page children/properties, or read byte chunks |
 | Pending operation or recovery conflict | Inspect state, preserve artifacts and explicitly recover; never delete the marker to continue |
 | Backend unsupported | Preserve valid source and report not-executable; do not remove business intent to appease a narrower runtime |
+| InvalidIdentityMigration | Read `identityMigrationIssues`, not trial-and-error retries; supply the intended continuity/retirement for exactly the listed addresses |
+
+At 4.127.0 migration refusals name each offending address and its input array:
+`semanticRenames`, `eventRenames`, `retiredSemanticAddresses`,
+`retiredEventAddresses`. Rejected `propose`, `propose-ast` and `propose-source`
+return structured `identityMigrationIssues`: each item has `arguments` and typed
+`address` (`kind`, `parts`). Stale renames name both endpoints. Missing continuity
+lists rename and retirement as **alternatives**, not an instruction to retire.
+Events have both semantic and event-contract assignments; include assigned
+descendants too. Read the same details in rename/apply conflict messages. Re-read
+state for stale migrations and make one intended correction, never delete the
+catalog or invent identities to bypass refusal.
 
 `Draft` can record deliberately unresolved reference debt. It is not an escape
 hatch for malformed ASTs, stolen identities, silent retargeting or unreviewed file

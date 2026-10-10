@@ -29,11 +29,11 @@ Screenplay specifications.
 | Then (success) | every production with payload and `for` | "an event is produced" |
 | Then (refusal) | `then error "Invoice already settled"`, the rule's own message | `then error` with no message, or `then error ""` |
 | Then (denial) | `then denied` | `then error` for a caller who is not allowed |
-| Reason | the slice `description` says why the rule exists | the rule appears only in a spec title |
+| Reason | slice `documentation` says why the rule exists | the rule appears only in a spec title |
 
 ## 1. Command: success, rule rejection and denial
 One spec for the success, one per rule (varying only the value the rule checks), one denial.
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification IssuingAnInvoice
   given caller
     authenticated
@@ -71,7 +71,7 @@ specification RefusingACallerWithoutTheAccountsRole
 After which earlier facts must the command be refused? Establish the wrong state with its real
 facts, not a description of it. Settling a voided invoice and voiding a settled one are different
 questions: one spec each.
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification RejectingSettlementOfAVoidedInvoice
   given caller
     authenticated
@@ -103,7 +103,7 @@ in `invoicing-dues-design.md`; it is never prose and never a spec that pretends 
 Two separate obligations. First, the **capture specification**: concrete external input in, our
 facts out. The provider's refusal is a fact (never a `then error`), kept in the provider's
 vocabulary and then translated.
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification TranslatingADeclinedCardResult
   when capture PaymentGatewayResults
     reference = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
@@ -121,7 +121,7 @@ Second, the **retry**. `PaymentRequested` only says we asked the gateway; it is 
 After the decline, requesting again is an ordinary accepted command, and its exact declared
 outcome is `PaymentRequested`, not `PaymentReceived`: the eventual success is a later external
 fact that arrives through the capture, not something this command produces.
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification RetryingPaymentAfterADecline
   given caller
     authenticated
@@ -149,7 +149,7 @@ lists the declared consequence (`RefundRequested`); the reaction is also specifi
 `RefundRequested` is a recorded request, not proof that money moved, and there is no
 `then <Command>` form. What the target must do to deliver the refund is a requirement, not a spec.
 From `invoicing-dues-design.md` (design mode; the specs do not run at 4.66.0):
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-dues-design.md#1 expect PLAY0516 test=unbound
 specification ReversingAReceivedPayment
   given caller
     authenticated
@@ -185,7 +185,7 @@ ask. Voiding an issued invoice that is not yet paid is the other compensation (t
 A repeated event type can matter as much as a multi-event lifecycle. Two top-ups of 40 and 70
 walk a balance to 110; give the second occurrence as the action so the accumulation is what is
 tested.
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification MemberCreditAccumulatesTopUps
   given caller
     authenticated

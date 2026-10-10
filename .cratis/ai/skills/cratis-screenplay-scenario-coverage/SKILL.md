@@ -27,9 +27,11 @@ language cannot express today are recorded, not faked. Grammar and outcome compa
 Screenplay v4.66.0 (`c89198b`) and v4.68.0 (`79801bf`, ESM v7 fixtures and `then returns`):
 `Documentation/screenplay/specifications.md` and the standalone compiler; `cratis` 3.28.2 and
 3.28.3 bundle Screenplay 4.66.0 (before 3.28.2 it bundled 4.60.1). The full pin table and the probes are in
-`cratis-screenplay-toolchain` `references/versions.md`. Specification obligations reported by
-the MCP (Screenplay#390) and multi-step storylines (Screenplay#394) are **not available**: the
-coverage matrix is built by hand and lifecycle families emulate storylines.
+`cratis-screenplay-toolchain` `references/versions.md`. At Screenplay v4.127.0,
+MCP `find-specification-obligations` derives SPEC001–SPEC008 from declarations;
+met means matching authored presence, not full coverage or passing execution.
+Use it to seed, never replace, the matrix. Multi-step storylines remain unavailable;
+lifecycle families emulate them.
 
 ## Interview phase
 **Skip if** the brief already states the coverage depth (rules, denials, state violations,
@@ -56,7 +58,9 @@ question is not four approvals.
    (Cannot lines, "only if", refusals, competition candidates, endings) as coverage seeds.
 3. **Inventory before drafting**: read commands, effective gates (own, feature, module), rules,
    constraints, productions, reactions, captures, read models and queries in scope; derive the
-   obligations from those declarations, not from specs already present.
+   obligations from those declarations, not from specs already present. Use scoped
+   `find-specification-obligations` and inspect unmet/message-specific obligations;
+   ambiguous references and opaque code are not inferred coverage.
 4. **Coverage matrix before any spec** (`references/coverage-matrix.md`). Rows: every command,
    reaction, capture, read model and gated query. Columns: the scenario types below. Each cell
    is `spec <Name>`, `n/a: <domain reason>`, `recorded: <why not expressible>`,
@@ -70,7 +74,12 @@ question is not four approvals.
    existing intentional fixtures (`references/scenario-catalogue.md` "Example data").
 7. **Draft commands**: happy path, each rule, denial, duplicates and retries, competing claims,
    state violations, alternative branches, compensation, external failure, evolution. In each
-   rejection vary only the value under test.
+   rejection vary only the value under test. Use typed `parameter`/named `case`
+   tables for a shared validation matrix, not for unrelated behaviors; rows are
+   cases, not typed fixture `example`s. `given caller as <Persona>` supplies one
+   authenticated policy witness for success/denial; use explicit callers for
+   anonymous/ownership or unsynthesizable personas. Syntax and complete model:
+   `cratis-screenplay-specifications` `references/persona-callers-and-cases.md`.
 8. **Separate view pass**: population, each update, accumulation, removal (with a surviving
    row), absence, ordering. Mark lifecycle branches as branches.
 9. **State-dependent rules**: `reads <View>` + `require <expr> message "..."` as stated intent,
@@ -97,8 +106,15 @@ question is not four approvals.
 | Ordering | Facts late or out of order? | view family with reordered givens; translation specs; else `recorded` |
 | External failure | The other system refuses, times out or answers twice? | outcome as a recorded fact (capture/translation), never a fake rejection |
 | Compensation | How is this undone, what does undoing free? | reversal command + spec showing the released claim or removed row |
-| Evolution | Do old facts still mean the same after a contract change? | spec on the new generation; compatibility note in `description` |
+| Evolution | Do old facts still mean the same after a contract change? | spec on the new generation; compatibility reasoning in `documentation` |
 | View | What does each screen show after each fact? | `given` events (`for`) -> `then query`; `when append` -> update/removal |
+
+For recovery intent, `when redelivered <Event> to <Reaction>` must select one
+definitely matching effective given and no undecided candidate. Name `stream`
+(with a complete id) or `no stream` when givens differ only by route; omitting it
+is a wildcard, not an unrouted selector. Redelivery remains authoring-only
+(PLAY0268), never evidence of an executed retry. Details:
+`cratis-screenplay-specifications` `references/examples-and-routes.md`.
 
 **Once, idempotent, exactly once are different claims.** A `unique event` constraint proves the
 *fact* occurs once per event source; it does not make *command handling* idempotent (a retry is
@@ -112,7 +128,7 @@ target requirements.
 - `then` events are exact in count and order (`then events in any order` relaxes order only).
 - Command denial: `then denied` with no success or error outcome. Read-only query denial:
   `then query <Query>` with `arguments` and no `result`, then `then denied`. Every gated command
-  or query spec needs `given caller` (module and feature gates count); an authorized scenario
+  or query spec needs `given caller` or `given caller as <Persona>` (module and feature gates count); an authorized scenario
   gets no inferred fixture (PLAY0389). Unauthorized is never `then error`.
 - Duplicate and competing specs use `when <Command>`; `when append` is for projection and
   automation triggers, and for a constraint the command's own validation would reject first.
@@ -130,7 +146,7 @@ target requirements.
   never `n/a` automatically. This matches `cratis-screenplay-specifications`, which also
   requires one rejection spec per concept rule. Business rules get one rejection spec each.
 - Persona Cannot lines are intent: each needs an executable gate plus a `then denied` spec whose
-  caller carries that persona's roles and claims, else record a gap.
+  caller is a synthesized persona witness or an explicit gate fixture, else record a gap.
 - Descriptions are not rendered: a rule only in prose is unenforced in rendered scope; turn it
   into a rule layer, a spec or a recorded target requirement.
 - Prove projections with events (`given`/`when append`), not `given readmodel`; seed read models
@@ -149,7 +165,7 @@ target requirements.
 - Read models are a separate, equally mandatory pass: a model with dozens of command specs and no
   read-model spec is not scenario-complete. Population, then update or removal where an event
   supersedes a row.
-- The why behind each business rule is written down (slice `description`), not only the what.
+- The why behind each business rule is written down (slice `documentation`), not only the what.
 - Good and bad forms of givens, outcomes and rejections: `references/scenario-examples.md`.
 
 ### Review questions

@@ -3,6 +3,7 @@
   "input": "Facilitate an event modeling session and land the model as .play source.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
       "value": "main `fd18129`"

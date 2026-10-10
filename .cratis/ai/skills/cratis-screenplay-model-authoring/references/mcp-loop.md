@@ -9,6 +9,7 @@
 - Who owns the connection
 - The loop
 - One edit strategy
+- Self-describing identity migration refusals
 - Identity state (`.screenplay/identities.json`)
 - Read-only views worth knowing
 - Failures (use `failureKind`, never message text)
@@ -101,14 +102,18 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    `search-declarations`, `declaration-details`, `dependencies`/`dependency-graph`.
    Diagnostics `scope` includes descendants and direct dependents; `checks` opts
    into completeness warnings (skipped on whole-source errors). Paging with
-   `offset > 0` requires `expectedSourceRevision`.
+   `offset > 0` requires `expectedSourceRevision`. Seed coverage with
+   `find-specification-obligations` (presence, not execution), use
+   `find-modeling-smells` as questions needing a domain consequence, and compare
+   generated/curated exported snapshots with `semantic-diff`.
 3. `open-workspace` and keep `revision` and `catalogRevision`. Opening writes
    nothing. With `identityPersistence: "root-local-on-apply"` the identities file
    is written only by `apply`.
 4. Choose the edit route (next section). For typed edits: `syntax-schema` for the
    node kind, then `read-ast` with `includeContent` for revision-bound handles.
    Never invent a handle.
-5. Propose one coherent change (a slice works best): `propose-ast` with
+5. Propose one coherent change (a slice works best): `propose-source` for whole
+   `.play` text, `propose-ast` for focused typed edits, with
    `validation: "Authoring"`, `referencePolicy: "Safe"` (`Draft` only for
    deliberate, reported gaps), `formatting: "PreserveTrivia"` for value and mapping
    patches, otherwise `CanonicalizeTouchedDocuments` (reprints the touched files).
@@ -139,7 +144,11 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 2. **Prefer typed, identity-preserving operations**: `propose-rename` for renames
    (keeps `id` pins and assigned identities, refuses on ambiguity),
    `propose-repair`, `propose-extract-inline-event`, `propose-ast` for additions,
-   replacements, removals and moves.
+   replacements, removals and moves. Use `propose-source` when authoring whole
+   documents as UTF-8 text, not base64 or typed node JSON; `propose` remains the
+   executable-only exact-byte interface. Both authoring routes require revisions,
+   formatting consent and identity continuity. `SourceParseFailed` returns located
+   `authoringDiagnostics` without a proposal. Details: `mcp-tools.md`.
 3. **Bounded text edits** are fine only where no catalog address changes (table below). With
    `.screenplay/identities.json`, adding, removing or renaming a declaration, a property of a
    command, event, read model, composite type or trigger, a query, a query argument or a
@@ -161,11 +170,24 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 | --- | --- | --- |
 | Address-preserving | descriptions; bodies of rules and expressions; mappings between members that already exist; any edit that adds, removes or renames no addressed element. Also every edit in a model with no `.screenplay/identities.json` except persisted names | bounded text edit of the `.play` file, then compile the folder; or `propose-ast` |
 | Catalog-changing (identity file present) | add, remove or rename a declaration (slice, command, event, read model, projection, ...), a property of a command, event, read model, composite type or trigger, a query, a query argument or a specification; create, delete, rename or move a mapped `.play` document (McpState refuses reopening with `IdentityMappingConflict`; use document operations in `propose-ast`); rename, remove or move an event, command, read model, constraint, module, feature or slice; move declarations between files; contract evolution of a persisted event (new generation, property added, removed or retyped) | `propose-rename` or a reviewed `propose-ast`; never a blind text rename. Renaming a constraint resets its uniqueness index: ask first unless the request names it, then report the reset. A persisted event rename needs `id "OldName"` (added by default) |
-| Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479`, `0516` (and recipe-only `0397`) | `propose-repair` with `formatting`; PLAY0166/0478 may pin attachment evidence (`pinRepairEvidence` and `expectedRepairEvidenceRevision`), never fix-all PLAY0478 |
+| Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479`, `0516`, `0563`, `0564`, `0565`, `0614`, `0653` (and recipe-only `0397`) | `propose-repair` with `formatting`; PLAY0166/0478 may pin attachment evidence (`pinRepairEvidence` and `expectedRepairEvidenceRevision`), never fix-all PLAY0478 |
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
-| Parser-invalid document | no editable handles | `propose-ast` `replace-document` with a whole typed document, or fix the text |
-| Unadmitted constructs | systems/operations, exact numbers, refusal/redelivery | reviewed Authoring `propose-ast`; preserve intent and report PLAY0268 |
+| Parser-invalid document | no editable handles | `propose-source` `replace-document` with corrected source, or typed `propose-ast` document replacement |
+| Unadmitted constructs | systems/operations, exact numbers, refusal/redelivery | reviewed Authoring `propose-source` (whole documents) or `propose-ast` (typed edits); preserve intent and report PLAY0268 |
 | Admitted source/stream routing | ESM v8 at 4.125.0 | typed `propose-ast`; `propose-rename` repairs proven route references; target admission separate |
+
+## Self-describing identity migration refusals
+
+At Screenplay 4.127.0, read `identityMigrationIssues` on rejected proposals
+(conflict `InvalidIdentityMigration`). Each entry names typed `address.kind` and
+`address.parts`, and the input `arguments` it belongs in: `semanticRenames`,
+`eventRenames`, `retiredSemanticAddresses`, `retiredEventAddresses`. Stale renames
+name both endpoints; missing continuity lists rename/retirement alternatives,
+not an instruction to retire. Include both event-contract and semantic assignments
+and all assigned descendants. Rename/apply messages name the same offending addresses.
+Supply exactly the entries required for the intended change instead of retrying
+by trial and error. Re-read actual revisions when stale; never clear the catalog.
+Authority: v4.127.0 `mcp/reference.md`, `mcp/authoring-tools.md`.
 
 ## Identity state (`.screenplay/identities.json`)
 

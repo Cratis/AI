@@ -3,6 +3,7 @@
   "input": "The marina .play model is accepted. Render it with cratis render, tell me whether it builds and its generated specs pass, and say what to do about anything Stage cannot render.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
       "value": "A. Admission failure"

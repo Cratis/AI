@@ -23,7 +23,7 @@ contract is in `cratis-screenplay-ui-composition`.
 
 ## Verified product sources
 
-Current authoring/MCP guidance follows Screenplay v4.125.0
+Current authoring/MCP guidance follows Screenplay v4.127.0
 `Documentation/screenplay/mcp/`, `ast-authoring.md`, `folders.md`, `vscode.md`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
@@ -130,9 +130,9 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
 3. Prefer `propose-rename` for supported logical renames: it coordinates fragments,
    repairs proven references and preserves assigned identities. Never substitute
    global string replacement for an explicit refusal.
-4. Use `propose-ast` for typed additions, replacements, removals and moves. Group
-   related cross-file changes in one batch so no broken intermediate state lands.
-   Parser-invalid source can be repaired by typed whole-document replacement.
+4. Use `propose-source` for whole text or `propose-ast` for typed edits
+   (Authoring defaults); `propose` is executable-only. Batch changes;
+   details: `references/mcp-tools.md`.
 5. Keep reference policy `Safe`. Use `Draft` only for deliberately requested
    unresolved model debt and report that debt; it does not waive structural,
    identity or binding-protection checks.
@@ -178,6 +178,8 @@ each lost comment (`PLAY0288` also reports their count and lines). Untouched
 documents retain exact bytes. A printer that loses requested structural fields
 rejects the plan.
 
+`identityMigrationIssues`: read the [MCP loop](references/mcp-loop.md).
+
 ## Repair or extract before rewriting
 
 Read `read-workspace` with `view: "diagnostics"`, then `view: "repairs"` at the
@@ -199,6 +201,7 @@ from silently changing the reviewed candidate.
   No automatic generation-evolution repair ships.
 - `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
   migrates all occurrences together. Keep the `query Q => observable?` exception.
+- Compliance repairs PLAY0565/0653: [MCP tool guide](references/mcp-tools.md).
 
 Use `propose-extract-inline-event` on the inline `EventSyntax` handle before adding
 a generation (canonical formatting consent; refuses comment loss; no reverse
@@ -258,7 +261,8 @@ target or consequence expands.
 Readiness has two verdicts: `readiness.authoringAccepted` says the source is valid
 Screenplay; `executableReady` describes only the current executable subset. Do not
 call a model broken because it is not executable, and prefer `propose-ast` for
-full-language authoring. A rejected proposal lists its diagnostics: fix those, do not
+focused full-language edits, or `propose-source` for whole documents. A rejected
+proposal lists its diagnostics: fix those, do not
 retry the same input.
 
 ## Code attachments
@@ -303,7 +307,7 @@ a generated app that silently drops authored UI. Use the Screenplay-owned canoni
 corpus fixture path when it exists instead of copying `.play` examples into this
 repository.
 
-Repair and refactoring guidance follows Screenplay v4.125.0. The Cratis
+Repair and refactoring guidance follows Screenplay v4.127.0. The Cratis
 CLI bundles its own Screenplay version, so check the installed `tools/list`
 schemas before relying on a view or argument named here (for example
 `dropped-comments` or `implementation-requirements`). Do not invent a command,

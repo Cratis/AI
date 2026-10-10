@@ -4,6 +4,9 @@
 
 - Warnings that hide defects (always validate with `--warnings-as-errors`)
 - Source reference and identifier checks
+- Caller identity, compliance and routes
+- Specification metadata, callers, cases and locators
+- Guarded interaction diagnostics
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -36,7 +39,7 @@ then STAGE (V5 admission). Tool differences: `versions.md`.
 
 ## Source reference and identifier checks
 
-At Screenplay 4.125.0 these are V1 source checks, not binding-only gaps:
+At Screenplay 4.127.0 these are V1 source checks, not binding-only gaps:
 
 | Code | Severity | Meaning |
 | --- | --- | --- |
@@ -45,6 +48,116 @@ At Screenplay 4.125.0 these are V1 source checks, not binding-only gaps:
 | PLAY0515 | E | Personal/secret concept in a command identifier, typed `for` destination, event-source identity, stream-id type/part or route mapping source (including nested paths); keep a surrogate identity and protected data in payload |
 
 Legacy compliance spellings (`@pii`/`@sensitive`) do not evade PLAY0515.
+
+## Caller identity, compliance and routes
+
+Source authority: v4.127.0 `diagnostics.md`, `identity.md`, `concepts.md`,
+`purposes.md`, `events.md`, `event-sources.md`, `reactions.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0152 | E | Bare `$identity` needs a property path |
+| PLAY0155 | W | A `$identity` or `$context.identity` path names a property the caller does not carry; correct the built-in/detail name (claims suffixes are opaque) |
+| PLAY0633 | E | Invalid identity header; write bare `identity` |
+| PLAY0634 | E | Second identity block in one document; a second file uses the folder singular-declaration diagnostic |
+| PLAY0635 | E | Invalid typed detail or escape source; exactly one source per detail |
+| PLAY0636 | E | Unknown source kind; use claim, query, inline code or file |
+| PLAY0637 | E | Detail has no source/implementation |
+| PLAY0638 | E | Claim/query source has a body; refresh/cache belongs to runtime |
+| PLAY0639 | E | Duplicate detail name |
+| PLAY0640 | E | Detail redeclares a token built-in |
+| PLAY0641 | E | Unknown/ambiguous source query |
+| PLAY0642 | E | Source query is unkeyed or returns a list |
+| PLAY0643 | E | Query source lacks `by <expression>` |
+| PLAY0644 | E | Query key reads more than built-ins, claims or literals |
+| PLAY0645 | E | Source query's effective gate depends on details |
+| PLAY0646 | E | Result type/optionality differs from detail; optional result needs optional detail |
+| PLAY0565 | I | Deprecated `@pii`, `sensitive`, `@sensitive`; repair to bare `pii`/`secret`, preserving notes/trivia |
+| PLAY0566 | E | Unknown concept marker |
+| PLAY0567/0568 | E | Invalid secret scope / repeated scope |
+| PLAY0569 | W | Explicit secret scope ignored on `pii secret` because only `[PII]` renders |
+| PLAY0570/0571 | E | Invalid personal-data qualifier/category / repeated special category |
+| PLAY0653 | W | Repeated concept-header compliance marker; `pii personal` is one marker repeated. Keep the first; body settings stay attached; canonical printing writes one marker |
+| PLAY0590 | E | More than one event subject; choose one, no safe automatic repair |
+| PLAY0591 | E | Subject not required scalar String/Uuid or a String/Uuid/Int-backed concept |
+| PLAY0592 | E | Protected subject concept; EventContext.Subject is plaintext, use a surrogate |
+| PLAY0593 | E | Subject modifier outside event properties |
+| PLAY0594 | E | Read-model subject mark is unsupported |
+| PLAY0595 | E | Repeated/out-of-order subject modifier; write it last |
+| PLAY0596/0597/0598/0599 | E | Malformed purpose declaration/reference/field; unknown closed value; repeated singleton; duplicate purpose name, respectively |
+| PLAY0600/0601 | W | Unknown purpose reference / inconsistent legitimate-interest declaration |
+| PLAY0602–0606 | W | Opt-in purposes coverage: uncovered pii, missing Art. 9 condition, Art. 10 authorization, basis, or unused purpose |
+| PLAY0647 | E | Malformed/repeated/misplaced `runs as`, empty/duplicate role; one reaction-level line with quoted roles (zero allowed) |
+| PLAY0648 | W | Gated invocation without declared identity; an authorization refusal branch gets PLAY0557 instead, once per invocation |
+| PLAY0649 | W | Identity declared without invokes or inline/file implementation |
+| PLAY0650 | W | C# bound-gate check: role needed by no invocation; opaque gates/implementation bodies suppress it |
+| PLAY0651 | W | C# bound-gate check: declared actor definitely cannot satisfy gate; unknown is not denial |
+| PLAY0652 | W/I | Opt-in `privilege`: trigger producer lacks every declared actor role (W), or has opaque gates that cannot be compared (I); clock/application triggers are silent |
+| PLAY0504 | E | Missing/ambiguous stream, invalid/mismatched route parts, nominal source identifier/destination type mismatch or invalid stream-id literal; never a warning |
+| PLAY0549 | E | Invalid specification route/mapping, including invalid stream-id literals |
+
+Stream-id text must be nonempty, well-formed Unicode NFC: refuse, never normalize.
+Integer ids in Double mode are within ±9007199254740991; Exact mode has no such
+bound but remains unadmitted. Specification contradictions compare canonical ids,
+so UUID casing does not distinguish routes. Composite encoding is ordered and
+escapes `%`/`|`, not an inferred split of legacy text.
+
+Identity declarations and event `subject` are metadata; reading a declared
+`$identity` detail in executable clauses is PLAY0268. `runs as` is admitted as
+ESM v10 in the current standalone, not a current PLAY0268 gap. Compliance markers
+still block binding; purpose metadata is PLAY0270. See command-surface
+`references/compliance.md` and `references/context.md` for syntax and limits.
+
+`screenplay_repair_capabilities` and `propose-repair` advertise PLAY0653: a
+concept-subject, line-only `PreserveTrivia` repair, no document-root or pinned
+repair evidence. PLAY0565 supports one discovered `line` or a document-root
+migration. Preview every repair; legal notes never move automatically.
+
+## Specification metadata, callers, cases and locators
+
+Authority: Screenplay v4.127.0 `diagnostics.md`, `specifications.md`, `slices.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0558 | E | Module/feature/slice/command/read-model/reaction documentation must be one nonempty fenced Markdown block; remove repeats or fix the fence. Events retain PLAY0477. |
+| PLAY0559 | W | Conflicting module/feature documentation across files; first wins. Choose one owning text; identical copies are accepted. |
+| PLAY0572 | E | Malformed/unknown persona caller or body lines; use a declared top-level persona with no body. |
+| PLAY0573 | E (binding) | Persona synthesis refused (no policies, negation, required non-literal/role-URI claim, opaque or unresolved policy); inspect persona/policy/reason and use explicit `given caller`. |
+| PLAY0574 | W | Opt-in `personas`: persona gates nothing. |
+| PLAY0575 | W | Opt-in `personas`: gate denies every synthesized persona; unknown is not denial. |
+| PLAY0576 | I | Opt-in `personas`: multiple unpinned buildable `or` alternatives; inspect chosen witness or pin a policy. |
+| PLAY0577/0578 | E | Malformed parameter/case header; typed parameter has no body/default, case has a name and at most one inline assignment. |
+| PLAY0579/0580 | E | Duplicate parameter/case name. |
+| PLAY0581/0582 | E | Need parameters and cases; every case assigns each parameter exactly once, no extra names. |
+| PLAY0583 | E | Case value is not concrete or cannot normalize to its type. |
+| PLAY0584 | E | Unknown parameter or excluded reference position (callers/redelivery locators/clocks/names/nested literal members). |
+| PLAY0585 | E | Optional parameter feeds required target. |
+| PLAY0586 | E | Derived `<Specification>_<Case>` collides in scope. |
+| PLAY0587 | E | Unknown or incompatible parameter/target type. |
+| PLAY0588 | W | Unused parameter; remove it or use it intentionally. |
+| PLAY0589 | E | Singular effective expansion cannot handle a table; use `ExpandAll`. |
+| PLAY0526 | E | Route in command/read-model example; only event examples carry routes. Top-level `streamId = value` is payload. |
+| PLAY0543 | E | Malformed redelivery or not exactly one definite match with no undecided candidate; narrow `for`, values, `stream` or `no stream`. |
+| PLAY0548 | E | Route on `when <Command>` only; put it on the command declaration. Does not fire on redelivery locators. |
+
+Descriptions/documentation are report-only PLAY0270, not executable conditions.
+Case tables and persona callers expand before binding without a new ESM version.
+Routes do not make redelivery executable: it still reports PLAY0268.
+
+## Guarded interaction diagnostics
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0560 | E | Alternatives on a non-item trigger; only click/double click/select admit them. |
+| PLAY0561 | E | Alternatives mixed with plain actions or `where`; choose one form. |
+| PLAY0562 | E | Empty branch; supply a nonempty action list. |
+| PLAY0563 | E | One-line labeled-action `when … execute …` in an interaction; use an indented list. C# offers a typed repair. |
+| PLAY0564 | W/I | Item-trigger opaque `where` deprecated: a strict item condition warns with a C# repair to one `when`, no fallback; other text is information with no repair. Other triggers unchanged. |
+
+PLAY0563/0564 repairs need individual review and canonical formatting, refuse
+comment loss and do not support pinned evidence. TypeScript diagnoses but does
+not offer these repairs. Preview through MCP `propose-repair`, never text-patch
+around a refusal. Condition/subject errors also use guarded-action PLAY0341–0348.
 
 ## Structural completeness and timeline checks
 
@@ -59,6 +172,9 @@ as errors if gating. Ordinary compile success does not imply these ran:
 | query-keys | PLAY0535 | Query argument not representable by known identity/fields |
 | event-consumers | PLAY0536 | Latest local event generation lacks an operational consumer; a terminal fact can legitimately be reported |
 | navigation | PLAY0537 | Unreachable screens; unreachable cycles do not establish an entry point |
+| privilege | PLAY0652 | Elevated event-trigger producers must require every actor role; opaque gates are information, clock/application triggers exempt |
+| purposes | PLAY0602–0606 | Personal-data coverage, special/criminal safeguards, basis and unused-purpose prompts; union of ancestor/direct references |
+| personas | PLAY0574–0576 | Unused personas, unreachable gates and ambiguous buildable policy alternatives; unsynthesizable/undecidable is unknown |
 
 Whole-source errors skip completeness checks. Unknown/opaque coverage is not
 invented: report skipped status/coverage and walk field lineage manually.
@@ -75,15 +191,18 @@ before a retained glob; cycles and own-sub-feature findings have no repair.
 
 Monaco/VS Code use the TypeScript syntax/authoring compiler. They share projection
 and protected-identifier checks (PLAY0514/0515), typed-example syntax (0518/0519),
-guarded actions (0341–0348), and reaction-refusal syntax/checks (0538–0545).
+guarded actions (0341–0348, including item paths/input bindings 0345–0348),
+identity details (0633–0646), compliance/subject checks, reaction identity
+(0647–0649), and reaction-refusal syntax/checks (0538–0545).
 A shared catalog code is not proof that a check is implemented in both compilers.
 
 C# CLI/MCP owns whole-application scoped diagnostics, opt-in completeness
-(PLAY0530–0537), semantic binding and PLAY0546 (a negated claim targets optional,
+(including PLAY0530–0537, PLAY0602–0606 and PLAY0652), bound reaction gate
+checks PLAY0650/0651, semantic binding and PLAY0546 (a negated claim targets optional,
 unavailable-subject or non-text data). The VS Code repair bridge is not a general
 C# validator. A clean editor is not V1 for the complete application, V3 binding
 or V4 execution. Run the CLI or MCP for those verdicts. Authority:
-`v4.125.0:Documentation/screenplay/editor-diagnostics.md`, `diagnostics.md`.
+`v4.127.0:Documentation/screenplay/editor-diagnostics.md`, `diagnostics.md`.
 
 ## Consistency errors (V1: the model contradicts itself)
 | Code | Meaning |
@@ -99,7 +218,7 @@ or V4 execution. Run the CLI or MCP for those verdicts. Authority:
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
 | Code | Meaning | Fix |
 |---|---|---|
-| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists the common ones: handler, list or observable query, `@pii`, `produces when` over read models, v6 constructs on cratis before 3.28.2) | stay in design mode, or change the construct if the domain allows; never strip `@pii`/authorization |
+| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists the common ones: handler, list or observable query, `pii`, `produces when` over read models, v6 constructs on cratis before 3.28.2) | stay in design mode, or change the construct if the domain allows; never strip `pii`/authorization |
 | PLAY0269 / 0270 | UI deferred / authoring metadata (I) | none |
 | PLAY0271 | legacy `reads` or a `concurrency` block keeps its legacy meaning and cannot bind (error) | design gap; a constraint for uniqueness; protected decisions are a target requirement |
 | PLAY0273 | incoherent: ambiguous `for`, property not on event revision, operand type mismatch, derived `$eventContext` path | fix the reference |

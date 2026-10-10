@@ -59,7 +59,7 @@ renderers, authored screens are still reported as omitted/default composition.
 A component instance is a presentation of a typed Screenplay data context. The
 proposed syntax is:
 
-```screenplay
+```screenplay excerpt
 component <Package.Component> <instanceName>
   context <binding>
   property <property.path> from <binding>
@@ -115,7 +115,7 @@ screen actions with STAGE-SCENE-ACTION-001, not proof of runtime selection.
 
 Reusable templates can expose configuration and typed outlets:
 
-```screenplay
+```screenplay excerpt
 screen template MasterDetail
   category workflow
   type master-detail
@@ -148,14 +148,14 @@ installed parser/printer supports the scoped `template` directive before using i
 A form remains bound to exactly one command. The screens-release additions make
 its generated fields explicit when the automatic shape is not enough:
 
-```screenplay
+```screenplay excerpt
 form RegisterInvoiceForm for RegisterInvoice
   columns auto
 ```
 
 or:
 
-```screenplay
+```screenplay excerpt
 form RegisterInvoiceForm for RegisterInvoice
   columns manual
     column invoiceNumber label "Invoice #"
@@ -171,7 +171,7 @@ field.
 
 `ui profile` owns package priority and icon sets:
 
-```screenplay
+```screenplay excerpt
 ui profile Desktop
   target platform web
   layout AppShell
@@ -194,7 +194,7 @@ ui profile Desktop
 Navigation and toolbar items target the same typed destination contract: screen,
 named outlet, optional route parameters, and optionally a dialog.
 
-```screenplay
+```screenplay excerpt
 toolbar InvoiceToolbar
   item register action RegisterInvoice
     label "Register"

@@ -28,7 +28,7 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 
 | Tool | Command | Pass | Fail |
 | --- | --- | --- | --- |
-| Standalone 4.125.0 (preferred) | `screenplay <model-root> --warnaserror --no-color` | exit 0 and a nonzero compiled file count | exit 1 defects; exit 2 could not run/invalid arguments or input |
+| Standalone 4.127.0 (preferred) | `screenplay <model-root> --warnaserror --no-color` | exit 0 and a nonzero compiled file count | exit 1 defects; exit 2 could not run/invalid arguments or input |
 | cratis (fallback) | `cratis screenplay validate <model-folder> --warnings-as-errors -o json-compact` | exit 0 | exit 5; exit 1 means missing path or no files |
 
 - Validate the complete application root, not an independently selected fragment.
@@ -40,7 +40,8 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
   Exit/`--warnaserror` apply to that reported set; inspect the separate whole
   application counts before a whole-model claim. Unknown/ambiguous scopes exit 2.
 - `--check <names>` (repeatable) or `--check all` opts into completeness warnings
-  PLAY0530–PLAY0537. Whole-source errors skip them; a skipped check is not passed.
+  including PLAY0530–PLAY0537, purposes (PLAY0602–0606) and privilege (PLAY0652).
+  Whole-source errors skip them; a skipped check is not passed.
   Names/codes, coverage limits and editor support: `diagnostics.md`.
 - Warnings are failures here. PLAY0029 (a construct dropped silently) and the unresolved-name
   warnings are the defects this verdict exists to catch.
@@ -62,7 +63,7 @@ MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh o
    source revision).
 4. Report the codes with counts, blocking (error severity) apart from informational. A list
    with blocking entries is a valid V2 result (`V2 read: 6 blocking, PLAY0268 x3 list query,
-   @pii ...`); it is the evidence for a "V3 blocked" report. The view also lists
+   pii ...`); it is the evidence for a "V3 blocked" report. The view also lists
    information-severity diagnostics (PLAY0269 deferred UI, PLAY0270 authoring metadata such as
    descriptions, personas and screens) on models that bind; they do not block.
 
@@ -79,9 +80,9 @@ comparison needs it). Binding is what makes a model renderable at all. V3 means 
 never "specifications pass".
 
 - Report the ESM version the model needs: `V3 ready (screenplay 4.68.0, ESM v6)`,
-  `V3 blocked: PLAY0268 x3 (list query, @pii) - design scope kept`.
-- A blocked V3 is not repaired by deleting protection or domain rules. Never remove `@pii`,
-  `@sensitive`, authorization, list queries, automations or rules to reach V3; record the
+  `V3 blocked: PLAY0268 x3 (list query, pii) - design scope kept`.
+- A blocked V3 is not repaired by deleting protection or domain rules. Never remove `pii`,
+  `secret`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.
 - A model is executable only on the compiler that bound it. V3 does not carry
   to render admission: CLI 3.41.0 passes up to ESM v7 to Stage, refuses newer

@@ -3,6 +3,7 @@
   "input": "Design the slices for a new capability in a Screenplay model: commands, rules, read models and screens.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
       "value": "NOT enforced in the model today"

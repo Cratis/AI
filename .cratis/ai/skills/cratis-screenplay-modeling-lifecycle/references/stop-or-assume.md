@@ -58,5 +58,5 @@ given for a named target. Approval is not repeated for the same scope.
 
 ## Unblocking
 A scope leaves `blocked` only when its question is answered; record the answer as a decision in
-STATE.md and, when durable, in the model `description`. Re-blocking a blocked scope is a no-op.
+STATE.md and, when durable, in the model's fenced `documentation`. Re-blocking a blocked scope is a no-op.
 Blocked delivery scopes are reported in the packet; the main session creates any issue.

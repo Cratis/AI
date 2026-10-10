@@ -1,6 +1,6 @@
 # Traps (one line each, with the fix)
 
-Current pins: Screenplay 4.125.0 / CLI 3.41.0 (`versions.md`). Unless explicitly
+Current pins: Screenplay 4.127.0 / CLI 3.41.0 (`versions.md`). Unless explicitly
 updated below, [probed]/[source] rows retain their historical v4.66.0/CLI 3.28.2
 scope; negative capability claims there are not current verdicts. Current routes
 bind as v8, v7 reaches Stage planning, reference tests have CLI/MCP routes, and
@@ -29,7 +29,7 @@ exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 21. Quoted `import "x/*.play"` = my files; unquoted `import Ctx.Event` = another context's contract (does not bind: PLAY0268). [probed]
 22. Construct keywords are closed (`aggregate`, `saga`, `workflow` do not exist): PLAY0029 or PLAY0001/0022/0024.
 23. `@` escapes are mandatory for `tag`, `authorize`, `produces`, `reads`, `file`, `validate`, `sequence`, `occurred`, `causedBy`, `namespace`, `correlation`, `causation`, and projection `key`/`parent`/`with` as names.
-24. Comments do not survive canonicalizing edits (PLAY0288 reprint; `droppedCommentCount`); keep durable rationale in `description` text, not `//`.
+24. Canonicalizing edits can drop unplaceable comments (PLAY0288; inspect `droppedCommentCount`); keep durable rationale in fenced Markdown `documentation`, not `//`, and summaries in `description`. Documentation survives canonical printing but changes neither executable bytes nor `modelRevision`; it is not rendered code.
 25. MCP writes: propose, review, approval, apply by the identity owner (the session that owns the MCP connection); other subagents return edit requests; proposals are connection-local, at most 16 (`cratis-screenplay-model-authoring`).
 26. Operations/systems and exact numbers remain unadmitted. Sources/streams/routes bind and reference-execute as ESM v8 at 4.125.0; generated values/responses bind as v7. CLI 3.41.0 renders through v7 only, with construct-specific Stage refusals. Consult released grammar rather than inventing syntax from decisions.
 27. Translate vs Automation is semantic: external facts become local facts in `Translate`; in-app event-to-event goes in `Automation`.
@@ -43,8 +43,25 @@ exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 34. A `from <Event> key <property>` routes only if every such event carries that property: an event that frees or updates a row keyed by another stream's id must carry that id in its payload, or the row never changes. Whether the compiler reports a missing key property is unverified [to probe]; check by hand.
 35. `description`/`documentation` are authoring metadata: board, MCP and Prologue show them; `cratis render` never does (Stage#178). A rule only in prose is unenforced in rendered code; make it a rule layer, a spec or a recorded target requirement.
 36. One unadmitted construct (operations, exact numbers, refusal/redelivery) blocks whole-model binding. Routing is admitted v8, not one of those constructs; CLI render's v7 boundary is a separate refusal. Do not remove routing or authorization to render a model.
-37. Personas are not in the ESM (Screenplay#254); specs cannot reference them. Write `given caller` as the roles/claims that stand for the persona.
-38. A rule that depends on stored state is `reads <View>` + `require <expr> message "..."` (stated intent; PLAY0268/0271 at binding are expected in design mode). The slice `description` must mark it NOT enforced in the model today (Screenplay#129/#209) and name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc v22.39.0 and later; not available in a Stage-rendered app on Arc 22.25.0), Chronicle DCB (`concurrency` scope), or a constraint where one fits. Forbidden: caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX == true`), rules hidden in `handler`/implementation-hint prose. An unguarded materialized read is unsafe for a protected decision.
+37. Personas remain outside ESM bytes, but 4.127.0 specifications accept `given caller as <Persona>`: one authenticated deterministic policy witness, not every matching caller. Inspect the chosen `or` branch; use explicit callers when synthesis is refused.
+38. A rule that depends on stored state is `reads <View>` + `require <expr> message "..."` (stated intent; PLAY0268/0271 at binding are expected in design mode). The slice `description` must mark it NOT enforced in the model today (Screenplay#129/#209) and name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc v22.39.0 and later; available to gap-fill on Stage 4.51.3's Arc 22.50.5/Chronicle 19.32.0, not emitted protection), Chronicle DCB (`concurrency` scope), or a constraint where one fits. Forbidden: caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX == true`), rules hidden in `handler`/implementation-hint prose. An unguarded materialized read is unsafe for a protected decision.
+
+Current identity/compliance traps (v4.127.0 `identity.md`, `concepts.md`, `events.md`,
+`purposes.md`, `diagnostics.md`):
+- `$identity` built-ins alias `$context.identity`; declared detail reads are PLAY0268,
+  while an identity block alone does not block readiness. `scoped to` is opaque,
+  not a detail reference. Query sources need keyed single compatible results and
+  token-only keys/gates that do not depend on details.
+- `pii personal` repeats one marker (PLAY0653). Legacy markers are accepted but
+  deprecated (PLAY0565); repairs preserve notes, never invent legal content.
+- Event `subject` is report-only (PLAY0270), not emitted C# `[Subject]` or runtime
+  lineage. Keep stream identity, data subject, encryption scope and policy subject apart.
+- Purpose metadata/checks/records declare processing, not lawfulness or retention.
+- PLAY0504 is an error; stream-id text is nonempty well-formed NFC (refuse, never
+  normalize), Double integer ids are within ±(2^53−1); canonical UUID comparison
+  ignores case. Protected concepts cannot be stream ids/parts/mapping sources (PLAY0515).
+- Run `--check privilege` on elevated event-trigger paths; opaque producers are
+  unknown, not safe. Arc needs `[ExecuteCommandsAsSystem]` to supply a principal.
 
 The SKILL.md top 12: 1, 4, 5, 6, 7, 10, 12, 13, 17, 18, 20, 21 (+ mode/version notes there). Traps 39 to 44 are tool traps added at the 4.66.0 pin.
 39. A handler never binds: PLAY0268 "Command '<n>' handler requires a constrained implementation attachment", with a file, a fence, `implementation` or `hint` alike. `implementation` and `hint` are accepted on a command handler, an operation execute/compensate phase and (from 4.65.0) a command property named rule, and are rejected on concept rules, built-in property rules and whole-command `require`/`validate` bodies; on a handler they are authoring intent only (no execution, lock or confirmation). A handler slice is gap-fill, not a customization of a rendered slice. [source, probed]
@@ -52,4 +69,4 @@ The SKILL.md top 12: 1, 4, 5, 6, 7, 10, 12, 13, 17, 18, 20, 21 (+ mode/version n
 41. MCP roots bug (4.63.1 and earlier, including the 4.60.1 bundled by cratis before 3.28.2; not present in 4.66.0 or cratis 3.28.2, probed): a dynamic-root server answers the roots request with an `id: null` error right after `notifications/initialized`; hosts treat it as fatal. `open-workspace.path` does not help. Start with a fixed root (`screenplay mcp <folder>`, `cratis screenplay mcp` in a project with `.cratis/ai.json`) or use 4.63.2 or later (cratis 3.28.2 or later). [source, probed]
 42. A symlinked model path is refused by the MCP server (macOS `/tmp` is a symlink); pass the physical path. Proposals are connection-local (at most 16); `apply` persists identities to `.screenplay/identities.json` and is not crash-atomic across files; never retry `apply` after `ApplyOutcomeUnknown`. [source]
 43. `modelRevision` is canonical semantic (line positions and descriptions do not change it; a file move only if it changes logical placement or application identity) and, without `identities.json`, changes with the root folder name; it is not comparable with a render's `semanticRevision`. Source identity for verdicts is the commit plus the digest from the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity"). [probed]
-44. `cratis render` neither builds nor tests; `--name` is required for plain source; `.cratis-render/` is control state and is never staged; Stage-rendered apps are on Arc 22.25.0 (no `[ProtectedDecision]`). `cratis` file mode versus folder mode (trap 6) and a stale `cratis` on `PATH` (`which -a cratis`) both silently change what a verdict means. [source]
+44. `cratis render` neither builds nor tests; `--name` is required for plain source; `.cratis-render/` is control state and is never staged; Stage 4.51.3 rendered apps pin Arc 22.50.5/Chronicle 19.32.0 (`[ProtectedDecision]` available to gap-fill, not automatically emitted). `cratis` file mode versus folder mode (trap 6) and a stale `cratis` on `PATH` (`which -a cratis`) both silently change what a verdict means. [source]

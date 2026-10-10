@@ -57,7 +57,7 @@ non-renderable scope:
 | fallback location | project and folder of the hand-written code |
 | spec mapping | `.play` specification to test name, one line each; missing tests listed |
 | field inventory | `n/n` command, event and read-model properties mapped; extras: none, or listed with reason |
-| realization requirements applied | explicit realization notes from slice descriptions applied, one line each; other description prose used as a hint is listed separately |
+| realization requirements applied | explicit realization notes from slice `description` or `documentation` applied, one line each; other description prose used as a hint is listed separately |
 | spec delta | at re-delivery: specifications added, changed or removed since `last verified`, each with test status |
 | divergences | where the code deliberately differs from the model, with reason and approver |
 | revisit trigger | issue and condition (for example "Stage#58 ships list queries") |

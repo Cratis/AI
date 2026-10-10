@@ -3,6 +3,13 @@
   "input": "Declare a Screenplay command with validation, authorization, a uniqueness constraint and a state-dependent rule.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "PLAY0653" },
+    { "kind": "skill-contains", "value": "personal` is an alias of `pii", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "report-only (PLAY0270)", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "--check purposes", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "PLAY0633–0646", "file": "references/context.md" },
+    { "kind": "skill-contains", "value": "The block is **authoring metadata**", "file": "references/context.md" },
     { "kind": "skill-contains", "value": "main `fd18129`" },
     { "kind": "skill-contains", "value": "produces event ProjectRenamed", "file": "references/inline-events.md" },
     { "kind": "skill-contains", "value": "name ProjectName = name", "file": "references/inline-events.md" },

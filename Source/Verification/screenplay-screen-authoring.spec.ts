@@ -60,7 +60,15 @@ test('UI composition guidance covers the screens-release authoring contract with
     const corpusPlayFiles = readdirSync(join(corpus, 'skills'), { recursive: true })
         .map(entry => String(entry))
         .filter(entry => entry.endsWith('.play'));
-    assert.deepEqual(corpusPlayFiles, [], 'Screenplay-owned .play fixtures must be linked, not copied into the AI corpus');
+    // These are corpus-authored insertion templates, not copies of product-owned fixtures.
+    const parentAssets = [
+        'cratis-screenplay-automations-and-translations/assets/pending-certificates.play',
+        'cratis-screenplay-automations-and-translations/assets/retry-sweep.play',
+    ];
+    for (const asset of parentAssets) {
+        assert.equal(readFileSync(join(corpus, 'skills', asset), 'utf8').match(/\/\/ @excerpt/g)?.length, 1);
+    }
+    assert.deepEqual(corpusPlayFiles.filter(file => !parentAssets.includes(file.replaceAll('\\', '/'))), [], 'Screenplay-owned .play fixtures must be linked, not copied into the AI corpus');
 });
 
 test('model authoring and rendering guidance require one source through MCP, render and runtime checks', () => {

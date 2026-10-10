@@ -3,6 +3,7 @@
   "input": "Add a berth allocation feature to this Cratis application that already has a Screenplay model. How should the work be done and verified?",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "Model first" },
     { "kind": "skill-contains", "value": "`Outcome:`" },
     { "kind": "skill-contains", "value": "V3 binding-ready" },

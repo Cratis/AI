@@ -74,11 +74,11 @@ work on a screen whose purpose is unsettled is rework.
 2. **Review the flow before adding layout.** Walk it screen by screen as text
    (format in `references/flow-review.md`). When the host advertises the MCP-Apps
    extension for the `screenplay` MCP server, `visualize-model` (a `proposalId` or a `sketch`) can also show it on
-   a board; that is optional, and the text review is enough on its own. Do not
+   a board; that is optional, and the text review is enough. Do not
    use the Stage sandbox as the review: it renders only part of a screen, and
    nothing here establishes that Stage renders an authored screen faithfully.
 3. **Add structure only to screens whose Level 1 is agreed**: template, sections,
-   forms, `on`/`uses`. Use Level 3 inline code last, and only where Level 2 cannot
+   forms, `on`/`uses`. Use Level 3 inline code last, only where Level 2 cannot
    say it.
 4. **Trace every field.** Each `form` `field` is a property of the form's command.
    A prefilled value comes from `populate` or `from`; a derived one from
@@ -132,7 +132,7 @@ or `regular` — phone landscape, phone portrait, desktop short, desktop tall.
 **`arrangement freeform`** declares one variant per matrix point. Excerpt, inside
 the `layout` above in place of its `arrangement flow`:
 
-```screenplay
+```screenplay excerpt
 arrangement freeform
   variant width regular, height regular
     place navigation at 0,0 size 240,fill
@@ -149,7 +149,7 @@ arrangement freeform
 
 Declared at module level, referenced by screens. Excerpt, inside a `module`:
 
-```screenplay
+```screenplay excerpt
 screen template MasterDetail
   fits slot content
   sidebar
@@ -178,7 +178,7 @@ difference. See `cratis-screenplay-read-surface` for the directives that go insi
 Excerpt, inside a `module`; the command, query and screen are declared in its
 slices.
 
-```screenplay
+```screenplay excerpt
 form RegisterInvoiceForm for RegisterInvoice
   populate via query GetInvoiceDefaults by customerId
   field invoiceNumber label "Invoice #"
@@ -204,7 +204,7 @@ level, so it disambiguates by module rather than by feature or slice.
 Excerpt, inside a `module` or `feature`; `Navigation` is the contribution point
 the layout above declares.
 
-```screenplay
+```screenplay excerpt
 contribute to Navigation
   navigate to InvoiceList
   label "Invoices"
@@ -240,8 +240,10 @@ acts. Three words carry it:
 | **Action** | a closed set: `execute`, `navigate to`/`navigate back`, `open dialog`/`close dialog`, `refresh`, `set … to`, `notify`, `confirm`, `raise` |
 | **Behavior** | a bundle of trigger-to-action bindings; inline (`on …`) or named (`behavior` + `uses`) |
 
-A complete example — a named behavior with parameters, attached with `uses`, and
-an inline `on` block with a continuation:
+Guarded alternatives and `where` deprecation:
+[guarded interactions](references/guarded-interactions.md).
+
+Complete named/inline behavior example:
 
 ```screenplay
 concept InvoiceId : Uuid
@@ -313,7 +315,7 @@ An existing success continuation does not imply a response contract.
 
 Excerpt: `AppShell` is the layout above.
 
-```screenplay
+```screenplay excerpt
 ui profile Desktop
   target platform web
   target size regular

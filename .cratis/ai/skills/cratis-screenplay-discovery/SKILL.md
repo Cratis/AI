@@ -54,7 +54,7 @@ Statements here were checked at those tags:
 | `<Type>[]`, shapes must be declared; `@pii` and `reason` on concepts | `v4.66.0:Documentation/screenplay/events.md`, `concepts.md` |
 | `then denied`, `given caller`, `then error` | `v4.66.0:Documentation/screenplay/specifications.md` |
 | PII on an event-source id is rejected by Chronicle (CHR0034); nullable event properties warn (CHR0012) | Chronicle `v19.32.0:Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs` |
-| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
+| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) at 4.66.0; current markers are in `cratis-screenplay-command-surface` | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
 
 Every complete `screenplay` fence in this skill compiles with the standalone compiler
 4.68.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.28.2.
@@ -88,7 +88,8 @@ to reach the intended result." With a brief, restate domain and goal in two sent
 
 **Unattended: assume visibly.** Never stop to ask. Take the most reasonable assumption,
 record it with its reason in the session STATE.md (`.ai-work/screenplay/<model-slug>/STATE.md`,
-untracked) and, when it shapes the model, in the feature `description`. Keep what the user
+untracked) and, when it shapes the model, in the feature's fenced `documentation` (a short
+**ASSUMED** marker may stay in its `description`). Keep what the user
 decided apart from what you assumed. Never guess silently.
 
 ## Procedure
@@ -111,7 +112,7 @@ decided apart from what you assumed. Never guess silently.
    a set-aside, an open question, or "does not apply, because ...". Unattended: model a lens
    fact only when the input implies it; otherwise record an open question.
 5. **Plot: order and branch** (`references/plotting-and-handoff.md`). Walk from the first
-   trigger to every end. In each event's slice `description` record what it comes **after**,
+   trigger to every end. In each event's slice `documentation` record what it comes **after**,
    what **causes** it (persona, schedule, outside party, other fact) and what it is **only
    allowed under** (intent). At every event ask what can happen next *instead*, including
    nothing, and which next steps may happen in any order. Classify forks: *outcome branch* (one
@@ -123,8 +124,15 @@ decided apart from what you assumed. Never guess silently.
    two business facts that make it meaningful. A simple state transition may carry no payload
    beyond its identity: do not pad events with fields just to reach a count. Domain names; `<Type>[]` for collections (declare the `type`); a
    `concept` for a value with its own meaning; classify personal data on the concept with
-   `@pii` and a reason now. `@pii` compiles but does not bind (PLAY0268 at 4.66.0): record it
-   as a known target gap; never drop it to get a clean result.
+   bare `pii` and a reason now; operational secrets use `secret` (4.127.0).
+   Either blocks binding (PLAY0268); record the gap, never drop protection.
+   Ask what use, lawful basis, retention, recipient/transfer and erasure needs the
+   data serves; declare those in a `purpose`, not a concept reason. Special/criminal
+   qualifiers describe the value, not legal permission. See command-surface
+   `references/compliance.md` for purpose coverage checks and the processing record.
+   For who-is-calling details, distinguish token claims from a keyed single-result
+   identity-source query or opaque implementation. The `identity` block is metadata;
+   executable detail reads remain unsupported. See `references/context.md` in command-surface.
 7. **Validate, gate, hand off.** After a coherent batch of edits (not every sentence) run V1
    with the tool and version named (`cratis-screenplay-toolchain`). Stop storming a workflow
    when the user says it is complete or both closing questions return nothing new; unattended,
@@ -144,7 +152,7 @@ decided apart from what you assumed. Never guess silently.
   matches alphabetically. Unimported folder files remain visible after ranked siblings.
   MCP `expand-layout` preserves this order with import barrels; an import-less
   `PlayFileWriter.Expand` layout falls back to path order. Order is presentation, not
-  execution or identity. Keep causes and branches in the feature `description` and STATE.md.
+  execution or identity. Keep causes and branches in the feature `documentation` and STATE.md.
 - A misspelt keyword inside a slice is only warning PLAY0029 and the block disappears: always
   validate with warnings as errors.
 
@@ -152,7 +160,7 @@ decided apart from what you assumed. Never guess silently.
 - An event is a fact the business wants to remember: past tense, business verb, two to four
   words, specific (`BerthAssigned`, not `BerthUpdated`). No generic edit events.
 - One business decision usually yields one event; several facts recognised separately may
-  yield several, with the reason in the slice `description`.
+  yield several, with the reason in slice `documentation`.
 - Calculated values are views, not events, unless the calculation is itself a decision the
   business must be able to show later (a quoted price, a fee set for the season).
 - Personas are roles with a purpose. A read-only persona is legitimate; a role that neither
@@ -162,7 +170,7 @@ decided apart from what you assumed. Never guess silently.
 - A hand-over from an outside party is named as the fact we learn from it
   (`MooringPermitGranted`). If most of a story is the outside party's steps, model only what
   crosses to us.
-- A rule that depends on stored state goes into the `description` of the slice it constrains
+- A rule that depends on stored state is recorded in `documentation` on the slice it constrains
   (`only if ...`), marked as stated intent not enforced in the model today, with its target
   enforcement named for `cratis-screenplay-streams-and-consistency` and
   `cratis-screenplay-slice-design`. Never state copies, attestation booleans or rules living

@@ -51,7 +51,7 @@ compiles can still mean something other than it seems: read the warnings.
 Excerpt: the concepts and the three events (each carrying `invoiceId`) are
 declared elsewhere in the model.
 
-```screenplay
+```screenplay excerpt
 readmodel InvoiceDetailsReadModel
   invoiceId     InvoiceId
   invoiceNumber InvoiceNumber
@@ -182,7 +182,7 @@ must be numeric.
 Excerpt, inside a `projection` whose read model has `customerId` and
 `customerName`:
 
-```screenplay
+```screenplay excerpt
 join customer on customerId
   with CustomerCreated
     customerName = name
@@ -206,7 +206,7 @@ A join cannot declare its own key or trigger removal — that is
 
 Excerpt, inside a `projection`:
 
-```screenplay
+```screenplay excerpt
 children lineItems identified by lineNumber
   from InvoiceLineItemAdded key lineNumber
     parent invoiceId
@@ -232,7 +232,7 @@ nested billingContact
 
 Excerpt, inside a `projection`:
 
-```screenplay
+```screenplay excerpt
 remove with InvoiceCancelled key invoiceId
 remove via join on CustomerAccountClosed
 ```
@@ -252,7 +252,7 @@ Excerpt: the events and the three read models (each with a keyed query) are
 declared elsewhere. Every event about an issue is appended with the issue's
 identifier as its event source.
 
-```screenplay
+```screenplay excerpt
 projection WorkItem
   from TitleChanged
     title = title
@@ -288,7 +288,7 @@ a single `status` field.
 
 Excerpt: the events and the `AccountBalance` read model are declared elsewhere.
 
-````screenplay
+````screenplay excerpt
 reducer Balance => AccountBalance
   on AmountDeposited
     ```csharp

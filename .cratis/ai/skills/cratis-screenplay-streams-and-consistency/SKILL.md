@@ -28,8 +28,8 @@ Require target evidence that the check ran: a concurrent first-append scenario a
 Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
 is `true` (a skipped check and a passing one look identical otherwise; a current client against
 an older kernel always reads `false`). This was source- and documentation-inspected, not
-concurrency-tested here. Stage-rendered apps pin Chronicle client 19.8.1: do not assume these
-APIs exist there; confirm the package version before recommending them.
+concurrency-tested here. Stage 4.51.3 rendered apps pin Chronicle client/kernel 19.32.0
+and Arc 22.50.5; the APIs exist for gap-fill, not as automatically rendered enforcement.
 
 ## Verified product sources
 
@@ -38,7 +38,7 @@ APIs exist there; confirm the package version before recommending them.
 | Screenplay | v4.68.0 (`79801bf`) | ESM v7 generated values (`generated identifier`, decision 0026) and decision 0025's numbering; the diagnostics below were read at v4.66.0 (`c89198b`): `identifier`, `for`, constraints, generations, `id` pins, diagnostics PLAY0019/0135/0268/0271/0273/0391-0393/0446-0449/0469/0471 |
 | Chronicle | v19.32.0 (`f17a2ff`) | CHR0012, CHR0034; open defects #3744, #4123, #4131 |
 | Arc | v22.50.5 | `[ProtectedDecision]` and `DecisionRead<T>` (since v22.39.0) |
-| Stage | v4.24.2 | rendered apps pin Arc 22.25.0 and Chronicle client 19.8.1 (unchanged from 4.24.0); admits ESM v4 but refuses evolved events with `STAGE-ESM-026` (migrations not rendered, Stage#204) |
+| Stage | v4.51.3 | rendered apps pin Arc 22.50.5 and Chronicle client/kernel 19.32.0; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
 
 Full pin table: `references/versions.md` in `cratis-screenplay-toolchain`. Re-check the three
 Chronicle issues before relying on a constraint in a later release.
@@ -52,13 +52,13 @@ Chronicle issues before relying on a constraint in a later release.
   themselves (`cratis-screenplay-scenario-coverage`), Chronicle C# mechanics
   (`cratis-chronicle-event-modeling`). See Route near misses.
 - Model-first applies: when an accepted model covers the scope, change the model and its
-  specifications, not code. Do not weaken authorization, `@pii` or rules to make a model compile.
+  specifications, not code. Do not weaken authorization, `pii` or rules to make a model compile.
 
 ## Interview phase
 **Skip if** the user or the model already states the stream identities, who owns each module, how
 much autonomy each side has, the external systems, and rough growth. Otherwise ask only what is
 missing, one question at a time, with options. **Unattended:** assume the most conservative
-option, mark it `ASSUMED` in the slice or module `description` and in the session `STATE.md`
+option, mark it `ASSUMED` in the slice or module `documentation` and in the session `STATE.md`
 (`.ai-work/screenplay/<model-slug>/STATE.md`), and continue.
 
 1. **Instance.** "What is the real-world thing this stream is about, and when does it start and
@@ -103,8 +103,8 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
      `unique event`, `released by`); list every event that sets the claimed value;
    - a state-dependent rule not reducible to those: write `reads <View>` + `require <expr>
      message "..."` as stated intent (PLAY0268/0271 at binding are expected in design mode) and
-     mark it **NOT enforced in the model today** in the slice `description`, with requirement,
-     missing guarantee, race consequence and the named target enforcement. Add a `STATE.md` row
+     mark it **NOT enforced in the model today** in the slice `description` with the named target,
+     and record requirement, missing guarantee and race consequence in the slice `documentation`. Add a `STATE.md` row
      with an owner. A general "some rules are unsupported" note is not enough.
    - Forbidden: a caller-supplied copy of state in `require`, a boolean attestation input
      (`confirmsX == true`) standing in for a rule, and rules hidden in `handler` or
@@ -118,9 +118,14 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
 4. **Set granularity.** One decision usually records one event; several facts are fine when each
    is a fact the business recognises. Different meanings get different events, not a flag with
    nullable siblings. Event properties are required by default (CHR0012, PLAY0350): an optional
-   detail is a separate event, and any deviation is justified in the description. One data
-   subject per event and stream; never personal data, a secret, or a `@pii` or `@sensitive` concept as the identifier (CHR0034, CHR0052):
-   use a surrogate `Uuid` and a `@pii` or `@sensitive` property.
+   detail is a separate event, and any deviation is justified in the event's `documentation`. One data
+   subject per event; never personal data, a secret, or a `pii`/`secret` concept as
+   identifier or subject (CHR0034, CHR0052, PLAY0515/0592). Use a surrogate identity
+   and protected payload. A stream identity and an event's data subject may differ:
+   trailing event-property `subject` records that lineage but is report-only
+   (PLAY0270), not runtime propagation or generated C# `[Subject]`. Without a
+   supplied subject, the runtime defaults to the event source; see command-surface
+   `references/compliance.md` for allowed types and the policy/encryption distinction.
 5. **Plan evolution** with `references/evolution.md`: classify each event change (additive,
    meaning change, rename, removal, split or merge) and write its compatibility scenarios before
    editing. Renames and other identity-affecting edits are made by the identity owner (the
@@ -129,7 +134,7 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
    interface and processor inventory, one real interaction walked across each boundary, coupling
    check. Keep team, module, stream and deployment boundaries distinct; inbound facts via
    Translate; unresolved decisions stay visible.
-7. **Record and gate.** Durable rationale in feature and slice `description`; open consistency
+7. **Record and gate.** Durable rationale in feature and slice `documentation`; open consistency
    decisions and capability gaps in `STATE.md`. Then the gate below.
 
 ## Rules
@@ -148,13 +153,23 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
   block compiles but is PLAY0271 at binding. Keep both when they state real intent; they are not
   protection. `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
-- `@pii` and `@sensitive` block binding (PLAY0268). Never remove them to pass a tool.
+- `pii` and `secret` block binding (PLAY0268); legacy markers are deprecated
+  (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
+  scalar/composite stream-id types and route mapping sources, including nested paths.
+- At 4.127.0 stream-id literals must be nonempty, well-formed NFC text (refused,
+  not normalized); integer ids in Double mode stay within ±(2^53−1). Exact mode
+  has no such bound but is unadmitted. PLAY0504 is an error for route/destination
+  nominal type mismatch. Composite ids use at least two named scalar parts,
+  complete named mappings and canonical comparison, not guessed legacy splits.
+  Stored key-schema changes require a new stream identity or migration; see
+  toolchain `references/sources-and-streams.md`.
 - Chronicle (open at v19.32.0): the SQL and InMemory providers do not settle unique claims
   (#3744); index updates run after commit and may fail silently (#4123); composite values can
   collide on the separator (#4131). A declared constraint is a declaration, not a runtime test.
-- `[ProtectedDecision]` is available in Arc v22.39.0 or later, **not** in Stage-rendered apps
-  (Arc 22.25.0). In a rendered app, record the rule as NOT enforced and choose the stream or
-  identity redesign (`references/consistency-and-concurrency.md`, section 3).
+- `[ProtectedDecision]` is available in Arc v22.39.0 or later, including Stage 4.51.3's
+  rendered package set. It is not emitted protection: gap-fill must enroll an admitted
+  decision read, or redesign the stream/identity when the shape is refused
+  (`references/consistency-and-concurrency.md`, section 3).
 
 **Modeling defaults** (deviate with a recorded reason)
 - One business identity per stream; cross-stream references are payload properties.
@@ -190,8 +205,8 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
 Do not report done until all hold; otherwise report what is open:
 - Every identifier has its identity sentence, the event-membership table and a justified decision.
 - Every rule has an invariant-table row with an exact construct or limitation reference.
-- Every `recorded` rule is in its slice `description` and `STATE.md` with requirement, missing
-  guarantee, race consequence and intended enforcement owner.
+- Every `recorded` rule has its NOT-enforced marker in the slice `description`, and its requirement,
+  missing guarantee, race consequence and intended enforcement owner in the slice `documentation` and `STATE.md`.
 - Every changed event has compatibility scenarios; identity changes were made by the identity owner.
 - Every changed boundary has a named owner (or `ASSUMED`), callers, processors and contracts.
 - Verdicts are stated V1-V5 per `cratis-screenplay-modeling-lifecycle`, each a result or "not run".

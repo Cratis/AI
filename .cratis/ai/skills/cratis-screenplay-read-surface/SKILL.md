@@ -43,7 +43,7 @@ newer main commit above; do not attribute their verification to the old tag.
 
 Excerpt, inside a `StateView` slice:
 
-```screenplay
+```screenplay excerpt
 readmodel AccountBalance
   description "What the account is worth right now"
   balance   Decimal
@@ -70,7 +70,7 @@ cannot select an instance of it.
 
 Excerpt: the concepts, the read model and the policy are declared elsewhere.
 
-```screenplay
+```screenplay excerpt
 query ListInvoices => InvoiceListReadModel[]
   description "Every invoice the caller may see, narrowed by status and customer"
   filter status     InvoiceStatus optional
@@ -114,7 +114,7 @@ query enforces it. A compiling query is not evidence that access control works.
 
 Excerpt, inside a `StateView` slice:
 
-```screenplay
+```screenplay excerpt
 query Mine => Timesheet[]
   scoped to identity
 query Everyones => Timesheet[]
@@ -130,6 +130,13 @@ down, rather than the one you get by forgetting."*
 **The scope is a name, not a closed set.** `identity` and `global` are the two the
 language documents, but the grammar accepts any name — what scopes exist follows
 the identity model of whatever runs the document. A query declares at most one.
+
+At Screenplay 4.127.0, `scoped to` remains an opaque name, **not** a reference
+to a declared identity detail. An `identity` query source must be keyed and return
+one result (possibly optional), with a type compatible with the detail; its key
+uses only caller built-ins/claims/literals and its effective gate cannot depend
+on details (PLAY0641–0646). Source resolution is metadata, not runtime execution.
+See command-surface `references/context.md` for the full contract.
 
 Treat every `scoped to global` in a review as a question to answer, not a detail.
 
@@ -179,7 +186,7 @@ commands and screens it names are declared elsewhere.
 
 **Level 1 — intent.** Data and actions; the tool generates the component.
 
-```screenplay
+```screenplay excerpt
 screen InvoiceList
   data InvoiceListReadModel[] via query ListInvoices
   action RegisterInvoice
@@ -190,7 +197,7 @@ screen InvoiceList
 **Level 2 — structure.** Named sections, tables and summaries filling a template's
 slots.
 
-```screenplay
+```screenplay excerpt
 screen InvoiceDetails
   template MasterDetail
     sidebar
@@ -239,7 +246,10 @@ One labeled user decision can choose among commands using ordered
 without an execute fallback hides it. Inputs use typed `with ... from ...`
 bindings; the selected command still enforces its own gate/rules/constraints.
 Read [guarded actions](references/guarded-actions.md) for the checked model,
-missing-versus-null behavior and source-versus-renderer boundary.
+missing-versus-null behavior and source-versus-renderer boundary. For a gesture
+choosing a whole action list rather than one labeled command, use block-form
+`when`/`otherwise` on click/double click/select:
+[guarded interactions](../cratis-screenplay-ui-composition/references/guarded-interactions.md).
 
 ## How a bare name resolves
 
@@ -253,7 +263,7 @@ real application declares 76 queries under 37 distinct names, with `All` appeari
 Reach across slices by qualifying with **any trailing part** of the scope.
 Excerpt: `Queue` and `Deviations` are sibling slices that each declare `All`.
 
-```screenplay
+```screenplay excerpt
 screen OverviewScreen
   data QueueReadModel[]     via query Queue.All
   data DeviationReadModel[] via query Preparation.Deviations.All

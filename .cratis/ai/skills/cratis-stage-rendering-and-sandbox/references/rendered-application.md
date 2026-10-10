@@ -7,18 +7,29 @@ render (see [render-example.md](render-example.md)).
 
 ## Scaffold pins
 
+The pin rows below are source-checked at Stage `v4.51.3`,
+`Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`,
+`CratisBackendApplicationScaffold.cs` and `CratisFrontendPackageSet.cs`.
+Earlier runtime/customization probes above keep their original labels.
+
 | Item | Value |
 | --- | --- |
 | Target framework | .NET 10 (`net10.0`), `Microsoft.NET.Sdk.Web` |
-| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, Arc testing) | `22.25.0` |
-| Chronicle client | `Cratis.Chronicle` and `.AspNetCore` `19.8.1`, matched to the `cratis/chronicle:19.8.1-development` image in the compose file |
+| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, Arc testing) | `22.50.5` |
+| Chronicle client | `Cratis.Chronicle`, `.AspNetCore` and `.Testing` `19.32.0`, matched to the `cratis/chronicle:19.32.0-development` image in the compose file |
+| Embedded reverse extraction | `CratisEmbeddedScreenplayEnabled=false`: the source `.play` is authoritative |
 | Test packages | xunit, NSubstitute, Cratis.Specifications; **Debug configuration only** (`IsTestProject` when Debug) |
-| Frontend | Vite and React, Components `4.14.0`, Scene `4.2.0`, Fundamentals `7.19.6` |
+| Frontend | Vite and React, Components `4.14.0`, Scene `4.10.0`, Fundamentals `7.19.8` |
 | Package management | central package management **off**; `Directory.Packages.props` is managed, do not edit it |
 
-Consequences: `[ProtectedDecision]` and `DecisionRead<T>` (Arc 22.39.0 and later) are not
-available in a rendered application; `[ExecuteCommandsAsSystem]` (Arc 20.56.0 and later)
-is. Upgrading Arc or Chronicle inside a rendered application is a re-render under a newer
+Consequences: `[ProtectedDecision]` (`Cratis.Arc.Chronicle.ReadModels`) and
+`DecisionRead<T>` / `IDecisionReads` (`Cratis.Chronicle.ReadModels`) are available
+in this scaffold's package set, as is `[ExecuteCommandsAsSystem]`. This is API
+availability, not Stage emission or runtime protection: gap-fill must opt into
+the protected command profile and enroll an admitted projection/key read in the
+active unit of work. Source-checked at Arc v22.50.5 `ProtectedDecisionAttribute.cs`
+and `CommandDecisionReads.cs`, Chronicle v19.32.0 `DecisionRead.cs`/`IDecisionReads.cs`.
+Stage does not turn `.play` `reads`/`require` into protected decisions. Upgrading Arc or Chronicle inside a rendered application is a re-render under a newer
 Stage, not an edit of the managed files. The compose file binds local ports `27017` and
 `35000`, keeps data in the named volumes `chronicle-data` and `chronicle-config`, and
 `docker compose down --volumes` is the only thing that deletes them.

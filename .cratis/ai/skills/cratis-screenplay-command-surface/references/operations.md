@@ -47,7 +47,7 @@ This complete authoring-only model compiles with `--warnaserror` at 4.125.0.
 `screenplay test` intentionally returns exit 3/unbound with PLAY0268; it proves
 no failure/compensation behavior today:
 
-```screenplay
+```screenplay test=unbound
 system Accounting
 concept ProjectId : Uuid
 module Projects

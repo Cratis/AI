@@ -32,7 +32,7 @@ source is the single flow model.
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs and canonical `optional`; changed examples compiled |
 | `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Binding behaviour of `handler`, code attachments, `persona` and compliance attributes: `Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs` |
 | `Cratis.Screenplay` | `4.68.0` (`79801bf`) | Historical generated-value/response rule probes (ESM v7) |
-| `Cratis.Screenplay` | `4.125.0` | Current source guidance: routes, operations, negation, protected identifiers and pre-generation contexts; released `commands.md`, `operations.md`, `policies.md`, `context.md`, `diagnostics.md` |
+| `Cratis.Screenplay` | `4.127.0` | Current identity and compliance guidance: released `identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`; changed examples compiled |
 
 Historical examples/probes retain the table's original versions; current source
 guidance is not a relabeled old execution result. Compilation checks syntax and
@@ -50,8 +50,8 @@ concept DiscountPercentage : Decimal
   validate
     >= 0    message "A discount cannot be negative"
     <= 100  message "A discount cannot exceed 100 percent"
-concept PersonName : String @pii
-  pii reason "Billing contact name; lawful basis: contract performance."
+concept PersonName : String pii
+  pii reason "Identifies the billing contact."
 concept InvoiceStatus : Enum
   draft
   sent
@@ -61,31 +61,19 @@ concept InvoiceStatus : Enum
 The seven primitives are `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date` and
 `DateTime`. `Enum` is **not** one of them — it is a separate concept kind, which
 is why the compiler says *expected … or Enum* rather than listing it among them.
-Attributes `@pii` and `@sensitive`, each with at most one `reason`; a
-reason for an attribute the concept does not declare is an error. **Compliance is
-inherited** — a property typed with a `@pii` concept is PII everywhere. The
-executable model does not bind compliance attributes (`PLAY0268`, "compliance attributes
-require portable data-subject semantics"), so a `@pii` model stops at authorable (V1);
-keep the attribute, because the classification is the point, and never drop it to bind
-or render.
+Use bare `pii` for personal data (`personal` is the same marker) and `secret`
+for operational secrets. **Compliance is inherited** from concepts, including
+nested uses. Either marker blocks executable binding with PLAY0268; keep the
+protection. `pii personal` is redundant and warns PLAY0653. Legacy `@pii`,
+`sensitive` and `@sensitive` remain accepted with PLAY0565 information and a repair.
+Read [compliance and purposes](references/compliance.md) for reasons, special/criminal
+qualifiers, secret scopes, provider mappings, purpose declarations and coverage checks.
 
-`@pii` is personal data (erasable); `@sensitive` is an **operational secret** (API key,
-token, a company's bank account number): encrypted at rest without erasure and withheld
-from the causation chain (Screenplay decision 0034, Screenplay#384). C# providers render
-`@sensitive` as `[Encrypted]` + `[NotAudited]`, `@pii` as `[PII]`, and `@pii @sensitive`
-as `[PII]` only, because Chronicle rejects `[PII]` with `[Encrypted]` (`CHR0053`); Stage
-renders this from v4.29.0. The executable model still stops at `PLAY0268` for either.
-
-⚠️ **Identifiers are neither `@pii` nor `@sensitive`.** Chronicle rejects `[PII]` on an
-event source id (`CHR0034`) and `[Encrypted]` on one (`CHR0052`); Screenplay reports
-`PLAY0515` for `@pii` from Screenplay 4.69.1 and for `@sensitive` from 4.84.1, on a
-command identifier, an explicit `for` destination or an event source identifier; earlier
-versions compile it silently and only Chronicle catches it. Current PLAY0515
-also covers scalar stream-id types, composite parts and nested route mapping
-sources. It is a source error, including typed destinations, not a binding-only
-warning. Keep the stream identity a surrogate `Uuid`
-concept and carry the personal value (name, email) as a separate `@pii` property and a
-secret as a `@sensitive` property.
+**Identifiers cannot be personal data or secrets.** PLAY0515 is a source error
+for command identifiers, typed `for` destinations, event-source identities,
+scalar/composite stream-id types and nested route mapping sources, including legacy
+markers. Keep a surrogate identity and carry protected data in the payload.
+Chronicle likewise rejects `[PII]`/`[Encrypted]` identifiers (CHR0034/CHR0052).
 
 ⚠️ **Enum trap.** A value literally named `validate` is read as an empty validate
 block. Write `@validate` for the value; the compiler warns when it sees the
@@ -99,7 +87,7 @@ commands reference; use `concept` for a single wrapped primitive.
 Excerpt: the concepts, the `InvoiceLine` type, the policy and the event are
 declared elsewhere in the model.
 
-```screenplay
+```screenplay excerpt
 command RegisterInvoice
   description "Registers a new invoice with its lines and payment terms"
   invoiceId      InvoiceId identifier
@@ -150,7 +138,7 @@ something whose identity the caller does not supply).
 Excerpt: the `Account` read model, its projection and its keyed query are
 declared elsewhere.
 
-```screenplay
+```screenplay excerpt
 command TransferFunds
   sourceId      AccountId
   destinationId AccountId
@@ -212,7 +200,7 @@ a rule that travels is worth more than one that is repeated.
 
 Excerpt: the policies are declared at the top of the model.
 
-```screenplay
+```screenplay excerpt
 authorize IsAccountant
           or IsCustomerSelf
 
@@ -244,8 +232,8 @@ choosing or omitting `for` on a production, or fixing `PLAY0469`-`PLAY0478`.
 
 - **Mapping sources** that bind to the executable model: a command property
   (`= invoiceNumber`), a literal (`= "draft"`, `= 0`), `$context.occurred`, and
-  the caller's audit identity (`$context.identity.id`/`.name`/`.userName`, the
-  same values as `$context.causedBy.*`). The last two select ESM v2.
+  the caller's audit identity (`$identity.id`/`.name`/`.userName`, also supported
+  as `$context.identity.id`/`.name`/`.userName`, the same values as `$context.causedBy.*`). The last two select ESM v2.
   `$context.tenant`, claims, roles, causation, `$env.` values, templates and
   computed expressions parse but block binding (`PLAY0268`).
 - **`for <identifier>`** on an indented line names the event source the event is
@@ -264,7 +252,7 @@ choosing or omitting `for` on a production, or fixing `PLAY0469`-`PLAY0478`.
   must bind on an older version.
   Excerpt:
 
-```screenplay
+```screenplay excerpt
 produces when isProForma == true
   ProFormaInvoiceIssued
     for invoiceId
@@ -272,8 +260,12 @@ produces when isProForma == true
 
 ## Routes and external operations
 
-Named event sources/streams and command routes bind as ESM v8 at 4.125.0;
-CLI 3.41.0 render rejects models above v7. The complete checked route example
+Named event sources/streams and command routes bind as ESM v8 (verified at 4.125.0);
+CLI 3.41.0 render rejects models above v7. A routed command's identifier and
+known event destinations must match the source's nominal identifier type
+(PLAY0504, error). Allocation uses the generated identifier's type, or without
+one requires a UUID-based source. Composite `streamId` routes map every named
+part exactly once; scalar `streamId T` and `streamId = x` remain valid. The complete checked route example
 and nested `streamId =` form are in `cratis-screenplay-toolchain`
 `references/sources-and-streams.md`.
 
@@ -317,7 +309,7 @@ Read `cratis-screenplay-toolchain/references/sources-and-streams.md` when author
 Chronicle's constraints enforce **uniqueness only**. Excerpt: the events are
 declared in the same model.
 
-```screenplay
+```screenplay excerpt
 constraint UniqueInvoiceNumber
   unique invoiceNumber on InvoiceRegistered
   released by InvoiceCancelled
@@ -353,7 +345,15 @@ not both win — a `validate` rule cannot do that.
 A policy has **exactly one** `require` line (`PLAY0441`) **or** one implementation, never both (`PLAY0440`). Read [references/policy-persona-seed.md](references/policy-persona-seed.md) when
 declaring a policy, a persona, or a `seed` block.
 
-## `$context`
+## Event data subject
+
+One event property may carry trailing `subject`; it identifies the person whose
+data the event holds, not the stream identity. Only unprotected required scalar
+String/Uuid or String/Uuid/Int-backed concepts are allowed. The mark is report-only
+(PLAY0270), changes no ESM bytes and emits no C# `[Subject]` yet; read models are
+not supported. See [subject lineage](references/compliance.md#identify-the-person-not-the-stream).
+
+## `$context` and `$identity`
 
 Four contexts, and **what each omits is load-bearing** — when writing a code body or a context/expression mapping, read
 [context.md](references/context.md) for the full member lists, the declarative
@@ -369,7 +369,7 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
 ## Verify
 
 - [ ] Validate the complete model root with warnings as errors; name the tool,
-      version and result. Current pins: standalone 4.125.0 / CLI 3.41.0; bundle
+      version and result. Current pins: standalone 4.127.0 / CLI 3.41.0; bundle
       compatibility and execution are separate checks.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
@@ -379,8 +379,9 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
       is stated.
 - [ ] Constraints are `unique` forms; no `file` constraint stands in for another rule.
 - [ ] Each policy has one `require` or one implementation, not both.
-- [ ] Personal data is `@pii` on the concept, with a reason; no identifier concept is `@pii`;
-      operational secrets are `@sensitive` (never `@pii`), and no identifier concept carries either.
+- [ ] Personal data is `pii` on the concept; operational secrets are `secret`;
+      no identifier or subject concept carries either. Reasons explain the value,
+      while purposes declare basis/retention; run `--check purposes` separately.
 - [ ] No `handler` where the model must bind, and no bodied construct described as
       runnable or renderable without saying which tool admits it.
 - [ ] No event carries an optional property covering two situations.

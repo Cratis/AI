@@ -37,7 +37,7 @@ The update follows `commands.md`, `events.md`, `types.md` and
 `specifications.md` at that main commit (after v4.52.0). This pass compiles the
 changed examples; it does not rerun the reference runner.
 
-Current specification syntax follows Screenplay v4.125.0 `specifications.md`;
+Current specification syntax follows Screenplay v4.127.0 `specifications.md`;
 older probes in the table remain historical. Pins: `cratis-screenplay-toolchain`
 `references/versions.md`. Compile commands check source, not reference execution.
 Use `screenplay test` or MCP `run-specifications` for V4; Stage/target tests are
@@ -95,13 +95,27 @@ Unsupported is not passed. Report it as "needs a target", not as green. "Specifi
 and "bound" are never "passing": run the reference CLI/MCP route or the owning
 target tests, and name the engine, version and expected/discovered selection.
 
+## Descriptions, persona callers and case tables
+
+Use one `description "<rule or behavior>"` (or a fenced `text` description) to
+name what the specification witnesses. It is report-only (PLAY0270), changing
+neither execution nor ESM bytes. Specifications do not accept `documentation`;
+put longer assumptions and rejected alternatives on the owning slice's fenced
+Markdown `documentation` block.
+
+`given caller as <Persona>` expands to one authenticated policy witness before
+binding. Named `parameter`/`case` tables share steps and read values as
+`case.<parameter>`; each case runs independently as `<Specification>_<Case>`.
+Read [persona callers and case tables](references/persona-callers-and-cases.md)
+for synthesis refusals, selection, provenance and a complete passing model.
+
 ## The vocabulary
 
 | Construct | Meaning |
 | --- | --- |
 | `given <EventType>` | prior state, established by replaying events before the action |
 | `given readmodel <ReadModelType>` | prior read-model state, established directly — a **complete** instance including its identifier |
-| `given caller` | the caller: `authenticated`, `role "<r>"`, repeatable `claim "<type>" = "<value>"`; empty means unauthenticated |
+| `given caller` / `given caller as <Persona>` | explicit caller (`authenticated`, roles, claims; empty means anonymous), or an authenticated synthesized persona witness |
 | `when <CommandType>` | run a command |
 | `when append <EventType>` | append one event: constraints and projections run, the command does not; reactions run only from ESM v6, where `then` lists what followed |
 | `when query <Query>` | perform a query with the argument values beneath it (v4.48.0) |
@@ -146,7 +160,7 @@ Rules the binder enforces:
 - **`then denied` stands alone**: not with events, errors or state assertions
   (`PLAY0388`). For a query, pair it with one `then query` that has `arguments`
   and no `result`.
-- **Authorized commands and queries need `given caller`** (`PLAY0389`). The runner
+- **Authorized commands and queries need `given caller` or `given caller as <Persona>`** (`PLAY0389`). The runner
   never invents a caller.
 - **`null` only in optional read-model values.** A `null` in a command or event
   value is `PLAY0350`: an optional fact is a separate event.
@@ -168,7 +182,7 @@ the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
 - **Rejections:** `then error "<message>"` matches the message whatever the rule's
   validation severity; no form asserts severity. Bare `then error` never matches
   a denial. Quote a localized key: `then error "$strings.invoices.reasonRequired"`.
-  The grammar takes only quoted messages here, never an unquoted `$strings` token
+  Besides a String `case.<parameter>`, the grammar takes only quoted messages here, never an unquoted `$strings` token
   (unlike a rule's `message` operand). The reference runner compares the symbolic key
   and requires the rejection to carry the string-key marker; it never loads
   translated text; resolving the key is the realization's job.
@@ -197,7 +211,10 @@ Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md
 
 Use typed `example` declarations for repeated event/command/read-model values;
 step overrides keep the action/outcome visible and carry authored/example/override
-provenance. Event `stream`/`no stream` assertions bind as ESM v8; typed `for` and
+provenance. Event examples can carry routes, replaced as a whole by a step.
+Redelivery locators may state `stream` or `no stream` to select one definitely
+matching given occurrence with no undecided candidates (PLAY0543); redelivery
+remains authoring-only. Event `stream`/`no stream` assertions bind as ESM v8; typed `for` and
 stream ids are not guessed. Read [examples and routes](references/examples-and-routes.md).
 
 `given operation ... fails`, `then operation` and `then compensated` describe
@@ -261,7 +278,7 @@ For view specifications:
 ## Verify
 
 - [ ] Validate the complete root with warnings as errors, naming tool/version.
-      Current standalone pin: 4.125.0. Run specification examples through
+      Current standalone pin: 4.127.0. Run specification examples through
       `screenplay test`; expected unadmitted syntax reports unbound, not passed.
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.

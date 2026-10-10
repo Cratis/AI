@@ -56,7 +56,7 @@ Outcomes:
 
 When a todo list is not needed: the effect is immediate, internal and cannot fail (a direct
 `produces` or co-production), and nobody needs to see pending work. Say why in the slice
-`description`; do not add a list just to follow a pattern.
+`documentation`; do not add a list just to follow a pattern.
 
 ## 3. Effects: `produces` vs `invokes`
 | | `produces <Fact>` | `invokes <Command>` |
@@ -80,8 +80,8 @@ not identity inferred from prose or an imperative pipeline call.
 Decide and record one of:
 1. **Internal ungated command** - only if the security design supports it: not reachable by
    outside callers in the target (verify; the model cannot show exposure), safe to repeat
-   (guarded by `unique event`), and touching one stream. State the reasons in the module
-   `description` (as `todo-list-example.md` does) and list "not externally exposed" as a target
+   (guarded by `unique event`), and touching one stream. State the reasons in module
+   `documentation` (the historical `todo-list-example.md` used a description) and list "not externally exposed" as a target
    requirement in `STATE.md`.
 2. **Direct `produces`** - when no decision is left (the fact is already decided) and nothing
    should refuse it.

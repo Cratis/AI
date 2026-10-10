@@ -62,7 +62,7 @@ both that the stored row is gone and that the keyed query returns nothing. The w
 (no key) is a design-mode expectation here: a list-query collection check does not run on the
 reference route, so record it in the matrix rather than asserting it.
 The source document also asserts the other terminal outcomes (`InvoiceVoided`, `InvoiceSettled`) the same way; they are not copied here.
-```screenplay excerpt
+```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification OpenInvoicesLifecycle1Empty
   given caller
     authenticated

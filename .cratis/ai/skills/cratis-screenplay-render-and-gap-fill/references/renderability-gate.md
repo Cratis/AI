@@ -33,7 +33,7 @@ ESM). Only the probe answers renderability. `PLAY0270` entries are information, 
 
 ## Triage rules
 - A capability gap never becomes a model fix by deleting meaning. Turning a list screen into a
-  keyed lookup, dropping `@pii`, removing authorization or a rule, or splitting a conditional
+  keyed lookup, dropping `pii`, removing authorization or a rule, or splitting a conditional
   outcome into separate commands is a **modeling decision** for the user and the modeler, made
   for business reasons, not to please the renderer.
 - A refusal never licenses dropping a specification, an event generation or a protection.
