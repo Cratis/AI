@@ -54,7 +54,7 @@ Statements here were checked at those tags:
 | `<Type>[]`, shapes must be declared; `@pii` and `reason` on concepts | `v4.66.0:Documentation/screenplay/events.md`, `concepts.md` |
 | `then denied`, `given caller`, `then error` | `v4.66.0:Documentation/screenplay/specifications.md` |
 | PII on an event-source id is rejected by Chronicle (CHR0034); nullable event properties warn (CHR0012) | Chronicle `v19.32.0:Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs` |
-| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
+| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) at 4.66.0; current markers are in `cratis-screenplay-command-surface` | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
 
 Every complete `screenplay` fence in this skill compiles with the standalone compiler
 4.68.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.28.2.

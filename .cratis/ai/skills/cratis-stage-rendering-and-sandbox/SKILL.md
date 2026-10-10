@@ -68,7 +68,7 @@ The `.play` model is the source of truth; Stage-managed output is derived from i
 - Hand-written code goes in `Customizations/` (unmanaged), in a separate project, or in
   an explicitly authorized gap-fill for scope Stage cannot render (`cratis-screenplay-render-and-gap-fill`).
 - A customization never makes a rejected model renderable, and never weakens modeled
-  authorization, validation or `@pii` to get past a refusal.
+  authorization, validation or personal-data and secret markers to get past a refusal.
 - Never claim a whole-application result from a subset of the model.
 
 ## Publication and recovery

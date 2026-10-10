@@ -102,7 +102,10 @@ An unknown `$context.` path is reported, so a typo does not silently become null
 
 At Screenplay 4.127.0, `$identity.<property>` is the same caller value as
 `$context.identity.<property>`. Prefer `$identity` in new mappings; the older root
-is supported, not deprecated. Built-ins are `id`, `name`, `userName`,
+is supported, not deprecated. The `cratis` CLI 3.41.0 bundles Screenplay 4.114.0, which predates both:
+its parser rejects a top-level `identity` block (`PLAY0001`), and with `--executable` it reads a
+`$identity.<property>` mapping as a raw expression (`PLAY0268`). Check these with standalone 4.127.0,
+and keep `$context.identity.<property>` where a model must go through `cratis render` today. Built-ins are `id`, `name`, `userName`,
 `isAuthenticated`, `roles`, `claims.<name>` (everything after `claims.` is opaque).
 Bare `$identity` reports PLAY0152; unknown properties report PLAY0155. Only
 `$identity.id`/`.name`/`.userName` bind in portable `produces` mappings, exactly
