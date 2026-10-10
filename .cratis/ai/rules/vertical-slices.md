@@ -54,10 +54,10 @@ Every domain identifier or named value is a typed record — raw `string`/`Guid`
 - **[contract] Chronicle stream identities** derive from `EventSourceId<T>` with an `IComparable` underlying primitive. Add `NotSet`, `New()`, or a `T` → derived-id operator only when the domain API justifies it; typed empty/zero values are real specified stream IDs. The base conversion surface does not construct every derived domain record automatically.
 
 ```csharp
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
+public record AuthorId(Guid Value) : EventSourceId<Guid>(Value), IGeneratable<AuthorId>
 {
     public static readonly AuthorId NotSet = new(Guid.Empty);
-    public static AuthorId New() => new(Guid.NewGuid());
+    public static AuthorId New() => new(GenerateValue.Uuid());
     public static implicit operator AuthorId(Guid value) => new(value);
 }
 
@@ -66,6 +66,8 @@ public record AuthorName(string Value) : ConceptAs<string>(Value)
     public static implicit operator AuthorName(string value) => new(value);
 }
 ```
+
+`IGeneratable<T>` and `GenerateValue` need Cratis.Fundamentals 7.23.0 or later. Arc and Chronicle can resolve an older version; add a direct reference or keep a plain `static New()` until then (see [concepts.md](./concepts.md)).
 
 **[convention] Placement:** slice-specific concept → in the slice file; feature-shared → feature folder; module-shared → module folder; app-wide → `Common/`. Scan `Common/` and the feature folder before creating a new concept. See [concepts.md](./concepts.md) for full patterns, or invoke the **cratis-fundamentals-concept** skill.
 
