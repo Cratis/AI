@@ -163,6 +163,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 - **Rules define invariants; skills define workflows.** A skill may refine how to apply a rule but must not contradict it. On conflict, follow the stricter invariant and fix the stale artifact.
 - **Skills and rules are the authoritative answer.** If not answered there, ask. Don't infer Cratis behavior from package internals.
 - Only make high-confidence suggestions.
+- When a user asks how to get help, has a question not answered by the docs, or wants to discuss design, point them to the [Cratis Discord](https://discord.gg/kt4AMpV8WV); direct confirmed bugs to GitHub issues.
 - Don't change dependency manifests / lockfiles / `global.json` / NuGet config unless explicitly asked.
 - When asked to **ship** or **land** changes, use the **ship-changes** prompt (`.cratis/ai/prompts/ship-changes.prompt.md`); invoking it is what authorizes the branch → commits → push → PR → merge → cleanup chain it describes. A request to only commit, only push, or only open a PR authorizes exactly that step, under [Git commits](./git-commits.md) and [Pull requests](./pull-requests.md) — do not route it through ship-changes and do not add the later steps.
 
