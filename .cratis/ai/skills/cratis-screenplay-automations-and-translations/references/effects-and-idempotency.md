@@ -25,6 +25,27 @@ or reaction. Choose and record one of:
 Payments, legal notices and anything costly or irreversible: prefer 2 or 3 and an idempotency
 key; write a reconciliation case.
 
+## Refusal disposition and redelivery
+
+At Screenplay 4.125.0 an invocation can state ordered `on refused` selectors for
+validation, constraint (optionally named) or explicit authorization denial.
+Bare refusal does not include authorization. A matching branch declares a fact
+or leaf `acknowledge`; `$refusal.reason`/`.message` are String details and
+`.constraint` belongs only to constraint selectors. This is **authoring-only**
+(PLAY0268), not evidence that a duplicate was safely acknowledged at runtime.
+
+Recovery syntax `when redelivered <Event> to <Reaction>` selects exactly one
+existing given occurrence; it is not append or replay. `then no events` makes a
+no-new-facts contract explicit but remains unadmitted too. Full selectors,
+occurrence matching and checked source examples: captures-and-reactions
+`references/refusals-and-redelivery.md`.
+
+Infrastructure/contract errors, Unsupported and concurrency are never domain
+refusals. No `by concurrency` exists: fail/retry transient contention. Record the
+actual target's disposition, trusted actor, durable delivery identity and external
+idempotency/reconciliation owner. A branch or observer receipt alone proves no
+cascade transaction or exactly-once external effect.
+
 ## Retry identity
 - The retry must carry the same identity as the first attempt: the stream id chosen before
   the first try (never a fresh id per attempt), and the same idempotency key outward.

@@ -1,10 +1,13 @@
 ## Generated values and responses (ESM v7)
 
-A `generated` command property and a `returns` response bind and execute from the standalone
-`screenplay` 4.68.0 (ESM v7, decision 0026; `commands.md` "Generated values and responses" at
-`v4.68.0`). The cratis CLI 3.28.3 bundles 4.66.0 and reports `PLAY0268` for them, and Stage 4.24.2
-refuses ESM v7 with `STAGE-ESM-016` (tracked in Stage#201), so a command that uses them is
-**not rendered yet**: hand-write it (gap-fill) with the model as the contract. Complete compiled example:
+A `generated` command property and `returns` response bind and reference-execute
+as ESM v7. Current pins are standalone Screenplay 4.125.0 and CLI 3.41.0
+(bundled Screenplay 4.114.0/Stage 4.51.3); `cratis-screenplay-toolchain`
+`references/versions.md` owns the table. CLI#261 is closed: CLI now admits v7
+to Stage planning, but its v7 canonical corpus receives Stage generated-value
+and response refusals STAGE-ESM-028/029. Do not turn this into a blanket compiler
+refusal or promise a render from binding alone. Preserve the contract for gap-fill
+where admission refuses. Historical rules below were read at 4.68.0. Complete compiled example:
 `cratis-screenplay-toolchain` `references/generated-responses-example.md`.
 
 ```screenplay excerpt
@@ -40,12 +43,11 @@ Rules (all read at `v4.68.0`):
 - Generated values give no idempotency, retry or deduplication guarantee. Specifications supply fixtures and assert
   the response: `cratis-screenplay-specifications`.
 
-Other decision 0023 constructs are still **authorable, never executable** (binding reports `PLAY0268`, so
-they stop a model at V1): operations, and named event sources and streams with command routes
-(`eventsource`, `stream`, `streamId`). **No supported ESM version admits them**, and they have no version number
-yet (decision 0025 numbers a version only at its release-ready admission). Syntax or MCP acceptance is not proof of
-execution. A model using sources, streams or routes can be authored and validated, but
-not bound, run or rendered; hand-write the code with the model as contract
-(`cratis-screenplay-toolchain` `references/sources-and-streams.md`). `derive` and `provide` have no documented syntax at that tag; treat them as
-planned and do not write them.
+Operations remain authorable/unadmitted (PLAY0268). Named event sources,
+streams and command/specification routes instead bind and reference-execute as
+ESM v8 at 4.125.0; CLI 3.41.0 render refuses versions above v7 before planning
+(CLI-RENDER-004). Syntax/MCP acceptance alone is not execution. Source/stream
+forms and realization boundary: `cratis-screenplay-toolchain`
+`references/sources-and-streams.md`. Do not infer further syntax or provider
+admission from decision numbers.
 

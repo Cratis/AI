@@ -31,16 +31,12 @@ source is the single flow model.
 | `Cratis.Screenplay` | `4.31.0` | Original examples and executable boundaries |
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs and canonical `optional`; changed examples compiled |
 | `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Binding behaviour of `handler`, code attachments, `persona` and compliance attributes: `Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs` |
-| `Cratis.Screenplay` | `4.68.0` (`79801bf`) | Current pin: generated values and responses (ESM v7): decisions 0025 and 0026, `commands.md`, `Semantics/Versions.cs`, `SemanticModelBinder.CommandProductions.cs` |
+| `Cratis.Screenplay` | `4.68.0` (`79801bf`) | Historical generated-value/response rule probes (ESM v7) |
+| `Cratis.Screenplay` | `4.125.0` | Current source guidance: routes, operations, negation, protected identifiers and pre-generation contexts; released `commands.md`, `operations.md`, `policies.md`, `context.md`, `diagnostics.md` |
 
-The update follows `commands.md`, `events.md`, `types.md`, `diagnostics.md`,
-`mcp/authoring-tools.md` and decision 0023 at that main commit (after v4.52.0).
-Compilation checks syntax and model consistency, not reference execution.
-
-Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
-`Documentation/screenplay/{commands,constraints,policies,context,concepts,diagnostics}.md`
-and decisions 0001 and 0003 established the original baseline. Changed examples
-use the newer main commit above; do not attribute their verification to the old tag.
+Historical examples/probes retain the table's original versions; current source
+guidance is not a relabeled old execution result. Compilation checks syntax and
+model consistency, not reference execution. Pins: toolchain `references/versions.md`.
 
 "Parses" and "runs" are different claims. The executable profile, and what
 each construct binds to, is in the `cratis-screenplay-model-authoring` language
@@ -84,7 +80,10 @@ renders this from v4.29.0. The executable model still stops at `PLAY0268` for ei
 event source id (`CHR0034`) and `[Encrypted]` on one (`CHR0052`); Screenplay reports
 `PLAY0515` for `@pii` from Screenplay 4.69.1 and for `@sensitive` from 4.84.1, on a
 command identifier, an explicit `for` destination or an event source identifier; earlier
-versions compile it silently and only Chronicle catches it. Keep the stream identity a surrogate `Uuid`
+versions compile it silently and only Chronicle catches it. Current PLAY0515
+also covers scalar stream-id types, composite parts and nested route mapping
+sources. It is a source error, including typed destinations, not a binding-only
+warning. Keep the stream identity a surrogate `Uuid`
 concept and carry the personal value (name, email) as a separate `@pii` property and a
 secret as a `@sensitive` property.
 
@@ -271,6 +270,19 @@ produces when isProForma == true
     for invoiceId
 ```
 
+## Routes and external operations
+
+Named event sources/streams and command routes bind as ESM v8 at 4.125.0;
+CLI 3.41.0 render rejects models above v7. The complete checked route example
+and nested `streamId =` form are in `cratis-screenplay-toolchain`
+`references/sources-and-streams.md`.
+
+Use `system`, `uses` and inline/standalone `operation` declarations to state
+external work in the authored production sequence, with execute/compensate phase
+intent. These remain unadmitted (PLAY0268), not post-commit reactions. Read
+[operation intent](references/operations.md) for forms, boundaries and checked
+failure/compensation specification syntax.
+
 ## `concurrency`
 
 Five dimensions, each at most once, and at most one `concurrency` block per
@@ -292,8 +304,9 @@ to the routed scope. This does not make command `reads` protected.
 
 ## Generated values and responses (ESM v7)
 
-A `generated` property and a `returns` response need standalone `screenplay` 4.68.0; the cratis CLI reports
-`PLAY0268` and Stage refuses them, so such a command is **not rendered yet**: hand-write it.
+Generated values/responses bind as ESM v7, including in the current CLI bundle.
+CLI 3.41.0 admits v7 to Stage planning; its canonical corpus gets generated-value
+and response refusals STAGE-ESM-028/029. Binding is not a render claim.
 Read [references/generated-values-and-responses.md](references/generated-values-and-responses.md) when adding or
 reviewing `generated` properties, `returns` responses, or decision 0023 constructs.
 Read `cratis-screenplay-toolchain/references/generated-responses-example.md` when adding generated command values or response assertions and you need a complete compiled example.
@@ -355,10 +368,9 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
 
 ## Verify
 
-- [ ] Standalone `screenplay <model> --warnaserror` (4.68.0) reports zero errors and zero
-      warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
-      (3.28.2 and 3.28.3 bundle Screenplay 4.66.0, ESM v6 at most; before 3.28.2 bundled 4.60.1, ESM v5
-      or lower). Name which tool produced the result.
+- [ ] Validate the complete model root with warnings as errors; name the tool,
+      version and result. Current pins: standalone 4.125.0 / CLI 3.41.0; bundle
+      compatibility and execution are separate checks.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
 - [ ] Format rules live on the `concept`; state-dependent rules are specifications.

@@ -32,16 +32,10 @@ source is the single flow model.
 | `Cratis.Screenplay` | main `fd18129` | Command-only inline event boundary |
 | `Cratis.Screenplay` | `4.66.0` (`c89198b`) | ESM v6: reactions, clock, trigger and capture specifications bind; `invokes` caller rule; probed with the standalone tool and its MCP server |
 
-The update follows `commands.md`, `events.md` and `diagnostics.md` at that main
-commit (after v4.52.0).
-
-Historical baseline evidence: the original examples were checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
-`Documentation/screenplay/{captures,captures/grammar,reactions,triggers,interactions,file-references,grammar,diagnostics}.md`
-and decisions 0003, 0006 and 0009; those original examples compiled with that
-version's compiler. The specification actions and ESM v6 text were checked at
-`v4.66.0` (see its row above), and the complete examples here and in
-`references/complete-examples.md` compile with the standalone 4.68.0 compiler.
-Reverify before claiming another version behaves the same.
+The table records historical examples/probes; they are not reclassified as
+current execution evidence. Refusal/redelivery guidance follows released
+v4.125.0 `reactions.md`/`specifications.md`. Current pins are in toolchain
+`references/versions.md`; reverify before promoting an old probe to that version.
 
 ⚠️ **Which tool admits them depends on its Screenplay version.** The ESM level
 decides, not the slice type:
@@ -50,14 +44,10 @@ decides, not the slice type:
   `Translate` slices, reactions, declared triggers and captures bind, and the
   reference runner executes them. Probed: the complete example below is
   `executableReady` over `screenplay mcp`.
-- **`cratis` 3.28.2 (bundles Screenplay 4.66.0, ESM v1-v6):** the same as the standalone
-  tool. Probed: the complete examples validate with warnings as errors and are
-  `executableReady` over `cratis screenplay mcp`. `cratis` before 3.28.2 (Screenplay
-  4.60.1, ESM v1-v5) failed an `Automation` or `Translate` slice at binding with `PLAY0268`
-  (*Slice '<name>' of type '<type>' is not admitted by ESM v1*), reported reactions as
-  *requires portable occurrence and effect semantics* and captures as *require a portable
-  compiled CDL plan*, and gave a false `PLAY0285` on a specification that follows a reaction
-  cascade (Cratis/cli#242).
+- **Historical CLI 3.28.2 / Screenplay 4.66.0 probe:** complete examples validated
+  and were executableReady through MCP. Earlier 4.60.1 bundles refused v6 at
+  binding and falsely reported PLAY0285 on cascades. Toolchain `references/versions.md`
+  separates that history from current pins.
 - **Stage 4.24.2** admits ESM v1-v4 and renders no `Automation` or `Translate`
   slice. The automation is gap-fill, with the `.play` slice and its specifications
   as the contract: `cratis-screenplay-render-and-gap-fill`.
@@ -69,7 +59,9 @@ Method (the four-part automation test, loops, translations versus automations):
 
 ## Specify what sets them off
 
-A specification names what sets the automation off: `when clock`, `when trigger` or `when capture`. No command runs these specifications; report one as authored, not executed.
+A specification names what sets the automation off: `when clock`, `when trigger`
+or `when capture`. Execute admitted scenarios through `screenplay test` or MCP
+`run-specifications`; source compilation alone is only authored evidence.
 
 Read [references/specifying-triggers-and-clock.md](references/specifying-triggers-and-clock.md) when writing a specification for a reaction, trigger or capture, or when the clock, occurrence or limit rules matter.
 
@@ -101,9 +93,19 @@ the input selection or not; nested paths and read aliases fail binding): keep th
 the invoked command or the implementation. Under `cratis` before 3.28.2 none of this
 bound at all (`PLAY0268`); `cratis` 3.28.2 binds it like the standalone tool.
 
+## Refusals and recovery redelivery
+
+At 4.125.0, invocation refusal selectors, `$refusal` branch values,
+`acknowledge`, `when redelivered ... to ...` and `then no events` are valid
+authoring intent but refuse binding with PLAY0268. Read
+[refusals and redelivery](references/refusals-and-redelivery.md) for first-match
+selectors, typed values, occurrence matching, diagnostics and the checked
+unbound example. Never acknowledge infrastructure or concurrency failures.
+
 ## Complete example (ESM v6)
 
-One document with every construct (application trigger, reactions on an event, a trigger, a view read and the clock, and a capture with specifications) is kept in the reference file.
+The reference document covers v6 triggers, event/clock reactions, view reads and
+capture specifications. Refusal/redelivery forms use their separate checked reference.
 
 Read [references/complete-examples.md](references/complete-examples.md) when you need a complete, compiling parent document for an excerpt or want to check the authoring and binding prerequisites.
 
@@ -338,7 +340,8 @@ something is reported. `Startup` and `Shutdown` are registered the second way.
       `PLAY0268` at binding and a false `PLAY0285` on cascade specifications, and report them
       as tool skew.
 - [ ] The tool that bound the model is named (Screenplay 4.61 or later, so standalone or
-      `cratis` 3.28.2 or later, for ESM v6 constructs); no tool runs the specifications.
+      `cratis` 3.28.2 or later, for ESM v6 constructs); reference scenarios use
+      `screenplay test`/MCP. Unadmitted refusal/redelivery is not executed evidence.
 - [ ] Each automation has all four components — occurrence, state consulted,
       conditional logic, resulting command or event. If it always fires
       unconditionally it is co-production, not an automation.

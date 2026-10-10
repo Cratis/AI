@@ -50,6 +50,15 @@ time: `CommandAs<T>()`, `ArgumentsAs<T>()`, `ArtifactAs<T>()`, `ValueAs<T>()`, a
 `StateAs<T>()`/`EventAs<T>()` on the reducer context. A payload of another type
 throws `ContextPayloadTypeMismatch`.
 
+At Screenplay 4.125.0, typed contexts before generation (`CommandValidation`,
+`ConceptValidation`, `RulePredicate`, `PolicyPredicate`) expose **input properties
+only**. Generated values exist only after authorization/validation, so they are
+absent from those shapes. A generated identifier's policy subject is `unavailable`,
+not the eventual id; never authorize against it. The handler CommandContext retains
+the full command shape, including generated properties. Sidecars belong to the same
+compilation/revision as their requirements, not a shape borrowed from another model.
+Source: `v4.125.0:Documentation/screenplay/context.md`.
+
 ## The values they carry
 
 | Type | Members |

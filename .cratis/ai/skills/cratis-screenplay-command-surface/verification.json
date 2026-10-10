@@ -75,13 +75,13 @@
     },
     {
       "kind": "skill-contains",
-      "value": "No supported ESM version admits them", "file": "references/generated-values-and-responses.md"
+      "value": "streams and command/specification routes instead bind and reference-execute as", "file": "references/generated-values-and-responses.md"
     },
     { "kind": "skill-contains", "value": "Generated values and responses (ESM v7)" },
     { "kind": "skill-contains", "value": "A generated value is not a request input", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "(`PLAY0273`), and a concept with any validation rule cannot back a\n  generated property (`PLAY0268`)", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "A response exists only on acceptance", "file": "references/generated-values-and-responses.md" },
-    { "kind": "skill-contains", "value": "**not rendered yet**", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-028/029", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "4.68.0" }
   ]
 }
