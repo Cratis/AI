@@ -72,7 +72,7 @@ the problem, the checks it violates, the fix, all pinned to one declaration.
 | Infrastructure as Translate | DB maintenance, cache or job bookkeeping modeled as external facts | pollutes the domain | D | leave out, or classify as maintenance |
 | Projection-level `key` | `key` on the projection, not on `from` | ignored (PLAY0381) | C | move to `from` |
 | `#` comment | `#` used as a comment | PLAY0001 at top level; PLAY0029 (dropped) inside a slice | C | `//` or `description` |
-| Comment-only rationale | design rationale only in `//` comments | dropped by canonicalizing edits | D | move to `description` text |
+| Comment-only rationale | design rationale only in `//` comments | unplaceable comments can be dropped by canonicalizing edits | D | move real reasoning to fenced Markdown `documentation`; keep only the summary in `description` |
 
 ## People and flow
 | Name | Signal | Why it matters | Tier | Fix |

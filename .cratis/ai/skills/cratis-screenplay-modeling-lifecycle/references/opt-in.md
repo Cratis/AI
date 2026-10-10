@@ -26,11 +26,13 @@ disables registration"; `AiConfiguration.McpServers`, read by `AiMcpDescriptor.R
 `git -C <cli checkout> show v3.28.2:Source/Cli/Commands/Ai/AiMcpDescriptor.cs`.
 
 ## Model root and the committed-`.play` test
-The corpus rule keeps `.cratis/screenplay/` as the default root for the committed-`.play` test.
-Because a 3.28.x MCP server may place a new model under `Source/`, `src/` or `Screenplay/`, a
-repository whose accepted model lives elsewhere is not opted in by rule (a) alone: it must set
-`mcpServers.screenplay.root` to that directory, which is rule (b). When such a model exists
-without the setting, report the mismatch instead of treating the repository as opted in.
+The model root is the folder holding the project's `.play` files; absent an existing
+model, use `Source/` or `src/`, else `Screenplay/` at the repository root, never
+under `.cratis/`. An explicitly configured `mcpServers.screenplay.root` selects
+the root. A committed `.play` there is rule (a)'s opt-in signal without requiring
+the setting; setting a root is independently rule (b), even when empty. The legacy
+CLI discovery behavior above is historical evidence, not a default corpus root.
+Do not count unrelated documentation, samples or scratch files as the project model.
 
 ## Edge cases
 - `.play` files only under `.ai-work/`, a docs folder or a sample: not under the root, so not opt-in.

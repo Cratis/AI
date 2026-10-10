@@ -191,6 +191,16 @@ do not assume; it lands as `module`, `persona` and `import`; protocol in
 `cratis-screenplay-discovery`). Phase 2 designs one workflow at a time through all nine steps
 ([nine-steps.md](references/nine-steps.md): activities, Screenplay output, questions).
 
+## Keep modeling reasoning with its declaration
+
+Use `description` for summaries and fenced Markdown `documentation` on modules,
+features, slices, commands, read models and reactions (also events) for assumptions,
+boundaries and rejected alternatives. Do not leave that reasoning only in comments
+or disconnected notes. Both are report-only (PLAY0270), never executable rules.
+Specifications use `description` to name the witnessed behavior; longer reasoning
+belongs to their slice. Syntax, merge rules and diagnostics:
+[model reasoning](../cratis-screenplay-slice-design/references/model-reasoning.md).
+
 ## The prime directive: do not lose information
 
 Store what happened (events), not just current state. Events are immutable

@@ -13,9 +13,15 @@ complete givens) so they are the right form once binding is possible.
 Lineage matrix: `field-lineage.md`. State-transition table and rule coverage: `slicing.md`.
 Per-command refusal inventory: `command-inventory.md`.
 
-The per-event reason lines in each StateView `description` are the lineage record
-(`field-lineage.md`). Multi-line descriptions use a tagged ` ```text ` fence in a real model;
-they are written as one string here so this document stays a single compiling fence.
+This historical compiled example keeps per-event reasoning in StateView
+`description` strings. For current 4.127.0 authoring, keep descriptions as summaries
+and record lineage reasoning in fenced Markdown `documentation` (`field-lineage.md`).
+The historical source below stays unchanged; it is not the current placement recipe.
+
+The excerpt's Stage availability note is historical (Stage 4.24.x, Arc 22.25.0).
+Stage 4.51.3 pins Arc 22.50.5/Chronicle 19.32.0, so protected-read APIs are available
+to gap-fill; this neither admits these `.play` rules nor proves target protection.
+The original compiled excerpt is retained unchanged.
 
 ```screenplay
 domain Parcelpoint.Lockers

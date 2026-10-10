@@ -3,6 +3,10 @@
 
 # Guarded screen actions
 
+For a gesture choosing a whole action list, rather than a labeled action choosing
+one command, use [guarded interactions](../../cratis-screenplay-ui-composition/references/guarded-interactions.md).
+They share item conditions/subject rules but run once without a click-time refetch.
+
 ## Contents
 
 - State one user decision

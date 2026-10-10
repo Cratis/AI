@@ -73,7 +73,7 @@ are, is `cratis-screenplay-modeling-lifecycle` ("Decide the level first").
 4. Existing code has no authority over the contract.
 
 Precedence inside the contract. Executable parts of the contract beat prose: specifications,
-mappings, constraints and authorization first; then the `description` and realization notes;
+mappings, constraints and authorization first; then the `description`, `documentation` and realization notes;
 then issue text. If prose contradicts an executable part, that is a model defect: stop that
 scope, return an **edit request** (address, change, reason) and do not pick a side silently.
 Reading a question is not resolving it. Details: `references/contract-and-precedence.md`.

@@ -148,7 +148,7 @@ chain per slice before handoff (evidence template); never manufacture references
      `<Noun>Updated`): split by intent;
    - refusals: input or constraint rejection is `validate` / `require` / constraint plus
      `then error` with the exact message from code; authorization refusal is `authorize` plus
-     `then denied`. Legacy HTTP codes and check order go in the description;
+     `then denied`. Legacy HTTP codes and check order go in the slice `documentation`;
    - a state-dependent rule is `reads <View>` + `require ... message "..."`, marked **NOT enforced
      in the model today**, target named; a unique index with business meaning becomes
      `unique ... on <every event that sets it>` with `released by`

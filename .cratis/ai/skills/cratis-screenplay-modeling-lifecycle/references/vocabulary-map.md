@@ -21,7 +21,7 @@ speaks in them; never model board mechanics (lanes, node ids, positions).
 | Storyline (ordered beats) | a **family** of specifications sharing example data, each one transition (no storyline syntax at the verified Screenplay v4.66.0) | several spec classes | specifications |
 | Field validation | concept `validate` (every use) / command `validate`, `require` | `ConceptValidator<T>` / `CommandValidator<T>` | command validation |
 | Role permission ("Cannot") | `policy` + `authorize` + `then denied` spec; ownership via `claim ... matches subject` | `[Authorize(Policy)]`, generated policies | authorization |
-| Precondition on stream state | `reads` + `require` as stated intent, not enforced at the verified Screenplay v4.66.0 (target: Arc `[ProtectedDecision]` + `DecisionRead<T>`, or Chronicle DCB; `[ProtectedDecision]` is not available in Stage-rendered apps) | decision over a guarded read | command validation |
+| Precondition on stream state | `reads` + `require` as stated intent, not enforced at the verified Screenplay v4.66.0 (target: Arc `[ProtectedDecision]` + `DecisionRead<T>`, or Chronicle DCB; APIs available to gap-fill in Stage 4.51.3's Arc 22.50.5/Chronicle 19.32.0, not emitted protection) | decision over a guarded read | command validation |
 | Generated id (`derived:uuid4()`) | `generated` (authorable, not executable) | id supplied before `Handle()` | commands |
 | External system / outbound call | `Translate` slice (inbound); `system`/`operation` (authorable, not executable) or Automation (outbound) | `ICommandOperation` / reactor | operations, reactors |
 | HTML mockup | `screen` Level 1 + board (`visualize-model`) | default Scene composition | ui composition |

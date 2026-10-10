@@ -210,5 +210,7 @@ skill):
 - Never remove `pii`, `secret`, authorization, date or state-dependent rules to reach V3 or
   V5. Report blocked execution.
 - Narrowing the mode is the user's decision; widening back to design is always allowed.
-- Roadmap items that would change verdicts (a spec runner in the compiler tool, a lineage and
-  completeness report) stay "not available" until the toolchain skill lists them as released.
+- Never assume a roadmap item shipped. Current `screenplay test`, MCP
+  `run-specifications`, obligations/smells and opt-in completeness are released
+  at the toolchain pin; they do not prove full field lineage or target behavior.
+  Check `cratis-screenplay-toolchain` before changing a verdict.

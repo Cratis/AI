@@ -5,6 +5,8 @@
 - Warnings that hide defects (always validate with `--warnings-as-errors`)
 - Source reference and identifier checks
 - Caller identity, compliance and routes
+- Specification metadata, callers, cases and locators
+- Guarded interaction diagnostics
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -111,6 +113,52 @@ concept-subject, line-only `PreserveTrivia` repair, no document-root or pinned
 repair evidence. PLAY0565 supports one discovered `line` or a document-root
 migration. Preview every repair; legal notes never move automatically.
 
+## Specification metadata, callers, cases and locators
+
+Authority: Screenplay v4.127.0 `diagnostics.md`, `specifications.md`, `slices.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0558 | E | Module/feature/slice/command/read-model/reaction documentation must be one nonempty fenced Markdown block; remove repeats or fix the fence. Events retain PLAY0477. |
+| PLAY0559 | W | Conflicting module/feature documentation across files; first wins. Choose one owning text; identical copies are accepted. |
+| PLAY0572 | E | Malformed/unknown persona caller or body lines; use a declared top-level persona with no body. |
+| PLAY0573 | E (binding) | Persona synthesis refused (no policies, negation, required non-literal/role-URI claim, opaque or unresolved policy); inspect persona/policy/reason and use explicit `given caller`. |
+| PLAY0574 | W | Opt-in `personas`: persona gates nothing. |
+| PLAY0575 | W | Opt-in `personas`: gate denies every synthesized persona; unknown is not denial. |
+| PLAY0576 | I | Opt-in `personas`: multiple unpinned buildable `or` alternatives; inspect chosen witness or pin a policy. |
+| PLAY0577/0578 | E | Malformed parameter/case header; typed parameter has no body/default, case has a name and at most one inline assignment. |
+| PLAY0579/0580 | E | Duplicate parameter/case name. |
+| PLAY0581/0582 | E | Need parameters and cases; every case assigns each parameter exactly once, no extra names. |
+| PLAY0583 | E | Case value is not concrete or cannot normalize to its type. |
+| PLAY0584 | E | Unknown parameter or excluded reference position (callers/redelivery locators/clocks/names/nested literal members). |
+| PLAY0585 | E | Optional parameter feeds required target. |
+| PLAY0586 | E | Derived `<Specification>_<Case>` collides in scope. |
+| PLAY0587 | E | Unknown or incompatible parameter/target type. |
+| PLAY0588 | W | Unused parameter; remove it or use it intentionally. |
+| PLAY0589 | E | Singular effective expansion cannot handle a table; use `ExpandAll`. |
+| PLAY0526 | E | Route in command/read-model example; only event examples carry routes. Top-level `streamId = value` is payload. |
+| PLAY0543 | E | Malformed redelivery or not exactly one definite match with no undecided candidate; narrow `for`, values, `stream` or `no stream`. |
+| PLAY0548 | E | Route on `when <Command>` only; put it on the command declaration. Does not fire on redelivery locators. |
+
+Descriptions/documentation are report-only PLAY0270, not executable conditions.
+Case tables and persona callers expand before binding without a new ESM version.
+Routes do not make redelivery executable: it still reports PLAY0268.
+
+## Guarded interaction diagnostics
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0560 | E | Alternatives on a non-item trigger; only click/double click/select admit them. |
+| PLAY0561 | E | Alternatives mixed with plain actions or `where`; choose one form. |
+| PLAY0562 | E | Empty branch; supply a nonempty action list. |
+| PLAY0563 | E | One-line labeled-action `when … execute …` in an interaction; use an indented list. C# offers a typed repair. |
+| PLAY0564 | W/I | Item-trigger opaque `where` deprecated: a strict item condition warns with a C# repair to one `when`, no fallback; other text is information with no repair. Other triggers unchanged. |
+
+PLAY0563/0564 repairs need individual review and canonical formatting, refuse
+comment loss and do not support pinned evidence. TypeScript diagnoses but does
+not offer these repairs. Preview through MCP `propose-repair`, never text-patch
+around a refusal. Condition/subject errors also use guarded-action PLAY0341–0348.
+
 ## Structural completeness and timeline checks
 
 Opt in with `--check <names>` or MCP diagnostics `checks`, then treat warnings
@@ -126,6 +174,7 @@ as errors if gating. Ordinary compile success does not imply these ran:
 | navigation | PLAY0537 | Unreachable screens; unreachable cycles do not establish an entry point |
 | privilege | PLAY0652 | Elevated event-trigger producers must require every actor role; opaque gates are information, clock/application triggers exempt |
 | purposes | PLAY0602–0606 | Personal-data coverage, special/criminal safeguards, basis and unused-purpose prompts; union of ancestor/direct references |
+| personas | PLAY0574–0576 | Unused personas, unreachable gates and ambiguous buildable policy alternatives; unsynthesizable/undecidable is unknown |
 
 Whole-source errors skip completeness checks. Unknown/opaque coverage is not
 invented: report skipped status/coverage and walk field lineage manually.

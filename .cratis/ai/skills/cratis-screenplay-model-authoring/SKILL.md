@@ -130,9 +130,9 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
 3. Prefer `propose-rename` for supported logical renames: it coordinates fragments,
    repairs proven references and preserves assigned identities. Never substitute
    global string replacement for an explicit refusal.
-4. Use `propose-ast` for typed additions, replacements, removals and moves. Group
-   related cross-file changes in one batch so no broken intermediate state lands.
-   Parser-invalid source can be repaired by typed whole-document replacement.
+4. Use `propose-source` for whole text or `propose-ast` for typed edits
+   (Authoring defaults); `propose` is executable-only. Batch changes;
+   details: `references/mcp-tools.md`.
 5. Keep reference policy `Safe`. Use `Draft` only for deliberately requested
    unresolved model debt and report that debt; it does not waive structural,
    identity or binding-protection checks.
@@ -261,7 +261,8 @@ target or consequence expands.
 Readiness has two verdicts: `readiness.authoringAccepted` says the source is valid
 Screenplay; `executableReady` describes only the current executable subset. Do not
 call a model broken because it is not executable, and prefer `propose-ast` for
-full-language authoring. A rejected proposal lists its diagnostics: fix those, do not
+focused full-language edits, or `propose-source` for whole documents. A rejected
+proposal lists its diagnostics: fix those, do not
 retry the same input.
 
 ## Code attachments

@@ -23,6 +23,7 @@ probe; older probes retain their original labels in the other references.
 | Stage bundled by CLI | **4.51.3** | Same file; the CLI's runtime image follows its Stage package version |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
+| Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
 
 Check the actual executable before relying on this table: `screenplay --version`,
 `cratis --version`, MCP `initialize` → `serverInfo.version`. An older executable
@@ -92,6 +93,15 @@ still block binding; `personal` aliases `pii`. Legacy markers are accepted with
 PLAY0565 information, duplicates warn PLAY0653. Event `subject` and processing
 purposes are report-only metadata (PLAY0270); purpose checks/reports do not prove
 lawfulness or enforce retention. See command-surface context/compliance references.
+
+Authoring features source-checked in standalone 4.127.0: `propose-source`,
+`find-specification-obligations`, `find-modeling-smells`, specification descriptions,
+container/command/read-model/reaction documentation, routed redelivery locators,
+guarded item interactions, persona callers and named case tables. Discover schemas
+in the older CLI bundle rather than assuming parity. Cases/persona callers expand
+to ordinary ESM; metadata changes no executable bytes. Redelivery remains
+unadmitted even when its route is valid. Details: model-authoring MCP references,
+specifications, UI composition and `diagnostics.md`.
 
 ## Historical probes
 

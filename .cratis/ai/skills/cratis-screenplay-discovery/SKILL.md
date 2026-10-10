@@ -88,7 +88,8 @@ to reach the intended result." With a brief, restate domain and goal in two sent
 
 **Unattended: assume visibly.** Never stop to ask. Take the most reasonable assumption,
 record it with its reason in the session STATE.md (`.ai-work/screenplay/<model-slug>/STATE.md`,
-untracked) and, when it shapes the model, in the feature `description`. Keep what the user
+untracked) and, when it shapes the model, in the feature's fenced `documentation` (a short
+**ASSUMED** marker may stay in its `description`). Keep what the user
 decided apart from what you assumed. Never guess silently.
 
 ## Procedure
@@ -111,7 +112,7 @@ decided apart from what you assumed. Never guess silently.
    a set-aside, an open question, or "does not apply, because ...". Unattended: model a lens
    fact only when the input implies it; otherwise record an open question.
 5. **Plot: order and branch** (`references/plotting-and-handoff.md`). Walk from the first
-   trigger to every end. In each event's slice `description` record what it comes **after**,
+   trigger to every end. In each event's slice `documentation` record what it comes **after**,
    what **causes** it (persona, schedule, outside party, other fact) and what it is **only
    allowed under** (intent). At every event ask what can happen next *instead*, including
    nothing, and which next steps may happen in any order. Classify forks: *outcome branch* (one
@@ -151,7 +152,7 @@ decided apart from what you assumed. Never guess silently.
   matches alphabetically. Unimported folder files remain visible after ranked siblings.
   MCP `expand-layout` preserves this order with import barrels; an import-less
   `PlayFileWriter.Expand` layout falls back to path order. Order is presentation, not
-  execution or identity. Keep causes and branches in the feature `description` and STATE.md.
+  execution or identity. Keep causes and branches in the feature `documentation` and STATE.md.
 - A misspelt keyword inside a slice is only warning PLAY0029 and the block disappears: always
   validate with warnings as errors.
 
@@ -159,7 +160,7 @@ decided apart from what you assumed. Never guess silently.
 - An event is a fact the business wants to remember: past tense, business verb, two to four
   words, specific (`BerthAssigned`, not `BerthUpdated`). No generic edit events.
 - One business decision usually yields one event; several facts recognised separately may
-  yield several, with the reason in the slice `description`.
+  yield several, with the reason in slice `documentation`.
 - Calculated values are views, not events, unless the calculation is itself a decision the
   business must be able to show later (a quoted price, a fee set for the season).
 - Personas are roles with a purpose. A read-only persona is legitimate; a role that neither
@@ -169,7 +170,7 @@ decided apart from what you assumed. Never guess silently.
 - A hand-over from an outside party is named as the fact we learn from it
   (`MooringPermitGranted`). If most of a story is the outside party's steps, model only what
   crosses to us.
-- A rule that depends on stored state goes into the `description` of the slice it constrains
+- A rule that depends on stored state is recorded in `documentation` on the slice it constrains
   (`only if ...`), marked as stated intent not enforced in the model today, with its target
   enforcement named for `cratis-screenplay-streams-and-consistency` and
   `cratis-screenplay-slice-design`. Never state copies, attestation booleans or rules living

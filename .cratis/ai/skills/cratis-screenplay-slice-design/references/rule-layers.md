@@ -14,18 +14,18 @@ rendered code (Stage#178): a rule that exists only in prose is unenforced in ren
 | stored state (record exists, balance, current status) | `reads <View>` + `require <expr> message "..."` | stated intent, **NOT enforced in the model today** (PLAY0268/0271 at binding are expected in design mode; Screenplay#129/#209). Name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc 22.39.0 or later), Chronicle DCB (`concurrency` scope), or a constraint |
 
 An unguarded materialized read is unsafe for a protected decision; a guarded read is the
-supported route. Availability: `[ProtectedDecision]` and `DecisionRead<T>` need Arc 22.39.0 or
-later and are **not available in Stage-rendered apps**, whose scaffold pins Arc 22.25.0 (Stage
-4.24.0); never edit the managed dependency files to get them. For rendered scope, record a
-capability gap (or a separately verified compatible enforcement path, such as a constraint or
-a Chronicle DCB scope) and keep the rule as NOT enforced. Forbidden: caller-supplied copies of state in `require`, boolean attestation
+supported route. Availability: `[ProtectedDecision]` and `DecisionRead<T>` exist in
+Stage 4.51.3's Arc 22.50.5/Chronicle 19.32.0 package set, but Stage does not emit
+protected decisions. Gap-fill must use an admitted projection/key shape and active
+unit-of-work enrollment; do not edit managed dependencies. Keep the `.play` rule
+NOT enforced until its target enforcement is separately verified. Forbidden: caller-supplied copies of state in `require`, boolean attestation
 inputs (`confirmsX == true`), rules in `handler` / implementation-hint prose.
 
 ## Authorization is executable
 
 Persona Does/Reads/Cannot text is intent. Every Cannot line resolves to an `authorize` gate
-(policy or ownership claim) plus a `then denied` spec whose `given caller` carries the roles
-and claims standing for that persona; otherwise record a gap. Every command and query under an
+(policy or ownership claim) plus a `then denied` spec using `given caller as <Persona>` or an explicit
+caller for the effective gate; otherwise record a gap. Every command and query under an
 inherited module/feature `authorize` gets its own `then denied` spec. Ownership gates need a
 second caller with another claim value.
 
@@ -33,7 +33,7 @@ second caller with another claim value.
 
 Command property values are, by default, recorded in the causation chain of the events they
 produce, so treat them as permanent. Newer Chronicle versions can omit causation properties
-(`CausationPropertyRetention.Omit`, Chronicle v19.32.0); rendered apps pin Chronicle 19.8.1.
+(`CausationPropertyRetention.Omit`, Chronicle v19.32.0); Stage 4.51.3 rendered apps pin 19.32.0.
 Verify the actual auditing and retention configuration before relying on omission, and never
 audit secrets. Classify personal values as bare `pii` and operational secrets as
 `secret` on their concepts, never the identifier concept. Use a surrogate identity

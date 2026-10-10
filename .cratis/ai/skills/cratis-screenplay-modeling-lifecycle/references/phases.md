@@ -47,7 +47,7 @@ next skill loads (never skipped, also after a small change):
 ```
 The Interview Trail row's status becomes `done` and its key output one line. Also record, at any
 phase, a decision important enough that a later reader could misread the model (see
-`reasoning-notes.md` for when it belongs in a `description`).
+`reasoning-notes.md` for when it belongs in fenced Markdown `documentation`).
 
 ## P0 Intake
 - **Input**: the request, the repository, the project's model folder or the configured root.
@@ -77,18 +77,18 @@ phase, a decision important enough that a later reader could misread the model (
 
 ## P3 Specify (`cratis-screenplay-scenario-coverage`; modeling stance)
 - **Input**: the P2 model.
-- **Carry-forward**: coverage matrix, specifications, then reasoning descriptions for features with
+- **Carry-forward**: coverage matrix, specifications, then reasoning documentation, written last in P3, for features with
   real decisions (`reasoning-notes.md`).
 - **Gate**: matrix written before drafting; per command each applicable scenario type is a spec or
   "n/a" with a domain reason (one success plus one failure is not coverage); each gated command and
   query, including those under an inherited module or feature `authorize`, has its own `then denied`
-  spec with a caller fixture carrying the persona's roles or claims; each `produces when` has a spec
+  spec with a synthesized persona caller or an explicit effective-gate fixture; each `produces when` has a spec
   per branch; each value-unique constraint has a competing-claim spec; per read model a view spec, an
   update spec when several sources feed it, a removal or absence spec when it removes. A command-only
   pass fails the gate.
 
 ## P4 Self-check (`cratis-screenplay-model-review`, self-check; critic stance)
-- **Input**: the P3 model including reasoning descriptions.
+- **Input**: the P3 model including reasoning documentation.
 - **Carry-forward**: five verdict lines from fresh runs; the completeness walk; findings by tier.
 - **Gate**: completeness walk done (field origins, event consumers or terminal reasons); every gap
   fixed, accepted by the user, or an open question with its assumption. The critic reports; fixes go

@@ -28,7 +28,7 @@ assumption you take instead of asking.
 | Hotspots | Where does this go wrong, get disputed or need workarounds today? | Focuses depth | per hotspot: what happened the last time? |
 | Competition | Can two parties want the same thing at the same moment? | Uniqueness rules, competing claims | yes: who wins, and what does the other see? |
 | On behalf | Does anyone do this for someone else, or override it? | Authority and denial | yes: may they, and must we record who acted? |
-| In any order | After this, which next steps must wait for each other and which need not? | Ordering, later automations | they need not: say so in the feature description |
+| In any order | After this, which next steps must wait for each other and which need not? | Ordering, later automations | they need not: say so in the feature `documentation` |
 | Instead | At this point, what else could happen instead, including nothing? | Branches and endings | "nothing": does it expire or wait forever? |
 
 ## Interview flow

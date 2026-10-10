@@ -196,7 +196,7 @@ labelled as such. The user decides whether it is enough
   next phase, report pointer. Templates: `references/handoff-template.md`,
   `references/phase-report-inventories.md`; `references/reasoning-notes.md`;
   `references/code-reading-and-tokens.md`.
-  Read `references/handoff-template.md` when writing state, packets, questions, or edit requests; `references/phase-report-inventories.md` when producing a phase report; `references/reasoning-notes.md` when recording durable rationale in descriptions; and `references/code-reading-and-tokens.md` before choosing code-reading scope or compressing output.
+  Read `references/handoff-template.md` when writing state, packets, questions, or edit requests; `references/phase-report-inventories.md` when producing a phase report; `references/reasoning-notes.md` when recording durable rationale in `documentation`; and `references/code-reading-and-tokens.md` before choosing code-reading scope or compressing output.
 
 ## Route to one phase skill
 | Need | Skill |
@@ -213,7 +213,7 @@ labelled as such. The user decides whether it is enough
 
 Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes:
 `references/vocabulary-map.md`; worked example: `references/worked-example.md`; done checklist: `references/phases.md`.
-Read `references/worked-example.md` when needing an example of reasoning descriptions, constraints, and decided rejections.
+Read `references/worked-example.md` when needing an example of reasoning documentation, constraints, and decided rejections.
 
 ## Gate
 Done when: the mode's "done when" holds with fresh verdict lines; every open question has an

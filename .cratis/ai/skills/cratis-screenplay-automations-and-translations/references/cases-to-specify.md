@@ -38,7 +38,7 @@ One spec in the slice does not cover the others.
 | invalid | unknown code, wrong type | `translate` has no entry -> decide and specify |
 | changed / corrected | outside value changes after our fact | correction fact or open decision (`translation-patterns.md` §6) |
 | mis-correlated | reference points at the wrong stream | property constraint on the external reference, or an expert review case |
-| personal data | field we must not keep | excluded from the append mappings; note in `description`; the source record may still carry it |
+| personal data | field we must not keep | excluded from the append mappings; record the reason in `documentation`; the source record may still carry it |
 | authenticity / ownership | wrong source, tenant or entity reference | specify the rejection and name where it is enforced; capture metadata does not verify it |
 | each mapping branch | every recognized code has its intended local meaning | concrete payload and exact translated values; unknown code is a separate case |
 | same object, different occurrence | two legitimate events share a provider object id | both stay representable; dedup hits only the repeated occurrence |

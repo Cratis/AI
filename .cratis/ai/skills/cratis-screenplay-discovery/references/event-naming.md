@@ -56,7 +56,7 @@
 - Optional event properties: the default is none. Chronicle warns on nullable event
   properties (CHR0012) and a specification cannot state `null` for an event value (PLAY0350).
   Make the value required, or record the second situation as its own event. Keep `optional`
-  only for a detail the business genuinely may not have, with the reason in the `description`.
+  only for a detail the business genuinely may not have, with the reason in event `documentation`.
 - Does the event restate the creation event's fields (a generic edit in disguise)? Ask which
   business change it records; if none, name the specific correction or drop it.
 - Never put personal data in the event-source id; one data subject per event.

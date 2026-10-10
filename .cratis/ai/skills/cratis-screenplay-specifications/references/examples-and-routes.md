@@ -8,6 +8,7 @@
 - Typed examples
 - Effective values
 - Event routes
+- Redelivery locators
 - Operation and recovery intent
 
 ## Typed examples
@@ -96,6 +97,63 @@ Source: v4.127.0 `event-sources.md`, `specifications.md`, `diagnostics.md`.
 CLI 3.41.0 rendering rejects versions above v7 before planning, even though
 source compilation and reference routing pass.
 
+Command and read-model examples refuse routes (PLAY0526). Effective role and
+`for` checks use the inherited or replaced route: inherited `no stream` on a
+`given`/append is PLAY0547; incompatible destination/route pairs are PLAY0550,
+and contradictory expectations PLAY0551. Declaration checks still run on unused
+examples and routes overridden at every use. MCP route rows retain the origin
+(authored/example/override), with the replaced whole route on the stream/no-stream
+row and individual lineage on id parts.
+
+## Redelivery locators
+
+`when redelivered <Event> to <Reaction>` may contain a route, using the same scalar
+or complete composite `streamId` shape as event steps. No route is a wildcard;
+`no stream` selects the unrouted given. Compare effective, example-expanded givens.
+Every `for`, payload and route comparison is true, false or unknown: a definite
+mismatch excludes a candidate even when another comparison is unknown. Selection
+needs exactly one definitely matching candidate and **no undecided candidates**
+(PLAY0543). Equal duplicate givens remain separate candidates. Narrow with `for`,
+values, `stream` or `no stream`; do not guess an unknown value. A locator's `for`
+is optional but typed against the routed source when present.
+
+This complete syntax-only model validates on 4.127.0; `screenplay test` reports
+PLAY0268 for redelivery, not a passing scenario:
+
+```screenplay
+eventsource Account
+  identifier String
+  stream Transactions
+    streamId String
+module Accounts
+  feature Recovery
+    slice Automation Observe
+      event Recorded
+        amount Int
+      reaction Observer
+        when Recorded
+      example FirstPartition : Recorded
+        for "account-1"
+        stream Account.Transactions
+          streamId = "first"
+        amount = 10
+      specification RedeliveringTheSecondPartition
+        given FirstPartition
+        given FirstPartition
+          stream Account.Transactions
+            streamId = "second"
+        when redelivered Recorded to Observer
+          stream Account.Transactions
+            streamId = "second"
+        then no events
+```
+
+The second given replaces the example's **entire** route, independently of `for`,
+not just its id. PLAY0548 is command-action-only, never a locator route error;
+malformed routes use PLAY0547 and resolution/key-shape errors PLAY0549. MCP labels
+locator fixtures `whenRedeliveredEvent` with route-origin rows. Route admission
+alone does not admit redelivery or `then no events`.
+
 ## Operation and recovery intent
 
 Operation failure/request/compensation forms are authoring-only (PLAY0268):
@@ -108,4 +166,4 @@ remain unadmitted; they are not executed append scenarios. Forms, matching,
 acknowledgement and their whole-model refusal boundary are in
 captures-and-reactions `references/refusals-and-redelivery.md`.
 
-Authority: Screenplay `v4.125.0:Documentation/screenplay/specifications.md`.
+Authority: Screenplay `v4.127.0:Documentation/screenplay/specifications.md`.

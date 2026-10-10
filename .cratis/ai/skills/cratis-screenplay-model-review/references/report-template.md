@@ -42,7 +42,7 @@ Gaps: <capability gaps and tool-version gaps, e.g. a false PLAY0285 on cascades 
 Modules n, features n, slices n (StateChange n, StateView n, Automation n, Translate n),
 events n, commands n, read models n, specs n.
 Slices with at least one assertion: n of total (pct). Without: <names, at most 10, then "and N more">.
-Structural gaps per slice (skip gaps a description calls intentional): <slice: what is missing, or none>.
+Structural gaps per slice (skip gaps documentation explicitly calls intentional): <slice: what is missing, or none>.
 
 ## Phase 1: Element sweep (7 checks)
 Check S1: <short title>
@@ -65,6 +65,10 @@ Sweep summary: gated elements n, with denial spec n, NONE: <names>; field-copy s
 
 ## Coverage matrix
 <from the coverage matrix of `cratis-screenplay-scenario-coverage`; mark empty cells and weak n/a reasons>
+
+## Modeling reasoning
+Real decisions have fenced Markdown `documentation` on their owner, finalized at
+P3's end; `description` stays a summary. No prose is enforcement or review evidence.
 
 ## Dependencies
 Per slice: events consumed and the producing slice (orientation only, not build order); cycles found.

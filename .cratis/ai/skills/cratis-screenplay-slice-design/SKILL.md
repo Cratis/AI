@@ -31,7 +31,7 @@ Lifecycle, modes and hand-offs: `cratis-screenplay-modeling-lifecycle`.
 Skip if the request already names the command origins (screens, reactions, outside systems),
 the decision behind each shown field, and how fresh each view must be. Otherwise ask, in one
 batch, only what is missing. Unattended: assume visibly, record each assumption in the phase
-report and the slice `description`, and continue.
+report and slice `documentation`, and continue.
 
 1. **Origin of each action.** Is it (A) user-initiated only, (B) automated, (C) a mix, or
    started by a clock or outside system (schedule, webhook, feed)? Impact: separates screen
@@ -80,8 +80,8 @@ report and the slice `description`, and continue.
    standing in for a rule. Place each rule in its layer (`references/rule-layers.md`). A rule
    over stored state is written as `reads <View>` + `require ... message "..."` and marked
    **NOT enforced in the model today** in the slice `description`, with its target named (Arc
-   `[ProtectedDecision]` + `DecisionRead<T>` on Arc 22.39.0+, not available in Stage-rendered
-   apps; Chronicle DCB; or a constraint). Never copy state
+   `[ProtectedDecision]` + `DecisionRead<T>` on Arc 22.39.0+ (available to gap-fill
+   code with Stage 4.51.3's Arc 22.50.5/Chronicle 19.32.0); Chronicle DCB; or a constraint). Never copy state
    into the command as input or hide a rule in `handler` / hint prose; descriptions are not
    rendered (Stage#178). Fill the **refusal inventory**: success, each distinct refusal with
    layer and message, and the denied persona.
@@ -129,7 +129,7 @@ report and the slice `description`, and continue.
    actor sees each state change's result. Beyond Level 1: `cratis-screenplay-ui-composition`.
 8. **Lineage pass.** Build the matrix in `references/field-lineage.md` from the `.play` files
    (read them), not from memory or an earlier summary. For each read model, write one line per
-   contributing event in its StateView slice `description`: which fields it sets and why. An
+   contributing event in its StateView slice `documentation`: which fields it sets and why. An
    event with no reason does not belong in the view. A field without an origin is a gap: add
    the missing input or event field, or record an open question. Never invent a source.
 9. **Slice and continue** (`references/slicing.md`): state-transition table per entity; one
@@ -163,9 +163,14 @@ report and the slice `description`, and continue.
 
 - One command per `StateChange` slice (renderable: required, plus no `produces when`).
 - One business decision usually produces one event; a decision establishing several facts the
-  business recognises separately may produce several (say why in the `description`).
+  business recognises separately may produce several (say why in `documentation`).
 - Copy an identity into an event payload only when a consumer needs it as a value.
-- Keep durable design rationale in slice `description` text, not `//` comments.
+- Keep the one-line summary in `description`, including short status markers such as
+  **NOT enforced in the model today** (with its target) or **ASSUMED**; record durable
+  reasoning, assumptions, causes and rejected alternatives in fenced Markdown
+  `documentation` on the module, feature, slice, command, event, read model or reaction, not `//` comments or disconnected notes. These are report-only, not
+  enforcement. Read [model reasoning](references/model-reasoning.md) for owners,
+  syntax, folder merge and PLAY0558/0559.
 - Rule coverage: for each value carrying a rule, list every path that sets it
   (`references/slicing.md`). A constraint on a claim covers every event setting that claim;
   value invariants live in the concept so they travel; command-level conditions are reviewed
@@ -199,7 +204,7 @@ Slice design is done when these hold; otherwise report what is open.
       denied persona); every gated command and query has a `then denied` row.
 - [ ] Every event is past tense, a specific change, and consumed or justified.
 - [ ] Every read model has a consumer and, when the scope is executable, one unambiguous key (keyed queries all using the same `by` property).
-- [ ] Every StateView `description` gives a reason per contributing event; every read-model
+- [ ] Every StateView's `documentation` gives a reason per contributing event; every read-model
       field and screen field is traced; every `from` event sets a field.
 - [ ] No `screen` without `data` or `action`; every acting screen has `data` or a stated
       exemption.

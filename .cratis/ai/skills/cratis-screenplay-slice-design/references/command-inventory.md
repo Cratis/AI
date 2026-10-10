@@ -16,7 +16,7 @@ and each persona that must be denied becomes a `given caller` fixture. Build it 
 ## Command card
 
 Fill one card per command before (or while) writing the slice. Keep it in the phase report;
-durable rationale goes in the slice `description`.
+durable rationale goes in fenced Markdown slice `documentation`.
 
 ```text
 Command:        <ImperativeBusinessName>  (one decision)
@@ -76,7 +76,8 @@ Rules for filling it:
   as a gap. Persona description text is intent only.
 - A refusal that depends on stored state is a row marked **NOT enforced in the model today**
   with its target (Arc `[ProtectedDecision]` + `DecisionRead<T>` where Arc 22.39.0 or later is
-  available, which Stage-rendered apps are not; Chronicle DCB, or a
+  available, including Stage 4.51.3's rendered package set for gap-fill, not emitted
+  protection; Chronicle DCB, or a
   constraint). It still gets a spec row, because the intended behaviour is the contract.
 - A decided refusal never goes to open questions: it goes here, then to scenarios.
 - A refusal message is a fact of the design; keep the wording identical in the rule, the
@@ -101,7 +102,7 @@ Rules for filling it:
 | AssignLocker | caller is not an attendant | `authorize IsAttendant` | denied: Customer | RefusingACustomerAssigningALocker |
 | AssignLocker | locker already has a request | constraint `OneRequestPerLocker` | "The locker is already assigned" | AppendingASecondAssignmentOfALocker (`when append`: the command's own `require` would reject first) |
 | AssignLocker | request already has a locker | constraint `OneLockerPerRequest` | "The request already has a locker" | gap |
-| AssignLocker | locker is not free | `reads` + `require`, NOT enforced today | "The locker is not free"; target: `[ProtectedDecision]` (Arc 22.39.0+; unavailable in Stage-rendered apps, so a capability gap there) or DCB on the locker stream | RejectingASecondAssignmentOfALocker (pins the message; blocked until the target exists) |
+| AssignLocker | locker is not free | `reads` + `require`, NOT enforced today | "The locker is not free"; target: `[ProtectedDecision]` (Arc 22.39.0+; available to Stage 4.51.3 gap-fill, not emitted protection) or DCB on the locker stream | RejectingASecondAssignmentOfALocker (pins the message; blocked until the target exists) |
 | AssignLocker | request is not waiting | `reads` + `require`, NOT enforced today | "The request is not waiting for a locker" | gap (same) |
 | LockerById, ListLockers | caller is anonymous | module `authorize IsAuthenticated` | denied: no caller | RefusingAnAnonymousLockerLookup, RefusingAnAnonymousLockerList |
 | RequestById | caller is anonymous | module `authorize IsAuthenticated` | denied: no caller | RefusingAnAnonymousRequestLookup |

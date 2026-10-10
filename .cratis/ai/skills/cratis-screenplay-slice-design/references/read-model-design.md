@@ -127,7 +127,7 @@ it stays.
   (worklists, status awaiting an outside answer); one-shot otherwise. Design mode only
   (PLAY0268). If access can be revoked mid-session, record that the target re-checks per emission.
 - Never model paging or page size (no syntax, Screenplay#140). State the order in the query
-  `description` ("oldest first"); an unbounded list is a review question.
+  `description` ("oldest first"; queries do not accept `documentation`); an unbounded list is a review question.
 - A gated keyed query needs its own denial spec.
 
 Never drop a list query from a design model just to make it bind; record the capability gap.
@@ -260,7 +260,7 @@ module Berths
 
 ## Checks before handing off
 
-- The StateView slice `description` gives, per contributing event, the fields it sets and why
+- StateView slice `documentation` gives, per contributing event, the fields it sets and why
   (see `LockerBoard` in `worked-example.md`); extend it whenever a `from` is added. Shape of
   the note: `BerthBooked sets bookingId, status="booked": the view's creation event; the booking
   does not exist before it.` / `BoatArrived sets status="arrived", arrivedAt: the only
