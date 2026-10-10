@@ -32,8 +32,8 @@ module Invoicing
     description "Registering and managing the lifecycle of invoices"
 ```
 
-`description` is the optional **first body line** of a module, feature, slice,
-persona or command; at most one. Use a fenced block tagged ` ```text ` when one line
+`description` is optional on a module, feature, slice, persona or command;
+at most one, anywhere in its body. Use a fenced block tagged ` ```text ` when one line
 is not enough (a bare fence warns with `PLAY0397`).
 
 ## Step 2 — Brainstorm events
@@ -59,9 +59,10 @@ Phase skill: `cratis-screenplay-discovery`.
 Arrange into the timeline — the plot. *"What happens first? And then what
 happens?"* Identify the happy path **and** the alternative and error paths.
 
-**Output:** the order the slices will be written in. A folder round-trip sorts
-modules, features and slices by name, so the timeline is documentation, not
-structure.
+**Output:** the authored declaration/import order for the board, with causes
+and branches documented. Screenplay 4.125.0 MCP layouts preserve this presentation
+order with imports; an import-less `PlayFileWriter.Expand` layout uses path order.
+Timeline position does not impose execution order or change identities.
 
 ## Step 4 — Create wireframes
 
