@@ -4,13 +4,13 @@
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "`[ExecuteCommandsAsSystem(\"<role>\")]`" },
-    { "kind": "skill-contains", "value": "Screenplay#383" },
-    { "kind": "skill-contains", "value": "renders no Automation or Translate slice" },
-    { "kind": "skill-contains", "value": "never invent `runs as`" },
+    { "kind": "skill-contains", "value": "ESM v10" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-024" },
+    { "kind": "skill-contains", "value": "runs as system role" },
     { "kind": "skill-contains", "value": "**One meaning of Translation:**" },
     { "kind": "skill-contains", "value": "complete, open or blocked" },
     { "kind": "skill-contains", "value": "never write a mapping" },
-    { "kind": "skill-contains", "value": "V4 is \"not run: no route\"" },
+    { "kind": "skill-contains", "value": "run-specifications" },
     { "kind": "skill-contains", "value": "never skipped silently" },
     { "kind": "skill-contains", "value": "not applicable: no queue" }
   ]

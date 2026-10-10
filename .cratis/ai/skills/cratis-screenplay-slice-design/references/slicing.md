@@ -85,8 +85,9 @@ uncovered producer modules; `PLAY0553` marks unused declarations and `PLAY0556`
 mutual declarations as information. Ambiguous ownership is provisional, not proof
 of an undeclared dependency. Inspect MCP `dependency-graph`'s `declarations` view.
 
-Example: Payroll's Handover feature uses Timesheets.Approval and its sibling Runs.
-This states intent, not an execution dependency:
+Example: Payroll declares Timesheets; its Handover feature declares
+Timesheets.Approval and sibling Runs. These are dependency inventories, not
+actual references or execution dependencies:
 
 ```screenplay
 module Payroll

@@ -27,8 +27,10 @@ PLAY0268; they are separate capabilities, not evidence against v8 routing.
 
 An `eventsource` belongs to the application. Its `identifier` states the nominal
 source-id type; streams belong to that source. A command's `stream Source.Stream`
-selects the exact declared source/stream, with a nested scalar `streamId = <path>`
-for a keyed stream. An unkeyed stream takes no id. Composite stream ids instead
+selects the exact declared source/stream, with nested scalar `streamId = <value>`
+for a keyed stream. Portable mapping sources are required direct non-generated
+command properties or compatible scalar literals; nested paths can be authored
+but refuse executable admission with PLAY0268. An unkeyed stream takes no id. Composite stream ids instead
 use a bare nested `streamId` followed by all named part mappings exactly once.
 A property literally named `stream` is written `@stream` where the command clause
 would otherwise consume it. Do not invent source-only route syntax.

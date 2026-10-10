@@ -134,11 +134,13 @@ What binds depends on **which tool** you ask, so name the tool and its version:
 - `persona` declarations are report-only and never block; `@pii` and `@sensitive`
   concepts do block binding (`PLAY0268`). Keep them anyway: the classification is
   part of the model. Report the block.
-- Generated values and `returns` responses bind and execute from standalone 4.68.0 (ESM v7) but fail binding
-  with `PLAY0268` on the 4.66.0 bundled in `cratis` 3.28.x, and Stage 4.24.2 does not render them
-  (`STAGE-ESM-016`, tracked in Stage#201): gap-fill. Operations and systems, and event sources and
-  streams, are authorable but non-executable (`PLAY0268`; not admitted by any supported ESM version);
-  a command `handler` never binds.
+- Generated values/responses bind and reference-execute as v7; sources, streams
+  and command/specification routes as v8; reaction `runs as` identity as v10 on
+  standalone 4.125.0. Use `screenplay test` or MCP `run-specifications` for V4.
+  Operations/systems, exact numbers and refusal/redelivery remain unadmitted.
+  CLI 3.41.0 bundles older syntax and renders through v7 only: its parser rejects
+  `runs as`, and Stage refuses generated values/responses with STAGE-ESM-028/029.
+  Source/binding admission and target realization are separate gates.
 
 The ESM versions, the full disposition table and the Step 7 clock example's binding
 result are in [references/parsed-not-runnable.md](references/parsed-not-runnable.md)

@@ -64,7 +64,13 @@ for identity-stable selection.
 
 Screenplay `v4.125.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports schema
 pairs through v10. Generated values/responses and policy negation select v7;
-sources/streams and command/specification routes select v8. A source construct
+sources/streams and command/specification routes select v8; reaction
+`runs as system [role "<Role>"]` selects v10 and reference-executes on 4.125.0.
+The checked trusted-actor scenario is in captures-and-reactions
+`references/invocation-identity.md`. CLI 3.41.0's 4.114.0 compiler rejects its
+source with PLAY0137 (validation probe, exit 5). Stage 4.51.3's direct planner
+uses EsmSchemaV7Support and refuses v10 with STAGE-ESM-016; CLI's version gate
+separately refuses above v7 with CLI-RENDER-004. A source construct
 still requires explicit binder/runner/provider admission: operations, exact
 numeric mode and reaction refusals/redelivery remain authorable but unadmitted
 (`PLAY0268`). Never delete those contracts to obtain a green bind.

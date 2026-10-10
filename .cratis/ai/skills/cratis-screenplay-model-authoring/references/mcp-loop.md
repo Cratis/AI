@@ -118,8 +118,8 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    Proposed, and its `sketch` argument previews a what-if of whole documents
    without writing. An
    unintended executable regression is discarded (`discard-proposal`) and
-   re-proposed. Intent the user has accepted that does not run yet (`system`/`operation`, `eventsource`/`stream`, and `generated`/
-   `returns` on a tool older than 4.68.0; `PLAY0268` by design)
+   re-proposed. Intent the user has accepted that does not run yet (operations,
+   exact numbers or refusal/redelivery; PLAY0268 by design)
    may be applied from a reviewed `Authoring` proposal: disclose the new
    diagnostics, report V3 as not binding-ready, and never drop or stub the
    construct. The server's own guidance is to apply such a proposal only when
@@ -164,7 +164,8 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 | Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479`, `0516` (and recipe-only `0397`) | `propose-repair` with `formatting`; PLAY0166/0478 may pin attachment evidence (`pinRepairEvidence` and `expectedRepairEvidenceRevision`), never fix-all PLAY0478 |
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
 | Parser-invalid document | no editable handles | `propose-ast` `replace-document` with a whole typed document, or fix the text |
-| Syntax-only constructs | `system`/`operation`, `eventsource`/`stream` (and `generated`/`returns` before 4.68.0) | typed `propose-ast` edits; no automatic rename or routing repair exists |
+| Unadmitted constructs | systems/operations, exact numbers, refusal/redelivery | reviewed Authoring `propose-ast`; preserve intent and report PLAY0268 |
+| Admitted source/stream routing | ESM v8 at 4.125.0 | typed `propose-ast`; `propose-rename` repairs proven route references; target admission separate |
 
 ## Identity state (`.screenplay/identities.json`)
 

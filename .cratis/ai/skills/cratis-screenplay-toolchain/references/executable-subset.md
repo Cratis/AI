@@ -69,9 +69,10 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 
 - `slice Automation` with `reaction`: `when <Event>` (with values) then `produces` (no
   `for` means the trigger's event source) or `invokes <Command>`; `where`; clock `at ... on
-  ...` with an explicit `for`. The invoked command runs its full pipeline with **no caller**
-  (Screenplay#383, open): a gated command rejects and the rejection ends the scenario.
-  Keep the gate and record the capability gap; never strip authorization.
+  ...` with an explicit `for`. Without a declared actor, a gated invocation denies.
+  On 4.125.0 reaction `runs as system role "<Role>"` supplies the actor and
+  selects ESM v10; keep the gate. CLI 3.41.0's older compiler rejects this syntax,
+  while standalone reference execution admits it.
 - Application `trigger` declarations and `when trigger` specifications.
 - `slice Translate` with `capture` (`key`, `map ... translate`, `append ... when x from "a"
   to "b"`), and `given capture` / `when capture` specifications.

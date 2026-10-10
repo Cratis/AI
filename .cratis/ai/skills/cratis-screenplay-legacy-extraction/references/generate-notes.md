@@ -91,9 +91,10 @@ The expanded Arc recovery surface includes:
   Scenarios whose sources cannot be stated faithfully are omitted with SP0039;
   record the omission as a loss, never fabricate identities to retain a scenario.
 - Supported generated UUID command values and scalar/record responses by default,
-  without the authoring-only flag, where successful scenarios do not depend on
-  deterministic generation fixtures. Unsupported shapes/pre-generation protection
-  remain code with SP0052.
+  without the authoring-only flag, for commands without successful scenarios.
+  Commands with successful scenarios retain the legacy representation until
+  deterministic generation fixtures and response expectations can be recovered.
+  Unsupported shapes/pre-generation protection remain code with SP0052.
 
 Generated values/responses select ESM v7. CLI 3.41.0 admits v7 to planning, but
 Stage refuses those members with STAGE-ESM-028/029. CLI#261 is closed; do not say

@@ -121,17 +121,17 @@ Source/stream `propose-rename` repairs bound route references. Operations and
 exact numeric mode remain unadmitted. Check installed schemas, especially when
 the CLI bundle predates the standalone tool.
 
-`system`/`operation` and `eventsource`/`stream` are authorable but not executable (`PLAY0268`; not admitted
-by any supported ESM version: `cratis-screenplay-toolchain` `references/sources-and-streams.md`).
+Systems/operations remain authoring-only (PLAY0268). Sources/streams and their
+routes are admitted v8, not syntax-only; see toolchain `references/sources-and-streams.md`.
 `generated` properties and `returns` responses are admitted as ESM v7 by Screenplay 4.68.0 and bind
 there (`PLAY0268` on the 4.66.0 in the cratis 3.28.x bundle). The server reads and edits them: `declaration-details` exposes `isGenerated`
 and a command `response` view, `route` and `streams` views; `read-workspace` offers
 the views `event-sources`, `event-streams`, `event-source-details`,
 `event-stream-details`, `command-routes` and `event-source-diagnostics` (detail
-views need the exact `authoringKey` from the inventory). Each discloses
-`executionAvailable: false`. Discover the node kinds with `syntax-schema` and edit
-through typed `propose-ast`; there is no automatic source or stream rename and no
-routing repair in the historical 4.66.0 probe. At 4.125.0, inline-event extraction
+views need the exact `authoringKey` from the inventory). Executable availability
+requires successful whole-workspace binding, not just an inventoried source node.
+Discover `syntax-schema` and edit through typed `propose-ast`; source/stream rename
+can repair proven route references on the current compiler. At 4.125.0, inline-event extraction
 admits response-bearing commands when it proves byte-identical canonical ESM,
 unchanged catalog assignments and exact comment preservation; responses are not
 an automatic refusal.
@@ -172,9 +172,11 @@ selection includes descendants and direct dependents, not transitive impact.
 paging; `wholeApplicationSuccess` retains the full verdict. Check `affectedScopes`
 and coverage rather than claiming full application validity from a scoped page.
 
-The six completeness families are `data-bindings`, `input-surfaces`, `field-origins`,
-`query-keys`, `event-consumers`, `navigation` (PLAY0530–PLAY0537). They opt into
-warnings, not execution proof. Whole-source errors skip them; report
+The six core structural families are `data-bindings`, `input-surfaces`,
+`field-origins`, `query-keys`, `event-consumers`, `navigation` (PLAY0530–PLAY0537).
+The current nine-family catalog also includes `personas`, `purposes` and
+`privilege` (PLAY0652); discover names/codes from released `CompletenessChecks.cs`.
+They opt into findings, not execution proof. Whole-source errors skip them; report
 `completenessStatus` as skipped, never passed. `completenessCoverage` states their
 limits. Continue with `expectedSourceRevision`.
 

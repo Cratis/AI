@@ -133,12 +133,16 @@ Facts that surprise:
 - `cratis render` and `cratis screenplay validate` are different gates: a model can
   validate and still refuse here.
 
-## What Stage 4.24 admits
+## Historical Stage 4.24 admission
 
-A model using `eventsource`, `stream` or command routes is refused (`STAGE-ESM-016`), and
-rendered appends never carry event source type, event stream type or event stream id, so
-Chronicle's defaults apply (Stage#177, #200, #201; Screenplay#407). Gap-fill the routing by
-hand; see `cratis-screenplay-toolchain` `references/sources-and-streams.md`.
+Current pins are standalone Screenplay 4.125.0 / CLI 3.41.0 / Stage 4.51.3.
+Routes bind/reference-execute as v8; reaction `runs as` identity as v10.
+CLI renders through v7 only (CLI-RENDER-004 for newer model versions) and its
+older 4.114.0 parser rejects `runs as` (PLAY0137). Stage 4.51.3's direct planner
+also audits only through v7 (STAGE-ESM-016 otherwise). Source/identity contracts
+stay intact for gap-fill; source acceptance is not target admission.
+
+The following detailed 4.24.x probes are historical, not current pin claims.
 
 Whole-model admission needs ESM schema v1 to v4; v5 and v6 are `STAGE-ESM-016`. Stage 4.24.2 admits ESM v4 (Screenplay compiles a model with evolved events to v4): an event at its initial revision renders exactly as before, but any selected event above the initial revision, and every scope depending on it (a command producing it, a projection or reducer observing it, a specification using it), is refused with `STAGE-ESM-026` and nothing is emitted. A typed-context reference to a historical revision or property identity is refused with `STAGE-ESM-025`. Stage cannot render Chronicle event-type migrations yet (Cratis/Stage#204, which depends on Cratis/Screenplay#71), and Stage's runtime (`cratis run`, the Host) still refuses evolved events, so deliver evolved events as gap-fill. Stage 4.24.1 also lists the ESM v6 members (reactions, captures, application triggers, clock and capture specifications) as rejected `STAGE-ESM-024` in its surface ledger, but the version gate refuses the model first, so a v6 model reports `STAGE-ESM-016` only. The bundled Stage 4.24.2 (cratis 3.28.3) reports an evolved event with `STAGE-ESM-026` only (probed); cratis 3.28.2 bundled Stage 4.24.1 (3.28.1 and earlier: 4.24.0), refused a v4 model with `STAGE-ESM-016` and also reported `CLI-RENDER-003`. The admitted vertical:
 

@@ -75,9 +75,12 @@ gap-fill): the registration goes through the seams in `Customizations/Program.cs
 not bind a modeled reaction or capture. Case C (no generated application): there is no generated
 `Program.cs` or partial hook, so the registration follows the hand-written application's own
 composition conventions (`rules/vertical-slices.md`, `cratis-chronicle-reactor`).
-A reaction invokes a command with no caller (Screenplay 4.68.0 has no caller syntax), so the
-code needs a trusted path (`[ExecuteCommandsAsSystem]`, Arc 20.56.0 and later, in a rendered
-application's Arc 22.25.0 too); never invent `runs as`.
+Declare the trusted actor with reaction `runs as system role "<Role>"`
+(standalone 4.125.0, ESM v10); `given caller` is not an invocation actor.
+CLI 3.41.0's older compiler rejects the syntax, and Stage 4.51.3's planner admits
+through v7 only. Gap-fill retains the declared role and uses Arc
+`[ExecuteCommandsAsSystem]` for returned commands. Checked model and diagnostics:
+captures-and-reactions `references/invocation-identity.md`.
 
 ## Re-delivery
 The work list is the full in-scope contract delta since the ledger's last verified source

@@ -67,19 +67,18 @@ Read [references/specifying-triggers-and-clock.md](references/specifying-trigger
 
 ## Caller-less invokes and unprotected reads
 
-**Who is the caller of an `invokes`?** Nobody. In the reference execution the invoked
-command runs its full pipeline - authorization, validation, requirements,
-constraints - **with no caller**; a command that needs one rejects, and the
-rejection ends the scenario. Each invoked command is atomic, but the cascade is not,
-so facts accepted earlier remain. There is no syntax for a trusted identity in the verified Screenplay versions
-(Screenplay#383, open): never invent `runs as` or a `given caller` for a reaction.
-Say so in the model: a `description` on the reaction that names the trusted actor
-the target must use. At code level a rendered or hand-written target runs such a
-command as the system with `[ExecuteCommandsAsSystem]` (Arc 20.56.0 and later, so
-also in a rendered application's Arc 22.25.0). An authorized command a reaction
-invokes needs that decision made explicit, in the model's description and in the
-gap-fill code, not left to a rejection nobody expected. Cascades and their
-specification limits: `cratis-screenplay-specifications`.
+**Who is the caller of an `invokes`?** Without a declared actor, nobody.
+Screenplay 4.125.0 supports reaction-level `runs as system role "<Role>"`
+(optional roles, joined with `and role`). It selects ESM v10 and supplies the
+reference invocation's authenticated system principal with exactly those roles;
+`given caller` does not supply it. Keep gates and declare the least-privilege actor.
+Read [invocation identity](references/invocation-identity.md) for the checked
+scenario, claim/unknown semantics and PLAY0647–0652/0557 diagnostics.
+
+CLI 3.41.0's 4.114.0 compiler rejects this source with PLAY0137; its version gate
+and Stage 4.51.3 planner admit only through v7. Target realization is gap-fill,
+using Arc `[ExecuteCommandsAsSystem]` for returned commands. Each invoked command
+is atomic, not the whole cascade; earlier accepted facts remain after a later refusal.
 
 ⚠️ **Declared, not enforced.** A trigger `reads` gives no runtime protection. From
 ESM v6 the binder refuses to treat it as one: a trigger with `reads` that **produces
@@ -354,8 +353,8 @@ something is reported. `Startup` and `Shutdown` are registered the second way.
       value the trigger takes, and clock triggers read without `by`.
 - [ ] Nobody reports trigger or command `reads` as protected; UI clicks are
       interactions, not triggers.
-- [ ] Every `invokes` of an authorized command names the trusted actor in a
-      description; no caller is invented for a reaction.
+- [ ] Every gated invocation declares its trusted actor with reaction `runs as`
+      (ESM v10) or records the target gap explicitly; `given caller` is not that actor.
 
 ## Route near misses
 

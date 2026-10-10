@@ -205,8 +205,10 @@ Ask for each stream:
 Some event stores decide consistency by a query over tagged events instead of one stream
 (often called dynamic consistency boundaries). Chronicle's concurrency scopes can narrow a
 check to event types, source type or stream (`concurrency` block, Screenplay
-`commands.md`), and Screenplay has syntax-only event-source/stream declarations (not admitted by any supported ESM version;
-`event-sources.md`). None of this binds on either compiler (`versions.md` in `cratis-screenplay-toolchain`). Model the stream by business
+`commands.md`). Legacy concurrency metadata still fails binding (PLAY0271),
+but sources/streams/routes bind and reference-execute as ESM v8 on 4.125.0.
+Route admission does not make a view read protected. CLI 3.41.0's render boundary
+is v7; see toolchain `references/versions.md`. Model the stream by business
 identity; when a rule truly needs a cross-stream decision, record it (see
 `consistency-and-concurrency.md`) rather than inventing a construct.
 

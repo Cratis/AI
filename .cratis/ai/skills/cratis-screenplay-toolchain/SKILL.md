@@ -148,7 +148,8 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
    event references (`PLAY0166`). Unmapped declared fields can be reported by
    opt-in `--check field-origins` (`PLAY0534`); unknown coverage is skipped, so
    still walk lineage. See diagnostics for editor versus C#-only checks.
-6. A reaction's `invokes` has no caller: a gated command rejects it; keep the gate.
+6. Without reaction `runs as` an invoke is caller-less. Declare its trusted role
+   (ESM v10), keep the gate, and reference-test; CLI/Stage support is separate.
 7. Read-model identity is one `query XById => RM optional` with `by xId XId`, and the identifier equal to the
    projection's key (see trap 12); never `identifier` on a read model.
 8. Projection `key` routes only on `from`; joins never create; `all` is per source.
