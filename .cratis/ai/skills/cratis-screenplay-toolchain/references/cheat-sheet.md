@@ -1,5 +1,20 @@
 # Screenplay cheat-sheet (tool versions: versions.md)
 
+## Contents
+
+- Samples and preview fixtures
+- Lexical and structural rules
+- Exact numeric source mode
+- Clause order inside a command (canonical)
+- Slice contents (typical)
+- `$context.` paths (command `produces`)
+- `$eventContext.` (projections)
+- PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
+- Specification forms
+
+Current pins: standalone Screenplay 4.125.0 / CLI 3.41.0; `versions.md` is the
+single table. Compile evidence below keeps its historical tool labels.
+
 The syntax lives in compiled example files next to this one (each is a Markdown file holding
 one complete `screenplay` fence). Copy shapes from them; do not write a form that none of
 them (or a compiled documentation example) shows. This file holds the prose rules; the
@@ -18,11 +33,31 @@ by `for_Documentation/when_comparing_the_grammar_against_the_parsers.cs`),
 Screenplay CI (`when_compiling_every_example.cs`) against repository main: the standalone
 compiler (4.68.0; `cratis` 3.28.2 or later bundles 4.66.0, which lacks ESM v7); older cratis bundles differ (`versions.md`).
 
+## Samples and preview fixtures
+
+Invoicing is a warning-free syntax showcase, not a runnable whole-language proof.
+The released samples policy excepts these preview families and points to dedicated
+fixtures; do not infer binder admission from the sample's coverage list:
+
+| Family | Screenplay v4.125.0 fixture |
+| --- | --- |
+| Exact numbers | `Source/Screenplay/Compiler/Conformance/exact-named-rule-intent.play` |
+| Sources/streams/command routes | `Documentation/screenplay/fixtures/source-streams.play` |
+| Specification routes | `Source/Screenplay/Compiler/Conformance/specification-streams.play` |
+| Systems/operations/specification steps | `Documentation/screenplay/fixtures/operations.play` |
+| Refusals/redelivery/no-events | `Source/Screenplay/Compiler/Conformance/reaction-refusals-redelivery.play`, `no-events.play` in that directory |
+
+Source: `v4.125.0:.cratis/ai/rules/project/samples.md`. Its preview list retains
+sources/specification routes, but the released binder/runner admits them as v8;
+its old blanket PLAY0268 wording is not the current route verdict. Other rows
+remain unadmitted. Compile and test each relevant fixture with the chosen tool.
+
 ## Lexical and structural rules
 - Spaces only, 2 per level (tabs: PLAY0006 W). Offside rule.
 - Comments: `//` only. `#` is not a comment (PLAY0058 E in a projection) despite doc examples.
-- Order is free (forward references fine) except `domain` first in the file and `description`
-  first in a body.
+- Body directives can appear in any order; singleton `description` still appears
+  at most once. Canonical printing may place it first, but the parser does not
+  require that position. Source preambles precede declarations.
 - Strings: `"..."`, escapes `\" \\ \n \r \t`; other backslashes kept (regex `"^INV-\d{6}$"` works).
 - Structured values: single-line JSON, quoted keys (`[{"sku": "A-1", "quantity": 2}]`).
 - One condition grammar (policy `require`, `produces when`, `require`, reaction `where`): `and`
@@ -39,6 +74,16 @@ compiler (4.68.0; `cratis` 3.28.2 or later bundles 4.66.0, which lacks ESM v7); 
 - Ownership policies: `require claim "ownerId" matches subject` (subject = command identifier
   or keyed query argument) or `matches <commandProperty>`; executable; renderable only for
   text-backed targets (Uuid-backed: STAGE-ESM-015).
+
+## Exact numeric source mode
+
+Start each file/import barrel with `numbers exact` to retain bounded decimal
+literals without Double rounding. All assembled files must agree on mode;
+PLAY0508–PLAY0513 diagnose malformed directives, range errors and disagreement.
+Exact mode is authoring-only (`PLAY0268` on binding), not ESM v7 generated values.
+Typed JSON needs consistent `sourceOptions.numericMode: "exact"` on every root
+and `ExactNumber` literal envelopes with canonical fixed-point string values,
+never JSON numbers. Details: model-authoring `references/language-reference.md`.
 
 ## Clause order inside a command (canonical)
 description, properties, `reads`, `authorize`, `validate`, `produces`/`handler`, `concurrency`.

@@ -164,7 +164,7 @@ A construct can be in one of four states. Say which one you checked.
 | --- | --- | --- |
 | **Parsed** | `screenplay <folder> --warnaserror` or MCP authoring diagnostics: syntax plus the model-consistency checks (`PLAY0282`-`PLAY0294`, for example a specification event that no producer can emit, `PLAY0285`) | Binding, execution, or anything about attached code. It never binds, so it cannot report `PLAY0268`, and the tool never reads `file` attachments |
 | **Bound** | Semantic binding to the executable semantic model (ESM): MCP `executableReady`, executable diagnostics | That the reference execution plan admits the model, or that any specification passes |
-| **Reference-executed** | The reference runner passes the specification (library only: no MCP tool and no `screenplay` command runs it) | Target behavior; opaque code never runs here |
+| **Reference-executed** | `screenplay test` or MCP `run-specifications` passes the selected specification | Target behavior; opaque code and external services never run here |
 | **Target-executed** | Stage or a rendered application runs it with the implementations supplied | Nothing further in Screenplay |
 
 Map the states onto the verdicts of `cratis-screenplay-modeling-lifecycle`:

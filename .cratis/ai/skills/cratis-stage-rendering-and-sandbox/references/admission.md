@@ -1,4 +1,4 @@
-# Stage 4.24 admission: codes, specification rules and observed refusals
+# Historical Stage 4.24 admission: codes, specification rules and observed refusals
 
 ## Contents
 
@@ -8,6 +8,13 @@
 - Specification rules (`STAGE-ESM-011`)
 - Observed refusals
 - Source disagreements (trust the code)
+
+Current pins are in `cratis-screenplay-toolchain` `references/versions.md`:
+CLI 3.41.0 bundles Stage 4.51.3 / Screenplay 4.114.0. It admits through ESM v7
+to Stage planning; above v7 is CLI-RENDER-004. The CLI's v7 canonical-corpus
+planning spec receives STAGE-ESM-028/029 for generated values/responses.
+The detailed 4.24.x source/probe rows below have not been relabeled as current
+runtime verification; run admission on the actual bundled renderer.
 
 Read at Stage `v4.24.0`, re-read at `v4.24.1` and `v4.24.2` (`SemanticCratisAdmission.EventRevisions.cs`, `SemanticEventLineageAdmission.cs`, ESM v4 section of `Documentation/guides/build-renderer-target.md`) (`Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`, `Documentation/guides/build-renderer-target.md`; 4.24.1 changed only the ledger, dependency pins and the Dockerfile) (`Source/Rendering.Cratis/CratisArtifactRenderPlanner.cs`,
 `Semantics/SemanticCratisAdmission*.cs`, `SemanticSpecificationAdmission*.cs`,

@@ -281,10 +281,9 @@ that the code compiles or behaves. Read `references/mcp-tools.md#code-attachment
   it defines them and maps them onto V1 to V5. `screenplay --warnaserror` checks
   syntax plus the consistency rules (`PLAY0282`-`PLAY0294`) but never binds, so a
   clean run is not a bound or executable result.
-- Personas are report-only, operations and event sources/streams are authorable but
-  not executable (not admitted by any supported ESM version), and `generated`/`returns`
-  bind only from standalone 4.68.0 (ESM v7; not on the cratis 3.28.x bundle, not rendered by
-  Stage 4.24.2): none is a reason to drop or stub the construct.
+- Operations/exact numbers remain unadmitted; source/stream routes bind as ESM v8,
+  and generated values/responses as v7. CLI 3.41.0 render passes v7 to Stage but
+  refuses newer versions. A source contract is never dropped or stubbed to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
 - If execution is intended, validate with the owning downstream runtime as well.

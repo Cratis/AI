@@ -1,6 +1,10 @@
 # Traps (one line each, with the fix)
 
-Re-checked against Screenplay v4.66.0 and cli v3.28.2 where marked [probed] or [source]. Tool and version facts: `versions.md`. Compiler-verified syntax: `cheat-sheet.md`.
+Current pins: Screenplay 4.125.0 / CLI 3.41.0 (`versions.md`). Unless explicitly
+updated below, [probed]/[source] rows retain their historical v4.66.0/CLI 3.28.2
+scope; negative capability claims there are not current verdicts. Current routes
+bind as v8, v7 reaches Stage planning, reference tests have CLI/MCP routes, and
+exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 
 1. Clean V1 is not executable: binding errors appear only through MCP (V2) or `render`. Neither `screenplay <folder>` nor `cratis screenplay validate` binds. [probed]
 2. The Screenplay samples validate clean but are not all executable; copying their idioms (list queries, `@pii`, `today`, `reads`, `$causedBy`, templates, performers) breaks V3. [probed]
@@ -8,7 +12,7 @@ Re-checked against Screenplay v4.66.0 and cli v3.28.2 where marked [probed] or [
 4. Plain `produces` without `for` means allocation in the ESM but "the identifier" in rendered code. Always write `for <identifier>`. [PLAY0478 probed]
 5. PLAY0029 is a warning: a misspelled keyword (or `type` inside a slice) drops the construct silently. Use `--warnings-as-errors`. [probed]
 6. Validate the folder: `cratis screenplay validate file.play` ignores imports and reports false unknown-name warnings (cli#244, open); the standalone tool follows them. [probed on 3.28.2 and 4.66.0]
-7. Unresolved names are warnings by design. Mappings to undeclared projection targets and undeclared events in `remove with`/capture `append` pass V1 and fail binding (V3, PLAY0273); a declared read-model property that nothing maps is reported by no tool. Run V3 and check field lineage by hand.
+7. Current V1 warns on absent projection/children/nested targets (PLAY0514) and unknown removal/capture events (PLAY0166). Opt-in field-origins checks find unmapped declared fields (PLAY0534) where coverage is known; still walk lineage for skipped/opaque shapes.
 8. Severity does not soften a rule: `severity warning` still rejects the command.
 9. Authorization (module AND feature AND construct) runs before validation; unauthorized is `then denied`, never `then error`.
 10. A reaction's `invokes` runs with no caller (no syntax for an identity yet: Screenplay#383, open): a gated invoked command rejects and ends the scenario. Design the trusted path (`cratis-screenplay-automations-and-translations`): keep the gate and record the capability gap; at code level `[ExecuteCommandsAsSystem]` (Arc 20.56.0 and later, so also in a Stage-rendered app on Arc 22.25.0); never invent `runs as`. Never strip authorization.

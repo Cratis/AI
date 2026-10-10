@@ -28,6 +28,7 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 ## Sources read for facts
 
+- Current baseline: Screenplay `v4.125.0` `Documentation/screenplay/{tool,diagnostics,editor-diagnostics,grammar,event-sources,specifications,policies}.md`, MCP reference/authoring guides and `Semantics/Versions.cs`; CLI `v3.41.0` dependency pins, `RenderedSemanticVersions.cs` and its v7 planning specification. Installed versions/CLI help and changed examples were checked separately. Pins are in `versions.md`; the older probes below retain their original labels.
 - Screenplay `v4.66.0` (`c89198b`): `Documentation/screenplay/` (grammar, commands, queries,
   specifications, reactions, diagnostics, mcp), `decisions/0017`, `0020`, `0022` to `0024`,
   `Source/DotNET/Screenplay/Semantics/` (binder, versions, execution),
