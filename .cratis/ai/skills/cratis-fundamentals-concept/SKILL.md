@@ -100,7 +100,7 @@ bits from `RandomNumberGenerator`:
 - `GenerateValue.Uuid()` — version 4, 122 random bits. The default.
 - `GenerateValue.UuidV7()` — version 7: Unix-epoch milliseconds first, then 74
   random bits. Choose it only when database index locality or rough creation
-  order matters. It reveals the creation time, it is **not** monotonic within a
+  order matters, after checking how the database stores and compares UUIDs. It reveals the creation time, it is **not** monotonic within a
   millisecond, and clock adjustments can reorder values.
 
 Neither helper guarantees uniqueness; a collision is extremely unlikely, not
@@ -230,9 +230,9 @@ repository structure.
 - `ConceptAs<T>` and `EventSourceId<T>` use an `IComparable` underlying type.
 - A concept contains exactly one wrapped value and no extra properties.
 - Enums remain enums.
-- A concept that creates its own value implements `IGeneratable<TSelf>` with
-  `GenerateValue`, not `Guid.NewGuid()` or `Random`; client-supplied,
-  secret or idempotent values are not generated.
+- A concept that creates its own value implements `IGeneratable<TSelf>`; a
+  Guid-backed one uses `GenerateValue`, not `Guid.NewGuid()` or `Random`.
+  Client-supplied, secret or idempotent values are not generated.
 - Null absence uses a nullable concept reference rather than a null wrapped
   value.
 - Primitive-to-derived conversions and sentinels exist only when justified by
