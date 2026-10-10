@@ -163,3 +163,35 @@ test('screen guidance no longer carries caveats that pass on the public vector',
         }
     }
 });
+
+interface TriggerQuery { query: string; shouldTrigger: boolean; note?: string }
+
+const screensSkills = ['cratis-screenplay-ui-composition', 'cratis-screenplay-model-authoring', 'cratis-stage-rendering-and-sandbox'];
+const triggers = (name: string) =>
+    (JSON.parse(readFileSync(join(repositoryRoot, 'Evaluations', 'skills', name, 'trigger.json'), 'utf8')) as { queries: TriggerQuery[] }).queries;
+
+test('every screens skill has routing coverage that names a real skill for each near miss', () => {
+    const knownSkills = readdirSync(join(corpus, 'skills'), { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => entry.name);
+    for (const name of screensSkills) {
+        assert.ok(existsSync(join(repositoryRoot, 'Evaluations', 'skills', name, 'evals.json')), `${name} has no evals.json`);
+        const queries = triggers(name);
+        assert.ok(queries.filter(query => query.shouldTrigger).length >= 8, `${name} needs at least eight triggering queries`);
+        for (const nearMiss of queries.filter(query => !query.shouldTrigger)) {
+            assert.ok(nearMiss.note && knownSkills.includes(nearMiss.note), `${name}: near miss '${nearMiss.query}' must name the skill it routes to`);
+            assert.notEqual(nearMiss.note, name, `${name}: a near miss cannot route back to the same skill`);
+        }
+    }
+});
+
+test('the screens skills route authoring, MCP editing and rendering requests to each other', () => {
+    for (const name of screensSkills) {
+        const routedTo = new Set(triggers(name).filter(query => !query.shouldTrigger).map(query => query.note));
+        for (const sibling of screensSkills.filter(other => other !== name)) {
+            assert.ok(routedTo.has(sibling), `${name} has no near miss that routes to ${sibling}`);
+        }
+    }
+    assert.ok(triggers('cratis-screenplay-ui-composition').some(query => query.shouldTrigger && /design-time|Generate fields/i.test(query.query)),
+        'ui-composition routing must cover design-time generation results');
+    assert.ok(triggers('cratis-screenplay-model-authoring').some(query => query.shouldTrigger && /StaleRevision/.test(query.query)),
+        'model-authoring routing must cover stale-revision recovery');
+});

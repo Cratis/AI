@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-screenplay-model-authoring",
+  "evals": [
+    {
+      "id": 1,
+      "name": "add-column-through-mcp",
+      "prompt": "Using the Screenplay MCP against a scratch copy of the canonical ScreenComposition corpus, add a priority column to the WorkItemList table. List the exact MCP tool calls in order and what you check before and after applying. Do not write files.",
+      "expected_output": "open-workspace to capture the revision and catalog revision, discovery through syntax-schema or the document reads, a proposal through propose-source or propose-ast, read-proposal before applying, apply with the matching expected revision and catalog revision, and a final open-workspace that confirms executable readiness.",
+      "assertions": [
+        "Opens the workspace first and records both the workspace revision and the catalog revision.",
+        "Proposes the change through a propose tool and reads the proposal before applying it.",
+        "Applies with the matching expectedRevision and expectedCatalogRevision.",
+        "Reopens or re-validates afterwards and reports executable readiness separately from source validity.",
+        "Works on a scratch copy and does not hand-edit the .play files."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "stale-revision-recovery",
+      "prompt": "An apply call on the Screenplay MCP returned StaleRevision: reopen the workspace before continuing. Explain what you do next and what you must not do.",
+      "expected_output": "Reopen the workspace, read what changed, re-propose against the new revision and apply only with the new matching revisions; never force the old proposal through or bypass the check by editing files directly.",
+      "assertions": [
+        "Treats StaleRevision as a fail-closed refusal, not a transient error to retry unchanged.",
+        "Reopens the workspace and re-proposes against the new revision.",
+        "Refuses to bypass the revision check by editing the .play files directly."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "comment-preservation",
+      "prompt": "We keep design notes as comments in application.play. Explain whether an MCP source replacement keeps them, which formatting option the server requires, and how you would prove it before trusting it.",
+      "expected_output": "propose-source requires CanonicalizeTouchedDocuments for typed source edits; prove comment survival by applying on a scratch copy, reopening the workspace and checking the comment on disk.",
+      "assertions": [
+        "Names CanonicalizeTouchedDocuments as the formatting option the server requires for a typed source replacement.",
+        "Proves the behavior on a scratch copy rather than on the team's model.",
+        "Checks the comment on disk after apply and a reopened workspace."
+      ]
+    }
+  ]
+}

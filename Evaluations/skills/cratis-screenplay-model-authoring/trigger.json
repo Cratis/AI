@@ -1,0 +1,86 @@
+{
+  "skill": "cratis-screenplay-model-authoring",
+  "queries": [
+    {
+      "query": "Use the Screenplay MCP to add a priority column to the WorkItemList table in our multi-file model, and only apply it if nobody else changed the workspace meanwhile.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "my apply call came back StaleRevision. what do i do next with the screenplay mcp?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Rename the WorkStatus concept everywhere in our .play folder through the MCP tools instead of hand-editing the files.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which MCP tool tells me the exact syntax shape of a screen template before I propose an AST edit?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Open our Screenplay workspace in the MCP server and tell me whether it is executableReady or only source-valid.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create the first document of a new Billing module in an empty model folder through the Screenplay MCP.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "I proposed a change with propose-source. How do I read the proposal's changes before I apply it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Will the comments in application.play survive when the MCP canonicalizes the documents it touches?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Find every screen that references the AllWorkItems query across our split .play model before I change the query.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "cratis render refuses the model with STAGE-ESM-026. What does Stage admit?",
+      "shouldTrigger": false,
+      "note": "cratis-stage-rendering-and-sandbox"
+    },
+    {
+      "query": "Our accepted model has to become running code: probe the render, publish it and gap-fill what Stage cannot emit.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-render-and-gap-fill"
+    },
+    {
+      "query": "Fix PLAY0096 Invalid when declaration from the compiler and tell me which compiler version I am running.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-toolchain"
+    },
+    {
+      "query": "We are starting a new timesheet domain. Interview me and storm the event timeline.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-discovery"
+    },
+    {
+      "query": "Write the C# projection for WorkItemSummary with IProjectionFor.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-projection"
+    },
+    {
+      "query": "What is the .play syntax for a master-detail screen template with a toolbar dialog?",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-ui-composition"
+    },
+    {
+      "query": "Write given/when/then specifications for the CreateWorkItem command in the model.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-specifications"
+    },
+    {
+      "query": "Turn our existing Rails application into a Screenplay model with evidence for every event.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-legacy-extraction"
+    },
+    {
+      "query": "Inspect failed partitions in our running Chronicle store with the cratis CLI.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-cli-operations"
+    }
+  ]
+}

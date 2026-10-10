@@ -1,0 +1,86 @@
+{
+  "skill": "cratis-screenplay-ui-composition",
+  "queries": [
+    {
+      "query": "In our Screenplay model the Tracking workspace needs a master-detail screen template: the list binds to AllWorkItems and the details panel shows the selected item. How do I declare the template and its data-context binding?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "add a toolbar button to the WorkItems screen in our .play model that opens RenameWorkItem as a dialog",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The generated CreateWorkItem form shows every command property. I only want title and then status. What is the columns syntax in Screenplay?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How does the Billing module contribute a navigation entry into the application shell's sidebar in Screenplay, ordered after Customers?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our layout has a header and a main outlet. The Settings area needs its own nested outlet with child routes. Show me the .play for hierarchical outlets and routes.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Pick a component package and an icon for the Orders screen in the Screenplay model, and expose the table's page size as template configuration.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "clicking an invoice row should navigate to InvoiceDetails by invoiceId. how do i wire that on/behavior in the screen composition?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Set up a ui profile and a theme for our Screenplay application, with localized $strings for the button labels.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "A package's Generate fields action filled in our CreateInvoice form. How should those generated fields end up in the .play model so the next generation does not overwrite my edits?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Add a query AllOpenInvoices to the Invoicing read model in the .play model, filtered by status and scoped to the current customer.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-read-surface"
+    },
+    {
+      "query": "Our Screenplay projection for WorkItemSummary does not update status when WorkItemClosed arrives.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-projections"
+    },
+    {
+      "query": "cratis render refuses our screens with PLAY0268. What does Stage admit and why did it refuse?",
+      "shouldTrigger": false,
+      "note": "cratis-stage-rendering-and-sandbox"
+    },
+    {
+      "query": "Apply this edit to Tracking.play through the Screenplay MCP with a revision check, and show me the proposal before it is applied.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-model-authoring"
+    },
+    {
+      "query": "Build the hand-written React Invoices page with a DataPage, Add and Edit dialogs and the generated Arc query proxy.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-react-page"
+    },
+    {
+      "query": "Theme our Cratis Components app: dark mode, and override the --cratis-* tokens for the primary color.",
+      "shouldTrigger": false,
+      "note": "cratis-components-styling"
+    },
+    {
+      "query": "Declare validation and authorization for the RenameWorkItem command in the .play model.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-command-surface"
+    },
+    {
+      "query": "When a work item is closed, email the reporter. Model that follow-up in Screenplay.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-automations-and-translations"
+    },
+    {
+      "query": "Review our whole .play model for missing specifications and wrong stream boundaries before we accept it.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-model-review"
+    }
+  ]
+}
