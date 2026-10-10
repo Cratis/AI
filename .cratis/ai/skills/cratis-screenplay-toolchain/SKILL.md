@@ -20,7 +20,7 @@ files is one application: always check the folder, never one file of it.
 
 ## Verified product sources
 
-When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it.
+When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it. For exact diagnostic codes, MCP names/parameters and standalone CLI options, consult the published [references/screenplay-contract.json](references/screenplay-contract.json), pinned by [references/screenplay-contract.version](references/screenplay-contract.version). [references/screenplay-contract-exceptions.json](references/screenplay-contract-exceptions.json) records reasoned exceptions for historical statements; it does not change the current contract.
 
 The standalone pin is Screenplay 4.127.0. CLI 3.41.0 bundles Screenplay 4.114.0,
 Stage 4.51.3 and Cratis.Arc.Screenplay 22.54.0. The single version table records

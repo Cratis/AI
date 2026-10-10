@@ -25,6 +25,8 @@ probe; older probes retain their original labels in the other references.
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
 | Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
 
+The published `screenplay-contract.json` beside this reference is the machine-readable authority for PLAY codes, MCP tools and parameters, and standalone CLI commands/options. Its unchanged release bytes are pinned by `screenplay-contract.version` to the standalone version above. Consult it before adding a code or tool claim; `screenplay-contract-exceptions.json` preserves explicitly reasoned historical statements, not current-release exceptions. Coverage gaps are mention inventories, not proof that a skill teaches a feature.
+
 Check the actual executable before relying on this table: `screenplay --version`,
 `cratis --version`, MCP `initialize` → `serverInfo.version`. An older executable
 on PATH can shadow a newer install; inspect `which -a cratis`.
