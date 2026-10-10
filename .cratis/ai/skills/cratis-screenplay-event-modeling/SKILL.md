@@ -53,7 +53,7 @@ Framework repositories and brownfield work that has not opted in stay code-first
   handlers, adapters, and scope Stage cannot render yet (the model stays the contract).
 - **Never:** use code as a shortcut around the model; change the model to match
   existing code; edit Stage-managed output; leave a modeled rule living only in
-  code; weaken protection (authorization, `@pii`, rules) so a model compiles or renders.
+  code; weaken protection (authorization, `pii`, rules) so a model compiles or renders.
 
 **2. Run the lifecycle.** Load `cratis-screenplay-modeling-lifecycle` for modes, the
 independent verdicts V1-V5, the P0-P9 phases with their gates, stop-or-assume,
@@ -131,7 +131,7 @@ What binds depends on **which tool** you ask, so name the tool and its version:
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
-- `persona` declarations are report-only and never block; `@pii` and `@sensitive`
+- `persona` declarations are report-only and never block; bare `pii` and `secret`
   concepts do block binding (`PLAY0268`). Keep them anyway: the classification is
   part of the model. Report the block.
 - Generated values/responses bind and reference-execute as v7; sources, streams
@@ -243,7 +243,7 @@ compile or will not be safe. Both are deliberate.
 ## Naming the primitives is the highest-value work
 
 Name concepts before events, classify personal data at the concept, keep events past tense and single-purpose, and never put the event-source identity in an event payload.
-Read [references/naming-primitives.md](references/naming-primitives.md) when declaring concepts, `@pii` classification, event shapes, `identifier`, inline events or `id "<old name>"` pins.
+Read [references/naming-primitives.md](references/naming-primitives.md) when declaring concepts, `pii` classification, event shapes, `identifier`, inline events or `id "<old name>"` pins.
 
 ## Quick gate - before specifications are called done
 

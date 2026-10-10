@@ -52,7 +52,7 @@ Chronicle issues before relying on a constraint in a later release.
   themselves (`cratis-screenplay-scenario-coverage`), Chronicle C# mechanics
   (`cratis-chronicle-event-modeling`). See Route near misses.
 - Model-first applies: when an accepted model covers the scope, change the model and its
-  specifications, not code. Do not weaken authorization, `@pii` or rules to make a model compile.
+  specifications, not code. Do not weaken authorization, `pii` or rules to make a model compile.
 
 ## Interview phase
 **Skip if** the user or the model already states the stream identities, who owns each module, how
@@ -119,8 +119,13 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
    is a fact the business recognises. Different meanings get different events, not a flag with
    nullable siblings. Event properties are required by default (CHR0012, PLAY0350): an optional
    detail is a separate event, and any deviation is justified in the description. One data
-   subject per event and stream; never personal data, a secret, or a `@pii` or `@sensitive` concept as the identifier (CHR0034, CHR0052):
-   use a surrogate `Uuid` and a `@pii` or `@sensitive` property.
+   subject per event; never personal data, a secret, or a `pii`/`secret` concept as
+   identifier or subject (CHR0034, CHR0052, PLAY0515/0592). Use a surrogate identity
+   and protected payload. A stream identity and an event's data subject may differ:
+   trailing event-property `subject` records that lineage but is report-only
+   (PLAY0270), not runtime propagation or generated C# `[Subject]`. Without a
+   supplied subject, the runtime defaults to the event source; see command-surface
+   `references/compliance.md` for allowed types and the policy/encryption distinction.
 5. **Plan evolution** with `references/evolution.md`: classify each event change (additive,
    meaning change, rename, removal, split or merge) and write its compatibility scenarios before
    editing. Renames and other identity-affecting edits are made by the identity owner (the
@@ -148,7 +153,16 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
   block compiles but is PLAY0271 at binding. Keep both when they state real intent; they are not
   protection. `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
-- `@pii` and `@sensitive` block binding (PLAY0268). Never remove them to pass a tool.
+- `pii` and `secret` block binding (PLAY0268); legacy markers are deprecated
+  (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
+  scalar/composite stream-id types and route mapping sources, including nested paths.
+- At 4.127.0 stream-id literals must be nonempty, well-formed NFC text (refused,
+  not normalized); integer ids in Double mode stay within ±(2^53−1). Exact mode
+  has no such bound but is unadmitted. PLAY0504 is an error for route/destination
+  nominal type mismatch. Composite ids use at least two named scalar parts,
+  complete named mappings and canonical comparison, not guessed legacy splits.
+  Stored key-schema changes require a new stream identity or migration; see
+  toolchain `references/sources-and-streams.md`.
 - Chronicle (open at v19.32.0): the SQL and InMemory providers do not settle unique claims
   (#3744); index updates run after commit and may fail silently (#4123); composite values can
   collide on the separator (#4131). A declared constraint is a declaration, not a runtime test.

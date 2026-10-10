@@ -9,7 +9,8 @@ domain consequence.
 - Does this command apply in every state and set most of the entity's fields? That is a form:
   which business reasons hide behind it? What does a person decide with each field?
 - Does a command input carry a secret or personal value (by default the causation chain keeps it; retention is configurable, verify it)?
-  Mark the concept `@pii` or record the need for a not-audited marking.
+  Mark the concept bare `pii` for personal data or `secret` for an operational
+  secret; inspect declared purpose coverage, not just the reason. Never protect an identifier.
 - Does this optional event property hide two situations, or is it an optional detail?
 - Does an event exist for a derived condition? Only when a domain expert names it and something
   reacts to it; merge causes only when they mean the same to the business.

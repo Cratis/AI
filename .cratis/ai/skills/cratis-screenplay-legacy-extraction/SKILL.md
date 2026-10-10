@@ -153,7 +153,15 @@ chain per slice before handoff (evidence template); never manufacture references
      in the model today**, target named; a unique index with business meaning becomes
      `unique ... on <every event that sets it>` with `released by`
      (`references/rule-modeling.md`);
-   - keep `@pii` / `@sensitive` and authorization found in code; every role gate has `authorize`
+   - preserve personal-data/secret protection and authorization found in code,
+     using bare `pii` / `secret` (4.127.0); deprecated marker repairs keep legal
+     notes intact, never guess a purpose or basis. Derive purpose/use/retention
+     declarations only from evidence or expert decisions; run `--check purposes`
+     and inspect the processing record as prompts, not a legal verdict. Keep
+     hand-joined legacy ids scalar; never infer composite parts by splitting text.
+     Event `subject` is report-only; distinguish observed lineage from runtime
+     realization. See command-surface `references/compliance.md`.
+     Every role gate has `authorize`
      plus a `then denied` spec, else a recorded gap; rules you cannot express truthfully are
      recorded one by one, never fabricated.
 3. Cite evidence ids in each slice `description` ("Evidence: E3, E7"). Read `references/intent-example.md` when authoring the intentional candidate to check the complete example of evidence citations, re-slicing, constraints, authorization and recorded state-dependent rules.
@@ -195,7 +203,7 @@ handoff packet appended, first line `Outcome:`; no prose reports in the model ro
   same-application canonical exports with authoritative catalogs; it does not guess
   rename continuity, run specifications or prove recovered behavior. Inspect
   incomplete sections and exclusions before using the result in the loss report.
-- Never weaken protection (authorization, `@pii`, rules) to make the candidate compile.
+- Never weaken protection (authorization, `pii`, rules) to make the candidate compile.
 
 ## Gate
 

@@ -105,7 +105,14 @@ model's behalf.
 11. **Mode compliance.** Design: no planned or undocumented syntax. Executable: the executable
     subset, V3 ready. Renderable: the renderable subset, V5 sub-results. A construct outside the
     mode in a design model is a recorded gap, not a defect to delete. Removing protection
-    (`@pii`, authorization, rules) to pass a tool is always a critical finding.
+    (`pii`, authorization, rules) to pass a tool is always a critical finding.
+    At 4.127.0 check bare `pii`/`secret`, special/criminal qualifiers and purpose
+    coverage (`--check purposes`); reasons are value notes, not legal declarations.
+    Event `subject` is report-only, unprotected and scalar; never claim runtime
+    lineage or erasure from it. Trace identity details to valid sources and preserve
+    the executable-read gap. Elevated reaction paths also need `--check privilege`
+    and least-privilege roles; unknown/opaque findings are not proven safe.
+    Syntax/limits: command-surface context/compliance references.
 12. **Root causes, classify, report** (`references/report-template.md`). Group findings that share
     a declaration; report the root cause with its symptoms under it; severity critical, major or
     minor; kind defect, question or note; verdict with confidence. Never apply changes.

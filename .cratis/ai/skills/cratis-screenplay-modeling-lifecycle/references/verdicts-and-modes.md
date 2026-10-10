@@ -207,7 +207,7 @@ skill):
 - Never use syntax the toolchain does not show compiling. Future-facing syntax only on request.
 - Constructs outside the narrower subset stay in the model as design-mode content; the gap is
   recorded and routed (P8: fallback with the model as contract).
-- Never remove `@pii`, `@sensitive`, authorization, date or state-dependent rules to reach V3 or
+- Never remove `pii`, `secret`, authorization, date or state-dependent rules to reach V3 or
   V5. Report blocked execution.
 - Narrowing the mode is the user's decision; widening back to design is always allowed.
 - Roadmap items that would change verdicts (a spec runner in the compiler tool, a lineage and

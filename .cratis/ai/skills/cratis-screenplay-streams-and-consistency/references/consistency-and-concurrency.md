@@ -16,6 +16,16 @@
 Pins: Screenplay v4.66.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.2 (table in `versions.md` of
 `cratis-screenplay-toolchain`).
 
+Current routing identity checks (4.127.0): PLAY0515 refuses personal/secret
+concepts in stream-id types, composite parts and route sources, including nested
+paths. Composite keys require every named scalar part, not a legacy separator
+split. Text must be well-formed, nonempty NFC and Double integer ids bounded by
+±(2^53−1); PLAY0504 is an error for routed nominal destination-type mismatch.
+Canonical specification comparisons preserve part order and treat UUID case
+variants as equal. Key-schema evolution for stored events requires a new stream
+identity or migration. These checks do not protect command decision reads.
+Details: toolchain `references/sources-and-streams.md`.
+
 ## 1. Invariant table (fill before writing constraints)
 | # | Rule (business words) | Data it needs | Decided atomically where | Screenplay construct | Status | Race / retry outcome |
 |---|---|---|---|---|---|---|

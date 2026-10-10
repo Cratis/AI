@@ -35,7 +35,8 @@ Command property values are, by default, recorded in the causation chain of the 
 produce, so treat them as permanent. Newer Chronicle versions can omit causation properties
 (`CausationPropertyRetention.Omit`, Chronicle v19.32.0); rendered apps pin Chronicle 19.8.1.
 Verify the actual auditing and retention configuration before relying on omission, and never
-audit secrets. Never mark the identifier's
-concept `@pii`; use a surrogate `Uuid` identity and carry the personal value as a `@pii`
-property. Bearer tokens, magic links and signed URLs are never facts (record a keyed hash or
+audit secrets. Classify personal values as bare `pii` and operational secrets as
+`secret` on their concepts, never the identifier concept. Use a surrogate identity
+and protected payload (PLAY0515). Processing use/basis/retention is a `purpose`,
+not a reason; see command-surface `references/compliance.md`. Bearer tokens, magic links and signed URLs are never facts (record a keyed hash or
 reference).

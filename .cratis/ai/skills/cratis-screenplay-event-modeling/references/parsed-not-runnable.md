@@ -22,7 +22,9 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 | Construct | Current standalone disposition |
 | --- | --- |
 | `persona`, domain/authentication metadata | Report-only; unknown named policies remain source defects |
-| Compliance concepts | Preserve protection; portable binding gaps are not permission to remove it |
+| Compliance concepts | Bare `pii`/`secret` (4.127.0); binding still refuses PLAY0268, never remove protection |
+| Identity details / processing purposes / event subject | Report-only metadata (4.127.0); executable detail reads refuse PLAY0268, not source declaration errors |
+| Composite stream ids | v8 routing; complete named parts/canonical comparisons, PLAY0515 refuses protected keys/sources; not a legacy text split |
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
 | Generated values/responses | v7 binding/reference execution; Stage 4.51.3 member refusals STAGE-ESM-028/029 |
