@@ -87,6 +87,24 @@ describe('when checking Screenplay facts', () => {
         assert.ok(result.problems.includes('bad.md:1 retired diagnostic PLAY0003.'));
         assert.ok(result.problems.includes('bad.md:1 unknown diagnostic PLAY0004.'));
     });
+    it('should reject retired and unknown interior codes in Markdown-delimited ranges', () => {
+        const contract = { ...specimen, diagnostics: [...specimen.diagnostics, { code: 'PLAY0005', reserved: false, retired: false }] };
+        for (const range of ['`PLAY0001`–`PLAY0005`', '`PLAY0001`—`0005`', '`PLAY0001`-`PLAY0005`', '`PLAY0001` to `0005`', '`PLAY0001–0005`']) {
+            const content = `Introduction\r\n${range}\r\n`;
+            const result = check(contract, [cleanDocument, { file: 'range.md', content }]);
+            assert.ok(result.problems.includes('range.md:2 retired diagnostic PLAY0003.'), range);
+            assert.ok(result.problems.includes('range.md:2 unknown diagnostic PLAY0004.'), range);
+            assert.equal(extract('range.md', content, contract)[2].text, range);
+        }
+    });
+    it('should report descending and malformed ranges at their source location and continue scanning', () => {
+        for (const range of ['`PLAY0005`–`PLAY0001`', '`PLAY0001`–`PLAY005`', '`PLAY0001` to `PLAY00055`', '`PLAY00055`–`PLAY0001`', '`PLAY0001`–`PLAYoops`']) {
+            const result = check(specimen, [cleanDocument, { file: 'range.md', content: `Introduction\n${range}\nPLAY9999` }]);
+            assert.ok(result.problems.some(problem => /^range.md:2 (?:Descending|Malformed) diagnostic range/.test(problem)), range);
+            assert.ok(result.problems.includes('range.md:3 unknown diagnostic PLAY9999.'), range);
+        }
+        assert.throws(() => expandCodes('0001', '005'), /Malformed/);
+    });
     it('should match reasoned historical exceptions exactly and reject obsolete ones', () => {
         const old = { file: exception.file, content: exception.text };
         assert.deepEqual(check(specimen, [cleanDocument, old], [exception]).problems, []);
@@ -103,7 +121,16 @@ describe('when checking Screenplay facts', () => {
         const visual = { ...specimen, mcpTools: [...specimen.mcpTools, { name: 'visualize-model', requiredParameters: [], optionalParameters: [] }] };
         const content = { file: 'tools.md', content: '# MCP\n1 tools without visualization, 2 with it;' };
         assert.equal(check(visual, [content]).problems.filter(problem => problem.includes('MCP tool count')).length, 0);
-        assert.ok(check(specimen, [{ ...content, content: '# MCP\n0 tools without visualization, 2 with it;' }]).problems.some(problem => problem.includes('MCP tool count 0')));
+        assert.ok(check(specimen, [{ ...content, content: '# MCP\n0 tools without visualization, 2 with it;' }]).problems.some(problem => problem.includes('invalid MCP visualization-count split')));
+    });
+    it('should not accept malformed visualization splits merely because the base equals the total count', () => {
+        const visual = { ...specimen, mcpTools: [...specimen.mcpTools, { name: 'visualize-model', requiredParameters: [], optionalParameters: [] }] };
+        for (const text of ['2 tools without visualization, 2 with it', '2 tools without visualization, 3 with it', '2 tools without visualization', '2 tools without visualization, two with it']) {
+            const result = check(visual, [cleanDocument, { file: 'counts.md', content: `# MCP\n${text}` }]);
+            assert.ok(result.problems.some(problem => problem.startsWith('counts.md:2 invalid MCP visualization-count split')), text);
+        }
+        const extra = check(visual, [{ file: 'counts.md', content: '# MCP\n99 tools; 1 tools without visualization, 2 with it' }]);
+        assert.ok(extra.problems.some(problem => problem.includes('MCP tool count 99')));
     });
     it('should check command-specific options rather than their global union', () => {
         assert.ok(check(specimen, [cleanDocument, { file: 'bad.md', content: '`screenplay test <root> --scope Module`' }]).problems.some(problem => problem.includes('unknown screenplay test option --scope')));
@@ -181,6 +208,13 @@ describe('when reconciling the release tracking issue', () => {
         assert.ok(!fake.calls.some(call => ['close', 'edit', 'create'].includes(call.arguments[1])));
         await assert.rejects(syncIssue(async () => { throw new Error('API unavailable'); }, 'Cratis/AI', 'v4.128.0', report()), /API unavailable/);
         await assert.rejects(syncIssue(async () => '{}', 'Cratis/AI', 'v4.128.0', report()), /Invalid GitHub label list/);
+    });
+    it('should isolate sync concurrency from pending releases and avoid persisting issue-write credentials', async () => {
+        const workflow = await readFile(new URL('../../.github/workflows/publish.yml', import.meta.url), 'utf8');
+        assert.ok(workflow.includes("group: ${{ github.workflow }}-${{ (github.event_name == 'repository_dispatch' || github.event_name == 'schedule') && 'screenplay-sync' || github.ref }}"));
+        assert.match(workflow, /concurrency:\n[^\n]+\n  cancel-in-progress: false/);
+        const syncJob = workflow.split('  screenplay-sync:')[1].split('  dotnet-verify:')[0];
+        assert.match(syncJob, /uses: actions\/checkout@[^\n]+\n        with:\n          persist-credentials: false/);
     });
     it('should restrict sync events to comparison and verification without opening a release path', async () => {
         const workflow = await readFile(new URL('../../.github/workflows/publish.yml', import.meta.url), 'utf8');

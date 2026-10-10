@@ -52,8 +52,11 @@ function defect(subject: Subject, contract: Contract): string | undefined {
         case Kind.ToolCount: {
             const count = Number(subject.value);
             // The corpus explicitly distinguishes the MCP-Apps visualization tool from the base catalog.
-            const visualizationSplit = /\b(\d+) tools without visualization, (\d+) with it\b/.exec(subject.text);
-            if (visualizationSplit && contract.mcpTools.some(tool => tool.name === 'visualize-model') && Number(visualizationSplit[1]) + 1 === contract.mcpTools.length && Number(visualizationSplit[2]) === contract.mcpTools.length) return undefined;
+            if (/\btools\s+without\s+visualization\b/.test(subject.text)) {
+                const visualizationSplit = /\b(\d+) tools without visualization, (\d+) with it\b/.exec(subject.text);
+                if (!visualizationSplit || !contract.mcpTools.some(tool => tool.name === 'visualize-model') || Number(visualizationSplit[1]) + 1 !== contract.mcpTools.length || Number(visualizationSplit[2]) !== contract.mcpTools.length) return `invalid MCP visualization-count split; contract has ${contract.mcpTools.length} tools`;
+                if (count === Number(visualizationSplit[1])) return undefined;
+            }
             return count === contract.mcpTools.length ? undefined : `MCP tool count ${count}, contract has ${contract.mcpTools.length}`;
         }
         case Kind.CliCommand:
@@ -89,9 +92,9 @@ export function coverage(contract: Contract, documents: Array<{ file: string; co
 export function check(contract: Contract, documents: Array<{ file: string; content: string }>, exceptions: Exception[] = [], requireExceptions = true, vocabulary = contract) {
     // Retain pinned names during release comparison so a removed tool is still a subject.
     const extractionContract = { ...contract, mcpTools: [...contract.mcpTools, ...vocabulary.mcpTools] };
-    const subjects = documents.flatMap(document => extract(document.file, document.content, extractionContract));
-    const counts = Object.fromEntries(Object.values(Kind).map(kind => [kind, subjects.filter(subject => subject.kind === kind).length]));
     const problems: string[] = [];
+    const subjects = documents.flatMap(document => extract(document.file, document.content, extractionContract, problems));
+    const counts = Object.fromEntries(Object.values(Kind).map(kind => [kind, subjects.filter(subject => subject.kind === kind).length]));
     const used = new Set<Exception>();
     const exempted: Subject[] = [];
     for (const subject of subjects) {

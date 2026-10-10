@@ -7,6 +7,7 @@ import type { Subject } from './Subject.ts';
 
 /** Expand endpoints as well as the interior; never silently truncate an invalid range. */
 export function expandCodes(first: string, last?: string): string[] {
+    if (![first, last ?? first].every(endpoint => /^(?:PLAY)?\d{4}$/.test(endpoint))) throw new Error(`Malformed diagnostic range ${first}–${last ?? first}.`);
     const start = Number(first.replace('PLAY', ''));
     const end = Number((last ?? first).replace('PLAY', ''));
     if (end < start) throw new Error(`Descending diagnostic range ${first}–${last}.`);
@@ -18,7 +19,7 @@ export function expandCodes(first: string, last?: string): string[] {
  * Additionally recognize published names in an MCP paragraph/heading, not arbitrary view names.
  * Only named parameters inside that same invocation span are claims about tool input schemas.
  */
-export function extract(file: string, content: string, contract: Contract): Subject[] {
+export function extract(file: string, content: string, contract: Contract, problems: string[] = []): Subject[] {
     const subjects: Subject[] = [];
     const lines = content.split(/\r?\n/);
     const toolNames = new Set(contract.mcpTools.map(tool => tool.name));
@@ -32,8 +33,17 @@ export function extract(file: string, content: string, contract: Contract): Subj
                 subjects.push({ file, line: index + 1, text, kind, value, ...(owner ? { owner } : {}) });
             }
         };
-        for (const match of text.matchAll(/\bPLAY(\d{4})\b(?:\s*[–—-]\s*(?:PLAY)?(\d{4})\b)?((?:\/(?:PLAY)?\d{4}\b)*)/g)) {
-            for (const code of expandCodes(match[1], match[2])) add(Kind.Diagnostic, code);
+        // Strip only Markdown delimiters for matching; subjects retain the original text and line.
+        const diagnosticText = text.replaceAll('`', '');
+        for (const match of diagnosticText.matchAll(/\bPLAY(\d\w*)\b(?:\s*(?:[–—-]|\bto\b)\s*((?:PLAY)?\d\w*|PLAY[A-Za-z]\w*)\b)?((?:\/(?:PLAY)?\d{4}\b)*)/g)) {
+            try {
+                for (const code of expandCodes(match[1], match[2])) add(Kind.Diagnostic, code);
+            } catch (error) {
+                problems.push(`${file}:${index + 1} ${error instanceof Error ? error.message : String(error)}`);
+                // Still check valid endpoints rather than abandoning the line after a malformed range.
+                if (/^\d{4}$/.test(match[1])) add(Kind.Diagnostic, `PLAY${match[1]}`);
+                if (/^(?:PLAY)?\d{4}$/.test(match[2] ?? '')) add(Kind.Diagnostic, `PLAY${match[2].replace('PLAY', '')}`);
+            }
             for (const code of match[3].matchAll(/\/(?:PLAY)?(\d{4})/g)) add(Kind.Diagnostic, `PLAY${code[1]}`);
         }
         const heading = /^(#{1,6})\s+(.+)/.exec(text);
