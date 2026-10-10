@@ -5,7 +5,7 @@
   "assertions": [
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.125.0"
+      "value": "Screenplay v4.127.0"
     },
     {
       "kind": "skill-contains",

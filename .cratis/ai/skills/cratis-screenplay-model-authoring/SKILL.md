@@ -23,7 +23,7 @@ contract is in `cratis-screenplay-ui-composition`.
 
 ## Verified product sources
 
-Current authoring/MCP guidance follows Screenplay v4.125.0
+Current authoring/MCP guidance follows Screenplay v4.127.0
 `Documentation/screenplay/mcp/`, `ast-authoring.md`, `folders.md`, `vscode.md`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
@@ -178,6 +178,8 @@ each lost comment (`PLAY0288` also reports their count and lines). Untouched
 documents retain exact bytes. A printer that loses requested structural fields
 rejects the plan.
 
+`identityMigrationIssues`: read the [MCP loop](references/mcp-loop.md).
+
 ## Repair or extract before rewriting
 
 Read `read-workspace` with `view: "diagnostics"`, then `view: "repairs"` at the
@@ -199,6 +201,7 @@ from silently changing the reviewed candidate.
   No automatic generation-evolution repair ships.
 - `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
   migrates all occurrences together. Keep the `query Q => observable?` exception.
+- Compliance repairs PLAY0565/0653: [MCP tool guide](references/mcp-tools.md).
 
 Use `propose-extract-inline-event` on the inline `EventSyntax` handle before adding
 a generation (canonical formatting consent; refuses comment loss; no reverse
@@ -303,7 +306,7 @@ a generated app that silently drops authored UI. Use the Screenplay-owned canoni
 corpus fixture path when it exists instead of copying `.play` examples into this
 repository.
 
-Repair and refactoring guidance follows Screenplay v4.125.0. The Cratis
+Repair and refactoring guidance follows Screenplay v4.127.0. The Cratis
 CLI bundles its own Screenplay version, so check the installed `tools/list`
 schemas before relying on a view or argument named here (for example
 `dropped-comments` or `implementation-requirements`). Do not invent a command,

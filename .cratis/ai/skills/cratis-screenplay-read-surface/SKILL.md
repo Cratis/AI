@@ -131,6 +131,13 @@ down, rather than the one you get by forgetting."*
 language documents, but the grammar accepts any name — what scopes exist follows
 the identity model of whatever runs the document. A query declares at most one.
 
+At Screenplay 4.127.0, `scoped to` remains an opaque name, **not** a reference
+to a declared identity detail. An `identity` query source must be keyed and return
+one result (possibly optional), with a type compatible with the detail; its key
+uses only caller built-ins/claims/literals and its effective gate cannot depend
+on details (PLAY0641–0646). Source resolution is metadata, not runtime execution.
+See command-surface `references/context.md` for the full contract.
+
 Treat every `scoped to global` in a review as a question to answer, not a detail.
 
 ### `observable`

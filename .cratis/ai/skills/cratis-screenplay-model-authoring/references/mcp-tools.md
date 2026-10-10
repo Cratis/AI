@@ -8,6 +8,7 @@
 - Tool groups
 - Diagnostic repairs and refactorings
 - Syntax-only constructs through the MCP
+- Identity, compliance and processing views
 - Evidence-pinned production repairs
 - Scoped diagnostics and completeness
 - Dependencies and intent inventories
@@ -80,7 +81,7 @@ Send the selected `diagnosticCode` and original `subject` to `propose-repair`,
 with both revisions and the returned `requiredFormatting`. For optionality,
 select `scope: "document"` during discovery to get the document root handle;
 pass that handle, not a scope argument, to the proposal. Its default is
-`PreserveTrivia`; the other listed repairs need explicit
+`PreserveTrivia`; PLAY0565/PLAY0653 also support it; the other listed repairs need explicit
 `CanonicalizeTouchedDocuments` consent. Every proposal runs one fresh transaction
 for the selected subject. Review bytes before `apply`; no discovery writes files.
 
@@ -143,6 +144,29 @@ also uses operations, streams, handlers or exact numeric mode keeps a readiness 
 unadmitted feature. Null readiness does not prove the whole application binds or that every generation
 fixture exists. Canonical `executable-model` pages include `generated`, `response`, `generatedValues`
 and `thenReturns` when present. Form response scopes and a renderer response type remain downstream work.
+
+## Identity, compliance and processing views
+
+Screenplay v4.127.0 `mcp/reference.md` and `authoring-tools.md` describe these
+additions; discover installed schemas because CLI 3.41.0 bundles 4.114.0.
+
+- Identity/detail summaries expose declared sources; `$identity` has its own
+  expression node. The block alone stays executable-ready, but executable reads
+  of additional details report PLAY0268. `$context.identity` stays built-ins only.
+- Event summaries expose `subject.source` (`eventSource` or `property`) and properties
+  expose `isSubject`; the mark is report-only, not runtime or C# subject emission.
+- Composite streams expose typed `streamIdParts`; fixture part rows retain their
+  individual lineage. Route/schema edits must preserve assigned identities.
+- Purpose/container summaries expose fields/direct references. `processing-record`
+  pages the same declared/derived processing facts as the CLI report with
+  `offset`/`expectedSourceRevision`; optional controller inputs are explicit.
+  Invalid source prevents reporting; binding is not required, zero rows is not
+  compliance, and opaque/runtime facts are not inferred.
+- `screenplay_repair_capabilities` and `propose-repair` include PLAY0653: remove
+  later compliance markers on a concept header with `PreserveTrivia`, preserving
+  body settings/comments. No document-root repair or evidence pinning is offered.
+  PLAY0565 migrates a discovered concept `line`, or the document root, to bare
+  `pii`/`secret`; it never moves or interprets legal notes.
 
 ## Evidence-pinned production repairs
 
@@ -271,6 +295,18 @@ row; route parts retain their individual lineage. These are source facts, not ex
 | Response too large | Narrow scope, page children/properties, or read byte chunks |
 | Pending operation or recovery conflict | Inspect state, preserve artifacts and explicitly recover; never delete the marker to continue |
 | Backend unsupported | Preserve valid source and report not-executable; do not remove business intent to appease a narrower runtime |
+| InvalidIdentityMigration | Read `identityMigrationIssues`, not trial-and-error retries; supply the intended continuity/retirement for exactly the listed addresses |
+
+At 4.127.0 migration refusals name each offending address and its input array:
+`semanticRenames`, `eventRenames`, `retiredSemanticAddresses`,
+`retiredEventAddresses`. Rejected `propose`, `propose-ast` and `propose-source`
+return structured `identityMigrationIssues`: each item has `arguments` and typed
+`address` (`kind`, `parts`). Stale renames name both endpoints. Missing continuity
+lists rename and retirement as **alternatives**, not an instruction to retire.
+Events have both semantic and event-contract assignments; include assigned
+descendants too. Read the same details in rename/apply conflict messages. Re-read
+state for stale migrations and make one intended correction, never delete the
+catalog or invent identities to bypass refusal.
 
 `Draft` can record deliberately unresolved reference debt. It is not an escape
 hatch for malformed ASTs, stolen identities, silent retargeting or unreviewed file
