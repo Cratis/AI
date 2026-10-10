@@ -85,6 +85,11 @@ generic code constrained on `where T : IGeneratable<T>` calls `T.New()` without
 reflection. Generate a UUID with `GenerateValue`, never with `Guid.NewGuid()` in
 scattered call sites and never with `System.Random`:
 
+Check the Cratis.Fundamentals version the project resolves first. Arc and
+Chronicle can bring an older one; when it is below 7.23.0, add a direct
+`Cratis.Fundamentals` 7.23.0 or later package reference, or keep a plain
+`static New()` without the interface until you can.
+
 ```csharp
 using Cratis.Concepts;
 

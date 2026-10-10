@@ -67,6 +67,8 @@ public record AuthorName(string Value) : ConceptAs<string>(Value)
 }
 ```
 
+`IGeneratable<T>` and `GenerateValue` need Cratis.Fundamentals 7.23.0 or later. Arc and Chronicle can resolve an older version; add a direct reference or keep a plain `static New()` until then (see [concepts.md](./concepts.md)).
+
 **[convention] Placement:** slice-specific concept → in the slice file; feature-shared → feature folder; module-shared → module folder; app-wide → `Common/`. Scan `Common/` and the feature folder before creating a new concept. See [concepts.md](./concepts.md) for full patterns, or invoke the **cratis-fundamentals-concept** skill.
 
 ## Commands
