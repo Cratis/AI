@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-stage-rendering-and-sandbox",
+  "evals": [
+    {
+      "id": 1,
+      "name": "default-scaffold-parity",
+      "prompt": "cratis render exited 0 and published, but the WorkItems screen is a default scaffold, not the MasterDetail template we modeled. Is the render a success? Explain how you check and what you report.",
+      "expected_output": "Not a success for UI parity: silent fallback to a default screen is a failure. Check the generated scene.json and bindings for each authored construct and report the omission as a diagnostic or capability gap with the tool versions.",
+      "assertions": [
+        "States that a silent fallback to a default screen is a failure, not a partial render.",
+        "Checks the generated scene.json and src/bindings.ts for the authored template and bindings.",
+        "Reports the omission with the responsible tool and package versions rather than patching generated output.",
+        "Keeps render publication separate from browser runtime proof."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fail-closed-interactions",
+      "prompt": "In the rendered app, double-clicking a work item row is refused with STAGE-SCENE-INTERACTION-001 and the guarded Close action with STAGE-SCENE-ACTION-001. A teammate wants to patch the generated frontend so both just work. What do you advise?",
+      "expected_output": "Both refusals are intentional fail-closed behavior recorded as unsupported capabilities; do not emulate them by editing managed output. Report them as capability gaps and keep any adapter in the unmanaged Customizations seam if the product needs it.",
+      "assertions": [
+        "Identifies both codes as intentional fail-closed refusals, not bugs.",
+        "Rejects editing managed generated output to emulate the behavior.",
+        "Records them as unsupported capabilities or capability gaps."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "safe-rerender",
+      "prompt": "Someone hand-edited a generated file and also added an unmanaged file at a path the renderer now wants. cratis render refuses. Explain what --force does and does not do, and how to re-render safely.",
+      "expected_output": "An unmanaged file at a planned path is refused even with --force; a modified managed file is replaced only when still active and --force is given; move hand-written code to Customizations/; recovered: true means stop and reconcile.",
+      "assertions": [
+        "States that an unmanaged file at a planned path is refused even with --force.",
+        "States that --force replaces a user-modified managed file only when it is still active.",
+        "Moves hand-written code into the unmanaged Customizations seam.",
+        "Treats recovered: true as a signal to stop and reconcile."
+      ]
+    }
+  ]
+}

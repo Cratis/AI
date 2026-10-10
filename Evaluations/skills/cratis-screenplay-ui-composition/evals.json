@@ -1,0 +1,39 @@
+{
+  "skill_name": "cratis-screenplay-ui-composition",
+  "evals": [
+    {
+      "id": 1,
+      "name": "toolbar-dialog-and-manual-columns",
+      "prompt": "Our Screenplay model has a WorkItemList screen and CreateWorkItem and RenameWorkItem commands. Add a toolbar action on WorkItemList that opens RenameWorkItem as a dialog, and make the CreateWorkItem form show only title and then status. Show the .play changes in your reply; do not write files.",
+      "expected_output": "A toolbar entry whose destination is the RenameWorkItem dialog, and a CreateWorkItem form with manual columns listing only command properties in order, with a note that the exact shape comes from the installed MCP syntax schema and that authoring, executable admission and runtime support are reported separately.",
+      "assertions": [
+        "Declares the RenameWorkItem toolbar action with a dialog destination rather than a page navigation.",
+        "Uses manual columns that list only CreateWorkItem command properties, title before status.",
+        "Says the exact syntax is confirmed through the installed MCP syntax schema or the Screenplay canonical corpus instead of inventing it.",
+        "Reports authoring acceptance separately from render or runtime support."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "hierarchical-outlets",
+      "prompt": "The application shell has a header and a main outlet. The Settings area needs its own nested outlet whose child routes are Profile and Notifications. Show the Screenplay composition in your reply; do not write files.",
+      "expected_output": "A Settings template or layout that declares a nested outlet, child routes for Profile and Notifications targeting that outlet, and an instruction to report an unsupported outlet as a capability gap instead of flattening the navigation.",
+      "assertions": [
+        "Declares a nested outlet inside the Settings composition rather than reusing the shell's main outlet.",
+        "Routes Profile and Notifications to the nested outlet.",
+        "States that a refused or unsupported outlet is reported as a capability gap, never replaced by a flat list."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "package-icon-and-exposed-configuration",
+      "prompt": "For the Orders screen in our Screenplay model, select a component package and icon for the table, and let the screen template expose the page size so each screen can set it. Show the .play changes in your reply; do not write files.",
+      "expected_output": "A package and icon selection on the component instance, an exposed template configuration value for page size set by the screen, and a statement that package metadata stays in the package catalog rather than being copied into the model.",
+      "assertions": [
+        "Selects the package and icon on the model without copying package metadata into the .play source.",
+        "Declares page size as exposed template configuration that the Orders screen sets.",
+        "Ties the table's data to a typed query binding rather than an untyped value."
+      ]
+    }
+  ]
+}

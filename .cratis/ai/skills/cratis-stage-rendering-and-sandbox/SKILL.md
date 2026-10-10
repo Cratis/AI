@@ -1,6 +1,6 @@
 ---
 name: cratis-stage-rendering-and-sandbox
-description: "What Cratis Stage and `cratis render` actually do with a Screenplay `.play` model today: the narrow model shape Stage 4.51 admits and refuses (`STAGE-ESM-*`, `PLAY0268` render refusals), what it emits (C# Arc/Chronicle backend, React/Vite scaffold with Arc `CommandForm` shell emission over Scene 4.12 typed bindings, Debug specifications), managed publication, `--force` and recovery, authored-UI omission/parity checks, the unmanaged `Customizations/` seam, and the `cratis/stage` sandbox and `cratis/stage-specrunner` job. Use when deciding whether Stage can render a model, reading a blocked render, re-rendering safely, checking generated/runtime screen parity, or running the sandbox. Not for: authoring the model (use `cratis-screenplay-model-authoring`) or the render and gap-fill workflow (use `cratis-screenplay-render-and-gap-fill`)."
+description: "What Cratis Stage and `cratis render` actually do with a Screenplay `.play` model today: the narrow model shape Stage 4.52 admits and refuses (`STAGE-ESM-*`, `PLAY0268` render refusals), what it emits (C# Arc/Chronicle backend, React/Vite scaffold with Arc `CommandForm` shell emission over Scene 4.12 typed bindings, Debug specifications), managed publication, `--force` and recovery, authored-UI omission/parity checks, the unmanaged `Customizations/` seam, and the `cratis/stage` sandbox and `cratis/stage-specrunner` job. Use when deciding whether Stage can render a model, reading a blocked render, re-rendering safely, checking generated/runtime screen parity, or running the sandbox. Not for: authoring the model (use `cratis-screenplay-model-authoring`) or the render and gap-fill workflow (use `cratis-screenplay-render-and-gap-fill`)."
 license: MIT
 ---
 
@@ -19,11 +19,12 @@ reading in this skill is not a render result.
 Authored UI has its own parity hazard. Stage 4.24 rendered a default React/Vite
 scaffold and did not prove that modeled screens, templates, forms, toolbars,
 components, outlets, package icons or routes were implemented. The first fully
-passing public browser vector is CLI 3.40.7 with its default `cratis/stage:4.51.1`
-and bundled Screenplay 4.114.0: 51 browser assertions passed, none blocked or
-pending (recorded in Cratis/Screenplay#605). Native command forms, required
-fields, scoped comments, deep links, stale-response handling and theme all pass
-there. Two behaviors stay fail-closed by design: a guarded Close action
+passing public browser vector was CLI 3.40.7 with `cratis/stage:4.51.1`: 51
+browser assertions passed, none blocked or pending (Cratis/Screenplay#605).
+Native command forms, required fields, scoped comments, deep links,
+stale-response handling and theme all pass there. On public CLI 3.43.0 (default
+`cratis/stage:4.52.0`) an agent-edited table column was rendered, run and seen in
+the browser. Two behaviors stay fail-closed by design: a guarded Close action
 (`STAGE-SCENE-ACTION-001`) and a double-click interaction
 (`STAGE-SCENE-INTERACTION-001`) are refused and recorded as unsupported
 capabilities, never emulated. Require a generated plan or artifact entry for every
@@ -41,10 +42,10 @@ argument or an invalid semantic option.
 
 | Source | Pin | Notes |
 | --- | --- | --- |
-| Stage | `4.51.1` (`v4.51.1`, `0fe4a63`) as the CLI default; latest public package `4.51.3` (`e7dc0a0`) | Renderer, sandbox host, spec runner; the CLI 3.40.7 default image is `cratis/stage:4.51.1`. Defines `STAGE-SCENE-ACTION-001` and `STAGE-SCENE-INTERACTION-001`. Earlier executed baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
-| cratis CLI | `3.40.7` (`v3.40.7`, `af9f18e`) | `cratis render`, `cratis run`; the tag pins `StageVersion` 4.51.1 and `ScreenplayVersion` 4.114.0. The public CLI renders the canonical corpus and runs the stdio MCP transcript. Unresolvable UI-profile rejection and render-then-recover fixes are pending in Cratis/cli#301. Older baseline: `v3.28.2` (`141c499`, Cratis/cli#253) |
-| Screenplay | bundled `4.114.0`; latest public language package `4.122.0` | The CLI bundles 4.114.0, so compiler claims made through `cratis` are 4.114.0 claims; use the standalone 4.122.0 tool only for language features newer than the bundle |
-| Rendered applications | Arc, Chronicle, Scene 4.14.0, .NET 10 | CLI 3.40.7 renders the canonical corpus to `.cratis-render.json`, backend artifacts, `.frontend/**`, `scene.json`, `src/bindings.ts`. Verify the generated package set for each render before claiming exact Scene runtime parity |
+| Stage | `4.52.0` (`v4.52.0`, `0e4fd87`) as the CLI 3.43.0 default; latest public package `4.57.0` (`3b8049f`) | Renderer, sandbox host, spec runner; the CLI default image is `cratis/stage:4.52.0`. Both define `STAGE-SCENE-ACTION-001` and `STAGE-SCENE-INTERACTION-001`. Earlier executed baselines: 4.51.3, 4.51.1, 4.49.5 and `v4.24.2` (`32dcac4`) |
+| cratis CLI | `3.43.0` (`v3.43.0`, `23e5a24`) | `cratis render`, `cratis run`; the tag pins `StageVersion` 4.52.0 and `ScreenplayVersion` 4.127.0. The public CLI renders the canonical corpus and runs the stdio MCP transcript; refusing an unresolvable UI profile and recovering a rendered application shipped in Cratis/cli#301. Older baselines: 3.41.0, 3.40.7, `v3.28.2` (`141c499`, Cratis/cli#253) |
+| Screenplay | bundled `4.127.0`; latest public language package `4.129.0` | The CLI bundles 4.127.0, so compiler claims made through `cratis` are 4.127.0 claims; use the standalone 4.129.0 tool only for language features newer than the bundle |
+| Rendered applications | Arc, Chronicle, Scene 4.15.0, .NET 10 | CLI 3.43.0 renders the canonical corpus to `.cratis-render.json`, backend artifacts, `.frontend/**`, `scene.json`, `src/bindings.ts`. Verify the generated package set for each render before claiming exact Scene runtime parity |
 
 Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.md`,
 `Documentation/**` in Stage; `Source/Cli/Commands/Render/**` and
@@ -58,8 +59,9 @@ Chronicle 19.32.0 and the tool split) is in the `cratis-screenplay-toolchain` sk
 protected by Stage; admission and unit-of-work enrollment still matter. See
 [rendered application](references/rendered-application.md) for the source checks. Screen render
 publication and browser behavior for the canonical corpus are verified on public
-CLI 3.40.7 / `cratis/stage:4.51.1`. Studio 0.141 is released and production runs
-v0.139.0 or later, but production UI automation is pending a
+CLI 3.43.0 / `cratis/stage:4.52.0`. Studio 0.144.4 is released, but production
+answers every unauthenticated request with 401 and the production UI automation
+needs a
 test-account decision, so Studio production Play proof is not claimed.
 
 ## Model-first rule
@@ -195,7 +197,7 @@ read models `when_<snake>_is_projected`.
 
 For UI, record what the generated output claims separately from what the model
 authored. On Stage 4.24 the generated scaffold is not screen parity evidence.
-On public CLI 3.40.7 / `cratis/stage:4.51.1` the canonical corpus publishes,
+On public CLI 3.43.0 / `cratis/stage:4.52.0` the canonical corpus publishes,
 `scene.json` contains Arc `commandForm` components, `src/bindings.ts` registers
 the modeled commands and queries, and the browser acceptance run passes. That is
 not Studio production proof. Require an explicit plan, manifest entry or

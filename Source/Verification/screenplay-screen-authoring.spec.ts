@@ -134,23 +134,23 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
     );
 
     const failClosed = ['STAGE-SCENE-ACTION-001', 'STAGE-SCENE-INTERACTION-001'];
-    for (const required of ['3.40.7', 'cratis/stage:4.51.1', '4.114.0', '51 browser assertions', 'Cratis/cli#301', 'test-account decision', ...failClosed]) {
+    for (const required of ['3.43.0', 'cratis/stage:4.52.0', '4.127.0', '51\nbrowser assertions', 'Cratis/cli#301', 'test-account decision', ...failClosed]) {
         assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
     }
-    for (const required of ['3.40.7', '4.51.1', '4.114.0', 'published successfully', 'screenplay-mcp-transcript.ts', 'Cratis/cli#301', ...failClosed]) {
+    for (const required of ['3.43.0', 'published successfully', 'MCP-edited copy', 'screenplay-mcp-transcript.ts', 'Cratis/cli#301', ...failClosed]) {
         assert.ok(render.includes(required), `render guidance is missing ${required}`);
     }
     for (const required of ['3.40.7', '4.51.1', '4.114.0', '4.122.0', 'executableReady true', '37 tools']) {
         assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
     }
-    for (const required of ['3.40.7', '9 requests and 9 responses', 'StaleRevision', ...failClosed]) {
+    for (const required of ['3.43.0', '9 requests and 9 responses', 'StaleRevision', 'cratis/stage:4.52.0', ...failClosed]) {
         assert.ok(workflow.includes(required), `authoring workflow is missing ${required}`);
     }
     assert.ok(
         workflow.includes('ScreenComposition/v1/source/folder'),
         'the authoring workflow must link the canonical screen corpus v1 folder',
     );
-    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'cratis/stage:4.51.1', 'Scene 4.14.0', ...failClosed]) {
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'cratis/stage:4.52.0', 'Scene 4.15.0', ...failClosed]) {
         assert.ok(composition.includes(required), `composition contract is missing ${required}`);
     }
 });
@@ -170,4 +170,51 @@ test('screen guidance no longer carries caveats that pass on the public vector',
             assert.ok(!document.includes(retired), `screen guidance still carries the retired caveat or pin '${retired}'`);
         }
     }
+});
+
+test('the edited-application browser check edits through MCP, runs the edited model and fails closed', () => {
+    const transcript = readFileSync(join(repositoryRoot, 'Source', 'Verification', 'screenplay-mcp-transcript.ts'), 'utf8');
+    const browser = readFileSync(join(repositoryRoot, 'Source', 'Verification', 'screenplay-edited-app-browser.ts'), 'utf8');
+    const workflow = readFileSync(join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'), 'utf8');
+
+    assert.ok(transcript.includes("=== 'work-item-id-column'"), 'the transcript must offer the opt-in column edit');
+    assert.ok(transcript.includes('the work item id column was not on disk after apply'), 'the transcript must prove the edit landed');
+    for (const required of ["spawn('cratis', ['run', model", "getByRole('columnheader', { name: /^Work item id$/ })", 'process.exit(2)', 'process.exitCode = passed ? 0 : 1', 'mounts.includes(model)']) {
+        assert.ok(browser.includes(required), `the browser check is missing ${required}`);
+    }
+    for (const required of ['screenplay-edited-app-browser.ts', '--edit work-item-id-column', 'scene.json', 'all five browser checks passed']) {
+        assert.ok(workflow.includes(required), `the authoring workflow is missing ${required}`);
+    }
+});
+
+interface TriggerQuery { query: string; shouldTrigger: boolean; note?: string }
+
+const screensSkills = ['cratis-screenplay-ui-composition', 'cratis-screenplay-model-authoring', 'cratis-stage-rendering-and-sandbox'];
+const triggers = (name: string) =>
+    (JSON.parse(readFileSync(join(repositoryRoot, 'Evaluations', 'skills', name, 'trigger.json'), 'utf8')) as { queries: TriggerQuery[] }).queries;
+
+test('every screens skill has routing coverage that names a real skill for each near miss', () => {
+    const knownSkills = readdirSync(join(corpus, 'skills'), { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => entry.name);
+    for (const name of screensSkills) {
+        assert.ok(existsSync(join(repositoryRoot, 'Evaluations', 'skills', name, 'evals.json')), `${name} has no evals.json`);
+        const queries = triggers(name);
+        assert.ok(queries.filter(query => query.shouldTrigger).length >= 8, `${name} needs at least eight triggering queries`);
+        for (const nearMiss of queries.filter(query => !query.shouldTrigger)) {
+            assert.ok(nearMiss.note && knownSkills.includes(nearMiss.note), `${name}: near miss '${nearMiss.query}' must name the skill it routes to`);
+            assert.notEqual(nearMiss.note, name, `${name}: a near miss cannot route back to the same skill`);
+        }
+    }
+});
+
+test('the screens skills route authoring, MCP editing and rendering requests to each other', () => {
+    for (const name of screensSkills) {
+        const routedTo = new Set(triggers(name).filter(query => !query.shouldTrigger).map(query => query.note));
+        for (const sibling of screensSkills.filter(other => other !== name)) {
+            assert.ok(routedTo.has(sibling), `${name} has no near miss that routes to ${sibling}`);
+        }
+    }
+    assert.ok(triggers('cratis-screenplay-ui-composition').some(query => query.shouldTrigger && /design-time|Generate fields/i.test(query.query)),
+        'ui-composition routing must cover design-time generation results');
+    assert.ok(triggers('cratis-screenplay-model-authoring').some(query => query.shouldTrigger && /StaleRevision/.test(query.query)),
+        'model-authoring routing must cover stale-revision recovery');
 });

@@ -226,7 +226,7 @@ same typed navigate binding a screen action uses.
 flat ordered list, and an explicit override for when nearest-enclosing is not the
 point you mean, are deliberately left for later. The screens-release vector
 (canonical `ScreenComposition` corpus v1) adds typed screen composition; public
-CLI 3.40.7 renders it and passes the browser run. Report a refused form as a
+CLI 3.43.0 renders it and passes the browser run. Report a refused form as a
 capability gap, never a flat-list fallback; Studio production proof is separate.
 
 ## Interactions — what a click does
