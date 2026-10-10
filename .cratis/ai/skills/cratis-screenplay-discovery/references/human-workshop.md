@@ -142,7 +142,7 @@ lists non-human causes (schedules, outside parties) separately.
 - Ask everywhere: "What happens next instead, including nothing?"
 
 Do not get stuck on exact timing; the point is the logical flow. The agent keeps the feature
-`description` story line and after / caused by / only if in the slices current
+`documentation` story line and after / caused by / only if in the slices current
 (`plotting-and-handoff.md`).
 
 ### 6. Sweep and close (15 to 20 minutes)

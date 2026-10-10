@@ -75,7 +75,7 @@ survive; ask what a caller who may not look sees.
 - Do not perfect a scenario in the room. Capture it with its open question and move on.
 - Every "what if...?" from anyone becomes a named candidate at once.
 - Record why a rule behaves as it does when the room explains it; the modeler puts it in the
-  slice `description`.
+  slice `documentation`.
 
 ## Multi-role check (before leaving the room)
 - Domain expert: is this the right business behaviour and message?

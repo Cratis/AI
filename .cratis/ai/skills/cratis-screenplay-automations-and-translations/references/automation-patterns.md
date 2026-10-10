@@ -56,7 +56,7 @@ Outcomes:
 
 When a todo list is not needed: the effect is immediate, internal and cannot fail (a direct
 `produces` or co-production), and nobody needs to see pending work. Say why in the slice
-`description`; do not add a list just to follow a pattern.
+`documentation`; do not add a list just to follow a pattern.
 
 ## 3. Effects: `produces` vs `invokes`
 | | `produces <Fact>` | `invokes <Command>` |

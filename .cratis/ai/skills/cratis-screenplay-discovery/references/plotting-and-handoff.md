@@ -106,7 +106,7 @@ Alternating: Harbourmaster, BoatOwner, Harbourmaster, BoatOwner with no handoff 
 When the story is about a *view* rather than a stream (a waiting list, a work queue, a berth
 board), a set of isolated before/after pairs hides what the user cares about: the same read
 model changing over time. Note it as one narrated walkthrough in STATE.md and the feature
-`description`: empty, then an item added, then the item done or failed, then removed, naming
+`documentation`: empty, then an item added, then the item done or failed, then removed, naming
 the event that causes each step. It is a seed only; discovery writes no specification.
 `cratis-screenplay-scenario-coverage` turns it into cumulative lifecycle specifications on
 the read model, and `cratis-screenplay-automations-and-translations` owns the work-queue

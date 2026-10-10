@@ -71,7 +71,8 @@ Right: write the rule as stated intent and mark it unenforced.
 - `reads <View> as x by …` plus `require <expr over x> message "…"` on the command (the
   `StateChange` slice in `streams-example.md`). Binding reports PLAY0271 / PLAY0268; that is
   expected in design mode, so keep the lines. Do not remove them to pass a tool.
-- Slice `description`, one block per rule:
+- Slice `description`: one short marker per rule, `NOT enforced in the model today; target: <mechanism>`.
+- Slice fenced `documentation`, one block per rule:
   - Requirement: the business rule in business words.
   - Status: NOT enforced in the model today (Screenplay#129, #209).
   - Decision inputs: the authoritative facts or state.

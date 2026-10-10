@@ -27,7 +27,7 @@ paths and addresses, not pasted contents:
   with the same name; never weaken, skip or delete one to pass. Do not edit managed files.
   Return a field inventory (command, event and read-model properties mapped to code locations)
   and list anything you added that the model does not state (expected: none). Explicit
-  realization requirements in the slice description bind adapters and fallback code, cannot
+  realization requirements in the slice `description` or `documentation` bind adapters and fallback code, cannot
   contradict executable parts and are never supplemented with inferred rules; descriptive prose
   that is not an explicit requirement is a hint. The repository's pattern wins over a
   generic template; report the mismatch. Stop on a contradiction and return an edit request.*

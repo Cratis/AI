@@ -33,7 +33,7 @@ exchange does not make that decision atomic.
 Run it when ownership, autonomy or integration decisions are missing; skip it when the user or
 the model already states all three. Ask one question at a time, offer the options, and follow
 the trigger. Unattended: assume the most conservative option, mark it `ASSUMED` in the slice or
-module `description` and in `STATE.md`.
+module `description`, give the reason in its `documentation`, and add it to `STATE.md`.
 
 | # | Question (options) | Decides | Follow-up trigger |
 |---|---|---|---|
@@ -137,7 +137,7 @@ integration support.
 - Treat a public event like a published API: evolution follows `evolution.md` with the
   consumers named, and breaking changes become new events.
 - Screenplay has no public/internal marker. Record the classification in the event's
-  `description`, and keep the list in `STATE.md`.
+  `documentation`, and keep the list in `STATE.md`.
 
 ## Crossing a boundary in Screenplay
 | Situation | Construct |

@@ -103,8 +103,8 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
      `unique event`, `released by`); list every event that sets the claimed value;
    - a state-dependent rule not reducible to those: write `reads <View>` + `require <expr>
      message "..."` as stated intent (PLAY0268/0271 at binding are expected in design mode) and
-     mark it **NOT enforced in the model today** in the slice `description`, with requirement,
-     missing guarantee, race consequence and the named target enforcement. Add a `STATE.md` row
+     mark it **NOT enforced in the model today** in the slice `description` with the named target,
+     and record requirement, missing guarantee and race consequence in the slice `documentation`. Add a `STATE.md` row
      with an owner. A general "some rules are unsupported" note is not enough.
    - Forbidden: a caller-supplied copy of state in `require`, a boolean attestation input
      (`confirmsX == true`) standing in for a rule, and rules hidden in `handler` or
@@ -205,8 +205,8 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
 Do not report done until all hold; otherwise report what is open:
 - Every identifier has its identity sentence, the event-membership table and a justified decision.
 - Every rule has an invariant-table row with an exact construct or limitation reference.
-- Every `recorded` rule is in its slice `description` and `STATE.md` with requirement, missing
-  guarantee, race consequence and intended enforcement owner.
+- Every `recorded` rule has its NOT-enforced marker in the slice `description`, and its requirement,
+  missing guarantee, race consequence and intended enforcement owner in the slice `documentation` and `STATE.md`.
 - Every changed event has compatibility scenarios; identity changes were made by the identity owner.
 - Every changed boundary has a named owner (or `ASSUMED`), callers, processors and contracts.
 - Verdicts are stated V1-V5 per `cratis-screenplay-modeling-lifecycle`, each a result or "not run".
