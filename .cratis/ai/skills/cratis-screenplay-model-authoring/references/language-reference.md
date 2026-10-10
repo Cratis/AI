@@ -6,6 +6,7 @@
 ## Contents
 
 - Accepted constructs
+- Caller, subject and stream nodes
 - Container dependencies and exact numbers
 - Complete model
 - Source validity is not execution
@@ -21,7 +22,7 @@ repository is the full list; this page is the authoring summary.
 ## Accepted constructs
 
 **Top level:** `domain`, `import`, `concept`, `type`, `policy`, `persona`,
-`authentication`, `trigger`, `theme`, `layout`, `ui profile`, `behavior`,
+`authentication`, `identity`, `purpose`, `trigger`, `theme`, `layout`, `ui profile`, `behavior`,
 `module`, `seed`, authoring-only `system`, and admitted `eventsource` with its `stream`s (ESM v8).
 
 **Inside a module:** `description`, `authorize`, `import "<glob>"`,
@@ -59,12 +60,36 @@ compiling the entire document set.
 
 Concept primitives are `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date` and
 `DateTime`; `Enum` is a separate concept kind whose members are indented below
-it. Concepts can carry `@pii`, `@sensitive`, reasons and validation.
+it. Concepts carry bare `pii` (`personal` alias), `secret`, reasons, personal-data
+qualifiers, secret scopes and validation. Legacy markers report PLAY0565 information;
+repeated header markers report PLAY0653 warning. Purposes declare the use/basis/retention
+separately; see command-surface `references/compliance.md`.
 
 Projections and captures use their dedicated sub-grammars. Inline code uses a
 tagged fence (` ```csharp `); the older language-line form still parses with
 warning `PLAY0397`. Query the MCP's `syntax-schema` instead of inventing JSON
 members or translating names from memory.
+
+## Caller, subject and stream nodes
+
+At v4.127.0 the typed syntax includes `IdentityExpressionSyntax` (`$identity`),
+`IdentitySyntax`, `IdentityDetailSyntax`, `ClaimIdentitySourceSyntax`,
+`QueryIdentitySourceSyntax`, `CodeIdentitySourceSyntax`, `FileIdentitySourceSyntax`.
+`ApplicationSyntax.Identity` carries the block; query schemas before editing JSON.
+Built-in caller paths are aliases of `$context.identity`; declared detail reads
+are authoring-only and refuse executable binding (PLAY0268), while the block alone
+does not block readiness. Claim/query sources have exactly one source and no body.
+See command-surface `references/context.md` for key/type/gate restrictions.
+
+`PropertySyntax.isSubject` marks an event's required unprotected scalar subject,
+omitted from structural JSON when false. It is lineage metadata (PLAY0270), not
+runtime subject propagation or generated C# `[Subject]`. Read-model marks are
+unsupported. `ReactionSyntax.RunsAs` / `ReactionIdentitySyntax` carry the system
+actor (ESM v10); MCP `declaration-details` includes `runsAs`.
+
+`EventStreamIdPartSyntax` and `streamIdParts` describe a composite stream-id schema;
+route mappings cover all named parts. Current routes are admitted as v8, not an
+old PLAY0268 gap. Never infer composite parts by splitting legacy scalar ids.
 
 ## Container dependencies and exact numbers
 
@@ -229,7 +254,7 @@ Screenplay 4.66.0 (before 3.28.2, Screenplay 4.60.1, differ where stated).
 | Binds as ESM v7 on standalone Screenplay 4.68.0 (source and release notes; `PLAY0268` on the 4.66.0 in Cratis CLI 3.28.x, probed) | `generated` properties and `returns` responses, generated fixtures and `then returns`: bound and executed by the reference runner; a policy, rule or requirement that references a generated value is `PLAY0273`, and a generated property on a concept with validation rules is `PLAY0268`. Stage 4.24.2 does not render them (`STAGE-ESM-016`, tracked in Stage#201): gap-fill |
 | Authorable, not executable (PLAY0268) | Systems/operations, exact numbers and refusal/redelivery remain unadmitted |
 | Current routing and actor admission | Sources/streams and command/specification routes bind and reference-execute as v8; reaction `runs as system role` supplies the invocation actor as v10 on 4.125.0. Whole-workspace binding determines executable availability; CLI/Stage realization remains separate |
-| Blocks binding (`PLAY0268`) | `@pii`/`@sensitive` concepts (probed: "compliance attributes require portable data-subject semantics"), command `handler` (never binds; a command cannot declare both `produces` and `handler`, `PLAY0035`), bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, unquoted `import` of an external contract, a read model whose keyed queries in its own slice do not share one `by` property (none, or two different properties; several queries over the same property bind), any query other than `=> <ReadModel> optional` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
+| Blocks binding (`PLAY0268`) | `pii`/`secret` concepts (also legacy spellings; historical probe: "compliance attributes require portable data-subject semantics"), command `handler` (never binds; a command cannot declare both `produces` and `handler`, `PLAY0035`), bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, unquoted `import` of an external contract, a read model whose keyed queries in its own slice do not share one `by` property (none, or two different properties; several queries over the same property bind), any query other than `=> <ReadModel> optional` with one caller-supplied `by` argument (so also observable, filtered, scoped and performer-backed queries), `$causedBy` and templates in projections |
 | Blocks binding (`PLAY0271`, legacy meaning) | Command `reads` and `concurrency` |
 | Deferred (`PLAY0269`, information) | Screens, layouts, templates, forms, contributions, UI profiles, themes, behaviors and `on`/`uses` |
 | Metadata only (`PLAY0270`, information) | `domain`, `seed`, `persona`, trigger and other descriptions, and `file` provenance on declarations |
@@ -264,9 +289,11 @@ Use standalone `screenplay test` or MCP `run-specifications` for a reference
 verdict, and independently check CLI/Stage admission. Never drop a contract to bind.
 Generated values and `returns` are no longer in this group: they bind from 4.68.0 (ESM v7).
 Protected reads and `derive`/`provide` (not admitted by any supported ESM version) have no documented
-syntax at v4.68.0: do not teach or invent one. Affected-instance declarations, per-event data
-subjects, external event origin and query paging/sorting/change-set delivery also
-remain unavailable here.
+syntax at v4.68.0: do not teach or invent one. Affected-instance declarations and query paging/sorting/change-set delivery
+remain unavailable here. Event `subject` is report-only authoring metadata at
+4.127.0; public events/origin are admitted as ESM v9 (not provider realization).
+Purpose declarations, references and processing records are authoring metadata,
+not retention or lawful-processing enforcement.
 
 `Type optional` is canonical for admitted type references; `Type?` remains
 compatible with information `PLAY0479`. The modifier follows `[]` for an optional

@@ -93,7 +93,16 @@ report and the slice `description`, and continue.
    `$context.occurred` or caller identity. No event-source id in the payload (it is the `for`);
    references to other instances are payload. No nullable property by default (a required value
    or a separate event). No PII on the identifier; one data subject per stream. Add a field only
-   when something downstream needs it.
+   when something downstream needs it. At 4.127.0 personal values use bare `pii`,
+   operational secrets `secret`; declare processing use/basis/retention in `purpose`,
+   not a reason. An event-property `subject` may identify a different person from
+   the stream but is report-only, not runtime propagation. See command-surface
+   `references/compliance.md`.
+   Trace caller details to claims or a keyed single-result identity-source query
+   (built-in/claim/literal key, detail-independent effective gate, compatible result).
+   The `identity` block is authoring metadata; executable `$identity.<detail>` reads
+   remain PLAY0268. `scoped to` is opaque, not a detail reference; see command-surface
+   `references/context.md`.
 5. **Events or views?** For each value someone needs: was it decided or supplied (event), or
    can it be worked out from facts already recorded (view)? Test, anti-patterns and where the
    outputs of an automation go: `references/read-model-design.md` *Events or views*. Decided calculations (a quoted

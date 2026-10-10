@@ -59,7 +59,8 @@ sends again.
 A field left out of `map` still passes through the capture's working record: omission is not
 redaction. Check the append mappings and every resulting event property, and record whether
 the target stores raw or last-seen source records and how they are minimized.
-Personal data kept in events needs `@pii` on its concept and a purpose; keep the annotation
+Personal data kept in events needs bare `pii` on its concept and a declared purpose
+(see command-surface `references/compliance.md`); keep the marker
 even when it blocks binding. Never record bearer tokens, magic links or signed URLs as facts
 (a keyed hash or reference at most), and never put PII on the event-source id.
 
@@ -123,7 +124,15 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
    `runs as system role "<Role>"` (ESM v10). An undeclared actor remains caller-less.
    CLI/Stage realization is a separate gap; a returned-command reactor uses
    `[ExecuteCommandsAsSystem("<role>")]` and the matching policy. Never strip a
-   gate or supply `given caller` as a fictional reaction identity.
+   gate or supply `given caller` as a fictional reaction identity. Arc supplies a
+   system principal only to reactors marked `[ExecuteCommandsAsSystem]`; without
+   it there is no principal and `[Authorize]`/`[Roles]` deny. `runs as` covers returned
+   or invoked commands, not imperative pipeline calls, reads, productions or causation.
+   On Screenplay 4.127.0 run `--check privilege --warnaserror` (PLAY0652) for
+   confused-deputy paths: every trigger-event producer must require **all** declared
+   system roles. Ungated commands/captures/reaction productions warn; opaque gates
+   are information, not proven safe. An OR alternative does not require a role.
+   Clock/application triggers have no producer and are silent; still review trust.
 5. **Trace inputs.** Every trigger value, command input, event property and destination needs a
    supported source; every filter a business reason. Gaps are questions, not invented mappings.
 6. **Repetition and termination.** Identify one logical work occurrence and what a retry is. Guard the
@@ -140,7 +149,7 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
 ## Rules
 **Compiler contracts** (diagnostics at 4.66.0)
 - No inline `produces event` in a reaction (PLAY0474); declare reaction-produced events in the slice.
-- Effects sit under a trigger; only `description` and `where` are reaction-level; one `where` per
+- Effects sit under a trigger; `description`, `where` and current `runs as` are reaction-level; one `where` per
   reaction (PLAY0252); a trigger may not repeat (PLAY0253).
 - Clock triggers take no values (PLAY0450) and no `by` on reads (PLAY0443). `for each <View>` is
   reserved, not available.
@@ -161,7 +170,7 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
   record. A fan-out records one outcome per item; partial success is failure at an effect boundary
   (`cratis-engineering-effect-boundaries`), never a batch "done" while members failed.
 - Infrastructure (logging, caching, retries, outbox plumbing) is never a Translate slice.
-- Personal data kept in events needs `@pii` on its concept; keep it even when it blocks binding or render.
+- Personal data kept in events needs `pii` on its concept; keep it even when it blocks binding or render.
 - Code bodies (`file`, inline fences) document realization; no local engine runs them.
 
 **Review questions**

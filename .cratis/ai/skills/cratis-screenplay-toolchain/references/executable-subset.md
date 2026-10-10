@@ -2,6 +2,7 @@
 
 ## Contents
 
+- Caller and compliance boundary (4.127.0)
 - Admitted on both compilers
 - Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 - Generated values and responses (ESM v7): standalone 4.68.0 or later only
@@ -10,7 +11,7 @@
 - Not refused, but do not rely on it
 - Never do this to reach V3
 
-Current pins are Screenplay 4.125.0 / CLI 3.41.0 (`versions.md`). Detailed
+Current pins are Screenplay 4.127.0 / CLI 3.41.0 (`versions.md`). Detailed
 4.66.0/4.68.0 binder probes below retain their historical labels. Current source
 admits sources/streams/routes as ESM v8 and policy negation as ESM v7; operations,
 exact numbers and reaction refusals/redelivery remain unadmitted. Use the actual
@@ -31,6 +32,20 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 `pdl-example.md` (projections, both compilers) and `automation-translate-example.md`
 (ESM v6; standalone tool and cratis 3.28.2 or later) and `generated-responses-example.md`
 (ESM v7; standalone tool 4.68.0 or later only).
+
+## Caller and compliance boundary (4.127.0)
+
+`$identity.id`/`.name`/`.userName` are aliases of the admitted
+`$context.identity` produces-mapping values. Authentication status, roles and
+claims still refuse there (PLAY0268); the older root is not deprecated.
+A top-level `identity` block alone is authoring metadata and does not block
+readiness. Executable reads of declared `$identity.<detail>` do (PLAY0268);
+`$context.identity` remains built-ins only. Purposes and event `subject` marks
+are metadata (PLAY0270), not source resolution, retention or subject propagation.
+Bare `pii`/`personal` and `secret` concepts, scopes and qualifiers still block
+binding. Legacy spellings compile with PLAY0565 information; duplicates warn
+PLAY0653. Never remove protection; see command-surface `references/compliance.md`.
+Authority: v4.127.0 `context.md`, `identity.md`, `concepts.md`, `events.md`, `purposes.md`.
 
 ## Admitted on both compilers
 
@@ -159,7 +174,7 @@ bodies still leave their owner non-executable.
 | --- | --- | --- |
 | `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
-| `@pii` or `@sensitive` on any concept | PLAY0268 | "Concept '<n>' compliance attributes require portable data-subject semantics." Same message at 4.60.1 and 4.66.0. `@sensitive` means an operational secret, rendered `[Encrypted]` + `[NotAudited]` (Screenplay decision 0034) |
+| `pii` or `secret` on any concept (also alias/legacy markers) | PLAY0268 | Compliance requires portable data-subject semantics; scopes/qualifiers do not admit it. Secret provider mapping is `[Encrypted]` + `[NotAudited]`, not a bind/render claim |
 | `query` returning a collection (`RM[]`), or without exactly one caller-supplied `by` | PLAY0268 | "must declare one caller-supplied 'by' argument" or "must return one optional read model" |
 | `observable`, `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` goes in the return position (`=> observable RM optional`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
@@ -199,9 +214,9 @@ bodies still leave their owner non-executable.
 
 ## Never do this to reach V3
 
-Do not remove `@pii`, `@sensitive`, `authorize` or policies, list queries, automations or
+Do not remove `pii`, `secret`, `authorize` or policies, list queries, automations or
 rules a domain needs just to make binding pass. Report `V3 blocked: <codes>` and record the
-slice in the gap list. A `@pii` or `@sensitive` attribute blocks V3 and rendering, and
+slice in the gap list. A `pii` or `secret` marker blocks V3 and rendering, and
 either attribute on an identifier or typed destination is a source error
 PLAY0515 on the current compiler (including stream-id parts and route mapping
 sources). Chronicle also rejects `[PII]`/`[Encrypted]` on event-source identifiers

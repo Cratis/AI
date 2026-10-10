@@ -68,7 +68,7 @@ The `.play` model is the source of truth; Stage-managed output is derived from i
 - Hand-written code goes in `Customizations/` (unmanaged), in a separate project, or in
   an explicitly authorized gap-fill for scope Stage cannot render (`cratis-screenplay-render-and-gap-fill`).
 - A customization never makes a rejected model renderable, and never weakens modeled
-  authorization, validation or `@pii` to get past a refusal.
+  authorization, validation or personal-data and secret markers to get past a refusal.
 - Never claim a whole-application result from a subset of the model.
 
 ## Publication and recovery
@@ -135,7 +135,7 @@ Facts that surprise:
 
 ## Historical Stage 4.24 admission
 
-Current pins are standalone Screenplay 4.125.0 / CLI 3.41.0 / Stage 4.51.3.
+Current pins are standalone Screenplay 4.127.0 / CLI 3.41.0 / Stage 4.51.3.
 Routes bind/reference-execute as v8; reaction `runs as` identity as v10.
 CLI renders through v7 only (CLI-RENDER-004 for newer model versions) and its
 older 4.114.0 parser rejects `runs as` (PLAY0137). Stage 4.51.3's direct planner

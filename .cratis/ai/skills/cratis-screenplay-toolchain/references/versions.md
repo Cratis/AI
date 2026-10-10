@@ -17,7 +17,7 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.125.0** (`4d818eb`) | Released tag `v4.125.0`; installed `screenplay --version` and `--help` |
+| Screenplay language, standalone tool and MCP | **4.127.0** (`e70435a4`) | Released tag `v4.127.0`; installed `screenplay --version`; changed identity/compliance examples compiled |
 | cratis CLI | **3.41.0** | Released tag `v3.41.0`; installed `cratis --version` |
 | Screenplay bundled by CLI | **4.114.0** | CLI `v3.41.0:Directory.Packages.props` |
 | Stage bundled by CLI | **4.51.3** | Same file; the CLI's runtime image follows its Stage package version |
@@ -30,7 +30,7 @@ on PATH can shadow a newer install; inspect `which -a cratis`.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.125.0 and the CLI's 4.114.0 bundle are different releases.
+Standalone Screenplay 4.127.0 and the CLI's 4.114.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -62,7 +62,7 @@ for identity-stable selection.
 
 ## Admission boundaries
 
-Screenplay `v4.125.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports schema
+Screenplay `v4.127.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports schema
 pairs through v10. Generated values/responses and policy negation select v7;
 sources/streams and command/specification routes select v8; reaction
 `runs as system [role "<Role>"]` selects v10 and reference-executes on 4.125.0.
@@ -85,6 +85,13 @@ omission or inferred support from package versions.
 The renderable-subset and Stage references retain older probes explicitly;
 read them as tested snapshots, not as a claim that Stage 4.51.3 shares every
 4.24.2 limitation. Query the actual bundled renderer before a V5 claim.
+
+At 4.127.0, `$identity` aliases built-in caller paths; declared identity details
+remain metadata and their executable reads report PLAY0268. Bare `pii`/`secret`
+still block binding; `personal` aliases `pii`. Legacy markers are accepted with
+PLAY0565 information, duplicates warn PLAY0653. Event `subject` and processing
+purposes are report-only metadata (PLAY0270); purpose checks/reports do not prove
+lawfulness or enforce retention. See command-surface context/compliance references.
 
 ## Historical probes
 

@@ -77,7 +77,8 @@ scenario, claim/unknown semantics and PLAY0647–0652/0557 diagnostics.
 
 CLI 3.41.0's 4.114.0 compiler rejects this source with PLAY0137; its version gate
 and Stage 4.51.3 planner admit only through v7. Target realization is gap-fill,
-using Arc `[ExecuteCommandsAsSystem]` for returned commands. Each invoked command
+using Arc `[ExecuteCommandsAsSystem]` for returned commands. Without that attribute
+Arc supplies no principal and `[Authorize]`/`[Roles]` deny. Each invoked command
 is atomic, not the whole cascade; earlier accepted facts remain after a later refusal.
 
 ⚠️ **Declared, not enforced.** A trigger `reads` gives no runtime protection. From
@@ -177,7 +178,7 @@ optional.
 
 ⚠️ **Indentation decides what is a trigger and what is an effect.** `produces`,
 `invokes`, `file` and inline code belong **inside** the trigger block, indented
-under `when`/`every`/`at`. Only `description` and `where` sit at reaction level.
+under `when`/`every`/`at`. `description`, `where` and `runs as` sit at reaction level.
 Outdenting an effect gives *Expected a trigger in reaction body, got 'invokes …'*
 (`PLAY0137`) — the compiler is looking for another trigger where the effect is.
 
@@ -239,7 +240,7 @@ append-time constraints. `invokes` asks for a command, which additionally runs t
 command's authorization, validation and requirements, and may reject.
 Using `produces` for both would say those are the same kind of consequence.
 
-**Who is the caller of an `invokes`?** Nobody; see *Caller-less invokes and unprotected reads* above before writing one.
+**Who is the caller of an `invokes`?** Nobody unless `runs as` declares the actor; see *Caller-less invokes and unprotected reads* above before writing one.
 
 Both are declarations of *what happens*, not of how — a trigger can state its
 consequences **and** carry a `file` or an inline block in a tagged fence

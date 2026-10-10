@@ -1,6 +1,13 @@
 # Renderable subset (V5): what `cratis render` admits
 
-Current pins: standalone Screenplay 4.125.0; CLI 3.41.0 bundles Screenplay
+## Contents
+
+- What Stage 4.24 admits
+- Authoring consequences in renderable mode
+- Ownership, publication and recovery
+- Reading V5
+
+Current pins: standalone Screenplay 4.127.0; CLI 3.41.0 bundles Screenplay
 4.114.0 and Stage 4.51.3 (`versions.md`). CLI admits ESM v7 to Stage planning;
 above v7 is CLI-RENDER-004. Its v7 canonical corpus gets STAGE-ESM-028/029 for
 generated values/responses (`v3.41.0:Source/Cli.Specs/for_ScreenplayPlanning/when_planning_an_esm_v7_model.cs`).
@@ -47,6 +54,14 @@ whole automation is hand-written (gap-fill).
 | Authorization | authenticated, role, claim and logical policies; caller fixtures; ownership claims against text-backed targets | opaque policy code, role-claim URIs, a claim matched against a Uuid-backed subject or path: 015 |
 | Specifications | command-action scenarios: given events, `when <Command>`, `then` events (ordered or any order), `then readmodel`, `then query`, `then error` (naming a rendered constraint or message), `then denied`, `given caller`. Two narrow when-less routes: an unprotected single `then query` seeded by exactly one `given readmodel` whose key and values match (no given events, no caller), and a query-only denial (`given caller`, one `then query` with no results, `then denied`, a protected query, no role claims) | `then no readmodel`, `when append`, composite values, error codes not naming a rendered constraint: 011. Any other when-less specification (for example given events with `then query`) fails 011 |
 | Compliance | none | any `@pii` or `@sensitive` already fails binding (PLAY0268). The C# provider mapping (Stage v4.29.0, Stage#197) is `@pii` to `[PII]`, `@sensitive` to `[Encrypted]` + `[NotAudited]`, both to `[PII]` only |
+
+At standalone 4.127.0, compliance uses bare `pii`/`secret` (legacy markers are
+accepted with PLAY0565 information); either still refuses binding. Identity blocks,
+purposes and event `subject` are authoring metadata, not provider realization;
+executing identity detail reads still refuses PLAY0268. Current source/stream
+routes are admitted as v8, including composite ids, not the historical binding
+refusal above; CLI 3.41.0 still refuses versions above v7. Never split hand-joined
+legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
 
 ## Authoring consequences in renderable mode
 

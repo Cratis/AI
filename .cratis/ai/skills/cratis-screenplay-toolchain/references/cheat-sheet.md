@@ -12,7 +12,7 @@
 - PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
 - Specification forms
 
-Current pins: standalone Screenplay 4.125.0 / CLI 3.41.0; `versions.md` is the
+Current pins: standalone Screenplay 4.127.0 / CLI 3.41.0; `versions.md` is the
 single table. Compile evidence below keeps its historical tool labels.
 
 The syntax lives in compiled example files next to this one (each is a Markdown file holding
@@ -104,6 +104,17 @@ roles, claims, causation, `command.<p>`, `arguments.<p>`: PLAY0268. Binding is n
 a reference scenario that supplies only a clock carries no caller audit identity, so check the
 reference runner before relying on identity paths in a specification. Renderable:
 `$context.occurred` only.
+
+At 4.127.0, `$identity.id`/`.name`/`.userName` map to the same ESM kinds as
+`$context.identity`; prefer the shorter root, but the older one stays supported.
+Other built-ins parse but roles/claims/authentication status do not bind in
+produces mappings. Identity details are metadata: executable detail reads report
+PLAY0268. See command-surface `references/context.md`.
+
+Use bare `pii`/`secret` on concepts (`personal` aliases `pii`); legacy markers
+are PLAY0565 information and repeated markers are PLAY0653 warning. Event `subject`
+is report-only lineage; processing purposes/checks/reports declare use, not lawful
+processing or runtime retention. See command-surface `references/compliance.md`.
 
 ## `$eventContext.` (projections)
 `eventType{.id,.generation,.tombstone}`, `eventSourceType`, `eventSourceId`, `eventStreamType`,

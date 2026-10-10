@@ -16,7 +16,7 @@ are never a valid reason to:
   imported external event (`vocabulary-map.md`). Translating into our facts and the later work
   that acts on those facts are separate things; do not merge them, or skip the translation, because
   one step is simpler.
-- **Drop protection or a refusal** (`authorize`, `@pii`, a `validate` rule, a `then denied` or
+- **Drop protection or a refusal** (`authorize`, `pii`, a `validate` rule, a `then denied` or
   `then error` specification) so a tool passes or the model looks smaller.
 - **Cover a command with "one success plus one failure"** when the domain has competing claims,
   branches, removals, retries or denials.

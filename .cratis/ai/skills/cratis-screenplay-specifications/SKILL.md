@@ -261,7 +261,7 @@ For view specifications:
 ## Verify
 
 - [ ] Validate the complete root with warnings as errors, naming tool/version.
-      Current standalone pin: 4.125.0. Run specification examples through
+      Current standalone pin: 4.127.0. Run specification examples through
       `screenplay test`; expected unadmitted syntax reports unbound, not passed.
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.

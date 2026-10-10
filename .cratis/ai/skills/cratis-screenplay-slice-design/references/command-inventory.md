@@ -124,4 +124,5 @@ not been asked the refusal questions.
 - Refusals recorded as prose in the `description` with no layer and no spec row.
 - Personal data or secrets as command input: values are by default recorded in the causation chain, so treat them as permanent
   (retention can be configured in newer Chronicle; verify it, never audit secrets).
-  Mark the concept `@pii` or record the need; never put `@pii` on the identifier's concept.
+  Mark concepts bare `pii` for personal data or `secret` for operational secrets,
+  never on the identifier; declare use/basis/retention in a purpose, not a reason.

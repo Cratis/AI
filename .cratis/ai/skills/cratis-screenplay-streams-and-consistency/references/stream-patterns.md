@@ -20,6 +20,15 @@ A stream in Screenplay is the event source a production lands on: `identifier` o
 command, `for <identifier>` on each `produces`, `$eventSourceId` in projections, `for "<id>"`
 in specifications. Choosing the identifier *is* choosing the stream.
 
+Composite stream keys (Screenplay 4.127.0) declare `streamId` with two or more
+named scalar parts and map every part on routes (specification parts are literals).
+Scalar forms remain valid. Text is nonempty, well-formed NFC; Double integer ids
+stay within ±(2^53−1). Protected concepts cannot be key types/parts or mapping
+sources (PLAY0515); choose surrogate keys and keep protection in payloads.
+Canonical encoding formats parts, escapes `%`/`|`, and joins in declaration order;
+never split hand-joined legacy text by guesswork. A stored key-schema change needs
+a new stream identity or migration. See toolchain `references/sources-and-streams.md`.
+
 ## Identity and event-membership review
 Start from the business instance, then choose its representation. A generated id can name a
 real instance; a readable constant can hide a collection. Write one sentence per identity

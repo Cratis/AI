@@ -3,6 +3,12 @@
   "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and what does the cratis CLI do with my Automation slice?",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "4.127.0" },
+    { "kind": "skill-contains", "value": "PLAY0653", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "PLAY0646", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "PLAY0595", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "PLAY0652", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "PLAY0504 | E", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "references/versions.md" },
     { "kind": "skill-contains", "value": "PLAY0029" },
     { "kind": "skill-contains", "value": "--warnaserror" },

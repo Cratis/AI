@@ -5,10 +5,12 @@
   `Decimal`, `Bool`, `Date` and `DateTime`; `Enum` is a separate concept kind,
   with its values indented beneath.
 - **Classify personal data at the concept**, with a reason:
-  `concept PersonName : String @pii` plus an indented `pii reason "..."`. Every
+  `concept PersonName : String pii` plus an indented `pii reason "..."`. Every
   usage inherits it; a reason for an attribute the concept does not declare is an
-  error. Decide this before fixing event shapes - erasure follows the subject and
-  the subject follows the stream.
+  error. Decide this before fixing event shapes; purpose/basis/retention belong in
+  processing-purpose declarations, not a reason. An event subject defaults to the
+  source unless supplied; the trailing event-property `subject` mark is report-only
+  at 4.127.0, not runtime lineage. See command-surface `references/compliance.md`.
 - **Events are past tense and self-describing** - `InvoiceRegistered`, never
   `Created`. One purpose per event; an event needing an optional property to cover
   two situations is two events.

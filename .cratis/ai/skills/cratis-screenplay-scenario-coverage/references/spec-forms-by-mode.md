@@ -4,7 +4,7 @@ The subsets themselves (what binds, what renders) are owned by `cratis-screenpla
 (its executable and renderable subset references); version facts by its `references/versions.md`. This file
 says what that means for writing specs. A form outside the chosen mode is never deleted from a
 design model: keep it and record the gap. The detailed Stage 4.24.x rows below
-retain historical admission evidence; current pins are Screenplay 4.125.0 / CLI
+retain historical admission evidence; current pins are Screenplay 4.127.0 / CLI
 3.41.0. Run actual target admission instead of assuming old restrictions carry over.
 Typed example/override forms: `cratis-screenplay-specifications`
 `references/examples-and-routes.md`.

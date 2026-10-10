@@ -27,7 +27,7 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 | --- | --- | --- |
 | cratis CLI | `3.41.0` (`v3.41.0`) | `cratis render` options, exit codes, publication receipt, UI-profile rejection (`CLI-RENDER-007` to `CLI-RENDER-010`); tag pins Stage 4.51.3, Screenplay 4.114.0 and `Cratis.Arc.Screenplay` 22.54.0, with `cratis/stage:4.51.3` as the runtime image. UI-profile rejection and render-then-recover shipped in 3.41.0 (Cratis/cli#301). The screens release vector was verified on 3.40.7 (`af9f18e`) with `cratis/stage:4.51.1`. Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
 | Stage | `4.51.3` (CLI 3.41.0 default) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, fail-closed guarded actions (`STAGE-SCENE-ACTION-001`) and interactions (`STAGE-SCENE-INTERACTION-001`). Older baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
-| Screenplay | bundled `4.114.0`; standalone `4.125.0` | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; claims made through `cratis` are 4.114.0 claims |
+| Screenplay | bundled `4.114.0`; standalone `4.127.0` | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; claims made through `cratis` are 4.114.0 claims |
 | Rendered apps | Arc `22.25.0`, Chronicle `19.8.1`, Scene packages | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one; verify the generated package set before claiming exact Scene 4.14.0 runtime parity |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
@@ -99,7 +99,7 @@ import-only root file.
    capability gap, tool skew or environment. Group by code and count; do not paste the list.
 3. **When admission fails** (case A) present the options, the user decides:
    (a) keep design mode and record the gaps; (b) narrow to renderable mode, where the modeler
-   changes the model for business reasons and **without** removing protection (`@pii`,
+   changes the model for business reasons and **without** removing protection (`pii`,
    authorization, rules); (c) deliver the non-renderable scope by hand (case C), with a ledger
    entry (`references/drift-and-ledger.md`). Partial render does not exist.
 4. **Publish.** The probe destination by default. Another destination needs the user's intent;
@@ -153,7 +153,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   unenforced there: ledger entry or target requirement, never "delivered".
 - The `cratis run` sandbox enforces neither validation nor authorization on its default engine; it
   is no evidence for denial behaviour.
-- Never remove `@pii`, `@sensitive`, authorization or rules to get a render through; report the gap.
+- Never remove `pii`, `secret`, authorization or rules to get a render through; report the gap.
 - Stop and ask only on a genuine contradiction between model, specs, descriptions and declared
   contracts, after reading the slice fully (`cratis-screenplay-modeling-lifecycle` `references/stop-or-assume.md`).
 - Commit set after a delivery the user accepts: the destination's `.cratis-render.json`,
