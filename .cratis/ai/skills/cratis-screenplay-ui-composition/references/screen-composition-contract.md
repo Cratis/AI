@@ -31,20 +31,27 @@ hand-writing an alternate shape.
   without dropping it, silently falling back or replacing it with a default.
 
 Keep those three lines separate in reports. Correct an old limitation only when
-the package/version you are using proves the new level. Round-5 target vector:
-Scene 4.12.0, Screenplay 4.114.0 (final ABI release after #592), Stage 4.49.5, Docker
-`cratis/stage:4.49.5`, CLI 3.40.3 and Studio 0.136.4. Executed packaged-CLI
-protocol proof: the canonical `ScreenComposition` corpus opens with `sourceSuccess true`,
-`semanticSuccess true`, `executableReady true`; the stdio MCP harness sends real
-proposal/apply requests, rejects a stale revision and preserves an authored
-comment on disk. Render publication is verified on the available CLI checkout;
-the CLI 3.40.3 package still pins Screenplay 4.105.0, so rerun if a later CLI
-package consumes Screenplay 4.114.0. Runtime/browser
-behavior, Studio Play and production deploy are separate checks; Studio 0.136.4
-production deploy proof remains pending because Pulumi lock recovery cleared but
-deploy failed on Core CrashLoopBackOff. On Stage
-4.24.2 or cratis 3.28.x renderers, authored screens are still reported as
-omitted/default composition.
+the package/version you are using proves the new level. Verified public vector:
+CLI 3.40.7 with its default `cratis/stage:4.51.1` and bundled Screenplay 4.114.0;
+latest public packages are Scene 4.14.0, Screenplay 4.122.0, Stage 4.51.3 and
+Studio 0.141. All three levels hold for the canonical `ScreenComposition` corpus
+on that CLI:
+
+- authoring and executable admission: MCP opens it with `sourceSuccess true`,
+  `semanticSuccess true`, `executableReady true`, and the stdio MCP harness sends
+  real proposal/apply requests, rejects a stale revision and preserves an
+  authored comment on disk;
+- runtime: render publishes, and the browser acceptance run passes 51
+  assertions with none blocked or pending (Cratis/Screenplay#605) - native
+  command forms, required fields, scoped comments, deep links, stale-response
+  handling and theme included.
+
+Still true on that vector: a guarded Close action and a double-click interaction
+are refused (`STAGE-SCENE-ACTION-001`, `STAGE-SCENE-INTERACTION-001`) and recorded
+as unsupported, never emulated; refusing an unresolvable UI profile and recovering
+a rendered application are pending in Cratis/cli#301; Studio production Play
+proof is pending a test-account decision. On Stage 4.24.2 or cratis 3.28.x
+renderers, authored screens are still reported as omitted/default composition.
 
 ## Data context and component bindings
 

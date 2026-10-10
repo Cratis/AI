@@ -125,20 +125,41 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
         'utf8',
     );
 
-    for (const required of ['4.49.5', 'cratis/stage:4.49.5', '4.114.0', '3.40.3', 'Studio 0.136.4']) {
+    const failClosed = ['STAGE-SCENE-ACTION-001', 'STAGE-SCENE-INTERACTION-001'];
+    for (const required of ['3.40.7', 'cratis/stage:4.51.1', '4.114.0', '51 browser assertions', 'Cratis/cli#301', 'test-account decision', ...failClosed]) {
         assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
     }
-    for (const required of ['4.49.5', '4.114.0', '3.40.3', 'published successfully', 'screenplay-mcp-transcript.ts']) {
+    for (const required of ['3.40.7', '4.51.1', '4.114.0', 'published successfully', 'screenplay-mcp-transcript.ts', 'Cratis/cli#301', ...failClosed]) {
         assert.ok(render.includes(required), `render guidance is missing ${required}`);
     }
-    for (const required of ['4.49.5', '4.114.0', '3.40.3', '4.105.0', 'executableReady true']) {
+    for (const required of ['3.40.7', '4.51.1', '4.114.0', '4.122.0', 'executableReady true', '37 tools']) {
         assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
+    }
+    for (const required of ['3.40.7', '9 requests and 9 responses', 'StaleRevision', ...failClosed]) {
+        assert.ok(workflow.includes(required), `authoring workflow is missing ${required}`);
     }
     assert.ok(
         workflow.includes('ScreenComposition/v1/source/folder'),
         'the authoring workflow must link the canonical screen corpus v1 folder',
     );
-    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'Stage 4.49.5', 'Core CrashLoopBackOff']) {
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'cratis/stage:4.51.1', 'Scene 4.14.0', ...failClosed]) {
         assert.ok(composition.includes(required), `composition contract is missing ${required}`);
+    }
+});
+
+test('screen guidance no longer carries caveats that pass on the public vector', () => {
+    const documents = [
+        skill('cratis-stage-rendering-and-sandbox'),
+        skill('cratis-screenplay-render-and-gap-fill'),
+        skill('cratis-screenplay-toolchain'),
+        skill('cratis-screenplay-ui-composition'),
+        readFileSync(join(corpus, 'skills', 'cratis-screenplay-ui-composition', 'references', 'screen-composition-contract.md'), 'utf8'),
+        readFileSync(join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'), 'utf8'),
+    ];
+
+    for (const retired of ['CrashLoopBackOff', 'Pulumi', 'Studio 0.136', 'CLI 3.40.3', 'stage:4.49.5', 'Scene 4.12.0']) {
+        for (const document of documents) {
+            assert.ok(!document.includes(retired), `screen guidance still carries the retired caveat or pin '${retired}'`);
+        }
     }
 });

@@ -25,14 +25,15 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `3.40.3` (public package/tag #295) | `cratis render` options, exit codes, publication receipt; tag pins Stage 4.49.5 and Screenplay 4.105.0, with `cratis/stage:4.49.5` as the runtime image. Reading baselines: 3.40.2, 3.39.0 and 3.28.3 (`8b43fef`) |
-| Stage | `4.49.5` | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, generated query specs, guarded-action safety and frontend form stability. Older baselines: 4.49.2, 4.49.1, 4.43.0 and `v4.24.2` (`32dcac4`) |
-| Screenplay | `4.114.0` final ABI release | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; CLI 3.40.3 still bundles 4.105.0, so rerun if a later CLI consumes 4.114.0 |
-| Rendered apps | Arc `22.25.0`, Chronicle `19.8.1`, Scene packages | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one; verify the generated package set before claiming exact Scene 4.12.0 runtime parity |
+| cratis CLI | `3.40.7` (`v3.40.7`, `af9f18e`) | `cratis render` options, exit codes, publication receipt; tag pins Stage 4.51.1 and Screenplay 4.114.0, with `cratis/stage:4.51.1` as the runtime image. UI-profile rejection and render-then-recover fixes are pending in Cratis/cli#301. Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
+| Stage | `4.51.1` (CLI default; latest package 4.51.3) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, fail-closed guarded actions (`STAGE-SCENE-ACTION-001`) and interactions (`STAGE-SCENE-INTERACTION-001`). Older baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
+| Screenplay | bundled `4.114.0`; latest language package `4.122.0` | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; claims made through `cratis` are 4.114.0 claims |
+| Rendered apps | Arc `22.25.0`, Chronicle `19.8.1`, Scene packages | `[ProtectedDecision]` (Arc 22.39.0 and later) is not available in code written into one; verify the generated package set before claiming exact Scene 4.14.0 runtime parity |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
-(`references/worked-example.md`); with packaged CLI 3.40.3 it was run over the canonical
-`ScreenComposition` corpus and published successfully. The AI repository's `screenplay-mcp-transcript.ts`
+(`references/worked-example.md`); with public CLI 3.40.7 it was run over the canonical
+`ScreenComposition` corpus and published successfully, and its browser acceptance run passed 51
+assertions (Cratis/Screenplay#605). The AI repository's `screenplay-mcp-transcript.ts`
 harness proves the real stdio proposal/apply path against the packaged CLI. The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
 this skill links them and never restates the admission table.
 
