@@ -43,7 +43,7 @@ newer main commit above; do not attribute their verification to the old tag.
 
 Excerpt, inside a `StateView` slice:
 
-```screenplay
+```screenplay excerpt
 readmodel AccountBalance
   description "What the account is worth right now"
   balance   Decimal
@@ -70,7 +70,7 @@ cannot select an instance of it.
 
 Excerpt: the concepts, the read model and the policy are declared elsewhere.
 
-```screenplay
+```screenplay excerpt
 query ListInvoices => InvoiceListReadModel[]
   description "Every invoice the caller may see, narrowed by status and customer"
   filter status     InvoiceStatus optional
@@ -114,7 +114,7 @@ query enforces it. A compiling query is not evidence that access control works.
 
 Excerpt, inside a `StateView` slice:
 
-```screenplay
+```screenplay excerpt
 query Mine => Timesheet[]
   scoped to identity
 query Everyones => Timesheet[]
@@ -186,7 +186,7 @@ commands and screens it names are declared elsewhere.
 
 **Level 1 — intent.** Data and actions; the tool generates the component.
 
-```screenplay
+```screenplay excerpt
 screen InvoiceList
   data InvoiceListReadModel[] via query ListInvoices
   action RegisterInvoice
@@ -197,7 +197,7 @@ screen InvoiceList
 **Level 2 — structure.** Named sections, tables and summaries filling a template's
 slots.
 
-```screenplay
+```screenplay excerpt
 screen InvoiceDetails
   template MasterDetail
     sidebar
@@ -263,7 +263,7 @@ real application declares 76 queries under 37 distinct names, with `All` appeari
 Reach across slices by qualifying with **any trailing part** of the scope.
 Excerpt: `Queue` and `Deviations` are sibling slices that each declare `All`.
 
-```screenplay
+```screenplay excerpt
 screen OverviewScreen
   data QueueReadModel[]     via query Queue.All
   data DeviationReadModel[] via query Preparation.Deviations.All

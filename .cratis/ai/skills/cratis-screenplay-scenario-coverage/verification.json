@@ -3,6 +3,7 @@
   "input": "Write the specifications for a ReserveBerth command and its read model, and tell me what coverage is missing.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "Coverage matrix before any spec" },
     { "kind": "skill-contains", "value": "Once, idempotent, exactly once are different claims" },
     { "kind": "skill-contains", "value": "Unauthorized is never `then error`" },

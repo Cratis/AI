@@ -87,7 +87,7 @@ commands reference; use `concept` for a single wrapped primitive.
 Excerpt: the concepts, the `InvoiceLine` type, the policy and the event are
 declared elsewhere in the model.
 
-```screenplay
+```screenplay excerpt
 command RegisterInvoice
   description "Registers a new invoice with its lines and payment terms"
   invoiceId      InvoiceId identifier
@@ -138,7 +138,7 @@ something whose identity the caller does not supply).
 Excerpt: the `Account` read model, its projection and its keyed query are
 declared elsewhere.
 
-```screenplay
+```screenplay excerpt
 command TransferFunds
   sourceId      AccountId
   destinationId AccountId
@@ -200,7 +200,7 @@ a rule that travels is worth more than one that is repeated.
 
 Excerpt: the policies are declared at the top of the model.
 
-```screenplay
+```screenplay excerpt
 authorize IsAccountant
           or IsCustomerSelf
 
@@ -252,7 +252,7 @@ choosing or omitting `for` on a production, or fixing `PLAY0469`-`PLAY0478`.
   must bind on an older version.
   Excerpt:
 
-```screenplay
+```screenplay excerpt
 produces when isProForma == true
   ProFormaInvoiceIssued
     for invoiceId
@@ -309,7 +309,7 @@ Read `cratis-screenplay-toolchain/references/sources-and-streams.md` when author
 Chronicle's constraints enforce **uniqueness only**. Excerpt: the events are
 declared in the same model.
 
-```screenplay
+```screenplay excerpt
 constraint UniqueInvoiceNumber
   unique invoiceNumber on InvoiceRegistered
   released by InvoiceCancelled

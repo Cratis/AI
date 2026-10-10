@@ -4,7 +4,7 @@ One complete document with every construct family. Design mode, not executable. 
 
 Binding blockers: unquoted import, `pii`, `reads` (PLAY0271), `starts with`, observable/list/filter query. Executable shapes are in the sibling examples. The bare-marker fence compiles warning-free on standalone 4.127.0; the earlier legacy-marker version compiled on 4.66.0 and CLI 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
 
-```screenplay
+```screenplay test=unbound
 // Design-mode cheat-sheet: every construct family; compiles warning-free on the standalone tool.
 domain Acme.Invoicing                      // optional; first line when present
 import Customers.CustomerRegistered        // unquoted = another bounded context's contract

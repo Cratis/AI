@@ -61,7 +61,7 @@ The complete authoring model below compiles without warnings on 4.125.0;
 `screenplay test` intentionally returns 3/unbound with PLAY0268 for redelivery
 and no-event assertion, not a recovery pass:
 
-```screenplay
+```screenplay test=unbound
 module Billing
   feature Claims
     slice Automation Recovery

@@ -89,7 +89,7 @@ Example: Payroll declares Timesheets; its Handover feature declares
 Timesheets.Approval and sibling Runs. These are dependency inventories, not
 actual references or execution dependencies:
 
-```screenplay
+```screenplay expect PLAY0553
 module Payroll
   depends on Timesheets
   feature Handover

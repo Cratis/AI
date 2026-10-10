@@ -3,6 +3,7 @@
   "input": "Write given/when/then specifications for a Screenplay slice.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
       "value": "main `fd18129`"

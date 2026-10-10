@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-arc-react-page",
+  "input": "Build a list page with an Add command dialog for a .play screen.",
+  "fixtures": [],
+  "assertions": [
+    {
+      "kind": "play-compiles"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "DataPage"
+    }
+  ]
+}

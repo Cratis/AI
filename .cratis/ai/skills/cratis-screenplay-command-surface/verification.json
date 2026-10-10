@@ -3,6 +3,7 @@
   "input": "Declare a Screenplay command with validation, authorization, a uniqueness constraint and a state-dependent rule.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "PLAY0653" },
     { "kind": "skill-contains", "value": "personal` is an alias of `pii", "file": "references/compliance.md" },
     { "kind": "skill-contains", "value": "report-only (PLAY0270)", "file": "references/compliance.md" },

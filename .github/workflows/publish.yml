@@ -31,6 +31,7 @@ jobs:
   verify:
     name: verify
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -62,7 +63,15 @@ jobs:
           yarn workspace @cratis/ai-verification run check
           yarn workspace @cratis/ai-skill-evaluation run check
 
+      - name: Install the pinned standalone Screenplay tool
+        run: |
+          version=$(node --experimental-strip-types --input-type=module -e "import { readFileSync } from 'node:fs'; import { pinnedVersion } from './Source/Verification/play/fences.ts'; console.log(pinnedVersion(readFileSync('.cratis/ai/skills/cratis-screenplay-toolchain/references/versions.md', 'utf8')));")
+          dotnet tool install Cratis.Screenplay.Tool --version "$version" --tool-path "$RUNNER_TEMP/screenplay"
+
       - name: Verify corpus and skill behavior
+        env:
+          CRATIS_SCREENPLAY_TOOL: ${{ runner.temp }}/screenplay/screenplay
+          CRATIS_REQUIRE_SCREENPLAY: '1'
         run: yarn workspace @cratis/ai-verification run verify
 
       - name: Test Pi package behavior

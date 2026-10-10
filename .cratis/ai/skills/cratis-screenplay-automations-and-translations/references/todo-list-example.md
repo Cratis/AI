@@ -28,7 +28,7 @@ What the model proves and what it does not:
   `runs as system role` on 4.125.0 (ESM v10), with separate CLI/Stage refusal.
 - Report reference outcomes only after executing the selected scenarios.
 
-```screenplay
+```screenplay expect PLAY0469,PLAY0516
 // Todo-list automation. Shape: CoursePassed opens an item -> CertificateSender invokes
 // SendCertificate -> CertificateSent closes the item. The once-only FACT is
 // `unique event CertificateSent`; the external send is NOT proven once-only by this model.
@@ -196,12 +196,12 @@ above: a list query (the visible queue) and a retry sweep that reads the whole v
 (Screenplay#286). Keep them in the model only when the document is the deliverable and say so
 in the verdict.
 
-```screenplay excerpt
+```screenplay excerpt parent=assets/pending-certificates.play
 // Parent: the complete document above, slice StateView CertificatesToSend.
 query PendingCertificates => PendingCertificate[]
 ```
 
-```screenplay excerpt
+```screenplay excerpt parent=assets/retry-sweep.play
 // Parent: the complete document above, slice Automation SendCertificates, after CertificateSender.
 // The sweep reads the whole view (a clock trigger takes no `by`); iterating items needs code.
 reaction CertificateRetrySweep
