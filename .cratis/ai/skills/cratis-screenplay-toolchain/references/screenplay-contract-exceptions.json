@@ -1,0 +1,44 @@
+[
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-model-authoring/references/mcp-loop.md",
+    "text": "4.63.1. Cratis CLI 3.28.2 bundles Screenplay 4.66.0 (probed: 29 tools and the same views);",
+    "kind": "toolCount",
+    "value": "29",
+    "reason": "Historical Screenplay 4.66.0 probe. Remove when this older probe is removed or replaced by a current-release probe."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-model-authoring/references/provenance.md",
+    "text": "| Connection facts (29/30 tools, `notifications/initialized`, 16 connection-local proposals, fixed root) | Screenplay `v4.66.0` `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`, `McpConnection.cs`, `McpWorkspaces.cs`, `Documentation/screenplay/mcp/reference.md`, `install.md` | Read at the tag and probed against the standalone 4.66.0 tool (4.63.1 for the roots behavior) |",
+    "kind": "toolCount",
+    "value": "29",
+    "reason": "Historical 4.66.0 catalog without visualization. Remove when this provenance statement is removed or replaced."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-model-authoring/references/provenance.md",
+    "text": "| Connection facts (29/30 tools, `notifications/initialized`, 16 connection-local proposals, fixed root) | Screenplay `v4.66.0` `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`, `McpConnection.cs`, `McpWorkspaces.cs`, `Documentation/screenplay/mcp/reference.md`, `install.md` | Read at the tag and probed against the standalone 4.66.0 tool (4.63.1 for the roots behavior) |",
+    "kind": "toolCount",
+    "value": "30",
+    "reason": "Historical 4.66.0 catalog with visualization. Remove when this provenance statement is removed or replaced."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-model-authoring/references/screen-authoring-workflow.md",
+    "text": "  remains on disk. On CLI 3.40.7: 9 requests and 9 responses, 37 tools,",
+    "kind": "toolCount",
+    "value": "37",
+    "reason": "Historical CLI 3.40.7 transcript, not the standalone pin. Remove when this probe is removed or replaced."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-model-review/SKILL.md",
+    "text": "| Screenplay | `v4.66.0` (`c89198b`) | MCP catalog (29 tools: `describe-application`, `search-declarations`, `dependencies`, `find-assertion-gaps`, `read-workspace`, `declaration-details`) in `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`; diagnostics PLAY0029, PLAY0191, PLAY0268, PLAY0271, PLAY0350, PLAY0381, PLAY0469 in `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`; decision 0008 (one data subject per event) |",
+    "kind": "toolCount",
+    "value": "29",
+    "reason": "Source evidence explicitly pinned to v4.66.0. Remove when this older source vector is removed or replaced."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/SKILL.md",
+    "text": "and the stdio transcript exposed 37 tools; standalone language 4.122.0 was",
+    "kind": "toolCount",
+    "value": "37",
+    "reason": "Historical CLI 3.40.7 / standalone 4.122.0 transcript (version vector in preceding lines). Remove when this probe is removed or replaced."
+  }
+]

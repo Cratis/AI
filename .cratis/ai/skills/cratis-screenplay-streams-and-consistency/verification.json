@@ -3,6 +3,7 @@
   "input": "Review the stream identities in our Screenplay model, tell me whether two people can enrol in the last seat at once, and what happens when a client retries after a lost reply.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "one business identity per stream" },
     { "kind": "skill-contains", "value": "NOT enforced in the model today" },
     { "kind": "skill-contains", "value": "#3744" },

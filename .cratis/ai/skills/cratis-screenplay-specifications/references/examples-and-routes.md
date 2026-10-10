@@ -120,7 +120,7 @@ is optional but typed against the routed source when present.
 This complete syntax-only model validates on 4.127.0; `screenplay test` reports
 PLAY0268 for redelivery, not a passing scenario:
 
-```screenplay
+```screenplay test=unbound
 eventsource Account
   identifier String
   stream Transactions

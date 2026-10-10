@@ -3,6 +3,7 @@
   "input": "We inherited a legacy ASP.NET application with a SQL Server database and no documentation. Help us turn it into a Screenplay model before we modernize it.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
       "value": "loss report"

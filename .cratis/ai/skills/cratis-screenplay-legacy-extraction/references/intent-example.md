@@ -20,7 +20,7 @@ What to notice:
 - The nightly hook reset (E4) is unexplained, so it is not modeled; it stays an open question
   (Q5) in the loss report.
 
-```screenplay
+```screenplay test=unbound
 // An intentional candidate re-sliced from as-is evidence. DESIGN MODE.
 // Evidence ids refer to rows like those in evidence-table-template.md: the legacy
 // POST /api/checkins inserted Checkins and updated Hooks (E1); here that becomes one

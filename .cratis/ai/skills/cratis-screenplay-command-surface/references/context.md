@@ -172,7 +172,7 @@ A template is backticked with `${}` substitutions. It parses in mappings but doe
 not bind to the executable model in `produces` or projections. Excerpt, one
 mapping line inside a `produces` block:
 
-```screenplay
+```screenplay excerpt
 fullName = `${firstName} ${lastName}`
 ```
 
@@ -181,7 +181,7 @@ Literals are `true` / `false`, `"quoted text"`, numbers (`42`, `-3.14`), and
 rather than a property path — that is how a constant key is written. Excerpt,
 inside a `projection`:
 
-```screenplay
+```screenplay excerpt
 from UserLoggedIn key literal "site-stats"
   count totalLogins
 ```

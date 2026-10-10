@@ -3,6 +3,7 @@
   "input": "We are starting a new model for a marina that hands out seasonal berths. Here are rough notes from the harbourmaster. Find the events, the roles and the story, and put them straight into the .play model.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "## Interview phase" },
     { "kind": "skill-contains", "value": "Unattended: assume visibly" },
     { "kind": "skill-contains", "value": "Does / Reads / Cannot" },

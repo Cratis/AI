@@ -197,7 +197,7 @@ event, on a trigger (with `where` and `invokes`), on a view read and on the cloc
 a capture with its specifications. The excerpts later in this skill have their own
 complete parent documents in `references/complete-examples.md`.
 
-```screenplay
+```screenplay expect PLAY0469
 concept InvoiceId : Uuid
 trigger PaymentFileArrived
   description "The bank's payment file listed a payment for an invoice"

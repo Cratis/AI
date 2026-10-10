@@ -4,6 +4,9 @@
   "fixtures": [],
   "assertions": [
     {
+      "kind": "play-compiles"
+    },
+    {
       "kind": "skill-contains",
       "value": "Executable parts of the contract beat prose"
     },
