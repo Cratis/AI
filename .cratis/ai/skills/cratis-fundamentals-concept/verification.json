@@ -3,6 +3,9 @@
   "input": "Create a strongly typed value for a domain concept.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "ConceptAs<T>" }
+    { "kind": "skill-contains", "value": "ConceptAs<T>" },
+    { "kind": "skill-contains", "value": "IGeneratable<TSelf>" },
+    { "kind": "skill-contains", "value": "GenerateValue.Uuid()" },
+    { "kind": "skill-contains", "value": "not** monotonic within a" }
   ]
 }

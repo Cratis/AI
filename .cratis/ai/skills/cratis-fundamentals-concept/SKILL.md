@@ -15,7 +15,7 @@ This skill is verified against these exact public releases:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Fundamentals` | `7.19.2` | `Cratis.Concepts.ConceptAs<T>` |
+| `Cratis.Fundamentals` | `7.23.0` | `Cratis.Concepts.ConceptAs<T>`, `IGeneratable<TSelf>` and `GenerateValue` |
 | `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Events.EventSourceId` and `EventSourceId<T>` |
 
 Reverify product sources before claiming support for another version.
@@ -76,6 +76,50 @@ A `NotSet` or `Empty` value is optional domain policy. Add one only when the
 chosen primitive value is impossible or explicitly reserved in that domain.
 Do not assume `string.Empty`, `0`, or `Guid.Empty` is universally invalid.
 
+## Let a concept generate its own value
+
+When the system, not the caller, creates a value, the concept declares how by
+implementing `IGeneratable<TSelf>` (`Cratis.Concepts`, Cratis.Fundamentals
+7.23.0 or later). The interface requires `static abstract TSelf New()`, so
+generic code constrained on `where T : IGeneratable<T>` calls `T.New()` without
+reflection. Generate a UUID with `GenerateValue`, never with `Guid.NewGuid()` in
+scattered call sites and never with `System.Random`:
+
+```csharp
+using Cratis.Concepts;
+
+public record <ConceptName>(Guid Value) : ConceptAs<Guid>(Value), IGeneratable<<ConceptName>>
+{
+    public static <ConceptName> New() => new(GenerateValue.Uuid());
+}
+```
+
+Both helpers return a `Guid` with the RFC 9562 variant and fill their random
+bits from `RandomNumberGenerator`:
+
+- `GenerateValue.Uuid()` — version 4, 122 random bits. The default.
+- `GenerateValue.UuidV7()` — version 7: Unix-epoch milliseconds first, then 74
+  random bits. Choose it only when database index locality or rough creation
+  order matters. It reveals the creation time, it is **not** monotonic within a
+  millisecond, and clock adjustments can reorder values.
+
+Neither helper guarantees uniqueness; a collision is extremely unlikely, not
+impossible. `IGeneratable<TSelf>` is not limited to Guid-backed concepts, but
+`GenerateValue` only produces UUIDs.
+
+Do not generate when:
+
+- The client supplies the identifier. It is an input; keep it.
+- The value must be secret or authenticate someone. A UUID is an identifier,
+  not a token; use a dedicated secure-token API.
+- The same input must yield the same value. Random generation is not
+  idempotency; derive the value deterministically, or persist and reuse the
+  first one.
+
+In specifications, construct the concept from a known value
+(`new <ConceptName>(Guid.Parse("…"))`) and assert against it. Do not seed or
+replace the generator. Guide: `/fundamentals/csharp/generating-values/`.
+
 ## Create a Guid-backed Chronicle stream identity
 
 Use this shape only for an identity actually supplied to Chronicle append/read
@@ -86,6 +130,7 @@ operations as the event-source ID.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.Chronicle.Events;
+using Cratis.Concepts;
 
 namespace <NamespaceRoot>.<Feature>;
 
@@ -93,13 +138,13 @@ namespace <NamespaceRoot>.<Feature>;
 /// Represents the event-source identity of a <description>.
 /// </summary>
 /// <param name="Value">The underlying Guid value.</param>
-public record <ConceptName>(Guid Value) : EventSourceId<Guid>(Value)
+public record <ConceptName>(Guid Value) : EventSourceId<Guid>(Value), IGeneratable<<ConceptName>>
 {
     /// <summary>
     /// Creates a new <ConceptName>.
     /// </summary>
     /// <returns>A new <ConceptName>.</returns>
-    public static <ConceptName> New() => new(Guid.NewGuid());
+    public static <ConceptName> New() => new(GenerateValue.Uuid());
 
     /// <summary>
     /// Converts a Guid to a <ConceptName>.
@@ -108,8 +153,8 @@ public record <ConceptName>(Guid Value) : EventSourceId<Guid>(Value)
 }
 ```
 
-`New()` and the primitive-to-derived conversion are conveniences on this domain
-type. `EventSourceId<T>` does not construct an arbitrary derived identity for
+`New()` (through `IGeneratable<TSelf>`) and the primitive-to-derived conversion
+are conveniences on this domain type. `EventSourceId<T>` does not construct an arbitrary derived identity for
 you.
 
 ## Create a non-Guid Chronicle stream identity
@@ -185,6 +230,9 @@ repository structure.
 - `ConceptAs<T>` and `EventSourceId<T>` use an `IComparable` underlying type.
 - A concept contains exactly one wrapped value and no extra properties.
 - Enums remain enums.
+- A concept that creates its own value implements `IGeneratable<TSelf>` with
+  `GenerateValue`, not `Guid.NewGuid()` or `Random`; client-supplied,
+  secret or idempotent values are not generated.
 - Null absence uses a nullable concept reference rather than a null wrapped
   value.
 - Primitive-to-derived conversions and sentinels exist only when justified by

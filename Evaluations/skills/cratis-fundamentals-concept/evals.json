@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-fundamentals-concept",
+  "evals": [
+    {
+      "id": 1,
+      "name": "concept-creates-its-own-id",
+      "prompt": "Our Library app uses Cratis.Fundamentals 7.23.0 and Chronicle. Write the C# for a BookId event-source identity that can create a new id for itself, so code that registers a book can call BookId.New(). Reply only with the code and a short explanation.",
+      "expected_output": "BookId derives from EventSourceId<Guid> and implements IGeneratable<BookId>; New() returns new(GenerateValue.Uuid()). No Guid.NewGuid() and no System.Random.",
+      "assertions": [
+        "BookId implements IGeneratable<BookId> with a static New() method.",
+        "New() uses GenerateValue.Uuid() (or GenerateValue.UuidV7() with a stated ordering reason) rather than Guid.NewGuid().",
+        "Does not use System.Random or a hand-rolled byte generator.",
+        "BookId derives from EventSourceId<Guid> rather than ConceptAs<Guid>."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "time-ordered-id-tradeoffs",
+      "prompt": "Our OrderId concept uses GenerateValue.Uuid() and the database index on it fragments badly. A colleague suggests GenerateValue.UuidV7() and says it gives us a strict creation sequence we can use to number orders. Should we switch, and is the colleague right? Reply only.",
+      "expected_output": "UuidV7 is reasonable for index locality, but it reveals creation time, is not monotonic within a millisecond and can reorder under clock adjustments, so it cannot number orders.",
+      "assertions": [
+        "Recommends GenerateValue.UuidV7() for index locality or explains when it fits.",
+        "States that version 7 values are not monotonic within a millisecond and clock adjustments can reorder them.",
+        "States that version 7 values reveal their creation time.",
+        "Rejects using the UUID as a strict order or sequence number."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "when-not-to-generate",
+      "prompt": "Three cases in our Arc app: (1) the mobile client creates a DraftId offline and sends it with SaveDraft; (2) we need a password-reset token to email users; (3) a webhook may be delivered twice and must map to the same PaymentId. Someone wants IGeneratable with GenerateValue.Uuid() for all three. Which, if any, should generate? Reply only.",
+      "expected_output": "None of them: the client-supplied DraftId is an input, a UUID is not a secret token, and random generation is not idempotency.",
+      "assertions": [
+        "Keeps the client-supplied DraftId as a command input instead of generating a replacement.",
+        "Says a UUID is an identifier, not a secret or authentication token, and points to a dedicated secure-token mechanism.",
+        "Says random generation does not give idempotency and suggests deriving the id deterministically or persisting and reusing the first one.",
+        "Does not recommend System.Random for any case."
+      ]
+    }
+  ]
+}

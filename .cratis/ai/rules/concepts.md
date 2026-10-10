@@ -64,15 +64,20 @@ public record AuthorName(string Value) : ConceptAs<string>(Value)
 ## Chronicle stream identity rules
 
 ```csharp
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
+public record AuthorId(Guid Value) : EventSourceId<Guid>(Value), IGeneratable<AuthorId>
 {
-    public static AuthorId New() => new(Guid.NewGuid());
+    public static AuthorId New() => new(GenerateValue.Uuid());
     public static implicit operator AuthorId(Guid value) => new(value);
 }
 ```
 
 - `New()`, primitive → derived ID conversion, and sentinels are optional domain
   conveniences; `EventSourceId<T>` does not create an arbitrary derived type.
+- When the system creates the value, implement `IGeneratable<TSelf>` and use
+  `GenerateValue.Uuid()` (or `GenerateValue.UuidV7()` when index locality
+  matters), both from `Cratis.Concepts` in Cratis.Fundamentals 7.23.0 or later.
+  Never `System.Random`. A client-supplied identifier is an input, not something
+  to generate; see the **cratis-fundamentals-concept** skill.
 - The exact `EventSourceId<T>` base supports conversions among its underlying
   `T`, string, typed ID, and untyped `EventSourceId`, but those operators do not
   construct your derived domain record from every source form.

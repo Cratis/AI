@@ -54,10 +54,10 @@ Every domain identifier or named value is a typed record — raw `string`/`Guid`
 - **[contract] Chronicle stream identities** derive from `EventSourceId<T>` with an `IComparable` underlying primitive. Add `NotSet`, `New()`, or a `T` → derived-id operator only when the domain API justifies it; typed empty/zero values are real specified stream IDs. The base conversion surface does not construct every derived domain record automatically.
 
 ```csharp
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
+public record AuthorId(Guid Value) : EventSourceId<Guid>(Value), IGeneratable<AuthorId>
 {
     public static readonly AuthorId NotSet = new(Guid.Empty);
-    public static AuthorId New() => new(Guid.NewGuid());
+    public static AuthorId New() => new(GenerateValue.Uuid());
     public static implicit operator AuthorId(Guid value) => new(value);
 }
 
