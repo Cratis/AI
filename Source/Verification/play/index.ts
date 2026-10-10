@@ -134,7 +134,8 @@ export async function verifyPlayExamples(root: string, runner: Runner = run, env
             });
         }
     }
-    if (jobs.length) {
+    if (!jobs.length) report.problems.push('No Screenplay example was selected for compilation; play-compiles would pass vacuously.');
+    else {
         const versionResult = await runner(tool, ['--version'], root);
         const outcome = versionOutcome(versionResult, version);
         if (outcome === Outcome.Defects) report.problems.push(`Screenplay version mismatch: expected ${version}, got ${versionResult.output.trim()}.`);
