@@ -106,7 +106,7 @@ question is not four approvals.
 | Ordering | Facts late or out of order? | view family with reordered givens; translation specs; else `recorded` |
 | External failure | The other system refuses, times out or answers twice? | outcome as a recorded fact (capture/translation), never a fake rejection |
 | Compensation | How is this undone, what does undoing free? | reversal command + spec showing the released claim or removed row |
-| Evolution | Do old facts still mean the same after a contract change? | spec on the new generation; compatibility note in `description` |
+| Evolution | Do old facts still mean the same after a contract change? | spec on the new generation; compatibility reasoning in `documentation` |
 | View | What does each screen show after each fact? | `given` events (`for`) -> `then query`; `when append` -> update/removal |
 
 For recovery intent, `when redelivered <Event> to <Reaction>` must select one
@@ -146,7 +146,7 @@ target requirements.
   never `n/a` automatically. This matches `cratis-screenplay-specifications`, which also
   requires one rejection spec per concept rule. Business rules get one rejection spec each.
 - Persona Cannot lines are intent: each needs an executable gate plus a `then denied` spec whose
-  caller carries that persona's roles and claims, else record a gap.
+  caller is a synthesized persona witness or an explicit gate fixture, else record a gap.
 - Descriptions are not rendered: a rule only in prose is unenforced in rendered scope; turn it
   into a rule layer, a spec or a recorded target requirement.
 - Prove projections with events (`given`/`when append`), not `given readmodel`; seed read models
@@ -165,7 +165,7 @@ target requirements.
 - Read models are a separate, equally mandatory pass: a model with dozens of command specs and no
   read-model spec is not scenario-complete. Population, then update or removal where an event
   supersedes a row.
-- The why behind each business rule is written down (slice `description`), not only the what.
+- The why behind each business rule is written down (slice `documentation`), not only the what.
 - Good and bad forms of givens, outcomes and rejections: `references/scenario-examples.md`.
 
 ### Review questions

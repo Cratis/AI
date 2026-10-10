@@ -33,7 +33,7 @@ thing by it. Keep it as a property when it is needed to correlate or deduplicate
   `<X>WebhookReceived` are smells; a business fact such as `PaymentReceived` is fine).
 
 ## 4. Per-field disposition
-For every field of the outside record, decide and write in the slice `description`:
+For every field of the outside record, decide and write in slice `documentation`:
 | Disposition | Meaning | Screenplay |
 |---|---|---|
 | **map** | carried into our fact as is or translated | `map` + mapping `x = $.x`; `translate` for codes |

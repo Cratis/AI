@@ -16,7 +16,7 @@ compatibility scenarios below first; the identity owner then applies the change 
 
 | Change | Old facts still mean the same? | Screenplay action | Edit class |
 |---|---|---|---|
-| add a property with a business-defined value for old facts | yes | new `generation N+1`, every generation declared in full in the same slice; record the default for old facts in the slice `description` | contract evolution |
+| add a property with a business-defined value for old facts | yes | new `generation N+1`, every generation declared in full in the same slice; record the default and its reason for old facts in slice `documentation` | contract evolution |
 | add a property with no sensible old value | the old fact lacks information | usually a **new event** for the new situation, or a separate fact recording the extra information | review with the expert |
 | remove a property | yes, if no reader needs it | new generation without it; every reference fails with PLAY0273 until removed | contract evolution, check readers |
 | change meaning (same name, different business fact) | **no** | **new event** with its own name; old event stays for history | identity: add, not rename |

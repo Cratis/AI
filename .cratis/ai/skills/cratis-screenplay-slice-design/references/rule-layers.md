@@ -24,8 +24,8 @@ inputs (`confirmsX == true`), rules in `handler` / implementation-hint prose.
 ## Authorization is executable
 
 Persona Does/Reads/Cannot text is intent. Every Cannot line resolves to an `authorize` gate
-(policy or ownership claim) plus a `then denied` spec whose `given caller` carries the roles
-and claims standing for that persona; otherwise record a gap. Every command and query under an
+(policy or ownership claim) plus a `then denied` spec using `given caller as <Persona>` or an explicit
+caller for the effective gate; otherwise record a gap. Every command and query under an
 inherited module/feature `authorize` gets its own `then denied` spec. Ownership gates need a
 second caller with another claim value.
 

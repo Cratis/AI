@@ -29,7 +29,7 @@ Screenplay specifications.
 | Then (success) | every production with payload and `for` | "an event is produced" |
 | Then (refusal) | `then error "Invoice already settled"`, the rule's own message | `then error` with no message, or `then error ""` |
 | Then (denial) | `then denied` | `then error` for a caller who is not allowed |
-| Reason | the slice `description` says why the rule exists | the rule appears only in a spec title |
+| Reason | slice `documentation` says why the rule exists | the rule appears only in a spec title |
 
 ## 1. Command: success, rule rejection and denial
 One spec for the success, one per rule (varying only the value the rule checks), one denial.

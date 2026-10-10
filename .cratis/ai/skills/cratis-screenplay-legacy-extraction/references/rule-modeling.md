@@ -4,11 +4,11 @@
 - Input or constraint rejection: declarative `validate`, `require` or constraint, plus a
   `then error "<exact legacy message>"` specification.
 - Authorization refusal: `authorize` with a policy (role, claim, authenticated, or an
-  ownership policy) plus `then denied`, with caller fixtures carrying the roles or claims.
+  ownership policy) plus `then denied`, with a synthesized persona caller or an explicit effective-gate fixture.
   Every command and query under an inherited module or feature `authorize` gets its own
   `then denied` spec. A role gate with no executable form is a recorded gap.
 - Legacy HTTP status and check order (for example 409 before 403) are facts about the old
-  system: record them in the slice description and the evidence row, not in the model logic.
+  system: record them in slice `documentation` and the evidence row, not in the model logic.
 
 ## State-dependent rules
 A rule that depends on stored state (current status, existing records, balances) is written

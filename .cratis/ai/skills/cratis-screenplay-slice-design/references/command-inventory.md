@@ -16,7 +16,7 @@ and each persona that must be denied becomes a `given caller` fixture. Build it 
 ## Command card
 
 Fill one card per command before (or while) writing the slice. Keep it in the phase report;
-durable rationale goes in the slice `description`.
+durable rationale goes in fenced Markdown slice `documentation`.
 
 ```text
 Command:        <ImperativeBusinessName>  (one decision)

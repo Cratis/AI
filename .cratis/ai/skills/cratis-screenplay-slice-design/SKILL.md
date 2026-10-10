@@ -31,7 +31,7 @@ Lifecycle, modes and hand-offs: `cratis-screenplay-modeling-lifecycle`.
 Skip if the request already names the command origins (screens, reactions, outside systems),
 the decision behind each shown field, and how fresh each view must be. Otherwise ask, in one
 batch, only what is missing. Unattended: assume visibly, record each assumption in the phase
-report and the slice `description`, and continue.
+report and slice `documentation`, and continue.
 
 1. **Origin of each action.** Is it (A) user-initiated only, (B) automated, (C) a mix, or
    started by a clock or outside system (schedule, webhook, feed)? Impact: separates screen
@@ -129,7 +129,7 @@ report and the slice `description`, and continue.
    actor sees each state change's result. Beyond Level 1: `cratis-screenplay-ui-composition`.
 8. **Lineage pass.** Build the matrix in `references/field-lineage.md` from the `.play` files
    (read them), not from memory or an earlier summary. For each read model, write one line per
-   contributing event in its StateView slice `description`: which fields it sets and why. An
+   contributing event in its StateView slice `documentation`: which fields it sets and why. An
    event with no reason does not belong in the view. A field without an origin is a gap: add
    the missing input or event field, or record an open question. Never invent a source.
 9. **Slice and continue** (`references/slicing.md`): state-transition table per entity; one
@@ -163,7 +163,7 @@ report and the slice `description`, and continue.
 
 - One command per `StateChange` slice (renderable: required, plus no `produces when`).
 - One business decision usually produces one event; a decision establishing several facts the
-  business recognises separately may produce several (say why in the `description`).
+  business recognises separately may produce several (say why in `documentation`).
 - Copy an identity into an event payload only when a consumer needs it as a value.
 - Keep summaries in `description`; record durable reasoning, assumptions and rejected
   alternatives in fenced Markdown `documentation` on the slice, command, read model
@@ -203,7 +203,7 @@ Slice design is done when these hold; otherwise report what is open.
       denied persona); every gated command and query has a `then denied` row.
 - [ ] Every event is past tense, a specific change, and consumed or justified.
 - [ ] Every read model has a consumer and, when the scope is executable, one unambiguous key (keyed queries all using the same `by` property).
-- [ ] Every StateView `description` gives a reason per contributing event; every read-model
+- [ ] Every StateView's `documentation` gives a reason per contributing event; every read-model
       field and screen field is traced; every `from` event sets a field.
 - [ ] No `screen` without `data` or `action`; every acting screen has `data` or a stated
       exemption.

@@ -9,7 +9,7 @@
 - Worked example (`berth-reservations.md`, design mode)
 
 Write it **before** drafting specs, keep it in `.ai-work/screenplay/<model-slug>/coverage.md` (or the
-`STATE.md` beside it), and update it with the specs. Reviewers check it against the model. Screenplay 4.127.0 MCP `find-specification-obligations` seeds the inventory (SPEC001–SPEC008), including commands, read models, policies, constraints and reactions. A met row proves matching authored presence, not full coverage or passing execution: the matrix still records domain judgments and scenario types the heuristic cannot infer.
+`STATE.md` beside it), and update it with the specs. Reviewers check it against the model. Screenplay 4.127.0 MCP `find-specification-obligations` seeds the inventory (SPEC001–SPEC008), for command success, requirements, command/concept validation, effective authorization gates, value constraints, read models, projection removals and reaction outcomes. A met row proves matching authored presence, not full coverage or passing execution: the matrix still records domain judgments and scenario types the heuristic cannot infer.
 
 ## Cell values
 - `spec <Name>` - written; the name exists in the model.

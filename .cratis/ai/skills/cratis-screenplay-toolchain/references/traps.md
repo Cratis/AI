@@ -29,7 +29,7 @@ exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 21. Quoted `import "x/*.play"` = my files; unquoted `import Ctx.Event` = another context's contract (does not bind: PLAY0268). [probed]
 22. Construct keywords are closed (`aggregate`, `saga`, `workflow` do not exist): PLAY0029 or PLAY0001/0022/0024.
 23. `@` escapes are mandatory for `tag`, `authorize`, `produces`, `reads`, `file`, `validate`, `sequence`, `occurred`, `causedBy`, `namespace`, `correlation`, `causation`, and projection `key`/`parent`/`with` as names.
-24. Comments do not survive canonicalizing edits (PLAY0288 reprint; `droppedCommentCount`); keep durable rationale in `description` text, not `//`.
+24. Canonicalizing edits can drop unplaceable comments (PLAY0288; inspect `droppedCommentCount`); keep durable rationale in fenced Markdown `documentation`, not `//`, and summaries in `description`. Documentation survives canonical printing but changes neither executable bytes nor `modelRevision`; it is not rendered code.
 25. MCP writes: propose, review, approval, apply by the identity owner (the session that owns the MCP connection); other subagents return edit requests; proposals are connection-local, at most 16 (`cratis-screenplay-model-authoring`).
 26. Operations/systems and exact numbers remain unadmitted. Sources/streams/routes bind and reference-execute as ESM v8 at 4.125.0; generated values/responses bind as v7. CLI 3.41.0 renders through v7 only, with construct-specific Stage refusals. Consult released grammar rather than inventing syntax from decisions.
 27. Translate vs Automation is semantic: external facts become local facts in `Translate`; in-app event-to-event goes in `Automation`.

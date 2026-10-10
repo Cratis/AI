@@ -80,8 +80,8 @@ not identity inferred from prose or an imperative pipeline call.
 Decide and record one of:
 1. **Internal ungated command** - only if the security design supports it: not reachable by
    outside callers in the target (verify; the model cannot show exposure), safe to repeat
-   (guarded by `unique event`), and touching one stream. State the reasons in the module
-   `description` (as `todo-list-example.md` does) and list "not externally exposed" as a target
+   (guarded by `unique event`), and touching one stream. State the reasons in module
+   `documentation` (the historical `todo-list-example.md` used a description) and list "not externally exposed" as a target
    requirement in `STATE.md`.
 2. **Direct `produces`** - when no decision is left (the fact is already decided) and nothing
    should refuse it.

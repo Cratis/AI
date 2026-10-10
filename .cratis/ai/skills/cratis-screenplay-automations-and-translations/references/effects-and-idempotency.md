@@ -70,7 +70,7 @@ See "Effect guarantees and recovery traps" in SKILL.md.
   the target's replay behaviour before relying on it, and record the answer.
 See "Effect guarantees and recovery traps" in SKILL.md.
 
-## What to write down (slice `description` + `STATE.md`)
+## What to write down (slice `documentation` + `STATE.md`)
 - Effect placement (1-4) and why. Placement 4 is syntax-only: say the model then has no
   executable form.
 - The idempotency key, and whether the outside system honours it.

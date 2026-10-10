@@ -58,7 +58,7 @@ Chronicle issues before relying on a constraint in a later release.
 **Skip if** the user or the model already states the stream identities, who owns each module, how
 much autonomy each side has, the external systems, and rough growth. Otherwise ask only what is
 missing, one question at a time, with options. **Unattended:** assume the most conservative
-option, mark it `ASSUMED` in the slice or module `description` and in the session `STATE.md`
+option, mark it `ASSUMED` in the slice or module `documentation` and in the session `STATE.md`
 (`.ai-work/screenplay/<model-slug>/STATE.md`), and continue.
 
 1. **Instance.** "What is the real-world thing this stream is about, and when does it start and
@@ -134,7 +134,7 @@ option, mark it `ASSUMED` in the slice or module `description` and in the sessio
    interface and processor inventory, one real interaction walked across each boundary, coupling
    check. Keep team, module, stream and deployment boundaries distinct; inbound facts via
    Translate; unresolved decisions stay visible.
-7. **Record and gate.** Durable rationale in feature and slice `description`; open consistency
+7. **Record and gate.** Durable rationale in feature and slice `documentation`; open consistency
    decisions and capability gaps in `STATE.md`. Then the gate below.
 
 ## Rules

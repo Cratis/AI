@@ -23,7 +23,7 @@ step at the end: design each behaviour as its slice, then audit the set.
 | `Translate` | captures, translated events | the integration (`CarrierManifests`) | see `cratis-screenplay-automations-and-translations` |
 
 Screenplay allows several commands or read models in one slice; prefer splitting unless the
-behaviour is genuinely one (and say why in the `description`).
+behaviour is genuinely one (and say why in `documentation`).
 
 ## Slice dependencies
 
@@ -142,8 +142,8 @@ result in every row and no refusal anywhere, whose event restates most of the en
    relocated).
 4. Apply rule coverage (below) to each new path.
 5. If the business treats a multi-value data-entry correction as one act, keep one correction
-   command named for the correction (never `Update`), with the reason in the slice
-   `description`; rule coverage still applies.
+   command named for the correction (never `Update`), with the reason in slice
+   `documentation`; rule coverage still applies.
 
 A repeated-field event is a review signal; it is major only when business meaning is lost, a
 rule is bypassed or consumers become ambiguous. Historical generations repeat prior shape on

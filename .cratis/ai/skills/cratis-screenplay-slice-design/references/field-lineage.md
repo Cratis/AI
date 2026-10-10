@@ -33,7 +33,7 @@ Those are the portable sources. The event-source id is the `for` value, not a pr
 an event field (same-named fields map automatically - AutoMap is on; its matching differs between flat and scoped projections, see `read-model-design.md` "Building it");
 `$eventSourceId` (the instance identity); a literal (status words); a counter or arithmetic;
 a join on another event stream; children for collections. A reducer is opaque: write its
-lineage in the slice `description`. A read model built by a query `performer` (no events)
+lineage in slice `documentation`. A read model built by a query `performer` (no events)
 has lineage outside the model; say where.
 
 **Screen field** - from the query result named in `data ... via query`. A screen showing a
@@ -74,7 +74,7 @@ Filled for `worked-example.md`:
 
 ## The reason line per contributing event
 
-The matrix is the audit; the durable record is the StateView slice `description`: one line per
+The matrix is the audit; the durable record is StateView slice `documentation`: one line per
 contributing event saying which fields it sets and why. Write it as a tagged text block in a
 real model (a bare fence warns with `PLAY0397`). `worked-example.md` uses one-string
 descriptions only so that it stays a single compiling fence.

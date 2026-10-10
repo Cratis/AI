@@ -45,7 +45,7 @@ Skip if the brief names the scope, the mode and the review kind.
 - **Delivery.** Is the model about to be rendered or hand-implemented? That decides whether V2
   to V5 are required or "not run".
 - **Known intent.** Anything deliberately partial or recorded as a gap? Follow up: where is it
-  written (a slice `description`)?
+  written (a slice's `documentation` for reasoning, `description` for a summary)?
 Unattended: assume visibly, write each assumption in the report header, and lower confidence.
 
 ## Procedure
@@ -144,7 +144,7 @@ Read-only. Before the checklist produce the inventory (counts by slice kind, eve
 read models, specs; slices with at least one assertion as n of total and a percentage; the names
 of slices with none, at most 10, then "and N more"), list structural gaps per slice (a StateChange
 without command, event or origin; a StateView without projection or reader; an Automation without
-trigger; a Translate without inbound source), orphans and cycles. Skip gaps the description calls
+trigger; a Translate without inbound source), orphans and cycles. Skip gaps the documentation explicitly calls
 intentional; judge the rest against the slice title. End with a 2-4 sentence summary (maturity, the
 most important gap or risk, one concrete suggestion). For an extracted candidate (`cratis-screenplay-legacy-extraction`) also check R9:
 every candidate has an accepted, corrected or rejected state and its evidence.
@@ -161,7 +161,8 @@ every candidate has an accepted, corrected or rejected state and its evidence.
 8. Coverage matrix filled; every `n/a` has a domain reason.
 9. Persona text says what each role cannot do, each line backed by a gate and a `then denied`
    spec (or recorded as a gap); no generic "User".
-10. Rationale in `description` text, open questions in the session state.
+10. Real rationale in fenced Markdown `documentation`, finalized at P3's end;
+    summaries in `description`, open questions in session state.
 11. Every Automation has a pending-work view or a stated reason it needs none (F8-F13).
 Any "no" is fixed or explained before P5.
 

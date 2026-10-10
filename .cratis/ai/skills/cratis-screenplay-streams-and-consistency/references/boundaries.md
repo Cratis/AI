@@ -88,7 +88,7 @@ Processors: <trigger -> decision/effect -> result; operational owner>
 External: <system -> adapter owner -> contract>
 Open: <unresolved decisions, each also in STATE.md>
 ```
-Keep durable rationale in module, feature and slice descriptions and the record's `Open` lines in
+Keep durable rationale in module, feature and slice `documentation` and the record's `Open` lines in
 `STATE.md`. Do not build a second catalogue that duplicates the model.
 
 ## Cross-boundary walkthrough

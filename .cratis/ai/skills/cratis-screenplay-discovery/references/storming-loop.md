@@ -68,7 +68,7 @@ What a model looks like after the first workflow has been stormed: no commands, 
 or screens yet. Slices are named after the command expected to produce each event. At
 Screenplay 4.125.0, boards use authored declaration/import order, and MCP `expand-layout`
 preserves it with imports. An import-less `PlayFileWriter.Expand` layout still falls back to
-path order. Order is presentation only; the feature `description` records causes and branches.
+path order. Order is presentation only; the feature `documentation` records causes and branches.
 Persona `description` text holds Does / Reads / Cannot on one quoted line here; the multi-line fenced
 form is in `personas-and-causes.md`.
 

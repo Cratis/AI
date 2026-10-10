@@ -71,8 +71,9 @@ A specification accepts a `description` naming the behavior it witnesses, not
 do not accept documentation. `documentation String` remains a typed property
 where properties are allowed; bare `documentation` starts metadata.
 
-Both metadata fields are report-only (PLAY0270): no executable bytes or ESM
-version change, no rule enforcement. MCP `declaration-details` summary exposes
+Both metadata fields are report-only (PLAY0270): no executable bytes,
+`modelRevision` or ESM version change, no rule enforcement or rendered code.
+Canonical printing retains documentation on its owner; source identity changes. MCP `declaration-details` summary exposes
 `description` and `documentation` wherever supported. Folder merge keeps the
 first module/feature block: identical copies are accepted, conflicting copies
 warn PLAY0559. Malformed, empty or repeated blocks report PLAY0558; events retain

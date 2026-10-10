@@ -80,9 +80,12 @@ name them as unfinished.
   (commands: no other outcome; read-only queries: `then query <Query>` with `arguments`, no
   `result`, then `then denied`; or `when query` + `then denied`). See `RefusingASkipper`.
   An empty `given caller` block is the anonymous caller.
-- Specs cannot name a persona: write the caller as the roles and claims that persona's
-  policies grant and name the spec after the persona. One denial per persona that can reach the
-  screen but may not act. Derive fixtures from the effective Boolean gate: AND - isolate each
+- Use `given caller as <Persona>` for one authenticated witness synthesized from
+  that persona's policies (4.127.0). Inspect the leftmost buildable `or` choice;
+  it does not represent every possible caller. Use explicit roles/claims for
+  anonymous or ownership fixtures, missing conjuncts, or refused synthesis.
+  One denial per persona that can reach the screen but may not act. Derive
+  fixtures from the effective Boolean gate: AND - isolate each
   missing conjunct; OR - a caller meeting any permitted alternative must succeed (a success
   spec, not `then denied`); denial only when the whole gate is false.
 - Ownership policies (`claim ... matches subject|<property>`): the denial gives the right role
@@ -184,7 +187,7 @@ name them as unfinished.
 ## 11. Evolution compatibility
 - Ask (when an event's contract changes): "Do facts already stored still mean the same?"
 - Compatible change (added property with a defined default): declare the new generation;
-  specify behaviour on the new generation; write the default for old facts in `description`
+  specify behaviour on the new generation; write the default and its reason for old facts in `documentation`
   (Screenplay does not express upcasters). Change of meaning: a new event, with its own specs.
 - Renaming a stored event keeps an `id "<OldName>"` pin. A rename the brief requests is done in
   this pass by the identity owner (`cratis-screenplay-modeling-lifecycle`); never leave it silently unapplied.
