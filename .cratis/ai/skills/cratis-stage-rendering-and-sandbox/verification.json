@@ -3,6 +3,7 @@
   "input": "Can Stage render this Screenplay model, and how do I re-render it safely after someone edited Program.cs?",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "`cratis render`" },
     { "kind": "skill-contains", "value": "`--name <NAME>` | **Required for plain source**" },
     { "kind": "skill-contains", "value": "`.cratis-render.json`" },

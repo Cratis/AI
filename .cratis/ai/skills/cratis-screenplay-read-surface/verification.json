@@ -3,6 +3,7 @@
   "input": "Declare a Screenplay query and the screen that binds to it.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "main `fd18129`" },
     { "kind": "skill-contains", "value": "filter status     InvoiceStatus optional" },
     { "kind": "skill-contains", "value": "query Q => observable?" },

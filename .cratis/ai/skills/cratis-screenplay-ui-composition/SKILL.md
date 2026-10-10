@@ -132,7 +132,7 @@ or `regular` — phone landscape, phone portrait, desktop short, desktop tall.
 **`arrangement freeform`** declares one variant per matrix point. Excerpt, inside
 the `layout` above in place of its `arrangement flow`:
 
-```screenplay
+```screenplay excerpt
 arrangement freeform
   variant width regular, height regular
     place navigation at 0,0 size 240,fill
@@ -149,7 +149,7 @@ arrangement freeform
 
 Declared at module level, referenced by screens. Excerpt, inside a `module`:
 
-```screenplay
+```screenplay excerpt
 screen template MasterDetail
   fits slot content
   sidebar
@@ -178,7 +178,7 @@ difference. See `cratis-screenplay-read-surface` for the directives that go insi
 Excerpt, inside a `module`; the command, query and screen are declared in its
 slices.
 
-```screenplay
+```screenplay excerpt
 form RegisterInvoiceForm for RegisterInvoice
   populate via query GetInvoiceDefaults by customerId
   field invoiceNumber label "Invoice #"
@@ -204,7 +204,7 @@ level, so it disambiguates by module rather than by feature or slice.
 Excerpt, inside a `module` or `feature`; `Navigation` is the contribution point
 the layout above declares.
 
-```screenplay
+```screenplay excerpt
 contribute to Navigation
   navigate to InvoiceList
   label "Invoices"
@@ -315,7 +315,7 @@ An existing success continuation does not imply a response contract.
 
 Excerpt: `AppShell` is the layout above.
 
-```screenplay
+```screenplay excerpt
 ui profile Desktop
   target platform web
   target size regular

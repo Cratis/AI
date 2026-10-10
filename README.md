@@ -243,10 +243,46 @@ and the managed extensions are actually discovered. It also verifies the
 canonical skill and rule paths exposed to Claude, Codex, Copilot, Cursor, and
 OpenCode.
 
-Static skill checks live beside the skill as `verification.json`. They record
-an example input and assert that required guidance is present in `SKILL.md`, or
-in the reference file named by an assertion's `file`; they do not run
-that input through a model, compile examples, or prove writing quality.
+Skill checks live beside the skill as `verification.json`. `skill-contains`
+assertions check required guidance in `SKILL.md` or the assertion's `file`.
+They do not run the example input through a model or prove writing quality.
+
+### Compiling Screenplay examples
+
+Every skill with Screenplay fences must include `{ "kind": "play-compiles" }`
+in its assertions. It covers all Markdown fences in that skill, including
+references. An optional `value` selects a skill-relative Markdown file or one
+fence, such as `references/example.md#2` (Screenplay fences are numbered from 1).
+Selectors must cover every fence; missing or empty coverage fails verification.
+
+Fence info strings declare what verification checks:
+
+- `screenplay`: a complete source model, compiled with `--warnaserror` and zero
+  diagnostics, including information diagnostics.
+- `screenplay expect PLAY0123,PLAY0456`: exactly that set of compiler diagnostic
+  codes, with exit 0 or 1. This also records expected information diagnostics;
+  it does not turn an unexpected tool failure into a pass.
+- `screenplay excerpt`: a fragment, visibly skipped with its file and line.
+- `screenplay excerpt parent=assets/parent.play`: insert the fragment at the
+  parent's unique `// @excerpt` line, retaining that line's indentation. Parent
+  paths are relative to the skill directory. Alternatively,
+  `parent=references/example.md#1` checks that the excerpt is verbatim in that
+  complete fence and compiles the parent, without duplicating the model.
+- `test=unbound`: expect `screenplay test` exit 3 (unbound or unsupported).
+  Otherwise every compiled model containing specifications must execute a
+  nonempty selection successfully. Markers may be combined; expected compile
+  errors cannot also claim specification execution.
+
+Run `yarn workspace @cratis/ai-verification run verify`. The tool is resolved
+from `CRATIS_SCREENPLAY_TOOL` or `screenplay` on PATH; its version must match the
+standalone pin in the toolchain skill's `references/versions.md`. To require it
+locally, run `CRATIS_SCREENPLAY_TOOL=/path/to/screenplay CRATIS_REQUIRE_SCREENPLAY=1
+yarn workspace @cratis/ai-verification run verify` on one shell line. CI installs
+that pin and requires the check. An unavailable tool is reported as SKIPPED
+locally, never as a passing compilation; version mismatches and example defects
+always fail. The report includes compilation, expected-diagnostic/failure,
+execution and unbound counts, skipped locations, and elapsed time. Invocations
+have a 15-second deadline, with at most four running concurrently.
 Behavioral assessment needs a separate task exercise and review of its output. The repository deliberately
 has no provenance ledger, evidence chain, generated inventory, or distribution
 tooling pipeline.

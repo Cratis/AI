@@ -9,7 +9,7 @@ The model compiles at 4.127.0 (V1, warnings as errors) but is not binding-ready 
 concept fails binding (PLAY0268), `reads` and the `concurrency` block are PLAY0271, and
 `require` over a view is PLAY0268. Keep those lines: they state real intent.
 
-```screenplay
+```screenplay expect PLAY0516 test=unbound
 // cratis-screenplay-streams-and-consistency: complete design-mode example (V1 with --warnings-as-errors).
 // Shows: one business identity per stream, cross-stream references as payload, uniqueness
 // constraints (single, composite with release, unique event), a recorded state-dependent rule

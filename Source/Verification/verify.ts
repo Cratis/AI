@@ -9,6 +9,7 @@ import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '..
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
+import { verifyPlayExamples } from './play/index.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
 import { verifySkillEvaluations } from './skill-evaluations.ts';
 import { danglingSkillReferences } from './skill-references.ts';
@@ -206,6 +207,8 @@ for (const scenarioPath of (await files(join(corpus, 'skills'))).filter(path => 
     const skillPath = join(corpus, 'skills', scenario.skill, 'SKILL.md');
     const content = await readFile(skillPath, 'utf8');
     for (const assertion of scenario.assertions) {
+        // Compiler-backed assertions are checked together, with one version probe and bounded workers.
+        if (assertion.kind === 'play-compiles') continue;
         let assertionContent: string | undefined = content;
         if (assertion.file !== undefined) {
             assertionContent = undefined;
@@ -227,6 +230,10 @@ for (const scenarioPath of (await files(join(corpus, 'skills'))).filter(path => 
     });
 }
 if (scenarioResults.length === 0) failures.push('At least one executable skill verification scenario is required.');
+
+const screenplay = await verifyPlayExamples(root);
+failures.push(...screenplay.problems);
+console.log(JSON.stringify({ screenplay }, null, 2));
 
 if (failures.length > 0) {
     console.error(JSON.stringify({ passed: false, failures }, null, 2));

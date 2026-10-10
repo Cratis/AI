@@ -3,6 +3,7 @@
   "input": "Declare the application shell, a screen template and a command form.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
       "value": "main `fd18129`"

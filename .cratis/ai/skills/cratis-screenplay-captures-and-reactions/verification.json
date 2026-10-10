@@ -3,6 +3,7 @@
   "input": "Translate external data into events and declare a reaction.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
       "value": "main `fd18129`"

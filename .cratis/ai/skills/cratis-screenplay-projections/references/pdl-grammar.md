@@ -181,7 +181,7 @@ that contains them; a target must run their specifications.
 
 ### Composite key with event context
 
-```screenplay
+```screenplay excerpt
 projection LineItems => LineItemReadModel
   from LineItemAdded
     key LineItemKey
@@ -194,7 +194,7 @@ projection LineItems => LineItemReadModel
 
 ### Global counter with a literal key
 
-```screenplay
+```screenplay excerpt
 projection SiteStats => SiteStatsReadModel
   from UserLoggedIn key literal "site-stats"
     count totalLogins
@@ -205,7 +205,7 @@ Every `UserLoggedIn` updates the same instance, whatever its event source.
 
 ### System-wide audit with `all` alongside `from`
 
-```screenplay
+```screenplay excerpt
 projection ActivityFeed => ActivityFeedModel
   all
     count totalSystemEvents
@@ -221,7 +221,7 @@ and its own count; `all` takes no key of its own.
 
 ### Children with a join and scoped removal
 
-```screenplay
+```screenplay excerpt
 projection Group => GroupReadModel
   from GroupCreated
     name = name
@@ -238,7 +238,7 @@ projection Group => GroupReadModel
 
 ### `every` that ignores child activity
 
-```screenplay
+```screenplay excerpt
 projection Group => GroupReadModel
   every
     lastActivity = $eventContext.occurred
@@ -255,7 +255,7 @@ Group-level events bump `lastActivity`; member events do not.
 
 ### Nested nullable object
 
-```screenplay
+```screenplay excerpt
 projection Slice => SliceReadModel
   from SliceCreated
     name = name
@@ -273,7 +273,7 @@ projection Slice => SliceReadModel
 
 ### Several projections in one slice
 
-```screenplay
+```screenplay excerpt
 slice StateView CustomerPortalReport
   readmodel PortalReportReadModel
     invitedAt DateTime

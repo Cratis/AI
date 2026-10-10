@@ -21,7 +21,7 @@ has no portable meaning (`PLAY0268`). Give it a body when the logic can live in 
 model — a `file` or a tagged ` ```csharp ` fence indented under the rule, or a
 fenced `validate` block for cross-field rules. Excerpt, inside a command:
 
-```screenplay
+```screenplay excerpt
 validate
   orgNumber rule BeAValidOrganizationNumber message "Must be a valid organization number"
     file Validations/BeAValidOrganizationNumber.cs

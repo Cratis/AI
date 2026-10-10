@@ -5,7 +5,7 @@ tick, a trigger or a capture record, each new fact runs the reactions to its eve
 and what those append or invoke runs more, until nothing is left. `then` events
 compare every new fact, the action's and the reactions'.
 
-```screenplay
+```screenplay expect PLAY0469
 concept InvoiceId : Uuid
 module Collections
   feature Invoices

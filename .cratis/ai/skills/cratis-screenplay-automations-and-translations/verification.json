@@ -3,6 +3,7 @@
   "input": "Our payment provider sends webhooks when invoices are paid or refunded, and we must email a receipt afterwards. Model the integration and the follow-up in the Screenplay model.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "`[ExecuteCommandsAsSystem(\"<role>\")]`" },
     { "kind": "skill-contains", "value": "ESM v10" },
     { "kind": "skill-contains", "value": "STAGE-ESM-024" },
