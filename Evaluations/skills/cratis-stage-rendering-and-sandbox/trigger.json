@@ -1,0 +1,86 @@
+{
+  "skill": "cratis-stage-rendering-and-sandbox",
+  "queries": [
+    {
+      "query": "cratis render published our app, but the WorkItems screen came out as a default scaffold instead of our MasterDetail template. Is that a parity failure?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which cratis/stage image does cratis run start with our CLI, and what does the sandbox actually enforce?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "render refused with PLAY0268 on an observable query that has no by argument. does stage admit that shape?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Double-clicking a row in the rendered app is refused with STAGE-SCENE-INTERACTION-001. Is that a bug or by design?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "I edited a generated file and now cratis render refuses to overwrite it. How do I re-render safely?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What is in .cratis-render.json, and why should I stop when the render result says recovered: true?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Where do my own adapters go so that re-rendering the Stage output does not clobber them?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The stage-specrunner exited 0 but one specification failed. How do I read its results?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Does the generated React app really contain our CommandForm shells and query bindings? What do I check in scene.json?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Take our accepted model all the way to running code and hand what Stage cannot emit to the slice implementer.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-render-and-gap-fill"
+    },
+    {
+      "query": "Declare a toolbar dialog and nested outlets in the .play model.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-ui-composition"
+    },
+    {
+      "query": "Apply a revision-checked MCP edit to our Screenplay model.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-model-authoring"
+    },
+    {
+      "query": "Which compiler does verdict V3 need, and how do I run the standalone screenplay tool?",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-toolchain"
+    },
+    {
+      "query": "Replay a quarantined reactor in our production Chronicle store.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-cli-operations"
+    },
+    {
+      "query": "Build a DataPage with Add and Edit dialogs for our hand-written React frontend.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-react-page"
+    },
+    {
+      "query": "Our hand-written C# Chronicle projection crashes at startup with a key error.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-projection"
+    },
+    {
+      "query": "Open the Chronicle browser Workbench and redact an event.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-web-workbench"
+    },
+    {
+      "query": "Write C# CommandScenario specifications for a hand-written slice.",
+      "shouldTrigger": false,
+      "note": "cratis-application-slice-specifications"
+    }
+  ]
+}

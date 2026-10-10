@@ -22,10 +22,10 @@
   },
   {
     "file": ".cratis/ai/skills/cratis-screenplay-model-authoring/references/screen-authoring-workflow.md",
-    "text": "  remains on disk. On CLI 3.40.7: 9 requests and 9 responses, 37 tools,",
+    "text": "  remains on disk. On CLI 3.43.0: 9 requests and 9 responses, 37 tools,",
     "kind": "toolCount",
     "value": "37",
-    "reason": "Historical CLI 3.40.7 transcript, not the standalone pin. Remove when this probe is removed or replaced."
+    "reason": "Measured CLI 3.43.0 transcript, whose bundled Screenplay 4.127.0 exposes 37 tools; the standalone pin's catalog has 38. Update with the transcript when the CLI bundle changes."
   },
   {
     "file": ".cratis/ai/skills/cratis-screenplay-model-review/SKILL.md",
