@@ -1,0 +1,21 @@
+{
+  "skill": "safeguarding-ai-generated-code",
+  "queries": [
+    { "query": "You generated the new payment handler. Run a Code Health gate before proposing a commit.", "shouldTrigger": true },
+    { "query": "Our AI-edited branch is ready for review. Is it safe to merge according to CodeScene?", "shouldTrigger": true },
+    { "query": "Check my staged AI changes with the CodeScene safeguard before we commit.", "shouldTrigger": true },
+    { "query": "Compare this AI-generated PR to origin/main for Code Health regressions.", "shouldTrigger": true },
+    { "query": "Before handing off the code you changed, check that its maintainability has not declined.", "shouldTrigger": true },
+    { "query": "CodeScene flagged a regression in your generated function. What must happen before declaring it done?", "shouldTrigger": true },
+    { "query": "We explicitly enabled CodeScene for AI changes. Which checks belong after editing and before the PR?", "shouldTrigger": true },
+    { "query": "The final safeguard failed on the assistant's changes. Explain what to inspect next rather than recommending merge.", "shouldTrigger": true },
+    { "query": "Rank our project's historical hotspots for next quarter's refactoring budget.", "shouldTrigger": false, "note": "Project-level debt prioritization, not an AI-change gate." },
+    { "query": "Refactor this legacy parser in small measurable steps; no branch or commit gate is requested.", "shouldTrigger": false, "note": "Single-file refactoring mechanics." },
+    { "query": "Explain what a Code Health score of 6 means.", "shouldTrigger": false, "note": "Conceptual explanation." },
+    { "query": "Translate the release hotspots into tester-ready regression scenarios.", "shouldTrigger": false, "note": "Risk-based testing." },
+    { "query": "Quantify the financial ROI of improving our worst hotspot.", "shouldTrigger": false, "note": "Business-case framing." },
+    { "query": "Install the CodeScene MCP server and explain OAuth login.", "shouldTrigger": false, "note": "Installation and account setup." },
+    { "query": "Who owns the payment parser according to CodeScene?", "shouldTrigger": false, "note": "Ownership lookup." },
+    { "query": "Write a Git commit message for this documentation-only spelling fix; do not run CodeScene.", "shouldTrigger": false, "note": "Commit text, not a Code Health gate." }
+  ]
+}

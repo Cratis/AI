@@ -1,0 +1,21 @@
+{
+  "skill": "prioritizing-technical-debt",
+  "queries": [
+    { "query": "We have a CodeScene instance. What should we improve first across the project?", "shouldTrigger": true },
+    { "query": "Rank our CodeScene technical debt hotspots for next sprint.", "shouldTrigger": true },
+    { "query": "Combine project hotspots and explicit debt goals into a shortlist of refactoring candidates.", "shouldTrigger": true },
+    { "query": "Which high-churn unhealthy files deserve attention first in our CodeScene project?", "shouldTrigger": true },
+    { "query": "Turn the project's CodeScene metrics into a ranked improvement plan, not a raw list.", "shouldTrigger": true },
+    { "query": "Help us choose the top three refactoring targets using CodeScene severity, churn and goals.", "shouldTrigger": true },
+    { "query": "We can afford two debt improvements this month. Use project-level CodeScene data to choose them.", "shouldTrigger": true },
+    { "query": "Prioritize the CodeScene hotspot backlog and give each top candidate a small incremental plan.", "shouldTrigger": true },
+    { "query": "Refactor this one parser in small steps and re-measure its Code Health.", "shouldTrigger": false, "note": "Single-file refactoring mechanics." },
+    { "query": "Check whether the AI changes in this branch pass the pre-commit Code Health safeguard.", "shouldTrigger": false, "note": "Change gate." },
+    { "query": "Create a practical test plan from our CodeScene hotspots.", "shouldTrigger": false, "note": "Testing priorities rather than refactoring priorities." },
+    { "query": "What does Code Health measure?", "shouldTrigger": false, "note": "Conceptual explanation." },
+    { "query": "We already chose the parser refactor. Calculate its financial ROI only.", "shouldTrigger": false, "note": "Quantified business case for an already chosen target." },
+    { "query": "Log into the CodeScene MCP server for the first time.", "shouldTrigger": false, "note": "Authentication setup." },
+    { "query": "Find the domain expert who owns this file.", "shouldTrigger": false, "note": "Ownership routing." },
+    { "query": "Prioritize next sprint's customer feature requests by revenue, without code metrics.", "shouldTrigger": false, "note": "Product backlog prioritization, not technical debt." }
+  ]
+}

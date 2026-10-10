@@ -571,6 +571,18 @@
       ]
     },
     {
+      "id": "cratis/codescene",
+      "availableTargets": [
+        "guiding-refactoring-with-code-health",
+        "prioritizing-technical-debt",
+        "risk-based-testing-with-code-health",
+        "safeguarding-ai-generated-code"
+      ],
+      "languages": [
+        "language-agnostic"
+      ]
+    },
+    {
       "id": "cratis/components",
       "availableTargets": [
         "cratis-components-accessibility",

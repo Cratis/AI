@@ -75,6 +75,7 @@ function ruleMatchesConfiguration(path: string, content: string, configuration: 
     const hasEngineeringProfile = selectedProfiles.some(candidate => candidate.startsWith('cratis/engineering'));
     if (profile === 'application' && !hasApplicationProfile) return false;
     if (profile === 'framework' && !hasEngineeringProfile) return false;
+    if (profile?.startsWith('cratis/') && !selectedProfiles.some(candidate => candidate === profile || candidate.startsWith(`${profile}/`))) return false;
 
     const languages = configuration.languages ?? [];
     if (languages.length === 0) return true;

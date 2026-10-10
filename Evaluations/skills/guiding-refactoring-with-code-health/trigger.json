@@ -1,0 +1,21 @@
+{
+  "skill": "guiding-refactoring-with-code-health",
+  "queries": [
+    { "query": "Refactor this hard-to-read parser using Code Health findings to measure progress.", "shouldTrigger": true },
+    { "query": "Our issue tracks uplifting a yellow file and has regression tests. Plan small CodeScene-guided refactor steps.", "shouldTrigger": true },
+    { "query": "CodeScene finds deep nesting in this method. Help simplify it without a big rewrite and verify the uplift.", "shouldTrigger": true },
+    { "query": "We are refactoring an unhealthy module. Establish a Code Health baseline before changing its structure.", "shouldTrigger": true },
+    { "query": "This file keeps attracting defects. Use detailed Code Health findings to choose three to five safe structural changes.", "shouldTrigger": true },
+    { "query": "Our authorized refactor split responsibilities. How do we verify that it measurably improved Code Health?", "shouldTrigger": true },
+    { "query": "I want objective progress checkpoints while refactoring low-cohesion code with CodeScene.", "shouldTrigger": true },
+    { "query": "The refactoring target still has complexity findings after the first step. Decide the next small change from the review.", "shouldTrigger": true },
+    { "query": "Rank all project hotspots to decide which file to refactor first.", "shouldTrigger": false, "note": "Project-level prioritization." },
+    { "query": "Gate the assistant's staged changes before commit, without expanding into legacy cleanup.", "shouldTrigger": false, "note": "AI-change safeguard, not a dedicated refactor." },
+    { "query": "Explain the Code Health color categories to a new engineer.", "shouldTrigger": false, "note": "Conceptual explanation." },
+    { "query": "Create QA charters for the PR's risky areas using CodeScene findings.", "shouldTrigger": false, "note": "Risk-based testing." },
+    { "query": "Estimate the financial payback of refactoring the billing subsystem.", "shouldTrigger": false, "note": "Business-case framing." },
+    { "query": "Configure the CodeScene complexity threshold for our repository.", "shouldTrigger": false, "note": "Configuration rather than refactoring mechanics." },
+    { "query": "Use CodeScene ownership data to find a reviewer for this file.", "shouldTrigger": false, "note": "Ownership routing." },
+    { "query": "Format this JSON fixture and fix trailing whitespace without changing structure.", "shouldTrigger": false, "note": "Cosmetic formatting, not a Code Health uplift." }
+  ]
+}
