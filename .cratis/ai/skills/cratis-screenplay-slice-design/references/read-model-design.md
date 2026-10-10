@@ -127,7 +127,7 @@ it stays.
   (worklists, status awaiting an outside answer); one-shot otherwise. Design mode only
   (PLAY0268). If access can be revoked mid-session, record that the target re-checks per emission.
 - Never model paging or page size (no syntax, Screenplay#140). State the order in the query
-  `documentation` ("oldest first"); an unbounded list is a review question.
+  `description` ("oldest first"; queries do not accept `documentation`); an unbounded list is a review question.
 - A gated keyed query needs its own denial spec.
 
 Never drop a list query from a design model just to make it bind; record the capability gap.

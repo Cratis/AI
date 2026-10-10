@@ -155,7 +155,7 @@ The append may commit while the reply is lost. The caller retries. Decide per co
   rejection the caller must see; never report it as success;
 - **new identifier** -> duplicate unless a business-key constraint exists.
 The model shows only the rejection; payload comparison and outcome replay are target
-behaviour. Write the answer in the slice `description`.
+behaviour. Write the answer in the slice `documentation`.
 
 ## 7. Ordering
 - Within one source, facts are in append order. Across sources, do not assume an order

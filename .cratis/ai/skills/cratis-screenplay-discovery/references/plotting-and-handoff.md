@@ -13,8 +13,9 @@
 
 Plotting arranges the discovered events as a narrative: what happens first, what depends on
 what, what can happen instead, where it ends. In Screenplay the plot is written into the
-model (slice and feature `description` text) and into STATE.md; files sort by name, so story
-order is never carried by structure.
+model (fenced `documentation` on slices and features) and into STATE.md. Board order is the
+authored declaration and import order; it is presentation, not causation, so write causes and
+dependencies down.
 
 ## 1. Sequence
 
@@ -23,7 +24,7 @@ what came before it, what made it happen, what is it only allowed under?
 
 ## 2. Record after / caused by / only if
 
-Write these three into the `description` of the `StateChange` slice that produces the event:
+Write these three into the `documentation` of the `StateChange` slice that produces the event:
 
 ```text
 After:     BerthRequested
@@ -48,7 +49,7 @@ At every event, not only at forks someone mentions:
 
 - What can happen next *instead*, including nothing? Does "nothing" expire, or wait forever?
 - Which next steps may happen in any order, and which must wait for each other? Unordered
-  successors become automations or ordering specs later; say so in the feature description.
+  successors become automations or ordering specs later; say so in the feature `documentation`.
 - On failure or refusal, what compensates, and is the refusal itself a fact the business must
   remember (a decision) or just a rejection (a scenario later)?
 
@@ -62,7 +63,7 @@ thing from the views that listed it).
 
 ## 4. Plot output format
 
-Put a compact story line in the feature `description` and report the plot per workflow:
+Put a compact story line in the feature `documentation` and report the plot per workflow:
 
 ```text
 The plot: SeasonalBerths
@@ -92,7 +93,7 @@ Switch only at a genuine handoff (a boat owner requests a berth, then the Harbou
 act on it) or as a deliberate cutaway to show what another persona sees. A change to another
 persona's read model is not automatically a new beat; it earns one only when that persona
 would look at it as the next step. Do not alternate personas for symmetry. Carry each real
-handoff into the feature `description` and the slice-design handoff packet; a cutaway is
+handoff into the feature `documentation` and the slice-design handoff packet; a cutaway is
 marked as such there.
 
 ```text

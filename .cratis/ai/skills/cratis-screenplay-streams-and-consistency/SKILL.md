@@ -118,7 +118,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
 4. **Set granularity.** One decision usually records one event; several facts are fine when each
    is a fact the business recognises. Different meanings get different events, not a flag with
    nullable siblings. Event properties are required by default (CHR0012, PLAY0350): an optional
-   detail is a separate event, and any deviation is justified in the description. One data
+   detail is a separate event, and any deviation is justified in the event's `documentation`. One data
    subject per event; never personal data, a secret, or a `pii`/`secret` concept as
    identifier or subject (CHR0034, CHR0052, PLAY0515/0592). Use a surrogate identity
    and protected payload. A stream identity and an event's data subject may differ:

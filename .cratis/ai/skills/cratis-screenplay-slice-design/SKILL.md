@@ -165,9 +165,10 @@ report and slice `documentation`, and continue.
 - One business decision usually produces one event; a decision establishing several facts the
   business recognises separately may produce several (say why in `documentation`).
 - Copy an identity into an event payload only when a consumer needs it as a value.
-- Keep summaries in `description`; record durable reasoning, assumptions and rejected
-  alternatives in fenced Markdown `documentation` on the slice, command, read model
-  or reaction, not `//` comments or disconnected notes. These are report-only, not
+- Keep the one-line summary in `description`, including short status markers such as
+  **NOT enforced in the model today** (with its target) or **ASSUMED**; record durable
+  reasoning, assumptions, causes and rejected alternatives in fenced Markdown
+  `documentation` on the module, feature, slice, command, event, read model or reaction, not `//` comments or disconnected notes. These are report-only, not
   enforcement. Read [model reasoning](references/model-reasoning.md) for owners,
   syntax, folder merge and PLAY0558/0559.
 - Rule coverage: for each value carrying a rule, list every path that sets it

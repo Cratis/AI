@@ -7,7 +7,11 @@ Use `description` for a short summary and `documentation` for assumptions,
 boundaries, trade-offs and rejected alternatives. Put reasoning on the declaration
 it explains, not in comments or disconnected session notes. Modules, features,
 slices, commands, events, read models and reactions accept one nonempty block,
-directly in their body (not beneath a reaction trigger):
+directly in their body (not beneath a reaction trigger). Queries, personas and other
+declarations do not accept `documentation`: keep their intent in `description` (a
+query's ordering, "oldest first", for example). A short status marker such as **NOT
+enforced in the model today** or **ASSUMED** stays in `description`, where a reader
+sees it first; the reasoning behind it goes in `documentation`:
 
 ````screenplay
 module Billing

@@ -215,8 +215,7 @@ reaction's `reads UnpaidInvoice` is report-only metadata at 4.66.0 (information 
 it does not make the model consult the view. Binding therefore admits only a scheduled
 invocation that records a timestamp. Choosing which invoices are overdue (due date before the
 clock instant) is a target-side decision: record it as gap-fill with the model as the
-contract (`cratis-screenplay-render-and-gap-fill`), and say so in the slice description as
-the example does. Do not claim the specification proves the overdue decision.
+contract (`cratis-screenplay-render-and-gap-fill`), and say so in the slice `documentation`. Do not claim the specification proves the overdue decision.
 
 ```screenplay
 domain Acme.Invoicing

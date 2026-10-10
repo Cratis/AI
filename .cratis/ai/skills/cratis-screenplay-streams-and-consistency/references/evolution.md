@@ -28,7 +28,7 @@ A test for "generation or new event": a new version must be convertible from the
 without inventing facts. If it is not, it is a different event.
 
 ## Compatibility scenarios (write before editing)
-For each changed event, answer in the slice `description` or `STATE.md`:
+For each changed event, answer in the slice `documentation` or `STATE.md`:
 1. **Replay**: does every projection still build from generation 1 facts? Which value do old
    facts give the new property (default, absent, derived)?
 2. **Readers**: which projections, reactions, constraints, specifications and other modules

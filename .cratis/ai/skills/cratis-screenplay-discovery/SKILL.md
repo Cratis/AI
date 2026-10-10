@@ -88,7 +88,8 @@ to reach the intended result." With a brief, restate domain and goal in two sent
 
 **Unattended: assume visibly.** Never stop to ask. Take the most reasonable assumption,
 record it with its reason in the session STATE.md (`.ai-work/screenplay/<model-slug>/STATE.md`,
-untracked) and, when it shapes the model, in the feature `description`. Keep what the user
+untracked) and, when it shapes the model, in the feature's fenced `documentation` (a short
+**ASSUMED** marker may stay in its `description`). Keep what the user
 decided apart from what you assumed. Never guess silently.
 
 ## Procedure
@@ -151,7 +152,7 @@ decided apart from what you assumed. Never guess silently.
   matches alphabetically. Unimported folder files remain visible after ranked siblings.
   MCP `expand-layout` preserves this order with import barrels; an import-less
   `PlayFileWriter.Expand` layout falls back to path order. Order is presentation, not
-  execution or identity. Keep causes and branches in the feature `description` and STATE.md.
+  execution or identity. Keep causes and branches in the feature `documentation` and STATE.md.
 - A misspelt keyword inside a slice is only warning PLAY0029 and the block disappears: always
   validate with warnings as errors.
 
