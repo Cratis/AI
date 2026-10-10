@@ -33,25 +33,26 @@ hand-writing an alternate shape.
 
 Keep those three lines separate in reports. Correct an old limitation only when
 the package/version you are using proves the new level. Verified public vector:
-CLI 3.40.7 with its default `cratis/stage:4.51.1` and bundled Screenplay 4.114.0;
-latest public packages are Scene 4.14.0, Screenplay 4.122.0, Stage 4.51.3 and
-Studio 0.141. All three levels hold for the canonical `ScreenComposition` corpus
-on that CLI:
+CLI 3.43.0 with its default `cratis/stage:4.52.0` and bundled Screenplay 4.127.0;
+latest public packages are Scene 4.15.0, Screenplay 4.129.0, Stage 4.57.0 and
+Studio 0.144.4. All three levels hold for the canonical `ScreenComposition`
+corpus:
 
 - authoring and executable admission: MCP opens it with `sourceSuccess true`,
   `semanticSuccess true`, `executableReady true`, and the stdio MCP harness sends
   real proposal/apply requests, rejects a stale revision and preserves an
   authored comment on disk;
-- runtime: render publishes, and the browser acceptance run passes 51
-  assertions with none blocked or pending (Cratis/Screenplay#605) - native
-  command forms, required fields, scoped comments, deep links, stale-response
-  handling and theme included.
+- runtime: render publishes, and the browser acceptance run on CLI 3.40.7 /
+  `cratis/stage:4.51.1` passed 51 assertions with none blocked or pending
+  (Cratis/Screenplay#605) - native command forms, required fields, scoped
+  comments, deep links, stale-response handling and theme included. On CLI
+  3.43.0 an agent-edited column was rendered, run and seen in the browser.
 
-Still true on that vector: a guarded Close action and a double-click interaction
-are refused (`STAGE-SCENE-ACTION-001`, `STAGE-SCENE-INTERACTION-001`) and recorded
-as unsupported, never emulated; refusing an unresolvable UI profile and recovering
-a rendered application are pending in Cratis/cli#301; Studio production Play
-proof is pending a test-account decision. On Stage 4.24.2 or cratis 3.28.x
+Still true: a guarded Close action and a double-click interaction are refused
+(`STAGE-SCENE-ACTION-001`, `STAGE-SCENE-INTERACTION-001`, defined from Stage
+4.51 through 4.57) and recorded as unsupported, never emulated; Studio production
+Play proof is pending a test-account decision. Refusing an unresolvable UI
+profile and recovering a rendered application shipped in Cratis/cli#301. On Stage 4.24.2 or cratis 3.28.x
 renderers, authored screens are still reported as omitted/default composition.
 
 ## Data context and component bindings
@@ -212,7 +213,7 @@ binding; a runtime default is not an authored contract.
 ## Design-time generation results
 
 Design-time actions belong to component packages, not to the model and not to an
-agent. Scene 4.14 declares them as data (`PackageDesignTimeMetadata`) and ships
+agent. Scene 4.15 declares them as data (`PackageDesignTimeMetadata`) and ships
 their code in an optional design-time bundle; a runtime host that does not set
 `loadDesignTime` loads none of it, so nothing a design-time action does can exist
 only at runtime. The one Cratis action today is **Generate fields**

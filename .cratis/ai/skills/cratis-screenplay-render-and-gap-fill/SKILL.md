@@ -31,9 +31,10 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 | Rendered apps | Arc `22.50.5`, Chronicle `19.32.0`, Scene packages | Stage 4.51.3 scaffold; `[ProtectedDecision]` / `DecisionRead<T>` available to gap-fill, not emitted enforcement. Embedded reverse extraction disabled; verify generated packages before claiming exact Scene runtime parity |
 
 Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
-(`references/worked-example.md`); with public CLI 3.40.7 it was run over the canonical
-`ScreenComposition` corpus and published successfully, and its browser acceptance run passed 51
-assertions (Cratis/Screenplay#605). The AI repository's `screenplay-mcp-transcript.ts`
+(`references/worked-example.md`); with public CLI 3.43.0 it was run over the canonical
+`ScreenComposition` corpus and published successfully, and an MCP-edited copy was rendered, run and
+checked in the browser; the CLI 3.40.7 browser acceptance run passed 51 assertions
+(Cratis/Screenplay#605). The AI repository's `screenplay-mcp-transcript.ts`
 harness proves the real stdio proposal/apply path against the packaged CLI. The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
 this skill links them and never restates the admission table.
 

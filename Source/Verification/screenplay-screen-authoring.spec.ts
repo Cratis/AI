@@ -134,23 +134,23 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
     );
 
     const failClosed = ['STAGE-SCENE-ACTION-001', 'STAGE-SCENE-INTERACTION-001'];
-    for (const required of ['3.40.7', 'cratis/stage:4.51.1', '4.114.0', '51 browser assertions', 'Cratis/cli#301', 'test-account decision', ...failClosed]) {
+    for (const required of ['3.43.0', 'cratis/stage:4.52.0', '4.127.0', '51\nbrowser assertions', 'Cratis/cli#301', 'test-account decision', ...failClosed]) {
         assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
     }
-    for (const required of ['3.40.7', '4.51.1', '4.114.0', 'published successfully', 'screenplay-mcp-transcript.ts', 'Cratis/cli#301', ...failClosed]) {
+    for (const required of ['3.43.0', 'published successfully', 'MCP-edited copy', 'screenplay-mcp-transcript.ts', 'Cratis/cli#301', ...failClosed]) {
         assert.ok(render.includes(required), `render guidance is missing ${required}`);
     }
     for (const required of ['3.40.7', '4.51.1', '4.114.0', '4.122.0', 'executableReady true', '37 tools']) {
         assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
     }
-    for (const required of ['3.40.7', '9 requests and 9 responses', 'StaleRevision', ...failClosed]) {
+    for (const required of ['3.43.0', '9 requests and 9 responses', 'StaleRevision', 'cratis/stage:4.52.0', ...failClosed]) {
         assert.ok(workflow.includes(required), `authoring workflow is missing ${required}`);
     }
     assert.ok(
         workflow.includes('ScreenComposition/v1/source/folder'),
         'the authoring workflow must link the canonical screen corpus v1 folder',
     );
-    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'cratis/stage:4.51.1', 'Scene 4.14.0', ...failClosed]) {
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'cratis/stage:4.52.0', 'Scene 4.15.0', ...failClosed]) {
         assert.ok(composition.includes(required), `composition contract is missing ${required}`);
     }
 });

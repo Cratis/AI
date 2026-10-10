@@ -124,10 +124,10 @@ maintained duplicate.
 
 Verified public vector and executable checks:
 
-- toolchain: public CLI 3.40.7 (`af9f18e`), whose default runtime is
-  `cratis/stage:4.51.1` and which bundles Screenplay 4.114.0. Latest public
-  packages are Scene 4.14.0, Screenplay 4.122.0, Stage 4.51.3 and Studio 0.141;
-  claims made through `cratis` are 4.114.0 compiler claims;
+- toolchain: public CLI 3.43.0 (`23e5a24`), whose default runtime is
+  `cratis/stage:4.52.0` and which bundles Screenplay 4.127.0. Latest public
+  packages are Scene 4.15.0, Screenplay 4.129.0, Stage 4.57.0 and Studio 0.144.4;
+  claims made through `cratis` are 4.127.0 compiler claims;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
 - Screenplay repo tool (available checkout): `dotnet run --project Source/DotNET/Tool
@@ -140,15 +140,15 @@ Verified public vector and executable checks:
   `apply`, real `apply` and `open-workspace` again. It uses a scratch copy,
   changes `application.play` with a comment-preservation probe, fails closed on a
   stale revision, applies with the matching revision and verifies the comment
-  remains on disk. On CLI 3.40.7: 9 requests and 9 responses, 37 tools,
+  remains on disk. On CLI 3.43.0: 9 requests and 9 responses, 37 tools,
   `executableReady true`, stale apply `StaleRevision`, comment preserved;
 - render (`cratis render <corpus-folder> --name ScreenComposition --destination
-  <dir> -o json`) with CLI 3.40.7 publishes the corpus, and its browser
-  acceptance run passes 51 assertions (Cratis/Screenplay#605);
+  <dir> -o json`) with CLI 3.43.0 publishes the corpus; the browser acceptance
+  run on CLI 3.40.7 passed 51 assertions (Cratis/Screenplay#605);
 - still refused by design: guarded Close (`STAGE-SCENE-ACTION-001`) and
-  double-click (`STAGE-SCENE-INTERACTION-001`); still pending: UI-profile
-  rejection and render-then-recover (Cratis/cli#301) and Studio production Play
-  proof (test-account decision).
+  double-click (`STAGE-SCENE-INTERACTION-001`); still pending: Studio production
+  Play proof (test-account decision). UI-profile rejection and render-then-recover
+  shipped in Cratis/cli#301.
 
 ## Edit, render, run and see it in the browser
 
@@ -170,10 +170,10 @@ reaches a running application, end to end, on the installed public CLI:
    Docker and a resolvable `playwright` (`SCREENPLAY_PLAYWRIGHT_NODE_PATH`); exit
    `0` verified, `1` edit not visible, `2` could not run.
 
-Executed on public CLI 3.41.0 (`a1a9d62`, Stage 4.51.3, bundled Screenplay
-4.114.0): 9/9 MCP requests with the column on disk, render `published` with the
+Executed on public CLI 3.43.0 (`23e5a24`, Stage 4.52.0, bundled Screenplay
+4.127.0): 9/9 MCP requests with the column on disk, render `published` with the
 column in `scene.json`, and all five browser checks passed against
-`cratis/stage:4.51.3`.
+`cratis/stage:4.52.0` (also passed earlier on CLI 3.41.0 / `cratis/stage:4.51.3`).
 
 Report a corpus the released compiler, MCP server or renderer refuses as a
 capability/version-pairing gap with the exact diagnostics; never soften it to a
