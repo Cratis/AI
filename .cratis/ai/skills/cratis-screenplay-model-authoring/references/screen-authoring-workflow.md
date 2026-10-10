@@ -12,6 +12,7 @@
 - 4. Validate authoring and executable readiness
 - 5. Run/render using the same configuration
 - 6. Use Screenplay-owned fixtures
+- Edit, render, run and see it in the browser
 - Transcript checklist
 
 Use this workflow when an agent must create or iteratively edit the canonical
@@ -148,6 +149,31 @@ Verified public vector and executable checks:
   double-click (`STAGE-SCENE-INTERACTION-001`); still pending: UI-profile
   rejection and render-then-recover (Cratis/cli#301) and Studio production Play
   proof (test-account decision).
+
+## Edit, render, run and see it in the browser
+
+The loop above proves an agent can change the model. This proves the change
+reaches a running application, end to end, on the installed public CLI:
+
+1. Edit through MCP: `screenplay-mcp-transcript.ts --edit work-item-id-column
+   --corpus <corpus-folder> --scratch <work>/model` adds `column workItemId label
+   "Work item id"` to the `WorkItemList` table in the same revision-checked
+   proposal as the comment probe, and requires the reopened workspace to be
+   executable-ready.
+2. Render the edited folder: `cratis render <work>/model --name ScreenComposition
+   --destination <work>/app -o json`, then confirm `scene.json` has the new
+   column (`"label":"Work item id","property":"workItemId"`).
+3. Run and look: `screenplay-edited-app-browser.ts --model <work>/model` starts
+   `cratis run` on that same folder, creates a work item through the generated
+   command endpoint, opens `#/WorkItemList` in headless Chromium and requires the
+   `Work item id` column header and the new item's id in the table. It needs
+   Docker and a resolvable `playwright` (`SCREENPLAY_PLAYWRIGHT_NODE_PATH`); exit
+   `0` verified, `1` edit not visible, `2` could not run.
+
+Executed on public CLI 3.41.0 (`a1a9d62`, Stage 4.51.3, bundled Screenplay
+4.114.0): 9/9 MCP requests with the column on disk, render `published` with the
+column in `scene.json`, and all five browser checks passed against
+`cratis/stage:4.51.3`.
 
 Report a corpus the released compiler, MCP server or renderer refuses as a
 capability/version-pairing gap with the exact diagnostics; never soften it to a

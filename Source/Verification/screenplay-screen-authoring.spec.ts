@@ -164,6 +164,21 @@ test('screen guidance no longer carries caveats that pass on the public vector',
     }
 });
 
+test('the edited-application browser check edits through MCP, runs the edited model and fails closed', () => {
+    const transcript = readFileSync(join(repositoryRoot, 'Source', 'Verification', 'screenplay-mcp-transcript.ts'), 'utf8');
+    const browser = readFileSync(join(repositoryRoot, 'Source', 'Verification', 'screenplay-edited-app-browser.ts'), 'utf8');
+    const workflow = readFileSync(join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'), 'utf8');
+
+    assert.ok(transcript.includes("=== 'work-item-id-column'"), 'the transcript must offer the opt-in column edit');
+    assert.ok(transcript.includes('the work item id column was not on disk after apply'), 'the transcript must prove the edit landed');
+    for (const required of ["spawn('cratis', ['run', model", "getByRole('columnheader', { name: /^Work item id$/ })", 'process.exit(2)', 'process.exitCode = passed ? 0 : 1', 'mounts.includes(model)']) {
+        assert.ok(browser.includes(required), `the browser check is missing ${required}`);
+    }
+    for (const required of ['screenplay-edited-app-browser.ts', '--edit work-item-id-column', 'scene.json', 'all five browser checks passed']) {
+        assert.ok(workflow.includes(required), `the authoring workflow is missing ${required}`);
+    }
+});
+
 interface TriggerQuery { query: string; shouldTrigger: boolean; note?: string }
 
 const screensSkills = ['cratis-screenplay-ui-composition', 'cratis-screenplay-model-authoring', 'cratis-stage-rendering-and-sandbox'];
