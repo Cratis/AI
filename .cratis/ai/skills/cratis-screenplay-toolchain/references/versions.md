@@ -17,13 +17,13 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.127.0** (`e70435a4`) | Released tag `v4.127.0`; installed `screenplay --version`; changed identity/compliance examples compiled |
-| cratis CLI | **3.41.0** | Released tag `v3.41.0`; installed `cratis --version` |
-| Screenplay bundled by CLI | **4.114.0** | CLI `v3.41.0:Directory.Packages.props` |
-| Stage bundled by CLI | **4.51.3** | Same file; the CLI's runtime image follows its Stage package version |
+| Screenplay language, standalone tool and MCP | **4.131.0** (`71f3ef37`) | Released tag `v4.131.0` and its published contract; `semantic-diff` source selections in `Source/DotNET/Screenplay.Mcp/McpRevisionDiff.cs` |
+| cratis CLI | **3.46.1** (`73578fbf`) | Released tag `v3.46.1`; source-checked, not a new render/browser probe |
+| Screenplay bundled by CLI | **4.130.0** | CLI `v3.46.1:Directory.Packages.props`; predates the 4.131.0 `semantic-diff` source objects |
+| Stage bundled by CLI | **4.52.0** | Same file; default runtime image `cratis/stage:4.52.0`, confirmed by `Source/Cli.Specs/for_RunCommand/when_running/with_a_folder_and_the_default_stage_tag.cs` |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
-| Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
+| Historical Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
 
 The published `screenplay-contract.json` beside this reference is the machine-readable authority for PLAY codes, MCP tools and parameters, and standalone CLI commands/options. Its unchanged release bytes are pinned by `screenplay-contract.version` to the standalone version above. Before adding a claim, search this large JSON file by exact `code` in `diagnostics`, or by exact `name` in `mcpTools`/`cliCommands`, and inspect that object's retirement flag, parameters or options; do not load the full file into context. For example, search for `"code": "PLAY0029"` or `"name": "read-workspace"`; `screenplay-contract-exceptions.json` preserves explicitly reasoned historical statements, not current-release exceptions. Coverage gaps are mention inventories, not proof that a skill teaches a feature.
 
@@ -33,7 +33,7 @@ on PATH can shadow a newer install; inspect `which -a cratis`.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.127.0 and the CLI's 4.114.0 bundle are different releases.
+Standalone Screenplay 4.131.0 and the CLI's 4.130.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -65,20 +65,22 @@ for identity-stable selection.
 
 ## Admission boundaries
 
-Screenplay `v4.127.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports schema
+Screenplay `v4.131.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports schema
 pairs through v10. Generated values/responses and policy negation select v7;
 sources/streams and command/specification routes select v8; reaction
 `runs as system [role "<Role>"]` selects v10 and reference-executes on 4.125.0.
 The checked trusted-actor scenario is in captures-and-reactions
-`references/invocation-identity.md`. CLI 3.41.0's 4.114.0 compiler rejects its
-source with PLAY0137 (validation probe, exit 5). Stage 4.51.3's direct planner
-uses EsmSchemaV7Support and refuses v10 with STAGE-ESM-016; CLI's version gate
-separately refuses above v7 with CLI-RENDER-004. A source construct
+`references/invocation-identity.md`. The historical CLI 3.41.0/Screenplay 4.114.0
+validation probe rejected its source with PLAY0137 (exit 5); that is not a
+3.46.1 parser claim. Stage 4.52.0's direct planner uses EsmSchemaV7Support
+(`Source/Rendering.Cratis/Semantics/SemanticCratisAdmission.cs`) and refuses v10
+with STAGE-ESM-016; CLI's version gate separately refuses above v7 with
+CLI-RENDER-004. A source construct
 still requires explicit binder/runner/provider admission: operations, exact
 numeric mode and reaction refusals/redelivery remain authorable but unadmitted
 (`PLAY0268`). Never delete those contracts to obtain a green bind.
 
-CLI 3.41.0 `RenderedSemanticVersions.Newest` is **v7**:
+CLI 3.46.1 `RenderedSemanticVersions.Newest` is **v7**:
 `Source/Cli/Commands/Render/RenderedSemanticVersions.cs`. Models above it get
 `CLI-RENDER-004` before planning/publication. v7 generated values/responses reach
 Stage admission; they are not universally refused until CLI#261. That issue is
@@ -86,8 +88,16 @@ closed. Each unsupported construct still needs a Stage diagnostic, not a silent
 omission or inferred support from package versions.
 
 The renderable-subset and Stage references retain older probes explicitly;
-read them as tested snapshots, not as a claim that Stage 4.51.3 shares every
+read them as tested snapshots, not as a claim that Stage 4.52.0 shares every
 4.24.2 limitation. Query the actual bundled renderer before a V5 claim.
+
+Stage case tables require 4.59.0; ESM v8 whole numbers as `long` and the
+pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. CLI 3.46.1 defaults
+to Stage 4.52.0, so neither new rule applies there. `cratis run --tag 4.63.2`
+selects a newer sandbox image only (`RunSettings.cs`), not a renderer package.
+`cratis render` has a statically bundled target (`RenderSettings.cs`,
+`CratisRenderTarget.cs`); a newer renderer needs a CLI release that pins it.
+The Stage skill teaches the version-gated examples.
 
 At 4.127.0, `$identity` aliases built-in caller paths; declared identity details
 remain metadata and their executable reads report PLAY0268. Bare `pii`/`secret`

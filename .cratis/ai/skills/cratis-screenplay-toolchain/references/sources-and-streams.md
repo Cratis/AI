@@ -15,7 +15,7 @@ Sources, streams and command/specification routes bind and reference-execute as
 `specifications.md`, `Versions.cs`; the complete example below compiled with
 `--warnaserror` and passed `screenplay test` on 4.125.0.
 
-CLI 3.41.0 renders only model versions up to v7: routed v8 models receive
+CLI 3.46.1 renders only model versions up to v7: routed v8 models receive
 `CLI-RENDER-004` before planning/publication. This is not a source-validation or
 binder refusal. Keep the routed model as contract and gap-fill its realization;
 never remove routing to obtain a render. Pins: `versions.md`.

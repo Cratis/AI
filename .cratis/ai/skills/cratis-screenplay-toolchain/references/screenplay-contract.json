@@ -1213,6 +1213,74 @@
           ]
         },
         {
+          "source": "eventsource Account\n  identifier String\n  stream All\nmodule M\n  feature F\n    slice StateChange S\n      command Record\n        id String identifier\n        produces event Recorded\n          stream Account.All\n",
+          "minimumSemanticVersion": "10.0",
+          "diagnostic": null,
+          "diagnostics": [],
+          "admission": [
+            {
+              "esmVersion": 1,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 2,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 3,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 4,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 5,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 6,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 7,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 8,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 9,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 10,
+              "status": "admitted",
+              "diagnostic": null,
+              "issue": null
+            }
+          ]
+        },
+        {
           "source": "system Outside\nmodule M\n  feature F\n    slice StateChange S\n      operation External\n        uses Outside\n        execute\n          implementation\n            hint \u0022External work\u0022\n      command Run\n        produces External\n",
           "minimumSemanticVersion": null,
           "diagnostic": "PLAY0268",
@@ -1305,7 +1373,8 @@
             2,
             3,
             4,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1317,7 +1386,8 @@
             1,
             3,
             4,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1329,7 +1399,8 @@
             1,
             3,
             4,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1341,7 +1412,8 @@
             1,
             3,
             4,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1353,7 +1425,8 @@
             1,
             3,
             4,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1365,7 +1438,8 @@
             1,
             3,
             4,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1375,7 +1449,8 @@
           "issue": null,
           "condition": [
             1,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1385,7 +1460,8 @@
           "issue": null,
           "condition": [
             1,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1395,7 +1471,8 @@
           "issue": null,
           "condition": [
             1,
-            5
+            5,
+            6
           ]
         },
         {
@@ -1405,7 +1482,7 @@
           "issue": null,
           "condition": [
             1,
-            5
+            6
           ]
         }
       ]
@@ -6174,6 +6251,74 @@
               "issue": null
             }
           ]
+        },
+        {
+          "source": "eventsource Account\n  identifier String\n  stream All\nmodule M\n  feature F\n    slice Automation S\n      event Recorded\n        value String\n      reaction FollowUp\n        from Account.All\n        when Recorded\n",
+          "minimumSemanticVersion": "10.0",
+          "diagnostic": null,
+          "diagnostics": [],
+          "admission": [
+            {
+              "esmVersion": 1,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 2,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 3,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 4,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 5,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 6,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 7,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 8,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 9,
+              "status": "refused",
+              "diagnostic": null,
+              "issue": null
+            },
+            {
+              "esmVersion": 10,
+              "status": "admitted",
+              "diagnostic": null,
+              "issue": null
+            }
+          ]
         }
       ],
       "admission": [
@@ -6209,27 +6354,39 @@
         },
         {
           "esmVersion": 6,
-          "status": "admitted",
+          "status": "conditional",
           "diagnostic": null,
-          "issue": null
+          "issue": null,
+          "condition": [
+            1
+          ]
         },
         {
           "esmVersion": 7,
-          "status": "admitted",
+          "status": "conditional",
           "diagnostic": null,
-          "issue": null
+          "issue": null,
+          "condition": [
+            1
+          ]
         },
         {
           "esmVersion": 8,
-          "status": "admitted",
+          "status": "conditional",
           "diagnostic": null,
-          "issue": null
+          "issue": null,
+          "condition": [
+            1
+          ]
         },
         {
           "esmVersion": 9,
-          "status": "admitted",
+          "status": "conditional",
           "diagnostic": null,
-          "issue": null
+          "issue": null,
+          "condition": [
+            1
+          ]
         },
         {
           "esmVersion": 10,
@@ -15245,6 +15402,83 @@
       "title": "A concept header repeats a compliance marker with the same wire identity.",
       "reserved": false,
       "retired": false
+    },
+    {
+      "code": "PLAY0660",
+      "name": "InvalidReadModelKey",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A key modifier has an invalid owner, type or modifier combination.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0661",
+      "name": "IncompleteReadModelKey",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A single-instance lookup omits declared read-model key parts.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0662",
+      "name": "InvalidReadModelKeyLookup",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A read-model lookup has invalid parts, shape or sources.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0663",
+      "name": "ProductionRouteOutsideCommand",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A route is declared on a production outside a command.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0664",
+      "name": "RedundantProductionRoute",
+      "severity": "warning",
+      "severities": [
+        "warning"
+      ],
+      "title": "A production route repeats its command\u0027s route.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0665",
+      "name": "InvalidObserverFilter",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "An observer filter is malformed, unresolved or used with a non-event trigger.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0666",
+      "name": "ObserverFilterExcludesEveryProducer",
+      "severity": "warning",
+      "severities": [
+        "warning"
+      ],
+      "title": "An observer filter excludes every statically known producer.",
+      "reserved": false,
+      "retired": false
     }
   ],
   "mcpTools": [
@@ -19755,11 +19989,12 @@
     },
     {
       "name": "semantic-diff",
-      "requiredParameters": [
-        "afterWorkspaceJson",
-        "beforeWorkspaceJson"
-      ],
+      "requiredParameters": [],
       "optionalParameters": [
+        "after",
+        "afterWorkspaceJson",
+        "before",
+        "beforeWorkspaceJson",
         "expectedSourceRevision",
         "limit",
         "offset"
@@ -19767,6 +20002,80 @@
       "inputSchema": {
         "type": "object",
         "properties": {
+          "before": {
+            "type": "object",
+            "properties": {
+              "workspace": {
+                "type": "string",
+                "enum": [
+                  "active"
+                ]
+              },
+              "path": {
+                "type": "string"
+              },
+              "workspaceJson": {
+                "type": "string"
+              }
+            },
+            "required": [],
+            "additionalProperties": false,
+            "description": "Select exactly one source: the open workspace, a read-only model folder/worktree path admitted like open-workspace, or a complete canonical export. Relative paths use the server working directory; Git refs are not resolved.",
+            "oneOf": [
+              {
+                "required": [
+                  "workspace"
+                ]
+              },
+              {
+                "required": [
+                  "path"
+                ]
+              },
+              {
+                "required": [
+                  "workspaceJson"
+                ]
+              }
+            ]
+          },
+          "after": {
+            "type": "object",
+            "properties": {
+              "workspace": {
+                "type": "string",
+                "enum": [
+                  "active"
+                ]
+              },
+              "path": {
+                "type": "string"
+              },
+              "workspaceJson": {
+                "type": "string"
+              }
+            },
+            "required": [],
+            "additionalProperties": false,
+            "description": "Select exactly one source: the open workspace, a read-only model folder/worktree path admitted like open-workspace, or a complete canonical export. Relative paths use the server working directory; Git refs are not resolved.",
+            "oneOf": [
+              {
+                "required": [
+                  "workspace"
+                ]
+              },
+              {
+                "required": [
+                  "path"
+                ]
+              },
+              {
+                "required": [
+                  "workspaceJson"
+                ]
+              }
+            ]
+          },
           "beforeWorkspaceJson": {
             "type": "string",
             "description": "Complete canonical UTF-8 export-workspace JSON for the baseline, decoded and reassembled from export pages; not a Git ref or path."
@@ -19786,14 +20095,41 @@
           },
           "expectedSourceRevision": {
             "type": "string",
-            "description": "Echo the ordered-pair sourceRevision on continuation. Both snapshot revisions are pinned, including catalogs and exact source."
+            "description": "Echo the ordered-pair sourceRevision on continuation. Both source revisions are pinned, including catalogs and exact source; sources reload on each page and a change refuses continuation as stale."
           }
         },
-        "required": [
-          "beforeWorkspaceJson",
-          "afterWorkspaceJson"
-        ],
-        "additionalProperties": false
+        "required": [],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "oneOf": [
+              {
+                "required": [
+                  "before"
+                ]
+              },
+              {
+                "required": [
+                  "beforeWorkspaceJson"
+                ]
+              }
+            ]
+          },
+          {
+            "oneOf": [
+              {
+                "required": [
+                  "after"
+                ]
+              },
+              {
+                "required": [
+                  "afterWorkspaceJson"
+                ]
+              }
+            ]
+          }
+        ]
       }
     },
     {

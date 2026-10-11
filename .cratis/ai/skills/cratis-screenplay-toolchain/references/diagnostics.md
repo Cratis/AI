@@ -263,7 +263,7 @@ Report each as `code file:line one-line meaning`; never paste more than about 30
 
 ## Render admission (V5): `STAGE-*`, `CLI-RENDER-*`, `STAGE-CRATIS-*`
 Full table with causes: `renderable-subset.md`. The Stage 4.24.x rows below
-retain historical source/probe evidence. Current CLI 3.41.0 admits up to ESM v7
+retain historical source/probe evidence. Current CLI 3.46.1 admits up to ESM v7
 for Stage planning; above that is CLI-RENDER-004. Its v7 corpus is refused by
 STAGE-ESM-028 (generated values) and -029 (responses), not the old v7 version gate.
 Codes in the historical snapshot:

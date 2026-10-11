@@ -1,6 +1,6 @@
 # Traps (one line each, with the fix)
 
-Current pins: Screenplay 4.127.0 / CLI 3.41.0 (`versions.md`). Unless explicitly
+Current pins: Screenplay 4.131.0 / CLI 3.46.1 (`versions.md`). Unless explicitly
 updated below, [probed]/[source] rows retain their historical v4.66.0/CLI 3.28.2
 scope; negative capability claims there are not current verdicts. Current routes
 bind as v8, v7 reaches Stage planning, reference tests have CLI/MCP routes, and
@@ -15,7 +15,7 @@ exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 7. Current V1 warns on absent projection/children/nested targets (PLAY0514) and unknown removal/capture events (PLAY0166). Opt-in field-origins checks find unmapped declared fields (PLAY0534) where coverage is known; still walk lineage for skipped/opaque shapes.
 8. Severity does not soften a rule: `severity warning` still rejects the command.
 9. Authorization (module AND feature AND construct) runs before validation; unauthorized is `then denied`, never `then error`.
-10. Without a declared actor an invocation is caller-less. At 4.125.0 declare reaction `runs as system role "<Role>"` (ESM v10), keep its gate, and reference-test the trusted path. CLI 3.41.0's 4.114.0 parser rejects this syntax (PLAY0137); Stage 4.51.3 audits through v7 only. Arc gap-fill uses `[ExecuteCommandsAsSystem]` for returned commands, not a fictional `given caller`.
+10. Without a declared actor an invocation is caller-less. At 4.125.0 declare reaction `runs as system role "<Role>"` (ESM v10), keep its gate, and reference-test the trusted path. The historical CLI 3.41.0/4.114.0 parser rejected this syntax (PLAY0137); current CLI 3.46.1 instead refuses its v10 at render admission (CLI-RENDER-004), and Stage 4.52.0 audits through v7 only. Arc gap-fill uses `[ExecuteCommandsAsSystem]` for returned commands, not a fictional `given caller`.
 11. A reaction `produces` without `for` lands on the trigger's event source; clock and application triggers need an explicit `for`.
 12. Read-model identity comes from its keyed queries, which must all use the same `by` property: `query XById => RM optional` + `by xId XId` with `xId` a read-model property, and the identifier equals the projection's effective key (table in slice-design `references/read-model-design.md`; full rule, including Stage's narrower admission and `STAGE-ESM-017`, in `cratis-stage-rendering-and-sandbox` `references/admission.md`). Never mark a read-model property `identifier`. (PLAY0268 when the keyed queries do not share one `by` property; PLAY0351 when a `given`/`then` readmodel block omits that property.)
 13. Projection `key` routes only on `from` (projection-level: PLAY0381). `all` is per event source. Joins never create instances and match the joined event's source id. [probed]
@@ -31,7 +31,7 @@ exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 23. `@` escapes are mandatory for `tag`, `authorize`, `produces`, `reads`, `file`, `validate`, `sequence`, `occurred`, `causedBy`, `namespace`, `correlation`, `causation`, and projection `key`/`parent`/`with` as names.
 24. Canonicalizing edits can drop unplaceable comments (PLAY0288; inspect `droppedCommentCount`); keep durable rationale in fenced Markdown `documentation`, not `//`, and summaries in `description`. Documentation survives canonical printing but changes neither executable bytes nor `modelRevision`; it is not rendered code.
 25. MCP writes: propose, review, approval, apply by the identity owner (the session that owns the MCP connection); other subagents return edit requests; proposals are connection-local, at most 16 (`cratis-screenplay-model-authoring`).
-26. Operations/systems and exact numbers remain unadmitted. Sources/streams/routes bind and reference-execute as ESM v8 at 4.125.0; generated values/responses bind as v7. CLI 3.41.0 renders through v7 only, with construct-specific Stage refusals. Consult released grammar rather than inventing syntax from decisions.
+26. Operations/systems and exact numbers remain unadmitted. Sources/streams/routes bind and reference-execute as ESM v8 at 4.125.0; generated values/responses bind as v7. CLI 3.46.1 renders through v7 only, with construct-specific Stage refusals. Consult released grammar rather than inventing syntax from decisions.
 27. Translate vs Automation is semantic: external facts become local facts in `Translate`; in-app event-to-event goes in `Automation`.
 28. Personas drive the board: a persona must list every policy on the path, including module-level `IsAuthenticated`.
 29. A sample's source check is not execution. Run selected admitted specifications through `screenplay test`/MCP; given==when clock still fires no scheduled occurrence.
@@ -46,7 +46,7 @@ exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 37. Personas remain outside ESM bytes, but 4.127.0 specifications accept `given caller as <Persona>`: one authenticated deterministic policy witness, not every matching caller. Inspect the chosen `or` branch; use explicit callers when synthesis is refused.
 38. A rule that depends on stored state is `reads <View>` + `require <expr> message "..."` (stated intent; PLAY0268/0271 at binding are expected in design mode). The slice `description` must mark it NOT enforced in the model today (Screenplay#129/#209) and name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc v22.39.0 and later; available to gap-fill on Stage 4.51.3's Arc 22.50.5/Chronicle 19.32.0, not emitted protection), Chronicle DCB (`concurrency` scope), or a constraint where one fits. Forbidden: caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX == true`), rules hidden in `handler`/implementation-hint prose. An unguarded materialized read is unsafe for a protected decision.
 
-Current identity/compliance traps (v4.127.0 `identity.md`, `concepts.md`, `events.md`,
+Identity/compliance traps checked at v4.127.0 (`identity.md`, `concepts.md`, `events.md`,
 `purposes.md`, `diagnostics.md`):
 - `$identity` built-ins alias `$context.identity`; declared detail reads are PLAY0268,
   while an identity block alone does not block readiness. `scoped to` is opaque,

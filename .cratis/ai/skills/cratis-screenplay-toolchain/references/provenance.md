@@ -28,12 +28,18 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 ## Sources read for facts
 
+- Current pin update: Screenplay `v4.131.0` (`71f3ef37`), published
+  `screenplay-contract.json`, `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolSchemas}.cs`
+  and `Documentation/screenplay/mcp/reference.md`; CLI `v3.46.1` (`73578fbf`)
+  `Directory.Packages.props`, `RenderedSemanticVersions.cs`, `RenderSettings.cs`,
+  `CratisRenderTarget.cs`, `RunSettings.cs` and `StageContainer.cs`. The CLI
+  source checks are not a new render/browser probe.
 - Identity/compliance/route-literal guidance: Screenplay `v4.127.0` (`e70435a4`)
   `identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`,
   `event-sources.md`, `reactions.md`, `completeness.md`, `diagnostics.md`,
   `editor-diagnostics.md`, MCP reference/authoring tools and `Semantics/Versions.cs`.
   Installed 4.127.0 version and changed examples were checked separately. Historical
-  execution and renderer probes retain their labels; CLI stays 3.41.0.
+  execution and renderer probes retain their labels, including CLI 3.41.0.
 - Earlier baseline: Screenplay `v4.125.0` `Documentation/screenplay/{tool,diagnostics,editor-diagnostics,grammar,event-sources,specifications,policies}.md`, MCP reference/authoring guides and `Semantics/Versions.cs`; CLI `v3.41.0` dependency pins, `RenderedSemanticVersions.cs` and its v7 planning specification. Installed versions/CLI help and changed examples were checked separately. Pins are in `versions.md`; the older probes below retain their original labels.
 - Screenplay `v4.66.0` (`c89198b`): `Documentation/screenplay/` (grammar, commands, queries,
   specifications, reactions, diagnostics, mcp), `decisions/0017`, `0020`, `0022` to `0024`,
