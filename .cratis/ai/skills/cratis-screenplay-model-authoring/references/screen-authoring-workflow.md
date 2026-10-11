@@ -109,6 +109,25 @@ contract for `--workspace` and keep its application identity equal to the source
 name. Build/tests/runtime checks are then the V5 steps owned by
 `cratis-screenplay-render-and-gap-fill` and `cratis-stage-rendering-and-sandbox`.
 
+Before re-rendering an edited model over an earlier render, preview it:
+
+```shell
+cratis render <model-folder> --name <ApplicationName> --destination <render-dir> --check -o json
+```
+
+`--check` (CLI 3.44.0) plans exactly like a render and reports per path what a real
+render would write, delete, leave unchanged or refuse, without writing anything. It
+exits `0` when the destination is current, `6` (`changes_pending`) when a render
+would change it and `5` when planning is refused. Since CLI 3.45.0 the receipt lists
+for every path the semantic declarations it realizes (`sources`: id, kind and a
+`Module/Feature/Slice/Name` address) and a `bySource` view mapping each declaration
+to its files. After an MCP edit, use `bySource` to confirm the edited screen or
+binding changed exactly the files you expect, and `semantic-diff` (MCP, Screenplay
+4.131.0: `before` and `after` as `{ "workspace": "active" }`, `{ "path": "<folder>" }`
+or `{ "workspaceJson": "<export>" }`) to compare the model before and after the
+edit. These are newer than the verified vector: report them as published, not as
+executed there.
+
 For screens-release parity, the smoke check must assert that every authored
 screen, template, component, form, toolbar, outlet, route and package/icon use is
 represented in the generated plan or runtime diagnostics. A consumer that cannot
@@ -125,8 +144,9 @@ maintained duplicate.
 Verified public vector and executable checks:
 
 - toolchain: public CLI 3.43.0 (`23e5a24`), whose default runtime is
-  `cratis/stage:4.52.0` and which bundles Screenplay 4.127.0. Latest public
-  packages are Scene 4.15.0, Screenplay 4.129.0, Stage 4.57.0 and Studio 0.144.4;
+  `cratis/stage:4.52.0` and which bundles Screenplay 4.127.0. Published since,
+  and not verified by this vector: Scene 4.17.0, Screenplay 4.133.1, Stage 4.64.0, CLI
+  3.46.1 (bundling Screenplay 4.130.0, default Stage still 4.52.0) and Studio 0.152.2;
   claims made through `cratis` are 4.127.0 compiler claims;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
