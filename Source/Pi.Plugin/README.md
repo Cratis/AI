@@ -29,6 +29,22 @@ yields to the managed installation to avoid duplicate resources and hooks. The P
 package manages only Pi; it neither configures other harnesses nor owns a local
 managed corpus.
 
+## Screenplay MCP tools
+
+The packaged `cratis-mcp` extension starts the Screenplay MCP server
+(`cratis screenplay mcp`) when the resolved profiles include `cratis/screenplay`.
+The backend application profiles compose it, so an application repository gets
+the Screenplay skills and, when the Cratis CLI 3.46.1 or later is installed, the
+Screenplay tools; the server creates no model folder until the first write.
+Installing them does not opt the repository in to model-first work.
+
+When Screenplay comes in only through such a profile and no model root is
+configured, a missing CLI, a CLI older than 3.46.1 (which creates the model
+folder at server start) or a server that fails to start leaves the Screenplay
+tools inactive with one notice instead of an error. Selecting `cratis/screenplay`
+explicitly or configuring `mcpServers.screenplay.root` in `.cratis/ai.json`
+keeps startup failures visible as errors.
+
 ## Path guidance and subagents
 
 The packaged `cratis-path-guidance` extension attaches a path-scoped rule to the
