@@ -90,8 +90,8 @@ name them as unfinished.
   spec, not `then denied`); denial only when the whole gate is false.
 - Ownership policies (`claim ... matches subject|<property>`): the denial gives the right role
   and a claim with another value (`claim "ownerId" = "<other id>"`); the success spec gives the
-  matching value. Both are needed. Ownership checks on Uuid-backed identifiers do not render
-  today (STAGE-ESM-015): note it.
+  matching value. Both are needed. Ownership checks on text, Uuid, Date and DateTime subjects render at Stage 4.73.1;
+  other subjects are STAGE-ESM-015: note it.
 - Traps: `then error` for a denial; a denial spec whose inputs also break a rule (it still
   denies, but reads ambiguously); trusting a `cratis run` sandbox answer (it enforces neither
   authorization nor validation); counting another command's denial.

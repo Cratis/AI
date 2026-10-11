@@ -84,7 +84,7 @@ question is not four approvals.
    row), absence, ordering. Mark lifecycle branches as branches.
 9. **State-dependent rules**: `reads <View>` + `require <expr> message "..."` as stated intent,
    marked **NOT enforced in the model today** in the slice `description` (binding reports
-   PLAY0268/0271: expected in design mode; Screenplay#129/#209), target named (Arc
+   PLAY0268/0271: expected in design mode; Screenplay#129), target named (Arc
    `[ProtectedDecision]` + `DecisionRead<T>`, Chronicle DCB, or a constraint). Forbidden:
    caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX ==
    true`) and rules hidden in `handler`/hint prose. Never drop an unresolved given or assertion

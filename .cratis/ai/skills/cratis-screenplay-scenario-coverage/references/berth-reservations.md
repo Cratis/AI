@@ -10,7 +10,7 @@ Complete, compiled design-mode model (marina guest berths) showing a coverage ma
 // Screens and personas are out of scope here (cratis-screenplay-slice-design). This is the canonical design-mode
 // example: stored-state rules (the reservation must be live) are stated as `reads BerthBooking`
 // + `require ... message` and marked NOT enforced in the slice descriptions, with their target
-// named. Binding reports PLAY0271/PLAY0268 for them (expected; Screenplay#129/#209): such a model
+// named. Binding reports PLAY0271/PLAY0268 for them (expected; Screenplay#129): such a model
 // is design-complete but not binding-ready, and that is reported, never "fixed" by deleting the
 // rules. The past-date rule (`night >= today`) is declarative too: ESM v1 has no runtime date,
 // so binding reports PLAY0268 on it (recorded as blocked, not moved into prose); the rule and its rejection

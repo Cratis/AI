@@ -1,7 +1,7 @@
 # Rule layers
 
-Put each rule in the lowest layer where it is true for every caller. Descriptions never reach
-rendered code (Stage#178): a rule that exists only in prose is unenforced in rendered scope.
+Put each rule in the lowest layer where it is true for every caller. Descriptions reach rendered
+code only as XML doc comments (Stage#178): a rule that exists only in prose is unenforced in rendered scope.
 
 | Rule is about | Layer | Notes |
 |---|---|---|
@@ -9,13 +9,13 @@ rendered code (Stage#178): a rule that exists only in prose is unenforced in ren
 | a predicate that is not a comparison (checksum, registry format) | `rule <Name>` on the property or concept | design mode; blocks V3 (PLAY0268) |
 | this command's own inputs | command `validate` / `require` | a rule that applies only sometimes is an implication: `require a == false or b > c` |
 | who may ask | `authorize` with a policy (role, claim, authenticated) | enclosing gates combine with AND and run first. Gates every command and query in a feature shares go on the feature or module so a new path inherits them |
-| whose instance | policy `claim "x" matches subject` (the command identifier) or `matches <command property>` | executable; renders only for text-backed subjects (Uuid: STAGE-ESM-015) |
+| whose instance | policy `claim "x" matches subject` (the command identifier) or `matches <command property>` | executable; renders for text, Uuid, Date and DateTime subjects; an authorized command needs exactly one identifier (STAGE-ESM-015 otherwise) |
 | uniqueness, once-only facts | `constraint` (`unique ... on`, `unique event`) | append-time; the constraint name is its identity |
-| stored state (record exists, balance, current status) | `reads <View>` + `require <expr> message "..."` | stated intent, **NOT enforced in the model today** (PLAY0268/0271 at binding are expected in design mode; Screenplay#129/#209). Name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc 22.39.0 or later), Chronicle DCB (`concurrency` scope), or a constraint |
+| stored state (record exists, balance, current status) | `reads <View>` + `require <expr> message "..."` | stated intent, **NOT enforced in the model today** (PLAY0268/0271 at binding are expected in design mode; Screenplay#129). Name the target: Arc `[ProtectedDecision]` + `DecisionRead<T>` (Arc 22.39.0 or later), Chronicle DCB (`concurrency` scope), or a constraint |
 
 An unguarded materialized read is unsafe for a protected decision; a guarded read is the
 supported route. Availability: `[ProtectedDecision]` and `DecisionRead<T>` exist in
-Stage 4.51.3's Arc 22.50.5/Chronicle 19.32.0 package set, but Stage does not emit
+Stage 4.73.1's Arc 22.68.0/Chronicle 19.45.0 package set, but Stage does not emit
 protected decisions. Gap-fill must use an admitted projection/key shape and active
 unit-of-work enrollment; do not edit managed dependencies. Keep the `.play` rule
 NOT enforced until its target enforcement is separately verified. Forbidden: caller-supplied copies of state in `require`, boolean attestation
@@ -33,7 +33,7 @@ second caller with another claim value.
 
 Command property values are, by default, recorded in the causation chain of the events they
 produce, so treat them as permanent. Newer Chronicle versions can omit causation properties
-(`CausationPropertyRetention.Omit`, Chronicle v19.32.0); Stage 4.51.3 rendered apps pin 19.32.0.
+(`CausationPropertyRetention.Omit`, Chronicle v19.32.0); Stage 4.73.1 rendered apps pin 19.45.0 (the latest Chronicle is 19.50.0).
 Verify the actual auditing and retention configuration before relying on omission, and never
 audit secrets. Classify personal values as bare `pii` and operational secrets as
 `secret` on their concepts, never the identifier concept. Use a surrogate identity

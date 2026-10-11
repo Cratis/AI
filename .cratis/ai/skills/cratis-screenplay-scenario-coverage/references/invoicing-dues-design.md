@@ -24,7 +24,7 @@ original compiled source is retained unchanged.
 // blockers), so this model compiles but is not executable; the specifications below do not run. The runnable counterpart
 // is invoicing-dues-example.md.
 // Target enforcement of every rule here: Arc [ProtectedDecision] with DecisionRead<T> (Arc v22.39.0
-// or later, not in a Stage-rendered application), or a Chronicle DCB; Screenplay#129/#209.
+// or later, not in a Stage-rendered application), or a Chronicle DCB; Screenplay#129.
 
 concept InvoiceId : Uuid
 concept MemberId : Uuid
@@ -107,7 +107,7 @@ module Invoicing
       event PaymentReceived
 
     slice StateChange SettleOrVoidInvoice
-      description "An invoice ends either settled or voided, never both (SettleOrVoid, enforced at append). NOT enforced in the model today: that the invoice exists and is still open (settling) and that only an open, unpaid invoice may be voided. Stated as `reads OpenInvoice` + `require` (PLAY0271/PLAY0268 at binding; Screenplay#129/#209). Target: Arc [ProtectedDecision] with DecisionRead, or a Chronicle DCB. Requirements to test in the target: settling an unknown invoice is rejected; voiding a paid invoice is rejected; voiding an open invoice succeeds."
+      description "An invoice ends either settled or voided, never both (SettleOrVoid, enforced at append). NOT enforced in the model today: that the invoice exists and is still open (settling) and that only an open, unpaid invoice may be voided. Stated as `reads OpenInvoice` + `require` (PLAY0271/PLAY0268 at binding; Screenplay#129). Target: Arc [ProtectedDecision] with DecisionRead, or a Chronicle DCB. Requirements to test in the target: settling an unknown invoice is rejected; voiding a paid invoice is rejected; voiding an open invoice succeeds."
       command SettleInvoice
         invoiceId InvoiceId identifier
         reads OpenInvoice as invoice by invoiceId   // stated intent, unprotected (PLAY0271 at binding)

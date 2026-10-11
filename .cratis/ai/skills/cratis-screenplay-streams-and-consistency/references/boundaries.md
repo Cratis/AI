@@ -136,14 +136,19 @@ integration support.
   internal step.
 - Treat a public event like a published API: evolution follows `evolution.md` with the
   consumers named, and breaking changes become new events.
-- Screenplay has no public/internal marker. Record the classification in the event's
-  `documentation`, and keep the list in `STATE.md`.
+- Events are private by default. Mark a public contract with `public event X` (ESM v9, released in
+  Screenplay 4.117.0); declare a foreign public event's shape locally with `event X from "store"`.
+  A command never produces a public event (PLAY0607/0613); crossing the boundary is a `Translate`
+  slice with an explicit direction (`cratis-screenplay-automations-and-translations`
+  `references/public-events-and-direction.md`). Nothing checks that the foreign shape matches the
+  other store, so also name the consumers in the event's `documentation` and keep the list in
+  `STATE.md`. Stage 4.73.1 refuses public events (`STAGE-ESM-032`).
 
 ## Crossing a boundary in Screenplay
 | Situation | Construct |
 |---|---|
 | another module in the same application | reference the event by name (cross-module resolution works within one application) |
-| another bounded context's contract | unquoted `import Context.Event` (foreign contract; does not bind on either compiler, PLAY0268; see `versions.md` in `cratis-screenplay-toolchain`) |
+| another bounded context's contract | `event X from "store"` (shape declared locally, ESM v9); an unquoted `import Context.Event` or `import Q.X from "store"` has no local shape and stays PLAY0268 (see `versions.md` in `cratis-screenplay-toolchain`) |
 | my own files | quoted `import "glob"` |
 | outside data entering | `Translate` slice: `capture`, or a translator `reaction` over an imported event (`cratis-screenplay-automations-and-translations`) |
 | our fact another context needs | a public summary event; the other side translates it into its own language |

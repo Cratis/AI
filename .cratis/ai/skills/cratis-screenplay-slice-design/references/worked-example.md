@@ -19,8 +19,8 @@ and record lineage reasoning in fenced Markdown `documentation` (`field-lineage.
 The historical source below stays unchanged; it is not the current placement recipe.
 
 The excerpt's Stage availability note is historical (Stage 4.24.x, Arc 22.25.0).
-Stage 4.51.3 pins Arc 22.50.5/Chronicle 19.32.0, so protected-read APIs are available
-to gap-fill; this neither admits these `.play` rules nor proves target protection.
+Stage 4.73.1 pins Arc 22.68.0/Chronicle 19.45.0, so protected-read APIs are available
+to gap-fill (the compiled description below saying they are "not available in Stage-rendered apps" is superseded); this neither admits these `.play` rules nor proves target protection.
 The original compiled excerpt is retained unchanged.
 
 ```screenplay expect PLAY0516 test=unbound
@@ -168,7 +168,7 @@ module Lockers
         then denied
 
     slice StateChange AssignLocker
-      description "The attendant gives one waiting request one free locker. Constraints enforce one holder per locker and one locker per request at append time. The state rules (the locker is installed and free, the request exists and is still waiting) are written as reads plus require: stated intent, NOT enforced in the model today (PLAY0268/0271 at binding are expected in design mode; Screenplay#129 and #209). Target enforcement: Arc [ProtectedDecision] with DecisionRead<T> (Arc 22.39.0 or later; not available in Stage-rendered apps, where this stays a capability gap), or a Chronicle DCB concurrency scope on the locker stream; the constraints stay as the backstop."
+      description "The attendant gives one waiting request one free locker. Constraints enforce one holder per locker and one locker per request at append time. The state rules (the locker is installed and free, the request exists and is still waiting) are written as reads plus require: stated intent, NOT enforced in the model today (PLAY0268/0271 at binding are expected in design mode; Screenplay#129). Target enforcement: Arc [ProtectedDecision] with DecisionRead<T> (Arc 22.39.0 or later; not available in Stage-rendered apps, where this stays a capability gap), or a Chronicle DCB concurrency scope on the locker stream; the constraints stay as the backstop."
       command AssignLocker
         lockerId  LockerId identifier
         requestId RequestId

@@ -57,6 +57,8 @@ read from source or documentation.
 | 29 | bodied reducers in Stage | cli `Documentation/reference/screenplay.md:38` says bodied reducers are unsupported (STAGE-ESM-019) | Stage 4.24 code admits pure allowlisted reducer bodies (`PureTransitionAdmission.cs`); trust the code |
 | 30 | `cratis screenplay validate <file>` | the command reads as a document validator | file mode ignored the file's imports and reported false unknown-name warnings on CLI 3.28.2 (cli#244, closed by PR #258: later releases compile the file with its imports); validate the folder anyway [probed on 3.28.2] |
 | 31 | cli false PLAY0285 | `D/diagnostics.md:640` defines PLAY0285 as a contradiction against every possible producer | cratis before 3.28.2 reported it falsely on reaction cascades (cli#242); not reproduced on cratis 3.28.2 [probed] |
+| 32 | competing-claim specification | `D/constraints.md` says a specification "cannot yet show a collision between two event sources" | `D/specifications.md`: `for` on `given` events establishes a claim on one source and attempts the same value on another; the specification page and the tool decide (checked at v4.139.0) |
+| 33 | descriptions in rendered code | Stage `Documentation/reference/render-plans.md` says the cratis CLI does not yet call `WithAuthoringMetadata` | the CLI calls it since 3.51.0 (`CratisRenderTarget.cs`): descriptions and documentation render as XML doc comments; `CLI-RENDER-006` when skipped (checked at cli v3.53.1) |
 
 Rows 0 to 12, 14 to 21 and 23 were re-read at the v4.66.0 line numbers above; rows 14, 15,
 19, 20 and 23 are properties of the language rather than documentation defects and were

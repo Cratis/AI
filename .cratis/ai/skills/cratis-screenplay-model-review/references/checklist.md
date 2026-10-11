@@ -174,7 +174,7 @@ Nebulit (`provenance.md`).
 | G5 | Row scoping (whose data) is part of the view, not a filter the caller supplies | queries | D |
 | G6 | Every persona Cannot line resolves to an executable gate (`authorize` policy, or ownership `claim "x" matches subject\|<command property>`) and a `then denied` spec whose caller is synthesized with `given caller as <Persona>` or explicitly carries the effective-gate roles/claims; otherwise recorded as a gap. Persona text is intent only | personas, policies, specs | D |
 | G7 | Every command and query under an inherited module/feature `authorize` has its own `then denied` spec; authorization shared by a feature is declared at feature/module level so new paths inherit it | policies, specs | D |
-| G8 | Ownership checks against a Uuid-backed identifier are not renderable today (STAGE-ESM-015): noted | policies | C (renderable mode) |
+| G8 | Ownership checks against a subject Stage cannot render (not text, Uuid, Date or DateTime; no single identifier) are noted (STAGE-ESM-015 at Stage 4.73.1) | policies | C (renderable mode) |
 
 ## Phase 10. Views, queries and screens (4 checks, H1-H4)
 | Id | Check | Evidence | Tier |

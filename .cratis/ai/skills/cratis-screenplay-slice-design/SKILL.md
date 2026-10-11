@@ -81,9 +81,9 @@ report and slice `documentation`, and continue.
    over stored state is written as `reads <View>` + `require ... message "..."` and marked
    **NOT enforced in the model today** in the slice `description`, with its target named (Arc
    `[ProtectedDecision]` + `DecisionRead<T>` on Arc 22.39.0+ (available to gap-fill
-   code with Stage 4.51.3's Arc 22.50.5/Chronicle 19.32.0); Chronicle DCB; or a constraint). Never copy state
-   into the command as input or hide a rule in `handler` / hint prose; descriptions are not
-   rendered (Stage#178). Fill the **refusal inventory**: success, each distinct refusal with
+   code with Stage 4.73.1's Arc 22.68.0/Chronicle 19.45.0); Chronicle DCB; or a constraint). Never copy state
+   into the command as input or hide a rule in `handler` / hint prose; descriptions reach code
+   only as XML comments (Stage#178). Fill the **refusal inventory**: success, each distinct refusal with
    layer and message, and the denied persona.
 4. **Name and shape the event.** Past tense, the specific change that became true
    (`LockerRelocated`, `VolumeCorrected`); never `XUpdated`/`Changed`/`Edited`/`Saved`/
