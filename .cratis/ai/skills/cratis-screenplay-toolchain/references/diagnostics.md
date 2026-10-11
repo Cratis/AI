@@ -5,6 +5,7 @@
 - Warnings that hide defects (always validate with `--warnings-as-errors`)
 - Source reference and identifier checks
 - Public events and translation direction
+- Explicit enum member numbers
 - Named keys, production routes and observer filters
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
@@ -78,6 +79,24 @@ without public metadata stay inbound. PLAY0027 also covers malformed, repeated
 or non-Translate direction. Repair discovery uses `repair-capabilities`, workspace
 `repairs`, then revision-checked `propose-repair`; do not guess a direction.
 See automations-and-translations `references/public-events-and-direction.md`.
+
+## Explicit enum member numbers
+
+Source errors from Screenplay 4.137.0; ESM v12 admission from 4.139.0:
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0667 | E | Mixed numbered/unnumbered members; number all or none |
+| PLAY0668 | E | Duplicate enum number; aliases are not supported |
+| PLAY0669 | E | Number outside int32 (-2147483648 through 2147483647) |
+| PLAY0670 | E | Malformed number: decimal digits, optional minus, no leading zero, fraction, exponent or plus |
+| PLAY0671 | I | Opt-in `enum-pinning` completeness hint for an unnumbered enum used by an event property; ordinary compilation does not report it |
+
+Numbering errors have no automatic repair. PLAY0671 suggests the opt-in
+`propose-number-enum-members` refactoring, not a correctness repair. Member names
+remain specification values. Non-positional pins select v12; positional pins keep
+older executable bytes/version. Consumer admission is separate (`versions.md`).
+Source: `v4.139.0:Documentation/screenplay/diagnostics.md`, decision 0065.
 
 ## Named keys, production routes and observer filters
 
@@ -312,7 +331,7 @@ Report each as `code file:line one-line meaning`; never paste more than about 30
 
 ## Render admission (V5): `STAGE-*`, `CLI-RENDER-*`, `STAGE-CRATIS-*`
 Full table with causes: `renderable-subset.md`. The Stage 4.24.x rows below
-retain historical source/probe evidence. Current CLI 3.50.0/Stage 4.67.0 admits
+retain historical source/probe evidence. Current CLI 3.53.1/Stage 4.73.1 admits
 through v10 to construct checks; above it is CLI-RENDER-004 (direct Stage:
 STAGE-ESM-016). Publication STAGE-ESM-032, foreign facts/event captures 033,
 reaction identity 034, reaction filters 035 and production overrides 036 remain

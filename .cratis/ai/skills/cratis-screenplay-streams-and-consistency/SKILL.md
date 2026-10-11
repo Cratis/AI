@@ -128,7 +128,10 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    `references/compliance.md` for allowed types and the policy/encryption distinction.
 5. **Plan evolution** with `references/evolution.md`: classify each event change (additive,
    meaning change, rename, removal, split or merge) and write its compatibility scenarios before
-   editing. Renames and other identity-affecting edits are made by the identity owner (the
+   editing. Pin persisted/public enum member numbers before reordering or removing
+   members; never renumber or reuse a published number. Positional pins preserve
+   executable bytes; non-positional pins need ESM v12 consumer admission.
+   Renames and other identity-affecting edits are made by the identity owner (the
    identity procedure in `cratis-screenplay-modeling-lifecycle`).
 6. **Test ownership and interfaces** with `references/boundaries.md`: ownership interview,
    interface and processor inventory, one real interaction walked across each boundary, coupling

@@ -17,10 +17,10 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.135.0** (`b4e46130`) | Released tag `v4.135.0` and its unchanged published contract |
-| cratis CLI | **3.50.0** (`546dea12`) | Released tag `v3.50.0`; source-checked, not a new render/browser probe |
-| Screenplay bundled by CLI | **4.131.0** | CLI `v3.50.0:Directory.Packages.props`; includes `semantic-diff` source objects, not v11 literal lowering |
-| Stage bundled by CLI | **4.67.0** | Same file; renderer and default sandbox image use the same Stage release |
+| Screenplay language, standalone tool and MCP | **4.139.0** (`dcd84574`) | Released tag `v4.139.0` and its unchanged published contract; enum numbers/ESM v12 and property references |
+| cratis CLI | **3.53.1** | Released tag `v3.53.1`; source-checked, not a new render/browser probe |
+| Screenplay bundled by CLI | **4.137.0** | CLI `v3.53.1:Directory.Packages.props`; enum-number authoring, not v12 binding |
+| Stage bundled by CLI | **4.73.1** | Same file; Stage's own `Directory.Packages.props` also pins Screenplay 4.137.0 |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
 | Historical Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
@@ -44,7 +44,7 @@ or renderer probes below as results from the newer bundle.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.135.0 and CLI 3.50.0's 4.131.0 bundle are different releases.
+Standalone Screenplay 4.139.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -76,8 +76,8 @@ for identity-stable selection.
 
 ## Admission boundaries
 
-Screenplay `v4.135.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
-schema pairs through v11. Admission selects by use:
+Screenplay `v4.139.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
+schema pairs through v12. Admission selects by use:
 
 - v7: generated values/responses and policy negation.
 - v8: sources/streams and command/specification routes.
@@ -100,23 +100,35 @@ schema pairs through v11. Admission selects by use:
   admit `numbers exact` source mode or arbitrary precision. At this tag,
   interoperability documentation still says "claimed, unreleased"; this corpus
   follows Versions.cs and decision 0066's publication boundary.
+- **Published, frozen v12 in 4.139.0:** non-positional explicit enum numbers
+  select v12, carrying optional canonical last `numbers` parallel to `values`.
+  Positional pins retain earlier executable bytes/version/revision; unnumbered
+  enums retain positional meaning. Names remain fixture/condition/specification
+  values. Strict reading rejects arrays in older versions, without enum values,
+  with mismatched length, duplicates, non-int32 entries or positional numbers
+  (non-canonical). Consumers must admit v12 explicitly. Authoring shipped in
+  4.137.0 (decision 0065); syntax/example: command-surface `references/enum-numbers.md`.
 
 Decision 0066 freezes a version when any exposing NuGet/npm package is published,
 including prereleases. Later byte-changing features take the next version at
 admission; a byte-preserving extension under 0004 is the exception. Published
-numbers never change or get reused. Enum member numbers (decision 0065) remain
-unimplemented/unadmitted and have no numbered claim. Concept generation strategies
-and freshness (decision 0054, #616) are accepted but not implemented. Operations,
+numbers never change or get reused. Enum member numbers are admitted as v12;
+this does not admit flags or numeric values in name-based specifications.
+Concept generation strategies and freshness (decision 0054, #616) are accepted but not implemented. Operations,
 exact source numeric mode and reaction refusals/redelivery remain PLAY0268.
 Composite read-model keys/query blocks are also still PLAY0268 (#599), not
 admitted by the 4.129.0 authoring delivery; a single explicit key preserves bytes.
 Never delete these contracts to obtain a green bind.
 
-CLI 3.50.0 `RenderedSemanticVersions.Newest` is **v10**:
-`Source/Cli/Commands/Render/RenderedSemanticVersions.cs`. Stage 4.67.0 uses
-EsmSchemaV10Support in `SemanticVersionFeatures.cs` and construct checks in
-`SemanticVersionFeatureAdmission.cs`. v11 gets CLI-RENDER-004 before planning
-(and STAGE-ESM-016 at the direct Stage version gate). Through v10 is not blanket
+CLI 3.53.1 `RenderedSemanticVersions.Newest` is **v10**:
+`Source/Cli/Commands/Render/RenderedSemanticVersions.cs`. Stage 4.73.1 uses
+EsmSchemaV10Support in `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs`
+and construct checks in `SemanticVersionFeatureAdmission.cs`. Both bundle
+Screenplay 4.137.0, so non-positional enums compile with standalone >= 4.139.0
+but do not bind/render through this CLI. A supplied v12 ESM is not admitted by
+Stage; merely upgrading a compiler is not consumer admission. v11 gets
+CLI-RENDER-004 before planning (and STAGE-ESM-016 at the direct Stage version
+gate); v12 is newer still. Through v10 is not blanket
 render support: public publication STAGE-ESM-032, foreign events/event captures
 033, reaction identity 034, reaction filters 035 and production overrides 036
 remain refused; reducer filters render. ESM v8 routes reach their own checks.
@@ -131,7 +143,7 @@ read them as tested snapshots, not as a claim that Stage 4.52.0 shares every
 
 Stage case tables require 4.59.0; ESM v8 whole numbers as `long` and the
 pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. CLI 3.50.0 defaults
-to Stage 4.67.0, so both rules apply. Previous CLI 3.46.1 bundled Screenplay
+to Stage 4.67.0; current CLI 3.53.1 defaults to 4.73.1, so both rules apply. Previous CLI 3.46.1 bundled Screenplay
 4.130.0 and Stage 4.52.0; neither rule applied there. `cratis run --tag 4.63.2`
 selects a newer sandbox image only (`RunSettings.cs`), not a renderer package.
 `cratis render` has a statically bundled target (`RenderSettings.cs`,

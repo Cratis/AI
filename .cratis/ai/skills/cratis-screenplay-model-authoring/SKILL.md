@@ -6,30 +6,27 @@ license: MIT
 
 # Author a Screenplay model through its AST
 
-Screenplay describes an information system as one declarative document set.
-Prefer the Screenplay MCP tools to hand-edited text and throwaway regex scripts:
-the compiler already knows declarations, references, hierarchy and source ownership.
+Prefer the Screenplay MCP tools to text/regex edits: the compiler owns declaration,
+reference, hierarchy and source evidence for the declarative document set.
 
 Screenplay remains experimental. **Valid source is not necessarily executable.**
 It does not generate or run an application; Stage owns rendering/runtime admission.
 When selecting construct syntax or distinguishing source validity from execution, read the [language reference](references/language-reference.md) for constructs,
 the executable profile and a complete compiled model.
 
-For screen-heavy work, keep the parity contract explicit:
-discover the installed UI node schemas, propose/apply with revisions, then pass the
-same model root or workspace export to validate/render/runtime checks. The full
-workflow is `references/screen-authoring-workflow.md`; the UI syntax/support-level
-contract is in `cratis-screenplay-ui-composition`.
+For screens: discover UI schemas, propose/apply with revisions, then pass the
+same model root or workspace export to all checks. Workflow:
+`references/screen-authoring-workflow.md`; syntax/support:
+`cratis-screenplay-ui-composition`.
 
 ## Verified product sources
 
-Current authoring/MCP guidance follows Screenplay v4.135.0
+Current authoring/MCP guidance follows Screenplay v4.139.0
 `Documentation/screenplay/mcp/`, `ast-authoring.md`, `folders.md`, `vscode.md`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
-Historical connection/binding probes below remain labeled 4.66.0; the complete
-registration example was compiled/tested at 4.68.0, not reclassified as a current
-execution probe. Earlier source attribution is in `references/provenance.md`.
+Historical probes remain 4.66.0; registration example compilation/execution
+remains 4.68.0. Attribution: `references/provenance.md`.
 
 ## Locate and connect
 
@@ -54,12 +51,10 @@ are in [MCP loop](references/mcp-loop.md). Send `initialize` and
 schemas rather than relying on a remembered count.
 
 
-Look first for the project's existing `.play` files: the folder holding them is the
-model. A new model goes under the repository's `Source/` or `src/` folder, else in a
-`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
-configuration and the shared AI corpus only. This is the
-conventional home for consumer-owned `.play` source. The source is the single flow model;
-keep explanatory Markdown in the owning repository's documentation.
+Look first for the project's existing `.play` files: their folder is the model.
+New models go in `Source/` or `src/`, else root `Screenplay/`, never `.cratis/`
+(configuration/shared corpus only). The source is the single flow model;
+explanatory Markdown belongs in repository documentation.
 
 `cratis ai install` manages `.cratis/ai/`, never model files. Select the
 `cratis/screenplay` profile in the project's AI configuration. The corpus-owned
@@ -87,6 +82,9 @@ can keep that entry point; use the project's supported installation channel.
    of `.play` files is one application, not independent files.
 2. Use `search-declarations`, `declaration-details`, `find-references` and
    `dependencies` to locate the owning declaration and affected references.
+   Before a property rename/removal, read [property links](references/property-links.md):
+   `kind: "Property"`, `Owner.member` / `Owner.generationN.member`, direct mappings.
+   `complete: false` is incomplete evidence, never a successful empty list.
 3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
    edges, declared-dependency coverage, cycles and advisory order; the board's
    dependency-map toggle exposes this evidence visually. Unknown or ambiguous
@@ -209,6 +207,10 @@ from silently changing the reviewed candidate.
   migrates all occurrences together. Keep the `query Q => observable?` exception.
 - Compliance repairs PLAY0565/0653: [MCP tool guide](references/mcp-tools.md).
 
+`propose-number-enum-members` pins an unnumbered enum to current positions.
+Opt-in MCP `checks: "enum-pinning"` / `--check enum-pinning` (PLAY0671) hints at
+stored enums, not correctness repairs. Arguments/review: `references/mcp-tools.md`.
+
 Use `propose-extract-inline-event` on the inline `EventSyntax` handle before adding
 a generation (canonical formatting consent; refuses comment loss; no reverse
 operation). Event `propose-rename` pins `id "<old name>"` by default; use
@@ -293,7 +295,8 @@ that the code compiles or behaves. Read `references/mcp-tools.md#code-attachment
   clean run is not a bound or executable result.
 - Operations/`numbers exact` remain unadmitted; routes bind as v8, public
   boundaries v9, identity/overrides/filters v10, qualifying non-route Double
-  literals v11. CLI 3.50.0 reaches Stage checks through v10. Never drop or stub source contracts to bind.
+  literals v11, non-positional enum numbers v12 (standalone 4.139.0).
+  CLI 3.53.1/Stage 4.73.1 bundle 4.137.0 and do not admit v12. Never drop or stub source contracts to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
 - If execution is intended, validate with the owning downstream runtime as well.
@@ -306,12 +309,9 @@ The ordinary CLI remains useful for whole-folder validation:
 cratis screenplay validate <model-folder> --warnings-as-errors
 ```
 
-For end-to-end screen changes, record the MCP transcript in `.ai-work/` and then
-run the render/runtime checks with the exact same root or workspace export. A
-transcript that applies one source and renders another is not evidence; neither is
-a generated app that silently drops authored UI. Use the Screenplay-owned canonical
-corpus fixture path when it exists instead of copying `.play` examples into this
-repository.
+Record screen MCP transcripts in `.ai-work/`; render/runtime checks must use the
+same source, never an app that silently drops authored UI. Use the Screenplay-owned canonical
+corpus fixture path instead of copying available `.play` fixtures here.
 
 Check installed `tools/list` schemas: the CLI bundle can differ. Never invent
 commands, parameters, syntax nodes or downstream capabilities.

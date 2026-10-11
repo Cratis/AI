@@ -75,6 +75,10 @@ scalar/composite stream-id types and nested route mapping sources, including leg
 markers. Keep a surrogate identity and carry protected data in the payload.
 Chronicle likewise rejects `[PII]`/`[Encrypted]` identifiers (CHR0034/CHR0052).
 
+Read [enum numbers](references/enum-numbers.md) for `draft = 1`, unique int32
+all-or-none pins, stored/public identity safety, `enum-pinning`, ESM v12 and the
+CLI/Stage gap. Unnumbered enums keep positions; specifications use names.
+
 ⚠️ **Enum trap.** A value literally named `validate` is read as an empty validate
 block. Write `@validate` for the value; the compiler warns when it sees the
 ambiguity.
@@ -368,7 +372,7 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
 ## Verify
 
 - [ ] Validate the complete model root with warnings as errors; name the tool,
-      version and result. Current pins: standalone 4.135.0 / CLI 3.50.0; bundle
+      version and result. Current pins: standalone 4.139.0 / CLI 3.53.1; bundle
       compatibility and execution are separate checks.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
@@ -385,10 +389,8 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
       runnable or renderable without saying which tool admits it.
 - [ ] No event carries an optional property covering two situations.
 
-Read `cratis-screenplay-toolchain/references/versions.md` when selecting a compiler or determining which executable or renderable subset admits a construct.
-
-Versions, tool capabilities and the executable and renderable subsets: `cratis-screenplay-toolchain` (`references/versions.md`). Where a construct sits in the
-method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
+Compiler pins and admission: `cratis-screenplay-toolchain/references/versions.md`.
+Method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses
 

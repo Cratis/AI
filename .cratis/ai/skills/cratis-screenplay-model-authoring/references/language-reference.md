@@ -65,6 +65,12 @@ qualifiers, secret scopes and validation. Legacy markers report PLAY0565 informa
 repeated header markers report PLAY0653 warning. Purposes declare the use/basis/retention
 separately; see command-surface `references/compliance.md`.
 
+Enum member `name = N` pins are unique int32 values, all members or none.
+Unnumbered enums retain positions. Non-positional numbers bind as ESM v12 from
+4.139.0; positional pins preserve older bytes/version. Fixtures and conditions
+still name members. Syntax, stored-number safety and consumer admission:
+command-surface `references/enum-numbers.md`.
+
 Projections and captures use their dedicated sub-grammars. Inline code uses a
 tagged fence (` ```csharp `); the older language-line form still parses with
 warning `PLAY0397`. Query the MCP's `syntax-schema` instead of inventing JSON

@@ -1,6 +1,6 @@
 # Traps (one line each, with the fix)
 
-Current pins: Screenplay 4.135.0 / CLI 3.50.0 (`versions.md`). Unless explicitly
+Current pins: Screenplay 4.139.0 / CLI 3.53.1 (`versions.md`). Unless explicitly
 updated below, [probed]/[source] rows retain their historical v4.66.0/CLI 3.28.2
 scope; negative capability claims there are not current verdicts. Current routes
 bind as v8, v7 reaches Stage planning, reference tests have CLI/MCP routes, and

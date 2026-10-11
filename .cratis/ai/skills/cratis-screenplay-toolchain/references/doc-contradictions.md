@@ -1,6 +1,6 @@
 # Documentation contradictions and which side to trust
 
-Current pins are Screenplay 4.135.0 / CLI 3.50.0 (`versions.md`). This is a
+Current pins are Screenplay 4.139.0 / CLI 3.53.1 (`versions.md`). This is a
 **historical** contradiction inventory, not a claim that all listed defects still
 exist. Current grammar documents exact numbers and free description placement;
 sources/routes bind as ESM v8; PLAY0515 is a source error; CLI admits through

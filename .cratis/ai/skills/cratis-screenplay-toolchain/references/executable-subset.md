@@ -12,7 +12,7 @@
 - Not refused, but do not rely on it
 - Never do this to reach V3
 
-Current pins are Screenplay 4.135.0 / CLI 3.50.0 (`versions.md`). Detailed
+Current pins are Screenplay 4.139.0 / CLI 3.53.1 (`versions.md`). Detailed
 4.66.0/4.68.0 binder probes below retain their historical labels. Current source
 admits routes as ESM v8, public/direction constructs as v9, identity/overrides/filters
 as v10 and qualifying non-route Double literals as v11. Operations,
@@ -152,6 +152,12 @@ filters match routed source/stream names only. Read
 [production routes and filters](production-routes-and-filters.md).
 Qualifying retained non-route Double literals bind/reference-execute as v11 on
 4.135.0, unlike `numbers exact`; see `versions.md`.
+
+Non-positional enum member numbers bind as ESM v12 from 4.139.0; positional
+pins preserve the earlier executable version/bytes. The optional canonical last
+`numbers` array parallels `values`; specifications still use member names.
+Consumers must admit v12 explicitly; CLI 3.53.1/Stage 4.73.1 do not. Syntax:
+command-surface `references/enum-numbers.md`; version contract: `versions.md`.
 
 ## Code attachments (what binds, what never does)
 
