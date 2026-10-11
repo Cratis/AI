@@ -7,12 +7,13 @@
 - Ownership, publication and recovery
 - Reading V5
 
-Current pins: standalone Screenplay 4.127.0; CLI 3.41.0 bundles Screenplay
-4.114.0 and Stage 4.51.3 (`versions.md`). CLI admits ESM v7 to Stage planning;
-above v7 is CLI-RENDER-004. Its v7 canonical corpus gets STAGE-ESM-028/029 for
-generated values/responses (`v3.41.0:Source/Cli.Specs/for_ScreenplayPlanning/when_planning_an_esm_v7_model.cs`).
+Current pins: standalone Screenplay 4.131.0; CLI 3.46.1 bundles Screenplay
+4.130.0 and Stage 4.52.0 (`versions.md`). CLI admits ESM v7 to Stage planning;
+above v7 is CLI-RENDER-004. The historical v7 canonical-corpus check got
+STAGE-ESM-028/029 for generated values/responses
+(`v3.41.0:Source/Cli.Specs/for_ScreenplayPlanning/when_planning_an_esm_v7_model.cs`).
 The following detailed Stage 4.24.x results are **historical**, not reverified
-4.51.3 claims. Run the bundled renderer before asserting current renderability.
+4.52.0 claims. Run the bundled renderer before asserting current renderability.
 
 Historical sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
 (an exhaustive map of every ESM member to Rendered, Rejected(code) or Ignored),
@@ -60,7 +61,7 @@ accepted with PLAY0565 information); either still refuses binding. Identity bloc
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding
-refusal above; CLI 3.41.0 still refuses versions above v7. Never split hand-joined
+refusal above; CLI 3.46.1 still refuses versions above v7. Never split hand-joined
 legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
 
 ## Authoring consequences in renderable mode

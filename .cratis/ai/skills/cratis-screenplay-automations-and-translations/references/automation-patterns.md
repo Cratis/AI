@@ -71,8 +71,10 @@ When a todo list is not needed: the effect is immediate, internal and cannot fai
 Screenplay 4.125.0 declares the actor with reaction-level `runs as system role
 "<Role>"` (ESM v10); without it a gated invocation has no caller and denies.
 `given caller` is not an invocation actor. Role requirements remain enforced;
-claim conditions for this system principal remain unknown. CLI 3.41.0's older
-compiler rejects the syntax (PLAY0137), and Stage 4.51.3 admits through v7 only.
+claim conditions for this system principal remain unknown. Historical CLI 3.41.0's
+older compiler rejected the syntax (PLAY0137). Current CLI 3.46.1 bundles
+Screenplay 4.130.0 / Stage 4.52.0 and refuses v10 at render admission
+(CLI-RENDER-004; toolchain `references/versions.md`).
 Use the checked model in captures-and-reactions `references/invocation-identity.md`.
 Arc gap-fill uses `[ExecuteCommandsAsSystem("<role>")]` for returned commands,
 not identity inferred from prose or an imperative pipeline call.

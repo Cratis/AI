@@ -86,6 +86,78 @@ from `Cratis.Arc.Chronicle.Testing`.
 - **Validator and `Provide()` dependencies** are registered in
   `_scenario.Services`; the concrete validator is discovered automatically.
 
+### Pin generated values
+
+Verified at **Arc v22.68.0**, available in `Cratis.Arc.Testing` **22.67.0+**.
+For the `AllocateCartId` command from `cratis-arc-command`, whose
+`Handle([GeneratedValue("cart")] CartId cartId)` returns that id, specify the
+pipeline with a known concept pin. Import `Cratis.Arc.Commands` and
+`Cratis.Arc.Testing.Commands`; the usual specification global usings supply
+`Cratis.Specifications` and `Xunit`. In a dedicated spec project:
+
+```csharp
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using Cratis.Arc.Commands;
+using Cratis.Arc.Testing.Commands;
+
+namespace Shopping.Carts.for_AllocateCartId.when_allocating;
+
+public class and_value_is_pinned : Specification
+{
+    readonly CommandScenario<AllocateCartId> _scenario = new();
+    readonly CartId _cartId = new(Guid.Parse("9a073b78-423c-43bc-b94c-19e4c83d1001"));
+    CommandResult _result = default!;
+
+    void Establish() => _scenario.PinGeneratedValue("cart", _cartId);
+    async Task Because() => _result = await _scenario.Execute(new AllocateCartId());
+    void Destroy() => _scenario.Dispose();
+
+    [Fact] void should_succeed() => _result.ShouldBeSuccessful();
+    [Fact] void should_return_the_pinned_id() =>
+        ((CommandResult<CartId>)_result).Response.ShouldEqual(_cartId);
+    [Fact] void should_capture_the_pinned_id() =>
+        _scenario.GeneratedValues.Last<CartId>("cart").ShouldEqual(_cartId);
+    [Fact] void should_capture_it_once() =>
+        _scenario.GeneratedValues.All<CartId>("cart").ShouldContainOnly(_cartId);
+}
+```
+
+- Pins use the attribute's explicit name, or the C# parameter name without one.
+  Names are case-sensitive and pins are keyed by command type plus name.
+- Supply the concept, not a raw `Guid`. Incompatible/null pins yield
+  `PinnedGeneratedValueHasWrongType` during execution. Pins still undergo normal
+  concept validation; only validated values are captured.
+- Strict is the default. Without a pin, an unpinned generated parameter yields
+  `GeneratedValueNotPinned` as an exception outcome in `CommandResult`; `Execute`
+  does not throw it to the spec. Assert the unsuccessful/exception outcome when
+  specifying that failure, not a request-validation rejection.
+- `AllowGeneration()` opts into normal generation for unpinned values, including
+  nested commands, when exact values do not matter. Explicit pins still win.
+  Each pin supplies the same value on every execution; it is not a queue.
+- For a child invoked through `ICommandPipeline`, configure
+  `_scenario.PinGeneratedValue<ParentCommand, ChildCommand>("child", childId)`.
+  The extension declares `PinGeneratedValue<TOtherCommand>` but C# requires
+  **both** type arguments at the call site. This does not replace a same-named
+  parent pin.
+- `Last<T>(name)` returns the latest capture of that name and declared type,
+  failing if absent. `All<T>(name)` returns a read-only snapshot in resolution
+  order across executions (empty if none). Both include nested commands. Same
+  name/type captures combine; use distinct names to distinguish commands.
+- Configure pins and `AllowGeneration()` before the first execution, even if it
+  fails or has no generated parameters. Changes after that throw
+  `GeneratedValuesMustBePinnedBeforeExecution`; create a new scenario instead.
+  Validation alone neither generates values nor freezes configuration.
+- Do not log or trace captures. Do not replace/seed the production generator.
+  A direct-call decision spec supplies the known argument to `Handle()` itself.
+
+Guide: [Pin generated values in command specs](/arc/backend/csharp/testing/generated-values/).
+Source: **Arc v22.68.0**, `Source/DotNET/Testing/Commands/CommandScenarioGeneratedValueExtensions.cs`,
+`ScenarioGeneratedValueFixture.cs`, `ScenarioGeneratedValues.cs` and
+`GeneratedValuesCommandScenarioExtender.cs`;
+`Source/DotNET/Testing.Specs/Commands/for_CommandScenario/generated_values/when_pinning_a_value.cs`.
+
 ### Unhappy paths assert twice
 
 ```csharp
@@ -192,10 +264,14 @@ those substitutes after `Given` fires the events.
 
 ## Application conventions
 
-- **Use a per-specification value for anything under a uniqueness check** — a
-  fresh `Guid`, or a truncated `Guid.NewGuid().ToString("N")[..9]`. Hardcoded
-  values cause order-dependent flakes. Do not add `[Collection(…)]` to work
-  around a collision; that is the wrong fix here.
+- **Use a per-specification fixture value for anything under a shared uniqueness
+  check** — a fresh `Guid`, or a truncated `Guid.NewGuid().ToString("N")[..9]`.
+  Hardcoded values in shared storage cause order-dependent flakes. This is
+  fixture isolation, not advice to generate inside production `Handle()`;
+  for generated parameters, pin the typed expected fixture value before
+  execution. A known fixed pin is appropriate in an isolated scenario such as
+  the allocation-only example above. Do not add `[Collection(…)]` to work around
+  a collision; that is the wrong fix here.
 - **Sequence numbers are zero-based.** The first event is `0`, the tail of two
   events is `1`. The tail after a single append is `0`, never `1`.
 - A behavior covering several subjects groups its specifications under

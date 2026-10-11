@@ -12,7 +12,7 @@
 - PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
 - Specification forms
 
-Current pins: standalone Screenplay 4.127.0 / CLI 3.41.0; `versions.md` is the
+Current pins: standalone Screenplay 4.131.0 / CLI 3.46.1; `versions.md` is the
 single table. Compile evidence below keeps its historical tool labels.
 
 The syntax lives in compiled example files next to this one (each is a Markdown file holding

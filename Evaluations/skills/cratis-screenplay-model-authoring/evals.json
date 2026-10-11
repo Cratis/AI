@@ -35,6 +35,18 @@
         "Proves the behavior on a scratch copy rather than on the team's model.",
         "Checks the comment on disk after apply and a reopened workspace."
       ]
+    },
+    {
+      "id": 4,
+      "name": "compare-active-model-with-main-worktree",
+      "prompt": "What changed in my model compared with main? Screenplay MCP 4.131.0 already has /work/repo/Screenplay open. A registered worktree checked out at main has the baseline in /work/repo-main/Screenplay. Give the comparison call and explain paging if either model changes, whether this writes anything, and which tool to use instead for an unapplied proposal. Do not export both models or change files.",
+      "expected_output": "Call semantic-diff with before: { path: '/work/repo-main/Screenplay' } and after: { workspace: 'active' }, using the corresponding model folder after verifying the baseline checkout. No exports or Git-ref resolution are needed. It reads without writing and refuses pending interrupted writes. Repeat the selections and echo sourceRevision as expectedSourceRevision on continuation; both sides reload and changed revisions refuse as StaleRevision, requiring a fresh comparison. Use read-proposal view=semantic-diff for a retained proposal against disk. Neither is behavioral execution evidence.",
+      "assertions": [
+        "Uses semantic-diff with a before path source for /work/repo-main/Screenplay and an after workspace active source, not two exports or a Git ref.",
+        "Verifies the worktree baseline and states the comparison is read-only, with pending interrupted writes refused.",
+        "Echoes the pair-bound sourceRevision as expectedSourceRevision on continuation with the same source selections, and restarts after StaleRevision because both sides reload.",
+        "Uses read-proposal view=semantic-diff for an unapplied proposal against disk and distinguishes structural comparison from execution evidence."
+      ]
     }
   ]
 }

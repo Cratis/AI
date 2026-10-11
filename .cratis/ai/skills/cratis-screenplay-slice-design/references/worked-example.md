@@ -14,7 +14,7 @@ Lineage matrix: `field-lineage.md`. State-transition table and rule coverage: `s
 Per-command refusal inventory: `command-inventory.md`.
 
 This historical compiled example keeps per-event reasoning in StateView
-`description` strings. For current 4.127.0 authoring, keep descriptions as summaries
+`description` strings. For authoring checked at 4.127.0, keep descriptions as summaries
 and record lineage reasoning in fenced Markdown `documentation` (`field-lineage.md`).
 The historical source below stays unchanged; it is not the current placement recipe.
 

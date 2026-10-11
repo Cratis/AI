@@ -22,16 +22,16 @@ files is one application: always check the folder, never one file of it.
 
 When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it. For exact diagnostic codes, MCP names/parameters and standalone CLI options, search the large published [references/screenplay-contract.json](references/screenplay-contract.json), pinned by [references/screenplay-contract.version](references/screenplay-contract.version), rather than loading it in full. Locate a diagnostic by its exact `code` (for example `"code": "PLAY0029"`), a tool by its exact `name` (for example `"name": "read-workspace"`), or a command in `cliCommands`; read the matched object for retirement, parameters or options. [references/screenplay-contract-exceptions.json](references/screenplay-contract-exceptions.json) records reasoned exceptions for historical statements; it does not change the current contract.
 
-The standalone pin is Screenplay 4.127.0. CLI 3.41.0 bundles Screenplay 4.114.0,
-Stage 4.51.3 and Cratis.Arc.Screenplay 22.54.0. The single version table records
+The standalone pin is Screenplay 4.131.0. CLI 3.46.1 bundles Screenplay 4.130.0,
+Stage 4.52.0 and Cratis.Arc.Screenplay 22.54.0. The single version table records
 released source evidence and historical probes separately; do not relabel an old
 render/browser result as a probe of the current packages.
 
 Historical screens-release evidence: CLI 3.40.7 / Stage 4.51.1 / bundled
 Screenplay 4.114.0 opened the canonical corpus with `executableReady true`
 and the stdio transcript exposed 37 tools; standalone language 4.122.0 was
-recorded in that vector. These retained results are not a rerun on CLI 3.41.0
-or Screenplay 4.127.0.
+recorded in that vector. These retained results are not a rerun on CLI 3.46.1
+or Screenplay 4.131.0.
 
 ## Ground rules
 
@@ -67,7 +67,7 @@ or Screenplay 4.127.0.
 | Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | Discover installed validation options |
 | Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
 | MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
-| Render version boundary | Binder admission is not Stage admission | CLI 3.41.0 passes up to ESM v7 to Stage; newer versions: `CLI-RENDER-004` |
+| Render version boundary | Binder admission is not Stage admission | CLI 3.46.1 passes up to ESM v7 to Stage; newer versions: `CLI-RENDER-004` |
 
 Read `references/versions.md` when you need the exact messages, exit codes or the MCP roots bug.
 
@@ -108,7 +108,7 @@ changes with the root folder name.
   older Stage probes. Current CLI admits v7 to planning, but its v7 corpus gets
   Stage generated-value/response refusals `STAGE-ESM-028`/`029`, not a blanket
   compiler refusal. Run admission before claiming a particular model renders.
-- **Event sources, streams and routes** bind as ESM v8 at 4.125.0; CLI 3.41.0
+- **Event sources, streams and routes** bind as ESM v8 at 4.125.0; CLI 3.46.1
   render refuses versions above v7 (`CLI-RENDER-004`). Operations and exact numeric
   mode remain authorable/unadmitted. Details: `references/sources-and-streams.md`.
 

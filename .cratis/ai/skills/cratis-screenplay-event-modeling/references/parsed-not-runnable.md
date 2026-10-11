@@ -1,6 +1,6 @@
 # Parsed is not runnable: ESM versions and dispositions
 
-Current evidence: Screenplay v4.125.0 `SemanticModelBinder.cs`, `Versions.cs`,
+Checked at Screenplay v4.125.0: `SemanticModelBinder.cs`, `Versions.cs`,
 `Documentation/screenplay/{commands,operations,event-sources,reactions,tool}.md`.
 The binder selects v8 for event routes and v10 for declared reaction identity.
 Pins and consumer boundaries: toolchain `references/versions.md`.
@@ -19,7 +19,7 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 
 ## Dispositions to keep apart
 
-| Construct | Current standalone disposition |
+| Construct | Standalone disposition (checked at v4.125.0) |
 | --- | --- |
 | `persona`, domain/authentication metadata | Report-only; unknown named policies remain source defects |
 | Compliance concepts | Bare `pii`/`secret` (4.127.0); binding still refuses PLAY0268, never remove protection |
@@ -27,8 +27,8 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 | Composite stream ids | v8 routing; complete named parts/canonical comparisons, PLAY0515 refuses protected keys/sources; not a legacy text split |
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
-| Generated values/responses | v7 binding/reference execution; Stage 4.51.3 member refusals STAGE-ESM-028/029 |
-| Sources/streams and command/specification routes | v8 binding/reference execution; CLI 3.41.0 render boundary is v7 |
+| Generated values/responses | v7 binding/reference execution; historical Stage 4.51.3 check: member refusals STAGE-ESM-028/029 |
+| Sources/streams and command/specification routes | v8 binding/reference execution; current CLI 3.46.1 render boundary is v7 |
 | Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage planner refuses v10 |
 | Operations/systems, exact numbers, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
 | UI | Authoring/deferred metadata; runtime support is a separate consumer contract |

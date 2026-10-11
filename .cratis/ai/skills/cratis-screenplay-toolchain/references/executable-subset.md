@@ -11,7 +11,7 @@
 - Not refused, but do not rely on it
 - Never do this to reach V3
 
-Current pins are Screenplay 4.127.0 / CLI 3.41.0 (`versions.md`). Detailed
+Current pins are Screenplay 4.131.0 / CLI 3.46.1 (`versions.md`). Detailed
 4.66.0/4.68.0 binder probes below retain their historical labels. Current source
 admits sources/streams/routes as ESM v8 and policy negation as ESM v7; operations,
 exact numbers and reaction refusals/redelivery remain unadmitted. Use the actual
@@ -86,8 +86,9 @@ Authority: v4.127.0 `context.md`, `identity.md`, `concepts.md`, `events.md`, `pu
   `for` means the trigger's event source) or `invokes <Command>`; `where`; clock `at ... on
   ...` with an explicit `for`. Without a declared actor, a gated invocation denies.
   On 4.125.0 reaction `runs as system role "<Role>"` supplies the actor and
-  selects ESM v10; keep the gate. CLI 3.41.0's older compiler rejects this syntax,
-  while standalone reference execution admits it.
+  selects ESM v10; keep the gate. CLI 3.41.0's older compiler rejected this syntax;
+  current CLI 3.46.1's bundle supports it, but render admission still refuses v10.
+  Standalone reference execution admits it.
 - Application `trigger` declarations and `when trigger` specifications.
 - `slice Translate` with `capture` (`key`, `map ... translate`, `append ... when x from "a"
   to "b"`), and `given capture` / `when capture` specifications.

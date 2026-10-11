@@ -32,13 +32,13 @@ hand-writing an alternate shape.
   without dropping it, silently falling back or replacing it with a default.
 
 Keep those three lines separate in reports. Correct an old limitation only when
-the package/version you are using proves the new level. Verified public vector:
+the package/version you are using proves the new level. Historical verified vector:
 CLI 3.43.0 with its default `cratis/stage:4.52.0` and bundled Screenplay 4.127.0;
 the executed vector renders on Scene 4.15.0. Packages published since are newer than
 that vector and are not claimed verified: Scene 4.17.0, Screenplay 4.133.1, Stage
-4.64.0, CLI 3.46.1 (its default Stage is still 4.52.0) and Studio 0.152.2. All
-three levels hold for the canonical `ScreenComposition`
-corpus:
+4.64.0, CLI 3.46.1 (bundled Screenplay 4.130.0; its default Stage is still 4.52.0) and
+Studio 0.152.2. All three levels hold for the canonical `ScreenComposition` corpus on
+the historical vector:
 
 - authoring and executable admission: MCP opens it with `sourceSuccess true`,
   `semanticSuccess true`, `executableReady true`, and the stdio MCP harness sends
@@ -111,8 +111,8 @@ presentation offers, never access control. Downstream runtime support is separat
 from parsing; do not publish an empty plain action as equivalent behavior.
 The complete checked model and conditions are in
 `cratis-screenplay-read-surface` `references/guarded-actions.md`, grounded in
-Screenplay v4.125.0 `screens.md`. CLI 3.41.0/Stage 4.51.3 reports unsupported
-screen actions with STAGE-SCENE-ACTION-001, not proof of runtime selection.
+Screenplay v4.125.0 `screens.md`. Historical CLI 3.41.0/Stage 4.51.3 checks reported
+unsupported screen actions with STAGE-SCENE-ACTION-001, not proof of runtime selection.
 
 ## Exposed template configuration
 

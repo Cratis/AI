@@ -25,12 +25,13 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `3.41.0` (`v3.41.0`) | `cratis render` options, exit codes, publication receipt, UI-profile rejection (`CLI-RENDER-007` to `CLI-RENDER-010`); tag pins Stage 4.51.3, Screenplay 4.114.0 and `Cratis.Arc.Screenplay` 22.54.0, with `cratis/stage:4.51.3` as the runtime image. UI-profile rejection and render-then-recover shipped in 3.41.0 (Cratis/cli#301). The screens release vector was verified on 3.40.7 (`af9f18e`) with `cratis/stage:4.51.1`. Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
-| Stage | `4.51.3` (CLI 3.41.0 default) | admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, fail-closed guarded actions (`STAGE-SCENE-ACTION-001`) and interactions (`STAGE-SCENE-INTERACTION-001`). Older baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
-| Screenplay | bundled `4.114.0`; standalone `4.127.0` | standalone compiler for V1 to V3; binding codes `PLAY0268` and the code-attachment rules, read at `v4.66.0`; claims made through `cratis` are 4.114.0 claims |
-| Rendered apps | Arc `22.50.5`, Chronicle `19.32.0`, Scene packages | Stage 4.51.3 scaffold; `[ProtectedDecision]` / `DecisionRead<T>` available to gap-fill, not emitted enforcement. Embedded reverse extraction disabled; verify generated packages before claiming exact Scene runtime parity |
+| cratis CLI | `3.46.1` (`v3.46.1`) | Source-checked `Directory.Packages.props`: Stage 4.52.0, Screenplay 4.130.0, `Cratis.Arc.Screenplay` 22.54.0, Chronicle 19.32.0, Fundamentals 7.22.8; default runtime image `cratis/stage:4.52.0`. No new render/browser probe. UI-profile rejection (`CLI-RENDER-007` to `CLI-RENDER-010`) and render-then-recover shipped in 3.41.0 (Cratis/cli#301). Historical screens release vector: 3.40.7 (`af9f18e`) with `cratis/stage:4.51.1`. Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
+| Stage | `4.52.0` (CLI 3.46.1 default) | Executed on CLI 3.43.0. Admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, guarded actions (`STAGE-SCENE-ACTION-001`) and interactions (`STAGE-SCENE-INTERACTION-001`) were source-checked at 4.51.3. Older baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
+| Screenplay | bundled `4.130.0`; standalone `4.131.0` | Standalone compiler for V1 to V3; binding codes `PLAY0268` and code-attachment rules were read at `v4.66.0`. Historical CLI 3.41.0 probes used bundled 4.114.0; current `cratis` compiler claims require checking 4.130.0 |
+| Rendered apps (historical check) | Arc `22.50.5`, Chronicle `19.32.0`, Scene packages | Stage 4.51.3 scaffold; `[ProtectedDecision]` / `DecisionRead<T>` available to gap-fill, not emitted enforcement. Embedded reverse extraction disabled; verify generated packages before claiming exact Scene runtime parity |
 
-Facts were read at those tags and `cratis render` was run at 3.28.2 and 3.28.3 for the worked example
+Historical facts retain their checked tags; current pins are source-checked, not new runtime probes.
+`cratis render` was run at 3.28.2 and 3.28.3 for the worked example
 (`references/worked-example.md`); with public CLI 3.43.0 it was run over the canonical
 `ScreenComposition` corpus and published successfully, and an MCP-edited copy was rendered, run and
 checked in the browser; the CLI 3.40.7 browser acceptance run passed 51 assertions
@@ -66,17 +67,17 @@ assume an answer to 4, and record it as `blocked` for the user.
 | **B. Generated base plus authorized gap-fill** | an earlier admitted whole-model render exists and the user separately authorized hand-written scope, or a seam the model names needs an adapter | the generated output stays managed and untouched; hand-written code lives in `Customizations/` or a separate project (seam adapters by this skill, business gap-fill by `slice-implementer`), serves named model elements only, never claims render admission, and V5 is reported for the generated base **with its scope stated** |
 | **C. Fully hand-written delivery** | the scope cannot render and no generated base is wanted | `slice-implementer` delivers it with the model as the contract (`references/gap-fill-handoff.md`); V5 is `not run: no render` |
 
-Evolved events (a model that selects ESM v4) are gap-fill too: Stage 4.24.2 admits the v4 model but refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract. The cratis CLI bundles Stage 4.24.2 since 3.28.3 and reports an evolved event with `STAGE-ESM-026` (probed); 3.28.2 bundled Stage 4.24.1 (3.28.1 and earlier: 4.24.0) and refused a v4 model with `STAGE-ESM-016`.
+Evolved events (a model that selects ESM v4) are gap-fill too: Stage 4.24.2 admits the v4 model but refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract. The historical cratis CLI 3.28.3 bundled Stage 4.24.2 and reported an evolved event with `STAGE-ESM-026` (probed); 3.28.2 bundled Stage 4.24.1 (3.28.1 and earlier: 4.24.0) and refused a v4 model with `STAGE-ESM-016`.
 
 Generated command values and `returns` responses (ESM v7) bind and run in the reference runner on standalone
-Screenplay 4.68.0 and later but are not rendered: CLI 3.41.0 admits ESM v7 to Stage planning, and Stage 4.51.3
-refuses generated values and responses with `STAGE-ESM-028`/`STAGE-ESM-029` (`cratis-screenplay-toolchain`
-`references/versions.md`). A command that uses them is case A or C: keep
+Screenplay 4.68.0 (checked). In the historical CLI 3.41.0 check, ESM v7 reached Stage planning, and Stage 4.51.3
+refused generated values and responses with `STAGE-ESM-028`/`STAGE-ESM-029` (`cratis-screenplay-toolchain`
+`references/versions.md`). When target admission refuses these members, use case A or C: keep
 the model, hand-write the command and its response with the model (and its fixtures and `then returns`
 specifications) as the contract, and report V3 from the standalone tool and V5 as `not run: no render`.
 
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on standalone
-Screenplay 4.125.0, so report V3 and V4 from that tool. They are still case A or C for rendering: CLI 3.41.0
+Screenplay 4.125.0, so report V3 and V4 from that tool. They are still case A or C for rendering: current CLI 3.46.1
 refuses models above ESM v7 with `CLI-RENDER-004`, so hand-write the code with the model as the
 contract (`cratis-screenplay-toolchain` `references/sources-and-streams.md`).
 
@@ -136,7 +137,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   (`cratis-application-slice-conformance` `references/build-prompts.md`).
 - One ledger scope per `slice-implementer` brief; the brief carries addresses and paths, not contents.
 - Model-enforced rules realized in code (state-dependent rules) need a protected read or
-  concurrency scope; never claim them from prose. Stage 4.51.3 rendered apps have
+  concurrency scope; never claim them from prose. Historically checked Stage 4.51.3 rendered apps have
   Arc 22.50.5/Chronicle 19.32.0; API availability alone is not verified enforcement.
 - Adapters that call outside systems follow `cratis-engineering-effect-boundaries`; slice
   specifications follow `cratis-application-slice-specifications`.

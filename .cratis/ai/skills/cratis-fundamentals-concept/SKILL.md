@@ -78,10 +78,14 @@ Do not assume `string.Empty`, `0`, or `Guid.Empty` is universally invalid.
 
 ## Let a concept generate its own value
 
-Check the Cratis.Fundamentals version the project resolves first. Arc and
-Chronicle can bring an older one; when it is below 7.23.0, add a direct
-`Cratis.Fundamentals` 7.23.0 or later package reference, or keep the existing
-`static New()` (without the interface) until you can.
+Check the Cratis.Fundamentals version the project resolves first. Arc first
+pinned **7.23.0 in v22.66.0** (also verified at v22.68.0); the older-version
+caveat is not a reason to add a direct reference for Arc 22.66.0+ when it already
+resolves 7.23.0 or later. Chronicle **v19.43.0** still pins **7.22.0** in
+`Directory.Packages.props`. For older Arc or Chronicle-only applications, when
+the resolved version is below 7.23.0, add a direct `Cratis.Fundamentals` 7.23.0
+or later package reference, or keep the existing `static New()` (without the
+interface) until you can.
 
 When the system, not the caller, creates a value, the concept declares how by
 implementing `IGeneratable<TSelf>` (`Cratis.Concepts`, Cratis.Fundamentals
@@ -123,7 +127,11 @@ Do not generate when:
 
 In specifications, construct the concept from a known value
 (`new <ConceptName>(Guid.Parse("…"))`) and assert against it. Do not seed or
-replace the generator. Guide: `/fundamentals/csharp/generating-values/`.
+replace the generator. In Arc **22.66.0+**, let a server-owned new identifier
+reach `Handle()` through `[GeneratedValue]` rather than calling `New()` inside
+it; see `cratis-arc-command` for declaration and migration, and
+`cratis-specifications-csharp` for named scenario pins (Arc **22.67.0+**).
+Guide: `/fundamentals/csharp/generating-values/`.
 
 ## Create a Guid-backed Chronicle stream identity
 
