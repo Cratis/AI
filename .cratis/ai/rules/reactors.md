@@ -278,4 +278,34 @@ async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new Inv
 [Fact] async Task should_notify_about_the_issued_invoice() => await _notifications.Received(1).Notify(Arg.Is<string>(_ => _.Contains("INV-1001")));
 ```
 
+### Read-model dependencies in scenarios — Chronicle 19.46.0+
+
+`ReactorScenario<TReactor>` does **not** build read models from `Given` events,
+including `[Passive]` models. Seed the handler's read-model parameter explicitly
+before firing the trigger:
+
+```csharp
+void Establish() => _scenario.Given.ForEventSourceId(_id).ReadModel(_order);
+async Task Because() => await _scenario.Given.ForEventSource(_id).Events(_orderPlaced);
+```
+
+In a separate absence specification, replace the seeding with
+`_scenario.Given.ForEventSourceId(_id).NoReadModel<Order>()` to deliberately pass
+`null` to an `Order?` parameter. Without either setup, resolution to `null` throws
+`ReadModelNotSeededForReactorScenario` (`Cratis.Chronicle.Testing.Reactors`), even
+for a nullable parameter. Its message names the type and missing key, suggests
+both setup methods, and lists other seeded keys for that type when any exist.
+Use the key from `ICanResolveReadModelKey.Resolve` for seeding or absence when
+implemented, not the triggering source id. `NoReadModel<T>()` does not remove a
+seeded instance. This guard applies to `EventStoreForTesting`, not an explicitly
+supplied store of another type; production read-model resolution is unchanged.
+
+Also in Chronicle 19.46.0+, `Events(...)` surfaces a synchronously throwing
+handler's own exception, preserving its stack, rather than the reflection
+`TargetInvocationException`. Capture it with `Catch.Exception` and assert the
+handler's exception type. `EventContext.From(...)` now defaults an omitted
+`occurred` to `DateTimeOffset.UtcNow`, not local `Now`; scenario contexts,
+`EventContext.Empty` and `EmptyWithEventSourceId(...)` use that helper. An
+explicit occurrence time is preserved, not normalized to UTC.
+
 For reactors that return side-effect events, assert the resulting appends through the scenario's event store; for non-event side effects, assert on the mocked services (as above). See [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) for the full `*Scenario` family.
