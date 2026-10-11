@@ -181,6 +181,21 @@ report and slice `documentation`, and continue.
 Ask `references/review-questions.md` (reachability, forms in disguise, secrets, fan-in,
 collections, invariants, who sees which rows); report a finding only with a domain consequence.
 
+## Public boundaries and view identity
+
+Translate crosses an application boundary: inbound consumes foreign public events
+or data and produces private facts; outbound folds private facts into exactly one
+local public event type. Commands never publish public events. Put direction in
+the slice outline and trace every exported field; read automations-and-translations
+`references/public-events-and-direction.md` for the released ESM v9 contract.
+
+Mark view identity with trailing `key`. Use a composite key for independent view
+coordinates (resource + period), a natural single id for one entity's state.
+Supply every named part in single-instance queries and command/trigger reads;
+see read-surface `references/named-keys.md`. Composite view keys remain
+unadmitted at 4.135.0 (PLAY0268, #599), unlike admitted composite stream routes.
+Keep the true identity and report the gap rather than inventing a concatenated id.
+
 ## Identity-affecting edits on an existing model
 
 Classify an edit by whether it changes catalog addresses. When `.screenplay/identities.json`

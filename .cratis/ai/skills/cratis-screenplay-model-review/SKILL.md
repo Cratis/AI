@@ -31,7 +31,7 @@ adapted to `.play` declarations (`references/provenance.md`).
 |---|---|---|
 | Screenplay | `v4.66.0` (`c89198b`) | MCP catalog (29 tools: `describe-application`, `search-declarations`, `dependencies`, `find-assertion-gaps`, `read-workspace`, `declaration-details`) in `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`; diagnostics PLAY0029, PLAY0191, PLAY0268, PLAY0271, PLAY0350, PLAY0381, PLAY0469 in `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`; decision 0008 (one data subject per event) |
 | Screenplay | `v4.127.0` | `find-specification-obligations` (SPEC001–SPEC008 authored presence), `find-modeling-smells` (SMELL001–SMELL005 advisory questions); neither proves executed behavior or complete lineage |
-| Screenplay | `v4.131.0` | `semantic-diff` source objects and revision-pinned pages: `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolCatalog}.cs`, `Documentation/screenplay/mcp/reference.md`; CLI 3.46.1's 4.130.0 bundle predates these arguments |
+| Screenplay | `v4.131.0` | `semantic-diff` source objects and revision-pinned pages: `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolCatalog}.cs`, `Documentation/screenplay/mcp/reference.md`; previous CLI 3.46.1 predates these; CLI 3.50.0 bundles them |
 | cratis CLI | `v3.28.3` | bundles Screenplay 4.66.0 and Stage 4.24.2; see the toolchain skill |
 
 The full pin table lives in `cratis-screenplay-toolchain` `references/versions.md`; do not copy
@@ -243,18 +243,17 @@ verdict follows the rules in `references/report-template.md`.
 - Complete examples in this skill compile: `references/worked-example.md`.
 
 ## Route near misses
-- Writing missing specs: `cratis-screenplay-scenario-coverage`. Slice redesign:
-  `cratis-screenplay-slice-design`. Stream and invariant fixes:
-  `cratis-screenplay-streams-and-consistency`. Automations and translations:
-  `cratis-screenplay-automations-and-translations`.
-- Phases, modes and verdicts: `cratis-screenplay-modeling-lifecycle`. Tools, versions and
-  diagnostics: `cratis-screenplay-toolchain`. Construct mechanics: `cratis-screenplay-specifications`,
+- Specs: `cratis-screenplay-scenario-coverage`; slices: `cratis-screenplay-slice-design`;
+  streams/invariants: `cratis-screenplay-streams-and-consistency`;
+  reactions/translations: `cratis-screenplay-automations-and-translations`.
+- Modes/verdicts: `cratis-screenplay-modeling-lifecycle`; tools/diagnostics:
+  `cratis-screenplay-toolchain`; syntax: `cratis-screenplay-specifications`,
   `cratis-screenplay-command-surface`, `cratis-screenplay-projections`.
-- Chronicle compliance review: `cratis-chronicle-event-modeling`. Rendered code, gap-fill and
-  code review: `cratis-screenplay-render-and-gap-fill`, `cratis-code-review`,
-  `cratis-application-slice-conformance`.
+- Compliance: `cratis-chronicle-event-modeling`; rendered/gap-filled code:
+  `cratis-screenplay-render-and-gap-fill`, `cratis-code-review`, `cratis-application-slice-conformance`.
 
 ## References (load on demand)
+- Review public leaks, direction, complete keys and effective routes with [public/key/route checks](references/public-keys-and-routes.md).
 - Read `references/checklist.md` when performing the element sweep and phased audit; it contains eleven phases, 89 checks, tiers and evidence sources.
 - Read `references/anti-patterns.md` when investigating an anti-pattern signal; it gives the signal, why it matters, tier and Screenplay fix.
 - Read `references/report-template.md` when classifying findings, deciding the verdict, writing the report or conducting a re-review; it defines report, severity and verdict rules.
@@ -263,4 +262,4 @@ verdict follows the rules in `references/report-template.md`.
 - Read `references/business-questions.md` when conducting the business-question pass; it contains the explainer journey method, prompts and word translation.
 
 ## Lineage
-Read `references/provenance.md` when checking method lineage, attribution or adaptation permissions.
+Method lineage, attribution and adaptation permissions: `references/provenance.md`.

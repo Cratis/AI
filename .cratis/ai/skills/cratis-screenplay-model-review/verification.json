@@ -3,6 +3,7 @@
   "input": "Review the marina berth .play model before we accept it: check the model and report findings, do not change anything.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "all *known* producers", "file": "references/public-keys-and-routes.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "PASS WITH WARNINGS" },
     { "kind": "skill-contains", "value": "Every finding is pinned to one declaration" },

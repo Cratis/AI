@@ -55,16 +55,16 @@ A read model declares what it **is** — nothing about what builds it. Whatever
 builds it points at it with `=>`, and **exactly one thing may**: two builders is
 error `PLAY0191`. See `cratis-screenplay-projections` for the builder side.
 
-Do not mark a read-model property `identifier`. The executable model infers the
-instance identifier from the `by` property of the keyed queries that return the
-read model in its own slice
-(`query InvoiceById => InvoiceSummary optional`, then `by invoiceId InvoiceId`
-on its own body line). Several queries
-over the same `by` property are fine; each must still have the shape the
-executable model admits, `=> <ReadModel> optional` with one caller-supplied `by`. A read
-model with no keyed query, or with keyed queries over different `by` properties,
-has no unambiguous identifier and does not bind (`PLAY0268`), and specifications
-cannot select an instance of it.
+Use trailing `key` on top-level read-model properties, never `identifier`.
+Explicit marks replace inference; without marks, an unambiguous keyed query or
+one `*Id` property supplies identity. One explicit key binds byte-identically to
+inference. Several marks form a composite key, supplied by name in query/read
+`by` blocks. At Screenplay 4.135.0 composite keys and block queries remain
+**authoring-only** (PLAY0268, #599); the scalar optional snapshot shape binds.
+Read [named keys](references/named-keys.md) for complete examples, trigger/command
+reads, all-parts fixtures, PLAY0660–0662 and command-read-only PLAY0661 repair.
+A `=>` target resolving to an event is an event-target builder, not a read model;
+keep event and read-model names distinct (see projections' public-event targets).
 
 ## `query`
 

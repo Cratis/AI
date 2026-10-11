@@ -260,14 +260,13 @@ produces when isProForma == true
 
 ## Routes and external operations
 
-Named event sources/streams and command routes bind as ESM v8 (verified at 4.125.0);
-CLI 3.46.1 render rejects models above v7. A routed command's identifier and
-known event destinations must match the source's nominal identifier type
-(PLAY0504, error). Allocation uses the generated identifier's type, or without
-one requires a UUID-based source. Composite `streamId` routes map every named
-part exactly once; scalar `streamId T` and `streamId = x` remain valid. The complete checked route example
-and nested `streamId =` form are in `cratis-screenplay-toolchain`
-`references/sources-and-streams.md`.
+Routes bind as ESM v8; production `stream Source.Stream` overrides
+select v10. Read toolchain [routes](../cratis-screenplay-toolchain/references/production-routes-and-filters.md)
+and [source/stream declarations](../cratis-screenplay-toolchain/references/sources-and-streams.md).
+`public event X` is a local export; `event X from "store"` is a locally declared,
+unverified foreign shape. Commands never produce public events. Read
+[translation direction](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)
+for the released ESM v9 boundary and quoted opaque origins.
 
 Use `system`, `uses` and inline/standalone `operation` declarations to state
 external work in the authored production sequence, with execute/compensate phase
@@ -369,7 +368,7 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
 ## Verify
 
 - [ ] Validate the complete model root with warnings as errors; name the tool,
-      version and result. Current pins: standalone 4.131.0 / CLI 3.46.1; bundle
+      version and result. Current pins: standalone 4.135.0 / CLI 3.50.0; bundle
       compatibility and execution are separate checks.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
