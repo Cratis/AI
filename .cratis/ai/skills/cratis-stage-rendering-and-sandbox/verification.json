@@ -3,6 +3,8 @@
   "input": "Can Stage render this Screenplay model, and how do I re-render it safely after someone edited Program.cs?",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "Stage 4.67.0 default applies both rules" },
+    { "kind": "skill-contains", "value": "Reducer filters render" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "`cratis render`" },
     { "kind": "skill-contains", "value": "`--name <NAME>` | **Required for plain source**" },
@@ -16,7 +18,7 @@
     { "kind": "skill-contains", "value": "`Customizations/`" },
     { "kind": "skill-contains", "value": "`Stage__Runtime__Engine=semantic`" },
     { "kind": "skill-contains", "value": "`--engine semantic`" },
-    { "kind": "skill-contains", "value": "Routes bind/reference-execute as v8" },
+    { "kind": "skill-contains", "value": "through v10" },
     { "kind": "skill-contains", "value": "CLI-RENDER-004" },
     { "kind": "skill-contains", "value": "STAGE-ESM-024" },
     { "kind": "skill-contains", "value": "`v4.24.2`" },
