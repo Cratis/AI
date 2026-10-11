@@ -42,9 +42,9 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
 
 ## Verified product sources
 
-Pins (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3, Stage v4.24.2, Arc v22.50.5, Chronicle
-v19.32.0) are listed once in `cratis-screenplay-toolchain` `references/versions.md`.
-Statements here were checked at those tags:
+Current pins are listed once in `cratis-screenplay-toolchain` `references/versions.md`. The
+statements below were checked at these older tags (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3,
+Stage v4.24.2, Arc v22.50.5, Chronicle v19.32.0), kept as provenance, not as current pins:
 
 | Fact used here | Source |
 | --- | --- |
@@ -57,7 +57,7 @@ Statements here were checked at those tags:
 | Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) at 4.66.0; current markers are in `cratis-screenplay-command-surface` | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
 
 Every complete `screenplay` fence in this skill compiles with the standalone compiler
-4.68.0 (`--warnaserror`) and with `cratis screenplay validate --warnings-as-errors` 3.28.2.
+4.139.0 (`--warnaserror`).
 
 ## Interview phase
 
@@ -174,7 +174,7 @@ decided apart from what you assumed. Never guess silently.
   (`only if ...`), marked as stated intent not enforced in the model today, with its target
   enforcement named for `cratis-screenplay-streams-and-consistency` and
   `cratis-screenplay-slice-design`. Never state copies, attestation booleans or rules living
-  only in prose: `description` text is never rendered.
+  only in prose: `description` text reaches code only as XML doc comments, never as behavior.
 - Ask how the work is done today without the system; question steps that exist only for software.
 
 ### Review questions (ask; do not apply mechanically)

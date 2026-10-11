@@ -198,9 +198,11 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 `produces` blocks, not an `Automation` slice.
 
 **Output:** the `reaction`, in an `Automation` slice. It binds on the standalone
-`screenplay` 4.66.0 and the `cratis` 3.28.2 bundle (ESM v6; the 3.27.1 bundle rejected the slice
-at binding) and Stage 4.24.2 renders none, so the automation is gap-fill there (versions:
-`cratis-screenplay-toolchain`). When the automation decides from a view, declare it under
+`screenplay` and the `cratis` bundle (ESM v6; the 3.27.1 bundle rejected the slice at binding) and
+Stage 4.73.1 renders none, so the automation is gap-fill there (versions:
+`cratis-screenplay-toolchain`). A reaction that `produces` and `invokes` stays one reaction: Stage
+refuses it (`STAGE-ESM-037`) but Arc 22.64.1 and later run it as one reactor (events first, then
+commands; no cross-effect transaction), so gap-fill it whole, never split it. When the automation decides from a view, declare it under
 the trigger with `reads` (see `cratis-screenplay-captures-and-reactions`).
 
 The example below is a complete document: a Monday-morning clock occurrence invokes a command
@@ -211,7 +213,7 @@ event source, so the invoked command binds its own identifier (`weekly`).
 
 **What the model does and does not do.** The view stores the deadline (`dueDate`), never an
 "overdue" flag: overdue is a comparison with the clock, not a fact to materialize. The
-reaction's `reads UnpaidInvoice` is report-only metadata at 4.66.0 (information `PLAY0270`);
+reaction's `reads UnpaidInvoice` is report-only metadata (information `PLAY0270`, checked at 4.139.0);
 it does not make the model consult the view. Binding therefore admits only a scheduled
 invocation that records a timestamp. Choosing which invoices are overdue (due date before the
 clock instant) is a target-side decision: record it as gap-fill with the model as the
@@ -277,7 +279,7 @@ module Invoicing
           issuedAt = "2026-10-05T07:30:00Z"
 ```
 
-At the example's verified Screenplay 4.66.0 version, iterating the overdue items needs code (a clock trigger reads the whole view and takes
+At the example's verified Screenplay version (4.139.0), iterating the overdue items needs code (a clock trigger reads the whole view and takes
 no `by`); see `cratis-screenplay-automations-and-translations`. A reaction that `produces`
 directly while it `reads` fails binding (`PLAY0268`): decide in a command instead.
 

@@ -27,7 +27,7 @@ Compare in this order:
    with the published one. Equal: no semantic change since publication. Different: re-render and review the receipt.
 3. Equal revisions prove neither customization conformance nor faithful UI.
 4. **Hand-written scope against the accepted model:** `cratis screenplay conform <model-root> --project <path>`
-   (CLI 3.50.0 or later; Arc, Marten and Critter Stack code) compares the declarations recovered from
+   (CLI 3.42.0 or later; Arc, Marten and Critter Stack code) compares the declarations recovered from
    code with the model by exact structural address. Exit 0 no blocking findings, 1 defects (code-only
    declarations, shape mismatches), 2 could not run or incomplete coverage; model-only members are
    informational. It is **structural drift evidence only**, never a behavioral equivalence verdict and

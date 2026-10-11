@@ -55,7 +55,7 @@ declares the same policies and persona with the one-line form.
 ## What a Cannot line becomes
 
 The persona block is report-only: Screenplay neither binds nor enforces it, and no rendered
-code contains it (`description` text is never rendered). Cannot text is intent, not
+code contains it (`description` text reaches generated code only as XML doc comments). Cannot text is intent, not
 protection. Discovery lists the candidates; each stays pending until a later phase resolves it
 into exactly one of these:
 

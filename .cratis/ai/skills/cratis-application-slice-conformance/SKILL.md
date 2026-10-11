@@ -115,6 +115,11 @@ one covers the slice, otherwise the agreed outline).
 Change the code, or return an edit request. Do not touch test files outside the slice unless
 told to.
 
+Where the model is a `.play` and the code is Arc, Marten or Critter Stack, `cratis screenplay
+conform <model-root> --project <path>` (CLI 3.42.0 or later; exit 0/1/2) adds structural drift
+evidence: exact-address comparison of recovered declarations, never behavior or equivalence. It
+runs MSBuild on the project (trusted clone only). It supplements, and never replaces, steps 2 to 4.
+
 ### 5. Delta delivery
 After a model or outline change, the work list is every element and specification that
 changed since the last delivery, including a delivery of only added specifications. Then run

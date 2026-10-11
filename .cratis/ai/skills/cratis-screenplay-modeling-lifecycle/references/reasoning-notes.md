@@ -14,8 +14,8 @@ PLAY0477 retained for events. Specifications accept `description`, not documenta
 put their longer reasoning on the owning slice. Projections/screens do not accept it.
 Canonical printing retains documentation on its owner. It is report-only (PLAY0270),
 absent from executable bytes and `modelRevision`; edits change source identity
-(`verdicts-and-modes.md`). Neither description nor documentation is rendered as code
-(Stage#178): model the rule first, never treat prose as enforcement.
+(`verdicts-and-modes.md`). Neither description nor documentation reaches rendered code except as XML doc
+comments (Stage#178 closed): model the rule first, never treat prose as enforcement.
 
 Cover, briefly and only where real:
 1. Scope: the business process and the identities its streams are keyed by.

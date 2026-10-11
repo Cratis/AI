@@ -37,12 +37,14 @@ and the request is wiring or a narrow fix.
 
 ## Verified product sources
 
-This skill is verified against these exact sources:
+This skill was originally verified against Chronicle 18.3.0 and re-read against Chronicle 19.50.0
+(`Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs`, `ProtectedValues/EncryptedAttribute.cs`).
+Current version pins: `cratis-screenplay-toolchain` `references/versions.md`.
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | event types, event-source identities, subjects, `[PII]` |
-| `Cratis.Chronicle.CodeAnalysis` | `18.3.0` | `CHR0012`, `CHR0026`, `CHR0034`, `CHR0035` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | event types, event-source identities, subjects, `[PII]`, `[Encrypted]` |
+| `Cratis.Chronicle.CodeAnalysis` | `CHR0012`, `CHR0026`, `CHR0034`, `CHR0035`, `CHR0052` |
 
 Reverify product sources before claiming support for another version.
 
@@ -132,7 +134,11 @@ operates on the subject and the subject follows the stream.
   already both, and analyzer `CHR0026` says so.
 - Bearer tokens, magic links, and signed URLs are not durable facts. Model a
   keyed hash or an opaque reference, never the secret. Chronicle has no attribute
-  that withholds a value from the log.
+  that withholds a value from the log. Where an operational secret must genuinely be
+  retained (an API key, a signing secret), mark it `[Encrypted]` (encrypted at rest,
+  recoverable, not a PII erasure subject; never on a `[PII]` value or an event-source id)
+  and keep it out of the causation chain with Arc's `[NotAudited]`; see `cratis-arc-command`
+  and `cratis-chronicle-compliance`.
 
 If a subject boundary cannot be made person-level without changing product
 behavior, **stop and surface that trade-off** before implementing.

@@ -116,7 +116,7 @@ traffic. The extractor proposes; the main session asks the user and the DBA:
    wizard that only writes configuration; the Extractor it points to enables CDC (SQL Server) or
    creates (or reuses) a publication and a replication slot that retains WAL until dropped
    (PostgreSQL; use capture-specific names, and clean up only what you created).
-3. Interpret with `--no-llm` (heuristics only, sends nothing; CLI 3.38.0 or later, confirm with
+3. Interpret with `--no-llm` (heuristics only, sends nothing; CLI 3.37.1 or later, confirm with
    `cratis prologue interpret --help`) unless your brief records the main session's check of the
    **effective** provider (`cratis llm show -o json` plus the local Prologue configuration) and the
    user's approval of what would be disclosed. The command prints provider, model, endpoint host

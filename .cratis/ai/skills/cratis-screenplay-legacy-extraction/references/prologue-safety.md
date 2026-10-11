@@ -56,7 +56,7 @@ Nothing in Prologue removes what the Extractor created. Cleanup is manual; Crati
 when its brief records this preflight and the user's approval, otherwise it proposes)
 `cratis prologue interpret --no-llm` forces heuristics-only interpretation: it never creates a
 chat client and sends no capture evidence to a model, whatever the local or global configuration
-says (CLI 3.38.0 or later; confirm with `cratis prologue interpret --help`). Cratis/cli#241 is
+says (CLI 3.37.1 or later; confirm with `cratis prologue interpret --help`). Cratis/cli#241 is
 closed. Without `--no-llm` the effective provider resolves in this order
 (`LlmOptionsResolver.ResolveWithSource`):
 1. an explicit local `llm.enabled` in `cratis-prologue.json`: `true` -> that provider, `false`
