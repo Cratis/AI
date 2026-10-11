@@ -262,6 +262,9 @@ is expected, since the prior generation records history rather than new intent.
 - No nullable property was added to an `[EventType]` record.
 - The build is clean with no `CHR0012`, `CHR0037`, `CHR0049`, or `CHR0050`
   outstanding.
-- Real-client integration verifies old-generation events on live delivery,
-  catch-up, and replay into the intended observer generation; in-process
-  read-model/reactor scenarios alone do not prove kernel migration and release.
+- Old-generation events replay into the current shape through the read-model
+  specifications for the affected observers.
+- With `EventGenerationDelivery.Pinned`, real-client integration also verifies
+  old-generation events on live delivery, catch-up, and replay into each
+  observer's pinned generation; in-process read-model/reactor scenarios alone
+  do not prove kernel migration and release.
