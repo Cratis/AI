@@ -10,9 +10,20 @@
 - Source disagreements (trust the code)
 
 Current pins are in `cratis-screenplay-toolchain` `references/versions.md`:
-Standalone Screenplay is 4.131.0; CLI 3.46.1 bundles Stage 4.52.0 / Screenplay
-4.130.0 / Arc.Screenplay 22.54.0 / Chronicle 19.32.0 / Fundamentals 7.22.8.
-It admits through ESM v7 to Stage planning; above v7 is CLI-RENDER-004.
+Standalone Screenplay is 4.135.0; CLI 3.50.0 bundles Stage 4.67.0 / Screenplay
+4.131.0 / Arc.Screenplay 22.54.0 / Chronicle 19.32.0 / Fundamentals 7.22.8.
+It admits through ESM v10 to construct planning; above v10 is CLI-RENDER-004.
+Stage 4.67.0 `SemanticVersionFeatures`/`SemanticVersionFeatureAdmission` refuse
+public publication (STAGE-ESM-032), foreign events/events-source captures (033),
+reaction identity (034), reaction filters (035) and production overrides (036).
+Reducer filters render. ESM v8 routes have construct checks including refusal of
+route-bearing read-model/query replay scenarios (STAGE-ESM-030); admitted routes
+are not blanket scenario parity. Case tables and whole numbers as long apply to
+the default; see `case-tables-and-whole-numbers.md`. Previous CLI 3.46.1's Stage
+4.52.0 audited only through v7 and applied neither new rule. Current version
+checks are CLI `RenderedSemanticVersions.Newest` and Stage
+`SemanticVersionFeatures.Supports`. The historical CLI 3.41.0/Screenplay 4.114.0
+parser rejected `runs as` with PLAY0137; that is not a current parser refusal.
 The historical CLI 3.41.0 v7 canonical-corpus planning spec received
 STAGE-ESM-028/029 for generated values/responses.
 The detailed 4.24.x source/probe rows below have not been relabeled as current

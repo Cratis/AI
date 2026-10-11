@@ -38,7 +38,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "case A or C for rendering"
+      "value": "Keep refused scope as case A/C"
     },
     {
       "kind": "skill-contains",

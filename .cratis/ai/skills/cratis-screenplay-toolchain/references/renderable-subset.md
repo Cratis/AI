@@ -7,13 +7,19 @@
 - Ownership, publication and recovery
 - Reading V5
 
-Current pins: standalone Screenplay 4.131.0; CLI 3.46.1 bundles Screenplay
-4.130.0 and Stage 4.52.0 (`versions.md`). CLI admits ESM v7 to Stage planning;
-above v7 is CLI-RENDER-004. The historical v7 canonical-corpus check got
+Current pins: standalone Screenplay 4.135.0; CLI 3.50.0 bundles Screenplay
+4.131.0 and Stage 4.67.0 (`versions.md`). CLI/Stage admit through v10 to construct
+checks, not blanket rendering; above v10 is CLI-RENDER-004 (direct Stage:
+STAGE-ESM-016). v9 publication/foreign facts and v10 reaction identity,
+reaction filters and production overrides still refuse STAGE-ESM-032–036;
+reducer filters render. v8 routes reach specific checks (including routed
+read-model/query replay refusal STAGE-ESM-030). Case tables and v8+ `long`
+whole numbers apply to the current default. Previous CLI 3.46.1/Stage 4.52.0
+admitted only through v7 and applied neither newer rule. The historical v7 canonical-corpus check got
 STAGE-ESM-028/029 for generated values/responses
 (`v3.41.0:Source/Cli.Specs/for_ScreenplayPlanning/when_planning_an_esm_v7_model.cs`).
 The following detailed Stage 4.24.x results are **historical**, not reverified
-4.52.0 claims. Run the bundled renderer before asserting current renderability.
+4.67.0 claims. Run the bundled renderer before asserting current renderability.
 
 Historical sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
 (an exhaustive map of every ESM member to Rendered, Rejected(code) or Ignored),
@@ -61,7 +67,7 @@ accepted with PLAY0565 information); either still refuses binding. Identity bloc
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding
-refusal above; CLI 3.46.1 still refuses versions above v7. Never split hand-joined
+refusal above; current CLI 3.50.0 reaches Stage's v8 route checks. Never split hand-joined
 legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
 
 ## Authoring consequences in renderable mode

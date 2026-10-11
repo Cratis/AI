@@ -118,21 +118,27 @@ it stays.
 
 | The person... | Design-mode query | Executable/renderable scope |
 |---|---|---|
-| opens one thing | `XById => RM optional` + `by xId XId` | same (the only shape that binds today) |
-| scans a list | `ListX => RM[]` (optionally `observable`, `filter`) | keep the list for design; add the keyed query; record V3 blocked by the list |
-| sees their own rows | list with scope/`from` on the caller | as above; access rules are part of the view, enforced by the target |
+| opens one thing | `XById => RM optional` + `by xId XId` | binds at 4.135.0 with caller-supplied `by`; check target renderer |
+| scans a list | `ListX => RM[]` (optionally `observable`, `filter`) | collection and observable delivery bind at 4.135.0; filters remain PLAY0268; check target renderer |
+| sees their own rows | list with scope/`from` on the caller | scope and context-derived `by` remain PLAY0268; access rules are part of the view, enforced by the target |
 | sees a site-wide figure | singleton read model, `from <Event> key literal "global"` on every `from` (a projection-level `key` routes nothing, PLAY0381; example in Screenplay `projections/keys.md`, "Literal keys") | check the binding (V3, `cratis-screenplay-toolchain`) |
 
 - `observable` when people are expected to see others' or automation's changes while looking
-  (worklists, status awaiting an outside answer); one-shot otherwise. Design mode only
-  (PLAY0268). If access can be revoked mid-session, record that the target re-checks per emission.
+  (worklists, status awaiting an outside answer); one-shot otherwise. Observable delivery
+  binds at 4.135.0; renderer support is separate. If access can be revoked mid-session,
+  record that the target re-checks per emission.
 - Never model paging or page size (no syntax, Screenplay#140). State the order in the query
   `description` ("oldest first"; queries do not accept `documentation`); an unbounded list is a review question.
 - A gated keyed query needs its own denial spec.
 
-Never drop a list query from a design model just to make it bind; record the capability gap.
-The keyed query also defines the read model's identity: its `by` property must be a read-model
-property. The identifier always equals the projection's effective key:
+Never drop a business-required list query to satisfy an old compiler or renderer;
+record any actual capability gap. At 4.135.0, explicit trailing `key` takes precedence
+for read-model identity. Otherwise single-instance queries in the owning slice must
+agree on one `by` property declared on the read model. Only with no single-instance
+identifier and an admitted collection/list query does conventional `*Id` inference
+run; queryless views need explicit `key`. The fallback excludes collection-query key
+candidates when that leaves one identifier (full algorithm: read-surface
+`references/named-keys.md`). The identifier equals the projection's effective key:
 
 | Effective key | Executable model | Renderable model (Stage) |
 |---|---|---|
@@ -182,8 +188,8 @@ has children, not a single value.
 If a view must stop showing cancelled items, use `remove with <Event>` and pin it with
 `then no readmodel <RM> for "<key>"`. If it keeps them, map a status literal from that event
 instead. The slice `description`, the projection and every spec of the view must agree.
-A complete example (marina berths; the `then no readmodel` assertion needs the keyed
-query, which is why the view has one):
+A complete example (marina berths; the keyed query supplies the view's identity
+for the `then no readmodel` assertion; explicit `key` could supply it instead):
 
 ```screenplay
 domain Harbourlight.Berths
@@ -277,7 +283,8 @@ module Berths
 - Every consumer that needs state has its read model (a blank creation form and a direct reaction
   with a documented no-pending-work reason need none); every read model has a consumer.
 - Every field traced (`field-lineage.md`).
-- Executable/renderable scope: one unambiguous key per read model (one or more keyed queries,
-  all with the same `by` property), identifier equal to the projection's key (table above);
-  no list queries.
+- Executable scope: one identity per read model: explicit `key`, else agreeing
+  single-instance `by`, else unambiguous `*Id` only with an admitted list query and
+  no single-instance identifier. Queryless views need explicit `key`. The identifier
+  equals the projection's key (table above); check target renderer admission separately.
 - Design-only shapes listed with the V3 code they cause.

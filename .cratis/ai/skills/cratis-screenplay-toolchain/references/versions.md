@@ -17,10 +17,10 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.131.0** (`71f3ef37`) | Released tag `v4.131.0` and its published contract; `semantic-diff` source selections in `Source/DotNET/Screenplay.Mcp/McpRevisionDiff.cs` |
-| cratis CLI | **3.46.1** (`73578fbf`) | Released tag `v3.46.1`; source-checked, not a new render/browser probe |
-| Screenplay bundled by CLI | **4.130.0** | CLI `v3.46.1:Directory.Packages.props`; predates the 4.131.0 `semantic-diff` source objects |
-| Stage bundled by CLI | **4.52.0** | Same file; default runtime image `cratis/stage:4.52.0`, confirmed by `Source/Cli.Specs/for_RunCommand/when_running/with_a_folder_and_the_default_stage_tag.cs` |
+| Screenplay language, standalone tool and MCP | **4.135.0** (`b4e46130`) | Released tag `v4.135.0` and its unchanged published contract |
+| cratis CLI | **3.50.0** (`546dea12`) | Released tag `v3.50.0`; source-checked, not a new render/browser probe |
+| Screenplay bundled by CLI | **4.131.0** | CLI `v3.50.0:Directory.Packages.props`; includes `semantic-diff` source objects, not v11 literal lowering |
+| Stage bundled by CLI | **4.67.0** | Same file; renderer and default sandbox image use the same Stage release |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
 | Historical Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
@@ -44,7 +44,7 @@ or renderer probes below as results from the newer bundle.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.131.0 and the CLI's 4.130.0 bundle are different releases.
+Standalone Screenplay 4.135.0 and CLI 3.50.0's 4.131.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -76,35 +76,63 @@ for identity-stable selection.
 
 ## Admission boundaries
 
-Screenplay `v4.131.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports schema
-pairs through v10. Generated values/responses and policy negation select v7;
-sources/streams and command/specification routes select v8; reaction
-`runs as system [role "<Role>"]` selects v10 and reference-executes on 4.125.0.
-The checked trusted-actor scenario is in captures-and-reactions
-`references/invocation-identity.md`. The historical CLI 3.41.0/Screenplay 4.114.0
-validation probe rejected its source with PLAY0137 (exit 5); that is not a
-3.46.1 parser claim. Stage 4.52.0's direct planner uses EsmSchemaV7Support
-(`Source/Rendering.Cratis/Semantics/SemanticCratisAdmission.cs`) and refuses v10
-with STAGE-ESM-016; CLI's version gate separately refuses above v7 with
-CLI-RENDER-004. A source construct
-still requires explicit binder/runner/provider admission: operations, exact
-numeric mode and reaction refusals/redelivery remain authorable but unadmitted
-(`PLAY0268`). Never delete those contracts to obtain a green bind.
+Screenplay `v4.135.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
+schema pairs through v11. Admission selects by use:
 
-CLI 3.46.1 `RenderedSemanticVersions.Newest` is **v7**:
-`Source/Cli/Commands/Render/RenderedSemanticVersions.cs`. Models above it get
-`CLI-RENDER-004` before planning/publication. v7 generated values/responses reach
-Stage admission; they are not universally refused until CLI#261. That issue is
-closed. Each unsupported construct still needs a Stage diagnostic, not a silent
-omission or inferred support from package versions.
+- v7: generated values/responses and policy negation.
+- v8: sources/streams and command/specification routes.
+- **Released v9 (4.117.0):** public events/origins, Translate direction,
+  event-target projections/reducers and events-source captures. Publication folds
+  reference-execute; captures and reached opaque reducers return typed Unsupported.
+  Public/foreign imports without local shapes remain PLAY0268. See
+  automations-and-translations `references/public-events-and-direction.md`.
+- **Released, frozen v10:** reaction `runs as system [role "<Role>"]` first
+  shipped in 4.125.0; production route overrides and observer filters shipped in
+  4.129.0. Marked released by #647 in 4.133.2. Decision 0066 records the shipped
+  extension as a retroactive exception: consumers admit all three together.
+  Checked actor scenario: captures-and-reactions `references/invocation-identity.md`;
+  route/filter contract: [production routes and filters](production-routes-and-filters.md).
+- **Published v11 in 4.135.0:** qualifying retained non-route Double-mode literals
+  select v11 and execute with corrected decimal lowering (decision 0064). This
+  includes whole numbers such as `9007199254740991` and qualifying fractions;
+  unused/overridden examples and validation-only values do not select it.
+  Already-lossless routes/route-feeding inputs do not select v11. This does not
+  admit `numbers exact` source mode or arbitrary precision. At this tag,
+  interoperability documentation still says "claimed, unreleased"; this corpus
+  follows Versions.cs and decision 0066's publication boundary.
+
+Decision 0066 freezes a version when any exposing NuGet/npm package is published,
+including prereleases. Later byte-changing features take the next version at
+admission; a byte-preserving extension under 0004 is the exception. Published
+numbers never change or get reused. Enum member numbers (decision 0065) remain
+unimplemented/unadmitted and have no numbered claim. Concept generation strategies
+and freshness (decision 0054, #616) are accepted but not implemented. Operations,
+exact source numeric mode and reaction refusals/redelivery remain PLAY0268.
+Composite read-model keys/query blocks are also still PLAY0268 (#599), not
+admitted by the 4.129.0 authoring delivery; a single explicit key preserves bytes.
+Never delete these contracts to obtain a green bind.
+
+CLI 3.50.0 `RenderedSemanticVersions.Newest` is **v10**:
+`Source/Cli/Commands/Render/RenderedSemanticVersions.cs`. Stage 4.67.0 uses
+EsmSchemaV10Support in `SemanticVersionFeatures.cs` and construct checks in
+`SemanticVersionFeatureAdmission.cs`. v11 gets CLI-RENDER-004 before planning
+(and STAGE-ESM-016 at the direct Stage version gate). Through v10 is not blanket
+render support: public publication STAGE-ESM-032, foreign events/event captures
+033, reaction identity 034, reaction filters 035 and production overrides 036
+remain refused; reducer filters render. ESM v8 routes reach their own checks.
+Previous CLI 3.46.1/Stage 4.52.0 admitted only through v7 (CLI-RENDER-004 and
+STAGE-ESM-016 respectively). Historical CLI 3.41.0/Screenplay 4.114.0 rejected
+`runs as` at parsing (PLAY0137, exit 5), not a current parser claim. Each unsupported
+construct needs a diagnostic, not silent omission or guessed package support.
 
 The renderable-subset and Stage references retain older probes explicitly;
 read them as tested snapshots, not as a claim that Stage 4.52.0 shares every
 4.24.2 limitation. Query the actual bundled renderer before a V5 claim.
 
 Stage case tables require 4.59.0; ESM v8 whole numbers as `long` and the
-pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. CLI 3.46.1 defaults
-to Stage 4.52.0, so neither new rule applies there. `cratis run --tag 4.63.2`
+pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. CLI 3.50.0 defaults
+to Stage 4.67.0, so both rules apply. Previous CLI 3.46.1 bundled Screenplay
+4.130.0 and Stage 4.52.0; neither rule applied there. `cratis run --tag 4.63.2`
 selects a newer sandbox image only (`RunSettings.cs`), not a renderer package.
 `cratis render` has a statically bundled target (`RenderSettings.cs`,
 `CratisRenderTarget.cs`); a newer renderer needs a CLI release that pins it.

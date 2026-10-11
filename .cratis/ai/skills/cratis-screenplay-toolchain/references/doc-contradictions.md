@@ -1,9 +1,12 @@
 # Documentation contradictions and which side to trust
 
-Current pins are Screenplay 4.131.0 / CLI 3.46.1 (`versions.md`). This is a
+Current pins are Screenplay 4.135.0 / CLI 3.50.0 (`versions.md`). This is a
 **historical** contradiction inventory, not a claim that all listed defects still
 exist. Current grammar documents exact numbers and free description placement;
-sources/routes bind as ESM v8; PLAY0515 is a source error; CLI v7 reaches Stage.
+sources/routes bind as ESM v8; PLAY0515 is a source error; CLI admits through
+v10 to Stage construct checks. At `v4.135.0:Documentation/screenplay/interoperability.md:133–137`
+v11 is still labeled "claimed, unreleased"; Versions.cs admits it and decision
+0066 freezes it on package publication. The corpus follows source and 0066.
 
 At v4.127.0 `concepts.md` links the shipped purpose declarations/checks/record
 but its final identifier section still calls them later phases. `purposes.md`,
@@ -40,11 +43,11 @@ read from source or documentation.
 | 15 | literal keys | `key literal "global"` vs `key "global"` | both compile; prefer `literal` |
 | 16 | query admission | `D/queries.md:74` now says live, filtered, scoped and performer queries are not admitted | the binder also rejects collection queries and a missing `by`, which stay undocumented [probed] |
 | 17 | `@pii` | `D/concepts.md:3,33` "Chronicle applies `@pii` and `@sensitive` rules automatically" | the binder rejects any compliance attribute (PLAY0268); keep it, report V3 blocked. `@sensitive` means an operational secret (`[Encrypted]` + `[NotAudited]`; Screenplay decision 0034); the pinned tools (standalone 4.68.0, bundle 4.66.0) do **not** report `PLAY0515` (`@pii` from 4.69.1, `@sensitive` from 4.84.1): there only Chronicle catches either attribute on an event-source identifier, at build time of the generated code (CHR0034 for `@pii`, CHR0052 for `@sensitive`) |
-| 18 | read-model identity | `D/readmodels.md:32` "from the keyed query" | the `by` name must also equal a read-model property (the doc still omits it) |
+| 18 | read-model identity | `D/readmodels.md:32` "from the keyed query" | at 4.135.0 explicit `key` wins; else single-instance queries agree on one read-model `by` property; only with none and an admitted list query does conventional `*Id` inference run (collection-key exclusions: read-surface `references/named-keys.md`). Queryless views need explicit `key` |
 | 19 | `$strings` constraint messages | `D/constraints.md:31` vs `D/internationalization.md:55` | the compiler keeps the key; realization localizes |
 | 20 | composite key braces | optional in the EBNF; both forms in docs | both fine |
 | 21 | counters list | `D/projections/index.md:54` lists only increment and decrement | `count` exists too [probed] |
-| 22 | ESM version allocation | older text and decisions 0023 and 0024 give exact numbers, operations, streams and reads fixed numbers (v7 to v11) | use actual released binder selection: v7 generated values/responses, v8 routing, v10 reaction identity at 4.125.0; operations and exact numbers remain unadmitted. Never infer current admission from older proposed allocations |
+| 22 | ESM version allocation | older text and decisions 0023 and 0024 give exact numbers, operations, streams and reads fixed numbers (v7 to v11) | use actual released binder selection: v7 responses, v8 routing, v9 public boundaries, v10 identity/routes/filters, v11 qualifying retained non-route Double literals at 4.135.0; operations and `numbers exact` source mode remain unadmitted. Never infer current admission from older proposed allocations |
 | 23 | claim conditions | the condition grammar lists `==` | claims need `matches` (PLAY0120) [probed] |
 | 24 | `numbers exact` | released in 4.64.0 as syntax only, but absent from `D/grammar.md`; documented only in `D/diagnostics.md` (PLAY0508 to PLAY0513) | the compiler: it parses, never binds (PLAY0268, "not admitted by any supported executable model (ESM) version yet"), PLAY0001 on older compilers [probed] |
 | 25 | command `concurrency` | `D/commands.md:609` says the executable model "does not bind the `concurrency` block yet" | the binder reports PLAY0271 as an **error**, not a silent skip (`SemanticModelBinder.Commands.cs:32-38`) |

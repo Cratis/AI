@@ -4,6 +4,8 @@
 
 - Warnings that hide defects (always validate with `--warnings-as-errors`)
 - Source reference and identifier checks
+- Public events and translation direction
+- Named keys, production routes and observer filters
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
 - Guarded interaction diagnostics
@@ -48,6 +50,53 @@ At Screenplay 4.127.0 these are V1 source checks, not binding-only gaps:
 | PLAY0515 | E | Personal/secret concept in a command identifier, typed `for` destination, event-source identity, stream-id type/part or route mapping source (including nested paths); keep a surrogate identity and protected data in payload |
 
 Legacy compliance spellings (`@pii`/`@sensitive`) do not evade PLAY0515.
+
+## Public events and translation direction
+
+Current at Screenplay 4.135.0; all are errors. These constructs bind as released
+ESM v9, except public/foreign imports without local shapes (PLAY0268).
+
+| Code | Meaning / fix |
+| --- | --- |
+| PLAY0607 | A command produces a public event; move publication to outbound Translate |
+| PLAY0608 | Local public production outside explicit outbound Translate |
+| PLAY0609 | Outbound translation has zero or several local public event types; repeated instances of one type count once |
+| PLAY0610 | Foreign public consumption outside explicit inbound Translate |
+| PLAY0611 | Outbound consumes a public or foreign event; consume private local facts |
+| PLAY0612 | Inbound produces a public or foreign event; produce private local facts |
+| PLAY0613 | Foreign public event produced locally; translate to a private event |
+| PLAY0614 | Public metadata without explicit direction; typed repair declares inbound/outbound only when exactly one direction fits |
+| PLAY0615 | Outbound contains an external-data capture |
+| PLAY0616 | Explicit inbound consumes private or local events instead of public foreign events |
+| PLAY0617 | Outbound produces a private event instead of its one local public type |
+| PLAY0618 | Event-target projection/reducer outside explicit outbound Translate |
+| PLAY0619 | `source events` capture outside explicit inbound Translate |
+| PLAY0620 | Missing, malformed or repeated `from <Event>` in `source events` |
+
+Only PLAY0614 in this range has a repair. Legacy directionless translations
+without public metadata stay inbound. PLAY0027 also covers malformed, repeated
+or non-Translate direction. Repair discovery uses `repair-capabilities`, workspace
+`repairs`, then revision-checked `propose-repair`; do not guess a direction.
+See automations-and-translations `references/public-events-and-direction.md`.
+
+## Named keys, production routes and observer filters
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0660 | E | Invalid top-level read-model key owner/modifier/type; multipart parts must be scalar; no repair |
+| PLAY0661 | E | Missing single-instance lookup parts; repair **command reads only** if every missing part has one same-named compatible source, preserving authored mappings and refusing ambiguity |
+| PLAY0662 | E | Invalid block/shape, duplicate or unknown part, incompatible/optional/collection/literal read source; block needs at least two distinct parts; no repair |
+| PLAY0663 | E | Route on reaction/refusal-branch production; only command event productions override routes |
+| PLAY0664 | W | Override repeats complete command route; typed repair removes the redundant override |
+| PLAY0665 | E | Invalid/duplicate/child-bearing/unresolved source/stream filter or filtered reaction with a non-event trigger |
+| PLAY0666 | W | Filter excludes all statically known effective producer routes; C# only, handlers/foreign origins suppress it |
+
+Queries and trigger reads have no PLAY0661 repair. Composite view keys, query
+blocks and their fixtures remain PLAY0268 (#599), while one explicit key binds
+byte-identically to inference. Fixtures missing any part report PLAY0351.
+Overrides/filters select released ESM v10; malformed routes also use PLAY0504.
+Read read-surface `references/named-keys.md` and
+[production routes and filters](production-routes-and-filters.md).
 
 ## Caller identity, compliance and routes
 
@@ -263,9 +312,12 @@ Report each as `code file:line one-line meaning`; never paste more than about 30
 
 ## Render admission (V5): `STAGE-*`, `CLI-RENDER-*`, `STAGE-CRATIS-*`
 Full table with causes: `renderable-subset.md`. The Stage 4.24.x rows below
-retain historical source/probe evidence. Current CLI 3.46.1 admits up to ESM v7
-for Stage planning; above that is CLI-RENDER-004. Its v7 corpus is refused by
-STAGE-ESM-028 (generated values) and -029 (responses), not the old v7 version gate.
+retain historical source/probe evidence. Current CLI 3.50.0/Stage 4.67.0 admits
+through v10 to construct checks; above it is CLI-RENDER-004 (direct Stage:
+STAGE-ESM-016). Publication STAGE-ESM-032, foreign facts/event captures 033,
+reaction identity 034, reaction filters 035 and production overrides 036 remain
+refused; reducer filters render. Previous CLI 3.46.1 admitted through v7; its
+v7 corpus received STAGE-ESM-028/029, not the older v7 version gate.
 Codes in the historical snapshot:
 | Code | Meaning |
 |---|---|

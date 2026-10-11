@@ -15,13 +15,15 @@ Sources, streams and command/specification routes bind and reference-execute as
 `specifications.md`, `Versions.cs`; the complete example below compiled with
 `--warnaserror` and passed `screenplay test` on 4.125.0.
 
-CLI 3.46.1 renders only model versions up to v7: routed v8 models receive
-`CLI-RENDER-004` before planning/publication. This is not a source-validation or
-binder refusal. Keep the routed model as contract and gap-fill its realization;
-never remove routing to obtain a render. Pins: `versions.md`.
+CLI 3.50.0/Stage 4.67.0 admits through v10 to construct checks, including v8
+routes. Routed read-model/query replay scenarios can still refuse STAGE-ESM-030;
+run admission before promising parity. Previous CLI 3.46.1/Stage 4.52.0 refused
+above v7 with CLI-RENDER-004. Keep routing intact when a target refuses it;
+never remove routing to obtain a render. Pins: `versions.md`. Per-production
+v10 overrides and observer filters: `production-routes-and-filters.md`.
 
 The 4.68.0 historical binder refusal (`PLAY0268`, no admitted version then) is
-not the current disposition. Systems/operations and exact numbers still report
+not the current disposition. Systems/operations and `numbers exact` source mode still report
 PLAY0268; they are separate capabilities, not evidence against v8 routing.
 
 ## Declare and route

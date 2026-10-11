@@ -12,7 +12,18 @@
 - PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
 - Specification forms
 
-Current pins: standalone Screenplay 4.131.0 / CLI 3.46.1; `versions.md` is the
+Released boundary forms: `public event X`, `event X from "store"`, Translate
+`direction inbound|outbound`, event-target `projection/reducer P => PublicEvent`,
+and capture `source events` with `from ForeignEvent` select v9. Read
+[public contracts](../../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
+View properties use trailing `key`; multipart `by` query/read blocks remain
+PLAY0268 (#599), not v10. Read [named keys](../../cratis-screenplay-read-surface/references/named-keys.md).
+Production `stream Source.Stream` overrides and reaction/reducer `from Source[.Stream]`
+select released v10: [routes and filters](production-routes-and-filters.md).
+Qualifying non-route Double literals select published v11 at 4.135.0;
+`numbers exact` does not bind. See `versions.md` for freeze and numeric boundaries.
+
+Current pins: standalone Screenplay 4.135.0 / CLI 3.50.0; `versions.md` is the
 single table. Compile evidence below keeps its historical tool labels.
 
 The syntax lives in compiled example files next to this one (each is a Markdown file holding

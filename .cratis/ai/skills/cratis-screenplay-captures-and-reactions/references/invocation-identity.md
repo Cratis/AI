@@ -71,10 +71,10 @@ module Work
 
 Historical CLI 3.41.0 bundled Screenplay 4.114.0, which did not parse `runs as`:
 the example's `cratis screenplay validate --executable --warnings-as-errors`
-returned PLAY0137, exit 5. This is not a current parser claim. Current CLI 3.46.1
-bundles Screenplay 4.130.0 but its render gate still admits only through v7
-(CLI-RENDER-004 for v10); bundled Stage 4.52.0's direct planner audits through
-v7 and refuses v10 with STAGE-ESM-016 (`references/versions.md` in toolchain).
+returned PLAY0137, exit 5. This is not a current parser claim. CLI 3.50.0 bundles
+Screenplay 4.131.0/Stage 4.67.0 and reaches v10 construct admission, but
+reaction identity still refuses STAGE-ESM-034. Previous CLI 3.46.1/Stage 4.52.0
+audited through v7 only (`references/versions.md` in toolchain).
 Clock/application-trigger identities have no Stage Arc realization either.
 Use authorized gap-fill with the model as contract; returned-command Arc identity
 uses `[ExecuteCommandsAsSystem]`, never permission inferred from a model header.

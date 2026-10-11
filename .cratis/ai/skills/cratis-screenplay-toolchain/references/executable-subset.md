@@ -6,15 +6,17 @@
 - Admitted on both compilers
 - Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 - Generated values and responses (ESM v7): standalone 4.68.0 or later only
+- Released public boundaries and observer routes
 - Code attachments (what binds, what never does)
 - Refused (code, reason): fix, or record as a mode gap
 - Not refused, but do not rely on it
 - Never do this to reach V3
 
-Current pins are Screenplay 4.131.0 / CLI 3.46.1 (`versions.md`). Detailed
+Current pins are Screenplay 4.135.0 / CLI 3.50.0 (`versions.md`). Detailed
 4.66.0/4.68.0 binder probes below retain their historical labels. Current source
-admits sources/streams/routes as ESM v8 and policy negation as ESM v7; operations,
-exact numbers and reaction refusals/redelivery remain unadmitted. Use the actual
+admits routes as ESM v8, public/direction constructs as v9, identity/overrides/filters
+as v10 and qualifying non-route Double literals as v11. Operations,
+`numbers exact` source mode and reaction refusals/redelivery remain unadmitted. Use the actual
 binder before promoting an older probe to a current capability claim.
 
 What the binder admits, and what it refuses with which code. The answer depends on the
@@ -66,10 +68,15 @@ Authority: v4.127.0 `context.md`, `identity.md`, `concepts.md`, `events.md`, `pu
   <commandProperty>`.
 - `constraint ... unique <prop> on <Event>`. Admission is separate from the open Chronicle
   durability defects (`versions.md`): never treat admission as proof of uniqueness.
-- A `readmodel` with one unambiguous key: one or more keyed queries `query XById => RM optional`
-  in its slice, all using the same `by xId XId` property, whose name equals a read-model
-  property (each with optional `authorize`). Two different `by` properties on one read model are
-  PLAY0268; a list query (`=> RM[]`) is a separate blocker.
+- A `readmodel` with one explicit trailing `key`, or an unambiguous inferred key:
+  single-instance queries in the owning slice agreeing on `by xId XId`; only if
+  none supplies identity and an admitted list query exists does conventional
+  `*Id` inference run (collection-key exclusions: read-surface `references/named-keys.md`).
+  Queryless read models need an explicit `key`. Explicit single keys preserve
+  equivalent inferred ESM bytes. Composite read-model keys, query `by` blocks and
+  their fixtures remain PLAY0268 (#599), not the 4.129.0 authoring delivery's
+  executable admission. Collections and observable delivery bind; filters, scope,
+  performer and context-derived `by` remain separate blockers.
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
   `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
   `subtract`, `set`, `clear`, variants, and the identifier mapped from the projection's key (`xId = $eventSourceId` only for an event-source key).
@@ -87,7 +94,7 @@ Authority: v4.127.0 `context.md`, `identity.md`, `concepts.md`, `events.md`, `pu
   ...` with an explicit `for`. Without a declared actor, a gated invocation denies.
   On 4.125.0 reaction `runs as system role "<Role>"` supplies the actor and
   selects ESM v10; keep the gate. CLI 3.41.0's older compiler rejected this syntax;
-  current CLI 3.46.1's bundle supports it, but render admission still refuses v10.
+  CLI 3.50.0's bundle supports it, but Stage refuses reaction identity with STAGE-ESM-034.
   Standalone reference execution admits it.
 - Application `trigger` declarations and `when trigger` specifications.
 - `slice Translate` with `capture` (`key`, `map ... translate`, `append ... when x from "a"
@@ -133,6 +140,19 @@ Stage#201), so they bind and run but are not rendered: gap-fill with the model a
 - A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)`; response-only commands run
   and discard the response. Generated values give no idempotency, retry or deduplication guarantee.
 
+## Released public boundaries and observer routes
+
+Public/origin events, explicit Translate direction, event-target builders and
+`source events` captures bind as ESM v9 from 4.117.0. Publication folds execute;
+source-event captures and reached opaque event-target reducers return typed
+Unsupported. Public/foreign imports still lack a local shape and refuse PLAY0268.
+See automations-and-translations `references/public-events-and-direction.md`.
+Production overrides and reaction/reducer filters bind and select released v10;
+filters match routed source/stream names only. Read
+[production routes and filters](production-routes-and-filters.md).
+Qualifying retained non-route Double literals bind/reference-execute as v11 on
+4.135.0, unlike `numbers exact`; see `versions.md`.
+
 ## Code attachments (what binds, what never does)
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
@@ -176,7 +196,7 @@ bodies still leave their owner non-executable.
 | `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
 | `pii` or `secret` on any concept (also alias/legacy markers) | PLAY0268 | Compliance requires portable data-subject semantics; scopes/qualifiers do not admit it. Secret provider mapping is `[Encrypted]` + `[NotAudited]`, not a bind/render claim |
-| `query` returning a collection (`RM[]`), or without exactly one caller-supplied `by` | PLAY0268 | "must declare one caller-supplied 'by' argument" or "must return one optional read model" |
+| `query` returning a collection (`RM[]`), or without exactly one caller-supplied scalar `by` | PLAY0268 | Current 4.135.0 boundary: composite `by` blocks remain unadmitted (#599); optional scalar snapshot lookup binds |
 | `observable`, `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` goes in the return position (`=> observable RM optional`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
 | Date or DateTime comparison, `today` | PLAY0268 | no runtime date value |
@@ -198,7 +218,7 @@ bodies still leave their owner non-executable.
 | `generated` or `returns` on a compiler before 4.68.0 (4.66.0 and 4.67.0 refuse; 4.66.0 is bundled in cratis 3.28.x) | PLAY0268 | admitted from standalone 4.68.0 (ESM v7), see above |
 | Operations or systems, `numbers exact`, reaction refusals/redelivery | PLAY0268 | not admitted by any supported ESM version; one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
-| `given` or `then readmodel` missing the key property | PLAY0351 | key is the keyed query's `by` |
+| `given` or `then readmodel` missing key parts | PLAY0351 | explicit `key` marks replace inference; composite fixtures need every part but remain unadmitted (#599) |
 | When-less spec asserting events or errors | PLAY0352 | |
 | `null` in command or event values | PLAY0350 | Chronicle semantics, not only a binder limit: an optional fact is a separate event (nullable event properties are CHR0012) |
 | `for` with no unambiguous destination type | PLAY0273 | |

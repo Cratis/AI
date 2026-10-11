@@ -26,16 +26,9 @@ source is the single flow model.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Original parser, binder and reference execution evidence |
-| `Cratis.Screenplay` | main `fd18129` | Inline facts, `optional` and clock spelling; changed examples compiled |
-| `Cratis.Screenplay` | `4.68.0` (`79801bf`) | ESM v7 generated fixtures and `then returns` (decision 0026, `specifications.md` "Generated fixtures and return expectations"): the excerpt matches the compiled example in `cratis-screenplay-toolchain`, whose specifications run in the reference runner |
-| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | ESM v6 specification actions and reaction cascades, `then no readmodel`, `$strings` rejections, `invokes` caller rule; probed with the standalone tool and its MCP server |
+Retained inline-fact update evidence: [source notes](references/source-notes.md).
 
-The update follows `commands.md`, `events.md`, `types.md` and
-`specifications.md` at that main commit (after v4.52.0). This pass compiles the
-changed examples; it does not rerun the reference runner.
+The historical parser/binder/reference-runner version table is in the source notes.
 
 Specification syntax was checked against Screenplay v4.127.0 `specifications.md`;
 older probes in the table remain historical. Pins: `cratis-screenplay-toolchain`
@@ -207,6 +200,15 @@ Read [references/actions-beyond-commands.md](references/actions-beyond-commands.
 From ESM v6 every action sets reactions off and `then` events compare every new fact, the action's and the reactions'. A specification whose action is a command goes in the slice that declares the command. A false `PLAY0285` on a cascade under `cratis` before 3.28.2 is tool skew, not a modeling error: never delete the `then` line to silence it.
 Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when `cratis` reports `PLAY0285` on a model that `screenplay` accepts (it holds the "Version skew: cascades and the false `PLAY0285` (cratis before 3.28.2)" section).
 
+## Published-event specifications (released ESM v9)
+
+Use `when append <PrivateEvent>` then `then <PublicEvent>` for outbound publication,
+not `then readmodel`. The follow-up event list is exhaustive and ordered. Read
+[publication example and fold cases](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
+Events-source captures and reached opaque event-target reducers return typed
+Unsupported, not a pass. Composite view fixtures need every key part but remain
+unadmitted (PLAY0268, #599); see read-surface `references/named-keys.md`.
+
 ## Reusable fixtures, routes and recovery intent
 
 Use typed `example` declarations for repeated event/command/read-model values;
@@ -278,7 +280,7 @@ For view specifications:
 ## Verify
 
 - [ ] Validate the complete root with warnings as errors, naming tool/version.
-      Current standalone pin: 4.131.0. Run specification examples through
+      Current standalone pin: 4.135.0. Run specification examples through
       `screenplay test`; expected unadmitted syntax reports unbound, not passed.
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.

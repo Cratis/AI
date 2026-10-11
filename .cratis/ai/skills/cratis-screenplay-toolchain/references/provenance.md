@@ -28,7 +28,14 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 ## Sources read for facts
 
-- Current pin update: Screenplay `v4.131.0` (`71f3ef37`), published
+- Current public/keys/routes/version update: Screenplay `v4.135.0` (`b4e46130`),
+  unchanged release contract, `Semantics/Versions.cs`, `Documentation/screenplay/{events,slices,captures,readmodels,queries,event-sources,diagnostics,interoperability}.md`,
+  decisions 0049–0051 and 0060–0066. Composite view keys remain PLAY0268 (#599);
+  v11 literal lowering is admitted despite interoperability's unreleased label.
+  CLI `v3.50.0` (`546dea12`) pins Stage 4.67.0 and Screenplay 4.131.0;
+  `RenderedSemanticVersions.cs` and Stage's version-feature admission were read,
+  not executed as a new render/browser vector.
+- Previous pin update: Screenplay `v4.131.0` (`71f3ef37`), published
   `screenplay-contract.json`, `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolSchemas}.cs`
   and `Documentation/screenplay/mcp/reference.md`; CLI `v3.46.1` (`73578fbf`)
   `Directory.Packages.props`, `RenderedSemanticVersions.cs`, `RenderSettings.cs`,

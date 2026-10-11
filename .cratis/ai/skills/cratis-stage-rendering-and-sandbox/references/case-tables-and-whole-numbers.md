@@ -12,11 +12,13 @@
 
 ## CLI default versus Stage release
 
-CLI 3.46.1 bundles Screenplay 4.130.0 and Stage 4.52.0. Its default renderer
-applies neither the case-table support introduced in Stage 4.59.0 nor the
-whole-number rule introduced in 4.61.0. It renders whole-number types as `int`
-and refuses models newer than ESM v7 with `CLI-RENDER-004` before Stage planning.
-A newer standalone Screenplay compiler does not upgrade the bundled renderer.
+CLI 3.50.0 bundles Screenplay 4.131.0 and Stage 4.67.0. Its default renderer
+applies case-table support introduced in Stage 4.59.0 and the whole-number rule
+introduced in 4.61.0: v8+ whole numbers use `long`, earlier versions keep `int`.
+CLI and Stage admit through v10 to construct checks; newer versions receive
+CLI-RENDER-004 before planning (direct Stage: STAGE-ESM-016).
+Previous CLI 3.46.1 bundled Screenplay 4.130.0/Stage 4.52.0, applied neither rule,
+and refused above v7. A standalone compiler does not upgrade the bundled renderer.
 
 `cratis run ./model --tag 4.63.2` selects a newer **sandbox image**; it does not
 change `cratis render`. The renderer is statically bundled and has no Stage
@@ -122,6 +124,6 @@ Chronicle event generation; changing model version is not a safe schema migratio
 - Stage `v4.61.0`: `Source/Rendering.Cratis/Semantics/SemanticTypeSystem.cs`,
   `SemanticCratisAdmission.WholeNumbers.cs` and
   `Source/Rendering.Cratis/Semantics/for_SemanticCratisAdmission/when_admitting_whole_number_literals/with_a_pre_v8_model.cs`.
-- CLI `v3.46.1`: `Directory.Packages.props`,
+- CLI `v3.50.0` (previous bundle `v3.46.1`): `Directory.Packages.props`,
   `Source/Cli/Commands/Render/{RenderSettings,CratisRenderTarget,RenderedSemanticVersions}.cs`,
   `Source/Cli/Commands/Run/{RunSettings,StageContainer}.cs`.

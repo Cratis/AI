@@ -17,9 +17,9 @@ cratis-screenplay-toolchain `references/versions.md`; behaviour from the cratis 
 Screenplay.CritterStack `v0.24.0`. Version-specific capability facts belong in cratis-screenplay-toolchain
 `references/versions.md`.
 
-Current CLI is 3.46.1, with Screenplay 4.130.0 / Stage 4.52.0 /
+Current CLI is 3.50.0, with Screenplay 4.131.0 / Stage 4.67.0 /
 Arc.Screenplay 22.54.0 / Chronicle 19.32.0 / Fundamentals 7.22.8
-(`references/versions.md` in the toolchain; standalone Screenplay is 4.131.0).
+(`references/versions.md` in the toolchain; standalone Screenplay is 4.135.0).
 Option/admission evidence checked at CLI 3.41.0: released
 `GenerateScreenplaySettings.cs`, `ArcScreenplayGeneration.cs`, v7 planning specs
 and `Documentation/reference/screenplay.md`; older diagnostic probes below keep
