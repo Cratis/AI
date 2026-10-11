@@ -143,14 +143,14 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
     for (const required of ['3.40.7', '4.51.1', '4.114.0', '4.122.0', 'executableReady true', '37 tools']) {
         assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
     }
-    for (const required of ['3.43.0', '9 requests and 9 responses', 'StaleRevision', 'cratis/stage:4.52.0', ...failClosed]) {
+    for (const required of ['3.43.0', '9 requests and 9 responses', 'StaleRevision', 'cratis/stage:4.52.0', '--check', 'bySource', 'semantic-diff', ...failClosed]) {
         assert.ok(workflow.includes(required), `authoring workflow is missing ${required}`);
     }
     assert.ok(
         workflow.includes('ScreenComposition/v1/source/folder'),
         'the authoring workflow must link the canonical screen corpus v1 folder',
     );
-    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'cratis/stage:4.52.0', 'Scene 4.15.0', ...failClosed]) {
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'cratis/stage:4.52.0', 'Scene 4.15.0', 'Scene 4.17.0', 'core:outlet', 'SettingsPage', 'WebViewPackageHost', ...failClosed]) {
         assert.ok(composition.includes(required), `composition contract is missing ${required}`);
     }
 });
