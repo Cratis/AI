@@ -14,9 +14,22 @@
 
 A trailing `key` on a top-level read-model property declares instance identity.
 One explicit mark replaces inference and binds byte-identically to the equivalent
-inferred identifier. Several marks declare a composite key. Without marks, the
-binder retains inference from one unambiguous keyed query or one `*Id` property.
-Never use the command's `identifier` modifier on a read model.
+inferred identifier. Several marks declare a composite key. At 4.135.0, identity
+selection is:
+
+1. Explicit `key` marks take precedence over inference.
+2. Without marks, single-instance queries in the owning slice supply identity from
+   their `by` property; their distinct `by` names must identify one property.
+3. Only when no single-instance query supplies an identifier **and** an admitted
+   collection/list query exists does the binder consider conventional `*Id` names
+   (case-sensitive). It first excludes collection-query `by` properties: if exactly
+   one candidate remains, that is the identifier; otherwise it uses all `*Id`
+   candidates and requires exactly one. An admitted list query here is a collection
+   query without context-derived `by`, filters, scope or performer.
+
+A projection-only/queryless read model needs an explicit `key`: a lone `*Id`
+property alone does not infer identity. Never use the command's `identifier`
+modifier on a read model.
 
 A key part is required and noncollection; it cannot also be `optional`, `generated`,
 `identifier` or `subject`. A single key may have a composite type, but parts of a
@@ -103,5 +116,7 @@ model and projection/query shape, not just the key modifier.
   shortcut around an identity-preserving refusal.
 
 Source: Screenplay `v4.135.0:Documentation/screenplay/{readmodels,queries,commands,reactions,specifications}.md`,
-`fixtures/named-read-model-keys.play`, decision 0060. Its authoring delivery shipped
+`fixtures/named-read-model-keys.play`, decision 0060, and
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.ReadModels.cs` (identity inference).
+Its authoring delivery shipped
 in 4.129.0; that release did not deliver #599's executable composite-key contract.

@@ -30,7 +30,7 @@ render/browser result as a probe of the current packages.
 Historical screens-release evidence: CLI 3.40.7 / Stage 4.51.1 / bundled
 Screenplay 4.114.0 opened the canonical corpus with `executableReady true`
 and the stdio transcript exposed 37 tools; standalone language 4.122.0 was
-recorded in that vector. These retained results are not a rerun on CLI 3.46.1
+recorded in that vector. These retained results are not a rerun on CLI 3.50.0
 or Screenplay 4.135.0.
 
 ## Ground rules
@@ -164,8 +164,10 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
    still walk lineage. See diagnostics for editor versus C#-only checks.
 6. Without reaction `runs as` an invoke is caller-less. Declare its trusted role
    (ESM v10), keep the gate, and reference-test; CLI/Stage support is separate.
-7. Mark read-model identity with trailing `key`, not `identifier`; otherwise keep
-   inference unambiguous. Align projection keys. Multipart keys remain PLAY0268 (#599).
+7. Mark read-model identity with trailing `key`, not `identifier`. Otherwise single-instance
+   queries must agree on `by`; only with none and an admitted list query can `*Id`
+   inference run. Queryless views need `key` (read-surface `references/named-keys.md`).
+   Align projection keys. Multipart keys remain PLAY0268 (#599).
 8. Projection `key` routes only on `from`; joins never create; `all` is per source.
 9. `null` only for optional read-model properties in specifications.
 10. `then` events are exhaustive and ordered; after `when append` they list only what followed.

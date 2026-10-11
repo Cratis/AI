@@ -56,9 +56,12 @@ builds it points at it with `=>`, and **exactly one thing may**: two builders is
 error `PLAY0191`. See `cratis-screenplay-projections` for the builder side.
 
 Use trailing `key` on top-level read-model properties, never `identifier`.
-Explicit marks replace inference; without marks, an unambiguous keyed query or
-one `*Id` property supplies identity. One explicit key binds byte-identically to
-inference. Several marks form a composite key, supplied by name in query/read
+Explicit marks replace inference; otherwise a single-instance query's `by` supplies
+identity (all such queries must agree). Only with no single-instance identifier
+and an admitted list query does the binder infer an unambiguous `*Id`; queryless
+read models need an explicit `key`. See named keys below for collection-key exclusions.
+One explicit key binds byte-identically to equivalent inference. Several marks
+form a composite key, supplied by name in query/read
 `by` blocks. At Screenplay 4.135.0 composite keys and block queries remain
 **authoring-only** (PLAY0268, #599); the scalar optional snapshot shape binds.
 Read [named keys](references/named-keys.md) for complete examples, trigger/command
@@ -79,12 +82,12 @@ query ListInvoices => InvoiceListReadModel[]
   authorize IsAuthenticated
 ```
 
-⚠️ **A list query is design-only.** `=> RM[]`, `observable`, `filter`, `scoped to` and
-`performer` are valid model language, but neither the executable model nor Stage
-4.24.0 binds or renders them (`PLAY0268`). Model them when the application needs them,
-and keep a list the domain needs. A keyed `XById => RM optional` query with one `by` is
-the shape that binds, runs in specifications and renders, but adding it beside a list
-does not unblock anything: while a list remains, the whole application stays unbound.
+**Name the compiler and renderer.** At Screenplay 4.135.0, optional keyed queries
+and collection queries bind, including `observable`, with caller-supplied `by`
+or no `by` on a collection. Filters, scope, performer and context-derived `by`
+remain PLAY0268. The old Stage 4.24.0 list refusal is not a current compiler
+limitation; check the target renderer's admission separately. Keep a list the
+domain needs rather than inventing a keyed query solely to infer identity.
 
 Return-type forms after `=>`: `ReadModel`, `ReadModel optional`, `ReadModel[]`,
 each optionally prefixed `observable`. `ReadModel[] optional` permits an absent

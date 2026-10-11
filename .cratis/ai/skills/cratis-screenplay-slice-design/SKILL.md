@@ -113,10 +113,14 @@ report and slice `documentation`, and continue.
    slice is `read model -> screen -> command -> event`. Pick the builder (declarative projection first, reducer when
    guards cannot be expressed). The query follows the business view: a list where people scan a
    list, a keyed lookup where they open one thing. For **executable or renderable scope**, every
-   read model also needs one unambiguous key: keyed queries `query XById => RM optional` all
-   using the same `by xId XId`. The identifier always equals the projection's effective key;
-   the decision table is in `references/read-model-design.md` and the full rule in
-   `cratis-stage-rendering-and-sandbox` `references/admission.md`. Keep the list query in design mode and record that it blocks V3.
+   read model needs one unambiguous identity: explicit trailing `key` first, else
+   single-instance queries agreeing on `by xId XId`, else conventional `*Id` inference
+   only with an admitted list query and no single-instance identifier. Queryless views
+   need explicit `key`; read-surface `references/named-keys.md` gives the exact fallback.
+   The identifier equals the projection's effective key (decision table in
+   `references/read-model-design.md`; Stage rule in `references/admission.md` of
+   `cratis-stage-rendering-and-sandbox`). Collections and observable delivery bind at
+   4.135.0; check renderer admission separately.
    Whose rows is part of the view; a caller-supplied filter is not access control.
 7. **Screens, Level 1.** `data <RM> via query <Q>` plus `action <Command>` per thing the user
    can do there. Build each slice as read model, screen, command, event. A screen acting on an
@@ -149,11 +153,13 @@ report and slice `documentation`, and continue.
 ### Compiler contracts (the tool enforces these)
 
 - At most one `identifier` per command; never on an event property; never on a read-model
-  property (identity comes from the keyed query's `by`).
+  property (use `key`; otherwise identity comes from single-instance `by`, or
+  conventional `*Id` only with an admitted list query and no single-instance identifier).
+  Queryless read models need explicit `key`.
 - At most one builder (projection or reducer) per read model (`PLAY0191`).
-- A query's `by` goes on its own body line. Only `=> RM optional` with one caller-supplied `by`
-  binds in the executable model; list, observable, filtered or scoped queries are `PLAY0268` at
-  binding but compile.
+- A query's `by` goes on its own body line. At 4.135.0, optional keyed and collection
+  queries bind, including observable delivery; scalar `by` must be caller-supplied.
+  Filtered, scoped, performer-backed and composite-block queries remain `PLAY0268`.
 - A `unique` constraint names a property the event declares directly; the constraint name is
   its identity (renaming starts an empty index).
 - Unauthorized is `then denied`; a broken rule is `then error`; authorization runs first.
@@ -218,7 +224,9 @@ Slice design is done when these hold; otherwise report what is open.
 - [ ] Every command has a refusal inventory (success, each refusal with layer and message,
       denied persona); every gated command and query has a `then denied` row.
 - [ ] Every event is past tense, a specific change, and consumed or justified.
-- [ ] Every read model has a consumer and, when the scope is executable, one unambiguous key (keyed queries all using the same `by` property).
+- [ ] Every read model has a consumer and, for executable scope, one identity: explicit
+      `key`, else agreeing single-instance `by`, else unambiguous `*Id` only with an
+      admitted list query and no single-instance identifier. Queryless views use `key`.
 - [ ] Every StateView's `documentation` gives a reason per contributing event; every read-model
       field and screen field is traced; every `from` event sets a field.
 - [ ] No `screen` without `data` or `action`; every acting screen has `data` or a stated

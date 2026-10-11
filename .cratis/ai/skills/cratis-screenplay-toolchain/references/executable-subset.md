@@ -69,11 +69,14 @@ Authority: v4.127.0 `context.md`, `identity.md`, `concepts.md`, `events.md`, `pu
 - `constraint ... unique <prop> on <Event>`. Admission is separate from the open Chronicle
   durability defects (`versions.md`): never treat admission as proof of uniqueness.
 - A `readmodel` with one explicit trailing `key`, or an unambiguous inferred key:
-  one or more optional keyed queries with the same `by xId XId`, or one `*Id`
-  property. Explicit single keys preserve equivalent inferred ESM bytes. Composite
-  read-model keys, query `by` blocks and their fixtures remain PLAY0268 (#599),
-  not the 4.129.0 authoring delivery's executable admission. List queries remain
-  a separate blocker. See read-surface `references/named-keys.md`.
+  single-instance queries in the owning slice agreeing on `by xId XId`; only if
+  none supplies identity and an admitted list query exists does conventional
+  `*Id` inference run (collection-key exclusions: read-surface `references/named-keys.md`).
+  Queryless read models need an explicit `key`. Explicit single keys preserve
+  equivalent inferred ESM bytes. Composite read-model keys, query `by` blocks and
+  their fixtures remain PLAY0268 (#599), not the 4.129.0 authoring delivery's
+  executable admission. Collections and observable delivery bind; filters, scope,
+  performer and context-derived `by` remain separate blockers.
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
   `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
   `subtract`, `set`, `clear`, variants, and the identifier mapped from the projection's key (`xId = $eventSourceId` only for an event-source key).
