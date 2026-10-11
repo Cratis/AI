@@ -4,7 +4,7 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
-    { "kind": "skill-contains", "value": "4.131.0" },
+    { "kind": "skill-contains", "value": "4.135.0" },
     { "kind": "skill-contains", "value": "PLAY0653", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "PLAY0646", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "PLAY0595", "file": "references/diagnostics.md" },

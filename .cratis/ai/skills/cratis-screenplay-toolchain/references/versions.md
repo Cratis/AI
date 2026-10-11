@@ -17,10 +17,10 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.131.0** (`71f3ef37`) | Released tag `v4.131.0` and its published contract; `semantic-diff` source selections in `Source/DotNET/Screenplay.Mcp/McpRevisionDiff.cs` |
-| cratis CLI | **3.46.1** (`73578fbf`) | Released tag `v3.46.1`; source-checked, not a new render/browser probe |
-| Screenplay bundled by CLI | **4.130.0** | CLI `v3.46.1:Directory.Packages.props`; predates the 4.131.0 `semantic-diff` source objects |
-| Stage bundled by CLI | **4.52.0** | Same file; default runtime image `cratis/stage:4.52.0`, confirmed by `Source/Cli.Specs/for_RunCommand/when_running/with_a_folder_and_the_default_stage_tag.cs` |
+| Screenplay language, standalone tool and MCP | **4.135.0** (`b4e46130`) | Released tag `v4.135.0` and its unchanged published contract |
+| cratis CLI | **3.50.0** (`546dea12`) | Released tag `v3.50.0`; source-checked, not a new render/browser probe |
+| Screenplay bundled by CLI | **4.131.0** | CLI `v3.50.0:Directory.Packages.props`; includes `semantic-diff` source objects, not v11 literal lowering |
+| Stage bundled by CLI | **4.67.0** | Same file; renderer and default sandbox image use the same Stage release |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
 | Historical Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
@@ -44,7 +44,7 @@ or renderer probes below as results from the newer bundle.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.131.0 and the CLI's 4.130.0 bundle are different releases.
+Standalone Screenplay 4.135.0 and CLI 3.50.0's 4.131.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -103,8 +103,9 @@ read them as tested snapshots, not as a claim that Stage 4.52.0 shares every
 4.24.2 limitation. Query the actual bundled renderer before a V5 claim.
 
 Stage case tables require 4.59.0; ESM v8 whole numbers as `long` and the
-pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. CLI 3.46.1 defaults
-to Stage 4.52.0, so neither new rule applies there. `cratis run --tag 4.63.2`
+pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. CLI 3.50.0 defaults
+to Stage 4.67.0, so both rules apply. Previous CLI 3.46.1 bundled Screenplay
+4.130.0 and Stage 4.52.0; neither rule applied there. `cratis run --tag 4.63.2`
 selects a newer sandbox image only (`RunSettings.cs`), not a renderer package.
 `cratis render` has a statically bundled target (`RenderSettings.cs`,
 `CratisRenderTarget.cs`); a newer renderer needs a CLI release that pins it.
