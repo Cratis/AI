@@ -78,13 +78,17 @@ export function fakeChild() {
     };
 }
 
-export function nativeHarness(fixture: ReturnType<typeof projectFixture>, discovered = [tool('diagnostics'), tool('apply')], excluded: string[] = []) {
+export function nativeHarness(
+    fixture: ReturnType<typeof projectFixture>, discovered = [tool('diagnostics'), tool('apply')], excluded: string[] = [],
+    checkVersion = async (_project: string) => true, connect?: (project: string) => StdioConnection,
+) {
     const registered = new Map<string, ToolDefinition>();
     const handlers = new Map<string, (event: Record<string, unknown>, context: ExtensionContext) => unknown>();
     let active = ['read'];
     let approved = true;
     let confirmationCount = 0;
     const children: ReturnType<typeof fakeChild>[] = [];
+    const versionProjects: string[] = [];
     const context = {
         cwd: fixture.project, hasUI: true,
         ui: { async confirm() { confirmationCount++; return approved; } },
@@ -100,7 +104,7 @@ export function nativeHarness(fixture: ReturnType<typeof projectFixture>, discov
         setActiveTools(names: string[]) { active = names.filter(name => !excluded.includes(name)); },
         on(name: string, handler: (event: Record<string, unknown>, context: ExtensionContext) => unknown) { handlers.set(name, handler); return () => handlers.delete(name); },
     } as unknown as ExtensionAPI;
-    registerBridge(api, fixture.corpus, project => {
+    registerBridge(api, fixture.corpus, connect ?? (project => {
         if (project !== fixture.project) throw new Error('Wrong physical project');
         const child = fakeChild();
         child.onRequest(request => {
@@ -110,9 +114,9 @@ export function nativeHarness(fixture: ReturnType<typeof projectFixture>, discov
         });
         children.push(child);
         return new StdioConnection(child.child, 1000);
-    });
+    }), project => { versionProjects.push(project); return checkVersion(project); });
     return {
-        registered, children, context, api,
+        registered, children, versionProjects, context, api,
         approve(value: boolean) { approved = value; },
         get confirmations() { return confirmationCount; },
         async event(name: string, event: Record<string, unknown> = {}) { return handlers.get(name)?.(event, context); },

@@ -99,5 +99,9 @@ export function selectedServer(project: string, corpus: string) {
     const root = object(screenplay) ? screenplay.root : undefined;
     if (root !== undefined && typeof root !== 'string') throw new Error('Screenplay MCP root must be a project-relative string.');
     const physicalProject = realpathSync(project);
-    return { project: physicalProject, root: root === undefined ? undefined : physicalRoot(physicalProject, root) };
+    return {
+        project: physicalProject,
+        root: root === undefined ? undefined : physicalRoot(physicalProject, root),
+        composedOnly: !requested.includes('cratis/screenplay') && root === undefined,
+    };
 }

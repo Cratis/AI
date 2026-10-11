@@ -26,6 +26,9 @@ test('Screenplay expands catalog composition and honors explicit opt-out', () =>
     const selected = selectedServer(fixture.project, fixture.corpus);
     assert.ok(selected);
     assert.equal(selected.root, undefined);
+    assert.equal(selected.composedOnly, true);
+    fixture.configure({ profiles: ['composed', 'cratis/screenplay'] });
+    assert.equal(selectedServer(fixture.project, fixture.corpus)?.composedOnly, false);
     assert.equal(existsSync(join(fixture.project, '.cratis', 'screenplay')), false);
     fixture.configure({ profiles: ['composed'], mcpServers: { screenplay: { enabled: false } } });
     assert.equal(selectedServer(fixture.project, fixture.corpus), undefined);
@@ -82,6 +85,7 @@ function assertApplicationConsumer(t: TestContext, fixture: ReturnType<typeof pr
     assert.ok(selected, 'the distributed MCP descriptor is active');
     assert.equal(selected.project, fixture.project);
     assert.equal(selected.root, root);
+    assert.equal(selected.composedOnly, root === undefined);
 
     // Inspect the real launch configuration with a fake child; CLI folder creation is covered by CLI v3.46.1 specs.
     const child = fakeChild();

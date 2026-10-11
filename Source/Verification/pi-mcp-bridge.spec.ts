@@ -3,9 +3,10 @@
 
 import assert from 'node:assert/strict';
 import { mkdirSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import test from 'node:test';
-import { nativeHarness, projectFixture, tool } from './pi-mcp-helpers.ts';
+import { StdioConnection } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/StdioConnection.ts';
+import { fakeChild, nativeHarness, projectFixture, tool } from './pi-mcp-helpers.ts';
 
 test('native Screenplay bridge does not start children or register tools for inactive/opted-out projects', async () => {
     for (const config of [{ profiles: ['other'] }, { profiles: ['cratis/screenplay'], mcpServers: { screenplay: { enabled: false } } }]) {
@@ -144,4 +145,117 @@ test('native Screenplay shutdown is idempotent and blocks previous-session tools
     assert.equal(harness.children[0].child.killed, true);
     assert.deepEqual(harness.api.getActiveTools(), ['read']);
     await assert.rejects(harness.call('screenplay_diagnostics'), /connection is unavailable/);
+});
+
+for (const reason of ['missing', 'old']) {
+    test(`composed-only Screenplay quietly skips a ${reason} CLI without launching MCP`, async t => {
+        const notice = t.mock.method(console, 'debug', () => {});
+        const fixture = projectFixture(
+            { profiles: ['cratis/application/elixir'], languages: ['elixir'] },
+            resolve(import.meta.dirname, '../../.cratis/ai'),
+        );
+        const harness = nativeHarness(fixture, undefined, [], async () => false);
+        t.after(() => harness.event('session_shutdown'));
+        const before = readdirSync(fixture.project, { recursive: true });
+        await harness.event('session_start');
+        await harness.event('before_agent_start');
+        assert.equal(harness.children.length, 0);
+        assert.equal(harness.registered.size, 0);
+        assert.deepEqual(harness.api.getActiveTools(), ['read']);
+        assert.deepEqual(harness.versionProjects, [fixture.project]);
+        assert.equal(notice.mock.callCount(), 1);
+        assert.match(String(notice.mock.calls[0].arguments[0]), /Screenplay MCP is unavailable.*3\.46\.1/);
+        assert.deepEqual(readdirSync(fixture.project, { recursive: true }), before);
+        fixture.configure({ profiles: ['cratis/application/react'], languages: ['typescript', 'react'] });
+        await harness.event('before_agent_start');
+        fixture.configure({ profiles: ['cratis/application/elixir'], languages: ['elixir'] });
+        await harness.event('before_agent_start');
+        assert.deepEqual(harness.versionProjects, [fixture.project], 'failed version checks are cached too');
+        assert.equal(notice.mock.callCount(), 1, 'at most one notice per session');
+    });
+}
+
+for (const failure of ['spawn', 'discovery']) {
+    test(`composed-only Screenplay quietly degrades on MCP ${failure} failure`, async t => {
+        const notice = t.mock.method(console, 'debug', () => {});
+        const harness = nativeHarness(projectFixture({ profiles: ['composed'] }), [], [], async () => true,
+            failure === 'spawn' ? () => { throw new Error('Cannot spawn'); } : undefined);
+        t.after(() => harness.event('session_shutdown'));
+        await harness.event('session_start');
+        await harness.event('before_agent_start');
+        assert.equal(harness.registered.size, 0);
+        assert.deepEqual(harness.api.getActiveTools(), ['read']);
+        assert.equal(notice.mock.callCount(), 1);
+        if (failure === 'discovery') assert.equal(harness.children[0].child.killed, true);
+    });
+}
+
+test('composed-only Screenplay quietly handles the CLI disappearing after the version check', async t => {
+    const notice = t.mock.method(console, 'debug', () => {});
+    const child = fakeChild();
+    const harness = nativeHarness(projectFixture({ profiles: ['composed'] }), undefined, [], async () => true, () => {
+        const connection = new StdioConnection(child.child, 1000);
+        queueMicrotask(() => child.child.emit('error', new Error('ENOENT')));
+        return connection;
+    });
+    t.after(() => harness.event('session_shutdown'));
+    await harness.event('session_start');
+    assert.equal(harness.registered.size, 0);
+    assert.equal(child.child.killed, true);
+    assert.equal(notice.mock.callCount(), 1);
+});
+
+for (const explicit of ['profile', 'root']) {
+    test(`Screenplay with an explicit ${explicit} still surfaces missing-CLI errors`, async t => {
+        const notice = t.mock.method(console, 'debug', () => {});
+        const fixture = projectFixture(explicit === 'profile'
+            ? { profiles: ['cratis/screenplay'] }
+            : { profiles: ['composed'], mcpServers: { screenplay: { root: 'models' } } });
+        if (explicit === 'root') mkdirSync(join(fixture.project, 'models'));
+        const child = fakeChild();
+        const harness = nativeHarness(fixture, undefined, [], async () => false, () => {
+            const connection = new StdioConnection(child.child, 1000);
+            queueMicrotask(() => child.child.emit('error', new Error('ENOENT')));
+            return connection;
+        });
+        t.after(() => harness.event('session_shutdown'));
+        await assert.rejects(harness.event('session_start'), /Cannot launch native cratis screenplay mcp/);
+        assert.equal(harness.registered.size, 0);
+        assert.equal(harness.versionProjects.length, 0);
+        assert.equal(notice.mock.callCount(), 0);
+        assert.equal(child.child.killed, true);
+    });
+}
+
+test('composed-only Screenplay with a supported CLI registers tools and caches its version for the session', async t => {
+    const notice = t.mock.method(console, 'debug', () => {});
+    const fixture = projectFixture({ profiles: ['composed'] });
+    const harness = nativeHarness(fixture);
+    t.after(() => harness.event('session_shutdown'));
+    const before = readdirSync(fixture.project, { recursive: true });
+    await harness.event('session_start');
+    await harness.event('before_agent_start');
+    assert.deepEqual([...harness.registered.keys()], ['screenplay_diagnostics', 'screenplay_apply']);
+    assert.deepEqual(readdirSync(fixture.project, { recursive: true }), before);
+    mkdirSync(join(fixture.project, 'models'));
+    fixture.configure({ profiles: ['composed'], mcpServers: { screenplay: { root: 'models' } } });
+    await harness.event('before_agent_start');
+    fixture.configure({ profiles: ['composed'] });
+    await harness.event('before_agent_start');
+    assert.deepEqual(harness.versionProjects, [fixture.project]);
+    await harness.event('session_start');
+    assert.deepEqual(harness.versionProjects, [fixture.project, fixture.project]);
+    assert.equal(notice.mock.callCount(), 0);
+});
+
+test('composed-only Screenplay never hides uncertain mutation outcomes', async t => {
+    const notice = t.mock.method(console, 'debug', () => {});
+    const harness = nativeHarness(projectFixture({ profiles: ['composed'] }));
+    t.after(() => harness.event('session_shutdown'));
+    await harness.event('session_start');
+    harness.children[0].onRequest(() => harness.children[0].exit());
+    await assert.rejects(harness.call('screenplay_apply'), /outcome is unknown/);
+    await assert.rejects(harness.event('session_start'), /outcome remains unknown/);
+    assert.equal(notice.mock.callCount(), 0);
+    assert.equal(harness.children.length, 1);
 });
