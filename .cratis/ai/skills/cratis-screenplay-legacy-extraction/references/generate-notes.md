@@ -7,6 +7,8 @@
 - Coverage (what a provider reads)
 - Diagnostics are the loss list
 - Arc recovery and authoring-only options
+- Arc 22.70.0 compliance recovery
+- Generated-document self-check on compiler upgrades
 - Reading the output cheaply
 
 Flags verified with `cratis screenplay generate --help` on the version recorded in
@@ -17,9 +19,16 @@ cratis-screenplay-toolchain `references/versions.md`; behaviour from the cratis 
 Screenplay.CritterStack `v0.24.0`. Version-specific capability facts belong in cratis-screenplay-toolchain
 `references/versions.md`.
 
-Current CLI is 3.50.0, with Screenplay 4.131.0 / Stage 4.67.0 /
-Arc.Screenplay 22.54.0 / Chronicle 19.32.0 / Fundamentals 7.22.8
-(`references/versions.md` in the toolchain; standalone Screenplay is 4.135.0).
+For the current standalone compiler and CLI bundle, use the toolchain's
+[version table](../../cratis-screenplay-toolchain/references/versions.md).
+The compliance and self-check sections below are source-checked at Arc 22.70.0
+(`Documentation/backend/csharp/generating-a-screenplay.md`,
+`Analysis/Types/{ConceptRegistry,PersonalDataMarkings,TypesTheDocumentCannotName}.cs`,
+`Emission/Concepts/ConceptSyntaxBuilder.cs`, `Emission/ProtectedIdentityAnnotations.cs`
+and `Verification/ExpectedBindingDiagnostics.cs` under `Source/DotNET/Screenplay/`).
+They require that generator release, not an older bundled adapter;
+a standalone compiler upgrade does not upgrade the generator.
+
 Option/admission evidence checked at CLI 3.41.0: released
 `GenerateScreenplaySettings.cs`, `ArcScreenplayGeneration.cs`, v7 planning specs
 and `Documentation/reference/screenplay.md`; older diagnostic probes below keep
@@ -106,6 +115,65 @@ CLI-RENDER-004. A generated source model is evidence, not guaranteed render outp
 Handler/reaction bodies, unresolved conditions and unproven origins still need
 source review. Do not infer generation/evolution/absence-assertion coverage from
 a package upgrade; read diagnostics and reconcile each recovered scenario.
+
+## Arc 22.70.0 compliance recovery
+
+A concept with both `[Encrypted]` and `[NotAudited]` becomes `secret`.
+Encryption or audit suppression alone, or only on a member, does not establish
+that concept-wide contract: SP0058 (Information) reports the partial marking
+without adding `secret`; an existing `pii` classification remains.
+
+- Subject scope, omitted or explicit, stays bare `secret`.
+- `[Encrypted(EncryptionScope.Namespace)]` plus `[NotAudited]` on the concept
+  emits bare `secret` by default and SP0061 (Information) names the unstated
+  `namespace` scope: the document instead implies Subject scope. Global behaves
+  the same way. Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI
+  adapter option `--authoring-only-constructs`) to emit `secret scope namespace`
+  or `secret scope global` in the concept body. Scope is syntax-only and does
+  not raise the ESM version; it does not make protected concepts executable.
+- A concept also marked `[PII]` becomes `pii secret`, with no emitted scope:
+  the C# providers render only `[PII]`; Chronicle rejects `[PII]` combined with
+  `[Encrypted]`. Do not add a scope the provider ignores.
+
+Member `[PII]` is read from properties and matching positional constructor
+parameters. Two losses that previously needed manual detection now have
+Information diagnostics:
+
+| Code | What the document says or loses | Resolve in source or the intentional candidate |
+| --- | --- | --- |
+| SP0062 | `[PII]` on a non-concept member (for example, a String) is not stated; the diagnostic names `Type.Member`. No concept is invented. | Introduce a personal-data concept with evidence-backed meaning; keep the original protection and record the lost marking until resolved. |
+| SP0063 | A member marking promotes its concept to `pii` everywhere; the diagnostic lists unmarked analyzed uses that acquire that classification. | Review every listed use. If all carry personal data, make the concept-wide classification explicit; if meanings differ, separate the concepts rather than remove `pii`. |
+
+SP0063 is absent when the concept itself has `[PII]` or every analyzed use is
+marked. Its list covers analyzed uses, not proof of all runtime use sites.
+Reasons, special/criminal qualifiers and processing purposes are not inferred.
+
+SP0059 (Information) reports that an identity concept's `pii/secret` annotations
+were left off because Screenplay rejects protected identifiers, destinations and
+stream ids (PLAY0515). The identity/route is retained, not the protection. Record
+that loss and design a surrogate identity; never treat the generated omission as
+authority to remove source protection. SP0058/SP0059 now say `secret` and
+`pii/secret`, not the deprecated `sensitive`/`@pii` vocabulary.
+See command-surface [compliance](../../cratis-screenplay-command-surface/references/compliance.md)
+for classification and persisted-event scope changes.
+
+## Generated-document self-check on compiler upgrades
+
+Arc compiles and binds its printed document. `ExpectedBindingDiagnostics` tolerates
+only exact known admission-limit messages (PLAY0268) and the permitted legacy
+consistency messages (PLAY0271), not every diagnostic with those codes.
+The loaded compiler's contract must list the code as neither retired nor reserved
+and include Error among its supported severities. A missing, retired, reserved or
+non-error-only code loses the exemption even if an old message still matches.
+Changed or unknown messages also fail closed.
+
+After upgrading Screenplay, rerun generation and inspect the self-check instead
+of carrying forward an old waiver. Unexpected binding errors become SP0056
+(Warning for standalone generation, Information for embedded generation); Arc's
+end-to-end gate rejects any SP0056 regardless of severity. Resolve a changed
+admission contract or report a generator defect; do not strip protection or widen
+the exemption. This check is distinct from a clean source-validation result and
+does not prove the model renders or executes.
 
 ## Reading the output cheaply
 1. V1 on `.ai-work/screenplay/<model-slug>/legacy/static` (folder mode) with the tool and
