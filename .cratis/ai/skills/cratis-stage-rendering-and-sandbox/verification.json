@@ -26,6 +26,10 @@
     { "kind": "skill-contains", "value": "Cratis/cli#253" },
     { "kind": "skill-contains", "value": "Silent fallback to a default screen is a failure" },
     { "kind": "skill-contains", "value": "package/image versions" },
-    { "kind": "skill-contains", "value": "dropped authored UI" }
+    { "kind": "skill-contains", "value": "dropped authored UI" },
+    { "kind": "skill-contains", "value": "references/case-tables-and-whole-numbers.md" },
+    { "kind": "skill-contains", "value": "STAGE-CRATIS-004" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-031" },
+    { "kind": "skill-contains", "value": "Stage 4.52.0 renderer applies neither new rule" }
   ]
 }

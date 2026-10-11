@@ -37,7 +37,7 @@ report unsupported adapters or drift.
 
 After `initialize` and `notifications/initialized`, discover current tools and
 argument schemas with `tools/list`; do not hard-code counts or infer arguments
-from these short descriptions. Screenplay v4.127.0's `McpToolCatalog.cs` has
+from these short descriptions. Screenplay v4.131.0's `McpToolCatalog.cs` has
 37 tools without visualization, 38 with it; older issue counts are not this release.
 The additions below follow its `Documentation/screenplay/mcp/reference.md`.
 The connection procedure, edit routes, identity state and failure handling are in
@@ -187,7 +187,8 @@ persona/policy and table/case/caseParameter provenance. Neither view executes.
 ## Identity, compliance and processing views
 
 Screenplay v4.127.0 `mcp/reference.md` and `authoring-tools.md` describe these
-additions; discover installed schemas because CLI 3.41.0 bundles 4.114.0.
+additions (checked at 4.127.0); discover installed schemas because current
+CLI 3.46.1 bundles Screenplay 4.130.0, not standalone 4.131.0.
 
 - Identity/detail summaries expose declared sources; `$identity` has its own
   expression node. The block alone stays executable-ready, but executable reads
@@ -300,14 +301,63 @@ suppression ships. Both tools page with `offset`/`limit` and
 
 ## Semantic revision comparison
 
-`semantic-diff` takes `beforeWorkspaceJson` and `afterWorkspaceJson`: decoded,
-reassembled canonical `export-workspace` JSON, not Git refs or raw source. Exports
-must share the application identity and authoritative catalogs; the tool never
-guesses rename continuity. Invalid exports return `UnreadableRevision`, different
-applications `IncompatibleRevisions`. It does not open/replace the active workspace
-or write state. Inspect incomplete sections and exclusions: structure comparison
-is not executed behavior. Echo the ordered-pair `sourceRevision` on continuation.
-Use `read-proposal` `view: "semantic-diff"` for an uninstalled proposal instead.
+Screenplay 4.131.0 `semantic-diff` accepts `before` and `after` source objects,
+without opening/replacing the active workspace, clearing proposals or writing
+source/state. Each side selects exactly one form:
+
+| Form | Meaning |
+| --- | --- |
+| `{ "workspace": "active" }` | Reload the open workspace at its current revision; without one, comparison refuses |
+| `{ "path": "/work/repo-main/Screenplay" }` | Read a model folder or registered worktree without writing; use the corresponding model folder for a `main` comparison |
+| `{ "workspaceJson": "<export>" }` | Decoded, reassembled canonical `export-workspace` JSON string, not raw `.play` text |
+
+To answer "what changed compared with main", use the worktree as baseline and
+the open model as candidate:
+
+```json
+{
+  "before": { "path": "/work/repo-main/Screenplay" },
+  "after": { "workspace": "active" },
+  "limit": 50
+}
+```
+
+These source objects require Screenplay 4.131.0; CLI 3.46.1 bundles 4.130.0.
+Discover installed schemas rather than assuming bundle parity.
+Check that the registered worktree is checked out at the intended commit and
+contains the baseline model; Git refs are not resolved. An admitted missing
+`path` (whose parent exists) reads as an empty model, not a failure: a wrong
+baseline path can make every candidate declaration appear added. Check that
+the folder exists and contains the expected `.play` files before comparing.
+Source: Screenplay `v4.131.0:Source/DotNET/Screenplay.Mcp/McpWorkspaces.Comparison.cs`
+(`OpenFromDisk`, `allowEmpty: true`) and `McpRoot.cs` (`TraversalStart`). A fixed-root server
+admits its own root or the corresponding model folder in a registered worktree
+of the same repository; a dynamic server uses normal root checks. Relative paths
+use the server working directory. A pending interrupted write refuses a path
+source, and pending or competing journals also refuse the active workspace.
+Inspect `workspace-state`; never delete a journal or recover implicitly to diff.
+
+Both persisted `.screenplay/identities.json` catalogs enable Identity matching
+and require the same application identity (`IncompatibleRevisions` otherwise).
+If either side lacks persisted identities, matching is by exact kind/address:
+renames and owner moves appear as removal/addition, not inferred continuity.
+Exports carry identities; malformed or incomplete exports return
+`UnreadableRevision`. Legacy `beforeWorkspaceJson`/`afterWorkspaceJson` strings
+still work, including with the other side's source object; never combine a
+legacy string with its matching side's object.
+
+Send the same source selections on every page and echo the ordered-pair
+`sourceRevision` as `expectedSourceRevision` on continuation. Both sides reload
+on every page: changed active state, path bytes or export reject continuation
+with `StaleRevision`. Restart from the first page; never combine different pairs.
+Inspect incomplete sections and exclusions: comparison covers authoring
+structure, identities and direct indexed dependants, not equivalence, execution
+or transitive/runtime impact. Use `read-proposal` with `view: "semantic-diff"`
+for a retained proposal against its disk baseline without applying it; changed
+baseline bytes or pending recovery refuse that view too.
+
+Authority: `v4.131.0:Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolSchemas,McpToolCatalog}.cs`
+and `Documentation/screenplay/mcp/reference.md`.
 
 ## Source map and appended-event fixtures
 

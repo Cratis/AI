@@ -10,12 +10,19 @@ import { evaluationProblems, verifySkillEvaluations } from './skill-evaluations.
 
 const skill = 'cratis-arc-command';
 function trigger() { return { skill, queries: Array.from({ length: 20 }, (_, index) => ({ query: `Realistic query ${index}`, shouldTrigger: index < 10 })) }; }
-function evals() { return { skill_name: skill, evals: [1, 2, 3].map(id => ({ id, name: `task-${id}`, prompt: 'Prompt', expected_output: 'Expected', assertions: ['First', 'Second', 'Third'] })) }; }
+function evals(count = 3) { return { skill_name: skill, evals: Array.from({ length: count }, (_, index) => ({ id: index + 1, name: `task-${index + 1}`, prompt: 'Prompt', expected_output: 'Expected', assertions: ['First', 'Second', 'Third'] })) }; }
 const check = (kind: 'trigger' | 'evals', value: unknown) => evaluationProblems(`Evaluations/skills/${skill}/${kind}.json`, skill, kind, value, [skill]);
 
 test('valid trigger and Agent Skills output files pass with required counts', () => {
     assert.deepEqual(check('trigger', trigger()), []);
     assert.deepEqual(check('evals', evals()), []);
+});
+
+test('output evaluations accept three through five tasks and refuse counts outside that range', () => {
+    for (const count of [3, 4, 5]) assert.deepEqual(check('evals', evals(count)), []);
+    for (const count of [0, 1, 2, 6]) {
+        assert.deepEqual(check('evals', evals(count)), [`Evaluations/skills/${skill}/evals.json: requires 3–5 evaluation tasks.`]);
+    }
 });
 
 test('bad root fields, counts, types and duplicate queries carry the file path', () => {

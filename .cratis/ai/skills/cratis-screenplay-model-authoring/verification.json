@@ -6,7 +6,7 @@
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.127.0"
+      "value": "Screenplay v4.131.0"
     },
     {
       "kind": "skill-contains",
@@ -147,6 +147,16 @@
     {
       "kind": "skill-contains",
       "value": "silently drops authored UI"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "\"before\": { \"path\": \"/work/repo-main/Screenplay\" }",
+      "file": "references/mcp-tools.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Both sides reload",
+      "file": "references/mcp-tools.md"
     }
   ]
 }

@@ -77,8 +77,9 @@ not bind a modeled reaction or capture. Case C (no generated application): there
 composition conventions (`rules/vertical-slices.md`, `cratis-chronicle-reactor`).
 Declare the trusted actor with reaction `runs as system role "<Role>"`
 (standalone 4.125.0, ESM v10); `given caller` is not an invocation actor.
-CLI 3.41.0's older compiler rejects the syntax, and Stage 4.51.3's planner admits
-through v7 only. Gap-fill retains the declared role and uses Arc
+Historical CLI 3.41.0's older compiler rejected the syntax. Current CLI 3.46.1
+bundles Screenplay 4.130.0 / Stage 4.52.0 but still admits through v7 only
+(CLI-RENDER-004 for v10). Gap-fill retains the declared role and uses Arc
 `[ExecuteCommandsAsSystem]` for returned commands. Checked model and diagnostics:
 captures-and-reactions `references/invocation-identity.md`.
 

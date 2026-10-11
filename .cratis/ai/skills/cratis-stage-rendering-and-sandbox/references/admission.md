@@ -10,9 +10,11 @@
 - Source disagreements (trust the code)
 
 Current pins are in `cratis-screenplay-toolchain` `references/versions.md`:
-CLI 3.41.0 bundles Stage 4.51.3 / Screenplay 4.114.0. It admits through ESM v7
-to Stage planning; above v7 is CLI-RENDER-004. The CLI's v7 canonical-corpus
-planning spec receives STAGE-ESM-028/029 for generated values/responses.
+Standalone Screenplay is 4.131.0; CLI 3.46.1 bundles Stage 4.52.0 / Screenplay
+4.130.0 / Arc.Screenplay 22.54.0 / Chronicle 19.32.0 / Fundamentals 7.22.8.
+It admits through ESM v7 to Stage planning; above v7 is CLI-RENDER-004.
+The historical CLI 3.41.0 v7 canonical-corpus planning spec received
+STAGE-ESM-028/029 for generated values/responses.
 The detailed 4.24.x source/probe rows below have not been relabeled as current
 runtime verification; run admission on the actual bundled renderer.
 

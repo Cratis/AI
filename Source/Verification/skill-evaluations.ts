@@ -34,7 +34,7 @@ export function evaluationProblems(path: string, skill: string, kind: 'trigger' 
         });
     } else {
         if (!Array.isArray(document.evals)) { fail('evals must be an array.'); return problems; }
-        if (document.evals.length !== 3) fail('requires exactly 3 evaluation tasks.');
+        if (document.evals.length < 3 || document.evals.length > 5) fail('requires 3–5 evaluation tasks.');
         const ids = new Set<number>();
         document.evals.map(object).forEach((evaluation, index) => {
             if (!Number.isSafeInteger(evaluation.id) || Number(evaluation.id) < 1) fail(`evals[${index}].id must be a positive integer.`);

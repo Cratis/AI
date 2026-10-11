@@ -17,8 +17,10 @@ cratis-screenplay-toolchain `references/versions.md`; behaviour from the cratis 
 Screenplay.CritterStack `v0.24.0`. Version-specific capability facts belong in cratis-screenplay-toolchain
 `references/versions.md`.
 
-Current CLI is 3.41.0, with Arc.Screenplay 22.54.0 (`references/versions.md` in
-the toolchain). Current option/admission evidence: CLI released
+Current CLI is 3.46.1, with Screenplay 4.130.0 / Stage 4.52.0 /
+Arc.Screenplay 22.54.0 / Chronicle 19.32.0 / Fundamentals 7.22.8
+(`references/versions.md` in the toolchain; standalone Screenplay is 4.131.0).
+Option/admission evidence checked at CLI 3.41.0: released
 `GenerateScreenplaySettings.cs`, `ArcScreenplayGeneration.cs`, v7 planning specs
 and `Documentation/reference/screenplay.md`; older diagnostic probes below keep
 their original labels. Arc#3054 and CLI#270 describe the recovered-source expansion.
@@ -96,8 +98,8 @@ The expanded Arc recovery surface includes:
   deterministic generation fixtures and response expectations can be recovered.
   Unsupported shapes/pre-generation protection remain code with SP0052.
 
-Generated values/responses select ESM v7. CLI 3.41.0 admits v7 to planning, but
-Stage refuses those members with STAGE-ESM-028/029. CLI#261 is closed; do not say
+Generated values/responses select ESM v7. The historical CLI 3.41.0 check
+admitted v7 to planning, but Stage 4.51.3 refused those members with STAGE-ESM-028/029. CLI#261 is closed; do not say
 the compiler or CLI version gate universally refuses v7. Above v7 remains
 CLI-RENDER-004. A generated source model is evidence, not guaranteed render output.
 

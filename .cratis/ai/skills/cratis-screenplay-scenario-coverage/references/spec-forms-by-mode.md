@@ -4,8 +4,8 @@ The subsets themselves (what binds, what renders) are owned by `cratis-screenpla
 (its executable and renderable subset references); version facts by its `references/versions.md`. This file
 says what that means for writing specs. A form outside the chosen mode is never deleted from a
 design model: keep it and record the gap. The detailed Stage 4.24.x rows below
-retain historical admission evidence; current pins are Screenplay 4.127.0 / CLI
-3.41.0. Run actual target admission instead of assuming old restrictions carry over.
+retain historical admission evidence; current pins are standalone Screenplay
+4.131.0 / CLI 3.46.1 (Screenplay 4.130.0 / Stage 4.52.0). Run actual target admission instead of assuming old restrictions carry over.
 Typed example/override forms: `cratis-screenplay-specifications`
 `references/examples-and-routes.md`.
 
@@ -21,9 +21,9 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
 | `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | Screenplay 4.61 or later yes (standalone, cratis 3.28.2 or later); a cratis before 3.28.2 bundle no (see versions.md) | no |
 | Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no (no reactions) |
-| `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later; not on the 4.66.0 bundled in cratis 3.28.x (`PLAY0268`) | no (Stage does not render ESM v7) |
+| `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later; not on the 4.66.0 bundled in cratis 3.28.x (`PLAY0268`) | historically no at Stage 4.24.x; check current target admission |
 | `then events in any order` | yes | yes | yes |
-| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | CLI 3.41.0 refuses models above v7 before planning |
+| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | CLI 3.46.1 refuses models above v7 before planning |
 | Typed examples and overrides | yes | expanded and type-checked before binding; required fields remain required | depends on expanded contract, not fixture reuse |
 | `given operation ... fails`, `then operation`, `then compensated` | yes | unadmitted PLAY0268 | gap-fill |
 | Refusal branches, `when redelivered`, `then no events` | yes | unadmitted PLAY0268 | gap-fill |

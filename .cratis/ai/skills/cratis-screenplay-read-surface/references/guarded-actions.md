@@ -75,8 +75,8 @@ The guard controls an offer, never server permission. The selected command still
 runs authorization, validation and constraints; denial never falls through to a
 second command. Screens remain outside portable ESM execution. A downstream
 renderer must explicitly admit guarded selection or report unsupported behavior,
-not approximate it as a plain action. CLI 3.41.0's bundled screen renderer reports
-unsupported guarded actions with STAGE-SCENE-ACTION-001; source compilation alone
+not approximate it as a plain action. Checked at historical CLI 3.41.0: its bundled
+screen renderer reported unsupported guarded actions with STAGE-SCENE-ACTION-001; source compilation alone
 cannot establish usable controls.
 
 Authority: Screenplay `v4.125.0:Documentation/screenplay/screens.md`;

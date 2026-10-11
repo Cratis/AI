@@ -23,7 +23,7 @@ contract is in `cratis-screenplay-ui-composition`.
 
 ## Verified product sources
 
-Current authoring/MCP guidance follows Screenplay v4.127.0
+Current authoring/MCP guidance follows Screenplay v4.131.0
 `Documentation/screenplay/mcp/`, `ast-authoring.md`, `folders.md`, `vscode.md`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
@@ -104,6 +104,12 @@ can keep that entry point; use the project's supported installation channel.
 Keep reads scoped to the relevant module, feature, slice or document. Do not
 request a whole merged AST when a bounded declaration/property query answers the
 question. Size-limit refusals require narrower reads, not truncation.
+
+## Compare models
+
+For a `main` comparison, pass a worktree `path` to `semantic-diff`, not two
+exports. Read [comparison sources](references/mcp-tools.md#semantic-revision-comparison)
+for paging and proposal review.
 
 ## Make one coherent proposal
 
@@ -286,7 +292,7 @@ that the code compiles or behaves. Read `references/mcp-tools.md#code-attachment
   syntax plus the consistency rules (`PLAY0282`-`PLAY0294`) but never binds, so a
   clean run is not a bound or executable result.
 - Operations/exact numbers remain unadmitted; source/stream routes bind as ESM v8,
-  and generated values/responses as v7. CLI 3.41.0 render passes v7 to Stage but
+  and generated values/responses as v7. CLI 3.46.1 render passes v7 to Stage but
   refuses newer versions. A source contract is never dropped or stubbed to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
@@ -307,11 +313,8 @@ a generated app that silently drops authored UI. Use the Screenplay-owned canoni
 corpus fixture path when it exists instead of copying `.play` examples into this
 repository.
 
-Repair and refactoring guidance follows Screenplay v4.127.0. The Cratis
-CLI bundles its own Screenplay version, so check the installed `tools/list`
-schemas before relying on a view or argument named here (for example
-`dropped-comments` or `implementation-requirements`). Do not invent a command,
-parameter, syntax node or downstream capability.
+Check installed `tools/list` schemas: the CLI bundle can differ. Never invent
+commands, parameters, syntax nodes or downstream capabilities.
 
 ## Route near misses
 

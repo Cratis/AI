@@ -138,8 +138,9 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   and command/specification routes as v8; reaction `runs as` identity as v10 on
   standalone 4.125.0. Use `screenplay test` or MCP `run-specifications` for V4.
   Operations/systems, exact numbers and refusal/redelivery remain unadmitted.
-  CLI 3.41.0 bundles older syntax and renders through v7 only: its parser rejects
-  `runs as`, and Stage refuses generated values/responses with STAGE-ESM-028/029.
+  Historical CLI 3.41.0 rejected `runs as` syntax and its Stage 4.51.3 check
+  refused generated values/responses with STAGE-ESM-028/029. Current CLI 3.46.1
+  bundles Screenplay 4.130.0 / Stage 4.52.0 but still renders through v7 only.
   Source/binding admission and target realization are separate gates.
 
 The ESM versions, the full disposition table and the Step 7 clock example's binding
@@ -170,7 +171,7 @@ source is the single flow model.
 | `Cratis.Screenplay` | `4.31.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
 | `Cratis.Screenplay.Tool` | `4.31.0` | The `screenplay` dotnet tool |
 | `Cratis.Screenplay` | main `fd18129` | Inline contracts and event context; changed nine-step examples compiled |
-| `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | Current pin: the nine-step examples compile and their specifications run in the reference runner; generated values and responses (ESM v7) were read at this tag |
+| `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | Checked at 4.68.0 (current pins in `cratis-screenplay-toolchain` `references/versions.md`): the nine-step examples compile and their specifications run in the reference runner; generated values and responses (ESM v7) were read at this tag |
 | `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Persona, operation and stream dispositions below were read at this tag, and the Step 7 clock example was probed through MCP on it |
 
 The pin set for the whole Screenplay family, and which tool reports what, lives only in

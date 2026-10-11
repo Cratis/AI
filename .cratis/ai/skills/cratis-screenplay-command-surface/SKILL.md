@@ -32,7 +32,7 @@ source is the single flow model.
 | `Cratis.Screenplay` | main `fd18129` | Inline events, repairs and canonical `optional`; changed examples compiled |
 | `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Binding behaviour of `handler`, code attachments, `persona` and compliance attributes: `Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs` |
 | `Cratis.Screenplay` | `4.68.0` (`79801bf`) | Historical generated-value/response rule probes (ESM v7) |
-| `Cratis.Screenplay` | `4.127.0` | Current identity and compliance guidance: released `identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`; changed examples compiled |
+| `Cratis.Screenplay` (historical check) | `4.127.0` | Identity and compliance guidance checked at this release: released `identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`; changed examples compiled |
 
 Historical examples/probes retain the table's original versions; current source
 guidance is not a relabeled old execution result. Compilation checks syntax and
@@ -261,7 +261,7 @@ produces when isProForma == true
 ## Routes and external operations
 
 Named event sources/streams and command routes bind as ESM v8 (verified at 4.125.0);
-CLI 3.41.0 render rejects models above v7. A routed command's identifier and
+CLI 3.46.1 render rejects models above v7. A routed command's identifier and
 known event destinations must match the source's nominal identifier type
 (PLAY0504, error). Allocation uses the generated identifier's type, or without
 one requires a UUID-based source. Composite `streamId` routes map every named
@@ -297,7 +297,7 @@ to the routed scope. This does not make command `reads` protected.
 ## Generated values and responses (ESM v7)
 
 Generated values/responses bind as ESM v7, including in the current CLI bundle.
-CLI 3.41.0 admits v7 to Stage planning; its canonical corpus gets generated-value
+The historical CLI 3.41.0 check admitted v7 to Stage planning; its canonical corpus got generated-value
 and response refusals STAGE-ESM-028/029. Binding is not a render claim.
 Read [references/generated-values-and-responses.md](references/generated-values-and-responses.md) when adding or
 reviewing `generated` properties, `returns` responses, or decision 0023 constructs.
@@ -369,7 +369,7 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
 ## Verify
 
 - [ ] Validate the complete model root with warnings as errors; name the tool,
-      version and result. Current pins: standalone 4.127.0 / CLI 3.41.0; bundle
+      version and result. Current pins: standalone 4.131.0 / CLI 3.46.1; bundle
       compatibility and execution are separate checks.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.

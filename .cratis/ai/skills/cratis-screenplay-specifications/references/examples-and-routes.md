@@ -94,7 +94,7 @@ so UUID casing is immaterial. Composite mappings supply each named part once,
 using literals only; encoding escapes `%`/`|` and preserves declaration order.
 Source: v4.127.0 `event-sources.md`, `specifications.md`, `diagnostics.md`.
 
-CLI 3.41.0 rendering rejects versions above v7 before planning, even though
+CLI 3.46.1 rendering rejects versions above v7 before planning, even though
 source compilation and reference routing pass.
 
 Command and read-model examples refuse routes (PLAY0526). Effective role and
