@@ -75,6 +75,17 @@ build a read model** — two builders is error `PLAY0191`: *a projection or a
 reducer builds it, and only one of them*. A slice may still declare several
 projections, each building a **different** read model.
 
+## Public-event targets and observer filters
+
+In an explicitly outbound Translate slice, `projection P => PublicEvent` or
+`reducer P => PublicEvent` targets the slice's one local public event (ESM v9).
+The projection folds one instance per event source id; opaque reducers remain
+Unsupported in reference execution. Read
+[public-event folds](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)
+for publication rules and the `when append`/`then PublicEvent` specification.
+A reducer can filter `from Source[.Stream]` (ESM v10); a projection cannot.
+Read [observer filters](../cratis-screenplay-toolchain/references/production-routes-and-filters.md).
+
 ## Projection-level directives
 
 `no automap`, `sequence <name>`, `file <path>`. `sequence` is a realization

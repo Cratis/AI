@@ -175,6 +175,17 @@ target requirements.
 - After a correction or backdated fact, does the view still say something true?
 - Cross-context views: are the real source contracts resolved, or is missing evidence a gap?
 
+## Public-event coverage (ESM v9)
+
+Outbound publication needs `when append <private>` and `then <PublicEvent>`:
+complete state, incomplete state, unchanged repeat, changed instance, separate
+source ids and the exported field boundary. Reference publication is executable;
+source-event captures and reached opaque event-target reducers are typed
+Unsupported. Read automations-and-translations `references/public-events-and-direction.md`.
+For routed producers/observers, cover override versus inherited route, skipped
+production route failure, matching/wrong source/stream and unrouted facts;
+see toolchain `references/production-routes-and-filters.md`.
+
 ## Version skew: reaction cascades and false PLAY0285
 Under ESM v6 a command spec's `then` lists the events reactions cascade from it. The compiler
 bundled in `cratis` before 3.28.2 (Screenplay 4.60.1) reported a **false PLAY0285** for such

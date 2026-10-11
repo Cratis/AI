@@ -6,9 +6,8 @@ license: MIT
 
 # Captures and reactions
 
-The two slice types that run without anyone pressing a button. A `capture` in a
-`Translate` slice turns outside data into events; a `reaction` in an `Automation`
-slice runs when something happens.
+`capture` accepts outside data; `reaction` responds to an occurrence.
+Translate slices cross public boundaries; Automation slices cause private follow-up.
 
 ## Locate the model
 
@@ -26,16 +25,9 @@ source is the single flow model.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | CDL parser, reaction and trigger parsers, diagnostics, semantic binder |
-| `Cratis.Screenplay` | main `fd18129` | Command-only inline event boundary |
-| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | ESM v6: reactions, clock, trigger and capture specifications bind; `invokes` caller rule; probed with the standalone tool and its MCP server |
-
-The table records historical examples/probes; they are not reclassified as
-current execution evidence. Refusal/redelivery guidance follows released
-v4.125.0 `reactions.md`/`specifications.md`. Current pins are in toolchain
-`references/versions.md`; reverify before promoting an old probe to that version.
+Read [product sources](references/product-sources.md) for retained historical
+parser/binder probes and refusal/redelivery evidence. Current pins are in toolchain
+`references/versions.md`; historical examples are not current execution evidence.
 
 ⚠️ **Which tool admits them depends on its Screenplay version.** The ESM level
 decides, not the slice type:
@@ -57,6 +49,13 @@ them. Read `cratis-screenplay-toolchain` (`references/versions.md`) when selecti
 Method (the four-part automation test, loops, translations versus automations):
 `cratis-screenplay-automations-and-translations`.
 
+## Public boundaries and observer selection
+
+Read [ESM v9 translation](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)
+for `direction`, `source events`/`from`, and its typed Unsupported evaluation.
+Read [v10 filters](../cratis-screenplay-toolchain/references/production-routes-and-filters.md)
+for reaction/reducer `from Source[.Stream]`; unrouted facts never match.
+
 ## Specify what sets them off
 
 A specification names what sets the automation off: `when clock`, `when trigger`
@@ -76,9 +75,9 @@ Read [invocation identity](references/invocation-identity.md) for the checked
 scenario, claim/unknown semantics and PLAY0647–0652/0557 diagnostics.
 
 Historical CLI 3.41.0's 4.114.0 compiler rejected this source with PLAY0137.
-Current CLI 3.46.1 bundles Screenplay 4.130.0 / Stage 4.52.0; its render version
-gate still admits only through v7 (CLI-RENDER-004 for v10). Target realization is gap-fill,
-using Arc `[ExecuteCommandsAsSystem]` for returned commands. Without that attribute
+Previous CLI 3.46.1 refused v10 (CLI-RENDER-004); CLI 3.50.0 reaches
+Stage 4.67.0's construct admission, still refusing identity (STAGE-ESM-034).
+Target realization is gap-fill, using Arc `[ExecuteCommandsAsSystem]` for returned commands. Without that attribute
 Arc supplies no principal and `[Authorize]`/`[Roles]` deny. Each invoked command
 is atomic, not the whole cascade; earlier accepted facts remain after a later refusal.
 

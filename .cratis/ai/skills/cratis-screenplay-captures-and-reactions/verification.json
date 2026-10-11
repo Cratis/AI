@@ -3,10 +3,12 @@
   "input": "Translate external data into events and declare a reaction.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "unrouted facts never match" },
+    { "kind": "skill-contains", "value": "source events" },
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
-      "value": "main `fd18129`"
+      "value": "main `fd18129`", "file": "references/product-sources.md"
     },
     {
       "kind": "skill-contains",

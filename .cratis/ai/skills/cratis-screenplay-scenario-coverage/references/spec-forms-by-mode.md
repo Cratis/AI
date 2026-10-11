@@ -5,7 +5,7 @@ The subsets themselves (what binds, what renders) are owned by `cratis-screenpla
 says what that means for writing specs. A form outside the chosen mode is never deleted from a
 design model: keep it and record the gap. The detailed Stage 4.24.x rows below
 retain historical admission evidence; current pins are standalone Screenplay
-4.131.0 / CLI 3.46.1 (Screenplay 4.130.0 / Stage 4.52.0). Run actual target admission instead of assuming old restrictions carry over.
+4.135.0 / CLI 3.50.0 (Screenplay 4.131.0 / Stage 4.67.0). Run actual target admission instead of assuming old restrictions carry over.
 Typed example/override forms: `cratis-screenplay-specifications`
 `references/examples-and-routes.md`.
 
@@ -23,7 +23,7 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no (no reactions) |
 | `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later; not on the 4.66.0 bundled in cratis 3.28.x (`PLAY0268`) | historically no at Stage 4.24.x; check current target admission |
 | `then events in any order` | yes | yes | yes |
-| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | CLI 3.46.1 refuses models above v7 before planning |
+| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | CLI 3.50.0 reaches Stage route checks; routed read-model/query replay can still refuse STAGE-ESM-030 |
 | Typed examples and overrides | yes | expanded and type-checked before binding; required fields remain required | depends on expanded contract, not fixture reuse |
 | `given operation ... fails`, `then operation`, `then compensated` | yes | unadmitted PLAY0268 | gap-fill |
 | Refusal branches, `when redelivered`, `then no events` | yes | unadmitted PLAY0268 | gap-fill |

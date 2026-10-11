@@ -12,9 +12,13 @@ guarantees. Then write it as `Automation` and `Translate` slices that say truthf
 protected, what is only recorded, and who acts. Grammar depth is in
 `cratis-screenplay-captures-and-reactions`; this skill owns the decisions.
 
-**One meaning of Translation:** outside data becomes our facts (a `capture` or a translator
-reaction over an imported event, in a `Translate` slice). Our own event-to-event follow-up is an
+**Translation crosses an application boundary:** inbound turns outside data or foreign
+public events into private local facts; outbound publishes private facts as one local public
+event type. Declare `direction inbound|outbound` when public metadata is used; omission
+preserves historical inbound for legacy translations. Private-to-private follow-up is an
 Automation (`produces` or `invokes`), even when a Chronicle reactor realizes it.
+Read [public events and direction](references/public-events-and-direction.md) for released
+ESM v9 forms, event-target folds, publication specifications and the Unsupported capture limit.
 
 Work in the model first. Code appears only where it is truly needed: the external call, the
 source adapter, the trusted actor, and everything Stage cannot render (below). Session and
@@ -35,8 +39,9 @@ identity, effect and pending-work contract at that point; do not postpone it to 
   (`references/realization-and-gap-fill.md`).
 - Reaction `runs as system role "<Role>"` declares an invocation actor (ESM v10).
   Without it the invoke has no caller. Historical CLI 3.41.0's 4.114.0 compiler
-  rejected the syntax (PLAY0137); current CLI 3.46.1 instead refuses ESM v10
-  at render admission (CLI-RENDER-004). Checked model/diagnostics: captures-and-reactions
+  rejected the syntax (PLAY0137); previous CLI 3.46.1 refused ESM v10
+  at render admission (CLI-RENDER-004). CLI 3.50.0 reaches Stage 4.67.0's
+  construct admission, which still refuses reaction identity (STAGE-ESM-034). Checked model/diagnostics: captures-and-reactions
   `references/invocation-identity.md`.
 
 ## Effect guarantees and recovery traps

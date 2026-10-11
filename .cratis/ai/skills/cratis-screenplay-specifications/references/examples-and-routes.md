@@ -94,8 +94,9 @@ so UUID casing is immaterial. Composite mappings supply each named part once,
 using literals only; encoding escapes `%`/`|` and preserves declaration order.
 Source: v4.127.0 `event-sources.md`, `specifications.md`, `diagnostics.md`.
 
-CLI 3.46.1 rendering rejects versions above v7 before planning, even though
-source compilation and reference routing pass.
+Previous CLI 3.46.1 refused above v7; CLI 3.50.0/Stage 4.67.0 reaches route
+checks through v10. Routed read-model/query replay can still refuse
+STAGE-ESM-030. Source/reference success never establishes target parity.
 
 Command and read-model examples refuse routes (PLAY0526). Effective role and
 `for` checks use the inherited or replaced route: inherited `no stream` on a
