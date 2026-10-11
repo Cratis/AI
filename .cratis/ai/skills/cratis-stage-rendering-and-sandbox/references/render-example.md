@@ -98,7 +98,7 @@ module Berths
 Why it is shaped this way:
 
 - Each command has one unconditional `produces`, with a typed `for` on the identifier.
-- The policy requires authentication as well as the role; a role alone is `STAGE-ESM-015`.
+- The policy requires authentication as well as the role. (On cratis 3.27.1 a role alone was refused with `STAGE-ESM-015`; Stage 4.73.1 renders a role-only policy, reading roles through the identity's `RoleClaimType`. The authenticated form still renders.)
 - The projection has a `from` and a `remove with`, so Stage renders it as a scoped
   projection keyed by the event source. The identifier is never mapped: the key
   establishes it, and mapping it is `STAGE-ESM-017`.

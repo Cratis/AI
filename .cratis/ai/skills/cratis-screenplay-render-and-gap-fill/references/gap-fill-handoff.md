@@ -1,5 +1,13 @@
 # Gap-fill hand-off to `slice-implementer`
 
+## Contents
+
+- One scope per brief
+- What comes back
+- Rules the model states only in prose
+- Automation and Translate scope
+- Re-delivery
+
 For scope the renderer rejects (case C in `SKILL.md`) and for hand-written scope next to a
 generated base (case B). The render phase reports the capability boundary; the implementer
 authors the code with the `.play` slice and its specifications as the contract. Contract
@@ -61,13 +69,13 @@ ambiguous addresses; contracts are never inferred from names.
 A rule that exists only in a description, or a state-dependent rule the model marks as not
 enforced, is unenforced in generated scope. List it in the ledger as a target requirement. In
 hand-written code it needs an atomic enforcement point: a protected read or a concurrency scope
-(Stage 4.51.3 rendered apps have Arc 22.50.5/Chronicle 19.32.0: protected-read APIs
+(Stage 4.73.1 rendered apps scaffold Arc 22.68.0/Chronicle 19.45.0: protected-read APIs
 are available to gap-fill, with projection/key admission and active enrollment), or a Chronicle constraint. A stale view or
 a caller-supplied status is not enforcement.
 
 ## Automation and Translate scope
-Stage 4.24 renders no Automation or Translate slice, so the whole automation is gap-fill, written
-against the slice and its specifications. The realization follows the actual construct and
+Stage (4.73.1) renders no Automation or Translate slice and no reaction or capture, so the whole
+automation is gap-fill, written against the slice and its specifications. The realization follows the actual construct and
 trigger, not the slice label: a capture is an ingestion adapter, an event reaction (including a
 translator reaction) is a reactor, a clock or application trigger is a scheduler or host signal. Where they are
 registered depends on the case. Case B (a generated base exists, and the user authorized the
@@ -79,9 +87,19 @@ Declare the trusted actor with reaction `runs as system role "<Role>"`
 (standalone 4.125.0, ESM v10); `given caller` is not an invocation actor.
 Historical CLI 3.41.0's older compiler rejected the syntax. The pinned CLI/Stage pair
 (`cratis-screenplay-toolchain/references/versions.md`) reaches v10 construct admission but still refuses reaction identity
-(STAGE-ESM-034); previous CLI 3.46.1 admitted through v7 only. Gap-fill retains the declared role and uses Arc
+(STAGE-ESM-034). Gap-fill retains the declared role and uses Arc
 `[ExecuteCommandsAsSystem]` for returned commands. Checked model and diagnostics:
 captures-and-reactions `references/invocation-identity.md`.
+
+A reaction that both produces events and invokes commands keeps its single modeled form
+(`STAGE-ESM-037` is Stage's refusal, not a model defect). Hand-write one reactor returning the events
+and the commands: on Arc 22.64.1 or later the runtime appends the events first as one batch, then
+runs the commands in order, with no transaction across the two effects; a failing command stops the
+later ones but keeps the committed events, and a retry can append the events again, so make the
+handler idempotent (`[OnceOnly]` and the failure behavior in `cratis-chronicle-reactor`). Return a
+stable array or list. The Stage scaffold pins Arc 22.68.0, so raise the version through
+`Customizations/Dependencies.props` only after a restore and build proves it. Never split the
+reaction or drop an effect to dodge rendering.
 
 ## Re-delivery
 The work list is the full in-scope contract delta since the ledger's last verified source

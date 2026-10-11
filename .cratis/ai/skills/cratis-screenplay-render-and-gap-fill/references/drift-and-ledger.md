@@ -4,7 +4,7 @@
 The ownership manifest `.cratis-render.json` at the destination records `semanticRevision`
 (`rev1:<sha256>`), the target, the renderer, the application name and a hash per managed file.
 
-Facts verified with `cratis render` 3.28.2 on one model: the same files rendered under the names
+Facts verified with `cratis render` 3.28.2 on one model (historical probe; still how identity works): the same files rendered under the names
 `Marina` and `Harbour` gave different `semanticRevision` values, so **the application name is part
 of the revision**. The MCP workspace names the application after the model root folder (without
 `.screenplay/identities.json`), so its `modelRevision` is not comparable with a render's manifest
@@ -12,14 +12,31 @@ revision by assumption. Without `.screenplay/identities.json` it changes when th
 renamed (relocating the root while keeping its name does not); source positions and descriptions do
 not change it, and a file move changes it only if it changes logical placement or application identity.
 
+**First probe: `cratis render <root> --name <App> --destination <dir> --check`** (CLI 3.44.0 or later; add
+the `--scope` list used for delivery). It plans against the real destination, writes nothing and runs
+no recovery: exit 0 current, 6 changes pending, 5 planning failure, refusal or pending recovery.
+Documentation edits also change managed-file hashes, so they show as pending changes. `--check`
+replaces the throwaway `-drift` render below; the manifest comparison stays as a cross-check.
+
 Compare in this order:
 1. **Source identity** (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md`):
    compute it for the current model and compare it with the identity recorded when the output was
    rendered. Equal: the same model bytes, whatever git says. Different: the output is behind the model.
-2. **Manifest revision:** render the current model with the **same** `--name` and inputs into a
+2. **Manifest revision** (when `--check` is not available): render the current model with the **same** `--name` and inputs into a
    fresh probe folder (`.../render-probe/<App>-drift`) and compare its manifest `semanticRevision`
    with the published one. Equal: no semantic change since publication. Different: re-render and review the receipt.
 3. Equal revisions prove neither customization conformance nor faithful UI.
+4. **Hand-written scope against the accepted model:** `cratis screenplay conform <model-root> --project <path>`
+   (CLI 3.50.0 or later; Arc, Marten and Critter Stack code) compares the declarations recovered from
+   code with the model by exact structural address. Exit 0 no blocking findings, 1 defects (code-only
+   declarations, shape mismatches), 2 could not run or incomplete coverage; model-only members are
+   informational. It is **structural drift evidence only**, never a behavioral equivalence verdict and
+   never V4 or V5; it needs the same generation options (`--domain`, `--feature-root`, `--module`,
+   `--skip-segments`, `--modules-from-namespace-roots`) that reproduce the authored placement, or
+   everything looks missing. MSBuild evaluates the project (use a trusted clone) and the bundle's
+   `Cratis.Arc.Screenplay` is 22.54.0, so recovery behaves like that adapter. It does not replace
+   `cratis-application-slice-conformance`, which reconciles specifications, rules and behavior.
+   Whether it is meaningful on a Stage-rendered application is unverified.
 
 Use the same toolchain as the render; revisions from another Screenplay version are not
 comparable by assumption. A dirty git flag or commit is context, never a revision.

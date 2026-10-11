@@ -87,7 +87,7 @@ remain unadmitted. Compile and test each relevant fixture with the chosen tool.
   generated identifier` (PLAY0484); legacy `?` is PLAY0479 (information).
 - Ownership policies: `require claim "ownerId" matches subject` (subject = command identifier
   or keyed query argument) or `matches <commandProperty>`; executable; renderable only for
-  text-backed targets (Uuid-backed: STAGE-ESM-015).
+  text-backed targets at the 4.24-era Stage; Stage 4.73.1 also renders Uuid and Date claim targets (see `renderable-subset.md`; unsupported subjects: STAGE-ESM-015).
 
 ## Exact numeric source mode
 
