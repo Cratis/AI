@@ -3,10 +3,10 @@
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { check } from './check.ts';
-import type { Github } from './Github.ts';
-import { syncIssue } from './issue.ts';
-import { cleanDocument, specimen } from './self-test.ts';
+import { check } from './contract/check.ts';
+import type { Github } from './contract/Github.ts';
+import { syncIssue } from './contract/issue.ts';
+import { cleanDocument, specimen } from './contract/self-test.ts';
 
 function report(problems: string[] = []) {
     return { ...check(specimen, [cleanDocument]), problems, files: 1, pinnedVersion: '4.127.0', contractSource: 'contract.json' };
