@@ -38,6 +38,10 @@
       "shouldTrigger": true
     },
     {
+      "query": "Build our work item tracker as a multi-file Screenplay application from an empty folder through the MCP tools, then change the selection binding and the dialog action, and run the edited model.",
+      "shouldTrigger": true
+    },
+    {
       "query": "cratis render refuses the model with STAGE-ESM-026. What does Stage admit?",
       "shouldTrigger": false,
       "note": "cratis-stage-rendering-and-sandbox"

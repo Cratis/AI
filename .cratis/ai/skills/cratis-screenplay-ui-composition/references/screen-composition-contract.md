@@ -34,10 +34,10 @@ hand-writing an alternate shape.
 Keep those three lines separate in reports. Correct an old limitation only when
 the package/version you are using proves the new level. Historical verified vector:
 CLI 3.43.0 with its default `cratis/stage:4.52.0` and bundled Screenplay 4.127.0;
-public packages at that probe were Scene 4.15.0, Screenplay 4.129.0, Stage 4.57.0
-and Studio 0.144.4. Current standalone Screenplay is 4.131.0, CLI is 3.46.1
-(bundled Screenplay 4.130.0 / Stage 4.52.0), and latest public Stage is 4.63.2.
-All three levels were verified for the canonical `ScreenComposition` corpus on
+the executed vector renders on Scene 4.15.0. Packages published since are newer than
+that vector and are not claimed verified: Scene 4.17.0, Screenplay 4.133.1, Stage
+4.64.0, CLI 3.46.1 (bundled Screenplay 4.130.0; its default Stage is still 4.52.0) and
+Studio 0.152.2. All three levels hold for the canonical `ScreenComposition` corpus on
 the historical vector:
 
 - authoring and executable admission: MCP opens it with `sourceSuccess true`,
@@ -212,10 +212,38 @@ screen owns the button. Dialog opening stays an interaction (`on click open dial
 node. A dialog destination must state every input with a typed `with`/`parameter`
 binding; a runtime default is not an authored contract.
 
+What Scene 4.17 adds to the runtime side of this contract, so an agent knows what a
+destination can do once it is authored (authoring acceptance and executable
+admission are separate, see Support levels - a Scene release is not a Stage
+release):
+
+- **Nested outlets.** A `core:outlet` component declares a named nested outlet on a
+  screen. A destination into it opens its screen there and keeps the declaring
+  screen on the page; the opened screen may declare outlets of its own, so
+  composition nests to any depth. A deep link to the innermost level composes
+  every level above it, and back closes the innermost level only. An outlet
+  declares the template types it accepts; a destination into a missing or
+  incompatible outlet is a navigation diagnostic, not a fallback.
+- **Toolbar buttons open destinations.** The Cratis Components toolbar button runs
+  its attached interactions and opens its authored `destination` (a dialog or a
+  slice screen) through the enclosing navigation host. Label, icon, text and
+  presentation are properties of the button, so author them on the toolbar item
+  rather than on a wrapper.
+- **Settings pages.** `@cratis/scene.blueprint.components` ships a `SettingsPage`
+  screen template: a module's settings as a generated command form with save and
+  discard. Prefer it to a hand-built form for settings, and expose its command as
+  template configuration.
+- **Embedded hosts.** `WebViewPackageHost` renders a custom package set inside a
+  webview (VS Code, Event Models) with no Studio dependency; the same package set
+  must produce the same screens in the standalone host.
+
+Whether a given Stage or CLI release renders each of these is a runtime level
+claim: confirm it from the render receipt and diagnostics before reporting it.
+
 ## Design-time generation results
 
 Design-time actions belong to component packages, not to the model and not to an
-agent. Scene 4.15 declares them as data (`PackageDesignTimeMetadata`) and ships
+agent. Scene 4.15 (unchanged in 4.17) declares them as data (`PackageDesignTimeMetadata`) and ships
 their code in an optional design-time bundle; a runtime host that does not set
 `loadDesignTime` loads none of it, so nothing a design-time action does can exist
 only at runtime. The one Cratis action today is **Generate fields**

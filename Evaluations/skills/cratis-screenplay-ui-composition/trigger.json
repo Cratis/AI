@@ -38,6 +38,10 @@
       "shouldTrigger": true
     },
     {
+      "query": "Build, edit and run a business application: a work item list with a selection-bound details panel, a multi-column create form and a toolbar dialog, authored in Screenplay.",
+      "shouldTrigger": true
+    },
+    {
       "query": "Add a query AllOpenInvoices to the Invoicing read model in the .play model, filtered by status and scoped to the current customer.",
       "shouldTrigger": false,
       "note": "cratis-screenplay-read-surface"

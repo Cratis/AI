@@ -12,6 +12,7 @@
 - 4. Validate authoring and executable readiness
 - 5. Run/render using the same configuration
 - 6. Use Screenplay-owned fixtures
+- Replay the workflow in CI without a Screenplay checkout
 - Edit, render, run and see it in the browser
 - Transcript checklist
 
@@ -109,6 +110,25 @@ contract for `--workspace` and keep its application identity equal to the source
 name. Build/tests/runtime checks are then the V5 steps owned by
 `cratis-screenplay-render-and-gap-fill` and `cratis-stage-rendering-and-sandbox`.
 
+Before re-rendering an edited model over an earlier render, preview it:
+
+```shell
+cratis render <model-folder> --name <ApplicationName> --destination <render-dir> --check -o json
+```
+
+`--check` (CLI 3.44.0) plans exactly like a render and reports per path what a real
+render would write, delete, leave unchanged or refuse, without writing anything. It
+exits `0` when the destination is current, `6` (`changes_pending`) when a render
+would change it and `5` when planning is refused. Since CLI 3.45.0 the receipt lists
+for every path the semantic declarations it realizes (`sources`: id, kind and a
+`Module/Feature/Slice/Name` address) and a `bySource` view mapping each declaration
+to its files. After an MCP edit, use `bySource` to confirm the edited screen or
+binding changed exactly the files you expect, and `semantic-diff` (MCP, Screenplay
+4.131.0: `before` and `after` as `{ "workspace": "active" }`, `{ "path": "<folder>" }`
+or `{ "workspaceJson": "<export>" }`) to compare the model before and after the
+edit. These are newer than the verified vector: report them as published, not as
+executed there.
+
 For screens-release parity, the smoke check must assert that every authored
 screen, template, component, form, toolbar, outlet, route and package/icon use is
 represented in the generated plan or runtime diagnostics. A consumer that cannot
@@ -125,10 +145,11 @@ maintained duplicate.
 Historical verified public vector and executable checks:
 
 - executed toolchain: public CLI 3.43.0 (`23e5a24`), whose default runtime was
-  `cratis/stage:4.52.0` and which bundled Screenplay 4.127.0. Latest public
-  Screenplay is 4.131.0 and Stage is 4.63.2; Scene 4.15.0 and Studio 0.144.4
-  were the public package vector at this probe. Compiler claims from this
-  `cratis` probe are 4.127.0 claims, not current CLI 3.46.1/Screenplay 4.130.0 claims;
+  `cratis/stage:4.52.0` and which bundled Screenplay 4.127.0. Published since,
+  and not verified by this vector: Scene 4.17.0, Screenplay 4.133.1, Stage 4.64.0, CLI
+  3.46.1 (bundling Screenplay 4.130.0, default Stage still 4.52.0) and Studio 0.152.2.
+  Compiler claims from this `cratis` probe are 4.127.0 claims, not current CLI
+  3.46.1/Screenplay 4.130.0 claims;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
 - Screenplay repo tool (available checkout): `dotnet run --project Source/DotNET/Tool
@@ -150,6 +171,15 @@ Historical verified public vector and executable checks:
   double-click (`STAGE-SCENE-INTERACTION-001`); still pending: Studio production
   Play proof (test-account decision). UI-profile rejection and render-then-recover
   shipped in Cratis/cli#301.
+
+## Replay the workflow in CI without a Screenplay checkout
+
+`screens-smoke.sh <work-folder>` in the AI repository's `screens-smoke` verification folder installs the pinned public `cratis` CLI,
+materializes the published `Cratis.Screenplay.CanonicalCorpus` folder source (so the corpus stays Screenplay-owned and
+is never copied), replays the MCP transcript with the revision-checked column edit, renders the edited folder and
+requires the column in the generated `scene.json`. The pins live in `screens-smoke.json` and follow the verified
+vector above; the corpus package is the one that records that vector. The corpus verification job runs it on every
+change. The browser step below needs Docker and Chromium, so it stays a manual step.
 
 ## Edit, render, run and see it in the browser
 

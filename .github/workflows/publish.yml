@@ -79,6 +79,11 @@ jobs:
           CRATIS_REQUIRE_SCREENPLAY: '1'
         run: yarn workspace @cratis/ai-verification run verify
 
+      # Replays the screens authoring workflow without a Screenplay checkout: the pinned public cratis CLI, the
+      # published canonical corpus, the revision-checked MCP column edit, and a render that must carry the column.
+      - name: Replay the screens authoring workflow on the pinned public vector
+        run: Source/Verification/screens-smoke/screens-smoke.sh "$RUNNER_TEMP/screens-smoke"
+
       - name: Test Pi package behavior
         run: |
           yarn workspace @cratis/ai-verification run test
