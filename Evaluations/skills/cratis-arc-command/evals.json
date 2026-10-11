@@ -35,6 +35,31 @@
         "Explains that command property values otherwise enter the immutable causation chain, and that Encrypted alone does not withhold them.",
         "States that Encrypted requires Chronicle 19.32.0 or later."
       ]
+    },
+    {
+      "id": 4,
+      "name": "migrate-server-generated-id",
+      "prompt": "Our Arc 22.68.0 command is `[Command] public record RegisterCart(CartName Name) { public (CartId, CartRegistered) Handle() { var id = new CartId(Guid.NewGuid()); return (id, new(Name)); } }`. CartId derives from EventSourceId<Guid> and CartRegistered is already registered. Migrate the server-owned allocation without making it a request input. Show the concept strategy, command and a minimal pinned CommandScenario spec in your reply; do not write files.",
+      "expected_output": "CartId implements IGeneratable<CartId> with New using GenerateValue.Uuid or UuidV7. Handle receives a named GeneratedValue CartId and preserves the id/event tuple response. The spec pins a known typed id before execution and checks success and the captured/returned id.",
+      "assertions": [
+        "Keeps CartId derived from EventSourceId<Guid>, implements IGeneratable<CartId> and uses GenerateValue rather than Guid.NewGuid in Handle.",
+        "Uses GeneratedValue on a non-nullable Handle parameter and keeps the id out of command request properties.",
+        "Preserves the id/event tuple so the response selects the Chronicle stream and returns the id to the caller.",
+        "Pins the same generated name with a typed concept before scenario execution and asserts success plus the returned or captured id.",
+        "Explains strict scenario defaults and does not replace the production generator or claim generation is idempotency."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "refuse-gapless-invoice-generation",
+      "prompt": "We use Arc 22.68.0. Our invoice numbers must be gapless sequential integers across concurrent requests. Add `[GeneratedValue] InvoiceNumber number` to IssueInvoice and implement InvoiceNumber.New() using UUIDv7 or a static counter so Arc guarantees that requirement. If that cannot work, explain why and describe the boundary the allocation must have. Reply only; do not write files.",
+      "expected_output": "Rejects random UUID or static-counter generation as a gapless invoice allocator. GeneratedValue calls the concept strategy but has no atomic storage allocation, collision/freshness guard or idempotency contract; a domain-owned transactional allocator must enforce concurrency and recovery.",
+      "assertions": [
+        "Refuses UUIDv7 and a process-local static counter for gapless sequential invoice numbers.",
+        "Distinguishes server-generated identifiers from domain-authoritative business-number allocation.",
+        "Explains that GeneratedValue does not guarantee storage freshness, idempotency or gapless numbering.",
+        "Locates concurrency and failure/recovery guarantees in the authoritative allocation boundary rather than inventing a released Arc generation strategy."
+      ]
     }
   ]
 }

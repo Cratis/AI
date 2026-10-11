@@ -22,6 +22,9 @@ This skill is verified against these exact public releases:
 | `Cratis.Arc.Testing` | `22.16.0` | `CommandScenario<TCommand>` and `CommandResult` assertions |
 | `Cratis.Chronicle.Testing` | `18.3.0` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
 
+Generated-value scenario pinning is verified separately against
+`Cratis.Arc.Testing` **22.68.0** (introduced in **22.67.0**).
+
 Reverify against the owning product repository before claiming support for
 another version. Never translate an assertion or helper name from memory.
 
@@ -81,6 +84,24 @@ cannot pass for such an append and its negation passes vacuously — specify con
 real kernel with an out-of-process integration specification instead.
 
 Specification projects are named `<Source>.Specs` and run on xUnit.
+
+### Pin server-generated Handle values
+
+For Arc 22.67.0+, `CommandScenario<TCommand>` defaults to strict generation:
+without a named pin or `AllowGeneration()`, `Execute` returns a command result
+with `GeneratedValueNotPinned`, rather than throwing it. Import
+`Cratis.Arc.Testing.Commands`; configure `PinGeneratedValue(name, concept)`
+before the first execution, then assert the response/events and
+`GeneratedValues.Last<T>(name)` or `All<T>(name)`.
+
+Use `AllowGeneration()` only when the exact value is irrelevant. Late changes
+throw `GeneratedValuesMustBePinnedBeforeExecution`. Nested-command pins require
+both generic arguments: `PinGeneratedValue<TCommand, TOtherCommand>(name, value)`.
+Read the minimal pinned specification and capture semantics in
+[application-scenarios.md](references/application-scenarios.md#pin-generated-values).
+A plain-call decision spec passes the known concept directly to `Handle()`; it
+cannot prove pipeline generation or validation. Command declarations belong to
+`cratis-arc-command`.
 
 ## Step 2 — Create the folder structure
 

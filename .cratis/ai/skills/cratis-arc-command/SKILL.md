@@ -75,8 +75,9 @@ Rules the framework actually enforces:
   operation collections, and `ARC0018` checks generated-invoker accessibility.
 - Name the command as the action — `OpenDebitAccount`, not
   `OpenDebitAccountCommand`.
-- `Handle` parameters are resolved from DI, so ask for services there rather
-  than through a constructor.
+- Unmarked `Handle` parameters resolve from `Provide()` or DI; ask for services
+  there rather than through a constructor. Server-owned new values use
+  `[GeneratedValue]` instead (below).
 - Never inject `IEventLog` into `Handle` to append the command's own events —
   `ARCCHR0007` warns, and it bypasses Arc's append pipeline. Express the append
   through the return type.
@@ -137,8 +138,8 @@ Two consequences worth knowing before writing the first command:
   the events in that same tuple are appended to. Returning more than one
   unhandleable element throws `MultipleUnhandledTupleValues`. When the command
   also returns an operation keyed by that id, have the caller supply the id
-  instead of calling `New()` in `Handle()`, so a retried request reuses the same
-  ownership key.
+  instead of generating a new value, so a retried request reuses the same
+  ownership key. A generated value alone does not provide idempotency.
 - **Events never carry their own event source.** Cross-stream writes use
   `EventForEventSourceId`; they are not expressed by a property on the event.
 
@@ -146,11 +147,8 @@ Two consequences worth knowing before writing the first command:
 [Command]
 public record Register<Thing>(<ConceptType> <Name>)
 {
-    public (<ThingId>, <ThingRegistered>) Handle()
-    {
-        var id = <ThingId>.New();
-        return (id, new(<Name>));
-    }
+    public (<ThingId>, <ThingRegistered>) Handle([GeneratedValue("thing")] <ThingId> id) =>
+        (id, new(<Name>));
 }
 ```
 
@@ -165,6 +163,28 @@ public record Transfer(<AccountId> From, <AccountId> To, <Money> Amount)
     ];
 }
 ```
+
+## Generate a server-owned new identifier
+
+**Arc 22.66.0+**, verified at **v22.68.0**: the create-command example above
+requires `<ThingId>` to implement `IGeneratable<ThingId>` with a static `New()`
+strategy (Fundamentals 7.23.0+; see `cratis-fundamentals-concept`). Replace
+`Guid.NewGuid()` or `<ThingId>.New()` inside `Handle()` with a generated parameter,
+not a new request property. Return the id as the ordinary response or in the
+id/event tuple so the caller receives it.
+
+`[GeneratedValue]` is in `Cratis.Arc.Commands.ModelBound` and applies only to
+parameters of a non-static command `Handle()`. Arc generates after `Provide()`
+control results permit execution, validates the concept, then invokes `Handle`.
+`Provide()` and DI cannot override it. Use a non-nullable self-generatable type,
+not raw `Guid`; names default to the parameter name or an explicit attribute name
+and are case-sensitive, non-empty and unique within the command.
+
+Keep client-chosen ids/references as inputs and services/read models as ordinary
+dependencies. A UUID is not a secret, token, authorization proof, idempotency key,
+or a gapless/sequential invoice number. For validation failures, captures,
+ARC0022–ARC0025, migration and the pinned-spec workflow, read
+[generated values](references/generated-values.md).
 
 ## Where the event source id comes from
 
@@ -330,8 +350,11 @@ Components guidance, not to this skill.
 - The event source id resolves from exactly one place; `ARCCHR0002` is silent.
 - `[Key]`, where used, is `Cratis.Chronicle.Keys.KeyAttribute`.
 - No `IEventLog` is injected into `Handle`.
-- Every value `Provide` returns is consumed by `Handle`.
-- Rejections are validation results, never thrown exceptions.
+- Every value `Provide` returns is consumed by an unmarked `Handle` parameter.
+- Generated parameters follow [generated values](references/generated-values.md)
+  and are pinned before scenario execution (`cratis-specifications-csharp`).
+- User-correctable rejections are validation results, never thrown exceptions;
+  `GeneratedValueRejected` instead signals a defective server generation strategy.
 - Every secret or personal value is marked before it can reach the event log.
 - `dotnet build` is clean in Debug and Release, with no suppressed `ARC*` or
   `ARCCHR*` diagnostic left unjustified.
