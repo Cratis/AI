@@ -160,6 +160,47 @@ async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new Aut
 [Fact] async Task should_notify() => await _service.Received(1).Notify("Jane Austen");
 ```
 
+#### Read-model setup — Chronicle 19.46.0+
+
+In a class-based `ReactorScenario<TReactor>`, `Given` events invoke the reactor;
+they **do not materialize read models**, even `[Passive]` ones. For each
+read-model handler parameter, choose one setup before `Because()`:
+
+```csharp
+// Present-state specification: supply the instance the handler must receive.
+void Establish() => _scenario.Given.ForEventSourceId(_id).ReadModel(_author);
+
+// Separate absence specification: deliberately let an Author? parameter receive null.
+void Establish() => _scenario.Given.ForEventSourceId(_id).NoReadModel<Author>();
+```
+
+These are alternatives in **separate specification classes**, not two
+`Establish()` methods in one class. Both builders return
+`ReactorSourceGivenBuilder<TReactor>` for chaining; neither setup is async.
+Use the triggering event-source id by default, or the key returned by the
+reactor's `ICanResolveReadModelKey.Resolve` when implemented. An absence
+declaration is for that exact type and key and does not delete a seeded model.
+
+If a recognized read-model parameter resolves to `null` without declared absence,
+`Events(...)` throws `ReadModelNotSeededForReactorScenario` from
+`Cratis.Chronicle.Testing.Reactors`, even if the parameter is nullable. The
+message names the full type and missing key, explains `ReadModel(...)` and
+`NoReadModel<T>()`, and lists seeded keys for that type when any exist. Fix the
+fixture or its key; do not add `NoReadModel<T>()` just to silence missing setup.
+The guard applies to `EventStoreForTesting`; it does not alter production
+resolution or an explicitly supplied event store of another type.
+
+**Handler failures:** in Chronicle 19.46.0+, a synchronous handler throw surfaces
+its own exception, not `TargetInvocationException`, with its handler stack
+preserved. Use `await Catch.Exception(() => _scenario.Given.ForEventSource(_id).Events(...))`
+and assert the handler's exception type.
+
+**Occurrence time:** in Chronicle 19.46.0+, `EventContext.From(...)` uses
+`DateTimeOffset.UtcNow` when `occurred` is omitted (previously local `Now`).
+`ReactorScenario` builds its contexts through this helper, as do
+`EventContext.Empty` and `EmptyWithEventSourceId(...)`. Explicit occurrence times
+keep their supplied offset; the positional constructor has no such default.
+
 ## Out-of-process Chronicle integration specs (advanced)
 
 Reserve these for the host/transport boundary the scenario helpers can't reach. They test a complete slice — HTTP request → command → append → constraint → projection — against a real Chronicle store, and live under `when_<behavior>/` directly inside the slice folder (no `for_` folder; the "unit" is the whole slice).

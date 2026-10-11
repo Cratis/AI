@@ -22,6 +22,11 @@ This skill is verified against these exact public releases:
 | `Cratis.Arc.Testing` | `22.16.0` | `CommandScenario<TCommand>` and `CommandResult` assertions |
 | `Cratis.Chronicle.Testing` | `18.3.0` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
 
+Reactor read-model seeding/absence, synchronous handler exceptions and the
+`EventContext.From` UTC default are verified separately at **Chronicle 19.46.0**
+and require **19.46.0+**; see the ReactorScenario section in
+[application-scenarios.md](references/application-scenarios.md).
+
 Generated-value scenario pinning is verified separately against
 `Cratis.Arc.Testing` **22.68.0** (introduced in **22.67.0**).
 
@@ -82,6 +87,14 @@ which the validator skips, so an append that lets the strategy choose the scope
 never produces a concurrency violation. `ShouldHaveConcurrencyViolations()`
 cannot pass for such an append and its negation passes vacuously — specify concurrency against the
 real kernel with an out-of-process integration specification instead.
+
+For a class-based `ReactorScenario<TReactor>` on **Chronicle 19.46.0+**, seed each
+handler read-model parameter with `Given.ForEventSourceId(id).ReadModel(instance)`
+or declare intentional absence with `.NoReadModel<T>()`; `Given` events do not
+build it, even if passive. Missing setup throws
+`ReadModelNotSeededForReactorScenario` even for a nullable parameter. Use the
+resolved read-model key. See the ReactorScenario reference for diagnostics,
+exception capture and UTC occurrence-time defaults.
 
 Specification projects are named `<Source>.Specs` and run on xUnit.
 
