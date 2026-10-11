@@ -51,8 +51,9 @@ public sealed class EventTypeAttribute(string id = "", uint generation = 1) : At
 
 `id` defaults to the CLR type name and `generation` starts at `1`. The attribute
 is not repeatable, so two generations are always two distinct CLR types.
-Chronicle routes a stored event through the migration chain before delivering it
-to observers:
+Chronicle chains adjacent migrations to produce another generation. This is a
+possible upcast path, **not a promise that every observer receives the latest
+generation**; delivery policy is described below:
 
 ```text
 Generation 1 (stored) -> Migration 1->2 -> Migration 2->3 -> Current (Generation 3)
@@ -212,6 +213,23 @@ Migrations are discovered by convention — nothing is registered. They are
 activated through the service provider, so a migration may take constructor
 dependencies.
 
+## Choose the generation an observer receives
+
+`Compatibility` remains the default. With
+`ChronicleOptions.EventGenerationDelivery = EventGenerationDelivery.Pinned`,
+reactors and reducers receive the generation of their handler's CLR event type
+(verified at **19.41.0**). Typed materialized projection clauses receive the
+generation they declare (verified at **19.48.0**), including joins, children,
+removals, and event-content keys on live, catch-up, and replay.
+
+Read [references/pinned-generations.md](references/pinned-generations.md) for
+missing-generation migration, release and revision behavior, registration
+rejections, persisted PDL pins, and testing limits. Configure the opt-in through
+**cratis-chronicle-client-dotnet**; do not invent generation-qualified Screenplay
+syntax. `ReadModelScenario` and `ReactorScenario` do **not** emulate the kernel's
+pinned-generation migration and release; prove delivery with real-client
+integration, not a scenario-only assertion.
+
 ## Do not model absence with a nullable property
 
 **CHR0012** (warning) flags a nullable property on an `[EventType]` record.
@@ -244,5 +262,6 @@ is expected, since the prior generation records history rather than new intent.
 - No nullable property was added to an `[EventType]` record.
 - The build is clean with no `CHR0012`, `CHR0037`, `CHR0049`, or `CHR0050`
   outstanding.
-- Old-generation events replay into the current shape through the read-model
-  specifications for the affected observers.
+- Real-client integration verifies old-generation events on live delivery,
+  catch-up, and replay into the intended observer generation; in-process
+  read-model/reactor scenarios alone do not prove kernel migration and release.

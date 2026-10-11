@@ -204,6 +204,20 @@ from `string` (`:158`) and a `Redacted` form for logging (`:152`).
 
 Read [references/hosting.md](references/hosting.md) when wiring Chronicle into a worker or ASP.NET Core host, or when `AddCratisChronicle` or a namespace resolver does not resolve.
 
+## Pin event generations for delivery
+
+`ChronicleOptions.EventGenerationDelivery` defaults to `Compatibility`. Opt in
+with `EventGenerationDelivery.Pinned` (`Cratis.Chronicle.Observation`) **before
+connecting**. Reactors and reducers then receive their handler's CLR event
+generation (Chronicle **19.41.0+**); typed materialized projections use each
+clause's declared CLR event generation (**19.48.0+**). These additions are
+verified separately against those release tags, not the baseline above.
+
+Read [references/pinned-generation-delivery.md](references/pinned-generation-delivery.md)
+for compiling standalone/host configuration, registration constraints, and the
+Compatibility-only surfaces. For migration, PDL pin persistence, and integration
+test requirements, use **cratis-chronicle-event-type-migration**.
+
 ## The client and the server check each other
 
 The client runs the server-side compatibility check automatically inside `Connect()`; a genuine mismatch throws `IncompatibleServerException`, while a transport error is logged and ignored by design.
