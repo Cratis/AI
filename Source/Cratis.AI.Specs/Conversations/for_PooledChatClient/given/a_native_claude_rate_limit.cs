@@ -39,6 +39,7 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
     protected tracking_native_chat_client _nativeChat;
     readonly TaskCompletionSource _toolStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
     Task<HttpResponseMessage>? _pendingRequest;
+    native_tool_did_not_start? _preconditionFailure;
     readonly HttpClient _http = new();
 
     static async Task<(string Url, string Authorization)> Connection(ProcessStartInfo info)
@@ -96,6 +97,9 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
                 _text = (await _client.GetResponseAsync([new(ChatRole.User, "act")], _chatOptions, _cancellation.Token)).Text;
             }
         });
+
+        // Pool dispatch can turn a fixture failure into fallback success or a different exception.
+        if (_preconditionFailure is not null) throw _preconditionFailure;
     }
 
     protected void SecondMemberWasNotCreated() => _factory.DidNotReceive().Create(Arg.Is<ConfiguredAIProvider>(provider => provider.Id == _second), Arg.Any<ModelName>());
@@ -129,7 +133,7 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
             if (_rateLimitDuringTool)
             {
                 _pendingRequest = request;
-                await _toolStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                await WaitForToolStart(request);
             }
             else
             {
@@ -162,6 +166,32 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
         throw _transportError ?? _failure;
     }
 
+    async Task WaitForToolStart(Task<HttpResponseMessage> request)
+    {
+        Task completed;
+        try
+        {
+            // Allow slow CI scheduling to reach the function; Act's shutdown bound stays at 5 s.
+            completed = await Task.WhenAny(_toolStarted.Task, request).WaitAsync(TimeSpan.FromSeconds(30));
+        }
+        catch (TimeoutException exception)
+        {
+            throw _preconditionFailure = new native_tool_did_not_start("the function did not start within 30 seconds", exception);
+        }
+
+        if (completed == _toolStarted.Task)
+        {
+            await _toolStarted.Task;
+            return;
+        }
+
+        // Even a successful HTTP response can be a rejection without invoking the function.
+        var requestError = await Catch.Exception(async () => { using var response = await request; });
+        throw _preconditionFailure = new native_tool_did_not_start(
+            requestError is null ? "the HTTP request completed before the function started" : "the HTTP request failed before the function started",
+            requestError);
+    }
+
     Task<HttpResponseMessage> CallTool(string url) =>
         _http.PostAsJsonAsync(url, new { jsonrpc = "2.0", id = 2, method = "tools/call", @params = new { name = "act", arguments = new { } } });
 
@@ -183,4 +213,12 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
         await Task.CompletedTask;
         yield return new(ChatRole.Assistant, "fallback");
     }
+
+    /// <summary>
+    /// The exception that is thrown when the fixture cannot reach its in-flight function precondition.
+    /// </summary>
+    /// <param name="reason">The unmet precondition.</param>
+    /// <param name="innerException">The request or deadline failure, if any.</param>
+    sealed class native_tool_did_not_start(string reason, Exception? innerException)
+        : Exception($"Native Claude rate-limit fixture precondition failed: {reason}. The intended in-flight rate-limit scenario was not reached.", innerException);
 }
