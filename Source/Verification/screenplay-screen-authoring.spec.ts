@@ -218,3 +218,20 @@ test('the screens skills route authoring, MCP editing and rendering requests to 
     assert.ok(triggers('cratis-screenplay-model-authoring').some(query => query.shouldTrigger && /StaleRevision/.test(query.query)),
         'model-authoring routing must cover stale-revision recovery');
 });
+
+test('the screens smoke replays the pinned public vector from the published corpus and runs in CI', () => {
+    const smokeDirectory = join(repositoryRoot, 'Source', 'Verification', 'screens-smoke');
+    const pins = JSON.parse(readFileSync(join(smokeDirectory, 'screens-smoke.json'), 'utf8')) as { cli: string; corpusPackage: string; editedColumn: string };
+    const script = readFileSync(join(smokeDirectory, 'screens-smoke.sh'), 'utf8');
+    const workflow = readFileSync(join(repositoryRoot, '.github', 'workflows', 'publish.yml'), 'utf8');
+    const authoring = readFileSync(join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'), 'utf8');
+
+    assert.ok(authoring.includes(`CLI ${pins.cli}`), `the smoke pins CLI ${pins.cli}, which is not the verified vector in the authoring workflow`);
+    assert.match(pins.corpusPackage, /^\d+\.\d+\.\d+$/);
+    for (const required of ['--edit work-item-id-column', 'cratis render', 'materialize-corpus.cs', 'Cratis.Cli', 'executableReady']) {
+        assert.ok(script.includes(required), `the smoke script is missing ${required}`);
+    }
+    assert.ok(workflow.includes('screens-smoke/screens-smoke.sh'), 'the verify job must run the screens smoke');
+    assert.ok(readFileSync(join(smokeDirectory, 'materialize-corpus.cs'), 'utf8').includes('#:package Cratis.Screenplay.CanonicalCorpus@CORPUS_VERSION'));
+    assert.ok(authoring.includes('screens-smoke.sh'), 'the authoring workflow must point at the smoke');
+});

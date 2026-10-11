@@ -12,6 +12,7 @@
 - 4. Validate authoring and executable readiness
 - 5. Run/render using the same configuration
 - 6. Use Screenplay-owned fixtures
+- Replay the workflow in CI without a Screenplay checkout
 - Edit, render, run and see it in the browser
 - Transcript checklist
 
@@ -169,6 +170,15 @@ Verified public vector and executable checks:
   double-click (`STAGE-SCENE-INTERACTION-001`); still pending: Studio production
   Play proof (test-account decision). UI-profile rejection and render-then-recover
   shipped in Cratis/cli#301.
+
+## Replay the workflow in CI without a Screenplay checkout
+
+`screens-smoke.sh <work-folder>` in the AI repository's `screens-smoke` verification folder installs the pinned public `cratis` CLI,
+materializes the published `Cratis.Screenplay.CanonicalCorpus` folder source (so the corpus stays Screenplay-owned and
+is never copied), replays the MCP transcript with the revision-checked column edit, renders the edited folder and
+requires the column in the generated `scene.json`. The pins live in `screens-smoke.json` and follow the verified
+vector above; the corpus package is the one that records that vector. The corpus verification job runs it on every
+change. The browser step below needs Docker and Chromium, so it stays a manual step.
 
 ## Edit, render, run and see it in the browser
 
