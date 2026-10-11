@@ -6,6 +6,7 @@
 ## Contents
 
 - Classify the value on its concept
+- Recover classification from C# with Arc 22.70.0
 - Declare the use separately
 - Identify the person, not the stream
 
@@ -62,6 +63,45 @@ C# provider mapping: `pii` → `[PII]`; `secret` → `[Encrypted]` + `[NotAudite
 This mapping is not admission: either marker, including qualifiers and scopes,
 still blocks executable binding with PLAY0268. Subject lineage is a different
 role, described below.
+
+## Recover classification from C# with Arc 22.70.0
+
+Reverse generation is not the C# provider mapping above. Source authority: Arc
+`v22.70.0:Documentation/backend/csharp/generating-a-screenplay.md` (Operational
+secrets), `Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`
+and `Source/DotNET/Screenplay/Analysis/Types/PersonalDataMarkings.cs`.
+Check the generator package actually loaded; the CLI's bundle may be older.
+
+- Both `[Encrypted]` and `[NotAudited]` must be on the concept to recover
+  `secret`. Partial or member-specific markings report SP0058 (Information),
+  without adding `secret`; existing `pii` remains.
+- For `[Encrypted(EncryptionScope.Namespace)]` or Global plus `[NotAudited]`,
+  default output keeps bare `secret` and reports SP0061 (Information), naming
+  the unstated scope. It therefore implies Subject, not the source scope.
+  Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI adapter flag
+  `--authoring-only-constructs`) to state `secret scope namespace` or
+  `secret scope global` in the concept body. Subject stays implicit. Scope
+  is syntax-only: it raises no ESM version and grants no executable admission.
+  `pii secret` gets no scope because the providers ignore it.
+- A property or positional constructor parameter marked `[PII]` on a non-concept
+  type reports SP0062 (Information); the marking is not stated and no concept
+  is invented. Preserve the source protection, record the loss, and introduce a
+  personal-data concept in source or the intentional candidate.
+- Member `[PII]` promotes an existing concept to `pii` across all its uses.
+  SP0063 (Information) lists unmarked analyzed uses when the concept itself
+  lacks `[PII]`. Review that widening: explicitly classify the concept if the
+  meaning is shared, or separate personal and nonpersonal meanings into distinct
+  concepts. No SP0063 is reported if the concept is marked or all analyzed uses
+  are marked. Never remove protection merely to silence the diagnostic.
+- Protected identity concepts keep their identities/routes but lose their
+  annotations with SP0059 (Information, now worded `pii/secret`); record the
+  protection loss and use a surrogate identity, not a declassified payload value.
+
+Reasons, special/criminal qualifiers and purposes are not inferred. Changing
+scope for persisted events still needs a new generation. Every diagnostic is a
+loss or review item, including Information; see legacy-extraction
+[generate notes](../../cratis-screenplay-legacy-extraction/references/generate-notes.md)
+for the self-check contract and compiler-upgrade handling.
 
 ## Declare the use separately
 
