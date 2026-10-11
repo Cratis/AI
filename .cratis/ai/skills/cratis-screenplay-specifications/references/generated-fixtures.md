@@ -1,7 +1,8 @@
 ## Generated fixtures and return expectations (ESM v7)
 
-Standalone `screenplay` 4.68.0 or later binds and runs these; the cratis CLI 3.28.3 (bundled 4.66.0) does not
-bind them, and Stage does not render ESM v7 yet (`STAGE-ESM-016`, tracked in Stage#201), so they pin the
+Standalone `screenplay` 4.68.0 or later binds and runs these, and so does the current cratis bundle (the
+cratis 3.28.3 bundle, 4.66.0, did not); Stage 4.73.1 admits ESM v7 but refuses generated values
+(`STAGE-ESM-028`) and responses (`STAGE-ESM-029`; Stage#175), so they pin the
 contract of a hand-written command. The model and rules are in `cratis-screenplay-command-surface`; the
 complete example is `cratis-screenplay-toolchain` `references/generated-responses-example.md`. Read that file when writing generated-value fixtures or scalar and record return expectations and needing a complete reference-executable model.
 

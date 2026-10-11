@@ -16,12 +16,13 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | `given readmodel` | yes | yes (complete instance with key) | only as the query-only lookup below |
 | `when append <Event>` | yes | yes | no |
 | `then readmodel` / `then query` (keyed `ById`, `arguments`, `result`) | yes | yes | yes |
-| `then query` on list, filtered or observable queries | yes | no (query does not bind) | no |
+| `then query` on an unfiltered list or a list narrowed by one `by` key (observable too) | yes | yes since 4.105.0: no `arguments` for an unkeyed list, one `result` per row stating the read-model identifier, no `result` = empty list | observable lists render, a non-observable list is `STAGE-ESM-010` (Stage 4.73.1) |
+| `then query` on `filter`, `scoped to`, `performer` or `by ... from` queries | yes | no: PLAY0268 at binding | no |
 | `then no readmodel <RM> for "<key>"` | yes | yes | no |
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
-| `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | Screenplay 4.61 or later yes (standalone, cratis 3.28.2 or later); a cratis before 3.28.2 bundle no (see versions.md) | no |
+| `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | yes (standalone and any current cratis; history: a cratis before 3.28.2 bundle no, see versions.md) | no |
 | Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no (no reactions) |
-| `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later; not on the 4.66.0 bundled in cratis 3.28.x (`PLAY0268`) | historically no at Stage 4.24.x; check current target admission |
+| `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later and the current cratis bundle (history: PLAY0268 on the 4.66.0 bundled in cratis 3.28.x) | no: Stage 4.73.1 admits v7 but refuses generated values (STAGE-ESM-028) and responses / `then returns` (STAGE-ESM-029); the spec pins the contract of a hand-written command |
 | `then events in any order` | yes | yes | yes |
 | Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | The pinned CLI reaches Stage route checks (toolchain `references/versions.md`); routed read-model/query replay can still refuse STAGE-ESM-030 |
 | Typed examples and overrides | yes | expanded and type-checked before binding; required fields remain required | depends on expanded contract, not fixture reuse |
@@ -34,8 +35,8 @@ Typed example/override forms: `cratis-screenplay-specifications`
 
 ## Design mode
 Write the full intended behaviour, including scenarios the executable subset cannot run
-(list views; clock, trigger and capture scenarios when only a cratis before 3.28.2
-bundle is available). Mark each such spec in the coverage matrix as
+(filtered, scoped and performer-backed views; clock, trigger and capture scenarios when only a
+cratis before 3.28.2 bundle is available). Mark each such spec in the coverage matrix as
 `gap: <reason>` for the narrower modes so the verification and render phases know what will not execute.
 
 ## Executable mode

@@ -45,7 +45,7 @@ name them as unfinished.
   order, with full payloads and `for`. See `ReservingAGuestBerth`.
 - Traps: asserting a subset of events (lists are exact); leaving out `given caller` on a gated
   command; omitting `for` so the event lands on an allocated source.
-- Generated values and responses (ESM v7, standalone Screenplay 4.68.0; syntax in `cratis-screenplay-specifications`):
+- Generated values and responses (ESM v7, standalone Screenplay 4.68.0 and later; syntax in `cratis-screenplay-specifications`):
   when the command has a `generated` property, the happy path supplies its fixtures (`for` on the generated
   identifier, `generated <name> = <value>`); only when the command declares a response does it assert
   `then returns` (a return expectation without a response is rejected at compile time). Add the failing
@@ -93,8 +93,8 @@ name them as unfinished.
   matching value. Both are needed. Ownership checks on text, Uuid, Date and DateTime subjects render at Stage 4.73.1;
   other subjects are STAGE-ESM-015: note it.
 - Traps: `then error` for a denial; a denial spec whose inputs also break a rule (it still
-  denies, but reads ambiguously); trusting a `cratis run` sandbox answer (it enforces neither
-  authorization nor validation); counting another command's denial.
+  denies, but reads ambiguously); trusting a `cratis run` sandbox answer (the default engine's enforcement is unverified here;
+  the opt-in semantic engine enforces both but reads forgeable caller headers, so it is no security boundary); counting another command's denial.
 
 ## 4. State violation
 - Ask: "After which earlier facts must this request be refused?"
@@ -151,7 +151,8 @@ name them as unfinished.
   all conditions are false the unconditional productions still occur. See
   `RecordingACleanDeparture` (only `BoatDeparted`) and `RecordingADepartureWithDamage` (both).
 - Zero new facts: a command whose productions are all conditional may be accepted with no
-  facts. There is no `then no events` syntax. A command spec with no `then` events but with a
+  facts. `then no events` parses but binding refuses it with PLAY0268 (#433): state the zero-fact outcome through a
+  read-model or query assertion, and an action with no outcome at all does not bind. A command spec with no `then` events but with a
   view or query assertion is still executable as a zero-fact check: the runner compares the
   command's facts with the (empty) expected list by exact count, so any fact produced fails it
   (Screenplay v4.66.0). Write it that way, name it for the zero-fact outcome, and keep the view

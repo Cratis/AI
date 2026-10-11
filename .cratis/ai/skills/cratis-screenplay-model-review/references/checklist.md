@@ -168,19 +168,19 @@ Nebulit (`provenance.md`).
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
 | G1 | Every command has at least one reachable and authorized origin, and no command is attributed to a generic "User" | screen `action`, forms, reactions, persona policies | D |
-| G2 | Personas have a purpose and say what they cannot do; read-only roles are legitimate; every persona has at least one command or one view | `persona` descriptions | D |
+| G2 | Personas have a purpose and say what they cannot do; read-only roles are legitimate; every persona has at least one command or one view (mechanical evidence: `--check personas`, PLAY0574 to PLAY0576) | `persona` descriptions | D |
 | G3 | Persona policy lists cover every gate on the path (module, feature, construct) | policies | C semantics (board placement) |
 | G4 | A command invoked by a reaction is not gated by a caller policy, unless a trusted-path decision is recorded | reactions, `authorize` | D (silent = major) |
 | G5 | Row scoping (whose data) is part of the view, not a filter the caller supplies | queries | D |
 | G6 | Every persona Cannot line resolves to an executable gate (`authorize` policy, or ownership `claim "x" matches subject\|<command property>`) and a `then denied` spec whose caller is synthesized with `given caller as <Persona>` or explicitly carries the effective-gate roles/claims; otherwise recorded as a gap. Persona text is intent only | personas, policies, specs | D |
 | G7 | Every command and query under an inherited module/feature `authorize` has its own `then denied` spec; authorization shared by a feature is declared at feature/module level so new paths inherit it | policies, specs | D |
-| G8 | Ownership checks against a subject Stage cannot render (not text, Uuid, Date or DateTime; no single identifier) are noted (STAGE-ESM-015 at Stage 4.73.1) | policies | C (renderable mode) |
+| G8 | Ownership/claim targets are a supported scalar (text, Uuid, Date or DateTime render; a numeric or Boolean target is always denied; other shapes and a command without exactly one identifier are STAGE-ESM-015 at Stage 4.73.1): noted | policies | C (renderable mode) |
 
 ## Phase 10. Views, queries and screens (4 checks, H1-H4)
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
 | H1 | Query shape follows the business view (list where people scan; lookup where they open one) | queries, screens | D |
-| H2 | Executable scope: one keyed `=> RM optional` query with `by` named like a read-model property, and the projection routes by the same identity (a `from` key or an event property, or `$eventSourceId`; `$eventSourceId` is not mandated). Renderable scope only: Stage-specific identity limits (Stage 4.24 admits a one-instance projection with an optional keyed snapshot query) | queries, projections | C (executable); C (render admission, renderable only) |
+| H2 | Executable scope: a keyed `=> RM optional` query with `by` named like a read-model property, or an unfiltered / one-`by` list (`=> RM[]`, observable too; `filter`, `scoped to`, `performer` do not bind), and the projection routes by the same identity (a `from` key or an event property, or `$eventSourceId`; `$eventSourceId` is not mandated). Renderable scope only: Stage-specific identity limits (Stage 4.73.1 renders a keyed optional snapshot lookup and observable collection queries; any other query is `STAGE-ESM-010`) | queries, projections | C (executable); C (render admission, renderable only) |
 | H3 | One builder per read model; projection `key` only on `from` | projections | C |
 | H4 | Screens show one actor's point of view; a form submits one command | screens, forms | D |
 
@@ -192,7 +192,7 @@ artifact is `N/A: <reason>`.
 
 | Id | Check (the rejected pattern) | Signal to look for | Severity |
 |---|---|---|---|
-| R1 | Code-first change that silently outranks accepted model intent | behaviour added in code with no `.play` counterpart; the model edited to match existing code; the model left stale after a code change | major (critical when the code contradicts a protection) |
+| R1 | Code-first change that silently outranks accepted model intent | behaviour added in code with no `.play` counterpart; the model edited to match existing code; the model left stale after a code change; optional structural evidence: `cratis screenplay conform <model-root> --project <path>` (CLI 3.42.0+, exit 0/1/2, exact structural addresses only, never a behavioral or V4 verdict; MSBuild runs, so a trusted clone) | major (critical when the code contradicts a protection) |
 | R2 | A diagram, board or document in place of executable semantics | a rule only in a board note, a description or a wiki page; no property, validation, constraint or spec behind it (E8) | major |
 | R3 | Claims of universal low-code, lossless recovery or target parity | words like "fully generated", "lossless", "any target" in a report or description | minor; major when it hides a gap |
 | R4 | Framework machinery in the domain vocabulary (saga, aggregate, passive objects, HTTP or broker detail) or syntax wanted because a framework API is common | declarations named after saga, handler classes, topics, endpoints; a request to add language syntax to mirror a framework API | minor; major when it shapes the model |
