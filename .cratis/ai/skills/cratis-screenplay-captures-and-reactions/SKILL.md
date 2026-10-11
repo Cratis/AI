@@ -36,16 +36,15 @@ decides, not the slice type:
   `Translate` slices, reactions, declared triggers and captures bind, and the
   reference runner executes them. Probed: the complete example below is
   `executableReady` over `screenplay mcp`.
-- **Historical CLI 3.28.2 / Screenplay 4.66.0 probe:** complete examples validated
-  and were executableReady through MCP. Earlier 4.60.1 bundles refused v6 at
-  binding and falsely reported PLAY0285 on cascades. Toolchain `references/versions.md`
-  separates that history from current pins.
-- **Stage 4.24.2** admits ESM v1-v4 and renders no `Automation` or `Translate`
-  slice. The automation is gap-fill, with the `.play` slice and its specifications
+- **History:** the CLI 3.28.2 bundle (Screenplay 4.66.0) bound v6; the earlier 4.60.1 bundles
+  refused it and falsely reported PLAY0285 (`references/versions.md`).
+- **Stage 4.73.1** admits ESM v1-v10 by version but renders no `Automation`, `Translate`, reaction or
+  capture (`STAGE-ESM-024`; `-037` for a reaction that produces and invokes, which Arc 22.64.1+
+  runs as one reactor). The automation is gap-fill, with the `.play` slice and its specifications
   as the contract: `cratis-screenplay-render-and-gap-fill`.
 
 Model them whenever the `.play` file is the deliverable, and say which tool bound
-them. Read `cratis-screenplay-toolchain` (`references/versions.md`) when selecting a compiler version or interpreting version-dependent messages.
+them (`cratis-screenplay-toolchain` `references/versions.md` for versions and messages).
 Method (the four-part automation test, loops, translations versus automations):
 `cratis-screenplay-automations-and-translations`.
 
@@ -123,7 +122,8 @@ Read [references/capture-map-and-example.md](references/capture-map-and-example.
 `api` (`api`, `route`, `poll`), `webhook` (`path`) and `message` (`topic`).
 ⚠️ The grammar is **open** — the parser accepts any kind and any setting name as
 free-form name/value pairs, so a typo is not caught. The three kinds are
-convention, not enforcement.
+convention, not enforcement. `source events` (`from <Event>` lines, ESM v9) is the exception, with
+its own closed grammar (PLAY0610/0612/0616/0619/0620).
 
 **`key <property>`** names the source property identifying an instance. From ESM v6
 a capture without a `key` does not bind (`PLAY0268`). In a specification the
@@ -131,9 +131,9 @@ reference is handed records (`given capture`, `when capture`) and never contacts
 `source`, which stays realization metadata; events append to the event source the
 record's `key` names, and `$context.occurred` is the scenario's `given clock`.
 
-Declaring an event's external origin on the `event` itself is accepted as
-Screenplay decision 0009 but **not in the language**; a `capture` in a
-`Translate` slice is how outside data enters a model in the verified Screenplay versions.
+An event's external origin is declared on the `event` itself with `event X from "<origin>"` (ESM v9);
+outside records still enter through a `capture` in a `Translate` slice
+(`cratis-screenplay-automations-and-translations` `references/public-events-and-direction.md`).
 
 **`map`** reshapes properties before events are appended (rename, template, `translate`, `split`; mapping sources are `$.`, `$context.` and `$env.`); syntax is in the reference file linked above.
 
@@ -297,7 +297,8 @@ open. The type on a value is optional; a bare name is already a useful statement
 the document declares → triggers registered with the compiler, plus the built-in
 host signals. A registration wins over a built-in of the same name. Only when all
 three miss is the name reported unknown — a **warning** (`PLAY0248`), because the
-name may be known outside the document. A malformed reaction body is an error.
+name may be known outside the document. A malformed reaction body is an error. If an event
+and a trigger share a name, the event wins for value validation and binding.
 
 **Built-in triggers:** `Startup` and `Shutdown`. The clock is built in too, but
 with its own syntax rather than a name.

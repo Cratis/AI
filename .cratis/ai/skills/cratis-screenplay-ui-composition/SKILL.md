@@ -31,11 +31,9 @@ source is the single flow model.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Original UI composition parser evidence |
-| `Cratis.Screenplay` | main `fd18129` | Cancellation routing and `optional`; changed example compiled |
-| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Statements in this skill re-verified: the nine `Documentation/screenplay/` pages above are unchanged since `v4.31.0` except `file-references.md` (typed-context and `implementation` paragraphs); `PLAY0269` in `Diagnostics/DiagnosticCodes.cs`; the new section compiled with `screenplay` 4.66.0 and `cratis screenplay validate` 3.28.2 |
+Current pins: toolchain `references/versions.md`; UI statements were re-read at Screenplay v4.139.0
+(`screens.md`, `contributions.md`, `forms.md`, `templates.md`, `ui-profile.md`, `fixtures/screen-release-ui.play`). Older provenance:
+`4.31.0` (original parser evidence), main `fd18129` (cancellation routing, `optional`), `4.66.0` (`c89198b`: `PLAY0269`).
 
 The update follows `commands.md`, `events.md`, `queries.md` and decision 0023
 at that main commit (after v4.52.0). It does not verify UI rendering.
@@ -222,9 +220,11 @@ module-level.
 `navigate to <Screen> by <param>` is **not** string interpolation; it reuses the
 same typed navigate binding a screen action uses.
 
-⚠️ The v4.31.0 baseline, re-verified at v4.66.0, ships `navigate`, `label` and `order` only. Grouping beyond a
-flat ordered list, and an explicit override for when nearest-enclosing is not the
-point you mean, are deliberately left for later. The screens-release vector
+⚠️ At v4.139.0 a navigation contribution also carries `id`, `icon`, `presentation`, `group` and
+`destination outlet <name> | dialog <DialogTemplate> | external "<route>"`; its `navigate to` takes
+`route`, `outlet` and `parameter` lines, and an undeclared outlet or dialog target is `PLAY0654`
+(`contributions.md`). An explicit override for when nearest-enclosing is not the point you mean is
+not in the language. The screens-release vector
 (canonical `ScreenComposition` corpus v1) adds typed screen composition; public
 CLI 3.43.0 renders it and passes the browser run. Report a refused form as a
 capability gap, never a flat-list fallback; Studio production proof is separate.
@@ -286,8 +286,8 @@ module Invoicing
 The inline event targets `invoiceId` without copying it into payload; the
 projection obtains it from event context. A command `returns` clause (scalar or
 record) binds and executes from standalone Screenplay 4.68.0 (ESM v7, `commands.md`,
-"Generated values and responses"); the 4.66.0 bundled in `cratis` 3.28.x reports `PLAY0268`, and
-Stage 4.24.2 does not render ESM v7 (`STAGE-ESM-016`, tracked in Stage#201). Form `on submit` and
+"Generated values and responses") and in the current cratis bundle (the 4.66.0 in 3.28.x reported `PLAY0268`);
+Stage 4.73.1 refuses it (`STAGE-ESM-029`; generated properties `-028`). Form `on submit` and
 interaction `on success` response-name scopes, failure clearing and response
 execution remain unavailable.
 An existing success continuation does not imply a response contract.

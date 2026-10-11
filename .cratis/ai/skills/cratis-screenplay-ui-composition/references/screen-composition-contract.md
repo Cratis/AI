@@ -17,7 +17,9 @@
 
 This reference is the authoring checklist for the screens-release UI surface. It
 records the contract an agent must look for in the installed Screenplay tool and
-in peer runtime/render contracts; it is not a second language definition. When a
+in peer runtime/render contracts; it is not a second language definition. The syntax
+below was re-read at Screenplay v4.139.0 (`screens.md`, `forms.md`, `templates.md`,
+`contributions.md`, `ui-profile.md` and `fixtures/screen-release-ui.play`); the shapes are released, not proposed. When a
 syntax form below is not present in `syntax-schema` or does not compile with the
 project's selected Screenplay version, report the support level instead of
 hand-writing an alternate shape.
@@ -55,28 +57,36 @@ Still true: a guarded Close action and a double-click interaction are refused
 (`STAGE-SCENE-ACTION-001`, `STAGE-SCENE-INTERACTION-001`, defined from Stage
 4.51 through 4.57) and recorded as unsupported, never emulated; Studio production
 Play proof is pending a test-account decision. Refusing an unresolvable UI
-profile and recovering a rendered application shipped in Cratis/cli#301. On Stage 4.24.2 or cratis 3.28.x
-renderers, authored screens are still reported as omitted/default composition.
+profile and recovering a rendered application shipped in Cratis/cli#301. (History: on Stage 4.24.2 or
+cratis 3.28.x renderers authored screens were reported as omitted/default composition; Stage 4.73.1
+(CLI 3.53.1) renders navigation contributions and toolbars, and `CLI-RENDER-015`, which refused them, is retired.)
 
 ## Data context and component bindings
 
 A component instance is a presentation of a typed Screenplay data context. The
-proposed syntax is:
+released syntax (canonical fixture `fixtures/screen-release-ui.play`) is:
 
 ```screenplay excerpt
 component <Package.Component> <instanceName>
-  context <binding>
-  property <property.path> from <binding>
+  id "<stable-id>"
+  context from query <Query>
+  property <property.path> from component <stable-id>.<outputPath> null preserve
+  property <property.path> from literal <value>
   property <property.path> = "literal"
   icon <IconName>
   presentation <key> "value"
-  exposes <name> from <binding>
+  exposes <name> from component <stable-id>.<outputPath>
   outlet <name>
     ...nested screen directives...
   on click
     open dialog <DialogTemplate>
       with <name> from <binding>
 ```
+
+A binding is `from query <Query>`, `from component <stableId>.<outputPath>` (quote the id when it has
+punctuation) or `from literal <value>`, and may carry `mode oneWay|twoWay`, `null propagate|clear|preserve`
+and `expected <Type>`. A component's `id` pins the stable instance id Studio and Stage use; without it the
+authored name is the id. Malformed bindings are diagnostics, and the raw text is kept.
 
 Rules for agents:
 
@@ -137,6 +147,15 @@ screen template MasterDetail
 - `outlet` declares an addressable child surface. It is different from a static
   slot such as `sidebar` or `main`.
 
+A template may also declare `content <slot>` (screen directives the template renders in that slot itself;
+the slot must be declared, `PLAY0629`; templates may not nest in a cycle, `PLAY0656`), `display` and
+`description` (what a picker shows), and `scopes application|module|feature|subfeature|slice|none`
+(use outside its scopes is `PLAY0631`). Which of a template's components a screen may configure is a
+top-level **exposure** (`exposure for <Owner>`, owner a layout or template, `PLAY0622`; `reexposes <Owner>`,
+`PLAY0623`/`PLAY0624`), and a screen or template configures it with a top-level `instance <Screen>`
+(`set <component>.<path> = <value>`, `items <component>.<path>` with `item <id>` lines; `PLAY0626` to
+`PLAY0628`). Layouts take `category`, `type`, `exposes` and `outlet` too.
+
 A module, feature or slice may select a default template for contained screens:
 
 ```screenplay
@@ -149,7 +168,10 @@ installed parser/printer supports the scoped `template` directive before using i
 
 ## Forms and columns
 
-A form remains bound to exactly one command. The screens-release additions make
+A form remains bound to exactly one command. It may carry one `description` line (report-only),
+`generation auto|manual` (Scene's form generation mode: generate fields from command metadata, or the
+authored fields are the contract), a `layout` block (column, gap and placement geometry, independent of
+`generation`) and the `columns` display-order hint. The screens-release additions make
 its generated fields explicit when the automatic shape is not enough:
 
 ```screenplay excerpt
@@ -182,7 +204,8 @@ ui profile Desktop
   packages
     Product.DesignSystem
     Cratis.Components
-  icons Product.Icons
+  icons
+    Product.Icons
 ```
 
 - Package order is still override-priority order. Later packages shadow earlier
@@ -204,13 +227,15 @@ toolbar InvoiceToolbar
     label "Register"
     icon Add
   item details navigate to InvoiceDetails
-    parameter invoiceId from selected.invoiceId
+    parameter invoiceId from component invoices.selectedItem.id
+  item compose dialog InvoiceComposer
 ```
 
-Use a toolbar for reusable groups of actions; use inline `action` when a single
-screen owns the button. Dialog opening stays an interaction (`on click open dialog
-<DialogTemplate>`) unless the installed language exposes a dedicated toolbar-dialog
-node. A dialog destination must state every input with a typed `with`/`parameter`
+A toolbar item is `item <name> action <Command>`, `item <name> navigate to <Screen>` or
+`item <name> dialog <DialogTemplate>`. Use a toolbar for reusable groups of actions; use inline `action`
+when a single screen owns the button. A parameter that reads a selection is a typed
+`from component <stableId>.<path>` binding (the bare `selected.invoiceId` form parses only as a legacy
+data-context path). A dialog destination must state every input with a typed `with`/`parameter`
 binding; a runtime default is not an authored contract.
 
 What Scene 4.17 adds to the runtime side of this contract, so an agent knows what a

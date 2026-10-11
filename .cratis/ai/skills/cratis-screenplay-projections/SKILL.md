@@ -35,7 +35,8 @@ source is the single flow model.
 The update follows `commands.md`, `events.md` and `mcp/authoring-tools.md` at
 that main commit (after v4.52.0); no PDL example changes in this update.
 
-Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
+Originally checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`; the
+projection grammar was re-read at v4.139.0 for headers and dynamic keys):
 `Documentation/screenplay/projections/` (including `semantic-model.md`, `keys.md`
 and `variants.md`), `readmodels.md`, `diagnostics.md` and decisions 0001 and 0002.
 Every example below compiles with that version's compiler. Reverify before
@@ -88,8 +89,11 @@ Read [observer filters](../cratis-screenplay-toolchain/references/production-rou
 
 ## Projection-level directives
 
-`no automap`, `sequence <name>`, `file <path>`. `sequence` is a realization
-concern and does not bind to the executable model.
+`description "..."` (or a fenced text block) on the projection header (report-only `PLAY0270`; variants
+and nested blocks take none), `no automap`, `sequence <name>`, `file <path>`. `sequence` is a realization
+concern and does not bind to the executable model. A mapping target may end in a dynamic dictionary
+key, `count eventCountByType.$eventContext.eventType.id` (one entry per distinct value); only
+`$eventContext` resolves there, any other `$` text is a literal key with warning `PLAY0299`.
 
 ⚠️ **Do not write `key` on the projection.** It parses, but neither Chronicle nor
 the executable model routes any event by it, and it is not a default for the
@@ -328,8 +332,8 @@ What the executable model does with it (ESM v3):
 - The body is an opaque attachment identified by a content hash, never compiled
   or run by Screenplay. The reference runner cannot compute reducer state, so a
   specification that reads a reducer-built read model reports unsupported and
-  never passes. A target must supply the transition. Stage 4.24.0 admits only pure reducer bodies
-(Roslyn allowlist); an impure body is gap-fill code, and the model stays the contract.
+  never passes. A target must supply the transition. Stage (4.73.1) admits only pure reducer bodies
+(Roslyn allowlist, `STAGE-ESM-019`/`-022`); an impure body is gap-fill code, and the model stays the contract.
 
 **Prefer a projection where one will do.** A reducer is code, and code is the part
 of a document a reader cannot check at a glance.

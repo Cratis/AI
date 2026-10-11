@@ -5,11 +5,15 @@ the automation-and-translation addendum to `cratis-screenplay-render-and-gap-fil
 skill for the admission, publication and ownership rules.
 
 ## What Stage does not do
-Stage 4.24.2 renders no Automation or Translate slice (Stage#79). A model that contains one is not
-admitted: it needs ESM v6, and Stage admits ESM v1 to v4 (STAGE-ESM-016 for the whole model; probed
-with `cratis render` 3.28.2 and 3.28.3, whose bundled compiler binds these slices, where 3.27.1 stopped earlier
-with PLAY0268). So the automation or translation is
-hand-written delivery with the model as its contract. A `Customizations/` file never makes a
+Stage 4.73.1 renders no Automation or Translate slice, reaction or capture (Stage#79): each reaction
+or capture refuses with `STAGE-ESM-024` (plus `-034` runsAs, `-035` filters, `-037` mixed effects). So the
+automation or translation is hand-written delivery with the model as its contract. (History: cratis
+3.28.2 and 3.28.3 refused such a model whole with `STAGE-ESM-016`, and 3.27.1 stopped earlier with PLAY0268.)
+
+A reaction that both `produces` events and `invokes` commands stays one modeled reaction. Hand-write one
+reactor that returns the events and the commands: Arc 22.64.1 and later append the events first as one
+batch, then run the commands in order, with no transaction across them (a retry can repeat both, so keep
+both repeatable); the Stage scaffold pins Arc 22.68.0. Never split the reaction to dodge `STAGE-ESM-037`. A `Customizations/` file never makes a
 rejected model renderable, and never claim a whole-application V5 from a subset. Choose the route
 with `cratis-screenplay-render-and-gap-fill`.
 

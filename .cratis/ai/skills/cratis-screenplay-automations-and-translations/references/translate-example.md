@@ -4,7 +4,7 @@ A complete model: a webhook record from an outside proctoring service is capture
 external fact in the provider's vocabulary, then translated by reactions into our facts. It
 binds on Screenplay 4.66.0 (`executableReady: true`), standalone and through `cratis screenplay mcp`
 3.28.2; the cratis 3.27.1 bundle (Screenplay 4.60.1) compiled it (V1) but rejected the Translate
-slice at binding (PLAY0268). `cratis render` 3.28.2 refuses it whole (`STAGE-ESM-016`).
+slice at binding (PLAY0268). `cratis render` refuses it (3.28.2: whole, `STAGE-ESM-016`; Stage 4.73.1: `STAGE-ESM-024`).
 
 Read the slice `description`: it is the per-field disposition (map, translate, ignore) and it
 states what this example does not do. Examples never show the whole integration contract; use

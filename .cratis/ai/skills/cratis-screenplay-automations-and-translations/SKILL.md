@@ -28,9 +28,9 @@ identity, effect and pending-work contract at that point; do not postpone it to 
 
 ## Tool and realization facts (read before promising anything)
 - Reactions, clocks, triggers, captures and Automation/Translate slices compile (V1) and bind (V3)
-  on Screenplay 4.61 or later: the standalone tool and the cratis CLI 3.28.2 or later (bundled
-  4.66.0). Probed on 3.28.2: the complete examples are `executableReady`. A cratis bundle before 3.28.2
-  (4.60.1) reports PLAY0268 at binding: report "V3 blocked: PLAY0268 (ESM v6)" and
+  on Screenplay 4.61 or later: the standalone tool and the cratis CLI 3.28.2 or later (3.53.1
+  bundles 4.137.0). Probed on 3.28.2: the complete examples are `executableReady`. A cratis bundle before 3.28.2
+  (4.60.1) reported PLAY0268 at binding: report "V3 blocked: PLAY0268 (ESM v6)" and
   name the tool, never remove them.
 - Standalone 4.125.0 runs admitted scenarios through `screenplay test` or MCP
   `run-specifications`; source validation and render publication do not run V4.
@@ -71,13 +71,17 @@ even when it blocks binding. Never record bearer tokens, magic links or signed U
 (a keyed hash or reference at most), and never put PII on the event-source id.
 
 ## Verified product sources
+Current pins: toolchain `references/versions.md`. Language claims were re-read at Screenplay v4.139.0,
+renderer claims at Stage v4.73.1 (no Automation, Translate, reaction or capture: `STAGE-ESM-024`), the
+runtime facts at Arc v22.72.0 and Chronicle v19.50.0. Older reads kept as history:
+
 | Package | Version | Used for |
 | --- | --- | --- |
 | Screenplay | v4.66.0 (`c89198b`) | `Documentation/screenplay/{reactions,captures,triggers,specifications,diagnostics}.md`; examples compiled with the standalone tool |
-| cratis CLI | v3.28.3 | bundles Screenplay 4.66.0 and Stage 4.24.2 (before 3.28.2: 4.60.1, which gave PLAY0268 on v6 constructs and a false PLAY0285 on cascades, cli#242) |
-| Stage | v4.24.2 | admits ESM v1 to v4; renders no Automation or Translate slice |
-| Arc | v22.50.5 | `ExecuteCommandsAsSystemAttribute` (since v20.56.0) |
-| Chronicle | v19.32.0 | `OnceOnlyAttribute`, `ReactorDelivery` and `Documentation/reactors/delivery-identity.mdx` |
+| cratis CLI | v3.28.3 | bundled Screenplay 4.66.0 and Stage 4.24.2 (before 3.28.2: 4.60.1, which gave PLAY0268 on v6 constructs and a false PLAY0285 on cascades, cli#242) |
+| Stage | v4.24.2 | admitted ESM v1 to v4; rendered no Automation or Translate slice |
+| Arc | v22.72.0 (read; v22.50.5 earlier) | `ExecuteCommandsAsSystemAttribute` (since v20.56.0); mixed events-and-commands reactor returns (since v22.64.1) |
+| Chronicle | v19.50.0 (read; v19.32.0 earlier) | `OnceOnlyAttribute`, `ReactorDelivery` and `Documentation/reactors/delivery-identity.mdx` |
 
 Read `references/versions.md` in `cratis-screenplay-toolchain` when selecting a tool or checking the full version and capability pins. Reverify before claiming
 another version behaves the same.
@@ -164,8 +168,9 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
   separate binder check.
 - A trigger with `reads` that `produces` directly fails binding: decide in a command. `reads` never protects.
 - An authorized command exercised in a spec without `given caller` is PLAY0389 at binding.
-- A list query (`=> Item[]`) and a clock sweep that iterates items do not bind; show them only as marked
-  design-only excerpts (`references/todo-list-example.md`).
+- A list query (`=> Item[]`) binds (Screenplay 4.105.0+; a snapshot list is not rendered, `STAGE-ESM-010`);
+  a clock sweep that iterates items needs a code body the reference does not run
+  (`references/todo-list-example.md`).
 
 **Modeling defaults** (deviate with a recorded reason)
 - A `produces` without `for` lands on the triggering fact's source; clock and trigger occurrences have
