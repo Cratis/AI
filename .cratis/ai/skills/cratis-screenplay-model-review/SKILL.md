@@ -31,7 +31,7 @@ adapted to `.play` declarations (`references/provenance.md`).
 |---|---|---|
 | Screenplay | `v4.66.0` (`c89198b`) | MCP catalog (29 tools: `describe-application`, `search-declarations`, `dependencies`, `find-assertion-gaps`, `read-workspace`, `declaration-details`) in `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`; diagnostics PLAY0029, PLAY0191, PLAY0268, PLAY0271, PLAY0350, PLAY0381, PLAY0469 in `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`; decision 0008 (one data subject per event) |
 | Screenplay | `v4.127.0` | `find-specification-obligations` (SPEC001–SPEC008 authored presence), `find-modeling-smells` (SMELL001–SMELL005 advisory questions); neither proves executed behavior or complete lineage |
-| Screenplay | `v4.131.0` | `semantic-diff` source objects and revision-pinned pages: `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolCatalog}.cs`, `Documentation/screenplay/mcp/reference.md`; previous CLI 3.46.1 predates these; CLI 3.50.0 bundles them |
+| Screenplay | `v4.131.0` | `semantic-diff` source objects and revision-pinned pages: `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolCatalog}.cs`, `Documentation/screenplay/mcp/reference.md`; previous CLI 3.46.1 predates these; see pin table below |
 | cratis CLI | `v3.28.3` | bundles Screenplay 4.66.0 and Stage 4.24.2; see the toolchain skill |
 
 The full pin table lives in `cratis-screenplay-toolchain` `references/versions.md`; do not copy

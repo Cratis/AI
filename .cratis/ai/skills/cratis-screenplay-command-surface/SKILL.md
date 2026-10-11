@@ -372,8 +372,8 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
 ## Verify
 
 - [ ] Validate the complete model root with warnings as errors; name the tool,
-      version and result. Current pins: standalone 4.139.0 / CLI 3.53.1; bundle
-      compatibility and execution are separate checks.
+      version and result. Pins: toolchain `references/versions.md`;
+      bundle compatibility and execution are separate checks.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
 - [ ] Format rules live on the `concept`; state-dependent rules are specifications.

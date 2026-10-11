@@ -209,9 +209,8 @@ persona/policy and table/case/caseParameter provenance. Neither view executes.
 ## Identity, compliance and processing views
 
 Screenplay v4.127.0 `mcp/reference.md` and `authoring-tools.md` describe these
-additions (checked at 4.127.0); discover installed schemas because current
-Previous CLI 3.46.1 bundled Screenplay 4.130.0; CLI 3.50.0 bundles
-4.131.0, so these source objects are available there too.
+additions (checked at 4.127.0). Discover installed schemas; current compiler
+and bundle pins are in `cratis-screenplay-toolchain/references/versions.md`.
 
 - Identity/detail summaries expose declared sources; `$identity` has its own
   expression node. The block alone stays executable-ready, but executable reads
@@ -354,7 +353,8 @@ the open model as candidate:
 }
 ```
 
-These source objects require Screenplay 4.131.0; CLI 3.50.0 bundles it
+These source objects require Screenplay 4.131.0; compare the bundled compiler
+in `cratis-screenplay-toolchain/references/versions.md` with that minimum
 (previous CLI 3.46.1 bundled 4.130.0).
 Discover installed schemas rather than assuming bundle parity.
 Check that the registered worktree is checked out at the intended commit and

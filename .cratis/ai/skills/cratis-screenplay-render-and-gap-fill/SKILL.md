@@ -25,9 +25,9 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 
 | Source | Pin | Used for |
 | --- | --- | --- |
-| cratis CLI | `3.50.0` (`v3.50.0`) | Source-checked `Directory.Packages.props`: Stage 4.67.0, Screenplay 4.131.0, `Cratis.Arc.Screenplay` 22.54.0, Chronicle 19.32.0, Fundamentals 7.22.8; default runtime image `cratis/stage:4.67.0`. Previous CLI 3.46.1 used Stage 4.52.0/Screenplay 4.130.0. No new render/browser probe. UI-profile rejection (`CLI-RENDER-007` to `CLI-RENDER-010`) and render-then-recover shipped in 3.41.0 (Cratis/cli#301). Historical screens release vector: 3.40.7 (`af9f18e`) with `cratis/stage:4.51.1`. Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
-| Stage | `4.67.0` (CLI 3.50.0 default) | Source-checked, not executed as a new vector. Previous Stage 4.52.0 was executed on CLI 3.43.0. Admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, guarded actions (`STAGE-SCENE-ACTION-001`) and interactions (`STAGE-SCENE-INTERACTION-001`) were source-checked at 4.51.3. Older baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
-| Screenplay | bundled `4.131.0`; standalone `4.135.0` | Standalone compiler for V1 to V3; binding codes `PLAY0268` and code-attachment rules were read at `v4.66.0`. Historical CLI 3.41.0 probes used bundled 4.114.0; current `cratis` compiler claims require checking 4.131.0 |
+| cratis CLI | See `cratis-screenplay-toolchain/references/versions.md` | Historical source check at `v3.50.0:Directory.Packages.props`: Stage 4.67.0, Screenplay 4.131.0, `Cratis.Arc.Screenplay` 22.54.0, Chronicle 19.32.0, Fundamentals 7.22.8; default runtime image `cratis/stage:4.67.0`. Previous CLI 3.46.1 used Stage 4.52.0/Screenplay 4.130.0. No new render/browser probe. UI-profile rejection (`CLI-RENDER-007` to `CLI-RENDER-010`) and render-then-recover shipped in 3.41.0 (Cratis/cli#301). Historical screens release vector: 3.40.7 (`af9f18e`) with `cratis/stage:4.51.1`. Reading baselines: 3.40.3, 3.39.0 and 3.28.3 (`8b43fef`) |
+| Stage | See `cratis-screenplay-toolchain/references/versions.md` | Historical source check: 4.67.0 under CLI 3.50.0, not executed as a new vector. Previous Stage 4.52.0 was executed on CLI 3.43.0. Admission (`STAGE-ESM-*`, and `PLAY0268` render refusals surfaced by the CLI), ownership manifest, `Customizations/` seams, Debug-only specifications, guarded actions (`STAGE-SCENE-ACTION-001`) and interactions (`STAGE-SCENE-INTERACTION-001`) were source-checked at 4.51.3. Older baselines: 4.49.5, 4.43.0 and `v4.24.2` (`32dcac4`) |
+| Screenplay | See `cratis-screenplay-toolchain/references/versions.md` | Standalone compiler for V1 to V3; binding codes `PLAY0268` and code-attachment rules were read at `v4.66.0`. Historical CLI 3.41.0 probes used bundled 4.114.0; check the pinned bundled compiler before making `cratis` claims |
 | Rendered apps (historical check) | Arc `22.50.5`, Chronicle `19.32.0`, Scene packages | Stage 4.51.3 scaffold; `[ProtectedDecision]` / `DecisionRead<T>` available to gap-fill, not emitted enforcement. Embedded reverse extraction disabled; verify generated packages before claiming exact Scene runtime parity |
 
 Historical facts retain their checked tags; current pins are source-checked, not new runtime probes.
@@ -77,8 +77,9 @@ the model, hand-write the command and its response with the model (and its fixtu
 specifications) as the contract, and report V3 from the standalone tool and V5 as `not run: no render`.
 
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on standalone
-Screenplay 4.125.0, so report V3 and V4 from that tool. Previous CLI 3.46.1 refused above v7 with CLI-RENDER-004. Current CLI 3.50.0/Stage
-4.67.0 reaches v8 route checks and construct admission through v10. Public publication,
+Screenplay 4.125.0, so report V3 and V4 from that tool. Previous CLI 3.46.1 refused above v7 with CLI-RENDER-004. The pinned CLI/Stage pair
+(`cratis-screenplay-toolchain/references/versions.md`) reaches v8 route checks
+and construct admission through v10. Public publication,
 foreign events/event captures and v10 reaction identity/filters/production overrides
 still receive typed refusals; reducer filters render. Keep refused scope as case A/C,
 never infer target support from binding. Read Stage's `references/admission.md` and

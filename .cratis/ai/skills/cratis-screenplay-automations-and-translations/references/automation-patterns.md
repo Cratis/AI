@@ -72,8 +72,8 @@ Screenplay 4.125.0 declares the actor with reaction-level `runs as system role
 "<Role>"` (ESM v10); without it a gated invocation has no caller and denies.
 `given caller` is not an invocation actor. Role requirements remain enforced;
 claim conditions for this system principal remain unknown. Historical CLI 3.41.0's
-older compiler rejected the syntax (PLAY0137). CLI 3.50.0 bundles Screenplay 4.131.0 / Stage 4.67.0 and reaches v10
-construct admission, but reaction identity still refuses STAGE-ESM-034.
+older compiler rejected the syntax (PLAY0137). The pinned CLI/Stage pair (toolchain
+`references/versions.md`) reaches v10 construct admission, but reaction identity still refuses STAGE-ESM-034.
 Previous CLI 3.46.1 refused v10 at its version gate; see toolchain `references/versions.md`.
 Use the checked model in captures-and-reactions `references/invocation-identity.md`.
 Arc gap-fill uses `[ExecuteCommandsAsSystem("<role>")]` for returned commands,

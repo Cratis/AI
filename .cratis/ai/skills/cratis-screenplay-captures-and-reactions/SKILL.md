@@ -75,8 +75,8 @@ Read [invocation identity](references/invocation-identity.md) for the checked
 scenario, claim/unknown semantics and PLAY0647–0652/0557 diagnostics.
 
 Historical CLI 3.41.0's 4.114.0 compiler rejected this source with PLAY0137.
-Previous CLI 3.46.1 refused v10 (CLI-RENDER-004); CLI 3.50.0 reaches
-Stage 4.67.0's construct admission, still refusing identity (STAGE-ESM-034).
+Previous CLI 3.46.1 refused v10 (CLI-RENDER-004); the pinned CLI/Stage pair (toolchain
+`references/versions.md`) reaches construct admission, still refusing identity (STAGE-ESM-034).
 Target realization is gap-fill, using Arc `[ExecuteCommandsAsSystem]` for returned commands. Without that attribute
 Arc supplies no principal and `[Authorize]`/`[Roles]` deny. Each invoked command
 is atomic, not the whole cascade; earlier accepted facts remain after a later refusal.

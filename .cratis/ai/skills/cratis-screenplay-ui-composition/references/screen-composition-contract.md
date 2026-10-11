@@ -37,8 +37,8 @@ CLI 3.43.0 with its default `cratis/stage:4.52.0` and bundled Screenplay 4.127.0
 the executed vector renders on Scene 4.15.0. Packages published since are newer than
 that vector and are not claimed verified: Scene 4.17.0, Screenplay 4.133.1, Stage
 4.64.0, previous CLI 3.46.1 (bundled Screenplay 4.130.0; its then-default Stage was
-4.52.0) and Studio 0.152.2. Current pins are CLI 3.50.0 (Screenplay 4.131.0 / Stage
-4.67.0) and standalone Screenplay 4.135.0; see toolchain `references/versions.md`.
+4.52.0) and Studio 0.152.2. Current pins:
+`cratis-screenplay-toolchain/references/versions.md`.
 All three levels hold for the canonical `ScreenComposition` corpus on the historical vector:
 
 - authoring and executable admission: MCP opens it with `sourceSuccess true`,

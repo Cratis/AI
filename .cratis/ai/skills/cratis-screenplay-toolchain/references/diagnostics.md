@@ -54,7 +54,7 @@ Legacy compliance spellings (`@pii`/`@sensitive`) do not evade PLAY0515.
 
 ## Public events and translation direction
 
-Current at Screenplay 4.135.0; all are errors. These constructs bind as released
+Source checked at Screenplay 4.135.0; all are errors. These constructs bind as released
 ESM v9, except public/foreign imports without local shapes (PLAY0268).
 
 | Code | Meaning / fix |
@@ -331,7 +331,7 @@ Report each as `code file:line one-line meaning`; never paste more than about 30
 
 ## Render admission (V5): `STAGE-*`, `CLI-RENDER-*`, `STAGE-CRATIS-*`
 Full table with causes: `renderable-subset.md`. The Stage 4.24.x rows below
-retain historical source/probe evidence. Current CLI 3.53.1/Stage 4.73.1 admits
+retain historical source/probe evidence. The pinned CLI/Stage pair (`versions.md`) admits
 through v10 to construct checks; above it is CLI-RENDER-004 (direct Stage:
 STAGE-ESM-016). Publication STAGE-ESM-032, foreign facts/event captures 033,
 reaction identity 034, reaction filters 035 and production overrides 036 remain

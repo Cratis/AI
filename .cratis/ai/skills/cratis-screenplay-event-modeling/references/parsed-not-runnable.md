@@ -28,7 +28,7 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
 | Generated values/responses | v7 binding/reference execution; historical Stage 4.51.3 check: member refusals STAGE-ESM-028/029 |
-| Sources/streams and command/specification routes | v8 binding/reference execution; CLI 3.50.0 reaches Stage construct checks through v10 |
+| Sources/streams and command/specification routes | v8 binding/reference execution; the pinned CLI (toolchain `references/versions.md`) reaches Stage checks through v10 |
 | Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage planner refuses v10 |
 | Operations/systems, exact numbers, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
 | UI | Authoring/deferred metadata; runtime support is a separate consumer contract |

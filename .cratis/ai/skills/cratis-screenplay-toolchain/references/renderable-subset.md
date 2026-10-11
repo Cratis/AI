@@ -7,8 +7,7 @@
 - Ownership, publication and recovery
 - Reading V5
 
-Current pins: standalone Screenplay 4.139.0; CLI 3.53.1 bundles Screenplay
-4.137.0 and Stage 4.73.1 (`versions.md`). CLI/Stage admit through v10 to construct
+Current compiler/CLI/Stage pins: `versions.md`. CLI/Stage admit through v10 to construct
 checks, not blanket rendering; above v10 is CLI-RENDER-004 (direct Stage:
 STAGE-ESM-016). v9 publication/foreign facts and v10 reaction identity,
 reaction filters and production overrides still refuse STAGE-ESM-032–036;
@@ -69,7 +68,7 @@ accepted with PLAY0565 information); either still refuses binding. Identity bloc
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding
-refusal above; current CLI 3.53.1 reaches Stage's v8 route checks. Never split hand-joined
+refusal above; the pinned CLI (`versions.md`) reaches Stage's v8 route checks. Never split hand-joined
 legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
 
 ## Authoring consequences in renderable mode

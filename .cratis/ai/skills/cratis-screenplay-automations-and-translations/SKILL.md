@@ -40,8 +40,8 @@ identity, effect and pending-work contract at that point; do not postpone it to 
 - Reaction `runs as system role "<Role>"` declares an invocation actor (ESM v10).
   Without it the invoke has no caller. Historical CLI 3.41.0's 4.114.0 compiler
   rejected the syntax (PLAY0137); previous CLI 3.46.1 refused ESM v10
-  at render admission (CLI-RENDER-004). CLI 3.50.0 reaches Stage 4.67.0's
-  construct admission, which still refuses reaction identity (STAGE-ESM-034). Checked model/diagnostics: captures-and-reactions
+  at render admission (CLI-RENDER-004). The pinned CLI/Stage pair (toolchain
+  `references/versions.md`) reaches construct admission, which still refuses reaction identity (STAGE-ESM-034). Checked model/diagnostics: captures-and-reactions
   `references/invocation-identity.md`.
 
 ## Effect guarantees and recovery traps

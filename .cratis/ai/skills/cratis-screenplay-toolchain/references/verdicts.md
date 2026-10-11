@@ -28,7 +28,7 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 
 | Tool | Command | Pass | Fail |
 | --- | --- | --- | --- |
-| Standalone 4.139.0 (preferred) | `screenplay <model-root> --warnaserror --no-color` | exit 0 and a nonzero compiled file count | exit 1 defects; exit 2 could not run/invalid arguments or input |
+| Standalone (preferred; pin: `versions.md`) | `screenplay <model-root> --warnaserror --no-color` | exit 0 and a nonzero compiled file count | exit 1 defects; exit 2 could not run/invalid arguments or input |
 | cratis (fallback) | `cratis screenplay validate <model-folder> --warnings-as-errors -o json-compact` | exit 0 | exit 5; exit 1 means missing path or no files |
 
 - Validate the complete application root, not an independently selected fragment.
@@ -85,7 +85,7 @@ never "specifications pass".
   `secret`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.
 - A model is executable only on the compiler that bound it. V3 does not carry
-  to render admission: CLI 3.53.1 passes through ESM v10 to Stage construct
+  to render admission: the pinned CLI (`versions.md`) passes through ESM v10 to Stage construct
   checks; newer models receive CLI-RENDER-004. Public publication and reaction
   identity/filters/production overrides still receive typed Stage refusals.
   The old 3.28.x/Stage 4.24.x probes remain historical in the subset references.
@@ -152,9 +152,9 @@ source change makes earlier verdicts stale.
 
 Historical corpus fences were checked with standalone 4.68.0 and CLI 3.28.2.
 Do not promote those results to current pins without rerunning. Check each changed
-complete fence with standalone 4.139.0 `--warnaserror`; run `screenplay test` for
+complete fence with the pinned standalone tool (`versions.md`) `--warnaserror`; run `screenplay test` for
 specification examples, and verify expected-diagnostic examples against their
-claimed codes. Where bundle compatibility matters, also check CLI 3.53.1.
+claimed codes. Where bundle compatibility matters, also check the pinned CLI (`versions.md`).
 The `// Needs the standalone screenplay compiler (ESM v6)` first-line marker belonged to cratis
 before 3.28.2, which could not validate those fences; no fence carries it now, and a
 checker that still skips marked fences under `cratis` skips nothing. Examples meant to execute are also opened through MCP and

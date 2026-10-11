@@ -12,7 +12,7 @@
 - Not refused, but do not rely on it
 - Never do this to reach V3
 
-Current pins are Screenplay 4.139.0 / CLI 3.53.1 (`versions.md`). Detailed
+Current pins: `versions.md`. Detailed
 4.66.0/4.68.0 binder probes below retain their historical labels. Current source
 admits routes as ESM v8, public/direction constructs as v9, identity/overrides/filters
 as v10 and qualifying non-route Double literals as v11. Operations,
@@ -94,7 +94,7 @@ Authority: v4.127.0 `context.md`, `identity.md`, `concepts.md`, `events.md`, `pu
   ...` with an explicit `for`. Without a declared actor, a gated invocation denies.
   On 4.125.0 reaction `runs as system role "<Role>"` supplies the actor and
   selects ESM v10; keep the gate. CLI 3.41.0's older compiler rejected this syntax;
-  CLI 3.50.0's bundle supports it, but Stage refuses reaction identity with STAGE-ESM-034.
+  The pinned CLI bundle (`versions.md`) supports it, but Stage refuses reaction identity with STAGE-ESM-034.
   Standalone reference execution admits it.
 - Application `trigger` declarations and `when trigger` specifications.
 - `slice Translate` with `capture` (`key`, `map ... translate`, `append ... when x from "a"
@@ -202,7 +202,7 @@ bodies still leave their owner non-executable.
 | `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
 | `pii` or `secret` on any concept (also alias/legacy markers) | PLAY0268 | Compliance requires portable data-subject semantics; scopes/qualifiers do not admit it. Secret provider mapping is `[Encrypted]` + `[NotAudited]`, not a bind/render claim |
-| `query` returning a collection (`RM[]`), or without exactly one caller-supplied scalar `by` | PLAY0268 | Current 4.135.0 boundary: composite `by` blocks remain unadmitted (#599); optional scalar snapshot lookup binds |
+| `query` returning a collection (`RM[]`), or without exactly one caller-supplied scalar `by` | PLAY0268 | Historical 4.135.0 source check: composite `by` blocks remain unadmitted (#599); optional scalar snapshot lookup binds |
 | `observable`, `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` goes in the return position (`=> observable RM optional`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
 | Date or DateTime comparison, `today` | PLAY0268 | no runtime date value |

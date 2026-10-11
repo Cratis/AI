@@ -42,18 +42,16 @@ argument or an invalid semantic option.
 
 | Source | Pin | Notes |
 | --- | --- | --- |
-| Stage | `4.67.0` as CLI 3.50.0's renderer and default sandbox image | Source-checked, not a new executed vector. Case tables (4.59.0+) and whole numbers as `long` from ESM v8 (4.61.0+) apply to this default. Previous CLI 3.46.1 used Stage 4.52.0 (`0e4fd87`) and applied neither. Stage 4.52.0 defines `STAGE-SCENE-ACTION-001`/`STAGE-SCENE-INTERACTION-001` and was executed on CLI 3.43.0. Earlier executed baselines: 4.51.3, 4.51.1, 4.49.5 and `v4.24.2` (`32dcac4`) |
-| cratis CLI | `3.50.0` (`546dea12`) | `v3.50.0:Directory.Packages.props` pins Stage 4.67.0, Screenplay 4.131.0, Arc.Screenplay 22.54.0, Chronicle 19.32.0, Fundamentals 7.22.8. `cratis run --tag` changes only the sandbox image. Executed render/browser/MCP baseline remains 3.43.0 (Stage 4.52.0, Screenplay 4.127.0), not a 3.50.0 probe; UI-profile refusal and rendered recovery shipped in Cratis/cli#301. Older baselines: 3.41.0, 3.40.7, `v3.28.2` (`141c499`, Cratis/cli#253) |
-| Screenplay | bundled `4.131.0`; standalone pin `4.135.0` | Name the compiler: bundled 4.131.0 lacks v11 literal lowering; `semantic-diff` source objects are in both current tools |
+| Stage | See toolchain pins below | Historical source check: Stage 4.67.0 under CLI 3.50.0, not a new executed vector. Case tables (4.59.0+) and whole numbers as `long` from ESM v8 (4.61.0+) apply to the pinned default. Previous CLI 3.46.1 used Stage 4.52.0 (`0e4fd87`) and applied neither. Stage 4.52.0 defines `STAGE-SCENE-ACTION-001`/`STAGE-SCENE-INTERACTION-001` and was executed on CLI 3.43.0. Earlier executed baselines: 4.51.3, 4.51.1, 4.49.5 and `v4.24.2` (`32dcac4`) |
+| cratis CLI | See toolchain pins below | Historical source check: `v3.50.0:Directory.Packages.props` pins Stage 4.67.0, Screenplay 4.131.0, Arc.Screenplay 22.54.0, Chronicle 19.32.0, Fundamentals 7.22.8. `cratis run --tag` changes only the sandbox image. Executed render/browser/MCP baseline remains 3.43.0 (Stage 4.52.0, Screenplay 4.127.0), not a 3.50.0 probe; UI-profile refusal and rendered recovery shipped in Cratis/cli#301. Older baselines: 3.41.0, 3.40.7, `v3.28.2` (`141c499`, Cratis/cli#253) |
+| Screenplay | See toolchain pins below | Name the compiler; binding and renderer admission differ. Historical 4.131.0 lacked v11 literal lowering; `semantic-diff` source objects require 4.131.0 or later |
 | Rendered applications | Arc, Chronicle, Scene 4.15.0, .NET 10 | CLI 3.43.0 renders the canonical corpus to `.cratis-render.json`, backend artifacts, `.frontend/**`, `scene.json`, `src/bindings.ts`. Verify the generated package set for each render before claiming exact Scene runtime parity |
 
 The retained admission and runtime evidence below was read at its named tags (`Source/Rendering.Cratis/**`, `README.md`,
 `Documentation/**` in Stage; `Source/Cli/Commands/Render/**` and
 `Documentation/reference/screenplay.md` in the CLI), and the vertical in
 [references/render-example.md](references/render-example.md) was rendered, built and
-tested with cratis 3.28.2 (re-run on 3.28.3). Read `references/render-example.md` when you need a complete renderable model and the observed render, build, and test results. The full version table (Screenplay 4.66.0, Arc 22.50.5,
-Chronicle 19.32.0 and the tool split) is in the `cratis-screenplay-toolchain` skill,
-`references/versions.md`. Stage 4.51.3 scaffolds Arc `22.50.5` and Chronicle
+tested with cratis 3.28.2 (re-run on 3.28.3). Read `references/render-example.md` when you need a complete renderable model and the observed render, build, and test results. Pins/tool split: `cratis-screenplay-toolchain/references/versions.md`. Stage 4.51.3 scaffolds Arc `22.50.5` and Chronicle
 `19.32.0`, with `CratisEmbeddedScreenplayEnabled=false`. `[ProtectedDecision]` and
 `DecisionRead<T>` are available to gap-fill code, not automatically emitted or
 protected by Stage; admission and unit-of-work enrollment still matter. See
@@ -140,7 +138,8 @@ Facts that surprise:
 
 ## Historical Stage 4.24 admission
 
-CLI 3.50.0/Stage 4.67.0 reaches construct checks through v10; v11 gets
+The pinned CLI/Stage pair (`cratis-screenplay-toolchain/references/versions.md`)
+reaches construct checks through v10; v11 gets
 CLI-RENDER-004 (direct Stage: STAGE-ESM-016). Public/foreign events, reaction
 identity/filters and production overrides still refuse. Reducer filters render.
 Read [admission](references/admission.md) for STAGE-ESM-032–036 and previous
@@ -198,8 +197,8 @@ Stage 4.59.0+ expands a case table to effective `<Specification>_<Case>` names
 and one generated class per case; normalized path collisions refuse the plan
 with `STAGE-CRATIS-004`. Failed case results include the case and effective fixtures.
 Stage 4.61.0+ renders whole numbers as `long` from ESM v8, retains `int` below
-v8 and refuses out-of-`int` literals there with `STAGE-ESM-031`. CLI 3.50.0's
-Stage 4.67.0 default applies both rules. Previous CLI 3.46.1's
+v8 and refuses out-of-`int` literals there with `STAGE-ESM-031`. The pinned Stage default applies both rules;
+pins: toolchain `references/versions.md`. Previous CLI 3.46.1's
 Stage 4.52.0 renderer applies neither new rule. Read
 [case tables and whole numbers](references/case-tables-and-whole-numbers.md)
 for complete examples, stored-schema consequences and the sandbox-only `--tag` override.

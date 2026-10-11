@@ -9,11 +9,10 @@
 - Observed refusals
 - Source disagreements (trust the code)
 
-Current pins are in `cratis-screenplay-toolchain` `references/versions.md`:
-Standalone Screenplay is 4.135.0; CLI 3.50.0 bundles Stage 4.67.0 / Screenplay
-4.131.0 / Arc.Screenplay 22.54.0 / Chronicle 19.32.0 / Fundamentals 7.22.8.
-It admits through ESM v10 to construct planning; above v10 is CLI-RENDER-004.
-Stage 4.67.0 `SemanticVersionFeatures`/`SemanticVersionFeatureAdmission` refuse
+Current pins: `cratis-screenplay-toolchain/references/versions.md`.
+The pinned CLI admits through ESM v10 to construct planning; a bound newer model
+gets CLI-RENDER-004. Binding with the bundled compiler is a separate prerequisite.
+The pinned Stage's `SemanticVersionFeatures`/`SemanticVersionFeatureAdmission` refuse
 public publication (STAGE-ESM-032), foreign events/events-source captures (033),
 reaction identity (034), reaction filters (035) and production overrides (036).
 Reducer filters render. ESM v8 routes have construct checks including refusal of

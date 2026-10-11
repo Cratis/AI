@@ -44,8 +44,8 @@ binds); tool-qualified verdict text; the trusted-actor text now names `[ExecuteC
 `reactions.md`, `ReactionIdentityParser.cs`, `ReactionRefusalValidator.cs` and the
 binder's v10 selection; the checked scenario passed reference execution. CLI
 3.41.0's older parser and Stage 4.51.3's v7 planner were historical target limits.
-Previous CLI 3.46.1 refused v10 at its version gate. CLI 3.50.0 bundles
-Screenplay 4.131.0/Stage 4.67.0, reaches v10 construct checks, and still refuses
-reaction identity with STAGE-ESM-034; see toolchain `references/versions.md`.
+Previous CLI 3.46.1 refused v10 at its version gate. The pinned CLI/Stage pair
+(toolchain `references/versions.md`) reaches v10 construct checks and still
+refuses reaction identity with STAGE-ESM-034.
 Public/direction forms and routes/filters follow Screenplay v4.135.0 decisions
 0049–0051 and 0060–0066, not the older inbound-only translation scope.

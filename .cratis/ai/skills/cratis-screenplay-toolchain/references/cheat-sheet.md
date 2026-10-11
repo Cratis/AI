@@ -23,12 +23,11 @@ select released v10: [routes and filters](production-routes-and-filters.md).
 Qualifying non-route Double literals select published v11 at 4.135.0;
 `numbers exact` does not bind. Non-positional enum member numbers (`draft = 1`)
 select published v12 at 4.139.0; positional pins keep earlier bytes/version,
-while specifications still use names. CLI 3.53.1/Stage 4.73.1 do not admit v12.
+while specifications still use names. The pinned CLI/Stage pair (`versions.md`) does not admit v12.
 Syntax/example: command-surface `references/enum-numbers.md`.
 See `versions.md` for freeze and numeric boundaries.
 
-Current pins: standalone Screenplay 4.139.0 / CLI 3.53.1; `versions.md` is the
-single table. Compile evidence below keeps its historical tool labels.
+Current pins: `versions.md` (the single table). Compile evidence below keeps its historical tool labels.
 
 The syntax lives in compiled example files next to this one (each is a Markdown file holding
 one complete `screenplay` fence). Copy shapes from them; do not write a form that none of

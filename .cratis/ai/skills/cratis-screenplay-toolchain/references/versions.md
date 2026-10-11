@@ -124,11 +124,14 @@ CLI 3.53.1 `RenderedSemanticVersions.Newest` is **v10**:
 `Source/Cli/Commands/Render/RenderedSemanticVersions.cs`. Stage 4.73.1 uses
 EsmSchemaV10Support in `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs`
 and construct checks in `SemanticVersionFeatureAdmission.cs`. Both bundle
-Screenplay 4.137.0, so non-positional enums compile with standalone >= 4.139.0
-but do not bind/render through this CLI. A supplied v12 ESM is not admitted by
-Stage; merely upgrading a compiler is not consumer admission. v11 gets
-CLI-RENDER-004 before planning (and STAGE-ESM-016 at the direct Stage version
-gate); v12 is newer still. Through v10 is not blanket
+Screenplay 4.137.0: non-positional enum numbers pass source validation but
+fail executable binding with PLAY0268, before renderer version admission.
+Standalone >= 4.139.0 binds them as v12; that verdict does not transfer to
+`cratis render`. The bundled compiler and Stage do not support reading v12 ESM.
+A compiler upgrade alone would not lift the CLI/Stage v10 admission ceiling.
+Bound v11 models get CLI-RENDER-004 before planning (STAGE-ESM-016 at the
+Stage version gate); this is not the diagnostic path for v12 source on these pins.
+Through v10 is not blanket
 render support: public publication STAGE-ESM-032, foreign events/event captures
 033, reaction identity 034, reaction filters 035 and production overrides 036
 remain refused; reducer filters render. ESM v8 routes reach their own checks.
@@ -142,8 +145,8 @@ read them as tested snapshots, not as a claim that Stage 4.52.0 shares every
 4.24.2 limitation. Query the actual bundled renderer before a V5 claim.
 
 Stage case tables require 4.59.0; ESM v8 whole numbers as `long` and the
-pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. CLI 3.50.0 defaults
-to Stage 4.67.0; current CLI 3.53.1 defaults to 4.73.1, so both rules apply. Previous CLI 3.46.1 bundled Screenplay
+pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. Historical CLI 3.50.0
+defaulted to Stage 4.67.0; current CLI 3.53.1 defaults to 4.73.1, so both rules apply. Previous CLI 3.46.1 bundled Screenplay
 4.130.0 and Stage 4.52.0; neither rule applied there. `cratis run --tag 4.63.2`
 selects a newer sandbox image only (`RunSettings.cs`), not a renderer package.
 `cratis render` has a statically bundled target (`RenderSettings.cs`,

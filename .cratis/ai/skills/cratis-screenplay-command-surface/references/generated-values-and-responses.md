@@ -1,9 +1,8 @@
 ## Generated values and responses (ESM v7)
 
 A `generated` command property and `returns` response bind and reference-execute
-as ESM v7 (checked at 4.68.0). Current pins are standalone Screenplay 4.139.0
-and CLI 3.53.1 (bundled Screenplay 4.137.0/Stage 4.73.1); `cratis-screenplay-toolchain`
-`references/versions.md` owns the table. CLI#261 is closed: CLI now admits v7
+as ESM v7 (checked at 4.68.0). Current pins:
+`cratis-screenplay-toolchain/references/versions.md`. CLI#261 is closed: CLI now admits v7
 to Stage planning. The historical CLI 3.41.0 v7 canonical corpus received Stage
 generated-value and response refusals STAGE-ESM-028/029. Do not turn this into a blanket compiler
 refusal or promise a render from binding alone. Preserve the contract for gap-fill
@@ -45,7 +44,7 @@ Rules (all read at `v4.68.0`):
 
 Operations remain authorable/unadmitted (PLAY0268). Named event sources,
 streams and command/specification routes instead bind and reference-execute as
-ESM v8 at 4.125.0; CLI 3.50.0 reaches Stage construct admission through v10,
+ESM v8 at 4.125.0; the pinned CLI (toolchain `references/versions.md`) reaches Stage admission through v10,
 not blanket target support. Syntax/MCP acceptance alone is not execution. Source/stream
 forms and realization boundary: `cratis-screenplay-toolchain`
 `references/sources-and-streams.md`. Do not infer further syntax or provider

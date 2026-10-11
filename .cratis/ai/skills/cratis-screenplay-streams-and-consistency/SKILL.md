@@ -88,7 +88,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8 on 4.125.0.
-   CLI 3.50.0 reaches Stage construct checks through v10; keep the routing
+   The pinned CLI (toolchain `references/versions.md`) reaches Stage construct checks through v10; keep the routing
    contract when target admission requires gap-fill. Forms/boundaries:
    toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0; not rendered by Stage yet) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no
