@@ -51,7 +51,7 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
-| `cratis/application` | Full application stack (C# + React + TypeScript) | `cratis/application/csharp`, `cratis/application/elixir`, `cratis/application/kotlin`, `cratis/application/typescript`, `cratis/arc/core`, `cratis/arc/react`, `cratis/chronicle/core`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
+| `cratis/application` | Full application stack (C# + React + TypeScript) | `cratis/application/csharp`, `cratis/application/elixir`, `cratis/application/java`, `cratis/application/kotlin`, `cratis/application/typescript`, `cratis/arc/core`, `cratis/arc/react`, `cratis/chronicle/core`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
 | `cratis/application/csharp` | C# backend with Arc + Chronicle | `cratis/arc`, `cratis/arc/react`, `cratis/chronicle`, `cratis/components`, `cratis/fundamentals`, `cratis/language/csharp`, `cratis/screenplay`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
 | `cratis/application/react` | React frontend with Cratis Components | `cratis/arc/core`, `cratis/arc/react`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
 | `cratis/application/typescript` | TypeScript client for Chronicle | `cratis/chronicle/client-typescript`, `cratis/language/typescript`, `cratis/screenplay`, `cratis/specifications/typescript` |
@@ -238,8 +238,8 @@ Project-owned configuration can name a root explicitly.
 `cratis screenplay mcp --project-root <project>`, that version resolves the root
 without creating it; discovery, startup and proposals leave no model folder, and
 the first `apply` write creates it. `cratis ai install` also creates no model
-folder unless the project configured a root. Older CLIs create `Screenplay/` at
-server startup; upgrade before using the automatically selected MCP server in a
+folder unless the project configured a root. Older CLIs create the resolved model root at
+server startup (`Screenplay/` when no `.play` files, `Source/` or `src/` exist); upgrade before using the automatically selected MCP server in a
 repository without a model. See the toolchain skill's
 [version reference](../skills/cratis-screenplay-toolchain/references/versions.md).
 

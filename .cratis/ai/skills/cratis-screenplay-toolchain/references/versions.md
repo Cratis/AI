@@ -36,7 +36,7 @@ on PATH can shadow a newer install; inspect `which -a cratis`.
 `cratis screenplay mcp --project-root <project>` resolves a root without creating
 it; startup, discovery and proposals leave no model folder, and the first
 `apply` write creates it. `cratis ai install` creates no model folder unless a
-root is configured. Older CLIs create `Screenplay/` on server startup. Released
+root is configured. Older CLIs create the resolved root on server startup (`Screenplay/` when no `.play` files, `Source/` or `src/` exist). Released
 source evidence: CLI
 `Source/Cli.Specs/for_ScreenplayMcpInvocation/when_serving_a_project_without_a_model/and_the_client_writes_a_document.cs`
 and `Source/Cli.Specs/for_AiMcpRegistration/when_installing/with_a_composed_profile.cs`
