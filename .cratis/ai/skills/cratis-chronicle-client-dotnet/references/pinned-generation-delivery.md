@@ -30,8 +30,8 @@ var eventStore = await client.GetEventStore("People");
 
 ## Host integration
 
-`AddCratisChronicle` extends `IHostApplicationBuilder`, **not**
-`IServiceCollection`. Its `ChronicleClientOptions` inherits the delivery option.
+`AddCratisChronicle` extends `IHostApplicationBuilder` (an `IHostBuilder`
+overload also exists), **not** `IServiceCollection`. Its `ChronicleClientOptions` inherits the delivery option.
 This worker-host configuration excerpt uses `Cratis.Chronicle` **19.48.0** and
 `Microsoft.Extensions.Hosting`; add the application's hosted worker and start
 the host as usual.
@@ -52,8 +52,9 @@ builder.AddCratisChronicle(options =>
 
 - Reactors and reducers pin the generation of the handler's CLR event type.
   Typed materialized projections (fluent, model-bound, or explicitly registered)
-  pin each clause's declared CLR event generation. Live, catch-up, replay, and
-  partition retry use kernel generation selection and schema-guided release.
+  pin each clause's declared CLR event generation. Live, catch-up, and replay
+  (and, for reactors and reducers, partition retry) use kernel generation
+  selection and schema-guided release.
 - Projection pins cover `From`, `Join`, children, nested objects, removals,
   event-content keys, and parent keys. Stored join/parent-event lookups select
   and release through the same boundary as incoming events.
