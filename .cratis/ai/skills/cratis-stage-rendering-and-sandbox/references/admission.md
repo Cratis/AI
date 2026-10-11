@@ -263,4 +263,3 @@ is `references/renderable-subset.md` in `cratis-screenplay-toolchain`.
 Read `cratis-screenplay-toolchain/references/renderable-subset.md` when you need the exhaustive surface ledger beyond the admission summary.
 
 (At 4.24 descriptions and documentation were not rendered at all; since Stage#178 they render as XML doc comments only. Prose is still never enforced behavior.)
-
