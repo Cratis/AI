@@ -20,9 +20,14 @@ export function issueBody(version: string, report: Awaited<ReturnType<typeof ver
 export async function syncIssue(github: Github, repository: string, version: string, report: Awaited<ReturnType<typeof verifyContract>>): Promise<void> {
     if (!/^v?\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(version)) throw new Error('Invalid Screenplay release version.');
     const label = 'screenplay-sync';
-    const labels: unknown = JSON.parse(await github(['label', 'list', '--repo', repository, '--search', label, '--limit', '100', '--json', 'name']));
+    const labelOutput = await github(['label', 'list', '--repo', repository, '--search', label, '--limit', '100', '--json', 'name']);
+    // gh label list exits successfully without JSON when the search finds no labels.
+    const labels: unknown = JSON.parse(labelOutput.trim() || '[]');
     if (!Array.isArray(labels) || !labels.every(item => typeof item === 'object' && item !== null && typeof item.name === 'string')) throw new Error('Invalid GitHub label list.');
-    if (!labels.some(item => item.name === label)) await github(['label', 'create', label, '--repo', repository, '--color', '5319e7', '--description', 'Screenplay published-contract drift']);
+    if (!labels.some(item => item.name === label)) {
+        if (report.problems.length === 0) return;
+        await github(['label', 'create', label, '--repo', repository, '--color', '5319e7', '--description', 'Screenplay published-contract drift']);
+    }
     const issues: unknown = JSON.parse(await github(['issue', 'list', '--repo', repository, '--label', label, '--state', 'open', '--limit', '100', '--json', 'number']));
     if (!Array.isArray(issues) || !issues.every(item => typeof item === 'object' && item !== null && Number.isSafeInteger(item.number) && item.number > 0)) throw new Error('Invalid GitHub issue list.');
     if (issues.length > 1) throw new Error('Multiple open screenplay-sync issues; reconcile them before automation continues.');
