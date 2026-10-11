@@ -28,7 +28,7 @@ Require target evidence that the check ran: a concurrent first-append scenario a
 Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
 is `true` (a skipped check and a passing one look identical otherwise; a current client against
 an older kernel always reads `false`). This was source- and documentation-inspected, not
-concurrency-tested here. Stage 4.51.3 rendered apps pin Chronicle client/kernel 19.32.0
+concurrency-tested here. The historically checked Stage 4.51.3 scaffold pins Chronicle client/kernel 19.32.0
 and Arc 22.50.5; the APIs exist for gap-fill, not as automatically rendered enforcement.
 
 ## Verified product sources
@@ -38,7 +38,7 @@ and Arc 22.50.5; the APIs exist for gap-fill, not as automatically rendered enfo
 | Screenplay | v4.68.0 (`79801bf`) | ESM v7 generated values (`generated identifier`, decision 0026) and decision 0025's numbering; the diagnostics below were read at v4.66.0 (`c89198b`): `identifier`, `for`, constraints, generations, `id` pins, diagnostics PLAY0019/0135/0268/0271/0273/0391-0393/0446-0449/0469/0471 |
 | Chronicle | v19.32.0 (`f17a2ff`) | CHR0012, CHR0034; open defects #3744, #4123, #4131 |
 | Arc | v22.50.5 | `[ProtectedDecision]` and `DecisionRead<T>` (since v22.39.0) |
-| Stage | v4.51.3 | rendered apps pin Arc 22.50.5 and Chronicle client/kernel 19.32.0; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
+| Stage (historical source check) | v4.51.3 | rendered apps pin Arc 22.50.5 and Chronicle client/kernel 19.32.0; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
 
 Full pin table: `references/versions.md` in `cratis-screenplay-toolchain`. Re-check the three
 Chronicle issues before relying on a constraint in a later release.
@@ -88,7 +88,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8 on 4.125.0.
-   CLI 3.41.0 rendering admits through v7 only (CLI-RENDER-004); keep the routing
+   CLI 3.46.1 rendering admits through v7 only (CLI-RENDER-004); keep the routing
    contract and gap-fill its target realization. Forms/boundaries:
    toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0; not rendered by Stage yet) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no

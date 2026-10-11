@@ -34,8 +34,9 @@ identity, effect and pending-work contract at that point; do not postpone it to 
   planner audits through v7. Deliver that scope as authorized gap-fill
   (`references/realization-and-gap-fill.md`).
 - Reaction `runs as system role "<Role>"` declares an invocation actor (ESM v10).
-  Without it the invoke has no caller. CLI 3.41.0's 4.114.0 compiler rejects the
-  new syntax (PLAY0137). Checked model/diagnostics: captures-and-reactions
+  Without it the invoke has no caller. Historical CLI 3.41.0's 4.114.0 compiler
+  rejected the syntax (PLAY0137); current CLI 3.46.1 instead refuses ESM v10
+  at render admission (CLI-RENDER-004). Checked model/diagnostics: captures-and-reactions
   `references/invocation-identity.md`.
 
 ## Effect guarantees and recovery traps

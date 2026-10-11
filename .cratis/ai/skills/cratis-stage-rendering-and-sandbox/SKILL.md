@@ -42,12 +42,12 @@ argument or an invalid semantic option.
 
 | Source | Pin | Notes |
 | --- | --- | --- |
-| Stage | `4.52.0` (`v4.52.0`, `0e4fd87`) as the CLI 3.43.0 default; latest public package `4.57.0` (`3b8049f`) | Renderer, sandbox host, spec runner; the CLI default image is `cratis/stage:4.52.0`. Both define `STAGE-SCENE-ACTION-001` and `STAGE-SCENE-INTERACTION-001`. Earlier executed baselines: 4.51.3, 4.51.1, 4.49.5 and `v4.24.2` (`32dcac4`) |
-| cratis CLI | `3.43.0` (`v3.43.0`, `23e5a24`) | `cratis render`, `cratis run`; the tag pins `StageVersion` 4.52.0 and `ScreenplayVersion` 4.127.0. The public CLI renders the canonical corpus and runs the stdio MCP transcript; refusing an unresolvable UI profile and recovering a rendered application shipped in Cratis/cli#301. Older baselines: 3.41.0, 3.40.7, `v3.28.2` (`141c499`, Cratis/cli#253) |
-| Screenplay | bundled `4.127.0`; latest public language package `4.129.0` | The CLI bundles 4.127.0, so compiler claims made through `cratis` are 4.127.0 claims; use the standalone 4.129.0 tool only for language features newer than the bundle |
+| Stage | `4.52.0` (`v4.52.0`, `0e4fd87`) as the CLI 3.46.1 default; latest public package `4.63.2` (`e699294`) | Default image `cratis/stage:4.52.0`; case tables require 4.59.0, ESM v8 whole numbers as `long` require 4.61.0. Neither new rule applies to the CLI default renderer. Stage 4.52.0 was executed on CLI 3.43.0. Earlier executed baselines: 4.51.3, 4.51.1, 4.49.5 and `v4.24.2` (`32dcac4`) |
+| cratis CLI | `3.46.1` (`v3.46.1`, `73578fbf`) | Source-checked `Directory.Packages.props` pins Stage 4.52.0 and Screenplay 4.130.0. `cratis run --tag` changes only the sandbox image; the renderer needs a CLI release pinning newer Stage. Executed render/browser/MCP baseline remains 3.43.0 (Stage 4.52.0, Screenplay 4.127.0), not a 3.46.1 probe; refusing an unresolvable UI profile and recovering a rendered application shipped in Cratis/cli#301. Older baselines: 3.41.0, 3.40.7, `v3.28.2` (`141c499`, Cratis/cli#253) |
+| Screenplay | bundled `4.130.0`; standalone pin `4.131.0` | Compiler claims through CLI 3.46.1 are 4.130.0 claims. The 4.131.0 `semantic-diff` source objects require the newer standalone MCP, not the current CLI bundle |
 | Rendered applications | Arc, Chronicle, Scene 4.15.0, .NET 10 | CLI 3.43.0 renders the canonical corpus to `.cratis-render.json`, backend artifacts, `.frontend/**`, `scene.json`, `src/bindings.ts`. Verify the generated package set for each render before claiming exact Scene runtime parity |
 
-Everything below was read at those tags (`Source/Rendering.Cratis/**`, `README.md`,
+The retained admission and runtime evidence below was read at its named tags (`Source/Rendering.Cratis/**`, `README.md`,
 `Documentation/**` in Stage; `Source/Cli/Commands/Render/**` and
 `Documentation/reference/screenplay.md` in the CLI), and the vertical in
 [references/render-example.md](references/render-example.md) was rendered, built and
@@ -140,11 +140,12 @@ Facts that surprise:
 
 ## Historical Stage 4.24 admission
 
-Current pins are standalone Screenplay 4.127.0 / CLI 3.41.0 / Stage 4.51.3.
+Current pins are standalone Screenplay 4.131.0 / CLI 3.46.1 / Stage 4.52.0.
 Routes bind/reference-execute as v8; reaction `runs as` identity as v10.
-CLI renders through v7 only (CLI-RENDER-004 for newer model versions) and its
-older 4.114.0 parser rejects `runs as` (PLAY0137). Stage 4.51.3's direct planner
-also audits only through v7 (STAGE-ESM-016 otherwise). Source/identity contracts
+CLI renders through v7 only (CLI-RENDER-004 for newer model versions).
+The historical CLI 3.41.0/4.114.0 parser rejected `runs as` (PLAY0137);
+that is not a current parser refusal. Stage 4.52.0's direct planner also audits
+only through v7 (STAGE-ESM-016 otherwise). Source/identity contracts
 stay intact for gap-fill; source acceptance is not target admission.
 
 The following detailed 4.24.x probes are historical, not current pin claims.
@@ -194,6 +195,15 @@ Modeled specifications become xunit classes compiled in **Debug only**
 (`IsTestProject` when Debug): a command spec `when_<snake>` in namespace
 `<slice namespace>.when_<snake>` (so `when_x.when_x`), queries `when_<snake>_is_queried`,
 read models `when_<snake>_is_projected`.
+
+Stage 4.59.0+ expands a case table to effective `<Specification>_<Case>` names
+and one generated class per case; normalized path collisions refuse the plan
+with `STAGE-CRATIS-004`. Failed case results include the case and effective fixtures.
+Stage 4.61.0+ renders whole numbers as `long` from ESM v8, retains `int` below
+v8 and refuses out-of-`int` literals there with `STAGE-ESM-031`. CLI 3.46.1's
+Stage 4.52.0 renderer applies neither new rule. Read
+[case tables and whole numbers](references/case-tables-and-whole-numbers.md)
+for complete examples, stored-schema consequences and the sandbox-only `--tag` override.
 
 For UI, record what the generated output claims separately from what the model
 authored. On Stage 4.24 the generated scaffold is not screen parity evidence.

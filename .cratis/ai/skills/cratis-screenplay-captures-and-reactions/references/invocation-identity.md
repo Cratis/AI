@@ -69,11 +69,12 @@ module Work
   denial; opaque/unknown cases are not guessed. `--check privilege` (PLAY0652)
   reviews whether event producers require every elevated role, not runtime safety.
 
-CLI 3.41.0 bundles Screenplay 4.114.0, which does not parse `runs as`: the example's
-`cratis screenplay validate --executable --warnings-as-errors` returns PLAY0137,
-exit 5. It cannot render this source. Its render version gate separately admits
-only through v7 (CLI-RENDER-004 for newer admitted compiler output), while Stage
-4.51.3's direct planner audits through v7 and refuses v10 with STAGE-ESM-016.
+Historical CLI 3.41.0 bundled Screenplay 4.114.0, which did not parse `runs as`:
+the example's `cratis screenplay validate --executable --warnings-as-errors`
+returned PLAY0137, exit 5. This is not a current parser claim. Current CLI 3.46.1
+bundles Screenplay 4.130.0 but its render gate still admits only through v7
+(CLI-RENDER-004 for v10); bundled Stage 4.52.0's direct planner audits through
+v7 and refuses v10 with STAGE-ESM-016 (`references/versions.md` in toolchain).
 Clock/application-trigger identities have no Stage Arc realization either.
 Use authorized gap-fill with the model as contract; returned-command Arc identity
 uses `[ExecuteCommandsAsSystem]`, never permission inferred from a model header.

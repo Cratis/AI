@@ -40,7 +40,9 @@ Changes in this version: the examples are complete fenced documents that compile
 example's anonymous-booking spec gained the `given caller` PLAY0389 requires; the todo-list
 example's list query, `reads` and retry sweep moved to marked design-only excerpts so the core
 binds); tool-qualified verdict text; the trusted-actor text now names `[ExecuteCommandsAsSystem]`
-(Arc v20.56.0). Current actor syntax was reverified at Screenplay v4.125.0
+(Arc v20.56.0). Actor syntax was reverified at Screenplay v4.125.0
 `reactions.md`, `ReactionIdentityParser.cs`, `ReactionRefusalValidator.cs` and the
-binder's v10 selection; the checked scenario passes reference execution. CLI
-3.41.0's older parser and Stage 4.51.3's v7 planner remain target limits.
+binder's v10 selection; the checked scenario passed reference execution. CLI
+3.41.0's older parser and Stage 4.51.3's v7 planner were historical target limits.
+Current CLI 3.46.1 bundles Screenplay 4.130.0 / Stage 4.52.0 and still refuses
+v10 at render admission (CLI-RENDER-004; toolchain `references/versions.md`).

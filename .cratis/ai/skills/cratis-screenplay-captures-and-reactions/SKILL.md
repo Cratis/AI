@@ -75,8 +75,9 @@ reference invocation's authenticated system principal with exactly those roles;
 Read [invocation identity](references/invocation-identity.md) for the checked
 scenario, claim/unknown semantics and PLAY0647–0652/0557 diagnostics.
 
-CLI 3.41.0's 4.114.0 compiler rejects this source with PLAY0137; its version gate
-and Stage 4.51.3 planner admit only through v7. Target realization is gap-fill,
+Historical CLI 3.41.0's 4.114.0 compiler rejected this source with PLAY0137.
+Current CLI 3.46.1 bundles Screenplay 4.130.0 / Stage 4.52.0; its render version
+gate still admits only through v7 (CLI-RENDER-004 for v10). Target realization is gap-fill,
 using Arc `[ExecuteCommandsAsSystem]` for returned commands. Without that attribute
 Arc supplies no principal and `[Authorize]`/`[Roles]` deny. Each invoked command
 is atomic, not the whole cascade; earlier accepted facts remain after a later refusal.

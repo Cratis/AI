@@ -122,12 +122,13 @@ not to the AI corpus. Link to the fixture path and run its published checks; do 
 copy those `.play` files into `.cratis/ai/` or into a skill reference as a
 maintained duplicate.
 
-Verified public vector and executable checks:
+Historical verified public vector and executable checks:
 
-- toolchain: public CLI 3.43.0 (`23e5a24`), whose default runtime is
-  `cratis/stage:4.52.0` and which bundles Screenplay 4.127.0. Latest public
-  packages are Scene 4.15.0, Screenplay 4.129.0, Stage 4.57.0 and Studio 0.144.4;
-  claims made through `cratis` are 4.127.0 compiler claims;
+- executed toolchain: public CLI 3.43.0 (`23e5a24`), whose default runtime was
+  `cratis/stage:4.52.0` and which bundled Screenplay 4.127.0. Latest public
+  Screenplay is 4.131.0 and Stage is 4.63.2; Scene 4.15.0 and Studio 0.144.4
+  were the public package vector at this probe. Compiler claims from this
+  `cratis` probe are 4.127.0 claims, not current CLI 3.46.1/Screenplay 4.130.0 claims;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
 - Screenplay repo tool (available checkout): `dotnet run --project Source/DotNET/Tool

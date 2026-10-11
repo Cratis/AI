@@ -11,8 +11,8 @@ technique: partial work stays visible and nothing is skipped because it looked r
 
 Result is `complete` only when every column is filled or says why it does not apply (for example
 "direct effect: immediate, internal, cannot fail"). `open` names the unresolved decision and who
-answers. `blocked` names the actual capability gap (for example CLI 3.41.0's
-older compiler cannot parse a declared ESM v10 reaction actor) with intended behavior.
+answers. `blocked` names the actual capability gap (for example current CLI
+3.46.1 refuses ESM v10 at render admission with CLI-RENDER-004) with intended behavior.
 
 ## Per translation (capture or translator reaction)
 | Source and type | Location | Correlation | Field dispositions | Target fields traced | Dedup and ordering | Trust boundary | Recovery owner | Named cases | Result |
