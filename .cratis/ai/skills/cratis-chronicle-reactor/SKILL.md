@@ -45,6 +45,11 @@ This skill is verified against these exact sources:
 | `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Reactors`, `Cratis.Chronicle.Reactors.SideEffects`, `Cratis.Chronicle.EventSequences`, `Cratis.Chronicle.Events` |
 | `Cratis.Chronicle.CodeAnalysis` | `18.3.0` | `CHR0004`, `CHR0005`, `CHR0008`, `CHR0013`, `CHR0022`, `CHR0031`, `CHR0032` |
 
+Scenario read-model seeding/absence, synchronous handler exception propagation,
+and the `EventContext.From` UTC default are verified separately at **Chronicle
+19.46.0**; they require **19.46.0+**. See the source paths in
+[references/specifications.md](references/specifications.md).
+
 Reverify product sources before claiming support for another version.
 
 > **There is no `ReactorSideEffect` type.** It does not exist in Chronicle, in
@@ -363,7 +368,17 @@ when they serve that concern.
 
 Start with `Specification` plus a direct call for pure reactor decisions; add `ReactorScenario<TReactor>` only where invocation, dependency wiring or side effects contribute proof. Specify the contract, not only the happy path: field lineage, contract-authorized filtering, repeated delivery, and unrelated events.
 
-Read [references/specifications.md](references/specifications.md) when writing or reviewing reactor specifications.
+In Chronicle **19.46.0+**, a handler's unseeded read-model parameter throws
+`ReadModelNotSeededForReactorScenario`, even if nullable. Seed it through
+`Given.ForEventSourceId(id).ReadModel(instance)`, or declare intentional absence
+with `.NoReadModel<T>()`. Use the resolved read-model key; `Given` events do not
+build read models, including passive ones. A synchronous handler throw surfaces
+the handler's exception rather than a reflection wrapper, and the scenario's
+`EventContext.Occurred` defaults to UTC.
+
+Read [references/specifications.md](references/specifications.md) before writing
+or reviewing reactor specifications; it shows both setup alternatives and the
+scope of these scenario-only guards.
 
 ## Verify
 

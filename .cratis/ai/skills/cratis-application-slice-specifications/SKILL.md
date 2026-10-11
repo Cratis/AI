@@ -30,6 +30,10 @@ This skill decides **when to add a scenario** and **what to cover**. The C# mech
 
 > Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
 
+Reactor read-model setup and the `EventContext.From` UTC default below are
+verified separately at **Chronicle 19.46.0**, the minimum version for that
+guidance; see `cratis-chronicle-reactor/references/specifications.md` for sources.
+
 `Cratis.Testing` is the meta-package that brings `Cratis.Arc.Testing` and
 `Cratis.Arc.Chronicle.Testing` together. Reverify against the owning product
 repository before claiming support for another version.
@@ -111,6 +115,15 @@ keep a scenario for that wiring and for appended-event behavior.
 | State View — a projection or reducer | `ReadModelScenario<TReadModel>` | `cratis-chronicle-read-model-specifications` |
 | Automation or Translation — a reactor | `ReactorScenario<TReactor>` | `cratis-specifications-csharp` |
 | A host, transport, or real-infrastructure boundary | Out-of-process integration | `cratis-specifications-csharp` |
+
+For a class-based reactor scenario on **Chronicle 19.46.0+**, explicitly seed
+handler read-model parameters with `Given.ForEventSourceId(id).ReadModel(instance)`
+or declare intentional absence with `.NoReadModel<T>()`. An unseeded model throws
+`ReadModelNotSeededForReactorScenario` even if nullable; `Given` events do not
+build read models, including passive ones. Use the reactor's resolved key, not
+necessarily the trigger's source id. This is **not** the command-scenario event
+seeding described in Step 5. Read `cratis-chronicle-reactor` for the setup examples,
+exception diagnostics, synchronous handler throws and UTC context defaults.
 
 ## Step 3 — Cover every outcome of a State Change slice
 

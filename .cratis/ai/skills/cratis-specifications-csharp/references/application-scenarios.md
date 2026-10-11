@@ -262,6 +262,47 @@ async Task Because() =>
 Construct with an `IServiceProvider` of substituted collaborators and assert on
 those substitutes after `Given` fires the events.
 
+### Read-model parameters — Chronicle 19.46.0+
+
+`Given` events invoke the reactor; they **do not build read models**, including
+passive ones. In the present-state specification, seed a pre-built instance:
+
+```csharp
+void Establish() => _scenario.Given.ForEventSourceId(_id).ReadModel(_author);
+```
+
+In a **separate absence specification**, deliberately let an `Author?` handler
+parameter receive `null`:
+
+```csharp
+void Establish() => _scenario.Given.ForEventSourceId(_id).NoReadModel<Author>();
+```
+
+Both return `ReactorSourceGivenBuilder<TReactor>` for chaining, not a `Task`.
+Use the triggering source id by default or `ICanResolveReadModelKey.Resolve`'s
+key when implemented. Absence matches the exact type and key and does not remove
+a seeded instance. Missing setup throws `ReadModelNotSeededForReactorScenario`
+(`Cratis.Chronicle.Testing.Reactors`), **even for nullable parameters**. Its
+message names the type/key, explains both setups, and lists other seeded keys
+for that type when any exist. Fix the fixture/key rather than hiding missing
+setup with `NoReadModel<T>()`. This guard applies to `EventStoreForTesting`, not
+production resolution or an explicitly supplied store of another type.
+
+Also in **Chronicle 19.46.0+**, a synchronous handler throw surfaces its own
+exception, not reflection's `TargetInvocationException`, preserving the handler
+stack. Capture with `await Catch.Exception(() => _scenario.Given.ForEventSource(_id).Events(...))`
+and assert the handler's exception type.
+
+`EventContext.From(...)` defaults omitted `occurred` to `DateTimeOffset.UtcNow`,
+previously local `Now`. Scenario contexts, `EventContext.Empty` and
+`EmptyWithEventSourceId(...)` use this helper; explicit times retain their offset,
+and the positional constructor has no such default.
+
+Sources at **Chronicle tag `v19.46.0`**:
+`Source/Clients/Testing/Reactors/{ReactorScenario,ReactorSourceGivenBuilder,ScenarioReactorMethodArgumentsResolver,ReadModelNotSeededForReactorScenario}.cs`
+and `Source/Clients/DotNET/Events/EventContext.cs`. For exact signatures and
+source-backed examples, read `cratis-chronicle-reactor/references/specifications.md`.
+
 ## Application conventions
 
 - **Use a per-specification fixture value for anything under a shared uniqueness
