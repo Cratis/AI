@@ -258,6 +258,7 @@ verdict follows the rules in `references/report-template.md`.
 - Read `references/report-template.md` when classifying findings, deciding the verdict, writing the report or conducting a re-review; it defines report, severity and verdict rules.
 - Read `references/worked-example.md` when an example of the sweep, lineage or report is needed, or when checking the complete examples; it contains a seeded model, sweep notes, a filled report and the fixed model.
 - Read `references/review-questions.md` when gathering evidence for subject-specific checks or distinguishing facts from views; it contains questions per subject and domain examples.
+- Read `references/model-inventory-report.md` when asked for a read-only inventory or health summary of an existing model; it gives the gather steps, report shape and structural-gap table.
 - Read `references/business-questions.md` when conducting the business-question pass; it contains the explainer journey method, prompts and word translation.
 
 ## Lineage
