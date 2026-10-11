@@ -52,14 +52,15 @@ Fundamentals 7.22.8. These are **not** the latest releases; do not bump them in 
 Historical executed baselines (history, not current claims): Stage `v4.24.2` and cli
 `v3.28.2`/`v3.28.3` (Cratis/cli#253; the example in [render-example.md](references/render-example.md)),
 cli 3.40.7 with Stage 4.51.1 (first fully passing browser vector, Cratis/Screenplay#605) and
-CLI 3.43.0 with Stage 4.52.0. Case tables (Stage 4.59.0+) and whole numbers as `long` from ESM v8
+CLI 3.43.0 (bundled Screenplay 4.127.0) with Stage 4.52.0. UI-profile refusal and rendered recovery
+shipped in Cratis/cli#301. Case tables (Stage 4.59.0+) and whole numbers as `long` from ESM v8
 (4.61.0+) apply to the current default; the pinned Stage default applies both rules. The Stage
 4.52.0 renderer applies neither new rule.
 
 `[ProtectedDecision]` and `DecisionRead<T>` are available to gap-fill code, not automatically
 emitted or protected by Stage; admission and unit-of-work enrollment still matter. Studio 0.144.4 is
-released, but production answers every unauthenticated request with 401, so Studio production
-Play proof is not claimed.
+released, but production answers every unauthenticated request with 401 and the production UI
+automation needs a test-account decision, so Studio production Play proof is not claimed.
 
 ## Model-first rule
 

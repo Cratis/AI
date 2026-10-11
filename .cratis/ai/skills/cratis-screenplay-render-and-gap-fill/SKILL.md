@@ -31,11 +31,15 @@ Chronicle 19.45.0, which are not the latest releases (`cratis-stage-rendering-an
 `references/rendered-application.md`). Source reading is not a new render run.
 
 Runs: the worked example (`references/worked-example.md`) was probed with cratis 3.53.1 (observed; the
-3.28.2/3.28.3 runs are history); CLI 3.43.0 with Stage 4.52.0 rendered the canonical
-`ScreenComposition` corpus, and the CLI 3.40.7 browser acceptance run passed 51 assertions
-(Cratis/Screenplay#605). UI-profile rejection (`CLI-RENDER-007` to `-010`) and render-then-recover
-shipped in 3.41.0 (Cratis/cli#301). The renderer facts are owned by `cratis-stage-rendering-and-sandbox`;
-this skill links them and never restates the admission table.
+3.28.2/3.28.3 runs are history). With public CLI 3.43.0 (Stage 4.52.0) the canonical `ScreenComposition`
+corpus was rendered and published successfully, and an MCP-edited copy was rendered, run and checked in
+the browser; the CLI 3.40.7 browser acceptance run passed 51 assertions (Cratis/Screenplay#605). The AI
+repository's `screenplay-mcp-transcript.ts` harness proves the real stdio proposal/apply path against the
+packaged CLI. Guarded Close actions (`STAGE-SCENE-ACTION-001`) and double-click interactions
+(`STAGE-SCENE-INTERACTION-001`) are refused and recorded as unsupported, never emulated. UI-profile
+rejection (`CLI-RENDER-007` to `-010`) and render-then-recover shipped in 3.41.0 (Cratis/cli#301). The
+renderer facts are owned by `cratis-stage-rendering-and-sandbox`; this skill links them and never
+restates the admission table.
 
 ## When to use / when not
 
