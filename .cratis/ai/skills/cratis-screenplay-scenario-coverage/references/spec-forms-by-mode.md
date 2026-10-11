@@ -54,7 +54,7 @@ cratis before 3.28.2 bundle is available). Mark each such spec in the coverage m
 - Specs use given events, a command `when`, and then events / readmodel / query / error /
   denied. No `when append` or `then no readmodel`. `given readmodel` appears only in the
   query-only lookup below.
-- Query-only specs (no command `when`) are admitted by Stage v4.24.0 in exactly two cases, and
+- Query-only specs (no command `when`) are admitted by Stage v4.24.0 in exactly two cases (a v4.24.0 reading, not re-probed at 4.73.1), and
   `when query` and `then query` are the same case: Screenplay normalises `when query` to the
   `then query` model, so the spelling never decides admission.
   - Denial: `given caller` (no role claims), no given events or read models, one query under a
@@ -69,7 +69,7 @@ cratis before 3.28.2 bundle is available). Mark each such spec in the coverage m
   executable, not renderable).
 - Prove projections with `given` events + `when <Command>` + `then query` (or `then readmodel`).
   Removal has no admitted form: record it as a gap for renderable scope.
-- A `then error` must name a constraint or rule that is actually rendered. Stage v4.24.0 admits
+- A `then error` must name a constraint or rule that is actually rendered. Stage v4.24.0 (historical reading) admits
   a value constraint only when each target is a single, required, text-typed property (not
   composite, optional, collection or nontext), and rejects a command that produces more than one
   event affected by the same value constraint (claims or releases) in one batch. The number of

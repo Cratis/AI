@@ -110,6 +110,8 @@ Why it is shaped this way:
 
 ## What was run
 
+**Re-probed on cratis 3.53.1 (Stage 4.73.1; admission and publication only, build and tests not re-run):** the model compiles with the standalone 4.139.0 tool, its 3 specifications pass in the reference runner, and `cratis render` exits 0 with 56 artifacts written to a scratch destination (the plan grew with the scaffold). The counts and results in the table below are the cratis 3.28.2 observations.
+
 All with cratis 3.28.2 (re-run end to end from 3.27.1: same counts; admission and publication re-run on 3.28.3 with Stage 4.24.2: the same 30 artifacts) on a folder holding only `berths.play`:
 
 | Step | Command | Result |

@@ -58,5 +58,5 @@ it, and cite only numbers you have just read. A closed issue is a trigger to pro
 
 ## Reference outcomes
 - The complete marina model of `cratis-stage-rendering-and-sandbox` `references/render-example.md`:
-  admission ok, 30 artifacts, Debug build ok, 7 tests passed (cratis 3.28.2).
+  admission ok, 30 artifacts, Debug build ok, 7 tests passed (cratis 3.28.2; on 3.53.1 admission and publication gave 56 artifacts, build and tests not re-run).
 - The model in `worked-example.md`: admission refused with 2 blocking `PLAY0268` diagnostics, nothing published.

@@ -183,7 +183,7 @@ only in prose is not enforced. A documentation edit changes managed-file hashes 
 ## What it emits
 
 At application scope the plan holds the scaffold plus the modeled artifacts, for the
-example 30 files: a `.csproj` and `.slnx`, `Program.cs`, `appsettings.json`,
+example 30 files on cratis 3.28.2 (56 observed on 3.53.1): a `.csproj` and `.slnx`, `Program.cs`, `appsettings.json`,
 `docker-compose.yml`, the Directory props files, a policy registration and generated
 policies, `Common/<Concept>.cs`, one `<Module>/<Feature>/<Slice>/` folder per slice with
 the `[Command]` record and `Handle()`, the `[EventType]` event, the validator and the
