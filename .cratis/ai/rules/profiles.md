@@ -52,15 +52,20 @@ The complete list of available profiles is defined in [profile-catalog.json](../
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
 | `cratis/application` | Full application stack (C# + React + TypeScript) | `cratis/application/csharp`, `cratis/application/elixir`, `cratis/application/kotlin`, `cratis/application/typescript`, `cratis/arc/core`, `cratis/arc/react`, `cratis/chronicle/core`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
-| `cratis/application/csharp` | C# backend with Arc + Chronicle | `cratis/arc`, `cratis/arc/react`, `cratis/chronicle`, `cratis/components`, `cratis/fundamentals`, `cratis/language/csharp`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
+| `cratis/application/csharp` | C# backend with Arc + Chronicle | `cratis/arc`, `cratis/arc/react`, `cratis/chronicle`, `cratis/components`, `cratis/fundamentals`, `cratis/language/csharp`, `cratis/screenplay`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
 | `cratis/application/react` | React frontend with Cratis Components | `cratis/arc/core`, `cratis/arc/react`, `cratis/components`, `cratis/fundamentals`, `cratis/specifications/dotnet`, `cratis/specifications/typescript` |
-| `cratis/application/typescript` | TypeScript client for Chronicle | `cratis/chronicle/client-typescript`, `cratis/language/typescript`, `cratis/specifications/typescript` |
-| `cratis/application/arc-chronicle` | Arc + Chronicle integration | `cratis/arc/core`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
-| `cratis/application/arc-only` | Arc without Chronicle | `cratis/arc/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
-| `cratis/application/chronicle-dotnet` | Chronicle .NET client | `cratis/chronicle/client-dotnet`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/specifications/dotnet` |
-| `cratis/application/elixir` | Elixir Chronicle client | `cratis/chronicle/client-elixir`, `cratis/language/elixir` |
-| `cratis/application/kotlin` | Kotlin Arc + Chronicle application | `cratis/arc/client-kotlin`, `cratis/chronicle/client-kotlin`, `cratis/language/kotlin` |
-| `cratis/application/java` | Java Arc + Chronicle application | `cratis/arc/client-kotlin`, `cratis/chronicle/client-java`, `cratis/language/java` |
+| `cratis/application/typescript` | TypeScript client for Chronicle | `cratis/chronicle/client-typescript`, `cratis/language/typescript`, `cratis/screenplay`, `cratis/specifications/typescript` |
+| `cratis/application/arc-chronicle` | Arc + Chronicle integration | `cratis/arc/core`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/screenplay`, `cratis/specifications/dotnet` |
+| `cratis/application/arc-only` | Arc without Chronicle | `cratis/arc/core`, `cratis/fundamentals`, `cratis/screenplay`, `cratis/specifications/dotnet` |
+| `cratis/application/chronicle-dotnet` | Chronicle .NET client | `cratis/chronicle/client-dotnet`, `cratis/chronicle/core`, `cratis/fundamentals`, `cratis/screenplay`, `cratis/specifications/dotnet` |
+| `cratis/application/elixir` | Elixir Chronicle client | `cratis/chronicle/client-elixir`, `cratis/language/elixir`, `cratis/screenplay` |
+| `cratis/application/kotlin` | Kotlin Arc + Chronicle application | `cratis/arc/client-kotlin`, `cratis/chronicle/client-kotlin`, `cratis/language/kotlin`, `cratis/screenplay` |
+| `cratis/application/java` | Java Arc + Chronicle application | `cratis/arc/client-kotlin`, `cratis/chronicle/client-java`, `cratis/language/java`, `cratis/screenplay` |
+
+`cratis/application` inherits `cratis/screenplay` through its language-specific
+children. Backend-bearing application profiles include the method skills and MCP
+declaration, not `cratis/stage`; the frontend-only `cratis/application/react`
+profile includes neither Screenplay nor Stage.
 
 ### Framework Profiles
 
@@ -179,7 +184,8 @@ or gap-fill from its contract; never edit Stage-managed output or weaken protect
 Otherwise stay code-first; only the entry-point session may propose a model, at most once
 per session. Master definition: `cratis-screenplay-modeling-lifecycle`. Framework and non-opted-in brownfield work remain
 code-first; infrastructure, clients, adapters and code attachments stay in code.
-Application profiles do not automatically compose `cratis/screenplay`.
+Backend-bearing application profiles automatically compose `cratis/screenplay`;
+installing its skills or registering its MCP server is not model-first opt-in.
 
 `cratis/screenplay` carries the **method** and the **language**. Load the lifecycle
 and one phase skill, then the construct skill needed for syntax.
@@ -228,6 +234,15 @@ conflicts. The model is wherever the project keeps its `.play` files, else under
 `src/`, else in a `Screenplay/` folder at the repository root; never under `.cratis/`.
 Project-owned configuration can name a root explicitly.
 
+**No-model startup requires Cratis CLI 3.46.1 or later.** With
+`cratis screenplay mcp --project-root <project>`, that version resolves the root
+without creating it; discovery, startup and proposals leave no model folder, and
+the first `apply` write creates it. `cratis ai install` also creates no model
+folder unless the project configured a root. Older CLIs create `Screenplay/` at
+server startup; upgrade before using the automatically selected MCP server in a
+repository without a model. See the toolchain skill's
+[version reference](../skills/cratis-screenplay-toolchain/references/versions.md).
+
 ## How to Use Profiles
 
 ### 1. Select Your Profile
@@ -268,7 +283,7 @@ Profiles can compose other profiles. When you select a parent profile, all child
 {
   "schemaVersion": "1.0.0",
   "profiles": [
-    "cratis/application/csharp"  // Includes: arc, arc/react, chronicle, components, fundamentals, language/csharp, specifications/dotnet, specifications/typescript
+    "cratis/application/csharp"  // Includes: arc, arc/react, chronicle, components, fundamentals, language/csharp, screenplay, specifications/dotnet, specifications/typescript
   ]
 }
 ```

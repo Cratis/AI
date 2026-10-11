@@ -114,6 +114,7 @@
         "cratis/arc/core",
         "cratis/chronicle/core",
         "cratis/fundamentals",
+        "cratis/screenplay",
         "cratis/specifications/dotnet"
       ],
       "languages": [
@@ -125,6 +126,7 @@
       "composes": [
         "cratis/arc/core",
         "cratis/fundamentals",
+        "cratis/screenplay",
         "cratis/specifications/dotnet"
       ],
       "languages": [
@@ -137,6 +139,7 @@
         "cratis/chronicle/client-dotnet",
         "cratis/chronicle/core",
         "cratis/fundamentals",
+        "cratis/screenplay",
         "cratis/specifications/dotnet"
       ],
       "languages": [
@@ -152,6 +155,7 @@
         "cratis/components",
         "cratis/fundamentals",
         "cratis/language/csharp",
+        "cratis/screenplay",
         "cratis/specifications/dotnet",
         "cratis/specifications/typescript"
       ],
@@ -165,7 +169,8 @@
       "id": "cratis/application/elixir",
       "composes": [
         "cratis/chronicle/client-elixir",
-        "cratis/language/elixir"
+        "cratis/language/elixir",
+        "cratis/screenplay"
       ],
       "languages": [
         "elixir"
@@ -176,7 +181,8 @@
       "composes": [
         "cratis/arc/client-kotlin",
         "cratis/chronicle/client-java",
-        "cratis/language/java"
+        "cratis/language/java",
+        "cratis/screenplay"
       ],
       "languages": [
         "java"
@@ -187,7 +193,8 @@
       "composes": [
         "cratis/arc/client-kotlin",
         "cratis/chronicle/client-kotlin",
-        "cratis/language/kotlin"
+        "cratis/language/kotlin",
+        "cratis/screenplay"
       ],
       "languages": [
         "kotlin"
@@ -214,6 +221,7 @@
       "composes": [
         "cratis/chronicle/client-typescript",
         "cratis/language/typescript",
+        "cratis/screenplay",
         "cratis/specifications/typescript"
       ],
       "languages": [
