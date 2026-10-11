@@ -6,7 +6,7 @@
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.131.0"
+      "value": "Screenplay v4.135.0"
     },
     {
       "kind": "skill-contains",

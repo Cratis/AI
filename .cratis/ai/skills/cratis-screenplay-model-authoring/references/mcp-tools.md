@@ -98,6 +98,9 @@ with `view: "diagnostics"`, then `view: "repairs"` at the current revision.
 | `PLAY0469` | Remove an inline same-source identifier property and mapping, retiring its semantic address. This changes the contract; `canFixAll` is false. Refuse other consumers, opaque impact, changed routing or comment loss. Plain contracts get guidance only. |
 | `PLAY0479` | Migrate one optional type spelling, or all in a document, preserving syntax and trivia. Exclude `query Q => observable?`. |
 | `PLAY0563/0564` | Expand a one-line interaction alternative / turn a strict item `where` into one block-form `when`. Individual review, canonical formatting, no pinned evidence; refuse comment loss. Opaque non-item-condition text has no PLAY0564 repair. |
+| `PLAY0614` | Declare Translate direction only when exactly one inbound/outbound interpretation fits public metadata; never change event visibility to make a repair fit. |
+| `PLAY0661` | Complete command reads only when each missing part has one same-named compatible source; preserve authored parts and refuse ambiguity. Queries and trigger reads have no repair. |
+| `PLAY0664` | Remove an override identical to the command's complete source/stream/id route. |
 | `PLAY0516` | Move a producing sibling declaration/import before its consumer, or pin an already placed file before a retained glob. Preserve catalogs, comments, placement and executable readiness; introduce no timeline findings. Own-sub-feature edges, cycles, unranked members and mixed/different-parent boundaries have no repair. Rediscover after each move; pinned evidence is unsupported. |
 
 These discoveries verify acceptance before listing a repair. Only compact
@@ -188,7 +191,8 @@ persona/policy and table/case/caseParameter provenance. Neither view executes.
 
 Screenplay v4.127.0 `mcp/reference.md` and `authoring-tools.md` describe these
 additions (checked at 4.127.0); discover installed schemas because current
-CLI 3.46.1 bundles Screenplay 4.130.0, not standalone 4.131.0.
+Previous CLI 3.46.1 bundled Screenplay 4.130.0; CLI 3.50.0 bundles
+4.131.0, so these source objects are available there too.
 
 - Identity/detail summaries expose declared sources; `$identity` has its own
   expression node. The block alone stays executable-ready, but executable reads
@@ -322,7 +326,8 @@ the open model as candidate:
 }
 ```
 
-These source objects require Screenplay 4.131.0; CLI 3.46.1 bundles 4.130.0.
+These source objects require Screenplay 4.131.0; CLI 3.50.0 bundles it
+(previous CLI 3.46.1 bundled 4.130.0).
 Discover installed schemas rather than assuming bundle parity.
 Check that the registered worktree is checked out at the intended commit and
 contains the baseline model; Git refs are not resolved. An admitted missing

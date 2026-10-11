@@ -108,9 +108,16 @@ changes with the root folder name.
   older Stage probes. Current CLI admits v7 to planning, but its v7 corpus gets
   Stage generated-value/response refusals `STAGE-ESM-028`/`029`, not a blanket
   compiler refusal. Run admission before claiming a particular model renders.
-- **Event sources, streams and routes** bind as ESM v8 at 4.125.0; CLI 3.46.1
-  render refuses versions above v7 (`CLI-RENDER-004`). Operations and exact numeric
-  mode remain authorable/unadmitted. Details: `references/sources-and-streams.md`.
+- **Event sources, streams and routes** bind as ESM v8 at 4.125.0.
+  CLI 3.50.0/Stage 4.67.0 reaches construct admission through v10, not blanket
+  rendering. Operations and exact numeric source mode remain unadmitted.
+  Details: `references/sources-and-streams.md` and `references/versions.md`.
+- **Released v9/v10 and published v11:** public contracts and direction select v9;
+  reaction identity, production overrides and observer filters select frozen v10;
+  qualifying retained non-route Double literals select v11 at 4.135.0.
+  Composite view keys remain authoring-only (PLAY0268, #599), while one explicit
+  `key` binds. Read `references/production-routes-and-filters.md` and read-surface
+  `references/named-keys.md`; version freeze and numeric boundaries: `references/versions.md`.
 
 - **Caller/compliance metadata** at 4.127.0: `$identity` aliases caller built-ins;
   additional identity details are metadata and executable reads still refuse.
@@ -157,8 +164,8 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
    still walk lineage. See diagnostics for editor versus C#-only checks.
 6. Without reaction `runs as` an invoke is caller-less. Declare its trusted role
    (ESM v10), keep the gate, and reference-test; CLI/Stage support is separate.
-7. Read-model identity is one `query XById => RM optional` with `by xId XId`, and the identifier equal to the
-   projection's key (see trap 12); never `identifier` on a read model.
+7. Mark read-model identity with trailing `key`, not `identifier`; otherwise keep
+   inference unambiguous. Align projection keys. Multipart keys remain PLAY0268 (#599).
 8. Projection `key` routes only on `from`; joins never create; `all` is per source.
 9. `null` only for optional read-model properties in specifications.
 10. `then` events are exhaustive and ordered; after `when append` they list only what followed.

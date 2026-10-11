@@ -23,7 +23,7 @@ contract is in `cratis-screenplay-ui-composition`.
 
 ## Verified product sources
 
-Current authoring/MCP guidance follows Screenplay v4.131.0
+Current authoring/MCP guidance follows Screenplay v4.135.0
 `Documentation/screenplay/mcp/`, `ast-authoring.md`, `folders.md`, `vscode.md`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
@@ -291,9 +291,9 @@ that the code compiles or behaves. Read `references/mcp-tools.md#code-attachment
   it defines them and maps them onto V1 to V5. `screenplay --warnaserror` checks
   syntax plus the consistency rules (`PLAY0282`-`PLAY0294`) but never binds, so a
   clean run is not a bound or executable result.
-- Operations/exact numbers remain unadmitted; source/stream routes bind as ESM v8,
-  and generated values/responses as v7. CLI 3.46.1 render passes v7 to Stage but
-  refuses newer versions. A source contract is never dropped or stubbed to bind.
+- Operations/`numbers exact` remain unadmitted; routes bind as v8, public
+  boundaries v9, identity/overrides/filters v10, qualifying non-route Double
+  literals v11. CLI 3.50.0 reaches Stage checks through v10. Never drop or stub source contracts to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
 - If execution is intended, validate with the owning downstream runtime as well.
