@@ -31,8 +31,7 @@ Check the actual executable before relying on this table: `screenplay --version`
 `cratis --version`, MCP `initialize` → `serverInfo.version`. An older executable
 on PATH can shadow a newer install; inspect `which -a cratis`.
 
-**Minimum for no-model MCP startup: Cratis CLI 3.46.1.** This supersedes the
-3.41.0 snapshot above when an application has no model yet. At `v3.46.1`,
+**Minimum for no-model MCP startup: Cratis CLI 3.46.1.** At `v3.46.1`,
 `cratis screenplay mcp --project-root <project>` resolves a root without creating
 it; startup, discovery and proposals leave no model folder, and the first
 `apply` write creates it. `cratis ai install` creates no model folder unless a
