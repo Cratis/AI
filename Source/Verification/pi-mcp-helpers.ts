@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { EventEmitter } from 'node:events';
-import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { PassThrough, Writable } from 'node:stream';
 import type { ChildProcessWithoutNullStreams } from 'node:child_process';
@@ -10,26 +10,34 @@ import type { ExtensionAPI, ExtensionContext, ToolDefinition } from '@earendil-w
 import { registerBridge } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/index.ts';
 import { StdioConnection } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/StdioConnection.ts';
 
-export function projectFixture(configuration: unknown = { profiles: ['cratis/screenplay'] }) {
+export function projectFixture(configuration: unknown = { profiles: ['cratis/screenplay'] }, distributedCorpus?: string) {
     const workspace = process.env.AI_WORK_OUTPUT ?? resolve(import.meta.dirname, '../../.ai-work/pi-mcp-specs');
     mkdirSync(workspace, { recursive: true });
     const project = realpathSync(mkdtempSync(join(workspace, 'project-')));
-    const corpus = join(project, 'corpus');
-    mkdirSync(corpus);
+    const corpus = distributedCorpus ?? join(project, 'corpus');
     mkdirSync(join(project, '.cratis'), { recursive: true });
     const configure = (value: unknown) => writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(value));
     configure(configuration);
-    writeFileSync(join(corpus, 'profile-catalog.json'), JSON.stringify({
-        publicProfiles: [
-            { id: 'cratis/screenplay', languages: ['language-agnostic'] },
-            { id: 'composed', composes: ['cratis/screenplay', 'other'], languages: ['language-agnostic'] },
-            { id: 'other', languages: ['csharp'] },
-        ], engineeringProfiles: [],
-    }));
-    const descriptor = {
+    const syntheticDescriptor = {
         schemaVersion: '1.0', servers: [{ id: 'screenplay', profiles: ['cratis/screenplay'], transport: 'stdio', command: 'cratis', args: ['screenplay', 'mcp'] }],
     };
-    writeFileSync(join(corpus, 'mcp-servers.json'), JSON.stringify(descriptor));
+    if (distributedCorpus === undefined) {
+        mkdirSync(corpus);
+        writeFileSync(join(corpus, 'profile-catalog.json'), JSON.stringify({
+            publicProfiles: [
+                { id: 'cratis/screenplay', languages: ['language-agnostic'] },
+                { id: 'composed', composes: ['cratis/screenplay', 'other'], languages: ['language-agnostic'] },
+                { id: 'cratis/application', composes: ['composed'], languages: ['language-agnostic'] },
+                { id: 'indirect-application', composes: ['cratis/application'], languages: ['language-agnostic'] },
+                { id: 'mixed-paths', composes: ['cratis/application', 'composed'], languages: ['language-agnostic'] },
+                { id: 'other', languages: ['csharp'] },
+            ], engineeringProfiles: [],
+        }));
+        writeFileSync(join(corpus, 'mcp-servers.json'), JSON.stringify(syntheticDescriptor));
+    }
+    const descriptor = distributedCorpus === undefined
+        ? syntheticDescriptor
+        : JSON.parse(readFileSync(join(corpus, 'mcp-servers.json'), 'utf8')) as typeof syntheticDescriptor;
     return { project, corpus, configure, descriptor };
 }
 
@@ -73,16 +81,24 @@ export function fakeChild() {
     };
 }
 
-export function nativeHarness(fixture: ReturnType<typeof projectFixture>, discovered = [tool('diagnostics'), tool('apply')], excluded: string[] = []) {
+export function nativeHarness(
+    fixture: ReturnType<typeof projectFixture>, discovered = [tool('diagnostics'), tool('apply')], excluded: string[] = [],
+    checkVersion = async (_project: string) => true, connect?: (project: string) => StdioConnection,
+) {
     const registered = new Map<string, ToolDefinition>();
     const handlers = new Map<string, (event: Record<string, unknown>, context: ExtensionContext) => unknown>();
     let active = ['read'];
     let approved = true;
     let confirmationCount = 0;
     const children: ReturnType<typeof fakeChild>[] = [];
+    const versionProjects: string[] = [];
+    const notices: Array<{ message: string; type: string }> = [];
     const context = {
         cwd: fixture.project, hasUI: true,
-        ui: { async confirm() { confirmationCount++; return approved; } },
+        ui: {
+            async confirm() { confirmationCount++; return approved; },
+            notify(message: string, type: string) { notices.push({ message, type }); },
+        },
     } as unknown as ExtensionContext;
     const api = {
         registerTool(definition: ToolDefinition) {
@@ -95,7 +111,7 @@ export function nativeHarness(fixture: ReturnType<typeof projectFixture>, discov
         setActiveTools(names: string[]) { active = names.filter(name => !excluded.includes(name)); },
         on(name: string, handler: (event: Record<string, unknown>, context: ExtensionContext) => unknown) { handlers.set(name, handler); return () => handlers.delete(name); },
     } as unknown as ExtensionAPI;
-    registerBridge(api, fixture.corpus, project => {
+    registerBridge(api, fixture.corpus, connect ?? (project => {
         if (project !== fixture.project) throw new Error('Wrong physical project');
         const child = fakeChild();
         child.onRequest(request => {
@@ -105,9 +121,9 @@ export function nativeHarness(fixture: ReturnType<typeof projectFixture>, discov
         });
         children.push(child);
         return new StdioConnection(child.child, 1000);
-    });
+    }), project => { versionProjects.push(project); return checkVersion(project); });
     return {
-        registered, children, context, api,
+        registered, children, versionProjects, notices, context, api,
         approve(value: boolean) { approved = value; },
         get confirmations() { return confirmationCount; },
         async event(name: string, event: Record<string, unknown> = {}) { return handlers.get(name)?.(event, context); },

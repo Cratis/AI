@@ -31,6 +31,17 @@ Check the actual executable before relying on this table: `screenplay --version`
 `cratis --version`, MCP `initialize` → `serverInfo.version`. An older executable
 on PATH can shadow a newer install; inspect `which -a cratis`.
 
+**Minimum for no-model MCP startup: Cratis CLI 3.46.1.** At `v3.46.1`,
+`cratis screenplay mcp --project-root <project>` resolves a root without creating
+it; startup, discovery and proposals leave no model folder, and the first
+`apply` write creates it. `cratis ai install` creates no model folder unless a
+root is configured. Older CLIs create the resolved root on server startup (`Screenplay/` when no `.play` files, `Source/` or `src/` exist). Released
+source evidence: CLI
+`Source/Cli.Specs/for_ScreenplayMcpInvocation/when_serving_a_project_without_a_model/and_the_client_writes_a_document.cs`
+and `Source/Cli.Specs/for_AiMcpRegistration/when_installing/with_a_composed_profile.cs`
+at tag `v3.46.1` (CLI#322 / CLI#311). This minimum does not re-label the compiler
+or renderer probes below as results from the newer bundle.
+
 ## Two compilers, one rule
 
 Standalone Screenplay 4.131.0 and the CLI's 4.130.0 bundle are different releases.

@@ -2,11 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
-import type { spawn } from 'node:child_process';
+import type { execFile, spawn } from 'node:child_process';
 import test from 'node:test';
 import { ConnectionFailure } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/ConnectionFailure.ts';
 import { discover, mapResult } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/protocol.ts';
-import { startConnection } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/process.ts';
+import { childEnvironment, startConnection, supportsNoModelStartup } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/process.ts';
 import { StdioConnection } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/StdioConnection.ts';
 import { fakeChild, tool } from './pi-mcp-helpers.ts';
 
@@ -22,6 +22,38 @@ test('Screenplay launches only the native CLI with a physical project argument a
     assert.equal(options.shell, false);
     assert.equal(options.cwd, '/physical/project with spaces');
     assert.deepEqual(options.stdio, ['pipe', 'pipe', 'pipe']);
+});
+
+test('optional Screenplay startup checks the native CLI version with bounded, sanitized execution', async () => {
+    for (const [output, supported] of [
+        ['3.46.1\n', true], ['3.46.1+build.123\n', true], ['3.47.0', true], ['4.0.0', true],
+        ['3.46.0', false], ['3.45.99', false], ['2.99.99', false], ['3.46.1-rc.1', false],
+        ['unknown', false], ['', false], ['version banner\n3.46.1', false],
+    ] as const) {
+        const child = fakeChild();
+        let invocation: unknown[] = [];
+        const execute = ((command: string, arguments_: string[], options: unknown, callback: (error: Error | null, stdout: string, stderr: string) => void) => {
+            invocation = [command, arguments_, options];
+            queueMicrotask(() => callback(null, output, ''));
+            return child.child;
+        }) as unknown as typeof execFile;
+        assert.equal(await supportsNoModelStartup('/physical/project with spaces', execute), supported, output);
+        assert.deepEqual(invocation, ['cratis', ['--version'], {
+            cwd: '/physical/project with spaces', env: childEnvironment(), shell: false, windowsHide: true,
+            timeout: 3000, killSignal: 'SIGKILL', maxBuffer: 4096, encoding: 'utf8',
+        }]);
+    }
+});
+
+test('optional Screenplay startup treats missing, failed, timed-out and oversized version checks as unavailable', async () => {
+    for (const reason of ['ENOENT', 'exit 1', 'timeout', 'maxBuffer']) {
+        const child = fakeChild();
+        const execute = ((_command: string, _arguments: string[], _options: unknown, callback: (error: Error | null, stdout: string, stderr: string) => void) => {
+            queueMicrotask(() => callback(new Error(reason), '3.46.1', ''));
+            return child.child;
+        }) as unknown as typeof execFile;
+        assert.equal(await supportsNoModelStartup('/physical/project', execute), false, reason);
+    }
 });
 
 test('Screenplay negotiates initialization and discovers the exact live schemas', async t => {
