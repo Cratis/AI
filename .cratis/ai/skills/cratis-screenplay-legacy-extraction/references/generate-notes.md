@@ -53,6 +53,13 @@ cratis screenplay generate <solution|project|folder> \
   not a copy or symlink elsewhere) instead of working around it.
 
 ## Preconditions
+- **Trust and location.** `generate` (and `cratis screenplay conform`) does not start the
+  application or connect to its databases, but MSBuild evaluates the targeted project: a
+  design-time build that can execute project targets and analyzers and writes intermediate files
+  into the project's `obj/`, even when it was never built. Use a clone or worktree you may write
+  to, only for source the user trusts, never the live legacy checkout, and name the target in the
+  approval. The "run from the target repository's own checkout" note above means a real
+  checkout (not a symlinked copy), not the user's working copy.
 - .NET SDK and **restored** packages (`CLI0005` otherwise). Run `dotnet restore` only when it
   is the repository's normal workflow; it may touch the network and lock files.
 - Target resolution walks up to `.slnx` > `.sln` > `.slnf` > `.csproj`. Spec projects are

@@ -30,7 +30,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "cli#241"
+      "value": "--no-llm"
     },
     {
       "kind": "skill-contains",

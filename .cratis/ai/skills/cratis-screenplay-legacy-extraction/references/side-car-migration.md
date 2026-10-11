@@ -131,6 +131,7 @@ verification come first).
 - [ ] Extraction strategy defined for all in-scope legacy data; every table mapped or listed as unmapped
 - [ ] Event capture or load pipeline designed and owned
 - [ ] New behaviour scoped as modeled slices with their own acceptance
+- [ ] Accepted model and the new side-car code compared structurally with `cratis screenplay conform <model-root> --project <path>` (CLI 3.50.0 or later; exit 0 no blocking findings, 1 defects, 2 could not run or incomplete; same MSBuild trust caveat as `generate`, so use a trusted clone; structural address matching only, never a behavior or equivalence verdict)
 - [ ] Traffic routing designed; users can tell which system they are in
 - [ ] Parallel-operation test plan and reconciliation check
 - [ ] Deprecation timeline agreed
