@@ -26,12 +26,30 @@ test('Screenplay expands catalog composition and honors explicit opt-out', () =>
     const selected = selectedServer(fixture.project, fixture.corpus);
     assert.ok(selected);
     assert.equal(selected.root, undefined);
-    assert.equal(selected.composedOnly, true);
+    assert.equal(selected.composedOnly, false, 'pre-existing non-application composition still requires MCP');
+    fixture.configure({ profiles: ['cratis/application'] });
+    assert.equal(selectedServer(fixture.project, fixture.corpus)?.composedOnly, true);
     fixture.configure({ profiles: ['composed', 'cratis/screenplay'] });
     assert.equal(selectedServer(fixture.project, fixture.corpus)?.composedOnly, false);
     assert.equal(existsSync(join(fixture.project, '.cratis', 'screenplay')), false);
     fixture.configure({ profiles: ['composed'], mcpServers: { screenplay: { enabled: false } } });
     assert.equal(selectedServer(fixture.project, fixture.corpus), undefined);
+});
+
+test('Screenplay quiet startup requires every selected path to pass through application composition', () => {
+    const fixture = projectFixture();
+    for (const [profiles, composedOnly] of [
+        [['indirect-application'], true],
+        [['cratis/application', 'other'], true],
+        [['mixed-paths'], false],
+        [['cratis/application', 'composed'], false],
+        [['composed', 'cratis/application'], false],
+        [['cratis/application', 'cratis/screenplay'], false],
+        [['cratis/screenplay', 'cratis/application'], false],
+    ] as const) {
+        fixture.configure({ profiles, languages: ['csharp'] });
+        assert.equal(selectedServer(fixture.project, fixture.corpus)?.composedOnly, composedOnly, profiles.join(' + '));
+    }
 });
 
 test('Screenplay supports a physical configured subdirectory without writing model files', () => {

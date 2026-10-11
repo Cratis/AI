@@ -27,6 +27,9 @@ export function projectFixture(configuration: unknown = { profiles: ['cratis/scr
             publicProfiles: [
                 { id: 'cratis/screenplay', languages: ['language-agnostic'] },
                 { id: 'composed', composes: ['cratis/screenplay', 'other'], languages: ['language-agnostic'] },
+                { id: 'cratis/application', composes: ['composed'], languages: ['language-agnostic'] },
+                { id: 'indirect-application', composes: ['cratis/application'], languages: ['language-agnostic'] },
+                { id: 'mixed-paths', composes: ['cratis/application', 'composed'], languages: ['language-agnostic'] },
                 { id: 'other', languages: ['csharp'] },
             ], engineeringProfiles: [],
         }));
@@ -89,9 +92,13 @@ export function nativeHarness(
     let confirmationCount = 0;
     const children: ReturnType<typeof fakeChild>[] = [];
     const versionProjects: string[] = [];
+    const notices: Array<{ message: string; type: string }> = [];
     const context = {
         cwd: fixture.project, hasUI: true,
-        ui: { async confirm() { confirmationCount++; return approved; } },
+        ui: {
+            async confirm() { confirmationCount++; return approved; },
+            notify(message: string, type: string) { notices.push({ message, type }); },
+        },
     } as unknown as ExtensionContext;
     const api = {
         registerTool(definition: ToolDefinition) {
@@ -116,7 +123,7 @@ export function nativeHarness(
         return new StdioConnection(child.child, 1000);
     }), project => { versionProjects.push(project); return checkVersion(project); });
     return {
-        registered, children, versionProjects, context, api,
+        registered, children, versionProjects, notices, context, api,
         approve(value: boolean) { approved = value; },
         get confirmations() { return confirmationCount; },
         async event(name: string, event: Record<string, unknown> = {}) { return handlers.get(name)?.(event, context); },

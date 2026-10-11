@@ -69,14 +69,21 @@ export function selectedServer(project: string, corpus: string) {
     });
     const languages = new Set(strings(configuration.languages));
     const selected = new Set<string>();
-    const select = (id: string, explicit: boolean): void => {
-        if (selected.has(id)) return;
+    const visited = new Set<string>();
+    let nonApplicationSelection = false;
+    const select = (id: string, explicit: boolean, throughApplication = false): void => {
         const profile = profiles.find(candidate => candidate.id === id);
         if (!profile) throw new Error(`Unknown Cratis AI profile '${id}'.`);
         const supported = strings(profile.languages);
         if (!explicit && supported.length && !supported.some(language => language === 'language-agnostic' || languages.has(language))) return;
+        const applicationPath = throughApplication || id === 'cratis/application' || id.startsWith('cratis/application/');
+        // Visit both paths: application composition must not hide an existing, independently selected Screenplay path.
+        const key = JSON.stringify([id, applicationPath]);
+        if (visited.has(key)) return;
+        visited.add(key);
         selected.add(id);
-        strings(profile.composes).forEach(child => select(child, false));
+        if (id === 'cratis/screenplay' && !applicationPath) nonApplicationSelection = true;
+        strings(profile.composes).forEach(child => select(child, false, applicationPath));
     };
     requested.forEach(id => select(id, true));
     if (!selected.has('cratis/screenplay')) return undefined;
@@ -102,6 +109,6 @@ export function selectedServer(project: string, corpus: string) {
     return {
         project: physicalProject,
         root: root === undefined ? undefined : physicalRoot(physicalProject, root),
-        composedOnly: !requested.includes('cratis/screenplay') && root === undefined,
+        composedOnly: !nonApplicationSelection && root === undefined,
     };
 }

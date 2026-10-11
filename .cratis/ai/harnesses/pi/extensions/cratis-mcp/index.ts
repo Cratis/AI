@@ -76,11 +76,11 @@ export function registerBridge(pi: ExtensionAPI, corpus: string, connect = start
             if (connection !== activeConnection || activeConnection.stopped) throw new Error('Screenplay session ended during discovery.');
         } catch (error) {
             dispose();
-            // Composition makes MCP available, not required. Explicit profile/root errors and uncertain mutations still surface.
+            // Application-only composition makes MCP optional. Independent profile/root errors and uncertain mutations still surface.
             if (!selection.composedOnly || uncertain) throw error;
             if (!unavailableReported) {
-                console.debug('Screenplay MCP is unavailable; install/update the Cratis CLI to 3.46.1 or later to enable it.');
                 unavailableReported = true;
+                if (context.hasUI) context.ui.notify('Screenplay MCP is unavailable; install/update the Cratis CLI to 3.46.1 or later to enable it.', 'info');
             }
             return;
         }

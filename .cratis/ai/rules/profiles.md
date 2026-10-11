@@ -240,7 +240,7 @@ without creating it; discovery, startup and proposals leave no model folder, and
 the first `apply` write creates it. `cratis ai install` also creates no model
 folder unless the project configured a root. Older CLIs create the resolved model root at
 server startup (`Screenplay/` when no `.play` files, `Source/` or `src/` exist); upgrade before using the automatically selected MCP server in a
-repository without a model. In Pi, when Screenplay is selected only through composition and no root is configured, a missing, older or unavailable CLI quietly leaves its MCP tools inactive; explicit `cratis/screenplay` selection or a configured root still surfaces startup errors. See the toolchain skill's
+repository without a model. In Pi, when every selected path to Screenplay goes through an application profile and no root is configured, a missing, older or unavailable CLI leaves its MCP tools inactive with one informational UI notice (none in headless mode); an independent non-application path to Screenplay or a configured root still surfaces startup errors. See the toolchain skill's
 [version reference](../skills/cratis-screenplay-toolchain/references/versions.md).
 
 ## How to Use Profiles

@@ -41,9 +41,11 @@ Installing them does not opt the repository in to model-first work.
 When Screenplay comes in only through such a profile and no model root is
 configured, a missing CLI, a CLI older than 3.46.1 (which creates the model
 folder at server start) or a server that fails to start leaves the Screenplay
-tools inactive with one notice instead of an error. Selecting `cratis/screenplay`
-explicitly or configuring `mcpServers.screenplay.root` in `.cratis/ai.json`
-keeps startup failures visible as errors.
+tools inactive with one informational notice when Pi has a UI, and silently otherwise.
+Selecting any profile that also reaches Screenplay without going through an application
+profile (including `cratis/screenplay`, `cratis/modeling/screenplay-stage`,
+`cratis/full/*` or `cratis`), or configuring `mcpServers.screenplay.root` in
+`.cratis/ai.json`, keeps startup failures visible as errors.
 
 ## Path guidance and subagents
 
