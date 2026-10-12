@@ -215,7 +215,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch. The Stage scaffold carries a dependency pin, not direct Scene skill verification; no released sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 from the Components family read of the Scene packages; the Stage scaffold pins them."
     },
     {
       "id": "orleans",
@@ -236,7 +236,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 1.16.3."
     },
     {
       "id": "keldakraft",
@@ -334,7 +334,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 0.1.1."
     },
     {
       "id": "templates",
@@ -353,7 +353,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 1.7.4."
     },
     {
       "id": "fundamentals",
@@ -440,7 +440,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 0.9.1."
     },
     {
       "id": "ante",
@@ -490,7 +490,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 0.26.0."
     },
     {
       "id": "chronicle-typescript",
@@ -534,7 +534,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 1.4.2."
     },
     {
       "id": "screenplay-generation",
@@ -553,7 +553,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 0.18.1."
     },
     {
       "id": "chronicle-elixir",
@@ -595,7 +595,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 2.30.5."
     },
     {
       "id": "fundamentals-go",
@@ -617,7 +617,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 0.3.2."
     },
     {
       "id": "chronicle-kotlin",
@@ -726,7 +726,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 1.1.3."
     },
     {
       "id": "specifications",
@@ -774,7 +774,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 3.0.2."
     },
     {
       "id": "ai-distribution",
@@ -793,7 +793,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 0.3.0."
     },
     {
       "id": "prologue",
@@ -848,7 +848,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Coverage is planned via analyzer guidance in rules/csharp.md; no corpus sync baseline is established."
+      "notes": "First synced in Cratis/AI#620 at 1.0.2; analyzer guidance lives in rules/csharp.md."
     },
     {
       "id": "dockerfiles",

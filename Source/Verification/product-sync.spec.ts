@@ -128,8 +128,9 @@ test('the actual ledger covers every verified-source skill and all targets exist
     for (const name of ['Arc.Go', 'Chronicle.Go', 'Fundamentals.Go', 'Templates', 'AuthProxy', 'release-action', 'Synopsis', 'Narrator', 'Orleans', 'Scene', 'Screenplay.Generation', 'Screenplay.CritterStack', 'AI.Distribution', 'Architecture']) {
         const product = products.find(product => product.name === name)!;
         assert.equal(product.coverage, 'tracked');
-        assert.equal(product.synced, null);
-        assert.match(product.notes!, /Coverage is planned/);
+        assert.equal(product.synced?.by, 'Cratis/AI#620');
+        assert.ok(product.covers.skills.length + product.covers.rules.length > 0);
+        assert.doesNotMatch(product.notes!, /Coverage is planned/);
     }
     assert.match(products.find(product => product.name === 'Architecture')!.notes!, /rules\/csharp.md/);
 });
