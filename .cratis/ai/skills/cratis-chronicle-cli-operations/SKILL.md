@@ -18,6 +18,7 @@ This skill is verified against these exact sources:
 | --- | --- | --- |
 | `Cratis.Cli` | `3.53.1` | command effects, confirmations, contexts, output and command tree |
 | `Cratis.Chronicle` | `19.32.0` | the CLI's Chronicle client package |
+| `Cratis.Chronicle` | `19.50.1` | server authentication configuration and development-client registration |
 
 Re-verified at `Cratis/cli v3.53.1`: since 3.2.0, observer removal,
 partition-quarantine clearing, server-bound login and broader diagnose scope
@@ -74,7 +75,10 @@ Credentials are composed separately, and only when the resolved string carries
 no embedded `user:pass@` and no `apiKey=` (embedded credentials win): use a cached
 login token only for its issuing server and while valid (more than one minute
 before expiry), then context client id/secret, then the built-in development
-client, which non-local servers reject. An expired matching login without
+client. The CLI does not restrict that fallback to localhost; acceptance depends
+on the server's authentication configuration and registered clients, not its
+address. Development builds can register that client automatically; do not rely
+on a remote server rejecting it. An expired matching login without
 client credentials raises `LoginSessionExpired` (exit 4), not a silent fallback.
 A login belonging to another server is not sent; a once-per-process stderr
 notice explains the mismatch.
@@ -87,6 +91,10 @@ with `context set-value server|event-store|namespace|client-id|client-secret`.
 Keep secrets out of logs and committed configuration.
 Evidence: [ChronicleSettings.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/ChronicleSettings.cs)
 and [authentication](https://github.com/Cratis/cli/blob/v3.53.1/Documentation/chronicle/auth.md).
+Server evidence at Chronicle v19.50.1:
+[authentication configuration](https://github.com/Cratis/Chronicle/blob/v19.50.1/Source/Kernel/Core/Configuration/Authentication.cs)
+and [development-client registration](https://github.com/Cratis/Chronicle/blob/v19.50.1/Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs)
+(`EnsureDefaultClientCredentials`, compiled under `DEVELOPMENT`).
 
 Prefer a named context over repeating a connection string:
 

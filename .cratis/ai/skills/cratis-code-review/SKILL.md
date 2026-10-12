@@ -20,11 +20,19 @@ change did not touch is a note, never a blocker.
 | --- | --- | --- |
 | `Cratis.Arc.Core` | `22.75.0` | Command, query, validation and analyzer surface (`ARC0001`–`ARC0026`, including operations, authorization, generated values and explicit query selection) |
 | `Cratis.Chronicle` | `18.3.0` | Event, projection, read-model and constraint surface |
-| `Cratis.Fundamentals` | `7.19.2` | `ConceptAs<T>`, `IInstancesOf<T>`, the DI conventions |
+| `Cratis.Fundamentals` | `7.23.0` | `ConceptAs<T>`, `IInstancesOf<T>`, the DI conventions |
 
 > Arc analyzer/decision/query surface rechecked at v22.75.0. Arc depends on
 > Chronicle 19.39.1 / Fundamentals 7.23.0; separate product verification stays
 > version-qualified.
+
+Fundamentals rechecked at v7.23.0:
+[`ConceptAs<T>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Concepts/ConceptAs.cs)
+is the typed-value record;
+[`InstancesOf<T>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Types/InstancesOf.cs)
+discovers implementations and resolves them when enumerated;
+[DI conventions](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/DependencyInjection/ServiceCollectionExtensions.cs)
+honor `[Singleton]` and `[Scoped]`, defaulting to transient.
 
 Reverify against the owning product repository before asserting a framework
 contract this file does not already state.

@@ -29,13 +29,17 @@ or a combination.
 | `Cratis.Arc.Core` | `22.75.0` | `Cratis.Arc.Commands.ModelBound.CommandAttribute`, `CommandResult`, `CommandValidator<T>` |
 | `Cratis.Arc.Chronicle` | `22.75.0` | event append handling, `Cratis.Arc.Chronicle.Commands.NotAuditedAttribute` |
 | `Cratis.Arc.ProxyGenerator.Build` | `22.75.0` | `CratisProxiesOutputPath` MSBuild integration |
-| `Cratis.Fundamentals` | `7.19.2` | `Cratis.Monads.Result<TResult, TError>` |
+| `Cratis.Fundamentals` | `7.23.0` | `Cratis.Monads.Result<TResult, TError>` |
 | `Cratis.Chronicle` | `18.3.0` | `EventTypeAttribute`, `EventForEventSourceId`, `ICanProvideEventSourceId` |
 | `@cratis/arc` | `22.75.0` | `ICommand`, `CommandResult`, `ValidationResult` |
 
 > Arc surface rechecked at v22.75.0, including the source-pinned references below.
 > Arc's package dependency is Chronicle 19.39.1 / Fundamentals 7.23.0; separately
 > version-qualified Chronicle/Fundamentals claims retain their own verification.
+
+Fundamentals rechecked at v7.23.0 in
+[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
+success is first, error second, with implicit conversions from both types.
 
 Reverify before claiming support for another version. Arc without Chronicle is a
 supported setup; everything on this page that appends events needs Chronicle.
