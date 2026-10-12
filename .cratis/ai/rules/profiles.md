@@ -72,9 +72,12 @@ profile includes neither Screenplay nor Stage.
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
 | `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/java`, `cratis/arc/kotlin` |
-| `cratis/chronicle` | Chronicle event sourcing engine | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/java`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
+| `cratis/chronicle` | Chronicle event sourcing engine (does not compose `cratis/chronicle/mcp`) | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/java`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
 | `cratis/components` | React component library | (no child profiles) |
 | `cratis/fundamentals` | Core primitives (`ConceptAs<T>`, `EventSourceId<T>`) | (no child profiles) |
+| `cratis/arc/go` | Experimental Arc.Go HTTP CQRS (root module) | `cratis/language/go`, `cratis/fundamentals/go` |
+| `cratis/chronicle/client-go` | Experimental standalone Chronicle.Go client | `cratis/language/go`, `cratis/fundamentals/go` |
+| `cratis/fundamentals/go` | Fundamentals.Go named scalar concepts and codecs | `cratis/language/go` |
 | `cratis/specifications` | Specification framework | (no child profiles) |
 | `cratis/specifications/dotnet` | C# specifications and application slice conformance (`cratis-application-slice-conformance`), alongside slice specifications | `cratis/specifications` |
 
@@ -82,8 +85,9 @@ profile includes neither Screenplay nor Stage.
 
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
-| `cratis/engineering` | Engineering conventions and workflows | `cratis/engineering/core`, `cratis/engineering/csharp`, `cratis/engineering/elixir`, `cratis/engineering/kotlin`, `cratis/engineering/react`, `cratis/engineering/typescript` |
+| `cratis/engineering` | Engineering conventions and workflows | `cratis/engineering/core`, `cratis/engineering/csharp`, `cratis/engineering/elixir`, `cratis/engineering/go`, `cratis/engineering/kotlin`, `cratis/engineering/react`, `cratis/engineering/typescript` |
 | `cratis/engineering/csharp` | C# engineering conventions | `cratis/engineering/core` |
+| `cratis/engineering/go` | Go framework parity and immutable module releases | `cratis/engineering/core`, `cratis/language/go` |
 | `cratis/engineering/typescript` | TypeScript engineering conventions | `cratis/engineering/core` |
 | `cratis/engineering/react` | React engineering conventions | `cratis/engineering/core` |
 
@@ -94,13 +98,15 @@ profile includes neither Screenplay nor Stage.
 | `cratis/language/csharp` | C# language conventions |
 | `cratis/language/typescript` | TypeScript language conventions |
 | `cratis/language/elixir` | Elixir language conventions |
+| `cratis/language/go` | Go conventions for source, go.mod and go.sum |
 | `cratis/language/kotlin` | Kotlin language conventions |
 | `cratis/language/java` | Java language conventions |
 
 ### Arc and Chronicle on the JVM (Kotlin and Java)
 
 Arc.Kotlin (`io.cratis:arc`) and its optional Chronicle integration
-(`io.cratis:arc-chronicle-spring-boot-starter`) bring the same command/query
+(`io.cratis:cratis`, the all-in-one event-sourced application artifact, or
+`io.cratis:arc-chronicle-spring-boot-starter`) bring the same command/query
 model-bound shape to the JVM that Arc .NET brings to C#, for both Kotlin and
 Java application code. `cratis/arc/client-kotlin` carries the skills for both
 languages — Java application code still needs Kotlin and KSP on the build,
@@ -111,6 +117,9 @@ since Arc generates Kotlin adapters for Java declarations.
 | `cratis-arc-command-kotlin` | `@Command`, `handle()`/`provide()`, Chronicle event responses, command authorization, TypeScript proxy generation |
 | `cratis-arc-query-kotlin` | `@ReadModel` queries, GET vs RFC QUERY, observable queries (`Flow`, `Flow.Publisher`, RxJava 3) over SSE/WebSocket |
 | `cratis-arc-validation-kotlin` | `FluentModelValidator` shared rules, `CommandValidator`/`QueryValidator`/`ConceptValidator`/`ModelValidator`, Jakarta constraints |
+| `cratis-arc-testing-kotlin` | Real in-process command/query scenarios, bounded observable collection, read-model pins and Chronicle append assertions |
+| `cratis-arc-identity-and-tenancy-kotlin` | Authentication handlers, identity details, tenant resolution and propagation, opt-in trusted platform headers |
+| `cratis-arc-spring-data-kotlin` | JPA/Mongo repositories, paging, observations, concept converters, tenant storage and transaction boundaries |
 
 Standalone Chronicle client usage (no Arc) for Kotlin and Java is
 `cratis-chronicle-client-kotlin`, reused by `cratis/chronicle/client-java`.
@@ -119,8 +128,10 @@ JVM language conventions are `kotlin.md` and `java.md`.
 ### Arc for TypeScript on Node.js
 
 Arc for TypeScript (`@cratis/arc.core` with the Express, Fastify, Hono,
-MongoDB, Drizzle, testing and experimental Chronicle packages) brings the same
-model-bound command/query shape to a Node.js server. Its packages are a source
+MongoDB, Drizzle, testing and experimental Chronicle packages, plus
+`@cratis/arc.proxygenerator`, `@cratis/eslint-plugin-arc-core` and experimental
+`@cratis/cratis`) brings the same model-bound command/query shape to a Node.js
+server. Verified at GitHub pre-release **v0.57.2**: its packages are a source
 preview and are not published to npm. It is separate from `@cratis/arc`, the
 published client runtime that generated proxies import in a frontend.
 `cratis/arc/server-typescript` carries the skills; `cratis/arc/typescript` adds
@@ -139,6 +150,30 @@ Node.js server and a C# or React-frontend project has no use for them. Select
 Standalone Chronicle client usage (no Arc) in TypeScript is
 `cratis-chronicle-client-typescript`.
 
+### Experimental Go modules
+
+Select `cratis/language/go` for a Go repository without importing any HTTP or
+Chronicle guidance. `cratis/engineering/go` adds contributor parity and release
+policy through [go-engineering.md](./go-engineering.md), composing rather than
+duplicating [go.md](./go.md). Set `languages: ["go"]` in `.cratis/ai.json` so
+language-filtered composition selects the Go children. The catalog/manifest
+register `go`; there is no separate extension-based detection registry in the
+corpus's harness setup or Pi package.
+
+| Profile | Skill | Verified experimental version |
+| --- | --- | --- |
+| `cratis/chronicle/client-go` | `cratis-chronicle-client-go` | Chronicle.Go v0.9.1 (Chronicle kernel 19.32.3 profile) |
+| `cratis/arc/go` | `cratis-arc-go` | Arc.Go v0.1.1 |
+| `cratis/fundamentals/go` | `cratis-fundamentals-concept-go` | Fundamentals.Go v0.3.2 |
+
+Arc and Chronicle profiles compose language and Go concepts, **not each other**
+or C# client/HTTP skills. These profiles are explicit opt-ins; existing aggregate
+Arc/Chronicle and application profiles are unchanged. Only the Arc.Go root module
+is released; Chronicle/MongoDB integrations and Go generator tools remain source
+previews. `cratis/application/go` and Go scaffolding are deferred; do not prescribe
+`dotnet new` as a Go template. Each module currently requires Go 1.26, but generic
+language policy always follows the consuming repository's `go.mod` minimum.
+
 ### Specialized Profiles
 
 | Profile ID | Description |
@@ -149,6 +184,8 @@ Standalone Chronicle client usage (no Arc) in TypeScript is
 | `cratis/codescene` | Opt-in CodeScene Code Health change gates, refactoring, debt prioritization and risk-based testing; requires an account and available MCP tools; each user registers the MCP server (see below) |
 | `cratis/studio` | Studio MCP safety guidance |
 | `cratis/cli` | CLI operations |
+| `cratis/cli/terminal-workbench` | Human-operated terminal Workbench |
+| `cratis/chronicle/mcp` | Chronicle MCP inspection and exact tool-effect guidance |
 | `cratis/lens` | Lens browser extension |
 | `cratis/screenplay` | Model-first event modeling: lifecycle, phase skills, toolchain, review, render and gap-fill, plus the whole `.play` language |
 | `cratis/stage` | Stage rendering and sandbox |
@@ -355,7 +392,7 @@ profile: application
 - **Full catalog:** [profile-catalog.json](../profile-catalog.json)
 - **Application rules:** [general.md](./general.md) (Application profile section)
 - **Framework rules:** [framework.md](./framework.md)
-- **Engineering conventions:** [csharp.md](./csharp.md), [typescript.md](./typescript.md)
+- **Engineering conventions:** [csharp.md](./csharp.md), [typescript.md](./typescript.md), [go.md](./go.md), [go-engineering.md](./go-engineering.md)
 
 ## See Also
 

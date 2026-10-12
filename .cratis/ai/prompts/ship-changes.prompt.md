@@ -45,8 +45,8 @@ The description is published verbatim as the release notes, so it follows the co
   - No development write-up: no Overview/Verification/Test plan headings (only a first `## Summary`
     is allowed), no review, testing or provenance notes. Those go in a PR comment.
   - `(#n)` ends the bullet that delivers an issue and `(part of #n)` marks anything that stays open;
-    never `Closes`/`Fixes`/`Refs` before a number, and never an issue reference inside an HTML comment,
-    which still closes the issue.
+    never `Closes`/`Fixes`/`Refs` before a number, and never an issue reference inside an HTML comment
+    (release-action removes comments, so it would close nothing).
   - Links are absolute `https://` URLs, never relative paths.
 - Post reviewer notes (checks run, what was not verified, review provenance, stacking, merge or
   deploy order) right after creating the PR with `gh pr comment <n> --body-file .ai-work/pr-notes.md`.

@@ -3,6 +3,7 @@
 ## Contents
 
 - Specifications
+- Routing and produced events — Chronicle 19.50.0 verification
 - Read-model setup — Chronicle 19.46.0+
 - Exceptions and occurrence time — Chronicle 19.46.0+
 - Contract coverage
@@ -17,6 +18,24 @@ events with a service provider of substitutes and assert on the substitutes for
 non-event side effects; for handlers that return events, assert the resulting
 appends through the scenario's event store. Cover the replay path separately
 when the reactor has `[OnceOnly]` or `[Replay]` handlers.
+
+## Routing and produced events — Chronicle 19.50.0 verification
+
+Scenarios implement `IDisposable`; dispose in `Destroy()`.
+`Given.ForEventSource(id).OnStream(eventSourceType, eventStreamType, eventStreamId).Events(...)`
+seeds routing for class-based and fluent reactors. Source/stream/typed definition
+filters are honored: unqualified seeds do not reach a handler filtered to a
+specific stream. Specify both a matching event and an excluded event.
+
+`ProducedEvents` records each `ProducedEvent` **with its destination**.
+`ShouldHaveProduced<TEvent>(eventSourceId)` checks routing; the
+`ShouldHaveProduced<TEvent>((produced, @event) => ...)` overload checks metadata
+and payload together. Do not assert only the payload when a cross-stream target
+is part of the contract. Per-run `Defaults(clientArtifactsProvider, serviceProvider,
+options)` supports `InMemoryClientArtifactsProvider` and `ExplicitArtifacts`;
+non-generic `ReactorScenario(reactorId, defaults)` exercises a runtime/fluent reactor.
+Sources: `Source/Clients/Testing/Reactors/` and `Source/Clients/Testing/Defaults.cs`
+at **v19.50.0**.
 
 ## Read-model setup — Chronicle 19.46.0+
 
@@ -78,7 +97,7 @@ their supplied offset; the positional constructor does not default `Occurred`.
 For deterministic time-dependent plain-call specs, supply a fixed occurrence
 time rather than asserting an exact current instant.
 
-Verified against **Chronicle tag `v19.46.0`**:
+Reverified against **Chronicle tag `v19.50.0`** (the guards began in 19.46.0):
 
 - `Source/Clients/Testing/Reactors/ReactorSourceGivenBuilder.cs` and
   `ReactorScenarioGivenBuilder.cs`: seeding, absence and builder signatures.

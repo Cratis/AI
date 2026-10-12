@@ -30,8 +30,17 @@ probes above keep their original labels.
 | Chronicle client | `Cratis.Chronicle`, `.AspNetCore` and `.Testing` `19.45.0`, matched to the `cratis/chronicle:19.45.0-development` image in the compose file |
 | Embedded reverse extraction | `CratisEmbeddedScreenplayEnabled=false`: the source `.play` is authoritative |
 | Test packages | `Cratis.Specifications` and `.XUnit` 4.1.1, Microsoft.NET.Test.Sdk 18.10.1, NSubstitute 6.2.0, xunit 2.9.3, xunit runner 4.0.0; **Debug configuration only** (`IsTestProject` when Debug) |
-| Frontend | Vite 8.3.0 and React 19.3.0; `@cratis/arc`, `arc.react`, `arc.vite` 22.58.2; `@cratis/components` 4.26.2; `@cratis/scene` 4.21.0; `@cratis/fundamentals` 7.22.8 |
+| Frontend | Vite 8.3.0 and React 19.3.0; `@cratis/arc`, `arc.react`, `arc.vite` 22.58.2; `@cratis/components` 4.26.2; `@cratis/scene.*` 4.21.0; `@cratis/fundamentals` 7.22.8 |
 | Package management | central package management **off**; `Directory.Packages.props` is managed, do not edit it |
+
+The Scene family pin above applies to six scaffold dependencies:
+`@cratis/scene.blueprint.default`, `@cratis/scene.components`, `@cratis/scene.engine`,
+`@cratis/scene.model`, `@cratis/scene.primereact`, and `@cratis/scene.react`.
+Source: Stage `v4.73.1:CratisFrontendApplicationScaffold.cs`, `Dependencies`,
+and `CratisFrontendPackageSet.cs`, `Current`. `@cratis/scene` is **not** a package
+in this family. Read [Scene runtime](scene-runtime.md) when distinguishing the
+runtime from a hand-built Components page. The latest Components verification
+in this corpus is 4.26.4; it does not change the scaffold's 4.26.2 pin.
 
 Consequences: `[ProtectedDecision]` (`Cratis.Arc.Chronicle.ReadModels`) and
 `DecisionRead<T>` / `IDecisionReads` (`Cratis.Chronicle.ReadModels`) are available

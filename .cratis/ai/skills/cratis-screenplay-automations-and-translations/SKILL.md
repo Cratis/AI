@@ -58,8 +58,9 @@ sends again.
 - A reaction cascade is not one transaction: earlier accepted facts stay when a later invoked
   command rejects (Screenplay `reactions.md`). Design each step to be retried on its own.
 - Replay and recovery redelivery are different. Chronicle `[OnceOnly]` skips replays (rewind,
-  redaction, revision) only; a recovered failed partition redelivers the event as a normal
-  observation. A receipt keyed by `ReactorDelivery.Id` identifies the retry. Name both.
+  redaction, revision) only, not ordinary catch-up, repeated same-source events or crash
+  redelivery. Recovery runs the handler normally. It is not a per-source run limit or
+  deduplication. A receipt keyed by `ReactorDelivery.Id` identifies the retry. Name both.
 
 ## Capture data-protection traps
 A field left out of `map` still passes through the capture's working record: omission is not
@@ -73,7 +74,7 @@ even when it blocks binding. Never record bearer tokens, magic links or signed U
 ## Verified product sources
 Current pins: toolchain `references/versions.md`. Language claims were re-read at Screenplay v4.139.0,
 renderer claims at Stage v4.73.1 (no Automation, Translate, reaction or capture: `STAGE-ESM-024`), the
-runtime facts at Arc v22.72.0 and Chronicle v19.50.0. Older reads kept as history:
+runtime facts at Arc v22.72.0 and Chronicle v19.50.1. Older reads kept as history:
 
 | Package | Version | Used for |
 | --- | --- | --- |
@@ -81,7 +82,7 @@ runtime facts at Arc v22.72.0 and Chronicle v19.50.0. Older reads kept as histor
 | cratis CLI | v3.28.3 | bundled Screenplay 4.66.0 and Stage 4.24.2 (before 3.28.2: 4.60.1, which gave PLAY0268 on v6 constructs and a false PLAY0285 on cascades, cli#242) |
 | Stage | v4.24.2 | admitted ESM v1 to v4; rendered no Automation or Translate slice |
 | Arc | v22.72.0 (read; v22.50.5 earlier) | `ExecuteCommandsAsSystemAttribute` (since v20.56.0); mixed events-and-commands reactor returns (since v22.72.0) |
-| Chronicle | v19.50.0 (read; v19.32.0 earlier) | `OnceOnlyAttribute`, `ReactorDelivery` and `Documentation/reactors/delivery-identity.mdx` |
+| Chronicle | v19.50.1 (read; v19.32.0 earlier) | `OnceOnlyAttribute`, `ReactorDelivery`, `Documentation/code-analysis/CHR0022.mdx` and `Documentation/reactors/delivery-identity.mdx` |
 
 Read `references/versions.md` in `cratis-screenplay-toolchain` when selecting a tool or checking the full version and capability pins. Reverify before claiming
 another version behaves the same.

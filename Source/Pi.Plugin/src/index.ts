@@ -82,10 +82,12 @@ function ruleMatchesConfiguration(path: string, content: string, configuration: 
     const applyTo = frontmatterValue(content, 'applyTo') ?? '';
     const needsCSharp = applyTo.includes('.cs');
     const needsTypeScript = applyTo.includes('.ts') || path.endsWith('/rtk.md');
+    const needsGo = applyTo.includes('.go') || applyTo.includes('go.mod') || applyTo.includes('go.sum');
     const needsDocumentation = applyTo.includes('md');
-    if (!needsCSharp && !needsTypeScript && !needsDocumentation) return true;
+    if (!needsCSharp && !needsTypeScript && !needsGo && !needsDocumentation) return true;
     return (needsCSharp && languages.includes('csharp')) ||
         (needsTypeScript && languages.includes('typescript')) ||
+        (needsGo && languages.includes('go')) ||
         (needsDocumentation && selectedProfiles.includes('cratis/documentation'));
 }
 

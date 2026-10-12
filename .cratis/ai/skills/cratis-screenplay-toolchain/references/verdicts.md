@@ -53,7 +53,7 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 Needs an MCP connection (V2 and V3 belong to the session that owns MCP; a subagent without
 MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh output). Without
 MCP, a binding check exists: `cratis screenplay validate --executable <root>` binds with the
-**bundled** compiler (CLI 3.53.1 bundles Screenplay 4.137.0, not the standalone 4.139.0), never
+**bundled** compiler (CLI 3.53.1 bundles Screenplay 4.137.0, not the standalone 4.141.0), never
 renders or writes files, and exits 5 with "The model does not bind into an executable semantic
 model" when it does not. Report it as `V3 (bundled 4.137.0 via cratis validate --executable)`; it
 gives binding errors, not the V2 `executable-diagnostics` view, so V2 stays MCP-only.
@@ -68,7 +68,7 @@ gives binding errors, not the V2 `executable-diagnostics` view, so V2 stays MCP-
    source revision).
 4. Report the codes with counts, blocking (error severity) apart from informational. A list
    with blocking entries is a valid V2 result (`V2 read: 6 blocking, PLAY0268 x3 filter query,
-   pii ...`); it is the evidence for a "V3 blocked" report. The view also lists
+   enum compliance ...`); it is the evidence for a "V3 blocked" report. The view also lists
    information-severity diagnostics (PLAY0269 deferred UI, PLAY0270 authoring metadata such as
    descriptions, personas and screens) on models that bind; they do not block.
 

@@ -18,11 +18,21 @@ change did not touch is a note, never a blocker.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Arc.Core` | `22.16.0` | Command, query, validation and analyzer surface (`ARC0001`–`ARC0015` in `DiagnosticDescriptors`, plus `ARC0016`–`ARC0018` from the command-operation analyzer) |
+| `Cratis.Arc.Core` | `22.75.0` | Command, query, validation and analyzer surface (`ARC0001`–`ARC0026`, including operations, authorization, generated values and explicit query selection) |
 | `Cratis.Chronicle` | `18.3.0` | Event, projection, read-model and constraint surface |
-| `Cratis.Fundamentals` | `7.19.2` | `ConceptAs<T>`, `IInstancesOf<T>`, the DI conventions |
+| `Cratis.Fundamentals` | `7.23.0` | `ConceptAs<T>`, `IInstancesOf<T>`, the DI conventions |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
+> Arc analyzer/decision/query surface rechecked at v22.75.0. Arc depends on
+> Chronicle 19.39.1 / Fundamentals 7.23.0; separate product verification stays
+> version-qualified.
+
+Fundamentals rechecked at v7.23.0:
+[`ConceptAs<T>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Concepts/ConceptAs.cs)
+is the typed-value record;
+[`InstancesOf<T>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Types/InstancesOf.cs)
+discovers implementations and resolves them when enumerated;
+[DI conventions](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/DependencyInjection/ServiceCollectionExtensions.cs)
+honor `[Singleton]` and `[Scoped]`, defaulting to transient.
 
 Reverify against the owning product repository before asserting a framework
 contract this file does not already state.
@@ -75,6 +85,18 @@ there is nothing to review under a red build.
 - Logging lives in a `*Logging.cs` partial with `[LoggerMessage]`, not inline in
   domain code.
 - No shared mutable state between commands.
+- Plain injected models are advisory, not a concurrency guard. Review guarded
+  stream/projection reads and actual conflict specs (`UseDecisionReads()`).
+- Use `Cratis.Arc.Core.CodeAnalysis` and `Cratis.Arc.Chronicle.CodeAnalysis`.
+  At Arc v22.75.0, ARCCHR0011/0012 (Info) flag unprotected reads/immediate
+  bypasses; 0013 (Info) recommends definitions; 0014 checks declared observer
+  streams; 0015 warns on nullable events; 0016 flags ignored concurrency flags;
+  0017/0018 check stream-id templates; 0019 warns on folds exposed as queries.
+  ARC0015 checks concept query inputs, ARC0016–18 operations, ARC0019–21
+  authorization, ARC0022–25 generated values and ARC0026 explicit/ambiguous queries.
+  A clean build cannot prove the Info-level decision advisories were addressed.
+  Sources: Arc v22.75.0 `Source/DotNET/Arc.Core.CodeAnalysis/DiagnosticDescriptors.cs`
+  and `Source/DotNET/Chronicle.CodeAnalysis/DiagnosticDescriptors.cs`.
 
 ## Step 3 — C# style
 

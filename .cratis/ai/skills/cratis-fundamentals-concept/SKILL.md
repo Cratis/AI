@@ -1,6 +1,6 @@
 ---
 name: cratis-fundamentals-concept
-description: Create strongly typed Cratis domain values with ConceptAs and Chronicle event-source identities with EventSourceId. Use when a C# domain value has meaning beyond its primitive or when an identity is actually used as a Chronicle event-source/stream ID. Do not use for enums, DTO-only transport values, arbitrary non-stream entity IDs, or event schema migration.
+description: Create strongly typed Cratis domain values with ConceptAs and Chronicle event-source identities with EventSourceId. Use when a C# or TypeScript domain value has meaning beyond its primitive or when an identity is actually used as a Chronicle event-source/stream ID. Do not use for enums, DTO-only transport values, arbitrary non-stream entity IDs, or event schema migration.
 license: MIT
 ---
 
@@ -17,6 +17,7 @@ This skill is verified against these exact public releases:
 | --- | --- | --- |
 | `Cratis.Fundamentals` | `7.23.0` | `Cratis.Concepts.ConceptAs<T>`, `IGeneratable<TSelf>` and `GenerateValue` |
 | `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Events.EventSourceId` and `EventSourceId<T>` |
+| `@cratis/fundamentals` | `7.23.0` | TypeScript `ConceptAs<T>`, `field`, `Guid`, and JSON conversion |
 
 Reverify product sources before claiming support for another version.
 
@@ -81,7 +82,7 @@ Do not assume `string.Empty`, `0`, or `Guid.Empty` is universally invalid.
 Check the Cratis.Fundamentals version the project resolves first. Arc first
 pinned **7.23.0 in v22.66.0** (also verified at v22.68.0); the older-version
 caveat is not a reason to add a direct reference for Arc 22.66.0+ when it already
-resolves 7.23.0 or later. Chronicle **v19.43.0** still pins **7.22.0** in
+resolves 7.23.0 or later. Chronicle **v19.50.0** still pins **7.22.0** in
 `Directory.Packages.props`. For older Arc or Chronicle-only applications, when
 the resolved version is below 7.23.0, add a direct `Cratis.Fundamentals` 7.23.0
 or later package reference, or keep the existing `static New()` (without the
@@ -132,6 +133,14 @@ reach `Handle()` through `[GeneratedValue]` rather than calling `New()` inside
 it; see `cratis-arc-command` for declaration and migration, and
 `cratis-specifications-csharp` for named scenario pins (Arc **22.67.0+**).
 Guide: `/fundamentals/csharp/generating-values/`.
+
+## Create a TypeScript value concept
+
+Read [typescript-concepts.md](references/typescript-concepts.md) when declaring
+TypeScript concepts, choosing union versus instance-only types, or converting
+Guid-backed values with `@field` and `JsonSerializer`. A union accepts the raw
+primitive too; it does not enforce nominal separation between domain values.
+C#'s `IComparable` and null-value constraints above are not TypeScript contracts.
 
 ## Create a Guid-backed Chronicle stream identity
 
@@ -203,10 +212,14 @@ untyped `EventSourceId`, and `EventSourceId<T>`. Those operators do not create
 your derived `<ConceptName>` from `T`, string, or untyped `EventSourceId`.
 Declare only the derived-type conversions your domain API needs.
 
-String and Guid are the safest round-trip primitives. Chronicle also supports
-constructible `ConceptAs<string>` and `ConceptAs<Guid>` values. Other comparable
-values rely on `Convert.ChangeType`; verify round-trip behavior before using
-them as stream IDs.
+String and Guid remain the safest stream-id primitives. At **Chronicle v19.50.0**
+(`Source/Clients/DotNET/Events/EventSourceId.cs:148-174`), numeric/date/time ids
+and concepts wrapping them convert with invariant culture (since 19.37.3).
+`DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly` use `"O"`; `TimeSpan` uses
+`"c"`. Decimal `123.45` stays `"123.45"` even under nb-NO.
+**Existing streams may have different legacy ids** if written under date/time or
+decimal-comma formats: read/append them with their old untyped id, rather than
+silently opening a new stream under the new format.
 
 ### Unspecified and sensitive identities
 

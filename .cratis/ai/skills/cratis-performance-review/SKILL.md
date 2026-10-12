@@ -21,10 +21,13 @@ storage and replay cost that never goes away.
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Chronicle` | `18.3.0` | Observers, projections, reducers, reactors, replay |
-| `Cratis.Arc.Core` | `22.16.0` | Query return shapes and server-side paging |
+| `Cratis.Arc.Core` | `22.75.0` | Query return shapes and server-side paging |
 | `@cratis/components` | `4.26.2` | `DataTable` paging surface |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
+> Arc query/paging surface rechecked at v22.75.0; Arc depends on Chronicle
+> 19.39.1. Separate Chronicle verification remains version-qualified. Paged
+> MongoDB observations now re-read page and total on each change; see the
+> read-model query reference for the distinction from unpaged retained sets.
 
 Reverify against the owning product repository before asserting a framework
 behavior this file does not already state.

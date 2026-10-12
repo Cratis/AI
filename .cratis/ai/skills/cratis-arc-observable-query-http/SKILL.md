@@ -13,7 +13,7 @@ request is made. Choose the transport first, then the command.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Arc.Core` | `22.16.0` | `ObservableQueryHttp`, `ObservableQueryHandler`, the demultiplexer routes |
+| `Cratis.Arc.Core` | `22.75.0` | `ObservableQueryHttp`, `ObservableQueryHandler`, the demultiplexer routes |
 
 > Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
 
@@ -119,6 +119,23 @@ inconvenient — a proxy that buffers, a client with no streaming support.
 authorization and the `Count()` a paged query performs. Long polling a hot query
 is not free.
 
+## Diagnosis and emission protection (Arc v22.75.0)
+
+Plain HTTP snapshots/waits/long polls run read-model interceptors and
+`IGuardObservableQueryEmission`: denied data returns unauthorized; suppressed
+emissions remain 202 until an allowed value (or the wait deadline). Failures
+respect `ExposeExceptionDetails`. `IAsyncEnumerable` plain-query requests still
+return 400; do not assume every streaming return shape works on snapshot HTTP.
+
+For a MongoDB-backed query stuck at Loading with no first result, check database
+connectivity, replica-set change-stream support and permissions first (Arc#2916).
+The collection watch logs failure then completes without `OnError`; frontend
+error UI is not reliable evidence the watch is healthy. A waiting HTTP request
+still has its timeout/completion contract; do not describe it as an infinite wait.
+Sources at v22.75.0: `Arc.Core/Queries/ObservableQueryHttp.cs`,
+`ObservableQueryHandler.cs` and
+[MongoDB observations](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/mongodb/observing-collections.md).
+
 ## What comes back
 
 Every transport carries the same `QueryResult` shape:
@@ -130,7 +147,8 @@ paging { page, size, totalItems, totalPages }, changeSet?
 ```
 
 `data` is the full snapshot. `changeSet` may also be present for collection
-updates, carrying `added`, `replaced` and `removed`.
+updates, carrying `added`, `replaced` and `removed`. Items without `Id` use
+full snapshots; `IHaveKnownChanges` supports known-change collection results.
 
 Paging and sorting keys work here too: `page`, `pageSize`, `sortby`,
 `sortDirection`. `pageSize` is what enables paging at all, and `page` is

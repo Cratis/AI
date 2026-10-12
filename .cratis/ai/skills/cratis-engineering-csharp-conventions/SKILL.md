@@ -11,6 +11,12 @@ repository. They are **conventions**, not framework contracts: nothing here is
 enforced by an analyzer unless this skill says so. Follow them for consistency;
 do not claim the framework requires them.
 
+## Verified product sources
+
+| Package | Version | Purpose |
+| --- | --- | --- |
+| `Cratis.Fundamentals` | `7.23.0` | DI lifetime attributes and `IInstancesOf<T>` instance resolution |
+
 ## Route near misses
 
 - The question is what a Cratis product API *does*: resolve it against the

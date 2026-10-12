@@ -1,9 +1,10 @@
 ## Variants — mutually exclusive read models for one entity's lifecycle
 
-> Requires `io.cratis:chronicle` `6.3.0` or later — newer than this skill's
-> `5.1.0` baseline (`Source/src/main/kotlin/io/cratis/chronicle/projections/VariantOf.kt`
-> and siblings). Reverify before claiming support; take the version from Maven
-> Central, not the checked-in source.
+> Verified at `Chronicle.Kotlin v6.13.0` (`projections/VariantOf.kt`,
+> `EntersOn.kt`, `GlobalFor.kt`, `ProjectionsService.kt`). Annotations shipped in
+> `6.3.0`; end-to-end support requires `6.5.0` or later. Earlier definitions
+> stored `$eventSourceId` keys empty: replay affected projections once on upgrade.
+> Take the version from Maven Central, not the checked-in source.
 
 Some entities do not have one shape for their whole lifetime — a work item is a
 backlog entry until a pull request exists for it, then it is a pull request

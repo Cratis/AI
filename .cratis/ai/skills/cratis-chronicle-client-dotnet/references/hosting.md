@@ -1,5 +1,9 @@
 ## In a host
 
+Verified at **Cratis/Chronicle v19.50.0**, `ChronicleHostApplicationBuilderExtensions.cs`,
+`ChronicleClientServiceCollectionExtensions.cs`, and
+`Source/Clients/Connections/ServiceCollectionExtensions.cs`.
+
 ```csharp
 var builder = Host.CreateApplicationBuilder(args);
 builder.AddCratisChronicle(options => options.EventStore = "<EventStoreName>");
@@ -20,7 +24,8 @@ and an optional `EventStoreNamespaceResolverType`.
 > package), and Aspire's `IDistributedApplicationBuilder`. `IHostBuilder.AddCratisChronicle()`
 > also exists but only registers concept type converters
 > (`Source/Clients/DotNET/Hosting/HostBuilderExtensions.cs:18-23`) — it is not
-> the wiring entry point.
+> the wiring entry point. `IServiceCollection` has `AddCratisChronicleClient`
+and `AddCratisChronicleConnection` instead.
 
 `IChronicleBuilder` extensions are exactly five:
 `WithArtifactsProvider`, `WithIdentityProvider`, `WithCorrelationIdAccessor`,
@@ -29,3 +34,26 @@ and an optional `EventStoreNamespaceResolverType`.
 `WithClaimsBasedNamespaceResolver`**, despite a doc comment at
 `ChronicleOptions.cs:141` referring to one. Pass the resolver instead:
 `new ChronicleClient(options, namespaceResolver: new ClaimsBasedNamespaceResolver("tenant_id"))`.
+
+A host starts even when the kernel is unavailable. Calls while disconnected fail
+fast with `ConnectionTimedOut` or, after backoff, `ConnectionUnavailable`.
+ASP.NET's `AddChronicleHealthCheck(HealthStatus)` exposes the connection health
+under `chronicle` and honors the selected failure status; keep startup failure
+logs visible. Host wiring registers `IEventSources` scoped.
+
+### Development credentials are persisted
+
+At **v19.50.0**, ClientCredentials with both username and password absent uses
+`chronicle-dev-client` / `chronicle-dev-secret`:
+`Source/Clients/DotNET/ChronicleClient.cs:334-345` and
+`Source/Clients/Connections/ServiceCollectionExtensions.cs:57-68`.
+`Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs:170-208`
+creates that application **directly in storage** only under `#if DEVELOPMENT`.
+This is a Debug-build symbol, not an ASP.NET environment setting
+(`Documentation/hosting/production.md`, "What makes a build a production build").
+A production kernel reusing development storage can therefore still accept the
+known development credentials. Remove the application from storage and, if
+configured, from bootstrap configuration (configured applications are recreated
+on startup). Changing the image or supplying new client credentials alone does
+not remove that old application. See **cratis-chronicle-hosting** for kernel
+certificates, private h2c and production setup.

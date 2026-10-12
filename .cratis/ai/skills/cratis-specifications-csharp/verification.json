@@ -1,0 +1,13 @@
+{
+  "skill": "cratis-specifications-csharp",
+  "input": "Set up a C# specification project and choose its lifecycle.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Cratis.Specifications.XUnit" },
+    { "kind": "skill-contains", "value": "xUnit **2.x**" },
+    { "kind": "skill-contains", "value": "stock per-fact lifecycle by default" },
+    { "kind": "skill-contains", "value": "shared-lifecycle.md" },
+    { "kind": "skill-contains", "value": "CRSPEC0001–CRSPEC0007" },
+    { "kind": "skill-contains", "value": "Do not suppress these warnings" }
+  ]
+}

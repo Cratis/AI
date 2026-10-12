@@ -15,7 +15,7 @@ const scaffold = `## Scaffold pins
 | --- | --- |
 | Arc packages (\`Cratis\`) | \`22.68.0\` (below Arc 22.70) |
 | Chronicle client | \`Cratis.Chronicle\` \`19.45.0\`, matched to the \`19.45.0-development\` image |
-| Frontend | Vite 8.3.0; \`@cratis/arc\`, \`arc.react\` 22.58.2; \`@cratis/components\` 4.26.2; \`@cratis/scene\` 4.21.0; \`@cratis/fundamentals\` 7.22.8 |
+| Frontend | Vite 8.3.0; \`@cratis/arc\`, \`arc.react\` 22.58.2; \`@cratis/components\` 4.26.2; \`@cratis/scene.*\` 4.21.0; \`@cratis/fundamentals\` 7.22.8 |
 `;
 const bundle = `| Source | Pin | Evidence |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ const pins = [...scaffoldPins(scaffold), ...bundlePins(bundle)];
 
 test('pins are parsed from the tables, not hardcoded', () => {
     assert.deepEqual(pins.map(pin => `${pin.label}=${pin.value}`), [
-        'Arc=22.68.0', 'Chronicle=19.45.0', '@cratis/arc=22.58.2', '@cratis/components=4.26.2', '@cratis/scene=4.21.0', 'Cratis.Arc.Screenplay=22.54.0']);
+        'Arc=22.68.0', 'Chronicle=19.45.0', '@cratis/arc=22.58.2', '@cratis/components=4.26.2', '@cratis/scene.*=4.21.0', 'Cratis.Arc.Screenplay=22.54.0']);
     assert.equal(scaffoldPins(scaffold.replaceAll('22.68.0', '22.99.0'))[0].value, '22.99.0');
 });
 
@@ -34,6 +34,13 @@ test('a planted restatement outside the central tables is found', () => {
     const report = pinRestatements([{ path: 'skills/a/SKILL.md', content: 'ok\nThe scaffold pins Arc 22.68.0 today.' }], pins, []);
     assert.equal(report.problems.length, 1);
     assert.match(report.problems[0], /skills\/a\/SKILL\.md:2 restates the current Arc pin 22\.68\.0/);
+});
+
+test('the Scene family pin is parsed and a planted restatement is found', () => {
+    assert.deepEqual(scaffoldPins(scaffold).find(pin => pin.label === '@cratis/scene.*'), { label: '@cratis/scene.*', value: '4.21.0' });
+    const report = pinRestatements([{ path: 'skills/a/SKILL.md', content: 'The scaffold Scene family is 4.21.0.' }], pins, []);
+    assert.equal(report.problems.length, 1);
+    assert.match(report.problems[0], /restates the current @cratis\/scene\.\* pin 4\.21\.0/);
 });
 
 test('the central tables themselves and bare CLI or Stage versions are not flagged', () => {
@@ -85,6 +92,6 @@ test('the real corpus restates no current pin outside the central tables', () =>
     const files = [join(root, '.cratis/ai/skills'), join(root, 'Evaluations/skills')].flatMap(walk).map(path => ({ path: relative(root, path), content: readFileSync(path, 'utf8') }));
     const exceptions = JSON.parse(readFileSync(join(import.meta.dirname, 'pin-restatement-exceptions.json'), 'utf8')) as PinException[];
     const parsed = [...scaffoldPins(readFileSync(join(root, scaffoldTable), 'utf8')), ...bundlePins(readFileSync(join(root, bundleTable), 'utf8'))];
-    assert.equal(parsed.length, 6);
+    assert.deepEqual(parsed.map(pin => pin.label), ['Arc', 'Chronicle', '@cratis/arc', '@cratis/components', '@cratis/scene.*', 'Cratis.Arc.Screenplay']);
     assert.deepEqual(pinRestatements(files, parsed, exceptions).problems, []);
 });

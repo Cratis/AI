@@ -96,7 +96,9 @@ A reaction that both produces events and invokes commands keeps its single model
 and the commands: on Arc 22.72.0 or later (the Arc the Stage scaffold pins accepts a collection in a command handler only when every element is a command, so a rendered app needs a proven dependency override) the runtime appends the events first as one batch, then
 runs the commands in order, with no transaction across the two effects; a failing command stops the
 later ones but keeps the committed events, and a retry can append the events again, so make the
-handler idempotent (`[OnceOnly]` and the failure behavior in `cratis-chronicle-reactor`). Return a
+handler idempotent independently of `[OnceOnly]`, which excludes replay only, not recovery
+or crash redelivery (Chronicle v19.50.1 `Documentation/code-analysis/CHR0022.mdx`;
+see `cratis-chronicle-reactor`). Return a
 stable array or list. The Stage scaffold pins an older Arc, so raise the version through
 `Customizations/Dependencies.props` only after a restore and build proves it. Never split the
 reaction or drop an effect to dodge rendering.

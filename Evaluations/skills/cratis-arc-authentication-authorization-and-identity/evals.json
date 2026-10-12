@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-authentication-authorization-and-identity",
+  "evals": [
+    {
+      "id": 1,
+      "name": "secure-defaults-and-cookie-migration",
+      "prompt": "On Arc 22.75.0 AddCratis, we sent x-ms-client-principal headers directly but protected requests stayed anonymous. We also used to read .cratis-identity for roles. Explain both changes and the supported frontend migration. Reply only.",
+      "expected_output": "Forwarded headers need explicit host-wide trust behind a safe ingress. Identity is principal-derived JSON, not a readable cookie; use getCurrent/refresh/clearCache.",
+      "assertions": [
+        "Names Cratis:Arc:TrustForwardedIdentityHeaders as the explicit host-wide opt-in, not only an introspection flag.",
+        "Requires an authenticating header-stripping ingress blocking direct backend access, not base64 as a signature.",
+        "States the backend neither reads nor writes .cratis-identity and me returns 401/403 for anonymous/unauthorized callers.",
+        "Uses memory-cached getCurrent, refresh and clearCache; legacy-cookie fallback only after 404 never overrides 401/403."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "deployed-discovery-is-not-authorization",
+      "prompt": "At Arc 22.75.0 why does discovery return 404 in Production without authentication? We want to hide one command with ExcludeFromDiscovery and set Enabled false. Does that also protect invocation and remove users/tenants? Reply only.",
+      "expected_output": "Development alone defaults to anonymous discovery; hosts unable to authenticate omit it elsewhere. Enabled affects catalogs, IdentityDiscovery controls identity discovery, and ExcludeFromDiscovery is not authorization.",
+      "assertions": [
+        "Explains anonymous discovery by default only in Development, authentication elsewhere, and omission when it cannot be enforced.",
+        "Distinguishes Enabled catalogs from IdentityDiscovery routes; disabling both leaves me unchanged.",
+        "Does not confuse ExcludeFromDiscovery with invocation authorization.",
+        "Warns explicit RequireAuthentication false exposes discovery in every environment and conflicts with Roles."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "guest-policy-and-live-revocation",
+      "prompt": "At Arc 22.75.0 a query method replaces its read model's Admin role with a guest policy registered evaluatesAnonymous true. Can guests reach it through HTTP with an authenticated fallback? Does admission authorization protect later plain-HTTP observable snapshots after membership changes? Reply only.",
+      "expected_output": "Method declarations replace type requirements; fully opted-in guest policies are reachable even with fallback. Admission does not guarantee ongoing access; explicit emission guards cover plain HTTP as well as streams.",
+      "assertions": [
+        "States the method declaration replaces rather than adds to the type-level role requirement.",
+        "Admits guests only when all declared policies opt in, without roles/schemes, including HTTP with an authenticated fallback since 22.44.2.",
+        "Separates admission from revocation and uses IGuardObservableQueryEmission with authoritative current state.",
+        "Includes plain HTTP snapshots/waits/long polls in guard coverage since 22.69.1 and does not use producer ambient identity."
+      ]
+    }
+  ]
+}

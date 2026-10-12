@@ -1,0 +1,12 @@
+{
+  "skill": "cratis-specifications-typescript",
+  "input": "Set up a local given helper and Chai should assertions for TypeScript specifications.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "not\na published package export" },
+    { "kind": "skill-contains", "value": "relative path to that file" },
+    { "kind": "skill-contains", "value": "chai.should()" },
+    { "kind": "skill-contains", "value": "sinon-chai" },
+    { "kind": "skill-contains", "value": "chai-as-promised" }
+  ]
+}

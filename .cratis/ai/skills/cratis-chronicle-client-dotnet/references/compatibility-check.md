@@ -1,5 +1,17 @@
 ## The client and the server check each other
 
+Verified at **Cratis/Chronicle v19.50.0**, `ChronicleConnection.cs`,
+`ChronicleConnectionStringBuilder.cs`, `ChronicleOptions.cs` and
+`Source/Kernel/Compatibility/`.
+
+`chronicle://host:35000/?skipCompatibilityCheck=true` or
+`ChronicleOptions.SkipCompatibilityCheck = true` skips the check; either input
+is sufficient, including for a standalone `ChronicleClient`. Use this only for
+a known-safe skew against a kernel that cannot yet be redeployed: it hides
+**genuine incompatibilities too**. This is independent of `skipTlsValidation`.
+Since 19.0.1 the kernel orders contract comparison by protocol version, so added
+fields in a newer client do not by themselves make an older kernel incompatible.
+
 Since Chronicle 17 the compatibility check is a server-side RPC, and **the client
 runs it automatically inside `Connect()`** —
 `Source/Clients/Connections/ChronicleConnection.cs:310` calls

@@ -9,9 +9,11 @@
 - Cross-stream appends
 - Failure shapes
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc.Chronicle` `22.16.0` with
-`Cratis.Chronicle` `18.3.0`. Operation dispatch additions are verified against
-Arc **v22.48.1**, `CommandPipeline` and `CommandOperationExecution`.
+Verified against `Cratis.Arc.Core` and `Cratis.Arc.Chronicle` **v22.75.0**
+(Chronicle dependency 19.39.1). Sources: `Source/DotNET/Arc.Core/Commands/CommandPipeline.cs`,
+`CommandOperationExecution.cs` and `Source/DotNET/Chronicle/Commands/CommandContextExtensions.cs`.
+Read [decisions and routing](decisions-and-routing.md) for guarded reads,
+stream templates, tags and post-commit completion.
 
 ## The pipeline around `Handle`
 
@@ -113,11 +115,8 @@ events in the same tuple are therefore appended to the id the handler just
 generated, and the client receives it as the response.
 
 ```csharp
-public (<ThingId>, <ThingRegistered>) Handle()
-{
-    var id = <ThingId>.New();
-    return (id, new(<Name>));
-}
+public (<ThingId>, <ThingRegistered>) Handle([GeneratedValue("thing")] <ThingId> id) =>
+    (id, new(<Name>));
 ```
 
 Returning two ids, or an id and another plain value, is the failure case.
@@ -136,6 +135,7 @@ public IEnumerable<object> Handle() =>
 
 `EventForEventSourceId` also carries optional `Subject`, `EventStreamType` and
 `EventStreamId` init members when the target stream is not the default.
+Explicit wrapper routing wins over command-context routing in every return shape.
 
 A command that always appends through a Chronicle event source definition (Arc 22.49.0
 and later, definitions from Chronicle 19.30.0) declares it with

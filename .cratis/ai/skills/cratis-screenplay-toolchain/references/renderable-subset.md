@@ -50,7 +50,7 @@ version; each construct it does not render refuses with its own code before any 
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false; Stage 4.73.1 `IsSupportedClaimPath`), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`; Stage 4.73.1 `IsTextualSubject`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, with routed specifications | reserved stored names, unformattable routed fixtures, unsupported routed replay (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
-| Generated values and responses (v7) | not rendered | `STAGE-ESM-028`/`-029` (Stage#175) |
+| Generated values and responses (v7) | not rendered by Stage 4.73.1 (cli 3.53.1); rendered from standalone Stage 4.74.0 (UUID concepts, scalar and named responses) | `STAGE-ESM-028`/`-029` at 4.73.1 (Stage#175); `STAGE-ESM-038` for combinations the target cannot preserve |
 | Specifications | as in Stage's `admission.md` | `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims, `$context.occurred`-derived fixed values asserted (`-011`) |
 | v9 and v10 | reducer observer `from` filters | public events and event-target projections (`-032`); foreign origins and event-source captures (`-033`); directed Translate (`-024`); reaction `runsAs` (`-034`); reaction `from` filters (`-035`); per-production route overrides (`-036`) |
 | Evolved events | initial revisions only | `STAGE-ESM-026` (Stage#204) |
@@ -88,7 +88,10 @@ whole automation is hand-written (gap-fill).
 | Compliance | none | any `@pii` or `@sensitive` already fails binding (PLAY0268). The C# provider mapping (Stage v4.29.0, Stage#197) is `@pii` to `[PII]`, `@sensitive` to `[Encrypted]` + `[NotAudited]`, both to `[PII]` only |
 
 At standalone 4.127.0, compliance uses bare `pii`/`secret` (legacy markers are
-accepted with PLAY0565 information); either still refuses binding. Identity blocks,
+accepted with PLAY0565 information); either still refuses binding on that compiler.
+Standalone 4.141.0 admits concept compliance as v13 with narrower refusals
+(command-surface `references/compliance.md`), but Stage 4.76.0 admits only through
+v12 and the pinned CLI still bundles 4.137.0. Identity blocks,
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding

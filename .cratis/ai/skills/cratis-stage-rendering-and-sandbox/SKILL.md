@@ -46,7 +46,9 @@ were read at Stage `v4.73.1` (`Source/Rendering.Cratis/**`, `Documentation/guide
 (`Documentation/reference/screenplay.md`, `Source/Cli/Commands/Render/**`), not by a render run
 unless a line says *observed*. CLI 3.53.1 bundles a Screenplay and Stage listed in `cratis-screenplay-toolchain` `references/versions.md`, so its
 binder is behind the standalone compiler. Stage's scaffold pins Arc, Chronicle, Components, Scene and
-Fundamentals releases (listed in the rendered application reference). These are **not** the latest releases; do not bump them in managed files
+Fundamentals releases (listed in the rendered application reference). Scene's
+runtime surface was re-read at the Scene tag in that scaffold table
+(`README.md`, `Source/JavaScript/{model,engine,react,components}/**`). These are **not** the latest releases; do not bump them in managed files
 ([rendered application](references/rendered-application.md)).
 
 Historical executed baselines (history, not current claims): Stage `v4.24.2` and cli
@@ -137,7 +139,9 @@ Facts that surprise:
 - **Binding uses the CLI's bundled Screenplay** (the version listed in `cratis-screenplay-toolchain` `references/versions.md`; the standalone tool is
   newer). A model that binds is not necessarily renderable: Stage 4.73.1 admits ESM v1 to v10 by
   version, then refuses each construct it does not render with its own code (below). v11 or newer is
-  `CLI-RENDER-004`; direct Stage reports `STAGE-ESM-016`.
+  `CLI-RENDER-004`; direct Stage reports `STAGE-ESM-016`. Standalone Stage 4.75.0 admits v11 and 4.76.0
+  v1 to v12, and Stage 4.74.0 renders UUID-concept generated values and responses (read at `v4.76.0`),
+  but no cli release bundles them yet (cli 3.53.1 bundles Stage 4.73.1): cli users still need gap-fill.
 - **Render never builds, tests or runs** the output. A published render is admission and
   publication only; build and tests are separate results (see "Verify"). Admission can be
   green while a rendered Debug test fails (the example hit this with a query assertion).
@@ -193,6 +197,8 @@ the `[Command]` record and `Handle()`, the `[EventType]` event, the validator an
 scaffold pins and the `Customizations/` contract are in
 [references/rendered-application.md](references/rendered-application.md).
 Read `references/rendered-application.md` when inspecting scaffold pins, managed-file ownership, or implementing a `Customizations/` extension.
+Read [Scene runtime](references/scene-runtime.md) when identifying the generated UI's
+package ids, host capabilities or the boundary from hand-built Components pages.
 
 Modeled specifications become xunit classes compiled in **Debug only**
 (`IsTestProject` when Debug): a command spec `when_<snake>` in namespace

@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-arc-hosting",
+  "queries": [
+    { "query": "How do I bootstrap our new ASP.NET app on Arc without an event store?", "shouldTrigger": true },
+    { "query": "Explain AddCratis versus AddCratisArc and the activation call after Build.", "shouldTrigger": true },
+    { "query": "Our standalone .NET Arc host needs a listen URL. Where is it configured?", "shouldTrigger": true },
+    { "query": "We want NativeAOT for Arc. Is WithoutControllers enough to remove MVC?", "shouldTrigger": true },
+    { "query": "How do I add generated JSON metadata for typed command responses in a trimmed Arc publish?", "shouldTrigger": true },
+    { "query": "Arc builds but maps no endpoints. Check the host bootstrap and activation.", "shouldTrigger": true },
+    { "query": "How do WithChronicle, WithMongoDB and WithEntityFrameworkCore fit into Arc builder configuration?", "shouldTrigger": true },
+    { "query": "Before publishing our Arc .NET host, check discovery, forwarded-header trust and embedded explorer defaults.", "shouldTrigger": true },
+    { "query": "Define a RegisterBoat command that appends BoatRegistered and returns its id.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Add a format rule to our existing command input.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Execute our existing command from a nightly background job.", "shouldTrigger": false, "note": "cratis-arc-command-execution" },
+    { "query": "Write an identity-details provider and an authorization policy.", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Add an EF migration for a new column.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },
+    { "query": "Host our Node Arc for TypeScript server with Fastify.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Configure a Spring Boot Kotlin Arc command.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Inspect failed observer partitions on a running Chronicle server.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" }
+  ]
+}

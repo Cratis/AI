@@ -154,6 +154,21 @@ test('no-release accepts summary-only bodies and metadata edits but still reject
     } finally { f.cleanup(); }
 });
 
+test('the release-notes rules explain that an issue reference inside an HTML comment closes nothing', () => {
+    const f = fixture();
+    try {
+        const bundle = readFileSync(join(scripts, 'cratis-release-notes-reviewed.cjs'), 'utf8');
+        const programs = [...bundle.matchAll(/\nif \(process\.argv\[2\] === "([^"]+)"\) \{\n([\s\S]*?)\n\}(?=\nif \(process\.argv\[2\]|\s*$)/g)];
+        writeFileSync(f.downloaded, programs.map(([, name, source]) =>
+            `  ${name}:\n    run: |\n      node - <<'JS'\n${source.split('\n').map(line => `      ${line}`).join('\n')}\n      JS\n`).join(''));
+        writeFileSync(f.body, '## Fixed\n\n- Fixed the crash.\n\n<!-- delivered (#7) -->\n');
+        const commented = f.run(['--body-file', f.body, '--label', 'patch']);
+        assert.equal(commented.status, 1);
+        assert.match(commented.stdout, /would NOT be closed/);
+        assert.doesNotMatch(commented.stdout, /still closes/);
+    } finally { f.cleanup(); }
+});
+
 test('the checker rejects missing or conflicting intents and applies edit label swaps to live labels', () => {
     const f = fixture();
     try {

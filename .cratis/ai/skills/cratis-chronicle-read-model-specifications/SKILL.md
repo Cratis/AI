@@ -22,10 +22,10 @@ is no separate `When`: seeding the events is what makes the projection run.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Chronicle.Testing` | `18.3.0` | `ReadModelScenario<TReadModel>` and its `Given` builder |
+| `Cratis.Chronicle.Testing` | `19.50.1` | `ReadModelScenario<TReadModel>` and its `Given` builder |
 | `Cratis.Specifications.XUnit` | `4.x` | The `Specification` base and the `ShouldXxx` assertions |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
+Source: `Source/Clients/Testing/ReadModels/` at **Cratis/Chronicle v19.50.0**.
 
 ```bash
 dotnet add package Cratis.Chronicle.Testing
@@ -82,6 +82,12 @@ var scenario = new ReadModelScenario<CartSummary>(new CartSummary { ItemCount = 
 Further constructors take a service provider, a `Defaults`, or both, alongside
 the initial state. Use the named-parameter form when you need only one of them:
 `new ReadModelScenario<T>(initialState: null, serviceProvider: services)`.
+Scenarios implement `IDisposable`; call `_scenario.Dispose()` in `Destroy()`.
+`WithProjection(Action<IProjectionBuilderFor<T>>)` supplies an inline projection
+and wins over discovery, **including a discovered reducer**. Per-run `Defaults`
+can take a client artifacts provider, service provider and options;
+`InMemoryClientArtifactsProvider` and `ChronicleOptions.ExplicitArtifacts` let a
+specification isolate registrations without global discovery.
 
 ## Step 2 — Seed the events
 
@@ -102,6 +108,12 @@ await scenario.Given.ForEventSource(anotherOrderId).Events(new OrderCreated("ord
 `ForEventSourceId(...)` is an alias for `ForEventSource(...)`. The builder also
 offers `.ReadModel(instance)` to pin a materialized instance for code that calls
 `IReadModels.GetInstanceById` rather than deriving it from events.
+
+For a filtered reducer, seed the routing metadata as well:
+`Given.ForEventSource(id).OnStream(eventSourceType, eventStreamType, eventStreamId).Events(...)`.
+`[EventSourceType]`, `[EventStreamType]` and `[FromEventSource<T>]` filters are honored;
+unrouted seeds no longer reach a handler for another stream. Child-before-parent
+writes are retried when the parent later arrives; decimal seeds retain exact values.
 
 Events are processed in the order supplied. Seed before asserting, and do not
 try to separate a "setup" `Given` from an "act" `Given` — for a read model they
@@ -131,7 +143,7 @@ specific reason in the skip message.
 
 ## Step 4 — Know what the scenario picked
 
-The scenario finds a handler for `TReadModel` in this order:
+Without an explicit `WithProjection`, the scenario finds a handler for `TReadModel` in this order:
 
 1. A **reducer** — a class implementing `IReducerFor<TReadModel>`.
 2. A **fluent projection** — a class implementing `IProjectionFor<TReadModel>`.

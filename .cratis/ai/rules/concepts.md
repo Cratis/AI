@@ -84,8 +84,11 @@ public record AuthorId(Guid Value) : EventSourceId<Guid>(Value), IGeneratable<Au
 - The exact `EventSourceId<T>` base supports conversions among its underlying
   `T`, string, typed ID, and untyped `EventSourceId`, but those operators do not
   construct your derived domain record from every source form.
-- String and Guid are the safest round-trip primitives. Other comparable values
-  rely on Chronicle conversion behavior and require focused verification.
+- String and Guid remain the safest stream-id primitives. Chronicle v19.50.0
+  uses invariant numeric conversion, `"O"` for date/time values and `"c"` for
+  TimeSpan (since 19.37.3; `Source/Clients/DotNET/Events/EventSourceId.cs:148-174`).
+  Preserve the old untyped id for streams written under legacy date/time or
+  decimal-comma culture formats; the new conversion can otherwise open a new stream.
 - Pass the identity explicitly to Chronicle append/read operations. Declaring an
   `EventSourceId<T>` property does not select the stream.
 - Do not put `[Key]` or `[Subject]` on an `EventSourceId<T>`-derived member;
@@ -126,4 +129,9 @@ Use GeoJSON types from `Cratis.Geospatial`: `Point` for a location,
 `LineString` for a route, and `Polygon` for an area. Do not use the removed
 experimental `Coordinate` type. Model geospatial absence according to the
 owning domain contract; do not invent a nullable event payload that conflicts
-with Chronicle event rules.
+with Chronicle event rules. TypeScript imports `Point`, `LineString`, `LinearRing`,
+and `Polygon` from `@cratis/fundamentals/geospatial` (verified at 7.23.0).
+The wire shape is GeoJSON, for example
+`{ "type": "Point", "coordinates": [longitude, latitude] }`: longitude first.
+The removal of `Coordinate` in 7.15.1 is a stored-data compatibility break;
+plan a migration rather than assuming the old shape deserializes as GeoJSON.
