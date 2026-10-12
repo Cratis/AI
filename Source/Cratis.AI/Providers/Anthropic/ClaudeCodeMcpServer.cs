@@ -19,13 +19,13 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
     const int MaxRequestBytes = 1024 * 1024;
     const int MaxConcurrentRequests = 8;
     static readonly string[] _protocolVersions = ["2025-03-26", "2025-06-18"];
-    readonly HttpListener _listener = new();
     readonly IReadOnlyDictionary<string, AIFunction> _functions;
     readonly CancellationTokenSource _shutdown = new();
     readonly CancellationTokenSource _linked;
     readonly List<Task> _requests = [];
     readonly Lock _disposalLock = new();
     readonly byte[] _authorizationHash;
+    HttpListener? _listener;
     Task? _acceptLoop;
     Task? _disposal;
 
@@ -42,8 +42,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
         _linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _shutdown.Token);
         Authorization = $"Bearer {Convert.ToHexString(RandomNumberGenerator.GetBytes(32))}";
         _authorizationHash = SHA256.HashData(Encoding.UTF8.GetBytes(Authorization));
-        Endpoint = new Uri($"http://127.0.0.1:{ReserveLoopbackPort()}/mcp/");
-        _listener.Prefixes.Add(Endpoint.ToString());
+        Endpoint = ReserveEndpoint();
     }
 
     /// <summary>
@@ -71,22 +70,34 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
     /// </summary>
     public void Start()
     {
+        // .NET's managed HttpListener keeps one process-wide endpoint table, and closing a listener
+        // that registered a prefix but never started still binds that port and removes the prefix
+        // from whichever listener currently serves it. A listener therefore exists only once it is
+        // about to start. A failed start disposes it, so another reserved port needs a new one.
         for (var attempt = 1; ; attempt++)
         {
+            var listener = new HttpListener();
             try
             {
-                _listener.Start();
+                listener.Prefixes.Add(Endpoint.ToString());
+                listener.Start();
+                _listener = listener;
                 break;
             }
             catch (HttpListenerException) when (attempt < 5)
             {
-                _listener.Prefixes.Clear();
-                Endpoint = new Uri($"http://127.0.0.1:{ReserveLoopbackPort()}/mcp/");
-                _listener.Prefixes.Add(Endpoint.ToString());
+                // The reserved port was taken before the listener bound it; reserve another.
+                listener.Close();
+                Endpoint = ReserveEndpoint();
+            }
+            catch
+            {
+                listener.Close();
+                throw;
             }
         }
 
-        _acceptLoop = AcceptLoop();
+        _acceptLoop = AcceptLoop(_listener);
     }
 
     /// <inheritdoc/>
@@ -97,6 +108,8 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
             return new(_disposal ??= Drain());
         }
     }
+
+    static Uri ReserveEndpoint() => new($"http://127.0.0.1:{ReserveLoopbackPort()}/mcp/");
 
     static int ReserveLoopbackPort()
     {
@@ -135,7 +148,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
                 cancellationFailed = true;
             }
 
-            _listener.Close();
+            _listener?.Close();
             if (_acceptLoop is not null) await _acceptLoop.ConfigureAwait(false);
             await Task.WhenAll(_requests).ConfigureAwait(false);
         }
@@ -148,14 +161,14 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
         if (cancellationFailed) throw new ClaudeCodeConversationFailed("A tool cancellation callback failed during shutdown.");
     }
 
-    async Task AcceptLoop()
+    async Task AcceptLoop(HttpListener listener)
     {
         while (!_shutdown.IsCancellationRequested)
         {
             HttpListenerContext context;
             try
             {
-                context = await _listener.GetContextAsync();
+                context = await listener.GetContextAsync();
             }
             catch (Exception) when (_shutdown.IsCancellationRequested)
             {

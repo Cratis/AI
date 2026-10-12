@@ -224,7 +224,7 @@ same typed navigate binding a screen action uses.
 (`contributions.md`). An explicit override for when nearest-enclosing is not the point you mean is
 not in the language. The screens-release vector
 (canonical `ScreenComposition` corpus v1) adds typed screen composition; public
-CLI 3.43.0 renders it and passes the browser run. Report a refused form as a
+CLI 3.53.1 renders it and passes the browser run. Report a refused form as a
 capability gap, never a flat-list fallback; Studio production proof is separate.
 
 ## Interactions — what a click does
