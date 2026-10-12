@@ -26,7 +26,7 @@ probes above keep their original labels.
 | Item | Value |
 | --- | --- |
 | Target framework | .NET 10 (`net10.0`), `Microsoft.NET.Sdk.Web` |
-| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, `Cratis.Arc.Chronicle.Testing`) | `22.68.0` (below Arc 22.70, so reverse-generator compliance diagnostics and the like are not in the scaffold; Arc 22.64.1 and later run reactors returning events and commands) |
+| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, `Cratis.Arc.Chronicle.Testing`) | `22.68.0` (below Arc 22.70, so reverse-generator compliance diagnostics and the like are not in the scaffold; reactors returning events and commands need Arc 22.72.0 or later, so a hand-written mixed reactor in a rendered app needs a proven dependency override; Arc 22.68.0's handler accepts a collection only when every element is a command) |
 | Chronicle client | `Cratis.Chronicle`, `.AspNetCore` and `.Testing` `19.45.0`, matched to the `cratis/chronicle:19.45.0-development` image in the compose file |
 | Embedded reverse extraction | `CratisEmbeddedScreenplayEnabled=false`: the source `.play` is authoritative |
 | Test packages | `Cratis.Specifications` and `.XUnit` 4.1.1, Microsoft.NET.Test.Sdk 18.10.1, NSubstitute 6.2.0, xunit 2.9.3, xunit runner 4.0.0; **Debug configuration only** (`IsTestProject` when Debug) |

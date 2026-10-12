@@ -86,7 +86,7 @@ never infer target support from binding. Read Stage's `references/admission.md` 
 toolchain `references/sources-and-streams.md`.
 
 **Mixed reaction effects.** A reaction that both `produces` events and `invokes` commands is refused by
-Stage (`STAGE-ESM-037`, Stage#207) although Arc 22.64.1 and later run one reactor returning events
+Stage (`STAGE-ESM-037`, Stage#207) although Arc 22.72.0 and later run one reactor returning events
 and commands (events appended first as one batch, then commands in order, no cross-effect
 transaction; a retry can repeat the events, so use `[OnceOnly]`/idempotent handling per
 `cratis-chronicle-reactor`). Keep the modeled reaction whole and gap-fill it as that one reactor; never

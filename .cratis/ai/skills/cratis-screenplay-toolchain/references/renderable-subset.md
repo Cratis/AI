@@ -45,9 +45,9 @@ version; each construct it does not render refuses with its own code before any 
 
 | Area | Renders at 4.73.1 | Refused (code) |
 | --- | --- | --- |
-| Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`, every reaction, capture, application trigger and clock specification (`STAGE-ESM-001`/`-024`); a reaction that both produces and invokes (`-037`, Stage#207; Arc 22.64.1+ can run it, hand-write one reactor, never split the reaction) |
+| Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`, every reaction, capture, application trigger and clock specification (`STAGE-ESM-001`/`-024`); a reaction that both produces and invokes (`-037`, Stage#207; Arc 22.72.0+ can run it, and the scaffold's Arc 22.68.0 needs a proven override; hand-write one reactor, never split the reaction) |
 | Queries | optional keyed snapshot lookups; observable collections, keyed or unkeyed (since 4.49.0) | a snapshot list: `STAGE-ESM-010`; `filter`, `scoped to`, `performer`, composite `by`: `PLAY0268` at binding |
-| Authorization | role-only, authenticated, opaque pure policies, claim conditions (Uuid, Date, DateTime, text, number, boolean targets), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, subjects that are not text, Uuid or Date (`STAGE-ESM-015`) |
+| Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false; Stage 4.73.1 `IsSupportedClaimPath`), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`; Stage 4.73.1 `IsTextualSubject`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, with routed specifications | reserved stored names, unformattable routed fixtures, unsupported routed replay (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
 | Generated values and responses (v7) | not rendered | `STAGE-ESM-028`/`-029` (Stage#175) |

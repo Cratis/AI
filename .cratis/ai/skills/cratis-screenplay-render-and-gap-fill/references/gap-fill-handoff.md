@@ -93,7 +93,7 @@ captures-and-reactions `references/invocation-identity.md`.
 
 A reaction that both produces events and invokes commands keeps its single modeled form
 (`STAGE-ESM-037` is Stage's refusal, not a model defect). Hand-write one reactor returning the events
-and the commands: on Arc 22.64.1 or later the runtime appends the events first as one batch, then
+and the commands: on Arc 22.72.0 or later (the Stage 4.73.1 scaffold pins Arc 22.68.0, whose command handler accepts a collection only when every element is a command, so a rendered app needs a proven dependency override) the runtime appends the events first as one batch, then
 runs the commands in order, with no transaction across the two effects; a failing command stops the
 later ones but keeps the committed events, and a retry can append the events again, so make the
 handler idempotent (`[OnceOnly]` and the failure behavior in `cratis-chronicle-reactor`). Return a

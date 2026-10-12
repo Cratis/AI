@@ -44,7 +44,7 @@ Screenplay meaning, and when you meet the older usage, translate it and say so.
 - Chronicle **reactor**: C# observer, usually for side effects; it does not by itself define
   business decisions. A Screenplay reaction is authorable and bindable, but Stage 4.73.1 renders no Automation or
   Translate slice: the reactor and command are gap-fill code. A reaction that both produces events and invokes commands is
-  refused by Stage (`STAGE-ESM-037`); Arc 22.64.1 and later run one reactor returning events and commands, so keep the reaction whole.
+  refused by Stage (`STAGE-ESM-037`); Arc 22.72.0 and later run one reactor returning events and commands (the Stage scaffold's Arc 22.68.0 needs a proven override), so keep the reaction whole.
 
 ## Scenario vs specification
 "Scenario" is the Event Modeling example and the scenario *types* `cratis-screenplay-scenario-coverage` uses for

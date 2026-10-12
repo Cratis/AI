@@ -11,9 +11,9 @@ automation or translation is hand-written delivery with the model as its contrac
 3.28.2 and 3.28.3 refused such a model whole with `STAGE-ESM-016`, and 3.27.1 stopped earlier with PLAY0268.)
 
 A reaction that both `produces` events and `invokes` commands stays one modeled reaction. Hand-write one
-reactor that returns the events and the commands: Arc 22.64.1 and later append the events first as one
+reactor that returns the events and the commands: Arc 22.72.0 and later append the events first as one
 batch, then run the commands in order, with no transaction across them (a retry can repeat both, so keep
-both repeatable); the Stage scaffold pins Arc 22.68.0. Never split the reaction to dodge `STAGE-ESM-037`. A `Customizations/` file never makes a
+both repeatable); the Stage scaffold pins Arc 22.68.0, whose command handler accepts a collection only when every element is a command, so a rendered app needs a proven dependency override to Arc 22.72.0 or later. Never split the reaction to dodge `STAGE-ESM-037`. A `Customizations/` file never makes a
 rejected model renderable, and never claim a whole-application V5 from a subset. Choose the route
 with `cratis-screenplay-render-and-gap-fill`.
 
