@@ -24512,12 +24512,17 @@
         "expectedSourceRevision",
         "limit",
         "offset",
+        "proposalId",
         "scope",
         "specification"
       ],
       "inputSchema": {
         "type": "object",
         "properties": {
+          "proposalId": {
+            "type": "string",
+            "description": "Outstanding proposal from this connection. Runs its retained candidate and identity catalog without refreshing, applying or mutating it; an externally changed base does not replace the snapshot."
+          },
           "specification": {
             "type": "string"
           },
@@ -24534,7 +24539,8 @@
             "maximum": 200
           },
           "expectedSourceRevision": {
-            "type": "string"
+            "type": "string",
+            "description": "Echo sourceRevision from the first execution response on continuation. With proposalId, pins the candidate source rather than the current model."
           }
         },
         "required": [],

@@ -18,7 +18,7 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.144.0** (`b5da55a2`) | Released tag `v4.144.0` and its unchanged published contract; committed model notes and the standalone open-question gate; equality query filters admitted as ESM v14 since 4.143.0 |
+| Screenplay language, standalone tool and MCP | **4.145.0** (`bf58b489`) | Released tag `v4.145.0`, published NuGet tool and byte-identical Golden contract; read-only proposal specification execution with `proposalId`; model notes/open-question gate and ESM v14 equality filters retained |
 | cratis CLI | **3.53.1** | Released tag `v3.53.1`; source-checked, not a new render/browser probe |
 | Screenplay bundled by CLI | **4.137.0** | CLI `v3.53.1:Directory.Packages.props`; enum-number authoring, not v12 binding |
 | Stage bundled by CLI | **4.73.1** | Same file; Stage's own `Directory.Packages.props` also pins Screenplay 4.137.0 |
@@ -54,7 +54,7 @@ or renderer probes below as results from the newer bundle.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.144.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
+Standalone Screenplay 4.145.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -76,13 +76,16 @@ conflicts: `cratis-screenplay-model-authoring`.
 | Completeness | Add `--check <name>[,<name>]` (repeatable) or `--check all` | Opt-in warnings; whole-source errors skip checks, not pass them |
 | CLI source validation | `cratis screenplay validate <root> --warnings-as-errors -o json-compact` | Read producer exit and JSON errors/warnings/file count. Passing source-only probe on CLI 3.41.0: dependencies example, exit 0 |
 | Binding | MCP workspace readiness and `executable-diagnostics` | V2 reads diagnostics; V3 requires binding with no blocking diagnostics |
-| Reference specifications | `screenplay test <root> [--filter <address>] [--format text|json]`, or MCP `run-specifications` | 0 all selected passed; 1 failed; 2 could not run/invalid selection; 3 unsupported or unbound. Counts of zero do not prove coverage |
+| Reference specifications | `screenplay test <root> [--filter <address>] [--format text|json]`, or MCP `run-specifications` (`specification`, `scope`, `offset`, `limit`, `expectedSourceRevision`; `proposalId` from 4.145.0) | 0 all selected passed; 1 failed; 2 invalid arguments/input/selection or IO; 3 unsupported or unbound. `test` rejects `--no-color`; counts of zero do not prove coverage |
 | Rendering | `cratis render` | Separate admission, publication, target build and target tests (V5) |
 
 Source validation does not bind or run attached code. Reference execution is
 in-memory and does not run opaque attachments or external services. CLI-derived
 specification IDs need not match persisted MCP identities after renames; use MCP
-for identity-stable selection.
+for identity-stable selection. On Screenplay **4.145.0 and later**, run a retained
+proposal read-only with `proposalId` after review and before apply. Without that
+argument it runs the current workspace. An impossible `then` (PLAY0285)
+unbinds the entire model and prevents every specification running.
 
 ## Model notes gate
 
