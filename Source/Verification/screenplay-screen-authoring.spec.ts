@@ -170,6 +170,13 @@ test('screen guidance no longer carries caveats that pass on the public vector',
             assert.ok(!document.includes(retired), `screen guidance still carries the retired caveat or pin '${retired}'`);
         }
     }
+
+    // Guarded Close and double click render and run since Stage 4.65 (public live browser run, Cratis/Screenplay#671).
+    for (const stale of ['stay fail-closed by design', 'still refused by design', 'are refused and recorded as unsupported', 'Still true: a guarded Close']) {
+        for (const document of documents) {
+            assert.ok(!document.includes(stale), `screen guidance still says guarded actions are refused: '${stale}'`);
+        }
+    }
 });
 
 test('the edited-application browser check edits through MCP, runs the edited model and fails closed', () => {

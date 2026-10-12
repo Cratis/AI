@@ -168,10 +168,12 @@ Historical verified public vector and executable checks:
 - render (`cratis render <corpus-folder> --name ScreenComposition --destination
   <dir> -o json`) with CLI 3.43.0 publishes the corpus; the browser acceptance
   run on CLI 3.40.7 passed 51 assertions (Cratis/Screenplay#605);
-- still refused by design: guarded Close (`STAGE-SCENE-ACTION-001`) and
-  double-click (`STAGE-SCENE-INTERACTION-001`); still pending: Studio production
-  Play proof (test-account decision). UI-profile rejection and render-then-recover
-  shipped in Cratis/cli#301.
+- guarded Close and double-click: refused with `STAGE-SCENE-ACTION-001` and
+  `STAGE-SCENE-INTERACTION-001` on this historical vector, rendered and run since
+  Stage 4.65 (live browser run on CLI 3.53.1 with `cratis/stage:4.73.1`,
+  Cratis/Screenplay#671); the codes remain for a guard Stage cannot evaluate. Studio
+  production Play proof is a separate vector (Cratis/Screenplay#173). UI-profile
+  rejection and render-then-recover shipped in Cratis/cli#301.
 
 ## Replay the workflow in CI without a Screenplay checkout
 

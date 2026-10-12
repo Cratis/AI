@@ -24,10 +24,15 @@ browser assertions passed, none blocked or pending (Cratis/Screenplay#605).
 Native command forms, required fields, scoped comments, deep links,
 stale-response handling and theme all pass there. On public CLI 3.43.0 (default
 `cratis/stage:4.52.0`) an agent-edited table column was rendered, run and seen in
-the browser. Two behaviors stay fail-closed by design: a guarded Close action
-(`STAGE-SCENE-ACTION-001`) and a double-click interaction
-(`STAGE-SCENE-INTERACTION-001`) are refused and recorded as unsupported
-capabilities, never emulated. Require a generated plan or artifact entry for every
+the browser. A guarded Close action and a guarded double-click interaction render and
+run since Stage 4.65: on public CLI 3.53.1 with `cratis/stage:4.73.1` the live browser
+run (Cratis/Screenplay#671) offers Close only while the item is open, posts
+`CloseWorkItem`, hides Close afterwards, navigates on a double click for an open row and
+notifies for a closed one, and Stage runs the same scenario against a generated
+application. `STAGE-SCENE-ACTION-001` and `STAGE-SCENE-INTERACTION-001` remain the
+refusal for a guard Stage cannot evaluate (anything but `item.<field>` compared with a
+literal, combined with `and`/`or`, with a `hidden` or executing `otherwise`): that model
+produces no artifacts and is never emulated. Require a generated plan or artifact entry for every
 authored UI construct, and report every unsupported UI directive as a diagnostic.
 Silent fallback to a default screen is a failure, not a partial render.
 

@@ -53,10 +53,11 @@ All three levels hold for the canonical `ScreenComposition` corpus on the histor
   comments, deep links, stale-response handling and theme included. On CLI
   3.43.0 an agent-edited column was rendered, run and seen in the browser.
 
-Still true: a guarded Close action and a double-click interaction are refused
-(`STAGE-SCENE-ACTION-001`, `STAGE-SCENE-INTERACTION-001`, defined from Stage
-4.51 through 4.57) and recorded as unsupported, never emulated; Studio production
-Play proof is pending a test-account decision. Refusing an unresolvable UI
+Guarded Close and double-click: Stage refused both with `STAGE-SCENE-ACTION-001` and
+`STAGE-SCENE-INTERACTION-001` from Stage 4.51 through 4.57. Since Stage 4.65 they render and
+run (public CLI 3.53.1 with `cratis/stage:4.73.1`, Cratis/Screenplay#671); the codes remain the
+refusal for a guard Stage cannot evaluate, which is never emulated. Studio production Play
+proof is a separate vector (Cratis/Screenplay#173). Refusing an unresolvable UI
 profile and recovering a rendered application shipped in Cratis/cli#301. (History: on Stage 4.24.2 or
 cratis 3.28.x renderers authored screens were reported as omitted/default composition; Stage 4.73.1
 (CLI 3.53.1) renders navigation contributions and toolbars, and `CLI-RENDER-015`, which refused them, is retired.)
@@ -123,7 +124,8 @@ from parsing; do not publish an empty plain action as equivalent behavior.
 The complete checked model and conditions are in
 `cratis-screenplay-read-surface` `references/guarded-actions.md`, grounded in
 Screenplay v4.125.0 `screens.md`. Historical CLI 3.41.0/Stage 4.51.3 checks reported
-unsupported screen actions with STAGE-SCENE-ACTION-001, not proof of runtime selection.
+unsupported screen actions with STAGE-SCENE-ACTION-001; since Stage 4.65 a guard of the form
+`item.<field>` compared with a literal is evaluated at runtime (Cratis/Screenplay#671).
 
 ## Exposed template configuration
 
