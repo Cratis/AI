@@ -37,8 +37,10 @@ automation test (`cratis-screenplay-automations-and-translations`):
   recorded.
 - Work that can wait, retry, fail or need people gets a pending-work view and a terminal fact, as
   for any automation.
-- The reaction reads state only through declared `reads`; the decision and its protection belong
-  to the command it invokes where one is involved.
+- A reaction that both `reads` and `produces` directly fails binding (`PLAY0268`, decision 0006).
+  When deriving the condition needs stored state, the reaction `invokes` a command that holds the
+  `reads` and the decision, and that command produces the event. A reaction that `produces`
+  directly may decide only from the triggering event's own fields.
 
 ## Fold only redundant causes
 The causes of a derived condition usually fall into two groups:

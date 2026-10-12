@@ -223,13 +223,13 @@ address and assumption; every decided rejection is a specification; no protectio
 the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
-Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Used here: Screenplay
+Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Current pins (Stage 4.73.1, cratis CLI 3.53.1 and the rest) are in that file. Older source reads used here: Screenplay
 `v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
 cratis CLI `v3.28.3` (`cratis screenplay validate --warnings-as-errors`; bundled Screenplay 4.66.0 then, 4.137.0 in 3.53.1);
-Stage `v4.73.1` (admits ESM v1-v10 by version; evolved events still refused with `STAGE-ESM-026`); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.3`
-`Documentation/reference/screenplay-mcp.md`. These are historical source reads, not current pins. The worked example compiles with the standalone tool.
+opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.3`
+`Documentation/reference/screenplay-mcp.md`. The 4.66.0 and 3.28.3 reads are historical, not current pins. The worked example compiles with the standalone tool.
 ## Verify
 ```shell
 screenplay <model-folder> --warnaserror --no-color

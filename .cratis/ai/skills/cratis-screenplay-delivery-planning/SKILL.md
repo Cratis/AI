@@ -42,7 +42,7 @@ it is not planned work yet.
 2. **Inventory the slices.** Use the Screenplay MCP: `describe-application` for counts and
    paged children, `dependency-graph` at slice level for edges, cycles and an advisory
    order, `dependencies` and `find-references` per slice for the contracts it consumes and
-   produces and for the `reads`/`invokes` edges the graph does not order. Treat `complete: false` or an ambiguous binding as unknown, never as no
+   produces and for the `invokes`, action and form edges the graph does not order (`reads` maps to `decidesFrom`, which it does order, but it stays a coordination point). Treat `complete: false` or an ambiguous binding as unknown, never as no
    dependency (`cratis-screenplay-model-authoring`). Without the MCP, read the `.play` files.
 3. **Classify each slice** by type and by realization: rendered (Stage admits it) or
    hand-written (gap-fill, adapter, external call). Record the reason for each hand-written one.
@@ -57,7 +57,8 @@ it is not planned work yet.
    separate lines for what is not slice work: modeling and review gates, integration with
    outside systems, environment and deployment, specifications that need new infrastructure.
 7. **Track.** One GitHub issue per slice group, in the repository's own issue practice
-   (`issue_work` and the hygiene skill where installed): the status block lists the slices, their
+   (assign the issue, keep an in-progress status in the issue body, check for an existing claim
+   before starting): the status block lists the slices, their
    type, the wave, the blockers and each slice's planning status below. The issue's own state
    follows the repository's hygiene (in progress, in review when the PR opens, paused, blocked,
    done only when delivered). Keep the working plan in
@@ -68,7 +69,7 @@ it is not planned work yet.
 ## Status vocabulary
 Per-slice planning status, a closed set recorded inside the plan and the issue's status block.
 It is not the issue's state: the enclosing issue keeps the repository's own states (for example
-`issue_work`: in progress, in review, paused, blocked, done), and is done only when its slices are
+in progress, in review, paused, blocked, done), and is done only when its slices are
 delivered (merged and released where the repository releases).
 
 | Status | Meaning |
@@ -81,7 +82,8 @@ delivered (merged and released where the repository releases).
 Before claiming a slice, check its current status. If it is already `in progress`, someone else
 holds it: pick another slice, do not take it over and do not report an error. Move a status only
 to a different value; a repeated update is a signal that another worker got there first.
-Where the repository uses `issue_work`, its claim step is that guard.
+Check for an existing claim (assignee and in-progress status) before starting; where the harness
+provides a claim tool such as `issue_work`, its claim step is that guard.
 
 ## What a plan states
 - Scope: the modules and slices counted, and what was excluded and why.

@@ -228,14 +228,7 @@ Each came from the first draft of the example model, rendered with cratis 3.27.1
 
 ## Historical Stage 4.24 admission
 
-Kept as history. Not a statement about the current Stage (see the 4.73.1 summary in `SKILL.md`).
-
-The pinned CLI/Stage pair (`cratis-screenplay-toolchain/references/versions.md`)
-reaches construct checks through v10; v11 gets
-CLI-RENDER-004 (direct Stage: STAGE-ESM-016). Public/foreign events, reaction
-identity/filters and production overrides still refuse. Reducer filters render.
-Read [admission](references/admission.md) for STAGE-ESM-032–036 and previous
-CLI/version boundaries. Source acceptance is not V5; keep contracts for gap-fill.
+Kept as history. Not a statement about the current Stage (see the 4.73.1 summary in `SKILL.md` and the diagnostic codes above).
 
 Whole-model admission needs ESM schema v1 to v4; v5 and v6 are `STAGE-ESM-016`. Stage 4.24.2 admits ESM v4 (Screenplay compiles a model with evolved events to v4): an event at its initial revision renders exactly as before, but any selected event above the initial revision, and every scope depending on it (a command producing it, a projection or reducer observing it, a specification using it), is refused with `STAGE-ESM-026` and nothing is emitted. A typed-context reference to a historical revision or property identity is refused with `STAGE-ESM-025`. Stage cannot render Chronicle event-type migrations yet (Cratis/Stage#204, which depends on Cratis/Screenplay#71), and Stage's runtime (`cratis run`, the Host) still refuses evolved events, so deliver evolved events as gap-fill. Stage 4.24.1 also lists the ESM v6 members (reactions, captures, application triggers, clock and capture specifications) as rejected `STAGE-ESM-024` in its surface ledger, but the version gate refuses the model first, so a v6 model reports `STAGE-ESM-016` only. The bundled Stage 4.24.2 (cratis 3.28.3) reports an evolved event with `STAGE-ESM-026` only (probed); cratis 3.28.2 bundled Stage 4.24.1 (3.28.1 and earlier: 4.24.0), refused a v4 model with `STAGE-ESM-016` and also reported `CLI-RENDER-003`. The admitted vertical:
 
@@ -257,8 +250,8 @@ composite-key projections, `all`, and compliance attributes (`@pii`, `@sensitive
 already fail binding with `PLAY0268`). Any one blocking diagnostic fails the whole plan.
 A refusal is not a licence to weaken the model: drop no specification, event generation
 or protection to get a render; keep the model, record the capability gap and gap-fill.
-The code table, the projection and specification rules and three refusals reproduced while
-building the example are in [references/admission.md](references/admission.md); the exhaustive ledger
+The code table, the projection and specification rules and the refusals reproduced while
+building the example are in the sections above; the exhaustive ledger
 is `references/renderable-subset.md` in `cratis-screenplay-toolchain`.
 Read `cratis-screenplay-toolchain/references/renderable-subset.md` when you need the exhaustive surface ledger beyond the admission summary.
 
