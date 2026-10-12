@@ -8,7 +8,7 @@ paths:
 
 # Documentation structure and formatting
 
-This is the authoritative rendering contract for product documentation consumed by the Astro Starlight site. For content and teaching voice, see [Writing Cratis Documentation](./writing-cratis-docs.md). For source ownership and the edit loop, see [Editing Cratis Documentation](./editing-cratis-docs.md).
+This is the authoritative rendering contract for product documentation consumed by the Astro Starlight site. For content and teaching voice, see [Writing Cratis Documentation](./writing-cratis-docs.instructions.md). For source ownership and the edit loop, see [Editing Cratis Documentation](./editing-cratis-docs.instructions.md).
 
 Product `.md` and `.mdx` files are copied through the Documentation repository's `web/scripts/sync-content.mjs`; the converter preserves the extension and rewrites the content before Starlight renders it.
 

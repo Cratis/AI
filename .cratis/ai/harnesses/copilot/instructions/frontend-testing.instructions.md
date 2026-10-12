@@ -76,7 +76,7 @@ Behavior that can regress without TypeScript catching it:
 
 Plain TypeScript classes constructible directly in a spec:
 
-- No React hooks; no direct `window`/`localStorage`/`location`/timers/network — inject the Cratis/browser abstraction (see [react.md](./react.md)).
+- No React hooks; no direct `window`/`localStorage`/`location`/timers/network — inject the Cratis/browser abstraction (see [react.md](./react.instructions.md)).
 - Derived values are getters, not `useMemo`.
 - Commands are methods with explicit inputs, not inline closures hidden in JSX.
 
@@ -121,7 +121,7 @@ Run the project's frontend test gate (e.g. `yarn test`) for frontend changes; it
 
 ## See also
 
-- [react.md](./react.md) — MVVM, view-model testability, Arc hooks.
-- [frontend-quality.md](./frontend-quality.md) — the engineering bar these specs serve.
-- [specs.md](./specs.md) — the backend BDD language this mirrors.
+- [react.md](./react.instructions.md) — MVVM, view-model testability, Arc hooks.
+- [frontend-quality.md](./frontend-quality.instructions.md) — the engineering bar these specs serve.
+- [specs.md](./specs.instructions.md) — the backend BDD language this mirrors.
 - skill: **cratis-application-react-specifications** — the step-by-step workflow that applies these conventions.

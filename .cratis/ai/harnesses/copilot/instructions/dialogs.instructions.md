@@ -52,7 +52,7 @@ try { await doTheSlowThing(); } finally { closeBusy(); }
 - `showConfirm()` resolves to a `DialogResult` — branch on the enum member, never on button text.
 - Always pair `showBusy()` with `closeBusy()` in a `finally`; the busy dialog is deliberately non-dismissible, so a missed close leaves the user stuck.
 - **A busy indicator is a modal for work that blocks the user.** For a quick command behind a button, an in-flight/disabled button (eventual-consistency rule 9) is the better control — a modal that flashes for 200 ms is worse than no modal. Use the busy dialog when the user genuinely cannot proceed.
-- From a view model, use the injectable `IDialogs` abstraction (`@cratis/arc.react.mvvm/dialogs`) rather than the hooks — see [react.md](./react.md).
+- From a view model, use the injectable `IDialogs` abstraction (`@cratis/arc.react.mvvm/dialogs`) rather than the hooks — see [react.md](./react.instructions.md).
 
 ## When Using `CommandDialog`
 

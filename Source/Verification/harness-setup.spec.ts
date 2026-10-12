@@ -93,18 +93,18 @@ test('Copilot normalizes only non-string applyTo forms and regenerates its own s
     try {
         const universal = '# Universal fixture guidance\n';
         writeFileSync(join(project, '.cratis/ai/rules/universal-fixture.md'), universal);
-        for (const scope of ['applyTo: **/*.go', 'applyTo:\n  - "**/*.go"\n  - "go.mod"']) {
+        for (const [scope, expected] of [['applyTo: **/*.go', 'applyTo: "**/*.go"'], ['applyTo:\n  - "**/*.go"\n  - "go.mod"', 'applyTo: "**/*.go,go.mod"']]) {
             const canonical = `---\n${scope}\npaths:\n  - "**/*.go"\n---\n# Fixture guidance\n`;
             writeFileSync(join(project, '.cratis/ai/rules/fixture.md'), canonical);
             const installed = setup(project);
             assert.equal(installed.status, 0, installed.stderr);
             const path = join(project, '.github/instructions/fixture.instructions.md');
             const generated = readFileSync(path, 'utf8');
-            assert.match(generated, /applyTo: "\*\*\/\*\.go(?:,go\.mod)?"\npaths:/);
+            assert.equal(generated.split('\n').find(line => line.startsWith('applyTo:')), expected);
             assert.match(generated, /generated Copilot instructions/);
             assert.equal(readFileSync(join(project, '.cratis/ai/rules/fixture.md'), 'utf8'), canonical);
             const root = readFileSync(join(project, '.github/copilot-instructions.md'), 'utf8');
-            assert.ok(root.includes(universal));
+            assert.equal(root, readFileSync(join(project, '.cratis/ai/rules/general.md'), 'utf8'));
             assert.throws(() => readFileSync(join(project, '.github/instructions/universal-fixture.instructions.md')), /ENOENT/);
             writeFileSync(path, `${generated}\nStale generated content.\n`);
             assert.notEqual(setup(project, true).status, 0);
@@ -118,7 +118,7 @@ test('Copilot normalizes only non-string applyTo forms and regenerates its own s
         writeFileSync(join(project, '.cratis/ai/rules/fixture.md'), '# Now universal\n');
         assert.equal(setup(project).status, 0);
         assert.throws(() => readlinkSync(join(project, '.github/instructions/fixture.instructions.md')), /ENOENT/);
-        assert.ok(readFileSync(join(project, '.github/copilot-instructions.md'), 'utf8').includes('# Now universal'));
+        assert.equal(readlinkSync(join(project, '.github/copilot-instructions.md')), '../.cratis/ai/rules/general.md');
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
@@ -171,9 +171,14 @@ test('Copilot drift checks detect source changes, missing files and orphans, the
         const corpus = join(project, '.cratis/ai');
         const adapter = join(corpus, copilotInstructionsDirectory, 'go.instructions.md');
         const canonical = join(corpus, 'rules/go.md');
+        const before = readFileSync(adapter, 'utf8');
         writeFileSync(canonical, `${readFileSync(canonical, 'utf8')}\nUpdated path guidance.\n`);
         assert.ok(checkCopilotInstructions(corpus).some(message => message.includes('go.instructions.md is stale')));
-        assert.notEqual(setup(project, true).status, 0);
+        const checked = setup(project, true);
+        assert.notEqual(checked.status, 0);
+        assert.match(checked.stderr, /Copilot instruction adapters are out of date:/);
+        assert.match(checked.stderr, /go\.instructions\.md is stale/);
+        assert.equal(readFileSync(adapter, 'utf8'), before, '--check reports body drift without regenerating');
         assert.equal(setup(project).status, 0);
         assert.match(readFileSync(adapter, 'utf8'), /Updated path guidance/);
         const orphan = join(corpus, copilotInstructionsDirectory, 'orphan.instructions.md');

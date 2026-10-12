@@ -7,7 +7,7 @@ paths:
 
 # Code Quality — C#
 
-C#-specific applications of the general [Code Quality](./code-quality.md) principles.
+C#-specific applications of the general [Code Quality](./code-quality.instructions.md) principles.
 
 ## Composition over Inheritance
 

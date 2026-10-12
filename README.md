@@ -149,13 +149,16 @@ intend to replace conflicting content; this can recursively delete occupied
 directories. Unlisted project files outside those explicitly replaced paths are
 left alone. `--check` never writes, even with `--force`.
 
-Copilot's repository-wide `.github/copilot-instructions.md` is generated from
-rules without `applyTo`. Path rules live in `.github/instructions/` as
+Copilot's repository-wide `.github/copilot-instructions.md` continues to link to
+the canonical `general.md` policy entry point. Rules without `applyTo` are never
+emitted as path adapters. Path rules live in `.github/instructions/` as
 `<name>.instructions.md`, with a quoted `applyTo` glob string (multiple globs are
 comma-separated), as required by [Copilot's custom-instructions documentation](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions#creating-path-specific-custom-instructions).
 Setup copies path rules into marked, portable files under
 `.cratis/ai/harnesses/copilot/instructions/`, normalizing scalar/list forms only
 when needed, and links `.github/instructions` to that generated directory.
+Relative Markdown links point to sibling generated rules or back to their
+original corpus targets; code examples and external URLs are left unchanged.
 `setup --check` and corpus verification reject missing, stale, or orphaned
 adapters. The generated files ship with the corpus and the Pi package; they do
 not depend on source rule symlinks surviving installation. Setup migrates the

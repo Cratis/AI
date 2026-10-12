@@ -127,7 +127,7 @@ Contexts capture the "given" part of a specification — the world as it exists 
 
 This file is the shared base. For the concrete patterns:
 
-- [specs.csharp.md](./specs.csharp.md) — C#: the universal `Cratis.Specifications` base + NSubstitute (both profiles; this is what framework/library specs use).
-- [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) — C# **application** profile: the in-process scenario family (`CommandScenario`, `EventScenario`, `ReadModelScenario`, `ReactorScenario`) + out-of-process Chronicle integration.
-- [specs.typescript.md](./specs.typescript.md) — TypeScript framework-package specs (`given()` helper).
-- [frontend-testing.md](./frontend-testing.md) — application frontend specs (view models, React components).
+- [specs.csharp.md](./specs.csharp.instructions.md) — C#: the universal `Cratis.Specifications` base + NSubstitute (both profiles; this is what framework/library specs use).
+- [specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md) — C# **application** profile: the in-process scenario family (`CommandScenario`, `EventScenario`, `ReadModelScenario`, `ReactorScenario`) + out-of-process Chronicle integration.
+- [specs.typescript.md](./specs.typescript.instructions.md) — TypeScript framework-package specs (`given()` helper).
+- [frontend-testing.md](./frontend-testing.instructions.md) — application frontend specs (view models, React components).

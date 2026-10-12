@@ -4,7 +4,7 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, readdirSync, rmSync, rmdirSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { checkOpenCodeAgents, generateOpenCodeAgents, generatedAgentMarkerPrefix, openCodeAgentsDirectory } from './opencode-agents.ts';
-import { checkCopilotInstructions, copilotInstructions, copilotInstructionsDirectory, copilotMarker, copilotRootInstructions } from './copilot-instructions.ts';
+import { checkCopilotInstructions, copilotInstructions, copilotInstructionsDirectory, copilotMarker } from './copilot-instructions.ts';
 
 type Link = { path: string; target: string; type: 'file' | 'dir' };
 
@@ -117,6 +117,7 @@ add('.claude/prompts', '../.cratis/ai/prompts', 'dir');
 add('.claude/rules', '../.cratis/ai/rules', 'dir');
 add('.claude/skills', '../.cratis/ai/skills', 'dir');
 commands('.claude/commands');
+add('.github/copilot-instructions.md', '../.cratis/ai/rules/general.md', 'file');
 add('.github/instructions', `../.cratis/ai/${copilotInstructionsDirectory}`, 'dir');
 add('.github/prompts', '../.cratis/ai/prompts', 'dir');
 add('.github/skills', '../.cratis/ai/skills', 'dir');
@@ -146,20 +147,12 @@ const migrateInstructions = !!instructionsState?.isDirectory() && legacyInstruct
     const canonical = join(corpus, 'rules', name.replace(/\.instructions\.md$/, '.md'));
     return (state(path)?.isSymbolicLink() && resolve(dirname(path), readlinkSync(path)) === canonical) || ownedCopilot(path);
 });
-const rootInstructionsPath = join(root, '.github/copilot-instructions.md');
-const rootInstructions = copilotRootInstructions(corpus);
-const rootInstructionsState = state(rootInstructionsPath);
-if (!(rootInstructionsState?.isFile() && readFileSync(rootInstructionsPath, 'utf8') === rootInstructions)) {
-    if (check || (rootInstructionsState && !ownedLink(rootInstructionsPath) && !ownedCopilot(rootInstructionsPath) && !force)) {
-        failures.push('.github/copilot-instructions.md: expected generated Copilot instructions');
-    }
-}
 for (const link of links.values()) {
     const path = join(root, link.path);
     requireRealParents(path, root);
     const actual = state(path)?.isSymbolicLink() ? readlinkSync(path) : undefined;
     if (actual === link.target) continue;
-    if (check || (state(path) && !ownedLink(path) && !(link.path === '.github/instructions' && migrateInstructions) && !force)) {
+    if (check || (state(path) && !ownedLink(path) && !(link.path === '.github/instructions' && migrateInstructions) && !(link.path === '.github/copilot-instructions.md' && ownedCopilot(path)) && !force)) {
         failures.push(`${link.path}: expected symbolic link to ${link.target}`);
     }
 }
@@ -170,9 +163,6 @@ if (!check) {
         for (const path of legacyInstructions) unlinkSync(path);
         rmdirSync(instructionsDirectory);
     }
-    remove(rootInstructionsPath);
-    mkdirSync(dirname(rootInstructionsPath), { recursive: true });
-    writeFileSync(rootInstructionsPath, rootInstructions);
     if (copilotDirectoryConflict) remove(copilotDirectory);
     mkdirSync(copilotDirectory, { recursive: true });
     for (const path of copilotPaths) {

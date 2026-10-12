@@ -38,7 +38,7 @@ skill, not here.
 
 All identifiers, KDoc, and string literals use **American English** spelling
 (initialize, serialize, behavior, color, organization, center, modeling,
-dialog, license, judgment, gray). See [general.md](./general.md).
+dialog, license, judgment, gray). See [general.md](../../../rules/general.md).
 
 ## Naming
 

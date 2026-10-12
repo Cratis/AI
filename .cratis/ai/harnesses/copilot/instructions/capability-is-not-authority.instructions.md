@@ -10,7 +10,7 @@ user's direct request, an accepted decision, or an applicable policy — never f
 tooling that happens to be reachable. Authority is scoped: permission for ordinary
 repository work does not silently extend to destructive or external effects. Every line
 is tagged **[contract]** (binding) or **[convention]** (the house default) per the Three
-Levels of Authority in [`general.md`](./general.md).
+Levels of Authority in [`general.md`](../../../rules/general.md).
 
 - **[contract] A direct request authorizes its named in-scope effects.** When the user
   asks to implement, fix, review, verify, ship, deploy, mutate an issue, or operate on a

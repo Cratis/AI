@@ -6,11 +6,11 @@ profile: application
 
 # Application profile
 
-> The following — **Project Layout, Slice Types, Slice Naming, the Rules, and the Implementation Workflow** — applies when **building an application on Cratis**. If you are contributing to a Cratis framework repo, skip to **Framework profile** below and follow [framework.md](./framework.md).
+> The following — **Project Layout, Slice Types, Slice Naming, the Rules, and the Implementation Workflow** — applies when **building an application on Cratis**. If you are contributing to a Cratis framework repo, skip to **Framework profile** below and follow [framework.md](./framework.instructions.md).
 
 ## Project Layout (Cratis Application convention)
 
-The framework discovers commands and read models by attributes and static methods — **the folder shape is a convention, not a requirement.** The house default: the domain hierarchy lives directly under the app source root (**no top-level `Features/` wrapper**), cross-cutting concerns (`Common/` concepts, `Identity/`, shared components) at the top level, and one folder per behavior — `<Module>/<Feature>/<Slice>/` holding `<Slice>.cs`, the slice's `.tsx`, and its `when_*/` specs. **The slice is the invariant unit** — created, renamed, and deleted as one. Namespace mirrors the path under the source root, dropping any level that isn't present. The full tree and the split rules are in [vertical-slices.md](./vertical-slices.md).
+The framework discovers commands and read models by attributes and static methods — **the folder shape is a convention, not a requirement.** The house default: the domain hierarchy lives directly under the app source root (**no top-level `Features/` wrapper**), cross-cutting concerns (`Common/` concepts, `Identity/`, shared components) at the top level, and one folder per behavior — `<Module>/<Feature>/<Slice>/` holding `<Slice>.cs`, the slice's `.tsx`, and its `when_*/` specs. **The slice is the invariant unit** — created, renamed, and deleted as one. Namespace mirrors the path under the source root, dropping any level that isn't present. The full tree and the split rules are in [vertical-slices.md](./vertical-slices.instructions.md).
 
 ## Slice Types
 
@@ -78,4 +78,4 @@ Tagged **[contract]** (framework-enforced) or **[convention]** (house default). 
 
 Run affected-project incremental checks after a coherent change, then targeted regression tests for the changed behavior. Re-run a failed gate after a relevant fix. Reserve wider matrices and clean/Release builds for cross-cutting changes, demonstrated stale outputs, or required merge/release gates. Documentation/rule-only edits need relevant Markdown, frontmatter, link, and corpus checks, not an application build. Diagnose unrelated or environmental failures within a bounded attempt; report the evidence and blocker instead of broadening scope or retrying indefinitely. Required gates remain blocking until satisfied; never silently waive red CI.
 
-Documentation-only changes carry non-release intent and run the documentation checks, never a blanket exemption from red CI — see [pull-requests.md](./pull-requests.md).
+Documentation-only changes carry non-release intent and run the documentation checks, never a blanket exemption from red CI — see [pull-requests.md](./pull-requests.instructions.md).

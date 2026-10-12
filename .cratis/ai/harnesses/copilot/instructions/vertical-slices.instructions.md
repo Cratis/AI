@@ -9,19 +9,19 @@ paths:
 
 # Vertical Slice Architecture
 
-> **Application profile.** This is the architecture for *applications built on Cratis*. It does **not** apply inside a Cratis framework repo (Arc/Chronicle/Fundamentals/Components) — those are libraries; see [framework.md](./framework.md).
+> **Application profile.** This is the architecture for *applications built on Cratis*. It does **not** apply inside a Cratis framework repo (Arc/Chronicle/Fundamentals/Components) — those are libraries; see [framework.md](./framework.instructions.md).
 
 A vertical slice owns a single behavior: the command or query, the events it produces, the projections that build read models, the React component that renders the UI, and the specs that verify it all works. Everything lives together because everything changes together. **The slice is the invariant unit** (command + events + projection + component + specs), created, renamed, and deleted as one.
 
-This file is the reference for *what* goes in each part of a slice. Layout, slice types, workflow, and quality gates are in [general.md](./general.md).
+This file is the reference for *what* goes in each part of a slice. Layout, slice types, workflow, and quality gates are in [general.md](../../../rules/general.md).
 
-**Model-first check.** Before changing a slice, look for it in the accepted `.play` model (in the committed tree: `git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured; its HEAD version remains the contract until working-tree edits are committed) under the model root (the folder holding the project's `.play` files, or the root set by `mcpServers.screenplay.root` in `.cratis/ai.json`). A `.play` file outside the root or an untracked or uncommitted draft is not a contract. If an accepted model covers it, change the model and render or gap-fill from it; never edit Stage-managed files. See Phase 0 in [application-profile.md](./application-profile.md).
+**Model-first check.** Before changing a slice, look for it in the accepted `.play` model (in the committed tree: `git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured; its HEAD version remains the contract until working-tree edits are committed) under the model root (the folder holding the project's `.play` files, or the root set by `mcpServers.screenplay.root` in `.cratis/ai.json`). A `.play` file outside the root or an untracked or uncommitted draft is not a contract. If an accepted model covers it, change the model and render or gap-fill from it; never edit Stage-managed files. See Phase 0 in [application-profile.md](./application-profile.instructions.md).
 
 ## Technical stack
 
 - .NET / C# (ASP.NET Core) — **Cratis Arc** for CQRS / model-bound commands and queries, **Cratis Chronicle** for event sourcing, MongoDB or EF Core for read models.
 - React + TypeScript (Vite) — Cratis Components 4.x + Arc-generated proxies, MVVM. Vitest + Mocha/Chai/Sinon for frontend specs.
-- xUnit + Cratis.Specifications + NSubstitute for C# specs (`Specification` plus a direct call by default for pure decisions; add the `*Scenario` family only where pipelines, validation, constraints, projections or wiring contribute proof — see [specs.md](./specs.md)).
+- xUnit + Cratis.Specifications + NSubstitute for C# specs (`Specification` plus a direct call by default for pure decisions; add the `*Scenario` family only where pipelines, validation, constraints, projections or wiring contribute proof — see [specs.md](./specs.instructions.md)).
 
 ## Proxy generation — the build dependency
 
@@ -68,15 +68,15 @@ public record AuthorName(string Value) : ConceptAs<string>(Value)
 }
 ```
 
-`IGeneratable<T>` and `GenerateValue` need Cratis.Fundamentals 7.23.0 or later. Arc and Chronicle can resolve an older version; add a direct reference or keep a plain `static New()` until then (see [concepts.md](./concepts.md)).
+`IGeneratable<T>` and `GenerateValue` need Cratis.Fundamentals 7.23.0 or later. Arc and Chronicle can resolve an older version; add a direct reference or keep a plain `static New()` until then (see [concepts.md](./concepts.instructions.md)).
 
-**[convention] Placement:** slice-specific concept → in the slice file; feature-shared → feature folder; module-shared → module folder; app-wide → `Common/`. Scan `Common/` and the feature folder before creating a new concept. See [concepts.md](./concepts.md) for full patterns, or invoke the **cratis-fundamentals-concept** skill.
+**[convention] Placement:** slice-specific concept → in the slice file; feature-shared → feature folder; module-shared → module folder; app-wide → `Common/`. Scan `Common/` and the feature folder before creating a new concept. See [concepts.md](./concepts.instructions.md) for full patterns, or invoke the **cratis-fundamentals-concept** skill.
 
 ## Commands
 
 The command carries input from the caller. `Handle()` is defined directly on the record — never a separate handler class. For step-by-step creation, invoke the **cratis-arc-command** skill.
 
-> This application is event-sourced, so the guidance below assumes a command's `Handle()` returns event(s) that Arc+Chronicle appends. Arc itself is a standalone CQRS framework (see [general.md](./general.md)) — a command may legitimately return a response or `void` and do its work through injected services when a slice isn't event-sourced; the return-shape and "never inject `IEventLog`" rules are the event-sourced default, not universal Arc laws.
+> This application is event-sourced, so the guidance below assumes a command's `Handle()` returns event(s) that Arc+Chronicle appends. Arc itself is a standalone CQRS framework (see [general.md](../../../rules/general.md)) — a command may legitimately return a response or `void` and do its work through injected services when a slice isn't event-sourced; the return-shape and "never inject `IEventLog`" rules are the event-sourced default, not universal Arc laws.
 
 **[convention]** Return immediate external work chosen by a command as a command operation rather than performing it inside `Handle()`; durable after-commit work belongs in reactors. Operations also work without Chronicle; direct service calls remain supported when the decision needs their result. Audit custom `ICommandExecutionScope`s first — every one must implement `ICommandOperationExecutionScope` or operation-bearing commands are rejected. See **cratis-arc-command-operation** (verified at Arc v22.48.1).
 
@@ -345,7 +345,7 @@ Group multi-event constraints under a shared name constant (`<Module>ConstraintN
 
 ## Reactors **[contract]**
 
-`IReactor` is a marker interface; dispatch is by the first parameter type. Reactors live in Automation slices (reacting to events, calling external systems, returning follow-up commands/events) and in Translation slices that record outside data as our facts. See [reactors.md](./reactors.md) for full rules, or invoke the **cratis-chronicle-reactor** skill.
+`IReactor` is a marker interface; dispatch is by the first parameter type. Reactors live in Automation slices (reacting to events, calling external systems, returning follow-up commands/events) and in Translation slices that record outside data as our facts. See [reactors.md](./reactors.instructions.md) for full rules, or invoke the **cratis-chronicle-reactor** skill.
 
 ```csharp
 public Task AuthorRegistered(AuthorRegistered @event, EventContext context) => ...
@@ -353,8 +353,8 @@ public Task AuthorRegistered(AuthorRegistered @event, EventContext context) => .
 
 - **Signatures:** the first parameter is the event and drives dispatch; every parameter after it is resolved as a dependency — `EventContext`, a read model, a service, a `ReactorDelivery` — with no limit on how many. Return `Task`, `void`, or a synchronous side-effect return type. Prefer `Task`/async for real side effects, but sync returns are supported.
 - **[convention] `[OnceOnly]`** on any non-idempotent side effect (emails, payments, external writes) — replay re-fires otherwise. It covers **replay only**; a recovered failed partition still re-delivers, so guard that with a `ReactorDelivery` receipt.
-- **Side-effect events:** return them directly as event objects (single `TEvent`, `IEnumerable<object>`, or `Task<...>` thereof) — Chronicle appends them to the triggering event source. To target a different event source/stream, return `EventForEventSourceId(id, @event)` wrappers (the same cross-stream mechanism as a command — see [reactors.md](./reactors.md)); the wrapper is self-describing, so set the stream type, source type or `Subject` on it when you need full metadata control. Don't inject `IEventLog` for the normal path; reserve it for explicit append-result/wait/options/mixed-target workflows.
-- **Commands from a reactor:** **return** the `[Command]` (or a collection of commands) from a `[OnceOnly]` handler — Arc executes it through the full validation/authorization/handler pipeline and a denied or invalid result fails the partition rather than disappearing. A reactor has no principal, so a `[Roles]`-gated command needs `[ExecuteCommandsAsSystem("<role>")]` on the reactor class. The imperative `ICommandPipeline.Execute(command)` remains available (`[OnceOnly]`, inspect the `CommandResult`, supply your own execution context — see the **cratis-arc-command-execution** skill). Don't reach for `IEventLog` to change state in another slice. Details and the analyzer: [reactors.md](./reactors.md).
+- **Side-effect events:** return them directly as event objects (single `TEvent`, `IEnumerable<object>`, or `Task<...>` thereof) — Chronicle appends them to the triggering event source. To target a different event source/stream, return `EventForEventSourceId(id, @event)` wrappers (the same cross-stream mechanism as a command — see [reactors.md](./reactors.instructions.md)); the wrapper is self-describing, so set the stream type, source type or `Subject` on it when you need full metadata control. Don't inject `IEventLog` for the normal path; reserve it for explicit append-result/wait/options/mixed-target workflows.
+- **Commands from a reactor:** **return** the `[Command]` (or a collection of commands) from a `[OnceOnly]` handler — Arc executes it through the full validation/authorization/handler pipeline and a denied or invalid result fails the partition rather than disappearing. A reactor has no principal, so a `[Roles]`-gated command needs `[ExecuteCommandsAsSystem("<role>")]` on the reactor class. The imperative `ICommandPipeline.Execute(command)` remains available (`[OnceOnly]`, inspect the `CommandResult`, supply your own execution context — see the **cratis-arc-command-execution** skill). Don't reach for `IEventLog` to change state in another slice. Details and the analyzer: [reactors.md](./reactors.instructions.md).
 - **[convention] Stateless, idempotent, read state via Chronicle read models** (`GetInstanceById`), not `IMongoCollection<T>`. Don't throw to "validate" malformed inbound events — that pauses the partition and can quarantine the observer; record an explicit failure/dead-letter event instead.
 
 ## Compliance (PII)
@@ -403,12 +403,12 @@ events, not pinned models.
 
 ## Dialogs
 
-Frontend commands run through the Cratis dialogs — never a vendor or hand-rolled modal. Use `CommandDialog` (executes a command) from `@cratis/components/CommandDialog` or `Dialog` (data collection) from `@cratis/components/Dialogs`. See [dialogs.md](./dialogs.md).
+Frontend commands run through the Cratis dialogs — never a vendor or hand-rolled modal. Use `CommandDialog` (executes a command) from `@cratis/components/CommandDialog` or `Dialog` (data collection) from `@cratis/components/Dialogs`. See [dialogs.md](./dialogs.instructions.md).
 
 ## See also
 
-- [general.md](./general.md) — layout, slice types, workflow, quality gates.
-- [concepts.md](./concepts.md) — `ConceptAs<T>` / `EventSourceId<T>` full patterns.
-- [reactors.md](./reactors.md) — reactor signatures and side-effect rules.
-- [specs.md](./specs.md) — `CommandScenario` / `EventScenario` / `ReadModelScenario` / `ReactorScenario`.
+- [general.md](../../../rules/general.md) — layout, slice types, workflow, quality gates.
+- [concepts.md](./concepts.instructions.md) — `ConceptAs<T>` / `EventSourceId<T>` full patterns.
+- [reactors.md](./reactors.instructions.md) — reactor signatures and side-effect rules.
+- [specs.md](./specs.instructions.md) — `CommandScenario` / `EventScenario` / `ReadModelScenario` / `ReactorScenario`.
 - skills: **cratis-chronicle-event-modeling**, **cratis-arc-command**, **cratis-chronicle-read-model**, **cratis-fundamentals-concept**, **cratis-chronicle-projection**, **cratis-chronicle-reactor**, **cratis-arc-command-validation**, **cratis-chronicle-event-type-migration**, **cratis-arc-command-execution**, **cratis-arc-query-paging**, **cratis-chronicle-multi-tenancy**.

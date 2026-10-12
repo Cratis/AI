@@ -81,7 +81,7 @@ paths:
 
 - A pull request that changes nothing outward-facing — workflow edits, CI configuration,
   documentation — carries the **`no-release`** label, never `patch`. See
-  [`pull-requests.md`](./pull-requests.md). Merging config-only work under `patch` cut
+  [`pull-requests.md`](./pull-requests.instructions.md). Merging config-only work under `patch` cut
   four unintended releases on 2026-08-25.
 - Every repository's release-intent gate must accept `no-release`; a gate that only
   accepts `major`/`minor`/`patch` forces exactly that mistake.

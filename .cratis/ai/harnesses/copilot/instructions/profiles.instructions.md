@@ -23,11 +23,11 @@ Profiles determine which rules and skills apply to your work. They define the sc
 - Full-stack type safety from C# to TypeScript
 
 **Key rules:**
-- [vertical-slices.md](./vertical-slices.md) - slice anatomy and structure
-- [react.md](./react.md) - React + Arc + Cratis Components
-- [components.md](./components.md) - component structure and styling
-- [dialogs.md](./dialogs.md) - dialog patterns
-- [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) - in-process scenario family
+- [vertical-slices.md](./vertical-slices.instructions.md) - slice anatomy and structure
+- [react.md](./react.instructions.md) - React + Arc + Cratis Components
+- [components.md](./components.instructions.md) - component structure and styling
+- [dialogs.md](./dialogs.instructions.md) - dialog patterns
+- [specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md) - in-process scenario family
 
 ### Framework Profile
 
@@ -40,13 +40,13 @@ Profiles determine which rules and skills apply to your work. They define the sc
 - No projections/read-models, no MVVM app components
 
 **Key rules:**
-- [framework.md](./framework.md) - repo structure and library/API design
-- [orleans.md](./orleans.md) - Orleans grain conventions
-- [specs.csharp.md](./specs.csharp.md) - universal `Specification` base + NSubstitute
+- [framework.md](./framework.instructions.md) - repo structure and library/API design
+- [orleans.md](./orleans.instructions.md) - Orleans grain conventions
+- [specs.csharp.md](./specs.csharp.instructions.md) - universal `Specification` base + NSubstitute
 
 ## Profile Catalog
 
-The complete list of available profiles is defined in [profile-catalog.json](../profile-catalog.json). This catalog includes:
+The complete list of available profiles is defined in [profile-catalog.json](../../../profile-catalog.json). This catalog includes:
 
 ### Application Profiles
 
@@ -155,8 +155,8 @@ Standalone Chronicle client usage (no Arc) in TypeScript is
 
 Select `cratis/language/go` for a Go repository without importing any HTTP or
 Chronicle guidance. `cratis/engineering/go` adds contributor parity and release
-policy through [go-engineering.md](./go-engineering.md), composing rather than
-duplicating [go.md](./go.md). Set `languages: ["go"]` in `.cratis/ai.json` so
+policy through [go-engineering.md](./go-engineering.instructions.md), composing rather than
+duplicating [go.md](./go.instructions.md). Set `languages: ["go"]` in `.cratis/ai.json` so
 language-filtered composition selects the Go children. The catalog/manifest
 register `go`; there is no separate extension-based detection registry in the
 corpus's harness setup or Pi package.
@@ -197,7 +197,7 @@ language policy always follows the consuming repository's `go.mod` minimum.
 Select `cratis/codescene` explicitly to load the four upstream CodeScene skills:
 `safeguarding-ai-generated-code`, `guiding-refactoring-with-code-health`,
 `prioritizing-technical-debt` and `risk-based-testing-with-code-health`.
-The [CodeScene policy](./codescene.md) overrides those skills where they differ.
+The [CodeScene policy](../../../rules/codescene.md) overrides those skills where they differ.
 No other profile, including `cratis` and `cratis/full`, composes it.
 
 The profile selects the `codescene` stdio server (`cs-mcp`, no arguments) from
@@ -280,7 +280,7 @@ the first `apply` write creates it. `cratis ai install` also creates no model
 folder unless the project configured a root. Older CLIs create the resolved model root at
 server startup (`Screenplay/` when no `.play` files, `Source/` or `src/` exist); upgrade before using the automatically selected MCP server in a
 repository without a model. In Pi, when every selected path to Screenplay goes through an application profile and no root is configured, a missing, older or unavailable CLI leaves its MCP tools inactive with one informational UI notice (none in headless mode); an independent non-application path to Screenplay or a configured root still surfaces startup errors. See the toolchain skill's
-[version reference](../skills/cratis-screenplay-toolchain/references/versions.md).
+[version reference](../../../skills/cratis-screenplay-toolchain/references/versions.md).
 
 ## How to Use Profiles
 
@@ -390,14 +390,14 @@ profile: application
 
 ## Finding Profile Information
 
-- **Full catalog:** [profile-catalog.json](../profile-catalog.json)
-- **Application rules:** [general.md](./general.md) (Application profile section)
-- **Framework rules:** [framework.md](./framework.md)
-- **Engineering conventions:** [csharp.md](./csharp.md), [typescript.md](./typescript.md), [go.md](./go.md), [go-engineering.md](./go-engineering.md)
+- **Full catalog:** [profile-catalog.json](../../../profile-catalog.json)
+- **Application rules:** [general.md](../../../rules/general.md) (Application profile section)
+- **Framework rules:** [framework.md](./framework.instructions.md)
+- **Engineering conventions:** [csharp.md](./csharp.instructions.md), [typescript.md](./typescript.instructions.md), [go.md](./go.instructions.md), [go-engineering.md](./go-engineering.instructions.md)
 
 ## See Also
 
-- [general.md](./general.md) - Project instructions and profile overview
-- [vertical-slices.md](./vertical-slices.md) - Application profile architecture
-- [framework.md](./framework.md) - Framework profile architecture
-- [profile-catalog.json](../profile-catalog.json) - Complete profile definitions
+- [general.md](../../../rules/general.md) - Project instructions and profile overview
+- [vertical-slices.md](./vertical-slices.instructions.md) - Application profile architecture
+- [framework.md](./framework.instructions.md) - Framework profile architecture
+- [profile-catalog.json](../../../profile-catalog.json) - Complete profile definitions

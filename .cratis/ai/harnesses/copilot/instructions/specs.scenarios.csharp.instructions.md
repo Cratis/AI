@@ -9,7 +9,7 @@ profile: application
 
 # Application Specs — the in-process scenario family
 
-> **Application profile.** This file covers spec-writing for **event-sourced Cratis applications** — exercising commands, projections, reducers, reactors, and constraints with plain-call specs for pure decisions and the in-process scenario family where the pipeline matters. It builds on the universal [specs.csharp.md](./specs.csharp.md) (the `Specification` base + NSubstitute). **Framework / library** specs predominantly use that plain base instead; a framework repo reaches for a scenario helper here only when testing the very engine it provides — Arc tests its command pipeline with `CommandScenario`, Chronicle tests its event/projection/reactor engine with `EventScenario`/`ReadModelScenario`/`ReactorScenario`. That is the minority case, not the general framework testing mode.
+> **Application profile.** This file covers spec-writing for **event-sourced Cratis applications** — exercising commands, projections, reducers, reactors, and constraints with plain-call specs for pure decisions and the in-process scenario family where the pipeline matters. It builds on the universal [specs.csharp.md](./specs.csharp.instructions.md) (the `Specification` base + NSubstitute). **Framework / library** specs predominantly use that plain base instead; a framework repo reaches for a scenario helper here only when testing the very engine it provides — Arc tests its command pipeline with `CommandScenario`, Chronicle tests its event/projection/reactor engine with `EventScenario`/`ReadModelScenario`/`ReactorScenario`. That is the minority case, not the general framework testing mode.
 
 Specs are **mandatory for every slice type**, including reactors.
 
@@ -267,7 +267,7 @@ public class and_name_already_exists(context context) : Given<context>(context)
 
 ## Application spec conventions
 
-These supplement the universal conventions in [specs.csharp.md](./specs.csharp.md#conventions):
+These supplement the universal conventions in [specs.csharp.md](./specs.csharp.instructions.md#conventions):
 
 - **Per-test values for anything in a uniqueness check** — `$"{Guid.NewGuid():N}@example.com"`, a fresh `Guid`, or a truncated id `Guid.NewGuid().ToString("N")[..9]`. Hardcoded values cause order-dependent flakes. Do not add `[Collection(...)]` to work around *collisions* (it's the wrong fix here).
 - **Sequence numbers are zero-based** — first event = `0`, tail of two events = `1`, tail of three = `2`. Never write "tail of 1" for a single appended event; the tail of `[A]` is `0`. (A common first-pass defect.)
@@ -275,7 +275,7 @@ These supplement the universal conventions in [specs.csharp.md](./specs.csharp.m
 
 ## See also
 
-- [specs.csharp.md](./specs.csharp.md) — the universal `Specification` + NSubstitute base this builds on (and what framework specs use).
-- [vertical-slices.md](./vertical-slices.md) — what each artifact promises (the contract under spec).
-- [efcore.specs.md](./efcore.specs.md) — `DbContext` specs with SQLite in-memory.
+- [specs.csharp.md](./specs.csharp.instructions.md) — the universal `Specification` + NSubstitute base this builds on (and what framework specs use).
+- [vertical-slices.md](./vertical-slices.instructions.md) — what each artifact promises (the contract under spec).
+- [efcore.specs.md](./efcore.specs.instructions.md) — `DbContext` specs with SQLite in-memory.
 - skills: **cratis-application-slice-specifications**, **cratis-chronicle-event-specifications**, **cratis-chronicle-read-model-specifications**.

@@ -91,7 +91,7 @@ If `verify-release-notes` fails, fix it by editing the description, not by pushi
 
 ## Commits
 
-See the full [Git Commits guide](./git-commits.md) for rules on logical grouping, message format, and staging discipline.
+See the full [Git Commits guide](./git-commits.instructions.md) for rules on logical grouping, message format, and staging discipline.
 
 Quick reminders:
 
@@ -131,7 +131,7 @@ intents do not.
   one major release does not pre-authorize the next one.
 
 This narrows the general ship-changes authorization in
-[`ship-changes.prompt.md`](../prompts/ship-changes.prompt.md) for exactly this
+[`ship-changes.prompt.md`](../../../prompts/ship-changes.prompt.md) for exactly this
 label; every other step of that workflow proceeds under its existing
 authority.
 

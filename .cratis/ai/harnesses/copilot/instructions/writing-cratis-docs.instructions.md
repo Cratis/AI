@@ -53,7 +53,7 @@ Full-stack type safety is a differentiator, so show both the backend contract an
 
 The raw Markdown mirror behind page actions such as “Copy Markdown” comes from synchronized Markdown/MDX rather than rendered HTML. Converter rewrites and normalized frontmatter are present, but component imports and JSX remain visible. Prefer plain Markdown unless a component adds real teaching value.
 
-The exact Markdown/MDX boundary, aside semantics, component contracts, import paths, and rendering checks live in [Documentation Structure and Formatting](./documentation-structure-and-formatting.md). Do not duplicate or infer that rendering API here.
+The exact Markdown/MDX boundary, aside semantics, component contracts, import paths, and rendering checks live in [Documentation Structure and Formatting](./documentation-structure-and-formatting.instructions.md). Do not duplicate or infer that rendering API here.
 
 ## Two voices, connected products
 
@@ -63,10 +63,10 @@ The exact Markdown/MDX boundary, aside semantics, component contracts, import pa
 
 ## Before you call a page done
 
-- Verify every framework API in a code example against real source — see [Writing Correct Code Examples](./writing-correct-examples.md). Readers paste snippets verbatim.
+- Verify every framework API in a code example against real source — see [Writing Correct Code Examples](./writing-correct-examples.instructions.md). Readers paste snippets verbatim.
 - The owning repository's local documentation gate passes when one exists; when available, the sibling Documentation site's full check has zero hard lint errors and zero broken rendered links attributable to the change.
 - For a visual page, preview it and inspect light **and** dark screenshots using the owning site's screenshot workflow.
 
 Study the **aspire.dev** docs for strong Starlight information architecture and tour writing.
 
-The edit/sync/verify loop and source ownership live in [Editing Cratis Documentation](./editing-cratis-docs.md).
+The edit/sync/verify loop and source ownership live in [Editing Cratis Documentation](./editing-cratis-docs.instructions.md).

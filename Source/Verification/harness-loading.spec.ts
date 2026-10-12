@@ -3,13 +3,13 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, lstatSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, readlinkSync, realpathSync, lstatSync, statSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { DefaultResourceLoader, SettingsManager } from '@earendil-works/pi-coding-agent';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
-import { checkCopilotInstructions, copilotInstructionsDirectory, copilotMarker } from '../Harness.Setup/copilot-instructions.ts';
+import { checkCopilotInstructions, copilotInstructionsDirectory, copilotMarker, rewriteCopilotLinks } from '../Harness.Setup/copilot-instructions.ts';
 import { frontmatter, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 
@@ -136,6 +136,40 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
     }
 });
 
+test('relative Markdown links in every generated Copilot adapter resolve to existing files', () => {
+    const directory = join(corpusRoot, copilotInstructionsDirectory);
+    let relativeLinks = 0;
+    for (const name of readdirSync(directory)) {
+        const adapter = join(directory, name);
+        const body = readFileSync(adapter, 'utf8')
+            .replace(/^ {0,3}(`{3,}|~{3,})[^\n]*\n[\s\S]*?^ {0,3}\1[^\n]*(?:\n|$)/gm, '')
+            .replace(/(`+)[^\n]*?\1/g, '');
+        for (const match of body.matchAll(/\]\((<[^>\n]+>|[^\s)]+)|^ {0,3}\[[^\]\n]+\]:[ \t]*(<[^>\n]+>|[^\s]+)/gm)) {
+            const target = (match[1] ?? match[2]).replace(/^<|>$/g, '');
+            if (/^(?:[A-Za-z][\w+.-]*:|\/|#|\?)/.test(target)) continue;
+            const path = resolve(dirname(adapter), decodeURIComponent(target.split(/[?#]/)[0]));
+            assert.ok(existsSync(path) && statSync(path).isFile(), `${name}: ${target} must resolve to an existing file`);
+            relativeLinks++;
+        }
+    }
+    assert.ok(relativeLinks > 0, 'the link sweep must not pass without inspecting relative links');
+});
+
+test('Copilot link rewriting preserves destinations, fragments, query strings and examples', () => {
+    const source = join(corpusRoot, 'rules');
+    const adapters = join(corpusRoot, copilotInstructionsDirectory);
+    const generated = new Set([join(source, 'concepts.md')]);
+    const body = '[Concepts](./concepts.md#invariants) [General](./general.md) [Skill](../skills/demo/SKILL.md?raw=1#usage)\n'
+        + '[terms]: ./concepts.md "Terms"\n![Skill](<../skills/demo/SKILL.md>) [Notes](../skills/My%20Skill/SKILL.md)\n'
+        + '[Web](https://example.com/docs) [Anchor](#local) [Route](/docs/)\n'
+        + '`[Example](./concepts.md)`\n```markdown\n[Example](./concepts.md)\n```\n';
+    const expected = '[Concepts](./concepts.instructions.md#invariants) [General](../../../rules/general.md) [Skill](../../../skills/demo/SKILL.md?raw=1#usage)\n'
+        + '[terms]: ./concepts.instructions.md "Terms"\n![Skill](<../../../skills/demo/SKILL.md>) [Notes](../../../skills/My%20Skill/SKILL.md)\n'
+        + '[Web](https://example.com/docs) [Anchor](#local) [Route](/docs/)\n'
+        + '`[Example](./concepts.md)`\n```markdown\n[Example](./concepts.md)\n```\n';
+    assert.equal(rewriteCopilotLinks(body, source, adapters, generated), expected);
+});
+
 test('every supported harness resolves canonical rules or shared project instructions', () => {
     assert.equal(realpathSync(join(repositoryRoot, '.claude', 'rules')), realpathSync(join(corpusRoot, 'rules')));
     const copilotDirectory = join(repositoryRoot, '.github/instructions');
@@ -152,10 +186,15 @@ test('every supported harness resolves canonical rules or shared project instruc
         const raw = /^applyTo:\s*(.+)$/m.exec(fields)?.[1];
         assert.ok(raw && quotedScalar(raw)?.trim(), `${rule}: Copilot needs a quoted glob string, not a YAML list`);
     }
-    const rootInstructions = readFileSync(join(repositoryRoot, '.github/copilot-instructions.md'), 'utf8');
+    const rootPath = join(repositoryRoot, '.github/copilot-instructions.md');
+    assert.equal(readlinkSync(rootPath), '../.cratis/ai/rules/general.md', 'preserve the original repository-wide instruction adapter');
+    assert.equal(realpathSync(rootPath), realpathSync(join(corpusRoot, 'rules/general.md')));
+    assert.equal(readFileSync(rootPath, 'utf8'), readFileSync(join(corpusRoot, 'rules/general.md'), 'utf8'), 'repository-wide policy is unchanged');
     for (const name of readdirSync(join(corpusRoot, 'rules'))) {
         const content = readFileSync(join(corpusRoot, 'rules', name), 'utf8');
-        if (!frontmatter(content).has('applyTo')) assert.ok(rootInstructions.includes(content), `${name}: universal instructions must reach Copilot`);
+        if (!frontmatter(content).has('applyTo')) {
+            assert.ok(!existsSync(join(copilotDirectory, name.replace(/\.md$/, '.instructions.md'))), `${name}: universal rules are not path adapters`);
+        }
     }
     assert.equal(realpathSync(join(repositoryRoot, 'AGENTS.md')), realpathSync(join(corpusRoot, 'rules', 'general.md')));
     assert.equal(realpathSync(join(repositoryRoot, 'CLAUDE.md')), realpathSync(join(corpusRoot, 'rules', 'general.md')));

@@ -7,13 +7,13 @@ applyTo: "**/*"
 
 An exit code is a verdict, and a wrapper that loses it turns a red run green. Every line
 is tagged **[contract]** (binding) or **[convention]** (the house default) per the Three
-Levels of Authority in [`general.md`](./general.md).
+Levels of Authority in [`general.md`](../../../rules/general.md).
 
 - **[contract] Three codes, three meanings.** `0` ran clean, `1` found defects, `2` could
   not run. A tool that cannot distinguish "found nothing" from "never looked" has no
   usable verdict.
 - **[contract] `2` is never reported as a pass.** Could-not-run is an unknown, and
-  unknown is not pass; see [`verification-discipline.md`](./verification-discipline.md).
+  unknown is not pass; see [`verification-discipline.md`](./verification-discipline.instructions.md).
 - **[contract] A wrapper's own success is not the child's verdict.** A script that runs a
   checker and then exits `0` because *the script* finished has thrown the result away.
   Propagate the child's status.
@@ -22,7 +22,7 @@ Levels of Authority in [`general.md`](./general.md).
   inside a loop rather than relying on the last iteration.
 - **[contract] Green prints counts.** A clean run says how many subjects it examined. A
   bare "OK" cannot be distinguished from a run over an empty set; see
-  [`guards-and-fuses.md`](./guards-and-fuses.md).
+  [`guards-and-fuses.md`](./guards-and-fuses.instructions.md).
 - **[contract] `--self-test` plants defects.** A checker ships a self-test that seeds
   known violations and fails if it does not find every one of them. That is the only way
   to know the checker still detects anything.

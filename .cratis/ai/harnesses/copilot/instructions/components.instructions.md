@@ -227,7 +227,7 @@ Props are a component's public API. They should be clear, minimal, and well-docu
 
 ## Dialogs
 
-See [dialogs.md](./dialogs.md) for the full dialog guide.
+See [dialogs.md](./dialogs.instructions.md) for the full dialog guide.
 
 **Summary:** Use `CommandDialog` from `@cratis/components/CommandDialog` for command-executing dialogs and `Dialog` from `@cratis/components/Dialogs` for data-collection dialogs; confirmations and busy indicators are raised through hooks, never built. Never import a vendor dialog. Do not render manual `<Button>` components for dialog actions — the dialog components handle footers.
 

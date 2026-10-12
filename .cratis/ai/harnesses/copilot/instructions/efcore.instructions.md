@@ -81,4 +81,4 @@ An EF Core read model can back an observable query: `dbSet.Observe(...)`, `Obser
 ## See also
 
 - the **cratis-arc-ef-core-migration** skill — wiring, making an EF read model injectable into a command, writing a migration, observing, and specs.
-- [efcore.specs.md](./efcore.specs.md) — `DbContext` specs with SQLite in-memory.
+- [efcore.specs.md](./efcore.specs.instructions.md) — `DbContext` specs with SQLite in-memory.

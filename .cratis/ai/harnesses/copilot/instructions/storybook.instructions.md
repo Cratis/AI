@@ -8,7 +8,7 @@ paths:
 
 # Storybook Story Conventions
 
-Stories are visual coverage and documentation for reusable React components built on Cratis Components — **not** the behavior test suite. Non-trivial view-model/helper behavior still needs BDD Vitest specs (see [frontend-testing.md](./frontend-testing.md)). Every story file is colocated with the component it covers.
+Stories are visual coverage and documentation for reusable React components built on Cratis Components — **not** the behavior test suite. Non-trivial view-model/helper behavior still needs BDD Vitest specs (see [frontend-testing.md](./frontend-testing.instructions.md)). Every story file is colocated with the component it covers.
 
 ## When to write a story
 
@@ -81,5 +81,5 @@ Wrap with `MemoryRouter` via a story decorator when a component uses `Link`/`use
 
 ## See also
 
-- [react.md](./react.md) — component patterns; [components.md](./components.md) — component structure/styling.
-- [frontend-testing.md](./frontend-testing.md) — BDD Vitest specs (the behavioral gate).
+- [react.md](./react.instructions.md) — component patterns; [components.md](./components.instructions.md) — component structure/styling.
+- [frontend-testing.md](./frontend-testing.instructions.md) — BDD Vitest specs (the behavioral gate).

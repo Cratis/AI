@@ -11,7 +11,7 @@ Documentation exists for one audience: **developers who need to use the framewor
 
 Every page should answer: “If I were a developer encountering this concept for the first time, what would I need to understand to use it correctly?”
 
-The site is built with [Astro Starlight](https://starlight.astro.build/). Documentation lives in the `Documentation/` folder of each product repository as [GitHub Flavored Markdown](https://github.github.com/gfm/); a converter synchronizes product `.md`/`.mdx` into the Starlight site, and all repositories are aggregated into one published site. Readers experience it as a single place — write for that whole, not for one repository in isolation. For the authoritative rendering contract, see [Documentation Structure and Formatting](./documentation-structure-and-formatting.md).
+The site is built with [Astro Starlight](https://starlight.astro.build/). Documentation lives in the `Documentation/` folder of each product repository as [GitHub Flavored Markdown](https://github.github.com/gfm/); a converter synchronizes product `.md`/`.mdx` into the Starlight site, and all repositories are aggregated into one published site. Readers experience it as a single place — write for that whole, not for one repository in isolation. For the authoritative rendering contract, see [Documentation Structure and Formatting](./documentation-structure-and-formatting.instructions.md).
 
 ## Give each page one primary reader purpose
 
@@ -85,6 +85,6 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 
 ## File rules
 
-- Follow [Documentation Structure and Formatting](./documentation-structure-and-formatting.md) for frontmatter, landing pages, `toc.yml`, Markdown/MDX, links, and rendering.
+- Follow [Documentation Structure and Formatting](./documentation-structure-and-formatting.instructions.md) for frontmatter, landing pages, `toc.yml`, Markdown/MDX, links, and rendering.
 - End every Markdown file with a single trailing newline.
 - Run the owning repository's local documentation gate when present; use `cd ../Documentation/web && npm run check` for full-fidelity site verification when the sibling checkout is available.

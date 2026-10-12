@@ -9,7 +9,7 @@ paths:
 
 # React + Arc + Cratis Components
 
-The frontend is React + TypeScript in MVVM style, composed from **Cratis Components** on top of **Arc-generated proxies**. Cratis Components (4.x) owns its markup, styling contract and behavior — there is no vendor component library underneath to reach for; React Aria is an internal detail you never import. For component structure, styling, and icons see [components.md](./components.md); for dialogs see [dialogs.md](./dialogs.md). This rule covers MVVM, queries, and commands.
+The frontend is React + TypeScript in MVVM style, composed from **Cratis Components** on top of **Arc-generated proxies**. Cratis Components (4.x) owns its markup, styling contract and behavior — there is no vendor component library underneath to reach for; React Aria is an internal detail you never import. For component structure, styling, and icons see [components.md](./components.instructions.md); for dialogs see [dialogs.md](./dialogs.instructions.md). This rule covers MVVM, queries, and commands.
 
 ## The proxy boundary
 
@@ -20,7 +20,7 @@ The frontend is React + TypeScript in MVVM style, composed from **Cratis Compone
 Move behavior out of the render function. Two accepted idioms:
 
 - **`withViewModel`** from `@cratis/arc.react.mvvm` — for command/query orchestration, long-lived UI state, and workflow components that benefit from observable class state.
-- **A tested pure state module/helper** — for deterministic page/form state that doesn't need MobX. The component stays rendering + event wiring; the module owns derived state, filtering/sorting, wizard steps, command-value derivation, and has BDD specs (see [frontend-testing.md](./frontend-testing.md)).
+- **A tested pure state module/helper** — for deterministic page/form state that doesn't need MobX. The component stays rendering + event wiring; the module owns derived state, filtering/sorting, wizard steps, command-value derivation, and has BDD specs (see [frontend-testing.md](./frontend-testing.instructions.md)).
 
 Don't leave complex behavior inline. Trivial presentational leaf components need no view model.
 
@@ -131,7 +131,7 @@ command.someField = value;                  // or setCommandValues({ ... })
 const result = await command.execute();
 ```
 
-Inside dialogs, use `CommandDialog` + CommandForm fields rather than driving the command by hand — see [dialogs.md](./dialogs.md).
+Inside dialogs, use `CommandDialog` + CommandForm fields rather than driving the command by hand — see [dialogs.md](./dialogs.instructions.md).
 
 ### Read `CommandResult` by the granular flag — not just `isSuccess`
 
@@ -193,11 +193,11 @@ Top-level provider for microservice name and API base path. Config props (with d
 
 ## Styling default
 
-Default to **Cratis Components with the `--cratis-*` tokens** (`var(--cratis-surface-*)`, `var(--cratis-primary-color)`, `var(--cratis-text-color)`; `pt`/`data-cratis-part` when you must reach a part) — see [components.md](./components.md). Tailwind is **not** the Cratis default: it is one supported way to *write* the CSS that maps a product's design onto those tokens. Never hard-code hex/`rgb()` for chrome.
+Default to **Cratis Components with the `--cratis-*` tokens** (`var(--cratis-surface-*)`, `var(--cratis-primary-color)`, `var(--cratis-text-color)`; `pt`/`data-cratis-part` when you must reach a part) — see [components.md](./components.instructions.md). Tailwind is **not** the Cratis default: it is one supported way to *write* the CSS that maps a product's design onto those tokens. Never hard-code hex/`rgb()` for chrome.
 
 ## See also
 
-- [components.md](./components.md) — component structure, CSS, `--cratis-*` tokens and parts, icons, Storybook.
-- [dialogs.md](./dialogs.md) — `CommandDialog` / `Dialog` / `StepperCommandDialog` rules.
-- [frontend-quality.md](./frontend-quality.md) — engineering bar; [frontend-testing.md](./frontend-testing.md) — BDD specs.
-- [typescript.md](./typescript.md) — TS style.
+- [components.md](./components.instructions.md) — component structure, CSS, `--cratis-*` tokens and parts, icons, Storybook.
+- [dialogs.md](./dialogs.instructions.md) — `CommandDialog` / `Dialog` / `StepperCommandDialog` rules.
+- [frontend-quality.md](./frontend-quality.instructions.md) — engineering bar; [frontend-testing.md](./frontend-testing.instructions.md) — BDD specs.
+- [typescript.md](./typescript.instructions.md) — TS style.

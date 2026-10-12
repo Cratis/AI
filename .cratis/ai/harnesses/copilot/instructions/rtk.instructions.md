@@ -23,7 +23,7 @@ rtk output is a summary for a reader. It is never evidence of exact file content
 - the command's exit code or exact diagnostics decide what happens next (security checks, structured JSON, machine-readable diagnostics);
 - a wrapped command failed. Read the actual error and retry through `rtk proxy` before concluding the tool, path, or repository is missing.
 
-Do not add `rtk` to scripts, hooks, or CI steps that deliberately use native commands; their raw output is the point. Exit codes are never traded for token savings — see [`exit-codes-and-wrappers.md`](./exit-codes-and-wrappers.md).
+Do not add `rtk` to scripts, hooks, or CI steps that deliberately use native commands; their raw output is the point. Exit codes are never traded for token savings — see [`exit-codes-and-wrappers.md`](./exit-codes-and-wrappers.instructions.md).
 
 ## What rtk supports (route these through rtk)
 

@@ -19,7 +19,7 @@ project configuration and the shared AI corpus itself, and nothing else.
   already are, else under `Source/` or `src/`, else in a `Screenplay/` folder at the
   repository root.
 - **Work records are not exempt from a home.** Plans, handovers and scratch notes go in
-  `.ai-work/`, never in `.cratis/`; see [local-work-artifacts.md](./local-work-artifacts.md).
+  `.ai-work/`, never in `.cratis/`; see [local-work-artifacts.md](./local-work-artifacts.instructions.md).
 - **Never hand-edit installed corpus files under `.cratis/ai/`** in a consuming
   repository; they are managed by the channel that installed them.
 - If a request would put a deliverable under `.cratis/`, put it in the project structure

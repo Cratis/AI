@@ -8,11 +8,11 @@ paths:
 
 # How to Write C# Specs
 
-Extends the base [specs.md](./specs.md) (folder structure, naming, philosophy) with C#-specific conventions. This file is the **universal foundation** used in **both** profiles — the `Cratis.Specifications` pattern (`Establish → Because → should_`) with NSubstitute.
+Extends the base [specs.md](./specs.instructions.md) (folder structure, naming, philosophy) with C#-specific conventions. This file is the **universal foundation** used in **both** profiles — the `Cratis.Specifications` pattern (`Establish → Because → should_`) with NSubstitute.
 
 > **Which spec surface?**
-> - **Framework / library code** (Chronicle kernel, Arc pipeline, source generators, Fundamentals): the `Specification` base + NSubstitute in this file is the dominant mode — unit-test the classes under test in isolation. Reach for a `*Scenario` helper (in [specs.scenarios.csharp.md](./specs.scenarios.csharp.md)) **only** when testing the very engine your repo provides — Arc → `CommandScenario`, Chronicle → the event/projection/reactor scenarios. The **cratis-application-slice-specifications** skill is application-oriented, not for general framework specs.
-> - **Event-sourced applications on Cratis** (commands, projections, reducers, reactors, constraints): use this base plus a direct call by default for pure decisions; add the in-process scenario family only where pipelines, validation, constraints, projections or wiring contribute proof — see **[specs.scenarios.csharp.md](./specs.scenarios.csharp.md)** (`profile: application`) and the **cratis-application-slice-specifications** skill.
+> - **Framework / library code** (Chronicle kernel, Arc pipeline, source generators, Fundamentals): the `Specification` base + NSubstitute in this file is the dominant mode — unit-test the classes under test in isolation. Reach for a `*Scenario` helper (in [specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md)) **only** when testing the very engine your repo provides — Arc → `CommandScenario`, Chronicle → the event/projection/reactor scenarios. The **cratis-application-slice-specifications** skill is application-oriented, not for general framework specs.
+> - **Event-sourced applications on Cratis** (commands, projections, reducers, reactors, constraints): use this base plus a direct call by default for pure decisions; add the in-process scenario family only where pipelines, validation, constraints, projections or wiring contribute proof — see **[specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md)** (`profile: application`) and the **cratis-application-slice-specifications** skill.
 
 `Cratis.Specifications` keeps the approach of Machine.Specifications (MSpec): `Establish → Because → should_` maps to "Given → When → Then" and keeps each spec focused on *one setup, one action, one set of assertions*.
 
@@ -102,7 +102,7 @@ Additional helpers include `ShouldNotEqual`, `ShouldBeSame`/`ShouldNotBeSame`, `
 - Common usings come from `GlobalUsings.Specs.cs` (`Xunit`, `NSubstitute`, `Cratis.Specifications`, …) — don't duplicate them, and don't add a using for the system-under-test namespace.
 - **`using` ordering (SA1210/SA1211):** non-aliased namespaces first, then a blank line, then `using <alias> = …` aliases sorted by alias name. Alias a type whose short name collides with a namespace segment (CS0118) — `using RegisterAuthorCmd = …` style, with a domain-meaningful alias, never a technical `Command`/`Event`/`Component` suffix.
 - Single-statement assertion lambdas use expression-body form (RCS1021) — `[Fact] void should_x() => result.ShouldEqual(...)`, not a `{ … }` block. Don't break long `should_` lines; don't add blank lines between `should_` methods.
-- **Prefer a concept's sentinel over a raw empty primitive.** When a `ConceptAs<T>` / `EventSourceId<T>` value is expected — as an argument, a mock setup, or an assertion — use its `NotSet` (or `Empty` / `New()`) static rather than a `string.Empty` / `Guid.Empty` / `0` that implicitly converts. It states intent and survives a sentinel-value change (see [concepts.md](./concepts.md)). Reserve raw `string.Empty` for genuinely non-concept `string` values (e.g. asserting a decrypted-to-empty JSON payload).
+- **Prefer a concept's sentinel over a raw empty primitive.** When a `ConceptAs<T>` / `EventSourceId<T>` value is expected — as an argument, a mock setup, or an assertion — use its `NotSet` (or `Empty` / `New()`) static rather than a `string.Empty` / `Guid.Empty` / `0` that implicitly converts. It states intent and survives a sentinel-value change (see [concepts.md](./concepts.instructions.md)). Reserve raw `string.Empty` for genuinely non-concept `string` values (e.g. asserting a decrypted-to-empty JSON payload).
 
 ## Never sleep — await a fact, not a duration
 
@@ -141,7 +141,7 @@ Also don't spec logging or trivial getters.
 
 ## See also
 
-- [specs.md](./specs.md) — folder structure, naming, BDD philosophy (the base this extends).
-- [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) — **application profile**: the in-process scenario family (`CommandScenario` / `EventScenario` / `ReadModelScenario` / `ReactorScenario`) + out-of-process Chronicle integration, for event-sourced apps.
-- [efcore.specs.md](./efcore.specs.md) — `DbContext` specs with SQLite in-memory.
-- [frontend-testing.md](./frontend-testing.md) — TypeScript/React application BDD specs.
+- [specs.md](./specs.instructions.md) — folder structure, naming, BDD philosophy (the base this extends).
+- [specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md) — **application profile**: the in-process scenario family (`CommandScenario` / `EventScenario` / `ReadModelScenario` / `ReactorScenario`) + out-of-process Chronicle integration, for event-sourced apps.
+- [efcore.specs.md](./efcore.specs.instructions.md) — `DbContext` specs with SQLite in-memory.
+- [frontend-testing.md](./frontend-testing.instructions.md) — TypeScript/React application BDD specs.
