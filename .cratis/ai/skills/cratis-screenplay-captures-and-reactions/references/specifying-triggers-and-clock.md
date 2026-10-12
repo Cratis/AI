@@ -19,7 +19,7 @@ specification IssuingTheWeeklyDigest
 
 Under `cratis` before 3.28.2 these actions parsed and were checked against the application
 but bound to nothing (`PLAY0268` names ESM v6, decision 0022); on 3.28.2 they bind.
-Standalone 4.125.0 (checked; current pins in the toolchain `versions.md`) executes admitted scenarios through `screenplay test`
+The pinned standalone tool (toolchain `versions.md`) executes admitted scenarios through `screenplay test`
 or MCP `run-specifications`; source compilation alone is authored evidence.
 Clock rules: the clock is UTC and exact; an
 occurrence fires once when it is **due after `given clock` and at or before

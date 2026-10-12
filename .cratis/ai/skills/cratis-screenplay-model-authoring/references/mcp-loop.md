@@ -17,7 +17,7 @@
 - Provenance
 
 The working loop for the session that owns the model connection: connect, orient,
-choose an edit route, propose, review, apply, verify. Tool-by-tool arguments and
+choose an edit route, propose, review, run specifications, apply, verify. Tool-by-tool arguments and
 refusals are in the [MCP tool guide](mcp-tools.md); verdict names (V1 to V5) are
 defined by `cratis-screenplay-modeling-lifecycle`. Facts here were read at
 Screenplay v4.66.0 (`Source/DotNET/Screenplay.Mcp/`, `Documentation/screenplay/mcp/`)
@@ -139,14 +139,30 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    diagnostics, report V3 as not binding-ready, and never drop or stub the
    construct. The server's own guidance is to apply such a proposal only when
    the user accepts a model that does not run yet.
-7. Get approval unless the user already approved this effect and target (ask again
+7. On **Screenplay 4.145.0 and later**, run `run-specifications` with the
+   retained `proposalId` before `apply`. This read-only V4 route runs the candidate,
+   including retained identities and planned renames, without applying, refreshing
+   from disk or discarding it. `read-proposal view: "semantic-diff"` is static
+   comparison, not execution. Record counts and outcomes; an unbound candidate
+   returns executable diagnostics and executes nothing. An impossible `then`
+   (PLAY0285) unbinds the whole model, not just that specification.
+   For continuation pages, reuse `proposalId` and `expectedSourceRevision` from
+   the first response (required for `offset > 0`). Applied, discarded or reopened
+   proposals give `UnknownProposal`. A changed disk base can still run the retained
+   candidate; it does not make a stale `apply` safe. Without `proposalId`, the
+   tool runs the current workspace, not the candidate.
+8. Get approval unless the user already approved this effect and target (ask again
    only when target or consequence expands). A request or brief that names a rename,
    move or removal is that approval, also unattended: do not ask again per apply. Then `apply` with the **before**
    revisions. Every old handle and proposal is gone afterwards: re-read at the new
    revision.
-8. Verify: compile the whole folder (V1), read `executable-diagnostics` (V2,
-   V3), naming the tool and version. Hand off to the verdict vocabulary; do not
-   restate a state you did not run.
+9. Verify: compile the whole folder (V1), read `executable-diagnostics` (V2,
+   V3), and run `screenplay test <root> --format json` or workspace
+   `run-specifications` (V4), naming the tool, version and source revision. A
+   candidate V4 applies only to that candidate; never relabel it as disk evidence.
+   CLI exits: 0 passed, 1 failed, 2 invalid arguments/input/selection or IO,
+   3 unsupported/unbound. `test` rejects `--no-color`. Hand off to the verdict
+   vocabulary; do not restate a state you did not run.
 
 ## One edit strategy
 
@@ -259,7 +275,7 @@ or create a fallback folder to bypass the conflict.
 | `StaleRevision`, `DiskDrift`, `IdentityStateDrift` | Reopen and re-propose |
 | `ProposalRejected` | Read `conflicts`; change the request |
 | `FormattingConsentRequired` | Pass `formatting` |
-| `UnknownProposal` | The connection was reopened or the proposal applied: re-propose |
+| `UnknownProposal` | The connection was reopened or the proposal applied/discarded: re-propose |
 | `LimitExceeded` | Discard unused proposals (16 cap) |
 | `PendingOperation`, `RecoveryRequired` | `workspace-state`, then ask before `recover-workspace` |
 | `RootChangeRefused` | Keep the fixed root, or start a new connection |
@@ -283,6 +299,10 @@ documents retain exact bytes. A printer that loses requested structural fields
 rejects the plan.
 
 ## Provenance
+
+Proposal execution: Screenplay v4.145.0
+`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Specifications.cs:12-79` and
+`Source/DotNET/Tool/ModelTest.cs:14-108`; `Documentation/screenplay/mcp/authoring-tools.md:500-535`.
 
 The structure of this loop (ownership, edit-request shape, failure handling) is
 adapted from the project's earlier event-modeling toolkit draft and re-verified

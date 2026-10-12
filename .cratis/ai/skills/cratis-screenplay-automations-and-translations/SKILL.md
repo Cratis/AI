@@ -32,7 +32,7 @@ identity, effect and pending-work contract at that point; do not postpone it to 
   bundles 4.137.0). Probed on 3.28.2: the complete examples are `executableReady`. A cratis bundle before 3.28.2
   (4.60.1) reported PLAY0268 at binding: report "V3 blocked: PLAY0268 (ESM v6)" and
   name the tool, never remove them.
-- Standalone 4.125.0 runs admitted scenarios through `screenplay test` or MCP
+- The pinned standalone tool runs admitted scenarios through `screenplay test` or MCP
   `run-specifications`; source validation and render publication do not run V4.
 - Stage 4.51.3 refuses Automation/Translate members with STAGE-ESM-024; its direct
   planner audits through v7. Deliver that scope as authorized gap-fill

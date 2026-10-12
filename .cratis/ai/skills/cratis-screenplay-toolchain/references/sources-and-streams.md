@@ -11,7 +11,7 @@
 ## Admission
 
 Sources, streams and command/specification routes bind and reference-execute as
-**ESM v8** on Screenplay 4.125.0. Current evidence: released `event-sources.md`,
+**ESM v8** since Screenplay 4.125.0. Current evidence: released `event-sources.md`,
 `specifications.md`, `Versions.cs`; the complete example below compiled with
 `--warnaserror` and passed `screenplay test` on 4.125.0.
 

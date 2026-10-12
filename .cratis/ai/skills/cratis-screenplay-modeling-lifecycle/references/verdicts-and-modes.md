@@ -21,13 +21,14 @@ defines what each result means and how to report it. Do not copy version facts h
 | V1 authorable | folder-mode validate with warnings as errors. The standalone compiler includes imports in folder and file mode; `cratis` CLI 3.28.2 file validation ignored imports (cli#244, probed); since 3.28.4 (PR #258) it compiles the file with its imports, but folder mode stays the recommended cross-tool check | semantics, binding, specs |
 | V2 executable diagnostics | the executable model reports no diagnostics for the scope | that any spec runs or passes |
 | V3 binding-ready | the model binds to the executable semantic model | that any spec runs or passes |
-| V4 reference specs run | the reference execution route only: engine, and per `.play` specification passed / failed / unsupported / cancelled | rendering, generated code, build or target tests |
+| V4 reference specs run | the reference execution route only: engine, and per `.play` specification passed / failed / unsupported (overall model may be unbound) | rendering, generated code, build or target tests |
 | V5 delivery and target-verified | admission, publication, Debug build, Debug tests of generated specifications, each reported separately | customization conformance, faithful UI |
 
 Results are independent: V3 can be ready while V1 has warnings; V5 build can pass with V4 not
 run. Never infer one from another. Spec outcomes for V4 come only from a reference execution
 route. Written or bound specifications are never "specs pass", and rendered Debug tests are
-V5 evidence, not V4.
+V5 evidence, not V4. A read-only `run-specifications` proposal run (Screenplay
+4.145.0+) is V4 evidence for that retained candidate only, not the disk model.
 
 V4 rules:
 - Report per `.play` specification (expected = specifications in the accepted scope; discovered =

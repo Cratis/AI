@@ -191,7 +191,9 @@ For a required addition with existing fixtures/assertions, supply `fixtureValue`
 as **literal source text**, for example `"\"normal\""` for a String value. The
 planner adds it to existing specification steps, examples and query results;
 `optional: true` adds no fixture values. A literal is not proof of behavior:
-inspect the assertions and run `run-specifications` on the retained proposal.
+inspect the assertions and, on Screenplay **4.145.0 and later**, run
+`run-specifications` with `proposalId` on the retained candidate before `apply`.
+See [reference execution](mcp-tools.md#run-reference-specifications).
 
 | Refusal | Response |
 | --- | --- |

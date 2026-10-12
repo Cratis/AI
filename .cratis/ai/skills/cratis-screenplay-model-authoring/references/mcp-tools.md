@@ -6,6 +6,7 @@
 ## Contents
 
 - Tool groups
+- Run reference specifications
 - Whole-source authoring
 - Diagnostic repairs and refactorings
 - Syntax-only constructs through the MCP
@@ -53,6 +54,7 @@ the [MCP loop](mcp-loop.md).
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
 | Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-move`, `propose-repair`, `propose-property`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
 | Review | `read-proposal`, `discard-proposal` | Inspect exact changes, dropped comments and proposed attachments, or abandon a connection-local proposal |
+| Reference execution | `run-specifications` | Run the workspace or, from 4.145.0, a retained proposal candidate read-only; not attached code or target tests |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
 
 `propose-move` moves a slice to another feature, or a feature to another module or feature, keeping identities: copy the `target` and `newParent` `{kind, parts}` addresses from the identity inventory and pass `expectedRevision` and `expectedCatalogRevision`. It repairs qualified references and `depends on`, and refuses identity loss, capture, collisions, descendant destinations, inherited authorization or screen-interaction changes and glob imports; review `moveReport` (`identityMigrations`, `referenceRepairs`, `fragmentsMoved`). It does not rename events, change pins or move files, and declaration moves between slices are deferred. Use it for legacy re-slicing instead of retyping declarations.
@@ -70,6 +72,44 @@ evolution mode even for optional additions, and review before applying.
 Exact arguments, AutoMap and fixture rules: [property evidence and planning](property-links.md). A
 source-only authoring proposal may be accepted while `executableReady` is false.
 That is not permission to claim the application runs.
+
+## Run reference specifications
+
+`run-specifications` runs the deterministic in-memory reference evaluator, not
+Arc/Chronicle, external services or opaque code. It writes no files. Parameters:
+`specification` (exact dotted address or semantic id), `scope` (module/feature/slice
+prefix), `offset` (default 0), `limit` (1–200, default 50), and
+`expectedSourceRevision` (required for `offset > 0`). Both selectors mean
+intersection; no match refuses `UnknownSpecificationSelection`, never an empty pass.
+A table address selects all its cases. Drift refuses `StaleSourceRevision`.
+
+**Screenplay 4.145.0 and later** also accepts `proposalId`: propose → review
+`read-proposal` (including `view: "semantic-diff"`) → run the retained candidate →
+`apply`. Static expectation comparison is not execution. The candidate retains
+identities and planned renames; running does not apply, refresh from disk or discard
+it. A changed base does not prevent candidate execution but still blocks stale
+apply. Applied/discarded proposals and workspace reopen give `UnknownProposal`.
+Continue with the same `proposalId` and returned `sourceRevision` as
+`expectedSourceRevision`. Without `proposalId`, the tool runs the open workspace
+or reads the root with its persisted identities.
+
+The response includes `sourceRevision`, `outcome`, discovered/selected/executed/
+passed/failed/unsupported counts, `executableDiagnostics`, `planIssues`, and `page`
+(plus `proposalId` for candidate runs). Counts cover the entire selection, not one
+page; unsupported cases are not executed. Outcomes are `passed`, `failed`,
+`unsupported`, or overall `unbound`; only `passed` has `isError: false`. An unbound
+model has `page: null`; an impossible `then` (PLAY0285) prevents every spec running.
+Opaque capabilities report unsupported with a capability and reason, not a pass.
+Zero discovered specifications is not coverage evidence.
+
+Outside MCP, use `screenplay test <root> [--filter <exact-address>] [--format text|json]`:
+exit 0 passed, 1 failed, 2 invalid arguments/input/selection or IO, 3 unsupported
+or unbound. `--no-color` is rejected (exit 2); there is no proposal or paging option.
+A folder is one application; a file selects only itself and its imports.
+
+Sources: Screenplay v4.145.0 `Source/DotNET/Screenplay.Mcp/McpWorkspaces.Specifications.cs:12-79`,
+`McpSpecificationExecution.cs:20-49,106-111`, `Source/DotNET/Tool/ModelTest.cs:14-108`,
+`Documentation/screenplay/mcp/authoring-tools.md:500-535` and `tool.md:120-142`.
 
 ## Whole-source authoring
 
