@@ -50,12 +50,15 @@ for mixed destinations, extraction and generation evolution.
 An authored destination is not proof of rendered routing; verify the target
 implementation separately.
 
-## Unsettled documentation
+## Navigation `by` and form `columns`
 
-Leave navigation `by` and form `columns auto|manual` unchanged. Screenplay's
-glossary calls navigation `by` legacy while its screen/form examples teach it;
-forms describe `columns` as a legacy hint while the printer retains it. Neither
-has a style diagnostic. Do not mechanically replace either pending a product ruling.
+Both are current, not legacy (settled in Screenplay#688, v4.145.1). Screen
+navigation passes the target's key with `by <parameter>` (`on row-click navigate
+to InvoiceDetail by invoiceId`) and further values with `parameter <name> from
+<binding>`; navigation inside an interaction block passes values with `with <name>
+from <binding>`. A form's `columns auto|manual` chooses which command properties
+it shows and in which order; `layout`/`place` positions them. Use whichever the
+case needs; neither has a style diagnostic.
 
 ## Verified product sources
 
@@ -66,6 +69,5 @@ Screenplay **v4.145.0** (syntax unchanged from 4.144.0):
 `interactions.md:105-107`, `folders.md:418-421`, `diagnostics.md:825,979-987,1013,1084,1105-1120,1271`.
 Printer: `Source/DotNET/Screenplay/Printing/ScreenplaySyntaxText.cs:41`,
 `ScreenplayPrinter.Expressions.cs:18-32`, `ScreenplayPrinter.Commands.cs:481-530`.
-Navigation/form conflict: `glossary.md:65`, `screens.md:117,217`,
-`forms.md:33,40-41,70,94-112,135`, `ScreenplayPrinter.cs:593-597`.
+Navigation and forms: Screenplay v4.145.1 `glossary.md:65`, `forms.md:40`; https://github.com/Cratis/Screenplay/issues/688.
 The published contract is the selector's authority, not this hand-written table.
