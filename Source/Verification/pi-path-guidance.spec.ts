@@ -96,6 +96,35 @@ test('path guidance delivers a scoped rule once per session when its file is tou
     assert.ok(touch('Source/Thing.cs'), 'a new session delivers the rules again');
 });
 
+test('fresh Go sessions attach canonical source and module rules independently of skill discovery', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-go-guidance-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        for (const product of ['cratis/chronicle/client-go', 'cratis/arc/go']) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/go', product], languages: ['go'] }));
+            for (const path of ['main.go', 'Source/client.go', 'go.mod', 'go.sum', 'adapter/go.mod', 'adapter/go.sum']) {
+                // Separate session per path proves each selector, rather than one earlier .go touch
+                // incidentally making the module-file case look covered. No loaded skills are needed.
+                const guidance = session(project, []);
+                const first = textOf(guidance.read(path));
+                assert.match(first, /# Go conventions/, `${product}: ${path}`);
+                assert.match(first, /# Go framework parity and module releases/, `${product}: ${path}`);
+                assert.doesNotMatch(first, /# C# Conventions|# TypeScript Conventions|cratis-path-guidance/);
+                assert.equal(guidance.read(path), undefined, 'delivered once');
+                guidance.handlers.get('session_start')?.({}, guidance.context);
+                assert.match(textOf(guidance.read(path)), /# Go conventions/, 'a fresh session loads it again');
+            }
+            assert.equal(session(project, []).read('README.md'), undefined);
+        }
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/language/go'], languages: ['go'] }));
+        assert.doesNotMatch(textOf(session(project, []).read('main.go')), /# Go framework parity/);
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] }));
+        for (const path of ['main.go', 'go.mod', 'go.sum']) assert.equal(session(project, []).read(path), undefined, 'non-Go selection');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
 test('path guidance re-delivers scoped rules after the conversation is rewritten', () => {
     for (const event of ['session_compact', 'session_before_switch']) {
         const handlers = register();
@@ -541,6 +570,8 @@ test('the skill selection path guidance uses equals the one @cratis/pi loads', (
             { profiles: ['cratis/application/csharp'], languages: ['csharp'] },
             { profiles: ['cratis/engineering/csharp', 'cratis/documentation'], languages: ['csharp'] },
             { profiles: ['cratis/application/csharp'], languages: ['csharp', 'typescript'] },
+            { profiles: ['cratis/engineering/go', 'cratis/chronicle/client-go'], languages: ['go'] },
+            { profiles: ['cratis/engineering/go', 'cratis/arc/go'], languages: ['go'] },
         ]) {
             writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
             assert.deepEqual(selectedSkillNames(project), names(selectedSkillPaths(project)), JSON.stringify(configuration));

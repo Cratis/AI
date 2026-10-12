@@ -1,0 +1,62 @@
+{
+  "skill_name": "cratis-chronicle-client-go",
+  "evals": [
+    {
+      "id": 1,
+      "name": "older-go-minimum",
+      "prompt": "Our standalone service declares go 1.22 and the developer has Go 1.27 installed. Adopt Chronicle.Go v0.9.1 without changing go.mod. Can the example use range-over-function, T.Context, testing/synctest and WaitGroup.Go? Also check Arc.Go v0.1.1 and Fundamentals.Go v0.3.2 instead of assuming an older SDK pin works.",
+      "expected_output": "Reject the incompatible pinned modules rather than silently upgrading the service. Distinguish feature availability from each module's Go 1.26 minimum and ask for an authorized compatibility decision.",
+      "assertions": [
+        "Checks the released go.mod files: Chronicle.Go v0.9.1 requires Go 1.26.0; Arc.Go v0.1.1 and Fundamentals.Go v0.3.2 require Go 1.26, so none supports the stated Go 1.22 consumer as-is.",
+        "Does not equate a locally newer compiler or toolchain preference with changing the declared supported minimum; does not edit dependency pins or go.mod without authorization.",
+        "Rejects range-over-function at Go 1.22 (requires 1.23), T.Context below 1.24, and stable testing/synctest or WaitGroup.Go below 1.25 rather than prescribing the latest syntax blindly."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "borrowed-connection-and-wrapped-errors",
+      "prompt": "A caller lends a *grpc.ClientConn to Chronicle.Go v0.9.1 using WithGRPCConnection. We propose deferring conn.Close inside the SDK wrapper, ignoring CloseContext timeouts, and checking err.Error() for invalid configuration. Review ownership, authentication and error compatibility, including wrapping returned errors.",
+      "expected_output": "The caller owns the borrowed channel. Require explicit authentication selection, preserve errors.Is/errors.As and report incomplete cleanup separately from success.",
+      "assertions": [
+        "Uses WithGRPCConnection as a borrow: Chronicle Client.Close does not close the connection, and the caller closes it only after client-owned work has joined.",
+        "Requires an explicit authentication choice such as WithConnectionString, WithTokenSource or WithNoAuthentication; no-auth is not an automatic production security recommendation.",
+        "Preserves documented error identities through deliberate %w wrapping and errors.Is/errors.As instead of string matching or %v-only wrapping.",
+        "Treats a CloseContext context error as incomplete cleanup, not successful disposal; cancellation alone is not a join."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "canceled-read-model-stream",
+      "prompt": "At Chronicle.Go v0.9.1 our read-model Subscription Recv loop stops after its opening context is canceled. The proposed wrapper returns an empty successful result, skips Close and restarts at the last received value as a durable checkpoint. Is that correct? Give a bounded cancellation test plan without a live kernel claim.",
+      "expected_output": "Keep cancellation and terminal errors observable, cancel and join the subscription, and do not invent durable feed recovery.",
+      "assertions": [
+        "Keeps the opening context's cancellation observable through Recv or Err instead of converting it into an empty successful snapshot; buffered values may precede the terminal error.",
+        "Closes the subscription to cancel and join the receive worker, and distinguishes successful Close cleanup from the terminal stream outcome retained by Err.",
+        "Describes the watch as best-effort with no durable cursor or gap-free reconnect promise; interruption requires a new watch and refreshed state, not a fabricated checkpoint."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "early-iterator-exit",
+      "prompt": "We need only the first read-model update from Chronicle.Go v0.9.1. Compare breaking from Subscription.Values with calling Recv once, and a hand-written iterator that ignores a false yield return. How should cleanup and error tests differ?",
+      "expected_output": "Values stops and closes on early break; a Recv-only consumer must explicitly close. A custom iterator must stop when yield is false and release owned resources.",
+      "assertions": [
+        "States Values returns iter.Seq2 and stops immediately when yield returns false; its deferred Close runs on exhaustion, error and early break.",
+        "Requires an explicit Close for a consumer that stops after Recv rather than assuming Recv joins the worker.",
+        "Tests early exit and observable worker completion as well as terminal errors, without promising multiple concurrent consumers of one subscription."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "ambiguous-append-retry",
+      "prompt": "Chronicle.Go v0.9.1 Append returned a deadline error after dispatch. Another call returned nil transport error but a noncommitted AppendResult. Our shared retry helper repeats both until no error and treats position zero as missing. Review this design and distinguish known pre-dispatch refusal from ambiguous commit.",
+      "expected_output": "Inspect operation error and result.Err separately; OutcomeUnknownError may hide a commit and is never a generic retry trigger. Position zero can be a committed position.",
+      "assertions": [
+        "Checks the operation error first and result.Err after transport success; nil transport error alone is not an append success or a domain acceptance guarantee.",
+        "Recognizes OutcomeUnknownError through errors.As and preserves its context or transport cause through errors.Is; an after-dispatch deadline may hide persistence.",
+        "Refuses blind write retries and requires explicit concurrency/idempotency and reconciliation semantics; the SDK itself does not retry writes.",
+        "Preserves a valid committed position zero and its explicit presence rather than using zero as a failure sentinel."
+      ]
+    }
+  ]
+}

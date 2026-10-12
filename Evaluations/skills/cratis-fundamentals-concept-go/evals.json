@@ -1,0 +1,39 @@
+{
+  "skill_name": "cratis-fundamentals-concept-go",
+  "evals": [
+    {
+      "id": 1,
+      "name": "older-consumer-minimum",
+      "prompt": "Our consumer declares Go 1.22 and uses Chronicle.Go v0.9.1 and Arc.Go v0.1.1. Can we add Fundamentals.Go v0.3.2 for a UUID concept and use the developer's newer toolchain to claim Go 1.22 support? Must we upgrade the other products' Fundamentals dependency?",
+      "expected_output": "All three pinned roots require Go 1.26. Resolve the incompatible minimum explicitly; the standalone concepts pin is not a required dependency upgrade for the other products.",
+      "assertions": [
+        "Checks each tagged go.mod and refuses to claim Go 1.22 support: Fundamentals.Go v0.3.2 and Arc.Go v0.1.1 require Go 1.26, and Chronicle.Go v0.9.1 requires Go 1.26.0.",
+        "Does not silently raise go.mod or use an automatically newer toolchain as minimum-version evidence; requests an authorized compatibility choice.",
+        "States Chronicle.Go v0.9.1 and Arc.Go v0.1.1 require Fundamentals.Go v0.1.0, not v0.3.2; the independent concepts example pin is not a mandatory transitive upgrade."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "wrapped-concept-error-compatibility",
+      "prompt": "At Fundamentals.Go v0.3.2, concepts.Underlying rejects an invalid declaration. We plan to replace its error with fmt.Errorf using %v and compare the message in callers. Is that compatible? Show how to test the public error contract without depending on exact diagnostic text or claiming the marker enforces business validation.",
+      "expected_output": "Preserve ErrInvalidConcept and TypeError through deliberate wrapping; test errors.Is/errors.As and keep declaration recognition separate from business validation.",
+      "assertions": [
+        "Preserves concepts.ErrInvalidConcept with errors.Is through %w wrapping instead of %v-only formatting or message equality.",
+        "Preserves the typed concepts.TypeError through errors.As, including useful declaration diagnostics, rather than replacing it with an unrelated sentinel.",
+        "Distinguishes Underlying declaration recognition and CheckJSON scalar-shape checking from business invariants; a ConceptValue marker is not automatic domain validation."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "named-uuid-wire-compatibility",
+      "prompt": "Define a named AuthorID based on Fundamentals.Go v0.3.2 concepts.UUID for a shared Arc.Go/Chronicle.Go payload. A proposed simplification removes forwarding methods, treats null as the zero UUID and uses .NET Guid byte order. Review wire compatibility and failure-atomic decoding at these tags.",
+      "expected_output": "A defined type needs explicit text/JSON forwarding codecs. Preserve canonical dashed string JSON, RFC byte order and the explicit null/zero policy, with failed decodes leaving the receiver unchanged.",
+      "assertions": [
+        "Uses a defined type rather than an alias and explicitly forwards value text/JSON encoders and pointer decoders; defined types do not inherit UUID methods.",
+        "Preserves RFC/network-order bytes and lowercase dashed UUID string encoding instead of a JSON byte array or .NET Guid.ToByteArray layout.",
+        "Keeps zero as Guid.Empty but rejects JSON null for a UUID scalar; absence needs an explicit nullable representation, not a silent zero conversion.",
+        "Tests text, JSON, map-key round trips and unchanged receiver state on invalid decoding, not only the compile-time Concept marker."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-chronicle-client-go",
+  "queries": [
+    { "query": "Connect a standalone Go service to Chronicle.Go v0.9.1 and register its event types.", "shouldTrigger": true },
+    { "query": "Who closes a grpc.ClientConn passed through Chronicle WithGRPCConnection?", "shouldTrigger": true },
+    { "query": "Our Chronicle Go Append timed out after dispatch. Is retrying safe?", "shouldTrigger": true },
+    { "query": "Chronicle Go returns nil transport error but a rejected AppendResult. What do we check?", "shouldTrigger": true },
+    { "query": "How should we stop and join a canceled Chronicle Go read-model watch?", "shouldTrigger": true },
+    { "query": "I break early from Chronicle Subscription.Values. Does the receive worker get closed?", "shouldTrigger": true },
+    { "query": "Can a Go 1.22 consumer use Chronicle.Go v0.9.1 without a minimum-version change?", "shouldTrigger": true },
+    { "query": "Register a typed Go Chronicle reactor without claiming exactly-once external delivery.", "shouldTrigger": true },
+    { "query": "Build an Arc.Go HTTP command with handwritten typed registration.", "shouldTrigger": false, "note": "cratis-arc-go" },
+    { "query": "Forward the JSON codec for a named Fundamentals.Go UUID concept.", "shouldTrigger": false, "note": "cratis-fundamentals-concept-go" },
+    { "query": "Connect a standalone .NET application with AddCratisChronicle.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Append an event from a Node service using @cratis/chronicle.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Write a suspending Kotlin Chronicle append.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Inspect failed observer partitions on a live Chronicle store using cratis CLI.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Define a .NET Arc command that returns an event.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Tune Orleans grain storage in the Chronicle kernel.", "shouldTrigger": false, "note": "Framework kernel work, not a Go client workflow." }
+  ]
+}

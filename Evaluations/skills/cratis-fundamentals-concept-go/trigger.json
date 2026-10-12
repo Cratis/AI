@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-fundamentals-concept-go",
+  "queries": [
+    { "query": "Define a named AuthorID based on Fundamentals.Go concepts.UUID.", "shouldTrigger": true },
+    { "query": "Why did our Go UUID concept serialize as a byte array after removing its methods?", "shouldTrigger": true },
+    { "query": "Does implementing ConceptValue validate business invariants in Fundamentals.Go?", "shouldTrigger": true },
+    { "query": "Test failure-atomic JSON and text decoders for a named Go UUID identity.", "shouldTrigger": true },
+    { "query": "Preserve ErrInvalidConcept and TypeError when wrapping concepts.Underlying errors.", "shouldTrigger": true },
+    { "query": "Can a Go 1.22 consumer use Fundamentals.Go v0.3.2?", "shouldTrigger": true },
+    { "query": "Explain RFC UUID byte order versus .NET Guid bytes for our Go concept.", "shouldTrigger": true },
+    { "query": "Should JSON null silently decode to the zero Fundamentals.Go UUID?", "shouldTrigger": true },
+    { "query": "Borrow a gRPC connection and append through Chronicle.Go.", "shouldTrigger": false, "note": "cratis-chronicle-client-go" },
+    { "query": "Implement an HTTP greeting command with Arc.Go.", "shouldTrigger": false, "note": "cratis-arc-go" },
+    { "query": "Define a C# ConceptAs string value.", "shouldTrigger": false, "note": "cratis-fundamentals-concept" },
+    { "query": "Migrate a persisted Chronicle event to a new generation.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Configure a .NET dependency injection lifetime.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" },
+    { "query": "Inspect live read-model collections in the Chronicle workbench.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" },
+    { "query": "Change our React DataTable theme.", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Create a Kotlin Chronicle reactor.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" }
+  ]
+}
