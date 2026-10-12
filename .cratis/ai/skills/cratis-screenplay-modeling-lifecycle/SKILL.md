@@ -214,6 +214,7 @@ labelled as such. The user decides whether it is enough
 Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes:
 `references/vocabulary-map.md`; worked example: `references/worked-example.md`; done checklist: `references/phases.md`.
 Read `references/worked-example.md` when needing an example of reasoning documentation, constraints, and decided rejections.
+Read `references/core-rules-digest.md` when you need the one-page card of element names, causality, open-question-versus-decided-failure and the anti-patterns to reject early.
 
 ## Gate
 Done when: the mode's "done when" holds with fresh verdict lines; every open question has an

@@ -238,6 +238,7 @@ and the report says which verdicts were not run (V2 to V5 are not run in discove
 - `references/event-naming.md` - naming rules, not-an-event filter, repairs.
 - `references/personas-and-causes.md` - role catalogue, Cannot resolved to executable gates.
 - `references/divergent-sweep.md` - lenses for the wide pass.
+- `references/domain-analysis-template.md` - read when requirements arrive as prose and a person must confirm your reading before you model: the note shape, requirement checks, expert questions.
 - `references/plotting-and-handoff.md` - after / caused by / only if, plot format, whose turn it is, Storyline seed, handoff packet.
 - `references/facilitation.md` - running sessions, disagreement, closing, unattended runs. Read when facilitating a group, handling disagreement, or closing an attended or unattended session.
 - `references/human-workshop.md` - supporting a human workshop: preparation, run sheet, live scribing.

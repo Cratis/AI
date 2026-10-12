@@ -3,6 +3,7 @@
 ## Contents
 
 - Establish the boundary, not an organizational formula
+- Ownership by design (optional lens)
 - Ownership interview
 - Ownership and interface inventory
 - Cross-boundary walkthrough
@@ -28,6 +29,28 @@ Do not reorganise teams by fiat. When answers are unavailable, label assumptions
 decision visible in the session `STATE.md`; never report independence as established. Before
 splitting a boundary revisit every invariant that needs information from both sides: an event
 exchange does not make that decision atomic.
+
+## Ownership by design (optional lens)
+Conway's observation is that systems come to mirror the teams that build them. Use it as a
+deliberate lens when you shape boundaries, not as a law: decide the ownership you want and let the
+boundaries follow it, instead of discovering later that the org chart set them.
+
+- When one team will own a boundary end to end, treat the module as that team's system: it owns
+  its commands, the events it produces, the read models it maintains and the systems it calls.
+  Other teams interact only through its public events and its capture contracts, so each side can
+  be built, scaled and released on its own, coordinating through events rather than meetings.
+- A system this process integrates with is, by definition, owned by someone else. Record that
+  owner next to the public fact or capture contract; it is the person you ask before changing it.
+- Treat "team = system" as a hypothesis to test with the interview answers, not as a default. One
+  team may own several modules, a module may be shared during a transition, and a team boundary
+  does not make a decision atomic across it (see above). Write down which the model follows.
+
+**Indirect producers.** When a fact reaches a receiver through an intermediate boundary (the
+booking system's `BerthBooked` drives billing, whose `StayInvoiceDue` then reaches the harbour
+office), attribute each public event to the boundary that decides it, and name the original
+producer in the consumer's description as the indirect source. Ownership of the public contract
+stays with the boundary that decides the fact; the indirect source tells a reader whom a change
+upstream will surprise.
 
 ## Ownership interview
 Run it when ownership, autonomy or integration decisions are missing; skip it when the user or

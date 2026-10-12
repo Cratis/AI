@@ -20,6 +20,7 @@ stage of the story:
 | Afterwards | Renew, reopen, roll over, appeal, refund? | follow-on stories or branches |
 | On behalf | Can someone act for another, or override? | Does/Cannot lines (denial specs) |
 | Proof later | What will an auditor, regulator or angry customer ask to see? | facts that looked like detail |
+| Without software | How would this run on paper, with people? Who acts, what triggers each action, what must they know first? Which step exists only because of the system (a loading state, a cache refresh, a session check)? | the real business steps; steps to drop; missing human hand-overs |
 | Hotspots | For each hotspot named in step 2: what goes wrong there today? | the deepest branch set |
 
 Outcome per lens and stage: modeled fact, set-aside (with why), open question, or "does not

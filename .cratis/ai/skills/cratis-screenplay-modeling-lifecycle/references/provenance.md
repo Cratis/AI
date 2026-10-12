@@ -55,6 +55,7 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 | `.claude/skills/update-prompt-status/SKILL.md` and kit "exactly two status updates per prompt" | `references/per-turn-protocol.md` step 7 | Idea; one start marker and one closing outcome per turn, our wording |
 | `.claude/skills/eventmodeling-core-rules/SKILL.md`: modeling and critic postures never mixed; a known refusal is a documented rule | `SKILL.md` "Modes", "Do not cut corners to save tokens or effort" | Idea; our wording kept |
 | `.claude/skills/connect/SKILL.md`: discover capabilities once per session | `SKILL.md` "Run protocol", `references/identity-and-edits.md` | Idea; our wording kept |
+| `.claude/skills/eventmodeling-core-rules/SKILL.md`: modes (modeling versus critic), element definitions and naming, causality, role catalog, field lineage, open question versus decided failure, offline-first, anti-patterns, structural shapes, quick self-check | `references/core-rules-digest.md` | Adapted closely as a one-page card translated to `.play` constructs. Not adopted: lanes, the single-issuer command rule, linked copies, the translation chain with a never-closing todo list, "read model never drives command validation" (Screenplay `reads` + `require`), the update-feeding-read-model procedure; "bed" is a candidate signal here, not an always-flag |
 
 ## 3. Method lineage
 

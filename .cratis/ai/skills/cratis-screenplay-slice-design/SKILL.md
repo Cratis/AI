@@ -265,6 +265,7 @@ Examples compile with `screenplay` 4.68.0 `--warnaserror` and `cratis screenplay
 - `references/command-inventory.md` - command card, interview questions, refusal inventory.
 - `references/review-questions.md` - design review questions.
 - `references/rule-layers.md` - rule placement, executable authorization, PII.
+- `references/derived-condition-events.md` - read when a computed condition might deserve its own event: the test, who produces it, which causes to fold.
 - `references/field-lineage.md` - origins per element, matrix, reason lines, chain edits.
 - `references/read-model-design.md` - components, fan-in, list vs keyed, singletons, scope.
 - `references/slicing.md` - slice naming, dependencies, state table, generic edits, coverage,

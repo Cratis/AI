@@ -311,7 +311,11 @@ binding failures are errors.
 Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing a tool, checking versions, or assessing executable and renderable subsets. Where a construct sits in the
 method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
+Read [screen patterns](references/screen-patterns.md) when deciding whether a screen is an input, status or error-state screen and which `data` and `action` lines it needs.
+
 ## Route near misses
+
+Attribution and licences: `references/provenance.md`.
 
 - How events fill the read model: `cratis-screenplay-projections`.
 - Layouts, templates, forms, component bindings, toolbars, outlets, contributions, packages and themes: `cratis-screenplay-ui-composition`.
