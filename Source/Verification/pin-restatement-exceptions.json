@@ -1,10 +1,5 @@
 [
   {
-    "file": ".cratis/ai/skills/cratis-chronicle-reactor/SKILL.md",
-    "text": "Arc 22.68.0's handler needs every element to be a command",
-    "reason": "Capability claim about that Arc release itself, not a restated scaffold pin"
-  },
-  {
     "file": ".cratis/ai/skills/cratis-performance-review/SKILL.md",
     "text": "| `@cratis/components` | `4.26.2` |",
     "reason": "Verified-product-sources row: the version at which the DataTable paging surface was verified"
