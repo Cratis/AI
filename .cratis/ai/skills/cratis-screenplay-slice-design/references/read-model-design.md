@@ -5,6 +5,7 @@
 - Start from the consumer
 - The typical slice pattern
 - Events or views
+- Common view patterns
 - Components
 - Fan-in per field
 - Builder and freshness
@@ -70,6 +71,22 @@ external effect: it always gets a delivery outcome, a closing fact (sent, failed
 and a recovery contract, or a pending-work view; only an immediate, internal, always-possible
 effect may leave no trace
 (`cratis-screenplay-automations-and-translations`).
+
+## Common view patterns
+
+Four shapes recur. Name the one a view is before choosing its fields, so the consumer and the
+events line up.
+
+| Pattern | Events feeding it | The view holds | Used for |
+|---|---|---|---|
+| Status view | The lifecycle events of one instance (booked, confirmed, arrived, cancelled) | The accumulated current state of that instance | A screen that shows where one thing stands and which actions are available |
+| List view | Create, change and end events of many instances | One summary row per instance, with the fields people filter, sort or search by | Worklists, search, filtering; end events either `remove with` the row or set a status literal (see "Omissions are decisions") |
+| Timeline or history view | Any events that carry a time | A chronological list, one entry per event, kept apart from the status view | History and audit trail; keep a growing history in its own view, never inside the status view |
+| Processor decision view | The state-changing events a reaction cares about | Current state only, nothing a person would read | A `reaction` or `trigger` that reads it to decide the next action; a reaction that also `produces` directly cannot `reads` it (`PLAY0268`), so it `invokes` a command that holds the `reads` (a pending-work view is this pattern for work that can wait, retry or fail) |
+
+The patterns describe what the view is for, not new syntax: each is a `readmodel`, a projection
+and, where a person or caller reads it, a `query`. A view that fits two patterns at once is
+usually two views.
 
 ## Components
 

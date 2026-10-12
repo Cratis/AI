@@ -69,7 +69,12 @@ An `event` produced by no command, reaction or capture, appended by no specifica
 no projection or reducer; a `readmodel` with no builder (projection, `reducer`) or evidenced
 performer and no reader; a `command` no screen, form or trigger reaches. In legacy work an
 orphan is usually unevidenced behavior or a lost origin:
-list it with its evidence row. If the tooling cannot tell, say that this check was skipped.
+list it with its evidence row. When V1 has no source errors, run
+`--check field-origins,event-consumers,personas,purposes` (or `--check all`) on the candidate
+folder (`PLAY0534` read-model field without an origin, `PLAY0536` event without a consumer; a
+terminal or externally consumed event legitimately triggers it) and add each finding as an
+inventory row. The checks report structure only; a finding is a prompt to look. Keep the manual
+scan for what they do not cover. If the tooling cannot tell, say that this check was skipped.
 
 ## 7. Structural shapes
 Thresholds and explanations adapted from Martin Dilger and Nebulit GmbH's core rules (see provenance). Check the wiring against four shapes. Internal shorthand only; in anything a business

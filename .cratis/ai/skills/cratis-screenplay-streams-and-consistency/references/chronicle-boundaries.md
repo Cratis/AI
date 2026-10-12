@@ -5,16 +5,16 @@ target facts; the `.play` model declares only part of them (`versions.md` in
 `cratis-screenplay-toolchain`).
 
 ## Pins
-Chronicle **v19.32.0** (`f17a2ff`): CHR0012 (nullable event properties) and CHR0034 (PII on an
-event-source id) are present. Three runtime defects are **open at v19.32.0**: #3744 (SQL and
+Chronicle **v19.50.0** (first read at v19.32.0 `f17a2ff`): CHR0012 (nullable event properties) and CHR0034 (PII on an
+event-source id) are present. Three runtime defects are **open at v19.50.0**: #3744 (SQL and
 InMemory providers do not settle unique claims), #4123 (constraint index updates run after commit
 and fail silently) and #4131 (composite unique constraints collide when a component contains the
-separator). Arc **v22.50.5** has `[ProtectedDecision]` (since v22.39.0, needs Chronicle 19.23 or
-later); Stage 4.51.3 rendered apps pin Arc 22.50.5 and Chronicle client/kernel
-19.32.0, so the APIs are available to gap-fill, not automatically emitted or
+separator). Arc **v22.72.0** has `[ProtectedDecision]` (since v22.39.0, needs Chronicle 19.23 or
+later); Stage 4.73.1 rendered apps pin Arc 22.68.0 and Chronicle client/kernel
+19.45.0, so the APIs are available to gap-fill, not automatically emitted or
 protected (see `consistency-and-concurrency.md` section 3). Re-check the issues before relying on a
 constraint in a new release.
-A concurrency scope's first append is unchecked by default at v19.32.0; see
+A concurrency scope's first append is unchecked by default at v19.50.0 (the default is planned to become checked in the next major, `Documentation/events/concurrency.mdx`); see
 SKILL.md, ‘First append into a scope’.
 
 ## Identity, routing and claims

@@ -59,8 +59,9 @@ candidate for a family. Walk one row through three states (`OpenInvoices`: empty
 `InvoiceIssued`, empty again after `PaymentReceived`) as three independent specs, each with its
 own full givens. The excerpt is copied from `invoicing-dues-example.md`; the last spec asserts
 both that the stored row is gone and that the keyed query returns nothing. The whole-list query
-(no key) is a design-mode expectation here: a list-query collection check does not run on the
-reference route, so record it in the matrix rather than asserting it.
+(no key) is executable too (Screenplay 4.105.0 or later): `invoicing-dues-example.md` adds
+`ListOpenInvoices => OpenInvoice[]` with one spec that expects one `result` row and one that
+expects the empty list after `PaymentReceived`. Only `filter`, `scoped to` and `performer` queries stay design-mode.
 The source document also asserts the other terminal outcomes (`InvoiceVoided`, `InvoiceSettled`) the same way; they are not copied here.
 ```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification OpenInvoicesLifecycle1Empty
@@ -119,8 +120,9 @@ Keep three claims apart:
 - a query returns no rows: `then query` without `result`, or `when query` + `then no result`;
 - a list-valued property is empty: assert that property as `[]`.
 List-query results use repeated `result` blocks; count and order are exact. A keyed lookup does
-not prove an entire list is empty. Keep the list contract in design mode and record the
-execution/rendering limit.
+not prove an entire list is empty: assert the unkeyed list query itself (an unkeyed query takes no
+`arguments`; each `result` row states the read-model identifier, else PLAY0351). A snapshot list does not render
+(`STAGE-ESM-010`, Stage 4.73.1); an `observable` list does. Record that rendering limit.
 
 ## Ordering, lag and rebuild
 - **Out of order across sources**: if a joined or cross-context fact can arrive first, add a

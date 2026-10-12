@@ -11,7 +11,7 @@ sections, in this order:
    not empty, the skill `LICENSE` carries the "Third-party notices" section with the **complete**
    MIT text (copyright line, permission notice and disclaimer). Closely adapted material is
    attributed to the source it came from, not to a neighboring one.
-2. **Adapted closely (Martin Dilger and Nebulit GmbH, with agreement).** One row per item taken from Martin Dilger and Nebulit GmbH's
+2. **Adapted closely (Martin Dilger and Nebulit GmbH).** One row per item taken from Martin Dilger and Nebulit GmbH's
    agentic-engineer: source file, where it is used, how. Mark "idea; our wording kept" where only
    the idea was taken. The skill `LICENSE` carries the Nebulit notice.
 3. **Method lineage.** Public method sources (books, talks, standards), cited as sources of ideas.
@@ -34,11 +34,10 @@ full notice is in this skill's `LICENSE` ("Third-party notices").
 | same file, "Mid-Workflow Entry" | `SKILL.md`, `phases.md` "Resume mid-workflow" | Entry points table and identity recomputation added |
 | same file, "Final Output" and "Quality Checklist" | `phases.md` "Final output" and "Quality checklist (closing)" | Items rewritten around Screenplay verdicts, specifications and review |
 
-## 2. Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+## 2. Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
-is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|
@@ -55,6 +54,28 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 | `.claude/skills/update-prompt-status/SKILL.md` and kit "exactly two status updates per prompt" | `references/per-turn-protocol.md` step 7 | Idea; one start marker and one closing outcome per turn, our wording |
 | `.claude/skills/eventmodeling-core-rules/SKILL.md`: modeling and critic postures never mixed; a known refusal is a documented rule | `SKILL.md` "Modes", "Do not cut corners to save tokens or effort" | Idea; our wording kept |
 | `.claude/skills/connect/SKILL.md`: discover capabilities once per session | `SKILL.md` "Run protocol", `references/identity-and-edits.md` | Idea; our wording kept |
+| `.claude/skills/eventmodeling-core-rules/SKILL.md`: modes (modeling versus critic), element definitions and naming, causality, role catalog, field lineage, open question versus decided failure, offline-first, anti-patterns, structural shapes, quick self-check | `references/core-rules-digest.md` | Adapted closely as a one-page card translated to `.play` constructs. Not adopted: lanes, the single-issuer command rule, linked copies, the translation chain with a never-closing todo list, "read model never drives command validation" (Screenplay `reads` + `require`), the update-feeding-read-model procedure; "bed" is a candidate signal here, not an always-flag |
+
+## Not adopted from agentic-engineer (rejected, with reasons)
+
+Recorded once here for the whole method family, checked against the same commit
+(`07b0f30648d663cb588d7e2c7aa031af9dfc21f2`). A rejection stays rejected unless a released Screenplay or
+Chronicle capability removes its reason.
+
+| Source file or topic | Reason |
+|---|---|
+| `connect`, `learn-eventmodelers-api`, `load-slice`, `update-prompt-status`, and the 24 `references/api-fallback.md` files | Transport and credentials for the eventmodelers board. The Screenplay MCP server (`cratis screenplay mcp`) is the only transport; its tool catalog is `cratis-screenplay-model-authoring` `references/mcp-tools.md` and the root is `mcpServers.screenplay.root` in `.cratis/ai.json` |
+| `place-element`, `html-screen`, `storyboard-screen`, `discover-storyboard` HTML reconstruction | Board lanes, columns, cells and HTML or wireframe rendering. Screenplay screens are declarative and Stage renders them; a recreated page is never evidence |
+| `.agent-modeling-kit/README.md`, `lib/config.js`, `package.json`, `package-lock.json`, root `CLAUDE.md` and `README.md` | Board runtime, config walk, package stubs and an Emmett/Postgres/Express/Flyway template; Chronicle and Arc are the runtime here |
+| `.agent-modeling-kit/CLAUDE.md` and `AGENTS.md`: `<promise>`, progress file, board prompt queue, post-question-and-continue autonomy | Board-specific loop control. Our per-turn protocol and stop-or-assume keep the useful parts, and Cratis stops for consequential unknowns |
+| `eventmodeling-designing-event-models/references/examples.md` | The order example embeds a calculated `total` event field and a generic domain; Cratis examples are compiled |
+| Single issuer per command; a screen wired to more than one command always fails; "the bed" as an always-flag | Screenplay commands may have several origins and a screen several actions; the shape stays a candidate signal |
+| "A read model never drives command validation" | Screenplay commands declare `reads` and `require`; a decision uses stored state only through declared `reads` |
+| Compulsory todo list per automation; never-closing translation queue; every trigger is an event | Direct reactions, clock and application triggers and `capture` are supported; a translation holding pending work gets a terminal disposition |
+| "Default gracefully" and log-and-drop for missing external data | Defaults are never fabricated and failures are recorded facts |
+| Linked copies, backward-arrow handling, `session:` field mappings, `validate_model` batch calls | Board mechanics; caller identity is `context` and the model has no columns |
+| "No natural end" red flag, event-granularity tip, archival splits, `no computed fields` as an absolute | Long-lived identities are normal here, generic update events are defects, and decided calculations are facts |
+| Emmett decide/evolve structure, `processor.ts`, processor ids and locks, DLQ store, SQL operations, Flyway, Testcontainers, `routes.ts` | A different runtime; Chronicle and Arc own delivery, projection and transport |
 
 ## 3. Method lineage
 

@@ -259,6 +259,7 @@ module Invoicing
         amount    Decimal
       query OpenInvoiceById => OpenInvoice optional
         by invoiceId InvoiceId
+      query ListOpenInvoices => OpenInvoice[]
       projection OpenInvoices => OpenInvoice
         from InvoiceIssued
           invoiceId = $eventSourceId
@@ -338,6 +339,34 @@ module Invoicing
           arguments
             invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
 
+      specification OpenInvoicesListHoldsTheIssuedInvoice
+        description "The unkeyed list query returns one row per open invoice; each row states the read-model identifier."
+        given caller
+          authenticated
+          role "Accounts"
+        given InvoiceIssued
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 130
+        then query ListOpenInvoices
+          result
+            invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+            member    = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+            amount    = 130
+
+      specification OpenInvoicesListIsEmptyAfterPayment
+        description "A paid invoice leaves the list: a query with no result block is the empty list."
+        given caller
+          authenticated
+          role "Accounts"
+        given InvoiceIssued
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          member = "6f1c2a8e-0b1d-4d55-9a3e-2f6a7c1d0e11"
+          amount = 130
+        when append PaymentReceived
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+        then query ListOpenInvoices
+
     slice StateChange TopUpCredit
       description "Adds credit to a member. Why an amount above zero: a zero top-up changes nothing and hides a mistake."
       command TopUpCredit
@@ -412,6 +441,6 @@ module Invoicing
 - The command that reverses a payment, the refund reaction and their specifications
   (`ReversingAReceivedPayment`, `RequestingARefundAfterAReversal`) are in
   `invoicing-dues-design.md`, because the command needs a stored-state rule.
-- The query answers "absent" with no `result` block; the whole-list query and the `OpenInvoices`
-  list view in the excerpts are design-mode expectations (list queries compile but do not bind at
-  4.66.0, PLAY0268, `cratis-screenplay-toolchain`, so they are retained as design-mode expectations): see `view-and-story-specs.md`.
+- The query answers "absent" with no `result` block. The `ListOpenInvoices` list query and its two
+  specifications bind and run (list queries bind since Screenplay 4.105.0; they compiled but did
+  not bind at 4.66.0); only `filter`, `scoped to` and `performer` queries stay design-mode: see `view-and-story-specs.md`.

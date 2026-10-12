@@ -88,7 +88,8 @@ cannot be changed back to a wildcard. Literal compatibility/route contradiction
 checks use resolved source/stream types, not guessed text (PLAY0547–PLAY0551).
 At Screenplay 4.127.0, route literals must be nonempty, well-formed NFC text
 (refused, not normalized); Double integer ids are within ±(2^53−1), while Exact
-has no such bound but remains unadmitted. Invalid specification routes report
+has no such bound but the `numbers exact` source mode remains unadmitted (PLAY0268; exact lowering of
+qualifying Double literals is the separate, admitted v11). Invalid specification routes report
 PLAY0549. Contradictions compare canonical scalar ids and every composite part,
 so UUID casing is immaterial. Composite mappings supply each named part once,
 using literals only; encoding escapes `%`/`|` and preserves declaration order.

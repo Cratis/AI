@@ -1,8 +1,7 @@
 # Provenance
 
 Sources are pinned. TrogonStack/agentskills is MIT, Copyright (c) 2025 Straw Hat, LLC (full
-notice in this skill's `LICENSE`). agentic-engineer by Martin Dilger and Nebulit GmbH carries no licence file; its material is adapted with
-the agreement of Martin Dilger and Nebulit GmbH (see *Adapted closely* below).
+notice in this skill's `LICENSE`). agentic-engineer by Martin Dilger and Nebulit GmbH is used with their explicit consent (see *Adapted closely* below).
 Event Modeling practice (Adam Dymitruk, Martin Dilger) is cited as practice; no text taken.
 
 | Item | Source | Licence | Treatment | Where in this skill |
@@ -15,11 +14,10 @@ Event Modeling practice (Adam Dymitruk, Martin Dilger) is cited as practice; no 
 | Slice dependency record (events consumed, producing slice) | TrogonStack/agentskills@7b249d3:.../eventmodeling-slicing-event-models/SKILL.md | MIT | ADAPT as a table | references/slicing.md |
 | Generic-edit ban, rule coverage, state-transition table, rule layers, refusal inventory, worked example | Cratis/AI corpus (original) | MIT | original | references/*.md |
 
-## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
-is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|
@@ -39,3 +37,5 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 | `eventmodeling-designing-event-models/SKILL.md`: events as past-tense business facts, causality, state transitions | `SKILL.md` step 4; `references/slicing.md` state-transition table | idea; our own wording kept (our table is stricter) |
 | `storyboard-screen/SKILL.md`, `html-screen/SKILL.md`, `place-element/SKILL.md` | none | not adopted: board and HTML rendering mechanics; screen field mapping `derived:` already in `references/field-lineage.md` |
 | `.build-kit/.slices/restaurant/*/slice.json` | none in this skill | patterns only; passed to scenario coverage (spec example values that vary one rule) |
+| `.claude/skills/eventmodeling-identifying-outputs/SKILL.md`, "Common Patterns": status, list, timeline and processor-decision view patterns | `references/read-model-design.md` "Common view patterns" | Adapted closely as a table over `readmodel`, projection and `query`; the pseudo-code blocks became prose |
+| `.claude/skills/eventmodeling-orchestrating-event-modeling/SKILL.md`, "Recognizing a dedicated business event behind a derived condition": the "is this fact worth a new event" test, producing it by automation, fold only redundant causes, display-only conditions stay projections | `references/derived-condition-events.md` | Adapted closely; the todo-list translation pattern became a `reaction` that `produces` (a pending-work view only when the work can wait, retry or fail); the >3-events heuristic stays in `read-model-design.md`; board placement, 0,0-node scans and `validate_model` batch calls not adopted |

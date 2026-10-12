@@ -127,7 +127,7 @@ phase, a decision important enough that a later reader could misread the model (
 - **Input**: the accepted identity.
 - **Carry-forward**: the admission result; render output and named gaps in `Customizations/`;
   non-renderable scope handed to a code agent with the model as contract, plus a fallback record
-  naming the blocking codes. Automations and translations are not rendered at the pinned Stage version, so the whole behavior is gap-fill. Three cases stay distinct: admission failure (nothing rendered); an
+  naming the blocking codes. Automations and translations are not rendered at the pinned Stage version (4.73.1), so the whole behavior is gap-fill (a reaction that produces and invokes keeps its one modeled form; `STAGE-ESM-037` is Stage's refusal, not a reason to split it). Three cases stay distinct: admission failure (nothing rendered); an
   existing generated base plus separately authorized gap-fill; fully hand-written delivery.
 - **Gate**: V5 sub-results, or a fallback entry per non-renderable scope. A customization never
   makes a rejected model renderable; no whole-application V5 from a subset.

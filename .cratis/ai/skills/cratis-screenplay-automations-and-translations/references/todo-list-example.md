@@ -6,7 +6,7 @@
 
 A complete model: a result opens a work item, a reaction invokes a command, the command's fact
 closes the item. It binds on Screenplay 4.66.0 (`executableReady: true`), standalone and through `cratis screenplay mcp`
-3.28.2; `cratis render` 3.28.2 refuses it whole (`STAGE-ESM-016`). The cratis 3.27.1 bundle (4.60.1)
+3.28.2; `cratis render` refuses the Automation slice (3.28.2: whole, `STAGE-ESM-016`; Stage 4.73.1: `STAGE-ESM-024`). The cratis 3.27.1 bundle (4.60.1)
 rejected the Automation slice at binding with PLAY0268. Versions: `cratis-screenplay-toolchain` `references/versions.md`.
 
 The first spec lists the whole cascade (`then` names every new fact: `CoursePassed`, and
@@ -190,10 +190,10 @@ module Certification
 
 ## Design-only additions
 
-Two things a real queue often wants do not bind on 4.66.0 and stay out of the complete model
-above: a list query (the visible queue) and a retry sweep that reads the whole view. Both parse
-(V1) and report PLAY0268 at binding; durable per-item fan-out is outside the language
-(Screenplay#286). Keep them in the model only when the document is the deliverable and say so
+Two things a real queue often wants stay out of the complete model above: a list query (the
+visible queue) and a retry sweep that reads the whole view. The list query binds (Screenplay 4.105.0
+or later; it was PLAY0268 at 4.66.0, and Stage refuses a snapshot list); the sweep needs a code body the
+reference does not run, and durable per-item fan-out is outside the language (Screenplay#286). Say so
 in the verdict.
 
 ```screenplay excerpt parent=assets/pending-certificates.play
@@ -205,7 +205,7 @@ query PendingCertificates => PendingCertificate[]
 // Parent: the complete document above, slice Automation SendCertificates, after CertificateSender.
 // The sweep reads the whole view (a clock trigger takes no `by`); iterating items needs code.
 reaction CertificateRetrySweep
-  description "Retries items still pending; per-item fan-out needs code on Screenplay 4.66.0 (#286)"
+  description "Retries items still pending; per-item fan-out needs code (#286)"
   every 15 minutes
     reads PendingCertificate
     file Reactions/RetryPendingCertificates.cs

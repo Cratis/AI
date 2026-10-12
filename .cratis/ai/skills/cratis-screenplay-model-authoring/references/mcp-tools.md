@@ -51,9 +51,11 @@ the [MCP loop](mcp-loop.md).
 | Source and validation | `diagnostics`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
-| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-repair`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
+| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-move`, `propose-repair`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
 | Review | `read-proposal`, `discard-proposal` | Inspect exact changes, dropped comments and proposed attachments, or abandon a connection-local proposal |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
+
+`propose-move` moves a slice to another feature, or a feature to another module or feature, keeping identities: copy the `target` and `newParent` `{kind, parts}` addresses from the identity inventory and pass `expectedRevision` and `expectedCatalogRevision`. It repairs qualified references and `depends on`, and refuses identity loss, capture, collisions, descendant destinations, inherited authorization or screen-interaction changes and glob imports; review `moveReport` (`identityMigrations`, `referenceRepairs`, `fragmentsMoved`). It does not rename events, change pins or move files, and declaration moves between slices are deferred. Use it for legacy re-slicing instead of retyping declarations.
 
 `propose` is the executable-only whole-document interface. Prefer `propose-source`
 for whole `.play` text, `propose-ast` for focused typed edits, and `propose-rename`

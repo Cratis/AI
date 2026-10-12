@@ -322,7 +322,9 @@ public class <ReactorName> : IReactor
 
 A reactor runs with **no principal**; `[ExecuteCommandsAsSystem]` (class-level,
 `Cratis.Arc.Chronicle.Reactors`) supplies one for the **returned** commands only.
-A collection return is executed as commands when every element is a command.
+A collection return is executed as commands when every element is a command. A stable collection mixing registered events and commands (Arc 22.72.0+; Arc 22.68.0's handler needs every element to be a command) appends the events
+first as one batch, then runs the commands in order, with no transaction across them; a retry can
+repeat both. `[ExecuteCommandsAsSystem]` covers only the commands.
 A reactor retry can execute the command's operations again; inline operations
 are not a substitute for reactor/outbox durability (see
 `cratis-arc-command-operation`, verified at Arc v22.48.1).
@@ -408,4 +410,5 @@ scope of these scenario-only guards.
 
 ## Lineage
 
-The specification checklist (field lineage, contract-authorized filtering, repeated delivery) follows an idea from Martin Dilger and Nebulit GmbH's reactor build checklist, credited in `references/provenance.md`. Read `references/provenance.md` when checking checklist attribution or the verification sources for scenario behavior.
+Attribution and verification sources: `references/provenance.md`.
+Read `references/slice-delivery-checklist.md` when delivering a reactor from a slice contract: build order, handler patterns, closing checklist.

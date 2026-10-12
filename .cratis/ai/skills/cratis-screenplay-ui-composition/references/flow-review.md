@@ -36,7 +36,7 @@ the build.
 BerthListScreen
   Shows:      the berths booked so far (berth, boat name).
   Arrived by: the entry point, and after a booking is submitted.
-  Can do:     book a berth (BookBerth, opens BookBerthScreen).
+  Can do:     open the booking screen (a click on the booking section opens BookBerthScreen).
   Gaps:       none. Empty list: nothing booked yet.
 
 BookBerthScreen

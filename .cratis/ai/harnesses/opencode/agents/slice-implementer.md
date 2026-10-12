@@ -99,4 +99,4 @@ Proxies now exist. Build React components from the generated proxies (`react.md`
 
 ## Lineage
 
-The re-delivery, specification-oracle and working-discipline items adapt the build prompts of agentic-engineer by Martin Dilger and Nebulit GmbH (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`; https://nebulit.de), used with their agreement.
+The re-delivery, specification-oracle and working-discipline items adapt the build prompts of agentic-engineer by Martin Dilger and Nebulit GmbH (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`; https://nebulit.de), used with their explicit consent.

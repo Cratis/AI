@@ -8,9 +8,9 @@
 - 4. Cleanup DDL to propose (run by the DBA after the Extractor is stopped)
 - 5. Capture verification before interpreting
 
-Sources: Prologue `ad4bbe7` (Extractor, Configuration, Interpretation) and cratis CLI
-`v3.28.2` (`Source/Cli/Commands/Prologue/*`, unchanged since `v3.27.1`; `LlmOptionsResolver.cs`,
-`Documentation/reference/prologue.md`). Tool versions: `cratis-screenplay-toolchain`
+Sources: Prologue `v2.0.0` (the version CLI 3.53.1 bundles; Extractor, Configuration,
+Interpretation) and cratis CLI `v3.53.1` (`Source/Cli/Commands/Prologue/*`,
+`LlmOptionsResolver.cs`, `Documentation/reference/prologue.md`). Tool versions: `cratis-screenplay-toolchain`
 `references/versions.md`.
 Everything here that touches a target system is
 **proposed** by the screenplay-modeler (legacy extraction) and run only by the user or DBA (or the main session
@@ -54,21 +54,28 @@ Nothing in Prologue removes what the Extractor created. Cleanup is manual; Crati
 
 ## 3. LLM use in `interpret` (preflight by the main session; a subagent runs interpret only
 when its brief records this preflight and the user's approval, otherwise it proposes)
-Resolution in the current cratis CLI (`LlmOptionsResolver.Resolve`):
-1. `cratis-prologue.json` with `llm.enabled: true` -> that provider;
-2. otherwise the **global** CLI configuration written by `cratis llm use` (a hosted provider,
-   or a local compatible endpoint) -> enabled, with the provider's public endpoint unless an
-   endpoint is set;
+`cratis prologue interpret --no-llm` forces heuristics-only interpretation: it never creates a
+chat client and sends no capture evidence to a model, whatever the local or global configuration
+says (CLI 3.37.1 or later; confirm with `cratis prologue interpret --help`). Cratis/cli#241 is
+closed. Without `--no-llm` the effective provider resolves in this order
+(`LlmOptionsResolver.ResolveWithSource`):
+1. an explicit local `llm.enabled` in `cratis-prologue.json`: `true` -> that provider, `false`
+   -> disabled, with no fallback to the global configuration;
+2. only when the local setting is absent, the **global** CLI configuration written by
+   `cratis llm use` (a hosted provider, or a local compatible endpoint);
 3. otherwise disabled.
-A local `llm.enabled: false` does **not** stop step 2. There is no `--no-llm` flag. This is
-an open defect: Cratis/cli#241 (`LlmOptionsResolver.Resolve` returns the Prologue `llm`
-section only when it is enabled, then falls back to the global CLI configuration).
+The command prints the provider, model, endpoint host and where the setting came from (`local
+file`, `global config`, `--no-llm`, `none`) to stderr before it sends any evidence, also in JSON
+and unattended runs; the JSON result carries an `llm` object. That notice informs the user; it
+does not replace the approval.
+
+Unattended default: pass `--no-llm` unless the brief records the approved disclosure.
 
 Preflight (read-only):
 - `cratis llm show -o json` (the key is masked) and the `llm` section of the
   `cratis-prologue.json` that interpret will find (PATH, then the current directory).
 - Report the effective provider, model and endpoint. If it is hosted, the whole payload sent
-  is (`RefinementPrompt.Evidence`, `EvidenceFormatter.cs` at `ad4bbe7`):
+  is (`RefinementPrompt.Evidence`, `EvidenceFormatter.cs` at `v2.0.0`):
   - the provisional model outline and the list of every provisional name in it, **uncapped**
     (inferred command, event and property names from all captures);
   - observed behaviour, each list capped at 50 distinct entries: `METHOD path` lines (concrete
@@ -78,11 +85,9 @@ Preflight (read-only):
     database (several observations can send more);
   - in an interactive run, the text of your answers to the model's questions.
 - Ask the user. The approval must cover that full payload; otherwise restrict or redact the capture
-  input first, or do not run interpret. Options for the
-  user: approve; switch to a local provider; remove the global setting themselves
-  (`cratis llm clear` changes their configuration, so it is their call); or run the batch
-  Interpreter container with a config whose `llm.enabled` is false and no CLI config mounted
-  (it writes `extraction-result.json` as well; not verified locally).
+  input first, or run `interpret --no-llm`. Options for the
+  user: approve; switch to a local provider; set `llm.enabled: false` in the local Prologue file;
+  or use `--no-llm`. Changing the global configuration (`cratis llm clear`) is the user's call.
 - Batch mode asks no questions; LLM failures fall back silently to the heuristic model.
 
 ## 4. Cleanup DDL to propose (run by the DBA after the Extractor is stopped)

@@ -32,5 +32,7 @@ A bodied rule or fenced block on a validation, rule or policy binds as opaque co
 implementation. Two exceptions never bind: the command `handler`, and a `file`
 constraint (the binder records the requirement, then rejects it with `PLAY0268`;
 only `unique` constraints bind).
-Stage 4.24 admits only pure reducer bodies, so such a body is gap-fill code there. Prefer a
-declarative rule when one can say it.
+Stage 4.73.1 renders pure reducer transitions and opaque policy bodies, but refuses command and
+concept code validations and rule predicates (STAGE-ESM-005): those are gap-fill code. Prefer a
+declarative rule when one can say it. What binds and what the executable model rejects (Date and
+DateTime comparisons, nested-path rules): `cratis-screenplay-toolchain` `references/executable-subset.md`.

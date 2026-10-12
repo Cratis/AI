@@ -43,7 +43,7 @@ an unproven pass.
 | An accepted model covers the scope | **Model** | Change the `.play`, verify V1-V3, review, then render or gap-fill |
 | Opted in, but this scope has no model yet | **Model** | New behavior starts in discovery, then slice design |
 | A computed rule inside a modeled slice | **Model + code attachment** | `csharp`/`file` block; it binds only as the construct allows (`cratis-screenplay-model-authoring`) |
-| Scope Stage cannot render yet, including every modeled automation and translation (Stage `v4.24.2` renders neither; the whole behavior is gap-fill, not just its outside call) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
+| Scope Stage cannot render yet, including every modeled automation and translation (Stage 4.73.1 renders neither; the whole behavior is gap-fill, not just its outside call; a reaction that produces and invokes stays one reaction, `STAGE-ESM-037`, hand-written as one reactor on Arc 22.72.0 or later) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
 | Outside call, transport or credentials | **Adapter code** | `Customizations/` or the host, applying `cratis-engineering-effect-boundaries` |
 | Infrastructure, clients, framework-profile repositories, brownfield not opted in | **Code** | Arc, Chronicle, spec and React skills; trivial changes keep the proportional-delegation policy |
 
@@ -210,10 +210,12 @@ labelled as such. The user decides whether it is enough
 | Critic review, business-question pass | `cratis-screenplay-model-review` |
 | Existing system into a model | `cratis-screenplay-legacy-extraction` |
 | Render, gap-fill, fallback, drift | `cratis-screenplay-render-and-gap-fill` |
+| Estimate, order or split delivery of an accepted model | `cratis-screenplay-delivery-planning` |
 
 Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes:
 `references/vocabulary-map.md`; worked example: `references/worked-example.md`; done checklist: `references/phases.md`.
 Read `references/worked-example.md` when needing an example of reasoning documentation, constraints, and decided rejections.
+Read `references/core-rules-digest.md` when you need the one-page card of element names, causality, open-question-versus-decided-failure and the anti-patterns to reject early.
 
 ## Gate
 Done when: the mode's "done when" holds with fresh verdict lines; every open question has an
@@ -221,13 +223,13 @@ address and assumption; every decided rejection is a specification; no protectio
 the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
-Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Used here: Screenplay
+Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Current pins (Stage 4.73.1, cratis CLI 3.53.1 and the rest) are in that file. Older source reads used here: Screenplay
 `v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
-cratis CLI `v3.28.3` (`cratis screenplay validate --warnings-as-errors`, bundled Screenplay 4.66.0);
-Stage `v4.24.2` (admits ESM v1-v4 and refuses evolved events with `STAGE-ESM-026`); opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.3`
-`Documentation/reference/screenplay-mcp.md`. The worked example compiles with both tools.
+cratis CLI `v3.28.3` (`cratis screenplay validate --warnings-as-errors`; bundled Screenplay 4.66.0 then, 4.137.0 in 3.53.1);
+opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.3`
+`Documentation/reference/screenplay-mcp.md`. The 4.66.0 and 3.28.3 reads are historical, not current pins. The worked example compiles with the standalone tool.
 ## Verify
 ```shell
 screenplay <model-folder> --warnaserror --no-color

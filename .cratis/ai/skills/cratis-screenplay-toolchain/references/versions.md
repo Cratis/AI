@@ -23,6 +23,8 @@ probe; older probes retain their original labels in the other references.
 | Stage bundled by CLI | **4.73.1** | Same file; Stage's own `Directory.Packages.props` also pins Screenplay 4.137.0 |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
+| Latest Arc / Chronicle / Fundamentals released when this was checked | **22.72.0 / 19.50.0 / 7.23.0** | Released tags; newer than the CLI bundle and than Stage's scaffold. Arc 22.72.0 and later run a reactor returning events and commands (absent through 22.71.0); the Stage 4.73.1 scaffold pins Arc 22.68.0, whose command handler accepts a collection only when every element is a command, so a rendered app needs a proven dependency override to 22.72.0 or later |
+| Stage 4.73.1 rendered backend and frontend | **Arc 22.68.0 / Chronicle 19.45.0**; Components 4.26.2, Scene 4.21.0, `@cratis/arc` 22.58.2, Fundamentals 7.22.8 | Stage `v4.73.1:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs` and `CratisFrontendPackageSet.cs` (`Current`); not the latest releases and not bumped by hand |
 | Historical Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
 
 The published `screenplay-contract.json` beside this reference is the machine-readable authority for PLAY codes, MCP tools and parameters, and standalone CLI commands/options. Its unchanged release bytes are pinned by `screenplay-contract.version` to the standalone version above. Before adding a claim, search this large JSON file by exact `code` in `diagnostics`, or by exact `name` in `mcpTools`/`cliCommands`, and inspect that object's retirement flag, parameters or options; do not load the full file into context. For example, search for `"code": "PLAY0029"` or `"name": "read-workspace"`; `screenplay-contract-exceptions.json` preserves explicitly reasoned historical statements, not current-release exceptions. Coverage gaps are mention inventories, not proof that a skill teaches a feature.
@@ -175,8 +177,9 @@ specifications, UI composition and `diagnostics.md`.
   Stage 4.24.1/4.24.2. Those old negative v7 probes do not describe CLI 3.41.0.
 - CLI before 3.28.2 bundled Screenplay 4.60.1: false cascade PLAY0285, v6 refusal
   and dynamic-root initialization bug. The roots bug was fixed in 4.63.2.
-- CLI 3.28.2 file validation ignored imports; this is an old probe, not a current
-  reason to invent missing declarations. Validate the complete root.
+- CLI 3.28.2 file validation ignored imports (cli#244, closed by PR #258): later CLI releases compile
+  the file as an application root together with its imports. Folder mode stays the recommended check;
+  validate the complete root.
 - Older standalone empty-folder probes exited 0. Current validation still needs
   a nonzero file count, and specification execution needs an expected selection.
 
@@ -189,7 +192,10 @@ preserve assigned identities; do not reconstruct them from names.
 
 A render manifest's `semanticRevision` is a different provenance value, made
 with the render name and bundled compiler. Do not compare it directly to MCP
-`modelRevision`. Compare successive renders with the same identity and inputs.
+`modelRevision`. Compare successive renders with the same identity and inputs, or use
+`cratis render ... --check` (CLI 3.44.0 or later). Descriptions and event documentation render as XML
+doc comments, so editing them changes managed-file hashes (a `--check` exit 6) but not the executable
+model revision.
 
 ## Upgrade checklist
 

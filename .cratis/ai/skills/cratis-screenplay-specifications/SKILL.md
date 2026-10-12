@@ -124,7 +124,8 @@ for synthesis refusals, selection, provenance and a complete passing model.
 | `then events in any order` | compare the new events without regard to order |
 | `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
 | `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent (v4.66.0); the key is concrete and typed |
-| `then query <Query> [exactly]` | query results for explicit `arguments`; one `result` per row; none means empty |
+| `then query <Query> [exactly]` | query results for explicit `arguments` (none for an unkeyed list); one `result` per row, each stating the identifier; none means empty |
+| `file <path>` | optional, once: the repository-relative file realizing the specification |
 | `then error "<message>"` | a validation or constraint rejection, for that reason; a localized rule is pinned by its quoted key, `then error "$strings.<key>"` |
 | `then error` | a validation or constraint rejection, reason unnamed |
 | `then denied` | an authorization denial (`Unauthorized`) |
@@ -158,7 +159,7 @@ Rules the binder enforces:
 - **`null` only in optional read-model values.** A `null` in a command or event
   value is `PLAY0350`: an optional fact is a separate event.
 
-`PLAY0358` is a syntax error. `PLAY0350`, `PLAY0352`, `PLAY0388`, `PLAY0389` and
+`PLAY0358` is a syntax error (`PLAY0388` also at parse time for extra text after `then denied`). `PLAY0350`, `PLAY0352`, `PLAY0388` (mixed with another outcome), `PLAY0389` and
 the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
 `screenplay --warnaserror` does not show them. Check executable diagnostics
 (the MCP authoring tools) as well.
@@ -221,8 +222,9 @@ stream ids are not guessed. Read [examples and routes](references/examples-and-r
 
 `given operation ... fails`, `then operation` and `then compensated` describe
 future external-work behavior. Reaction refusal branches, `when redelivered`
-and `then no events` are also authoring-only: compile them, but report their
-PLAY0268 binding refusal instead of an executed result. Preserve the contract.
+and `then no events` (PLAY0268, #433) are also authoring-only: compile them, but report their
+PLAY0268 binding refusal instead of an executed result. Preserve the contract; a read-model or
+query assertion states a zero-fact outcome.
 
 ## Rejections and denials say different things
 

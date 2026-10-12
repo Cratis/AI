@@ -5,7 +5,7 @@
 - Caller and compliance boundary (4.127.0)
 - Admitted on both compilers
 - Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
-- Generated values and responses (ESM v7): standalone 4.68.0 or later only
+- Generated values and responses (ESM v7): standalone 4.68.0 or later; the cratis 3.53.1 bundle binds them too
 - Released public boundaries and observer routes
 - Code attachments (what binds, what never does)
 - Refused (code, reason): fix, or record as a mode gap
@@ -15,25 +15,30 @@
 Current pins: `versions.md`. Detailed
 4.66.0/4.68.0 binder probes below retain their historical labels. Current source
 admits routes as ESM v8, public/direction constructs as v9, identity/overrides/filters
-as v10 and qualifying non-route Double literals as v11. Operations,
-`numbers exact` source mode and reaction refusals/redelivery remain unadmitted. Use the actual
+as v10, qualifying non-route Double literals as v11 (exact lowering of Double-mode literals)
+and non-positional enum numbers as v12. Operations, the `numbers exact` **source mode** (PLAY0268) and
+reaction refusals/redelivery remain unadmitted. Use the actual
 binder before promoting an older probe to a current capability claim.
 
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler version: standalone Screenplay 4.68.0 admits ESM v1 to v7; the 4.66.0 compiler bundled in
-cratis 3.28.2 and 3.28.3 admits v1 to v6; the 4.60.1 compiler bundled in cratis before 3.28.2 admits v1 to v5.
+compiler version: the standalone tool (4.139.0) binds through v12; the compiler bundled in cratis
+3.53.1 (4.137.0) binds ESM through v10 for rendering and refuses non-positional enum numbers at
+binding; older bundles (4.66.0 in cratis 3.28.x, admitting v1 to v6; 4.60.1 before 3.28.2, v1 to v5)
+are history.
 Tool facts and the exact v6 messages: `versions.md`. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass.
 
-Binding is observed only through MCP (`read-workspace view=executable-diagnostics`) or a
-render. `screenplay <folder>` and `cratis screenplay validate` never bind (`verdicts.md`).
+Binding is observed through MCP (`read-workspace view=executable-diagnostics`), a render, or
+`cratis screenplay validate --executable <root>` (bundled compiler; binding errors only, writes
+nothing; exit 5 when it does not bind). `screenplay <folder>` and plain `cratis screenplay validate`
+never bind (`verdicts.md`).
 
 Complete examples that bind live in `executable-example.md` (both compilers),
 `pdl-example.md` (projections, both compilers) and `automation-translate-example.md`
 (ESM v6; standalone tool and cratis 3.28.2 or later) and `generated-responses-example.md`
-(ESM v7; standalone tool 4.68.0 or later only).
+(ESM v7; standalone tool 4.68.0 or later, and the cratis 3.53.1 bundle).
 
 ## Caller and compliance boundary (4.127.0)
 
@@ -106,13 +111,15 @@ Authority: v4.127.0 `context.md`, `identity.md`, `concepts.md`, `events.md`, `pu
 - Command specifications that list reaction cascades (no false PLAY0285).
 - In a `then` list after `when append`, only what followed the appended event.
 
-## Generated values and responses (ESM v7): standalone 4.68.0 or later only
+## Generated values and responses (ESM v7): standalone 4.68.0 or later; the cratis 3.53.1 bundle binds them too
 
 Facts read at `v4.68.0`: decision 0026 and `Documentation/screenplay/{commands,specifications,interoperability}.md`.
 A model selects ESM v7 only when it uses a generated property, a response, a generated fixture or a `then returns`
 expectation; every other model keeps its version, bytes and revision. The cratis CLI 3.28.3 (bundled 4.66.0)
-reports `PLAY0268` for these constructs, and Stage 4.24.2 refuses ESM v7 with `STAGE-ESM-016` (tracked in
-Stage#201), so they bind and run but are not rendered: gap-fill with the model as contract. Complete example:
+reported `PLAY0268` for these constructs (history). The current CLI (3.53.1, bundled 4.137.0) binds them
+and reaches Stage planning, where Stage 4.73.1 refuses generated values with `STAGE-ESM-028` and
+responses with `STAGE-ESM-029` (Stage#175), so they bind and run but are not rendered: gap-fill with the
+model as contract. Complete example:
 `generated-responses-example.md`.
 
 - A generated property is command-only, required, scalar and a concept backed by `Uuid`; bare `Uuid`, optional and collection
@@ -187,8 +194,9 @@ bodies still leave their owner non-executable.
   `require`/`validate` bodies (`v4.66.0:Documentation/screenplay/commands.md`, `context.md`).
 - A handler therefore makes the slice non-executable and non-renderable: it is gap-fill
   with the model as the contract.
-- Stage 4.24 admits only pure reducer bodies (Roslyn allowlist, STAGE-ESM-019 and 022);
-  code validation (STAGE-ESM-005) and opaque policies (STAGE-ESM-015) are refused.
+- Stage admits only pure reducer bodies (Roslyn allowlist, STAGE-ESM-019 and 022);
+  code validation is refused (STAGE-ESM-005). Opaque pure policies render at Stage 4.73.1 (4.24
+  refused them with STAGE-ESM-015).
 - The reference runner returns Unsupported for the opaque bodies that do bind (rule and
   policy predicates, code validation, reducer transitions); a specification that needs one
   never passes. Handlers, file constraints and query performers (and reaction effects on a trigger with
@@ -202,8 +210,8 @@ bodies still leave their owner non-executable.
 | `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
 | `pii` or `secret` on any concept (also alias/legacy markers) | PLAY0268 | Compliance requires portable data-subject semantics; scopes/qualifiers do not admit it. Secret provider mapping is `[Encrypted]` + `[NotAudited]`, not a bind/render claim |
-| `query` returning a collection (`RM[]`), or without exactly one caller-supplied scalar `by` | PLAY0268 | Historical 4.135.0 source check: composite `by` blocks remain unadmitted (#599); optional scalar snapshot lookup binds |
-| `observable`, `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` goes in the return position (`=> observable RM optional`); as a body line it is PLAY0048 |
+| `query` with a composite `by` block, or `by ... from` context-derived arguments | PLAY0268 | composite `by` blocks remain unadmitted (#599). An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too (since 4.105.0) |
+| `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` is not the blocker: it goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
 | Date or DateTime comparison, `today` | PLAY0268 | no runtime date value |
 | Rule on a nested path (`lines.qty all > 0`) | PLAY0268 | put the rule on the nested value's concept |
@@ -222,7 +230,7 @@ bodies still leave their owner non-executable.
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
 | `generated` or `returns` on a compiler before 4.68.0 (4.66.0 and 4.67.0 refuse; 4.66.0 is bundled in cratis 3.28.x) | PLAY0268 | admitted from standalone 4.68.0 (ESM v7), see above |
-| Operations or systems, `numbers exact`, reaction refusals/redelivery | PLAY0268 | not admitted by any supported ESM version; one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
+| Operations or systems, `numbers exact` source mode, reaction refusals/redelivery | PLAY0268 | not admitted by any supported ESM version; one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
 | `given` or `then readmodel` missing key parts | PLAY0351 | explicit `key` marks replace inference; composite fixtures need every part but remain unadmitted (#599) |
 | When-less spec asserting events or errors | PLAY0352 | |

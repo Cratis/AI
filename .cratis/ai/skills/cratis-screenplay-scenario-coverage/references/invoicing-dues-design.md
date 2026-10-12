@@ -14,8 +14,9 @@ replaced by prose. The runnable counterpart, which holds no stored-state rule, i
 `invoicing-dues-example.md`; `scenario-examples.md` copies `ReversingAReceivedPayment` from here.
 
 The excerpt's Stage API-availability comment describes the historical Stage 4.24.x
-scaffold. Stage 4.51.3 pins Arc 22.50.5/Chronicle 19.32.0: protected-read APIs are
-available to gap-fill, not emitted protection or `.play` rule admission. The
+scaffold. Stage 4.73.1 pins Arc 22.68.0/Chronicle 19.45.0: protected-read APIs are
+available to gap-fill (the "not in a Stage-rendered application" comment in the source is
+superseded), not emitted protection or `.play` rule admission. The
 original compiled source is retained unchanged.
 
 ```screenplay expect PLAY0516 test=unbound
@@ -24,7 +25,7 @@ original compiled source is retained unchanged.
 // blockers), so this model compiles but is not executable; the specifications below do not run. The runnable counterpart
 // is invoicing-dues-example.md.
 // Target enforcement of every rule here: Arc [ProtectedDecision] with DecisionRead<T> (Arc v22.39.0
-// or later, not in a Stage-rendered application), or a Chronicle DCB; Screenplay#129/#209.
+// or later, not in a Stage-rendered application), or a Chronicle DCB; Screenplay#129.
 
 concept InvoiceId : Uuid
 concept MemberId : Uuid
@@ -107,7 +108,7 @@ module Invoicing
       event PaymentReceived
 
     slice StateChange SettleOrVoidInvoice
-      description "An invoice ends either settled or voided, never both (SettleOrVoid, enforced at append). NOT enforced in the model today: that the invoice exists and is still open (settling) and that only an open, unpaid invoice may be voided. Stated as `reads OpenInvoice` + `require` (PLAY0271/PLAY0268 at binding; Screenplay#129/#209). Target: Arc [ProtectedDecision] with DecisionRead, or a Chronicle DCB. Requirements to test in the target: settling an unknown invoice is rejected; voiding a paid invoice is rejected; voiding an open invoice succeeds."
+      description "An invoice ends either settled or voided, never both (SettleOrVoid, enforced at append). NOT enforced in the model today: that the invoice exists and is still open (settling) and that only an open, unpaid invoice may be voided. Stated as `reads OpenInvoice` + `require` (PLAY0271/PLAY0268 at binding; Screenplay#129). Target: Arc [ProtectedDecision] with DecisionRead, or a Chronicle DCB. Requirements to test in the target: settling an unknown invoice is rejected; voiding a paid invoice is rejected; voiding an open invoice succeeds."
       command SettleInvoice
         invoiceId InvoiceId identifier
         reads OpenInvoice as invoice by invoiceId   // stated intent, unprotected (PLAY0271 at binding)

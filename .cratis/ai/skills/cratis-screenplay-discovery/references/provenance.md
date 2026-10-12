@@ -20,11 +20,10 @@ the `.trogonai/interviews/` trail file (replaced by bounded STATE.md); e-commerc
 Gherkin forms; the `total (calculated)` field example (contradicts the calculated-value rule);
 "capture every error condition as an event" (most failures are rejections).
 
-## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
-is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|
@@ -36,6 +35,8 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 | same: essential fields only, no padding, payload-free simple transitions (lines 159-160) | `SKILL.md` step 6, `references/storming-loop.md` | now adapted closely; identity, concepts and `@pii` rules kept |
 | same: handover from an outside party is a single moment, not a relocation | `SKILL.md` Modeling defaults | idea; our own wording kept |
 | `.claude/skills/eventmodeling-storyboarding-events/SKILL.md`: "whose turn is it in the story?" (consistent actor perspective) | `references/plotting-and-handoff.md` "Whose turn is it in the story?" | adapted closely; lanes, columns and screen placement not adopted |
+| `.claude/skills/eventmodeling-brainstorming-events/SKILL.md`: Domain Analysis document (roles, entities, processes, candidate events, rules, questions), "Questions for Domain Expert", "Best Practices for Requirements Analysis", quality checklist | `references/domain-analysis-template.md` | Adapted closely as an optional work record in `.ai-work/screenplay/`; roles use Does/Reads/Cannot, chapters, cells, swimlane rules and `meta.fields` dropped, "all error conditions have events" replaced by the refusal-versus-fact question |
+| `.claude/skills/eventmodeling-core-rules/SKILL.md`: Offline-First Thinking | `references/divergent-sweep.md` lens "Without software" | Promoted to a named lens; our own wording |
 
 Not adopted: board, chapter, column and `place-element` mechanics; the board API and `connect` skill.
 

@@ -3,8 +3,8 @@
 A `generated` command property and `returns` response bind and reference-execute
 as ESM v7 (checked at 4.68.0). Current pins:
 `cratis-screenplay-toolchain/references/versions.md`. CLI#261 is closed: CLI now admits v7
-to Stage planning. The historical CLI 3.41.0 v7 canonical corpus received Stage
-generated-value and response refusals STAGE-ESM-028/029. Do not turn this into a blanket compiler
+to Stage planning, and the 4.137.0 compiler in CLI 3.53.1 binds it. Stage 4.73.1 still refuses
+generated values and responses with STAGE-ESM-028/029 (Stage#175), as the historical CLI 3.41.0 corpus did. Do not turn this into a blanket compiler
 refusal or promise a render from binding alone. Preserve the contract for gap-fill
 where admission refuses. Historical rules below were read at 4.68.0. Complete compiled example:
 `cratis-screenplay-toolchain` `references/generated-responses-example.md`.

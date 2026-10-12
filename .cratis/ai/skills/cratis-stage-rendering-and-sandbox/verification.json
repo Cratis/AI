@@ -13,7 +13,7 @@
     { "kind": "skill-contains", "value": "means stop and reconcile" },
     { "kind": "skill-contains", "value": "STAGE-ESM-016" },
     { "kind": "skill-contains", "value": "**Render never builds, tests or runs**" },
-    { "kind": "skill-contains", "value": "Arc `22.50.5`" },
+    { "kind": "skill-contains", "value": "Arc 22.68.0" },
     { "kind": "skill-contains", "value": "`[ProtectedDecision]`" },
     { "kind": "skill-contains", "value": "`Customizations/`" },
     { "kind": "skill-contains", "value": "`Stage__Runtime__Engine=semantic`" },
@@ -23,7 +23,7 @@
     { "kind": "skill-contains", "value": "STAGE-ESM-024" },
     { "kind": "skill-contains", "value": "`v4.24.2`" },
     { "kind": "skill-contains", "value": "STAGE-ESM-026" },
-    { "kind": "skill-contains", "value": "Stage 4.24.2 admits ESM v4" },
+    { "kind": "skill-contains", "value": "Stage 4.24.2 admits ESM v4", "file": "references/admission.md" },
     { "kind": "skill-contains", "value": "`v4.24.2`" },
     { "kind": "skill-contains", "value": "Cratis/cli#253" },
     { "kind": "skill-contains", "value": "Silent fallback to a default screen is a failure" },
@@ -32,6 +32,11 @@
     { "kind": "skill-contains", "value": "references/case-tables-and-whole-numbers.md" },
     { "kind": "skill-contains", "value": "STAGE-CRATIS-004" },
     { "kind": "skill-contains", "value": "STAGE-ESM-031" },
-    { "kind": "skill-contains", "value": "Stage 4.52.0 renderer applies neither new rule" }
+    { "kind": "skill-contains", "value": "Stage 4.52.0 renderer applies neither new rule" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-037" },
+    { "kind": "skill-contains", "value": "`--scope <ADDRESS>`" },
+    { "kind": "skill-contains", "value": "`--check`" },
+    { "kind": "skill-contains", "value": "XML documentation comments" },
+    { "kind": "skill-contains", "value": "Do not split the modeled reaction", "file": "references/admission.md" }
   ]
 }

@@ -55,7 +55,7 @@ declares the same policies and persona with the one-line form.
 ## What a Cannot line becomes
 
 The persona block is report-only: Screenplay neither binds nor enforces it, and no rendered
-code contains it (`description` text is never rendered). Cannot text is intent, not
+code contains it (`description` text reaches generated code only as XML doc comments). Cannot text is intent, not
 protection. Discovery lists the candidates; each stays pending until a later phase resolves it
 into exactly one of these:
 
@@ -64,7 +64,7 @@ into exactly one of these:
    plus a `then denied` specification using `given caller as <Persona>` for a
    synthesized witness, or an explicit effective-gate caller (`cratis-screenplay-scenario-coverage`). Every command and query
    under an inherited module or feature `authorize` gets its own denial spec. Ownership
-   against a Uuid-backed identifier is not renderable today (STAGE-ESM-015): note it.
+   against a text, Uuid, Date or DateTime subject renders at Stage 4.73.1; other subjects are STAGE-ESM-015: note it.
 2. **Gap or target requirement.** The check depends on stored state ("only the requester may
    withdraw") or cannot be gated today. Record it as a gap with its target enforcement for
    `cratis-screenplay-streams-and-consistency`; it is not enforcement and not a passed denial.

@@ -26,17 +26,14 @@ source is the single flow model.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Original examples and executable boundaries |
-| `Cratis.Screenplay` | main `fd18129` | Inline events, repairs and canonical `optional`; changed examples compiled |
-| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Binding behaviour of `handler`, code attachments, `persona` and compliance attributes: `Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs` |
-| `Cratis.Screenplay` | `4.68.0` (`79801bf`) | Historical generated-value/response rule probes (ESM v7) |
-| `Cratis.Screenplay` (historical check) | `4.127.0` | Identity and compliance guidance checked at this release: released `identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`; changed examples compiled |
+Current pins: toolchain `references/versions.md`; the claims here were read at 4.139.0 and at
+the older tags below (provenance). Compilation checks syntax and
+model consistency, not reference execution.
 
-Historical examples/probes retain the table's original versions; current source
-guidance is not a relabeled old execution result. Compilation checks syntax and
-model consistency, not reference execution. Pins: toolchain `references/versions.md`.
+- `4.31.0`: original examples and executable boundaries; main `fd18129`: inline events, repairs, canonical `optional`.
+- `4.66.0` (`c89198b`): `handler`, code attachments, `persona` and compliance binding (`Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs`).
+- `4.68.0` (`79801bf`): generated-value/response rule probes (ESM v7).
+- `4.127.0`: identity and compliance guidance (`identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`).
 
 "Parses" and "runs" are different claims. The executable profile, and what
 each construct binds to, is in the `cratis-screenplay-model-authoring` language
@@ -173,7 +170,8 @@ When a rule depends on state:
 - otherwise state the rule, and say in review that the target implementation
   must enforce it consistently. Do not claim the model guarantees it.
 
-Do not use `reads` to fetch data the caller could supply.
+Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block is
+`PLAY0268` (#599; read-surface `references/named-keys.md`).
 
 ## `validate`
 
@@ -242,7 +240,7 @@ choosing or omitting `for` on a production, or fixing `PLAY0469`-`PLAY0478`.
   computed expressions parse but block binding (`PLAY0268`).
 - **`for <identifier>`** on an indented line names the event source the event is
   appended to. At most one per `produces`. To bind, it must name the command's
-  `identifier` property (`PLAY0273` otherwise); fanning out to another event
+  `identifier` property (`PLAY0273` otherwise; a `generated identifier` command, ESM v7, may name another required scalar property); fanning out to another event
   source parses but does not run today.
 - **`tag`** lines apply literal tags to this append. Tags also exist on the
   `event` declaration, where they apply to every append of that type.
@@ -341,7 +339,8 @@ constraint OneRegistrationPerInvoice
 hand-written Chronicle `IConstraint`, which can only declare uniqueness; it warns
 (`PLAY0396`) and the executable model rejects it. A state transition rule
 belongs in `validate`/`require`. Use a constraint when two concurrent appends must
-not both win — a `validate` rule cannot do that.
+not both win — a `validate` rule cannot do that. Stage renders only single-text-property and
+`unique event` constraints (`STAGE-ESM-014`; `cratis-stage-rendering-and-sandbox` `references/admission.md`).
 
 ## `policy` and `persona`
 

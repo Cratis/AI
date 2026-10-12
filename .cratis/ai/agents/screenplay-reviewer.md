@@ -52,4 +52,4 @@ First line: `Outcome: done | partial (...) | blocked (Qn) | out-of-scope (why)`.
 
 ## Lineage
 
-The business-question lens adapts the "what do you think" (wdyt) skill of agentic-engineer by Martin Dilger and Nebulit GmbH (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`; https://nebulit.de), used with their agreement.
+The business-question lens adapts the "what do you think" (wdyt) skill of agentic-engineer by Martin Dilger and Nebulit GmbH (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`; https://nebulit.de), used with their explicit consent.

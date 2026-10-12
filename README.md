@@ -349,11 +349,14 @@ whose description would not publish as release notes.
 
 The Screenplay event-modeling skills adapt material from
 [agentic-engineer](https://github.com/Nebulit-GmbH/agentic-engineer) by
-Martin Dilger and [Nebulit GmbH](https://nebulit.de), with their agreement,
-and from the MIT-licensed
+Martin Dilger and [Nebulit GmbH](https://nebulit.de), used with their explicit
+consent, and from the MIT-licensed
 [TrogonStack agentskills](https://github.com/TrogonStack/agentskills) by
-Straw Hat, LLC. Several Arc and Chronicle code skills and the Screenplay and
-slice agents also adapt agentic-engineer material. Event Modeling itself is the work of Adam Dymitruk; Martin
-Dilger's *Understanding Eventsourcing* shapes much of the method. Each skill's
-`references/provenance.md` lists exactly what it adapts, and its `LICENSE`
-carries the notices.
+Straw Hat, LLC. From agentic-engineer that includes the legacy and brownfield, discovery,
+slice design, streams, scenario coverage, review and lifecycle method skills, the diagram,
+read-surface, reactor, read-model specification and slice conformance delivery
+checklists, the delivery planning and estimation skill, and the Screenplay and slice agents,
+and several Arc, Chronicle and Screenplay skills. Event Modeling itself is the work of Adam
+Dymitruk; Martin Dilger's *Understanding Eventsourcing* shapes much of the method. Each
+skill's `references/provenance.md` lists exactly what it adapts, and its `LICENSE` carries
+the notices.

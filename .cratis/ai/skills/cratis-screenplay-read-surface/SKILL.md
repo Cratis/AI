@@ -150,7 +150,8 @@ pushing; without the marker a query is one-shot, which is the default and what
 most reads are. The marker qualifies only *how* the result arrives, so it composes
 with `[]`, `optional`, `by`, `filter`, `authorize` and a `performer`, and a screen binds
 to a live query exactly as it binds to a one-shot one. The delivery itself is the
-target runtime's: the executable model does not bind observable queries.
+target runtime's: the executable model binds `observable` queries (delivery `live`) that
+have no `filter`, `scoped to` or `performer`.
 
 Paging, sorting and change-set delivery for queries are accepted as Screenplay
 decision 0010 but **not in the language yet**. Do not invent syntax for them.
@@ -173,13 +174,14 @@ on the header line is a declaration error, not a shorthand.
 
 ### What runs
 
-In the Screenplay 4.66.0 executable model, only the keyed snapshot shape binds:
-`=> <ReadModel> optional` with one caller-supplied `by` argument and no `observable`,
-`filter`, `scoped to` or `performer`. Anything else, including `=> <ReadModel>`
-and `=> <ReadModel>[]`, reports `PLAY0268`. Its `authorize` gate runs before
+In the Screenplay 4.139.0 executable model (admitted since 4.105.0) these bind: a keyed
+`=> <ReadModel> optional` with one caller-supplied `by` argument, an unfiltered list
+`=> <ReadModel>[]`, a list narrowed by one caller-supplied `by` key, and the `observable`
+form of each. `filter`, `scoped to`, `performer`, `by ... from` and composite `by` report
+`PLAY0268`, as does a single non-optional `=> <ReadModel>`. Its `authorize` gate runs before
 the lookup, ANDed with module and feature gates; a denied caller gets
 `Unauthorized`. Pin that with a `given caller` fixture and `then denied` (see
-`cratis-screenplay-specifications`). Model the richer query shapes when the
+`cratis-screenplay-specifications`). Model `filter`, `scoped to` and `performer` shapes when the
 application needs them; just do not claim the reference runner exercised them.
 
 ## `screen` — three levels
@@ -192,8 +194,10 @@ commands and screens it names are declared elsewhere.
 ```screenplay excerpt
 screen InvoiceList
   data InvoiceListReadModel[] via query ListInvoices
-  action RegisterInvoice
-    navigate to RegisterInvoiceScreen
+  section registerInvoiceInput
+    title "Register invoice"
+    on click
+      navigate to RegisterInvoiceScreen
   action CancelInvoice
 ```
 
@@ -307,7 +311,11 @@ binding failures are errors.
 Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing a tool, checking versions, or assessing executable and renderable subsets. Where a construct sits in the
 method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
+Read [screen patterns](references/screen-patterns.md) when deciding whether a screen is an input, status or error-state screen and which `data` and `action` lines it needs.
+
 ## Route near misses
+
+Attribution and licences: `references/provenance.md`.
 
 - How events fill the read model: `cratis-screenplay-projections`.
 - Layouts, templates, forms, component bindings, toolbars, outlets, contributions, packages and themes: `cratis-screenplay-ui-composition`.

@@ -46,12 +46,17 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 - Warnings are failures here. PLAY0029 (a construct dropped silently) and the unresolved-name
   warnings are the defects this verdict exists to catch.
 - Syntax and consistency checks (PLAY0282 to PLAY0294) run; binding does not.
-- Report: `V1 pass (screenplay 4.66.0, 3 files)`, `V1 fail: PLAY0029 a.play:12 ...`.
+- Report: `V1 pass (screenplay 4.139.0, 3 files)`, `V1 fail: PLAY0029 a.play:12 ...`.
 
 ## V2: executable diagnostics
 
 Needs an MCP connection (V2 and V3 belong to the session that owns MCP; a subagent without
-MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh output).
+MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh output). Without
+MCP, a binding check exists: `cratis screenplay validate --executable <root>` binds with the
+**bundled** compiler (CLI 3.53.1 bundles Screenplay 4.137.0, not the standalone 4.139.0), never
+renders or writes files, and exits 5 with "The model does not bind into an executable semantic
+model" when it does not. Report it as `V3 (bundled 4.137.0 via cratis validate --executable)`; it
+gives binding errors, not the V2 `executable-diagnostics` view, so V2 stays MCP-only.
 
 1. Start the server with a fixed root: `screenplay mcp <model-folder>` or `cratis screenplay
    mcp` in a project with `.cratis/ai.json` (see `versions.md`, roots bug). Send
@@ -62,7 +67,7 @@ MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh o
    current `expectedRevision` (page with `offset`; paging beyond the first page needs the
    source revision).
 4. Report the codes with counts, blocking (error severity) apart from informational. A list
-   with blocking entries is a valid V2 result (`V2 read: 6 blocking, PLAY0268 x3 list query,
+   with blocking entries is a valid V2 result (`V2 read: 6 blocking, PLAY0268 x3 filter query,
    pii ...`); it is the evidence for a "V3 blocked" report. The view also lists
    information-severity diagnostics (PLAY0269 deferred UI, PLAY0270 authoring metadata such as
    descriptions, personas and screens) on models that bind; they do not block.
@@ -79,8 +84,8 @@ do not block. The ESM then binds (and `read-workspace view=executable-model` rep
 comparison needs it). Binding is what makes a model renderable at all. V3 means "binds",
 never "specifications pass".
 
-- Report the ESM version the model needs: `V3 ready (screenplay 4.68.0, ESM v6)`,
-  `V3 blocked: PLAY0268 x3 (list query, pii) - design scope kept`.
+- Report the ESM version the model needs: `V3 ready (screenplay 4.139.0, ESM v6)`,
+  `V3 blocked: PLAY0268 x3 (filter query, pii) - design scope kept`.
 - A blocked V3 is not repaired by deleting protection or domain rules. Never remove `pii`,
   `secret`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.
@@ -137,11 +142,11 @@ What Stage admits: `renderable-subset.md`.
 One line per verdict, tool and version first, evidence second:
 
 ```text
-V1 pass (screenplay 4.66.0, 3 files)
-V2 read (screenplay 4.66.0 via MCP): 0 blocking, 3 informational (PLAY0270)
-V3 ready (screenplay 4.66.0, ESM v3)
+V1 pass (screenplay 4.139.0, 3 files)
+V2 read (screenplay 4.139.0 via MCP): 0 blocking, 3 informational (PLAY0270)
+V3 ready (screenplay 4.139.0, ESM v3)
 V4 not run: no route
-V5 admission pass (cratis 3.28.3, Stage 4.24.2); publication written 14 files; build not run; tests not run
+V5 admission pass (cratis 3.53.1, Stage 4.73.1); publication written 14 files; build not run; tests not run (a sample line, not a result)
 ```
 
 Rules: a clean verdict never implies a later one; a verdict names the **source identity** it

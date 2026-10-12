@@ -43,7 +43,8 @@ or Screenplay 4.139.0.
    PLAY0029 (a misspelt keyword or a `type` inside a slice) drops a construct silently.
 3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for
    current language checks and reference specifications; `cratis` for rendering
-   and generation. Bundled and standalone versions differ. Report both tool and
+   and generation. Bundled and standalone versions differ (CLI 3.53.1 bundles 4.137.0;
+   the standalone pin is 4.139.0). Report both tool and
    version, rather than transferring a verdict across releases.
 4. **Know the mode** (design, executable, renderable) and write from its subset.
 5. **Capability is not correctness.** The tool you ran decides what is accepted today; the
@@ -64,7 +65,7 @@ or Screenplay 4.139.0.
 | | Standalone `screenplay` | `cratis screenplay ...` |
 | --- | --- | --- |
 | Check root | `screenplay <root> --warnaserror --no-color` | `cratis screenplay validate <root> --warnings-as-errors -o json-compact` |
-| Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | Discover installed validation options |
+| Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform` |
 | Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
 | MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
 | Render version boundary | Binder admission is not Stage admission | Pinned CLI (`versions.md`) passes through ESM v10 to Stage construct admission; bound newer models: `CLI-RENDER-004` |
@@ -85,12 +86,12 @@ Independent results, not a ladder. Read `references/verdicts.md` for the command
 | V4 | reference specifications run | `screenplay test` or MCP `run-specifications`; unsupported/unbound is not a pass; rendered Debug tests are V5.tests, never V4 |
 | V5 | rendered and target-verified | `cratis render`, then Debug build and tests; report admission, publication, build and tests separately |
 
-V2 and V3 need MCP: send `initialize`, then `notifications/initialized`, and start the
+V2 and V3 need MCP (V3 alone can also be read from `cratis screenplay validate --executable <root>`, labeled as the bundled compiler): send `initialize`, then `notifications/initialized`, and start the
 server with a fixed root when the tool is older than 4.63.2 (the roots bug hit 4.63.1 and the
 4.60.1 bundled by cratis before 3.28.2; 4.66.0 and later and cratis 3.28.2 are fine). A subagent without MCP reports "V2 not run: no MCP in this agent".
 
-One line per verdict, tool first, for example `V1 pass (screenplay 4.68.0, 3 files)` and
-`V3 blocked: PLAY0268 x3 (list query, pii)`. Name the source identity (commit plus the digest from
+One line per verdict, tool first, for example `V1 pass (screenplay 4.139.0, 3 files)` and
+`V3 blocked: PLAY0268 x3 (filter query, pii)`. Name the source identity (commit plus the digest from
 the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")) the verdict ran on; keep it apart from the MCP
 `modelRevision`, which is semantic and, without `.screenplay/identities.json`,
 changes with the root folder name.
@@ -99,15 +100,16 @@ changes with the root folder name.
 
 - **Design**: every construct family parses; use it to model first. Compiled shapes:
   `references/cheat-sheet.md`. Read [references/cheat-sheet-example.md](references/cheat-sheet-example.md) when you need one complete design-mode document with every construct family.
-- **Executable** (binds, V3): `references/executable-subset.md`. Keyed optional queries
-  only; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
+- **Executable** (binds, V3): `references/executable-subset.md`. Optional keyed lookups, unfiltered
+  lists and lists narrowed by one `by` key (observable too); `filter`, `scoped to`, `performer` and composite `by` do not bind; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); no compliance markers (`pii`/`secret`); v6 constructs bind on Screenplay 4.61 or
   later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
   from Screenplay 4.68.0 (also in the current CLI bundle) (`references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
-- **Renderable** (V5): `references/renderable-subset.md` retains explicitly labeled
-  older Stage probes. Current CLI admits v7 to planning, but its v7 corpus gets
-  Stage generated-value/response refusals `STAGE-ESM-028`/`029`, not a blanket
-  compiler refusal. Run admission before claiming a particular model renders.
+- **Renderable** (V5): `references/renderable-subset.md` has the current Stage 4.73.1 table and
+  explicitly labeled older probes. The CLI admits through v10 to Stage construct checks; generated
+  values and responses get `STAGE-ESM-028`/`029`, not a blanket compiler refusal. Run admission
+  before claiming a particular model renders (`cratis render --scope` for an admitted part, `--check`
+  for no-write planning).
 - **Event sources, streams and routes** bind as ESM v8 at 4.125.0.
   The pinned CLI/Stage pair (`references/versions.md`) reaches admission through v10, not blanket
   rendering. Operations and exact numeric source mode remain unadmitted.
@@ -183,7 +185,7 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
 11. Declare an event once, in its producing slice.
 12. Quoted `import "glob"` is your own files; unquoted `import Ctx.Event` is a foreign
     contract and does not bind.
-13. A handler never binds; `numbers exact` never binds; descriptions are never rendered.
+13. A handler never binds; `numbers exact` never binds; descriptions render only as XML doc comments, never as behavior.
 
 ## Gate
 

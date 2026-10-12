@@ -12,8 +12,8 @@
 - 8. Chain completion checkpoint
 - 9. Fan-out
 
-Complete compiled example: `todo-list-example.md` (binds on Screenplay 4.66.0; the list query
-and retry sweep that do not bind are shown there as marked excerpts).
+Complete compiled example: `todo-list-example.md` (binds on Screenplay 4.66.0 and later; the list query
+excerpt binds too, and the retry sweep that needs code is shown as a marked excerpt).
 
 ## 1. Deciding whether it is an automation
 Write the four parts in one line each:
@@ -44,12 +44,12 @@ Outcomes:
 - A projection that adds an item `from <OpeningFact>` and removes it with
   `remove with <ClosingFact>`. Several facts may open or close; they need not match one to one.
 - A keyed query (`…ById => Item optional` + `by itemId`) for specs and executable scope; a
-  list query for the visible queue (design-only: a list query reports PLAY0268 at binding on 4.66.0).
+  list query for the visible queue (`=> Item[]` binds since Screenplay 4.105.0; a snapshot list is refused by Stage, `STAGE-ESM-010`).
 - A reaction `when <OpeningFact>` that invokes the command producing the closing fact.
   The trigger may `reads` the item view to document its input; that is not protection.
 - A retry sweep on a clock reads the whole view (no `by` on clock reads). Iterating its items
-  declaratively (`for each <View>`) is reserved syntax; on Screenplay 4.66.0 the sweep needs a code body,
-  which the reference never runs. Durable fan-out is outside Screenplay 4.66.0 (Screenplay#286).
+  declaratively (`for each <View>`) is reserved syntax; at Screenplay 4.139.0 the sweep needs a code body,
+  which the reference never runs. Durable fan-out is outside the language (Screenplay#286).
 - Specify the list as a small story: empty -> item present (`then query …ById`) -> closed
   (`when append <Closing>` + `then no readmodel … for`), plus "not opened" for facts that
   must not queue work.

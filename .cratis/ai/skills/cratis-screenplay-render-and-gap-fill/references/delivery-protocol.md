@@ -1,5 +1,14 @@
 # Delivery protocol
 
+## Contents
+
+- 1. Inputs to collect before the first command
+- 2. Commands
+- 3. Reading results
+- 4. Customizations (bounded)
+- 5. Done check (before reporting)
+- 6. Stop and ask
+
 The render phase proves and publishes; it does not write business behaviour. Run one phase
 per tool call and read each result from its exit status, never from a grep of the log.
 
@@ -9,7 +18,8 @@ per tool call and read each result from its exit status, never from a grep of th
   identity"). A dirty flag is never a revision. Bind the whole run to it; if it changes, start over.
 - The **model root**. Use a dedicated folder: implementation attachments are read from it.
 - **Render inputs:** `--name` (application identity, required for plain source, a C# identifier),
-  `--project-name`, `--root-namespace`, `--target cratis`. Keep them identical across
+  `--project-name`, `--root-namespace`, `--target cratis`, and `--scope <Module[.Feature][.Slice]>` (repeatable) when
+  only an admitted part is delivered; record the scope list with the source identity. Keep them identical across
   re-renders; changing the name or target makes publication refuse as an identity change.
 - **Destination:** `.ai-work/screenplay/<model-slug>/render-probe/<App>` unless the user named another.
 - Which modeled screens, personas and seams exist (UI omission list, section 4).
@@ -19,6 +29,8 @@ per tool call and read each result from its exit status, never from a grep of th
 | Phase | Command | Result is |
 | --- | --- | --- |
 | Admission and publication | `cratis render <root> --name <App> --destination <dir> [--project-name <P>] [--root-namespace <N>] -o json` (forward every option recorded in section 1) | exit 0 published (receipt on stdout), 5 refused (diagnostics, nothing published), 1 missing input |
+| Drift or pending-change check | the same command plus `--check` (and `--scope`, `--force` as used) | no write, no recovery: exit 0 current, 6 `changes_pending`, 5 planning failure, refusal or pending recovery |
+| Bundled-binder check | `cratis screenplay validate --executable <root>` | exit 5 with "does not bind into an executable semantic model" when it does not; never renders or writes. Uses the bundled compiler (CLI 3.53.1 = Screenplay 4.137.0), not standalone 4.139.0 |
 | Debug build | `dotnet build <dir>/<Project>.csproj -c Debug` | the build's exit status |
 | Debug tests | `dotnet test <dir>/<Project>.csproj -c Debug --no-build` | the test runner's exit status plus per-test results |
 | List the generated classes | `dotnet test <dir>/<Project>.csproj -c Debug --no-build --list-tests` | the names to map to specifications |
@@ -38,7 +50,10 @@ file (for example `--logger "trx"` with a results directory under the probe fold
 - **Publication:** written, unchanged and removed counts, plus `recovered`. `refused` when a managed file
   was modified, an unmanaged file sits on a planned path, a modified stale file would be removed,
   or the manifest identity changed (`drift-and-ledger.md`). Ok means `recovered: false` and
-  `written + unchanged` equal to the artifact count.
+  `written + unchanged` equal to the artifact count (for a `--scope` render, the scope's artifacts: other
+  scopes' files are preserved and never counted; compare against the receipt's `owners`/`sources` for the
+  selected slices and the `orphaned` list). The receipt's `sources` (CLI 3.45.0 or later) map generated files back to
+  specifications and slices.
 - **Build:** Debug exit status. Classify each error location as `Customizations/`, managed or outside.
   An error in a managed file after a clean render is a renderer defect or an environment problem:
   report it, never patch the file.

@@ -17,7 +17,7 @@ adapted to `.play` declarations (`references/provenance.md`).
 ## When / when not
 - Use: P4 self-check; P5 independent review; auditing an existing or extracted model; reviewing a
   proposal or edit request before it is applied; checking a model before rendering; checking a
-  code diff in a repository with a model for model-first drift (checklist R1).
+  code diff in a repository with a model for model-first drift (checklist R1; `conform` is structural only).
 - Not for: changing the model (return findings; the modeler or the main session edits); writing
   missing specs (`cratis-screenplay-scenario-coverage`); designing slices
   (`cratis-screenplay-slice-design`); stream and invariant redesign
@@ -31,11 +31,10 @@ adapted to `.play` declarations (`references/provenance.md`).
 |---|---|---|
 | Screenplay | `v4.66.0` (`c89198b`) | MCP catalog (29 tools: `describe-application`, `search-declarations`, `dependencies`, `find-assertion-gaps`, `read-workspace`, `declaration-details`) in `Source/DotNET/Screenplay.Mcp/McpToolCatalog.cs`; diagnostics PLAY0029, PLAY0191, PLAY0268, PLAY0271, PLAY0350, PLAY0381, PLAY0469 in `Source/DotNET/Screenplay/Diagnostics/DiagnosticCodes.cs`; decision 0008 (one data subject per event) |
 | Screenplay | `v4.127.0` | `find-specification-obligations` (SPEC001–SPEC008 authored presence), `find-modeling-smells` (SMELL001–SMELL005 advisory questions); neither proves executed behavior or complete lineage |
-| Screenplay | `v4.131.0` | `semantic-diff` source objects and revision-pinned pages: `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolCatalog}.cs`, `Documentation/screenplay/mcp/reference.md`; previous CLI 3.46.1 predates these; see pin table below |
+| Screenplay | `v4.131.0` | `semantic-diff` source objects and revision-pinned pages: `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolCatalog}.cs`, `Documentation/screenplay/mcp/reference.md`; previous CLI 3.46.1 predates these |
 | cratis CLI | `v3.28.3` | bundles Screenplay 4.66.0 and Stage 4.24.2; see the toolchain skill |
 
-The full pin table lives in `cratis-screenplay-toolchain` `references/versions.md`; do not copy
-it here. Compilation (V1) does not establish reference execution.
+Historical sources; pins (v4.139.0: 39 tools): toolchain `references/versions.md`. Compilation (V1) does not establish reference execution.
 
 ## Interview phase
 Skip if the brief names the scope, the mode and the review kind.
@@ -65,7 +64,7 @@ model's behalf.
    `dependencies direction=incoming` for orphans. The verdict lines are independent: a V1 pass is
    necessary, never sufficient. Opt into completeness with `--check` or MCP
    `checks` for bindings, input surfaces, field origins, query keys, event consumers
-   and navigation; whole-source errors skip these checks. Record selected families,
+   navigation and personas (PLAY0574-0576); whole-source errors skip these. Record selected families,
    skipped status and coverage limits, never a vacuous pass. Any line without
    evidence is "not run: reason".
 3. **Element sweep** (phase 1, mechanical, before any judgement). One line per gated element, event,
@@ -255,10 +254,11 @@ verdict follows the rules in `references/report-template.md`.
 ## References (load on demand)
 - Review public leaks, direction, complete keys and effective routes with [public/key/route checks](references/public-keys-and-routes.md).
 - Read `references/checklist.md` when performing the element sweep and phased audit; it contains eleven phases, 89 checks, tiers and evidence sources.
-- Read `references/anti-patterns.md` when investigating an anti-pattern signal; it gives the signal, why it matters, tier and Screenplay fix.
-- Read `references/report-template.md` when classifying findings, deciding the verdict, writing the report or conducting a re-review; it defines report, severity and verdict rules.
-- Read `references/worked-example.md` when an example of the sweep, lineage or report is needed, or when checking the complete examples; it contains a seeded model, sweep notes, a filled report and the fixed model.
+- Read `references/anti-patterns.md` when investigating an anti-pattern signal.
+- Read `references/report-template.md` when classifying findings, deciding the verdict, writing the report or conducting a re-review.
+- Read `references/worked-example.md` when an example of the sweep, lineage or report is needed, or when checking the complete examples: seeded model, filled report, fixed model.
 - Read `references/review-questions.md` when gathering evidence for subject-specific checks or distinguishing facts from views; it contains questions per subject and domain examples.
+- Read `references/model-inventory-report.md` when asked for a read-only inventory of an existing model.
 - Read `references/business-questions.md` when conducting the business-question pass; it contains the explainer journey method, prompts and word translation.
 
 ## Lineage

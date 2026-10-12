@@ -15,15 +15,14 @@ Source: TrogonStack/agentskills at `7b249d3ee42d8b7e11fa564141ebd5fbc37aadf1`, M
 | same file, Quality Checklist and Gherkin Best Practices (explicit givens, explicit outcomes, named reasons), and its Workflow sections 1-5 (command, state validation, view, error path, compensation) | `SKILL.md` "Quality checklist", `references/scenario-examples.md` "Good and bad forms" and categories | Mapped onto `.play` specification style (exact events, pinned messages, `for`, one behavior per spec) |
 | same file, Scenario Organization (happy path, validation, state violation, duplicates, alternatives, error handling, compensation) | `references/scenario-catalogue.md` ordering, `references/scenario-examples.md` categories | Extended with denial, competing claim, ordering, evolution and view types |
 
-## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
-is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|
-| `.claude/skills/eventmodeling-elaborating-scenarios/SKILL.md`: Interview Phase, Workshop Facilitation Guide, Multi-Role Review, Common Workshop Mistakes, Tips for Rapid Creation | `SKILL.md` "Interview phase", `references/scenario-workshop.md` | Text shared with TrogonStack's version (rows above, MIT; rationale, "what if" capture and multi-role review passages are not Nebulit-only); the Nebulit file is recorded here for completeness. Time-boxes and per-command quotas still deliberately dropped |
+| `.claude/skills/eventmodeling-elaborating-scenarios/SKILL.md`: Interview Phase, Workshop Facilitation Guide, Multi-Role Review, Common Workshop Mistakes, Tips for Rapid Creation | `SKILL.md` "Interview phase", `references/scenario-workshop.md` | Text shared with TrogonStack's version (rows above, MIT; rationale, "what if" capture and multi-role review passages are not Nebulit-only); the Nebulit file is recorded here for completeness. Time-boxes and the three-to-five quota are kept only as optional pacing (`scenario-workshop.md` "Optional pacing"), subordinate to the coverage matrix |
 | same file: GWT vs. Storyline decision rule, Workflow 0 (decide per read model before drafting any payload; one reused schema may indicate a skipped judgment), todo lists as the prime storyline candidate, repeated event type as a driver | `SKILL.md` Procedure 5, `references/view-and-story-specs.md` "Worked family: a todo list" | Restored from #493 and adapted closely; storylines become lifecycle families of independent specs because Screenplay has no multi-step specification (Screenplay#394); storyline JSON, beats and layout dropped (board transport) |
 | same file: Scenario Types (seven questions, "not a good/bad pair", skip only for a domain reason) | `references/scenario-catalogue.md` | Idea; our own, broader catalogue kept |
 | same file: Quality Checklist (no command has only two scenarios; read models a separate, equally mandatory pass; why behind rules documented) | `SKILL.md` "Quality checklist" | Adapted closely; board posting and `expectEmptyList` items dropped |

@@ -2,7 +2,8 @@
 
 ## Contents
 
-- What Stage 4.24 admits
+- Current admission (Stage 4.73.1)
+- Historical: what Stage 4.24 admitted
 - Authoring consequences in renderable mode
 - Ownership, publication and recovery
 - Reading V5
@@ -30,12 +31,35 @@ render itself before claiming renderability: this table is a reading of the sour
 render result.
 
 Renderable is a strict subset of executable (`executable-subset.md`). Order of events in
-`cratis render`: the CLI binds the model with its **bundled Screenplay** (4.66.0 in cratis 3.28.2, so PLAY0268
-and friends appear first), then Stage admits or
-rejects members. An ESM v6 model binds but Stage refuses it whole with `STAGE-ESM-016`
-(probed on 3.28.2; an ESM v7 model with generated values or responses fails binding first on the bundled 4.66.0 with `PLAY0268`, and Stage 4.24.2 would refuse it with `STAGE-ESM-016` too, tracked in Stage#201; on before 3.28.2 it failed binding first, with PLAY0268).
+`cratis render`: the CLI binds the **whole** model with its **bundled Screenplay** (4.137.0 in cratis
+3.53.1, so PLAY0268 and friends appear first, even with `--scope`), then Stage admits or rejects
+members of the selected scope. (Historical, cratis 3.28.2: an ESM v6 model bound but Stage refused it
+whole with `STAGE-ESM-016`.)
 
-## What Stage 4.24 admits
+## Current admission (Stage 4.73.1)
+
+Read at Stage `v4.73.1` (`Documentation/guides/build-renderer-target.md`, `SemanticVersionFeatures.cs`,
+`SemanticCratisAdmission*.cs`) and cli `v3.53.1`; source reading, not a render run (the worked
+example in `cratis-screenplay-render-and-gap-fill` was probed). Stage admits ESM v1 to v10 by
+version; each construct it does not render refuses with its own code before any artifact is planned.
+
+| Area | Renders at 4.73.1 | Refused (code) |
+| --- | --- | --- |
+| Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`, every reaction, capture, application trigger and clock specification (`STAGE-ESM-001`/`-024`); a reaction that both produces and invokes (`-037`, Stage#207; Arc 22.72.0+ can run it, and the scaffold's Arc 22.68.0 needs a proven override; hand-write one reactor, never split the reaction) |
+| Queries | optional keyed snapshot lookups; observable collections, keyed or unkeyed (since 4.49.0) | a snapshot list: `STAGE-ESM-010`; `filter`, `scoped to`, `performer`, composite `by`: `PLAY0268` at binding |
+| Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false; Stage 4.73.1 `IsSupportedClaimPath`), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`; Stage 4.73.1 `IsTextualSubject`, a restriction separate from declarative claim targets) |
+| Event sources, streams, routes (ESM v8) | rendered, with routed specifications | reserved stored names, unformattable routed fixtures, unsupported routed replay (`STAGE-ESM-030`) |
+| Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
+| Generated values and responses (v7) | not rendered | `STAGE-ESM-028`/`-029` (Stage#175) |
+| Specifications | as in Stage's `admission.md` | `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims, `$context.occurred`-derived fixed values asserted (`-011`) |
+| v9 and v10 | reducer observer `from` filters | public events and event-target projections (`-032`); foreign origins and event-source captures (`-033`); directed Translate (`-024`); reaction `runsAs` (`-034`); reaction `from` filters (`-035`); per-production route overrides (`-036`) |
+| Evolved events | initial revisions only | `STAGE-ESM-026` (Stage#204) |
+| Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only (Stage#178 closed) | characters invalid in XML: `CLI-RENDER-005`; never behavior |
+
+Still bind-refused (not Stage): `reads` and `concurrency` (`PLAY0271`), command `handler`s, `pii`/`secret`
+(`PLAY0268`). Other rows of the table below that name 4.24 behavior are history.
+
+## Historical: what Stage 4.24 admitted
 
 Models using `eventsource`, `stream` or command routes are not renderable: they fail
 binding (`PLAY0268`) and Stage refuses their ESM version (`STAGE-ESM-016`); rendered
@@ -80,11 +104,14 @@ legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
   readmodel`). The seeded when-less `then query` only checks a lookup over a given read-model
   state; it proves no projection (Stage `SemanticSpecificationAdmission.Callers.cs`).
 - Use `$context.occurred` only; no `$context.identity.*` mappings.
-- A list is a design-only query and blocks binding, and so rendering, of the whole application on its own. A keyed `XById` sibling does not change that: while any list query remains, nothing in the model binds, runs or renders. Keep a list the domain needs and report the capability gap.
+- A list query binds (unfiltered, or narrowed by one `by` key); Stage 4.73.1 renders it only as an
+  `observable` collection, and refuses a snapshot list with `STAGE-ESM-010`. `filter`, `scoped to` and
+  `performer` queries block binding of the whole application. Keep a list the domain needs and report
+  the capability gap; marking it `observable` or keying it is a modeling decision for the user.
 - A `handler` (with or without `implementation` or `hint`) never binds; the slice is
   gap-fill, never "customized into" rendering.
-- Descriptions and documentation are never rendered (Stage#178): a rule that exists only in
-  prose is unenforced in rendered code.
+- Descriptions and documentation render only as XML doc comments (Stage#178 closed), never as
+  behavior: a rule that exists only in prose is unenforced in rendered code.
 
 ## Ownership, publication and recovery
 
@@ -104,8 +131,9 @@ legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
   `Customizations/styles.css`. The planner never reads it, and it never binds a modeled
   reaction or capture. A customization never makes a rejected model renderable.
 - `cratis render` does **not** build, test or run the application.
-- Stage 4.51.3's scaffold pins .NET 10, Arc 22.50.5, Chronicle client/kernel 19.32.0
-  and emits a `.frontend/` React/Vite app (Components 4.14.0, Scene 4.10.0).
+- Stage 4.73.1's scaffold pins .NET 10, Arc 22.68.0, Chronicle client/kernel 19.45.0
+  and emits a `.frontend/` React/Vite app (Components 4.26.2, Scene 4.21.0); these are not the latest
+  releases (`cratis-stage-rendering-and-sandbox` `references/rendered-application.md`).
   `CratisEmbeddedScreenplayEnabled=false`; `Directory.Packages.props` is managed,
   never edit it. `[ProtectedDecision]` / `DecisionRead<T>` are available to gap-fill,
   not Stage-emitted enforcement; projection/key admission and unit-of-work enrollment
@@ -117,7 +145,8 @@ V5 is four separate results (admission, publication, build, tests), plus runtime
 was exercised; formats and the Debug-only spec classes are in `verdicts.md`. Three cases
 stay distinct: admission failure (nothing rendered); an existing generated base plus
 separately authorized hand-written gap-fill; and a fully hand-written delivery. Never claim a
-whole-application V5 from a subset. Drift: compare successive `.cratis-render.json`
+whole-application V5 from a subset (`cratis render --scope` renders an admitted part; state the scope).
+Drift: `cratis render ... --check` (CLI 3.44.0+; exit 6 means pending changes), or compare successive `.cratis-render.json`
 `semanticRevision` values from renders with the same `--name` and inputs (see `versions.md`,
 "Revisions and descriptions"); not the MCP `modelRevision`, not `open-workspace.revision`.
 

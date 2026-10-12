@@ -9,7 +9,7 @@
 - Multi-role check (before leaving the room)
 - Common mistakes
 - Tips for rapid capture
-- Rules of thumb, deliberately different from the source guide
+- Optional pacing
 
 Use this when scenarios are written together with business people, developers and testers
 instead of by one author. The facilitation structure is adapted from the Workshop Facilitation
@@ -38,7 +38,7 @@ specification with that name exists in the model.
 - Outcome lists from discovery and slice design (Cannot lines, "only if" rules, refusals,
   competition candidates, endings) as seeds.
 - One card per command or view, with the twelve matrix columns as prompts. A timer per card is
-  optional; a card is finished when every column holds a value (see Rules of thumb), not when
+  optional; a card is finished when every column holds a value (see Optional pacing), not when
   the time is up.
 
 ## During: one command at a time
@@ -106,8 +106,16 @@ four approvals. Record who actually answered each question.
 - End with the open questions listed, owner and date, and the matrix saved as the workshop
   record.
 
-## Rules of thumb, deliberately different from the source guide
-The source guide time-boxes 15-20 minutes per command and aims at three to five scenarios per
-command. Neither is a rule here: a command with three rules, a gate, two constraints and a
-conditional production needs the scenarios its declarations create, and a quota would drop
-cases. Time-box the discussion, never the matrix; unfinished cells stay `open`.
+## Optional pacing
+A workshop that has to finish in a fixed time can use the source guide's pacing as a starting
+point, subordinate to the matrix:
+- About 15 to 20 minutes per command for the first pass, with a timer per card. A command with
+  few rules is quicker; one with several rules, a gate and constraints takes longer.
+- Three to five scenarios per command is a typical range for a simple command, not a quota.
+- Keep the rhythm of the "During" steps: capture, read back, move on. Parallel pairs take
+  different commands, then read back together.
+
+The matrix, not the clock, decides when a card is finished. A command with three rules, a gate,
+two constraints and a conditional production needs the scenarios its declarations create, and a
+quota would drop cases. Time-box the discussion, never the matrix; unfinished cells stay `open`
+and their owner and date go in the open-question list.

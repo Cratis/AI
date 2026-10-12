@@ -55,8 +55,10 @@ read from source or documentation.
 | 27 | decision index | `decisions/README.md` row 0020 shows stage `none` while v5 is implemented | the code: v5 `then no readmodel` binds |
 | 28 | `visualize-model` kind | the tool filters on the kind "Reactor" (`McpVisualization.cs:21`) although the construct is a Reaction; its added/removed summary never counts reactions (Screenplay#379, open) | the model, not the summary |
 | 29 | bodied reducers in Stage | cli `Documentation/reference/screenplay.md:38` says bodied reducers are unsupported (STAGE-ESM-019) | Stage 4.24 code admits pure allowlisted reducer bodies (`PureTransitionAdmission.cs`); trust the code |
-| 30 | `cratis screenplay validate <file>` | the command reads as a document validator | file mode ignores the file's imports and reports false unknown-name warnings (cli#244, open): validate the folder [probed] |
+| 30 | `cratis screenplay validate <file>` | the command reads as a document validator | file mode ignored the file's imports and reported false unknown-name warnings on CLI 3.28.2 (cli#244, closed by PR #258: later releases compile the file with its imports); validate the folder anyway [probed on 3.28.2] |
 | 31 | cli false PLAY0285 | `D/diagnostics.md:640` defines PLAY0285 as a contradiction against every possible producer | cratis before 3.28.2 reported it falsely on reaction cascades (cli#242); not reproduced on cratis 3.28.2 [probed] |
+| 32 | competing-claim specification | `D/constraints.md` says a specification "cannot yet show a collision between two event sources" | `D/specifications.md`: `for` on `given` events establishes a claim on one source and attempts the same value on another; the specification page and the tool decide (checked at v4.139.0) |
+| 33 | descriptions in rendered code | Stage `Documentation/reference/render-plans.md` says the cratis CLI does not yet call `WithAuthoringMetadata` | the CLI calls it since 3.51.0 (`CratisRenderTarget.cs`): descriptions and documentation render as XML doc comments; `CLI-RENDER-006` when skipped (checked at cli v3.53.1) |
 
 Rows 0 to 12, 14 to 21 and 23 were re-read at the v4.66.0 line numbers above; rows 14, 15,
 19, 20 and 23 are properties of the language rather than documentation defects and were

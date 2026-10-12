@@ -64,7 +64,7 @@ observed legacy check from verified atomic protection.
 Never accept the caller's copy of the state: `currentStatus Status` on the command with
 `require currentStatus == "approved"` protects nothing, and neither does a boolean attestation
 input (`confirmsX == true`) standing in for the rule. Never move the rule into `handler` or
-`implementation hint` prose; a description is not rendered (Stage#178), so prose alone leaves
+`implementation hint` prose; a description renders only as an XML doc comment (Stage#178), so prose alone leaves
 the rule unenforced in rendered scope.
 
 Right: write the rule as stated intent and mark it unenforced.
@@ -74,7 +74,7 @@ Right: write the rule as stated intent and mark it unenforced.
 - Slice `description`: one short marker per rule, `NOT enforced in the model today; target: <mechanism>`.
 - Slice fenced `documentation`, one block per rule:
   - Requirement: the business rule in business words.
-  - Status: NOT enforced in the model today (Screenplay#129, #209).
+  - Status: NOT enforced in the model today (Screenplay#129).
   - Decision inputs: the authoritative facts or state.
   - Missing guarantee: why the construct does not protect the decision.
   - Race consequence: what two individually plausible commands could jointly violate.
@@ -106,11 +106,11 @@ empty or `$eventSourceId`). Reducers, joins, children, nested sources and **even
 routing** (fan-in from many streams by a payload reference) are refused, and a concurrency scope
 on the referenced source does not see appends made on other sources. A rule over such a view, for
 example a course capacity computed from enrolment streams, needs option a or b: write the
-deciding fact on the source that owns the state, or give each scarce item its own identity. Sources: Arc `v22.50.5:Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md`;
+deciding fact on the source that owns the state, or give each scarce item its own identity. Sources: Arc `v22.72.0:Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md` (limits unchanged since v22.50.5);
 `chronicle-boundaries.md`.
 
-**Availability in Stage-rendered applications.** Stage v4.51.3 scaffolds Arc 22.50.5
-and Chronicle client/kernel 19.32.0. `[ProtectedDecision]` and `DecisionRead<T>` /
+**Availability in Stage-rendered applications.** Stage 4.73.1 scaffolds Arc 22.68.0
+and Chronicle client/kernel 19.45.0 (not the latest releases). `[ProtectedDecision]` and `DecisionRead<T>` /
 `IDecisionReads` exist in that package set; source checks are in
 `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`.
 This does not mean Stage emits protected decisions. Gap-fill must opt into the
@@ -119,7 +119,7 @@ read in the active unit of work. For refused shapes choose option a/b (state on
 its owning stream or one identity per scarce item), or agreed compensation c.
 Keep the rule **NOT enforced in the model today** with its race consequence.
 Never infer protection from `.play` `reads` + `require`, weaken the rule to render,
-or edit managed dependency files. Older Stage 4.24.x scaffolds predate these APIs.
+or edit managed dependency files. Older Stage 4.24.x scaffolds predate these APIs. Arc 22.72.0 and Chronicle 19.50.0 are the latest releases; the scaffold does not move with them.
 
 ## 4. Concurrency scenarios
 For each enforced or recorded rule write three short scenarios:
@@ -185,11 +185,12 @@ behaviour. Write the answer in the slice `documentation`.
   date views and rules use. Constraints and reactions still see record order.
 
 ## 10. Specification limits (no local spec engine)
-- A spec can show a source re-claiming its own value and a `unique event` violation. Whether
-  it can show a collision between two different sources is contested in the docs:
-  `constraints.md` says not yet, `specifications.md` says `for` on `given` events allows it. Treat
-  such a spec as parsed (V1), not proven; spec outcomes come only from a reference run (V4) or
-  rendered tests. See `cratis-screenplay-scenario-coverage`.
+- A spec can show a source re-claiming its own value, a `unique event` violation and a collision
+  between two different sources: `for` on `given` events (ESM v2) establishes a claim on one source
+  and attempts the same value on another (`specifications.md`; `streams-example.md` uses it). It is a
+  sequential history, not a race proof. The `constraints.md` sentence that it "cannot yet show a
+  collision between two event sources" is stale (`cratis-screenplay-toolchain` `references/doc-contradictions.md`).
+  Spec outcomes come only from a reference run (V4) or rendered tests. See `cratis-screenplay-scenario-coverage`.
 - Constraint violation messages are fixed strings: copy them exactly into `then error`.
 - For every value constraint write a competing-claim spec (one source owns the value, a
   different source attempts it) using `when <Command>` with the earlier fact as `given`.

@@ -73,6 +73,7 @@ at the phase where they belong and run the downstream gates for the changed scop
 | Existing system into a model (replaces P1-P2) | `cratis-screenplay-legacy-extraction` |
 | P7-P9 execute, render, fall back, verify | `cratis-screenplay-render-and-gap-fill` |
 | Tools, versions, verdict commands, diagnostics | `cratis-screenplay-toolchain` |
+| Estimate, order or split delivery of an accepted model | `cratis-screenplay-delivery-planning` |
 
 **4. Nine steps to phase skill.** [references/nine-steps.md](references/nine-steps.md)
 keeps the activities, Screenplay output and facilitation questions of each step:
@@ -107,9 +108,12 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
 - [ ] If the model must reach a runtime, check it binds with the tool that will
-      consume it. The standalone 4.68.0 binder admits Automation and Translate slices
-      (ESM v6) and generated values and responses (ESM v7); Stage 4.24.0 admits ESM v1 to v3 (4.24.2: v1 to v4, evolved events refused with `STAGE-ESM-026`) and renders only `StateChange` and
-      `StateView` slices, so automations and translations are gap-fill there.
+      consume it. Current pins: `cratis-screenplay-toolchain` `references/versions.md`. Stage 4.73.1
+      (in CLI 3.53.1) admits ESM v1 to v10 by version and renders `StateChange` and `StateView`
+      slices; reactions, captures, Automation and Translate, and the v7+ constructs in Stage's
+      admission table refuse with their own `STAGE-ESM-*` code, so those scopes are gap-fill with
+      the model as the contract. A reaction that produces events and invokes commands is refused
+      (`STAGE-ESM-037`) although Arc 22.72.0 and later can run it (the Stage scaffold's Arc 22.68.0 needs a proven override): hand-write it as one reactor, never split the modeled reaction.
 
 ## Parsed is not runnable
 
@@ -124,10 +128,9 @@ The independent verdicts V1 to V5 that report them are in
 
 What binds depends on **which tool** you ask, so name the tool and its version:
 
-- `Automation` and `Translate` slices, reactions, captures and triggers: the
-  standalone `screenplay` 4.66.0 or later and the `cratis` 3.28.2 bundle (4.66.0) bind them (ESM v6).
-  The `cratis` 3.27.1 bundle (Screenplay 4.60.1) reported *Slice '<name>' of type '<type>'
-  is not admitted by ESM v1.* Stage 4.24.2 admits only ESM v1 to v4 and renders none of them.
+- `Automation` and `Translate` slices, reactions, captures and triggers bind (ESM v6) on the
+  standalone tool and the CLI bundle. (Historical: the cratis 3.27.1 bundle, Screenplay 4.60.1,
+  reported *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage 4.73.1 renders none of them.
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
@@ -135,11 +138,12 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   concepts do block binding (`PLAY0268`). Keep them anyway: the classification is
   part of the model. Report the block.
 - Generated values/responses bind and reference-execute as v7; sources, streams
-  and command/specification routes as v8; reaction `runs as` identity as v10 on
-  standalone 4.125.0. Use `screenplay test` or MCP `run-specifications` for V4.
-  Operations/systems, exact numbers and refusal/redelivery remain unadmitted.
-  Historical CLI 3.41.0 rejected `runs as` syntax and its Stage 4.51.3 check
-  refused generated values/responses with STAGE-ESM-028/029. For the pinned CLI/Stage pair
+  and command/specification routes as v8; reaction `runs as` identity as v10;
+  qualifying Double literals lower exactly as v11 and non-positional enum numbers
+  as v12. Use `screenplay test` or MCP `run-specifications` for V4.
+  Operations/systems, the `numbers exact` **source mode** (PLAY0268) and
+  refusal/redelivery remain unadmitted. Stage still refuses generated values and
+  responses (`STAGE-ESM-028`/`029`). For the pinned CLI/Stage pair
   (`cratis-screenplay-toolchain/references/versions.md`), v10 reaches construct
   admission, not full support.
   Source/binding admission and target realization are separate gates.
@@ -167,21 +171,17 @@ source is the single flow model.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Compiler: parser, validator, diagnostics, folder merge, semantic binder |
-| `Cratis.Screenplay.Tool` | `4.31.0` | The `screenplay` dotnet tool |
-| `Cratis.Screenplay` | main `fd18129` | Inline contracts and event context; changed nine-step examples compiled |
-| `Cratis.Screenplay.Tool` | `4.68.0` (`79801bf`) | Checked at 4.68.0 (current pins in `cratis-screenplay-toolchain` `references/versions.md`): the nine-step examples compile and their specifications run in the reference runner; generated values and responses (ESM v7) were read at this tag |
-| `Cratis.Screenplay.Tool` | `4.66.0` (`c89198b`) | Persona, operation and stream dispositions below were read at this tag, and the Step 7 clock example was probed through MCP on it |
+Current pins and which tool reports what live only in `cratis-screenplay-toolchain`
+`references/versions.md`; read it before choosing a tool or reporting a version-dependent verdict.
+The nine-step examples compile with the standalone compiler 4.139.0 and their specifications run
+in the reference runner (compilation does not establish reference execution).
 
-The pin set for the whole Screenplay family, and which tool reports what, lives only in
-`cratis-screenplay-toolchain` `references/versions.md`. Read `cratis-screenplay-toolchain`'s `references/versions.md` before choosing a tool or reporting a version-dependent verdict. The `fd18129` update follows
-`commands.md`, `events.md` and decision 0023 at that main commit (after v4.52.0);
-compilation does not establish reference execution. The original baseline was checked at
-tag `v4.31.0` (commit `355dffb`): `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
-`projections/keys.md`, and decisions 0001 to 0014. Changed [nine-step examples](references/nine-steps.md)
-use the newer commit and the 4.66.0 and 4.68.0 tools; do not attribute them to the old tag.
+Historical provenance (not current pins): the original baseline was read at Screenplay tag
+`v4.31.0` (commit `355dffb`: `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
+`projections/keys.md`, decisions 0001 to 0014); the inline-contract and event-context changes
+follow `commands.md`, `events.md` and decision 0023 at main `fd18129` (after v4.52.0); persona,
+operation and stream dispositions were read at `v4.66.0` (`c89198b`) and generated values and
+responses at `v4.68.0`.
 
 Read [references/slice-type-rules.md](references/slice-type-rules.md) when deciding if a behavior is an Automation or a Translate slice.
 
@@ -232,7 +232,7 @@ compile or will not be safe. Both are deliberate.
 - **A command may read state.** The generic method forbids `ReadModel -> Command`
   edges. Screenplay ships `reads <ReadModel> [as <alias>] [by <property>]` so the
   model shows what a state-dependent decision consulted. **It is not a protected
-  read at Screenplay 4.68.0:** nothing checks at append time that the state is still current,
+  at Screenplay 4.139.0 (Screenplay#129 open):** nothing checks at append time that the state is still current,
   the executable model rejects `reads` and `concurrency` (`PLAY0271`), and adding
   `concurrency` does not make the decision safe (decision 0003, Screenplay #129).
   Write a state-dependent rule as `reads <View>` plus `require <expr> message "..."`

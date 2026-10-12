@@ -59,7 +59,7 @@ See "Effect guarantees and recovery traps" in SKILL.md.
 - A capture spec does not acknowledge the source or store a new last-seen record; prefix
   facts that were accepted do not mean the record was processed (Screenplay `captures.md`).
   Record how the target acknowledges.
-- Delivery guarantees, acknowledgements and durable fan-out are outside Screenplay 4.66.0 (Screenplay#286);
+- Delivery guarantees, acknowledgements and durable fan-out are outside the language (Screenplay#286);
   never describe them as provided.
 
 ## Projection lag and rebuild

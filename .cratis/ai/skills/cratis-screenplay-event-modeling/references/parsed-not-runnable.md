@@ -1,8 +1,9 @@
 # Parsed is not runnable: ESM versions and dispositions
 
-Checked at Screenplay v4.125.0: `SemanticModelBinder.cs`, `Versions.cs`,
-`Documentation/screenplay/{commands,operations,event-sources,reactions,tool}.md`.
-The binder selects v8 for event routes and v10 for declared reaction identity.
+Checked at Screenplay v4.139.0: `SemanticModelBinder.cs`, `Versions.cs`,
+`Documentation/screenplay/{commands,operations,event-sources,reactions,tool,interoperability}.md`.
+The binder selects v8 for event routes, v10 for declared reaction identity, v11 for retained
+exact-lowered Double-mode literals and v12 for non-positional enum numbers.
 Pins and consumer boundaries: toolchain `references/versions.md`.
 
 ## Which ESM version a model needs
@@ -14,12 +15,14 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 - v7 for generated command values, responses, fixtures/return assertions and policy negation.
 - v8 for sources/streams and command/specification routes.
 - v9 for public-event contracts; v10 for reaction `runs as system` identity.
-- Operations/systems, exact numeric mode and refusal/redelivery remain unadmitted
-  (PLAY0268). Version allocation is not inferred from an older planning decision.
+- v11 for exact lowering of qualifying Double-mode number literals; v12 for non-positional
+  enum member numbers (`cratis-screenplay-command-surface` `references/enum-numbers.md`).
+- Operations/systems, the exact numeric **source mode** (`numbers exact`) and refusal/redelivery
+  remain unadmitted (PLAY0268). Version allocation is not inferred from an older planning decision.
 
 ## Dispositions to keep apart
 
-| Construct | Standalone disposition (checked at v4.125.0) |
+| Construct | Standalone disposition (checked at v4.125.0; v4.139.0 unchanged for these rows) |
 | --- | --- |
 | `persona`, domain/authentication metadata | Report-only; unknown named policies remain source defects |
 | Compliance concepts | Bare `pii`/`secret` (4.127.0); binding still refuses PLAY0268, never remove protection |
@@ -27,10 +30,10 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 | Composite stream ids | v8 routing; complete named parts/canonical comparisons, PLAY0515 refuses protected keys/sources; not a legacy text split |
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
-| Generated values/responses | v7 binding/reference execution; historical Stage 4.51.3 check: member refusals STAGE-ESM-028/029 |
+| Generated values/responses | v7 binding/reference execution; Stage 4.73.1 member refusals STAGE-ESM-028/029 |
 | Sources/streams and command/specification routes | v8 binding/reference execution; the pinned CLI (toolchain `references/versions.md`) reaches Stage checks through v10 |
 | Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage planner refuses v10 |
-| Operations/systems, exact numbers, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
+| Operations/systems, `numbers exact` source mode, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
 | UI | Authoring/deferred metadata; runtime support is a separate consumer contract |
 
 Run standalone `screenplay test` or MCP `run-specifications` for V4. Compile
@@ -42,7 +45,7 @@ and captures-and-reactions `references/invocation-identity.md`.
 ## The Step 7 clock example
 
 The complete example in [nine-steps.md](nine-steps.md) (Step 7) had historical
-4.66.0 compile/binding evidence (zero errors/warnings, executableReady true).
+4.66.0 compile/binding evidence (re-compiled at 4.139.0) (zero errors/warnings, executableReady true).
 Its invokes-only reads still record intent rather than execute the overdue
 selection. Run its admitted specifications with the current reference route
 before claiming a V4 pass; no overdue-selection proof follows from binding.

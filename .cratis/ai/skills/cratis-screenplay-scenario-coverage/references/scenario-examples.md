@@ -12,8 +12,8 @@
 
 Compact examples for each scenario category, in one invoicing domain so the shapes compare
 easily. Every excerpt below is copied verbatim from the complete document in
-`invoicing-dues-example.md`, which compiles with warnings as errors and whose 21 specifications
-pass in the reference evaluator; it also holds the declarations the excerpts depend on. The two
+`invoicing-dues-example.md`, which compiles with warnings as errors and whose 23 specifications
+pass in the reference evaluator (standalone 4.139.0); it also holds the declarations the excerpts depend on. The two
 compensation excerpts in section 4 come from `invoicing-dues-design.md` instead: that document
 holds the stored-state rules (`reads` + `require`), compiles but does not bind (PLAY0271,
 PLAY0268), so its specifications are design mode and do not run. A second
@@ -207,4 +207,4 @@ specification MemberCreditAccumulatesTopUps
 A list query asserts one `result` block per expected row (count and order are exact), and the
 empty-list intent is a separate claim from a keyed row being absent (`view-and-story-specs.md`
 "Removal is a positive obligation"). The backing example proves the keyed forms only; whole-list
-queries stay design-mode expectations and are recorded as such in the coverage matrix.
+queries are executable too (`ListOpenInvoices` in the backing example); only `filter`, `scoped to` and `performer` queries stay design-mode expectations recorded in the coverage matrix.

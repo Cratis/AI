@@ -24,9 +24,9 @@ language cannot express today are recorded, not faked. Grammar and outcome compa
   `cratis-specification-by-example`); a full audit (`cratis-screenplay-model-review`).
 
 ## Verified product sources
-Screenplay v4.66.0 (`c89198b`) and v4.68.0 (`79801bf`, ESM v7 fixtures and `then returns`):
-`Documentation/screenplay/specifications.md` and the standalone compiler; `cratis` 3.28.2 and
-3.28.3 bundle Screenplay 4.66.0 (before 3.28.2 it bundled 4.60.1). The full pin table and the probes are in
+Screenplay v4.66.0 (`c89198b`) and v4.68.0 (`79801bf`, ESM v7 fixtures and `then returns`) were the
+original sources; released behavior was re-read at v4.139.0 (`Documentation/screenplay/specifications.md`,
+`queries.md`, the standalone compiler). Current pins, the bundle and the probes are in
 `cratis-screenplay-toolchain` `references/versions.md`. At Screenplay v4.127.0,
 MCP `find-specification-obligations` derives SPEC001–SPEC008 from declarations;
 met means matching authored presence, not full coverage or passing execution.
@@ -84,7 +84,7 @@ question is not four approvals.
    row), absence, ordering. Mark lifecycle branches as branches.
 9. **State-dependent rules**: `reads <View>` + `require <expr> message "..."` as stated intent,
    marked **NOT enforced in the model today** in the slice `description` (binding reports
-   PLAY0268/0271: expected in design mode; Screenplay#129/#209), target named (Arc
+   PLAY0268/0271: expected in design mode; Screenplay#129), target named (Arc
    `[ProtectedDecision]` + `DecisionRead<T>`, Chronicle DCB, or a constraint). Forbidden:
    caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX ==
    true`) and rules hidden in `handler`/hint prose. Never drop an unresolved given or assertion
@@ -187,6 +187,7 @@ production route failure, matching/wrong source/stream and unrouted facts;
 see toolchain `references/production-routes-and-filters.md`.
 
 ## Version skew: reaction cascades and false PLAY0285
+(History: the 3.53.1 bundle carries Screenplay 4.137.0, so this skew no longer applies to it.)
 Under ESM v6 a command spec's `then` lists the events reactions cascade from it. The compiler
 bundled in `cratis` before 3.28.2 (Screenplay 4.60.1) reported a **false PLAY0285** for such
 a spec (cli#242); the standalone `screenplay` 4.66.0 and `cratis` 3.28.2 accept it (probed).
