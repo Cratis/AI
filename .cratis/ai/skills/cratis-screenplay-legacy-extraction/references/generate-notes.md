@@ -7,6 +7,7 @@
 - Coverage (what a provider reads)
 - Diagnostics are the loss list
 - Arc recovery and authoring-only options
+- Arc 22.76.0 enum and response recovery
 - Arc 22.70.0 compliance recovery
 - Generated-document self-check on compiler upgrades
 - Reading the output cheaply
@@ -123,6 +124,34 @@ Handler/reaction bodies, unresolved conditions and unproven origins still need
 source review. Do not infer generation/evolution/absence-assertion coverage from
 a package upgrade; read diagnostics and reconcile each recovered scenario.
 
+## Arc 22.76.0 enum and response recovery
+
+Source-verified at Arc `v22.76.0:Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`,
+`Analysis/Types/{ConceptRegistry,FlagsEnumUses}.cs`, `Analysis/EnumConstants.cs`,
+`Analysis/Specifications/SpecificationReturnValues.cs`, and
+`Documentation/backend/csharp/generating-a-screenplay.md`. Arc 22.76.0 takes
+Screenplay 4.139.0, not 4.141.0. The CLI bundles an older generator; see the
+central toolchain `references/versions.md` rather than assuming parity.
+
+Every enum member now emits its stored integer, including positional members.
+Sparse, negative and reordered values preserve identity when representable as int32
+and permitted by `MaximumExecutableModelVersion` (non-positional values need v12).
+SP0068 warns when numbers fall back together to positions because of the range or
+cap, and on dropped emitted-name collisions: do not treat that output as preserving
+stored identity. SP0069 reports aliases sharing a number; the ordinal-first member
+used by scenario constant resolution is kept. SP0067 reports `[Flags]` enums with
+unnamed combinations and names the property uses; named members still emit, but
+unnamed combinations cannot become scenario values. Read every warning as a loss.
+
+Since 22.75.2, `result!` and `in` arguments remain reads for recovered `then returns`.
+Writes through any member/element of the executed result (assignment, increment,
+decrement, `ref`/`out`, including null-conditional chains) or aliases of the result
+or non-string reference values reached through it withhold the response assertion.
+This includes variables/fields/initializers, foreach/pattern variables,
+returned/yielded/lambda values and conditional/coalescing/tuple/collection flows.
+Mutation through ordinary method calls is not analyzed. Inspect reported scenarios;
+never infer a response contract from a post-execution mutation.
+
 ## Arc 22.70.0 compliance recovery
 
 A concept with both `[Encrypted]` and `[NotAudited]` becomes `secret`.
@@ -136,8 +165,9 @@ without adding `secret`; an existing `pii` classification remains.
   `namespace` scope: the document instead implies Subject scope. Global behaves
   the same way. Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI
   adapter option `--authoring-only-constructs`) to emit `secret scope namespace`
-  or `secret scope global` in the concept body. Scope is syntax-only and does
-  not raise the ESM version; it does not make protected concepts executable.
+  or `secret scope global` in the concept body. This was syntax-only on that
+  compiler; standalone 4.141.0 instead admits concept compliance as ESM v13.
+  That upgrade does not change the older generator or CLI bundle.
 - A concept also marked `[PII]` becomes `pii secret`, with no emitted scope:
   the C# providers render only `[PII]`; Chronicle rejects `[PII]` combined with
   `[Encrypted]`. Do not add a scope the provider ignores.

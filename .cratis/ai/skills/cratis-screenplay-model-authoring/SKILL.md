@@ -21,8 +21,9 @@ same model root or workspace export to all checks. Workflow:
 
 ## Verified product sources
 
-Current authoring/MCP guidance follows Screenplay v4.139.0
-`Documentation/screenplay/mcp/`, `ast-authoring.md`, `folders.md`, `vscode.md`.
+Screenplay v4.141.0: planner in `references/property-links.md`;
+compliance in command-surface `references/compliance.md`. Other MCP evidence:
+v4.139.0 `Documentation/screenplay/mcp/`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
 Historical probes remain 4.66.0; registration example compilation/execution
@@ -295,7 +296,8 @@ that the code compiles or behaves. Read `references/mcp-tools.md#code-attachment
   clean run is not a bound or executable result.
 - Operations/`numbers exact` remain unadmitted; routes bind as v8, public
   boundaries v9, identity/overrides/filters v10, qualifying non-route Double
-  literals v11, non-positional enum numbers v12 (standalone 4.139.0).
+  literals v11, enum numbers v12, compliance v13 (4.141.0;
+  limits: command-surface `references/compliance.md`).
   CLI 3.53.1/Stage 4.73.1 bundle 4.137.0 and do not admit v12. Never drop or stub source contracts to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.

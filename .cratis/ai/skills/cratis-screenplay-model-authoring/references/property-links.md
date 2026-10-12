@@ -7,11 +7,13 @@
 
 - Address and query
 - Read evidence, not just a count
+- Propose a property change (4.140.0)
 
 Screenplay 4.138.0 released property-path evidence in `find-references` and
 `dependencies`; this guidance was checked against 4.139.0. Discover installed
 `tools/list`: CLI 3.53.1's 4.137.0 bundle predates it. These are read-only
-inspection tools, not a property-change planner.
+inspection tools. Standalone 4.140.0 adds the separate `propose-property` planner
+below; the CLI bundle has neither capability.
 
 ## Address and query
 
@@ -122,5 +124,42 @@ needs a persisted-contract evolution decision; the catalog is not storage eviden
 
 Source/output authority: `v4.139.0:Documentation/screenplay/mcp/reference.md`
 (property links), `Source/DotNET/Screenplay.Mcp/McpPropertyDependencies.cs`,
-`McpToolSchemas.cs`, and decision 0044's released prerequisite index. The planner
-phases in that decision are not release evidence.
+`McpToolSchemas.cs`, and decision 0044's released prerequisite index. The planner's release evidence is separate below.
+
+## Propose a property change (4.140.0)
+
+Read the target property handle with `read-ast`, then call `propose-property`
+with `expectedRevision`, `expectedCatalogRevision`, `action: "rename"|"remove"`,
+`target` and `expectedName`. Rename also needs `newName`. Optional `alsoRename`
+or `alsoRemove` entries are `{ "target": <handle>, "expectedName": <name> }`.
+Select only intended command, current-event and non-key read-model properties:
+chain membership establishes eligibility, not permission to edit every field.
+Off-chain selections refuse atomically. Historical generations, inline events,
+keys, opaque or incomplete links and unsupported spans refuse rather than guess.
+
+Rename repairs proven references and fixtures. Renaming only a command input
+keeps the event payload name; broken AutoMap links become explicit mappings.
+Removal refuses while readers remain. Removed expected values disclose
+`weakensAssertion: true`; when inherited `then` steps cannot be determined, removal
+refuses `AmbiguousPropertyReference`, not a false assertion-preservation verdict.
+Unrelated same-named fields appear in `property.notChanged`.
+
+For any selected event property, choose exactly one mode: `newGeneration: true`
+appends N+1 and preserves history; `eventNeverPersisted: true` edits current N in
+place and requires actual knowledge that it was never stored. Neither flag selects
+additional events. New generations require transformations before Chronicle deployment.
+
+Default validation is `Authoring` (optional `Executable`), formatting
+`PreserveTrivia`, reference policy always `Safe`. Structural changes require
+explicit `CanonicalizeTouchedDocuments` consent. Inspect retained `read-proposal`
+and `view: "semantic-diff"` before `apply`; only apply writes source and identities.
+Review `property.generations`, always an array ordered by canonical event address,
+with one entry per selected event: `event`, `from`, `to`, `mode`. In-place edits
+have equal revisions. `[]` means no accepted planned event edits, not success;
+there is no singular `property.generation`. `deployableWithoutTransformation`
+and `esmVersionKnown` are independent of authoring acceptance.
+
+Authority: Screenplay `v4.140.0:Source/DotNET/Screenplay.Mcp/McpWorkspaces.Property.cs`,
+`Screenplay/Workspaces/WorkspaceProperty{Request,Plan,Safety,Report}.cs`,
+`WorkspacePropertyAssertionProvenance.cs`, `WorkspaceEventGenerations.cs`, and
+`Documentation/screenplay/mcp/authoring-tools.md`; decision 0067.

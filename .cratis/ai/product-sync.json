@@ -62,7 +62,7 @@
         }
       ],
       "synced": {
-        "version": "22.75.0",
+        "version": "22.76.0",
         "date": "2026-10-12",
         "by": "Cratis/AI#620"
       },
@@ -165,9 +165,9 @@
         }
       ],
       "synced": {
-        "version": "4.139.0",
-        "date": "2026-10-11",
-        "by": "Cratis/AI#611"
+        "version": "4.141.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
       },
       "covers": {
         "skills": [
@@ -275,7 +275,7 @@
         }
       ],
       "synced": {
-        "version": "19.50.1",
+        "version": "19.51.0",
         "date": "2026-10-12",
         "by": "Cratis/AI#620"
       },

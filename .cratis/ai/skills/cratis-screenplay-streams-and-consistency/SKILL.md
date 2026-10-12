@@ -156,8 +156,10 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
   block compiles but is PLAY0271 at binding. Keep both when they state real intent; they are not
   protection. `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
-- `pii` and `secret` block binding (PLAY0268); legacy markers are deprecated
-  (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
+- `pii` and `secret` bind as ESM v13 on standalone 4.141.0, not the pinned CLI;
+  enum/identity compliance and protected events with explicit subject marks still
+  refuse PLAY0268 (command-surface `references/compliance.md`). Legacy markers are
+  deprecated (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
   scalar/composite stream-id types and route mapping sources, including nested paths.
 - At 4.127.0 stream-id literals must be nonempty, well-formed NFC text (refused,
   not normalized); integer ids in Double mode stay within ±(2^53−1). Exact mode

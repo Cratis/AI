@@ -17,7 +17,7 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.139.0** (`dcd84574`) | Released tag `v4.139.0` and its unchanged published contract; enum numbers/ESM v12 and property references |
+| Screenplay language, standalone tool and MCP | **4.141.0** (`8ce785e3`) | Released tag `v4.141.0` and its unchanged published contract; concept compliance/ESM v13 and the property-change planner |
 | cratis CLI | **3.53.1** | Released tag `v3.53.1`; source-checked, not a new render/browser probe |
 | Screenplay bundled by CLI | **4.137.0** | CLI `v3.53.1:Directory.Packages.props`; enum-number authoring, not v12 binding |
 | Stage bundled by CLI | **4.73.1** | Same file; Stage's own `Directory.Packages.props` also pins Screenplay 4.137.0 |
@@ -25,7 +25,7 @@ probe; older probes retain their original labels in the other references.
 | Screenplay.Generation / CritterStack / Prologue bundled by CLI | **0.18.0 / 0.24.0 / 2.0.0** | CLI `v3.53.1:Directory.Packages.props`. Latest released: Generation 0.18.1, CritterStack 0.26.0, Prologue 2.0.0 (no release after 2.0.0); the newer Generation and CritterStack releases are not in a cli |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
-| Latest Arc / Chronicle / Fundamentals released when this was checked | **22.72.0 / 19.50.0 / 7.23.0** | Released tags; newer than the CLI bundle and than Stage's scaffold. Arc 22.72.0 and later run a reactor returning events and commands (absent through 22.71.0); the Stage 4.73.1 scaffold pins Arc 22.68.0, whose command handler accepts a collection only when every element is a command, so a rendered app needs a proven dependency override to 22.72.0 or later |
+| Latest Arc / Chronicle / Fundamentals released when this was checked | **22.76.0 / 19.51.0 / 7.23.0** | Released tags; newer than the CLI bundle and than Stage's scaffold. Arc 22.72.0 and later run a reactor returning events and commands (absent through 22.71.0); the Stage 4.73.1 scaffold pins Arc 22.68.0, whose command handler accepts a collection only when every element is a command, so a rendered app needs a proven dependency override to 22.72.0 or later |
 | Stage 4.73.1 rendered backend and frontend | **Arc 22.68.0 / Chronicle 19.45.0**; `@cratis/components` 4.26.2, `@cratis/scene.*` 4.21.0, `@cratis/arc` 22.58.2, Fundamentals 7.22.8 | Stage `v4.73.1:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs` and `CratisFrontendPackageSet.cs` (`Current`); not the latest releases and not bumped by hand |
 | Historical Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
 
@@ -53,7 +53,7 @@ or renderer probes below as results from the newer bundle.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.139.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
+Standalone Screenplay 4.141.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -85,8 +85,8 @@ for identity-stable selection.
 
 ## Admission boundaries
 
-Screenplay `v4.139.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
-schema pairs through v12. Admission selects by use:
+Screenplay `v4.141.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
+schema pairs through v13. Admission selects by use:
 
 - v7: generated values/responses and policy negation.
 - v8: sources/streams and command/specification routes.
@@ -117,6 +117,14 @@ schema pairs through v12. Admission selects by use:
   with mismatched length, duplicates, non-int32 entries or positional numbers
   (non-canonical). Consumers must admit v12 explicitly. Authoring shipped in
   4.137.0 (decision 0065); syntax/example: command-surface `references/enum-numbers.md`.
+- **Published v13 in 4.141.0:** concept `pii`/`secret`, personal qualifiers and
+  secret scopes bind as optional concept `compliance`. Unmarked models retain
+  their exact bytes/version/revision. Reference execution outcomes stay unchanged;
+  it proves no storage encryption or erasure. Enum/identity compliance and an
+  event combining personal or explicitly subject-scoped secret values with an
+  explicit `subject` mark refuse PLAY0268. See command-surface
+  `references/compliance.md` and Screenplay decision 0068. Stage 4.76.0 admits
+  only through v12; no current cli bundles this compiler or admits v13.
 
 Decision 0066 freezes a version when any exposing NuGet/npm package is published,
 including prereleases. Later byte-changing features take the next version at
@@ -164,7 +172,8 @@ The Stage skill teaches the version-gated examples.
 
 At 4.127.0, `$identity` aliases built-in caller paths; declared identity details
 remain metadata and their executable reads report PLAY0268. Bare `pii`/`secret`
-still block binding; `personal` aliases `pii`. Legacy markers are accepted with
+bind as v13 on standalone 4.141.0, but still block binding on CLI 3.53.1's
+4.137.0 bundle; `personal` aliases `pii`. Legacy markers are accepted with
 PLAY0565 information, duplicates warn PLAY0653. Event `subject` and processing
 purposes are report-only metadata (PLAY0270); purpose checks/reports do not prove
 lawfulness or enforce retention. See command-surface context/compliance references.
