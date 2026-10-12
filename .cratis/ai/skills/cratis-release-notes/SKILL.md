@@ -53,7 +53,9 @@ one to add weight.
   `(part of #n)` for anything that stays open (in repositories released by
   `cratis/release-action`, `(#n)` is what closes the issue), never `Closes`, `Fixes` or
   `Refs` before a number (also in bold or a link), and no issue reference
-  inside an HTML comment, which still closes the issue; and absolute
+  inside an HTML comment (release-action removes comments before publishing,
+  so the issue is silently not closed; a body that is only a comment counts as
+  empty and GitHub generates the notes); and absolute
   `https://` links only. Sections are in
   a fixed order (Added, Changed, Fixed, Removed, Security, Deprecated); within
   a section, put changes requiring action first, then new capabilities and

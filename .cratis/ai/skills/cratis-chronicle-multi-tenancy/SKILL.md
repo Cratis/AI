@@ -96,6 +96,12 @@ When the namespace is omitted, the registered **namespace resolver** supplies it
 `IEventStore` exposes the namespace it was resolved for, and
 `IEventStore.GetNamespaces(...)` lists them.
 
+Behind Cratis AuthProxy (`v2.30.5`) the tenant reaches the backend on
+`x-cratis-tenant-id`, from the proxy's own resolver (host, claim, route,
+subdomain, selection page or fixed), and Arc resolves it per request. Map that
+tenant to the Chronicle namespace through the resolver; the proxy does not
+isolate storage.
+
 ## Resolving the namespace
 
 The contract is `Cratis.Chronicle.IEventStoreNamespaceResolver`, with a single

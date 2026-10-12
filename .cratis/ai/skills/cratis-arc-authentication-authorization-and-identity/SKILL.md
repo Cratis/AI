@@ -19,6 +19,7 @@ told about them. Each has its own extension point.
 | `Cratis.Arc` | `22.75.0` | ASP.NET Core hosting, `AddMicrosoftIdentityPlatformIdentityAuthentication` |
 | `@cratis/arc` | `22.75.0` | `IdentityProvider`, `IIdentity` |
 | `@cratis/arc.react` | `22.75.0` | `IdentityProvider` component, `useIdentity`, `RequireRole` |
+| Cratis AuthProxy (`cratis/authproxy`) | `v2.30.5` | the trusted ingress described in [AuthProxy](references/authproxy.md) |
 
 > Rechecked at Arc v22.75.0 against the source-pinned authentication, identity,
 > discovery and authorization references below. **Authorization behavior changed materially after `22.16.0`**, the version this skill used to pin: named policies, schemes, fallback baselines, guest policies and Microsoft-attribute enforcement all arrived later. [authorization](references/authorization.md) has a version table; check it if you run an older version.
@@ -53,6 +54,8 @@ ingress above, otherwise configure a credential-validating scheme. The old
 `Introspection:TrustForwardedIdentityHeaders` setting is obsolete and enables the
 same host-wide flag. See [authentication](references/authentication.md).
 Source: [Arc v22.75.0 secure defaults](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/upgrading/secure-defaults.mdx).
+
+Cratis AuthProxy is the ingress that meets these obligations for Cratis applications. Read [AuthProxy](references/authproxy.md) when the application is deployed behind it (header contract, `/.cratis/me` fail-closed verification, tenant headers).
 
 ## Identity details — what the frontend is told
 
