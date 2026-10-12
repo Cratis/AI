@@ -136,10 +136,18 @@ After adding or removing an agent, prompt, or harness asset, synchronize the
 repository adapters:
 
 ```bash
-npm ci --prefix Source/Harness.Setup
-npm run setup --prefix Source/Harness.Setup
-npm run check --prefix Source/Harness.Setup
+yarn install --immutable
+yarn workspace @cratis/harness-setup run setup
+yarn workspace @cratis/harness-setup run check
 ```
+
+Setup regenerates its own stale corpus symlinks and marked OpenCode adapters. It
+refuses occupied paths containing local files or directories, reporting the same
+conflicts as `setup --check`, without removing them. Move or back up that content
+first. Only use `yarn workspace @cratis/harness-setup run setup --force` when you
+intend to replace conflicting content; this can recursively delete occupied
+directories. Unlisted project files outside those explicitly replaced paths are
+left alone. `--check` never writes, even with `--force`.
 
 ## Author skills
 
