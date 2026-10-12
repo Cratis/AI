@@ -1,0 +1,16 @@
+{
+  "skill": "cratis-screenplay-delivery-planning",
+  "input": "The model is accepted. How long will delivering it take, in what order, and how do we split it across three people?",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "first estimate without history" },
+    { "kind": "skill-contains", "value": "Count slices, not features." },
+    { "kind": "skill-contains", "value": "`dependency-graph`" },
+    { "kind": "skill-contains", "value": "already `in progress`" },
+    { "kind": "skill-contains", "value": "Automation` and `Translate` are hand-written" },
+    { "kind": "skill-contains", "value": "Never quote an accuracy", "file": "SKILL.md" },
+    { "kind": "skill-contains", "value": "Estimate fit", "file": "references/velocity-and-capacity.md" },
+    { "kind": "skill-contains", "value": "Wave 1", "file": "references/parallel-delivery.md" },
+    { "kind": "skill-contains", "value": "One GitHub issue per slice group", "file": "references/parallel-delivery.md" }
+  ]
+}

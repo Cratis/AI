@@ -355,7 +355,7 @@ consent, and from the MIT-licensed
 Straw Hat, LLC. That includes the legacy and brownfield, discovery, slice design,
 streams, scenario coverage, review and lifecycle method skills, the diagram,
 read-surface, reactor, read-model specification and slice conformance delivery
-checklists, and the Screenplay and slice agents. Event Modeling itself is the work of Adam Dymitruk; Martin
+checklists, the delivery planning and estimation skill, and the Screenplay and slice agents. Event Modeling itself is the work of Adam Dymitruk; Martin
 Dilger's *Understanding Eventsourcing* shapes much of the method. Each skill's
 `references/provenance.md` lists exactly what it adapts, and its `LICENSE`
 carries the notices.

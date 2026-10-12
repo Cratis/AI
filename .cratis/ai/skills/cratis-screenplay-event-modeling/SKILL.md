@@ -73,6 +73,7 @@ at the phase where they belong and run the downstream gates for the changed scop
 | Existing system into a model (replaces P1-P2) | `cratis-screenplay-legacy-extraction` |
 | P7-P9 execute, render, fall back, verify | `cratis-screenplay-render-and-gap-fill` |
 | Tools, versions, verdict commands, diagnostics | `cratis-screenplay-toolchain` |
+| Estimate, order or split delivery of an accepted model | `cratis-screenplay-delivery-planning` |
 
 **4. Nine steps to phase skill.** [references/nine-steps.md](references/nine-steps.md)
 keeps the activities, Screenplay output and facilitation questions of each step:

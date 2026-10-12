@@ -210,6 +210,7 @@ labelled as such. The user decides whether it is enough
 | Critic review, business-question pass | `cratis-screenplay-model-review` |
 | Existing system into a model | `cratis-screenplay-legacy-extraction` |
 | Render, gap-fill, fallback, drift | `cratis-screenplay-render-and-gap-fill` |
+| Estimate, order or split delivery of an accepted model | `cratis-screenplay-delivery-planning` |
 
 Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes:
 `references/vocabulary-map.md`; worked example: `references/worked-example.md`; done checklist: `references/phases.md`.

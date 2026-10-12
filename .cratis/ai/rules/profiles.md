@@ -205,6 +205,7 @@ and one phase skill, then the construct skill needed for syntax.
 | `cratis-screenplay-legacy-extraction` | Evidence-led extraction, expert verification and loss report |
 | `cratis-screenplay-toolchain` | Compiler and CLI versions, verdict commands, diagnostics and executable subsets |
 | `cratis-screenplay-render-and-gap-fill` | Admission, publication, target verification and contract-led hand-written delivery |
+| `cratis-screenplay-delivery-planning` | Slice counts by type, dependency waves, issue tracking and estimates from the team's own history |
 
 #### Language
 
