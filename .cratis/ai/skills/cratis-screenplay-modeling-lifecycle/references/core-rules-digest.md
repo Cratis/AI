@@ -44,10 +44,14 @@ decided at a point in time (a quoted price, an approved amount) is a fact and be
 event; say which it is.
 
 ## Causality
-- Every event traces to what produced it: a command, a reaction (`produces`) or a capture, and that origin is reachable and motivated.
-- Every command has a reachable, authorized origin: a screen or form action, or a reaction to an
-  event, a clock or an application trigger. A command may have several origins and a screen
-  several actions; judge each origin on its own.
+- Every locally produced event has a modeled producer that is reachable and motivated: whatever
+  the language lets produce it, for example a command or reaction `produces`, a capture, or an
+  event-target projection or reducer publishing an outbound public event. A foreign event
+  declared with `from` is produced by its owning system, not locally. The examples are not a
+  closed list; the construct skills and checklist F13 in `cratis-screenplay-model-review` decide.
+- Every command has a reachable, authorized origin, for example a screen or form action, or a
+  reaction to an event, a clock or an application trigger (not a closed list; F13 decides). A
+  command may have several origins and a screen several actions; judge each origin on its own.
 - A process starts at a screen or form action (a blank creation form counts), at a reaction to a
   modeled event, a clock or application trigger, or at a capture appending outside facts; never at
   an unmotivated command.
