@@ -44,9 +44,9 @@ Current pins and the tool split: `cratis-screenplay-toolchain/references/version
 were read at Stage `v4.73.1` (`Source/Rendering.Cratis/**`, `Documentation/guides/build-renderer-target.md`,
 `Documentation/reference/render-plans.md`, `Documentation/docker/**`) and cli `v3.53.1`
 (`Documentation/reference/screenplay.md`, `Source/Cli/Commands/Render/**`), not by a render run
-unless a line says *observed*. CLI 3.53.1 bundles Screenplay 4.137.0 and Stage 4.73.1, so its
-binder is behind the standalone 4.139.0 compiler. Stage 4.73.1's scaffold pins Arc 22.68.0, Chronicle 19.45.0, Components 4.26.2, Scene 4.21.0 and
-Fundamentals 7.22.8. These are **not** the latest releases; do not bump them in managed files
+unless a line says *observed*. CLI 3.53.1 bundles a Screenplay and Stage listed in `cratis-screenplay-toolchain` `references/versions.md`, so its
+binder is behind the standalone compiler. Stage's scaffold pins Arc, Chronicle, Components, Scene and
+Fundamentals releases (listed in the rendered application reference). These are **not** the latest releases; do not bump them in managed files
 ([rendered application](references/rendered-application.md)).
 
 Historical executed baselines (history, not current claims): Stage `v4.24.2` and cli
@@ -134,7 +134,7 @@ receipt.
 
 Facts that surprise:
 
-- **Binding uses the CLI's bundled Screenplay** (4.137.0 in cratis 3.53.1; the standalone tool is
+- **Binding uses the CLI's bundled Screenplay** (the version listed in `cratis-screenplay-toolchain` `references/versions.md`; the standalone tool is
   newer). A model that binds is not necessarily renderable: Stage 4.73.1 admits ESM v1 to v10 by
   version, then refuses each construct it does not render with its own code (below). v11 or newer is
   `CLI-RENDER-004`; direct Stage reports `STAGE-ESM-016`.

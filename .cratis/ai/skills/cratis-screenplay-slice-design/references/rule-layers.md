@@ -15,7 +15,7 @@ code only as XML doc comments (Stage#178): a rule that exists only in prose is u
 
 An unguarded materialized read is unsafe for a protected decision; a guarded read is the
 supported route. Availability: `[ProtectedDecision]` and `DecisionRead<T>` exist in
-Stage 4.73.1's Arc 22.68.0/Chronicle 19.45.0 package set, but Stage does not emit
+the Arc/Chronicle package set Stage 4.73.1 scaffolds (see the Stage skill's `references/rendered-application.md`), but Stage does not emit
 protected decisions. Gap-fill must use an admitted projection/key shape and active
 unit-of-work enrollment; do not edit managed dependencies. Keep the `.play` rule
 NOT enforced until its target enforcement is separately verified. Forbidden: caller-supplied copies of state in `require`, boolean attestation
@@ -33,7 +33,7 @@ second caller with another claim value.
 
 Command property values are, by default, recorded in the causation chain of the events they
 produce, so treat them as permanent. Newer Chronicle versions can omit causation properties
-(`CausationPropertyRetention.Omit`, Chronicle v19.32.0); Stage 4.73.1 rendered apps pin 19.45.0 (the latest Chronicle is 19.50.0).
+(`CausationPropertyRetention.Omit`, Chronicle v19.32.0); Stage-rendered apps pin the Chronicle release listed in the Stage skill's `references/rendered-application.md` (not the latest).
 Verify the actual auditing and retention configuration before relying on omission, and never
 audit secrets. Classify personal values as bare `pii` and operational secrets as
 `secret` on their concepts, never the identifier concept. Use a surrogate identity

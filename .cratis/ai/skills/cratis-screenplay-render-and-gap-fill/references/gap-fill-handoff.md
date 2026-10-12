@@ -69,7 +69,7 @@ ambiguous addresses; contracts are never inferred from names.
 A rule that exists only in a description, or a state-dependent rule the model marks as not
 enforced, is unenforced in generated scope. List it in the ledger as a target requirement. In
 hand-written code it needs an atomic enforcement point: a protected read or a concurrency scope
-(Stage 4.73.1 rendered apps scaffold Arc 22.68.0/Chronicle 19.45.0: protected-read APIs
+(Stage 4.73.1 rendered apps scaffold the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`: protected-read APIs
 are available to gap-fill, with projection/key admission and active enrollment), or a Chronicle constraint. A stale view or
 a caller-supplied status is not enforcement.
 
@@ -93,11 +93,11 @@ captures-and-reactions `references/invocation-identity.md`.
 
 A reaction that both produces events and invokes commands keeps its single modeled form
 (`STAGE-ESM-037` is Stage's refusal, not a model defect). Hand-write one reactor returning the events
-and the commands: on Arc 22.72.0 or later (the Stage 4.73.1 scaffold pins Arc 22.68.0, whose command handler accepts a collection only when every element is a command, so a rendered app needs a proven dependency override) the runtime appends the events first as one batch, then
+and the commands: on Arc 22.72.0 or later (the Arc the Stage scaffold pins accepts a collection in a command handler only when every element is a command, so a rendered app needs a proven dependency override) the runtime appends the events first as one batch, then
 runs the commands in order, with no transaction across the two effects; a failing command stops the
 later ones but keeps the committed events, and a retry can append the events again, so make the
 handler idempotent (`[OnceOnly]` and the failure behavior in `cratis-chronicle-reactor`). Return a
-stable array or list. The Stage scaffold pins Arc 22.68.0, so raise the version through
+stable array or list. The Stage scaffold pins an older Arc, so raise the version through
 `Customizations/Dependencies.props` only after a restore and build proves it. Never split the
 reaction or drop an effect to dodge rendering.
 

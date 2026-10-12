@@ -109,8 +109,8 @@ example a course capacity computed from enrolment streams, needs option a or b: 
 deciding fact on the source that owns the state, or give each scarce item its own identity. Sources: Arc `v22.72.0:Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md` (limits unchanged since v22.50.5);
 `chronicle-boundaries.md`.
 
-**Availability in Stage-rendered applications.** Stage 4.73.1 scaffolds Arc 22.68.0
-and Chronicle client/kernel 19.45.0 (not the latest releases). `[ProtectedDecision]` and `DecisionRead<T>` /
+**Availability in Stage-rendered applications.** The Stage scaffold pins Arc and Chronicle client/kernel
+releases (not the latest). `[ProtectedDecision]` and `DecisionRead<T>` /
 `IDecisionReads` exist in that package set; source checks are in
 `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`.
 This does not mean Stage emits protected decisions. Gap-fill must opt into the

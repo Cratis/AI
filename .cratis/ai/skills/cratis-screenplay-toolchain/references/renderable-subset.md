@@ -45,7 +45,7 @@ version; each construct it does not render refuses with its own code before any 
 
 | Area | Renders at 4.73.1 | Refused (code) |
 | --- | --- | --- |
-| Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`, every reaction, capture, application trigger and clock specification (`STAGE-ESM-001`/`-024`); a reaction that both produces and invokes (`-037`, Stage#207; Arc 22.72.0+ can run it, and the scaffold's Arc 22.68.0 needs a proven override; hand-write one reactor, never split the reaction) |
+| Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`, every reaction, capture, application trigger and clock specification (`STAGE-ESM-001`/`-024`); a reaction that both produces and invokes (`-037`, Stage#207; Arc 22.72.0+ can run it, and the Arc the scaffold pins needs a proven override; hand-write one reactor, never split the reaction) |
 | Queries | optional keyed snapshot lookups; observable collections, keyed or unkeyed (since 4.49.0) | a snapshot list: `STAGE-ESM-010`; `filter`, `scoped to`, `performer`, composite `by`: `PLAY0268` at binding |
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false; Stage 4.73.1 `IsSupportedClaimPath`), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`; Stage 4.73.1 `IsTextualSubject`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, with routed specifications | reserved stored names, unformattable routed fixtures, unsupported routed replay (`STAGE-ESM-030`) |
@@ -131,8 +131,8 @@ legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
   `Customizations/styles.css`. The planner never reads it, and it never binds a modeled
   reaction or capture. A customization never makes a rejected model renderable.
 - `cratis render` does **not** build, test or run the application.
-- Stage 4.73.1's scaffold pins .NET 10, Arc 22.68.0, Chronicle client/kernel 19.45.0
-  and emits a `.frontend/` React/Vite app (Components 4.26.2, Scene 4.21.0); these are not the latest
+- Stage 4.73.1's scaffold pins .NET 10 and Arc and Chronicle client/kernel releases
+  and emits a `.frontend/` React/Vite app (Components and Scene releases pinned too); these are not the latest
   releases (`cratis-stage-rendering-and-sandbox` `references/rendered-application.md`).
   `CratisEmbeddedScreenplayEnabled=false`; `Directory.Packages.props` is managed,
   never edit it. `[ProtectedDecision]` / `DecisionRead<T>` are available to gap-fill,
