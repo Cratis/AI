@@ -16,7 +16,7 @@ cratis-screenplay-toolchain `references/versions.md`; behaviour from the cratis 
 (`v3.28.2:Source/Cli/Commands/Screenplay/`; the generate files are unchanged since `v3.27.1`), Arc `v22.50.5`
 (`Documentation/backend/csharp/generating-a-screenplay.md`,
 `Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`), Screenplay.Generation `v0.18.0` and
-Screenplay.CritterStack `v0.24.0`. Version-specific capability facts belong in cratis-screenplay-toolchain
+Screenplay.CritterStack `v0.24.0` (the versions cli 3.53.1 bundles). Later releases exist (Generation 0.18.1 preserves compiler warnings, including on successful generation; CritterStack 0.26.0 adds enum concepts, command-to-event production links and the `MixedSliceKindsSplit` and `ProductionLinkOmitted` diagnostics); do not claim them for `cratis screenplay generate` until a cli bundles them. Version-specific capability facts belong in cratis-screenplay-toolchain
 `references/versions.md`.
 
 For the current standalone compiler and CLI bundle, use the toolchain's
@@ -75,7 +75,7 @@ cratis screenplay generate <solution|project|folder> \
 | Provider | Reads | Does not read |
 |---|---|---|
 | Arc | commands, events, concepts, read models, projections, reducers, reactors, constraints, declarative FluentValidation rules, authorization policies, `produces` from constants and input paths, Chronicle integration specs as given/when/then, `.tsx` beside a slice as `screen` + `data via query` | handler bodies, rules written in code, computed messages (`SP0016`), screen bodies, captures, personas, seeds, `@sensitive`. A rule held to `When`/`Unless` is written down as if unconditional and `SP0016` names the condition: read the diagnostic, do not trust the declaration |
-| Marten / Critter Stack (preview) | aggregates, snapshots, HTTP and message handlers, document operations, queries, outgoing and delayed messages, saga facts | saga lifecycle, policies, middleware bodies, runtime tenancy, upcasting; unbounded extension code is reported by presence only |
+| Marten / Critter Stack (preview; an independent optional adapter built on the neutral Screenplay.Generation SDK, not affiliated with JasperFx: review every `GEN`/`MARTEN`/`WOLVERINE` diagnostic by hand) | aggregates, snapshots, HTTP and message handlers, document operations, queries, outgoing and delayed messages, saga facts | saga lifecycle, policies, middleware bodies, runtime tenancy, upcasting; unbounded extension code is reported by presence only |
 | any non-.NET stack | nothing | use Prologue and targeted reads |
 
 ## Diagnostics are the loss list

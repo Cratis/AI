@@ -71,7 +71,9 @@ question is not four approvals.
    payload: one line per read model. One schema reused for every command and view may indicate
    the per-view judgment was skipped: check for a recorded reason per view before concluding.
 6. **Example data**: a small cast per feature; reuse only where meaning agrees; preserve
-   existing intentional fixtures (`references/scenario-catalogue.md` "Example data").
+   existing intentional fixtures (`references/scenario-catalogue.md` "Example data"). Shared
+   fixtures may live as typed `example`s in another document beside the declarations they type
+   (`cratis-screenplay-specifications` `references/examples-and-routes.md`).
 7. **Draft commands**: happy path, each rule, denial, duplicates and retries, competing claims,
    state violations, alternative branches, compensation, external failure, evolution. In each
    rejection vary only the value under test. Use typed `parameter`/named `case`

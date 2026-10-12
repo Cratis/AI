@@ -4,7 +4,10 @@ A `generated` command property and `returns` response bind and reference-execute
 as ESM v7 (checked at 4.68.0). Current pins:
 `cratis-screenplay-toolchain/references/versions.md`. CLI#261 is closed: CLI now admits v7
 to Stage planning, and the 4.137.0 compiler in CLI 3.53.1 binds it. Stage 4.73.1 still refuses
-generated values and responses with STAGE-ESM-028/029 (Stage#175), as the historical CLI 3.41.0 corpus did. Do not turn this into a blanket compiler
+generated values and responses with STAGE-ESM-028/029 (Stage#175), as the historical CLI 3.41.0 corpus did.
+Standalone Stage 4.74.0 and later render server-generated UUID-concept values and scalar or named
+responses (read at `v4.76.0`), but no cli release bundles them yet, so `cratis render` through cli 3.53.1 still
+refuses. Screenplay 4.139.0 has only `generated` / `generated identifier`; no `generate` strategy form exists. Do not turn this into a blanket compiler
 refusal or promise a render from binding alone. Preserve the contract for gap-fill
 where admission refuses. Historical rules below were read at 4.68.0. Complete compiled example:
 `cratis-screenplay-toolchain` `references/generated-responses-example.md`.

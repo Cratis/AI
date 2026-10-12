@@ -79,6 +79,8 @@
     {
       "kind": "skill-contains",
       "value": "Cratis/cli#242", "file": "references/reactions-and-cascades.md"
-    }
+    },
+    { "kind": "skill-contains", "value": "Examples typed from another document", "file": "references/examples-and-routes.md" },
+    { "kind": "skill-contains", "value": "`PLAY0520`", "file": "references/examples-and-routes.md" }
   ]
 }
