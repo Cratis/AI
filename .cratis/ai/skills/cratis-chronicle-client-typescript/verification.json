@@ -1,0 +1,19 @@
+{
+  "skill": "cratis-chronicle-client-typescript",
+  "input": "Append a routed event and specify a TypeScript Chronicle reactor without a kernel.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "tag **`v6.51.0`**" },
+    { "kind": "skill-contains", "value": "**Single `append()` supports routing and subject options.**" },
+    { "kind": "skill-contains", "value": "Standard TC39 decorators" },
+    { "kind": "skill-contains", "value": "**A compiled-JS entry defaults to `[]`.**" },
+    { "kind": "skill-contains", "value": "IncompatibleChronicleServer" },
+    { "kind": "skill-contains", "value": "installed package version" },
+    { "kind": "skill-contains", "value": "**Reactors replay by default since 6.9.0.**" },
+    { "kind": "skill-contains", "value": "@handles(EventType)" },
+    { "kind": "skill-contains", "value": "Returns **null when absent**", "file": "references/read-models-and-projections.md" },
+    { "kind": "skill-contains", "value": "`@unique()`", "file": "references/read-models-and-projections.md" },
+    { "kind": "skill-contains", "value": "**recorded, not appended or recursively delivered**", "file": "references/testing.md" },
+    { "kind": "skill-contains", "value": "UnsupportedProjectionOperation", "file": "references/testing.md" }
+  ]
+}

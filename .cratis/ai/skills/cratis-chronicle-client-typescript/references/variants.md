@@ -1,8 +1,8 @@
 ## Variants — mutually exclusive read models for one entity's lifecycle
 
-> Requires `@cratis/chronicle` `6.2.0` or later — newer than this skill's
-> `5.1.0` baseline (`Source/projections/VariantReclassifier.ts` and siblings).
-> Reverify before claiming support; take the version from npm.
+> Available since `@cratis/chronicle` 6.2.0; verified at **v6.51.0**
+> (`Source/projections/VariantReclassifier.ts` and model-bound decorators).
+> Read models are inferred; use `static readModelId` for a custom id.
 
 Some entities do not have one shape for their whole lifetime — a work item is a
 backlog entry until a pull request exists for it, then it is a pull request
@@ -16,7 +16,6 @@ class WorkItem {}   // anchors the group; not itself a read model
 @variantOf(WorkItem, 'id')
 @entersOn(IssueCreated)
 @fromEvent(IssueCreated)
-@readModel()
 class BacklogItem {
     id = '';
     @setFrom(IssueCreated, 'title') title = '';
@@ -26,7 +25,6 @@ class BacklogItem {
 @entersOn(PullRequestCreated)
 @fromEvent(PullRequestCreated)
 @fromEvent(BuildCompleted)          // not the entering event -> update-only join
-@readModel()
 class PullRequestItem {
     id = '';
     @setFrom(PullRequestCreated, 'pullRequestUrl') pullRequestUrl = '';

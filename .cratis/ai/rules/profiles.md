@@ -119,8 +119,10 @@ JVM language conventions are `kotlin.md` and `java.md`.
 ### Arc for TypeScript on Node.js
 
 Arc for TypeScript (`@cratis/arc.core` with the Express, Fastify, Hono,
-MongoDB, Drizzle, testing and experimental Chronicle packages) brings the same
-model-bound command/query shape to a Node.js server. Its packages are a source
+MongoDB, Drizzle, testing and experimental Chronicle packages, plus
+`@cratis/arc.proxygenerator`, `@cratis/eslint-plugin-arc-core` and experimental
+`@cratis/cratis`) brings the same model-bound command/query shape to a Node.js
+server. Verified at GitHub pre-release **v0.57.2**: its packages are a source
 preview and are not published to npm. It is separate from `@cratis/arc`, the
 published client runtime that generated proxies import in a frontend.
 `cratis/arc/server-typescript` carries the skills; `cratis/arc/typescript` adds

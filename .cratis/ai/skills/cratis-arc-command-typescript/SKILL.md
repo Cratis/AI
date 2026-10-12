@@ -18,7 +18,7 @@ Arc supplies the route, body binding, validation, authorization, and the
   `@cratis/arc.testing`, `@cratis/arc.mongodb`, `@cratis/arc.drizzle`,
   `@cratis/arc.chronicle`, `@cratis/cratis`, `@cratis/arc.proxygenerator` and
   `@cratis/eslint-plugin-arc-core` are an unpublished source preview (0.x
-  manifests; versions appear only as source-only GitHub pre-releases). The API may still change. `npm install @cratis/arc.core` fails.
+  manifests; GitHub pre-releases v0.1.0–v0.57.2). The API may still change. `npm install @cratis/arc.core` fails.
 - **`@cratis/arc` is a different package.** `@cratis/arc`, `@cratis/arc.react` and
   `@cratis/arc.react.mvvm` are the published **client** runtime, built from
   `Cratis/Arc`. Generated proxies import them in the frontend. The server packages
@@ -29,26 +29,28 @@ Arc supplies the route, body binding, validation, authorization, and the
 
 ## Verified product sources
 
-Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
-`v0.33.0` plus three commits), reading `Source/Core/index.ts` and the package
-`index.ts` exports, `Documentation/**`, and the `Samples/Tasks` and
-`Samples/Library` applications. Every API named here exists at that commit.
-Chronicle SDK: `@cratis/chronicle` peer `^6.7.0`; the Library sample pins
-`6.14.0`. Fundamentals: `@cratis/fundamentals` `^7.19.6`.
+Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release;
+server manifests 0.57.2), reading package exports, `Documentation/**`, and
+`Samples/Tasks` / `Samples/Library`. Unreleased main/0.58.0 behavior is excluded.
+Chronicle SDK: peer `^6.29.0`, built against/sample pin `6.35.0`;
+Fundamentals peer `^7.19.6`, Library pin `7.22.0`. The Chronicle integration
+needs Node 22.19+, `zod ^4.1`, `rxjs ^7.8.2`, and an optional
+`@cratis/arc.testing` peer for scenarios.
 
-Read [references/hosting-and-storage.md](references/hosting-and-storage.md) when setting up a host, using the Fetch entry, or wiring storage integrations. Read [references/chronicle-events.md](references/chronicle-events.md) when returning Chronicle events or specifying those commands.
+Read [references/hosting-and-storage.md](references/hosting-and-storage.md) when
+hosting or wiring storage. Read [references/chronicle-events.md](references/chronicle-events.md)
+when returning or specifying Chronicle events.
 
 ## Chronicle traps
 
-- Appending and projecting are separate: a query sent right after the command
-  may not see the event yet. Prefer an observable query on the client.
-  `completionTimeoutMs` makes the command wait for observers, but Chronicle waits
-  for **every** observer on the log (Cratis/Chronicle#4132), so a projection or
-  reactor that does not handle the event makes every command time out with 500.
+- Appending and projecting are separate; prefer observable reads. See the
+  Chronicle reference before using `completionTimeoutMs` to wait for observers.
 
-- The in-memory scenario does **not** run projections, aggregates, constraints
-  or concurrency checks. `ChronicleKernelScenario` runs against a live kernel at
-  `ARC_CHRONICLE_TEST_URL` for those.
+- In-memory scenarios evaluate reducers and fixture-bounded projections through
+  the SDK's `ReadModelScenario`; unsupported shapes throw
+  `UnsupportedProjectionOperation`. Aggregates, constraints, concurrency,
+  listing/watching and history beyond that boundary need `ChronicleKernelScenario`
+  against `ARC_CHRONICLE_TEST_URL`.
 
 ## Set up a project
 
@@ -86,14 +88,15 @@ version ranges; npm does not, and the tarball then fails to install. A
     "rootDir": ".",
     "outDir": "dist"
   },
-  "include": ["main.ts", "Features/**/*.ts"]
+  "include": ["main.ts", "Features/**/*.ts"],
+  "exclude": ["Features/**/*.proxy.ts", "Features/**/*.tsx"]
 }
 ```
 
 - **No `experimentalDecorators`.** Arc's decorators compile as standard TC39
   decorators, as the samples do; `ESNext.Decorators` declares `Symbol.metadata`.
   Legacy `experimentalDecorators` also work. The Library sample compiles its
-  `@cratis/chronicle` 6.14 event types and projections under the same
+  `@cratis/chronicle` 6.35 event types and projections under the same
   standard-decorator settings. Generated frontend proxies are the exception:
   they compile with `experimentalDecorators: true`.
 - With `NodeNext`, relative imports carry a `.js` extension. `ESNext` +
@@ -127,14 +130,22 @@ await app.run({ port: Number(process.env.PORT ?? 3000) });
 | `ArcApplication.createBuilder(options?)` | Starts the application; the Node builder reads `appsettings.json` (`Cratis:Arc`) and `Cratis__...` environment variables |
 | `useGeneratedMetadata(metadata)` | Installs parameter and return-type metadata extracted from source. Call it **before** `discover()`/`add()` |
 | `services.addSingleton(Token)` | Registers a service; `addScoped`/`addTransient` take factories. Classes can also carry `@singleton()`, `@scoped()`, `@transient()` |
-| `discover(folderUrl)` | Imports every module under the folder and registers **exported**, decorated artifacts. Skips `dist`, `node_modules`, `given`, `for_*`, `index.*`, declaration files |
+| `discover(folderUrl)` | Imports every module under the folder and registers **exported**, decorated artifacts. Skips `dist`, `node_modules`, `given`, `for_*`, `index.*`, declaration files and `*.proxy.ts/.tsx` |
 | `add(...types)` | Registers artifacts explicitly — required on the Fetch entry, which cannot discover |
 | `build()` | Validates the whole graph (missing services, lifetime mismatches, misplaced decorators, stale metadata) and throws before any listener opens |
 | `app.run()` / `app.start()` | Standalone Node host. `app.dispose()` stops it and disposes services |
 
-`discover()` refuses a folder that contains the entry point; keep artifacts in a
-dedicated folder such as `Features/`. `Cratis:Arc:Development: true` is for a
-local machine only.
+`discover()` refuses a folder containing the entry point; use `Features/`.
+`Cratis:Arc:Development: true` is local-only.
+
+### Secure discovery defaults (0.56.0+)
+
+Outside **Development**, catalogs, identity discovery and `/openapi.json` require
+authentication; without it they are unmapped with a warning. Explicitly requiring
+authentication without configuring it fails startup. `development: true` is no bypass.
+Read [references/identity-and-introspection.md](references/identity-and-introspection.md)
+when configuring authentication, native principals, identity providers or
+introspection access for deployed tools. Source proxy generation needs no host.
 
 ## Lay out the slice
 
@@ -279,6 +290,11 @@ is enabled; do not throw for a rejection the user can act on. Rules that can
 run before `handle()` belong in validators: see
 `cratis-arc-validation-typescript`.
 
+Read [references/command-operations.md](references/command-operations.md) when
+returning inline work (`CommandOperation`, `operations(...)`), combining it with
+a response, or choosing several business outcomes. It covers commit-aware
+compensation; durable delivery needs its own workflow.
+
 ## Protect the command
 
 ```typescript
@@ -377,6 +393,10 @@ authorization, validation or dependency wiring contribute proof.
 Read [references/command-specifications.md](references/command-specifications.md) when writing a `CommandScenario` spec, choosing result assertions, or setting up the scenario context.
 
 Folder and naming conventions for specs are `cratis-specifications-typescript`.
+
+Read [references/observability-and-host-scopes.md](references/observability-and-host-scopes.md)
+when instrumenting commands/queries or using `ArcServer.runInScope` for a trusted
+host integration; a service scope is not an authorization mechanism.
 
 ## Route near misses
 
