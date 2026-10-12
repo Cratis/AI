@@ -7,13 +7,14 @@
 
 - Address and query
 - Read evidence, not just a count
-- Propose a property change (4.140.0)
+- Propose a property change (4.142.0)
+- Add with explicit sources and fixtures
 
 Screenplay 4.138.0 released property-path evidence in `find-references` and
 `dependencies`; this guidance was checked against 4.139.0. Discover installed
 `tools/list`: CLI 3.53.1's 4.137.0 bundle predates it. These are read-only
-inspection tools. Standalone 4.140.0 adds the separate `propose-property` planner
-below; the CLI bundle has neither capability.
+inspection tools. Standalone 4.140.0 adds the separate `propose-property` rename/remove planner;
+4.142.0 adds `add`. The CLI bundle has neither capability.
 
 ## Address and query
 
@@ -116,7 +117,7 @@ same-named properties in unrelated declarations do not affect completeness.
 External code contents and registrations remain outside coverage even with
 `complete: true`; authored links do not prove executable admission.
 
-Before a rename/removal: pin the revision, inspect incoming readers and outgoing
+Before a property change: pin the revision, inspect incoming readers and outgoing
 counterparts, page to completion, resolve uncertainties, then choose the supported
 identity-safe edit route with the connection owner. Never infer safe deletion from
 zero resolved hits or edit every same-named field. An event-property change still
@@ -126,7 +127,12 @@ Source/output authority: `v4.139.0:Documentation/screenplay/mcp/reference.md`
 (property links), `Source/DotNET/Screenplay.Mcp/McpPropertyDependencies.cs`,
 `McpToolSchemas.cs`, and decision 0044's released prerequisite index. The planner's release evidence is separate below.
 
-## Propose a property change (4.140.0)
+## Propose a property change (4.142.0)
+
+Use `propose-property`, not hand-composed `propose-ast` batches, for supported
+add/rename/remove changes along a proven chain. For add, inspect existing
+producer/consumer properties and mapping blocks first; the new property has no
+reference address yet.
 
 Read the target property handle with `read-ast`, then call `propose-property`
 with `expectedRevision`, `expectedCatalogRevision`, `action: "rename"|"remove"`,
@@ -134,7 +140,7 @@ with `expectedRevision`, `expectedCatalogRevision`, `action: "rename"|"remove"`,
 or `alsoRemove` entries are `{ "target": <handle>, "expectedName": <name> }`.
 Select only intended command, current-event and non-key read-model properties:
 chain membership establishes eligibility, not permission to edit every field.
-Off-chain selections refuse atomically. Historical generations, inline events,
+Off-chain selections refuse atomically (`HopNotOnChain`). Historical generations, inline events,
 keys, opaque or incomplete links and unsupported spans refuse rather than guess.
 
 Rename repairs proven references and fixtures. Renaming only a command input
@@ -144,7 +150,13 @@ Removal refuses while readers remain. Removed expected values disclose
 refuses `AmbiguousPropertyReference`, not a false assertion-preservation verdict.
 Unrelated same-named fields appear in `property.notChanged`.
 
-For any selected event property, choose exactly one mode: `newGeneration: true`
+Read `property.needsDecision` for refusal reasons and located candidates;
+`property.chainCandidates` lists unselected chain members, not automatic edits.
+A refusal returns `success: false` and no writable partial candidate. Missing an
+event mode returns `EventContractChangeRequiresDecision`; do not bypass it by
+text editing or claiming the catalog proves non-persistence.
+
+For any selected event property (including optional additions), choose exactly one mode: `newGeneration: true`
 appends N+1 and preserves history; `eventNeverPersisted: true` edits current N in
 place and requires actual knowledge that it was never stored. Neither flag selects
 additional events. New generations require transformations before Chronicle deployment.
@@ -159,7 +171,42 @@ have equal revisions. `[]` means no accepted planned event edits, not success;
 there is no singular `property.generation`. `deployableWithoutTransformation`
 and `esmVersionKnown` are independent of authoring acceptance.
 
-Authority: Screenplay `v4.140.0:Source/DotNET/Screenplay.Mcp/McpWorkspaces.Property.cs`,
+## Add with explicit sources and fixtures
+
+Read the declaration's original `read-ast` handle. Send `action: "add"`, both
+revision guards, `owner`, `expectedOwnerName`, `name` (new unqualified member),
+`type` (authored type text, not a concept declaration), and optional `optional`
+(default false). Use the flag, not an optional suffix in `type`.
+
+`hops` defaults to `[]`: each entry has an original `at` handle and exactly one
+of `name` or `value`. `{at, name}` adds the same type at a connected declaration;
+`{at, value}` supplies a value expression at a `produces`, `from` or capture
+`append` block. Every selected event producer/read-model consumer needs an
+explicit mapping decision or compatible same-named AutoMap source. Never infer
+a business expression. Existing property names and off-chain hops refuse.
+Add does not accept `target`, `expectedName`, `newName`, `alsoRename` or `alsoRemove`;
+add-only fields are invalid for rename/remove.
+
+For a required addition with existing fixtures/assertions, supply `fixtureValue`
+as **literal source text**, for example `"\"normal\""` for a String value. The
+planner adds it to existing specification steps, examples and query results;
+`optional: true` adds no fixture values. A literal is not proof of behavior:
+inspect the assertions and run `run-specifications` on the retained proposal.
+
+| Refusal | Response |
+| --- | --- |
+| `SourcesRequired` | Select missing producer/consumer mappings from the located candidates; do not guess sources |
+| `FixtureValueRequired` | Supply the intended required literal fixture value; do not weaken assertions |
+| `HopNotOnChain` | Remove or correct the off-chain selection; never edit same-named unrelated fields |
+| `UnsupportedPropertySpan` | Preserve source and report unsupported nested feeds/expressions or shared spans; do not flatten the model to bypass refusal |
+
+Use `CanonicalizeTouchedDocuments` for additions. Review `property.changed`
+(`added`, `fixtureAdded`), decisions, chain candidates and generations, exact
+bytes, dropped comments, identities and semantic diff before ordinary `apply`.
+Even an optional event addition needs the same explicit evolution mode above.
+
+Authority: Screenplay `v4.142.0:Source/DotNET/Screenplay.Mcp/McpWorkspaces.Property.cs`,
 `Screenplay/Workspaces/WorkspaceProperty{Request,Plan,Safety,Report}.cs`,
-`WorkspacePropertyAssertionProvenance.cs`, `WorkspaceEventGenerations.cs`, and
-`Documentation/screenplay/mcp/authoring-tools.md`; decision 0067.
+`WorkspacePropertyAdd{Plan,Edits}.cs`, `WorkspacePropertyAssertionProvenance.cs`,
+`WorkspaceEventGenerations.cs`, and `Documentation/screenplay/mcp/{edit,reference,authoring-tools}.md`;
+the published contract's `mcpTools` entry for `propose-property`; decisions 0067 and 0044.

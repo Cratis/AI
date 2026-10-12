@@ -3,37 +3,39 @@
   "evals": [
     {
       "id": 1,
-      "name": "add-column-through-mcp",
-      "prompt": "Using the Screenplay MCP against a scratch copy of the canonical ScreenComposition corpus, add a priority column to the WorkItemList table. List the exact MCP tool calls in order and what you check before and after applying. Do not write files.",
-      "expected_output": "open-workspace to capture the revision and catalog revision, discovery through syntax-schema or the document reads, a proposal through propose-source or propose-ast, read-proposal before applying, apply with the matching expected revision and catalog revision, and a final open-workspace that confirms executable readiness.",
+      "name": "add-property-with-sources-and-fixtures",
+      "prompt": "Screenplay MCP 4.142.0 has our scratch model open. RegisterProject produces ProjectRegistered, which AutoMaps into ProjectSummary; specifications and examples already cover this chain. Add a required String priority to all three, using literal normal in existing fixtures. ProjectRegistered has persisted events. List the tool calls and arguments without executing or writing files. Include what you do if mapping sources or fixtures are missing, a hop is off-chain, or a nested feed is unsupported. We keep comments in the model.",
+      "expected_output": "Inspect existing producer/consumer property references and dependencies with revision paging, then read owner and mapping handles. Use propose-property action add, both revision guards, owner, expectedOwnerName, name, type, optional false, declaration hops {at,name}, mapping hops {at,value}, fixtureValue literal source text and newGeneration true. Same-named AutoMap can satisfy the read-model hop. Missing sources/value refuse SourcesRequired/FixtureValueRequired, off-chain HopNotOnChain, nested feeds UnsupportedPropertySpan. Required additions populate existing fixtures/assertions; optional additions do not. Review property decisions, chainCandidates, generations, bytes, dropped comments and semantic diff; run specifications on the proposal. Only a reviewed apply writes. Never compose an AST batch to bypass the planner.",
       "assertions": [
-        "Opens the workspace first and records both the workspace revision and the catalog revision.",
-        "Proposes the change through a propose tool and reads the proposal before applying it.",
-        "Applies with the matching expectedRevision and expectedCatalogRevision.",
-        "Reopens or re-validates afterwards and reports executable readiness separately from source validity.",
-        "Works on a scratch copy and does not hand-edit the .play files."
+        "Looks up existing chain evidence before changing it and treats incomplete evidence as a limitation, not a safe empty list.",
+        "Uses propose-property action add, both revisions, owner, expectedOwnerName, name, type and optional false rather than a hand-composed propose-ast batch.",
+        "Distinguishes declaration hops {at,name} from mapping hops {at,value}; recognizes same-named AutoMap as a compatible source, not permission to guess expressions.",
+        "Provides fixtureValue as literal source text, explains required versus optional fixture handling, and names SourcesRequired, FixtureValueRequired, HopNotOnChain and UnsupportedPropertySpan without bypassing them.",
+        "Selects newGeneration for the persisted event, requires CanonicalizeTouchedDocuments, reviews dropped comments, generations and semantic diff, and runs proposal specifications before apply."
       ]
     },
     {
       "id": 2,
-      "name": "stale-revision-recovery",
-      "prompt": "An apply call on the Screenplay MCP returned StaleRevision: reopen the workspace before continuing. Explain what you do next and what you must not do.",
-      "expected_output": "Reopen the workspace, read what changed, re-propose against the new revision and apply only with the new matching revisions; never force the old proposal through or bypass the check by editing files directly.",
+      "name": "rename-command-input-without-renaming-payload",
+      "prompt": "Through Screenplay MCP 4.142.0, rename only RegisterProject.title to displayName. ProjectRegistered.title and ProjectSummary.title must keep their names. Explain the chain lookup, proposal arguments, review, and how to handle StaleRevision at apply. Do not execute calls or edit files.",
+      "expected_output": "Read Property references/dependencies with pinned sourceRevision, inspect incomplete and ambiguous rows, and obtain original property handles. propose-property action rename with target, expectedName title, newName displayName and workspace/catalog revision guards, without alsoRename for unselected fields. Mappings/fixtures are repaired, event payload names remain unchanged, broken AutoMap gets an explicit mapping. Review needsDecision, chainCandidates, notChanged, bytes and semantic diff. StaleRevision requires reopening, inspecting drift and re-proposing, never retrying unchanged or text-editing.",
       "assertions": [
-        "Treats StaleRevision as a fail-closed refusal, not a transient error to retry unchanged.",
-        "Reopens the workspace and re-proposes against the new revision.",
-        "Refuses to bypass the revision check by editing the .play files directly."
+        "Inspects kind Property evidence and direct counterparts, pages with expectedSourceRevision and does not assume incomplete means no references.",
+        "Uses propose-property action rename with target, expectedName, newName and both revisions, not a hand-composed AST batch.",
+        "Leaves unselected event/read-model properties unchanged, explains mapping and fixture repair and AutoMap preservation, and treats chainCandidates as unselected evidence.",
+        "Reviews the retained proposal and semantic diff before apply, and reopens/re-proposes after StaleRevision rather than forcing the old proposal or editing text."
       ]
     },
     {
       "id": 3,
-      "name": "comment-preservation",
-      "prompt": "We keep design notes as comments in application.play. Explain whether an MCP source replacement keeps them, which formatting option the server requires, and how you would prove it before trusting it.",
-      "expected_output": "propose-source requires CanonicalizeTouchedDocuments for typed source edits; prove comment survival by applying on a scratch copy, reopening the workspace and checking the comment on disk.",
+      "name": "remove-property-with-reader-and-assertion-review",
+      "prompt": "Remove ProjectSummary.legacyLabel through Screenplay MCP 4.142.0. The chain has possible readers and an example inherited by several specifications. Explain your calls and how to interpret PropertyReadersExist, needsDecision, chainCandidates and weakensAssertion. Do not execute calls or write files.",
+      "expected_output": "Inspect the revision-pinned property chain and original handle, then propose-property action remove with target, expectedName and both revisions, selecting only intended alsoRemove fields. PropertyReadersExist blocks removal while readers remain; inspect needsDecision's candidates rather than guessing. chainCandidates are not implicit removals. Removing expected values reports weakensAssertion true; ambiguous inherited assertions refuse AmbiguousPropertyReference. Review CanonicalizeTouchedDocuments, dropped comments, exact bytes, identities and semantic diff before apply; preserve original files on refusal.",
       "assertions": [
-        "Names CanonicalizeTouchedDocuments as the formatting option the server requires for a typed source replacement.",
-        "Proves the behavior on a scratch copy rather than on the team's model.",
-        "Checks the comment on disk after apply and a reopened workspace."
+        "Looks up readers and outgoing counterparts with complete revision-pinned evidence before proposing removal.",
+        "Uses propose-property action remove and exact target/expectedName with both revisions; selects no extra same-named fields automatically.",
+        "Treats PropertyReadersExist and ambiguous inherited assertion evidence as refusals, reads needsDecision candidates and never treats chainCandidates as implicit removals.",
+        "Discloses weakensAssertion true for removed expected values and reviews formatting, dropped comments, identities and semantic diff before applying."
       ]
     },
     {
@@ -46,6 +48,18 @@
         "Verifies the worktree baseline and states the comparison is read-only, with pending interrupted writes refused.",
         "Echoes the pair-bound sourceRevision as expectedSourceRevision on continuation with the same source selections, and restarts after StaleRevision because both sides reload.",
         "Uses read-proposal view=semantic-diff for an unapplied proposal against disk and distinguishes structural comparison from execution evidence."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "persisted-event-rename-requires-evolution-decision",
+      "prompt": "propose-property action rename on the persisted ProjectRegistered.title property returned EventContractChangeRequiresDecision. No event mode was provided. The identity catalog exists, so can we set eventNeverPersisted or hand-compose propose-ast to make it pass? Explain newGeneration versus eventNeverPersisted and what to review. Do not call tools or change files.",
+      "expected_output": "No: catalog presence proves no storage history, and a refusal is not bypassed with AST or text edits. Inspect property.needsDecision and chainCandidates. A persisted event needs newGeneration true, preserving older generations and requiring transformations before Chronicle deployment. eventNeverPersisted true edits current generation in place only when actual non-persistence is known. Exactly one mode applies to explicitly selected events, even optional additions; both true is invalid. Review property.generations array, bytes, identities, semantic diff and deployableWithoutTransformation independently of authoring acceptance.",
+      "assertions": [
+        "Keeps the refusal fail-closed and rejects hand-composed propose-ast or text edits to bypass it.",
+        "Chooses newGeneration for known persisted payloads and never infers eventNeverPersisted from identity catalog state.",
+        "Explains current-generation in-place editing versus N+1 with preserved history and required transformations; exactly one mode, with no extra implicit event selections.",
+        "Reads needsDecision, chainCandidates and property.generations and distinguishes authoring acceptance from executable/deployment readiness."
       ]
     }
   ]

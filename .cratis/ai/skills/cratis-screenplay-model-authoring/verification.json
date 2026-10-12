@@ -4,11 +4,25 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "propose-property" },
+    { "kind": "skill-contains", "value": "not hand-composed `propose-ast` batches", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "`incomplete`, `needsDecision`", "file": "references/mcp-loop.md" },
+    { "kind": "skill-contains", "value": "`property.chainCandidates`", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "EventContractChangeRequiresDecision", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "action: \"add\"", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "`expectedOwnerName`", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "{at, name}", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "{at, value}", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "`fixtureValue`", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "SourcesRequired", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "FixtureValueRequired", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "HopNotOnChain", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "UnsupportedPropertySpan", "file": "references/property-links.md" },
     { "kind": "skill-contains", "value": "weakensAssertion: true", "file": "references/property-links.md" },
     { "kind": "skill-contains", "value": "property.generations", "file": "references/property-links.md" },
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.141.0"
+      "value": "Screenplay v4.142.0"
     },
     {
       "kind": "skill-contains",
@@ -92,7 +106,8 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`view: \"dropped-comments\"`"
+      "value": "`view: \"dropped-comments\"`",
+      "file": "references/mcp-loop.md"
     },
     {
       "kind": "skill-contains",

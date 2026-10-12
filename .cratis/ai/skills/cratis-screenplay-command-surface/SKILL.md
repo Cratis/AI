@@ -32,7 +32,7 @@ Pins: toolchain `references/versions.md`; sources below. Compilation is not exec
 - `4.66.0` (`c89198b`): `handler`, code attachments, `persona` and compliance binding (`Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs`).
 - `4.68.0` (`79801bf`): generated-value/response rule probes (ESM v7).
 - `4.127.0`: identity and compliance syntax (`identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`).
-- `4.141.0`: v13 compliance admission/refusals: `references/compliance.md`.
+- `4.141.0`: v13 compliance admission; rechecked at `4.142.0`: `references/compliance.md`.
 
 "Parses" and "runs" are different claims. The executable profile, and what
 each construct binds to, is in the `cratis-screenplay-model-authoring` language
@@ -57,13 +57,10 @@ concept InvoiceStatus : Enum
 The seven primitives are `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date` and
 `DateTime`. `Enum` is **not** one of them — it is a separate concept kind, which
 is why the compiler says *expected … or Enum* rather than listing it among them.
-Use bare `pii` for personal data (`personal` is the same marker) and `secret`
-for operational secrets. **Compliance is inherited** from concepts, including
-nested uses. Standalone 4.141.0 admits v13 compliance; the CLI does not. Residual
-PLAY0268 refusals are in the reference below; keep protection. `pii personal` is redundant and warns PLAY0653. Legacy `@pii`,
-`sensitive` and `@sensitive` remain accepted with PLAY0565 information and a repair.
-Read [compliance and purposes](references/compliance.md) for reasons, special/criminal
-qualifiers, secret scopes, provider mappings, purpose declarations and coverage checks.
+Use bare `pii` (`personal` alias) and `secret` on concepts; **Compliance is inherited**.
+Keep protection even when a compiler or renderer refuses it. Read
+[compliance and purposes](references/compliance.md) for ESM v13, binder-only refusals,
+consumer ceilings, marker repairs, reasons, scopes and provider limits.
 
 **Identifiers cannot be personal data or secrets.** PLAY0515 is a source error
 for command identifiers, typed `for` destinations, event-source identities,
