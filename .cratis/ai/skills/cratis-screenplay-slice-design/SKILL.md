@@ -73,7 +73,7 @@ report and slice `documentation`, and continue.
    `Save`, `Set`, `Change`, `Manage` + noun) means several decisions share a form: ask which
    separate reasons change these values, then split (`references/slicing.md` *Generic edits*).
    One input per thing the caller decides or supplies; `identifier` on the property naming the
-   instance (omit only for allocation); `for <identifier>` on every `produces`. Trace each input
+   instance (omit only for allocation); inline `produces event <Name>` (no `for`) when the command owns the event; plain `produces <Name>` needs `for <identifier>`. Trace each input
    (`references/field-lineage.md`). A conditional input is a granularity question: two
    decisions are two commands; one decision with a dependent rule is an implication
    (`require a == false or b > c`). Never a boolean attestation input (`confirmsX == true`)
@@ -157,9 +157,12 @@ report and slice `documentation`, and continue.
   conventional `*Id` only with an admitted list query and no single-instance identifier).
   Queryless read models need explicit `key`.
 - At most one builder (projection or reducer) per read model (`PLAY0191`).
-- A query's `by` goes on its own body line. At 4.135.0, optional keyed and collection
-  queries bind, including observable delivery; scalar `by` must be caller-supplied.
-  Filtered, scoped, performer-backed and composite-block queries remain `PLAY0268`.
+- A query's `by` goes on its own body line. Optional keyed and collection queries
+  bind, including observable delivery. Caller-supplied equality filters on collections
+  bind as ESM v14 since 4.143.0; `by` ANDs with supplied filters. `from`, single-result
+  filters, scope, performer and composite `by` remain PLAY0268 for their respective
+  context/cardinality/opaque/multipart gaps. Read read-surface
+  [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
 - A `unique` constraint names a property the event declares directly; the constraint name is
   its identity (renaming starts an empty index).
 - Unauthorized is `then denied`; a broken rule is `then error`; authorization runs first.

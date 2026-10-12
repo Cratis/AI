@@ -17,11 +17,8 @@ module Membership
     slice StateChange Subscribe
       command Subscribe
         memberId MemberId identifier
-        produces MemberSubscribed
-          for memberId
-          subscribedAt = $context.occurred
-      event MemberSubscribed
-        subscribedAt DateTime
+        produces event MemberSubscribed
+          subscribedAt DateTime = $context.occurred
       specification SubscribingAMember
         given clock "2026-10-05T09:00:00Z"
         when Subscribe
@@ -39,11 +36,8 @@ module Membership
         months   Int
         validate
           months > 0  message "Renew for at least one month"
-        produces MembershipRenewed
-          for memberId
-          months = months
-      event MembershipRenewed
-        months Int
+        produces event MembershipRenewed
+          months Int = months
       specification RejectingAZeroRenewal
         when Renew
           memberId = "5b6c1f7e-2d3a-4e8b-9c0d-1a2b3c4d5e6f"

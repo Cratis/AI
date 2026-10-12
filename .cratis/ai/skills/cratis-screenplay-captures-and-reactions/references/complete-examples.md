@@ -108,11 +108,8 @@ module Onboarding
       command AcceptInvitation
         invitationId Uuid identifier
         workspaceId  WorkspaceId
-        produces InvitationAccepted
-          for invitationId
-          workspaceId = workspaceId
-      event InvitationAccepted
-        workspaceId WorkspaceId
+        produces event InvitationAccepted
+          workspaceId WorkspaceId = workspaceId
     slice StateChange SendWelcomeMail
       command SendWelcomeMail
         workspaceId WorkspaceId identifier
@@ -224,11 +221,8 @@ module Collections
         reason String
         validate
           reason not empty message "A reason is required"
-        produces InvoiceClosed
-          for invoiceId
-          reason = reason
-      event InvoiceClosed
-        reason String
+        produces event InvoiceClosed
+          reason String = reason
       constraint OnlyClosedOnce
         unique event InvoiceClosed
     slice StateView InvoiceBalances
@@ -244,11 +238,8 @@ module Collections
     slice StateChange SendPaymentReminder
       command SendPaymentReminder
         invoiceId InvoiceId identifier
-        produces PaymentReminderSent
-          for invoiceId
-          reminderNumber = 1
-      event PaymentReminderSent
-        reminderNumber Int
+        produces event PaymentReminderSent
+          reminderNumber Int = 1
     slice Automation Reminders
       reaction RemindOnDueDate
         description "Reminds the customer when an invoice falls due unpaid"

@@ -21,7 +21,8 @@ report the complete example in [reactions-and-cascades.md](reactions-and-cascade
 
 - **Screenplay 4.66.0 (ESM v6, from 4.61.0), standalone and `cratis` 3.28.2:** the clock, trigger
   and capture actions, and the `Automation` and `Translate` slices, reactions and
-  captures they drive, bind. The reference runner executes them as library code, with
+  captures they drive, bind. The reference runner executes them through `screenplay test` or MCP
+   `run-specifications`, with
   the semantics in [Reactions and cascades](reactions-and-cascades.md).
 - **`cratis` before 3.28.2 (Screenplay 4.60.1, ESM v1-v5):**
   **`when query` executed. The clock, trigger and capture actions did not.** They parsed, printed and were

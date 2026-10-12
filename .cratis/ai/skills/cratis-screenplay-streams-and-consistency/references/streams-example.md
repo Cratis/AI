@@ -49,13 +49,9 @@ module Membership
         email    Email
         name     String
         authorize IsCoordinator
-        produces MemberRegistered
-          for memberId
-          email = email
-          name  = name
-      event MemberRegistered
-        email Email
-        name  String
+        produces event MemberRegistered
+          email Email = email
+          name String = name
       constraint UniqueMemberEmail
         unique email on MemberRegistered
         ignore casing
@@ -102,11 +98,8 @@ module Courses
       command OpenCourse
         courseId CourseId identifier
         seats    Int
-        produces CourseOpened
-          for courseId
-          seats = seats
-      event CourseOpened
-        seats Int
+        produces event CourseOpened
+          seats Int = seats
       specification OpeningACourse
         given caller
           authenticated
@@ -176,13 +169,9 @@ module Courses
         validate
           require course.openSeats > 0
             message "The course is full"                 // NOT enforced: the view lags (PLAY0268 at binding)
-        produces MemberEnrolled
-          for enrolmentId
-          courseId = courseId                  // cross-stream references are payload
-          memberId = memberId
-      event MemberEnrolled
-        courseId CourseId
-        memberId MemberId
+        produces event MemberEnrolled
+          courseId CourseId = courseId          // cross-stream references are payload
+          memberId MemberId = memberId
       constraint OneActiveEnrolmentPerMemberAndCourse
         unique courseId, memberId on MemberEnrolled
         released by EnrolmentWithdrawn
@@ -276,11 +265,8 @@ module Courses
         validate
           require enrolment.courseId == courseId
             message "The enrolment does not belong to that course"   // NOT enforced today
-        produces EnrolmentWithdrawn
-          for enrolmentId
-          courseId = courseId
-      event EnrolmentWithdrawn
-        courseId CourseId
+        produces event EnrolmentWithdrawn
+          courseId CourseId = courseId
       constraint WithdrawOnce
         unique event EnrolmentWithdrawn
       specification WithdrawingAnEnrolment

@@ -11,6 +11,9 @@ import { Outcome } from './Outcome.ts';
 import type { Report } from './Report.ts';
 import type { Runner } from './Runner.ts';
 import { run } from './invoke.ts';
+import { PreferredSyntax, screenplayGuidance } from './preferred-syntax.ts';
+import type { StyleDiagnostic } from './StyleDiagnostic.ts';
+import type { StyleException } from './StyleException.ts';
 
 async function markdownFiles(directory: string): Promise<string[]> {
     const paths: string[] = [];
@@ -45,12 +48,25 @@ export async function verifyPlayExamples(root: string, runner: Runner = run, env
         report.outcome = Outcome.Defects;
         return report;
     }
+    let preferred: PreferredSyntax;
+    try {
+        const contract = JSON.parse(await readFile(join(skills, 'cratis-screenplay-toolchain/references/screenplay-contract.json'), 'utf8')) as { diagnostics: StyleDiagnostic[] };
+        const exceptions = JSON.parse(await readFile(join(root, 'Source/Verification/play/preferred-syntax-allowlist.json'), 'utf8')) as StyleException[];
+        preferred = new PreferredSyntax(contract.diagnostics, exceptions);
+    } catch (error) {
+        report.problems.push(`Preferred syntax contract/allowlist cannot be read: ${String(error)}`);
+        report.outcome = Outcome.Defects;
+        return report;
+    }
     // Discovery and marker validation still run when the executable is absent.
     for (const directory of (await readdir(skills, { withFileTypes: true })).filter(entry => entry.isDirectory())) {
         const skillDirectory = join(skills, directory.name);
         const fences = [];
         for (const file of await markdownFiles(skillDirectory)) {
-            const parsed = parseFences(relative(root, file), await readFile(file, 'utf8'));
+            const content = await readFile(file, 'utf8');
+            const name = relative(root, file);
+            const parsed = parseFences(name, content);
+            if (screenplayGuidance(name)) preferred.scan(name, content, parsed.fences);
             report.problems.push(...parsed.problems);
             fences.push(...parsed.fences);
         }
@@ -111,6 +127,7 @@ export async function verifyPlayExamples(root: string, runner: Runner = run, env
                     const model = join(directory, 'example.play');
                     await writeFile(model, source);
                     const compiled = await runner(tool, [model, '--warnaserror', '--no-color'], directory);
+                    preferred.diagnostics(fence, compiled.output);
                     const outcome = compileOutcome(compiled, fence.expectedCodes);
                     if (outcome === Outcome.CouldNotRun) return couldNotRun(location, compiled.unavailable ?? compiled.output);
                     if (outcome === Outcome.Defects) {
@@ -134,6 +151,15 @@ export async function verifyPlayExamples(root: string, runner: Runner = run, env
             });
         }
     }
+    for (const directory of ['.cratis/ai/agents', 'Evaluations/skills']) {
+        for (const file of await markdownFiles(join(root, directory))) {
+            const name = relative(root, file);
+            if (screenplayGuidance(name)) {
+                const content = await readFile(file, 'utf8');
+                preferred.scan(name, content, parseFences(name, content).fences);
+            }
+        }
+    }
     if (!jobs.length) report.problems.push('No Screenplay example was selected for compilation; play-compiles would pass vacuously.');
     else {
         const versionResult = await runner(tool, ['--version'], root);
@@ -147,6 +173,7 @@ export async function verifyPlayExamples(root: string, runner: Runner = run, env
             }));
         }
     }
+    report.problems.push(...preferred.finish());
     report.skipped.sort((left, right) => left.location.localeCompare(right.location));
     report.problems.sort();
     report.outcome = report.problems.length > unavailableProblems ? Outcome.Defects : unavailable ? Outcome.CouldNotRun : Outcome.Clean;

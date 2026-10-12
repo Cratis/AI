@@ -147,11 +147,8 @@ module Certification
       description "Realization sends the certificate with idempotency key = enrolment id, then appends"
       command SendCertificate
         enrolmentId EnrolmentId identifier
-        produces CertificateSent
-          for enrolmentId
-          sentAt = $context.occurred
-      event CertificateSent
-        sentAt DateTime
+        produces event CertificateSent
+          sentAt DateTime = $context.occurred
       constraint IssueOnce
         unique event CertificateSent
       specification SendingACertificate

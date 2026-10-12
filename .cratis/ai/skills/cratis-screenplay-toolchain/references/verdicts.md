@@ -104,13 +104,25 @@ never "specifications pass".
 ## V4: reference specifications run
 
 Run `screenplay test <root> [--filter <exact-address>] [--format text|json]` on
-4.125.0, or MCP `run-specifications`. The compile command alone still does not
+the standalone pin, or MCP `run-specifications`. The compile command alone still does not
 execute scenarios. Reference execution is in-memory: no external services or
 opaque code run. Record route, expected versus discovered/selected counts,
 passed, failed and unsupported outcomes. Exit 0 means all selected passed; 1
 failed, 2 could not run/invalid input or selection, 3 unbound or unsupported.
 Unknown filters refuse rather than select zero. No discovered specifications
-is not proof of coverage.
+is not proof of coverage. `test` rejects `--no-color` (exit 2).
+
+MCP selectors are `specification` (exact address/id) and `scope` (prefix);
+both supplied mean intersection. `offset`/`limit` page results; continuation
+requires `expectedSourceRevision`. On **Screenplay 4.145.0 and later**, pass
+`proposalId` between proposal review and `apply` to run the retained candidate
+read-only. Without that argument it runs the workspace. A candidate
+V4 belongs only to its returned source revision, not to the disk model.
+Unknown/applied/discarded/reopened proposals give `UnknownProposal`.
+A statically impossible `then` reports PLAY0285: the whole model is unbound,
+exit 3, and no specifications run. Details and source evidence:
+[reference execution](../../cratis-screenplay-model-authoring/references/mcp-tools.md#run-reference-specifications).
+
 The reference runner returns unsupported for a specification that reads a reducer-built read
 model and for any construct whose evaluation needs an opaque body.
 

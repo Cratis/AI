@@ -6,6 +6,8 @@ license: MIT
 
 # Screenplay toolchain
 
+Read [preferred syntax](references/preferred-syntax.md) when writing or reviewing `.play`.
+
 Which tool to run, what its result means, and what each tool can and cannot admit. This
 skill answers "does it compile, bind, render, and which compiler said so". The method
 (what to model, in which order, with which gates) lives in
@@ -22,7 +24,7 @@ files is one application: always check the folder, never one file of it.
 
 When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it. For exact diagnostic codes, MCP names/parameters and standalone CLI options, search the large published [references/screenplay-contract.json](references/screenplay-contract.json), pinned by [references/screenplay-contract.version](references/screenplay-contract.version), rather than loading it in full. Locate a diagnostic by its exact `code` (for example `"code": "PLAY0029"`), a tool by its exact `name` (for example `"name": "read-workspace"`), or a command in `cliCommands`; read the matched object for retirement, parameters or options. [references/screenplay-contract-exceptions.json](references/screenplay-contract-exceptions.json) records reasoned exceptions for historical statements; it does not change the current contract.
 
-The standalone pin is Screenplay 4.142.0.
+The standalone pin is Screenplay 4.145.0.
 CLI and bundled package pins: `references/versions.md`. The single version table records
 released source evidence and historical probes separately; do not relabel an old
 render/browser result as a probe of the current packages.
@@ -31,7 +33,7 @@ Historical screens-release evidence: CLI 3.40.7 / Stage 4.51.1 / bundled
 Screenplay 4.114.0 opened the canonical corpus with `executableReady true`
 and the stdio transcript exposed 37 tools; standalone language 4.122.0 was
 recorded in that vector. These retained results are not a rerun on CLI 3.53.1
-or Screenplay 4.142.0.
+or Screenplay 4.145.0.
 
 ## Ground rules
 
@@ -44,7 +46,7 @@ or Screenplay 4.142.0.
 3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for
    current language checks and reference specifications; `cratis` for rendering
    and generation. Bundled and standalone versions differ (CLI 3.53.1 bundles 4.137.0;
-   the standalone pin is 4.142.0). Report both tool and
+   the standalone pin is 4.145.0). Report both tool and
    version, rather than transferring a verdict across releases.
 4. **Know the mode** (design, executable, renderable) and write from its subset.
 5. **Capability is not correctness.** The tool you ran decides what is accepted today; the
@@ -91,7 +93,7 @@ server with a fixed root when the tool is older than 4.63.2 (the roots bug hit 4
 4.60.1 bundled by cratis before 3.28.2; 4.66.0 and later and cratis 3.28.2 are fine). A subagent without MCP reports "V2 not run: no MCP in this agent".
 
 One line per verdict, tool first, for example `V1 pass (screenplay 4.142.0, 3 files)` and
-`V3 blocked: PLAY0268 x3 (filter query, enum compliance)`. Name the source identity (commit plus the digest from
+`V3 blocked: PLAY0268 x3 (context filter, enum compliance)`. Name the source identity (commit plus the digest from
 the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")) the verdict ran on; keep it apart from the MCP
 `modelRevision`, which is semantic and, without `.screenplay/identities.json`,
 changes with the root folder name.
@@ -101,7 +103,10 @@ changes with the root folder name.
 - **Design**: every construct family parses; use it to model first. Compiled shapes:
   `references/cheat-sheet.md`. Read [references/cheat-sheet-example.md](references/cheat-sheet-example.md) when you need one complete design-mode document with every construct family.
 - **Executable** (binds, V3): `references/executable-subset.md`. Optional keyed lookups, unfiltered
-  lists and lists narrowed by one `by` key (observable too); `filter`, `scoped to`, `performer` and composite `by` do not bind; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
+  lists and lists narrowed by one `by` key (observable too); caller-supplied equality
+  filters on collections bind as v14 since 4.143.0. Context `from`, single-result
+  filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268. Read
+  read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md). No handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); concept compliance binds as v13 on standalone
   4.142.0 (since 4.141.0), not the pinned CLI (precise refusals: command-surface `references/compliance.md`);
   v6 constructs bind on Screenplay 4.61 or
@@ -168,7 +173,7 @@ All 44, with fixes: `references/traps.md`. Read `references/traps.md` when diagn
 Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. Read [references/doc-contradictions.md](references/doc-contradictions.md) when the Screenplay documentation and the compiler disagree and you must decide which to trust.
 
 1. Clean V1 is not executable: only MCP (V2) or `render` binds.
-2. Write `for <identifier>` on every `produces`.
+2. Prefer inline `produces event` for a command-owned event; plain command productions need explicit `for <identifier>`.
 3. PLAY0029 is a warning: validate with warnings as errors.
 4. Validate the folder; name the compiler (cli#244, cli#242).
 5. V1 warns on undeclared projection targets (`PLAY0514`) and removal/capture

@@ -34,12 +34,8 @@ module Berths
       command AllocateBerth
         berthId BerthId identifier
         boat    BoatName
-        produces BerthAllocated
-          for berthId
-          boat = boat
-
-      event BerthAllocated
-        boat BoatName
+        produces event BerthAllocated
+          boat BoatName = boat
 
       constraint OneBerthPerBoat
         unique boat on BerthAllocated

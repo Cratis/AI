@@ -3,6 +3,16 @@
 
 # Retained source notes
 
+Original evidence: Screenplay v4.31.0 (`355dffb`),
+`Documentation/screenplay/{specifications,policies,constraints,readmodels,diagnostics}.md`.
+The original worked example had reference-runner evidence at that tag; inline
+events and canonical optionality added later need their own current check.
+
+Actions beyond commands (`given clock`, `when clock`, `when trigger`, `given capture`,
+`when capture`, `when query`, `then result`, `then no result`) were checked at
+v4.48.0 (`3baf4a4`), `Documentation/screenplay/{specifications,diagnostics}.md`
+and proposed decision 0022. These actions do not exist before v4.48.0.
+
 | Package | Version | Purpose |
 | --- | --- | --- |
 | `Cratis.Screenplay` | `4.31.0` | Original parser, binder and reference execution evidence |

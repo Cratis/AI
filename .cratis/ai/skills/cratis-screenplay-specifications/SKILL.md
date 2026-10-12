@@ -6,23 +6,19 @@ license: MIT
 
 # Screenplay specifications
 
+Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
+
 A `specification` is the acceptance criterion for a slice, written in the same
 document as the behavior it pins. Given/when/then, in business language, with
 concrete data.
 
 ## Locate the model
 
-Look first for the project's existing `.play` files: the folder holding them is the
-model. A new model goes under the repository's `Source/` or `src/` folder, else in a
-`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
-configuration and the shared AI corpus only. This is the
-conventional home for consumer-owned `.play` source; do not invent another
-location or search the whole repository before checking it.
-
-`cratis ai install` manages `.cratis/ai/`, never model files. Never
-hand-copy Screenplay source between repositories. Keep Markdown that explains,
-questions or navigates the model in the repository's documentation; the `.play`
-source is the single flow model.
+Look first for the project's existing `.play` files: their folder is the model.
+For a new model, check `Source/` or `src/`, else use `Screenplay/` at the repository
+root. Never put a model under `.cratis/` or hand-copy it between repositories.
+`cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
+Markdown in project documentation; `.play` is the single flow model.
 
 ## Verified product sources
 
@@ -34,20 +30,15 @@ Specification syntax was checked against Screenplay v4.127.0 `specifications.md`
 older probes in the table remain historical. Pins: `cratis-screenplay-toolchain`
 `references/versions.md`. Compile commands check source, not reference execution.
 Use `screenplay test` or MCP `run-specifications` for V4; Stage/target tests are
-separate evidence. Unsupported/unbound is never a pass. Typed examples and
+separate evidence. On Screenplay **4.145.0 and later**, propose → review →
+`run-specifications` with `proposalId` → apply.
+PLAY0285 (an impossible `then`) unbinds the whole model and blocks every spec.
+Unsupported/unbound is never a pass. Typed examples and
 route assertions are in [examples and routes](references/examples-and-routes.md).
 
-Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
-`Documentation/screenplay/{specifications,policies,constraints,readmodels,diagnostics}.md`.
-The original worked example had reference-runner evidence at that tag. The
-example below now uses inline events and canonical optionality; keep its current
-compile check distinct from that historical execution evidence.
-
-The specification actions beyond commands (`given clock`, `when clock`,
-`when trigger`, `given capture`, `when capture`, `when query`, `then result`,
-`then no result`) were checked against tag `v4.48.0` (commit `3baf4a4`):
-`Documentation/screenplay/{specifications,diagnostics}.md` and the proposed
-decision 0022. They do not exist before v4.48.0.
+Read [source notes](references/source-notes.md) for the original v4.31.0
+reference-runner evidence and v4.48.0 action syntax. Historical evidence is not
+current execution evidence; run the changed examples at the standalone pin.
 
 ## Reference execution — what actually runs
 
@@ -171,8 +162,9 @@ the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
   `when append`, a model before ESM v6 expects the appended fact itself; from
   ESM v6 the appended event is the action and `then` lists only what followed it.
 - **Read models and query rows:** only the asserted properties must match
-  (subset); add `exactly` to require every property. Row count and order are
-  always exact. A missing property does not match an asserted `null`.
+  (subset); add `exactly` to require every property. Query row count is exact;
+  collection rows match by read model/key regardless of order. Ordering within a
+  collection-valued property is unchanged. A missing property does not match an asserted `null`.
 - **Rejections:** `then error "<message>"` matches the message whatever the rule's
   validation severity; no form asserts severity. Bare `then error` never matches
   a denial. Quote a localized key: `then error "$strings.invoices.reasonRequired"`.

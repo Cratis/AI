@@ -21,11 +21,8 @@ module Invoicing
       command SendInvoice
         invoiceId InvoiceId identifier
         status InvoiceStatus
-        produces InvoiceSent
-          for invoiceId
-          status = status
-      event InvoiceSent
-        status InvoiceStatus
+        produces event InvoiceSent
+          status InvoiceStatus = status
       specification Sending
         when SendInvoice
           invoiceId = "6f9619ff-8b86-d011-b42d-00c04fc964ff"

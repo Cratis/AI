@@ -103,7 +103,7 @@ occurrences; hitting that is a modeling defect, not a limit to tune.
 
 ## 6. Clock and trigger occurrences
 - `every N minutes|hours|days`, `at HH:mm`, `at HH:mm on <Weekday>`, `at HH:mm on day N`.
-- Occurrences carry no event source: every `produces` needs `for` (a literal such as
+- Occurrences carry no event source: every `produces` needs `for` (reactions cannot declare inline events) (a literal such as
   `"weekly"` for a singleton stream, or a carried value).
 - `where` must be resolvable from each trigger's values; a clock has none, so a clock trigger
   in a reaction with `where` fails binding. Give the sweep its own reaction.

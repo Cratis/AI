@@ -35,7 +35,7 @@ Independence: independent (fresh context, different model family from every auth
 V1 authorable:                <pass (tool, version, N files) | fail: PLAYnnnn at file:line>
 V2 executable diagnostics:    <clean | n diagnostics: codes | not run: reason>
 V3 binding-ready:             <ready | blocked: codes | not run: reason>
-V4 reference specs run:       <route, expected vs discovered, passed/failed/unsupported/cancelled | not run: no route>
+V4 reference specs run:       <route, expected vs discovered, passed/failed/unsupported; overall unbound | not run: no route>
 V5 rendered, target-verified: admission <...>; publication <...>; build <...>; tests <...>   (each "not run: reason" when absent)
 Gaps: <capability gaps and tool-version gaps, e.g. a false PLAY0285 on cascades from a cratis before 3.28.2 bundle>
 

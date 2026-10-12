@@ -111,7 +111,8 @@ property (at most one; leave it out only when the runtime should allocate a new
 identity), `authorize`, and `produces`. Excerpt: the complete document is
 [invoicing-example.md](invoicing-example.md). Give the event a description of the
 fact, and fenced Markdown `documentation` when its meaning needs elaboration.
-Alternatively, declare it in the command with `produces event` and typed mappings.
+Prefer `produces event` with typed mappings for an event owned by one command;
+shared events stay standalone with explicit command destinations.
 
 ```screenplay excerpt parent=references/invoicing-example.md#1
 // Parent: references/invoicing-example.md (complete document), slice RegisterInvoice
@@ -122,10 +123,9 @@ slice StateChange RegisterInvoice
     authorize CanManageInvoice
     validate
       invoiceNumber not empty  message "Invoice number is required"
-    produces InvoiceRegistered
-      for invoiceId
-      invoiceNumber = invoiceNumber
-      registeredAt  = $context.occurred
+    produces event InvoiceRegistered
+      invoiceNumber InvoiceNumber = invoiceNumber
+      registeredAt DateTime = $context.occurred
 ```
 
 The "under what circumstances would this NOT happen" answers become `validate`
@@ -251,11 +251,8 @@ module Invoicing
       description "Records that the weekly collections digest was issued"
       command IssueCollectionsDigest
         period DigestPeriod identifier
-        produces CollectionsDigestIssued
-          for period
-          issuedAt = $context.occurred
-      event CollectionsDigestIssued
-        issuedAt DateTime
+        produces event CollectionsDigestIssued
+          issuedAt DateTime = $context.occurred
       specification IssuingTheDigest
         given clock "2026-10-05T07:30:00Z"
         when IssueCollectionsDigest

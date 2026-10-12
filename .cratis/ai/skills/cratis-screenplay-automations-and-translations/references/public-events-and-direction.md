@@ -61,11 +61,8 @@ module Integration
       command PackOrder
         orderId OrderId identifier
         carrier String
-        produces OrderPacked
-          for orderId
-          carrier = carrier
-      event OrderPacked
-        carrier String
+        produces event OrderPacked
+          carrier String = carrier
     slice Translate PublishOrderShipped
       direction outbound
       public event OrderShipped

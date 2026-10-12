@@ -62,13 +62,9 @@ module Lockers
         number LockerNumber
         volume   Litres
         authorize IsAttendant
-        produces LockerInstalled
-          for lockerId
-          number = number
-          volume   = volume
-      event LockerInstalled
-        number LockerNumber
-        volume   Litres
+        produces event LockerInstalled
+          number LockerNumber = number
+          volume Litres = volume
       constraint UniqueLockerNumber
         unique number on LockerInstalled
         message "That locker number is already installed"
@@ -141,13 +137,9 @@ module Lockers
       command RequestLocker
         requestId RequestId identifier
         preferredVolume Litres
-        produces LockerRequested
-          for requestId
-          preferredVolume = preferredVolume
-          requestedAt   = $context.occurred
-      event LockerRequested
-        preferredVolume Litres
-        requestedAt   DateTime
+        produces event LockerRequested
+          preferredVolume Litres = preferredVolume
+          requestedAt DateTime = $context.occurred
       specification RequestingALocker
         given caller
           authenticated
@@ -180,11 +172,8 @@ module Lockers
             message "The locker is not free"
           require request.state == "waiting"
             message "The request is not waiting for a locker"
-        produces LockerAssigned
-          for lockerId
-          requestId = requestId
-      event LockerAssigned
-        requestId RequestId
+        produces event LockerAssigned
+          requestId RequestId = requestId
       constraint OneRequestPerLocker
         unique event LockerAssigned
         message "The locker is already assigned"

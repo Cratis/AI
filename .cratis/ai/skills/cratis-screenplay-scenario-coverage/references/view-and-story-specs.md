@@ -119,7 +119,8 @@ Keep three claims apart:
 - one stored instance is absent: `then no readmodel`;
 - a query returns no rows: `then query` without `result`, or `when query` + `then no result`;
 - a list-valued property is empty: assert that property as `[]`.
-List-query results use repeated `result` blocks; count and order are exact. A keyed lookup does
+List-query results use repeated `result` blocks; count is exact and rows match
+by read model and instance key regardless of order. A keyed lookup does
 not prove an entire list is empty: assert the unkeyed list query itself (an unkeyed query takes no
 `arguments`; each `result` row states the read-model identifier, else PLAY0351). A snapshot list does not render
 (`STAGE-ESM-010`, Stage 4.73.1); an `observable` list does. Record that rendering limit.

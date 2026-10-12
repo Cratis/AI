@@ -48,13 +48,9 @@ module Invoicing
         amount    Decimal
         validate
           amount > 0 message "An invoice needs an amount above zero"
-        produces InvoiceIssued
-          for invoiceId
-          member = member
-          amount = amount
-      event InvoiceIssued
-        member MemberId
-        amount Decimal
+        produces event InvoiceIssued
+          member MemberId = member
+          amount Decimal = amount
       constraint IssueOnce
         unique event InvoiceIssued
 
@@ -94,17 +90,12 @@ module Invoicing
       description "An invoice ends either settled or voided, never both: SettleOrVoid declares the exclusivity per invoice, enforced at append. Rules about the invoice's stored state are in invoicing-dues-design.md."
       command SettleInvoice
         invoiceId InvoiceId identifier
-        produces InvoiceSettled
-          for invoiceId
+        produces event InvoiceSettled
       command VoidInvoice
         invoiceId InvoiceId identifier
         reason    String
-        produces InvoiceVoided
-          for invoiceId
-          reason = reason
-      event InvoiceSettled
-      event InvoiceVoided
-        reason String
+        produces event InvoiceVoided
+          reason String = reason
       constraint SettleOrVoid
         unique event InvoiceSettled
         unique event InvoiceVoided
@@ -170,9 +161,7 @@ module Invoicing
       description "Starts a payment attempt. PaymentRequested says only that we asked the gateway; it is NOT the outcome. The outcome arrives later as an external fact (slice PaymentGatewayResults). A request may be repeated after a decline, so there is deliberately no once-only constraint here."
       command RequestPayment
         invoiceId InvoiceId identifier
-        produces PaymentRequested
-          for invoiceId
-      event PaymentRequested
+        produces event PaymentRequested
 
       specification RequestingPayment
         given caller
@@ -374,11 +363,8 @@ module Invoicing
         amount Decimal
         validate
           amount > 0 message "A top-up needs an amount above zero"
-        produces CreditToppedUp
-          for member
-          amount = amount
-      event CreditToppedUp
-        amount Decimal
+        produces event CreditToppedUp
+          amount Decimal = amount
 
       specification ToppingUpCredit
         given caller

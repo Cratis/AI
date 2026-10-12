@@ -249,7 +249,8 @@ v4.31.0 table, re-read against v4.66.0 and v4.68.0 documentation and probed thro
 the standalone 4.66.0 tool for the rows marked "probed"; Cratis CLI 3.28.2 and 3.28.3 bundle
 Screenplay 4.66.0 (before 3.28.2, Screenplay 4.60.1, differ where stated).
 
-Read-model identity and query admission below are corrected to 4.135.0:
+Read-model identity below is corrected to 4.135.0; equality query filters are
+updated to standalone 4.145.0 (admitted in 4.143.0, ESM v14):
 explicit trailing `key` wins; otherwise single-instance queries in the owning slice
 must agree on `by`. Only with no single-instance identifier and an admitted list
 query does conventional `*Id` inference run. Queryless views need explicit `key`.
@@ -265,8 +266,9 @@ See read-surface `references/named-keys.md` for the collection-key exclusion alg
 | Information only, never blocks (probed) | `persona` (report-only: `PLAY0270`, the policies it lists must exist), `authentication`, `domain`, `seed`, descriptions and `file` provenance. A persona does not block binding and does not change behavior, so state persona scope in a description or a policy the model uses |
 | Binds as ESM v7 on standalone Screenplay 4.68.0 (source and release notes; `PLAY0268` on the 4.66.0 in Cratis CLI 3.28.x, probed) | `generated` properties and `returns` responses, generated fixtures and `then returns`: bound and executed by the reference runner; a policy, rule or requirement that references a generated value is `PLAY0273`, and a generated property on a concept with validation rules is `PLAY0268`. Stage 4.73.1 refuses them (`STAGE-ESM-028`/`-029`, Stage#175): gap-fill |
 | Authorable, not executable (PLAY0268) | Systems/operations, the `numbers exact` source mode (PLAY0268; exact lowering of qualifying Double literals is the admitted v11) and refusal/redelivery remain unadmitted |
+| Collection equality filters (ESM v14, since 4.143.0) | Caller-supplied `filter name Type [optional]`, no `from`, matching a same-named scalar primitive/concept/enum read-model property with the same nominal type. AND with `by`; optional omission does not narrow, supplied null is refused. PLAY0468 covers unknown/repeated/missing required spec arguments; result rows compare by read-model/key regardless of order. Read read-surface `references/equality-filters.md` for the compiled example and renderer ceilings |
 | Current routing and actor admission | Sources/streams and command/specification routes bind and reference-execute as v8; reaction `runs as system role` supplies the invocation actor as v10 on 4.125.0. Whole-workspace binding determines executable availability; CLI/Stage realization remains separate |
-| Blocks binding (`PLAY0268`) | enum/identity compliance and events combining personal or explicitly subject-scoped secret values with explicit subject marks (4.141.0); the older CLI bundle refuses all `pii`/`secret` concepts (historical probe: "compliance attributes require portable data-subject semantics"); command `handler` (never binds; a command cannot declare both `produces` and `handler`, `PLAY0035`), bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, unquoted `import` of an external contract, a read model with neither explicit `key` nor unambiguous query-based identity as described above (composite keys remain unadmitted), queries with filters, scope, performer, context-derived `by` or composite `by` blocks (optional keyed and collection queries, including observable delivery, bind at 4.135.0), `$causedBy` and templates in projections |
+| Blocks binding (`PLAY0268`) | enum/identity compliance and events combining personal or explicitly subject-scoped secret values with explicit subject marks (4.141.0); the older CLI bundle refuses all `pii`/`secret` concepts (historical probe: "compliance attributes require portable data-subject semantics"); command `handler` (never binds; a command cannot declare both `produces` and `handler`, `PLAY0035`), bare `rule <Name>`, `require` or conditions over read-model paths, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, unquoted `import` of an external contract, a read model with neither explicit `key` nor unambiguous query-based identity as described above (composite keys remain unadmitted), queries with context `from` sources (typed query context is unadmitted), single-result filters (collections only), `scoped to` (opaque scope), `performer` (opaque implementation) or composite `by` blocks (#599); optional keyed and collection queries, including caller-supplied equality filters and observable delivery, bind, `$causedBy` and templates in projections |
 | Blocks binding (`PLAY0271`, legacy meaning) | Command `reads` and `concurrency` |
 | Deferred (`PLAY0269`, information) | Screens, layouts, templates, forms, contributions, UI profiles, themes, behaviors and `on`/`uses` |
 | Metadata only (`PLAY0270`, information) | `domain`, `seed`, `persona`, trigger and other descriptions, and `file` provenance on declarations |
@@ -275,9 +277,9 @@ The table is a snapshot, not a contract (rows without "probed" are carried from
 v4.31.0 and v4.66.0 documentation): ask the binder (MCP `executable-diagnostics`
 view) rather than extrapolating from it. Neither `screenplay` nor
 `cratis screenplay validate` binds, so a clean validation says nothing about this table. Retain valid source that the
-backend cannot represent rather than downgrading it to a stub. The MCP does not
-run specifications, compile embedded code, generate an application, or follow
-realization files. Stage owns rendering and runtime admission.
+backend cannot represent rather than downgrading it to a stub. MCP `run-specifications` executes the admitted reference subset, not embedded
+code or realization files. Stage owns application generation, rendering and
+runtime admission.
 
 ## Not in the language yet
 

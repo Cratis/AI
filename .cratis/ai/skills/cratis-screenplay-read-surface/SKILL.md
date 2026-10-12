@@ -6,6 +6,8 @@ license: MIT
 
 # The Screenplay read surface
 
+Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
+
 What the system can be asked, and what a user sees. The `readmodel` declares the
 shape, the `query` is the entry point, and the `screen` renders it.
 
@@ -32,7 +34,9 @@ source is the single flow model.
 | `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Which query shapes bind and render (`Semantics/`, `Documentation/screenplay/queries.md`) |
 
 The update follows `types.md`, `queries.md` and `vscode.md` at that main commit
-(after v4.52.0). Compilation does not establish query execution.
+(after v4.52.0). Compilation does not establish query execution. Current equality-filter evidence:
+Screenplay v4.145.0 (admitted in 4.143.0, decision 0069); read
+[the verified sources and compiled example](references/equality-filters.md).
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 `Documentation/screenplay/{queries,readmodels,screens,policies,specifications,interactions}.md`
@@ -82,12 +86,12 @@ query ListInvoices => InvoiceListReadModel[]
   authorize IsAuthenticated
 ```
 
-**Name the compiler and renderer.** At Screenplay 4.135.0, optional keyed queries
-and collection queries bind, including `observable`, with caller-supplied `by`
-or no `by` on a collection. Filters, scope, performer and context-derived `by`
-remain PLAY0268. The old Stage 4.24.0 list refusal is not a current compiler
-limitation; check the target renderer's admission separately. Keep a list the
-domain needs rather than inventing a keyed query solely to infer identity.
+**Name the compiler and renderer.** Optional keyed queries and collection queries
+bind, including `observable`. Since Screenplay 4.143.0, caller-supplied equality
+filters on collections bind as ESM v14; `from`, single-result filters, `scoped to`,
+`performer` and composite `by` remain PLAY0268, each with its reason. Read
+[equality filters](references/equality-filters.md) for the admitted shape, a complete
+compiled specification model and the Stage/CLI ceilings. Keep a list the domain needs.
 
 Return-type forms after `=>`: `ReadModel`, `ReadModel optional`, `ReadModel[]`,
 each optionally prefixed `observable`. `ReadModel[] optional` permits an absent
@@ -104,7 +108,7 @@ scalar type named `observable`. It is the canonical exception and has no
 | Clause | Meaning |
 | --- | --- |
 | `by` | the **identifying** parameter — the query returns the instance it identifies |
-| `filter` | an optional parameter narrowing the result set; usually typed `optional` |
+| `filter` | a caller-supplied equality parameter narrowing the result set; required unless typed `optional` |
 | `from <source>` | fills the parameter **from the context** instead of from the caller |
 
 ⚠️ **Anything the caller must not be able to choose — the tenant, the caller's own
@@ -151,7 +155,7 @@ most reads are. The marker qualifies only *how* the result arrives, so it compos
 with `[]`, `optional`, `by`, `filter`, `authorize` and a `performer`, and a screen binds
 to a live query exactly as it binds to a one-shot one. The delivery itself is the
 target runtime's: the executable model binds `observable` queries (delivery `live`) that
-have no `filter`, `scoped to` or `performer`.
+have no opaque scope/performer and, when filtered, only admitted caller-supplied equality filters (ESM v14).
 
 Paging, sorting and change-set delivery for queries are accepted as Screenplay
 decision 0010 but **not in the language yet**. Do not invent syntax for them.
@@ -174,15 +178,19 @@ on the header line is a declaration error, not a shorthand.
 
 ### What runs
 
-In the Screenplay 4.139.0 executable model (admitted since 4.105.0) these bind: a keyed
-`=> <ReadModel> optional` with one caller-supplied `by` argument, an unfiltered list
-`=> <ReadModel>[]`, a list narrowed by one caller-supplied `by` key, and the `observable`
-form of each. `filter`, `scoped to`, `performer`, `by ... from` and composite `by` report
-`PLAY0268`, as does a single non-optional `=> <ReadModel>`. Its `authorize` gate runs before
-the lookup, ANDed with module and feature gates; a denied caller gets
-`Unauthorized`. Pin that with a `given caller` fixture and `then denied` (see
-`cratis-screenplay-specifications`). Model `filter`, `scoped to` and `performer` shapes when the
-application needs them; just do not claim the reference runner exercised them.
+These bind on standalone 4.145.0: keyed `=> RM optional`, unfiltered collections,
+collections narrowed by caller-supplied `by`, and their `observable` forms.
+Caller-supplied equality filters on collections select ESM v14: same-named scalar
+primitive/concept/enum properties, same nominal type ignoring optionality, no
+`from`, distinct names not repeating `by`. `by` and supplied filters AND together;
+optional filters may be omitted, but supplied null is refused. PLAY0268 still
+rejects context sources, single-result filters, opaque scope/performer and
+composite `by` (#599); a single non-optional result remains unadmitted too.
+Authorization runs before lookup, ANDed with module/feature gates; policies see
+only `by`, never filters. Pin denial with `given caller` and `then denied`.
+Specs pass `by` and filters by name (PLAY0468 for unknown, repeated or missing
+required arguments); collection results match by read model/key regardless of
+row order. Details and renderer limits: [equality filters](references/equality-filters.md).
 
 ## `screen` — three levels
 

@@ -6,23 +6,19 @@ license: MIT
 
 # The Screenplay write surface
 
+Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
+
 Everything that changes the system: the `command` that expresses intent, the
 `event` it appends, the rules that can refuse it, and the strongly-typed values
 they are all built from.
 
 ## Locate the model
 
-Look first for the project's existing `.play` files: the folder holding them is the
-model. A new model goes under the repository's `Source/` or `src/` folder, else in a
-`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
-configuration and the shared AI corpus only. This is the
-conventional home for consumer-owned `.play` source; do not invent another
-location or search the whole repository before checking it.
-
-`cratis ai install` manages `.cratis/ai/`, never model files. Never
-hand-copy Screenplay source between repositories. Keep Markdown that explains,
-questions or navigates the model in the repository's documentation; the `.play`
-source is the single flow model.
+Look first for the project's existing `.play` files: their folder is the model.
+For a new model, check `Source/` or `src/`, else use `Screenplay/` at the repository
+root. Never put a model under `.cratis/` or hand-copy it between repositories.
+`cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
+Markdown in project documentation; `.play` is the single flow model.
 
 ## Verified product sources
 
@@ -81,8 +77,8 @@ commands reference; use `concept` for a single wrapped primitive.
 
 ## The command block
 
-Excerpt: the concepts, the `InvoiceLine` type, the policy and the event are
-declared elsewhere in the model.
+Excerpt: the concepts, `InvoiceLine`, policy and shared event are declared elsewhere.
+For a command-owned event, use the complete inline example in [inline events](references/inline-events.md).
 
 ```screenplay excerpt
 command RegisterInvoice
@@ -221,8 +217,11 @@ A continuation line extends the clause.
 
 ## Inline events and destinations
 
-`produces event` introduces a new generation-1 event. Plain `produces X` without `for` does not infer the identifier:
-state `for` explicitly on every production targeting it.
+Prefer inline `produces event <Name>` for an event owned by one command: `for`
+defaults to its identifier; never copy that identifier into payload. For events
+shared by commands or reactions, declare `event` separately and use plain
+`produces <Name>` with explicit `for <identifier>` on commands. Reactions cannot
+declare inline events. Rendered Arc commands ignore `for` (Stage#187).
 Read [references/inline-events.md](references/inline-events.md) when declaring an event inline in `produces event`,
 choosing or omitting `for` on a production, or fixing `PLAY0469`-`PLAY0478`.
 

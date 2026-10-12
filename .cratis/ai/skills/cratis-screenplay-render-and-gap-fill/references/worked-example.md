@@ -37,11 +37,8 @@ module Berths
         berthId  BerthId identifier
         boatName BoatName
         authorize IsHarbourMaster
-        produces BerthReserved
-          for berthId
-          boatName = boatName
-      event BerthReserved
-        boatName BoatName
+        produces event BerthReserved
+          boatName BoatName = boatName
       specification ReservingABerth
         given caller
           authenticated

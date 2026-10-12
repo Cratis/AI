@@ -6,6 +6,8 @@ license: MIT
 
 # Author a Screenplay model through its AST
 
+Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
+
 Prefer the Screenplay MCP tools to text/regex edits: the compiler owns declaration,
 reference, hierarchy and source evidence for the declarative document set.
 
@@ -95,7 +97,7 @@ can keep that entry point; use the project's supported installation channel.
    bindings are not an empty, successful dependency graph.
 4. Use `find-fixtures` for value occurrences (including example/override origins
    and event routes) and `find-assertion-gaps` for authored assertion gaps. Neither
-   executes specifications. `diagnostics` accepts `scope` and opt-in `checks`;
+   executes specifications; use `run-specifications` for that. `diagnostics` accepts `scope` and opt-in `checks`;
    skipped completeness checks are not passes. Details: `references/mcp-tools.md`.
 5. Echo `sourceRevision` on subsequent pages. Restart the query after drift;
    never combine pages from different snapshots.
@@ -149,12 +151,15 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
    identity-state change through `workspace-state`. Review `orphanedNotes` on
    source proposals; reanchor or resolve affected questions before applying
    ([notes and orphan impact](references/model-notes.md#source-proposals-can-orphan-notes)).
-7. `apply` only the reviewed server-produced proposal within the user's requested
+7. Run `run-specifications` with `proposalId` before applying on **Screenplay
+   4.145.0 and later**. Record V4 separately: PLAY0285 (impossible `then`) unbinds the whole
+   model. Paging and read-only candidate semantics: [MCP tool guide](references/mcp-tools.md#run-reference-specifications).
+8. `apply` only the reviewed server-produced proposal within the user's requested
    change. The proposal ID and before revisions are required; stale state rejects.
    When the user asked for the change to be applied ("apply it when you're done",
    "apply each change"), apply once the proposal checks out instead of asking again;
    otherwise show the proposal and ask once.
-8. When the host draws views, `visualize-model` shows the board. It follows the files
+9. When the host draws views, `visualize-model` shows the board. It follows the files
    on disk while open, so after an apply do not re-request it; just say what changed.
 
 Node handles are revision-bound occurrences, not durable IDs. A logical module

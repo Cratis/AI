@@ -41,17 +41,11 @@ module Berths
           boatLength > 0    message "Boat length must be positive"
           boatLength <= 24  message "Guest berths take boats up to 24 metres"
           night >= today    message "The night must not be in the past"
-        produces BerthReserved
-          for reservationId
-          berth      = berth
-          night      = night
-          boatName   = boatName
-          boatLength = boatLength
-      event BerthReserved
-        berth      BerthCode
-        night      Date
-        boatName   String
-        boatLength Decimal
+        produces event BerthReserved
+          berth BerthCode = berth
+          night Date = night
+          boatName String = boatName
+          boatLength Decimal = boatLength
       constraint OneBoatPerBerthNight
         unique berth, night on BerthReserved
         released by ReservationCancelled
@@ -226,11 +220,8 @@ module Berths
           reason not empty  message "Say why the reservation is cancelled"
           require booking.status == "reserved"
             message "Only a live reservation can be cancelled"
-        produces ReservationCancelled
-          for reservationId
-          reason = reason
-      event ReservationCancelled
-        reason String
+        produces event ReservationCancelled
+          reason String = reason
       constraint CancelOrDepart
         unique event ReservationCancelled
         unique event BoatDeparted
@@ -351,12 +342,10 @@ module Berths
         validate
           require booking.status == "reserved"
             message "Only a live reservation can record a departure"
-        produces BoatDeparted
-          for reservationId
+        produces event BoatDeparted
         produces when damageObserved == true
           BerthDamageReported
             for reservationId
-      event BoatDeparted
       event BerthDamageReported
 
       specification RecordingACleanDeparture

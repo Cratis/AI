@@ -26,13 +26,9 @@ module Invoicing
         authorize CanManageInvoice
         validate
           invoiceNumber not empty  message "Invoice number is required"
-        produces InvoiceRegistered
-          for invoiceId
-          invoiceNumber = invoiceNumber
-          registeredAt  = $context.occurred
-      event InvoiceRegistered
-        invoiceNumber InvoiceNumber
-        registeredAt  DateTime
+        produces event InvoiceRegistered
+          invoiceNumber InvoiceNumber = invoiceNumber
+          registeredAt DateTime = $context.occurred
       event InvoiceSent
 
     slice StateView InvoiceList

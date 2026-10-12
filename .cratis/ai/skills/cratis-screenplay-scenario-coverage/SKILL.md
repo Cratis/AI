@@ -141,7 +141,7 @@ target requirements.
 - Every slice has at least one specification at the application boundary.
 - One behaviour per spec; names read as sentences: `Reserving...`, `Rejecting...`, `Refusing...`
   (denial), `<View>LifecycleN<State>` for families.
-- `for` on every given, appended and expected event, and on the `when` command where the
+- `for` on every given, appended and expected event (plain `produces <Name>` too; inline `produces event` omits it), and on the `when` command where the
   destination matters. A competing-claim given needs a *different* `for`.
 - Format rules belong on a `concept`: give each concept rule representative acceptance,
   rejection and boundary specs once (through one command that carries it), not on every use;
@@ -214,6 +214,9 @@ scope is reported as explicitly incomplete); V1 passes with the tool named in
 - V1 passes (standalone `screenplay` required when cascades are specified); report tool and
   version.
 - Run V4 through standalone `screenplay test` or MCP `run-specifications`;
+  on **Screenplay 4.145.0 and later**, propose → review → run with `proposalId` →
+  apply. PLAY0285 (impossible `then`) unbinds
+  the whole model; no spec runs.
   if not executed, report the actual host/input reason, not a blanket no-route
   claim. Stage's runner is target-engine evidence, never V4; V1/V3 do not prove pass. V5 is "not run" unless rendering was attempted; report admission, publication, build and
   tests separately.

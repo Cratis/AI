@@ -2,7 +2,7 @@
 
 One complete document with every construct family. Design mode, not executable. Prose rules: [cheat-sheet.md](cheat-sheet.md); tool versions: [versions.md](versions.md); what binds: [executable-subset.md](executable-subset.md).
 
-Binding blockers: unquoted import, `reads` (PLAY0271), `starts with`, a `filter` query (lists and observable lists bind). Executable shapes are in the sibling examples. The bare-marker fence compiles warning-free on standalone 4.127.0; the earlier legacy-marker version compiled on 4.66.0 and CLI 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
+Binding blockers: unquoted import, `reads` (PLAY0271), `starts with`. Caller-supplied collection equality filters bind as ESM v14 since 4.143.0; context/single-result filters remain blocked. Executable shapes are in the sibling examples. The bare-marker fence compiles warning-free on standalone 4.127.0; the earlier legacy-marker version compiled on 4.66.0 and CLI 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
 
 Concept compliance itself binds as ESM v13 on standalone 4.142.0 (first released
 in 4.141.0); reasons remain report-only PLAY0270. CLI 3.53.1 bundles Screenplay
@@ -135,9 +135,7 @@ module Billing
       command CancelInvoice
         invoiceId InvoiceId identifier
         authorize CanManage
-        produces InvoiceCancelled
-          for invoiceId
-      event InvoiceCancelled
+        produces event InvoiceCancelled
       specification CancellingAnInvoice
         given caller
           authenticated
@@ -161,7 +159,7 @@ module Billing
         number    String
       query InvoiceById => InvoiceRow optional        // keyed optional lookup (unfiltered lists bind too)
         by invoiceId InvoiceId
-      query ListInvoices => observable InvoiceRow[]   // design mode only: the `filter` below is PLAY0268 at binding
+      query ListInvoices => observable InvoiceRow[]   // caller-supplied equality filter: ESM v14 since 4.143.0
         filter number String optional
       projection InvoiceList => InvoiceRow
         from InvoiceRegistered
@@ -214,13 +212,9 @@ module Billing
         paymentId PaymentId identifier
         invoiceId InvoiceId
         amount    Decimal
-        produces PaymentRecorded
-          for paymentId
-          invoiceId = invoiceId                       // cross-stream reference is payload
-          amount    = amount
-      event PaymentRecorded
-        invoiceId InvoiceId
-        amount    Decimal
+        produces event PaymentRecorded
+          invoiceId InvoiceId = invoiceId             // cross-stream reference is payload
+          amount Decimal = amount
       specification RecordingAPayment
         given caller
           authenticated
@@ -242,9 +236,7 @@ module Housekeeping                                   // no gates: this reaction
     slice StateChange CloseInvoice
       command CloseInvoice
         invoiceId InvoiceId identifier
-        produces InvoiceClosed
-          for invoiceId
-      event InvoiceClosed
+        produces event InvoiceClosed
       specification ClosingAnInvoice
         when CloseInvoice
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -254,11 +246,8 @@ module Housekeeping                                   // no gates: this reaction
     slice StateChange MarkOverdue
       command MarkOverdue
         invoiceId InvoiceId identifier
-        produces InvoiceMarkedOverdue
-          for invoiceId
-          overdueAt = $context.occurred
-      event InvoiceMarkedOverdue
-        overdueAt DateTime
+        produces event InvoiceMarkedOverdue
+          overdueAt DateTime = $context.occurred
       // No command spec here: under ESM v6 it must list the ReminderSent cascade. The file is
       // RecordingAPayment's cascade got a false PLAY0285 on cratis before 3.28.2; 3.28.2 accepts it.
       // The cascade form: automation-translate-example.md (SubscribingAMember).

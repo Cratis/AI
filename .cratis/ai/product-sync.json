@@ -166,9 +166,9 @@
         }
       ],
       "synced": {
-        "version": "4.144.0",
+        "version": "4.145.0",
         "date": "2026-10-12",
-        "by": "Cratis/AI#627"
+        "by": "Cratis/AI#636"
       },
       "covers": {
         "skills": [
@@ -196,7 +196,7 @@
         ],
         "rules": []
       },
-      "notes": "Oldest retained parser/binder evidence is 4.31.0. Screenplay-facing pins were updated by Cratis/AI#611, but historical probes do not become current runtime evidence. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Standalone tool and byte-identical v4.145.0 Golden contract pinned for Cratis/AI#636 and #633. Preferred syntax and read-only proposal specification execution checked at v4.145.0; historical parser/binder evidence begins at 4.31.0 and remains separately qualified. The CLI's older bundle is not upgraded by this pin."
     },
     {
       "id": "scene",

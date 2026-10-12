@@ -38,11 +38,8 @@ module Exams
       command BookExam
         attemptId AttemptId identifier
         memberId  MemberId
-        produces ExamBooked
-          for attemptId
-          memberId = memberId
-      event ExamBooked
-        memberId MemberId
+        produces event ExamBooked
+          memberId MemberId = memberId
       specification BookingAnExam
         given caller
           authenticated

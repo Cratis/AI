@@ -26,7 +26,7 @@ Screenplay specifications.
 |---|---|---|
 | Given | the facts that exist, each with its `for` source: `given InvoiceIssued` with `for "<invoice id>"` | "given an invoice" with no fact, no source |
 | When | one action with every input stated | an action with inputs left to defaults |
-| Then (success) | every production with payload and `for` | "an event is produced" |
+| Then (success) | every expected event with payload and an explicit `for`, including events the command declares inline (the inline default applies to the `produces event` declaration, not to the expectation) | "an event is produced" |
 | Then (refusal) | `then error "Invoice already settled"`, the rule's own message | `then error` with no message, or `then error ""` |
 | Then (denial) | `then denied` | `then error` for a caller who is not allowed |
 | Reason | slice `documentation` says why the rule exists | the rule appears only in a spec title |
@@ -204,7 +204,13 @@ specification MemberCreditAccumulatesTopUps
 ```
 
 ## 6. Views: list contents and the empty list
-A list query asserts one `result` block per expected row (count and order are exact), and the
+A list query asserts one `result` block per expected row: count is exact, but rows
+match by read model and key regardless of order. The
 empty-list intent is a separate claim from a keyed row being absent (`view-and-story-specs.md`
 "Removal is a positive obligation"). The backing example proves the keyed forms only; whole-list
-queries are executable too (`ListOpenInvoices` in the backing example); only `filter`, `scoped to` and `performer` queries stay design-mode expectations recorded in the coverage matrix.
+queries are executable too (`ListOpenInvoices` in the backing example); caller-supplied equality filters on collections bind as ESM v14 since 4.143.0.
+Pass `by` and filters in query arguments; PLAY0468 reports unknown, repeated or
+missing required arguments. Optional filters may be omitted, supplied null is refused.
+Context-sourced/single-result filters, opaque `scoped to`/`performer`, and composite
+`by` remain PLAY0268. Compiled coverage and renderer ceilings:
+read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
