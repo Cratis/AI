@@ -182,7 +182,9 @@ materializes the published `Cratis.Screenplay.CanonicalCorpus` folder source (so
 is never copied), replays the MCP transcript with the revision-checked column edit, renders the edited folder and
 requires the column in the generated `scene.json`. The pins live in `screens-smoke.json` and follow the verified
 vector above; the corpus package is the one that records that vector. The corpus verification job runs it on every
-change. The browser step below needs Docker and Chromium, so it stays a manual step.
+change. With `SCREENS_SMOKE_BROWSER=1` (the CI job sets it) it also runs the edited folder with `cratis run`
+and checks the edited column and a created row in Chromium with the pinned Playwright, so the browser step below runs in
+corpus CI too; locally it needs Docker.
 
 ## Edit, render, run and see it in the browser
 
