@@ -41,8 +41,9 @@ wire the reactor.
    state. It is discovered by the interface; there is no registration step to add.
 4. Add the specifications (below) and run the slice's gate.
 
-There is no HTTP route for an automation. The command is reached by the reactor returning it, not
-through a controller or a UI.
+The reactor has no route of its own. The invoked model-bound `[Command]` keeps its generated Arc
+HTTP endpoint, so if only the automation should run it, gate it with `[Roles]` or `[Authorize]` and
+give the reactor `[ExecuteCommandsAsSystem]` naming that role.
 
 ## Handler patterns
 | Contract says | Handler |
@@ -75,7 +76,7 @@ fact, not handled (`references/domain-failures.md`).
 - [ ] A gated command has `[ExecuteCommandsAsSystem]` naming the role the command requires
 - [ ] Repeated delivery of the same trigger is specified (what happens when it fires twice)
 - [ ] A modeled slice matches its `.play` contract; the model was not edited to fit the code
-- [ ] No HTTP route, no processor or lock configuration, no dead-letter store
+- [ ] The reactor has no route; a command meant only for the automation is gated and the reactor runs it as that role; no processor or lock configuration, no dead-letter store
 - [ ] The build has no `CHR0004`, `CHR0005`, `CHR0008`, `CHR0013`, `CHR0022`, `CHR0031` or `CHR0032` outstanding and the specifications pass
 
 ## Specifications

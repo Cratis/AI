@@ -63,7 +63,7 @@ anti-patterns.md>, or "none"
 | StateChange | an origin (screen action, form, or reaction), a `command`, at least one `event` | any of the three |
 | StateView | a `readmodel` with a projection (or reducer) and a `query` or screen that reads it | projection or reader |
 | Automation | a `reaction` or `trigger` and what it produces or invokes | either |
-| Translate | an inbound source (`capture`) and the events it produces | either |
+| Translate | inbound: a `capture` or a translating reaction, and the private events it produces; outbound: a reaction or an event-target projection/reducer publishing the public event contract (no capture) | the direction's source or the produced or published events |
 
 Do not flag a gap the documentation or the slice name marks intentional (an internal slice
 with no screen). Judge unintentional gaps against the slice title, and surface only those.

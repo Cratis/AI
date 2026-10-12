@@ -44,18 +44,21 @@ decided at a point in time (a quoted price, an approved amount) is a fact and be
 event; say which it is.
 
 ## Causality
-- Every event traces to the command (or capture) that produced it.
+- Every event traces to what produced it: a command, a reaction (`produces`) or a capture, and that origin is reachable and motivated.
 - Every command has a reachable, authorized origin: a screen or form action, or a reaction to an
   event, a clock or an application trigger. A command may have several origins and a screen
   several actions; judge each origin on its own.
-- A process starts with a read (a screen over a read model) or a reaction to an event that
-  already exists, never with an unmotivated command.
+- A process starts at a screen or form action (a blank creation form counts), at a reaction to a
+  modeled event, a clock or application trigger, or at a capture appending outside facts; never at
+  an unmotivated command.
 - Two state changes in a row need something that triggers the second (a screen, or a reaction).
 - Connections read forward: what a later step needs from an earlier one is an event or a read
   model that already exists. When a later event must change what an earlier view shows, the
   projection of that view consumes the later event; do not draw a backward dependency.
-- Valid slice transitions: StateView to StateChange, StateChange to StateView, StateChange to
-  Automation, Automation to StateChange, Automation to StateView.
+- Slices connect through events and views. Common transitions: StateView to StateChange,
+  StateChange to StateView, StateChange to Automation, Automation to StateChange, Automation to
+  StateView, Translate to StateView, Translate to Automation. Judge a connection by checklist
+  F13 in `cratis-screenplay-model-review`, not by this list.
 
 ## Roles
 Every persona has a name in domain language, what it does, what it reads, and what it cannot do,
@@ -115,7 +118,7 @@ for modelers. The full signal, consequence and fix per shape is in
 - [ ] Every read model is named for its data.
 - [ ] No event carries a value that is only recomputed from other events.
 - [ ] Every command has a reachable, authorized origin.
-- [ ] The timeline starts with a read or a reaction to an existing event.
+- [ ] Every process starts at a screen or form action, a reaction, a clock or application trigger, or a capture.
 - [ ] No two state changes are chained without a trigger between them.
 - [ ] Every persona has a Cannot line backed by a gate and a denial specification, or a recorded gap.
 - [ ] Every decided failure is a specification; every open question is in session state.
