@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-identity-and-tenancy-kotlin",
+  "evals": [
+    {
+      "id": 1,
+      "name": "terminal-authentication-and-identity-details",
+      "prompt": "At Arc.Kotlin 7.7.0, a Kotlin AuthenticationHandler rejects credentials but a later Java async handler would accept them. Which result wins? Explain unrecognized credentials, handler ordering, and how one Java identity provider serves /.cratis/me. Can the identity cache cookie authenticate a later request? Reply only.",
+      "expected_output": "Anonymous continues; failure and success are terminal in the single Spring-ordered Kotlin/Java chain. Java identity uses one AsyncIdentityDetailsProvider; details authorization is not authentication and the cache cookie is excluded from authentication input.",
+      "assertions": [
+        "Uses ANONYMOUS for unrecognized credentials and distinguishes it from terminal failed/succeeded results; a later success cannot override failure.",
+        "Places Kotlin AuthenticationHandler and Java AsyncAuthenticationHandler beans in one global Spring Order chain and uses CompletionStage for Java.",
+        "Requires exactly one identity provider, identifies AsyncIdentityDetailsProvider for Java and GET /.cratis/me, and states that multiple providers fail startup.",
+        "Does not treat identity-details authorization or the client-readable identity cache cookie as authentication; notes generic public 401 rather than exposing private rejection reasons."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "required-tenant-is-not-storage-isolation",
+      "prompt": "At Arc.Kotlin 7.7.0, we want every command, query, live query and identity request to require a tenant. We already accept x-cratis-tenant-id and inject a Spring repository. Explain the switch, defaults, membership constraints and why this is not sufficient for tenant-isolated storage. Reply only.",
+      "expected_output": "cratis.arc.tenancy.required defaults false; true rejects unresolved requests with 400 across the listed surfaces. Claim constraints default true but missing claims do not authorize every tenant. Repository DI is not routing; certified tenant storage is separate.",
+      "assertions": [
+        "Names cratis.arc.tenancy.required, its false default and unresolved-request 400 for commands, queries, observables and identity endpoints.",
+        "Keeps constrain-to-authenticated-claims enabled (default true) and does not treat a tenant header or missing membership claims as authorization.",
+        "Explains that plain Spring repository injection does not automatically route or isolate tenant storage and requires a separate certified storage boundary.",
+        "Does not claim that this JVM configuration switch also exists in Arc .NET or that development/fixed selection establishes production isolation."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "trusted-platform-identity-boundary",
+      "prompt": "At Arc.Kotlin 7.7.0, an ingress forwards x-ms-client-principal. A teammate wants platform-identity.enabled=true with the default trust bean and a publicly reachable backend, then to turn off CSRF. Explain whether that is safe and the required application SecurityFilterChain integration. Reply only.",
+      "expected_output": "The bridge defaults disabled and trust defaults deny. Unsigned headers require stripping/rewriting at authenticated ingress and blocked direct access, with explicit ArcPlatformIdentityTrust. Existing chains are not rewritten; place the filter correctly once and preserve CSRF.",
+      "assertions": [
+        "States platform-identity.enabled defaults false and the default ArcPlatformIdentityTrust denies all; enabling the switch alone is insufficient.",
+        "Treats Base64 headers as unsigned input and requires authenticated ingress to strip/rewrite caller headers plus blocked direct backend access.",
+        "Preserves CSRF and explains that Arc does not rewrite an existing application SecurityFilterChain; the fallback chain requires authentication with CSRF enabled.",
+        "Places ArcPlatformAuthenticationFilter after authentication and before AnonymousAuthenticationFilter only in intended chains, with servlet registration disabled to avoid double execution."
+      ]
+    }
+  ]
+}

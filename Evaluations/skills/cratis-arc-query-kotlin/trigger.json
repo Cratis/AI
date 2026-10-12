@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-arc-query-kotlin",
+  "queries": [
+    { "query": "Expose TaskView.byId in our Arc.Kotlin app. Where does the query method live and how is the repository parameter injected?", "shouldTrigger": true },
+    { "query": "Our Java Arc read model needs a static query returning CompletionStage<List<TaskView>>. How does KSP await it?", "shouldTrigger": true },
+    { "query": "A JVM Arc query returns Flow<List<OrderView>>. How do callers choose a snapshot, SSE, or WebSocket?", "shouldTrigger": true },
+    { "query": "A Java Arc observable query returns SubmissionPublisher but GET never has the current value. Is there a state-holding Publisher we should use?", "shouldTrigger": true },
+    { "query": "Our Kotlin Arc query has a default page filter. Explain why omitted arguments and explicit null behave differently.", "shouldTrigger": true },
+    { "query": "Add a structured filter query to our Kotlin ReadModel and choose GET versus QUERY for the generated proxy.", "shouldTrigger": true },
+    { "query": "We want an RxJava Subject-backed query from a Java Arc model. What runtime artifact and return shapes are supported?", "shouldTrigger": true },
+    { "query": "Vite runs on 5173 and every WebSocket query handshake to our Arc.Kotlin backend gets 403. Which origin setting should we check?", "shouldTrigger": true },
+    { "query": "Our Kotlin QueryRendererFor chain owns paging. Does Arc add implicit in-memory paging after it?", "shouldTrigger": true },
+    { "query": "Explain delta versus full transferMode for a Java Arc live list without a stable item identity.", "shouldTrigger": true },
+    { "query": "Add RegisterTask as a Kotlin Arc command whose handle returns TaskRegistered.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Only add a QueryValidator rejecting an empty title argument in our existing Java Arc query.", "shouldTrigger": false, "note": "cratis-arc-validation-kotlin" },
+    { "query": "Our JVM query already exists. Write an ObservableQueryScenario asserting two emissions with a bounded timeout.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" },
+    { "query": "Make Spring Data MongoDB observations refresh after change-stream invalidation in our Kotlin Arc app.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
+    { "query": "Configure tenant resolver precedence and identity details in Arc.Kotlin; no query implementation changes.", "shouldTrigger": false, "note": "cratis-arc-identity-and-tenancy-kotlin" },
+    { "query": "Create a Chronicle.Kotlin projection that maps OrderPlaced into OrderView, with no Arc query surface.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Expose a C# ReadModel static query and consume its generated proxy on a React DataPage.", "shouldTrigger": false, "note": ".NET query and React surface, not JVM" },
+    { "query": "Add an observable query to our Node.js Arc for TypeScript server using RxJS BehaviorSubject.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Inspect our existing C# observable query from curl with waitForFirstResult and SSE; do not write query code.", "shouldTrigger": false, "note": "cratis-arc-observable-query-http" },
+    { "query": "Connect a standalone Java Chronicle client and watch read-model changes without an HTTP host.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" }
+  ]
+}

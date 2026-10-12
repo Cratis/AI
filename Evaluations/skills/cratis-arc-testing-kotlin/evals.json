@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-testing-kotlin",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pin-state-and-assert-rejecting-stage",
+      "prompt": "At Arc.Kotlin 7.7.0, an existing command takes a required AccountBalance. Its CommandScenario has no pin and shouldBeInvalid fails with only dependencyUnavailable. Explain how to test a real validation rejection, a keyed current balance and deliberate absence, including Java Optional. Should we disable the default JSON round trips? Reply only.",
+      "expected_output": "Arrange the dependency then assert authorization and actual validation rejection. Keyed pins test key selection, null pins test owned absence. Required dependency failure is explicit feedback, nullable/Optional receive absence. Retain wire round trips by default.",
+      "assertions": [
+        "Explains that shouldBeInvalid refuses all-dependencyUnavailable feedback and uses shouldHaveValidation with DEPENDENCY_UNAVAILABLE for the missing-dependency case.",
+        "Pins the balance before execution, uses withReadModelForKey when key selection matters, and asserts shouldBeAuthorized().shouldBeInvalid() for the actual rule rejection.",
+        "Treats a null pin as deliberate absence: required parameters fail, Kotlin nullable parameters receive null, and Java Optional receives Optional.empty().",
+        "Keeps command/one-shot-query JSON round trips enabled by default rather than disabling them to hide serialization failures."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "bound-and-count-observable-emissions",
+      "prompt": "At Arc.Kotlin 7.7.0, our existing ObservableQueryScenario calls collect(2, 1000).shouldSucceed(), but a finite empty Flow passes. Explain the fix, whether the timeout covers opening, and how to assert a terminal emission-guard denial. Reply only.",
+      "expected_output": "maximumEmissions is a cap. Require shouldHaveEmissionCount(2); the shared timeout covers opening and collection, with timeout/cancellation propagating. Terminal guard denial uses shouldTerminateUnauthorized, distinct from opening failure.",
+      "assertions": [
+        "Explains that maximumEmissions is a cap and shouldSucceed does not require emissions; adds shouldHaveEmissionCount(2).",
+        "States that one timeout budget covers pipeline opening and collection, not only the Flow collection phase.",
+        "Treats timeout/cancellation as propagated failure/cancellation rather than a successful partial result.",
+        "Distinguishes opening shouldFail from terminal guard denial checked with shouldTerminateUnauthorized."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "chronicle-append-rejection-in-process",
+      "prompt": "At Arc.Kotlin 7.7.0, our Java PlaceOrder command already returns a Chronicle event. Explain an in-process scenario that seeds history and forces a constraint-violation append, then asserts the rejection. State the required dependencies, Java bridge setup order, and what this cannot prove about the real kernel. Reply only.",
+      "expected_output": "arc-testing plus Chronicle integration discovers an extender through ServiceLoader and uses an in-memory event log. Configure history/rejection/pins before constructing BlockingCommandScenario; Java statics expose Chronicle extensions. Seeded/rejected events do not count as appends, and real-store constraints remain separate.",
+      "assertions": [
+        "Requires arc-testing and the Chronicle starter or cratis integration, with ServiceLoader extender discovery and no Spring Boot/kernel/Docker startup.",
+        "Seeds givenChronicle history, arranges constraintViolation, and checks shouldHaveConstraintViolation rather than success or a generic failure alone.",
+        "Excludes given events and rejected appends from appendedEvents and does not claim the in-memory rejection proves a real kernel constraint.",
+        "Configures the underlying scenario before creating the closeable BlockingCommandScenario and uses ChronicleCommandScenarios Java statics for the Kotlin extensions."
+      ]
+    }
+  ]
+}

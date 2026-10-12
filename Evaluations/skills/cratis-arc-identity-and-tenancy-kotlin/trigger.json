@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-arc-identity-and-tenancy-kotlin",
+  "queries": [
+    { "query": "Our Arc.Kotlin app must reject HTTP requests without a tenant. Which tenancy.required setting applies and what status do clients get?", "shouldTrigger": true },
+    { "query": "Add typed application identity details at /.cratis/me in our Java Arc backend.", "shouldTrigger": true },
+    { "query": "We have Kotlin and Java Arc authentication handlers. How do anonymous, failed and succeeded results affect the ordered chain?", "shouldTrigger": true },
+    { "query": "A user can change x-cratis-tenant-id in our JVM Arc app. How do we constrain selection to authenticated membership claims?", "shouldTrigger": true },
+    { "query": "Carry a resolved TenantId through a dispatcher switch in Kotlin background work using Arc ambient tenancy.", "shouldTrigger": true },
+    { "query": "Our plain Java thread needs an Arc tenant scope. Should it use TenantContextBridge, and can a coroutine handler call it too?", "shouldTrigger": true },
+    { "query": "Enable the JVM Arc Microsoft platform-header identity bridge safely behind our authenticated ingress.", "shouldTrigger": true },
+    { "query": "We registered two IdentityDetailsProvider beans in Arc.Kotlin and startup fails. Is multiple-provider composition supported?", "shouldTrigger": true },
+    { "query": "Our Java Arc app mixes header, claim and fixed tenant resolvers. Explain precedence and why a fixed development tenant is not production isolation.", "shouldTrigger": true },
+    { "query": "Does the Arc.Kotlin client-readable identity cache cookie authenticate a request, or is it just display data?", "shouldTrigger": true },
+    { "query": "Add a Kotlin Arc command returning AccountCreated; no authentication or tenant setup changes.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Expose a Java Arc read-model query over SSE and WebSocket.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" },
+    { "query": "Add a server-only ConceptValidator rejecting blank names in our JVM Arc app.", "shouldTrigger": false, "note": "cratis-arc-validation-kotlin" },
+    { "query": "Write JVM scenario assertions for an already configured tenant resolver without changing its production wiring.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" },
+    { "query": "The tenant is already authorized; wire TenantAwareMongoOperationsResolver to certified separate databases in Arc.Kotlin.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
+    { "query": "Choose a namespace when constructing a standalone Chronicle.Kotlin event store, without Arc HTTP tenancy.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Implement IProvideIdentityDetails and authorization policies in our C# Arc host.", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Configure tenancy.required in our Node.js Arc for TypeScript server.", "shouldTrigger": false, "note": "TypeScript hosting/identity, not JVM" },
+    { "query": "Use the React identity hooks against our existing backend; no Java or Kotlin server changes.", "shouldTrigger": false, "note": "frontend identity integration, not JVM setup" },
+    { "query": "Update Chronicle namespace isolation in a C# worker using IEventStoreNamespaceResolver.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" }
+  ]
+}

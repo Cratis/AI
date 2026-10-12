@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-command-kotlin",
+  "evals": [
+    {
+      "id": 1,
+      "name": "route-returned-events",
+      "prompt": "At Arc.Kotlin 7.7.0, our Spring Boot Kotlin command TransferFunds returns FundsWithdrawn and FundsDeposited to different accounts. Explain the required integration and return shape, and why a plain event from a command without CommandKey is rejected. Do not assume Chronicle.Kotlin 6.13.0 is the integration's transitive client. Reply only; no files.",
+      "expected_output": "Use the optional Chronicle integration, returning EventForEventSourceId wrappers for the two accounts. Plain events need a usable CommandKey; failure is rule/commandKey. Arc 7.7.0 brings Chronicle 6.10.0, not the separately verified standalone 6.13.0.",
+      "assertions": [
+        "Requires io.cratis:cratis or arc-chronicle-spring-boot-starter for returned-event append rather than claiming core Arc appends by itself.",
+        "Routes the two events with EventForEventSourceId wrappers rather than two direct event-log writes inside handle.",
+        "Explains that an unusable or missing CommandKey for a plain event yields validation reason rule and reasonDetail commandKey, not an allocated id.",
+        "Distinguishes the transitive Chronicle.Kotlin 6.10.0 in Arc 7.7.0 from standalone Chronicle.Kotlin 6.13.0; does not claim latest/latest compatibility."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "prepare-before-handle",
+      "prompt": "We use Arc.Kotlin 7.7.0. CompleteTask needs a task fetched by provide before handle. Explain when provide runs, how a Pair of values is bound to handle parameters, and what happens if provide returns a ValidationResult. Does POST /validate fetch the task? Reply only.",
+      "expected_output": "Public instance provide runs after authorization/validation and before handle, resolving services by type. Ordered provided values are consumed once before service fallback. A ValidationResult short-circuits handle and validate-only never invokes provide.",
+      "assertions": [
+        "Places provide after authorization and validation but before handle, and resolves its dependencies from Spring.",
+        "Explains ordered one-use matching of provided values with unmatched handle dependencies falling back to Spring.",
+        "Treats a returned ValidationResult as a short-circuit control signal, not a normal handle argument or a thrown user-facing exception.",
+        "States that the validate-only route never invokes provide or handle."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "java-generation-and-proxy-paths",
+      "prompt": "At Arc.Kotlin 7.7.0, we are adding a Java record command to an all-Java Spring Boot app. A teammate wants to remove Kotlin/KSP and use proxies.segmentsToSkip to fix the HTTP route. Explain the build requirements and the distinct proxy/endpoint configuration, including what happens with no proxy output directory. Reply only.",
+      "expected_output": "Java commands still require Kotlin/KSP-generated adapters. Proxy segments affect file layout, endpoint segments affect routes and must agree with the runtime endpoint configuration. No output directory skips proxy generation.",
+      "assertions": [
+        "Retains Kotlin and KSP for Java declarations because generated adapters are Kotlin, instead of inventing a Java-only processor.",
+        "Keeps the command a public top-level annotated type with a public instance handle method, not a manually registered controller or separate handler.",
+        "Distinguishes proxies.segmentsToSkip (generated file paths) from endpoints.segmentsToSkip (HTTP routes) and its runtime segments-to-skip-for-route setting.",
+        "Explains that unset proxies.outputDirectory skips generation even when proxies.enabled defaults to true."
+      ]
+    }
+  ]
+}
