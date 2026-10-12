@@ -37,9 +37,10 @@ Keep those three lines separate in reports. Correct an old limitation only when
 the package/version you are using proves the new level. Historical verified vector:
 CLI 3.43.0 with its default `cratis/stage:4.52.0` and bundled Screenplay 4.127.0;
 the executed vector renders on Scene 4.15.0. Packages published since are newer than
-that vector and are not claimed verified: Scene 4.17.0, Screenplay 4.133.1, Stage
-4.64.0, previous CLI 3.46.1 (bundled Screenplay 4.130.0; its then-default Stage was
-4.52.0) and Studio 0.152.2. Current pins:
+that vector and are not claimed browser-verified. Scene 4.17.0 was the earlier
+source-checked runtime summary, not a new executed vector. Scene runtime capabilities
+below were source-checked at the current scaffold's Scene tag; this does not
+re-label the historical execution result. Current pins:
 `cratis-screenplay-toolchain/references/versions.md`.
 All three levels hold for the canonical `ScreenComposition` corpus on the historical vector:
 
@@ -238,11 +239,28 @@ when a single screen owns the button. A parameter that reads a selection is a ty
 data-context path). A dialog destination must state every input with a typed `with`/`parameter`
 binding; a runtime default is not an authored contract.
 
-What Scene 4.17 adds to the runtime side of this contract, so an agent knows what a
-destination can do once it is authored (authoring acceptance and executable
-admission are separate, see Support levels - a Scene release is not a Stage
-release):
+Scene 4.21 runtime capabilities (source-checked at the Scene tag in the
+scaffold pin table, not a browser run). Authoring acceptance, executable
+admission and runtime support stay separate — a Scene release is not a Stage
+release. Stage 4.73.1 pins that Scene release; never upgrade managed files by hand:
 
+- **Hierarchy and routes.** `Screen.path` and `NavigationItem.hierarchy` carry
+  module/feature paths, outermost first. Browser/hash history
+  (`createBrowserSceneHistory`, `createHashSceneHistory`) supports deep links;
+  dialogs are history entries closed with `closeDialog(result)`.
+- **Bindings.** Inputs publish a `value` output through `useValueOutput`;
+  command arguments resolve `component.<id>.<output>` through
+  `resolveArgumentSource`. `useBoundQuery` reruns on argument changes, aborts
+  prior runs and discards stale answers; clearing/failing removes old data.
+- **Descriptors and packages.** Object descriptors carry nested `properties`
+  and `open`. `ApprovedPackageSet`, `loadApprovedPackages` and
+  `resolveApprovedPackageHost` align planning declarations with runtime bundles;
+  executable imports require host approval.
+- **Master/detail.** The default blueprint supplies `MasterDetail`.
+- **Core toolbar.** `core:toolbar` holds `core:toolbarItem` entries. Action items
+  announce `cratis.scene.command` with resolved parameters; Navigate/Dialog
+  items execute through the navigation host (or announce a navigation event
+  outside one). This is not a promise that the command executes without a host.
 - **Nested outlets.** A `core:outlet` component declares a named nested outlet on a
   screen. A destination into it opens its screen there and keeps the declaring
   screen on the page; the opened screen may declare outlets of its own, so
@@ -269,7 +287,7 @@ claim: confirm it from the render receipt and diagnostics before reporting it.
 ## Design-time generation results
 
 Design-time actions belong to component packages, not to the model and not to an
-agent. Scene 4.15 (unchanged in 4.17) declares them as data (`PackageDesignTimeMetadata`) and ships
+agent. Scene 4.15 (re-verified at the current scaffold Scene tag) declares them as data (`PackageDesignTimeMetadata`) and ships
 their code in an optional design-time bundle; a runtime host that does not set
 `loadDesignTime` loads none of it, so nothing a design-time action does can exist
 only at runtime. The one Cratis action today is **Generate fields**

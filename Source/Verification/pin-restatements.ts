@@ -57,7 +57,7 @@ export function scaffoldPins(content: string): Pin[] {
         else if (item.startsWith('Chronicle client')) add(pins, 'Chronicle', firstVersion(value));
         else if (item === 'Frontend') {
             for (const segment of value.split(';')) {
-                const label = ['@cratis/arc', '@cratis/components', '@cratis/scene'].find(name => segment.includes(`\`${name}\``));
+                const label = ['@cratis/arc', '@cratis/components', '@cratis/scene.*'].find(name => segment.includes(`\`${name}\``));
                 if (label) add(pins, label, firstVersion(segment));
             }
         }

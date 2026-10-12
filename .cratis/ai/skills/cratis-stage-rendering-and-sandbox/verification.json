@@ -5,6 +5,11 @@
   "assertions": [
     { "kind": "skill-contains", "value": "pinned Stage default applies both rules" },
     { "kind": "skill-contains", "value": "Reducer filters render" },
+    { "kind": "skill-contains", "value": "references/scene-runtime.md" },
+    { "kind": "skill-contains", "value": "`@cratis/scene.*`", "file": "references/rendered-application.md" },
+    { "kind": "skill-contains", "value": "`@cratis/scene` is not this product's package id", "file": "references/scene-runtime.md" },
+    { "kind": "skill-contains", "value": "A Scene\nrelease is not a Stage release", "file": "references/scene-runtime.md" },
+    { "kind": "skill-contains", "value": "ApprovedPackageSet", "file": "references/scene-runtime.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "`cratis render`" },
     { "kind": "skill-contains", "value": "`--name <NAME>` | **Required for plain source**" },

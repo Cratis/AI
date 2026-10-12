@@ -35,6 +35,8 @@ Current pins: toolchain `references/versions.md`; UI statements were re-read at 
 (`screens.md`, `contributions.md`, `forms.md`, `templates.md`, `ui-profile.md`, `fixtures/screen-release-ui.play`). Older provenance:
 `4.31.0` (original parser evidence), main `fd18129` (cancellation routing, `optional`), `4.66.0` (`c89198b`: `PLAY0269`).
 
+Scene runtime sources: scaffold Scene tag, `Source/JavaScript/**`.
+
 The update follows `commands.md`, `events.md`, `queries.md` and decision 0023
 at that main commit (after v4.52.0). It does not verify UI rendering.
 

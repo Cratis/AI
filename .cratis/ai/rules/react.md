@@ -149,7 +149,7 @@ Out-of-dialog execution branches in this order:
 const result = await command.execute();
 if (!result.isAuthorized) { redirectToLogin(); return; }
 if (!result.isValid)      { /* validationResults → inline field errors */ return; }
-if (result.hasExceptions) { toast.error('Something went wrong'); console.error(result.exceptionMessages); return; }
+if (result.hasExceptions) { toast.error({ title: 'Something went wrong' }); console.error(result.exceptionMessages); return; }
 // happy path — refresh queries, close, etc.
 ```
 

@@ -25,7 +25,12 @@ Three different claims are mixed in any "screen to page" mapping. Keep them apar
 | --- | --- | --- |
 | What each `screen`, `form` and interaction construct means | Verified | Screenplay `v4.66.0`: `Documentation/screenplay/{screens,forms,interactions}.md` |
 | What Stage does with a screen | Verified: it draws it through Scene, it does not write a React page | Stage `v4.24.0`: `Documentation/reference/stage-rendering.md` ("It does not generate screens for it"), `Documentation/reference/default-scene-composition.md` ("does not ... generate per-screen TypeScript components"), `Source/Contracts/Scene/ScreenDirectiveConverter.cs` (`data`, `action`, `section`, `title`, `table`, `summary` become Scene elements) |
-| Which Components and Arc API gives a page the same behavior | Verified API; the pairing is this skill's convention | `@cratis/components` `v4.6.0` (`DataPage`, `DataTables`, `CommandDialog`, `CommandForm`) and the sibling references |
+| Which Components and Arc API gives a page the same behavior | Verified API; the pairing is this skill's convention | `@cratis/components` `v4.26.4` (`DataPage`, `DataTables`, `CommandDialog`, `CommandForm`) and the sibling references |
+
+A hand-written Arc React page and a Scene-rendered screen are different surfaces;
+they share Components, not ownership or runtime APIs. Scene is the experimental
+UI model/runtime in Stage output; read `cratis-stage-rendering-and-sandbox`
+`references/scene-runtime.md` when inspecting that generated surface.
 
 So no product source maps a `.play` screen to an Arc React page. A hand-written
 page is a **gap-fill** (`cratis-screenplay-render-and-gap-fill`) with the `.play`

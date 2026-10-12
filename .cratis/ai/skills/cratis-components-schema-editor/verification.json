@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-components-schema-editor",
+  "input": "Edit a JSON schema with live tree edits, required and key toggles, and custom row content.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "required?: string[]" },
+    { "kind": "skill-contains", "value": "allowRequired" },
+    { "kind": "skill-contains", "value": "layout='tree'" },
+    { "kind": "skill-contains", "value": "ChangeHandler<JsonSchema>" },
+    { "kind": "skill-contains", "value": "references/tree-layout.md" },
+    { "kind": "skill-contains", "value": "onSetRequiredProperty", "file": "references/tree-layout.md" },
+    { "kind": "skill-contains", "value": "renderPropertyTypeBadge", "file": "references/tree-layout.md" }
+  ]
+}
