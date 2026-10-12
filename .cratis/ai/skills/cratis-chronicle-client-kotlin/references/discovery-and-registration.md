@@ -1,5 +1,8 @@
 ## Discovery and registration
 
+Verified at `Chronicle.Kotlin v6.13.0`: `ClientArtifacts`,
+`ArtifactRegistrations.registerAll` and `EventStore`.
+
 `ClientArtifacts` scans the classpath with ClassGraph
 (`artifacts/ClientArtifacts.kt:66-98`), and `ClientArtifacts.default` is a
 process-wide lazy singleton (`:156`). What it looks for (`:66-98`):
@@ -7,6 +10,7 @@ process-wide lazy singleton (`:156`). What it looks for (`:66-98`):
 | Kind | Rule |
 | --- | --- |
 | event types | `@EventType` |
+| event-source definitions | `@EventSource` |
 | event type migrations | implements `IEventTypeMigration` |
 | read models | `@ReadModel` |
 | declarative projections | implements `IProjectionFor` |
@@ -27,10 +31,14 @@ process-wide lazy singleton (`:156`). What it looks for (`:66-98`):
 > projection.
 
 Registration order is fixed and matters
-(`artifacts/ArtifactRegistrations.kt:59-91`): event types and migrations →
-unowned read models → constraints → model-bound constraints → projections →
+(`ArtifactRegistrations.register`): event types and migrations →
+event-source definitions → unowned read models → constraints → model-bound constraints → projections →
 webhooks → reactors → reducers → captures → seeders. Reactors and reducers are
-started only on the first pass (`:78-82`).
+started once successfully; failed observers are retried on the next pass.
+An automatic pass logs each failure to stderr and continues reconnecting.
+Explicit `registerAll()` starts the remaining observers then throws
+`ArtifactRegistrationFailed` listing failures. A kernel-rejected event-type
+registration throws `ChronicleCommandRejected`.
 
 **Registration re-runs on every reconnect.** `EventStore.kt:226-241` launches a
 coroutine on `Dispatchers.IO` collecting the connection lifecycle and
@@ -39,6 +47,8 @@ the kernel keys observer subscriptions by it
 (`connection/ConnectionLifecycle.kt:24-32`), so observers must re-register — and
 they do.
 
-`store.awaitRegistration()` (`IEventStore.kt:92`) waits for the first pass.
+`store.awaitRegistration()` waits for the first attempted pass; its gate
+completes in `finally` even on failure. It throws `ChronicleConnectionFailed`
+when the kernel rejects the connection, as do gated appends.
 `store.registerAll()` (`:83`) runs it by hand when
 `autoDiscoverAndRegister = false`.
