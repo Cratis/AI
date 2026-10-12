@@ -59,9 +59,15 @@ the [MCP loop](mcp-loop.md).
 
 `propose` is the executable-only whole-document interface. Prefer `propose-source`
 for whole `.play` text, `propose-ast` for focused typed edits, and `propose-rename`
-for proved logical renames. Standalone 4.140.0 adds `propose-property` for explicit
-property rename/removal selections, AutoMap preservation and event-generation
-choices; read [property evidence and planning](property-links.md) before proposing. A
+for proved logical renames. Prefer `propose-property` over hand-composed AST
+batches for property chains: rename/remove shipped in 4.140.0, add in 4.142.0.
+Add takes `owner`, `expectedOwnerName`, `name`, `type`, `optional`,
+`hops` (`{at, name}` or `{at, value}`) and `fixtureValue`, plus both revision guards.
+Missing sources/required fixture values refuse `SourcesRequired`/`FixtureValueRequired`;
+off-chain hops refuse `HopNotOnChain`, nested feeds `UnsupportedPropertySpan`.
+Read `property.needsDecision` and `property.chainCandidates`, select an event
+evolution mode even for optional additions, and review before applying.
+Exact arguments, AutoMap and fixture rules: [property evidence and planning](property-links.md). A
 source-only authoring proposal may be accepted while `executableReady` is false.
 That is not permission to claim the application runs.
 
@@ -274,7 +280,7 @@ limits. Continue with `expectedSourceRevision`.
 
 From 4.138.0, `find-references` and `dependencies` accept `kind: "Property"`
 and `Owner.member`, or historical event `Owner.generationN.member`. Before a
-rename/removal, read [property links](property-links.md) for exact query/result
+property change, read [property links](property-links.md) for exact query/result
 shapes, roles, direct counterpart traversal, revision paging and `complete: false`
 with `reasons`. Incomplete evidence is never a successful empty list. These tools
 inspect authored links, not code execution or a transitive runtime graph.

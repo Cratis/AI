@@ -21,7 +21,7 @@ same model root or workspace export to all checks. Workflow:
 
 ## Verified product sources
 
-Screenplay v4.141.0: planner in `references/property-links.md`;
+Screenplay v4.142.0: add/rename/remove planner in `references/property-links.md`;
 compliance in command-surface `references/compliance.md`. Other MCP evidence:
 v4.139.0 `Documentation/screenplay/mcp/`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
@@ -83,7 +83,7 @@ can keep that entry point; use the project's supported installation channel.
    of `.play` files is one application, not independent files.
 2. Use `search-declarations`, `declaration-details`, `find-references` and
    `dependencies` to locate the owning declaration and affected references.
-   Before a property rename/removal, read [property links](references/property-links.md):
+   Before a property change, read [property links](references/property-links.md):
    `kind: "Property"`, `Owner.member` / `Owner.generationN.member`, direct mappings.
    `complete: false` is incomplete evidence, never a successful empty list.
 3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
@@ -135,9 +135,15 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
 3. Prefer `propose-rename` for supported logical renames: it coordinates fragments,
    repairs proven references and preserves assigned identities. Never substitute
    global string replacement for an explicit refusal.
-4. Use `propose-source` for whole text or `propose-ast` for typed edits
-   (Authoring defaults); `propose` is executable-only. Batch changes;
-   details: `references/mcp-tools.md`.
+4. Prefer `propose-property` for add/rename/remove along proven property chains,
+   not hand-composed `propose-ast` batches. Inspect `incomplete`, `needsDecision`
+   and `chainCandidates`; never guess past a refusal. Event changes need exactly
+   one of `newGeneration` or `eventNeverPersisted` (actual storage knowledge).
+   Add needs an owner handle, explicit source hops and a required fixture value
+   when existing fixtures/assertions need it. Exact arguments and refusals:
+   [property links](references/property-links.md). Otherwise use `propose-source`
+   for whole text or `propose-ast` for typed edits (Authoring defaults);
+   `propose` is executable-only. Details: `references/mcp-tools.md`.
 5. Keep reference policy `Safe`. Use `Draft` only for deliberately requested
    unresolved model debt and report that debt; it does not waive structural,
    identity or binding-protection checks.
