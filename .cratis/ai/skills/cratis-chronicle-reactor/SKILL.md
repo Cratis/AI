@@ -410,4 +410,5 @@ scope of these scenario-only guards.
 
 ## Lineage
 
-The specification checklist (field lineage, contract-authorized filtering, repeated delivery) follows an idea from Martin Dilger and Nebulit GmbH's reactor build checklist, credited in `references/provenance.md`. Read `references/provenance.md` when checking checklist attribution or the verification sources for scenario behavior.
+The specification checklist follows an idea from Martin Dilger and Nebulit GmbH's reactor build checklist; attribution and verification sources: `references/provenance.md`.
+Read `references/slice-delivery-checklist.md` when delivering a reactor from a slice contract: build order, handler patterns, closing checklist.
