@@ -6,6 +6,8 @@ license: MIT
 
 # The Screenplay read surface
 
+Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
+
 What the system can be asked, and what a user sees. The `readmodel` declares the
 shape, the `query` is the entry point, and the `screen` renders it.
 

@@ -249,7 +249,7 @@ Whole-model admission needs ESM schema v1 to v4; v5 and v6 are `STAGE-ESM-016`. 
 Not rendered: `Automation` and `Translate` slices (Stage#79, open: the whole automation
 is gap-fill), reactions and captures, list, observable, filtered and scoped queries,
 `produces when`, command `handler`s, code validation and opaque policies (they refuse),
-composite-key projections, `all`, and compliance attributes (`@pii`, `@sensitive`, which
+composite-key projections, `all`, and compliance markers (`pii`, `secret`, which
 already fail binding with `PLAY0268`). Any one blocking diagnostic fails the whole plan.
 A refusal is not a licence to weaken the model: drop no specification, event generation
 or protection to get a render; keep the model, record the capability gap and gap-fill.

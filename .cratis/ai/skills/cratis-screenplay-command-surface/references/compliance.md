@@ -20,8 +20,8 @@ processing or enforce retention. Check provider support separately.
 ```screenplay
 concept Email : String pii
   pii reason "Contact address"
-concept MedicalNote : String personal
-  personal special health
+concept MedicalNote : String pii
+  pii special health
 concept ConvictionNote : String pii
   pii criminal
 concept PartnerApiKey : String secret

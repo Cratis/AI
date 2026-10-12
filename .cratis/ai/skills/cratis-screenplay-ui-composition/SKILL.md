@@ -6,6 +6,8 @@ license: MIT
 
 # UI composition in Screenplay
 
+Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
+
 Event Modeling's wireframe step is a first-class part of the language. The shell,
 the reusable shapes inside it, the forms bound to commands, and the navigation
 entries other modules contribute are all declared in the `.play` model.
@@ -17,17 +19,11 @@ a trigger value named `file` is written `@file`.
 
 ## Locate the model
 
-Look first for the project's existing `.play` files: the folder holding them is the
-model. A new model goes under the repository's `Source/` or `src/` folder, else in a
-`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
-configuration and the shared AI corpus only. This is the
-conventional home for consumer-owned `.play` source; do not invent another
-location or search the whole repository before checking it.
-
-`cratis ai install` manages `.cratis/ai/`, never model files. Never
-hand-copy Screenplay source between repositories. Keep Markdown that explains,
-questions or navigates the model in the repository's documentation; the `.play`
-source is the single flow model.
+Look first for the project's existing `.play` files: their folder is the model.
+For a new model, check `Source/` or `src/`, else use `Screenplay/` at the repository
+root. Never put a model under `.cratis/` or hand-copy it between repositories.
+`cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
+Markdown in project documentation; `.play` is the single flow model.
 
 ## Verified product sources
 

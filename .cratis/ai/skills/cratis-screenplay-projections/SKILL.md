@@ -6,6 +6,8 @@ license: MIT
 
 # Projections — the Screenplay PDL
 
+Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
+
 A `projection` folds events into a read model. Its body is the **Projection
 Declaration Language**, an embedded sub-grammar with its own parser — not free
 text. This is half of every event model, and the half most easily got wrong.
