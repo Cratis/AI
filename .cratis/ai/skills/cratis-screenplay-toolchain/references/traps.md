@@ -7,7 +7,7 @@ bind as v8, v7 reaches Stage planning, reference tests have CLI/MCP routes, and
 exact numbers are documented in the grammar. Compiler syntax: `cheat-sheet.md`.
 
 1. Clean V1 is not executable: binding errors appear through MCP (V2), `render` or `cratis screenplay validate --executable` (bundled compiler, writes nothing). Neither `screenplay <folder>` nor plain `cratis screenplay validate` binds. [probed]
-2. The Screenplay samples validate clean but are not all executable; copying their idioms (filtered queries, `pii`, `today`, `reads`, `$causedBy`, templates, performers) breaks V3. [probed]
+2. The Screenplay samples validate clean but are not all executable; copying their idioms (context-filtered queries, enum/identity compliance, `today`, `reads`, `$causedBy`, templates, performers) can block V3. Caller-supplied collection equality filters bind since 4.143.0 (ESM v14); read read-surface `references/equality-filters.md`. [historical probes; current filter source checked]
 3. Know the target mode (design/executable/renderable) before writing; state it.
 4. Plain `produces` without `for` means allocation in the ESM but "the identifier" in rendered code. Always write `for <identifier>`. [PLAY0478 probed]
 5. PLAY0029 is a warning: a misspelled keyword (or `type` inside a slice) drops the construct silently. Use `--warnings-as-errors`. [probed]

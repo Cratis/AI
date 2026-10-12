@@ -162,8 +162,9 @@ the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
   `when append`, a model before ESM v6 expects the appended fact itself; from
   ESM v6 the appended event is the action and `then` lists only what followed it.
 - **Read models and query rows:** only the asserted properties must match
-  (subset); add `exactly` to require every property. Row count and order are
-  always exact. A missing property does not match an asserted `null`.
+  (subset); add `exactly` to require every property. Query row count is exact;
+  collection rows match by read model/key regardless of order. Ordering within a
+  collection-valued property is unchanged. A missing property does not match an asserted `null`.
 - **Rejections:** `then error "<message>"` matches the message whatever the rule's
   validation severity; no form asserts severity. Bare `then error` never matches
   a denial. Quote a localized key: `then error "$strings.invoices.reasonRequired"`.

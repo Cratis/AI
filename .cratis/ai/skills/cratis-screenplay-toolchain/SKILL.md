@@ -93,7 +93,7 @@ server with a fixed root when the tool is older than 4.63.2 (the roots bug hit 4
 4.60.1 bundled by cratis before 3.28.2; 4.66.0 and later and cratis 3.28.2 are fine). A subagent without MCP reports "V2 not run: no MCP in this agent".
 
 One line per verdict, tool first, for example `V1 pass (screenplay 4.142.0, 3 files)` and
-`V3 blocked: PLAY0268 x3 (filter query, enum compliance)`. Name the source identity (commit plus the digest from
+`V3 blocked: PLAY0268 x3 (context filter, enum compliance)`. Name the source identity (commit plus the digest from
 the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")) the verdict ran on; keep it apart from the MCP
 `modelRevision`, which is semantic and, without `.screenplay/identities.json`,
 changes with the root folder name.
@@ -103,7 +103,10 @@ changes with the root folder name.
 - **Design**: every construct family parses; use it to model first. Compiled shapes:
   `references/cheat-sheet.md`. Read [references/cheat-sheet-example.md](references/cheat-sheet-example.md) when you need one complete design-mode document with every construct family.
 - **Executable** (binds, V3): `references/executable-subset.md`. Optional keyed lookups, unfiltered
-  lists and lists narrowed by one `by` key (observable too); `filter`, `scoped to`, `performer` and composite `by` do not bind; no handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
+  lists and lists narrowed by one `by` key (observable too); caller-supplied equality
+  filters on collections bind as v14 since 4.143.0. Context `from`, single-result
+  filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268. Read
+  read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md). No handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); concept compliance binds as v13 on standalone
   4.142.0 (since 4.141.0), not the pinned CLI (precise refusals: command-surface `references/compliance.md`);
   v6 constructs bind on Screenplay 4.61 or

@@ -136,8 +136,8 @@ it stays.
 | The person... | Design-mode query | Executable/renderable scope |
 |---|---|---|
 | opens one thing | `XById => RM optional` + `by xId XId` | binds at 4.135.0 with caller-supplied `by`; check target renderer |
-| scans a list | `ListX => RM[]` (optionally `observable`, `filter`) | collection and observable delivery bind at 4.135.0; filters remain PLAY0268; check target renderer |
-| sees their own rows | list with scope/`from` on the caller | scope and context-derived `by` remain PLAY0268; access rules are part of the view, enforced by the target |
+| scans a list | `ListX => RM[]` (optionally `observable`, `filter`) | collection/observable delivery bind; caller-supplied equality filters bind since 4.143.0 as ESM v14; check target renderer |
+| sees their own rows | list with scope/`from` on the caller | scope and context-derived `by`/`filter` remain PLAY0268 because portable scope/query context is unadmitted; caller-supplied filters are not access control |
 | sees a site-wide figure | singleton read model, `from <Event> key literal "global"` on every `from` (a projection-level `key` routes nothing, PLAY0381; example in Screenplay `projections/keys.md`, "Literal keys") | check the binding (V3, `cratis-screenplay-toolchain`) |
 
 - `observable` when people are expected to see others' or automation's changes while looking

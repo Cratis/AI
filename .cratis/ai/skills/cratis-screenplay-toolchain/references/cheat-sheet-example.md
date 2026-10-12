@@ -2,7 +2,7 @@
 
 One complete document with every construct family. Design mode, not executable. Prose rules: [cheat-sheet.md](cheat-sheet.md); tool versions: [versions.md](versions.md); what binds: [executable-subset.md](executable-subset.md).
 
-Binding blockers: unquoted import, `reads` (PLAY0271), `starts with`, a `filter` query (lists and observable lists bind). Executable shapes are in the sibling examples. The bare-marker fence compiles warning-free on standalone 4.127.0; the earlier legacy-marker version compiled on 4.66.0 and CLI 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
+Binding blockers: unquoted import, `reads` (PLAY0271), `starts with`. Caller-supplied collection equality filters bind as ESM v14 since 4.143.0; context/single-result filters remain blocked. Executable shapes are in the sibling examples. The bare-marker fence compiles warning-free on standalone 4.127.0; the earlier legacy-marker version compiled on 4.66.0 and CLI 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
 
 Concept compliance itself binds as ESM v13 on standalone 4.142.0 (first released
 in 4.141.0); reasons remain report-only PLAY0270. CLI 3.53.1 bundles Screenplay
@@ -159,7 +159,7 @@ module Billing
         number    String
       query InvoiceById => InvoiceRow optional        // keyed optional lookup (unfiltered lists bind too)
         by invoiceId InvoiceId
-      query ListInvoices => observable InvoiceRow[]   // design mode only: the `filter` below is PLAY0268 at binding
+      query ListInvoices => observable InvoiceRow[]   // caller-supplied equality filter: ESM v14 since 4.143.0
         filter number String optional
       projection InvoiceList => InvoiceRow
         from InvoiceRegistered

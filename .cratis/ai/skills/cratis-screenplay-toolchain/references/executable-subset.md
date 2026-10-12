@@ -4,6 +4,7 @@
 
 - Caller and compliance boundary (4.142.0)
 - Admitted on both compilers
+- Equality query filters (ESM v14, since 4.143.0)
 - Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 - Generated values and responses (ESM v7): standalone 4.68.0 or later; the cratis 3.53.1 bundle binds them too
 - Released public boundaries and observer routes
@@ -16,12 +17,13 @@ Current pins: `versions.md`. Detailed
 4.66.0/4.68.0 binder probes below retain their historical labels. Current source
 admits routes as ESM v8, public/direction constructs as v9, identity/overrides/filters
 as v10, qualifying non-route Double literals as v11 (exact lowering of Double-mode literals)
-and non-positional enum numbers as v12; concept compliance as v13. Operations, the `numbers exact` **source mode** (PLAY0268) and
+and non-positional enum numbers as v12; concept compliance as v13; caller-supplied
+collection equality filters as v14 since 4.143.0. Operations, the `numbers exact` **source mode** (PLAY0268) and
 reaction refusals/redelivery remain unadmitted. Use the actual
 binder before promoting an older probe to a current capability claim.
 
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler version: the standalone tool (4.142.0) binds through v13; the compiler bundled in cratis
+compiler version: the standalone tool (4.145.0) binds through v14; the compiler bundled in cratis
 3.53.1 (4.137.0) binds ESM through v10 for rendering and refuses non-positional enum numbers at
 binding; older bundles (4.66.0 in cratis 3.28.x, admitting v1 to v6; 4.60.1 before 3.28.2, v1 to v5)
 are history.
@@ -84,8 +86,9 @@ caller and purpose guidance retains v4.127.0 `context.md`, `identity.md`, `purpo
   Queryless read models need an explicit `key`. Explicit single keys preserve
   equivalent inferred ESM bytes. Composite read-model keys, query `by` blocks and
   their fixtures remain PLAY0268 (#599), not the 4.129.0 authoring delivery's
-  executable admission. Collections and observable delivery bind; filters, scope,
-  performer and context-derived `by` remain separate blockers.
+  executable admission. Collections and observable delivery bind. Since 4.143.0,
+  caller-supplied equality filters on collections also bind as ESM v14; context
+  sources, single-result filters, scope, performer and composite `by` remain blocked.
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
   `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
   `subtract`, `set`, `clear`, variants, and the identifier mapped from the projection's key (`xId = $eventSourceId` only for an event-source key).
@@ -95,6 +98,19 @@ caller and purpose guidance retains v4.127.0 `context.md`, `identity.md`, `purpo
   specifications ending in `then query` or `then readmodel`.
 - `seed`. Personas, screens and descriptions are PLAY0270/PLAY0269 information, not
   blocking.
+
+## Equality query filters (ESM v14, since 4.143.0)
+
+`filter <name> <Type> [optional]` binds on collections with no `from`, targeting a
+same-named scalar primitive/concept/enum property of the same nominal type
+(ignoring optionality). Distinct filter names must not repeat `by`. All supplied
+filters AND with `by`; optional omission does not narrow, supplied null is refused.
+`then query … arguments` and `when query` accept both `by` and filters; PLAY0468
+reports unknown/repeated/missing required arguments. Collection results match by
+read model/key regardless of row order. The standalone 4.145.0 pin admits this;
+CLI 3.53.1's 4.137.0 compiler does not. Stage 4.73.1 admits through v10 and the
+latest checked Stage 4.79.1 through v13, neither v14. Complete compiled specs:
+read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
 
 ## Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 
@@ -223,7 +239,7 @@ bodies still leave their owner non-executable.
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
 | `pii` or `secret` on a concept | PLAY0268 | Blanket refusal on CLI 3.53.1's 4.137.0 bundle only. Standalone 4.142.0 admits v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
 | `query` with a composite `by` block, or `by ... from` context-derived arguments | PLAY0268 | composite `by` blocks remain unadmitted (#599). An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too (since 4.105.0) |
-| `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` is not the blocker: it goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
+| Context `from`, single-result filters, `scoped to`, `performer` queries | PLAY0268 | Typed query context, filtering of single results, opaque scope and query implementation remain unadmitted; each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
 | Date or DateTime comparison, `today` | PLAY0268 | no runtime date value |
 | Rule on a nested path (`lines.qty all > 0`) | PLAY0268 | put the rule on the nested value's concept |

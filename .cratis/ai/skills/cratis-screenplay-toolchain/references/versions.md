@@ -3,6 +3,7 @@
 ## Contents
 
 - Pin set
+- Equality-filter rendering boundary
 - Two compilers, one rule
 - Commands and exit codes
 - Model notes gate
@@ -22,7 +23,7 @@ probe; older probes retain their original labels in the other references.
 | cratis CLI | **3.53.1** | Released tag `v3.53.1`; source-checked, not a new render/browser probe |
 | Screenplay bundled by CLI | **4.137.0** | CLI `v3.53.1:Directory.Packages.props`; enum-number authoring, not v12 binding |
 | Stage bundled by CLI | **4.73.1** | Same file; Stage's own `Directory.Packages.props` also pins Screenplay 4.137.0 |
-| Latest standalone Stage released when this was checked | **4.76.0** (Screenplay 4.139.0) | Released tag `v4.76.0`; no cli release bundles Stage 4.74.0 to 4.76.0, so a cli user observes none of it. It admits ESM v1 to v12 (v11 from 4.75.0, v12 from 4.76.0), renders UUID-concept generated values and responses (4.74.0) and explicit enum numbers (4.76.0). Its scaffold pins match 4.73.1 (Arc 22.68.0, Chronicle 19.45.0, frontend pins); `Directory.Packages.props` takes Scene 4.21.0 |
+| Historical standalone Stage source baseline | **4.76.0** (Screenplay 4.139.0) | Released tag `v4.76.0`; no cli release bundles Stage 4.74.0 to 4.76.0, so a cli user observes none of it. It admits ESM v1 to v12 (v11 from 4.75.0, v12 from 4.76.0), renders UUID-concept generated values and responses (4.74.0) and explicit enum numbers (4.76.0). Its scaffold pins match 4.73.1 (Arc 22.68.0, Chronicle 19.45.0, frontend pins); `Directory.Packages.props` takes Scene 4.21.0 |
 | Screenplay.Generation / CritterStack / Prologue bundled by CLI | **0.18.0 / 0.24.0 / 2.0.0** | CLI `v3.53.1:Directory.Packages.props`. Latest released: Generation 0.18.1, CritterStack 0.26.0, Prologue 2.0.0 (no release after 2.0.0); the newer Generation and CritterStack releases are not in a cli |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
@@ -51,6 +52,22 @@ source evidence: CLI
 and `Source/Cli.Specs/for_AiMcpRegistration/when_installing/with_a_composed_profile.cs`
 at tag `v3.46.1` (CLI#322 / CLI#311). This minimum does not re-label the compiler
 or renderer probes below as results from the newer bundle.
+
+## Equality-filter rendering boundary
+
+Caller-supplied collection equality filters shipped in Screenplay **4.143.0**
+(decision 0069), selecting ESM v14; the standalone **4.145.0** pin binds and
+reference-tests them. No-filter models retain their version/bytes/revision.
+The latest released Stage checked for this boundary, **4.79.1**, admits through
+v13 (`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`,
+`EsmSchemaV13Support`) and refuses authored filters in its legacy renderer
+(`Renderers/QueryAdmission.cs:13-22`); it pins Screenplay 4.141.0. It does not
+admit v14. CLI **3.53.1** still bundles Screenplay **4.137.0** / Stage **4.73.1**,
+whose audited pair ceiling is v10 (`SemanticVersionFeatures.cs:89`). These are
+source checks at Stage `v4.79.1` / `v4.73.1` and CLI `v3.53.1`, not new render
+probes or scaffold dependency upgrades. A future consumer must explicitly admit
+v14 and preserve equality selection rather than drop filters. Complete examples:
+read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
 
 ## Two compilers, one rule
 
