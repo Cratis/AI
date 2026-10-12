@@ -1,0 +1,1 @@
+../../.cratis/ai/rules/glossary.md

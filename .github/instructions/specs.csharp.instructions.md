@@ -1,0 +1,1 @@
+../../.cratis/ai/rules/specs.csharp.md

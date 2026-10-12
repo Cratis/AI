@@ -149,6 +149,16 @@ intend to replace conflicting content; this can recursively delete occupied
 directories. Unlisted project files outside those explicitly replaced paths are
 left alone. `--check` never writes, even with `--force`.
 
+Copilot's repository-wide `.github/copilot-instructions.md` is generated from
+rules without `applyTo`. Path rules live in `.github/instructions/` as
+`<name>.instructions.md`, with a quoted `applyTo` glob string (multiple globs are
+comma-separated), as required by [Copilot's custom-instructions documentation](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions#creating-path-specific-custom-instructions).
+Rules already using that format remain symlinks; scalar/list forms needing
+normalization become marked generated files. Setup migrates the old canonical
+rules directory link and removes obsolete plain `.md` corpus links without
+changing canonical rules or local instructions. This repository tool is not the
+consumer CLI's manifest-aware installer.
+
 ## Author skills
 
 Skills follow the [Agent Skills specification](https://agentskills.io/specification) and

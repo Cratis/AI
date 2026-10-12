@@ -4,6 +4,7 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, readdirSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { checkOpenCodeAgents, generateOpenCodeAgents, generatedAgentMarkerPrefix, openCodeAgentsDirectory } from './opencode-agents.ts';
+import { copilotInstructions, copilotMarker } from './copilot-instructions.ts';
 
 type Link = { path: string; target: string; type: 'file' | 'dir' };
 
@@ -16,8 +17,9 @@ if (!existsSync(corpus)) throw new Error(`No canonical corpus exists at ${corpus
 
 // Preflight all managed paths before writing anything. OpenCode requires generated content rather
 // than canonical symlinks; its marker identifies stale outputs that setup can safely regenerate.
-const generated = generateOpenCodeAgents(corpus);
 const directory = join(corpus, openCodeAgentsDirectory);
+requireRealParents(directory, corpus);
+const generated = generateOpenCodeAgents(corpus);
 const expected = new Set(generated.map(file => file.path.split('/').pop()));
 const adapterPaths = generated.map(file => join(corpus, file.path));
 const directoryState = state(directory);
@@ -40,10 +42,23 @@ function state(path: string): ReturnType<typeof lstatSync> | undefined {
     }
 }
 
+function requireRealParents(path: string, boundary: string): void {
+    for (let parent = dirname(path); parent !== boundary; parent = dirname(parent)) {
+        const current = state(parent);
+        if (current && (!current.isDirectory() || current.isSymbolicLink())) {
+            throw new Error(`Harness setup is out of date:\n${parent.slice(root.length + 1)}: expected directory, not an occupied parent path`);
+        }
+    }
+}
+
 function ownedLink(path: string): boolean {
     if (!state(path)?.isSymbolicLink()) return false;
     const target = resolve(dirname(path), readlinkSync(path));
     return target.startsWith(`${corpus}/`);
+}
+
+function ownedCopilot(path: string): boolean {
+    return !!state(path)?.isFile() && readFileSync(path, 'utf8').includes(copilotMarker);
 }
 
 function remove(path: string): void {
@@ -87,8 +102,10 @@ add('.claude/prompts', '../.cratis/ai/prompts', 'dir');
 add('.claude/rules', '../.cratis/ai/rules', 'dir');
 add('.claude/skills', '../.cratis/ai/skills', 'dir');
 commands('.claude/commands');
-add('.github/copilot-instructions.md', '../.cratis/ai/rules/general.md', 'file');
-add('.github/instructions', '../.cratis/ai/rules', 'dir');
+const copilot = copilotInstructions(corpus);
+for (const instruction of copilot) {
+    if (instruction.target) add(instruction.path, instruction.target, 'file');
+}
 add('.github/prompts', '../.cratis/ai/prompts', 'dir');
 add('.github/skills', '../.cratis/ai/skills', 'dir');
 agents('.github/agents', '.agent.md');
@@ -105,17 +122,60 @@ add('.opencode/skills', '../.cratis/ai/skills', 'dir');
 commands('.opencode/commands');
 
 const failures: string[] = [];
+const instructionsDirectory = join(root, '.github/instructions');
+requireRealParents(instructionsDirectory, root);
+const instructionsState = state(instructionsDirectory);
+const migrateInstructions = instructionsState?.isSymbolicLink() && readlinkSync(instructionsDirectory) === '../.cratis/ai/rules';
+if (instructionsState && (!instructionsState.isDirectory() || instructionsState.isSymbolicLink())) {
+    if (check || (!migrateInstructions && !force)) failures.push('.github/instructions: expected directory for Copilot path instructions');
+}
+// Do not inspect child paths through a directory link that will be migrated or refused.
+function plannedState(path: string): ReturnType<typeof state> {
+    if (instructionsState && (!instructionsState.isDirectory() || instructionsState.isSymbolicLink()) && path.startsWith(`${instructionsDirectory}/`)) return undefined;
+    return state(path);
+}
+const obsoleteInstructions: string[] = [];
+if (instructionsState?.isDirectory() && !instructionsState.isSymbolicLink()) {
+    for (const name of readdirSync(instructionsDirectory).filter(name => name.endsWith('.md'))) {
+        const path = join(instructionsDirectory, name);
+        const rule = name.replace(/\.instructions\.md$/, '.md');
+        const canonicalLink = state(path)?.isSymbolicLink() && resolve(dirname(path), readlinkSync(path)) === join(corpus, 'rules', rule);
+        if ((canonicalLink || ownedCopilot(path)) && !copilot.some(instruction => instruction.path === `.github/instructions/${name}`)) {
+            obsoleteInstructions.push(path);
+            if (check) failures.push(`.github/instructions/${name}: obsolete Copilot adapter`);
+        }
+    }
+}
+for (const instruction of copilot.filter(instruction => instruction.content !== undefined)) {
+    const path = join(root, instruction.path);
+    const current = plannedState(path);
+    const content = current?.isFile() ? readFileSync(path, 'utf8') : undefined;
+    if (content === instruction.content) continue;
+    if (check || (current && !ownedLink(path) && !content?.includes(copilotMarker) && !force)) {
+        failures.push(`${instruction.path}: expected generated Copilot instructions`);
+    }
+}
 for (const link of links.values()) {
     const path = join(root, link.path);
-    const actual = state(path)?.isSymbolicLink() ? readlinkSync(path) : undefined;
+    if (!link.path.startsWith('.github/instructions/')) requireRealParents(path, root);
+    const actual = plannedState(path)?.isSymbolicLink() ? readlinkSync(path) : undefined;
     if (actual === link.target) continue;
-    if (check || (state(path) && !ownedLink(path) && !force)) {
+    if (check || (plannedState(path) && !ownedLink(path) && !(link.path.startsWith('.github/instructions/') && ownedCopilot(path)) && !force)) {
         failures.push(`${link.path}: expected symbolic link to ${link.target}`);
     }
 }
 
 if (failures.length > 0) throw new Error(`Harness setup is out of date:\n${failures.join('\n')}`);
 if (!check) {
+    if (instructionsState && (!instructionsState.isDirectory() || instructionsState.isSymbolicLink())) remove(instructionsDirectory);
+    mkdirSync(instructionsDirectory, { recursive: true });
+    for (const path of obsoleteInstructions) remove(path);
+    for (const instruction of copilot.filter(instruction => instruction.content !== undefined)) {
+        const path = join(root, instruction.path);
+        remove(path);
+        mkdirSync(dirname(path), { recursive: true });
+        writeFileSync(path, instruction.content!);
+    }
     if (adapterDirectoryConflict) remove(directory);
     mkdirSync(directory, { recursive: true });
     for (const path of adapterPaths) {

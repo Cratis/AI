@@ -1,0 +1,1 @@
+../../.cratis/ai/rules/guards-and-fuses.md

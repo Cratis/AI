@@ -9,7 +9,7 @@ import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { DefaultResourceLoader, SettingsManager } from '@earendil-works/pi-coding-agent';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
-import { frontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
+import { frontmatter, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
@@ -111,7 +111,7 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
             for (const rule of ['go.md', 'go-engineering.md']) {
                 const canonical = readFileSync(join(corpus, 'rules', rule), 'utf8');
                 assert.equal(readFileSync(join(project, '.claude/rules', rule), 'utf8'), canonical);
-                assert.equal(readFileSync(join(project, '.github/instructions', rule), 'utf8'), canonical);
+                assert.equal(readFileSync(join(project, '.github/instructions', rule.replace(/\.md$/, '.instructions.md')), 'utf8'), canonical);
                 const fields = frontmatter(canonical);
                 for (const field of ['paths', 'applyTo']) {
                     const globs = fields.get(field)!;
@@ -134,7 +134,21 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
 
 test('every supported harness resolves canonical rules or shared project instructions', () => {
     assert.equal(realpathSync(join(repositoryRoot, '.claude', 'rules')), realpathSync(join(corpusRoot, 'rules')));
-    assert.equal(realpathSync(join(repositoryRoot, '.github', 'instructions')), realpathSync(join(corpusRoot, 'rules')));
+    const copilotDirectory = join(repositoryRoot, '.github/instructions');
+    const pathRules = readdirSync(join(corpusRoot, 'rules')).filter(name => frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8')).has('applyTo'));
+    assert.deepEqual(readdirSync(copilotDirectory).sort(), pathRules.map(name => name.replace(/\.md$/, '.instructions.md')).sort());
+    for (const rule of pathRules) {
+        const path = join(copilotDirectory, rule.replace(/\.md$/, '.instructions.md'));
+        assert.equal(realpathSync(path), realpathSync(join(corpusRoot, 'rules', rule)));
+        const fields = frontmatterText(readFileSync(path, 'utf8'))!;
+        const raw = /^applyTo:\s*(.+)$/m.exec(fields)?.[1];
+        assert.ok(raw && quotedScalar(raw)?.trim(), `${rule}: Copilot needs a quoted glob string, not a YAML list`);
+    }
+    const rootInstructions = readFileSync(join(repositoryRoot, '.github/copilot-instructions.md'), 'utf8');
+    for (const name of readdirSync(join(corpusRoot, 'rules'))) {
+        const content = readFileSync(join(corpusRoot, 'rules', name), 'utf8');
+        if (!frontmatter(content).has('applyTo')) assert.ok(rootInstructions.includes(content), `${name}: universal instructions must reach Copilot`);
+    }
     assert.equal(realpathSync(join(repositoryRoot, 'AGENTS.md')), realpathSync(join(corpusRoot, 'rules', 'general.md')));
     assert.equal(realpathSync(join(repositoryRoot, 'CLAUDE.md')), realpathSync(join(corpusRoot, 'rules', 'general.md')));
     assert.match(readFileSync(join(repositoryRoot, '.cursor', 'rules', 'cratis.mdc'), 'utf8'), /\.cratis\/ai\/rules\/general\.md/);

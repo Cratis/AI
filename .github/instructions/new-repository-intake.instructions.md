@@ -1,0 +1,1 @@
+../../.cratis/ai/rules/new-repository-intake.md
