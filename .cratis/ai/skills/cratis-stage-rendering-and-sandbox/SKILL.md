@@ -46,7 +46,9 @@ were read at Stage `v4.73.1` (`Source/Rendering.Cratis/**`, `Documentation/guide
 (`Documentation/reference/screenplay.md`, `Source/Cli/Commands/Render/**`), not by a render run
 unless a line says *observed*. CLI 3.53.1 bundles a Screenplay and Stage listed in `cratis-screenplay-toolchain` `references/versions.md`, so its
 binder is behind the standalone compiler. Stage's scaffold pins Arc, Chronicle, Components, Scene and
-Fundamentals releases (listed in the rendered application reference). These are **not** the latest releases; do not bump them in managed files
+Fundamentals releases (listed in the rendered application reference). Scene's
+runtime surface was re-read at the Scene tag in that scaffold table
+(`README.md`, `Source/JavaScript/{model,engine,react,components}/**`). These are **not** the latest releases; do not bump them in managed files
 ([rendered application](references/rendered-application.md)).
 
 Historical executed baselines (history, not current claims): Stage `v4.24.2` and cli
@@ -193,6 +195,8 @@ the `[Command]` record and `Handle()`, the `[EventType]` event, the validator an
 scaffold pins and the `Customizations/` contract are in
 [references/rendered-application.md](references/rendered-application.md).
 Read `references/rendered-application.md` when inspecting scaffold pins, managed-file ownership, or implementing a `Customizations/` extension.
+Read [Scene runtime](references/scene-runtime.md) when identifying the generated UI's
+package ids, host capabilities or the boundary from hand-built Components pages.
 
 Modeled specifications become xunit classes compiled in **Debug only**
 (`IsTestProject` when Debug): a command spec `when_<snake>` in namespace

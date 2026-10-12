@@ -132,8 +132,10 @@ behavior truly requires DOM events — do not make it the default. Avoid
 snapshots; they hide behavior and make refactors noisy.
 
 Cratis Components mount inside `CratisComponentsProvider`, so a specification
-that renders one for real must provide it, and jsdom needs a `ResizeObserver`
-stub for the table and split-pane components.
+that renders one for real must provide it (enable `toaster` only when asserting
+toasts). In jsdom, provide a `ResizeObserver` stub for any Components area that
+observes size, including observable tables, Filter and toolbars. Source-checked
+at Components v4.26.4 (`Source/**`); this is not a split-pane-only requirement.
 
 ## Async and time
 

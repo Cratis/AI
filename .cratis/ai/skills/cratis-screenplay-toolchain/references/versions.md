@@ -24,8 +24,13 @@ probe; older probes retain their original labels in the other references.
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
 | Latest Arc / Chronicle / Fundamentals released when this was checked | **22.72.0 / 19.50.0 / 7.23.0** | Released tags; newer than the CLI bundle and than Stage's scaffold. Arc 22.72.0 and later run a reactor returning events and commands (absent through 22.71.0); the Stage 4.73.1 scaffold pins Arc 22.68.0, whose command handler accepts a collection only when every element is a command, so a rendered app needs a proven dependency override to 22.72.0 or later |
-| Stage 4.73.1 rendered backend and frontend | **Arc 22.68.0 / Chronicle 19.45.0**; Components 4.26.2, Scene 4.21.0, `@cratis/arc` 22.58.2, Fundamentals 7.22.8 | Stage `v4.73.1:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs` and `CratisFrontendPackageSet.cs` (`Current`); not the latest releases and not bumped by hand |
+| Stage 4.73.1 rendered backend and frontend | **Arc 22.68.0 / Chronicle 19.45.0**; `@cratis/components` 4.26.2, `@cratis/scene.*` 4.21.0, `@cratis/arc` 22.58.2, Fundamentals 7.22.8 | Stage `v4.73.1:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs` and `CratisFrontendPackageSet.cs` (`Current`); not the latest releases and not bumped by hand |
 | Historical Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
+
+Scene's family id denotes the six scaffold packages listed in
+`cratis-stage-rendering-and-sandbox/references/rendered-application.md`, not a
+package named `@cratis/scene`. The Components skills verify the latest 4.26.4
+surface; that does not upgrade Stage's managed scaffold pin.
 
 The published `screenplay-contract.json` beside this reference is the machine-readable authority for PLAY codes, MCP tools and parameters, and standalone CLI commands/options. Its unchanged release bytes are pinned by `screenplay-contract.version` to the standalone version above. Before adding a claim, search this large JSON file by exact `code` in `diagnostics`, or by exact `name` in `mcpTools`/`cliCommands`, and inspect that object's retirement flag, parameters or options; do not load the full file into context. For example, search for `"code": "PLAY0029"` or `"name": "read-workspace"`; `screenplay-contract-exceptions.json` preserves explicitly reasoned historical statements, not current-release exceptions. Coverage gaps are mention inventories, not proof that a skill teaches a feature.
 
