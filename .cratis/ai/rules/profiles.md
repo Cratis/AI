@@ -72,7 +72,7 @@ profile includes neither Screenplay nor Stage.
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
 | `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/java`, `cratis/arc/kotlin` |
-| `cratis/chronicle` | Chronicle event sourcing engine | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/java`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
+| `cratis/chronicle` | Chronicle event sourcing engine (does not compose `cratis/chronicle/mcp`) | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/java`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
 | `cratis/components` | React component library | (no child profiles) |
 | `cratis/fundamentals` | Core primitives (`ConceptAs<T>`, `EventSourceId<T>`) | (no child profiles) |
 | `cratis/specifications` | Specification framework | (no child profiles) |
@@ -155,6 +155,8 @@ Standalone Chronicle client usage (no Arc) in TypeScript is
 | `cratis/codescene` | Opt-in CodeScene Code Health change gates, refactoring, debt prioritization and risk-based testing; requires an account and available MCP tools; each user registers the MCP server (see below) |
 | `cratis/studio` | Studio MCP safety guidance |
 | `cratis/cli` | CLI operations |
+| `cratis/cli/terminal-workbench` | Human-operated terminal Workbench |
+| `cratis/chronicle/mcp` | Chronicle MCP inspection and exact tool-effect guidance |
 | `cratis/lens` | Lens browser extension |
 | `cratis/screenplay` | Model-first event modeling: lifecycle, phase skills, toolchain, review, render and gap-fill, plus the whole `.play` language |
 | `cratis/stage` | Stage rendering and sandbox |
