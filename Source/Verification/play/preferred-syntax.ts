@@ -62,7 +62,9 @@ export class PreferredSyntax {
                     continue;
                 }
             }
-            // Compile diagnostics own complete/parented fences; scan prose and uncompiled excerpts.
+            // Compile diagnostics own complete/parented fences, including ones that `expect` a code:
+            // diagnostics() rejects style codes regardless of `expect`, so skipping them here is safe.
+            // Scan prose and uncompiled excerpts textually.
             if (fences.some(fence => (!fence.excerpt || fence.parent) && index + 1 > fence.line && index + 1 <= fence.line + fence.source.trimEnd().split('\n').length)) continue;
             const rules: Array<[string, RegExp]> = [
                 ['optional-suffix', /\b[A-Z][A-Za-z0-9_]*(?:\[\])?\?(?![A-Za-z0-9_])/],

@@ -141,7 +141,7 @@ target requirements.
 - Every slice has at least one specification at the application boundary.
 - One behaviour per spec; names read as sentences: `Reserving...`, `Rejecting...`, `Refusing...`
   (denial), `<View>LifecycleN<State>` for families.
-- `for` on every given, appended and expected event, and on the `when` command where the
+- `for` on every given, appended and expected event (plain `produces <Name>` too; inline `produces event` omits it), and on the `when` command where the
   destination matters. A competing-claim given needs a *different* `for`.
 - Format rules belong on a `concept`: give each concept rule representative acceptance,
   rejection and boundary specs once (through one command that carries it), not on every use;

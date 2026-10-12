@@ -41,7 +41,7 @@ cratis before 3.28.2 bundle is available). Mark each such spec in the coverage m
 `gap: <reason>` for the narrower modes so the verification and render phases know what will not execute.
 
 ## Executable mode
-- Every gated spec has `given caller`; every production and every given/expected event has `for`.
+- Every gated spec has `given caller`; every given/expected event has `for`, and so does every plain `produces <Name>` (inline `produces event` omits it and defaults to the identifier).
 - Each read model has one key shared by its keyed `=> RM optional` queries; the identifier equals
   the projection's effective key (`cratis-screenplay-slice-design` `references/read-model-design.md`
   decision table). View specs assert through a keyed query.

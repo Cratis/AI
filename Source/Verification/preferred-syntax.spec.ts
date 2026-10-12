@@ -42,6 +42,15 @@ describe('when checking preferred syntax', () => {
         result.diagnostics(fence, 'info PLAY0479: legacy optional suffix');
         assert.match(result.finish().join('\n'), /non-preferred.*PLAY0479/);
     });
+    it('should catch a legacy spelling in a complete expect fence through diagnostics, not the textual scan', () => {
+        const result = checker();
+        const text = '```screenplay expect PLAY0479\nconcept Note : String\n  value String?\n```';
+        const fences = parseFences(file, text).fences;
+        result.scan(file, text, fences);
+        assert.deepEqual(result.problems, []);
+        result.diagnostics(fences[0], 'info PLAY0479: legacy optional suffix');
+        assert.match(result.problems.join('\n'), /non-preferred.*PLAY0479/);
+    });
     it('should leave routing and other non-style advice alone', () => {
         const result = checker();
         result.diagnostics(parseFences(file, content).fences[0], 'info PLAY0478: omitted\nwarning PLAY0469: payload\ninfo PLAY0516: advice\ninfo PLAY0553: advice\ninfo PLAY0520: advice');

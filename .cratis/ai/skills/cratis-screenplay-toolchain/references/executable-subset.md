@@ -63,8 +63,8 @@ caller and purpose guidance retains v4.127.0 `context.md`, `identity.md`, `purpo
 ## Admitted on both compilers
 
 - `StateChange` and `StateView` slices.
-- A command with one `identifier`; `produces <Event>` with `for <identifier>` on every
-  production.
+- A command with one `identifier`; inline `produces event <Name>` (omit `for`) for a command-owned event, or
+  plain `produces <Event>` with explicit `for <identifier>` for a shared event.
 - `produces when` with `==`/`!=` on scalar text, enum, number or boolean, and ordering on
   numbers.
 - Mappings from command properties, string and number literals, `$context.occurred`,
@@ -268,7 +268,7 @@ bodies still leave their owner non-executable.
 ## Not refused, but do not rely on it
 
 - Plain `produces` without `for` binds (PLAY0478, information) but means allocation in the
-  ESM and "the identifier" in rendered Arc code. Always write `for`.
+  ESM and "the identifier" in rendered Arc code. Always write `for` on a plain `produces <Name>`; inline `produces event` omits it.
 - A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`), so no specification in the application runs; Chronicle wires it as a child pull. See the blocked-plan rows above.
 - At Screenplay 4.125.0, V1 reports absent projection/children/nested targets
   with PLAY0514 and unknown removal/capture events with PLAY0166. An unmapped

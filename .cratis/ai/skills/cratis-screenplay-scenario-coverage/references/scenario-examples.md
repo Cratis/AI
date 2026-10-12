@@ -26,7 +26,7 @@ Screenplay specifications.
 |---|---|---|
 | Given | the facts that exist, each with its `for` source: `given InvoiceIssued` with `for "<invoice id>"` | "given an invoice" with no fact, no source |
 | When | one action with every input stated | an action with inputs left to defaults |
-| Then (success) | every production with payload and `for` | "an event is produced" |
+| Then (success) | every production with payload (and `for` where it is not an inline command-owned event) | "an event is produced" |
 | Then (refusal) | `then error "Invoice already settled"`, the rule's own message | `then error` with no message, or `then error ""` |
 | Then (denial) | `then denied` | `then error` for a caller who is not allowed |
 | Reason | slice `documentation` says why the rule exists | the rule appears only in a spec title |

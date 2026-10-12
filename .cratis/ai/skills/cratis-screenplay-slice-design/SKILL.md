@@ -73,7 +73,7 @@ report and slice `documentation`, and continue.
    `Save`, `Set`, `Change`, `Manage` + noun) means several decisions share a form: ask which
    separate reasons change these values, then split (`references/slicing.md` *Generic edits*).
    One input per thing the caller decides or supplies; `identifier` on the property naming the
-   instance (omit only for allocation); `for <identifier>` on every `produces`. Trace each input
+   instance (omit only for allocation); inline `produces event <Name>` (no `for`) when the command owns the event; plain `produces <Name>` needs `for <identifier>`. Trace each input
    (`references/field-lineage.md`). A conditional input is a granularity question: two
    decisions are two commands; one decision with a dependent rule is an implication
    (`require a == false or b > c`). Never a boolean attestation input (`confirmsX == true`)
