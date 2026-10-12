@@ -5,6 +5,7 @@
 - Pin set
 - Two compilers, one rule
 - Commands and exit codes
+- Model notes gate
 - Admission boundaries
 - Historical probes
 - Revisions and descriptions
@@ -17,7 +18,7 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.142.0** (`e6439548`) | Released tag `v4.142.0` and its unchanged published contract; property additions join rename/remove, with concept compliance/ESM v13 retained |
+| Screenplay language, standalone tool and MCP | **4.144.0** (`b5da55a2`) | Released tag `v4.144.0` and its unchanged published contract; committed model notes and the standalone open-question gate; equality query filters admitted as ESM v14 since 4.143.0 |
 | cratis CLI | **3.53.1** | Released tag `v3.53.1`; source-checked, not a new render/browser probe |
 | Screenplay bundled by CLI | **4.137.0** | CLI `v3.53.1:Directory.Packages.props`; enum-number authoring, not v12 binding |
 | Stage bundled by CLI | **4.73.1** | Same file; Stage's own `Directory.Packages.props` also pins Screenplay 4.137.0 |
@@ -53,7 +54,7 @@ or renderer probes below as results from the newer bundle.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.142.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
+Standalone Screenplay 4.144.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -83,10 +84,39 @@ in-memory and does not run opaque attachments or external services. CLI-derived
 specification IDs need not match persisted MCP identities after renames; use MCP
 for identity-stable selection.
 
+## Model notes gate
+
+**Standalone Screenplay 4.144.0** ships `--open-questions report|fail`.
+**Cratis CLI 3.53.1 does not have this gate** and bundles Screenplay 4.137.0,
+which also predates the notes MCP tools. Do not add this option to
+`cratis screenplay validate` or assume its bundled MCP supports model notes.
+Sources: Screenplay `v4.144.0:Source/DotNET/Tool/ModelOpenQuestions.cs:18-69,87-131`;
+CLI `v3.53.1:Source/Cli/Commands/Screenplay/ValidateScreenplaySettings.cs:11-85`
+and `Directory.Packages.props:8,35-37`. No newer Cratis CLI gate was verified.
+
+```shell
+screenplay <model-folder> --open-questions report --no-color
+screenplay <model-folder> --scope Library.Loans.CheckIn --open-questions fail --no-color
+```
+
+`report` emits info `model-note.open-question` findings without failing for
+questions. `fail` exits **1** when the selected set has an open question;
+unreadable notes exit **2** when the flag is given. Compilation still runs with
+its own verdict; question findings are MCP/CLI only, **no PLAY code**. With no
+flag the sidecar is ignored, and `--warnaserror` does not gate questions. Tasks
+and ordinary notes do not fail this gate.
+
+Scope includes descendants and ancestor notes (application notes too). An
+unscoped report includes orphaned open questions. Absent identity state reports
+all open questions unscoped as orphaned with `identity-state-absent`, rather than
+hiding them behind a scope. Notes never change ESM or V1–V5 verdicts. Read
+model-authoring [model notes](../../cratis-screenplay-model-authoring/references/model-notes.md)
+when recording, resolving, paging or reviewing orphan impact.
+
 ## Admission boundaries
 
-Screenplay `v4.142.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
-schema pairs through v13. Admission selects by use:
+Screenplay `v4.144.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
+schema pairs through v14. Admission selects by use:
 
 - v7: generated values/responses and policy negation.
 - v8: sources/streams and command/specification routes.
@@ -125,6 +155,12 @@ schema pairs through v13. Admission selects by use:
   explicit `subject` mark refuse PLAY0268. See command-surface
   `references/compliance.md` and Screenplay decision 0068. Stage 4.76.0 admits
   only through v12; no current cli bundles this compiler or admits v13.
+- **Published v14 in 4.143.0:** caller-supplied equality filters on collection
+  queries with same-named, type-matched scalar read-model properties; no `from`.
+  Optional filters may be omitted, supplied null is refused, and `by` plus supplied
+  filters combine with AND. Models without filters preserve bytes/revision.
+  Screenplay `v4.144.0:decisions/0069-admit-equality-query-filters-as-esm-v14.md:43-88`;
+  this newer standalone admission does not upgrade CLI or Stage.
 
 Decision 0066 freezes a version when any exposing NuGet/npm package is published,
 including prereleases. Later byte-changing features take the next version at

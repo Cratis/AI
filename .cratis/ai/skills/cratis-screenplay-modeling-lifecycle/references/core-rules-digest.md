@@ -77,8 +77,13 @@ matters, a destination. A field with no origin is a gap to resolve, not a detail
 See `cratis-screenplay-slice-design` `references/field-lineage.md`.
 
 ## Open question versus decided failure
-- **Open question.** Genuinely undecided. It goes in session state (`STATE.md`) or the review
-  report and stays open until someone answers it. Resolving means answering.
+- **Open question.** Genuinely undecided. Record an anchored `question` note in
+  committed `.screenplay/notes.json`; STATE.md/reports carry its note ID and
+  assumption. Not only chat or `description` text. Resolving means answering:
+  cite project decisions in `refs` and resolve by `external-decision` when they
+  supply the answer, then realize it as a specification, description or decision
+  record. Read `stop-or-assume.md` "Durable question notes" when doing this.
+  Never put secrets or personal data in notes.
 - **Decided failure.** A rejection or error whose behavior is already decided ("payment fails,
   refuse, no event"). Model it as a `specification` with `then error` or `then denied`. It is
   permanent specified behavior, not a note waiting on an answer.
@@ -125,7 +130,7 @@ for modelers. The full signal, consequence and fix per shape is in
 - [ ] Every process starts at a screen or form action, a reaction, a clock or application trigger, or a capture.
 - [ ] No two state changes are chained without a trigger between them.
 - [ ] Every persona has a Cannot line backed by a gate and a denial specification, or a recorded gap.
-- [ ] Every decided failure is a specification; every open question is in session state.
+- [ ] Every decided failure is a specification; every open question is an anchored note with its ID in session state.
 
 This is the fast pass; the full audit is `cratis-screenplay-model-review`
 `references/checklist.md`, and the closing quality checklist is in `references/phases.md`.

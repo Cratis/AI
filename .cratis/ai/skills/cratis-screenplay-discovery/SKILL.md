@@ -44,7 +44,9 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
 
 Current pins are listed once in `cratis-screenplay-toolchain` `references/versions.md`. The
 statements below were checked at these older tags (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3,
-Stage v4.24.2, Arc v22.50.5, Chronicle v19.32.0), kept as provenance, not as current pins:
+Stage v4.24.2, Arc v22.50.5, Chronicle v19.32.0), kept as provenance, not as current pins.
+Model notes use Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`
+and decision 0045:40-79; tool sources: model-authoring `references/model-notes.md`.
 
 | Fact used here | Source |
 | --- | --- |
@@ -87,10 +89,12 @@ With no input at all, open with: "Describe the starting situation, then the step
 to reach the intended result." With a brief, restate domain and goal in two sentences and confirm.
 
 **Unattended: assume visibly.** Never stop to ask. Take the most reasonable assumption,
-record it with its reason in the session STATE.md (`.ai-work/screenplay/<model-slug>/STATE.md`,
-untracked) and, when it shapes the model, in the feature's fenced `documentation` (a short
-**ASSUMED** marker may stay in its `description`). Keep what the user
-decided apart from what you assumed. Never guess silently.
+record the open question and assumption as a `question` note anchored to the element,
+not chat or `description` text. STATE.md carries its note ID and assumption for handoff;
+settled reasoning belongs in `documentation`. Keep decisions apart from assumptions.
+Read [discovery questions](references/plotting-and-handoff.md#durable-discovery-questions)
+when recording or answering a question: `refs`, external decisions and realization.
+Never put secrets or personal data in note text; `.screenplay/notes.json` is committed.
 
 ## Procedure
 
@@ -209,7 +213,8 @@ and the report says which verdicts were not run (V2 to V5 are not run in discove
   Cannot lines or "none known"; every Cannot line is listed as a denial candidate.
 - Essential fields present; personal data classified on concepts.
 - Rules register, denial candidates, competition and duplicate candidates, hotspots, open
-  questions and assumptions are written in STATE.md, not only said in chat.
+  questions and assumptions are carried in STATE.md; open questions are also committed
+  `question` notes with anchors, not only said in chat.
 
 ## Verify
 

@@ -5,6 +5,7 @@
 - Finding fields
 - Root causes
 - Defect or business question?
+- Question notes
 - Verdict rules
 - Findings across a re-review
 - Wording
@@ -142,6 +143,31 @@ constraint or projection).
 - Do not disguise a defect as a question, nor raise a question you could answer from the model.
 - An open question is genuinely unanswered. A refusal the business already decided is a
   `then error` or `then denied` specification, not a question (E9).
+
+## Question notes
+
+On Screenplay 4.144.0, inspect `list-model-notes` with scope and `state: "all"`,
+including `view: "findings"`. `model-note.open-question` is an info MCP/CLI-only
+finding, no PLAY code and no V1 failure. List orphaned questions explicitly;
+review `orphanedNotes` on source proposals, and treat null/unreadable as unknown.
+A read-only reviewer never writes notes: return a `question` note request for the
+owning session, anchored to the element with consequence and assumption. Existing
+questions should be cited by note ID; new questions must not live only in chat,
+session state or `description` text. Never put secrets or personal data in note
+text, authors, references or resolutions.
+
+Read model-authoring [model notes](../../cratis-screenplay-model-authoring/references/model-notes.md)
+when preparing that request or judging resolution evidence. Cite the project's
+own decisions with `refs: [{ "id": "D123" }]`; the owner resolves with
+`by: "external-decision"` and required `ref: { "id": "D123" }` when D123 answers
+it. Verify the answer became a specification, a description or a project-owned
+decision record; a resolved note is not behavioral proof. Ask the owner to reanchor
+or resolve affected notes before source apply; resolution alone leaves an orphan.
+
+The optional `--open-questions fail` gate is in standalone Screenplay 4.144.0,
+not Cratis CLI 3.53.1. Report it separately from V1–V5. Evidence: Screenplay
+`v4.144.0:Documentation/screenplay/model-notes.md:12-77,93-121`,
+`Documentation/screenplay/mcp/reference.md:457-520`; source lines in the linked guide.
 
 ## Verdict rules
 - **FAIL**: any critical finding, or a verdict line the mode requires fails.

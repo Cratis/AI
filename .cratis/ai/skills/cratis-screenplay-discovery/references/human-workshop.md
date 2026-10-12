@@ -80,7 +80,7 @@ No event modeling experience is needed.
 | Yellow: role | `persona` (with Does / Reads / Cannot) |
 | Blue: command (later session) | `command` (`cratis-screenplay-slice-design`) |
 | Green: view (later session) | `readmodel` and `query` (`cratis-screenplay-slice-design`) |
-| Pink: question or hotspot | an open question or hotspot in STATE.md |
+| Pink: question or hotspot | anchored `question` note (note ID in STATE.md); hotspot in STATE.md |
 
 Use the agreed colours consistently, whatever they are; the mapping is what matters.
 

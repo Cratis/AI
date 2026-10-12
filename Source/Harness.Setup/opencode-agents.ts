@@ -18,7 +18,7 @@
  * `harnesses/<harness>/` per selected harness, so this needs no new distribution mechanism.
  */
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 /** A generated adapter file: where it lives relative to the corpus root, and its full content. */
@@ -160,10 +160,13 @@ export function checkOpenCodeAgents(corpusRoot: string): string[] {
     const expected = generateOpenCodeAgents(corpusRoot);
     const directory = join(corpusRoot, openCodeAgentsDirectory);
     const failures: string[] = [];
+    if (existsSync(directory) && (!lstatSync(directory).isDirectory() || lstatSync(directory).isSymbolicLink())) {
+        return [`${openCodeAgentsDirectory} is not a generated adapter directory.`];
+    }
     for (const file of expected) {
         const path = join(corpusRoot, file.path);
         if (!existsSync(path)) failures.push(`${file.path} is missing (generated from agents/${file.source}).`);
-        else if (readFileSync(path, 'utf8') !== file.content) failures.push(`${file.path} is stale (regenerate from agents/${file.source}).`);
+        else if (!lstatSync(path).isFile() || readFileSync(path, 'utf8') !== file.content) failures.push(`${file.path} is stale (regenerate from agents/${file.source}).`);
     }
     const expectedNames = new Set(expected.map(file => basename(file.path)));
     if (existsSync(directory)) {

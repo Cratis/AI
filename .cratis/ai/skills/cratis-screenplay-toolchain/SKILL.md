@@ -206,6 +206,10 @@ reason; blocked verdicts list codes and keep the protection they blocked on.
 - [ ] Any new example fence compiles with the standalone tool; unmarked fences also pass
       `cratis screenplay validate --warnings-as-errors`.
 
+Read [model notes gate](references/versions.md#model-notes-gate) when checking
+unresolved questions: standalone 4.144.0 has `--open-questions fail`; Cratis CLI
+3.53.1 does not. It is separate from compilation and `--warnaserror`.
+
 ## Route near misses
 
 - What to model, phases, gates: `cratis-screenplay-modeling-lifecycle`.

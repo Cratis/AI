@@ -254,7 +254,21 @@ or create a fallback folder to bypass the conflict.
 
 ## Failures (use `failureKind`, never message text)
 
-See "Failures (use `failureKind`, never message text)" in SKILL.md.
+| failureKind | Response |
+| --- | --- |
+| `StaleRevision`, `DiskDrift`, `IdentityStateDrift` | Reopen and re-propose |
+| `ProposalRejected` | Read `conflicts`; change the request |
+| `FormattingConsentRequired` | Pass `formatting` |
+| `UnknownProposal` | The connection was reopened or the proposal applied: re-propose |
+| `LimitExceeded` | Discard unused proposals (16 cap) |
+| `PendingOperation`, `RecoveryRequired` | `workspace-state`, then ask before `recover-workspace` |
+| `RootChangeRefused` | Keep the fixed root, or start a new connection |
+| `ApplyOutcomeUnknown`, or EOF during `apply` | **Never retry `apply`.** Reconnect, read `workspace-state`, ask the user |
+
+Never delete `.screenplay/pending.json`. Limits reject and never truncate: 512
+files, 8 MiB total, 2 MiB per file, 1 MiB structured result, 200 items or 192 KiB
+per page. Excluded directories: `.git`, `.ai-work`, `.screenplay`, `bin`, `obj`,
+`node_modules`.
 
 ## Formatting and limits
 

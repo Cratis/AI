@@ -84,8 +84,11 @@ module Berths
   specification can state the exact rejection. No `BerthReassigned` event was added to carry it.
 - The `Cannot` line in the persona resolves to the `HarbourOffice` policy and a `then denied`
   specification whose caller fixture carries a non-matching role.
-- Assumption Q1 lives in the feature documentation and in STATE.md (Open questions) with its address,
-  `Berths.Allocation`.
+- On Screenplay 4.144.0, record Q1 as a `question` note on `Berths.Allocation`:
+  "Is allocation always manual? Assuming manual allocation; an automatic route
+  would need an automation." The documentation carries the working assumption;
+  STATE.md carries the returned note ID. Read `stop-or-assume.md` "Durable
+  question notes" when recording or resolving it.
 - The documentation is rationale only: the rules themselves are enforced by the constraint, the policy
   and the specifications, not by the prose.
 - The constraint does not say a berth holds one boat at a time: a berth source may replace its

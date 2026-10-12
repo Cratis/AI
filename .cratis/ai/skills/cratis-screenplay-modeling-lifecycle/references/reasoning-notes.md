@@ -19,7 +19,8 @@ comments (Stage#178 closed): model the rule first, never treat prose as enforcem
 
 Cover, briefly and only where real:
 1. Scope: the business process and the identities its streams are keyed by.
-2. Assumptions beyond the brief, and why (each also listed in STATE.md).
+2. Working assumptions beyond the brief and why, linked to an anchored `question`
+   note when unsettled; STATE.md carries the note ID.
 3. Rules kept as constraints or specifications rather than events, so a missing event is not read
    as an oversight; state-dependent rules marked NOT enforced in the model today, with the named
    target enforcement.
@@ -28,17 +29,20 @@ Cover, briefly and only where real:
    deliberate omission ("this view drops cancelled bookings").
 6. Integration and capability gaps, each substantive one (outside facts, cross-feature or
    cross-module dependencies, mode gaps) as: the finding, the viable resolutions, and the
-   open question or decision that records the choice (`Qn <address>`, or the decision in
-   STATE.md), so the documentation and the question agree.
+   anchored question note ID or project-owned decision that records the choice,
+   so documentation and the question agree. Use `refs` for decision identifiers;
+   the question itself is not tracked in prose.
 7. A closing line for a feature with real decisions: what is covered (declaration kinds and
    the specification matrix in words, not a counter that goes stale). Review results and
    verdicts are never written into documentation (it is authored before review and would change
    the reviewed source identity); they live in STATE.md and the packet.
 
 Write for the next person or session who opens the model cold, not for whoever just built it.
-Add a note **at any phase**, at the element it applies to, when an assumption fills a gap the
-brief left open, an alternative was rejected, or a constraint is not obvious; never as routine
-narration of what a step did. Complete the feature's reasoning at the end of P3.
+At any phase, record unresolved assumptions as `question` model notes; use
+`documentation` for settled alternatives or non-obvious constraints, never routine
+step narration. Read `stop-or-assume.md` "Durable question notes" when using refs,
+resolving by external decisions or realizing an answer. Never put secrets or
+personal data in note text. Complete the feature's reasoning at the end of P3.
 If a feature's story is genuinely simple, say so briefly rather than padding; where real
 decisions sit behind it, documentation preserves why they were made.
 

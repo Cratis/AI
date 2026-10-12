@@ -2,6 +2,10 @@
   "skill": "cratis-screenplay-model-authoring",
   "queries": [
     {
+      "query": "Record our open cancellation question as a Screenplay model note with refs D123, review read-proposal view notes, and resolve it by external-decision when our decision register answers it.",
+      "shouldTrigger": true
+    },
+    {
       "query": "Use propose-property in Screenplay MCP to add a required priority field along the command, event and read-model chain with explicit sources and a fixture value; apply only if both revisions still match.",
       "shouldTrigger": true
     },
@@ -27,10 +31,6 @@
     },
     {
       "query": "I proposed a change with propose-source. How do I read the proposal's changes before I apply it?",
-      "shouldTrigger": true
-    },
-    {
-      "query": "Will the comments in application.play survive when the MCP canonicalizes the documents it touches?",
       "shouldTrigger": true
     },
     {

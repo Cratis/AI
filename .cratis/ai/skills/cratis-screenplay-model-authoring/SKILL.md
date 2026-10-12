@@ -21,7 +21,8 @@ same model root or workspace export to all checks. Workflow:
 
 ## Verified product sources
 
-Screenplay v4.142.0: add/rename/remove planner in `references/property-links.md`;
+Screenplay v4.144.0: model notes sources/lines in `references/model-notes.md`;
+v4.142.0 add/rename/remove planner in `references/property-links.md`;
 compliance in command-surface `references/compliance.md`. Other MCP evidence:
 v4.139.0 `Documentation/screenplay/mcp/`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
@@ -29,9 +30,15 @@ tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
 Historical probes remain 4.66.0; registration example compilation/execution
 remains 4.68.0. Attribution: `references/provenance.md`.
 
+Record open modeling questions as `question` notes in committed
+`.screenplay/notes.json`, not chat or `description` text. Never put secrets or
+personal data in notes. Read [model notes](references/model-notes.md) when
+listing, recording or resolving questions: `list-model-notes`,
+`propose-model-notes`, `read-proposal view=notes`, refs and orphan review.
+
 ## Locate and connect
 
-All MCP tool calls below use the `screenplay` server declared in `.cratis/ai/mcp-servers.json`, for example `screenplay` → `open-workspace`.
+Use the declared `screenplay` MCP server (for example `open-workspace`).
 
 Never ask the user which folder to use before trying. Call `open-workspace` with no
 arguments first: a server started without a fixed root binds the folder the host or
@@ -139,7 +146,9 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
    unresolved model debt and report that debt; it does not waive structural,
    identity or binding-protection checks.
 6. Inspect `read-proposal` before/after bytes and diagnostics, including the
-   identity-state change through `workspace-state`.
+   identity-state change through `workspace-state`. Review `orphanedNotes` on
+   source proposals; reanchor or resolve affected questions before applying
+   ([notes and orphan impact](references/model-notes.md#source-proposals-can-orphan-notes)).
 7. `apply` only the reviewed server-produced proposal within the user's requested
    change. The proposal ID and before revisions are required; stale state rejects.
    When the user asked for the change to be applied ("apply it when you're done",
@@ -152,23 +161,11 @@ Node handles are revision-bound occurrences, not durable IDs. A logical module
 or feature can have multiple physical fragments. Do not edit one header and
 assume every fragment changed. After apply, fetch fresh handles/revisions.
 
-### Failures (use `failureKind`, never message text)
-
-| failureKind | Response |
-| --- | --- |
-| `StaleRevision`, `DiskDrift`, `IdentityStateDrift` | Reopen and re-propose |
-| `ProposalRejected` | Read `conflicts`; change the request |
-| `FormattingConsentRequired` | Pass `formatting` |
-| `UnknownProposal` | The connection was reopened or the proposal applied: re-propose |
-| `LimitExceeded` | Discard unused proposals (16 cap) |
-| `PendingOperation`, `RecoveryRequired` | `workspace-state`, then ask before `recover-workspace` |
-| `RootChangeRefused` | Keep the fixed root, or start a new connection |
-| `ApplyOutcomeUnknown`, or EOF during `apply` | **Never retry `apply`.** Reconnect, read `workspace-state`, ask the user |
-
-Never delete `.screenplay/pending.json`. Limits reject and never truncate: 512
-files, 8 MiB total, 2 MiB per file, 1 MiB structured result, 200 items or 192 KiB
-per page. Excluded directories: `.git`, `.ai-work`, `.screenplay`, `bin`, `obj`,
-`node_modules`.
+Read [failures and limits](references/mcp-loop.md#failures-use-failurekind-never-message-text)
+when a call refuses or paging hits a limit; use `failureKind`, never message text.
+After revision/disk/identity drift, reopen and re-propose. For `ApplyOutcomeUnknown`
+or EOF during `apply`, **never retry apply**: reconnect, inspect `workspace-state`
+and ask. Never delete `.screenplay/pending.json`. Limits reject, never truncate.
 
 Choose formatting explicitly and disclose dropped comments before applying;
 read [formatting and limits](references/mcp-loop.md#formatting-and-limits) for
@@ -267,13 +264,11 @@ retry the same input.
 
 ## Code attachments
 
-Policy, validation-rule, reducer, handler, performer and reaction bodies, and
-`file` constraints, are opaque code the model points at.
-Screenplay never compiles or runs them. A `screen`'s `file` is a UI realization file, not an attachment.
-`read-workspace` or `read-proposal` with `view: "implementation-requirements"`
-lists each attachment with a content hash and source map; a hash is not evidence
-that the code compiles or behaves. Read `references/mcp-tools.md#code-attachments` when resolving an attachment or diagnosing attachment warnings. Path resolution and `PLAY0430`-`PLAY0434`:
-[MCP tool guide](references/mcp-tools.md#code-attachments).
+Code bodies and `file` constraints are opaque attachments. Screenplay never compiles or runs them.
+A screen's `file` realizes UI, not an attachment. Read
+[MCP code attachments](references/mcp-tools.md#code-attachments) when resolving
+paths or diagnosing `PLAY0430`-`PLAY0434`; `read-workspace`/`read-proposal`
+`view: "implementation-requirements"` hashes/maps are not behavioral evidence.
 
 ## Verify and report honestly
 
@@ -306,8 +301,7 @@ Record screen MCP transcripts in `.ai-work/`; render/runtime checks must use the
 same source, never an app that silently drops authored UI. Use the Screenplay-owned canonical
 corpus fixture path instead of copying available `.play` fixtures here.
 
-Check installed `tools/list` schemas: the CLI bundle can differ. Never invent
-commands, parameters, syntax nodes or downstream capabilities.
+Never invent commands, parameters, syntax nodes or downstream capabilities.
 
 ## Route near misses
 
