@@ -247,11 +247,8 @@ store.eventLog.transactional.appendMany("<id>", listOf(<OtherEvent>()))
 unitOfWork.commit()
 ```
 
-Inside an active unit of work, `transactional` appends return a placeholder
-`AppendResult` (sequence number `-1`, no violations or errors) because nothing is
-appended yet; read the real results from the unit of work after `commit()`
-(`eventSequences/TransactionalEventSequence.kt:13-29`, `transactions/IUnitOfWork.kt:23-101`).
-Without a current unit of work they append directly and return the real result.
+In a unit of work, `transactional` appends return a placeholder `AppendResult`
+(sequence `-1`); real results are on the unit of work after `commit()`.
 
 ## Observing
 

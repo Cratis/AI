@@ -59,7 +59,7 @@ public static partial class ReportInstrumentation
 }
 ```
 
-- The first metric argument is `IMeter<T>` or `IMeterScope<T>`. A counter without a measurement increments by one. If the next parameter exactly matches the attribute's numeric type, it is the measurement, not a tag. Gauges and histograms require that measurement (`MetricsSourceGenerator.cs:285-337`).
+- The first metric argument is `IMeter<T>` or `IMeterScope<T>`. A counter without a measurement increments by one. The first remaining parameter, in any position, whose type exactly matches the attribute's numeric type is the measurement, not a tag; avoid a second parameter of that type. Gauges and histograms require that measurement (`MetricsSourceGenerator.cs:285-337`).
 - Remaining parameters are tags. Metric keys default to parameter names; span keys default to snake_case. `[Tag("key")]` from `Cratis.Diagnostics` overrides either (`:174-185,403`).
 - `IMeterScope<T>` merges scope tags with method tags (`Templates/Metrics.hbs:34-38,67-71,96-100`). Do not put credentials, personal payloads or unbounded entity IDs in metric labels; choose bounded categories.
 - Name, description and optional UCUM unit are distinct. A duration in seconds uses `"s"` and a measurement in seconds, not milliseconds (`HistogramAttribute.cs:14-29`, template `:109`).
