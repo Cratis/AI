@@ -19,6 +19,7 @@ told about them. Each has its own extension point.
 | `Cratis.Arc` | `22.41.1` | ASP.NET Core hosting, `AddMicrosoftIdentityPlatformIdentityAuthentication` |
 | `@cratis/arc` | `22.41.1` | `IdentityProvider`, `IIdentity` |
 | `@cratis/arc.react` | `22.41.1` | `IdentityProvider` component, `useIdentity`, `RequireRole` |
+| Cratis AuthProxy (`cratis/authproxy`) | `v2.30.5` | the trusted ingress described in [AuthProxy](references/authproxy.md) |
 
 > Re-verified at `22.41.1` (the latest release when written) against that tag's source and Arc's documentation: the types, attributes and members this skill names exist, and the authorization, introspection, identity and emission-guard behavior it describes matches them. **Authorization behavior changed materially after `22.16.0`**, the version this skill used to pin: named policies, schemes, fallback baselines, guest policies and Microsoft-attribute enforcement all arrived later. [authorization](references/authorization.md) has a version table; check it if you run an older version.
 
@@ -51,6 +52,8 @@ configure a credential-validating scheme. Arc itself refuses the unsigned header
 in one place — protected introspection — until
 `Cratis:Arc:Introspection:TrustForwardedIdentityHeaders` is set; see
 [authentication](references/authentication.md).
+
+Cratis AuthProxy is the ingress that meets these obligations for Cratis applications. Read [AuthProxy](references/authproxy.md) when the application is deployed behind it (header contract, `/.cratis/me` fail-closed verification, tenant headers).
 
 ## Identity details — what the frontend is told
 

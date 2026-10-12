@@ -39,6 +39,13 @@ In a language without those analyzers the same rules hold; the reviewer enforces
 them instead of the compiler. Reverify against the owning product repository
 before claiming behavior for another version.
 
+The `Cratis.Synopsis.Tool` dotnet tool (verified at `v1.1.3`) reads these
+names statically, never running code, and writes one HTML or JSON behavior
+document from C#, TypeScript, Gherkin and Screenplay specifications:
+`dotnet tool install --global Cratis.Synopsis.Tool`, then `synopsis . --open`
+(or `synopsis . --format both --output Artifacts/synopsis.html`). Good names are
+the documentation it produces.
+
 ## Route near misses
 
 - Writing the C# mechanics — the `Specification` base, `Establish`/`Because`,

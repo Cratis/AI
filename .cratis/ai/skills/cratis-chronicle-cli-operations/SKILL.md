@@ -211,6 +211,7 @@ authorization.
   read-only data as a navigable full-screen view; reach for it when you are
   exploring rather than answering one question.
 - The browser Workbench owns redaction, revision, and event-type authoring.
+- Narrator (VS Code extension `cratis.narrator`, verified at `v3.0.2`) browses stores, event types, observers and projections from the editor, using the same contexts in `~/.cratis/config.json`.
 - Source-level diagnosis belongs in the application's own diagnostic workflow;
   start there when the symptom reproduces locally, and start here when it is
   only visible on a running server.
