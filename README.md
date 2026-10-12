@@ -136,10 +136,37 @@ After adding or removing an agent, prompt, or harness asset, synchronize the
 repository adapters:
 
 ```bash
-npm ci --prefix Source/Harness.Setup
-npm run setup --prefix Source/Harness.Setup
-npm run check --prefix Source/Harness.Setup
+yarn install --immutable
+yarn workspace @cratis/harness-setup run setup
+yarn workspace @cratis/harness-setup run check
 ```
+
+Setup regenerates its own stale corpus symlinks and marked OpenCode adapters. It
+refuses occupied paths containing local files or directories, reporting the same
+conflicts as `setup --check`, without removing them. Move or back up that content
+first. Only use `yarn workspace @cratis/harness-setup run setup --force` when you
+intend to replace conflicting content; this can recursively delete occupied
+directories. Unlisted project files outside those explicitly replaced paths are
+left alone. `--check` never writes, even with `--force`.
+
+Copilot's repository-wide `.github/copilot-instructions.md` continues to link to
+the canonical `general.md` policy entry point. Rules without `applyTo` are never
+emitted as path adapters. Path rules live in `.github/instructions/` as
+`<name>.instructions.md`, with a quoted `applyTo` glob string (multiple globs are
+comma-separated), as required by [Copilot's custom-instructions documentation](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions#creating-path-specific-custom-instructions).
+Setup copies path rules into marked, portable files under
+`.cratis/ai/harnesses/copilot/instructions/`, normalizing scalar/list forms only
+when needed, and links `.github/instructions` to that generated directory.
+Relative Markdown links point to sibling generated rules or back to their
+original corpus targets; code examples and external URLs are left unchanged.
+`setup --check` and corpus verification reject missing, stale, or orphaned
+adapters. The generated files ship with the corpus and the Pi package; they do
+not depend on source rule symlinks surviving installation. Setup migrates the
+old canonical directory link or a directory containing only its legacy per-file
+adapters. A directory containing local instructions is preserved and refused
+unless `--force` is given. This repository tool is not the consumer CLI's
+manifest-aware installer; CLI versions that still link to `rules/` need to
+switch their Copilot integration to `harnesses/copilot/instructions/`.
 
 ## Author skills
 
