@@ -1,5 +1,8 @@
 ## Spring Boot
 
+Verified at `Chronicle.Kotlin v6.13.0`: `ChronicleProperties`,
+`ChronicleAutoConfiguration`, `ChronicleStartup` and `ChronicleWebAutoConfiguration`.
+
 The starter registers exactly two auto-configurations —
 `Integrations/SpringBoot/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`:
 
@@ -31,6 +34,16 @@ Everything else has a default (`ChronicleProperties.kt:44-55`):
 | `namespace-resolution.strategy` | `FIXED` | `:65` |
 | `namespace-resolution.http-header` | `"x-cratis-tenant-id"` | `:66` |
 | `namespace-resolution.claim` | `"tenant_id"` | `:67` |
+| `unit-of-work.enabled` | `true` | `ChronicleProperties.UnitOfWork` |
+| `causation.enabled` | `true` | `ChronicleProperties.Causation` |
+| `identity.enabled` | `true` | `ChronicleProperties.Identity` |
+
+The starter selects a unique `ReadModelNamingPolicy` bean. With none or an
+ambiguous set, it retains identifier-based naming. A rejected connection at
+startup propagates `ChronicleConnectionFailed` and fails the application;
+an unreachable kernel only logs after `registration-timeout` and keeps retrying.
+Chronicle uses kotlinx-coroutines `1.10.2`; remove an older
+`kotlin-coroutines.version` override to `1.11.0`.
 
 `NamespaceResolution.Strategy` is `FIXED`, `HTTP_HEADER`, `SUBDOMAIN`,
 `AUTHENTICATION` (`ChronicleProperties.kt:70-82`).

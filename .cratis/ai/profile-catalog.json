@@ -249,7 +249,10 @@
       "availableTargets": [
         "cratis-arc-command-kotlin",
         "cratis-arc-query-kotlin",
-        "cratis-arc-validation-kotlin"
+        "cratis-arc-validation-kotlin",
+        "cratis-arc-testing-kotlin",
+        "cratis-arc-identity-and-tenancy-kotlin",
+        "cratis-arc-spring-data-kotlin"
       ],
       "languages": [
         "java",

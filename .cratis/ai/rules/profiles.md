@@ -100,7 +100,8 @@ profile includes neither Screenplay nor Stage.
 ### Arc and Chronicle on the JVM (Kotlin and Java)
 
 Arc.Kotlin (`io.cratis:arc`) and its optional Chronicle integration
-(`io.cratis:arc-chronicle-spring-boot-starter`) bring the same command/query
+(`io.cratis:cratis`, the all-in-one event-sourced application artifact, or
+`io.cratis:arc-chronicle-spring-boot-starter`) bring the same command/query
 model-bound shape to the JVM that Arc .NET brings to C#, for both Kotlin and
 Java application code. `cratis/arc/client-kotlin` carries the skills for both
 languages — Java application code still needs Kotlin and KSP on the build,
@@ -111,6 +112,9 @@ since Arc generates Kotlin adapters for Java declarations.
 | `cratis-arc-command-kotlin` | `@Command`, `handle()`/`provide()`, Chronicle event responses, command authorization, TypeScript proxy generation |
 | `cratis-arc-query-kotlin` | `@ReadModel` queries, GET vs RFC QUERY, observable queries (`Flow`, `Flow.Publisher`, RxJava 3) over SSE/WebSocket |
 | `cratis-arc-validation-kotlin` | `FluentModelValidator` shared rules, `CommandValidator`/`QueryValidator`/`ConceptValidator`/`ModelValidator`, Jakarta constraints |
+| `cratis-arc-testing-kotlin` | Real in-process command/query scenarios, bounded observable collection, read-model pins and Chronicle append assertions |
+| `cratis-arc-identity-and-tenancy-kotlin` | Authentication handlers, identity details, tenant resolution and propagation, opt-in trusted platform headers |
+| `cratis-arc-spring-data-kotlin` | JPA/Mongo repositories, paging, observations, concept converters, tenant storage and transaction boundaries |
 
 Standalone Chronicle client usage (no Arc) for Kotlin and Java is
 `cratis-chronicle-client-kotlin`, reused by `cratis/chronicle/client-java`.
