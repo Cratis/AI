@@ -122,6 +122,7 @@ module Moorings
         reason String
 ```
 
-Open questions that would sit in STATE.md next to it: is a declined request final or can it be
+Record anchored `question` notes for these uncertainties, carrying their note IDs
+in STATE.md: is a declined request final or can it be
 put on a waiting list; who may withdraw an assignment; must the season fee be remembered as
 set at assignment time (a decision, so a fact) or recalculated (a view)?

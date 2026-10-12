@@ -4,6 +4,11 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "record it as a `question` note anchored to the element" },
+    { "kind": "skill-contains", "value": "`refs: [{ \"id\": \"D123\" }]`", "file": "references/stop-or-assume.md" },
+    { "kind": "skill-contains", "value": "`by: \"external-decision\"`", "file": "references/stop-or-assume.md" },
+    { "kind": "skill-contains", "value": "Realize a resolved question as a specification", "file": "references/stop-or-assume.md" },
+    { "kind": "skill-contains", "value": "Never put secrets or personal data", "file": "references/stop-or-assume.md" },
     { "kind": "skill-contains", "value": "Model first" },
     { "kind": "skill-contains", "value": "`Outcome:`" },
     { "kind": "skill-contains", "value": "V3 binding-ready" },

@@ -5,6 +5,7 @@
 - Pin set
 - Two compilers, one rule
 - Commands and exit codes
+- Model notes gate
 - Admission boundaries
 - Historical probes
 - Revisions and descriptions
@@ -82,6 +83,35 @@ Source validation does not bind or run attached code. Reference execution is
 in-memory and does not run opaque attachments or external services. CLI-derived
 specification IDs need not match persisted MCP identities after renames; use MCP
 for identity-stable selection.
+
+## Model notes gate
+
+**Standalone Screenplay 4.144.0** ships `--open-questions report|fail`.
+**Cratis CLI 3.53.1 does not have this gate** and bundles Screenplay 4.137.0,
+which also predates the notes MCP tools. Do not add this option to
+`cratis screenplay validate` or assume its bundled MCP supports model notes.
+Sources: Screenplay `v4.144.0:Source/DotNET/Tool/ModelOpenQuestions.cs:18-69,87-131`;
+CLI `v3.53.1:Source/Cli/Commands/Screenplay/ValidateScreenplaySettings.cs:11-85`
+and `Directory.Packages.props:8,35-37`. No newer Cratis CLI gate was verified.
+
+```shell
+screenplay <model-folder> --open-questions report --no-color
+screenplay <model-folder> --scope Library.Loans.CheckIn --open-questions fail --no-color
+```
+
+`report` emits info `model-note.open-question` findings without failing for
+questions. `fail` exits **1** when the selected set has an open question;
+unreadable notes exit **2** when the flag is given. Compilation still runs with
+its own verdict; question findings are MCP/CLI only, **no PLAY code**. With no
+flag the sidecar is ignored, and `--warnaserror` does not gate questions. Tasks
+and ordinary notes do not fail this gate.
+
+Scope includes descendants and ancestor notes (application notes too). An
+unscoped report includes orphaned open questions. Absent identity state reports
+all open questions unscoped as orphaned with `identity-state-absent`, rather than
+hiding them behind a scope. Notes never change ESM or V1–V5 verdicts. Read
+model-authoring [model notes](../../cratis-screenplay-model-authoring/references/model-notes.md)
+when recording, resolving, paging or reviewing orphan impact.
 
 ## Admission boundaries
 

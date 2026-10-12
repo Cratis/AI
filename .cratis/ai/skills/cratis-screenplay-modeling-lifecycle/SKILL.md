@@ -64,10 +64,15 @@ STATE.md); a real trade-off is flagged to the user, never resolved by cutting th
 (`references/completeness-self-check.md`).
 
 Three unresolved things, never conflated: an **open question** (business meaning nobody decided:
-record it against a declaration address with the assumption in use; it closes when answered, never
-by deletion), a **decided rejection** (a known refusal: a specification, `then denied` or
+record it as a `question` note anchored to the element, with the assumption in use;
+not just chat, STATE.md or `description` text; it closes when answered, never by deletion),
+a **decided rejection** (a known refusal: a specification, `then denied` or
 `then error`, never a note) and a **contradiction** (model, specs and an agreed fact disagree:
 stop that scope and report). Finding tiers: `references/principles.md`.
+Read [question notes](references/stop-or-assume.md#durable-question-notes) when
+recording or answering an open question: cite decisions in `refs`, resolve with
+`by: "external-decision"`, then realize the answer. Never put secrets or personal
+data in note text.
 
 ## Modes (state the mode in the first output line)
 | Mode | Use | Done when |
@@ -108,18 +113,9 @@ After each phase write a phase summary (done, carry-forward, open questions) to 
 the next skill loads (`references/phases.md`). Legacy: `cratis-screenplay-legacy-extraction`.
 
 ## Interview phase (P0)
-**Skip if** the request already states the domain, the source, the goal and the constraints.
-Otherwise ask only what is missing:
-1. **Domain**: what business process, in two or three sentences?
-2. **Source**: requirements, ideas, an existing system (legacy entry), a `.play` (change entry)?
-3. **Goal**: learning, documentation, validation, executable behavior, generated code (the mode)?
-4. **Constraints**: outside systems, data sensitivity, who can answer, target stack.
-5. **Starting point**: from scratch, or which phase outputs exist?
-
-Confirm in one sentence only when something was inferred: "So we model <domain>, goal <goal>,
-mode <mode>, starting at <phase>. Right?" Unattended: assume visibly and record asked versus
-assumed in STATE.md (`references/stop-or-assume.md`). Mid-workflow entry: ask which phases are
-done; never rerun a completed one, start at the first incomplete.
+Skip if domain, source, goal and constraints are stated. Otherwise read
+[intake](references/intake.md) when entering P0: ask only for missing context,
+assume visibly unattended and never rerun completed phases.
 
 ## Run protocol: stop or assume
 1. **Start**: read STATE.md; check the source identity; load the phase skill before authoring
@@ -214,7 +210,7 @@ labelled as such. The user decides whether it is enough
 
 Construct mechanics stay in the `cratis-screenplay-*` construct skills; term clashes:
 `references/vocabulary-map.md`; worked example: `references/worked-example.md`; done checklist: `references/phases.md`.
-Read `references/worked-example.md` when needing an example of reasoning documentation, constraints, and decided rejections.
+Read `references/worked-example.md` when needing reasoning, constraint and rejection examples.
 Read `references/core-rules-digest.md` when you need the one-page card of element names, causality, open-question-versus-decided-failure and the anti-patterns to reject early.
 
 ## Gate
@@ -223,7 +219,9 @@ address and assumption; every decided rejection is a specification; no protectio
 the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
-Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Current pins (Stage 4.73.1, cratis CLI 3.53.1 and the rest) are in that file. Older source reads used here: Screenplay
+Model notes: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`,
+`decisions/0045-model-notes-sidecar.md:40-79`; exact tool sources in model-authoring
+`references/model-notes.md`. Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Current pins (Stage 4.73.1, cratis CLI 3.53.1 and the rest) are in that file. Older source reads used here: Screenplay
 `v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);

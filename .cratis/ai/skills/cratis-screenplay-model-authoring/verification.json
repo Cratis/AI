@@ -4,6 +4,25 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "Record open modeling questions as `question` notes" },
+    { "kind": "skill-contains", "value": "list-model-notes", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`anchor`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`scope`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`state`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`ref`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`reopen`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`edit`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`remove`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "before/after notes revisions", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "**afterNotesRevision**", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`NotesRevisionDrift`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`orphanedNotes: null`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "Resolution alone does not restore an anchor", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "Never put secrets or personal data", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "external-decision", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "D123", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "model-note.open-question", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "Turn a resolved question into a", "file": "references/model-notes.md" },
     { "kind": "skill-contains", "value": "propose-property" },
     { "kind": "skill-contains", "value": "not hand-composed `propose-ast` batches", "file": "references/property-links.md" },
     { "kind": "skill-contains", "value": "`incomplete`, `needsDecision`", "file": "references/mcp-loop.md" },
@@ -22,7 +41,7 @@
     { "kind": "skill-contains", "value": "property.generations", "file": "references/property-links.md" },
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.142.0"
+      "value": "Screenplay v4.144.0"
     },
     {
       "kind": "skill-contains",

@@ -5,6 +5,7 @@
 - 1. Sequence
 - 2. Record after / caused by / only if
 - 3. Ask what can happen instead
+- Durable discovery questions
 - 4. Plot output format
 - Whose turn is it in the story?
 - Storyline: one view walked through its states
@@ -61,6 +62,27 @@ Name every terminal state (completed, cancelled, expired, withdrawn) and every u
 correction path. Each path with a way out feeds removal specs later (an ending removes the
 thing from the views that listed it).
 
+## Durable discovery questions
+
+Every unsettled branch, dead end or assumption becomes a `question` note on the
+affected element, not chat or `description` text. Commit `.screenplay/notes.json`
+with the model. STATE.md and the plot report carry the returned note ID and
+assumption, not the only copy of the question. Before a specific element exists,
+anchor to the application or nearest identified container and name it in text.
+Never put secrets or personal data in note text, author, refs or resolutions.
+
+Read model-authoring [model notes](../../cratis-screenplay-model-authoring/references/model-notes.md)
+when recording or resolving discovery questions: `list-model-notes`,
+`propose-model-notes`, `read-proposal view=notes`, then authorized `apply`.
+A missing notes capability is a reported gap plus a note request, not a successful
+recording. For project decisions, cite `refs: [{ "id": "D123" }]`; resolve with
+`by: "external-decision"` and `ref: { "id": "D123" }` when that record answers it.
+Turn the answer into a specification, a description or a project-owned decision
+record. A resolution alone implements nothing; carry behavioral answers to slice
+design/scenario coverage. Reopen if the decision stops answering the question.
+Evidence: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`,
+`decisions/0045-model-notes-sidecar.md:40-79`; tool-source lines in the linked guide.
+
 ## 4. Plot output format
 
 Put a compact story line in the feature `documentation` and report the plot per workflow:
@@ -78,11 +100,13 @@ The plot: SeasonalBerths
 Critical path:  1 -> 2 -> 3 -> 4
 Decision points: after 1 (assign or decline); after 2 (arrive or withdraw)
 Terminal facts: BerthRequestDeclined, BoatDeparted, BerthAssignmentWithdrawn
-Wait states:    after 2, until the boat arrives (what if it never does? open question)
-Compensation:   withdrawal frees the berth for the waiting list (open question)
+Wait states:    after 2, until the boat arrives (report Q1: what if it never does?)
+Compensation:   report Q2: does withdrawal free the berth for the waiting list?
 ```
 
-For a diagram use `cratis-event-model-diagram`.
+Q1 and Q2 are report shorthand for anchored `question` notes; do not copy
+unanswered questions into the feature's `documentation`. The settled plot goes
+there. For a diagram use `cratis-event-model-diagram`.
 
 ## Whose turn is it in the story?
 
@@ -145,7 +169,7 @@ What discovery contributes:
 | Non-human causes | schedules, outside parties, own follow-up |
 | Hotspots | where it goes wrong today |
 | Set aside | non-events kept as view needs |
-| Open questions | the blocking one first |
+| Open questions | anchored note IDs and assumptions; the blocking one first |
 | Decisions and assumptions | kept apart; each assumption with its reason |
 | Verdicts | V1 result with tool and version; V2 to V5 "not run: discovery phase" |
 

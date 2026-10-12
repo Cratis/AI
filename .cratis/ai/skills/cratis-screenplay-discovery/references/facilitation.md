@@ -19,8 +19,9 @@ that decision. If not, note the need as a view and move on.
 
 - When people describe the same step differently, first check whether they describe different
   situations (two branches, two roles). Often both are right.
-- If it is a real disagreement, write both versions as an open question in STATE.md, take one
-  as the working assumption (say which), and continue. Do not stall the session on it.
+- If it is a real disagreement, record both versions in an anchored `question`
+  note; carry its note ID and working assumption in STATE.md. Say which assumption
+  you use and continue. Do not stall the session on it.
 - Domain experts decide business meaning; engineers decide feasibility. When only engineers
   are present, mark business-meaning decisions as assumptions to confirm.
 
@@ -37,12 +38,15 @@ that decision. If not, note the need as a view and move on.
 
 ## Unattended runs
 
-- Never block on a question. Take the most reasonable assumption, record it in STATE.md with
-  why, and record it in feature `documentation` when it shapes the model.
+- Never block on a question during discovery. Take a visible working assumption
+  and record it with its reason in an anchored `question` note, not chat or
+  `description` text. STATE.md carries the note ID.
 - Prefer assumptions that keep the model honest (fewer, clearly named facts) over ones that
   invent detail.
 
-See "Evidence and privacy" in SKILL.md.
+Read `plotting-and-handoff.md` "Durable discovery questions" when recording or
+resolving a note with project decision `refs`. Never put secrets or personal data
+in notes. See "Evidence and privacy" in SKILL.md.
 
 ## Closing a session
 

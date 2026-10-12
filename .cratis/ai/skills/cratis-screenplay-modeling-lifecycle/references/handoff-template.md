@@ -48,7 +48,7 @@ V5 delivery: ...
 - <phase>: <skip condition met>
 
 ## Open questions (business)
-- Q3 <address>: <question> - matters because <...> - assumption in use: <...> | blocked scope
+- Q3 [<note_id>] <address>: <question> - matters because <...> - assumption in use: <...> | blocked scope
 
 ## Capability and tool-version gaps
 - <construct> blocked in <mode> (<code>) - kept in model; route: <fallback or issue>
@@ -123,7 +123,10 @@ Expected impact: diagnostics <...>; identity <preserved via rename or pin>; spec
 ## 4. Cold-readable questions
 A question sent to a person is anchored to an address and understandable without opening the
 model: `Qn <address>: <gap> - matters because <consequence> - <assumption in use>`. Put one
-question per line; group by address.
+question per line; group by address. These packet rows point to committed `question`
+notes, not a competing question register. Include the returned note ID; if note
+tools are unavailable, explicitly return a note request to the owning session.
+Read `stop-or-assume.md` "Durable question notes" when recording or resolving one.
 
 ## 5. Who records the model used
 Each agent writes the model it ran on into the packet when the harness exposes it, else

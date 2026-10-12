@@ -5,6 +5,13 @@
   "assertions": [
     { "kind": "skill-contains", "value": "all *known* producers", "file": "references/public-keys-and-routes.md" },
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "A read-only reviewer returns `question` note requests" },
+    { "kind": "skill-contains", "value": "`state: \"all\"`", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "`model-note.open-question`", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "`orphanedNotes`", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "`by: \"external-decision\"`", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "Verify the answer became a specification", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "Never put secrets or personal data", "file": "references/report-template.md" },
     { "kind": "skill-contains", "value": "PASS WITH WARNINGS" },
     { "kind": "skill-contains", "value": "Every finding is pinned to one declaration" },
     { "kind": "skill-contains", "value": "edit request" },

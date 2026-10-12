@@ -4,6 +4,11 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "record the open question and assumption as a `question` note" },
+    { "kind": "skill-contains", "value": "`refs: [{ \"id\": \"D123\" }]`", "file": "references/plotting-and-handoff.md" },
+    { "kind": "skill-contains", "value": "`by: \"external-decision\"`", "file": "references/plotting-and-handoff.md" },
+    { "kind": "skill-contains", "value": "Turn the answer into a specification", "file": "references/plotting-and-handoff.md" },
+    { "kind": "skill-contains", "value": "Never put secrets or personal data", "file": "references/plotting-and-handoff.md" },
     { "kind": "skill-contains", "value": "## Interview phase" },
     { "kind": "skill-contains", "value": "Unattended: assume visibly" },
     { "kind": "skill-contains", "value": "Does / Reads / Cannot" },

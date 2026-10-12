@@ -28,6 +28,35 @@ user can accept, and approvals not yet given always stop.
 - One closed outcome per run. A run that neither progressed nor closed is a failure to report:
   say what blocked it and which question would unblock it.
 
+## Durable question notes
+
+Record each open modeling choice as a `question` note on its element in committed
+`.screenplay/notes.json`, not only chat/STATE.md or `description` text. Include the
+question, consequence and assumption in use (or blocked scope). Keep its returned
+note ID and address in STATE.md/packets; before an element exists, anchor to the
+application or nearest identified container and name the intended element in text.
+Never put secrets or personal data in note text, authors, refs or resolutions.
+
+Read model-authoring [model notes](../../cratis-screenplay-model-authoring/references/model-notes.md)
+when recording or answering questions: discover tools, list with pinned notes
+revision, `propose-model-notes`, review `read-proposal view=notes`, then authorized
+`apply`. If the installed bundle lacks notes, report the capability gap and carry
+an explicit note request to the owner; do not pretend a chat/description is a note.
+
+Cite the project's own decisions with `refs: [{ "id": "D123" }]`. When D123 is
+the answer, resolve with `by: "external-decision"` and required
+`ref: { "id": "D123" }`, explanatory text and a team-role author. The URL is
+optional and never fetched. Realize a resolved question as a specification for
+behavior, a description for meaning, or a project-owned decision record for
+consequential policy. Resolving is not implementation; a known refusal still
+needs `then error` or `then denied`. Reopen when the evidence ceases to answer it.
+
+Question gating is separate from V1: standalone Screenplay 4.144.0 has
+`--open-questions fail`; Cratis CLI 3.53.1 does not. Read toolchain
+`references/versions.md` "Model notes gate" when a phase requires no open questions.
+Product evidence: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77,93-121`,
+`decisions/0045-model-notes-sidecar.md:40-79` and the model-authoring source table.
+
 ## Question format (STATE.md, packets, edit requests)
 `Qn <declaration address>: <what is missing or contradictory, one sentence> - matters because
 <consequence> - <assumption in use | blocked scope>`. Write it so a reader who has not opened
@@ -58,5 +87,7 @@ given for a named target. Approval is not repeated for the same scope.
 
 ## Unblocking
 A scope leaves `blocked` only when its question is answered; record the answer as a decision in
-STATE.md and, when durable, in the model's fenced `documentation`. Re-blocking a blocked scope is a no-op.
+STATE.md with its note ID, resolve the question note by evidence, and realize the
+answer in the model or decision record. Settled rationale may also go in fenced
+`documentation`. Re-blocking a blocked scope is a no-op.
 Blocked delivery scopes are reported in the packet; the main session creates any issue.
