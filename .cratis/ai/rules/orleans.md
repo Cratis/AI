@@ -43,6 +43,10 @@ in its resilient storage pipeline.
 
 ## Co-host a silo with Cratis.Orleans
 
+For job/step authoring, stage barriers, recovery, storage scopes and state-machine
+APIs, load **cratis-orleans-jobs** from `cratis/engineering/csharp`. These APIs are
+framework/service guidance; they do not impose application slice architecture.
+
 For service authors, `Cratis.Orleans` supplies hosting, grain serializers, and the
 shared job system without requiring Chronicle. With `Cratis.Orleans` and
 `Cratis.Orleans.Storage.MongoDB` 1.16.3, this host uses durable MongoDB membership
