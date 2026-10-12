@@ -126,4 +126,9 @@ Use GeoJSON types from `Cratis.Geospatial`: `Point` for a location,
 `LineString` for a route, and `Polygon` for an area. Do not use the removed
 experimental `Coordinate` type. Model geospatial absence according to the
 owning domain contract; do not invent a nullable event payload that conflicts
-with Chronicle event rules.
+with Chronicle event rules. TypeScript imports `Point`, `LineString`, `LinearRing`,
+and `Polygon` from `@cratis/fundamentals/geospatial` (verified at 7.23.0).
+The wire shape is GeoJSON, for example
+`{ "type": "Point", "coordinates": [longitude, latitude] }`: longitude first.
+The removal of `Coordinate` in 7.15.1 is a stored-data compatibility break;
+plan a migration rather than assuming the old shape deserializes as GeoJSON.

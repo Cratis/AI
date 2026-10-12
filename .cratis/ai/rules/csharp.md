@@ -306,7 +306,7 @@ public class ReactorSideEffectHandlers(IInstancesOf<IReactorSideEffectHandler> h
 
 - Never inject `IEnumerable<TInterface>` to enumerate implementations of an abstraction. That signature only works if every implementation is hand-registered, which defeats convention-based discovery. Use `IInstancesOf<TInterface>` instead.
 - Never write `services.AddSingleton<TInterface, Impl>()` or `services.AddTransient<TInterface, Impl>()` for a type that exists to be discovered. Mark the implementation with `[Singleton]` (for singletons) or rely on the `IFoo → Foo` convention (for transients) and remove the registration line.
-- `IInstancesOf<T>` resolves at the point of access — implementations added later in the assembly become available without touching the consumer or any composition root.
+- `IInstancesOf<T>` fixes its type set at construction and resolves instances on each enumeration through the consumer's service provider (Fundamentals 7.23.0). It does not discover late-loaded implementations on access. A singleton consumer captures the root provider; it must not enumerate scoped implementations. Resolve a scoped or transient consumer inside a scope when any implementation is scoped.
 - `IEnumerable<T>` is still the right type to **return** from a method that yields a sequence of values. The rule applies only when the goal is to enumerate **implementations** of an abstraction.
 
 ## Logging

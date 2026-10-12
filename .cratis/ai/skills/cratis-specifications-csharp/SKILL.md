@@ -18,7 +18,8 @@ This skill is verified against these exact public releases:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Specifications` | `4.1.1` | `Specification` base, `Catch.Exception`, `ShouldXxx` assertions |
+| `Cratis.Specifications.XUnit` | `4.1.1` | `Specification` base, lifecycle discovery, `ShouldXxx` assertions, optional shared lifecycle |
+| `Cratis.Specifications` | `4.1.1` | `Catch.Exception`, `SpecificationMethods` (dependency of the XUnit package) |
 | `Cratis.Arc.Testing` | `22.16.0` | `CommandScenario<TCommand>` and `CommandResult` assertions |
 | `Cratis.Chronicle.Testing` | `18.3.0` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
 
@@ -96,7 +97,13 @@ build it, even if passive. Missing setup throws
 resolved read-model key. See the ReactorScenario reference for diagnostics,
 exception capture and UTC occurrence-time defaults.
 
-Specification projects are named `<Source>.Specs` and run on xUnit.
+Specification projects are named `<Source>.Specs`. Add a `PackageReference` to
+`Cratis.Specifications.XUnit` 4.1.1, not just `Cratis.Specifications`; the C#
+namespace stays `Cratis.Specifications`. The house runner is xUnit **2.x**
+(2.9.3 at this tag), not xUnit v3. Supported targets are net8.0/net9.0/net10.0;
+net48 was dropped in 4.0.0 (retain 3.x for that target).
+`Cratis.Specifications.NUnit` 4.0.0+ is an alternative with the same base pattern,
+`[Test]` instead of `[Fact]`, and **public** test methods.
 
 ### Pin server-generated Handle values
 
@@ -182,10 +189,16 @@ public class when_<behavior> : Specification
   leave no blank line between `should_` methods.
 - Fields are `private` in a concrete specification and `protected` in a `given/`
   context, named `_camelCase`.
-- Any phase may be `async Task`. `void Destroy()` is the optional teardown.
+- Any phase may be `async Task`. `void Destroy()` is optional teardown, after
+  each fact by default; once per eligible class with the shared lifecycle opt-in.
 
-`Cratis.Specifications` discovers `Establish`, `Because`, and `Destroy` by
+`Cratis.Specifications.XUnit` discovers `Establish`, `Because`, and `Destroy` by
 convention — there are no attributes on them.
+
+Keep the stock per-fact lifecycle by default. Read
+[shared-lifecycle.md](references/shared-lifecycle.md) when deliberately opting
+into one instance and one Establish/Because execution per specification class.
+Facts must not mutate that shared context.
 
 ## Step 4 — Extract a reusable context
 
@@ -271,6 +284,14 @@ Specify decisions, transformations, branching business rules, and coordination
 between collaborators. That is where defects hide.
 
 ## Verify
+
+CRSPEC0001–CRSPEC0007 ship as **warnings** in `Cratis.Specifications`, `.XUnit`,
+and `.NUnit` 4.0.0+. A warnings-as-errors build enforces them: `should_` names,
+one specification per file (given contexts exempt), no facts on given contexts,
+test attributes on `should_` methods, no explicit base lifecycle calls, public
+specification classes, and no `Because` on given contexts. See
+`cratis-specification-by-example` for the diagnostic-by-diagnostic checklist.
+Do not suppress these warnings to pass the gate.
 
 - Every specification file states one `Establish`, one `Because`, and one or
   more `should_` facts.
