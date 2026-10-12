@@ -1,1 +1,0 @@
-../../.cratis/ai/rules/typescript.md

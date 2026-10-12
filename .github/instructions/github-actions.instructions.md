@@ -1,1 +1,0 @@
-../../.cratis/ai/rules/github-actions.md

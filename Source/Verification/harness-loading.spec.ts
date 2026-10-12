@@ -3,12 +3,13 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, lstatSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { DefaultResourceLoader, SettingsManager } from '@earendil-works/pi-coding-agent';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
+import { checkCopilotInstructions, copilotInstructionsDirectory, copilotMarker } from '../Harness.Setup/copilot-instructions.ts';
 import { frontmatter, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 
@@ -111,7 +112,10 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
             for (const rule of ['go.md', 'go-engineering.md']) {
                 const canonical = readFileSync(join(corpus, 'rules', rule), 'utf8');
                 assert.equal(readFileSync(join(project, '.claude/rules', rule), 'utf8'), canonical);
-                assert.equal(readFileSync(join(project, '.github/instructions', rule.replace(/\.md$/, '.instructions.md')), 'utf8'), canonical);
+                const copilotPath = join(project, '.github/instructions', rule.replace(/\.md$/, '.instructions.md'));
+                const adapted = readFileSync(copilotPath, 'utf8');
+                assert.ok(lstatSync(copilotPath).isFile(), 'Copilot adapters must survive a copied corpus');
+                assert.equal(adapted.replace(/^<!-- cratis-ai: generated Copilot instructions\..* -->\n/m, ''), canonical);
                 const fields = frontmatter(canonical);
                 for (const field of ['paths', 'applyTo']) {
                     const globs = fields.get(field)!;
@@ -135,11 +139,15 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
 test('every supported harness resolves canonical rules or shared project instructions', () => {
     assert.equal(realpathSync(join(repositoryRoot, '.claude', 'rules')), realpathSync(join(corpusRoot, 'rules')));
     const copilotDirectory = join(repositoryRoot, '.github/instructions');
+    assert.equal(realpathSync(copilotDirectory), realpathSync(join(corpusRoot, copilotInstructionsDirectory)));
+    assert.deepEqual(checkCopilotInstructions(corpusRoot), []);
     const pathRules = readdirSync(join(corpusRoot, 'rules')).filter(name => frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8')).has('applyTo'));
     assert.deepEqual(readdirSync(copilotDirectory).sort(), pathRules.map(name => name.replace(/\.md$/, '.instructions.md')).sort());
     for (const rule of pathRules) {
         const path = join(copilotDirectory, rule.replace(/\.md$/, '.instructions.md'));
-        assert.equal(realpathSync(path), realpathSync(join(corpusRoot, 'rules', rule)));
+        assert.ok(lstatSync(path).isFile(), `${rule}: portable adapters are files, not symlinks`);
+        assert.equal(realpathSync(path), realpathSync(join(corpusRoot, copilotInstructionsDirectory, rule.replace(/\.md$/, '.instructions.md'))));
+        assert.ok(readFileSync(path, 'utf8').includes(copilotMarker));
         const fields = frontmatterText(readFileSync(path, 'utf8'))!;
         const raw = /^applyTo:\s*(.+)$/m.exec(fields)?.[1];
         assert.ok(raw && quotedScalar(raw)?.trim(), `${rule}: Copilot needs a quoted glob string, not a YAML list`);

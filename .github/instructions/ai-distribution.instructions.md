@@ -1,1 +1,0 @@
-../../.cratis/ai/rules/ai-distribution.md

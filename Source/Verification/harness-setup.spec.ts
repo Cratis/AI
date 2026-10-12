@@ -3,11 +3,12 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { checkOpenCodeAgents } from '../Harness.Setup/opencode-agents.ts';
+import { checkCopilotInstructions, copilotInstructionsDirectory } from '../Harness.Setup/copilot-instructions.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '../..');
 const setupPath = join(repositoryRoot, 'Source/Harness.Setup/setup.ts');
@@ -35,31 +36,35 @@ test('setup regenerates owned stale symlinks and generated adapters', () => {
     }
 });
 
-test('Copilot migration replaces only owned legacy links and never writes through the old directory link', () => {
-    const project = fixture();
-    try {
-        mkdirSync(join(project, '.github'), { recursive: true });
-        symlinkSync('../.cratis/ai/rules', join(project, '.github/instructions'), 'dir');
-        const canonical = readFileSync(join(project, '.cratis/ai/rules/go.md'), 'utf8');
-        assert.notEqual(setup(project, true).status, 0);
-        assert.equal(setup(project).status, 0);
-        assert.equal(readFileSync(join(project, '.cratis/ai/rules/go.md'), 'utf8'), canonical);
-        symlinkSync('../../.cratis/ai/rules/go.md', join(project, '.github/instructions/go.md'));
-        const local = join(project, '.github/instructions/local.md');
-        writeFileSync(local, '# Local instructions\n');
-        assert.notEqual(setup(project, true).status, 0);
-        assert.equal(setup(project).status, 0);
-        assert.throws(() => readlinkSync(join(project, '.github/instructions/go.md')), /ENOENT/);
-        assert.equal(readlinkSync(join(project, '.github/instructions/go.instructions.md')), '../../.cratis/ai/rules/go.md');
-        assert.equal(readFileSync(local, 'utf8'), '# Local instructions\n');
-        assert.equal(setup(project, true).status, 0);
-    } finally {
-        rmSync(project, { recursive: true, force: true });
+test('Copilot migration replaces owned directory or per-file links without changing canonical rules', () => {
+    for (const legacy of ['directory', 'files']) {
+        const project = fixture();
+        try {
+            mkdirSync(join(project, '.github'), { recursive: true });
+            const instructions = join(project, '.github/instructions');
+            if (legacy === 'directory') symlinkSync('../.cratis/ai/rules', instructions, 'dir');
+            else {
+                mkdirSync(instructions);
+                symlinkSync('../../.cratis/ai/rules/go.md', join(instructions, 'go.md'));
+                symlinkSync('../../.cratis/ai/rules/go.md', join(instructions, 'go.instructions.md'));
+            }
+            const canonical = readFileSync(join(project, '.cratis/ai/rules/go.md'), 'utf8');
+            assert.notEqual(setup(project, true).status, 0);
+            const installed = setup(project);
+            assert.equal(installed.status, 0, installed.stderr);
+            assert.equal(readlinkSync(instructions), `../.cratis/ai/${copilotInstructionsDirectory}`);
+            assert.equal(readFileSync(join(project, '.cratis/ai/rules/go.md'), 'utf8'), canonical);
+            assert.throws(() => readlinkSync(join(instructions, 'go.md')), /ENOENT/);
+            assert.ok(lstatSync(join(instructions, 'go.instructions.md')).isFile());
+            assert.equal(setup(project, true).status, 0);
+        } finally {
+            rmSync(project, { recursive: true, force: true });
+        }
     }
 });
 
 test('Copilot path and root instructions preserve customized files unless forced', () => {
-    for (const adapter of ['.github/instructions/go.instructions.md', '.github/copilot-instructions.md']) {
+    for (const adapter of [`.cratis/ai/${copilotInstructionsDirectory}/go.instructions.md`, '.github/copilot-instructions.md']) {
         const project = fixture();
         try {
             assert.equal(setup(project).status, 0);
@@ -71,8 +76,9 @@ test('Copilot path and root instructions preserve customized files unless forced
             const refused = setup(project);
             assert.notEqual(checked.status, 0);
             assert.notEqual(refused.status, 0);
-            assert.ok(checked.stderr.includes(`${adapter}: expected`));
-            assert.ok(refused.stderr.includes(`${adapter}: expected`));
+            const diagnostic = adapter.startsWith('.cratis/ai/') ? `${adapter.slice('.cratis/ai/'.length)} is stale` : `${adapter}: expected`;
+            assert.ok(checked.stderr.includes(diagnostic), checked.stderr);
+            assert.ok(refused.stderr.includes(diagnostic), refused.stderr);
             assert.equal(readFileSync(path, 'utf8'), local);
             assert.equal(setup(project, false, true).status, 0);
             assert.notEqual(readFileSync(path, 'utf8'), local);
@@ -107,8 +113,8 @@ test('Copilot normalizes only non-string applyTo forms and regenerates its own s
             assert.equal(setup(project, true).status, 0);
         }
         writeFileSync(join(project, '.cratis/ai/rules/fixture.md'), '---\napplyTo: "**/*.go"\n---\n# Fixture guidance\n');
-        assert.equal(setup(project).status, 0, 'a normalized adapter can become a canonical symlink again');
-        assert.equal(readlinkSync(join(project, '.github/instructions/fixture.instructions.md')), '../../.cratis/ai/rules/fixture.md');
+        assert.equal(setup(project).status, 0, 'quoted applyTo remains a portable generated file');
+        assert.ok(lstatSync(join(project, '.github/instructions/fixture.instructions.md')).isFile());
         writeFileSync(join(project, '.cratis/ai/rules/fixture.md'), '# Now universal\n');
         assert.equal(setup(project).status, 0);
         assert.throws(() => readlinkSync(join(project, '.github/instructions/fixture.instructions.md')), /ENOENT/);
@@ -158,6 +164,61 @@ test('setup does not write through an unowned parent-directory symlink', () => {
     }
 });
 
+test('Copilot drift checks detect source changes, missing files and orphans, then regenerate owned outputs', () => {
+    const project = fixture();
+    try {
+        assert.equal(setup(project).status, 0);
+        const corpus = join(project, '.cratis/ai');
+        const adapter = join(corpus, copilotInstructionsDirectory, 'go.instructions.md');
+        const canonical = join(corpus, 'rules/go.md');
+        writeFileSync(canonical, `${readFileSync(canonical, 'utf8')}\nUpdated path guidance.\n`);
+        assert.ok(checkCopilotInstructions(corpus).some(message => message.includes('go.instructions.md is stale')));
+        assert.notEqual(setup(project, true).status, 0);
+        assert.equal(setup(project).status, 0);
+        assert.match(readFileSync(adapter, 'utf8'), /Updated path guidance/);
+        const orphan = join(corpus, copilotInstructionsDirectory, 'orphan.instructions.md');
+        cpSync(adapter, orphan);
+        unlinkSync(adapter);
+        const drift = checkCopilotInstructions(corpus);
+        assert.ok(drift.some(message => message.includes('go.instructions.md is missing')));
+        assert.ok(drift.some(message => message.includes('orphan.instructions.md has no path-scoped rule')));
+        assert.notEqual(setup(project, true).status, 0);
+        assert.equal(setup(project).status, 0);
+        assert.deepEqual(checkCopilotInstructions(corpus), []);
+        writeFileSync(orphan, '# User-owned orphan\n');
+        assert.notEqual(setup(project).status, 0);
+        assert.equal(readFileSync(orphan, 'utf8'), '# User-owned orphan\n');
+        assert.equal(setup(project, false, true).status, 0);
+        assert.deepEqual(checkCopilotInstructions(corpus), []);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('Pi package preparation ships copied Copilot adapters for a consumer directory link', () => {
+    const project = fixture();
+    try {
+        assert.equal(setup(project).status, 0);
+        const plugin = join(project, 'Source/Pi.Plugin');
+        mkdirSync(plugin, { recursive: true });
+        cpSync(join(repositoryRoot, 'Source/Pi.Plugin/prepare-package.mjs'), join(plugin, 'prepare-package.mjs'));
+        const prepared = spawnSync(process.execPath, [join(plugin, 'prepare-package.mjs')], { encoding: 'utf8' });
+        assert.equal(prepared.status, 0, prepared.stderr);
+        const packaged = join(plugin, 'package/corpus', copilotInstructionsDirectory, 'go.instructions.md');
+        assert.ok(lstatSync(packaged).isFile(), 'package contains a portable file, not a canonical symlink');
+        const generated = readFileSync(join(project, '.github/instructions/go.instructions.md'), 'utf8');
+        assert.equal(readFileSync(packaged, 'utf8'), generated);
+        const consumer = join(project, 'consumer');
+        cpSync(join(plugin, 'package/corpus'), join(consumer, '.cratis/ai'), { recursive: true });
+        mkdirSync(join(consumer, '.github'), { recursive: true });
+        symlinkSync(`../.cratis/ai/${copilotInstructionsDirectory}`, join(consumer, '.github/instructions'), 'dir');
+        assert.equal(readFileSync(join(consumer, '.github/instructions/go.instructions.md'), 'utf8'), generated);
+        assert.deepEqual(checkCopilotInstructions(join(consumer, '.cratis/ai')), []);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
 function fixture() {
     const project = mkdtempSync(join(tmpdir(), 'cratis-go-setup-'));
     cpSync(join(repositoryRoot, '.cratis/ai'), join(project, '.cratis/ai'), { recursive: true });
@@ -200,7 +261,7 @@ test('adapter generation is repeatable on clean and customized repositories with
     }
 });
 
-test('setup preserves unlisted local path instructions alongside managed adapters', () => {
+test('setup refuses a directory with local instructions unless explicitly forced', () => {
     const project = fixture();
     try {
         const path = join(project, '.github/instructions/local.instructions.md');
@@ -209,12 +270,15 @@ test('setup preserves unlisted local path instructions alongside managed adapter
         writeFileSync(path, local);
         const checked = setup(project, true);
         assert.notEqual(checked.status, 0);
-        assert.match(checked.stderr, /\.github\/instructions\/go\.instructions\.md: expected symbolic link/);
+        assert.match(checked.stderr, /\.github\/instructions: expected symbolic link/);
         assert.equal(readFileSync(path, 'utf8'), local);
         const installed = setup(project);
-        assert.equal(installed.status, 0, installed.stderr);
-        assert.equal(setup(project, true).status, 0);
+        assert.notEqual(installed.status, 0);
+        assert.match(installed.stderr, /\.github\/instructions: expected symbolic link/);
         assert.equal(readFileSync(path, 'utf8'), local);
+        assert.equal(setup(project, false, true).status, 0);
+        assert.equal(readlinkSync(join(project, '.github/instructions')), `../.cratis/ai/${copilotInstructionsDirectory}`);
+        assert.equal(setup(project, true).status, 0);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }

@@ -153,11 +153,17 @@ Copilot's repository-wide `.github/copilot-instructions.md` is generated from
 rules without `applyTo`. Path rules live in `.github/instructions/` as
 `<name>.instructions.md`, with a quoted `applyTo` glob string (multiple globs are
 comma-separated), as required by [Copilot's custom-instructions documentation](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions#creating-path-specific-custom-instructions).
-Rules already using that format remain symlinks; scalar/list forms needing
-normalization become marked generated files. Setup migrates the old canonical
-rules directory link and removes obsolete plain `.md` corpus links without
-changing canonical rules or local instructions. This repository tool is not the
-consumer CLI's manifest-aware installer.
+Setup copies path rules into marked, portable files under
+`.cratis/ai/harnesses/copilot/instructions/`, normalizing scalar/list forms only
+when needed, and links `.github/instructions` to that generated directory.
+`setup --check` and corpus verification reject missing, stale, or orphaned
+adapters. The generated files ship with the corpus and the Pi package; they do
+not depend on source rule symlinks surviving installation. Setup migrates the
+old canonical directory link or a directory containing only its legacy per-file
+adapters. A directory containing local instructions is preserved and refused
+unless `--force` is given. This repository tool is not the consumer CLI's
+manifest-aware installer; CLI versions that still link to `rules/` need to
+switch their Copilot integration to `harnesses/copilot/instructions/`.
 
 ## Author skills
 

@@ -1,1 +1,0 @@
-../../.cratis/ai/rules/cratis-folder-is-configuration.md
