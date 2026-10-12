@@ -25,6 +25,8 @@ test('all product fields are validated rather than trusting a TypeScript cast', 
     const cases: Array<[string, unknown, RegExp]> = [
         ['id', 'Arc', /kebab-case/], ['name', '', /invalid name/], ['repository', 'other/Arc', /Cratis repository/],
         ['coverage', 'ignored', /invalid coverage/], ['coverage', null, /invalid coverage/],
+        ['visibility', 'public', /invalid visibility/], ['visibility', null, /invalid visibility/],
+        ['track', 'stable', /invalid track/], ['track', null, /invalid track/],
         ['packages', [{ ecosystem: 'unknown', id: 'package' }], /invalid packages/], ['packages', [{ ecosystem: 'npm', id: '' }], /invalid packages/],
         ['covers', { skills: null, rules: [] }, /invalid covers/], ['synced', {}, /invalid synced shape/], ['notes', 123, /invalid name or notes/],
     ];
@@ -33,6 +35,11 @@ test('all product fields are validated rather than trusting a TypeScript cast', 
         Object.assign(ledger.products[0], { [field]: value });
         assert.match(check(ledger).problems.join('\n'), message);
     }
+});
+test('private visibility and pre-release tracking are accepted optional fields', () => {
+    const ledger = exampleLedger();
+    Object.assign(ledger.products[0], { visibility: 'private', track: 'prerelease' });
+    assert.deepEqual(check(ledger).problems, []);
 });
 test('duplicate ids and case-insensitive repositories fail', () => {
     const ledger = exampleLedger();
@@ -133,4 +140,8 @@ test('the actual ledger covers every verified-source skill and all targets exist
         assert.doesNotMatch(product.notes!, /Coverage is planned/);
     }
     assert.match(products.find(product => product.name === 'Architecture')!.notes!, /rules\/csharp.md/);
+    assert.deepEqual(products.filter(product => product.visibility === 'private').map(product => product.name).sort(), ['Direct', 'KeldaKraft', 'Studio']);
+    const arcTypescript = products.find(product => product.id === 'arc-typescript')!;
+    assert.equal(arcTypescript.track, 'prerelease');
+    assert.equal(arcTypescript.synced!.version, '0.57.2');
 });

@@ -13,6 +13,8 @@ export interface Product {
     covers: { skills: string[]; rules: string[] };
     notes?: string;
     coverage?: 'tracked' | 'not-covered';
+    visibility?: 'private';
+    track?: 'prerelease';
 }
 export interface ProductLedger { schemaVersion: '1.0.0'; products: Product[] }
 export interface ProductSources { skills: string[]; rules: string[]; verifiedSkills: string[] }
@@ -48,7 +50,7 @@ export function productSyncProblems(document: unknown, sources: ProductSources, 
     const repositories = new Set<string>();
     for (const [index, product] of document.products.entries()) {
         const subject = `product-sync.json products[${index}]`;
-        if (!object(product) || !fields(product, ['id', 'name', 'repository', 'packages', 'synced', 'covers'], ['notes', 'coverage'])) {
+        if (!object(product) || !fields(product, ['id', 'name', 'repository', 'packages', 'synced', 'covers'], ['notes', 'coverage', 'visibility', 'track'])) {
             problems.push(`${subject} has an invalid product shape.`);
             continue;
         }
@@ -57,6 +59,8 @@ export function productSyncProblems(document: unknown, sources: ProductSources, 
         else ids.add(product.id);
         if (!text(product.name) || (product.notes !== undefined && !text(product.notes))) problems.push(`${subject} has an invalid name or notes.`);
         if (product.coverage !== undefined && product.coverage !== 'tracked' && product.coverage !== 'not-covered') problems.push(`${subject} has invalid coverage; use tracked or not-covered.`);
+        if (product.visibility !== undefined && product.visibility !== 'private') problems.push(`${subject} has invalid visibility; use private or omit it for public repositories.`);
+        if (product.track !== undefined && product.track !== 'prerelease') problems.push(`${subject} has invalid track; use prerelease or omit it for stable releases.`);
         if (!text(product.repository) || !/^Cratis\/[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(product.repository)) problems.push(`${subject} needs a Cratis repository.`);
         else if (repositories.has(product.repository.toLowerCase())) problems.push(`${subject} duplicates repository '${product.repository}'.`);
         else repositories.add(product.repository.toLowerCase());

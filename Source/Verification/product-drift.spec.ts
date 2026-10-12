@@ -68,6 +68,45 @@ test('planned empty coverage remains tracked and never-synced drift', () => {
 test('tracked lookup failures still fail even if other products are excluded', () => {
     assert.throws(() => reportProducts([excluded, product], () => { throw new Error('HTTP 503'); }), /503/);
 });
+const privateProduct: Product = { ...product, id: 'studio', name: 'Studio', repository: 'Cratis/Studio', visibility: 'private' };
+test('inaccessible private repositories are not checked, never compared or counted as drift', () => {
+    for (const status of [403, 404]) {
+        const report = reportProducts([privateProduct, product], candidate => {
+            if (candidate.visibility === 'private') throw new Error(`gh: No access (HTTP ${status})`);
+            return { version: '1.0.0' };
+        });
+        assert.equal(report.products, 1);
+        assert.equal(driftExitCode(report), 0);
+        assert.deepEqual(report.notChecked, [{ id: 'studio', product: 'Studio', repository: 'Cratis/Studio' }]);
+        assert.match(driftTable(report), /## Not checked \(private repository, no access\)\n\n- Studio \(Cratis\/Studio\)/);
+        assert.ok(!driftTable(report).includes('| Studio |'));
+        const drifted = reportProducts([privateProduct, product], candidate => {
+            if (candidate.visibility === 'private') throw new Error(`gh: No access (HTTP ${status})`);
+            return { version: '2.0.0' };
+        });
+        assert.equal(driftExitCode(drifted), 1);
+    }
+});
+test('a ledger with only inaccessible private products is a non-vacuous not-checked report', () => {
+    const report = reportProducts([privateProduct], () => { throw new Error('gh: Not Found (HTTP 404)'); });
+    assert.equal(report.products, 0);
+    assert.equal(report.notChecked.length, 1);
+    assert.equal(driftExitCode(report), 0);
+});
+test('accessible private products are compared normally', () => {
+    const report = reportProducts([privateProduct], () => ({ version: '2.0.0' }));
+    assert.equal(report.products, 1);
+    assert.equal(driftExitCode(report), 1);
+    assert.deepEqual(report.notChecked, []);
+});
+test('every public read failure and other private failures propagate to the exit-2 boundary', () => {
+    for (const message of ['gh: Not Found (HTTP 404)', 'gh: Forbidden (HTTP 403)', 'HTTP 503', 'network timed out', 'spawn gh ENOENT']) {
+        assert.throws(() => reportProducts([product], () => { throw new Error(message); }), { message });
+    }
+    for (const message of ['gh: Bad credentials (HTTP 401)', 'HTTP 503', 'network timed out', 'spawn gh ENOENT', 'Invalid release list']) {
+        assert.throws(() => reportProducts([privateProduct], () => { throw new Error(message); }), { message });
+    }
+});
 test('the table escapes product and skill names', () => {
     const table = driftTable(driftReport([compareProduct({ ...product, name: 'Arc|other\nline' }, { version: '1.0.0' })]));
     assert.ok(table.includes('Arc\\|other line'));
@@ -77,6 +116,38 @@ test('latest release and one bounded page are read through gh', () => {
     const gh: Github = args => { calls.push(args); return JSON.stringify(args[1].endsWith('/latest') ? release('v2.0.0') : [release('v2.0.0'), release('v1.0.0')]); };
     assert.equal(compareProduct(product, latestProduct(product, gh)).releasesBehind, 1);
     assert.deepEqual(calls.map(args => args[1]), ['repos/Cratis/Arc/releases/latest', 'repos/Cratis/Arc/releases?per_page=100']);
+});
+test('pre-release tracking selects a tag from one bounded release page and counts pre-releases', () => {
+    const calls: string[][] = [];
+    const tracked: Product = { ...product, track: 'prerelease' };
+    const gh: Github = args => {
+        calls.push(args);
+        return JSON.stringify([{ ...release('v4.0.0', true), draft: true }, release('v3.0.0', true), release('v2.0.0', true), release('v1.0.0')]);
+    };
+    const latest = latestProduct(tracked, gh);
+    assert.equal(latest.version, 'v3.0.0');
+    assert.equal(compareProduct(tracked, latest).releasesBehind, 2);
+    assert.deepEqual(calls.map(args => args[1]), ['repos/Cratis/Arc/releases?per_page=100']);
+});
+test('a matching pre-release is synced even if main has moved, and stable releases remain eligible', () => {
+    const tracked: Product = { ...product, track: 'prerelease' };
+    for (const prerelease of [true, false]) {
+        const report = reportProducts([tracked], candidate => latestProduct(candidate, () => JSON.stringify([release('v1.0.0', prerelease)])));
+        assert.equal(driftExitCode(report), 0);
+    }
+});
+test('pre-release tracking with no non-draft releases checks the accessible default branch', () => {
+    const gh: Github = args => {
+        if (args[1].includes('/releases?')) return JSON.stringify([{ ...release('v2.0.0', true), draft: true }]);
+        if (args[1] === 'repos/Cratis/Arc') return JSON.stringify({ default_branch: 'main' });
+        return JSON.stringify({ sha: `abcdef1${'a'.repeat(33)}` });
+    };
+    assert.equal(latestProduct({ ...product, track: 'prerelease' }, gh).version, 'main@abcdef1');
+});
+test('pre-release tracking refuses malformed responses and propagates read failures', () => {
+    const tracked: Product = { ...product, track: 'prerelease' };
+    for (const response of ['not-json', '{}', '[{}]', JSON.stringify([release('wrong', true)])]) assert.throws(() => latestProduct(tracked, () => response));
+    assert.throws(() => latestProduct(tracked, () => { throw new Error('HTTP 503'); }), /503/);
 });
 test('an exact release match needs no history request', () => {
     let calls = 0;

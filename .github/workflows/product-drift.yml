@@ -36,7 +36,7 @@ jobs:
 
       - name: Report product drift
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.PRODUCT_DRIFT_TOKEN || github.token }}
         run: |
           set -euo pipefail
           status=0

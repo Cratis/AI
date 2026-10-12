@@ -33,7 +33,7 @@ test('the report preserves its status, rejects could-not-run, and only then reco
     assert.match(report.run, /status=\$\?/);
     assert.match(report.run, /"\$status" -ne 0.*"\$status" -ne 1/);
     assert.match(report.run, /exit "\$status"/);
-    assert.equal(report.env.GH_TOKEN, '${{ github.token }}');
+    assert.equal(report.env.GH_TOKEN, '${{ secrets.PRODUCT_DRIFT_TOKEN || github.token }}');
     const issue = steps.at(-1);
     assert.match(issue.run, /run drift-issue/);
     assert.equal(issue.env.GH_TOKEN, '${{ github.token }}');

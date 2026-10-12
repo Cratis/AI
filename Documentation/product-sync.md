@@ -17,7 +17,7 @@ in release comparisons, even when their first coverage is still being added.
 If both `covers.skills` and `covers.rules` are empty, `synced` must be null and
 `notes` must say **"Coverage is planned"** ("Coverage planned" also works).
 Add the real coverage targets when that work lands; do not invent a sync version.
-Architecture's planned coverage is analyzer guidance in `rules/csharp.md`.
+Architecture's analyzer coverage lives in `rules/csharp.md`.
 
 Use `"coverage": "not-covered"` only for a deliberate decision not to teach the
 product in this corpus. It requires a non-empty `notes` reason, empty skill and
@@ -25,6 +25,17 @@ rule coverage, and `synced: null`. These products are listed under **Not covered
 (by decision)**, with their reasons, instead of appearing as permanent drift.
 Verification enforces these coupled fields; an excluded product cannot satisfy
 a verified-source skill's coverage requirement.
+
+Set `"visibility": "private"` for private repositories; omit it for public
+repositories. Verification rejects other values. A private product that returns
+HTTP 403 or 404 is listed as **Not checked (private repository, no access)**,
+not as current or drifted. Accessible private products are compared normally;
+other failures, including every public-product read failure, still fail the report.
+
+Set `"track": "prerelease"` for products that publish only GitHub pre-releases.
+This compares against the latest non-draft release, including pre-releases,
+rather than a moving default-branch commit. Omit it to track stable releases;
+verification rejects other values.
 
 ## Sync a product
 
@@ -56,9 +67,11 @@ yarn workspace @cratis/ai-verification run drift --json
 ```
 
 The report compares each tracked floor with GitHub's latest non-prerelease
-release. Decided not-covered products do not trigger release lookups and never
+release, or the latest non-draft release including pre-releases when
+`track` is `"prerelease"`. Decided not-covered products do not trigger release lookups and never
 count as drift; the JSON report lists them in `notCovered`, separately from
-`rows` and the compared `products` count. For an accessible tracked repository
+`rows` and the compared `products` count. Inaccessible private products appear
+in `notChecked` and are also excluded from that count. For an accessible tracked repository
 with no releases, it compares the default-branch commit. A never-synced tracked
 product, including one whose coverage is planned, always needs attention. Release counts come from
 one page of up to 100 releases; `unknown` means the endpoints could not both be
@@ -66,8 +79,8 @@ counted, not that no releases intervened. The report lists covered skills.
 
 | Exit | Meaning |
 | --- | --- |
-| `0` | All tracked products were read and none has drifted, or all products are deliberately not covered. |
-| `1` | All tracked products were read and at least one has drifted. |
+| `0` | No compared product has drifted; check `notChecked` for inaccessible private products. |
+| `1` | At least one compared product has drifted; private products may also be not checked. |
 | `2` | The report could not run completely: invalid ledger, missing CLI, authentication, network, or response failure. |
 
 `drift --self-test` checks planted violations without network access.
@@ -75,6 +88,14 @@ counted, not that no releases intervened. The report lists covered skills.
 The weekly **Product drift** workflow (also available through
 `workflow_dispatch`) creates or updates one open issue titled **AI corpus
 product drift**, labelled `product-drift`, with the report table and the same
-**Not covered (by decision)** section. When tracked drift reaches zero, it
-refreshes the body, comments, and closes that issue. Unreadable tracked products
-fail the job; they never close the issue as if the corpus were current.
+**Not covered (by decision)** and **Not checked (private repository, no access)**
+sections. When tracked drift reaches zero and no private products remain not
+checked, it refreshes the body, comments, and closes that issue. Otherwise the
+issue stays open, including when inaccessible private products are the only
+outstanding checks. Other unreadable tracked products fail the job.
+
+The drift step uses the optional `PRODUCT_DRIFT_TOKEN` secret, falling back to
+`github.token`. A fine-grained, read-only token with **Metadata: read** and
+**Contents: read** on the private product repositories enables their checks.
+Nothing else needs that token: issue reconciliation uses `github.token`, with
+repository permissions limited to contents read and issues write.
