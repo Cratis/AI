@@ -136,6 +136,23 @@ Sources at v22.75.0: `Arc.Core/Queries/ObservableQueryHttp.cs`,
 `ObservableQueryHandler.cs` and
 [MongoDB observations](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/mongodb/observing-collections.md).
 
+### Local `cratis` template ports
+
+Templates `v1.7.4` still publishes MongoDB on host port `27017` and configures
+`mongodb://localhost:27017` for the app (`Templates/Cratis/docker-compose.yml:3–13`,
+`appsettings.json:35–37`). Its Vite dev server runs on `9000` and proxies `/api`,
+`/.cratis` and `/swagger` to `http://localhost:5000`
+(`Templates/Cratis/.frontend/vite.config.ts:24–39`). A backend started on another
+port needs matching proxy targets; a healthy Chronicle container alone does not
+prove the browser can reach the app or its MongoDB read models.
+
+The bundled development MongoDB replica set advertises `localhost:27017`
+(Chronicle `v19.34.0`, `Docker/entrypoint.sh:23–25`). For that setup, merely changing
+Docker's host mapping to another port does not change the advertised member
+address. Keep `27017` available, or deliberately reconfigure the replica set and
+application connection together. These are local template defaults, not Arc
+requirements or production topology advice.
+
 ## What comes back
 
 Every transport carries the same `QueryResult` shape:

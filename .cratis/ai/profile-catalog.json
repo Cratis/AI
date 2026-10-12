@@ -631,6 +631,8 @@
       "id": "cratis/components",
       "availableTargets": [
         "cratis-components-accessibility",
+        "cratis-components-common-controls",
+        "cratis-components-data-surfaces",
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
         "cratis-components-styling",
@@ -760,7 +762,8 @@
     {
       "id": "cratis/fundamentals",
       "availableTargets": [
-        "cratis-fundamentals-concept"
+        "cratis-fundamentals-concept",
+        "cratis-fundamentals-telemetry"
       ],
       "languages": [
         "csharp"
@@ -993,7 +996,8 @@
         "cratis/engineering/core"
       ],
       "availableTargets": [
-        "cratis-engineering-csharp-conventions"
+        "cratis-engineering-csharp-conventions",
+        "cratis-orleans-jobs"
       ],
       "languages": [
         "csharp"

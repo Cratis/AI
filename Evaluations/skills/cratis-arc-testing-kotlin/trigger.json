@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-arc-testing-kotlin",
+  "queries": [
+    { "query": "Write a Kotlin CommandScenario for our existing Arc command using its generated module, without starting Spring Boot or Docker.", "shouldTrigger": true },
+    { "query": "Our Java Arc scenario has only dependencyUnavailable feedback and shouldBeInvalid fails. How should we assert the intended stage?", "shouldTrigger": true },
+    { "query": "Pin AccountBalance for a specific CommandKey in an Arc.Kotlin test and exercise the missing account path too.", "shouldTrigger": true },
+    { "query": "Our ObservableQueryScenario collects two values but passes on an empty Flow. How do we prove the emission count?", "shouldTrigger": true },
+    { "query": "Test a Java Arc command with deterministic Chronicle append failure using arc-testing, not a running kernel.", "shouldTrigger": true },
+    { "query": "How do our JVM Arc specs assert that given Chronicle events are history rather than new appends?", "shouldTrigger": true },
+    { "query": "Configure tenant resolution in a Kotlin QueryScenario to cover unauthorized and unresolved selection.", "shouldTrigger": true },
+    { "query": "Convert our Java Arc JUnit test to AsyncCommandScenario and explain who owns JavaAsyncScope's executor shutdown.", "shouldTrigger": true },
+    { "query": "Our Kotlin observable pipeline test can hang during authorization before collection. Does collect's timeout cover opening too?", "shouldTrigger": true },
+    { "query": "Keep command/result JSON round trips in our Arc.Kotlin scenarios and explain what disabling them would stop testing.", "shouldTrigger": true },
+    { "query": "Define RegisterBoat as a new Kotlin Arc command; I am not asking for specifications yet.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Add a live TaskView query to our Java Arc read model, with no test changes.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" },
+    { "query": "Implement a shared title-length rule in our existing JVM Arc validator.", "shouldTrigger": false, "note": "cratis-arc-validation-kotlin" },
+    { "query": "Wire /.cratis/me and authentication handlers into the production Arc.Kotlin host.", "shouldTrigger": false, "note": "cratis-arc-identity-and-tenancy-kotlin" },
+    { "query": "Configure production Mongo change-stream observations in our Java Arc service.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
+    { "query": "Write an EventScenario for a standalone Chronicle.Kotlin worker that does not use Arc.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Write C# CommandScenario specifications for our Arc command using Cratis.Specifications.", "shouldTrigger": false, "note": ".NET specifications, not JVM scenarios" },
+    { "query": "Test a Node.js Arc for TypeScript command with @cratis/arc.testing CommandScenario.", "shouldTrigger": false, "note": "TypeScript pipeline specifications, not JVM" },
+    { "query": "Test the React view model that invokes our generated Java command proxy with Vitest and Sinon.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "Connect a plain Java Chronicle client and implement a reactor with no Arc host or scenarios.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" }
+  ]
+}

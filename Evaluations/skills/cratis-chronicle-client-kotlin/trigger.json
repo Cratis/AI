@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-chronicle-client-kotlin",
+  "queries": [
+    { "query": "Connect a plain Kotlin worker to Chronicle with io.cratis:chronicle and append its first event; no Arc host.", "shouldTrigger": true },
+    { "query": "Our standalone Java service needs the blocking Chronicle client. Should it start from BlockingChronicleClient.connect or raw coroutine bridges?", "shouldTrigger": true },
+    { "query": "What production connection string should our Kotlin Chronicle client use, including TLS validation and credentials?", "shouldTrigger": true },
+    { "query": "A Java Chronicle reactor method has the event second and EventContext first and is never discovered. What selects its subscription?", "shouldTrigger": true },
+    { "query": "Two Kotlin Chronicle EventType classes in different packages share the same simple name. Why do their wire ids collide?", "shouldTrigger": true },
+    { "query": "Append one atomic batch to two event sources using the standalone Chronicle.Kotlin client and inspect the AppendResult failures.", "shouldTrigger": true },
+    { "query": "Our Kotlin Chronicle worker needs model-bound read-model projections and lifecycle variants with EntersOn.", "shouldTrigger": true },
+    { "query": "Narrow Chronicle artifact classpath scanning in our large Java app and explain automatic versus explicit registration failures.", "shouldTrigger": true },
+    { "query": "Our Chronicle.Kotlin client awaitRegistration completed but an observer failed to register. What does that gate actually prove?", "shouldTrigger": true },
+    { "query": "Configure the Chronicle Spring Boot starter in a JVM app that does not use Arc, including its namespace and servlet limitation.", "shouldTrigger": true },
+    { "query": "Define an Arc.Kotlin command returning TaskCreated and use CommandKey to choose its event source.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Add a Java Arc static ReadModel query exposed over SSE.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" },
+    { "query": "Add shared FluentModelValidator title rules to an existing Kotlin Arc command.", "shouldTrigger": false, "note": "cratis-arc-validation-kotlin" },
+    { "query": "Test an existing Java Arc command's Chronicle append using arc-testing CommandScenario.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" },
+    { "query": "Configure inbound tenant header resolution and /.cratis/me in our JVM Arc host.", "shouldTrigger": false, "note": "cratis-arc-identity-and-tenancy-kotlin" },
+    { "query": "Set up MongoObservableQuery in Arc.Kotlin Spring Data; the query observes storage, not Chronicle events.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
+    { "query": "Connect a standalone .NET console app with AddCratisChronicle and IEventSequence.Append.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Connect a Node.js worker with @cratis/chronicle and glob-based artifact discovery.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Put Chronicle.Client in an Elixir supervision tree and append an EventType struct.", "shouldTrigger": false, "note": "cratis-chronicle-client-elixir" },
+    { "query": "Inspect failed partitions on our running Chronicle server with the cratis CLI; do not change JVM client code.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" }
+  ]
+}

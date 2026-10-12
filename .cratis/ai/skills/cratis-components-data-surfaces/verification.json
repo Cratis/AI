@@ -1,0 +1,16 @@
+{
+  "skill": "cratis-components-data-surfaces",
+  "input": "Present loaded faceted data, history snapshots, a pan/zoom board and host-owned chat without inventing persistence.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "cardRenderer` returns structured text, not JSX" },
+    { "kind": "skill-contains", "value": "currentVersionIndex` is initial-only" },
+    { "kind": "skill-contains", "value": "CanvasItem" },
+    { "kind": "skill-contains", "value": "controlsFollowViewportInsets" },
+    { "kind": "skill-contains", "value": "pixi.js" },
+    { "kind": "skill-contains", "value": "Chat` is exported through `@cratis/components/Canvas`" },
+    { "kind": "skill-contains", "value": "onSendMessage" },
+    { "kind": "skill-contains", "value": "renderHeaderActions(openTopic)" },
+    { "kind": "skill-contains", "value": "not backend enforcement" }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-arc-spring-data-kotlin",
+  "queries": [
+    { "query": "Wire a Kotlin Arc ReadModel to Spring Data JPA and expose repository-backed paging with Pageable and Page.", "shouldTrigger": true },
+    { "query": "Our Java Arc command needs the current Mongo-mapped read model by CommandKey. Which store provider owns that parameter?", "shouldTrigger": true },
+    { "query": "Make our existing Kotlin Arc list observe MongoDB storage changes using MongoObservableQuery.", "shouldTrigger": true },
+    { "query": "Our Arc.Kotlin JPA observation does not refresh when another process writes. Does Arc poll, or do we need notifications?", "shouldTrigger": true },
+    { "query": "The tenant is already resolved in our JVM Arc app; how do we choose a certified isolated JPA persistence unit?", "shouldTrigger": true },
+    { "query": "Route Java Arc Mongo access through TenantAwareMongoOperationsResolver rather than a default database.", "shouldTrigger": true },
+    { "query": "Can we persist a Kotlin ConceptAs identifier in BSON using only its JSON serializer? Show the converter boundary.", "shouldTrigger": true },
+    { "query": "Enable fixed-store Spring Data command transactions in Arc.Kotlin and explain whether a suspending handler is safe.", "shouldTrigger": true },
+    { "query": "Our Java Arc command writes JPA and Mongo and returns a Chronicle event. Are the three stores one atomic transaction?", "shouldTrigger": true },
+    { "query": "A Mongo live list in our Kotlin Arc app keeps rows after they stop matching. Explain invalidation and refreshed filtered snapshots.", "shouldTrigger": true },
+    { "query": "Define a new JVM Arc command returning a receipt, without any persistence setup.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Expose a Kotlin companion query over an existing in-memory StateFlow; choose the SSE route, not storage.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" },
+    { "query": "Add an imperative CommandValidator to an existing Java Arc command.", "shouldTrigger": false, "note": "cratis-arc-validation-kotlin" },
+    { "query": "Pin a mapped read model in an Arc.Kotlin CommandScenario without touching a database.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" },
+    { "query": "Configure tenant header resolution and membership claims in our Java Arc HTTP host; storage is already isolated.", "shouldTrigger": false, "note": "cratis-arc-identity-and-tenancy-kotlin" },
+    { "query": "Define a Chronicle.Kotlin model-bound projection that consumes OrderPlaced, with no Spring Data observations.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Add an EF Core migration for a C# Arc read model.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },
+    { "query": "Use Drizzle to back a read-model query in our Node.js Arc for TypeScript server.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Create a React DataPage for the generated query; no JVM persistence changes.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Connect a standalone Java Chronicle client and retrieve readModels.getInstanceByKey without Arc Spring Data.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" }
+  ]
+}

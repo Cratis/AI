@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-validation-kotlin",
+  "evals": [
+    {
+      "id": 1,
+      "name": "shared-literal-rules",
+      "prompt": "At Arc.Kotlin 7.7.0, CreateTask already exists. Make title nonblank and at most 120 characters in both server and generated TypeScript validation. A teammate suggests a helper lambda in FluentModelValidator and a shared creditCard rule for another field. Explain the supported shape and which work stays server-only. Reply only.",
+      "expected_output": "A concrete public final top-level FluentModelValidator uses direct ruleFor chains and literal arguments in its sole constructor/init. notEmpty and maxLength are shared. Arbitrary helpers/lambdas and creditCard are not supported shared rules; CreditCard remains server-only.",
+      "assertions": [
+        "Selects FluentModelValidator with direct ruleFor(\"title\").notEmpty() and maxLength(120) chains for shared server/proxy rules.",
+        "Requires a public final top-level concrete validator with one public no-argument constructor and direct literal rule chains; refuses the helper/lambda shape.",
+        "Does not invent shared creditCard(); identifies CreditCard as a server-only Jakarta constraint.",
+        "Keeps service-dependent, asynchronous and cross-member checks in imperative validators rather than claiming they emit TypeScript rules."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "request-based-query-validator",
+      "prompt": "At Arc.Kotlin 7.7.0, an existing query must reject an explicitly empty title argument. Describe or sketch the QueryValidator contract and its query selection. Is QueryValidator<TaskView> correct, and should rejection throw? Reply only.",
+      "expected_output": "The nongeneric QueryValidator receives QueryRequest and QueryContext and returns List<ValidationResult>. queryName is nullable FullyQualifiedQueryName; null applies to all queries. Use feedback, not a thrown user-actionable exception, and distinguish omission from empty text.",
+      "assertions": [
+        "Rejects QueryValidator<TaskView>; uses the nongeneric request-based QueryValidator contract.",
+        "Uses suspend validate(QueryRequest, QueryContext) returning List<ValidationResult>, reading supplied request.arguments.",
+        "Explains that nullable queryName selects all queries when null and a FullyQualifiedQueryName restricts it to one query.",
+        "Returns ValidationResult.error rather than throwing and distinguishes the requested explicit-empty rule from a separate absence rule."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "exclude-validation-without-hiding-data",
+      "prompt": "At Arc.Kotlin 7.7.0, one serialized concept-valued member must skip only its ConceptValidator, while a separate legacy member must skip the whole validation edge. Compare ConceptValidationExclusion and IgnoreValidation to JsonIgnore, including exact owner matching, nested paths and which other rules survive. Reply only.",
+      "expected_output": "ConceptValidationExclusion targets an exact runtime owner and direct public concept-typed member, not a nested path or element. Other validation survives. IgnoreValidation cuts the broader validation edge without hiding serialized/bound data; JsonIgnore is the serialization choice.",
+      "assertions": [
+        "Limits ConceptValidationExclusion to an exact runtime owner class and a direct public member declared as a ConceptAs type, not a dotted path or collection element.",
+        "Explains that concept exclusion preserves owner/model/Jakarta rules rather than disabling all validation.",
+        "Uses IgnoreValidation for the broader logical validation edge and states that it preserves serialization and binding.",
+        "Distinguishes JsonIgnore as serialization suppression instead of claiming IgnoreValidation hides confidential data."
+      ]
+    }
+  ]
+}

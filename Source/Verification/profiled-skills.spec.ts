@@ -2,10 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { unprofiledSkills } from './profiled-skills.ts';
+import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
+import { selectedSkillNames } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillSelection.ts';
 
 test('the profile reachability check catches a planted unregistered skill', () => {
     assert.deepEqual(unprofiledSkills(['docs', 'unregistered'], [{ availableTargets: ['docs'] }]), ['unregistered']);
@@ -16,6 +19,32 @@ test('the profile reachability check accepts skills available from different pro
         { availableTargets: ['docs'] },
         { availableTargets: ['release'] },
     ]), []);
+});
+
+test('Go product profiles resolve the same composed skills in the Pi plugin and path guidance', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-go-profiles-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const cases: Array<[string[], string[]]> = [
+            [['cratis/language/go'], []],
+            [['cratis/arc/go'], ['cratis-arc-go', 'cratis-fundamentals-concept-go']],
+            [['cratis/chronicle/client-go'], ['cratis-chronicle-client-go', 'cratis-fundamentals-concept-go']],
+            [['cratis/fundamentals/go'], ['cratis-fundamentals-concept-go']],
+            [['cratis/arc/go', 'cratis/chronicle/client-go'], ['cratis-arc-go', 'cratis-chronicle-client-go', 'cratis-fundamentals-concept-go']],
+        ];
+        for (const [profiles, expected] of cases) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles, languages: ['go'] }));
+            const actual = selectedSkillPaths(project).map(path => path.split('/').pop()).sort();
+            assert.deepEqual(actual, expected, profiles.join(', '));
+            assert.deepEqual(selectedSkillNames(project), actual, 'the fallback must not hint an unselected skill');
+        }
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/go'], languages: ['go'] }));
+        const engineering = selectedSkillNames(project)!;
+        assert.ok(engineering.includes('cratis-engineering-effect-boundaries'));
+        assert.ok(!engineering.some(name => cases.slice(1).flatMap(([, names]) => names).includes(name)), 'engineering does not opt into product clients');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
 });
 
 test('writing skills are reachable from the relevant public and engineering profiles', () => {

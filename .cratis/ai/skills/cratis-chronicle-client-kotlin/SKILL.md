@@ -247,8 +247,8 @@ store.eventLog.transactional.appendMany("<id>", listOf(<OtherEvent>()))
 unitOfWork.commit()
 ```
 
-`transactional` appends return `Unit`, not an `AppendResult`; the results are on
-the unit of work (`transactions/IUnitOfWork.kt:23-101`).
+In a unit of work, `transactional` appends return a placeholder `AppendResult`
+(sequence `-1`); real results are on the unit of work after `commit()`.
 
 ## Observing
 

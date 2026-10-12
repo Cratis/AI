@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-arc-go",
+  "queries": [
+    { "query": "Build an Arc.Go v0.1.1 HTTP app with a typed greeting command.", "shouldTrigger": true },
+    { "query": "Register a Go Arc read-model query without reflective discovery.", "shouldTrigger": true },
+    { "query": "Does HEAD activate an observable query source in Arc.Go?", "shouldTrigger": true },
+    { "query": "Review Arc.Go JSON response envelopes and trailing RFC QUERY input.", "shouldTrigger": true },
+    { "query": "Stop an Arc Go observable.FromIterator producer on cancellation and join cleanup.", "shouldTrigger": true },
+    { "query": "Can our Arc.Go v0 API breaking change use a patch and /v2 consumer imports?", "shouldTrigger": true },
+    { "query": "Wire explicit authorization and trusted identity-header handling in our Go Arc host.", "shouldTrigger": true },
+    { "query": "Does Arc.Go v0.1.1 publish arc-gen and Chronicle integration modules?", "shouldTrigger": true },
+    { "query": "Borrow a grpc.ClientConn in a standalone Chronicle.Go client.", "shouldTrigger": false, "note": "cratis-chronicle-client-go" },
+    { "query": "Create a named Fundamentals.Go UUID value with scalar codecs.", "shouldTrigger": false, "note": "cratis-fundamentals-concept-go" },
+    { "query": "Configure ArcApplication.CreateBuilder in an ASP.NET host.", "shouldTrigger": false, "note": "cratis-arc-hosting" },
+    { "query": "Define a Kotlin Arc @Command and its handle method.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Host Arc for TypeScript on Fastify.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Inspect a running Chronicle server's failures through the CLI.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Style a React DataPage toolbar in Cratis Components.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Add an EF Core migration to a .NET Arc application.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" }
+  ]
+}

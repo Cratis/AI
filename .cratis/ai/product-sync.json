@@ -230,7 +230,8 @@
       },
       "covers": {
         "skills": [
-          "cratis-chronicle-hosting"
+          "cratis-chronicle-hosting",
+          "cratis-orleans-jobs"
         ],
         "rules": [
           "orleans.md"
@@ -384,6 +385,7 @@
           "cratis-code-review",
           "cratis-engineering-csharp-conventions",
           "cratis-fundamentals-concept",
+          "cratis-fundamentals-telemetry",
           "cratis-fundamentals-type-discovery"
         ],
         "rules": [
@@ -411,6 +413,8 @@
         "skills": [
           "cratis-arc-react-page",
           "cratis-components-accessibility",
+          "cratis-components-common-controls",
+          "cratis-components-data-surfaces",
           "cratis-components-schema-editor",
           "cratis-components-stepper-command-dialog",
           "cratis-components-styling",

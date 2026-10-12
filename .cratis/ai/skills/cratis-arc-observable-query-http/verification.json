@@ -1,0 +1,12 @@
+{
+  "skill": "cratis-arc-observable-query-http",
+  "input": "Our local cratis template query is stuck Loading after changing the MongoDB and backend host ports. Which connections should we check?",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Templates `v1.7.4`" },
+    { "kind": "skill-contains", "value": "mongodb://localhost:27017" },
+    { "kind": "skill-contains", "value": "http://localhost:5000" },
+    { "kind": "skill-contains", "value": "does not change the advertised member" },
+    { "kind": "skill-contains", "value": "local template defaults, not Arc" }
+  ]
+}

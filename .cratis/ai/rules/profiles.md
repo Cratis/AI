@@ -73,8 +73,8 @@ profile includes neither Screenplay nor Stage.
 |---|---|---|
 | `cratis/arc` | Arc CQRS framework | `cratis/arc/csharp`, `cratis/arc/java`, `cratis/arc/kotlin` |
 | `cratis/chronicle` | Chronicle event sourcing engine (does not compose `cratis/chronicle/mcp`) | `cratis/chronicle/compliance`, `cratis/chronicle/csharp`, `cratis/chronicle/elixir`, `cratis/chronicle/java`, `cratis/chronicle/kotlin`, `cratis/chronicle/multi-tenancy`, `cratis/chronicle/typescript`, `cratis/chronicle/web-workbench` |
-| `cratis/components` | React component library | (no child profiles) |
-| `cratis/fundamentals` | Core primitives (`ConceptAs<T>`, `EventSourceId<T>`) | (no child profiles) |
+| `cratis/components` | React component library, including `cratis-components-common-controls` and `cratis-components-data-surfaces` | (no child profiles) |
+| `cratis/fundamentals` | Core primitives and generated .NET telemetry (`cratis-fundamentals-telemetry`) | (no child profiles) |
 | `cratis/arc/go` | Experimental Arc.Go HTTP CQRS (root module) | `cratis/language/go`, `cratis/fundamentals/go` |
 | `cratis/chronicle/client-go` | Experimental standalone Chronicle.Go client | `cratis/language/go`, `cratis/fundamentals/go` |
 | `cratis/fundamentals/go` | Fundamentals.Go named scalar concepts and codecs | `cratis/language/go` |
@@ -86,7 +86,7 @@ profile includes neither Screenplay nor Stage.
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
 | `cratis/engineering` | Engineering conventions and workflows | `cratis/engineering/core`, `cratis/engineering/csharp`, `cratis/engineering/elixir`, `cratis/engineering/go`, `cratis/engineering/kotlin`, `cratis/engineering/react`, `cratis/engineering/typescript` |
-| `cratis/engineering/csharp` | C# engineering conventions | `cratis/engineering/core` |
+| `cratis/engineering/csharp` | C# engineering conventions and framework Orleans jobs (`cratis-orleans-jobs`, alongside `orleans.md`) | `cratis/engineering/core` |
 | `cratis/engineering/go` | Go framework parity and immutable module releases | `cratis/engineering/core`, `cratis/language/go` |
 | `cratis/engineering/typescript` | TypeScript engineering conventions | `cratis/engineering/core` |
 | `cratis/engineering/react` | React engineering conventions | `cratis/engineering/core` |

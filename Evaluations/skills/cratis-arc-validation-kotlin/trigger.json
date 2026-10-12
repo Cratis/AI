@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-arc-validation-kotlin",
+  "queries": [
+    { "query": "Our existing Kotlin Arc CreateTask must reject a blank title on the server and in its generated TypeScript proxy. Which validator shape should we use?", "shouldTrigger": true },
+    { "query": "Add a server-only uniqueness lookup to an existing Java Arc command's validation; it calls a repository and cannot be a literal fluent rule.", "shouldTrigger": true },
+    { "query": "We use Arc.Kotlin and need a QueryValidator rejecting an empty search argument. Is it generic over the read model?", "shouldTrigger": true },
+    { "query": "One ConceptAs title invariant must apply to nested models and arrays in our JVM Arc commands. Where should that rule live?", "shouldTrigger": true },
+    { "query": "In Java Arc, IgnoreValidation is on a record component but it still serializes. Is that expected?", "shouldTrigger": true },
+    { "query": "Our Kotlin FluentModelValidator calls a helper and computes its bound in init; KSP rejects it. What authoring shape is admitted?", "shouldTrigger": true },
+    { "query": "Exclude just one direct concept-valued member from a ConceptValidator in Arc.Kotlin without disabling its other validation.", "shouldTrigger": true },
+    { "query": "Our Java Arc validator's warning does not block execution. Explain the default threshold and TreatWarningsAsErrors.", "shouldTrigger": true },
+    { "query": "Add a feature-scoped Kotlin Arc CommandFilter for billing without accidentally rejecting unrelated commands.", "shouldTrigger": true },
+    { "query": "Can our existing JVM Arc credit-card rejection be emitted as a shared creditCard fluent rule, or is it server-only?", "shouldTrigger": true },
+    { "query": "Define a new Kotlin Arc command and choose its handle return shape; there are no new rejection rules.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Expose a Java Arc ReadModel static query and decide between GET and QUERY.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" },
+    { "query": "Write a CommandScenario demonstrating an existing Kotlin rule actually rejected the input, not a missing dependency.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" },
+    { "query": "Configure authentication handler ordering and tenant claims in our JVM Arc service.", "shouldTrigger": false, "note": "cratis-arc-identity-and-tenancy-kotlin" },
+    { "query": "Wire a Spring Data JPA read model into our Java Arc command by its persistence key.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
+    { "query": "Use the standalone Chronicle.Kotlin client to append a returned event and inspect a constraint violation.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Add a C# CommandValidator so BookBoat rejects an invalid date range.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Add a QueryValidator arguments model to our Node.js Arc for TypeScript server.", "shouldTrigger": false, "note": "cratis-arc-validation-typescript" },
+    { "query": "Prevent concurrent duplicate registrations at Chronicle append time with an event-store constraint, not a JVM command precheck.", "shouldTrigger": false, "note": "append-time constraints, not Arc input validation" },
+    { "query": "Add a Java Chronicle reactor to send a notification after AccountActivated; do not change Arc validation.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" }
+  ]
+}
