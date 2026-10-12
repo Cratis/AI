@@ -77,7 +77,9 @@ second command. Screens remain outside portable ESM execution. A downstream
 renderer must explicitly admit guarded selection or report unsupported behavior,
 not approximate it as a plain action. Checked at historical CLI 3.41.0: its bundled
 screen renderer reported unsupported guarded actions with STAGE-SCENE-ACTION-001; source compilation alone
-cannot establish usable controls.
+cannot establish usable controls. Since Stage 4.65 a guard comparing `item.<field>` with a literal is
+rendered and evaluated at runtime (public CLI 3.53.1 with `cratis/stage:4.73.1`, Cratis/Screenplay#671);
+STAGE-SCENE-ACTION-001 remains for a guard Stage cannot evaluate.
 
 Authority: Screenplay `v4.125.0:Documentation/screenplay/screens.md`;
 CLI `v3.41.0:Documentation/reference/screenplay.md` for renderer disposition.
