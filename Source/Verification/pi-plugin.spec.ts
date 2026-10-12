@@ -39,6 +39,46 @@ test('Pi exposes every catalog skill when configuration is absent', () => {
     }
 });
 
+test('Pi Go selection follows configuration updates and managed install removal without writing project files', () => {
+    for (const customized of [false, true]) {
+        const project = mkdtempSync(join(tmpdir(), 'cratis-pi-go-lifecycle-'));
+        try {
+            mkdirSync(join(project, '.cratis'));
+            const local = '# Repository-owned Go context\n';
+            writeFileSync(join(project, 'README.md'), local);
+            if (customized) {
+                mkdirSync(join(project, '.agents/skills/local'), { recursive: true });
+                writeFileSync(join(project, '.agents/skills/local/SKILL.md'), local);
+            }
+            const configuration = join(project, '.cratis/ai.json');
+            const handlers = pluginHandlers();
+            const discover = () => handlers.get('resources_discover')?.({ cwd: project, systemPrompt: '' }, { cwd: project }) as { skillPaths: string[] } | undefined;
+            for (const [profile, expected, excluded] of [
+                ['cratis/chronicle/client-go', 'cratis-chronicle-client-go', 'cratis-arc-go'],
+                ['cratis/arc/go', 'cratis-arc-go', 'cratis-chronicle-client-go'],
+            ]) {
+                const configured = JSON.stringify({ profiles: ['cratis/engineering/go', profile], languages: ['go'] });
+                writeFileSync(configuration, configured);
+                const first = discover()!;
+                assert.ok(first.skillPaths.some(path => path.endsWith(`/${expected}`)));
+                assert.ok(!first.skillPaths.some(path => path.endsWith(`/${excluded}`)));
+                assert.deepEqual(discover(), first, 'repeat discovery has no side effects');
+                assert.equal(readFileSync(configuration, 'utf8'), configured);
+                writeFileSync(join(project, '.cratis/ai.manifest.json'), '{}');
+                assert.equal(discover(), undefined, 'managed install owns resources');
+                assert.equal(handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }), undefined);
+                rmSync(join(project, '.cratis/ai.manifest.json'));
+                assert.deepEqual(discover(), first, 'removing the managed marker restores package selection');
+            }
+            assert.equal(readFileSync(join(project, 'README.md'), 'utf8'), local);
+            if (customized) assert.equal(readFileSync(join(project, '.agents/skills/local/SKILL.md'), 'utf8'), local);
+            assert.equal(existsSync(join(project, '.cratis/ai')), false, 'Pi discovers package resources; it does not install or uninstall a corpus');
+        } finally {
+            rmSync(project, { recursive: true, force: true });
+        }
+    }
+});
+
 test('managed Pi puts only universal rules in the system prompt', () => {
     const prompt = universalRules(repositoryRoot).map(rule => rule.content).join('\n\n');
     assert.match(prompt, /# Cratis — Project Instructions/);
