@@ -58,13 +58,13 @@ or renderer probes below as results from the newer bundle.
 Caller-supplied collection equality filters shipped in Screenplay **4.143.0**
 (decision 0069), selecting ESM v14; the standalone **4.145.0** pin binds and
 reference-tests them. No-filter models retain their version/bytes/revision.
-The latest released Stage checked for this boundary, **4.79.1**, admits through
+The latest released Stage checked for this boundary, **4.80.0**, admits through
 v13 (`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`,
 `EsmSchemaV13Support`) and refuses authored filters in its legacy renderer
 (`Renderers/QueryAdmission.cs:13-22`); it pins Screenplay 4.141.0. It does not
 admit v14. CLI **3.53.1** still bundles Screenplay **4.137.0** / Stage **4.73.1**,
 whose audited pair ceiling is v10 (`SemanticVersionFeatures.cs:89`). These are
-source checks at Stage `v4.79.1` / `v4.73.1` and CLI `v3.53.1`, not new render
+source checks at Stage `v4.80.0` / `v4.73.1` and CLI `v3.53.1`, not new render
 probes or scaffold dependency upgrades. A future consumer must explicitly admit
 v14 and preserve equality selection rather than drop filters. Complete examples:
 read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).

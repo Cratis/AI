@@ -109,7 +109,7 @@ filters AND with `by`; optional omission does not narrow, supplied null is refus
 reports unknown/repeated/missing required arguments. Collection results match by
 read model/key regardless of row order. The standalone 4.145.0 pin admits this;
 CLI 3.53.1's 4.137.0 compiler does not. Stage 4.73.1 admits through v10 and the
-latest checked Stage 4.79.1 through v13, neither v14. Complete compiled specs:
+latest checked Stage 4.80.0 through v13, neither v14. Complete compiled specs:
 read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
 
 ## Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
