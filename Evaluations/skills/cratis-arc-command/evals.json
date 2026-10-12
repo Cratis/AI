@@ -52,13 +52,14 @@
     {
       "id": 5,
       "name": "refuse-gapless-invoice-generation",
-      "prompt": "We use Arc 22.68.0. Our invoice numbers must be gapless sequential integers across concurrent requests. Add `[GeneratedValue] InvoiceNumber number` to IssueInvoice and implement InvoiceNumber.New() using UUIDv7 or a static counter so Arc guarantees that requirement. If that cannot work, explain why and describe the boundary the allocation must have. Reply only; do not write files.",
-      "expected_output": "Rejects random UUID or static-counter generation as a gapless invoice allocator. GeneratedValue calls the concept strategy but has no atomic storage allocation, collision/freshness guard or idempotency contract; a domain-owned transactional allocator must enforce concurrency and recovery.",
+      "prompt": "We use Arc 22.68.0. Our invoice numbers must be gapless sequential integers across concurrent requests. Add `[GeneratedValue] InvoiceNumber number` to IssueInvoice and implement InvoiceNumber.New() using UUIDv7 or a static counter so Arc guarantees that requirement. If that cannot work, explain why and describe the boundary the allocation must have. At Arc 22.75.0, would plain injected state plus Result<TEvent, ValidationResult> protect a competing append? Describe a safe one-stream guard and a CommandScenario race spec. Reply only; do not write files.",
+      "expected_output": "Rejects random UUID or static-counter generation as a gapless invoice allocator. GeneratedValue calls the concept strategy but has no atomic storage allocation, collision/freshness guard or idempotency contract; a domain-owned transactional allocator must enforce concurrency and recovery. Plain injected state is advisory; IStreamReads/StreamDecision.Append carries exact scopes. UseDecisionReads and routed seeded events/AppendConcurrently prove a nonempty decision conflict, not an empty identical retry.",
       "assertions": [
         "Refuses UUIDv7 and a process-local static counter for gapless sequential invoice numbers.",
         "Distinguishes server-generated identifiers from domain-authoritative business-number allocation.",
         "Explains that GeneratedValue does not guarantee storage freshness, idempotency or gapless numbering.",
-        "Locates concurrency and failure/recovery guarantees in the authoritative allocation boundary rather than inventing a released Arc generation strategy."
+        "Locates concurrency and failure/recovery guarantees in the authoritative allocation boundary rather than inventing a released Arc generation strategy.",
+        "Distinguishes advisory plain injection/Result from IStreamReads/StreamDecision.Append exact scopes and proves a nonempty routed conflict with UseDecisionReads, actual events and AppendConcurrently, not pinned state or an empty identical retry."
       ]
     }
   ]

@@ -9,9 +9,10 @@
 - Extend the failure coverage
 - Migrate an existing service-backed Handle
 
-Verified at **Arc v22.48.1**. These class excerpts follow the product's
-[standalone lesson](https://github.com/Cratis/Arc/blob/v22.48.1/Documentation/backend/csharp/testing/command-operations.md)
-and [Chronicle rejection lesson](https://github.com/Cratis/Arc/blob/v22.48.1/Documentation/backend/csharp/testing/command-operations-with-chronicle.md).
+Rechecked at **Arc v22.75.0**; operation assertions and these lessons are unchanged
+since 22.48.1. These class excerpts follow the product's
+[standalone lesson](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/testing/command-operations.md)
+and [Chronicle rejection lesson](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/testing/command-operations-with-chronicle.md).
 See "Observe and test on the backend" in SKILL.md.
 
 The standalone examples reuse `ReservationId`, `SeatId`, `ISeatReservations`,

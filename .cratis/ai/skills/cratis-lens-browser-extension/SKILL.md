@@ -20,7 +20,7 @@ the developer points it at. Nothing in it is production tooling.
 | Source | Version | Purpose |
 | --- | --- | --- |
 | `Cratis/Lens` `Source/` | manifest `1.0.0`, repository `HEAD` `3ee4882` (the repo has no release tag beyond `v0.0.1`) | The extension itself |
-| `Cratis.Arc.Core` | `22.16.0` | The `/.cratis/*` endpoints, the forwarded-identity contract, and the tenancy header Lens depends on |
+| `Cratis.Arc.Core` | `22.75.0` | The `/.cratis/*` endpoints, the forwarded-identity contract, and the tenancy header Lens depends on |
 
 > Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
 
@@ -73,14 +73,20 @@ middleware, `Program.cs` change, or configuration key exists for "Lens support"
 
 | Route | Mapped by | Lens uses it for |
 | --- | --- | --- |
-| `GET /.cratis/commands` | `MapIntrospectionEndpoints`, `AllowAnonymous` | The Commands tree |
-| `GET /.cratis/queries` | `MapIntrospectionEndpoints`, `AllowAnonymous` | The Queries tree |
-| `GET /.cratis/users` | every `ICanProvideUsers`, `AllowAnonymous` | The importable user roster |
-| `GET /.cratis/tenants` | every `ICanProvideTenants`, `AllowAnonymous` | The importable tenant list |
+| `GET /.cratis/commands` | `MapIntrospectionEndpoints`, discovery access policy | The Commands tree |
+| `GET /.cratis/queries` | `MapIntrospectionEndpoints`, discovery access policy | The Queries tree |
+| `GET /.cratis/users` | every `ICanProvideUsers`, identity discovery policy | The importable user roster |
+| `GET /.cratis/tenants` | every `ICanProvideTenants`, identity discovery policy | The importable tenant list |
 | `GET /.cratis/identity-details/schema` | the identity endpoint mapper | The schema-driven editor for a user's `identityDetails` |
 
-`MapIntrospectionEndpoints` is called from Arc's own application startup, so the
-two introspection routes exist without being asked for. The user and tenant
+At Arc v22.75.0 discovery is anonymous by default **only in Development**.
+Against a deployed host Lens needs the user signed in; hosts unable to authenticate
+omit those routes (404). `Introspection.Enabled` controls catalogs and
+`IdentityDiscovery` the roster/tenant/schema routes. Forwarded identity switching
+also needs the explicit host-wide `TrustForwardedIdentityHeaders` opt-in, only
+behind a header-stripping ingress. Source:
+[secure defaults](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/upgrading/secure-defaults.mdx).
+`MapIntrospectionEndpoints` runs during Arc activation, subject to these settings. The user and tenant
 routes return whatever the application implements — with **no implementation
 registered they return an empty list**, and Lens treats a `404` on either as
 "empty", not "broken". Users and tenants can also be created by hand in Lens's
@@ -157,10 +163,11 @@ Pick both on the **Context** tab. Two things then happen, in this order:
 2. It deletes the Arc identity cookie `.cratis-identity` on the detected base URL
    and page origins, then reloads every open tab on those origins.
 
-Step 2 is the one that matters. Headers alone do not change who you are once Arc
-has issued its identity cookie; the application keeps presenting the identity it
-was first given. Dropping the cookie and reloading is what makes the switch take
-effect.
+At Arc v22.75.0 the backend neither reads nor writes that legacy identity
+cookie. Lens still deletes it for older hosts; reloading clears the frontend's
+in-memory identity and asks `/.cratis/me` again. Header-based switching requires
+the host-wide trust opt-in and a suitable development/ingress boundary; the
+extension cannot turn unsigned headers into authenticated credentials.
 
 The rules are scoped, deliberately. When a page origin is known the condition is
 `{ urlFilter: '*', initiatorDomains: [<page host>] }`; otherwise it is

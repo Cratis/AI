@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-arc-query-paging",
+  "queries": [
+    { "query": "Add server-side paging to our growable Arc list query.", "shouldTrigger": true },
+    { "query": "What query-string keys and values does Arc use for page and sort?", "shouldTrigger": true },
+    { "query": "Why does GET pageSize zero fail on Arc 22.75.0?", "shouldTrigger": true },
+    { "query": "Does sortDirection descending work, and what happens with an unknown direction?", "shouldTrigger": true },
+    { "query": "Explain the useWithPaging tuple difference for plain and observable queries.", "shouldTrigger": true },
+    { "query": "Our query loads every row then returns AsQueryable. Does paging bound the DB cost?", "shouldTrigger": true },
+    { "query": "How do we keep MongoDB observable pages stable on duplicate sort values?", "shouldTrigger": true },
+    { "query": "A composed observable query has auxiliary collections. Who owns client paging and totalItems?", "shouldTrigger": true },
+    { "query": "Create a Chronicle read model and its first query.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Inspect an observable query with curl and SSE.", "shouldTrigger": false, "note": "cratis-arc-observable-query-http" },
+    { "query": "Review the whole application's scalability risks.", "shouldTrigger": false, "note": "cratis-performance-review" },
+    { "query": "Add a new property to the projection from an event.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Create an EF migration for the read model table.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },
+    { "query": "Wire a command dialog into the React page.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Declare a query in an Arc for TypeScript Node server.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Declare a static query in Kotlin Arc.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" }
+  ]
+}

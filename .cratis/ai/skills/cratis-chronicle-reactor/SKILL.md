@@ -320,14 +320,17 @@ public class <ReactorName> : IReactor
 }
 ```
 
-A reactor runs with **no principal**; `[ExecuteCommandsAsSystem]` (class-level,
-`Cratis.Arc.Chronicle.Reactors`) supplies one for the **returned** commands only.
-A collection return is executed as commands when every element is a command. A stable collection mixing registered events and commands (Arc 22.72.0+; Arc 22.68.0's handler needs every element to be a command) appends the events
-first as one batch, then runs the commands in order, with no transaction across them; a retry can
-repeat both. `[ExecuteCommandsAsSystem]` covers only the commands.
-A reactor retry can execute the command's operations again; inline operations
-are not a substitute for reactor/outbox durability (see
-`cratis-arc-command-operation`, verified at Arc v22.48.1).
+A reactor has **no principal**; class-level `[ExecuteCommandsAsSystem]`
+(`Cratis.Arc.Chronicle.Reactors`) supplies one for **returned** commands only.
+Arc 22.68.0's handler needs every element to be a command. At v22.75.0 a stable
+collection may mix registered events/wrappers and commands: events append first,
+then commands run in order. Append rejection prevents commands; the first failed
+command stops the rest, leaving earlier effects committed. Retries need
+idempotency. The actor no longer leaks to the caller. Return `CompleteStream`
+directly, not mixed with events. See `cratis-arc-command-execution` and
+`cratis-arc-command-operation` for limits/recovery. Sources at Arc v22.75.0:
+`Source/DotNET/Chronicle/Reactors/EventsAndCommandsResultHandler.cs` and
+`CommandSideEffectExecutor.cs`.
 
 The imperative form — inject `ICommandPipeline` (`Cratis.Arc.Commands`) and call
 `Execute(command)` — is still supported and is the subject of the

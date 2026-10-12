@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-arc-hosting",
+  "evals": [
+    {
+      "id": 1,
+      "name": "choose-arc-without-event-store",
+      "prompt": "We are building an ASP.NET .NET app on Arc 22.75.0 with EF Core but no event sourcing. Should we use AddCratis? Explain the bootstrap and activation choice without adding dependencies or writing files.",
+      "expected_output": "Use AddCratisArc and UseCratisArc with the EF integration, not AddCratis's Chronicle/header-scheme composition. Chronicle is optional and its client never runs the server engine in-process.",
+      "assertions": [
+        "Chooses AddCratisArc/UseCratisArc rather than requiring Chronicle.",
+        "Distinguishes ArcOptions from configureBuilder and names WithEntityFrameworkCore as the optional integration.",
+        "Does not invent an in-process Chronicle engine or automatic credential validation."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "publish-without-mvc",
+      "prompt": "At Arc 22.75.0 we called WithoutControllers and now want NativeAOT. Is that sufficient? Explain the controller and JSON metadata boundaries and the checks we must run. Reply only.",
+      "expected_output": "Runtime WithoutControllers alone cannot remove MVC for trimming. Set CratisArcControllersSupport false, supply application JSON metadata through AddJsonTypeInfoResolver including typed CommandResult responses, and run the actual published binary.",
+      "assertions": [
+        "Distinguishes runtime WithoutControllers from the CratisArcControllersSupport MSBuild feature switch.",
+        "Keeps model-bound commands and queries while refusing controller endpoints/MapControllers.",
+        "Names ArcOptions.AddJsonTypeInfoResolver and application CommandResult<TResponse> metadata.",
+        "Does not claim all dependencies become NativeAOT-safe merely by disabling MVC; requires a published-binary check."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "do-not-open-deployed-diagnostics",
+      "prompt": "Our Arc 22.75.0 Production host has no login configured. Lens discovery returns 404. Can we set RequireAuthentication=false, trust x-ms headers and enable the event model viewer to fix it? Reply only; do not change anything.",
+      "expected_output": "404 follows secure discovery defaults when authentication is unavailable. Anonymous discovery and unsigned-header trust are consequential exposure choices, not a safe troubleshooting fix. The viewer defaults to Debug and Development but explicit Enabled overrides that default.",
+      "assertions": [
+        "Explains discovery is anonymous by default only in Development and omitted outside it when authentication cannot be enforced.",
+        "Warns explicit RequireAuthentication false opens discovery everywhere; Enabled and IdentityDiscovery govern separate surfaces.",
+        "Permits forwarded-header trust only behind an authenticating header-stripping ingress preventing direct access.",
+        "Explains viewer Enabled true overrides its Debug-and-Development default rather than claiming Production can never map it."
+      ]
+    }
+  ]
+}

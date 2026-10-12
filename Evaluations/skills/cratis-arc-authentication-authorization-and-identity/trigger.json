@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-arc-authentication-authorization-and-identity",
+  "queries": [
+    { "query": "Arc ignores our x-ms-client-principal headers. What trust setting is required?", "shouldTrigger": true },
+    { "query": "Migrate our frontend from reading .cratis-identity to the current identity API.", "shouldTrigger": true },
+    { "query": "How do I implement IProvideIdentityDetails for our Arc app?", "shouldTrigger": true },
+    { "query": "Protect command and query endpoints with Arc roles and named policies.", "shouldTrigger": true },
+    { "query": "A deployed Arc host returns 404 for users and commands discovery. Explain the secure defaults.", "shouldTrigger": true },
+    { "query": "Should our observable query emission guard read IHttpContextAccessor or the supplied principal?", "shouldTrigger": true },
+    { "query": "Does a method-level guest policy keep the read model's type-level Admin role?", "shouldTrigger": true },
+    { "query": "Choose a tenant resolver for an Arc .NET app and reject unresolved tenants where required.", "shouldTrigger": true },
+    { "query": "Build an Arc host with NativeAOT and no controllers.", "shouldTrigger": false, "note": "cratis-arc-hosting" },
+    { "query": "Define a new command record and its event return shape.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Reject an invalid date range in an existing command.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Enforce append-time uniqueness for registrations.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Specify tenant namespace isolation in a standalone Chronicle client.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Audit this diff for security regressions, without implementing changes.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Build a React page listing booking data.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Mark personal event data for right-to-erasure.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" }
+  ]
+}

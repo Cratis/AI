@@ -1,6 +1,18 @@
 # Injecting a read model into a command
 
-Verified against `Cratis.Arc.Core` `22.16.0` and `Cratis.Chronicle` `18.3.0`.
+## Contents
+
+- Nullability is the required/optional switch
+- `null` is not always what absence looks like
+- Which provider owns a read model type
+
+Arc injection verified at **v22.75.0**, with Chronicle dependency 19.39.1;
+separate Chronicle absence behavior below retains its original version context.
+Source: [read models in commands](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md).
+Plain models and keyed reads are advisory, not concurrency guards. For protected
+reads use [decisions and routing](decisions-and-routing.md): opt into
+`[ProtectedDecision]` before taking `DecisionRead<T>`; constructor-injected
+validators are refused there.
 
 A read model can be injected into a `CommandValidator<T>` constructor, into
 `Provide()`, or into `Handle()`. Arc resolves it through an

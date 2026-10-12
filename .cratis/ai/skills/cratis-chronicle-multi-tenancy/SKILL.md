@@ -39,6 +39,14 @@ Reverify product sources before claiming support for another version.
 implicit conversion from `string`, a `Default` value of `"Default"`, and a
 `NotSet` value.
 
+For Arc .NET v22.75.0, there is no tenant-required configuration switch.
+An unresolved header/query tenant is `TenantId.NotSet`; Arc's
+`TenantNamespaceResolver` maps `IsDefault` (`NotSet` or `Default`) to Chronicle's
+default namespace. Refuse unresolved tenants in application authorization where
+required, not through an invented switch. Sources at Arc v22.75.0:
+`Source/DotNET/Arc.Core/Tenancy/TenancyOptions.cs` and
+`Source/DotNET/Chronicle/Tenancy/TenantNamespaceResolver.cs`.
+
 ## What a namespace actually isolates
 
 Verified against the storage naming and the grain keys, not inferred:
