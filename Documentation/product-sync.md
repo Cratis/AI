@@ -10,6 +10,22 @@ They are inventory baselines, not a promise that every newer API exists at that
 version. Initial dates record when the inventory was captured; notes preserve
 that distinction. `synced: null` means no released sync baseline is established.
 
+## Decide coverage
+
+`coverage` is optional and defaults to `"tracked"`. Tracked products participate
+in release comparisons, even when their first coverage is still being added.
+If both `covers.skills` and `covers.rules` are empty, `synced` must be null and
+`notes` must say **"Coverage is planned"** ("Coverage planned" also works).
+Add the real coverage targets when that work lands; do not invent a sync version.
+Architecture's planned coverage is analyzer guidance in `rules/csharp.md`.
+
+Use `"coverage": "not-covered"` only for a deliberate decision not to teach the
+product in this corpus. It requires a non-empty `notes` reason, empty skill and
+rule coverage, and `synced: null`. These products are listed under **Not covered
+(by decision)**, with their reasons, instead of appearing as permanent drift.
+Verification enforces these coupled fields; an excluded product cannot satisfy
+a verified-source skill's coverage requirement.
+
 ## Sync a product
 
 1. Read the product's releases since `synced.version`. If it is null, establish
@@ -39,22 +55,26 @@ yarn workspace @cratis/ai-verification run drift
 yarn workspace @cratis/ai-verification run drift --json
 ```
 
-The report compares each floor with GitHub's latest non-prerelease release. For
-an accessible repository with no releases, it compares the default-branch
-commit. A never-synced product always needs attention. Release counts come from
+The report compares each tracked floor with GitHub's latest non-prerelease
+release. Decided not-covered products do not trigger release lookups and never
+count as drift; the JSON report lists them in `notCovered`, separately from
+`rows` and the compared `products` count. For an accessible tracked repository
+with no releases, it compares the default-branch commit. A never-synced tracked
+product, including one whose coverage is planned, always needs attention. Release counts come from
 one page of up to 100 releases; `unknown` means the endpoints could not both be
 counted, not that no releases intervened. The report lists covered skills.
 
 | Exit | Meaning |
 | --- | --- |
-| `0` | All products were read and none has drifted. |
-| `1` | All products were read and at least one has drifted. |
+| `0` | All tracked products were read and none has drifted, or all products are deliberately not covered. |
+| `1` | All tracked products were read and at least one has drifted. |
 | `2` | The report could not run completely: invalid ledger, missing CLI, authentication, network, or response failure. |
 
 `drift --self-test` checks planted violations without network access.
 
 The weekly **Product drift** workflow (also available through
 `workflow_dispatch`) creates or updates one open issue titled **AI corpus
-product drift**, labelled `product-drift`, with the report table. When drift
-reaches zero, it comments and closes that issue. Unreadable products fail the
-job; they never close the issue as if the corpus were current.
+product drift**, labelled `product-drift`, with the report table and the same
+**Not covered (by decision)** section. When tracked drift reaches zero, it
+refreshes the body, comments, and closes that issue. Unreadable tracked products
+fail the job; they never close the issue as if the corpus were current.

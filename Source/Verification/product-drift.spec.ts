@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { compareProduct, driftExitCode, driftReport, driftTable, type Release } from './product-drift.ts';
+import { compareProduct, driftExitCode, driftReport, driftTable, reportProducts, type Release } from './product-drift.ts';
 import { latestProduct, type Github } from './product-github.ts';
 import type { Product } from './product-sync.ts';
 
@@ -39,6 +39,35 @@ test('unreleased products compare the recorded default-branch commit', () => {
     assert.equal(compareProduct(main, { version: 'main@abcdef2' }).drift, true);
 });
 test('zero products refuse rather than pass vacuously', () => assert.throws(() => driftReport([]), /Zero products/));
+const excluded: Product = { ...product, id: 'direct', name: 'Direct', repository: 'Cratis/Direct', coverage: 'not-covered', synced: null, covers: { skills: [], rules: [] }, notes: 'Product-specific guidance is outside the corpus.' };
+test('not-covered products are listed separately without release lookups or drift', () => {
+    const lookedUp: string[] = [];
+    const report = reportProducts([product, excluded], candidate => { lookedUp.push(candidate.id); return { version: '1.0.0' }; });
+    assert.deepEqual(lookedUp, ['arc']);
+    assert.equal(report.products, 1);
+    assert.equal(report.drifted, 0);
+    assert.equal(driftExitCode(report), 0);
+    assert.equal(report.rows.length, 1);
+    assert.deepEqual(report.notCovered, [{ id: excluded.id, product: excluded.name, repository: excluded.repository, reason: excluded.notes }]);
+    assert.match(driftTable(report), /## Not covered \(by decision\)\n\n- Direct: Product-specific/);
+    assert.ok(!driftTable(report).includes('| Direct |'));
+    assert.throws(() => compareProduct(excluded, { version: '2.0.0' }), /must not be compared/);
+});
+test('an entirely excluded ledger is a decided zero-drift report, not an empty scan', () => {
+    const report = reportProducts([excluded], () => { throw new Error('No release lookup allowed'); });
+    assert.equal(report.products, 0);
+    assert.equal(report.notCovered.length, 1);
+    assert.equal(driftExitCode(report), 0);
+    assert.throws(() => reportProducts([], () => ({ version: '1.0.0' })), /Zero products/);
+});
+test('planned empty coverage remains tracked and never-synced drift', () => {
+    const report = reportProducts([{ ...product, coverage: 'tracked', synced: null, covers: { skills: [], rules: [] }, notes: 'Coverage is planned.' }], () => ({ version: '1.0.0' }));
+    assert.equal(report.drifted, 1);
+    assert.deepEqual(report.notCovered, []);
+});
+test('tracked lookup failures still fail even if other products are excluded', () => {
+    assert.throws(() => reportProducts([excluded, product], () => { throw new Error('HTTP 503'); }), /503/);
+});
 test('the table escapes product and skill names', () => {
     const table = driftTable(driftReport([compareProduct({ ...product, name: 'Arc|other\nline' }, { version: '1.0.0' })]));
     assert.ok(table.includes('Arc\\|other line'));

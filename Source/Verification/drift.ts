@@ -3,7 +3,7 @@
 
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { compareProduct, driftExitCode, driftReport, driftTable } from './product-drift.ts';
+import { driftExitCode, driftTable, reportProducts } from './product-drift.ts';
 import { github, latestProduct } from './product-github.ts';
 import { loadProductSync, productSyncProblems, type ProductLedger } from './product-sync.ts';
 import { productSyncSelfTest } from './product-sync-self-test.ts';
@@ -18,7 +18,7 @@ try {
     if (values['self-test']) {
         console.log(`Product drift self-test: ${productSyncSelfTest()} planted violations detected.`);
     } else {
-        const report = driftReport(ledger.products.map(product => compareProduct(product, latestProduct(product, github))));
+        const report = reportProducts(ledger.products, product => latestProduct(product, github));
         console.log(values.json ? JSON.stringify(report, null, 2) : driftTable(report));
         process.exitCode = driftExitCode(report);
     }

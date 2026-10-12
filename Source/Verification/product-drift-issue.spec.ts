@@ -54,7 +54,24 @@ test('duplicate issues and changed targets refuse all mutations', () => {
     assert.equal(changed.calls.length, 2);
 });
 test('invalid counts refuse before GitHub access', () => {
-    assert.throws(() => reconcileProductDrift(() => { throw new Error('should not call'); }, 'Cratis/AI', { products: 0, drifted: 0, rows: [] }), /Invalid product drift counts/);
+    assert.throws(() => reconcileProductDrift(() => { throw new Error('should not call'); }, 'Cratis/AI', { products: 0, drifted: 0, rows: [], notCovered: [] }), /Invalid product drift counts/);
+});
+const notCovered = [{ id: 'direct', product: 'Direct', repository: 'Cratis/Direct', reason: 'Excluded by decision.' }];
+test('the drift issue body includes the separate exclusions section', () => {
+    const { calls, gh } = fixture([]);
+    reconcileProductDrift(gh, 'Cratis/AI', driftReport([row], notCovered));
+    const body = calls.find(call => call.args[0] === 'issue' && call.args[1] === 'create')!.input!;
+    assert.match(body, /## Not covered \(by decision\)\n\n- Direct: Excluded by decision/);
+    assert.ok(!body.includes('| Direct |'));
+});
+test('zero-drift reconciliation refreshes the issue body with exclusions before closing', () => {
+    const { calls, gh } = fixture([{ number: 1, title: 'AI corpus product drift' }]);
+    reconcileProductDrift(gh, 'Cratis/AI', driftReport([], notCovered));
+    const edit = calls.findIndex(call => call.args[1] === 'edit');
+    const close = calls.findIndex(call => call.args[1] === 'close');
+    assert.ok(edit >= 0 && close > edit);
+    assert.match(calls[edit].input!, /Not covered \(by decision\)/);
+    assert.ok(calls[close].args.some(argument => argument.includes('0 tracked products compared')));
 });
 test('GitHub mutation failures propagate', () => {
     const { gh } = fixture([]);

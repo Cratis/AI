@@ -15,11 +15,13 @@ export interface DriftRow {
     skills: string[];
     drift: boolean;
 }
-export interface DriftReport { products: number; drifted: number; rows: DriftRow[] }
+export interface NotCoveredProduct { id: string; product: string; repository: string; reason: string }
+export interface DriftReport { products: number; drifted: number; rows: DriftRow[]; notCovered: NotCoveredProduct[] }
 export const releaseVersion = (tag: string) => tag.replace(/^v/, '');
 
 /** A bounded release page proves a count only if it contains both endpoints. No semver arithmetic guesses. */
 export function compareProduct(product: Product, latest: ProductLatest): DriftRow {
+    if (product.coverage === 'not-covered') throw new Error(`Not-covered product '${product.id}' must not be compared.`);
     const synced = product.synced?.version ?? null;
     const version = releaseVersion(latest.version);
     const drift = synced !== version;
@@ -32,9 +34,22 @@ export function compareProduct(product: Product, latest: ProductLatest): DriftRo
     }
     return { id: product.id, product: product.name, repository: product.repository, synced, latest: version, releasesBehind, skills: product.covers.skills, drift };
 }
-export function driftReport(rows: DriftRow[]): DriftReport {
-    if (rows.length === 0) throw new Error('Zero products were compared; the report would pass vacuously.');
-    return { products: rows.length, drifted: rows.filter(row => row.drift).length, rows };
+export function driftReport(rows: DriftRow[], notCovered: NotCoveredProduct[] = []): DriftReport {
+    if (rows.length + notCovered.length === 0) throw new Error('Zero products were considered; the report would pass vacuously.');
+    return { products: rows.length, drifted: rows.filter(row => row.drift).length, rows, notCovered };
+}
+
+/** Decided exclusions never reach the release lookup, including when every product is excluded. */
+export function reportProducts(products: Product[], latestFor: (product: Product) => ProductLatest): DriftReport {
+    const rows: DriftRow[] = [];
+    const notCovered: NotCoveredProduct[] = [];
+    for (const product of products) {
+        if (product.coverage === 'not-covered') {
+            if (!product.notes?.trim()) throw new Error(`Not-covered product '${product.id}' needs a reason.`);
+            notCovered.push({ id: product.id, product: product.name, repository: product.repository, reason: product.notes });
+        } else rows.push(compareProduct(product, latestFor(product)));
+    }
+    return driftReport(rows, notCovered);
 }
 export function driftExitCode(report: DriftReport): 0 | 1 { return report.drifted > 0 ? 1 : 0; }
 const cell = (value: string) => value.replaceAll('|', '\\|').replace(/[\r\n]/g, ' ');
@@ -44,5 +59,6 @@ export function driftTable(report: DriftReport): string {
         '| Product | Synced | Latest | Releases behind | Covered skills |',
         '| --- | --- | --- | --- | --- |',
         ...report.rows.map(row => `| ${cell(row.product)} | ${row.synced ?? 'never synced'} | ${cell(row.latest)} | ${row.releasesBehind ?? 'unknown'} | ${row.skills.map(cell).join(', ') || 'none'} |`),
+        ...(report.notCovered.length ? ['', '## Not covered (by decision)', '', ...report.notCovered.map(product => `- ${cell(product.product)}: ${cell(product.reason)}`)] : []),
     ].join('\n');
 }

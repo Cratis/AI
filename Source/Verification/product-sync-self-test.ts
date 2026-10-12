@@ -25,6 +25,11 @@ export function productSyncSelfTest(): number {
         { plant: value => { value.products[0].synced!.version = 'v1.0.0'; }, diagnostic: 'invalid synced version' },
         { plant: value => { value.products[0].synced!.date = '2024-02-30'; }, diagnostic: 'non-future synced date' },
         { plant: value => { value.products[0].synced!.date = '2024-03-01'; }, diagnostic: 'non-future synced date' },
+        { plant: value => { Object.assign(value.products[0], { coverage: 'ignored' }); }, diagnostic: 'invalid coverage' },
+        { plant: value => { value.products[0].coverage = 'not-covered'; }, diagnostic: 'notes reason' },
+        { plant: value => { value.products[0].coverage = 'not-covered'; value.products[0].notes = 'Excluded by decision.'; }, diagnostic: 'empty covers' },
+        { plant: value => { value.products[0].coverage = 'not-covered'; value.products[0].notes = 'Excluded by decision.'; value.products[0].covers = { skills: [], rules: [] }; }, diagnostic: 'null synced' },
+        { plant: value => { value.products[0].covers = { skills: [], rules: [] }; value.products[0].synced = null; }, diagnostic: 'coverage is planned' },
     ];
     for (const { plant, diagnostic } of cases) {
         const planted = structuredClone(ledger);

@@ -12,6 +12,7 @@ export interface Product {
     synced: { version: string; date: string; by: string } | null;
     covers: { skills: string[]; rules: string[] };
     notes?: string;
+    coverage?: 'tracked' | 'not-covered';
 }
 export interface ProductLedger { schemaVersion: '1.0.0'; products: Product[] }
 export interface ProductSources { skills: string[]; rules: string[]; verifiedSkills: string[] }
@@ -47,7 +48,7 @@ export function productSyncProblems(document: unknown, sources: ProductSources, 
     const repositories = new Set<string>();
     for (const [index, product] of document.products.entries()) {
         const subject = `product-sync.json products[${index}]`;
-        if (!object(product) || !fields(product, ['id', 'name', 'repository', 'packages', 'synced', 'covers'], ['notes'])) {
+        if (!object(product) || !fields(product, ['id', 'name', 'repository', 'packages', 'synced', 'covers'], ['notes', 'coverage'])) {
             problems.push(`${subject} has an invalid product shape.`);
             continue;
         }
@@ -55,6 +56,7 @@ export function productSyncProblems(document: unknown, sources: ProductSources, 
         else if (ids.has(product.id)) problems.push(`${subject} duplicates id '${product.id}'.`);
         else ids.add(product.id);
         if (!text(product.name) || (product.notes !== undefined && !text(product.notes))) problems.push(`${subject} has an invalid name or notes.`);
+        if (product.coverage !== undefined && product.coverage !== 'tracked' && product.coverage !== 'not-covered') problems.push(`${subject} has invalid coverage; use tracked or not-covered.`);
         if (!text(product.repository) || !/^Cratis\/[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(product.repository)) problems.push(`${subject} needs a Cratis repository.`);
         else if (repositories.has(product.repository.toLowerCase())) problems.push(`${subject} duplicates repository '${product.repository}'.`);
         else repositories.add(product.repository.toLowerCase());
@@ -71,6 +73,14 @@ export function productSyncProblems(document: unknown, sources: ProductSources, 
             problems.push(`${subject} has invalid covers.`);
             continue;
         }
+        const emptyCovers = product.covers.skills.length === 0 && product.covers.rules.length === 0;
+        if (product.coverage === 'not-covered') {
+            if (!text(product.notes)) problems.push(`${subject} not-covered requires a notes reason.`);
+            if (!emptyCovers) problems.push(`${subject} not-covered requires empty covers.`);
+            if (product.synced !== null) problems.push(`${subject} not-covered requires null synced.`);
+            continue;
+        }
+        if (emptyCovers && (product.synced !== null || !text(product.notes) || !/\bcoverage (?:is )?planned\b/i.test(product.notes))) problems.push(`${subject} tracked with empty covers requires null synced and notes stating coverage is planned.`);
         for (const skill of product.covers.skills) {
             skills.add(skill);
             if (!kebab.test(skill) || !sources.skills.includes(skill)) problems.push(`${subject} covers missing skill '${skill}'.`);

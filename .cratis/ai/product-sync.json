@@ -106,7 +106,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "not-covered",
+      "notes": "The corpus repository itself is not a product whose user APIs this corpus teaches."
     },
     {
       "id": "cli",
@@ -208,7 +209,8 @@
         ],
         "rules": []
       },
-      "notes": "The Stage scaffold carries a dependency pin, not direct Scene skill verification. No released sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch. The Stage scaffold carries a dependency pin, not direct Scene skill verification; no released sync baseline is established."
     },
     {
       "id": "orleans",
@@ -220,7 +222,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "keldakraft",
@@ -232,7 +235,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no KeldaKraft-specific shared-corpus guidance."
     },
     {
       "id": "direct",
@@ -244,7 +248,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no Direct-specific shared-corpus guidance."
     },
     {
       "id": "chronicle",
@@ -304,7 +309,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "templates",
@@ -316,7 +322,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "fundamentals",
@@ -392,7 +399,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "ante",
@@ -404,7 +412,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no Ante-specific shared-corpus guidance."
     },
     {
       "id": "chronicle-mcp",
@@ -430,7 +439,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "chronicle-typescript",
@@ -465,7 +475,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "screenplay-generation",
@@ -477,7 +488,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "chronicle-elixir",
@@ -512,7 +524,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "fundamentals-go",
@@ -524,7 +537,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "chronicle-kotlin",
@@ -584,7 +598,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no Prompter-specific shared-corpus guidance."
     },
     {
       "id": "eventmodelers-build-kit-kotlin",
@@ -596,7 +611,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no shared-corpus guidance for the Eventmodelers build kits."
     },
     {
       "id": "eventmodelers-build-kit-java",
@@ -608,7 +624,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no shared-corpus guidance for the Eventmodelers build kits."
     },
     {
       "id": "synopsis",
@@ -620,7 +637,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "specifications",
@@ -661,7 +679,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "ai-distribution",
@@ -673,7 +692,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned and being added in a parallel branch; no corpus sync baseline is established."
     },
     {
       "id": "prologue",
@@ -717,7 +737,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "tracked",
+      "notes": "Coverage is planned via analyzer guidance in rules/csharp.md; no corpus sync baseline is established."
     },
     {
       "id": "dockerfiles",
@@ -729,7 +750,8 @@
         "skills": [],
         "rules": []
       },
-      "notes": "No covering skill states an exact verified release; no corpus sync baseline is established."
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no Dockerfiles-specific shared-corpus guidance."
     },
     {
       "id": "arc-typescript",

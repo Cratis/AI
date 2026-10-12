@@ -11,7 +11,7 @@ const exampleLedger = (): ProductLedger => ({ schemaVersion: '1.0.0', products: 
 const sources: ProductSources = { skills: ['cratis-arc-command'], rules: ['csharp.md'], verifiedSkills: ['cratis-arc-command'] };
 const check = (document: unknown) => productSyncProblems(document, sources, '2026-10-12');
 
-test('the self-test detects every planted violation', () => assert.equal(productSyncSelfTest(), 12));
+test('the self-test detects every planted violation', () => assert.equal(productSyncSelfTest(), 17));
 
 test('a valid ledger prints nonzero product and reference counts', () => {
     const report = check(exampleLedger());
@@ -24,6 +24,7 @@ test('invalid schema shapes and zero products fail', () => {
 test('all product fields are validated rather than trusting a TypeScript cast', () => {
     const cases: Array<[string, unknown, RegExp]> = [
         ['id', 'Arc', /kebab-case/], ['name', '', /invalid name/], ['repository', 'other/Arc', /Cratis repository/],
+        ['coverage', 'ignored', /invalid coverage/], ['coverage', null, /invalid coverage/],
         ['packages', [{ ecosystem: 'unknown', id: 'package' }], /invalid packages/], ['packages', [{ ecosystem: 'npm', id: '' }], /invalid packages/],
         ['covers', { skills: null, rules: [] }, /invalid covers/], ['synced', {}, /invalid synced shape/], ['notes', 123, /invalid name or notes/],
     ];
@@ -72,10 +73,44 @@ test('release versions omit v and allow main commit floors, but not ranges or pl
         assert.deepEqual(check(ledger).problems, []);
     }
 });
-test('never-synced products and empty package and coverage arrays are supported', () => {
+test('tracked products with empty coverage require a planned-coverage note and null sync', () => {
     const ledger = exampleLedger();
-    ledger.products.push({ id: 'stage', name: 'Stage', repository: 'Cratis/Stage', packages: [], synced: null, covers: { skills: [], rules: [] } });
+    const planned = { id: 'stage', name: 'Stage', repository: 'Cratis/Stage', packages: [], synced: null, covers: { skills: [], rules: [] }, notes: 'Coverage is planned in another branch.' };
+    ledger.products.push(planned);
     assert.deepEqual(check(ledger).problems, []);
+    Object.assign(planned, { coverage: 'tracked' });
+    assert.deepEqual(check(ledger).problems, []);
+    for (const notes of [undefined, '', 'Coverage is not planned.', 'No covering skill states a version.']) {
+        Object.assign(planned, { notes });
+        assert.match(check(ledger).problems.join('\n'), /tracked with empty covers/);
+    }
+    Object.assign(planned, { notes: 'Coverage is planned.', synced: ledger.products[0].synced });
+    assert.match(check(ledger).problems.join('\n'), /tracked with empty covers/);
+});
+test('not-covered products require a reason, empty covers and null sync', () => {
+    const ledger = exampleLedger();
+    const excluded: ProductLedger['products'][number] = { id: 'direct', name: 'Direct', repository: 'Cratis/Direct', packages: [], coverage: 'not-covered', synced: null, covers: { skills: [], rules: [] }, notes: 'Product-specific guidance is deliberately outside this corpus.' };
+    ledger.products.push(excluded);
+    assert.deepEqual(check(ledger).problems, []);
+    for (const notes of [undefined, '', '   ']) {
+        excluded.notes = notes;
+        assert.match(check(ledger).problems.join('\n'), /not-covered requires a notes reason/);
+    }
+    excluded.notes = 'Excluded by decision.';
+    excluded.covers.skills = ['cratis-arc-command'];
+    assert.match(check(ledger).problems.join('\n'), /not-covered requires empty covers/);
+    excluded.covers = { skills: [], rules: ['csharp.md'] };
+    assert.match(check(ledger).problems.join('\n'), /not-covered requires empty covers/);
+    excluded.covers.rules = [];
+    excluded.synced = ledger.products[0].synced;
+    assert.match(check(ledger).problems.join('\n'), /not-covered requires null synced/);
+});
+test('an excluded product cannot satisfy verified-source skill coverage', () => {
+    const ledger = exampleLedger();
+    ledger.products[0].coverage = 'not-covered';
+    ledger.products[0].notes = 'Excluded by decision.';
+    ledger.products[0].synced = null;
+    assert.match(check(ledger).problems.join('\n'), /not covered by any product/);
 });
 test('sync provenance needs an issue or PR reference', () => {
     const ledger = exampleLedger();
@@ -88,4 +123,13 @@ test('the actual ledger covers every verified-source skill and all targets exist
     assert.ok(report.products >= 38);
     assert.ok(report.verifiedSkills > 0);
     assert.deepEqual(report.problems, []);
+    const products = (document as ProductLedger).products;
+    assert.deepEqual(products.filter(product => product.coverage === 'not-covered').map(product => product.name).sort(), ['AI', 'Ante', 'Direct', 'Dockerfiles', 'Eventmodelers-Build-Kit-Java', 'Eventmodelers-Build-Kit-Kotlin', 'KeldaKraft', 'Prompter']);
+    for (const name of ['Arc.Go', 'Chronicle.Go', 'Fundamentals.Go', 'Templates', 'AuthProxy', 'release-action', 'Synopsis', 'Narrator', 'Orleans', 'Scene', 'Screenplay.Generation', 'Screenplay.CritterStack', 'AI.Distribution', 'Architecture']) {
+        const product = products.find(product => product.name === name)!;
+        assert.equal(product.coverage, 'tracked');
+        assert.equal(product.synced, null);
+        assert.match(product.notes!, /Coverage is planned/);
+    }
+    assert.match(products.find(product => product.name === 'Architecture')!.notes!, /rules\/csharp.md/);
 });
