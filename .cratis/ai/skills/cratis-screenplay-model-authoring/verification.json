@@ -4,9 +4,11 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "weakensAssertion: true", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "property.generations", "file": "references/property-links.md" },
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.139.0"
+      "value": "Screenplay v4.141.0"
     },
     {
       "kind": "skill-contains",

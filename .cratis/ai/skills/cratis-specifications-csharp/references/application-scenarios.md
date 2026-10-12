@@ -90,6 +90,13 @@ from `Cratis.Arc.Chronicle.Testing`.
   pass against a read-model shape the projection never produces.
 - **Validator and `Provide()` dependencies** are registered in
   `_scenario.Services`; the concrete validator is discovered automatically.
+- **Caller setup (Arc 22.75.1+, re-verified at 22.76.0):** register a substituted
+  `ICurrentPrincipalAccessor`, `ICurrentPrincipalOverride` or
+  `IAuthorizationPolicyRuntime` in `Services` before first execution. The scenario
+  preserves these registrations instead of replacing them with Arc defaults,
+  so role/policy success and denial specs run as the caller you supplied.
+  Source: `Testing/ScenarioServices.cs` and `Testing/Commands/CommandScenario.cs`
+  under `Source/DotNET/`.
 
 ### Pin generated values
 

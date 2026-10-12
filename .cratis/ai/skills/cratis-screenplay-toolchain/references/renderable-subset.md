@@ -88,7 +88,10 @@ whole automation is hand-written (gap-fill).
 | Compliance | none | any `@pii` or `@sensitive` already fails binding (PLAY0268). The C# provider mapping (Stage v4.29.0, Stage#197) is `@pii` to `[PII]`, `@sensitive` to `[Encrypted]` + `[NotAudited]`, both to `[PII]` only |
 
 At standalone 4.127.0, compliance uses bare `pii`/`secret` (legacy markers are
-accepted with PLAY0565 information); either still refuses binding. Identity blocks,
+accepted with PLAY0565 information); either still refuses binding on that compiler.
+Standalone 4.141.0 admits concept compliance as v13 with narrower refusals
+(command-surface `references/compliance.md`), but Stage 4.76.0 admits only through
+v12 and the pinned CLI still bundles 4.137.0. Identity blocks,
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding

@@ -22,10 +22,10 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 
 ## Dispositions to keep apart
 
-| Construct | Standalone disposition (checked at v4.125.0; v4.139.0 unchanged for these rows) |
+| Construct | Standalone disposition (v4.125.0/v4.139.0 evidence; compliance updated at v4.141.0) |
 | --- | --- |
 | `persona`, domain/authentication metadata | Report-only; unknown named policies remain source defects |
-| Compliance concepts | Bare `pii`/`secret` (4.127.0); binding still refuses PLAY0268, never remove protection |
+| Compliance concepts | Bare `pii`/`secret`, qualifiers and scope bind as v13 at 4.141.0; enum/identity compliance and protected events with explicit subject marks refuse PLAY0268. The pinned CLI still refuses markers; never remove protection |
 | Identity details / processing purposes / event subject | Report-only metadata (4.127.0); executable detail reads refuse PLAY0268, not source declaration errors |
 | Composite stream ids | v8 routing; complete named parts/canonical comparisons, PLAY0515 refuses protected keys/sources; not a legacy text split |
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |

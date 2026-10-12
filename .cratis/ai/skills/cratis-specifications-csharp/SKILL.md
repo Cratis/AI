@@ -26,13 +26,18 @@ This skill is verified against these exact public releases:
 | --- | --- | --- |
 | `Cratis.Specifications.XUnit` | `4.1.1` | `Specification` base, lifecycle discovery, `ShouldXxx` assertions, optional shared lifecycle |
 | `Cratis.Specifications` | `4.1.1` | `Catch.Exception`, `SpecificationMethods` (dependency of the XUnit package) |
-| `Cratis.Arc.Testing` | `22.75.0` | `CommandScenario<TCommand>` and `CommandResult` assertions |
+| `Cratis.Arc.Testing` | `22.76.0` (caller registrations); `22.75.0` (other scenario assertions) | `CommandScenario<TCommand>` preserves explicit principal/override/policy services from 22.75.1; see application-scenarios |
 | `Cratis.Chronicle.Testing` | `18.3.0` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
 
 Reactor read-model seeding/absence, synchronous handler exceptions and the
 `EventContext.From` UTC default are verified separately at **Chronicle 19.46.0**
 and require **19.46.0+**; see the ReactorScenario section in
 [application-scenarios.md](references/application-scenarios.md).
+
+Per-context in-process MongoDB host isolation is verified at
+`Cratis.Chronicle.XUnit.Integration` **19.51.0** (`ChronicleFixture.cs`,
+`ChronicleClientFixture.cs`, `MongoDBContextStorage.cs`); it is opt-in and does
+not isolate out-of-process/remote kernels. See [integration-specs.md](references/integration-specs.md).
 
 Generated-value scenario pinning is verified separately against
 `Cratis.Arc.Testing` **22.75.0** (introduced in **22.67.0**).

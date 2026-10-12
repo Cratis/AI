@@ -16,6 +16,13 @@ conversion, validation, authorization and rendering. Use `QueryArguments` from
 under test with `ICurrentPrincipalAccessor` in `Services`. Scheme-selected queries
 fail closed in-process: HTTP authentication needs a hosted integration spec.
 
+At Arc 22.75.1+ (re-verified at 22.76.0), both query and command scenarios preserve
+explicit `ICurrentPrincipalAccessor`, `ICurrentPrincipalOverride` and
+`IAuthorizationPolicyRuntime` registrations rather than replacing them with defaults.
+Configure them before first execution and specify both authorized and denied callers.
+Source: `Source/DotNET/Testing/ScenarioServices.cs`, `Queries/QueryScenario.cs`,
+`Commands/CommandScenario.cs`.
+
 `Observe(...)` returns a disposable `QueryObservation`; `Initial` includes the
 first result or rejection and `Next(timeout?, cancellationToken?)` reads the next
 buffered emission (not necessarily distinct). Default deadlines are five seconds;
