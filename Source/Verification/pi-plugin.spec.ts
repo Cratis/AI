@@ -262,6 +262,7 @@ test('the Pi package prompt and path guidance select the same rules for every la
         for (const configuration of [
             { profiles: ['cratis/engineering/csharp'], languages: ['csharp'] },
             { profiles: ['cratis/engineering/typescript'], languages: ['typescript'] },
+            { profiles: ['cratis/engineering/go'], languages: ['go'] },
             { profiles: ['cratis/application/csharp', 'cratis/documentation'], languages: ['csharp', 'typescript'] },
             { profiles: ['cratis/application/csharp'], languages: [] },
         ]) {
@@ -296,6 +297,54 @@ test('Pi resolves configured profile composition through selected languages', ()
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
+});
+
+test('Go rules match source and module files only for selected Go languages', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const configure = (profile: string, language: string) => writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: [profile], languages: [language] }));
+        const paths = ['main.go', 'Source/main.go', 'go.mod', 'go.sum', 'adapter/go.mod', 'adapter/go.sum'];
+        configure('cratis/language/go', 'go');
+        for (const path of paths) {
+            const names = rulesForPath(project, path).map(rule => rule.name);
+            assert.ok(names.includes('go.md'), path);
+            assert.ok(!names.includes('go-engineering.md'), path);
+        }
+        configure('cratis/engineering/go', 'go');
+        for (const path of paths) {
+            assert.ok(rulesForPath(project, path).some(rule => rule.name === 'go-engineering.md'), path);
+        }
+        configure('cratis/engineering/csharp', 'csharp');
+        assert.ok(!managedRules(project).some(rule => ['go.md', 'go-engineering.md'].includes(rule.name)));
+        for (const path of paths) assert.deepEqual(rulesForPath(project, path), [], path);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('Go profile composition keeps Arc HTTP and Chronicle client skills separate', () => {
+    const language = resolvedSkills({ profiles: ['cratis/language/go'], languages: ['go'] });
+    assert.deepEqual(language, []);
+    const engineering = resolvedSkills({ profiles: ['cratis/engineering/go'], languages: ['go'] });
+    assert.ok(engineering.includes('cratis-engineering-effect-boundaries'));
+    assert.ok(!engineering.includes('cratis-arc-go'));
+    assert.ok(!engineering.includes('cratis-chronicle-client-go'));
+    for (const [profile, skill, excluded] of [
+        ['cratis/arc/go', 'cratis-arc-go', 'cratis-chronicle-client-go'],
+        ['cratis/chronicle/client-go', 'cratis-chronicle-client-go', 'cratis-arc-go'],
+        ['cratis/fundamentals/go', 'cratis-fundamentals-concept-go', 'cratis-arc-go'],
+    ]) {
+        const names = resolvedSkills({ profiles: [profile], languages: ['go'] });
+        assert.ok(names.includes(skill), profile);
+        assert.ok(names.includes('cratis-fundamentals-concept-go'), profile);
+        assert.ok(!names.includes(excluded), profile);
+        assert.ok(!names.includes('cratis-arc-command'), profile);
+        assert.ok(!names.includes('cratis-chronicle-client-dotnet'), profile);
+    }
+    const csharp = resolvedSkills({ profiles: ['cratis'], languages: ['csharp'] });
+    assert.ok(!csharp.includes('cratis-arc-go'));
+    assert.ok(!csharp.includes('cratis-chronicle-client-go'));
 });
 
 const arcTypeScriptServerSkills = ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript'];

@@ -19,6 +19,7 @@
         "cratis/arc/core",
         "cratis/arc/csharp",
         "cratis/arc/ef-core",
+        "cratis/arc/go",
         "cratis/arc/identity",
         "cratis/arc/java",
         "cratis/arc/kotlin",
@@ -28,6 +29,7 @@
         "cratis/chronicle",
         "cratis/chronicle/client-dotnet",
         "cratis/chronicle/client-elixir",
+        "cratis/chronicle/client-go",
         "cratis/chronicle/client-java",
         "cratis/chronicle/client-kotlin",
         "cratis/chronicle/client-python",
@@ -54,9 +56,11 @@
         "cratis/full/kotlin",
         "cratis/full/typescript",
         "cratis/fundamentals",
+        "cratis/fundamentals/go",
         "cratis/fundamentals/type-discovery",
         "cratis/language/csharp",
         "cratis/language/elixir",
+        "cratis/language/go",
         "cratis/language/java",
         "cratis/language/kotlin",
         "cratis/language/typescript",
@@ -74,6 +78,7 @@
       "languages": [
         "csharp",
         "elixir",
+        "go",
         "java",
         "kotlin",
         "language-agnostic",
@@ -303,6 +308,19 @@
       ]
     },
     {
+      "id": "cratis/arc/go",
+      "composes": [
+        "cratis/language/go",
+        "cratis/fundamentals/go"
+      ],
+      "availableTargets": [
+        "cratis-arc-go"
+      ],
+      "languages": [
+        "go"
+      ]
+    },
+    {
       "id": "cratis/arc/identity",
       "composes": [
         "cratis/arc/core"
@@ -408,6 +426,19 @@
       ],
       "languages": [
         "elixir"
+      ]
+    },
+    {
+      "id": "cratis/chronicle/client-go",
+      "composes": [
+        "cratis/language/go",
+        "cratis/fundamentals/go"
+      ],
+      "availableTargets": [
+        "cratis-chronicle-client-go"
+      ],
+      "languages": [
+        "go"
       ]
     },
     {
@@ -736,6 +767,18 @@
       ]
     },
     {
+      "id": "cratis/fundamentals/go",
+      "composes": [
+        "cratis/language/go"
+      ],
+      "availableTargets": [
+        "cratis-fundamentals-concept-go"
+      ],
+      "languages": [
+        "go"
+      ]
+    },
+    {
       "id": "cratis/fundamentals/type-discovery",
       "composes": [
         "cratis/fundamentals"
@@ -757,6 +800,12 @@
       "id": "cratis/language/elixir",
       "languages": [
         "elixir"
+      ]
+    },
+    {
+      "id": "cratis/language/go",
+      "languages": [
+        "go"
       ]
     },
     {
@@ -909,6 +958,7 @@
         "cratis/engineering/core",
         "cratis/engineering/csharp",
         "cratis/engineering/elixir",
+        "cratis/engineering/go",
         "cratis/engineering/kotlin",
         "cratis/engineering/react",
         "cratis/engineering/typescript"
@@ -918,6 +968,7 @@
         "typescript",
         "kotlin",
         "elixir",
+        "go",
         "react",
         "language-agnostic"
       ]
@@ -955,6 +1006,16 @@
       ],
       "languages": [
         "elixir"
+      ]
+    },
+    {
+      "id": "cratis/engineering/go",
+      "composes": [
+        "cratis/engineering/core",
+        "cratis/language/go"
+      ],
+      "languages": [
+        "go"
       ]
     },
     {
