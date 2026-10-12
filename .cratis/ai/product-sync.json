@@ -96,7 +96,7 @@
           "vertical-slices.md"
         ]
       },
-      "notes": "Synced to v22.75.0 source in Cratis/AI#620; historical runtime probes retain their original versions."
+      "notes": "Synced to v22.76.0 source in Cratis/AI#620 (v22.75.0 family pass plus the v22.75.1-v22.76.0 delta); historical runtime probes retain their original versions."
     },
     {
       "id": "ai",
@@ -315,7 +315,7 @@
         ],
         "rules": []
       },
-      "notes": "Synced to v19.50.1 source in Cratis/AI#620; older behavior probes remain historical evidence, not current runtime verification."
+      "notes": "Synced to v19.51.0 source in Cratis/AI#620 (v19.50.1 family pass plus the v19.51.0 delta); older behavior probes remain historical evidence, not current runtime verification."
     },
     {
       "id": "arc-go",
