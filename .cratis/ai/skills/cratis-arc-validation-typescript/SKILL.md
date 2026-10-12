@@ -20,14 +20,14 @@ generator copies into generated proxies. Setup is in
 
 ## Verified product sources
 
-Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
-`v0.33.0` plus three commits), reading `Source/Core/validation/**` (including
+Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release;
+server packages 0.57.2, not on npm), reading `Source/Core/validation/**` (including
 `index.ts`, `ValidationResult.ts`, `Severity.ts`, `RuleBuilder.ts`),
 `Source/Core/commands/Outcome.ts`, `Documentation/commands/command-validation.md`,
 `validation-severity-filtering.md`, `command-outcomes.md`,
 `Documentation/queries/validation.md`, `Documentation/concepts.md`,
 `Documentation/proxy-generation/validation.md`, `Source/Testing`, and the
-`Samples/Tasks` validators. Rechecked against `main` at `3cc6ab3` (v0.34.0) for the result helpers.
+`Samples/Tasks` validators.
 `ValidationResult` is both the exported interface and a value with the helpers
 `ValidationResult.information/warning/error(message, options?)`; the positional
 `validation(...)` function remains available.
@@ -180,6 +180,8 @@ export class RenameTaskValidator extends CommandValidator<RenameTask> {
   your message.
 - It works **only** inside a validator of a model-bound command, during
   validation. Validators do not receive read models through their constructors.
+- Reads are scoped to the current command/tenant and cancellation signal, on
+  both validate and execute routes; do not retain a validation read across calls.
 
 ## Rule vocabulary
 

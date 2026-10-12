@@ -10,8 +10,7 @@
 - Observable-query WebSockets from a dev server
 - Storage integrations
 
-Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
-`v0.33.0` plus three commits): `Documentation/overview.md`, `hosts/**`,
+Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release): `Documentation/overview.md`, `hosts/**`,
 `mongodb/getting-started.md`, `sql/getting-started.md`,
 `chronicle/registration-options.md`, and the `Express`, `Fastify`, `Hono`,
 `MongoDB`, `Drizzle` and `Chronicle` package exports. None of these packages is
@@ -48,7 +47,14 @@ export const arc = await builder.build();
 Every adapter dispatches only exact raw-path matches on a fixed internal origin
 (a crafted `Host` header cannot select an operation), hands Arc the unparsed
 body, and passes a cancellation signal that becomes `context.signal`. The
-framework owns its listener: close it, then `await arc.dispose()`.
+framework owns its listener. With shutdown participants, coordinate listener and
+service shutdown instead of closing first: `host.shutdown({ timeoutMs, registry? })`
+for the standalone host, `middleware.shutdown(listener, registry?)` for Express,
+or `shutdownArcHost(server, closeListener, registry?)` from
+`@cratis/arc.core/hosting`. `close()` remains listener-only. Register participants
+with `server.services.addShutdownParticipant({ stop, drain })`; `app.stop()` /
+`dispose()` coordinate the same order when Arc owns the registry. Repeated
+`server.dispose()` preserves the first outcome.
 
 ## Express
 
@@ -65,10 +71,7 @@ const listener = app.listen(3000, '127.0.0.1');
 middleware.injectWebSocket(listener);
 
 process.once('SIGTERM', () => {
-    void (async () => {
-        try { await middleware.close(listener); }
-        finally { await arc.dispose(); }
-    })();
+    void middleware.shutdown(listener);
 });
 ```
 
@@ -86,12 +89,13 @@ process.once('SIGTERM', () => {
 ```typescript
 import Fastify from 'fastify';
 import cratisArc from '@cratis/arc.fastify';
+import { shutdownArcHost } from '@cratis/arc.core/hosting';
 import { arc } from './arc.js';
 
 const app = Fastify();
 await app.register(cratisArc, { arc });
 await app.listen({ port: 3000, host: '127.0.0.1' });
-process.once('SIGTERM', () => { void app.close().then(() => arc.dispose()); });
+process.once('SIGTERM', () => { void shutdownArcHost(arc.server, () => app.close()); });
 ```
 
 - The plugin is encapsulated, with its own catch-all raw-body parser; your
@@ -107,13 +111,14 @@ process.once('SIGTERM', () => { void app.close().then(() => arc.dispose()); });
 ```typescript
 import { Hono } from 'hono';
 import { cratisArc, serveCratisArc } from '@cratis/arc.hono';
+import { shutdownArcHost } from '@cratis/arc.core/hosting';
 import { arc } from './arc.js';
 
 const app = new Hono();
 app.use(cratisArc(arc));
 app.get('/health', context => context.text('ok'));
 const hosted = await serveCratisArc(app, arc, { port: 3000, hostname: '127.0.0.1' });
-process.once('SIGTERM', () => { void hosted.dispose().then(() => arc.dispose()); });
+process.once('SIGTERM', () => { void shutdownArcHost(arc.server, () => hosted.dispose()); });
 ```
 
 - Running on Node needs the optional `@hono/node-server`. There the adapter also
@@ -143,9 +148,11 @@ export const app = await builder.build();
 Import `command`, `query`, `readModel` from `@cratis/arc.core/fetch` in artifacts
 served this way. Arc targets **Node-compatible** servers: Chronicle uses gRPC,
 MongoDB uses TCP, and live queries need long-lived SSE/WebSocket connections.
-Non-Node edge runtimes are not supported hosts for the framework or these
-integrations. Bun has a smoke check only. The host owns ingress limits, trusted
-principal metadata, and cancelling long-lived streams on disconnect.
+The Fetch entry supports Next.js App Router route handlers on the **Node.js**
+runtime; Bun and Deno have smoke checks. Cloudflare Workers and Next.js Edge
+are unsupported. Its only Node import is `node:async_hooks`; that does not make
+TCP/gRPC integrations portable to an edge host. The host owns ingress limits,
+trusted principal metadata, and cancelling long-lived streams on disconnect.
 
 ## Observable-query WebSockets from a dev server
 
@@ -164,18 +171,23 @@ adds a builder method when imported; the exported function form is equivalent.
 | Integration | Register | Inject |
 | --- | --- | --- |
 | MongoDB (`@cratis/arc.mongodb`, peer `mongodb` `^6.21.0`) | `import '@cratis/arc.mongodb'; builder.withMongoDB({ client, databaseNameResolver, readModels: [TaskRecord] })` or `withMongoDB(builder, options)` | `service(mongoCollection(TaskRecord))` in `@query`, or `@inject(mongoCollection(TaskRecord))`; `commandReadModel(TaskRecord)` in commands |
-| SQL through Drizzle (`@cratis/arc.drizzle`, peer `drizzle-orm` `^0.45.0`) | `import '@cratis/arc.drizzle'; builder.withDrizzle({ dialect: DrizzleDialect.SQLite, database, readModels: [{ type: TaskRecord, table: tasks }] })` | `service(drizzleReadModel(TaskRecord))` for read-only query handles; `@inject(drizzleDatabase<SQLJsDatabase>())` for a writable handle in commands; `commandReadModel(TaskRecord)` |
-| Chronicle (`@cratis/arc.chronicle`, experimental, peer `@cratis/chronicle` `^6.7.0`) | `import '@cratis/arc.chronicle'; builder.withChronicle({ connectionString, eventStore })` or `withChronicle(builder, options)` | Commands return events; queries take `service(ChronicleReadModels)`; `commandReadModel(Type)` |
+| SQL through Drizzle (`@cratis/arc.drizzle`, peers `drizzle-orm` `^0.45.0` and `rxjs` `^7.8.2`) | `import '@cratis/arc.drizzle'; builder.withDrizzle({ dialect: DrizzleDialect.SQLite, database, readModels: [{ type: TaskRecord, table: tasks }] })` | `service(drizzleReadModel(TaskRecord))` for read-only query handles; `@inject(drizzleDatabase<SQLJsDatabase>())` for a writable handle in commands; `commandReadModel(TaskRecord)` |
+| Chronicle (`@cratis/arc.chronicle`, experimental, peer `@cratis/chronicle` `^6.29.0`) | `import '@cratis/arc.chronicle'; builder.withChronicle({ connectionString, eventStore })` or `withChronicle(builder, options)` | Commands return events; queries take `service(ChronicleReadModels)`; `commandReadModel(Type)` |
 
 - **MongoDB**: list every injected model in `readModels`; a model left out has
   no collection token. `@key()` marks the field stored as `_id` (otherwise a
   field named `id`). Only `server` and `database` bind from `Cratis:MongoDB`
-  configuration. Change-stream observation needs a replica set.
+  configuration. Change-stream observation needs a replica set. Protected raw
+  documents need typed `MongoReadModels` with a Chronicle-registered `readModel`
+  (optional `subjectFor`); untyped reads remain ciphertext. Read
+  [the observation/compliance reference](../../cratis-arc-query-typescript/references/storage-observation-and-compliance.md)
+  before exposing protected documents.
 - **Drizzle**: `withDrizzle` never creates or changes tables — own the schema
   with migrations. Every SQL access needs a tenant (`A tenant is required for
   Drizzle access` otherwise); a single-database setup resolves one fixed tenant.
   Command read-model injection needs exactly one column-level `.primaryKey()`
-  declared as an Arc `@field`.
+  declared as an Arc `@field`. Observation is opt-in; the query skill's
+  storage reference covers in-process announcements and PostgreSQLNotify.
 - **Chronicle**: `withChronicle` needs `eventStore` and exactly one of
   `connectionString` or `client` (`Chronicle requires eventStore and exactly one
   of connectionString or client`). It reads `Cratis:Chronicle` `connectionString`
@@ -187,6 +199,15 @@ adds a builder method when imported; the exported function form is equivalent.
   reachable makes Chronicle-backed requests wait, not fail.
   `chronicle://localhost:35000` without credentials uses the development client —
   local kernels only.
+- **MongoDB + Chronicle naming**: Arc-owned `withChronicle` stores projected
+  models in the collection `withMongoDB` reads (pluralized by default), in either
+  registration order. The former `collectionName: type => type.name` workaround
+  is no longer needed. A throwing/empty collection-name callback fails
+  registration. Override with `withChronicle({ ..., readModelNamingPolicy })`;
+  with a caller-owned client set it in that client's `ChronicleOptions` instead.
+  Existing deployments must replay projections into the aligned collection;
+  the old collection is left intact. Core exports `readModelCollectionNameResolver`,
+  MongoDB exports `resolveMongoCollectionName`.
 - `@cratis/cratis` (experimental) registers Arc and Chronicle together through
   `CratisApplication.createBuilder()` and `builder.addCratis(...)`. Unlike C#
   `AddCratis`, it installs no authentication handler; protected routes still

@@ -11,12 +11,11 @@
 - Reactors that return commands
 - Specify it without a kernel
 
-Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
-`v0.33.0` plus three commits): `Documentation/chronicle/**`,
+Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release): `Documentation/chronicle/**`,
 `Documentation/testing/chronicle.md`, `Source/Chronicle/index.ts`, and
 `Samples/Library`. `@cratis/arc.chronicle` is **experimental** and, like every
 package in the repository, not published to npm. `@cratis/chronicle` (the SDK)
-is published; the integration peers `^6.7.0`.
+is published; the integration peers `^6.29.0` and is built against 6.35.0.
 
 ## Register the integration
 
@@ -90,6 +89,11 @@ sample's `UniqueAuthorName` does).
 
 ## Rejections and the batch
 
+Appending and projecting are separate: immediate queries may be stale. Prefer
+observable reads. `completionTimeoutMs` waits for observers, but Chronicle waits
+for **every** observer on the log (Cratis/Chronicle#4132); an observer that does
+not handle the event can make every command time out with 500.
+
 - A constraint or concurrency rejection answers 400 with a validation result
   (`reason` `constraintViolation` or `concurrencyViolation`) and appends nothing.
 - Events returned by nested Arc commands that share tenant, correlation ID and
@@ -118,6 +122,24 @@ replay by default since SDK 6.9.0 — mark effects `@onceOnly()`, and keep retur
 commands safe to repeat after a failed-partition re-delivery. Reactor authoring
 itself is `cratis-chronicle-client-typescript`.
 
+`ARCCHR0006` in `@cratis/eslint-plugin-arc-core`'s `recommended-type-checked`
+preset flags a command-returning handler without `@onceOnly()` or a replay
+handler. Prefer explicit replay decisions, not lint suppression.
+
+Preview `withChronicle({ ..., activateArtifactsInScopes: true })` on an Arc-owned
+client resolves reactors/reducers through Arc DI, one scope per delivered batch,
+with the Chronicle namespace as tenant and no principal. Existing registrations
+win; otherwise discovered reactors/reducers are registered scoped. The SDK
+activator API arrived in 6.17.0; this integration requires its 6.29.0 peer minimum.
+For a caller-owned client, supply `chronicleArtifactActivator(...)` as
+`artifactActivator` and `reactorCommandResultHandler(...)` as
+`reactorResultHandler`, then opt in to `activateArtifactsInScopes`. Build Arc
+before observing and dispose Arc before that client. See the tagged
+`Documentation/chronicle/reactors/scoped-activation.md`.
+
+Read [command-operations.md](command-operations.md) when combining events with
+inline operations, or rehydrating a `commandAggregate` for a state-based decision.
+
 ## Specify it without a kernel
 
 `ChronicleCommandScenario` from `@cratis/arc.chronicle/testing` runs the real
@@ -138,7 +160,16 @@ await scenario.dispose();
 - Pass the command, its event types, validators and read-model types to
   `for(...)`; the in-memory log refuses an unregistered event type.
 - `givenReadModel(Type, id, instance, tenant?)` pins state;
-  `scenario.given.forEventSource(id).events(...)` seeds reducer history (SDK
-  6.14.0 or later).
+  `scenario.given.forEventSource(id, tenant?).events(...)` seeds reducer history
+  (SDK >=6.14.0) and projections (>=6.19.0) through SDK `ReadModelScenario`.
+  `.readModel(instance)` pins state on the same given builder.
 - `shouldHaveAppendedEvent` does not check count or order — assert
   `appendedEvents` when either matters.
+- `ChronicleQueryScenario.for(Model, 'method', ...artifacts)` runs snapshot
+  queries with the same tenant-scoped given events/read models.
+- Fixture-bounded projections/reducers work in-process. Unsupported definitions
+  throw `UnsupportedProjectionOperation`; give declarative projections an
+  explicit model (`@projection('', ReadModel)`) so lookups of other seeded models
+  can associate them. No aggregate rehydration, constraint/concurrency enforcement,
+  listing/watching, or projection history beyond that boundary: use
+  `ChronicleKernelScenario` at `ARC_CHRONICLE_TEST_URL`.
