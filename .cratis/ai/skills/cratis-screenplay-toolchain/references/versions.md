@@ -17,7 +17,7 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.141.0** (`8ce785e3`) | Released tag `v4.141.0` and its unchanged published contract; concept compliance/ESM v13 and the property-change planner |
+| Screenplay language, standalone tool and MCP | **4.142.0** (`e6439548`) | Released tag `v4.142.0` and its unchanged published contract; property additions join rename/remove, with concept compliance/ESM v13 retained |
 | cratis CLI | **3.53.1** | Released tag `v3.53.1`; source-checked, not a new render/browser probe |
 | Screenplay bundled by CLI | **4.137.0** | CLI `v3.53.1:Directory.Packages.props`; enum-number authoring, not v12 binding |
 | Stage bundled by CLI | **4.73.1** | Same file; Stage's own `Directory.Packages.props` also pins Screenplay 4.137.0 |
@@ -53,7 +53,7 @@ or renderer probes below as results from the newer bundle.
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.141.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
+Standalone Screenplay 4.142.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -85,7 +85,7 @@ for identity-stable selection.
 
 ## Admission boundaries
 
-Screenplay `v4.141.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
+Screenplay `v4.142.0:Source/DotNET/Screenplay/Semantics/Versions.cs` supports
 schema pairs through v13. Admission selects by use:
 
 - v7: generated values/responses and policy negation.
@@ -172,7 +172,7 @@ The Stage skill teaches the version-gated examples.
 
 At 4.127.0, `$identity` aliases built-in caller paths; declared identity details
 remain metadata and their executable reads report PLAY0268. Bare `pii`/`secret`
-bind as v13 on standalone 4.141.0, but still block binding on CLI 3.53.1's
+bind as v13 on standalone 4.142.0, but still block binding on CLI 3.53.1's
 4.137.0 bundle; `personal` aliases `pii`. Legacy markers are accepted with
 PLAY0565 information, duplicates warn PLAY0653. Event `subject` and processing
 purposes are report-only metadata (PLAY0270); purpose checks/reports do not prove
