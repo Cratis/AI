@@ -8,14 +8,14 @@ active-state view with removal. Read it with `consistency-and-concurrency.md` (s
 The model compiles at 4.127.0 (V1, warnings as errors) but is not binding-ready by design:
 `reads` and the `concurrency` block are PLAY0271, and `require` over a view is PLAY0268.
 The `pii` concept failed binding on that compiler and still fails on the pinned CLI,
-but binds as v13 on standalone 4.141.0. Keep those lines: they state real intent.
+but binds as v13 on standalone 4.142.0 (since 4.141.0). Keep those lines: they state real intent.
 
 ```screenplay expect PLAY0516 test=unbound
 // cratis-screenplay-streams-and-consistency: complete design-mode example (V1 with --warnings-as-errors).
 // Shows: one business identity per stream, cross-stream references as payload, uniqueness
 // constraints (single, composite with release, unique event), a recorded state-dependent rule
 // that Screenplay cannot enforce, a declared concurrency scope, and an active-state view with removal.
-// Historical/CLI binding probes refuse compliance; standalone 4.141.0 binds this pii concept as v13, the
+// Historical/CLI binding probes refuse compliance; standalone 4.142.0 binds this pii concept as v13 (since 4.141.0), the
 // concurrency block and `reads` are PLAY0271, `require` over a view is PLAY0268. Keep them: they state
 // real intent. The capacity rule is NOT enforced in the model today (see the slice description).
 

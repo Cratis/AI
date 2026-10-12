@@ -173,7 +173,7 @@ escapes `%`/`|`, not an inferred split of legacy text.
 Identity declarations and event `subject` are metadata; reading a declared
 `$identity` detail in executable clauses is PLAY0268. `runs as` is admitted as
 ESM v10 in the current standalone, not a current PLAY0268 gap. At standalone
-4.141.0, concept compliance binds as v13; enum/identity compliance and protected
+4.142.0, concept compliance binds as v13 (since 4.141.0); enum/identity compliance and protected
 events with explicit subject marks still refuse PLAY0268. CLI 3.53.1's 4.137.0
 bundle retains the blanket marker refusal; purpose metadata is PLAY0270. See command-surface
 `references/compliance.md` and `references/context.md` for syntax and limits.

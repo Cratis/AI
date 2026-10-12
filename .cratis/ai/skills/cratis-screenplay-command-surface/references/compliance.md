@@ -61,20 +61,21 @@ new event generation.
 
 C# provider mapping: `pii` → `[PII]`; `secret` → `[Encrypted]` + `[NotAudited]`;
 `pii secret` → `[PII]` only (Chronicle refuses `[PII]` with `[Encrypted]`, CHR0053).
-Standalone Screenplay 4.142.0 admits these markers, qualifiers and scopes as
-ESM v13 (first released in 4.141.0). Optional concept `compliance` applies through command, event, read-model,
+Standalone Screenplay 4.142.0 binds optional concept `compliance` as ESM v13
+(first released in 4.141.0), carrying markers, qualifiers and scopes. It applies
+through command, event, read-model,
 composite and response type references, including collection elements. Bare `pii`
 writes `{"personal":{}}`; `secret scope namespace` writes
 `{"secret":{"scope":"namespace"}}`. With both markers, personal protection
-wins and no secret scope is stored. Reasons stay report-only (PLAY0270).
+wins and no secret scope is stored; reasons stay report-only PLAY0270.
 Unmarked models keep their exact executable bytes and revision. The reference
 evaluator runs marked models with unchanged outcomes but tests neither encryption
 nor erasure. Consumers must explicitly admit v13 and realize the protection;
-CLI 3.53.1's 4.137.0 compiler still refuses markers, and Stage 4.76.0 admits only
-through v12 (Stage#345 tracks v13 admission). Never remove protection to fit either tool.
+CLI 3.53.1 bundles Screenplay 4.137.0, which refuses markers; standalone Stage
+4.76.0 admits only through v12 (Stage#345 tracks v13 admission). Never remove protection to fit either tool.
 
-At binding only, PLAY0268 still refuses compliance on enum or event-source/stream
-identity concepts; source validation alone cannot report this binder diagnostic.
+Enum and identity concepts still refuse PLAY0268 at binding only (identity means
+event-source/stream identity); source validation alone cannot report this binder diagnostic.
 It also refuses an event combining personal values or explicitly
 `secret scope subject` values with an explicit event-property `subject` mark,
 including nested composite and collection uses: subject lineage is not admitted.
@@ -100,7 +101,7 @@ none of SP0061 to SP0063, so the CLI shows none of them; check the generator pac
   Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI adapter flag
   `--authoring-only-constructs`) to state `secret scope namespace` or
   `secret scope global` in the concept body. Subject stays implicit. Scope
-  was syntax-only on this generator's compiler. With standalone 4.141.0,
+  was syntax-only on this generator's compiler. With standalone 4.142.0,
   protected concepts instead select ESM v13; this does not upgrade the generator
   or the CLI bundle.
   `pii secret` gets no scope because the providers ignore it.

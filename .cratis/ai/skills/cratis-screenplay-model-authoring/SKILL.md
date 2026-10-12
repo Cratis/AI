@@ -40,14 +40,10 @@ directory when it holds `.play` files). Only when it answers that no root was gi
 or that several roots are offered, pass `path`: the folder holding the project's `.play` files, otherwise the
 folder the user names. Without a project, the server works in `Documents/Screenplay`
 in the user's home folder, so do not invent a location. A root fixed at launch
-can switch only to the corresponding model folder in a registered Git worktree
-of the same repository. Pass the worktree checkout or exact model directory as
-`path`; unrelated roots return `RootChangeRefused`. Switching clears proposals
-and uses the destination's own identity state and journal; nothing migrates.
-Submodules and `--separate-git-dir` checkouts require another connection.
+can switch only to the same model folder in a registered Git worktree of the
+same repository; rules and refusals are in [MCP loop](references/mcp-loop.md).
 
-Prefer a fixed root; the historical dynamic-roots bug and connection procedure
-are in [MCP loop](references/mcp-loop.md). Send `initialize` and
+Prefer a fixed root (dynamic-roots history: [MCP loop](references/mcp-loop.md)). Send `initialize` and
 `notifications/initialized` before any tool call, then discover `tools/list`
 schemas rather than relying on a remembered count.
 
@@ -135,15 +131,10 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
 3. Prefer `propose-rename` for supported logical renames: it coordinates fragments,
    repairs proven references and preserves assigned identities. Never substitute
    global string replacement for an explicit refusal.
-4. Prefer `propose-property` for add/rename/remove along proven property chains,
-   not hand-composed `propose-ast` batches. Inspect `incomplete`, `needsDecision`
-   and `chainCandidates`; never guess past a refusal. Event changes need exactly
-   one of `newGeneration` or `eventNeverPersisted` (actual storage knowledge).
-   Add needs an owner handle, explicit source hops and a required fixture value
-   when existing fixtures/assertions need it. Exact arguments and refusals:
+4. Prefer `propose-property` for property add/rename/remove, not hand-composed
+   `propose-ast` batches. Inspect the chain and never guess past a refusal:
    [property links](references/property-links.md). Otherwise use `propose-source`
-   for whole text or `propose-ast` for typed edits (Authoring defaults);
-   `propose` is executable-only. Details: `references/mcp-tools.md`.
+   (whole text) or `propose-ast` (typed edits); `propose` is executable-only.
 5. Keep reference policy `Safe`. Use `Draft` only for deliberately requested
    unresolved model debt and report that debt; it does not waive structural,
    identity or binding-protection checks.
@@ -179,15 +170,9 @@ files, 8 MiB total, 2 MiB per file, 1 MiB structured result, 200 items or 192 Ki
 per page. Excluded directories: `.git`, `.ai-work`, `.screenplay`, `bin`, `obj`,
 `node_modules`.
 
-Formatting is explicit. Prefer `PreserveTrivia` for identifier, literal-value and
-whole-mapping edits; it rewrites only the changed span. Structural edits (add,
-remove, move) need `CanonicalizeTouchedDocuments`, which keeps attached comments
-and the authored member order within a document but normalizes whitespace and
-blank lines. Before applying, check the proposal's `droppedCommentCount`; when it
-is not zero, read `read-proposal` with `view: "dropped-comments"` and disclose
-each lost comment (`PLAY0288` also reports their count and lines). Untouched
-documents retain exact bytes. A printer that loses requested structural fields
-rejects the plan.
+Choose formatting explicitly and disclose dropped comments before applying;
+read [formatting and limits](references/mcp-loop.md#formatting-and-limits) for
+`PreserveTrivia`, canonical consent, comment review and byte preservation.
 
 `identityMigrationIssues`: read the [MCP loop](references/mcp-loop.md).
 
@@ -302,7 +287,7 @@ that the code compiles or behaves. Read `references/mcp-tools.md#code-attachment
   clean run is not a bound or executable result.
 - Operations/`numbers exact` remain unadmitted; routes bind as v8, public
   boundaries v9, identity/overrides/filters v10, qualifying non-route Double
-  literals v11, enum numbers v12, compliance v13 (4.141.0;
+  literals v11, enum numbers v12, compliance v13 (since 4.141.0;
   limits: command-surface `references/compliance.md`).
   CLI 3.53.1/Stage 4.73.1 bundle 4.137.0 and do not admit v12. Never drop or stub source contracts to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend

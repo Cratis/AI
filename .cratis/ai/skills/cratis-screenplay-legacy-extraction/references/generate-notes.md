@@ -166,7 +166,7 @@ without adding `secret`; an existing `pii` classification remains.
   the same way. Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI
   adapter option `--authoring-only-constructs`) to emit `secret scope namespace`
   or `secret scope global` in the concept body. This was syntax-only on that
-  compiler; standalone 4.141.0 instead admits concept compliance as ESM v13.
+  compiler; standalone 4.142.0 admits concept compliance as ESM v13 (since 4.141.0).
   That upgrade does not change the older generator or CLI bundle.
 - A concept also marked `[PII]` becomes `pii secret`, with no emitted scope:
   the C# providers render only `[PII]`; Chronicle rejects `[PII]` combined with

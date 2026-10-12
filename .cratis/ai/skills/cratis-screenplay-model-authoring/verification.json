@@ -5,8 +5,8 @@
   "assertions": [
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "propose-property" },
-    { "kind": "skill-contains", "value": "not hand-composed `propose-ast` batches" },
-    { "kind": "skill-contains", "value": "`incomplete`, `needsDecision`" },
+    { "kind": "skill-contains", "value": "not hand-composed `propose-ast` batches", "file": "references/property-links.md" },
+    { "kind": "skill-contains", "value": "`incomplete`, `needsDecision`", "file": "references/mcp-loop.md" },
     { "kind": "skill-contains", "value": "`property.chainCandidates`", "file": "references/property-links.md" },
     { "kind": "skill-contains", "value": "EventContractChangeRequiresDecision", "file": "references/property-links.md" },
     { "kind": "skill-contains", "value": "action: \"add\"", "file": "references/property-links.md" },
@@ -106,7 +106,8 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`view: \"dropped-comments\"`"
+      "value": "`view: \"dropped-comments\"`",
+      "file": "references/mcp-loop.md"
     },
     {
       "kind": "skill-contains",

@@ -135,7 +135,7 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
 - `persona` declarations are report-only and never block; bare `pii` and `secret`
-  concepts bind as ESM v13 on standalone 4.141.0, but still block the pinned CLI.
+  concepts bind as ESM v13 on standalone 4.142.0 (since 4.141.0), but still block the pinned CLI.
   Enum/identity compliance and protected events with explicit subject marks remain
   refused (PLAY0268); see command-surface `references/compliance.md`. Keep protection.
 - Generated values/responses bind and reference-execute as v7; sources, streams

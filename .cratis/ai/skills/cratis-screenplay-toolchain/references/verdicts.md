@@ -89,8 +89,9 @@ never "specifications pass".
   Bare `pii`/`personal` and `secret` bind as v13 on standalone 4.142.0; reasons
   remain report-only PLAY0270. Enum/identity compliance and personal or explicitly
   subject-scoped secret event values with an explicit `subject` mark still refuse
-  PLAY0268 at binding only. CLI 3.53.1's 4.137.0 bundle still refuses markers;
-  Stage 4.76.0 admits only through v12 (Stage#345), so V3 does not prove rendering.
+  PLAY0268 at binding only. CLI 3.53.1 bundles Screenplay 4.137.0, which refuses
+  markers; standalone Stage 4.76.0 admits only through v12 (Stage#345).
+  V3 does not prove rendering.
 - A blocked V3 is not repaired by deleting protection or domain rules. Never remove `pii`,
   `secret`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.

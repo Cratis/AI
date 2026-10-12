@@ -2,7 +2,7 @@
 
 ## Contents
 
-- Caller and compliance boundary (4.141.0)
+- Caller and compliance boundary (4.142.0)
 - Admitted on both compilers
 - Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 - Generated values and responses (ESM v7): standalone 4.68.0 or later; the cratis 3.53.1 bundle binds them too
@@ -21,7 +21,7 @@ reaction refusals/redelivery remain unadmitted. Use the actual
 binder before promoting an older probe to a current capability claim.
 
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler version: the standalone tool (4.141.0) binds through v13; the compiler bundled in cratis
+compiler version: the standalone tool (4.142.0) binds through v13; the compiler bundled in cratis
 3.53.1 (4.137.0) binds ESM through v10 for rendering and refuses non-positional enum numbers at
 binding; older bundles (4.66.0 in cratis 3.28.x, admitting v1 to v6; 4.60.1 before 3.28.2, v1 to v5)
 are history.
@@ -50,7 +50,7 @@ readiness. Executable reads of declared `$identity.<detail>` do (PLAY0268);
 `$context.identity` remains built-ins only. Purposes and event `subject` marks
 are metadata (PLAY0270), not source resolution, retention or subject propagation.
 Bare `pii`/`personal` and `secret` concepts, scopes and qualifiers bind as v13
-on standalone 4.142.0; CLI 3.53.1's 4.137.0 bundle still refuses them. Enum/identity
+on standalone 4.142.0; CLI 3.53.1 bundles Screenplay 4.137.0, which refuses markers. Enum/identity
 compliance and events mixing protected values with explicit subject marks remain
 refused; see command-surface `references/compliance.md` for the precise boundary.
 Legacy spellings compile with PLAY0565 information; duplicates warn PLAY0653.
@@ -175,8 +175,8 @@ Concept `pii`/`personal` and `secret`, qualifiers and scopes bind as optional
 report-only PLAY0270; reference execution proves neither encryption nor erasure.
 Enum/identity concepts and an event combining personal or explicitly subject-scoped
 secret values with an explicit `subject` mark refuse PLAY0268 at binding only.
-CLI 3.53.1's 4.137.0 bundle still refuses markers. Stage 4.76.0 admits only through
-v12; v13 rendering awaits Stage#345. Preserve protection, not a falsely green bind.
+CLI 3.53.1 bundles Screenplay 4.137.0, which refuses markers; standalone Stage
+4.76.0 admits only through v12 (Stage#345). Preserve protection, not a falsely green bind.
 
 ## Code attachments (what binds, what never does)
 
@@ -264,8 +264,8 @@ bodies still leave their owner non-executable.
 Do not remove `pii`, `secret`, `authorize` or policies, list queries, automations or
 rules a domain needs just to make binding pass. Report `V3 blocked: <codes>` and record the
 slice in the gap list. A `pii` or `secret` marker selects v13 on standalone
-4.141.0, but blocks binding on the pinned CLI and exceeds Stage 4.76.0's v12
-ceiling. Either attribute on an identifier or typed destination is a source error
+4.142.0 (since 4.141.0). CLI 3.53.1 bundles Screenplay 4.137.0, which refuses
+markers; standalone Stage 4.76.0 admits only through v12 (Stage#345). Either attribute on an identifier or typed destination is a source error
 PLAY0515 on the current compiler (including stream-id parts and route mapping
 sources). Chronicle also rejects `[PII]`/`[Encrypted]` on event-source identifiers
 (CHR0034/CHR0052). Keep surrogate identity and protected payload separate.

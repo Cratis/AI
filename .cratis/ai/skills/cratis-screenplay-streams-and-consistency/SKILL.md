@@ -156,7 +156,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
   block compiles but is PLAY0271 at binding. Keep both when they state real intent; they are not
   protection. `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
-- `pii` and `secret` bind as ESM v13 on standalone 4.141.0, not the pinned CLI;
+- `pii` and `secret` bind as ESM v13 on standalone 4.142.0 (since 4.141.0), not the pinned CLI;
   enum/identity compliance and protected events with explicit subject marks still
   refuse PLAY0268 (command-surface `references/compliance.md`). Legacy markers are
   deprecated (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
