@@ -16,13 +16,18 @@ This skill is verified against these exact sources:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Cli` | `3.2.0` | the `cratis` command, its contexts, output formats, and command tree |
+| `Cratis.Cli` | `3.53.1` | command effects, confirmations, contexts, output and command tree |
+| `Cratis.Chronicle` | `19.32.0` | the CLI's Chronicle client package |
 
-> Re-verified at `Cratis/cli` **v3.2.0** (originally written against 2.4.0): every command, branch, flag and output format this skill names exists there; the 2.x→3.x change is the Chronicle 17/18 wire migration plus new branches (`ai`, `arc`, `screenplay`, `prologue`, `llm`) this skill does not cover.
-| `Cratis.Chronicle` | `18.3.0` | the observer, partition, sequence, and job concepts the CLI reads |
+Re-verified at `Cratis/cli v3.53.1`: since 3.2.0, observer removal,
+partition-quarantine clearing, server-bound login and broader diagnose scope
+have changed operational guidance. Read [command effects](references/command-effects.md)
+when classifying a mutation or confirmation; it cites the exact tag.
 
 The CLI ships a **versioned machine-readable catalog of its own surface**, and
-that catalog is the authority for exact command names on the installed version:
+that catalog is the authority for exact command names, `effect` and
+`requiresConfirmation` on the installed version. Treat every effect other than
+`read-only` (including unknown values) as a state change:
 
 ```bash
 cratis llm-context          # every command, option and argument as JSON
@@ -66,8 +71,22 @@ The connection string resolves in this exact order:
 4. `chronicle://localhost:35000`
 
 Credentials are composed separately, and only when the resolved string carries
-no embedded `user:pass@` and no `apiKey=`: a cached access token first, then the
-context's client id and secret.
+no embedded `user:pass@` and no `apiKey=` (embedded credentials win): use a cached
+login token only for its issuing server and while valid (more than one minute
+before expiry), then context client id/secret, then the built-in development
+client, which non-local servers reject. An expired matching login without
+client credentials raises `LoginSessionExpired` (exit 4), not a silent fallback.
+A login belonging to another server is not sent; a once-per-process stderr
+notice explains the mismatch.
+
+Use `cratis chronicle login <user>` (`--secret` or prompt), `chronicle logout`
+and `chronicle auth status -o json` (`tokenServer`, `loginMatchesServer`). Login
+refuses multi-host and `chronicle+srv://` targets. CLIs before 3.21.0 discarded
+the login token; log in again after upgrading. Context values can be changed
+with `context set-value server|event-store|namespace|client-id|client-secret`.
+Keep secrets out of logs and committed configuration.
+Evidence: [ChronicleSettings.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/ChronicleSettings.cs)
+and [authentication](https://github.com/Cratis/cli/blob/v3.53.1/Documentation/chronicle/auth.md).
 
 Prefer a named context over repeating a connection string:
 
@@ -103,13 +122,15 @@ There is one output flag, `-o` / `--output`, with values `table`, `plain`,
 
 Exit codes are stable and worth branching on: `0` success, `1` not found, `2`
 connection error, `3` server error, `4` authentication error, `5` validation
-error.
+error; `6` is `changes_pending` for `render --check`, not Chronicle commands.
+JSON errors carry an `error` code such as `not_found`, `connection_error`,
+`server_error`, `authentication_error` or `validation_error`.
 
 ## Where to look
 
 | Question | Where to look |
 | --- | --- |
-| Is the server healthy at all? | `cratis chronicle diagnose` (exit code 3 when unhealthy) |
+| Is the server healthy at all? | `cratis chronicle diagnose`; `--all-namespaces`, `--all-event-stores`, `--watch --interval <seconds>`; non-zero for unhealthy, quarantined or incomplete checks |
 | Why has this read model stopped updating? | `chronicle failed-partitions list --observer <id>` — the error is on the partition, not in the log |
 | An observer is quarantined — why? | `chronicle failed-partitions show <observer> <partition> --detailed`, with attempt history |
 | Did this event actually get appended? | `chronicle events get --event-type <type> --event-source-id <id>` (`events tail` returns only the highest sequence number — not a count, not the events) |
@@ -119,12 +140,17 @@ error.
 | Is a replay or migration still running? | `chronicle jobs list`, then `chronicle jobs get <id>` |
 | What does the server itself recommend? | `chronicle recommendations list` |
 
-Inspection commands are read-only: `diagnose`, `version`, `event-stores list`,
-`namespaces list`, `event-types list|show`, `events get|tail`, `observers
-list|show`, `failed-partitions list|show`, `projections list|show`,
-`read-models list|instances|get|snapshots|occurrences`, `jobs list|get`,
-`recommendations list`, `subscriptions list`, `identities list`, `users list`,
-`applications list`, and `auth status`.
+Classify inspection through `effect=read-only` in `cratis llm-context`, not a
+remembered allowlist. `chronicle report-error` is cataloged read-only, but opens
+a browser issue form; the harness guard deliberately blocks that external UI
+action.
+
+`read-models get|snapshots|instances <READ_MODEL>` takes the **Identifier** column
+of `read-models list`, not the container name. `events get` accepts `--sequence`,
+`--from`, `--to`, `--event-source-id` and `--event-type` (comma-separated, optional
+`Type+gen`). It has no limit option: bound `--from`/`--to` and prefer `-o plain`.
+The catalog recommends plain for `event-types list`, `projections list` and
+`read-models instances`, and json-compact for `read-models get`.
 
 ## Read what comes back
 
@@ -141,6 +167,12 @@ list|show`, `failed-partitions list|show`, `projections list|show`,
   not the first. A redeploy that restarts the client can also end the quarantine
   as a side effect, so check the observer's state before and after a redeploy.
 
+- **Observer and partition quarantine are separate.** `observers clear-quarantine`
+  clears only the observer. `observers clear-partition-quarantine <observer> <partition>`
+  needs Chronicle 19.29.0+, resets the retry budget and retries unless `--no-retry`
+  is given; handler side effects may repeat. `retry-partition` exits non-zero
+  when quarantined or not failed. `jobs resume` resumes Stopped jobs, not Failed.
+
 ## Before you change anything
 
 Default to read-only inspection. A request to diagnose a live store does not
@@ -150,11 +182,19 @@ These commands mutate the running store:
 
 - `chronicle observers replay`, `replay-partition`, `retry-partition`,
   `clear-quarantine`
+- `chronicle observers remove` — destructive across every namespace of the event
+  store: definition, state, handled counts, failures and projection definition;
+  read model data stays. Refused while running or subscribed, no force flag.
+- `chronicle observers clear-partition-quarantine` — may retry the handler
 - `chronicle jobs stop`, `chronicle jobs resume`
 - `chronicle recommendations perform`, `chronicle recommendations ignore`
 - `chronicle subscriptions add`, `chronicle subscriptions remove`
 - `chronicle users add`, `chronicle users remove`
 - `chronicle applications add`, `chronicle applications remove`
+
+This is the v3.53.1 surface, not the authority for later versions; check the
+catalog's `effect` before acting. `chronicle login/logout` are `local`, while
+`chronicle workbench` is `destructive` because its keys can mutate the store.
 
 Where the Cratis hooks are installed, this boundary is enforced: a `PreToolUse` guard on shell
 commands blocks every `cratis chronicle` command that is not on its read-only allowlist, unknown
@@ -172,22 +212,24 @@ Before any of them:
 3. Prepare the repository-approved inverse or safe compensation when one exists;
    stop when the effect cannot be safely reversed unless the owner separately
    authorizes that irreversible operation.
-4. Show the dry run and obtain explicit authorization for that exact target and
-   action.
+4. Show the intended change (and a dry run where supported) and obtain explicit
+   authorization for that exact target and action.
 5. Re-read the target immediately before mutation and stop on drift.
 
 ### Two confirmation traps
 
 **Destructive commands fail closed outside a terminal.** Every command with a
 confirmation prompt — `observers replay`, `observers replay-partition`,
-`observers retry-partition`, `observers clear-quarantine`, `jobs stop`,
+`observers retry-partition`, `observers clear-quarantine`,
+`observers clear-partition-quarantine`, `observers remove`, `jobs stop`,
 `jobs resume`, `recommendations perform`, `recommendations ignore`,
 `users remove`, `applications remove`, `subscriptions remove` — asks
 interactively, and when the session is **not** interactive (a script, a
 pipeline, an agent harness) it does *not* proceed: it writes
 "Re-run the command with --yes to confirm the operation" and exits with the
 validation error code. `--yes` is therefore the only way a non-interactive run
-performs one of these, which makes `--yes` the authorization boundary. Declining
+performs one of these. It is confirmation, **not user authorization**; check
+`requiresConfirmation` independently from `effect` in the installed catalog. Declining
 the interactive prompt exits successfully having done nothing.
 
 **Additive commands do not prompt.** `users add`, `applications add` and
@@ -207,9 +249,10 @@ authorization.
 
 ## Related
 
-- The terminal Workbench (`cratis chronicle workbench`) presents the same
-  read-only data as a navigable full-screen view; reach for it when you are
-  exploring rather than answering one question.
+- `cratis-chronicle-mcp-inspection` offers read-mostly inspection/design-time
+  tools and job control only; replay, retry and observer recovery are CLI work.
+- The terminal Workbench (`cratis chronicle workbench`) presents the same data
+  with mutating keys; a human at a terminal uses it, not an agent harness.
 - The browser Workbench owns redaction, revision, and event-type authoring.
 - Source-level diagnosis belongs in the application's own diagnostic workflow;
   start there when the symptom reproduces locally, and start here when it is
