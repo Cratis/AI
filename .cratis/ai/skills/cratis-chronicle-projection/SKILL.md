@@ -17,7 +17,7 @@ This skill is verified against this exact source:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Projections`, `Cratis.Chronicle.Projections.ModelBound`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.EventSequences` |
+| `Cratis.Chronicle` | `19.50.1` | `Cratis.Chronicle.Projections`, `Cratis.Chronicle.Projections.ModelBound`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.EventSequences` |
 
 Reverify product sources before claiming support for another version.
 
@@ -52,6 +52,11 @@ public record <ReadModelName>(
 Matching property names map automatically. **AutoMap is on by default** — both
 for model-bound types and for the fluent builder — so never call `.AutoMap()`
 except inside a scope where you disabled it.
+
+`[NotProjected]` (property or record parameter) marks a member deliberately
+assembled by the query rather than projection state. AutoMap skips it and
+CHR0024 does not report it. It does not permit reading another read model from
+the projection. Source: `Projections/ModelBound/NotProjectedAttribute.cs`.
 
 `[Key]` is `Cratis.Chronicle.Keys.KeyAttribute`. It has no arguments and targets
 a property or a record constructor parameter, never the class.
@@ -141,8 +146,7 @@ variants only when the shapes genuinely diverge; a single read model with a
 `Status` flag is still right when every stage shares almost all its
 properties.
 
-> Variants require `Cratis.Chronicle` `19.1.0` or later — newer than this
-> skill's `18.3.0` baseline. Reverify before claiming support.
+> Variants require `Cratis.Chronicle` `19.1.0` or later; verified at `19.50.0`.
 
 Both approaches use the identity type only to anchor the group — it does not
 need to be a read model itself, and does not need a common CLR base type with
@@ -234,15 +238,42 @@ or a reactor rather than annotating the projection.
 
 ## `[FromAll]` versus `[FromEvery]`
 
-- `[FromAll]` subscribes to **every** event type in the system. It is for audit
-  and log models; pair it with `[NotRewindable]`. It targets a **property only**,
-  so it cannot go on a record positional parameter.
-- `[FromEvery]` captures across the events the model **already** declares through
-  its `[FromEvent<T>]` attributes — for example to stamp `EventContext` data. It
-  subscribes to nothing new.
+- `[FromAll]` subscribes to **every** event type in the sequence (join-only
+  event types are excluded). It is for audit/log models; pair it with
+  `[NotRewindable]`. It targets a **property only**, not a positional parameter.
+  Fluent `.FromAll()` can count into dictionaries using a per-event context key.
+- `[FromEvery]` captures across events the model **already** consumes, including
+  events handled **only by child or nested-child collections**, updating the
+  owning parent (19.49.0+). It subscribes to nothing new. Model-bound always
+  includes children; fluent `IFromEveryBuilder.ExcludeChildProjections()` opts
+  out (PDL: `exclude children`).
 
 Their two optional arguments are in **opposite order**: `[FromAll(contextProperty,
 property)]` and `[FromEvery(property, contextProperty)]`. Name them.
+
+## Definition changes replay
+
+At v19.50.0 (`Documentation/hosting/configuration/observers.md`), the kernel
+classifies a changed definition as no action, partial replay, or full replay.
+`observers.definitionEvolution` defaults to `Automatic`; `PartialOnly` applies
+partial/no-action plans but recommends full replay; `Manual` recommends both
+replay kinds. Mapping, key, filter, join and child changes require full replay
+when independence cannot be proved. Counters and joins are repaired by replay,
+not by deploying corrected mappings: historical double-counts remain until rebuilt.
+The 19.7.2 `FromAll` subscription change redefines existing projections.
+
+Projection replay and catch-up each walk the sequence in **one globally ordered
+job step**, not parallel per-source steps. A new failure during catch-up stops
+that ordered step even if other sources are healthy. Full replay keeps the
+observer inactive; completion routes to catch-up/live unless quarantined.
+At 19.50.1, a next-event storage error leaves the cursor unchanged and waits for
+retry; only `NotFound` proves absence. It does not certify previously skipped
+history. Sources: `Documentation/projections/registration-lifecycle.md`,
+`Documentation/concepts/observers.mdx`, `Observation/Jobs/{CatchUpObserver,ReplayObserver}.cs`
+and `Observation/States/Routing.cs` (under `Source/Kernel/Core/`) at **v19.50.1**.
+
+Closing a stream does not erase its events or prevent a projection replay.
+Keep the closing fact as history; see **cratis-chronicle-event-constraints**.
 
 ## After creating
 
@@ -269,7 +300,10 @@ projection spans streams.
 - Model-bound attributes were exhausted before the fluent builder, and the
   fluent builder before any reducer.
 - `.AutoMap()` is called only inside a `.NoAutoMap()` scope.
-- Every join is on an event type.
+- Every join is on an event type; CHR0042 overlaps are deliberate.
+- One class implements only one `IProjectionFor<T>` (CHR0057).
+- Inert filters/clear mappings and non-nullable clears (CHR0041–CHR0048) are
+  checked rather than suppressed; deliberately query-owned members use `[NotProjected]`.
 - No `[FromEventSequence]` attribute appears anywhere.
 - No projection carries a filter attribute expecting it to filter.
 - `ConstantKey` is written as a property initializer.

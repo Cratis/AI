@@ -128,10 +128,12 @@ list|show`, `failed-partitions list|show`, `projections list|show`,
 
 ## Read what comes back
 
-- **A failed partition does not retry itself.** It stays failed until something
-  clears it, so a stale value is permanent rather than slow. That distinction is
-  the whole diagnosis: "not arrived yet" and "will never arrive" look identical
-  from the outside.
+- **A failed partition is not necessarily quarantined.** Eligible failures retry
+  automatically under the configured budget; quarantined partitions stop retrying.
+  Missing `IsQuarantined` is Unknown, not healthy. A stale value can mean lag or a
+  stopped partition: inspect attempts and observer state rather than guessing.
+  Observer clear does not clear partition quarantine. Source: Chronicle
+  **v19.50.1**, `Documentation/concepts/observers.mdx`.
 - **Fix the cause before replaying.** Replaying into an unfixed handler fails the
   same way and buries the original error under a newer one.
 - **A quarantined observer does not resume by itself.** A quarantine ends when

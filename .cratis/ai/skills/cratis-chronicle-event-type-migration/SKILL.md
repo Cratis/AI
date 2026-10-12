@@ -35,8 +35,8 @@ This skill is verified against these exact sources:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Events` and `Cratis.Chronicle.Events.Migrations` |
-| `Cratis.Chronicle.CodeAnalysis` | `18.3.0` | `CHR0012`, `CHR0037`, `CHR0049`, `CHR0050` |
+| `Cratis.Chronicle` | `19.50.1` | `Cratis.Chronicle.Events` and `Cratis.Chronicle.Events.Migrations` |
+| `Cratis.Chronicle.CodeAnalysis` | `19.50.1` | `CHR0012`, `CHR0037`, `CHR0049`, `CHR0050` |
 
 Reverify product sources before claiming support for another version.
 
@@ -161,6 +161,26 @@ public override void Downcast(IEventMigrationBuilder<<EventName>V1, <EventName>>
             source => source.<FirstPart>, source => source.<SecondPart>));
 ```
 
+## Nested paths and compatible schema metadata
+
+Property expressions traverse nested CLR members:
+`DefaultValue(m => m.Price.Description, "x")` and
+`RenamedFrom(m => m.Price.Amount, e => e.Amount)` address the nested target.
+`JsonPropertyName` wins over the client's naming policy; raw string paths are
+already JSON paths and are not renamed. An undeclared `DefaultValue` target in
+a nonempty target schema is rejected with `InvalidMigrationPropertyForEventType`
+(`Source/Kernel/Core/EventTypes/EventTypeRegistrar.cs`, `ValidatePropertyKeys`);
+an empty auto-generated target schema is the exception.
+
+Adding/removing an **optional** property at any depth still needs a migration
+class to complete the new generation chain, but no property operations: the
+target schema supplies absence/drops undeclared properties. That is a migration
+fact, not a reason to put nullable facts on newly authored events. Schema `title`
+is ignored, so renaming a CLR record with a pinned `[EventType("id")]` does not
+raise `EventTypeSchemaChanged`. A property described only by `default` may gain
+`type`/`format` without that error. Source at v19.50.0:
+`Documentation/migrations/dotnet-client.mdx` and the kernel event-type schema comparison.
+
 ## Step 3 — When the values changed meaning, declare a value map
 
 The operations above move values between properties. When a *value itself* means
@@ -212,6 +232,16 @@ its adjacent pair; Chronicle chains them. Two migrations claiming the same
 Migrations are discovered by convention — nothing is registered. They are
 activated through the service provider, so a migration may take constructor
 dependencies.
+
+## Backfill scope and rollout
+
+At v19.50.0 (`Documentation/migrations/index.md:62-74`), registering a new
+generation starts **add-only** backfill in the **default namespace's event log
+only**. Other namespaces and sequences are not covered. Existing stored
+representations remain unchanged; changing a migration alone does not launch
+another backfill. Older backfills may already have overwritten originals:
+upgrading cannot recover those. Register new generations **only after every
+kernel silo is upgraded**; an old worker can still overwrite content mid-rollout.
 
 ## Choose the generation an observer receives
 

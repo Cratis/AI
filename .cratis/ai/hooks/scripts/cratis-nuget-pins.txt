@@ -5,7 +5,6 @@
 # Update a pin only together with the skill whose verified version moved.
 Cratis.Arc 22.75.0
 Cratis.Arc.Chronicle 22.75.0
-Cratis.Chronicle 16.45.2
-Cratis.Chronicle 17.0.1
-Cratis.Chronicle.CodeAnalysis 16.45.3
+Cratis.Chronicle 19.50.1
+Cratis.Chronicle.CodeAnalysis 19.50.1
 Cratis.Fundamentals 7.18.2

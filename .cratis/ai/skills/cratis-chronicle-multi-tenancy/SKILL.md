@@ -186,7 +186,7 @@ the tenant identifier in the resolver rather than relying on that.
 | No resolver configured in a multi-tenant deployment | every tenant lands in `Default` and there is no isolation |
 | A singleton holding an event store, a collection, or a context | pinned to the default namespace forever, and it returns empty rather than throwing |
 | Registering a second resolver expecting a fallback | one resolver wins; the other is never called |
-| Expecting a once-only reactor to fire once globally | observers run per namespace, so it fires once per tenant |
+| Expecting `[OnceOnly]` to run once globally or once per tenant | observers run per namespace; the attribute excludes replay, not repeated events, catch-up or recovery |
 | Comparing sequence numbers across namespaces | they are independent sequences |
 | Erasing personal data in one namespace and calling it done | erasure is per namespace |
 | Relying on namespace casing | lookup is case-insensitive, storage naming is not |

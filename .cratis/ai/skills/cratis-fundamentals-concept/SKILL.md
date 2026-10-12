@@ -212,10 +212,14 @@ untyped `EventSourceId`, and `EventSourceId<T>`. Those operators do not create
 your derived `<ConceptName>` from `T`, string, or untyped `EventSourceId`.
 Declare only the derived-type conversions your domain API needs.
 
-String and Guid are the safest round-trip primitives. Chronicle also supports
-constructible `ConceptAs<string>` and `ConceptAs<Guid>` values. Other comparable
-values rely on `Convert.ChangeType`; verify round-trip behavior before using
-them as stream IDs.
+String and Guid remain the safest stream-id primitives. At **Chronicle v19.50.0**
+(`Source/Clients/DotNET/Events/EventSourceId.cs:148-174`), numeric/date/time ids
+and concepts wrapping them convert with invariant culture (since 19.37.3).
+`DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly` use `"O"`; `TimeSpan` uses
+`"c"`. Decimal `123.45` stays `"123.45"` even under nb-NO.
+**Existing streams may have different legacy ids** if written under date/time or
+decimal-comma formats: read/append them with their old untyped id, rather than
+silently opening a new stream under the new format.
 
 ### Unspecified and sensitive identities
 
