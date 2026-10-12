@@ -1,5 +1,6 @@
 {
-  "cli": "3.43.0",
-  "corpusPackage": "4.133.0",
-  "editedColumn": "\"label\":\"Work item id\",\"property\":\"workItemId\""
+  "cli": "3.53.1",
+  "corpusPackage": "4.145.0",
+  "editedColumn": "\"label\":\"Work item id\",\"property\":\"workItemId\"",
+  "playwright": "1.63.0"
 }

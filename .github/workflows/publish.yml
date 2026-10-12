@@ -81,7 +81,10 @@ jobs:
 
       # Replays the screens authoring workflow without a Screenplay checkout: the pinned public cratis CLI, the
       # published canonical corpus, the revision-checked MCP column edit, and a render that must carry the column.
+      # SCREENS_SMOKE_BROWSER also runs the edited model with `cratis run` (Docker) and checks the column in Chromium.
       - name: Replay the screens authoring workflow on the pinned public vector
+        env:
+          SCREENS_SMOKE_BROWSER: '1'
         run: Source/Verification/screens-smoke/screens-smoke.sh "$RUNNER_TEMP/screens-smoke"
 
       - name: Test Pi package behavior
