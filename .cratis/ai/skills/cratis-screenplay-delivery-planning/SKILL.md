@@ -40,15 +40,15 @@ it is not planned work yet.
    as planned delivery. Drafts and open questions are listed separately as unplanned. If the
    model is still moving, plan only the stable modules and say what is excluded.
 2. **Inventory the slices.** Use the Screenplay MCP: `describe-application` for counts and
-   paged children, `dependency-graph` for module and feature edges and cycles,
-   `dependencies` and `find-references` per slice for the events and views it consumes
-   and produces. Treat `complete: false` or an ambiguous binding as unknown, never as no
+   paged children, `dependency-graph` at slice level for edges, cycles and an advisory
+   order, `dependencies` and `find-references` per slice for the contracts it consumes and
+   produces and for the `reads`/`invokes` edges the graph does not order. Treat `complete: false` or an ambiguous binding as unknown, never as no
    dependency (`cratis-screenplay-model-authoring`). Without the MCP, read the `.play` files.
 3. **Classify each slice** by type and by realization: rendered (Stage admits it) or
    hand-written (gap-fill, adapter, external call). Record the reason for each hand-written one.
 4. **Build the dependency table** (`references/parallel-delivery.md`): per slice, the events
-   it consumes, who produces each, and the slices it waits on. A cycle is a modeling defect to
-   return to slice design, not something to schedule around.
+   it consumes, who produces each, and the slices it waits on. A cycle means a feedback loop:
+   return it to slice design (usually an Automation slice); never schedule around it.
 5. **Group into waves.** Slices with no unmet producers form wave 1; each next wave needs
    only earlier waves. Within a wave, slices are independent and can run in parallel. Group
    slices that share one view or one stream into one slice group (one issue).
@@ -58,13 +58,18 @@ it is not planned work yet.
    outside systems, environment and deployment, specifications that need new infrastructure.
 7. **Track.** One GitHub issue per slice group, in the repository's own issue practice
    (`issue_work` and the hygiene skill where installed): the status block lists the slices, their
-   type, the wave, the blockers and the status below. Keep the working plan in
+   type, the wave, the blockers and each slice's planning status below. The issue's own state
+   follows the repository's hygiene (in progress, in review when the PR opens, paused, blocked,
+   done only when delivered). Keep the working plan in
    `.ai-work/<task>/delivery-plan.md`.
 8. **Re-plan after each completed group.** Update throughput, recount if the model changed,
    restate the range. Record the retrospective metrics from `references/velocity-and-capacity.md`.
 
 ## Status vocabulary
-Closed set, used on every slice and slice group:
+Per-slice planning status, a closed set recorded inside the plan and the issue's status block.
+It is not the issue's state: the enclosing issue keeps the repository's own states (for example
+`issue_work`: in progress, in review, paused, blocked, done), and is done only when its slices are
+delivered (merged and released where the repository releases).
 
 | Status | Meaning |
 |---|---|

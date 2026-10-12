@@ -21,11 +21,14 @@ duration low / expected / high = remaining / (high, median, low throughput)
 - Do not state accuracy percentages or comparisons with other methods; they cannot be derived from your data. Calibrate by comparing your past ranges with what happened (below).
 
 ## Capacity
-Throughput scales with people only along the dependency table: the useful parallelism of a wave is the number of independent slices in it, capped by the number of people or agents.
+Throughput scales with people only along the dependency table: the useful parallelism of a wave is the number of independent slices in it, capped by the number of people or agents. A slice has one owner, so its work cannot be split across workers.
 ```
-elapsed time for a wave = (weighted slices in the wave / workers in use) / throughput per worker
-total elapsed time = sum over waves (waves are sequential)
+lower bound for a wave  = (weighted slices in the wave / workers in use) / throughput per worker
+elapsed time for a wave = (largest total weight assigned to one worker) / throughput per worker
+total elapsed time      = sum over waves (waves are sequential)
 ```
+- Assign the wave's slices to workers first (heaviest first, each to the least-loaded worker), then take the most-loaded worker. The aggregate formula is only a lower bound; the wave can never finish before its heaviest single slice.
+- Example: three independent slices weighted 1, 1 and 3, three workers at one weighted unit per week. The lower bound says 5 / 3 = 1.7 weeks; the assignment gives loads 3, 1 and 1, so the wave takes 3 weeks. Split a heavy slice in the model (slice design) if it dominates a wave, never by sharing it between workers.
 - Throughput per worker comes from history with that many workers; adding a worker adds coordination cost, so measure after the change rather than assuming it multiplies.
 - Shared contracts (one event consumed by several slices) need one owner; count that integration as work.
 - Capacity levers other than people: faster verification (spec run time, CI queue), fewer hand-written slices (a model change that Stage admits), better adapters. Estimate their effect from a before and after measurement, not a promise.

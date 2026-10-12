@@ -18,7 +18,7 @@ Count a rendered slice and a hand-written slice in different rows even when they
 
 ## What not to count as slices
 Plan these as separate lines, not slice weight:
-- modeling, review and acceptance gates (lifecycle phases P0 to P5),
+- modeling, review and acceptance gates (lifecycle phases P0 to P6); P7 to P9 verification is part of each slice's done criteria,
 - environment, hosting, deployment, identity and authorization provider setup,
 - integration with an outside system beyond the slice's own adapter (credentials, sandboxes, contract tests with the other party),
 - migration of existing data,
