@@ -38,7 +38,7 @@ then hands off to review (P5) and acceptance (P6).
 
 Current pins: `cratis-screenplay-toolchain` `references/versions.md`. The sources below were read
 at the versions named in each row (CLI 3.53.1 bundles Prologue
-2.0.0; the Screenplay, Stage and Arc.Screenplay it bundles are in that pin set, not the latest Arc or Chronicle). Checked at these sources:
+2.0.0; the Screenplay, Stage and Arc.Screenplay it bundles are in that pin set, and are not the latest releases). Checked at these sources:
 
 | Fact used here | Source |
 | --- | --- |

@@ -52,6 +52,13 @@ test('an allowlisted occurrence passes and is counted', () => {
     assert.equal(report.allowed, 1);
 });
 
+test('an allowlist entry covers only its own occurrence, not the rest of the line', () => {
+    const exceptions: PinException[] = [{ file: 'skills/a/SKILL.md', text: 'verified at Arc v22.68.0', reason: 'verification tag' }];
+    const report = pinRestatements([{ path: 'skills/a/SKILL.md', content: 'Behavior verified at Arc v22.68.0; the scaffold pins Arc 22.68.0.' }], pins, exceptions);
+    assert.equal(report.problems.length, 1);
+    assert.match(report.problems[0], /restates the current Arc pin 22\.68\.0/);
+});
+
 test('a stale allowlist entry fails', () => {
     const exceptions: PinException[] = [{ file: 'skills/a/SKILL.md', text: 'verified at Arc v22.68.0', reason: 'verification tag' }];
     const report = pinRestatements([{ path: 'skills/a/SKILL.md', content: 'Nothing to see.' }], pins, exceptions);

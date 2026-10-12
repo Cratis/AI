@@ -90,14 +90,16 @@ export function pinRestatements(files: SourceFile[], pins: Pin[], exceptions: Pi
     let allowed = 0;
     for (const file of scanned) {
         file.content.split('\n').forEach((line, index) => {
-            for (const pin of pins.filter(candidate => occurrence(candidate.value).test(line))) {
-                const exception = exceptions.find(entry => entry.file === file.path && line.includes(entry.text) && occurrence(pin.value).test(entry.text));
-                if (exception) {
-                    used.add(exception);
+            let remaining = line;
+            for (const entry of exceptions.filter(candidate => candidate.file === file.path && pins.some(pin => occurrence(pin.value).test(candidate.text)))) {
+                while (remaining.includes(entry.text)) {
+                    remaining = remaining.replace(entry.text, ' ');
+                    used.add(entry);
                     allowed++;
-                } else {
-                    problems.push(`${file.path}:${index + 1} restates the current ${pin.label} pin ${pin.value}; point at the central table instead (${pin.label === 'Cratis.Arc.Screenplay' ? bundleTable : scaffoldTable}) or list a reasoned exception.`);
                 }
+            }
+            for (const pin of pins.filter(candidate => occurrence(candidate.value).test(remaining))) {
+                problems.push(`${file.path}:${index + 1} restates the current ${pin.label} pin ${pin.value}; point at the central table instead (${pin.label === 'Cratis.Arc.Screenplay' ? bundleTable : scaffoldTable}) or list a reasoned exception.`);
             }
         });
     }
