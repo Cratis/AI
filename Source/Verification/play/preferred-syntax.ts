@@ -3,21 +3,8 @@
 
 import type { Fence } from './Fence.ts';
 import { diagnosticCodes } from './classify.ts';
-
-export interface StyleDiagnostic {
-    code: string;
-    name: string;
-    severities: string[];
-    reserved: boolean;
-    retired: boolean;
-}
-
-export interface StyleException {
-    file: string;
-    rule: string;
-    text: string;
-    reason: string;
-}
+import type { StyleDiagnostic } from './StyleDiagnostic.ts';
+import type { StyleException } from './StyleException.ts';
 
 export function styleCodes(diagnostics: StyleDiagnostic[]): string[] {
     return diagnostics.filter(diagnostic => /Legacy|Redundant|Deprecated/.test(diagnostic.name)

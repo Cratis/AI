@@ -11,7 +11,9 @@ import { Outcome } from './Outcome.ts';
 import type { Report } from './Report.ts';
 import type { Runner } from './Runner.ts';
 import { run } from './invoke.ts';
-import { PreferredSyntax, screenplayGuidance, type StyleDiagnostic, type StyleException } from './preferred-syntax.ts';
+import { PreferredSyntax, screenplayGuidance } from './preferred-syntax.ts';
+import type { StyleDiagnostic } from './StyleDiagnostic.ts';
+import type { StyleException } from './StyleException.ts';
 
 async function markdownFiles(directory: string): Promise<string[]> {
     const paths: string[] = [];

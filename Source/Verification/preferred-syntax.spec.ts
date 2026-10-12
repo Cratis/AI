@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import { parseFences } from './play/fences.ts';
-import { PreferredSyntax, styleCodes, type StyleDiagnostic } from './play/preferred-syntax.ts';
+import { PreferredSyntax, styleCodes } from './play/preferred-syntax.ts';
+import type { StyleDiagnostic } from './play/StyleDiagnostic.ts';
 
 const diagnostic: StyleDiagnostic = { code: 'PLAY0479', name: 'LegacyOptionalSuffix', severities: ['information'], reserved: false, retired: false };
 const file = '.cratis/ai/skills/cratis-screenplay-example/SKILL.md';
