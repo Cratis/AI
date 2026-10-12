@@ -40,6 +40,7 @@ Your responsibility is to perform a structured **security review** of all change
 ### Authentication & Authorization
 
 - [ ] All HTTP endpoints are decorated with `[Authorize]` or explicitly marked `[AllowAnonymous]` with justification
+- [ ] Apply the source-pinned Arc v22.75.0 checks in `cratis-security-review/references/arc-boundaries.md`: host-wide forwarded-header opt-in only behind stripping ingress, principal-derived identity (no cookie reads), deployed discovery exposure, declaration precedence and guest-policy intent, plain-HTTP emission guards, narrow system actors, and embedded viewer opt-in overrides.
 - [ ] Tenant isolation enforced — no cross-tenant data accessible without explicit authorization
 - [ ] Claims are verified before acting on command data that depends on identity
 

@@ -3,8 +3,8 @@
 # each into the full Cratis closure found in the local NuGet cache. Sources: the
 # "Verified product sources" sections of the skills under skills/.
 # Update a pin only together with the skill whose verified version moved.
-Cratis.Arc 22.10.4
-Cratis.Arc.Chronicle 22.10.4
+Cratis.Arc 22.75.0
+Cratis.Arc.Chronicle 22.75.0
 Cratis.Chronicle 16.45.2
 Cratis.Chronicle 17.0.1
 Cratis.Chronicle.CodeAnalysis 16.45.3

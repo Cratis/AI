@@ -31,8 +31,9 @@ memory.
 
 - The rule rejects **command input** — a range, a format, a cross-field
   condition: use `cratis-arc-command-validation`.
-- The rule is state-dependent and belongs in the handler under concurrency (the
-  DCB pattern): also `cratis-arc-command-validation`.
+- The rule is state-dependent and needs concurrency protection: use enrolled
+  stream/projection decision reads with `cratis-arc-command-validation`.
+  Plain injected models and `Result<,>` alone remain advisory.
 - You are creating or changing a read model that the rule reads: use
   `cratis-chronicle-read-model`.
 - You are writing the specification and want the `EventScenario` mechanics in

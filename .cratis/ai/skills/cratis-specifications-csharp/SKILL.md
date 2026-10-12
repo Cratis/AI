@@ -12,6 +12,12 @@ Specifications are executable documentation. The folder tree reads like a table
 of contents, and each file states one setup, one action, and one or more
 focused assertions.
 
+Read [query and decision scenarios](../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
+when specifying query emissions, routed conflicts or protected projection reads.
+Call `UseDecisionReads()` before seeding actual events; pinned models cannot
+supply a guard. `Perform`/`Observe` need configured services/principal, and
+MongoDB observations still need real infrastructure.
+
 ## Verified product sources
 
 This skill is verified against these exact public releases:
@@ -20,7 +26,7 @@ This skill is verified against these exact public releases:
 | --- | --- | --- |
 | `Cratis.Specifications.XUnit` | `4.1.1` | `Specification` base, lifecycle discovery, `ShouldXxx` assertions, optional shared lifecycle |
 | `Cratis.Specifications` | `4.1.1` | `Catch.Exception`, `SpecificationMethods` (dependency of the XUnit package) |
-| `Cratis.Arc.Testing` | `22.16.0` | `CommandScenario<TCommand>` and `CommandResult` assertions |
+| `Cratis.Arc.Testing` | `22.75.0` | `CommandScenario<TCommand>` and `CommandResult` assertions |
 | `Cratis.Chronicle.Testing` | `18.3.0` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
 
 Reactor read-model seeding/absence, synchronous handler exceptions and the
@@ -29,7 +35,7 @@ and require **19.46.0+**; see the ReactorScenario section in
 [application-scenarios.md](references/application-scenarios.md).
 
 Generated-value scenario pinning is verified separately against
-`Cratis.Arc.Testing` **22.68.0** (introduced in **22.67.0**).
+`Cratis.Arc.Testing` **22.75.0** (introduced in **22.67.0**).
 
 Reverify against the owning product repository before claiming support for
 another version. Never translate an assertion or helper name from memory.
@@ -62,6 +68,7 @@ another version. Never translate an assertion or helper name from memory.
 | Pure `Handle()` / `Handle(providedValue)`, reducer logic or reactor decision (default) | Plain method call with `Specification` |
 | Isolated class, collaborators can be substituted | `Specification` + NSubstitute |
 | Arc command pipeline (validators, `Provide()`, `Handle()`, appended events) | `CommandScenario<TCommand>` |
+| Arc query conversion, validation, authorization and interceptors | `QueryScenario<TReadModel>` (`Cratis.Arc.Testing.Queries`) |
 | Chronicle append semantics, constraints, concurrency | `EventScenario` |
 | Projection or reducer state from a sequence of events | `ReadModelScenario<TReadModel>` |
 | Reactor invocation and its side effects | `ReactorScenario<TReactor>` |
@@ -77,11 +84,10 @@ one. Out-of-process integration specifications are an advanced case reserved for
 boundaries the scenario helpers cannot reach — see
 [integration-specs.md](references/integration-specs.md).
 
-> **Validator state can be order-sensitive.** The command-scenario pipeline can
-> cache enough state that injected-validator branches depend on execution order
-> when xUnit runs classes in parallel. Use `CommandScenario` for the valid path,
-> test rejected state variants by instantiating the validator directly, and only
-> for that case put the command's specifications in a small xUnit `[Collection]`.
+> **Historical validator-state order-sensitivity:** observed at 22.16-era Arc.
+> Process-wide provider replacement was fixed in 22.23.2; later releases isolated
+> scenario stores/services. Reproduce at 22.75.0 before applying the old
+> direct-validator/small `[Collection]` workaround; it is not verified here.
 
 ⚠️ `EventScenario` wires a strategy that always answers `ConcurrencyScope.None`,
 which the validator skips, so an append that lets the strategy choose the scope

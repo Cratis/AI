@@ -1,20 +1,5 @@
 [
   {
-    "file": ".cratis/ai/skills/cratis-specifications-csharp/references/application-scenarios.md",
-    "text": "Verified at **Arc v22.68.0**",
-    "reason": "The version at which the CommandScenario generated-value API was verified"
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-specifications-csharp/references/application-scenarios.md",
-    "text": "Source: **Arc v22.68.0**",
-    "reason": "Source tag for the generated-value API reading"
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-specifications-csharp/SKILL.md",
-    "text": "`Cratis.Arc.Testing` **22.68.0**",
-    "reason": "Arc.Testing version in which the generated-value API was verified"
-  },
-  {
     "file": ".cratis/ai/skills/cratis-chronicle-reactor/SKILL.md",
     "text": "Arc 22.68.0's handler needs every element to be a command",
     "reason": "Capability claim about that Arc release itself, not a restated scaffold pin"
@@ -38,21 +23,6 @@
     "file": ".cratis/ai/skills/cratis-arc-command/references/generated-values.md",
     "text": "**v22.68.0**, which pins Fundamentals",
     "reason": "Verification tag and the Fundamentals version that release pins"
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-arc-command/references/generated-values.md",
-    "text": "Arc v22.68.0 reports these at compile time",
-    "reason": "Capability claim about diagnostics in that Arc release"
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-arc-command/references/generated-values.md",
-    "text": "Source at **Arc v22.68.0**",
-    "reason": "Source tag for the generated-value attribute reading"
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-arc-command/SKILL.md",
-    "text": "verified at **v22.68.0**",
-    "reason": "Verification tag for the generated-value example"
   },
   {
     "file": "Evaluations/skills/cratis-arc-command/evals.json",

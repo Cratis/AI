@@ -109,7 +109,10 @@ Chronicle is allowed where the rule needs it (an injected read model read by
 explicit key, or a `[Passive]` projection for a command-side decision); see
 Cross-slice patterns in `rules/vertical-slices.md`. Make such a read deliberate
 and name it in the brief, with the consistency it needs: a rule that must hold
-under concurrency uses the DCB pattern rather than a stale materialized read.
+under concurrency needs enrolled guarded reads, not plain injection or a stale
+materialized snapshot. In Arc v22.75.0 use `IStreamReads`/`StreamDecision` for one
+stream or `[ProtectedDecision]` + admitted `DecisionRead<T>` for projected state;
+`Result<,>` alone supplies rejection, not a concurrency guard.
 
 ## Compliance modeling
 

@@ -102,7 +102,7 @@ ordinary response, event and compliance contracts.
 
 ## Analyzer diagnostics
 
-Arc v22.68.0 reports these at compile time; none has a code fix. Runtime
+Arc v22.75.0 reports these at compile time; none has a code fix. Runtime
 handler-construction checks remain for declarations compiled without analyzers.
 
 | Diagnostic | Severity | Fix |
@@ -154,7 +154,8 @@ Published guides:
   [ARC0024](/arc/backend/csharp/code-analysis/arc0024/),
   [ARC0025](/arc/backend/csharp/code-analysis/arc0025/).
 
-Source at **Arc v22.68.0**: `Source/DotNET/Arc.Core/Commands/ModelBound/GeneratedValueAttribute.cs`,
+Source rechecked at **Arc v22.75.0** (generation/pinning APIs unchanged since
+the prior verification): `Source/DotNET/Arc.Core/Commands/ModelBound/GeneratedValueAttribute.cs`,
 `Commands/GeneratedValueParameters.cs`, `GeneratedValueFactories.cs`,
 `CommandHandlerArgumentResolver.cs`, `GeneratedValueResolution.cs`;
 `Source/DotNET/Arc.Core.CodeAnalysis/DiagnosticDescriptors.cs`; and
