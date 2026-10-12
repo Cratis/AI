@@ -1,0 +1,13 @@
+{
+  "skill": "cratis-components-styling",
+  "input": "Set up Components styles under host cascade layers and customize dark mode without breaking notifications.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "@import '@cratis/components/tokens'" },
+    { "kind": "skill-contains", "value": "first** `@layer` statement" },
+    { "kind": "skill-contains", "value": "plain `:root` override after `theme` loses" },
+    { "kind": "skill-contains", "value": "--color-error-bg" },
+    { "kind": "skill-contains", "value": "mount one, never both" },
+    { "kind": "skill-contains", "value": "common.progress`" }
+  ]
+}

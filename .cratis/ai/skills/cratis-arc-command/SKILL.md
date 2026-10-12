@@ -26,18 +26,24 @@ or a combination.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Arc.Core` | `22.16.0` | `Cratis.Arc.Commands.ModelBound.CommandAttribute`, `CommandResult`, `CommandValidator<T>` |
-| `Cratis.Arc.Chronicle` | `22.16.0` | event append handling, `Cratis.Arc.Chronicle.Commands.NotAuditedAttribute` |
-| `Cratis.Arc.ProxyGenerator.Build` | `22.16.0` | `CratisProxiesOutputPath` MSBuild integration |
-| `Cratis.Fundamentals` | `7.19.2` | `Cratis.Monads.Result<TResult, TError>` |
+| `Cratis.Arc.Core` | `22.75.0` | `Cratis.Arc.Commands.ModelBound.CommandAttribute`, `CommandResult`, `CommandValidator<T>` |
+| `Cratis.Arc.Chronicle` | `22.75.0` | event append handling, `Cratis.Arc.Chronicle.Commands.NotAuditedAttribute` |
+| `Cratis.Arc.ProxyGenerator.Build` | `22.75.0` | `CratisProxiesOutputPath` MSBuild integration |
+| `Cratis.Fundamentals` | `7.23.0` | `Cratis.Monads.Result<TResult, TError>` |
 | `Cratis.Chronicle` | `18.3.0` | `EventTypeAttribute`, `EventForEventSourceId`, `ICanProvideEventSourceId` |
-| `@cratis/arc` | `22.16.0` | `ICommand`, `CommandResult`, `ValidationResult` |
+| `@cratis/arc` | `22.75.0` | `ICommand`, `CommandResult`, `ValidationResult` |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
+> Arc surface rechecked at v22.75.0, including the source-pinned references below.
+> Arc's package dependency is Chronicle 19.39.1 / Fundamentals 7.23.0; separately
+> version-qualified Chronicle/Fundamentals claims retain their own verification.
+
+Fundamentals rechecked at v7.23.0 in
+[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
+success is first, error second, with implicit conversions from both types.
 
 Reverify before claiming support for another version. Arc without Chronicle is a
 supported setup; everything on this page that appends events needs Chronicle.
-Operation guidance below is verified at **Arc v22.48.1**; see
+Operation guidance below is rechecked at **Arc v22.75.0**; see
 `cratis-arc-command-operation` for its source and recovery contract.
 
 ## Declare the command
@@ -126,7 +132,7 @@ processes a non-null result, so a `null` is success with nothing appended and th
 caller is told a command succeeded that never happened. Missing state or a failed
 rule is a rejection: return `Result<TEvent, ValidationResult>` with
 `ValidationResult.Error(...)`, or reject in a validator or `Provide()`. Optional
-`ICommandOperation` returns are a separate contract and unaffected. A nullable
+`ICommandOperation` returns are a separate contract and unaffected. `ARCCHR0015` warns on nullable event returns. A nullable
 read-model parameter (`ARC0006`) is handled by rejecting, never by returning a
 nullable event.
 
@@ -166,7 +172,7 @@ public record Transfer(<AccountId> From, <AccountId> To, <Money> Amount)
 
 ## Generate a server-owned new identifier
 
-**Arc 22.66.0+**, verified at **v22.68.0**: the create-command example above
+**Arc 22.66.0+**, verified at **v22.75.0**: the create-command example above
 requires `<ThingId>` to implement `IGeneratable<ThingId>` with a static `New()`
 strategy (Fundamentals 7.23.0+; see `cratis-fundamentals-concept`). Replace
 `Guid.NewGuid()` or `<ThingId>.New()` inside `Handle()` with a generated parameter,
@@ -200,6 +206,17 @@ Chronicle resolves the command's event source id in this order:
 A command with more than one candidate property is ambiguous and `ARCCHR0002`
 warns; implement `ICanProvideEventSourceId` to say which value wins. Do not rely
 on property order.
+
+`[Key]` on a positional record's primary-constructor parameter is recognized
+and counted once. Child-only/nested read-model types are not standalone
+command-scoped models. `[EventSource<TSource>(stream)]` supplies source type and
+stream metadata on commands and aggregate roots.
+
+Read [decisions and routing](references/decisions-and-routing.md) when a command
+needs guarded state, stream-id templates, definition-backed routes, event tags or
+post-commit `CompleteStream`. Plain read-model injection remains advisory;
+`Result<,>` alone is not concurrency protection. Explicit routing on a returned
+`EventForEventSourceId` wins over command context.
 
 Two attributes are spelled `[Key]`. Chronicle reads `Cratis.Chronicle.Keys.KeyAttribute`.
 Marking `System.ComponentModel.DataAnnotations.KeyAttribute` in an application
@@ -283,7 +300,7 @@ either way, so the reading is all a reviewer has to go on.
 ## Generate the TypeScript proxy
 
 ```xml
-<PackageReference Include="Cratis.Arc.ProxyGenerator.Build" Version="22.16.0" />
+<PackageReference Include="Cratis.Arc.ProxyGenerator.Build" Version="22.75.0" />
 
 <PropertyGroup>
   <CratisProxiesOutputPath>$(MSBuildThisFileDirectory)../<Web>/src/api</CratisProxiesOutputPath>
@@ -294,6 +311,11 @@ either way, so the reading is all a reviewer has to go on.
 `CratisProxiesOutputPath` is set. Output folders mirror the C# namespace, not the
 file path. When configuring proxy generation or diagnosing missing or stale output, read [proxy generation](references/proxy-generation.md) for the full
 set of MSBuild knobs and the common failures.
+
+`[BlockOnValidationSeverity(ValidationResultSeverity.Warning)]` declares the
+lowest blocking severity for validation, `Provide` and execution. Caller
+`allowedSeverity`/`X-Allowed-Severity` can only make it stricter; `Unknown` blocks.
+The proxy carries `blockOnValidationSeverity` and honors it client-side.
 
 ## The generated client contract
 

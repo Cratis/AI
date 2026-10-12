@@ -28,8 +28,8 @@ Require target evidence that the check ran: a concurrent first-append scenario a
 Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
 is `true` (a skipped check and a passing one look identical otherwise; a current client against
 an older kernel always reads `false`). This was source- and documentation-inspected, not
-concurrency-tested here. The Stage 4.73.1 scaffold pins Chronicle client/kernel 19.45.0
-and Arc 22.68.0 (the CLI bundle's Chronicle is 19.32.0); the APIs exist for gap-fill, not as automatically rendered enforcement.
+concurrency-tested here. The Stage scaffold pins Chronicle client/kernel and Arc releases (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`;
+the CLI bundle's Chronicle is in `cratis-screenplay-toolchain` `references/versions.md`); the APIs exist for gap-fill, not as automatically rendered enforcement.
 
 ## Verified product sources
 
@@ -38,7 +38,7 @@ and Arc 22.68.0 (the CLI bundle's Chronicle is 19.32.0); the APIs exist for gap-
 | Screenplay | v4.68.0 (`79801bf`) | ESM v7 generated values (`generated identifier`, decision 0026) and decision 0025's numbering; the diagnostics below were read at v4.66.0 (`c89198b`): `identifier`, `for`, constraints, generations, `id` pins, diagnostics PLAY0019/0135/0268/0271/0273/0391-0393/0446-0449/0469/0471 |
 | Chronicle | v19.50.0 (read; first read at v19.32.0 `f17a2ff`) | CHR0012, CHR0034; open defects #3744, #4123, #4131 (still open) |
 | Arc | v22.72.0 | `[ProtectedDecision]` and `DecisionRead<T>` (since v22.39.0) |
-| Stage | v4.73.1 | rendered apps pin Arc 22.68.0 and Chronicle client/kernel 19.45.0; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
+| Stage | v4.73.1 | rendered apps pin the Arc and Chronicle client/kernel listed in the Stage skill's `references/rendered-application.md`; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
 
 Full pin table: `references/versions.md` in `cratis-screenplay-toolchain`. Re-check the three
 Chronicle issues before relying on a constraint in a later release.
@@ -156,8 +156,10 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
   block compiles but is PLAY0271 at binding. Keep both when they state real intent; they are not
   protection. `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
-- `pii` and `secret` block binding (PLAY0268); legacy markers are deprecated
-  (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
+- `pii` and `secret` bind as ESM v13 on standalone 4.142.0 (since 4.141.0), not the pinned CLI;
+  enum/identity compliance and protected events with explicit subject marks still
+  refuse PLAY0268 (command-surface `references/compliance.md`). Legacy markers are
+  deprecated (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
   scalar/composite stream-id types and route mapping sources, including nested paths.
 - At 4.127.0 stream-id literals must be nonempty, well-formed NFC text (refused,
   not normalized); integer ids in Double mode stay within ±(2^53−1). Exact mode

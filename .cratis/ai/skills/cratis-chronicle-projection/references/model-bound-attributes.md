@@ -44,6 +44,7 @@ attribute takes no generic parameter at all.
 | `[Nested]` | non-generic | none | property, parameter; single |
 | `[FromAll]` | non-generic | `(string? contextProperty = default, string? property = default)` | **property only**; single |
 | `[FromEvery]` | non-generic | `(string? property = default, string? contextProperty = default)` | property, parameter; single |
+| `[NotProjected]` | non-generic | none | property, parameter |
 | `[NoAutoMap]` | non-generic | none | class, struct, property, parameter; inherited |
 | `[NotRewindable]` | non-generic | none | class, struct; single |
 | `[Passive]` | non-generic | none | class, struct; single |
@@ -52,6 +53,13 @@ attribute takes no generic parameter at all.
 
 Note that `[FromAll]` and `[FromEvery]` take their two optional arguments in
 **opposite order**. Always pass them by name.
+
+At **Cratis/Chronicle v19.50.0**, `[FromEvery]` includes child-only and nested-child
+contributing events in the owning parent's mappings (no attribute opt-out).
+`[FromAll]` subscribes to every sequence event type except join-only types;
+pair it with `[NotRewindable]`. `[NotProjected]` excludes a query-assembled member
+from AutoMap and CHR0024. Sources: `Projections/ModelBound/NotProjectedAttribute.cs`,
+`Projections/FromEveryBuilder.cs`, and `Documentation/projections/model-bound/`.
 
 ## Setting values
 

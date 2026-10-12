@@ -4,6 +4,8 @@ Checked at Screenplay v4.139.0: `SemanticModelBinder.cs`, `Versions.cs`,
 `Documentation/screenplay/{commands,operations,event-sources,reactions,tool,interoperability}.md`.
 The binder selects v8 for event routes, v10 for declared reaction identity, v11 for retained
 exact-lowered Double-mode literals and v12 for non-positional enum numbers.
+Compliance checked against 4.142.0 `SemanticModelBinder.Compliance.cs` and
+`SemanticModelValidator.Compliance.cs`; it selects v13 (first released in 4.141.0).
 Pins and consumer boundaries: toolchain `references/versions.md`.
 
 ## Which ESM version a model needs
@@ -17,15 +19,17 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 - v9 for public-event contracts; v10 for reaction `runs as system` identity.
 - v11 for exact lowering of qualifying Double-mode number literals; v12 for non-positional
   enum member numbers (`cratis-screenplay-command-surface` `references/enum-numbers.md`).
+- v13 for concept `pii`/`personal` and `secret`, personal qualifiers and secret scopes.
+  Reasons remain report-only PLAY0270; binding proves neither encryption nor erasure.
 - Operations/systems, the exact numeric **source mode** (`numbers exact`) and refusal/redelivery
   remain unadmitted (PLAY0268). Version allocation is not inferred from an older planning decision.
 
 ## Dispositions to keep apart
 
-| Construct | Standalone disposition (checked at v4.125.0; v4.139.0 unchanged for these rows) |
+| Construct | Standalone disposition (v4.125.0/v4.139.0 evidence; compliance updated at v4.141.0) |
 | --- | --- |
 | `persona`, domain/authentication metadata | Report-only; unknown named policies remain source defects |
-| Compliance concepts | Bare `pii`/`secret` (4.127.0); binding still refuses PLAY0268, never remove protection |
+| Compliance concepts | Bare `pii`/`personal` and `secret`, qualifiers and scope bind as v13 (4.142.0 checked); enum/identity compliance and events combining personal or explicitly subject-scoped secret values with an explicit `subject` mark refuse PLAY0268 at binding only. CLI 3.53.1's 4.137.0 bundle still refuses markers; Stage 4.76.0 admits only through v12 (Stage#345). Never remove protection |
 | Identity details / processing purposes / event subject | Report-only metadata (4.127.0); executable detail reads refuse PLAY0268, not source declaration errors |
 | Composite stream ids | v8 routing; complete named parts/canonical comparisons, PLAY0515 refuses protected keys/sources; not a legacy text split |
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |

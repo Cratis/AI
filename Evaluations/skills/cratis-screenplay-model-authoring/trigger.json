@@ -2,7 +2,7 @@
   "skill": "cratis-screenplay-model-authoring",
   "queries": [
     {
-      "query": "Use the Screenplay MCP to add a priority column to the WorkItemList table in our multi-file model, and only apply it if nobody else changed the workspace meanwhile.",
+      "query": "Use propose-property in Screenplay MCP to add a required priority field along the command, event and read-model chain with explicit sources and a fixture value; apply only if both revisions still match.",
       "shouldTrigger": true
     },
     {
@@ -10,7 +10,7 @@
       "shouldTrigger": true
     },
     {
-      "query": "Rename the WorkStatus concept everywhere in our .play folder through the MCP tools instead of hand-editing the files.",
+      "query": "Rename only our command's title property through Screenplay MCP, preserving the event payload name and inspecting incomplete property evidence before proposing.",
       "shouldTrigger": true
     },
     {
@@ -22,7 +22,7 @@
       "shouldTrigger": true
     },
     {
-      "query": "Create the first document of a new Billing module in an empty model folder through the Screenplay MCP.",
+      "query": "Our persisted event property rename returned EventContractChangeRequiresDecision. Can the identity catalog justify eventNeverPersisted, or should we use newGeneration through Screenplay MCP?",
       "shouldTrigger": true
     },
     {
@@ -34,7 +34,7 @@
       "shouldTrigger": true
     },
     {
-      "query": "Find every screen that references the AllWorkItems query across our split .play model before I change the query.",
+      "query": "Remove legacyLabel through propose-property after checking readers and inherited assertions; tell me what needsDecision, chainCandidates and weakensAssertion mean.",
       "shouldTrigger": true
     },
     {

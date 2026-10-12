@@ -13,40 +13,32 @@ you construct a client, ask it for an event store, and append or observe.
 
 ## Verified product sources
 
-This skill was written against `Chronicle.Kotlin` at tag `v4.0.0` (commit
-`63ff629`) and re-verified at **`v5.1.0`**: every class, function, option and
-Spring bean this skill names exists there. The `4→5` major is the Chronicle 17/18
-wire migration (gRPC request/response shapes and `ensureSuccess` result
-envelopes — internal to the client); `5.0.0` also adds a `ChronicleCommandRejected`
-exception for a rejected server-side command. The `file:line` citations below
-were taken at `v4.0.0` and may have shifted.
+Verified against `Chronicle.Kotlin` at tag **`v6.13.0`** by source symbols and
+signatures. Historical line citations below are locators, not current line numbers.
 
 | Artifact | Version | Verified from |
 | --- | --- | --- |
-| `io.cratis:chronicle` | `5.1.0` | `Chronicle.Kotlin` at tag `v5.1.0` |
-| `io.cratis:chronicle-spring-boot-starter` | `5.1.0` | same tag, `Integrations/SpringBoot` |
-| `io.cratis:chronicle-testing` | `5.1.0` | same tag, `Testing` |
-| `io.cratis:chronicle-contracts` | `18.2.0` | `Source/build.gradle.kts` (`chronicleContractsVersion`) |
+| `io.cratis:chronicle` | `6.13.0` | `Chronicle.Kotlin` at tag `v6.13.0` |
+| `io.cratis:chronicle-spring-boot-starter` | `6.13.0` | same tag, `Integrations/SpringBoot` |
+| `io.cratis:chronicle-testing` | `6.13.0` | same tag, `Testing` |
+| `io.cratis:chronicle-contracts` | `19.30.0` | `Source/build.gradle.kts` (`chronicleContractsVersion`) |
 
-All three artifacts are published to Maven Central under `io.cratis`
-(`Source/build.gradle.kts:54`, `Testing/build.gradle.kts:32`,
-`Integrations/SpringBoot/build.gradle.kts:48`). The JVM toolchain is **17**
-(`Source/build.gradle.kts:43`).
+All three artifacts are published to Maven Central under `io.cratis` (their
+`build.gradle.kts` publishing blocks). The JVM toolchain is **17**.
 
 > **Do not copy a version number out of the repository's README or docs.** At
-> `v4.0.0` the README still says `2.1.1` (`README.md:186`) and the documentation
-> says `2.1.2` (`Documentation/get-started/index.md:24`). The version comes from
-> a Gradle property injected at release time — `Source/build.gradle.kts:8` reads
+> `v6.13.0` the README and getting-started documentation still say `6.5.0`.
+> The version comes from a Gradle property injected at release time —
+> `Source/build.gradle.kts` reads
 > `providers.gradleProperty("version")` and defaults to `0.0.0-SNAPSHOT` — so
 > the checked-in source never carries the real number. Take it from Maven
 > Central.
 
-> **The client and the kernel version independently.** Client `5.1.0` is built
-> against `chronicle-contracts` `18.2.0` (the `4.x` line was built against
-> `16.44.1` and does not speak the 17/18 wire shapes); the Chronicle server is
-> on `18.x`. Confirm the client/server pair you intend to run is
-> supported before relying on it — do not infer compatibility from the fact that
-> both are "latest".
+> **The client and the kernel version independently.** Client `6.13.0` requires
+> kernel `19.30.0` or later. Historically, client `6.5.0` was verified on kernel
+> `19.6.1`, while `19.4.8` rejects it. `CompatibilityPreflight` checks contracts
+> at connect and throws `ChronicleServerIncompatible`; do not infer a supported
+> pair just because both products are "latest".
 
 ## Common pitfalls
 
@@ -55,10 +47,11 @@ All three artifacts are published to Maven Central under `io.cratis`
 | Naming a reactor method after the event | The name is ignored; **the first parameter's type** is the subscription (`EventHandlerMethod.kt:61-74`) |
 | Two `@EventType` classes sharing a simple name | The id defaults to the simple name, so they collide on the wire (`EventTypesService.kt:67`) |
 | Shipping the default connection string to production | `skipTlsValidation` defaults to **true**; certificate validation is off (`ChronicleConnectionString.kt:28`) |
-| Copying a version from the README or docs | Both are stale at `v4.0.0`; the real version comes from the release, not the source |
+| Copying a version from the README or docs | Both still say `6.5.0` at `v6.13.0`; use the release version |
+| Supplying `apiKey` in the connection string | Client construction rejects it with `IllegalArgumentException`; use `user:password@` |
 | Expecting `getEventStore` to suspend | It does not — the client already connected in its constructor (`ChronicleClient.kt:12`) |
-| Expecting `awaitRegistration()` to mean "registered" | It completes in a `finally`, so it also returns after a failed pass (`ArtifactRegistrations.kt:47-57`) |
-| Expecting a registration failure to throw | Failures are printed to `System.err`, not raised (`EventStore.kt:244`) |
+| Expecting `awaitRegistration()` to prove all artifacts registered | The initial gate completes in `finally` even after failure; connection rejection still throws `ChronicleConnectionFailed` |
+| Treating automatic and explicit registration alike | The automatic pass logs failures; explicit `registerAll()` throws `ArtifactRegistrationFailed` for failed observers, and rejected event-type registration throws `ChronicleCommandRejected` |
 | Expecting read model reactors to be discovered | `IReadModelReactor` is absent from the scan and from `IEventStore`; construct `ReadModelReactors(...)` yourself |
 | Leaving the default classpath scan on in a large app | Use `withArtifactsFrom(...)` or `artifact-packages` to narrow it (`ChronicleOptions.kt:58`) |
 | Expecting WebFlux support from the starter | The web auto-configuration is `SERVLET`-only (`ChronicleWebAutoConfiguration.kt:29`) |
@@ -97,46 +90,19 @@ fun main() = runBlocking {
 }
 ```
 
-`IChronicleClient` is small and complete —
-`Source/src/main/kotlin/io/cratis/chronicle/IChronicleClient.kt`:
-
-| Member | Line | Note |
-| --- | --- | --- |
-| `fun getEventStore(name: String, namespace: String = EventStoreNamespaceName.default.value): EventStore` | `:17-20` | **not** suspending; returns the concrete `EventStore` |
-| `suspend fun getEventStores(): List<String>` | `:27` | asks the kernel |
-| `fun evictEventStores()` | `:36` | drops the local cache, keeps the client |
-| `fun dispose()` | `:39` | `IChronicleClient : AutoCloseable`, `close()` delegates to it (`:41`) |
-
-**The client connects in its constructor.** `ChronicleClient.kt:12` is
-`ChronicleConnection(options.connectionString).also { it.connect() }` — there is
-no separate `connect()` step to call, and constructing the client is the
-connecting act. Event stores are cached per `"$name/$namespace"`
-(`ChronicleClient.kt:21`), so repeated `getEventStore` calls return the same
-instance.
-
-The default namespace is the literal `"Default"` —
-`EventStoreNamespaceName.kt:13`.
+**The client connects in its constructor.** `getEventStore(name, namespace)`
+is not suspending and returns the cached concrete `EventStore` for that pair.
+The default namespace is `"Default"`. `getEventStores()` suspends;
+`evictEventStores()` drops the cache without closing the client.
+`IChronicleClient` is `AutoCloseable`; `close()` delegates to `dispose()`.
 
 ### Options
 
-`ChronicleOptions` is a `data class` with `@JvmOverloads`
-(`ChronicleOptions.kt:35`):
-
-| Property | Default | Line |
-| --- | --- | --- |
-| `connectionString` | required | `:36` |
-| `programIdentifier` | `"Unknown"` | `:37` |
-| `defaultSinkTypeId` | `CHRONICLE_SINK_TYPE` env var, else `WellKnownSinkTypes.MONGODB` | `:38` |
-| `autoDiscoverAndRegister` | `true` | `:39` |
-| `artifacts` | `ClientArtifacts.default` (scans the classpath) | `:40` |
-| `artifactActivator` | `ArtifactActivator` | `:41` |
-| `openTelemetry` | `null` (uses the globally registered one) | `:42` |
-
-Two `@JvmStatic` factories: `ChronicleOptions.fromConnectionString(String)`
-(`:69`) and `ChronicleOptions.development()` (`:78`). Two instance helpers:
-`withoutAutoRegistration()` (`:48`) and `withArtifactsFrom(vararg packages)`
-(`:58`) — the second is worth using in any large application, because the
-default scan walks the whole classpath.
+Use `ChronicleOptions.development()` locally or
+`ChronicleOptions.fromConnectionString(String)` for a configured connection.
+Narrow discovery with `withArtifactsFrom(vararg packages)` in a large app.
+Read [references/options.md](references/options.md) when setting naming policy,
+registration, artifact activation, sink type or OpenTelemetry options.
 
 ### The connection string
 
@@ -149,19 +115,19 @@ chronicle+srv://<host>[:<port>][?<options>]
 ```
 
 Default port is `35000` (`:39`). Recognized query keys, lowercased at parse time
-(`:111-115`): `disabletls`, `skiptlsvalidation`, `apikey`, `loadbalancer`,
-`srvnameserver`. `ChronicleConnectionString.parse(String)` is on the companion
+(`ChronicleConnectionString` parser): `disabletls`, `skiptlsvalidation`,
+`loadbalancer`, `srvnameserver`. `apiKey` is parsed but rejected at client
+creation with `IllegalArgumentException`: the kernel has no API-key authentication.
+Use `user:password@`. Omitting credentials selects `chronicle-dev-client` /
+`chronicle-dev-secret`; these are development credentials, not a production setup. `ChronicleConnectionString.parse(String)` is on the companion
 (`:63`), and `ChronicleConnectionString.DEVELOPMENT` (`:51`) points at
 `localhost:35000` with the `chronicle-dev-client` / `chronicle-dev-secret`
 credentials (`:42-43`).
 
-> **TLS is on, certificate validation is off, by default.** `disableTls = false`
-> but `skipTlsValidation = true` — `ChronicleConnectionString.kt:27-28`, and the
-> credential selection at `:180-181` installs an `InsecureTrustManager` in that
-> case. That default exists because a development kernel serves a self-signed
-> certificate. **A production connection string must carry
-> `?skipTlsValidation=false`**, which is the only way to get chain validation
-> against the platform trust store (`:174-176`).
+> **TLS is on, certificate validation is off by default** (`disableTls = false`,
+> `skipTlsValidation = true`), for a self-signed development kernel.
+> **Production must set `?skipTlsValidation=false`** for platform trust-store
+> chain validation (`ChronicleConnectionString.createCredentials`).
 
 ### Spring Boot
 
@@ -196,12 +162,18 @@ annotation class EventType(
 Two event classes with the same simple name in different packages therefore
 collide on the wire. Give one an explicit `id`.
 
-The house shape is a Kotlin `data class` with defaulted properties
-(`Samples/Kotlin/SpringBoot/.../Events.kt:9-14`) or a Java `record`
-(`Samples/Java/SpringBoot/.../EmployeeHired.java:9-10`). Property-level
+The house shape is a Kotlin `data class` with defaulted properties or a Java
+`record` (the Spring Boot samples). Property-level
 annotations that travel with the event: `@io.cratis.chronicle.keys.Key`,
 `@io.cratis.chronicle.compliance.Pii`, `@io.cratis.chronicle.Subject`,
 `@io.cratis.chronicle.schemas.JsonSchemaType`.
+
+`@Pii` on a `ConceptAs` type is declared once and cascades to its uses.
+For operational secrets (API keys, partner credentials), use
+`@io.cratis.chronicle.confidentiality.Encrypted(scope = EncryptionScope.Subject)`;
+`EncryptionScope` also offers `Namespace` and `Global`. Encryption at rest is
+not right-to-erasure: use `@Pii` for personal data. A value cannot combine
+`@Pii` and `@Encrypted`, and neither is supported on an `EventSourceId` concept.
 
 Evolving a schema is `IEventTypeMigration<TTarget, TSource>` with `upcast` and
 `downcast` — `events/migrations/IEventTypeMigration.kt:18-37`. Migrations
@@ -244,9 +216,27 @@ if (!result.isSuccess) {
   batch must go to different streams — the single-source overloads cannot
   express that.
 
-`AppendOptions` (`eventSequences/AppendOptions.kt:41-51`, `@JvmOverloads`)
-carries `correlationId`, `concurrencyScope`, `eventSourceType`,
-`eventStreamType`, `eventStreamId`, `subject`, `tags`, `occurred`, `causation`.
+`AppendOptions` (`eventSequences/AppendOptions.kt`) carries `correlationId`,
+`concurrencyScope`, `eventSourceType`, `eventStreamType`, `eventStreamId`,
+`subject`, `tags`, `occurred`, `causation`, `eventSource`, `eventStream`.
+
+Since `6.0.0`, omitted/empty routing resolves **in the kernel** to
+`Default` / `All` / `Default` (source type / stream type / stream id).
+The client no longer substitutes the event source id as stream id. Preserve a
+legacy route by passing all three explicitly. Reads narrow only by supplied
+filters; single-source `appendMany` applies the routing options to every event.
+See the product's `Documentation/guides/migrate-append-routing.md` at `v6.13.0`.
+
+For an idempotent create, narrow the concurrency scope and use
+`ConcurrencyScopeBuilder.withExpectsNoMatchingEvent()`. The equivalent is
+`ConcurrencyScope(EventSequenceNumber.unavailable, eventSourceId = true,
+expectsNoMatchingEvent = true)`; a concrete sequence number and this flag are
+mutually exclusive (package `eventSequences.concurrency`).
+
+Event-source definitions and their named streams are optional, discovered
+artifacts requiring kernel `19.30.0` or later.
+Read [references/event-sources.md](references/event-sources.md) when declaring
+`@EventSource`/`@EventStream` or appending through a definition.
 
 A unit of work spans several appends:
 
@@ -283,19 +273,18 @@ class <ReactorName>(private val <dependency>: <Dependency>) {
 }
 ```
 
-That shape is the shipped sample verbatim
-(`Samples/Kotlin/SpringBoot/.../WelcomePackageReactor.kt:16-22`).
-
 **A returned event is appended as a side effect.** `null`, `Unit`, and any value
 whose type is not annotated `@EventType` are ignored; a single event, an
 `EventForEventSourceId`, or a `List` mixing both is appended, defaulting to the
-triggering event source — `observation/ReactorSideEffects.kt:26-39`, `:48-59`.
+triggering event source. A returned `List` is one atomic batch: one rejected
+event rejects all — `observation/ReactorSideEffects.kt:26-39`, `:48-59`.
 This is how a reactor appends without ever touching the event log.
 
 `EventContext` is a data class with `sequenceNumber: Long`, `eventSourceId`,
 `eventType`, `occurred`, `correlationId`, `causedBy`, `eventSourceType`,
 `eventStreamType`, `eventStreamId`, `eventStore`, `namespace`, `causation`,
-`tags`, `hash`, `observationState` — `events/EventContext.kt:31-47`.
+`tags`, `hash`, `observationState`, `subject`, `eventSource` —
+`events/EventContext.kt`. The constructor changed in `6.0.0`; recompile on upgrade.
 
 ### The annotations
 
@@ -335,10 +324,18 @@ A model-bound projection puts the projection on the read model with `@FromEvent`
 `DecrementFromAll`, `Nested`, `NoAutoMap`, `NoAutoMapProperties`,
 `NotRewindable`. The declarative
 alternative is a class implementing `IProjectionFor<TReadModel>`.
+Use fluent `set(...).toValue(...)` for a constant, or `toProperty(...)` for an
+event property. `set(...).to { }` is deprecated: it never evaluated the lambda.
+`noAutoMap()` is honored; composite key parts can use
+`toEventContextProperty(targetPropertyName, contextProperty)`.
+
+`@io.cratis.chronicle.readModels.Passive` and `@Reducer(isActive = false)`
+compute a passive model from its events on read, so a read immediately after an
+append includes that event rather than waiting for a materialized observer.
 
 ### Variants — mutually exclusive read models for one entity's lifecycle
 
-Variants let several read models share one identity and be mutually exclusive; each variant must declare an `@EntersOn`/`entersOn(...)` event or registration throws `VariantMustDeclareEntersOnEvent`. Requires `io.cratis:chronicle` `6.3.0` or later.
+Variants let several read models share one identity and be mutually exclusive; each variant must declare an `@EntersOn`/`entersOn(...)` event or registration throws `VariantMustDeclareEntersOnEvent`. Annotations require `6.3.0`; use `6.5.0` or later for end-to-end key support and replay once when upgrading from an earlier version.
 
 Read [references/variants.md](references/variants.md) when an entity changes shape over its lifecycle and you need `@VariantOf`, `@EntersOn`, `@GlobalFor` or the declarative `variantOf`/`entersOn` builder.
 
@@ -368,7 +365,8 @@ Read [references/connection-lifecycle.md](references/connection-lifecycle.md) wh
 folds a reducer through the same handler-shape rules as production
 (`ReadModelScenario.kt:139-150`). Its scope is small — appends and reducer folds
 only; there is no in-process reactor, projection, or constraint scenario
-(`Testing/api/Testing.api` is 57 lines).
+(`Testing/api/Testing.api`). Since `6.5.0`, `EventScenario` assertions and
+`eventsOf` count only events appended after the last `given`.
 
 ## Verify
 
@@ -380,8 +378,9 @@ only; there is no in-process reactor, projection, or constraint scenario
 - Every `@EventType` class has a unique simple name, or an explicit `id`.
 - Every reactor and reducer handler's **first parameter** is an `@EventType`
   class.
-- `awaitRegistration()` is followed by a check that registration actually
-  succeeded, not treated as proof on its own.
+- Handle `ChronicleConnectionFailed` from `awaitRegistration()`/appends and
+  Spring startup; inspect automatic registration diagnostics, or handle explicit
+  `registerAll()` failures. The initial gate alone is not proof of full registration.
 - Every variant group has at least one `@EntersOn`/`entersOn(...)` per variant,
   and every `@GlobalFor` member exists on every variant it targets.
 - The build is clean and the specifications pass against the verified artifact

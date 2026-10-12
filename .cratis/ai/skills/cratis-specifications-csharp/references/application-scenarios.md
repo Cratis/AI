@@ -15,12 +15,17 @@ validation, constraints or projections matter; a pure decision (`Handle()`,
 call. A library or framework repository reaches for a scenario only to test the
 very engine it provides.
 
-Verified against `Cratis.Arc.Testing` `22.16.0` and `Cratis.Chronicle.Testing`
-`18.3.0`.
+Arc scenarios verified at **v22.75.0** (Chronicle dependency 19.39.1).
+Separate Chronicle-only scenario claims retain their version-qualified sources.
+Read [query and decision scenarios](../../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
+when using `QueryScenario<T>`, buffered emissions or `UseDecisionReads()`.
+Guarded decisions need actual seeded events, not pinned models; their given
+state and appends share one in-process log, unlike legacy dictionary seeding.
 
 | Helper | Exercises | Use for |
 | --- | --- | --- |
 | `CommandScenario<TCommand>` | Authorization, validators, `Provide()`, `Handle()`, appended events | State Change behavior |
+| `QueryScenario<TReadModel>` | Argument conversion, authorization, validation, interceptors and buffered observations | Query pipeline behavior |
 | `EventScenario` | Chronicle append semantics without the command pipeline | Constraints, raw sequencing, concurrency |
 | `ReadModelScenario<TReadModel>` | Projection or reducer state from a sequence of events | State View behavior |
 | `ReactorScenario<TReactor>` | Reactor invocation and its side effects | Automation and Translation behavior |
@@ -85,10 +90,17 @@ from `Cratis.Arc.Chronicle.Testing`.
   pass against a read-model shape the projection never produces.
 - **Validator and `Provide()` dependencies** are registered in
   `_scenario.Services`; the concrete validator is discovered automatically.
+- **Caller setup (Arc 22.75.1+, re-verified at 22.76.0):** register a substituted
+  `ICurrentPrincipalAccessor`, `ICurrentPrincipalOverride` or
+  `IAuthorizationPolicyRuntime` in `Services` before first execution. The scenario
+  preserves these registrations instead of replacing them with Arc defaults,
+  so role/policy success and denial specs run as the caller you supplied.
+  Source: `Testing/ScenarioServices.cs` and `Testing/Commands/CommandScenario.cs`
+  under `Source/DotNET/`.
 
 ### Pin generated values
 
-Verified at **Arc v22.68.0**, available in `Cratis.Arc.Testing` **22.67.0+**.
+Verified at **Arc v22.75.0**, available in `Cratis.Arc.Testing` **22.67.0+**.
 For the `AllocateCartId` command from `cratis-arc-command`, whose
 `Handle([GeneratedValue("cart")] CartId cartId)` returns that id, specify the
 pipeline with a known concept pin. Import `Cratis.Arc.Commands` and
@@ -153,7 +165,7 @@ public class and_value_is_pinned : Specification
   A direct-call decision spec supplies the known argument to `Handle()` itself.
 
 Guide: [Pin generated values in command specs](/arc/backend/csharp/testing/generated-values/).
-Source: **Arc v22.68.0**, `Source/DotNET/Testing/Commands/CommandScenarioGeneratedValueExtensions.cs`,
+Source: **Arc v22.75.0**, `Source/DotNET/Testing/Commands/CommandScenarioGeneratedValueExtensions.cs`,
 `ScenarioGeneratedValueFixture.cs`, `ScenarioGeneratedValues.cs` and
 `GeneratedValuesCommandScenarioExtender.cs`;
 `Source/DotNET/Testing.Specs/Commands/for_CommandScenario/generated_values/when_pinning_a_value.cs`.

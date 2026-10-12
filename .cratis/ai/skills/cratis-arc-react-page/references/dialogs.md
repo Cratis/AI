@@ -85,6 +85,9 @@ The most-used props:
 | --- | --- |
 | `command` | the generated command class |
 | `title` | dialog header |
+| `subtitle` / `closeIcon` | secondary header content / dismissal glyph (`ReactNode`) |
+| `placement` | `'center' \| 'start' \| 'end'`; RTL-aware side sheets |
+| `confirmBeforeExecute` | `(values) => boolean \| Promise<boolean>`; pre-execution approval |
 | `okLabel` / `cancelLabel` | button labels (`'Ok'` / `'Cancel'` by default) |
 | `initialValues` | synchronous baseline; also the change-tracking baseline |
 | `currentValues` | reactive overlay for late-loading values |
@@ -98,6 +101,10 @@ The most-used props:
 | `initialFocus` | which control receives focus when the dialog opens |
 | `dismissable` | X, Escape, and backdrop dismissal |
 | `pt` | `DialogParts` — per-part attributes (`backdrop`, `positioner`, `root`, `header`, `title`, `close`, `content`, `footer`, `confirm`, `cancel`); `ptOptions`/`unstyled` are accepted no-ops |
+
+Dialog presentation props, including `subtitle`, `placement` and `closeIcon`,
+are forwarded to the dialog (4.14.1+), not the form. `children` may also be a
+render function receiving the command form context (4.25.1+).
 
 `CommandDialog.Column` exists for multi-column layouts:
 
@@ -114,8 +121,10 @@ The most-used props:
 
 ### Execution flow
 
-On confirm, `CommandDialog` applies `onBeforeExecute`, sets busy, executes the
-command, and on failure calls `onValidationFailure(result.validationResults)`
+On confirm, after validation, `CommandDialog` applies `onBeforeExecute` and
+awaits `confirmBeforeExecute` when supplied. Only `true` executes; fields are
+disabled while it is pending, and changed command values discard approval.
+The command then executes, and on failure calls `onValidationFailure(result.validationResults)`
 or `onFailed(result)` and **keeps the dialog open**. On success it calls
 `onSuccess(result.response)` and then the close gate.
 
@@ -174,7 +183,9 @@ selection — renaming a command property produces a compile error at every
 binding.
 
 `AutoCommandForm` renders a field per command property from the generated
-property descriptors, with `exclude` for the ones you do not want:
+property descriptors, with `exclude` for the ones you do not want and `footer`
+for custom footer content. Generated fields bind to their own property; this
+requires Arc and Arc React >=22.16.0:
 
 ```tsx
 <AutoCommandForm command={RegisterInvoice} exclude={['invoiceId']} />

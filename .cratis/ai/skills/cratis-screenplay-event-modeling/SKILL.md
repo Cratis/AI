@@ -113,7 +113,7 @@ is the fallback, and neither names the other's verdict. Versions and commands:
       slices; reactions, captures, Automation and Translate, and the v7+ constructs in Stage's
       admission table refuse with their own `STAGE-ESM-*` code, so those scopes are gap-fill with
       the model as the contract. A reaction that produces events and invokes commands is refused
-      (`STAGE-ESM-037`) although Arc 22.72.0 and later can run it (the Stage scaffold's Arc 22.68.0 needs a proven override): hand-write it as one reactor, never split the modeled reaction.
+      (`STAGE-ESM-037`) although Arc 22.72.0 and later can run it (the Arc the Stage scaffold pins needs a proven override): hand-write it as one reactor, never split the modeled reaction.
 
 ## Parsed is not runnable
 
@@ -135,8 +135,9 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
 - `persona` declarations are report-only and never block; bare `pii` and `secret`
-  concepts do block binding (`PLAY0268`). Keep them anyway: the classification is
-  part of the model. Report the block.
+  concepts bind as ESM v13 on standalone 4.142.0 (since 4.141.0), but still block the pinned CLI.
+  Enum/identity compliance and protected events with explicit subject marks remain
+  refused (PLAY0268); see command-surface `references/compliance.md`. Keep protection.
 - Generated values/responses bind and reference-execute as v7; sources, streams
   and command/specification routes as v8; reaction `runs as` identity as v10;
   qualifying Double literals lower exactly as v11 and non-positional enum numbers

@@ -19,7 +19,7 @@ and record lineage reasoning in fenced Markdown `documentation` (`field-lineage.
 The historical source below stays unchanged; it is not the current placement recipe.
 
 The excerpt's Stage availability note is historical (Stage 4.24.x, Arc 22.25.0).
-Stage 4.73.1 pins Arc 22.68.0/Chronicle 19.45.0, so protected-read APIs are available
+Stage 4.73.1's scaffold pins an Arc/Chronicle set (see the Stage skill's `references/rendered-application.md`), so protected-read APIs are available
 to gap-fill (the compiled description below saying they are "not available in Stage-rendered apps" is superseded); this neither admits these `.play` rules nor proves target protection.
 The original compiled excerpt is retained unchanged.
 

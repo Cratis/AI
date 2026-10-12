@@ -6,6 +6,7 @@
 ## Contents
 
 - Typed examples
+- Examples typed from another document
 - Effective values
 - Event routes
 - Redelivery locators
@@ -48,6 +49,53 @@ module Projects
           for "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           name = "Override"
 ```
+
+## Examples typed from another document
+
+An example's type may be an event, command or read model declared in another
+document of the same compilation, by simple name when unambiguous or by qualified
+name (`Billing.Facts.Recording.Recorded`). Checked against Screenplay v4.139.0
+(Screenplay#648, released in 4.135.1) and the standalone 4.139.0 compiler:
+
+```text
+// declarations.play: module Billing > feature Facts > slice StateChange Recording
+//   declares command Record, event Recorded and a specification using the examples
+// application.play
+import "declarations.play"
+
+example Fact : Billing.Facts.Recording.Recorded
+  amount = 10
+  for "one"
+example Input : Record
+  id = "one"
+  amount = 20
+```
+
+That folder compiled with warnings as errors and `screenplay test` passed the
+specification that uses `given Fact` and `when Input`. Rules:
+
+- A document checked on its own defers an imported type, as for an inline
+  `given`; it reports no `PLAY0520` there.
+- Values are checked only when the compilation includes the declaration. A wrong
+  value (a string for an `Int`) surfaces as `PLAY0525` at binding (`screenplay
+  test`), not at compile.
+- A type that is still unknown or ambiguous after assembly, or names a concept,
+  type or another example, is `PLAY0520`. A scratch file importing only the
+  contract name is exactly that case:
+
+```screenplay expect PLAY0520
+import Billing.Facts.Recording.Recorded
+example Fact : Recorded
+  amount = 10
+```
+
+- Import the declaring file (`import "declarations.play"`), not the contract
+  name. A named `import X.Y.Z` of a declaration the application already has warns
+  `PLAY0290` (no effect), and binding still refuses any named import with
+  `PLAY0268`, as for inline givens; public `from "<store>"` imports are refused
+  the same way (#481).
+- The example is resolved in its own declaration scope, so shared example data may
+  live beside the declarations it types, in any document.
 
 ## Effective values
 

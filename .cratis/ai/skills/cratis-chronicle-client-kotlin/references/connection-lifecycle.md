@@ -1,5 +1,18 @@
 ## Connection lifecycle
 
+Verified at `Chronicle.Kotlin v6.13.0`: `CompatibilityPreflight`,
+`ConnectionManager`, `ChronicleConnection` and `EventStore.awaitRegistration`.
+
+- Connect checks kernel contract compatibility with a 10-second deadline;
+  incompatibility raises `ChronicleServerIncompatible`.
+- Credentials are not validated when constructing the client. A rejected
+  connection is surfaced by `awaitRegistration()` and the first append as
+  `ChronicleConnectionFailed`. The client keeps retrying and can recover.
+- Since `6.11.0`, GUIDs use .NET byte order on the wire. New correlation ids
+  round-trip; older events return the first three UUID groups byte-reversed
+  relative to what the application originally supplied. Earlier capture ids
+  remain stored as-is; supply your original id and the client resolves both.
+
 - **Keepalive is two-way.** The kernel pushes a keep-alive down the `Connect`
   stream and the client answers with a separate unary `connectionKeepAlive` RPC
   (`connection/ConnectionManager.kt:30`). A watchdog checks every

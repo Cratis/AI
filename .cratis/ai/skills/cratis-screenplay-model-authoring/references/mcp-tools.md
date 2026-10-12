@@ -51,7 +51,7 @@ the [MCP loop](mcp-loop.md).
 | Source and validation | `diagnostics`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
-| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-move`, `propose-repair`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
+| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-move`, `propose-repair`, `propose-property`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
 | Review | `read-proposal`, `discard-proposal` | Inspect exact changes, dropped comments and proposed attachments, or abandon a connection-local proposal |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
 
@@ -59,7 +59,15 @@ the [MCP loop](mcp-loop.md).
 
 `propose` is the executable-only whole-document interface. Prefer `propose-source`
 for whole `.play` text, `propose-ast` for focused typed edits, and `propose-rename`
-for proved logical renames. A
+for proved logical renames. Prefer `propose-property` over hand-composed AST
+batches for property chains: rename/remove shipped in 4.140.0, add in 4.142.0.
+Add takes `owner`, `expectedOwnerName`, `name`, `type`, `optional`,
+`hops` (`{at, name}` or `{at, value}`) and `fixtureValue`, plus both revision guards.
+Missing sources/required fixture values refuse `SourcesRequired`/`FixtureValueRequired`;
+off-chain hops refuse `HopNotOnChain`, nested feeds `UnsupportedPropertySpan`.
+Read `property.needsDecision` and `property.chainCandidates`, select an event
+evolution mode even for optional additions, and review before applying.
+Exact arguments, AutoMap and fixture rules: [property evidence and planning](property-links.md). A
 source-only authoring proposal may be accepted while `executableReady` is false.
 That is not permission to claim the application runs.
 
@@ -272,7 +280,7 @@ limits. Continue with `expectedSourceRevision`.
 
 From 4.138.0, `find-references` and `dependencies` accept `kind: "Property"`
 and `Owner.member`, or historical event `Owner.generationN.member`. Before a
-rename/removal, read [property links](property-links.md) for exact query/result
+property change, read [property links](property-links.md) for exact query/result
 shapes, roles, direct counterpart traversal, revision paging and `complete: false`
 with `reasons`. Incomplete evidence is never a successful empty list. These tools
 inspect authored links, not code execution or a transitive runtime graph.

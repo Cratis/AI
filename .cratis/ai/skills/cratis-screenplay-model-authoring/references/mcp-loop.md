@@ -13,6 +13,7 @@
 - Identity state (`.screenplay/identities.json`)
 - Read-only views worth knowing
 - Failures (use `failureKind`, never message text)
+- Formatting and limits
 - Provenance
 
 The working loop for the session that owns the model connection: connect, orient,
@@ -106,7 +107,7 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    `find-specification-obligations` (presence, not execution), use
    `find-modeling-smells` as questions needing a domain consequence, and compare
    generated/curated exported snapshots with `semantic-diff`.
-   Before renaming/removing a property, use `find-references`/`dependencies`
+   Before a property change, use `find-references`/`dependencies`
    `kind: "Property"` (4.138.0+) and `Owner.member` or historical event
    `Owner.generationN.member`. Follow direct mapping counterparts one query at a
    time; inspect incomplete/ambiguous evidence and `reasons`. `complete: false`
@@ -117,7 +118,11 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 4. Choose the edit route (next section). For typed edits: `syntax-schema` for the
    node kind, then `read-ast` with `includeContent` for revision-bound handles.
    Never invent a handle.
-5. Propose one coherent change (a slice works best): `propose-source` for whole
+5. Prefer `propose-property` for supported property add/rename/remove chains,
+   not hand-composed `propose-ast` batches; inspect `incomplete`, `needsDecision`
+   and `chainCandidates` before choosing sources, fixtures or event evolution.
+   Exact arguments and decisions: [property links](property-links.md).
+   Otherwise propose one coherent change (a slice works best): `propose-source` for whole
    `.play` text, `propose-ast` for focused typed edits, with
    `validation: "Authoring"`, `referencePolicy: "Safe"` (`Draft` only for
    deliberate, reported gaps), `formatting: "PreserveTrivia"` for value and mapping
@@ -250,6 +255,18 @@ or create a fallback folder to bypass the conflict.
 ## Failures (use `failureKind`, never message text)
 
 See "Failures (use `failureKind`, never message text)" in SKILL.md.
+
+## Formatting and limits
+
+Formatting is explicit. Prefer `PreserveTrivia` for identifier, literal-value and
+whole-mapping edits; it rewrites only the changed span. Structural edits (add,
+remove, move) need `CanonicalizeTouchedDocuments`, which keeps attached comments
+and the authored member order within a document but normalizes whitespace and
+blank lines. Before applying, check the proposal's `droppedCommentCount`; when it
+is not zero, read `read-proposal` with `view: "dropped-comments"` and disclose
+each lost comment (`PLAY0288` also reports their count and lines). Untouched
+documents retain exact bytes. A printer that loses requested structural fields
+rejects the plan.
 
 ## Provenance
 

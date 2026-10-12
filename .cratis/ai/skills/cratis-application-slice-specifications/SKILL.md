@@ -23,12 +23,14 @@ This skill decides **when to add a scenario** and **what to cover**. The C# mech
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Arc.Testing` | `22.16.0` | `CommandScenario<TCommand>` and the `CommandResult` assertions |
-| `Cratis.Arc.Chronicle.Testing` | `22.16.0` | `Given`, `EventLog`, `AppendedEvents` and the appended-event assertions on a command scenario |
+| `Cratis.Arc.Testing` | `22.75.0` | `CommandScenario<TCommand>` and the `CommandResult` assertions |
+| `Cratis.Arc.Chronicle.Testing` | `22.75.0` | `Given`, `EventLog`, `AppendedEvents` and the appended-event assertions on a command scenario |
 | `Cratis.Chronicle.Testing` | `18.3.0` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
 | `Cratis.Specifications.XUnit` | `4.x` | The `Specification` base and the `ShouldXxx` assertions |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
+> Arc command/query/decision scenario surface rechecked at v22.75.0. Arc depends
+> on Chronicle 19.39.1; later Chronicle reactor setup below has its own minimum
+> version and is not downgraded by this Arc verification.
 
 Reactor read-model setup and the `EventContext.From` UTC default below are
 verified separately at **Chronicle 19.46.0**, the minimum version for that
@@ -112,6 +114,7 @@ keep a scenario for that wiring and for appended-event behavior.
 | Pure command decision, reducer logic or reactor decision | Plain method call with `Specification` (default) | `cratis-specifications-csharp` |
 | State Change — command pipeline and appended events | `CommandScenario<TCommand>` | this one |
 | Append semantics, a constraint | `EventScenario` | `cratis-chronicle-event-specifications` |
+| Query pipeline — arguments, authorization, validation, interceptors | `QueryScenario<TReadModel>` | [query and decision scenarios](references/query-and-decision-scenarios.md) |
 | State View — a projection or reducer | `ReadModelScenario<TReadModel>` | `cratis-chronicle-read-model-specifications` |
 | Automation or Translation — a reactor | `ReactorScenario<TReactor>` | `cratis-specifications-csharp` |
 | A host, transport, or real-infrastructure boundary | Out-of-process integration | `cratis-specifications-csharp` |
@@ -202,6 +205,13 @@ so a specification cannot pass against a read-model shape the projection never
 produces. Pin an instance only when the events would be noise.
 
 Both builder methods return `void`; there is nothing to await.
+
+That is **legacy** read-model mode: seeded events populate an in-memory model,
+not the append log. For protected or stream decisions call `UseDecisionReads()`
+before seeding; actual events and decisions then share one in-process log.
+Pinned models cannot supply decision guards. Read
+[query and decision scenarios](references/query-and-decision-scenarios.md) when
+specifying query pipelines, routed conflicts, projection admission or completion.
 
 Validator and `Provide()` dependencies are registered in `_scenario.Services`;
 the concrete validator itself is discovered automatically.
@@ -296,11 +306,11 @@ ideas recorded in `references/provenance.md`. Read `references/provenance.md` wh
 - **The command scenario reports success but nothing was appended.** The
   assertion is on `CommandResult` only; add a
   `ShouldHaveAppendedEvent<TCommand, TEvent>` fact.
-- **Injected-validator branches flip with test ordering.** The command-scenario
-  pipeline can cache enough state that a validator branch depends on execution
-  order under parallel xUnit runs. Use `CommandScenario` for the valid path, test
-  rejected state variants by instantiating the validator directly, and only then
-  put that command's specifications in a small `[Collection]`.
+- **Injected-validator branches flip with test ordering.** This was observed in
+  the 22.16-era harness. Arc 22.23.2 stopped replacing the process-wide provider;
+  later releases isolated stores and event-source services per scenario. Reproduce
+  at 22.75.0 before applying the old direct-validator/small `[Collection]`
+  workaround; no current reproduction was verified here.
 
 ## How it is proven
 

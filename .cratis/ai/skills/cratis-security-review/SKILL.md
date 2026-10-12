@@ -16,12 +16,14 @@ first.
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Arc.Chronicle` | `22.16.0` | `[NotAudited]` in `Cratis.Arc.Chronicle.Commands`; the `ARCCHR0009` analyzer |
+| `Cratis.Arc.Chronicle` | `22.75.0` | `[NotAudited]` in `Cratis.Arc.Chronicle.Commands`; the `ARCCHR0009` analyzer |
 | `Cratis.Chronicle` | `18.3.0` | `[PII]`, `[Subject]`, redaction, namespace isolation |
 | `Cratis.Chronicle` | `19.32.0` | `[Encrypted]` in `Cratis.Chronicle.ProtectedValues`; analyzers `CHR0052`, `CHR0053` |
-| `Cratis.Arc.Core` | `22.16.0` | Authorization filters, `CommandResult.Unauthorized` |
+| `Cratis.Arc.Core` | `22.75.0` | Authorization filters, `CommandResult.Unauthorized` |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
+> Arc security boundaries rechecked at v22.75.0; every added check is cited in
+> references/arc-boundaries.md. Arc depends on Chronicle 19.39.1; separately
+> version-qualified Chronicle security claims retain their original verification.
 
 Reverify against the owning product repository before asserting a framework
 guarantee this file does not already state.
@@ -97,6 +99,10 @@ command's properties as well as grepping them.
   must not be able to assert who it is through a command property.
 - Note that an unauthorized command result maps to HTTP **403**, not 401 — a
   reviewer reading logs for 401s will miss authorization failures.
+- Review [Arc-specific security boundaries](references/arc-boundaries.md) when
+  the diff touches hosting, identity, policies, discovery, streams or system actors.
+  It pins the checks to Arc v22.75.0; do not assume a clean analyzer run proves
+  those deployment boundaries.
 
 ## Step 4 — Data exposure
 

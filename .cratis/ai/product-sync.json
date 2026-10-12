@@ -1,0 +1,896 @@
+{
+  "schemaVersion": "1.0.0",
+  "products": [
+    {
+      "id": "studio",
+      "name": "Studio",
+      "repository": "Cratis/Studio",
+      "visibility": "private",
+      "packages": [],
+      "synced": {
+        "version": "0.157.5",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-stage-rendering-and-sandbox",
+          "cratis-studio-mcp-safety-guidance"
+        ],
+        "rules": []
+      },
+      "notes": "Only the Stage skill states a release baseline. No Studio MCP implementation or production UI execution evidence is admitted. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "stage",
+      "name": "Stage",
+      "repository": "Cratis/Stage",
+      "packages": [],
+      "synced": {
+        "version": "4.76.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-application-slice-conformance",
+          "cratis-screenplay-automations-and-translations",
+          "cratis-screenplay-captures-and-reactions",
+          "cratis-screenplay-discovery",
+          "cratis-screenplay-model-review",
+          "cratis-screenplay-modeling-lifecycle",
+          "cratis-screenplay-render-and-gap-fill",
+          "cratis-screenplay-streams-and-consistency",
+          "cratis-screenplay-toolchain",
+          "cratis-stage-rendering-and-sandbox"
+        ],
+        "rules": []
+      },
+      "notes": "cratis-application-slice-conformance retains Stage 4.24.0 evidence; other probes and current source reads are newer. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification. Synced to the 4.76.0 delta read in Cratis/AI#620; cli 3.53.1 bundles Stage 4.73.1."
+    },
+    {
+      "id": "arc",
+      "name": "Arc",
+      "repository": "Cratis/Arc",
+      "packages": [
+        {
+          "ecosystem": "nuget",
+          "id": "Cratis.Arc.Core"
+        },
+        {
+          "ecosystem": "npm",
+          "id": "@cratis/arc"
+        }
+      ],
+      "synced": {
+        "version": "22.76.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-application-slice-conformance",
+          "cratis-application-slice-specifications",
+          "cratis-arc-authentication-authorization-and-identity",
+          "cratis-arc-command",
+          "cratis-arc-command-execution",
+          "cratis-arc-command-operation",
+          "cratis-arc-command-validation",
+          "cratis-arc-ef-core-migration",
+          "cratis-arc-hosting",
+          "cratis-arc-observable-query-http",
+          "cratis-arc-query-paging",
+          "cratis-arc-react-page",
+          "cratis-chronicle-read-model",
+          "cratis-code-review",
+          "cratis-lens-browser-extension",
+          "cratis-performance-review",
+          "cratis-screenplay-automations-and-translations",
+          "cratis-screenplay-discovery",
+          "cratis-screenplay-legacy-extraction",
+          "cratis-screenplay-streams-and-consistency",
+          "cratis-security-review",
+          "cratis-specifications-csharp"
+        ],
+        "rules": [
+          "vertical-slices.md"
+        ]
+      },
+      "notes": "Synced to v22.76.0 source in Cratis/AI#620 (v22.75.0 family pass plus the v22.75.1-v22.76.0 delta); historical runtime probes retain their original versions."
+    },
+    {
+      "id": "ai",
+      "name": "AI",
+      "repository": "Cratis/AI",
+      "packages": [],
+      "synced": null,
+      "covers": {
+        "skills": [],
+        "rules": []
+      },
+      "coverage": "not-covered",
+      "notes": "The corpus repository itself is not a product whose user APIs this corpus teaches."
+    },
+    {
+      "id": "cli",
+      "name": "cli",
+      "repository": "Cratis/cli",
+      "packages": [
+        {
+          "ecosystem": "tool",
+          "id": "Cratis.Cli"
+        }
+      ],
+      "synced": {
+        "version": "3.53.1",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-chronicle-cli-operations",
+          "cratis-cli-terminal-workbench",
+          "cratis-screenplay-automations-and-translations",
+          "cratis-screenplay-captures-and-reactions",
+          "cratis-screenplay-command-surface",
+          "cratis-screenplay-delivery-planning",
+          "cratis-screenplay-discovery",
+          "cratis-screenplay-event-modeling",
+          "cratis-screenplay-legacy-extraction",
+          "cratis-screenplay-model-authoring",
+          "cratis-screenplay-model-review",
+          "cratis-screenplay-modeling-lifecycle",
+          "cratis-screenplay-projections",
+          "cratis-screenplay-read-surface",
+          "cratis-screenplay-render-and-gap-fill",
+          "cratis-screenplay-scenario-coverage",
+          "cratis-screenplay-slice-design",
+          "cratis-screenplay-specifications",
+          "cratis-screenplay-streams-and-consistency",
+          "cratis-screenplay-toolchain",
+          "cratis-screenplay-ui-composition",
+          "cratis-stage-rendering-and-sandbox"
+        ],
+        "rules": []
+      },
+      "notes": "Synced to v3.53.1 command and bundled-tool source in Cratis/AI#620; historical probes remain separately qualified."
+    },
+    {
+      "id": "screenplay",
+      "name": "Screenplay",
+      "repository": "Cratis/Screenplay",
+      "packages": [
+        {
+          "ecosystem": "nuget",
+          "id": "Cratis.Screenplay"
+        }
+      ],
+      "synced": {
+        "version": "4.142.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#597"
+      },
+      "covers": {
+        "skills": [
+          "cratis-application-slice-conformance",
+          "cratis-screenplay-automations-and-translations",
+          "cratis-screenplay-captures-and-reactions",
+          "cratis-screenplay-command-surface",
+          "cratis-screenplay-delivery-planning",
+          "cratis-screenplay-discovery",
+          "cratis-screenplay-event-modeling",
+          "cratis-screenplay-legacy-extraction",
+          "cratis-screenplay-model-authoring",
+          "cratis-screenplay-model-review",
+          "cratis-screenplay-modeling-lifecycle",
+          "cratis-screenplay-projections",
+          "cratis-screenplay-read-surface",
+          "cratis-screenplay-render-and-gap-fill",
+          "cratis-screenplay-scenario-coverage",
+          "cratis-screenplay-slice-design",
+          "cratis-screenplay-specifications",
+          "cratis-screenplay-streams-and-consistency",
+          "cratis-screenplay-toolchain",
+          "cratis-screenplay-ui-composition",
+          "cratis-stage-rendering-and-sandbox"
+        ],
+        "rules": []
+      },
+      "notes": "Oldest retained parser/binder evidence is 4.31.0. Screenplay-facing pins were updated by Cratis/AI#611, but historical probes do not become current runtime evidence. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "scene",
+      "name": "Scene",
+      "repository": "Cratis/Scene",
+      "packages": [],
+      "synced": {
+        "version": "4.21.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-screenplay-ui-composition",
+          "cratis-stage-rendering-and-sandbox"
+        ],
+        "rules": []
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 from the Components family read of the Scene packages; the Stage scaffold pins them."
+    },
+    {
+      "id": "orleans",
+      "name": "Orleans",
+      "repository": "Cratis/Orleans",
+      "packages": [],
+      "synced": {
+        "version": "1.16.3",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-chronicle-hosting"
+        ],
+        "rules": [
+          "orleans.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 1.16.3."
+    },
+    {
+      "id": "keldakraft",
+      "name": "KeldaKraft",
+      "repository": "Cratis/KeldaKraft",
+      "visibility": "private",
+      "packages": [],
+      "synced": null,
+      "covers": {
+        "skills": [],
+        "rules": []
+      },
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no KeldaKraft-specific shared-corpus guidance."
+    },
+    {
+      "id": "direct",
+      "name": "Direct",
+      "repository": "Cratis/Direct",
+      "visibility": "private",
+      "packages": [],
+      "synced": null,
+      "covers": {
+        "skills": [],
+        "rules": []
+      },
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no Direct-specific shared-corpus guidance."
+    },
+    {
+      "id": "chronicle",
+      "name": "Chronicle",
+      "repository": "Cratis/Chronicle",
+      "packages": [
+        {
+          "ecosystem": "nuget",
+          "id": "Cratis.Chronicle"
+        }
+      ],
+      "synced": {
+        "version": "19.51.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-application-slice-specifications",
+          "cratis-arc-command",
+          "cratis-arc-command-execution",
+          "cratis-arc-command-validation",
+          "cratis-chronicle-cli-operations",
+          "cratis-chronicle-client-dotnet",
+          "cratis-chronicle-compliance",
+          "cratis-chronicle-decision-reads",
+          "cratis-chronicle-event-constraints",
+          "cratis-chronicle-event-modeling",
+          "cratis-chronicle-event-specifications",
+          "cratis-chronicle-event-type-migration",
+          "cratis-chronicle-hosting",
+          "cratis-chronicle-multi-tenancy",
+          "cratis-chronicle-projection",
+          "cratis-chronicle-reactor",
+          "cratis-chronicle-read-model",
+          "cratis-chronicle-read-model-specifications",
+          "cratis-chronicle-reducer",
+          "cratis-chronicle-web-workbench",
+          "cratis-code-review",
+          "cratis-fundamentals-concept",
+          "cratis-performance-review",
+          "cratis-screenplay-automations-and-translations",
+          "cratis-screenplay-discovery",
+          "cratis-screenplay-streams-and-consistency",
+          "cratis-security-review",
+          "cratis-specifications-csharp"
+        ],
+        "rules": []
+      },
+      "notes": "Synced to v19.51.0 source in Cratis/AI#620 (v19.50.1 family pass plus the v19.51.0 delta); older behavior probes remain historical evidence, not current runtime verification."
+    },
+    {
+      "id": "arc-go",
+      "name": "Arc.Go",
+      "repository": "Cratis/Arc.Go",
+      "packages": [],
+      "synced": {
+        "version": "0.1.1",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-arc-go"
+        ],
+        "rules": [
+          "go-engineering.md",
+          "go.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 0.1.1."
+    },
+    {
+      "id": "templates",
+      "name": "Templates",
+      "repository": "Cratis/Templates",
+      "packages": [],
+      "synced": {
+        "version": "1.7.4",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [],
+        "rules": [
+          "application-profile.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 1.7.4."
+    },
+    {
+      "id": "fundamentals",
+      "name": "Fundamentals",
+      "repository": "Cratis/Fundamentals",
+      "packages": [
+        {
+          "ecosystem": "nuget",
+          "id": "Cratis.Fundamentals"
+        },
+        {
+          "ecosystem": "npm",
+          "id": "@cratis/fundamentals"
+        }
+      ],
+      "synced": {
+        "version": "7.23.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-arc-command",
+          "cratis-arc-command-validation",
+          "cratis-code-review",
+          "cratis-engineering-csharp-conventions",
+          "cratis-fundamentals-concept",
+          "cratis-fundamentals-type-discovery"
+        ],
+        "rules": [
+          "concepts.md"
+        ]
+      },
+      "notes": "Floor uses direct source verification, not a peer-dependency minimum. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "components",
+      "name": "Components",
+      "repository": "Cratis/Components",
+      "packages": [
+        {
+          "ecosystem": "npm",
+          "id": "@cratis/components"
+        }
+      ],
+      "synced": {
+        "version": "4.26.4",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-arc-react-page",
+          "cratis-components-accessibility",
+          "cratis-components-schema-editor",
+          "cratis-components-stepper-command-dialog",
+          "cratis-components-styling",
+          "cratis-components-toolbar",
+          "cratis-performance-review"
+        ],
+        "rules": [
+          "components.md"
+        ]
+      },
+      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "chronicle-go",
+      "name": "Chronicle.Go",
+      "repository": "Cratis/Chronicle.Go",
+      "packages": [],
+      "synced": {
+        "version": "0.9.1",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-chronicle-client-go"
+        ],
+        "rules": [
+          "go-engineering.md",
+          "go.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 0.9.1."
+    },
+    {
+      "id": "ante",
+      "name": "Ante",
+      "repository": "Cratis/Ante",
+      "packages": [],
+      "synced": null,
+      "covers": {
+        "skills": [],
+        "rules": []
+      },
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no Ante-specific shared-corpus guidance."
+    },
+    {
+      "id": "chronicle-mcp",
+      "name": "Chronicle.Mcp",
+      "repository": "Cratis/Chronicle.Mcp",
+      "packages": [],
+      "synced": {
+        "version": "2.0.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-chronicle-mcp-inspection"
+        ],
+        "rules": []
+      },
+      "notes": "Synced to v2.0.0 source in Cratis/AI#620; guidance remains classification-only and does not authorize live tool invocation."
+    },
+    {
+      "id": "screenplay-critterstack",
+      "name": "Screenplay.CritterStack",
+      "repository": "Cratis/Screenplay.CritterStack",
+      "packages": [],
+      "synced": {
+        "version": "0.26.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-screenplay-toolchain"
+        ],
+        "rules": []
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 0.26.0."
+    },
+    {
+      "id": "chronicle-typescript",
+      "name": "Chronicle.TypeScript",
+      "repository": "Cratis/Chronicle.TypeScript",
+      "packages": [
+        {
+          "ecosystem": "npm",
+          "id": "@cratis/chronicle"
+        }
+      ],
+      "synced": {
+        "version": "6.51.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-chronicle-client-typescript"
+        ],
+        "rules": []
+      },
+      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "release-action",
+      "name": "release-action",
+      "repository": "Cratis/release-action",
+      "packages": [],
+      "synced": {
+        "version": "1.4.2",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-release-notes"
+        ],
+        "rules": [
+          "pull-requests.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 1.4.2."
+    },
+    {
+      "id": "screenplay-generation",
+      "name": "Screenplay.Generation",
+      "repository": "Cratis/Screenplay.Generation",
+      "packages": [],
+      "synced": {
+        "version": "0.18.1",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-screenplay-toolchain"
+        ],
+        "rules": []
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 0.18.1."
+    },
+    {
+      "id": "chronicle-elixir",
+      "name": "Chronicle.Elixir",
+      "repository": "Cratis/Chronicle.Elixir",
+      "packages": [
+        {
+          "ecosystem": "hex",
+          "id": "cratis_chronicle"
+        }
+      ],
+      "synced": {
+        "version": "3.10.2",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-chronicle-client-elixir"
+        ],
+        "rules": []
+      },
+      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "authproxy",
+      "name": "AuthProxy",
+      "repository": "Cratis/AuthProxy",
+      "packages": [],
+      "synced": {
+        "version": "2.30.5",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-arc-authentication-authorization-and-identity"
+        ],
+        "rules": []
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 2.30.5."
+    },
+    {
+      "id": "fundamentals-go",
+      "name": "Fundamentals.Go",
+      "repository": "Cratis/Fundamentals.Go",
+      "packages": [],
+      "synced": {
+        "version": "0.3.2",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-fundamentals-concept-go"
+        ],
+        "rules": [
+          "go-engineering.md",
+          "go.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 0.3.2."
+    },
+    {
+      "id": "chronicle-kotlin",
+      "name": "Chronicle.Kotlin",
+      "repository": "Cratis/Chronicle.Kotlin",
+      "packages": [
+        {
+          "ecosystem": "maven",
+          "id": "io.cratis:chronicle"
+        }
+      ],
+      "synced": {
+        "version": "6.13.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-chronicle-client-kotlin"
+        ],
+        "rules": []
+      },
+      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "arc-kotlin",
+      "name": "Arc.Kotlin",
+      "repository": "Cratis/Arc.Kotlin",
+      "packages": [
+        {
+          "ecosystem": "maven",
+          "id": "io.cratis:arc"
+        }
+      ],
+      "synced": {
+        "version": "7.7.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-arc-command-kotlin",
+          "cratis-arc-identity-and-tenancy-kotlin",
+          "cratis-arc-query-kotlin",
+          "cratis-arc-spring-data-kotlin",
+          "cratis-arc-testing-kotlin",
+          "cratis-arc-validation-kotlin"
+        ],
+        "rules": []
+      },
+      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "prompter",
+      "name": "Prompter",
+      "repository": "Cratis/Prompter",
+      "packages": [],
+      "synced": null,
+      "covers": {
+        "skills": [],
+        "rules": []
+      },
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no Prompter-specific shared-corpus guidance."
+    },
+    {
+      "id": "eventmodelers-build-kit-kotlin",
+      "name": "Eventmodelers-Build-Kit-Kotlin",
+      "repository": "Cratis/Eventmodelers-Build-Kit-Kotlin",
+      "packages": [],
+      "synced": null,
+      "covers": {
+        "skills": [],
+        "rules": []
+      },
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no shared-corpus guidance for the Eventmodelers build kits."
+    },
+    {
+      "id": "eventmodelers-build-kit-java",
+      "name": "Eventmodelers-Build-Kit-Java",
+      "repository": "Cratis/Eventmodelers-Build-Kit-Java",
+      "packages": [],
+      "synced": null,
+      "covers": {
+        "skills": [],
+        "rules": []
+      },
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no shared-corpus guidance for the Eventmodelers build kits."
+    },
+    {
+      "id": "synopsis",
+      "name": "Synopsis",
+      "repository": "Cratis/Synopsis",
+      "packages": [],
+      "synced": {
+        "version": "1.1.3",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-specification-by-example"
+        ],
+        "rules": []
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 1.1.3."
+    },
+    {
+      "id": "specifications",
+      "name": "Specifications",
+      "repository": "Cratis/Specifications",
+      "packages": [
+        {
+          "ecosystem": "nuget",
+          "id": "Cratis.Specifications"
+        }
+      ],
+      "synced": {
+        "version": "4.1.1",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-application-slice-specifications",
+          "cratis-chronicle-read-model-specifications",
+          "cratis-specification-by-example",
+          "cratis-specifications-csharp",
+          "cratis-specifications-typescript"
+        ],
+        "rules": [
+          "specs.md"
+        ]
+      },
+      "notes": "The C# skill states 4.1.1; other skills use 4.x or unversioned test-framework evidence, not an exact older release. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "narrator",
+      "name": "Narrator",
+      "repository": "Cratis/Narrator",
+      "packages": [],
+      "synced": {
+        "version": "3.0.2",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-chronicle-cli-operations"
+        ],
+        "rules": []
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 3.0.2."
+    },
+    {
+      "id": "ai-distribution",
+      "name": "AI.Distribution",
+      "repository": "Cratis/AI.Distribution",
+      "packages": [],
+      "synced": {
+        "version": "0.3.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [],
+        "rules": [
+          "ai-distribution.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 0.3.0."
+    },
+    {
+      "id": "prologue",
+      "name": "Prologue",
+      "repository": "Cratis/Prologue",
+      "packages": [],
+      "synced": {
+        "version": "2.0.0",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-screenplay-legacy-extraction"
+        ],
+        "rules": []
+      },
+      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+    },
+    {
+      "id": "lens",
+      "name": "Lens",
+      "repository": "Cratis/Lens",
+      "packages": [],
+      "synced": {
+        "version": "0.0.1",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-lens-browser-extension"
+        ],
+        "rules": []
+      },
+      "notes": "Synced to release v0.0.1 source in Cratis/AI#620; development-manifest evidence remains separately qualified."
+    },
+    {
+      "id": "architecture",
+      "name": "Architecture",
+      "repository": "Cratis/Architecture",
+      "packages": [],
+      "synced": {
+        "version": "1.0.2",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [],
+        "rules": [
+          "csharp.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "First synced in Cratis/AI#620 at 1.0.2; analyzer guidance lives in rules/csharp.md."
+    },
+    {
+      "id": "dockerfiles",
+      "name": "Dockerfiles",
+      "repository": "Cratis/Dockerfiles",
+      "packages": [],
+      "synced": null,
+      "covers": {
+        "skills": [],
+        "rules": []
+      },
+      "coverage": "not-covered",
+      "notes": "The uncovered-family review recommends no Dockerfiles-specific shared-corpus guidance."
+    },
+    {
+      "id": "arc-typescript",
+      "name": "Arc.TypeScript",
+      "repository": "Cratis/Arc.TypeScript",
+      "track": "prerelease",
+      "packages": [
+        {
+          "ecosystem": "npm",
+          "id": "@cratis/arc.core"
+        }
+      ],
+      "synced": {
+        "version": "0.57.2",
+        "date": "2026-10-12",
+        "by": "Cratis/AI#620"
+      },
+      "covers": {
+        "skills": [
+          "cratis-arc-command-typescript",
+          "cratis-arc-query-typescript",
+          "cratis-arc-validation-typescript"
+        ],
+        "rules": []
+      },
+      "notes": "Synced to GitHub pre-release v0.57.2 source in Cratis/AI#620; tracks pre-release tags and does not claim npm publication."
+    }
+  ]
+}

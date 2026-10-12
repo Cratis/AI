@@ -40,7 +40,7 @@ decides, not the slice type:
   refused it and falsely reported PLAY0285 (`references/versions.md`).
 - **Stage 4.73.1** admits ESM v1-v10 by version but renders no `Automation`, `Translate`, reaction or
   capture (`STAGE-ESM-024`; `-037` for a reaction that produces and invokes, which Arc 22.72.0+
-  runs as one reactor; scaffold 22.68.0 needs override). The automation is gap-fill; the `.play` slice and its specifications
+  runs as one reactor; scaffold Arc needs override). The automation is gap-fill; the `.play` slice and its specifications
   are the contract: `cratis-screenplay-render-and-gap-fill`.
 
 Model them whenever the `.play` file is the deliverable, and say which tool bound

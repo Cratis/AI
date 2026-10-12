@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-chronicle-client-elixir",
+  "input": "Connect an Elixir application, append through a registered event source, and query the first page of its read model.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "**`v3.10.2`**" },
+    { "kind": "skill-contains", "value": "{:cratis_chronicle, \"~> 3.10\"}" },
+    { "kind": "skill-contains", "value": "ConnectionString.development()" },
+    { "kind": "skill-contains", "value": "`~> 1.18`" },
+    { "kind": "skill-contains", "value": "`nil` registers as string" },
+    { "kind": "skill-contains", "value": "**The reactor context has six keys**" },
+    { "kind": "skill-contains", "value": "`sequence_number`, `occurred`, `event_source`, `observation_state`" },
+    { "kind": "skill-contains", "value": "**page 1 now means the second page**" },
+    { "kind": "skill-contains", "value": "`:retry_attempts` is accepted but ignored", "file": "references/connections.md" },
+    { "kind": "skill-contains", "value": "Client certificates cannot be combined with `disableTls=true`", "file": "references/connections.md" },
+    { "kind": "skill-contains", "value": "registered-source metadata", "file": "references/event-sources.md" },
+    { "kind": "skill-contains", "value": "`{:incompatible_concurrency_scopes, id, guards}`", "file": "references/event-sources.md" },
+    { "kind": "skill-contains", "value": "`Chronicle.Events.ConcurrencyScope.none()`", "file": "references/event-sources.md" },
+    { "kind": "skill-contains", "value": "**no many-event variant**", "file": "references/append-api.md" },
+    { "kind": "skill-contains", "value": "`subject/1` is not imported by `EventType`", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "calendar year, not the ISO week-year", "file": "references/projections.md" }
+  ]
+}

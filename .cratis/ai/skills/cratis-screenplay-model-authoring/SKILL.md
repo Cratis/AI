@@ -21,8 +21,9 @@ same model root or workspace export to all checks. Workflow:
 
 ## Verified product sources
 
-Current authoring/MCP guidance follows Screenplay v4.139.0
-`Documentation/screenplay/mcp/`, `ast-authoring.md`, `folders.md`, `vscode.md`.
+Screenplay v4.142.0: add/rename/remove planner in `references/property-links.md`;
+compliance in command-surface `references/compliance.md`. Other MCP evidence:
+v4.139.0 `Documentation/screenplay/mcp/`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
 Historical probes remain 4.66.0; registration example compilation/execution
@@ -39,14 +40,10 @@ directory when it holds `.play` files). Only when it answers that no root was gi
 or that several roots are offered, pass `path`: the folder holding the project's `.play` files, otherwise the
 folder the user names. Without a project, the server works in `Documents/Screenplay`
 in the user's home folder, so do not invent a location. A root fixed at launch
-can switch only to the corresponding model folder in a registered Git worktree
-of the same repository. Pass the worktree checkout or exact model directory as
-`path`; unrelated roots return `RootChangeRefused`. Switching clears proposals
-and uses the destination's own identity state and journal; nothing migrates.
-Submodules and `--separate-git-dir` checkouts require another connection.
+can switch only to the same model folder in a registered Git worktree of the
+same repository; rules and refusals are in [MCP loop](references/mcp-loop.md).
 
-Prefer a fixed root; the historical dynamic-roots bug and connection procedure
-are in [MCP loop](references/mcp-loop.md). Send `initialize` and
+Prefer a fixed root (dynamic-roots history: [MCP loop](references/mcp-loop.md)). Send `initialize` and
 `notifications/initialized` before any tool call, then discover `tools/list`
 schemas rather than relying on a remembered count.
 
@@ -82,7 +79,7 @@ can keep that entry point; use the project's supported installation channel.
    of `.play` files is one application, not independent files.
 2. Use `search-declarations`, `declaration-details`, `find-references` and
    `dependencies` to locate the owning declaration and affected references.
-   Before a property rename/removal, read [property links](references/property-links.md):
+   Before a property change, read [property links](references/property-links.md):
    `kind: "Property"`, `Owner.member` / `Owner.generationN.member`, direct mappings.
    `complete: false` is incomplete evidence, never a successful empty list.
 3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
@@ -134,9 +131,10 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
 3. Prefer `propose-rename` for supported logical renames: it coordinates fragments,
    repairs proven references and preserves assigned identities. Never substitute
    global string replacement for an explicit refusal.
-4. Use `propose-source` for whole text or `propose-ast` for typed edits
-   (Authoring defaults); `propose` is executable-only. Batch changes;
-   details: `references/mcp-tools.md`.
+4. Prefer `propose-property` for property add/rename/remove, not hand-composed
+   `propose-ast` batches. Inspect the chain and never guess past a refusal:
+   [property links](references/property-links.md). Otherwise use `propose-source`
+   (whole text) or `propose-ast` (typed edits); `propose` is executable-only.
 5. Keep reference policy `Safe`. Use `Draft` only for deliberately requested
    unresolved model debt and report that debt; it does not waive structural,
    identity or binding-protection checks.
@@ -172,15 +170,9 @@ files, 8 MiB total, 2 MiB per file, 1 MiB structured result, 200 items or 192 Ki
 per page. Excluded directories: `.git`, `.ai-work`, `.screenplay`, `bin`, `obj`,
 `node_modules`.
 
-Formatting is explicit. Prefer `PreserveTrivia` for identifier, literal-value and
-whole-mapping edits; it rewrites only the changed span. Structural edits (add,
-remove, move) need `CanonicalizeTouchedDocuments`, which keeps attached comments
-and the authored member order within a document but normalizes whitespace and
-blank lines. Before applying, check the proposal's `droppedCommentCount`; when it
-is not zero, read `read-proposal` with `view: "dropped-comments"` and disclose
-each lost comment (`PLAY0288` also reports their count and lines). Untouched
-documents retain exact bytes. A printer that loses requested structural fields
-rejects the plan.
+Choose formatting explicitly and disclose dropped comments before applying;
+read [formatting and limits](references/mcp-loop.md#formatting-and-limits) for
+`PreserveTrivia`, canonical consent, comment review and byte preservation.
 
 `identityMigrationIssues`: read the [MCP loop](references/mcp-loop.md).
 
@@ -295,7 +287,8 @@ that the code compiles or behaves. Read `references/mcp-tools.md#code-attachment
   clean run is not a bound or executable result.
 - Operations/`numbers exact` remain unadmitted; routes bind as v8, public
   boundaries v9, identity/overrides/filters v10, qualifying non-route Double
-  literals v11, non-positional enum numbers v12 (standalone 4.139.0).
+  literals v11, enum numbers v12, compliance v13 (since 4.141.0;
+  limits: command-surface `references/compliance.md`).
   CLI 3.53.1/Stage 4.73.1 bundle 4.137.0 and do not admit v12. Never drop or stub source contracts to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.

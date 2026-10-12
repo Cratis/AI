@@ -10,6 +10,13 @@
     { "kind": "skill-contains", "value": "Authorization belongs on the **class**." },
     { "kind": "skill-contains", "value": "is created through its **constructor** in `handle()`" },
     { "kind": "skill-contains", "value": "`--check-metadata`" },
-    { "kind": "skill-contains", "value": "CommandScenario.for(RegisterTask, RegisterTaskValidator)", "file": "references/command-specifications.md" }
+    { "kind": "skill-contains", "value": "CommandScenario.for(RegisterTask, RegisterTaskValidator)", "file": "references/command-specifications.md" },
+    { "kind": "skill-contains", "value": "tag **v0.57.2**" },
+    { "kind": "skill-contains", "value": "peer `^6.29.0`" },
+    { "kind": "skill-contains", "value": "Outside **Development**" },
+    { "kind": "skill-contains", "value": "not identity\n  discovery", "file": "references/identity-and-introspection.md" },
+    { "kind": "skill-contains", "value": "Unknown`, `Mixed", "file": "references/command-operations.md" },
+    { "kind": "skill-contains", "value": "**`--use-proxy-file-suffix`**", "file": "references/proxy-generation.md" },
+    { "kind": "skill-contains", "value": "projections (>=6.19.0)", "file": "references/chronicle-events.md" }
   ]
 }

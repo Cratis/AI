@@ -10,8 +10,9 @@
 - Declare the use separately
 - Identify the person, not the stream
 
-Authority: Screenplay v4.127.0 `concepts.md`, `purposes.md`, `events.md` and
-`diagnostics.md`; decision 0041. These declarations do not establish lawful
+Authority: Screenplay v4.142.0 `concepts.md`, `events.md`,
+`Semantics/SemanticModelBinder.Compliance.cs` and `SemanticModelValidator.Compliance.cs`;
+processing-purpose guidance retains v4.127.0 evidence; decisions 0041 and 0068. These declarations do not establish lawful
 processing or enforce retention. Check provider support separately.
 
 ## Classify the value on its concept
@@ -60,9 +61,26 @@ new event generation.
 
 C# provider mapping: `pii` → `[PII]`; `secret` → `[Encrypted]` + `[NotAudited]`;
 `pii secret` → `[PII]` only (Chronicle refuses `[PII]` with `[Encrypted]`, CHR0053).
-This mapping is not admission: either marker, including qualifiers and scopes,
-still blocks executable binding with PLAY0268. Subject lineage is a different
-role, described below.
+Standalone Screenplay 4.142.0 binds optional concept `compliance` as ESM v13
+(first released in 4.141.0), carrying markers, qualifiers and scopes. It applies
+through command, event, read-model,
+composite and response type references, including collection elements. Bare `pii`
+writes `{"personal":{}}`; `secret scope namespace` writes
+`{"secret":{"scope":"namespace"}}`. With both markers, personal protection
+wins and no secret scope is stored; reasons stay report-only PLAY0270.
+Unmarked models keep their exact executable bytes and revision. The reference
+evaluator runs marked models with unchanged outcomes but tests neither encryption
+nor erasure. Consumers must explicitly admit v13 and realize the protection;
+CLI 3.53.1 bundles Screenplay 4.137.0, which refuses markers; standalone Stage
+4.76.0 admits only through v12 (Stage#345 tracks v13 admission). Never remove protection to fit either tool.
+
+Enum and identity concepts still refuse PLAY0268 at binding only (identity means
+event-source/stream identity); source validation alone cannot report this binder diagnostic.
+It also refuses an event combining personal values or explicitly
+`secret scope subject` values with an explicit event-property `subject` mark,
+including nested composite and collection uses: subject lineage is not admitted.
+In v13 the personal-data subject is the event source. Remove a mark only when that
+source truly is the intended subject, not merely to pass binding.
 
 ## Recover classification from C# with Arc 22.70.0
 
@@ -71,7 +89,7 @@ Reverse generation is not the C# provider mapping above. Source authority: Arc
 secrets), `Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`
 and `Source/DotNET/Screenplay/Analysis/Types/PersonalDataMarkings.cs`.
 SP0058 to SP0060 exist from Arc.Screenplay 22.61.0 (or earlier); SP0061 to SP0063 first ship in 22.70.0 (read at
-v22.70.0 and v22.72.0), so the full set described here needs 22.70.0 or later. CLI 3.53.1 bundles 22.54.0, which has
+v22.70.0 and v22.72.0), so the full set described here needs 22.70.0 or later. CLI 3.53.1 bundles an Arc.Screenplay older than that (its version is in `cratis-screenplay-toolchain` `references/versions.md`), which has
 none of SP0061 to SP0063, so the CLI shows none of them; check the generator package actually loaded.
 
 - Both `[Encrypted]` and `[NotAudited]` must be on the concept to recover
@@ -83,7 +101,9 @@ none of SP0061 to SP0063, so the CLI shows none of them; check the generator pac
   Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI adapter flag
   `--authoring-only-constructs`) to state `secret scope namespace` or
   `secret scope global` in the concept body. Subject stays implicit. Scope
-  is syntax-only: it raises no ESM version and grants no executable admission.
+  was syntax-only on this generator's compiler. With standalone 4.142.0,
+  protected concepts instead select ESM v13; this does not upgrade the generator
+  or the CLI bundle.
   `pii secret` gets no scope because the providers ignore it.
 - A property or positional constructor parameter marked `[PII]` on a non-concept
   type reports SP0062 (Information); the marking is not stated and no concept

@@ -19,8 +19,8 @@ frontend. Project setup, the builder, and hosts are in
 
 ## Verified product sources
 
-Verified against `Cratis/Arc.TypeScript` `main` at commit `94d398d` (tag
-`v0.33.0` plus three commits), reading
+Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release;
+server packages 0.57.2, not on npm), reading
 `Source/Core/queries/index.ts`, `Documentation/queries/**`,
 `Documentation/mongodb/**`, `Documentation/sql/**`,
 `Documentation/testing/queries.md` and `observable-queries.md`, and
@@ -143,7 +143,13 @@ Every query route accepts GET and the HTTP `QUERY` method, whose JSON body is
 `generatedApis: { enableQueryHttpMethod: false }` turns it off (405 with
 `Allow: GET`). `@query({ httpMethod: QueryHttpMethod.Query })` only sets the
 generated client's preference; it does not change the server. OpenAPI describes
-queries as GET only.
+queries as GET only. OpenAPI includes `POST <command route>/validate` with
+operation id `<id>:validate`; paging/sorting parameters only for array/`queryPage`
+queries (metadata-free arrays need `generatedReturn: { cardinality: 'many', nullable: false }`).
+401 appears only when authentication can produce it. `/openapi.json` is protected
+by the secure discovery defaults; read
+[the identity/introspection reference](../cratis-arc-command-typescript/references/identity-and-introspection.md)
+when configuring discovery access or identity.
 
 ## Page and sort
 
@@ -151,6 +157,11 @@ queries as GET only.
   `page` is zero-based. `pageSize` of 0 or less, or a negative page, answers
   400. Sorting in memory requires the field on every item; a non-array result
   asked to page or sort answers 400.
+- In-memory complex-field sorting (object/array/map or a concept over one) answers
+  400 `malformedRequest`, or a validation frame after streaming starts. Concepts
+  sort by their underlying scalar value (including numeric/chronological values);
+  temporal values sort naturally and null concepts join other nulls. Generated
+  complex-field `sortBy` helpers are deprecated: sort on scalar fields.
 - To cut the page in the data source, add `queryOptions()` and return
   `queryPage(items, totalItems)`. `items` must be exactly the requested page.
   If the request asked for sorting, pass the applied sort as the third argument —
@@ -174,7 +185,10 @@ static observeAllTasks(tasks: Tasks): BehaviorSubject<TaskItem[]> { return tasks
 Arc must know a query is observable **before** registration. Generated metadata
 infers it from the declared return type; without metadata, say so explicitly:
 `@query({ observable: true }, service(Tasks))`. A snapshot query that returns a
-live source anyway fails at run time.
+live source anyway throws `SnapshotStreamError`, without subscribing or calling
+`unsubscribe()` on a shared Subject. Arc releases it once through its available
+async/sync disposal, `dispose`, `close`, or `return` hook;
+`snapshotStreamSource(result)` is exported from core.
 
 | Source | Snapshot GET |
 | --- | --- |
@@ -194,7 +208,8 @@ live source anyway fails at run time.
   its `signal` aborts when the subscriber leaves.
 - Paging and sorting apply to **every** emission, in memory. An observable query
   cannot return `queryPage`; narrow what the source emits instead, or use a
-  database-backed observation such as MongoDB change streams.
+  database-backed observation such as MongoDB change streams or opted-in Drizzle
+  observation (see the storage reference below).
 - Transports: `Accept: text/event-stream` on the route (direct SSE, one
   `data: <QueryResult>` frame per change), a direct WebSocket upgrade
   (`{"type":"Data","data":<QueryResult>}` frames, `Ping`/`Pong`), or the
@@ -276,12 +291,21 @@ export class Author {
   `observe()` needs a replica set. Build owner filters from the verified
   principal, never from a caller-provided filter object.
 - Drizzle: `drizzleReadModel(Model)` is a read-only handle; writes belong in
-  commands through `drizzleDatabase()`.
+  commands through `drizzleDatabase()`. Live queries require opt-in
+  `DrizzleObservation.InProcess` announcements or experimental PostgreSQLNotify;
+  `rxjs` is a required peer of `@cratis/arc.drizzle`.
+- Protected raw MongoDB reads need typed `MongoReadModels` with `readModel`
+  registered with Chronicle (optional `subjectFor`). Untyped reads and
+  `MongoDBWatcher.changes()` still expose stored ciphertext.
+
 - Chronicle: `ChronicleReadModels` offers `getAll`, `getById`, `observeAll`,
   `observeById` for the current tenant's namespace. Projecting happens after the
   append, so a query right after a command can be stale; a live query updates
   when the projection catches up. Projection authoring is
   `cratis-chronicle-client-typescript`.
+
+Read [references/storage-observation-and-compliance.md](references/storage-observation-and-compliance.md)
+when implementing Drizzle observation or serving protected raw MongoDB documents.
 
 ## Specify the query
 
@@ -313,6 +337,8 @@ export class a_task_listing {
   rehydrated model.
 - `perform(arguments, { paging, sorting }?)` returns the actual `QueryResult`,
   e.g. `perform({}, { sorting: { field: 'title', direction: SortDirection.Ascending }, paging: { page: 0, pageSize: 1 } })`.
+- `QueryScenario.perform()` throws `StreamingQueryNotSupportedError` for
+  observable queries: use `ObservableQueryScenario` instead.
 - `ObservableQueryScenario.collect(count, timeoutMs = 5000, arguments?, options?)`
   returns `{ emissions, completed, rejection }`; a rejected subscription lands in
   `rejection`, not `emissions`. Always assert the emission count.

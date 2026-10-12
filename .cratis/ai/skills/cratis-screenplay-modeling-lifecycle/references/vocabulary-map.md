@@ -21,7 +21,7 @@ speaks in them; never model board mechanics (lanes, node ids, positions).
 | Storyline (ordered beats) | a **family** of specifications sharing example data, each one transition (no storyline syntax at Screenplay 4.139.0) | several spec classes | specifications |
 | Field validation | concept `validate` (every use) / command `validate`, `require` | `ConceptValidator<T>` / `CommandValidator<T>` | command validation |
 | Role permission ("Cannot") | `policy` + `authorize` + `then denied` spec; ownership via `claim ... matches subject` | `[Authorize(Policy)]`, generated policies | authorization |
-| Precondition on stream state | `reads` + `require` as stated intent, not enforced at Screenplay 4.139.0 (target: Arc `[ProtectedDecision]` + `DecisionRead<T>`, or Chronicle DCB; APIs available to gap-fill in Stage 4.73.1's scaffold of Arc 22.68.0/Chronicle 19.45.0, not emitted protection) | decision over a guarded read | command validation |
+| Precondition on stream state | `reads` + `require` as stated intent, not enforced at Screenplay 4.139.0 (target: Arc `[ProtectedDecision]` + `DecisionRead<T>`, or Chronicle DCB; APIs available to gap-fill in the Arc and Chronicle the Stage 4.73.1 scaffold pins, not emitted protection) | decision over a guarded read | command validation |
 | Generated id (`derived:uuid4()`) | `generated` (authorable, not executable) | id supplied before `Handle()` | commands |
 | External system / outbound call | `Translate` slice (inbound); `system`/`operation` (authorable, not executable) or Automation (outbound) | `ICommandOperation` / reactor | operations, reactors |
 | HTML mockup | `screen` Level 1 + board (`visualize-model`) | default Scene composition | ui composition |
@@ -44,7 +44,7 @@ Screenplay meaning, and when you meet the older usage, translate it and say so.
 - Chronicle **reactor**: C# observer, usually for side effects; it does not by itself define
   business decisions. A Screenplay reaction is authorable and bindable, but Stage 4.73.1 renders no Automation or
   Translate slice: the reactor and command are gap-fill code. A reaction that both produces events and invokes commands is
-  refused by Stage (`STAGE-ESM-037`); Arc 22.72.0 and later run one reactor returning events and commands (the Stage scaffold's Arc 22.68.0 needs a proven override), so keep the reaction whole.
+  refused by Stage (`STAGE-ESM-037`); Arc 22.72.0 and later run one reactor returning events and commands (the Arc the Stage scaffold pins needs a proven override), so keep the reaction whole.
 
 ## Scenario vs specification
 "Scenario" is the Event Modeling example and the scenario *types* `cratis-screenplay-scenario-coverage` uses for

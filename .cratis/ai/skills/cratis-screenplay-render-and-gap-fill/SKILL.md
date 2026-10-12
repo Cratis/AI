@@ -23,11 +23,11 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 ## Verified product sources
 
 Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`; read it before
-selecting the compiler and renderer for delivery. Current pair: CLI 3.53.1 bundling Screenplay
-4.137.0 and Stage 4.73.1 (the standalone compiler is newer, 4.139.0). Render options (`--scope`,
+selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage, older
+than the standalone compiler. Render options (`--scope`,
 `--check`, `--package-set`) and exit codes were read at cli `v3.53.1` `Documentation/reference/screenplay.md`
-and `cratis render --help`; admission at Stage `v4.73.1`. Stage's scaffold pins Arc 22.68.0 and
-Chronicle 19.45.0, which are not the latest releases (`cratis-stage-rendering-and-sandbox`
+and `cratis render --help`; admission at Stage `v4.73.1`. Stage's scaffold pins Arc and
+Chronicle releases, which are not the latest (`cratis-stage-rendering-and-sandbox`
 `references/rendered-application.md`). Source reading is not a new render run.
 
 Runs: the worked example (`references/worked-example.md`) was probed with cratis 3.53.1 (observed; the
@@ -91,7 +91,7 @@ Stage (`STAGE-ESM-037`, Stage#207) although Arc 22.72.0 and later run one reacto
 and commands (events appended first as one batch, then commands in order, no cross-effect
 transaction; a retry can repeat the events, so use `[OnceOnly]`/idempotent handling per
 `cratis-chronicle-reactor`). Keep the modeled reaction whole and gap-fill it as that one reactor; never
-split it or drop an effect to get a render. The scaffold pins Arc 22.68.0; whether a newer Arc
+split it or drop an effect to get a render. The scaffold pins an older Arc; whether a newer Arc
 override in `Customizations/Dependencies.props` restores next to it is unverified, so prove it with a restore and build.
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and
@@ -154,7 +154,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 - One ledger scope per `slice-implementer` brief; the brief carries addresses and paths, not contents.
 - Model-enforced rules realized in code (state-dependent rules) need a protected read or
   concurrency scope; never claim them from prose. Stage 4.73.1 rendered apps scaffold
-  Arc 22.68.0/Chronicle 19.45.0; API availability alone is not verified enforcement.
+  the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`; API availability alone is not verified enforcement.
 - Adapters that call outside systems follow `cratis-engineering-effect-boundaries`; slice
   specifications follow `cratis-application-slice-specifications`.
 - Realization notes are the explicit realization requirements stated in a slice `description` or `documentation`

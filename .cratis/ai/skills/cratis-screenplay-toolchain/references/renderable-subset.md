@@ -45,19 +45,21 @@ version; each construct it does not render refuses with its own code before any 
 
 | Area | Renders at 4.73.1 | Refused (code) |
 | --- | --- | --- |
-| Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`, every reaction, capture, application trigger and clock specification (`STAGE-ESM-001`/`-024`); a reaction that both produces and invokes (`-037`, Stage#207; Arc 22.72.0+ can run it, and the scaffold's Arc 22.68.0 needs a proven override; hand-write one reactor, never split the reaction) |
+| Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`, every reaction, capture, application trigger and clock specification (`STAGE-ESM-001`/`-024`); a reaction that both produces and invokes (`-037`, Stage#207; Arc 22.72.0+ can run it, and the Arc the scaffold pins needs a proven override; hand-write one reactor, never split the reaction) |
 | Queries | optional keyed snapshot lookups; observable collections, keyed or unkeyed (since 4.49.0) | a snapshot list: `STAGE-ESM-010`; `filter`, `scoped to`, `performer`, composite `by`: `PLAY0268` at binding |
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false; Stage 4.73.1 `IsSupportedClaimPath`), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`; Stage 4.73.1 `IsTextualSubject`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, with routed specifications | reserved stored names, unformattable routed fixtures, unsupported routed replay (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
-| Generated values and responses (v7) | not rendered | `STAGE-ESM-028`/`-029` (Stage#175) |
+| Generated values and responses (v7) | not rendered by Stage 4.73.1 (cli 3.53.1); rendered from standalone Stage 4.74.0 (UUID concepts, scalar and named responses) | `STAGE-ESM-028`/`-029` at 4.73.1 (Stage#175); `STAGE-ESM-038` for combinations the target cannot preserve |
 | Specifications | as in Stage's `admission.md` | `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims, `$context.occurred`-derived fixed values asserted (`-011`) |
 | v9 and v10 | reducer observer `from` filters | public events and event-target projections (`-032`); foreign origins and event-source captures (`-033`); directed Translate (`-024`); reaction `runsAs` (`-034`); reaction `from` filters (`-035`); per-production route overrides (`-036`) |
 | Evolved events | initial revisions only | `STAGE-ESM-026` (Stage#204) |
 | Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only (Stage#178 closed) | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
-Still bind-refused (not Stage): `reads` and `concurrency` (`PLAY0271`), command `handler`s, `pii`/`secret`
-(`PLAY0268`). Other rows of the table below that name 4.24 behavior are history.
+CLI 3.53.1 bundles Screenplay 4.137.0. That compiler refuses `reads` and
+`concurrency` (PLAY0271), command `handler`s and concept `pii`/`secret` markers
+(PLAY0268) at binding, before Stage admission. Rows below naming Stage 4.24
+behavior are historical.
 
 ## Historical: what Stage 4.24 admitted
 
@@ -88,7 +90,11 @@ whole automation is hand-written (gap-fill).
 | Compliance | none | any `@pii` or `@sensitive` already fails binding (PLAY0268). The C# provider mapping (Stage v4.29.0, Stage#197) is `@pii` to `[PII]`, `@sensitive` to `[Encrypted]` + `[NotAudited]`, both to `[PII]` only |
 
 At standalone 4.127.0, compliance uses bare `pii`/`secret` (legacy markers are
-accepted with PLAY0565 information); either still refuses binding. Identity blocks,
+accepted with PLAY0565 information); either still refuses binding on that compiler.
+Standalone 4.142.0 admits concept compliance as v13 (from 4.141.0) with narrower refusals
+(command-surface `references/compliance.md`). CLI 3.53.1 bundles Screenplay
+4.137.0, which refuses markers; standalone Stage 4.76.0 admits only through v12
+(Stage#345). Identity blocks,
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding
@@ -131,8 +137,8 @@ legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
   `Customizations/styles.css`. The planner never reads it, and it never binds a modeled
   reaction or capture. A customization never makes a rejected model renderable.
 - `cratis render` does **not** build, test or run the application.
-- Stage 4.73.1's scaffold pins .NET 10, Arc 22.68.0, Chronicle client/kernel 19.45.0
-  and emits a `.frontend/` React/Vite app (Components 4.26.2, Scene 4.21.0); these are not the latest
+- Stage 4.73.1's scaffold pins .NET 10 and Arc and Chronicle client/kernel releases
+  and emits a `.frontend/` React/Vite app (Components and Scene releases pinned too); these are not the latest
   releases (`cratis-stage-rendering-and-sandbox` `references/rendered-application.md`).
   `CratisEmbeddedScreenplayEnabled=false`; `Directory.Packages.props` is managed,
   never edit it. `[ProtectedDecision]` / `DecisionRead<T>` are available to gap-fill,

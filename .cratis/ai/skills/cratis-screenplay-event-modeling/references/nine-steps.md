@@ -202,7 +202,7 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 Stage 4.73.1 renders none, so the automation is gap-fill there (versions:
 `cratis-screenplay-toolchain`). A reaction that `produces` and `invokes` stays one reaction: Stage
 refuses it (`STAGE-ESM-037`) but Arc 22.72.0 and later run it as one reactor (events first, then
-commands; no cross-effect transaction; the Stage scaffold's Arc 22.68.0 needs a proven override), so gap-fill it whole, never split it. When the automation decides from a view, declare it under
+commands; no cross-effect transaction; the Arc the Stage scaffold pins needs a proven override), so gap-fill it whole, never split it. When the automation decides from a view, declare it under
 the trigger with `reads` (see `cratis-screenplay-captures-and-reactions`).
 
 The example below is a complete document: a Monday-morning clock occurrence invokes a command

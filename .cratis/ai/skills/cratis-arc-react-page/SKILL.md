@@ -28,10 +28,10 @@ This skill is verified against these exact package contracts:
 
 | Package | Version | Verified from |
 | --- | --- | --- |
-| `@cratis/components` | `4.6.0` | its package manifest (`exports`, peers), `Source/DataPage/*`, `Source/DataTables/*`, `Source/Dialogs/*`, `Source/CommandDialog/*`, `Source/MIGRATION.md` |
-| `@cratis/arc` | `>=20.3.1 <23` | peer range declared by `@cratis/components@4.6.0` |
-| `@cratis/arc.react` | `>=20.3.1 <23` | peer range declared by `@cratis/components@4.6.0` |
-| `react` | `^19.0.0` | peer of `@cratis/components@4.6.0` |
+| `@cratis/components` | `4.26.4` | its package manifest (`exports`, peers), `Source/DataPage/*`, `Source/DataTables/*`, `Source/Dialogs/*`, `Source/CommandDialog/*`, `Source/MIGRATION.md` |
+| `@cratis/arc` | `>=20.3.1 <23` | peer range declared by `@cratis/components@4.26.4` |
+| `@cratis/arc.react` | `>=20.3.1 <23` | peer range declared by `@cratis/components@4.26.4` |
+| `react` | `^19.0.0` | peer of `@cratis/components@4.26.4` |
 
 `@cratis/arc.react.mvvm` ships with `@cratis/arc.react` and is an explicit
 application dependency. Reverify before claiming another version.
@@ -69,15 +69,25 @@ must move focus into itself.
   fix the C# source and rebuild instead of editing one.
 - The app must mount `CratisComponentsProvider` (from the package root,
   `@cratis/components`) above every Cratis component — it carries the locale,
-  the Components-owned labels and the toast region (`toaster`).
+  the Components-owned labels. Enable `toaster` (or mount one `<Toaster />`)
+  for notifications; without it even `toastCommandResult` displays nothing.
+  Mount exactly one toaster, not both.
 - The app must import the stylesheets explicitly; components do not import
   their own CSS:
 
-  ```ts
-  import '@cratis/components/tokens';   // the --cratis-* token seam
-  import '@cratis/components/styles';   // structural rules for every component
-  import '@cratis/components/theme';    // optional: the maintained baseline look
+  In `index.css`, imported by the entry with `import './index.css'`:
+
+  ```css
+  @import '@cratis/components/tokens';
+  @import '@cratis/components/styles';
+  @import '@cratis/components/theme'; /* optional baseline */
   ```
+
+  CSS subpath imports from TypeScript need ambient declarations on TypeScript 6;
+  use CSS `@import` to avoid TS2882. For a smaller bundle use `styles/base` plus
+  the needed area sheets (`DataPage/styles`, etc.); area order does not matter.
+  Import `reflect-metadata` at the entry point; it remains required. `tsyringe`
+  is optional for Components but installed by Arc React.
 
   Components has no vendor UI dependency — do not install PrimeReact or an icon
   font for it. Menu icons are React component types (`react-icons` works).
@@ -268,8 +278,9 @@ const [selected, setSelected] = useState<AccountSummary | null>(null);
 The **same `query` prop** takes a snapshot query or an observable query. There
 is no separate `observableQuery` prop: `DataPage` inspects the query prototype
 and picks the snapshot or observable table itself. Pass an observable query and
-the page stays live; pass a snapshot query and call `onRefresh` after a command
-succeeds.
+the page stays live. `onRefresh` only forwards a caller callback to the details
+component; it never refetches the table. DataPage has no snapshot refresh handle.
+Use an observable query when commands must update the list.
 
 Read [queries-and-commands.md](references/queries-and-commands.md) when using generated proxy hooks, implementing paging, or handling command results; it covers the
 generated proxy hooks, their exact return tuples, paging, and how to read a
@@ -325,8 +336,8 @@ props handling, or teardown.
 ## Verify
 
 - Every Cratis Components import uses a subpath, not the root barrel.
-- `CratisComponentsProvider` wraps the tree and the three stylesheets are
-  imported once at the app entry point.
+- `CratisComponentsProvider` wraps the tree, one toaster is mounted for
+  notifications, and the CSS entries are imported once via the app's CSS file.
 - `DataPage` receives `title`, `query`, `emptyMessage`, and children, and
   `dataKey` when the read model has an identity.
 - Columns sit in `<DataPage.Columns>`; menu items sit in

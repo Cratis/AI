@@ -6,6 +6,9 @@
     { "kind": "skill-contains", "value": "ConceptAs<T>" },
     { "kind": "skill-contains", "value": "IGeneratable<TSelf>" },
     { "kind": "skill-contains", "value": "GenerateValue.Uuid()" },
-    { "kind": "skill-contains", "value": "not** monotonic within a" }
+    { "kind": "skill-contains", "value": "not** monotonic within a" },
+    { "kind": "skill-contains", "value": "@cratis/fundamentals" },
+    { "kind": "skill-contains", "value": "typescript-concepts.md" },
+    { "kind": "skill-contains", "value": "does not enforce nominal separation" }
   ]
 }

@@ -9,10 +9,12 @@ import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '..
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
+import { loadProductSync, productSyncProblems, productSyncSummary } from './product-sync.ts';
 import { verifyPlayExamples } from './play/index.ts';
 import { summary as contractSummary, verifyContract } from './contract/index.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
 import { verifySkillEvaluations } from './skill-evaluations.ts';
+import { bundlePins, bundleTable, pinRestatements, pinSummary, scaffoldPins, scaffoldTable, type PinException } from './pin-restatements.ts';
 import { danglingSkillReferences } from './skill-references.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
 import { referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
@@ -84,8 +86,8 @@ for (const obsolete of ['tooling', 'evidence', 'evals', 'catalog', 'distribution
 }
 const workflows = (await readdir(join(root, '.github', 'workflows'))).filter(name => name.endsWith('.yml') || name.endsWith('.yaml'));
 if (!workflows.includes('publish.yml')) failures.push('The publish workflow is required.');
-// The other workflows are thin callers of the organization release-note and release-intent checks.
-const allowedWorkflows = ['publish.yml', 'verify-release-notes.yml', 'verify-semver-label.yml'];
+// Release-note callers and the weekly product drift monitor accompany publishing.
+const allowedWorkflows = ['publish.yml', 'verify-release-notes.yml', 'verify-semver-label.yml', 'product-drift.yml'];
 const unexpectedWorkflows = workflows.filter(name => !allowedWorkflows.includes(name));
 if (unexpectedWorkflows.length > 0) failures.push(`Only ${allowedWorkflows.join(', ')} are allowed; found ${unexpectedWorkflows.join(', ')}.`);
 for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/marketplace.json', '.agents/plugins/marketplace.json', '.github/plugin/marketplace.json']) {
@@ -141,6 +143,11 @@ for (const profile of profiles) {
 for (const profile of manifest.profiles ?? []) {
     if (!profileIds.has(profile)) failures.push(`Manifest references missing profile '${profile}'.`);
 }
+
+const productSync = await loadProductSync(root);
+const productReport = productSyncProblems(productSync.document, productSync.sources);
+failures.push(...productReport.problems);
+console.log(productSyncSummary(productReport));
 
 const skillDirectories = (await readdir(join(corpus, 'skills'), { withFileTypes: true })).filter(entry => entry.isDirectory());
 const skillEvaluations = await verifySkillEvaluations(root, skillDirectories.map(entry => entry.name));
@@ -231,6 +238,17 @@ for (const scenarioPath of (await files(join(corpus, 'skills'))).filter(path => 
     });
 }
 if (scenarioResults.length === 0) failures.push('At least one executable skill verification scenario is required.');
+
+// Current dependency pins live only in the two central tables; every other skill file points at them.
+const pinFiles = (await Promise.all([join(root, '.cratis', 'ai', 'skills'), join(root, 'Evaluations', 'skills')].map(files)))
+    .flat().filter(path => /\.(md|json)$/.test(path) && !path.includes('node_modules'))
+    .map(async path => ({ path: relative(root, path), content: await readFile(path, 'utf8') }));
+const pinReport = pinRestatements(
+    await Promise.all(pinFiles),
+    [...scaffoldPins(await readFile(join(root, scaffoldTable), 'utf8')), ...bundlePins(await readFile(join(root, bundleTable), 'utf8'))],
+    JSON.parse(await readFile(join(import.meta.dirname, 'pin-restatement-exceptions.json'), 'utf8')) as PinException[]);
+failures.push(...pinReport.problems);
+console.log(pinSummary(pinReport));
 
 try {
     const contract = await verifyContract(root);
