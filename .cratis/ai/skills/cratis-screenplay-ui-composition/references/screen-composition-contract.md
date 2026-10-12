@@ -63,6 +63,10 @@ profile and recovering a rendered application shipped in Cratis/cli#301. (Histor
 cratis 3.28.x renderers authored screens were reported as omitted/default composition; Stage 4.73.1
 (CLI 3.53.1) renders navigation contributions and toolbars, and `CLI-RENDER-015`, which refused them, is retired.)
 
+On CLI 3.53.1 (`cratis/stage:4.73.1`, corpus 4.137.0+) the browser run also passes a module-level navigation contribution, an unlisted
+screen reached through the hierarchy, and a toolbar item that opens a dialog with its `presentation` (icon-only, hint)
+honoured (Cratis/Screenplay#665, Cratis/Stage#336 and #337).
+
 ## Data context and component bindings
 
 A component instance is a presentation of a typed Screenplay data context. The

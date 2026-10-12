@@ -6,7 +6,8 @@
 #   1. installs the pinned `cratis` CLI and materializes the published canonical corpus,
 #   2. replays the stdio MCP transcript with the revision-checked column edit (stale apply refused, comment kept),
 #   3. renders the edited folder and requires the new column in the generated application's scene.json.
-# The browser run (screenplay-edited-app-browser.ts) needs Docker and Chromium, so it stays a documented manual step.
+#   4. with SCREENS_SMOKE_BROWSER=1 (the CI job sets it), runs the edited model with `cratis run` (Docker) and checks the
+#      edited column and a created row in Chromium (screenplay-edited-app-browser.ts, pinned Playwright).
 # Usage: screens-smoke.sh <work-folder>   (pins live in screens-smoke.json next to this script)
 set -euo pipefail
 
@@ -34,4 +35,19 @@ grep -q '"executableReady": true' "$work/transcript.json" || { echo "the edited 
 
 cratis render "$work/model" --name ScreenComposition --destination "$work/app" -o json > "$work/render.json"
 grep -q "$edited_column" "$work/app/scene.json" || { echo "the rendered scene.json does not carry the edited column" >&2; exit 1; }
+if [[ "${SCREENS_SMOKE_BROWSER:-}" == "1" ]]; then
+    playwright="$(pin playwright)"
+    rm -rf "$work/browser"
+    mkdir -p "$work/browser"
+    (cd "$work/browser" && npm init -y >/dev/null && npm install --no-audit --no-fund "playwright@$playwright" >/dev/null)
+    if [[ "$(uname)" == "Linux" ]]; then
+        "$work/browser/node_modules/.bin/playwright" install --with-deps chromium >/dev/null
+    else
+        "$work/browser/node_modules/.bin/playwright" install chromium >/dev/null
+    fi
+    (cd "$verification" && SCREENPLAY_PLAYWRIGHT_NODE_PATH="$work/browser/node_modules" npx tsx screenplay-edited-app-browser.ts --model "$work/model" > "$work/browser.json") \
+        || { cat "$work/browser.json" >&2; echo "the edited application did not show the edited column in the browser" >&2; exit 1; }
+    grep -q '"status": "passed"' "$work/browser.json" || { cat "$work/browser.json" >&2; exit 1; }
+    echo "browser run passed: $(grep -c '"passed": true' "$work/browser.json") checks"
+fi
 echo "screens smoke passed on cratis $cli with Cratis.Screenplay.CanonicalCorpus $corpus_package"
