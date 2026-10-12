@@ -19,12 +19,17 @@ const pin = '| Screenplay language, standalone tool and MCP | **4.127.0** (`comm
 
 async function withCorpus(action: (root: string, skill: string) => Promise<void>): Promise<void> {
     const root = await mkdtemp(join(tmpdir(), 'play-spec-'));
-    const skill = join(root, '.cratis/ai/skills/example');
+    const skill = join(root, '.cratis/ai/skills/cratis-screenplay-example');
     try {
         await mkdir(skill, { recursive: true });
         await mkdir(join(root, '.cratis/ai/skills/cratis-screenplay-toolchain/references'), { recursive: true });
         await writeFile(join(root, '.cratis/ai/skills/cratis-screenplay-toolchain/references/versions.md'), pin);
-        await writeFile(join(skill, 'verification.json'), JSON.stringify({ skill: 'example', assertions: [{ kind: 'play-compiles' }] }));
+        await mkdir(join(root, '.cratis/ai/agents'), { recursive: true });
+        await mkdir(join(root, 'Evaluations/skills'), { recursive: true });
+        await mkdir(join(root, 'Source/Verification/play'), { recursive: true });
+        await writeFile(join(root, 'Source/Verification/play/preferred-syntax-allowlist.json'), '[]');
+        await writeFile(join(root, '.cratis/ai/skills/cratis-screenplay-toolchain/references/screenplay-contract.json'), JSON.stringify({ diagnostics: [{ code: 'PLAY0479', name: 'LegacyOptionalSuffix', severities: ['information'], reserved: false, retired: false }] }));
+        await writeFile(join(skill, 'verification.json'), JSON.stringify({ skill: 'cratis-screenplay-example', assertions: [{ kind: 'play-compiles' }] }));
         await writeFile(join(skill, 'SKILL.md'), '```screenplay\nmodule Example\n```\n');
         await action(root, skill);
     } finally {
@@ -125,7 +130,7 @@ describe('when verifying a corpus with an injected runner', () => {
         assert.equal(result.outcome, Outcome.Clean);
         assert.equal(result.compiled, 1);
         assert.equal(result.tested, 1);
-        assert.deepEqual(result.skipped, [{ location: '.cratis/ai/skills/example/SKILL.md:5', reason: 'excerpt has no declared parent' }]);
+        assert.deepEqual(result.skipped, [{ location: '.cratis/ai/skills/cratis-screenplay-example/SKILL.md:5', reason: 'excerpt has no declared parent' }]);
     }));
     it('should report a missing tool as skipped rather than clean and fail if required', async () => withCorpus(async root => {
         const missing: Runner = async () => ({ exit: null, output: '', unavailable: 'ENOENT' });
@@ -138,13 +143,20 @@ describe('when verifying a corpus with an injected runner', () => {
         assert.equal(required.problems.length, 1);
         assert.equal(required.outcome, Outcome.CouldNotRun);
     }));
+    it('should reject expected legacy diagnostics through the corpus gate', async () => withCorpus(async (root, skill) => {
+        await writeFile(join(skill, 'SKILL.md'), '```screenplay expect PLAY0479\nmodule Example\n```');
+        const legacy: Runner = async (tool, arguments_, directory) => arguments_[0] === '--version' ? runner(tool, arguments_, directory) : { exit: 0, output: 'info PLAY0479: legacy optional suffix' };
+        const result = await verifyPlayExamples(root, legacy, {});
+        assert.equal(result.outcome, Outcome.Defects);
+        assert.ok(result.problems.some(problem => /non-preferred.*PLAY0479/.test(problem)));
+    }));
     it('should fail a version mismatch even with the tool optional', async () => withCorpus(async root => {
         const result = await verifyPlayExamples(root, async () => ({ exit: 0, output: '4.126.0' }), {});
         assert.match(result.problems[0], /version mismatch/);
         assert.equal(result.compiled, 0);
     }));
     it('should reject absent assertions and selectors that leave fences uncovered', async () => withCorpus(async (root, skill) => {
-        await writeFile(join(skill, 'verification.json'), JSON.stringify({ skill: 'example', assertions: [{ kind: 'play-compiles', value: 'missing.md' }] }));
+        await writeFile(join(skill, 'verification.json'), JSON.stringify({ skill: 'cratis-screenplay-example', assertions: [{ kind: 'play-compiles', value: 'missing.md' }] }));
         const result = await verifyPlayExamples(root, runner, {});
         assert.ok(result.problems.some(problem => problem.includes('selects no fences')));
         assert.ok(result.problems.some(problem => problem.includes('no play-compiles assertion')));
