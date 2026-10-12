@@ -23,8 +23,8 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 ## Verified product sources
 
 Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`; read it before
-selecting the compiler and renderer for delivery. Current pair: the CLI bundling a Screenplay
-and Stage (the standalone compiler is newer). Render options (`--scope`,
+selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage, older
+than the standalone compiler. Render options (`--scope`,
 `--check`, `--package-set`) and exit codes were read at cli `v3.53.1` `Documentation/reference/screenplay.md`
 and `cratis render --help`; admission at Stage `v4.73.1`. Stage's scaffold pins Arc and
 Chronicle releases, which are not the latest (`cratis-stage-rendering-and-sandbox`
