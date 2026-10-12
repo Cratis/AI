@@ -105,7 +105,7 @@ Checked at Screenplay 4.127.0: `$identity.<property>` is the same caller value a
 is supported, not deprecated. Historical `cratis` CLI 3.41.0 bundled Screenplay 4.114.0, which predated both:
 its parser rejected a top-level `identity` block (`PLAY0001`), and with `--executable` it read a
 `$identity.<property>` mapping as a raw expression (`PLAY0268`). Those checks used standalone 4.127.0;
-they are not current CLI 3.50.0/Screenplay 4.131.0 parser claims. Check current renderer
+they are not current parser claims; compiler pins are in toolchain `references/versions.md`. Check current renderer
 admission separately before choosing caller mappings. Built-ins are `id`, `name`, `userName`,
 `isAuthenticated`, `roles`, `claims.<name>` (everything after `claims.` is opaque).
 Bare `$identity` reports PLAY0152; unknown properties report PLAY0155. Only

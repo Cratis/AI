@@ -13,6 +13,7 @@
 - Identity, compliance and processing views
 - Evidence-pinned production repairs
 - Scoped diagnostics and completeness
+- Property-reference evidence
 - Dependencies and intent inventories
 - Specification obligations and advisory smells
 - Semantic revision comparison
@@ -37,9 +38,9 @@ report unsupported adapters or drift.
 
 After `initialize` and `notifications/initialized`, discover current tools and
 argument schemas with `tools/list`; do not hard-code counts or infer arguments
-from these short descriptions. Screenplay v4.131.0's `McpToolCatalog.cs` has
-37 tools without visualization, 38 with it; older issue counts are not this release.
-The additions below follow its `Documentation/screenplay/mcp/reference.md`.
+from these short descriptions. Additions follow the released
+`Documentation/screenplay/mcp/reference.md`; historical tool counts are not
+current capability evidence.
 The connection procedure, edit routes, identity state and failure handling are in
 the [MCP loop](mcp-loop.md).
 
@@ -50,7 +51,7 @@ the [MCP loop](mcp-loop.md).
 | Source and validation | `diagnostics`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
-| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-repair`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
+| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-repair`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
 | Review | `read-proposal`, `discard-proposal` | Inspect exact changes, dropped comments and proposed attachments, or abandon a connection-local proposal |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
 
@@ -146,6 +147,24 @@ then explicitly confirm Apply. Dirty/untitled buffers and evidence drift refuse;
 uncertain Apply outcomes are never retried. Restricted Mode cannot launch it.
 Monaco has no production-repair host bridge. See v4.125.0 `vscode.md`.
 
+### Number enum members (4.137.0)
+
+Find the unnumbered enum's `ConceptSyntax` handle with `read-ast`; pass it as
+`subject` to `propose-number-enum-members` with `expectedRevision`,
+`expectedCatalogRevision` and `formatting: "CanonicalizeTouchedDocuments"`.
+Optional `validation` and `includeContent` follow ordinary proposals. It writes
+`= 0..n-1` in current order, never renumbers numbered/mixed/invalid enums, and
+requires retained comments/catalog assignments and unchanged executable bytes
+when the original binds. Review with `read-proposal`, then `apply` with before
+revisions; proposing writes nothing. Positional pins preserve executable version,
+bytes and revision. Non-positional numbers require v12 (4.139.0) consumer admission.
+
+Opt into `diagnostics` `checks: "enum-pinning"` (or `PLAY0671` or `all`) for an
+Information hint on unnumbered enums used by event properties, including composite
+uses. Ordinary compilation does not report it. This is a refactoring, not a
+correctness repair; PLAY0667–0670 require an author decision, with no automatic repair.
+Source: `v4.139.0:Documentation/screenplay/mcp/authoring-tools.md`.
+
 ## Syntax-only constructs through the MCP
 
 The 4.66.0/4.68.0 negative probes below are historical. At 4.125.0,
@@ -190,9 +209,8 @@ persona/policy and table/case/caseParameter provenance. Neither view executes.
 ## Identity, compliance and processing views
 
 Screenplay v4.127.0 `mcp/reference.md` and `authoring-tools.md` describe these
-additions (checked at 4.127.0); discover installed schemas because current
-Previous CLI 3.46.1 bundled Screenplay 4.130.0; CLI 3.50.0 bundles
-4.131.0, so these source objects are available there too.
+additions (checked at 4.127.0). Discover installed schemas; current compiler
+and bundle pins are in `cratis-screenplay-toolchain/references/versions.md`.
 
 - Identity/detail summaries expose declared sources; `$identity` has its own
   expression node. The block alone stays executable-ready, but executable reads
@@ -247,6 +265,15 @@ The current nine-family catalog also includes `personas`, `purposes` and
 They opt into findings, not execution proof. Whole-source errors skip them; report
 `completenessStatus` as skipped, never passed. `completenessCoverage` states their
 limits. Continue with `expectedSourceRevision`.
+
+## Property-reference evidence
+
+From 4.138.0, `find-references` and `dependencies` accept `kind: "Property"`
+and `Owner.member`, or historical event `Owner.generationN.member`. Before a
+rename/removal, read [property links](property-links.md) for exact query/result
+shapes, roles, direct counterpart traversal, revision paging and `complete: false`
+with `reasons`. Incomplete evidence is never a successful empty list. These tools
+inspect authored links, not code execution or a transitive runtime graph.
 
 ## Dependencies and intent inventories
 
@@ -326,7 +353,8 @@ the open model as candidate:
 }
 ```
 
-These source objects require Screenplay 4.131.0; CLI 3.50.0 bundles it
+These source objects require Screenplay 4.131.0; compare the bundled compiler
+in `cratis-screenplay-toolchain/references/versions.md` with that minimum
 (previous CLI 3.46.1 bundled 4.130.0).
 Discover installed schemas rather than assuming bundle parity.
 Check that the registered worktree is checked out at the intended commit and

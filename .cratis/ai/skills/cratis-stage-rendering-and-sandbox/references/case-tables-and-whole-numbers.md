@@ -12,8 +12,8 @@
 
 ## CLI default versus Stage release
 
-CLI 3.50.0 bundles Screenplay 4.131.0 and Stage 4.67.0. Its default renderer
-applies case-table support introduced in Stage 4.59.0 and the whole-number rule
+Current CLI/compiler/Stage pins: `cratis-screenplay-toolchain/references/versions.md`.
+The pinned default renderer applies case-table support introduced in Stage 4.59.0 and the whole-number rule
 introduced in 4.61.0: v8+ whole numbers use `long`, earlier versions keep `int`.
 CLI and Stage admit through v10 to construct checks; newer versions receive
 CLI-RENDER-004 before planning (direct Stage: STAGE-ESM-016).

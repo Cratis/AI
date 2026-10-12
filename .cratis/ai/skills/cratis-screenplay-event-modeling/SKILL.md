@@ -139,8 +139,9 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   standalone 4.125.0. Use `screenplay test` or MCP `run-specifications` for V4.
   Operations/systems, exact numbers and refusal/redelivery remain unadmitted.
   Historical CLI 3.41.0 rejected `runs as` syntax and its Stage 4.51.3 check
-  refused generated values/responses with STAGE-ESM-028/029. CLI 3.50.0 bundles
-  Screenplay 4.131.0/Stage 4.67.0; v10 reaches construct admission, not full support.
+  refused generated values/responses with STAGE-ESM-028/029. For the pinned CLI/Stage pair
+  (`cratis-screenplay-toolchain/references/versions.md`), v10 reaches construct
+  admission, not full support.
   Source/binding admission and target realization are separate gates.
 
 The ESM versions, the full disposition table and the Step 7 clock example's binding

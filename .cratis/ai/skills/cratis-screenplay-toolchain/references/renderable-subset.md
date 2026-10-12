@@ -7,8 +7,7 @@
 - Ownership, publication and recovery
 - Reading V5
 
-Current pins: standalone Screenplay 4.135.0; CLI 3.50.0 bundles Screenplay
-4.131.0 and Stage 4.67.0 (`versions.md`). CLI/Stage admit through v10 to construct
+Current compiler/CLI/Stage pins: `versions.md`. CLI/Stage admit through v10 to construct
 checks, not blanket rendering; above v10 is CLI-RENDER-004 (direct Stage:
 STAGE-ESM-016). v9 publication/foreign facts and v10 reaction identity,
 reaction filters and production overrides still refuse STAGE-ESM-032–036;
@@ -19,7 +18,9 @@ admitted only through v7 and applied neither newer rule. The historical v7 canon
 STAGE-ESM-028/029 for generated values/responses
 (`v3.41.0:Source/Cli.Specs/for_ScreenplayPlanning/when_planning_an_esm_v7_model.cs`).
 The following detailed Stage 4.24.x results are **historical**, not reverified
-4.67.0 claims. Run the bundled renderer before asserting current renderability.
+4.73.1 claims. Non-positional enum numbers select v12 on standalone 4.139.0,
+but the CLI's 4.137.0 compiler does not bind them and Stage does not admit v12.
+Keep the pins and report the consumer gap. Run the bundled renderer before asserting current renderability.
 
 Historical sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
 (an exhaustive map of every ESM member to Rendered, Rejected(code) or Ignored),
@@ -67,7 +68,7 @@ accepted with PLAY0565 information); either still refuses binding. Identity bloc
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding
-refusal above; current CLI 3.50.0 reaches Stage's v8 route checks. Never split hand-joined
+refusal above; the pinned CLI (`versions.md`) reaches Stage's v8 route checks. Never split hand-joined
 legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
 
 ## Authoring consequences in renderable mode

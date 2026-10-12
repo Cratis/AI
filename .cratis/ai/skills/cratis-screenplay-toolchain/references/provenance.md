@@ -28,7 +28,7 @@ is adapted with the agreement of Martin Dilger and Nebulit GmbH.
 
 ## Sources read for facts
 
-- Current public/keys/routes/version update: Screenplay `v4.135.0` (`b4e46130`),
+- Historical public/keys/routes/version source check: Screenplay `v4.135.0` (`b4e46130`),
   unchanged release contract, `Semantics/Versions.cs`, `Documentation/screenplay/{events,slices,captures,readmodels,queries,event-sources,diagnostics,interoperability}.md`,
   decisions 0049–0051 and 0060–0066. Composite view keys remain PLAY0268 (#599);
   v11 literal lowering is admitted despite interoperability's unreleased label.

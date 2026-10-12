@@ -106,6 +106,11 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    `find-specification-obligations` (presence, not execution), use
    `find-modeling-smells` as questions needing a domain consequence, and compare
    generated/curated exported snapshots with `semantic-diff`.
+   Before renaming/removing a property, use `find-references`/`dependencies`
+   `kind: "Property"` (4.138.0+) and `Owner.member` or historical event
+   `Owner.generationN.member`. Follow direct mapping counterparts one query at a
+   time; inspect incomplete/ambiguous evidence and `reasons`. `complete: false`
+   is not an empty successful result. Shapes/roles: [property links](property-links.md).
 3. `open-workspace` and keep `revision` and `catalogRevision`. Opening writes
    nothing. With `identityPersistence: "root-local-on-apply"` the identities file
    is written only by `apply`.

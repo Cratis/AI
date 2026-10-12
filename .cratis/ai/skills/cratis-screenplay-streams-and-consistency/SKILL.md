@@ -88,7 +88,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8 on 4.125.0.
-   CLI 3.50.0 reaches Stage construct checks through v10; keep the routing
+   The pinned CLI (toolchain `references/versions.md`) reaches Stage construct checks through v10; keep the routing
    contract when target admission requires gap-fill. Forms/boundaries:
    toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0; not rendered by Stage yet) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no
@@ -128,7 +128,10 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    `references/compliance.md` for allowed types and the policy/encryption distinction.
 5. **Plan evolution** with `references/evolution.md`: classify each event change (additive,
    meaning change, rename, removal, split or merge) and write its compatibility scenarios before
-   editing. Renames and other identity-affecting edits are made by the identity owner (the
+   editing. Pin persisted/public enum member numbers before reordering or removing
+   members; never renumber or reuse a published number. Positional pins preserve
+   executable bytes; non-positional pins need ESM v12 consumer admission.
+   Renames and other identity-affecting edits are made by the identity owner (the
    identity procedure in `cratis-screenplay-modeling-lifecycle`).
 6. **Test ownership and interfaces** with `references/boundaries.md`: ownership interview,
    interface and processor inventory, one real interaction walked across each boundary, coupling

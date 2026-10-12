@@ -15,7 +15,7 @@ Sources, streams and command/specification routes bind and reference-execute as
 `specifications.md`, `Versions.cs`; the complete example below compiled with
 `--warnaserror` and passed `screenplay test` on 4.125.0.
 
-CLI 3.50.0/Stage 4.67.0 admits through v10 to construct checks, including v8
+The pinned CLI/Stage pair (`versions.md`) admits through v10 to construct checks, including v8
 routes. Routed read-model/query replay scenarios can still refuse STAGE-ESM-030;
 run admission before promising parity. Previous CLI 3.46.1/Stage 4.52.0 refused
 above v7 with CLI-RENDER-004. Keep routing intact when a target refuses it;

@@ -1,6 +1,6 @@
 # Documentation contradictions and which side to trust
 
-Current pins are Screenplay 4.135.0 / CLI 3.50.0 (`versions.md`). This is a
+Current pins: `versions.md`. This is a
 **historical** contradiction inventory, not a claim that all listed defects still
 exist. Current grammar documents exact numbers and free description placement;
 sources/routes bind as ESM v8; PLAY0515 is a source error; CLI admits through
@@ -42,7 +42,7 @@ read from source or documentation.
 | 14 | `$causedBy` | not evaluable (#4119), not ESM | showcase only |
 | 15 | literal keys | `key literal "global"` vs `key "global"` | both compile; prefer `literal` |
 | 16 | query admission | `D/queries.md:74` now says live, filtered, scoped and performer queries are not admitted | the binder also rejects collection queries and a missing `by`, which stay undocumented [probed] |
-| 17 | `@pii` | `D/concepts.md:3,33` "Chronicle applies `@pii` and `@sensitive` rules automatically" | the binder rejects any compliance attribute (PLAY0268); keep it, report V3 blocked. `@sensitive` means an operational secret (`[Encrypted]` + `[NotAudited]`; Screenplay decision 0034); the pinned tools (standalone 4.68.0, bundle 4.66.0) do **not** report `PLAY0515` (`@pii` from 4.69.1, `@sensitive` from 4.84.1): there only Chronicle catches either attribute on an event-source identifier, at build time of the generated code (CHR0034 for `@pii`, CHR0052 for `@sensitive`) |
+| 17 | `@pii` | `D/concepts.md:3,33` "Chronicle applies `@pii` and `@sensitive` rules automatically" | the binder rejects any compliance attribute (PLAY0268); keep it, report V3 blocked. `@sensitive` means an operational secret (`[Encrypted]` + `[NotAudited]`; Screenplay decision 0034); the historically probed tools (standalone 4.68.0, bundle 4.66.0) do **not** report `PLAY0515` (`@pii` from 4.69.1, `@sensitive` from 4.84.1): there only Chronicle catches either attribute on an event-source identifier, at build time of the generated code (CHR0034 for `@pii`, CHR0052 for `@sensitive`) |
 | 18 | read-model identity | `D/readmodels.md:32` "from the keyed query" | at 4.135.0 explicit `key` wins; else single-instance queries agree on one read-model `by` property; only with none and an admitted list query does conventional `*Id` inference run (collection-key exclusions: read-surface `references/named-keys.md`). Queryless views need explicit `key` |
 | 19 | `$strings` constraint messages | `D/constraints.md:31` vs `D/internationalization.md:55` | the compiler keeps the key; realization localizes |
 | 20 | composite key braces | optional in the EBNF; both forms in docs | both fine |

@@ -27,6 +27,23 @@ compatibility scenarios below first; the identity owner then applies the change 
 A test for "generation or new event": a new version must be convertible from the old one
 without inventing facts. If it is not, it is a different event.
 
+## Enum identities are stored contracts
+
+Unnumbered enums use zero-based declaration positions: a reorder or insertion can
+reinterpret stored numbers. Before reordering or removing members, pin each to its
+**existing stored number**, not its new position. `propose-number-enum-members`
+pins an unnumbered enum to current positions; use it before changing order, only
+when those positions match storage. Never renumber or reuse a published member's
+number. Removing a member still needs replay and mixed-reader compatibility decisions.
+
+Numbered members may have sparse or negative unique int32 values, all or none per
+enum. Source authoring shipped in 4.137.0; non-positional numbers bind as ESM v12
+in 4.139.0. Positional pins retain older executable bytes/version. CLI 3.53.1 and
+Stage 4.73.1 bundle 4.137.0 and do not admit v12; keep the pins and report the gap.
+Short-lived input/view-only enums may remain positional. Use opt-in
+`--check enum-pinning` (PLAY0671) to find unnumbered enums used by event properties.
+Syntax/example and source evidence: command-surface [enum numbers](../../cratis-screenplay-command-surface/references/enum-numbers.md).
+
 ## Compatibility scenarios (write before editing)
 For each changed event, answer in the slice `documentation` or `STATE.md`:
 1. **Replay**: does every projection still build from generation 1 facts? Which value do old

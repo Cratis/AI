@@ -216,7 +216,7 @@ Some event stores decide consistency by a query over tagged events instead of on
 check to event types, source type or stream (`concurrency` block, Screenplay
 `commands.md`). Legacy concurrency metadata still fails binding (PLAY0271),
 but sources/streams/routes bind and reference-execute as ESM v8 on 4.125.0.
-Route admission does not make a view read protected. CLI 3.50.0 reaches Stage construct checks
+Route admission does not make a view read protected. The pinned CLI (toolchain `references/versions.md`) reaches Stage construct checks
 through v10; see toolchain `references/versions.md`. Model the stream by business
 identity; when a rule truly needs a cross-stream decision, record it (see
 `consistency-and-concurrency.md`) rather than inventing a construct.

@@ -3,7 +3,7 @@
   "input": "Can Stage render this Screenplay model, and how do I re-render it safely after someone edited Program.cs?",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "Stage 4.67.0 default applies both rules" },
+    { "kind": "skill-contains", "value": "pinned Stage default applies both rules" },
     { "kind": "skill-contains", "value": "Reducer filters render" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "`cratis render`" },
