@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-chronicle-hosting",
+  "input": "Review a Chronicle production kernel topology without deploying it.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "DEVELOPMENT" },
+    { "kind": "skill-contains", "value": "does **not** widen trust" },
+    { "kind": "skill-contains", "value": "health.exclusive=true" },
+    { "kind": "skill-contains", "value": "clustering.type=MongoDB" },
+    { "kind": "skill-contains", "value": "directly in persistent storage" },
+    { "kind": "skill-contains", "file": "references/operations.md", "value": "single globally ordered job step" },
+    { "kind": "skill-contains", "file": "references/operations.md", "value": "GetSequenceNumberError.NotFound" }
+  ]
+}

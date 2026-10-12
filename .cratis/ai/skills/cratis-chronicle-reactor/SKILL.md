@@ -19,10 +19,6 @@ effects. If the answer is "populate a queryable model", it is not a reactor.
 | record data from an outside system or service as our own facts | an adapter at the boundary, often a reactor (**translation**) |
 | both a model and an effect | one projection *and* one reactor |
 
-A reactor is an **automation** when it answers one of our own events, whatever it
-causes. It is the adapter side of a **translation** only when its input is
-outside data that becomes our own facts.
-
 > **Model first.** If an accepted model under the model root covers this scope, or
 > the repository is opted in (the root, the folder holding the project's `.play` files, holds a
 > committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project explicitly set `mcpServers.screenplay.root` in
@@ -42,20 +38,16 @@ This skill is verified against these exact sources:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Reactors`, `Cratis.Chronicle.Reactors.SideEffects`, `Cratis.Chronicle.EventSequences`, `Cratis.Chronicle.Events` |
-| `Cratis.Chronicle.CodeAnalysis` | `18.3.0` | `CHR0004`, `CHR0005`, `CHR0008`, `CHR0013`, `CHR0022`, `CHR0031`, `CHR0032` |
+| `Cratis.Chronicle` | `19.50.1` | `Cratis.Chronicle.Reactors`, `Cratis.Chronicle.Reactors.SideEffects`, `Cratis.Chronicle.EventSequences`, `Cratis.Chronicle.Events` |
+| `Cratis.Chronicle.CodeAnalysis` | `19.50.1` | handler, side-effect and filter diagnostics, including CHR0054–CHR0056 |
 
-Scenario read-model seeding/absence, synchronous handler exception propagation,
-and the `EventContext.From` UTC default are verified separately at **Chronicle
-19.46.0**; they require **19.46.0+**. See the source paths in
-[references/specifications.md](references/specifications.md).
+Scenario guards began in **19.46.0**, reverified at **19.50.0**;
+see [specifications](references/specifications.md).
 
 Reverify product sources before claiming support for another version.
 
-> **There is no `ReactorSideEffect` type.** It does not exist in Chronicle, in
-> any version. The real return types are listed below; the per-event metadata
-> control it was imagined to provide is what `EventForEventSourceId` actually
-> gives you. Never write it into code or an example.
+> **There is no `ReactorSideEffect` type.** Use the supported return types below;
+> `EventForEventSourceId` supplies per-event metadata.
 
 ## Write the reactor
 
@@ -85,8 +77,7 @@ and plays no part. When two methods claim the same event type, the winner is
 chosen by public before non-public, then more parameters before fewer, then
 ordinal name order — so do not rely on it; write one handler per event type.
 
-A handler takes **at least one** parameter. There is no upper limit. Everything
-after the first is resolved by type, position-independently:
+A handler takes at least one parameter. Further parameters resolve by type:
 
 | Parameter type | Resolved as |
 | --- | --- |
@@ -95,13 +86,10 @@ after the first is resolved by type, position-independently:
 | a type that has a projection or a reducer | that **read model**, materialized for this event |
 | anything else | from the service provider |
 
-An unresolvable parameter throws at invocation, and analyzer **CHR0004**
-(warning) flags it at build time: after the event, a reactor method may take the
-event context, a read model, or a service — not a primitive, a value type, or a
-string.
+An unresolvable parameter throws. CHR0004 warns against primitive, value-type
+or string dependencies after the event: use context, a read model or a service.
 
-The first parameter's type must carry `[EventType]`, or analyzer **CHR0005**
-(error) rejects it.
+The first parameter must carry `[EventType]` (CHR0005 error).
 
 ### Injecting a read model
 
@@ -121,17 +109,13 @@ public class <ReactorName> : IReactor, ICanResolveReadModelKey
 }
 ```
 
-The resolved key applies to every read-model parameter across all of the
-reactor's handlers.
+The resolved key applies to every read-model parameter on the reactor.
 
-A **materialized** read model is read from its sink, so it is eventually
-consistent — as current as its own observer. Mark the read model `[Passive]` when
-the reactor needs it strongly consistent: a passive model has no sink and is
-computed on demand at the point the reactor runs.
+Materialized models are as current as their observer. `[Passive]` computes
+on demand without a sink when the reactor needs a current read.
 
-Prefer the event's own data. Analyzer **CHR0032** (warning) rejects injecting a
-storage primitive such as `IMongoCollection<T>` directly — read keyed state
-through a read-model parameter or `IReadModels.GetInstanceById` instead.
+Prefer the event's own data. CHR0032 warns against injected storage primitives such as `IMongoCollection<T>`;
+read keyed state through read-model parameters or `IReadModels.GetInstanceById`.
 
 ## Return types
 
@@ -147,15 +131,18 @@ through a read-model parameter or `IReadModels.GetInstanceById` instead.
 A collection may **mix** bare events and `EventForEventSourceId` items; each is
 appended with its own metadata, all in one transaction.
 
-A custom side-effect type handled by your own `IReactorSideEffectHandler` is
-only recognised when returned as `Task<T>`.
+Arrays and lists of registered events or `EventForEventSourceId` are also valid
+synchronous returns. Custom `IReactorSideEffectHandler` implementations can
+claim synchronous types through `CanHandleReturnType(Type)`; they are not
+restricted to `Task<T>`. An unclaimed return value **fails the partition** with
+`UnhandledReactorReturnValue`, naming its type. CHR0054 flags an unsupported
+return type at build time. Source at v19.50.0: `Reactors/EventHandlerMethods.cs`,
+`Reactors/SideEffects/IReactorSideEffectHandler.cs`, `Reactors/UnhandledReactorReturnValue.cs`.
 
 ### Returning events instead of injecting `IEventLog`
 
-Return the events. Do not inject `Cratis.Chronicle.EventSequences.IEventLog` into
-a reactor. **This is a convention, not a framework contract** — no analyzer
-enforces it — but returning the events keeps the reactor free of the event store
-and keeps the append inside Chronicle's own transaction.
+Return events rather than inject `IEventLog`: **a convention, not an analyzer
+contract**. Returned appends stay inside Chronicle's transaction.
 
 ```csharp
 // One event, on the triggering event's own event source.
@@ -169,20 +156,12 @@ public Task<IEnumerable<object>> <MethodName>(<EventName> @event, EventContext c
 
 ### Targeting another event source
 
-`Cratis.Chronicle.EventSequences.EventForEventSourceId` is the cross-stream
-wrapper:
-
-```csharp
-public record EventForEventSourceId(EventSourceId EventSourceId, object Event, Causation? Causation = default)
-{
-    public Subject? Subject { get; init; }
-    public EventStreamType EventStreamType { get; init; }
-    public EventStreamId EventStreamId { get; init; }
-    public EventSourceType EventSourceType { get; init; }
-    public DateTimeOffset? Occurred { get; init; }
-    public IEnumerable<string> Tags { get; init; }
-}
-```
+`Cratis.Chronicle.EventSequences.EventForEventSourceId(eventSourceId, @event,
+causation)` is the cross-stream wrapper. Its init members include `Subject`,
+`Occurred`, `Tags`, `EventSource` (`Type?`) and `EventStream` (`string?`). Routing
+defaults are `EventStreamType.All`, `EventStreamId.Default` and
+`EventSourceType.Default`. Source: `EventSequences/EventForEventSourceId.cs`
+at v19.50.0.
 
 ```csharp
 public Task<IEnumerable<EventForEventSourceId>> <MethodName>(<EventName> @event, EventContext context) =>
@@ -193,8 +172,9 @@ public Task<IEnumerable<EventForEventSourceId>> <MethodName>(<EventName> @event,
     ]);
 ```
 
-It does **not** carry an event sequence id; side effects are appended to the
-event log.
+It also carries `IEnumerable<NamedTag> NamedTags` (snapshotted on assignment).
+It does **not** carry an
+event sequence id; side effects are appended to the event log.
 
 ### Where the metadata for a bare event comes from
 
@@ -223,8 +203,8 @@ a method** and means **replay exclusion**:
 **`[OnceOnly]` is not per-event-source deduplication.** There is no ledger of
 which events a handler has already seen. Recovering a failed partition
 re-delivers the event as an ordinary observation, and a `[OnceOnly]` handler runs
-again. Design the side effect to be idempotent regardless — an external
-idempotency key, an upsert, a conditional write.
+again. Catch-up and crash redelivery are not replay either; every ordinary
+matching event can run, even on the same source. Keep effects idempotent.
 
 Analyzer **CHR0022** (warning) requires `[OnceOnly]` on a handler that returns
 event side effects, because a replay would otherwise append duplicates.
@@ -255,6 +235,16 @@ public sealed class ReactorAttribute(string id = "", string? eventSequence = def
 **There is no `isActive` argument** — that belongs to `[Reducer]`. Without an
 explicit `id`, the reactor's identity is its full type name.
 
+Give side-effecting reactors a **stable explicit id**. Since 19.47.0 discovery
+warns on likely renames/moves: a new id catches up from the start and repeats
+side effects; `[OnceOnly]` does not prevent that. `ArtifactIdentityDrift = Fail`
+rejects Warning-level reactor/event-type findings with
+`ArtifactIdentityDriftDetected`; projection/reducer drift is Information.
+Inspect `RegistrationOutcome.IdentityDrift`. After stopping all subscriptions,
+`IEventStore.Observers.Remove` can remove an orphaned observer; it refuses while
+running or subscribed anywhere. This is an authorized operator action, not a
+rename cleanup to perform automatically.
+
 The source sequence resolves in this order: an `[EventStore]` attribute (which
 selects the inbox for that store), then `[EventSequence]`/`[EventLog]`, then
 `Reactor(eventSequence: ...)`, then the event store inferred from the handled
@@ -282,10 +272,16 @@ event there originates from one service.
 | `[FilterEventsByTag("<tag>")]` | **filters** by appended tag; repeatable, and any one match admits the event |
 | `[EventSourceType("<value>")]` | **filters** by the appended event source type |
 | `[EventStreamType("<value>")]` | **filters** by the appended event stream type |
+| `[FromEventSource<TSource>("<stream>")]` | **filters** by a declared event source and stream (`Cratis.Chronicle.EventSources`) |
 | `[EventStreamId("<value>")]` | **does not filter**; it is append metadata for side effects |
 | `[Tag]`, `[Tags]` | **label** the reactor; they never filter |
 
 Filter categories combine with AND; tags within the tag category combine with OR.
+Typed source filters work on reactors and reducers, not projections (CHR0041).
+CHR0055 flags unknown streams; CHR0056 flags routing that contradicts the filter.
+Filters survive catch-up, replay and failed-partition recovery.
+`WaitForCompletion` excludes nonmatching observers when the .NET client supplies
+its first appended sequence number.
 These correspond to metadata supplied at append time:
 
 ```csharp
@@ -302,38 +298,16 @@ selection, a reactor or a reducer is where it happens.
 
 ## Invoking a command from a reactor
 
-An automation that turns one area's events into another area's intent runs a
-command rather than appending directly (Screenplay `invokes`). With the Arc Chronicle integration the handler
-**returns** the command — the same shape as returning an event — and Arc executes
-it through validation and authorization; a denied, invalid or throwing result is a
-side-effect failure that fails the partition rather than being dropped:
-
-```csharp
-using Cratis.Arc.Chronicle.Reactors;
-
-[ExecuteCommandsAsSystem("<role the command requires>")]   // only when the command is [Roles]/[Authorize]-gated
-public class <ReactorName> : IReactor
-{
-    [OnceOnly]
-    public Task<<CommandName>> <MethodName>(<EventName> @event, EventContext context) =>
-        Task.FromResult(new <CommandName>(@event.<Property>));
-}
-```
-
-A reactor runs with **no principal**; `[ExecuteCommandsAsSystem]` (class-level,
-`Cratis.Arc.Chronicle.Reactors`) supplies one for the **returned** commands only.
-A collection return is executed as commands when every element is a command. A stable collection mixing registered events and commands (Arc 22.72.0+; Arc 22.68.0's handler needs every element to be a command) appends the events
-first as one batch, then runs the commands in order, with no transaction across them; a retry can
-repeat both. `[ExecuteCommandsAsSystem]` covers only the commands.
-A reactor retry can execute the command's operations again; inline operations
-are not a substitute for reactor/outbox durability (see
-`cratis-arc-command-operation`, verified at Arc v22.48.1).
-
-The imperative form — inject `ICommandPipeline` (`Cratis.Arc.Commands`) and call
-`Execute(command)` — is still supported and is the subject of the
-**cratis-arc-command-execution** skill. It needs `[OnceOnly]` as well (`ARCCHR0006`
-warns), the `CommandResult` must be inspected, and `[ExecuteCommandsAsSystem]`
-does not cover it.
+An automation that turns another area's facts into intent runs a command
+(Screenplay `invokes`). For the Arc integration's return shapes, execution
+identity and imperative pipeline alternative, use **cratis-arc-command-execution**
+and **cratis-arc-command** rather than reimplementing command dispatch here.
+A reactor has no caller principal: choose the authorized identity explicitly.
+Keep `[OnceOnly]` and idempotency; a failed command must remain a visible
+partition failure. Inline operations can run again on reactor retry and do not
+replace durable delivery; see **cratis-arc-command-operation**.
+Historical compatibility note: Arc 22.68.0's handler needs every element to be a command;
+use the Arc skills for current mixed-return support.
 
 ## Failure behavior
 
@@ -344,7 +318,10 @@ can **quarantine** the observer, which stops retries and suppresses automatic
 recovery. **A quarantine ends when an operator clears it
 (`ClearObserverQuarantine()`), or when the observer is subscribed again** — for an
 application observer that is when the client connects again, for example after a
-redeploy; Kernel-owned observers are subscribed again when the Kernel starts.
+redeploy; Kernel-owned reactors subscribe again at startup; automatic event-store
+subscription reconciliation does not end quarantine. Read
+[recovery](../cratis-chronicle-hosting/references/operations.md) for the
+v19.50.1 fail-closed lookup and observer-kind-specific quarantine rules.
 
 Do not throw to reject a malformed inbound event. A reactor is not a data-quality
 gate; invalid payloads belong at the command or append site. When a malformed
@@ -353,34 +330,38 @@ surface it through the operational failure path, and skip the partial side
 effect. Throwing just to reject it pauses the partition and can quarantine the
 whole observer.
 
+`RetryFailedPartitionFor<TReactor>(partition)` returns a bounded
+`ReactorPartitionRetryOutcome`. `ClearFailedPartitionQuarantineFor<TReactor>(partition,
+retryImmediately)` clears **one partition**, preserves attempt history and starts
+a fresh retry budget (`maxRetryAttempts`). Observer clear is not partition clear.
+Quarantine survives deactivation; watchdog ticks and replay/catch-up completion
+do not end it. Only an operator clear or fresh subscription does. Kernel alert
+incidents surface repeated failures; see **cratis-chronicle-hosting**.
+
+A returned append into a closed scope fails with `StreamClosed`, so the reactor
+must not blindly retry it forever. Model an authorized alternate fact/route or
+operator recovery; see **cratis-chronicle-event-constraints**.
+
 ### Domain failures must leave a visible state
 
-A recorded failure fact is not complete handling while the user-facing workflow still looks running. Give each terminal failure a reliable owner that moves the workflow to an explicit failed or retryable state; do not add a failure reactor when a state machine already owns the transition.
+A terminal failure needs an owner that moves the workflow out of "running".
+Do not add a failure reactor when a state machine already owns that transition.
 
 Read [references/domain-failures.md](references/domain-failures.md) when handling a domain failure event or deciding whether a failure needs its own reactor or watchdog.
 
 ## Keep the reactor stateless
 
-Inject collaborators through the primary constructor; hold no mutable state on
-the class. Analyzer **CHR0031** (warning) flags mutable reactor state. Keep each
-reactor focused on one automation concern; several handlers in one class are fine
-when they serve that concern.
+Inject through the primary constructor; hold no mutable state (CHR0031 warning).
+Keep one automation concern per reactor; several related handlers are fine.
 
 ## Specifications
 
 Start with `Specification` plus a direct call for pure reactor decisions; add `ReactorScenario<TReactor>` only where invocation, dependency wiring or side effects contribute proof. Specify the contract, not only the happy path: field lineage, contract-authorized filtering, repeated delivery, and unrelated events.
 
-In Chronicle **19.46.0+**, a handler's unseeded read-model parameter throws
-`ReadModelNotSeededForReactorScenario`, even if nullable. Seed it through
-`Given.ForEventSourceId(id).ReadModel(instance)`, or declare intentional absence
-with `.NoReadModel<T>()`. Use the resolved read-model key; `Given` events do not
-build read models, including passive ones. A synchronous handler throw surfaces
-the handler's exception rather than a reflection wrapper, and the scenario's
-`EventContext.Occurred` defaults to UTC.
-
-Read [references/specifications.md](references/specifications.md) before writing
-or reviewing reactor specifications; it shows both setup alternatives and the
-scope of these scenario-only guards.
+Read [specifications](references/specifications.md) before writing scenario
+specs: explicit read-model seeding/absence, stream-filtered seeds, produced-event
+destinations, per-run discovery and disposal. `Given` never builds read models,
+including passive ones; nullable parameters still need explicit absence.
 
 ## Verify
 
@@ -405,7 +386,7 @@ scope of these scenario-only guards.
 - No filter attribute is placed where it is inert.
 - The reactor holds no mutable state and injects no storage primitive.
 - The build is clean with no `CHR0004`, `CHR0005`, `CHR0008`, `CHR0013`,
-  `CHR0022`, `CHR0031`, or `CHR0032` outstanding, and the reactor
+  `CHR0022`, `CHR0031`, `CHR0032`, `CHR0054`, `CHR0055`, or `CHR0056` outstanding, and the reactor
   specifications pass.
 
 ## Lineage

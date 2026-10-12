@@ -456,9 +456,11 @@
     {
       "id": "cratis/chronicle/core",
       "availableTargets": [
+        "cratis-chronicle-decision-reads",
         "cratis-chronicle-event-constraints",
         "cratis-chronicle-event-modeling",
         "cratis-chronicle-event-type-migration",
+        "cratis-chronicle-hosting",
         "cratis-chronicle-projection",
         "cratis-chronicle-reactor",
         "cratis-chronicle-read-model",

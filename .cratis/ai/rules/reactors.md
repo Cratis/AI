@@ -56,7 +56,9 @@ public class OrderNotifications(INotificationService notifications) : IReactor
 - With a `[Replay]` handler, **only** it runs during replay — the regular handler does not also run.
 - Without one, the regular handler runs during replay exactly as before, so this changes nothing for existing reactors.
 - An event type handled *only* by a `[Replay]` handler is still subscribed to.
-- Reach for **`[OnceOnly]`** instead when the side effect should simply not happen again; use `[Replay]` when replay needs to do something *different* rather than nothing.
+- Reach for **`[OnceOnly]`** when the side effect must not repeat **during replay**;
+  use `[Replay]` when replay needs different work. Neither suppresses ordinary
+  catch-up or recovery redelivery, nor limits runs per event source.
 
 ## Taking Dependencies
 
@@ -188,16 +190,38 @@ Cross-service events route through Chronicle's outbox/inbox rather than a shared
 - Chronicle creates/reuses the outbox→inbox subscription from the observer's `[EventStore]` metadata, or from `[EventStore]` on the event type/assembly. Put `[assembly: EventStore("<source-store>")]` in the contracts project when every event there originates from one service; use observer-level `[EventStore("<source-store>")]` to override.
 - An observer-level `[EventStore]` **cannot** be combined with `[EventSequence]`, `[EventLog]`, or `Reactor(eventSequence: ...)`.
 
+## Storage lookup failures are not absence
+
+At **Chronicle v19.50.1**, a failed next-event lookup leaves the observer's
+position unchanged. Routing defers delivery and the watchdog retries; only
+`NotFound` proves absence and permits fast-forward. The watchdog likewise does
+not advance on storage error. This fixes #4770, not every legacy delivery or
+completion limitation. Quarantined observers do not resume from this retry.
+Sources: `Source/Kernel/Core/Observation/States/Routing.cs` and
+`Observation/Observer.Watchdog.cs` at v19.50.1.
+
 ## Confirming downstream completion — `WaitForCompletion`
 
-The default is fire-and-forget. When a caller's correctness depends on all observers (projections, reducers, reactors) having processed an appended event before returning — integration tests, synchronous webhook surfaces — call `WaitForCompletion` (from `Cratis.Chronicle.Observation`) on the `AppendResult`/`AppendManyResult`. It returns an `AppendResultWaitForCompletionResult` carrying `IsSuccess` and `FailedPartitions` (the full set across all affected observers, not just the first to fail). Reach for it deliberately — not as a default.
+The default is fire-and-forget. When a caller's correctness depends on all observers (projections, reducers, reactors) having processed an appended event before returning — integration tests, synchronous webhook surfaces — call `WaitForCompletion` (from `Cratis.Chronicle.Observation`) on the `AppendResult`/`AppendManyResult`. At Chronicle **v19.50.0**, it returns `AppendResultWaitForCompletionResult` with
+`IsSuccess`, `FailedPartitions`, `TimedOut` and `OutstandingObservers`. Inspect
+all of these: timeout returns `TimedOut = true`, not a successful completion.
+The optional `TimeSpan?` defaults to a 5-second server wait plus 200 ms client
+grace; `Timeout.InfiniteTimeSpan` disables both deadlines. Filtering excludes
+observers that do not consume the appended events when the client supplies the
+first sequence number. Source: `Source/Clients/DotNET/Observation/AppendResultWaitForCompletionExtensions.cs`.
+Reach for it deliberately, not as a default.
 
 ## Critical Rules
 
 1. **Idempotent** — Reactors may be called more than once for the same event (e.g. during replay or recovery). Design accordingly. For a side effect that must **not** repeat on replay (emails, payments, external writes), mark the handler method `[OnceOnly]` — Chronicle then skips that handler for every event arriving as part of a **replay** (observer rewind, redaction, revision). That is the whole of it: `[OnceOnly]` is replay-exclusion, **not** exactly-once and **not** a per-event-source counter. Recovering a failed partition re-delivers the event as an ordinary observation, so the handler runs again — which is the point of a retry. When the side effect must survive that retry too, take a `ReactorDelivery` parameter alongside the attribute and keep a receipt under its identity, which is stable across the failure and the recovery.
 2. **Use event data directly** — Never query the read model back inside a reactor. The event contains all the information you need.
 3. **Return events and commands instead of injecting the plumbing** — If the reactor needs to produce new events, return them directly as `Task<TEvent>`, `Task<EventForEventSourceId>`, or a collection thereof. For intent in another slice, return the `[Command]` (Arc executes it; a denied or invalid result fails the partition) — or inject `ICommandPipeline` and inspect the result. Either way the handler is `[OnceOnly]`. Avoid injecting `IEventLog` directly into a reactor.
-4. **Single responsibility** — Each reactor class should have a focused purpose. Multiple handler methods in one reactor are fine if they serve the same automation concern.
+4. **Stable identity and single responsibility** — Give side-effecting reactors
+an explicit `[Reactor("stable-id")]`: full-type-name identity changes on a rename
+or move and catches up from the start, repeating side effects even with `[OnceOnly]`.
+Chronicle v19.50.0 discovery warns on likely drift; `ArtifactIdentityDrift = Fail`
+rejects Warning-level reactor/event-type drift (not Information-level read-model
+findings). Each reactor class should have a focused purpose. Multiple handler methods in one reactor are fine if they serve the same automation concern.
 5. **Failure behavior** — If a reactor throws, *or* a returned side-effect event fails to append (constraint violation, concurrency violation, or error), the failing event-source partition pauses until the issue is resolved. Repeated failures can **quarantine** the observer: once `QuarantineOnFailedPartitionCount`/`QuarantineOnFailedPartitionPercentage` (under `Observers`) is crossed, the observer enters the `Quarantined` state — reminders cancelled, retries stopped, automatic recovery suppressed. **A quarantine ends when an operator clears it (`ClearObserverQuarantine()`), or when the observer is subscribed again** — for an application observer that is when the client connects again, for example after a redeploy; Kernel-owned observers are subscribed again when the Kernel starts. A periodic watchdog (default 60s, `WatchdogInterval`) re-routes stuck/dead observers but does not rescue quarantined ones. Design for resilience.
 6. **Don't throw to validate malformed inbound events** — reactors are not data-quality validators; invalid payloads must be rejected at the command/append site. When a malformed cross-service fact reaches a consumer, throwing just to reject it pauses the partition and can quarantine the whole observer. Instead append a clear failure/dead-letter event (e.g. `ProvisioningFailed`) or surface it via the operational failure path, and skip partial side effects.
 7. **No state** — Reactors should be stateless. Inject dependencies via primary constructor, but do not store mutable state on the class.

@@ -37,8 +37,11 @@ and the request is wiring or a narrow fix.
 
 ## Verified product sources
 
-This skill was originally verified against Chronicle 18.3.0 and re-read against Chronicle 19.50.0
-(`Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs`, `ProtectedValues/EncryptedAttribute.cs`).
+Verified against **Cratis/Chronicle v19.50.1**:
+`Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs`,
+`ProtectedValues/EncryptedAttribute.cs`, `EventSources/`, `Events/PublicAttribute.cs`,
+`Sinks/PublishToAttribute.cs`, and `Events/Constraints/ClosesStreamAttribute.cs`
+(paths under `Source/Clients/DotNET/` unless otherwise stated).
 Current version pins: `cratis-screenplay-toolchain` `references/versions.md`.
 
 | Package | Purpose |
@@ -89,6 +92,29 @@ these are the `Automation` and `Translate` slice types.
 Do not append an event for derived or aggregate state. Project it from the source
 events instead; an event that records a total is a fact that can disagree with
 its own inputs.
+
+## Public facts and streams that end
+
+Declare source vocabulary with `IEventSource`, `[EventSource]` and `[EventStream]`;
+use **cratis-chronicle-client-dotnet** for append routing and
+**cratis-chronicle-reactor** for `[FromEventSource<T>]` filters. A stream that
+ends needs an explicit lifetime and scope: does closing cover one source, a
+period across sources, or every stream of a source type? Prefer a past-tense
+closing fact with `[ClosesStream]`; use **cratis-chronicle-event-constraints** for
+manual scope completion, reopening and its crash/reindex limits. Closing refuses
+new appends; it does not erase history or stop projection replay. Specify a
+late append refusal and an unrelated scope remaining open.
+
+`[Public]` permits an event type to leave the event log; `[PublishTo("sequence")]`
+selects publication for projection/reducer output. Private types cannot go to
+outbox, and the event log is not a publication target. Translate inbox facts
+into local facts at the boundary rather than treating external contracts as
+local commands. Named tags are plaintext, indexed metadata: never personal data.
+
+State-dependent decisions need **cratis-chronicle-decision-reads** when their
+read facts must remain valid at append; an ordinary passive read alone does not
+close the read/append race. Arc command integration belongs to
+**cratis-arc-command-validation**.
 
 ## Information completeness — trace every field to an event
 

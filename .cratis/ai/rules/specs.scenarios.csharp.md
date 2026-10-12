@@ -144,6 +144,14 @@ Use the named-parameter constructor when services/initial state are needed: `new
 
 **Bridging `IReadModels` into a `CommandScenario`** (current harness limitation): when a command handler injects `IReadModels` directly, build a focused `ReadModelScenario<T>`, seed it via `Given.ForEventSourceId(id).ReadModel(...)`, then register its read models into the command scenario — `_scenario.Services.AddSingleton(readModelScenario.ReadModels)`. Pass `scenario.ReadModels` into code under test for keyed `GetInstanceById` reads; for non-key searches/filters, register a fake lookup or an `IMongoCollection<T>` mock in the scenario services instead.
 
+**Chronicle v19.50.0 scenario additions** (`Source/Clients/Testing/ReadModels/`):
+`WithProjection(Action<IProjectionBuilderFor<T>>)` overrides discovery, including
+reducers. `Given.ForEventSource(id).OnStream(eventSourceType, eventStreamType,
+eventStreamId).Events(...)` seeds routing for filtered reducers; unrouted events
+do not reach a differently filtered handler. Dispose scenarios in `Destroy()`.
+Per-run `Defaults(clientArtifactsProvider, serviceProvider, options)` supports
+`InMemoryClientArtifactsProvider` and `ExplicitArtifacts` without global discovery.
+
 **Skip discipline:** don't pre-emptively `[Fact(Skip=...)]` a read-model assertion — assume scalar `ConceptAs<string>`, enum, and identifier properties populate correctly; if one fails, investigate the projection. Only skip on a *reproduced* harness gap, and put the specific reason in the skip message.
 
 ### `ReactorScenario<TReactor>` — Automation / Translation
@@ -159,6 +167,13 @@ void Establish()
 async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new AuthorRegistered("Jane Austen"));
 [Fact] async Task should_notify() => await _service.Received(1).Notify("Jane Austen");
 ```
+
+In **Chronicle v19.50.0** (`Source/Clients/Testing/Reactors/`), `OnStream` also
+applies to class-based and fluent reactors. `ProducedEvents` carries payload and
+destination; `ShouldHaveProduced<TEvent>(eventSourceId)` or the predicate
+`((produced, @event) => ...)` verifies cross-stream routing. The non-generic
+`ReactorScenario(reactorId, defaults)` exercises an explicitly registered reactor.
+Dispose each scenario in `Destroy()`; await async assertions (CHR0039).
 
 #### Read-model setup — Chronicle 19.46.0+
 

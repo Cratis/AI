@@ -1,0 +1,12 @@
+{
+  "skill": "cratis-chronicle-decision-reads",
+  "input": "Guard a standalone Chronicle decision through its owning commit.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "DecisionReadRequiresUnitOfWork" },
+    { "kind": "skill-contains", "value": "AdmitForStream<T>()" },
+    { "kind": "skill-contains", "value": "DecisionReadConflictsWithConcurrencyScope" },
+    { "kind": "skill-contains", "value": "GetDecisionConflicts()" },
+    { "kind": "skill-contains", "value": "reread and **re-decide**" }
+  ]
+}

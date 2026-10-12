@@ -1,0 +1,39 @@
+{
+  "skill_name": "cratis-chronicle-hosting",
+  "evals": [
+    {
+      "id": 1,
+      "name": "development-storage-to-production",
+      "prompt": "Our Compose file runs latest-development. We changed to latest, set ASPNETCORE_ENVIRONMENT=Development, and reused MongoDB. What must be checked before exposing it? Explain without deploying or printing secrets.",
+      "expected_output": "DEVELOPMENT is compile-time, production requires explicit storage and TLS/encryption certificates subject to authority exceptions, reused storage retains development OAuth application.",
+      "assertions": [
+        "Explains DEVELOPMENT is a Debug compile-time symbol and cannot be enabled through ASPNETCORE_ENVIRONMENT.",
+        "Names production storage, TLS and internal-authority encryption certificate prerequisites and the external/disabled authority exception without claiming value encryption no longer needs a certificate.",
+        "Warns the known development application persists in reused storage and must be removed from storage and any recreating configuration before exposure."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "private-h2c-and-probe",
+      "prompt": "We terminate HTTPS at an ingress. Can Tls.Enabled=false, ASPNETCORE_FORWARDEDHEADERS_ENABLED=true and a plaintext health port make Chronicle ready? Explain protocol, auth, trust and health exposure at 19.50.0.",
+      "expected_output": "Private h2c only, all upstream traffic HTTP/2, external HTTPS authority and no SDK external ClientCredentials support, restricted immediate proxy trust, health exclusive defaults false.",
+      "assertions": [
+        "Requires private HTTP/2-only h2c upstream for all traffic and restricted direct backend access, not public plaintext or HTTP/1.1 upstream.",
+        "States forwarded headers trust loopback or configured immediate proxies/networks only; the ASPNETCORE switch does not widen trust and the proxy must replace client headers.",
+        "Explains internal OAuth/token endpoint is unavailable in authenticated h2c and the .NET SDK ClientCredentials external-authority limitation.",
+        "Warns a dedicated plaintext health port exposes other HTTP/1.1 endpoints by default and recommends internal access plus health.exclusive=true."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "shared-storage-is-not-membership",
+      "prompt": "Two production containers share a MongoDB replica set and leave clustering at its default. We also deploy a changed reducer under PartialOnly. Are we one cluster and will history be rebuilt automatically? Reply only.",
+      "expected_output": "Localhost creates separate clusters; MongoDB membership on every node with same ids, reducer fingerprints classify replay, PartialOnly recommends full replay instead of performing it.",
+      "assertions": [
+        "Explains shared MongoDB does not turn default Localhost membership into one cluster and requires clustering.type=MongoDB on every node with shared cluster/service ids.",
+        "States only MongoDB supports multi-node storage and MongoDB must be a replica set.",
+        "Explains reducer code fingerprint changes can require full replay and PartialOnly leaves a recommendation rather than automatically rebuilding full history."
+      ]
+    }
+  ]
+}
