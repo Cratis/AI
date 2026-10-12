@@ -20,11 +20,10 @@ the `.trogonai/interviews/` trail file (replaced by bounded STATE.md); e-commerc
 Gherkin forms; the `total (calculated)` field example (contradicts the calculated-value rule);
 "capture every error condition as an event" (most failures are rejections).
 
-## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
-is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|

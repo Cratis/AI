@@ -12,11 +12,10 @@ MIT, Copyright (c) 2025 Straw Hat, LLC. The complete notice is in this skill's `
 | `eventmodeling-validating-event-models` | `checklist.md` T (allowed and refused transitions per entity), C7 and C8 (unique semantics, corrections name what they correct), F3, G (role attribution and coverage), D and E (read models serve real queries, regenerable), `report-template.md` (critical and warning findings, completeness table) | Adapted; the command-state rule is not adopted as such (Screenplay decisions read stored state through `reads`; see `anti-patterns.md`) |
 | `eventmodeling-checking-completeness` | `checklist.md` A (origin and destination for every field, every command input, every read-model field), A8 (step contracts), G (role coverage), `references/worked-example.md` (field-trace format) | Adapted; matrices replaced by lineage over `.play` declarations |
 
-## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
-is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|

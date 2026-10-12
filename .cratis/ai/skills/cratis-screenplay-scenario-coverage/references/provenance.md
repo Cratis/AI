@@ -15,11 +15,10 @@ Source: TrogonStack/agentskills at `7b249d3ee42d8b7e11fa564141ebd5fbc37aadf1`, M
 | same file, Quality Checklist and Gherkin Best Practices (explicit givens, explicit outcomes, named reasons), and its Workflow sections 1-5 (command, state validation, view, error path, compensation) | `SKILL.md` "Quality checklist", `references/scenario-examples.md` "Good and bad forms" and categories | Mapped onto `.play` specification style (exact events, pinned messages, `for`, one behavior per spec) |
 | same file, Scenario Organization (happy path, validation, state violation, duplicates, alternatives, error handling, compensation) | `references/scenario-catalogue.md` ordering, `references/scenario-examples.md` categories | Extended with denial, competing claim, ordering, evolution and view types |
 
-## Adapted closely (Martin Dilger and Nebulit GmbH, with agreement)
+## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
-by Martin Dilger and Nebulit GmbH (https://nebulit.de). The repository carries no licence file; this material
-is adapted with the agreement of Martin Dilger and Nebulit GmbH.
+by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
 
 | Source file | Used in | How |
 |---|---|---|
