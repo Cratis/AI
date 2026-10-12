@@ -77,11 +77,8 @@ module Berths
       command BookBerth
         bookingId BookingId identifier
         berth BerthName
-        produces BerthBooked
-          for bookingId
-          berth = berth
-      event BerthBooked
-        berth BerthName
+        produces event BerthBooked
+          berth BerthName = berth
       screen BookBerthScreen
         title "Book a berth"
         action BookBerth

@@ -46,13 +46,9 @@ module Invoicing
         invoiceId InvoiceId identifier
         member    MemberId
         amount    Decimal
-        produces InvoiceIssued
-          for invoiceId
-          member = member
-          amount = amount
-      event InvoiceIssued
-        member MemberId
-        amount Decimal
+        produces event InvoiceIssued
+          member MemberId = member
+          amount Decimal = amount
       constraint IssueOnce
         unique event InvoiceIssued
 
@@ -115,8 +111,7 @@ module Invoicing
         validate
           require invoice.amount > 0
             message "Only an open invoice can be settled"   // NOT enforced: the view lags (PLAY0268 at binding)
-        produces InvoiceSettled
-          for invoiceId
+        produces event InvoiceSettled
       command VoidInvoice
         invoiceId InvoiceId identifier
         reason    String
@@ -124,12 +119,8 @@ module Invoicing
         validate
           require invoice.amount > 0
             message "Only an open, unpaid invoice can be voided"   // NOT enforced: the view lags (PLAY0268 at binding)
-        produces InvoiceVoided
-          for invoiceId
-          reason = reason
-      event InvoiceSettled
-      event InvoiceVoided
-        reason String
+        produces event InvoiceVoided
+          reason String = reason
       constraint SettleOrVoid
         unique event InvoiceSettled
         unique event InvoiceVoided
@@ -179,11 +170,8 @@ module Invoicing
         validate
           require payment.invoiceId == invoiceId
             message "Only a received, not yet reversed payment can be reversed"   // NOT enforced: the view lags (PLAY0268 at binding)
-        produces PaymentReversed
-          for invoiceId
-          amount = amount
-      event PaymentReversed
-        amount Decimal
+        produces event PaymentReversed
+          amount Decimal = amount
 
       specification ReversingAReceivedPayment
         given caller

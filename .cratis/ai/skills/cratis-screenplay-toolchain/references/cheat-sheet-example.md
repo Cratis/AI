@@ -135,9 +135,7 @@ module Billing
       command CancelInvoice
         invoiceId InvoiceId identifier
         authorize CanManage
-        produces InvoiceCancelled
-          for invoiceId
-      event InvoiceCancelled
+        produces event InvoiceCancelled
       specification CancellingAnInvoice
         given caller
           authenticated
@@ -214,13 +212,9 @@ module Billing
         paymentId PaymentId identifier
         invoiceId InvoiceId
         amount    Decimal
-        produces PaymentRecorded
-          for paymentId
-          invoiceId = invoiceId                       // cross-stream reference is payload
-          amount    = amount
-      event PaymentRecorded
-        invoiceId InvoiceId
-        amount    Decimal
+        produces event PaymentRecorded
+          invoiceId InvoiceId = invoiceId             // cross-stream reference is payload
+          amount Decimal = amount
       specification RecordingAPayment
         given caller
           authenticated
@@ -242,9 +236,7 @@ module Housekeeping                                   // no gates: this reaction
     slice StateChange CloseInvoice
       command CloseInvoice
         invoiceId InvoiceId identifier
-        produces InvoiceClosed
-          for invoiceId
-      event InvoiceClosed
+        produces event InvoiceClosed
       specification ClosingAnInvoice
         when CloseInvoice
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -254,11 +246,8 @@ module Housekeeping                                   // no gates: this reaction
     slice StateChange MarkOverdue
       command MarkOverdue
         invoiceId InvoiceId identifier
-        produces InvoiceMarkedOverdue
-          for invoiceId
-          overdueAt = $context.occurred
-      event InvoiceMarkedOverdue
-        overdueAt DateTime
+        produces event InvoiceMarkedOverdue
+          overdueAt DateTime = $context.occurred
       // No command spec here: under ESM v6 it must list the ReminderSent cascade. The file is
       // RecordingAPayment's cascade got a false PLAY0285 on cratis before 3.28.2; 3.28.2 accepts it.
       // The cascade form: automation-translate-example.md (SubscribingAMember).

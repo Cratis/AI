@@ -231,11 +231,8 @@ module Berths
       command BookBerth
         bookingId BookingId identifier
         berth BerthName
-        produces BerthBooked
-          for bookingId
-          berth = berth
-      event BerthBooked
-        berth BerthName
+        produces event BerthBooked
+          berth BerthName = berth
       specification BookingABerth
         given caller
           authenticated
@@ -250,9 +247,7 @@ module Berths
       description "A skipper cancels a booking they no longer need"
       command CancelBooking
         bookingId BookingId identifier
-        produces BookingCancelled
-          for bookingId
-      event BookingCancelled
+        produces event BookingCancelled
 
     slice StateView OpenBookings
       description "The harbour office lists bookings that still hold a berth. BerthBooked sets berth: the booking enters the list. BookingCancelled removes it: a cancelled booking never shows."

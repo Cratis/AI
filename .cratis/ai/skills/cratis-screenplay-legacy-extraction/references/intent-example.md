@@ -44,11 +44,8 @@ module Cloakroom
       command TakeInCoat
         coatId       CoatId identifier
         ticketNumber TicketNumber
-        produces CoatTakenIn
-          for coatId
-          ticketNumber = ticketNumber
-      event CoatTakenIn
-        ticketNumber TicketNumber
+        produces event CoatTakenIn
+          ticketNumber TicketNumber = ticketNumber
       constraint UniqueTicketNumber
         unique ticketNumber on CoatTakenIn
         released by CoatHandedBack
@@ -100,9 +97,7 @@ module Cloakroom
         validate
           require CoatStatus.onHook == true
             message "That coat is not on a hook"
-        produces CoatHandedBack
-          for coatId
-      event CoatHandedBack
+        produces event CoatHandedBack
       specification HandingBackACoat
         given caller
           authenticated

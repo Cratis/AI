@@ -63,11 +63,8 @@ module Billing
         validate
           require amount > 0
             message "The amount must be positive"
-        produces AmountRecorded
-          for recordId
-          amount = amount
-      event AmountRecorded
-        amount Int
+        produces event AmountRecorded
+          amount Int = amount
       specification RecordingAmounts
         description "An accountant can record a positive amount"
         parameter amount Int

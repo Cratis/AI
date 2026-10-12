@@ -37,11 +37,8 @@ module Billing
           ```
         recordId String identifier
         amount Int
-        produces AmountRecorded
-          for recordId
-          amount = amount
-      event AmountRecorded
-        amount Int
+        produces event AmountRecorded
+          amount Int = amount
       specification RecordingAnAmount
         description "Witnesses that the agreed amount is retained"
         when RecordAmount amount = 10

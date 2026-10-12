@@ -22,17 +22,13 @@ module Gallery
         authorize IsCurator
         validate
           insuredValue > 0  message "An insured value must be positive"
-        produces ArtworkRegistered
-          for artworkId
-          title        = title
-          insuredValue = insuredValue
+        produces event ArtworkRegistered
+          title ArtworkTitle = title
+          insuredValue Decimal = insuredValue
         produces when insuredValue > 100000
           HighValueArtworkFlagged
             for artworkId
             insuredValue = insuredValue
-      event ArtworkRegistered
-        title        ArtworkTitle
-        insuredValue Decimal
       event HighValueArtworkFlagged
         insuredValue Decimal
       constraint UniqueArtworkTitle

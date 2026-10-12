@@ -25,20 +25,12 @@ module Shop
         orderId    OrderId identifier
         customerId CustomerId
         total      Decimal
-        produces OrderPlaced
-          for orderId
-          customerId = customerId
-          total      = total
-        produces LineAdded
-          for orderId
-          lineNumber = 1
-          sku        = "A-1"
-      event OrderPlaced
-        customerId CustomerId
-        total      Decimal
-      event LineAdded
-        lineNumber Int
-        sku        String
+        produces event OrderPlaced
+          customerId CustomerId = customerId
+          total Decimal = total
+        produces event LineAdded
+          lineNumber Int = 1
+          sku String = "A-1"
       specification PlacingAnOrder
         when PlaceOrder
           orderId    = "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
@@ -64,29 +56,19 @@ module Shop
       command RemoveLine
         orderId    OrderId identifier
         lineNumber Int
-        produces LineRemoved
-          for orderId
-          lineNumber = lineNumber
-      event LineRemoved
-        lineNumber Int
+        produces event LineRemoved
+          lineNumber Int = lineNumber
     slice StateChange ShipOrder
       command ShipOrder
         orderId OrderId identifier
         carrier String
-        produces Shipped
-          for orderId
-          carrier = carrier
-        produces ShippingCleared
-          for orderId
-      event Shipped
-        carrier String
-      event ShippingCleared
+        produces event Shipped
+          carrier String = carrier
+        produces event ShippingCleared
     slice StateChange CancelOrder
       command CancelOrder
         orderId OrderId identifier
-        produces OrderCancelled
-          for orderId
-      event OrderCancelled
+        produces event OrderCancelled
       specification CancellingAnOrder
         given OrderPlaced
           for "7a1c2e30-4b5d-4e6f-8a9b-0c1d2e3f4a5b"
@@ -101,14 +83,9 @@ module Shop
       command RenameCustomer
         customerId CustomerId identifier
         name       String
-        produces CustomerRenamed
-          for customerId
-          name = name
-        produces CustomerDeleted
-          for customerId
-      event CustomerRenamed
-        name String
-      event CustomerDeleted
+        produces event CustomerRenamed
+          name String = name
+        produces event CustomerDeleted
     slice StateView OrderOverview
       readmodel OrderView
         orderId      OrderId
@@ -156,28 +133,17 @@ module Work
       command OpenIssue
         issueId IssueId identifier
         title   String
-        produces IssueCreated
-          for issueId
-          title = title
-        produces IssueTitleCorrected
-          for issueId
-          title = title
-      event IssueCreated
-        title String
-      event IssueTitleCorrected
-        title String
+        produces event IssueCreated
+          title String = title
+        produces event IssueTitleCorrected
+          title String = title
     slice StateChange OpenPullRequest
       command OpenPullRequest
         issueId IssueId identifier
         status  String
-        produces PullRequestCreated
-          for issueId
-        produces BuildCompleted
-          for issueId
-          status = status
-      event PullRequestCreated
-      event BuildCompleted
-        status String
+        produces event PullRequestCreated
+        produces event BuildCompleted
+          status String = status
     slice StateView WorkItems
       readmodel BacklogItem
         issueId IssueId
@@ -207,19 +173,11 @@ module Bank
         accountId AccountId identifier
         amount    Decimal
         code      Code
-        produces Deposited
-          for accountId
-          amount = amount
-        produces Withdrawn
-          for accountId
-          amount = amount
-        produces Frozen
-          for accountId
-      event Deposited
-        amount Decimal
-      event Withdrawn
-        amount Decimal
-      event Frozen
+        produces event Deposited
+          amount Decimal = amount
+        produces event Withdrawn
+          amount Decimal = amount
+        produces event Frozen
       specification Depositing
         when Deposit
           accountId = "5d1f0c2e-8a47-4c1b-9b3e-6f2a7c9d1e10"
