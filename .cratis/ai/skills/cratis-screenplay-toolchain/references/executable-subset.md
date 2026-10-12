@@ -40,7 +40,7 @@ Complete examples that bind live in `executable-example.md` (both compilers),
 (ESM v6; standalone tool and cratis 3.28.2 or later) and `generated-responses-example.md`
 (ESM v7; standalone tool 4.68.0 or later, and the cratis 3.53.1 bundle).
 
-## Caller and compliance boundary (4.141.0)
+## Caller and compliance boundary (4.142.0)
 
 `$identity.id`/`.name`/`.userName` are aliases of the admitted
 `$context.identity` produces-mapping values. Authentication status, roles and
@@ -50,12 +50,12 @@ readiness. Executable reads of declared `$identity.<detail>` do (PLAY0268);
 `$context.identity` remains built-ins only. Purposes and event `subject` marks
 are metadata (PLAY0270), not source resolution, retention or subject propagation.
 Bare `pii`/`personal` and `secret` concepts, scopes and qualifiers bind as v13
-on standalone 4.141.0; CLI 3.53.1's 4.137.0 bundle still refuses them. Enum/identity
+on standalone 4.142.0; CLI 3.53.1's 4.137.0 bundle still refuses them. Enum/identity
 compliance and events mixing protected values with explicit subject marks remain
 refused; see command-surface `references/compliance.md` for the precise boundary.
 Legacy spellings compile with PLAY0565 information; duplicates warn PLAY0653.
 Never remove protection. Reference execution proves neither encryption nor erasure.
-Authority: v4.141.0 `SemanticModelBinder.Compliance.cs`, `concepts.md`, `events.md`;
+Authority: v4.142.0 `SemanticModelBinder.Compliance.cs`, `concepts.md`, `events.md`;
 caller and purpose guidance retains v4.127.0 `context.md`, `identity.md`, `purposes.md`.
 
 ## Admitted on both compilers
@@ -170,6 +170,14 @@ pins preserve the earlier executable version/bytes. The optional canonical last
 Consumers must admit v12 explicitly; CLI 3.53.1/Stage 4.73.1 do not. Syntax:
 command-surface `references/enum-numbers.md`; version contract: `versions.md`.
 
+Concept `pii`/`personal` and `secret`, qualifiers and scopes bind as optional
+`compliance` in ESM v13 from 4.141.0 (rechecked at 4.142.0). Reasons remain
+report-only PLAY0270; reference execution proves neither encryption nor erasure.
+Enum/identity concepts and an event combining personal or explicitly subject-scoped
+secret values with an explicit `subject` mark refuse PLAY0268 at binding only.
+CLI 3.53.1's 4.137.0 bundle still refuses markers. Stage 4.76.0 admits only through
+v12; v13 rendering awaits Stage#345. Preserve protection, not a falsely green bind.
+
 ## Code attachments (what binds, what never does)
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
@@ -213,7 +221,7 @@ bodies still leave their owner non-executable.
 | --- | --- | --- |
 | `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
-| `pii` or `secret` on a concept | PLAY0268 | Blanket refusal on CLI 3.53.1's 4.137.0 bundle only. Standalone 4.141.0 admits v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
+| `pii` or `secret` on a concept | PLAY0268 | Blanket refusal on CLI 3.53.1's 4.137.0 bundle only. Standalone 4.142.0 admits v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
 | `query` with a composite `by` block, or `by ... from` context-derived arguments | PLAY0268 | composite `by` blocks remain unadmitted (#599). An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too (since 4.105.0) |
 | `filter`, `scoped to`, `performer` queries | PLAY0268 | "uses delivery, filtering, scope, or implementation behavior outside the first ESM v1 vertical." `observable` is not the blocker: it goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |

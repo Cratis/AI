@@ -53,7 +53,7 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 Needs an MCP connection (V2 and V3 belong to the session that owns MCP; a subagent without
 MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh output). Without
 MCP, a binding check exists: `cratis screenplay validate --executable <root>` binds with the
-**bundled** compiler (CLI 3.53.1 bundles Screenplay 4.137.0, not the standalone 4.141.0), never
+**bundled** compiler (CLI 3.53.1 bundles Screenplay 4.137.0, not the standalone 4.142.0), never
 renders or writes files, and exits 5 with "The model does not bind into an executable semantic
 model" when it does not. Report it as `V3 (bundled 4.137.0 via cratis validate --executable)`; it
 gives binding errors, not the V2 `executable-diagnostics` view, so V2 stays MCP-only.
@@ -85,7 +85,12 @@ comparison needs it). Binding is what makes a model renderable at all. V3 means 
 never "specifications pass".
 
 - Report the ESM version the model needs: `V3 ready (screenplay 4.139.0, ESM v6)`,
-  `V3 blocked: PLAY0268 x3 (filter query, pii) - design scope kept`.
+  `V3 blocked: PLAY0268 (enum compliance) - design scope kept`.
+  Bare `pii`/`personal` and `secret` bind as v13 on standalone 4.142.0; reasons
+  remain report-only PLAY0270. Enum/identity compliance and personal or explicitly
+  subject-scoped secret event values with an explicit `subject` mark still refuse
+  PLAY0268 at binding only. CLI 3.53.1's 4.137.0 bundle still refuses markers;
+  Stage 4.76.0 admits only through v12 (Stage#345), so V3 does not prove rendering.
 - A blocked V3 is not repaired by deleting protection or domain rules. Never remove `pii`,
   `secret`, authorization, list queries, automations or rules to reach V3; record the
   slice and the code in the gap list.

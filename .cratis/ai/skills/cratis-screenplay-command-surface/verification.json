@@ -4,6 +4,12 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "optional concept `compliance` as ESM v13" },
+    { "kind": "skill-contains", "value": "PLAY0268 at binding only" },
+    { "kind": "skill-contains", "value": "reasons stay report-only PLAY0270" },
+    { "kind": "skill-contains", "value": "Stage#345" },
+    { "kind": "skill-contains", "value": "CLI 3.53.1's 4.137.0" },
+    { "kind": "skill-contains", "value": "Enum and identity" },
     { "kind": "skill-contains", "value": "PLAY0653" },
     { "kind": "skill-contains", "value": "personal` is an alias of `pii", "file": "references/compliance.md" },
     { "kind": "skill-contains", "value": "report-only (PLAY0270)", "file": "references/compliance.md" },

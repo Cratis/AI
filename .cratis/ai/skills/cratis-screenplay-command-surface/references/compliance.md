@@ -10,7 +10,7 @@
 - Declare the use separately
 - Identify the person, not the stream
 
-Authority: Screenplay v4.141.0 `concepts.md`, `events.md`,
+Authority: Screenplay v4.142.0 `concepts.md`, `events.md`,
 `Semantics/SemanticModelBinder.Compliance.cs` and `SemanticModelValidator.Compliance.cs`;
 processing-purpose guidance retains v4.127.0 evidence; decisions 0041 and 0068. These declarations do not establish lawful
 processing or enforce retention. Check provider support separately.
@@ -61,8 +61,8 @@ new event generation.
 
 C# provider mapping: `pii` → `[PII]`; `secret` → `[Encrypted]` + `[NotAudited]`;
 `pii secret` → `[PII]` only (Chronicle refuses `[PII]` with `[Encrypted]`, CHR0053).
-Standalone Screenplay 4.141.0 admits these markers, qualifiers and scopes as
-ESM v13. Optional concept `compliance` applies through command, event, read-model,
+Standalone Screenplay 4.142.0 admits these markers, qualifiers and scopes as
+ESM v13 (first released in 4.141.0). Optional concept `compliance` applies through command, event, read-model,
 composite and response type references, including collection elements. Bare `pii`
 writes `{"personal":{}}`; `secret scope namespace` writes
 `{"secret":{"scope":"namespace"}}`. With both markers, personal protection
@@ -71,9 +71,10 @@ Unmarked models keep their exact executable bytes and revision. The reference
 evaluator runs marked models with unchanged outcomes but tests neither encryption
 nor erasure. Consumers must explicitly admit v13 and realize the protection;
 CLI 3.53.1's 4.137.0 compiler still refuses markers, and Stage 4.76.0 admits only
-through v12. Never remove protection to fit either tool.
+through v12 (Stage#345 tracks v13 admission). Never remove protection to fit either tool.
 
-PLAY0268 still refuses compliance on enum or event-source/stream identity concepts.
+At binding only, PLAY0268 still refuses compliance on enum or event-source/stream
+identity concepts; source validation alone cannot report this binder diagnostic.
 It also refuses an event combining personal values or explicitly
 `secret scope subject` values with an explicit event-property `subject` mark,
 including nested composite and collection uses: subject lineage is not admitted.

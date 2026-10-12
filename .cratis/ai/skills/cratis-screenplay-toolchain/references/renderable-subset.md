@@ -56,7 +56,8 @@ version; each construct it does not render refuses with its own code before any 
 | Evolved events | initial revisions only | `STAGE-ESM-026` (Stage#204) |
 | Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only (Stage#178 closed) | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
-Still bind-refused (not Stage): `reads` and `concurrency` (`PLAY0271`), command `handler`s, `pii`/`secret`
+On CLI 3.53.1's bundled Screenplay 4.137.0, still bind-refused (not Stage):
+`reads` and `concurrency` (`PLAY0271`), command `handler`s and `pii`/`secret`
 (`PLAY0268`). Other rows of the table below that name 4.24 behavior are history.
 
 ## Historical: what Stage 4.24 admitted
@@ -89,9 +90,9 @@ whole automation is hand-written (gap-fill).
 
 At standalone 4.127.0, compliance uses bare `pii`/`secret` (legacy markers are
 accepted with PLAY0565 information); either still refuses binding on that compiler.
-Standalone 4.141.0 admits concept compliance as v13 with narrower refusals
+Standalone 4.142.0 admits concept compliance as v13 (from 4.141.0) with narrower refusals
 (command-surface `references/compliance.md`), but Stage 4.76.0 admits only through
-v12 and the pinned CLI still bundles 4.137.0. Identity blocks,
+v12 (Stage#345) and the pinned CLI still bundles 4.137.0. Identity blocks,
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding

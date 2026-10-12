@@ -32,7 +32,7 @@ Pins: toolchain `references/versions.md`; sources below. Compilation is not exec
 - `4.66.0` (`c89198b`): `handler`, code attachments, `persona` and compliance binding (`Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs`).
 - `4.68.0` (`79801bf`): generated-value/response rule probes (ESM v7).
 - `4.127.0`: identity and compliance syntax (`identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`).
-- `4.141.0`: v13 compliance admission/refusals: `references/compliance.md`.
+- `4.141.0`: v13 compliance admission; rechecked at `4.142.0`: `references/compliance.md`.
 
 "Parses" and "runs" are different claims. The executable profile, and what
 each construct binds to, is in the `cratis-screenplay-model-authoring` language
@@ -59,8 +59,12 @@ The seven primitives are `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date` and
 is why the compiler says *expected … or Enum* rather than listing it among them.
 Use bare `pii` for personal data (`personal` is the same marker) and `secret`
 for operational secrets. **Compliance is inherited** from concepts, including
-nested uses. Standalone 4.141.0 admits v13 compliance; the CLI does not. Residual
-PLAY0268 refusals are in the reference below; keep protection. `pii personal` is redundant and warns PLAY0653. Legacy `@pii`,
+nested uses. Standalone 4.142.0 binds optional concept `compliance` as ESM v13
+(first released in 4.141.0); reasons stay report-only PLAY0270. Enum and identity
+concepts, and events combining personal or explicitly subject-scoped secrets with
+an explicit `subject` mark, refuse PLAY0268 at binding only. CLI 3.53.1's 4.137.0
+bundle still refuses markers; Stage 4.76.0 admits only through v12 (Stage#345).
+Keep protection; binding proves no encryption or erasure. `pii personal` is redundant and warns PLAY0653. Legacy `@pii`,
 `sensitive` and `@sensitive` remain accepted with PLAY0565 information and a repair.
 Read [compliance and purposes](references/compliance.md) for reasons, special/criminal
 qualifiers, secret scopes, provider mappings, purpose declarations and coverage checks.

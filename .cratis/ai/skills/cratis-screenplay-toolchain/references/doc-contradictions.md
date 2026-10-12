@@ -14,6 +14,12 @@ the released grammar/tool and successful purpose probes take precedence. The sam
 page's legacy `@pii` mentions do not change bare `pii`/`secret` canonical syntax;
 legacy forms compile with PLAY0565 information, duplicates with PLAY0653 warning.
 Event `subject` remains report-only, despite accepted future lineage work.
+Rechecked at 4.142.0: concept `pii`/`personal` and `secret` bind as v13, while
+reasons stay PLAY0270 report-only. PLAY0268 at binding only rejects enum/identity
+compliance and events mixing personal or explicitly subject-scoped secret values
+with an explicit `subject` mark. CLI 3.53.1's 4.137.0 bundle still refuses markers;
+Stage 4.76.0 admits only through v12 (Stage#345). These are distinct boundaries,
+not a reason to remove protection.
 
 `D/` is Screenplay `Documentation/screenplay/` at **v4.66.0**; line numbers were re-read at
 that tag. Rule: the compiler you ran decides what the tool accepts today; the documentation

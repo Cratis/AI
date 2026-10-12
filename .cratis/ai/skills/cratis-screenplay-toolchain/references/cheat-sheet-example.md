@@ -4,6 +4,11 @@ One complete document with every construct family. Design mode, not executable. 
 
 Binding blockers: unquoted import, `reads` (PLAY0271), `starts with`, a `filter` query (lists and observable lists bind). Executable shapes are in the sibling examples. The bare-marker fence compiles warning-free on standalone 4.127.0; the earlier legacy-marker version compiled on 4.66.0 and CLI 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
 
+Concept compliance itself binds as ESM v13 on standalone 4.142.0 (first released
+in 4.141.0); reasons remain report-only PLAY0270. CLI 3.53.1's 4.137.0 bundle still
+refuses it. Stage 4.76.0 admits only through v12 (Stage#345). Binder-only PLAY0268
+refusals and subject-lineage limits: command-surface `references/compliance.md`.
+
 ```screenplay test=unbound
 // Design-mode cheat-sheet: every construct family; compiles warning-free on the standalone tool.
 domain Acme.Invoicing                      // optional; first line when present
