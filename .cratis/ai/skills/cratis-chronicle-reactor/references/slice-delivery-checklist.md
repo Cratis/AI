@@ -56,7 +56,7 @@ give the reactor `[ExecuteCommandsAsSystem]` naming that role.
 |---|---|
 | One trigger event, one command | One handler whose first parameter is the trigger event, returning the command built from the trigger's fields. Add `[ExecuteCommandsAsSystem]` only when the command is gated, and `[OnceOnly]` |
 | One trigger event, several commands | Return the commands as a collection: Arc runs them in order, with no transaction across them, and a retry can repeat them (see "Invoking a command from a reactor") |
-| One trigger, events and commands | Return one stable collection mixing registered events and commands (Arc 22.72.0 or later): the events are appended first as one batch, then the commands run in order, with no transaction across them. Add `[OnceOnly]` where a replay must not repeat it. The Stage 4.73.1 scaffold pins Arc 22.68.0, so this needs a proven dependency override; never split the modeled reaction |
+| One trigger, events and commands | Return one stable collection mixing registered events and commands (Arc 22.72.0 or later): the events are appended first as one batch, then the commands run in order, with no transaction across them. Add `[OnceOnly]` where a replay must not repeat it. The Stage scaffold pins an older Arc (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`), so this needs a proven dependency override; never split the modeled reaction |
 | One trigger event, events produced directly | Return the event or events; `[OnceOnly]` applies (`CHR0022`) |
 | A condition narrows the trigger | Realize exactly the stated `where`. Show it with one specification where it skips and one for the neighboring case where it acts |
 | A fact on another event source | `EventForEventSourceId` with the stated target id |

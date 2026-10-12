@@ -113,7 +113,7 @@ is the fallback, and neither names the other's verdict. Versions and commands:
       slices; reactions, captures, Automation and Translate, and the v7+ constructs in Stage's
       admission table refuse with their own `STAGE-ESM-*` code, so those scopes are gap-fill with
       the model as the contract. A reaction that produces events and invokes commands is refused
-      (`STAGE-ESM-037`) although Arc 22.72.0 and later can run it (the Stage scaffold's Arc 22.68.0 needs a proven override): hand-write it as one reactor, never split the modeled reaction.
+      (`STAGE-ESM-037`) although Arc 22.72.0 and later can run it (the Arc the Stage scaffold pins needs a proven override): hand-write it as one reactor, never split the modeled reaction.
 
 ## Parsed is not runnable
 
