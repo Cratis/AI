@@ -12,6 +12,9 @@
     },
     { "kind": "skill-contains", "value": "DataPage has no snapshot refresh handle" },
     { "kind": "skill-contains", "value": "Mount exactly one toaster" },
+    { "kind": "skill-contains", "value": "<CratisComponentsProvider toaster>" },
+    { "kind": "skill-contains", "value": "Templates `v1.7.4`" },
+    { "kind": "skill-contains", "value": "rather than adding a second toaster" },
     { "kind": "skill-contains", "value": "4.26.4" },
     { "kind": "skill-contains", "value": "checkbox multi-selection", "file": "references/data-tables.md" },
     { "kind": "skill-contains", "value": "DataPage never invokes it or refetches", "file": "references/data-page.md" }

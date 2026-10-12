@@ -3,6 +3,7 @@
 ## Contents
 
 - Current behavior at Stage 4.73.1 (source reading; Docker not run)
+- Specification engine selection at Stage 4.78.0 and CLI 3.53.1
 - The sandbox: a partial, disposable runtime
 - The specification runner
 - Choosing between them
@@ -24,6 +25,31 @@ ESM v1 to v10 version pairs and executes routes. The structural specification ru
 it prints a deprecation notice, refuses routes with exit 1 and writes no results file. Exit codes
 `0`/`1`/`2` are as in `SKILL.md`. The sections below describe the 4.24-era behavior and remain the
 engine comparison.
+
+## Specification engine selection at Stage 4.78.0 and CLI 3.53.1
+
+Re-verified from Stage `v4.78.0`, `Source/SpecRunner/SpecRunnerArguments.cs:18,76`,
+`Program.cs:46–78,86–113`, and
+`Source/Specifications/SemanticSpecificationExecutor.cs:115–136,183–197`:
+
+- The runner still defaults to deprecated `structural`, which executes no slice.
+  Pass `--engine semantic` to the **Stage specification runner**, not to `cratis run`.
+- Semantic execution creates a fresh Chronicle in-memory event log per
+  specification and dispatches admitted commands through Arc's in-memory
+  pipeline. The `stage-spec-run/1` report carries `Passed`, `Failed`, `Unsupported`
+  or `Cancelled`; exit `0` only proves the report was written, not that specs passed
+  (`Documentation/docker/spec-runner.md:150–174`).
+- CLI `v3.53.1` does **not** expose `--engine` or a Stage specification-runner
+  command. Its `run` command starts the **sandbox**, with path, tag, port,
+  workbench-port and verbose settings only (`Source/Cli/Commands/Run/RunSettings.cs:9–52`,
+  `RunCommand.cs:10–23,100–105`). Changing `--tag` does not select an engine.
+  For semantic specifications use the runner directly, for example
+  `cratis/stage-specrunner:4.78.0 --engine semantic`; for the sandbox, engine
+  selection is the separate `Stage__Runtime__Engine=semantic` environment setting.
+
+This is source verification, not an executed Docker run. It updates engine
+selection only; the historical capability lists below are not a complete
+admission inventory for Stage `v4.78.0`.
 
 ## The sandbox: a partial, disposable runtime
 
