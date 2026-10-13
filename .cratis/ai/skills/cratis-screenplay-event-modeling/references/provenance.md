@@ -7,6 +7,12 @@
   as noted in `SKILL.md`; Cratis divergences are stated there.
 - Screenplay vocabulary and the model-first rule come from the Cratis Screenplay documentation.
 
+| Idea | Used in | Credit |
+|---|---|---|
+| Every value starts at one specific place and is carried by name | `SKILL.md` *The prime directive* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-information-completeness`); idea, our own wording |
+| Reads discipline for a rule's decision values, in the Chronicle-only path | `cratis-chronicle-event-modeling` `SKILL.md` *Decide before implementing* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-identifying-inputs`); idea, our own wording |
+
+
 ## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,

@@ -156,6 +156,10 @@ intentional; judge the rest against the slice title. End with a 2-4 sentence sum
 most important gap or risk, one concrete suggestion). For an extracted candidate (`cratis-screenplay-legacy-extraction`) also check R9:
 every candidate has an accepted, corrected or rejected state and its evidence.
 
+Optional, on request: one subject's information journey (`references/model-inventory-report.md`)
+and a resilience pass over business-critical scope, after the critic review and before
+acceptance (`references/stressor-analysis.md`). Both are read-only and yield edit requests.
+
 ## Quick self-check (modeler, P4; about ten minutes)
 1. V1 clean with warnings as errors (folder), and V3 when executable or renderable.
 2. No PLAY0029 ever (a dropped construct); no unresolved-name warnings.
@@ -242,6 +246,7 @@ verdict follows the rules in `references/report-template.md`.
 - Read `references/worked-example.md` when an example of the sweep, lineage or report is needed, or when checking the complete examples: seeded model, filled report, fixed model.
 - Read `references/review-questions.md` when gathering evidence for subject-specific checks or distinguishing facts from views; it contains questions per subject and domain examples.
 - Read `references/model-inventory-report.md` when asked for a read-only inventory of an existing model.
+- Read `references/stressor-analysis.md` for the optional resilience pass: wide stressors, residues, an incidence matrix and edit requests; run on request or for business-critical scope.
 - Read `references/business-questions.md` when conducting the business-question pass; it contains the explainer journey method, prompts and word translation.
 
 ## Lineage

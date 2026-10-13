@@ -261,6 +261,7 @@ criterion.
 For every specification:
 
 - [ ] Concrete, realistic values — never "valid user" or "some amount".
+- [ ] The values the outcome depends on are visible in the body, at the edge that matters.
 - [ ] Tests exactly one behavior, independent of other specifications.
 - [ ] Business language matching the event-model vocabulary.
 

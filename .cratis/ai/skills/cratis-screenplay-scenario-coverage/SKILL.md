@@ -64,7 +64,7 @@ question is not four approvals.
 4. **Coverage matrix before any spec** (`references/coverage-matrix.md`). Rows: every command,
    reaction, capture, read model and gated query. Columns: the scenario types below. Each cell
    is `spec <Name>`, `n/a: <domain reason>`, `recorded: <why not expressible>`,
-   `open: <case>`, `question: <id>` or `gap: <code>`. "Fewer specs" is never a reason; a
+   `n/a: technical` (closed list), `open: <case>`, `question: <id>` or `gap: <code>`. "Fewer specs" is never a reason; a
    declaration (constraint, policy) or another command's denial is not a spec.
 5. **Per read model, decide the shape**: single-transition specs only, or also a lifecycle
    family (cumulative givens). Write the decision and reason in the matrix, before drafting any
@@ -105,7 +105,7 @@ question is not four approvals.
 | Rule rejection | Which input is refused, with what message? | one spec per rule; `then error "<exact message>"` (prefer `$strings.<key>`); always pinned (a bare `then error` is valid language but not accepted here) |
 | Denial | Who must not do this? | `given caller` without the policy -> `then denied`; one per gated command and query, only where the whole Boolean gate is false; ownership claims need other-owner denial |
 | State violation | Which prior facts make this wrong? | givens + constraint (`unique event` exclusivity) -> `then error`; else `recorded` |
-| Duplicate / retry | Same request again (lost acknowledgement)? | `when <Command>`, same identifier, earlier fact as `given` -> constraint message, or the accepted repeat |
+| Duplicate / retry | What if this is done again to something already in that state? | `when <Command>`, same identifier, earlier fact as `given` -> constraint message, or the accepted repeat |
 | Competing claim | Two people claim the same thing at once? | `when <Command>`, other source's fact as `given` (different `for`) -> constraint "another event source..." |
 | Alternative path | Which branches exist, including "nothing happens"? | true and false witnesses per `produces when`; unconditional productions always fire |
 | Ordering | Facts late or out of order? | view family with reordered givens; translation specs; else `recorded` |
@@ -151,12 +151,12 @@ target requirements.
   never `n/a` automatically. Include a whitespace-only rejection for text `not empty`:
   **4.151.0** changes outcomes in every ESM version. Unicode/identity boundaries
   and evidence: command-surface `references/validate-rules.md`.
-  This matches `cratis-screenplay-specifications`, which also
-  requires one rejection spec per concept rule. Business rules get one rejection spec each.
+  A business rule gets one rejection spec if an expert could recognize it from its message;
+  binder-enforced shape is no scenario (catalogue §2).
 - Persona Cannot lines are intent: each needs an executable gate plus a `then denied` spec whose
   caller is a synthesized persona witness or an explicit gate fixture, else record a gap.
-- Descriptions are not rendered: a rule only in prose is unenforced in rendered scope; turn it
-  into a rule layer, a spec or a recorded target requirement.
+- Descriptions are not rendered: a rule only in prose is unenforced; make it a rule layer, a
+  spec or a recorded target requirement.
 - Prove projections with events (`given`/`when append`), not `given readmodel`; seed read models
   only for performer-backed views or commands that decide on view state.
 - No contradiction between a family and single-transition specs of the same view.
