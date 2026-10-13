@@ -109,10 +109,11 @@ The expanded Arc recovery surface includes:
 - Event scenarios as `when append`, and event-source-faithful `for` fixtures.
   Scenarios whose sources cannot be stated faithfully are omitted with SP0039;
   record the omission as a loss, never fabricate identities to retain a scenario.
-- Supported generated UUID command values and scalar/record responses by default,
-  without the authoring-only flag, for commands without successful scenarios.
-  Commands with successful scenarios retain the legacy representation until
-  deterministic generation fixtures and response expectations can be recovered.
+- Supported generated values and scalar/record responses by default, without
+  the authoring-only flag. The older bundled adapter retains legacy representation
+  for commands with successful scenarios. Arc 22.87.1 recovers generated Handle
+  parameters with concrete pins, but local `New()` values still have no pin seam;
+  [recovery forms, version gate and loss inventory](generated-recovery.md).
   Unsupported shapes/pre-generation protection remain code with SP0052.
 
 Generated values/responses select ESM v7. The historical CLI 3.41.0 check

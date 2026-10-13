@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-screenplay-legacy-extraction",
+  "evals": [
+    {
+      "id": 1,
+      "name": "gate-new-recovery-on-adapter-version",
+      "prompt": "We installed standalone Screenplay 4.151.0 beside cratis CLI 3.57.0 and read Arc 22.87.1's generated Handle parameter recovery docs. Can cratis screenplay generate now recover a TypeID concept and its PinGeneratedValue scenarios? Explain the version check and the newer recovery forms without running the project or changing pins.",
+      "expected_output": "CLI 3.57.0 still bundles an Arc.Screenplay adapter older than 22.87.1; upgrading the standalone compiler does not upgrade the adapter. Inspect the resolved generator, do not promise 22.87.1 recovery for that CLI. At the checked newer adapter a required scalar Uuid/String concept's proven IGeneratable or IGeneratableInContext factory owns the strategy, with literal arguments/encoding enums or passed-through GenerationContext. The property only marks generation; stable concrete pins for issued parameters become for/generated fixtures. Preserve diagnostics and source references for unreadable cases; generation evaluates MSBuild and requires trusted authorized source.",
+      "assertions": [
+        "Names CLI 3.57.0's bundled Arc.Screenplay adapter, older than 22.87.1, and denies that standalone 4.151.0 upgrades its recovery capabilities.",
+        "Requires checking the resolved generator and does not change managed pins or run project builds without scope authority.",
+        "Explains newer contract/body proof, required scalar backing and concept-owned strategy rather than inferring from a New() name.",
+        "Describes literal pins for issued generated parameters and preserves losses for unsupported evidence."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "distinguish-parameter-pins-from-local-new",
+      "prompt": "Using Arc.Screenplay 22.87.1, command A gets [GeneratedValue] OrderId orderId in Handle and returns it with an event; its successful scenario has a stable literal PinGeneratedValue. Command B creates OrderId.New() inside Handle with a successful scenario. Command C's generated parameter has AllowGeneration() only. Which contracts and scenarios recover? Also compare context passed through to GenerateValue.UuidV7 with a factory that reads context.Now. Reply only; do not edit source to force recovery.",
+      "expected_output": "A can recover generated identifier and direct returns plus the literal for pin, assuming all other proof/shape conditions hold. B has no parameter pin seam and retains legacy productions/handler without generated/returns, reporting SP0052; never fake its successful fixture. C can retain its admitted generation contract but the successful scenario is withheld with SP0039 because AllowGeneration supplies no concrete fixture. Passed-through GenerationContext to a supported factory is readable; context.Now/Tenant or helper/multi-statement rule bodies remain in code with SP0073 and no invented rule/file reference.",
+      "assertions": [
+        "Recovers A's identifier/direct response and concrete for fixture only under admitted proof/shape conditions.",
+        "Retains B's legacy fallback with SP0052 and does not fabricate a New() pin seam or change source behavior.",
+        "Withholds C's successful scenario with SP0039 without dropping an otherwise admitted generation contract.",
+        "Distinguishes passed-through context from context-member/helper/multi-statement bodies and reports SP0073 without invented rule bodies or file references."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "report-incomplete-generated-recovery",
+      "prompt": "Arc.Screenplay 22.87.1 recovered an unsupported generated String strategy above a v14 cap. Its event has a required payload from that value; no other productions remain and its successful scenario pins it. The source has a client-supplied idempotency key and an authorization rule using the generated value. A teammate wants to prune the payload, guess a UUID strategy and report equivalent recovery. Give the loss-report disposition and diagnostics; no files or tools.",
+      "expected_output": "Do not prune a required payload or invent a strategy. Record exact source locators, resolved adapter/cap, retained handler and each loss: SP0073 for non-default strategy above v14, SP0052 for unavailable generation/dependent response/protection, SP0012 for whole withheld production, SP0039 for omitted successful scenario, SP0054 for withheld route when no production remains, and SP0013 if a tuple destination is unproven. Preserve protection and client input/idempotency ownership. Handler references compile but refuse PLAY0268 binding; lowering the cap describes less behavior, not equivalence. Leave context/rule recovery and any allocator requirements open rather than claiming release support.",
+      "assertions": [
+        "Refuses payload pruning and strategy guessing, preserving authorization and the client-owned idempotency input.",
+        "Maps the cap and dependency losses to SP0073/SP0052, required production loss to SP0012, scenario loss to SP0039 and absent route to SP0054; never invents tuple identity evidence.",
+        "Requires located per-element loss rows with adapter/cap and retained handler rather than a claim of equivalent recovery.",
+        "Separates compilation from PLAY0268 handler binding refusal and states that a version cap describes less behavior."
+      ]
+    }
+  ]
+}

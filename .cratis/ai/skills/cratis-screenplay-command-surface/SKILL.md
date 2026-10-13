@@ -29,7 +29,7 @@ Pins: toolchain `references/versions.md`; sources below. Compilation is not exec
 - `4.68.0` (`79801bf`): generated-value/response rule probes (ESM v7).
 - `4.127.0`: identity and compliance syntax (`identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`).
 - `4.141.0`: v13 compliance admission; rechecked at `4.142.0`: `references/compliance.md`.
-- `4.148.0`: v15 generation strategies/strict fixtures/freshness; Stage `4.89.1` realization: `references/generated-values-and-responses.md`.
+- `4.148.0`: v15 generation strategies/strict fixtures/freshness; Stage `4.89.1` realization: `references/generated-values-and-responses.md`; shop: `references/shop-generation.md`.
 
 "Parses" and "runs" are different claims. The executable profile, and what
 each construct binds to, is in the `cratis-screenplay-model-authoring` language

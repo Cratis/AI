@@ -23,21 +23,29 @@ same model root or workspace export to all checks. Workflow:
 
 ## Verified product sources
 
-Screenplay v4.144.0: model notes sources/lines in `references/model-notes.md`;
-v4.142.0 add/rename/remove planner in `references/property-links.md`;
-compliance in command-surface `references/compliance.md`. Generation MCP: v4.149.0,
-[fields/repairs/sources](references/mcp-tools.md#concept-generation-41490). Other MCP evidence:
-v4.139.0 `Documentation/screenplay/mcp/`. Stored names: v4.152.0; release baseline: v4.153.0, `references/release-baseline.md`.
-Discover installed tools and schemas; CLI bundles can differ from the standalone
-tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
-Historical probes remain 4.66.0; registration example compilation/execution
-remains 4.68.0. Attribution: `references/provenance.md`.
+Screenplay v4.144.0: notes (`references/model-notes.md`); property planner
+v4.142.0 (`references/property-links.md`); compliance (command-surface
+`references/compliance.md`); generation MCP v4.149.0
+([sources](references/mcp-tools.md#concept-generation-41490)); other MCP v4.139.0
+`Documentation/screenplay/mcp/`. Stored names v4.152.0; baseline v4.153.0
+(`references/release-baseline.md`). Discover installed schemas; bundles differ.
+Pins: toolchain `references/versions.md`. Historical probes 4.66.0; registration
+compilation/execution 4.68.0. Attribution: `references/provenance.md`.
 
 Record open modeling questions as `question` notes in committed
 `.screenplay/notes.json`, not chat or `description` text. Never put secrets or
 personal data in notes. Read [model notes](references/model-notes.md) when
 listing, recording or resolving questions: `list-model-notes`,
 `propose-model-notes`, `read-proposal view=notes`, refs and orphan review.
+
+## Choosing a strategy
+
+Read [shop strategies and entropy](references/choosing-generation.md) before
+editing concept generation or `generated identifier`.
+
+## When not to
+
+The same reference separates inputs, credentials and unreleased context/secret generation.
 
 ## Locate and connect
 
@@ -92,8 +100,7 @@ can keep that entry point; use the project's supported installation channel.
    Before a property change, read [property links](references/property-links.md):
    `kind: "Property"`, `Owner.member` / `Owner.generationN.member`, direct mappings.
    `complete: false` is incomplete evidence, never a successful empty list.
-   For `generate`, inspect Concept `summary`: entropy and admission are separate.
-   Edit through MCP proposals, not hand-edited text; [generation guide](references/mcp-tools.md#concept-generation-41490).
+   Edit through MCP proposals, not hand-edited text; [generation](references/mcp-tools.md#concept-generation-41490).
 3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
    edges, declared-dependency coverage, cycles and advisory order; the board's
    dependency-map toggle exposes this evidence visually. Unknown or ambiguous
@@ -199,9 +206,7 @@ from silently changing the reviewed candidate.
   No automatic generation-evolution repair ships.
 - `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
   migrates all occurrences together. Keep the `query Q => observable?` exception.
-- PLAY0683/PLAY0684: raise entropy (concept subject) or PLAY0683 uniqueness
-  (command-property subject). Individual review, canonical formatting, no pinned
-  evidence; [limits](references/mcp-tools.md#concept-generation-41490).
+- Generation repairs PLAY0683/0684: [subjects, review and limits](references/mcp-tools.md#concept-generation-41490).
 - Compliance repairs PLAY0565/0653: [MCP tool guide](references/mcp-tools.md).
 
 `propose-number-enum-members` pins an unnumbered enum to current positions.
