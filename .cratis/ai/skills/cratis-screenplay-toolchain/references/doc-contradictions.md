@@ -17,7 +17,7 @@ Event `subject` remains report-only, despite accepted future lineage work.
 Rechecked at 4.142.0: concept `pii`/`personal` and `secret` bind as v13, while
 reasons stay PLAY0270 report-only. PLAY0268 at binding only rejects enum/identity
 compliance and events mixing personal or explicitly subject-scoped secret values
-with an explicit `subject` mark. CLI 3.56.0 bundles Screenplay 4.145.1 / Stage 4.83.0 and
+with an explicit `subject` mark. CLI 3.57.0 bundles Screenplay 4.147.1 / Stage 4.89.1 and
 renders v13 concept protection; protected identities/enums remain refused. These are distinct boundaries,
 not a reason to remove protection.
 
@@ -49,7 +49,7 @@ read from source or documentation.
 | 14 | `$causedBy` | not evaluable (#4119), not ESM | showcase only |
 | 15 | literal keys | `key literal "global"` vs `key "global"` | both compile; prefer `literal` |
 | 16 | query admission | Older `D/queries.md:74` and historical binder probes rejected live/collection/filter queries | Current v4.145.0 `queries.md` admits collection/observable queries and caller-supplied equality filters (ESM v14 since 4.143.0). Context `from`, single-result filters, opaque scope/performer and composite `by` remain PLAY0268 with specific reasons; source/refusal details: read-surface `references/equality-filters.md` |
-| 17 | `@pii` | `D/concepts.md:3,33` "Chronicle applies `@pii` and `@sensitive` rules automatically" | the historical binder rejected any compliance attribute (PLAY0268); standalone 4.142.0 admits concept compliance as v13 (since 4.141.0) with narrower enum/identity/subject-lineage refusals (command-surface `references/compliance.md`). Keep protection; the pinned CLI still reports V3 blocked. `@sensitive` means an operational secret (`[Encrypted]` + `[NotAudited]`; Screenplay decision 0034); the historically probed tools (standalone 4.68.0, bundle 4.66.0) do **not** report `PLAY0515` (`@pii` from 4.69.1, `@sensitive` from 4.84.1): there only Chronicle catches either attribute on an event-source identifier, at build time of the generated code (CHR0034 for `@pii`, CHR0052 for `@sensitive`) |
+| 17 | `@pii` | `D/concepts.md:3,33` "Chronicle applies `@pii` and `@sensitive` rules automatically" | the historical binder rejected any compliance attribute (PLAY0268); standalone 4.142.0 admits concept compliance as v13 (since 4.141.0) with narrower enum/identity/subject-lineage refusals (command-surface `references/compliance.md`). Keep protection; the historical pre-v13 CLI reported V3 blocked. `@sensitive` means an operational secret (`[Encrypted]` + `[NotAudited]`; Screenplay decision 0034); the historically probed tools (standalone 4.68.0, bundle 4.66.0) do **not** report `PLAY0515` (`@pii` from 4.69.1, `@sensitive` from 4.84.1): there only Chronicle catches either attribute on an event-source identifier, at build time of the generated code (CHR0034 for `@pii`, CHR0052 for `@sensitive`) |
 | 18 | read-model identity | `D/readmodels.md:32` "from the keyed query" | at 4.135.0 explicit `key` wins; else single-instance queries agree on one read-model `by` property; only with none and an admitted list query does conventional `*Id` inference run (collection-key exclusions: read-surface `references/named-keys.md`). Queryless views need explicit `key` |
 | 19 | `$strings` constraint messages | `D/constraints.md:31` vs `D/internationalization.md:55` | the compiler keeps the key; realization localizes |
 | 20 | composite key braces | optional in the EBNF; both forms in docs | both fine |

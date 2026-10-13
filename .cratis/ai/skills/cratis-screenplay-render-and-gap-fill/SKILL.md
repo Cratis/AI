@@ -26,8 +26,8 @@ Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`
 selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage;
 its compiler version differs from the standalone pin. Render options (`--scope`,
 `--check`, `--package-set`) and exit codes were read at cli `v3.53.1` `Documentation/reference/screenplay.md`
-and `cratis render --help`; admission at Stage `v4.83.0` (`SemanticVersionFeatures.cs:100`,
-`SemanticVersionFeatureAdmission.cs:25-45`, `SemanticCratisAdmission.Automation.cs:15-123`). Stage's scaffold pins Arc and
+and `cratis render --help`; admission at Stage `v4.89.1` (`SemanticVersionFeatures.cs:105`,
+`SemanticVersionFeatureAdmission.cs:25-46`, `SemanticCratisAdmission.Automation.cs:15-123`). Stage's scaffold pins Arc and
 Chronicle releases, which are not the latest (`cratis-stage-rendering-and-sandbox`
 `references/rendered-application.md`). Source reading is not a new render run.
 
@@ -71,10 +71,10 @@ assume an answer to 4, and record it as `blocked` for the user.
 | **B. Generated base plus authorized gap-fill** | an admitted render (whole, or a `--scope` of the admitted slices) exists and the user separately authorized hand-written scope, or a seam the model names needs an adapter | the generated output stays managed and untouched; hand-written code lives in `Customizations/` or a separate project (seam adapters by this skill, business gap-fill by `slice-implementer`), serves named model elements only, never claims render admission, and V5 is reported for the generated base **with its scope stated** |
 | **C. Fully hand-written delivery** | the scope cannot render and no generated base is wanted | `slice-implementer` delivers it with the model as the contract (`references/gap-fill-handoff.md`); V5 is `not run: no render` |
 
-Evolved events are gap-fill too: Stage still refuses (4.83.0) any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract.
+Evolved events are gap-fill too: Stage still refuses (4.89.1) any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract.
 
-Generated UUID-concept values and scalar/named `returns` responses (ESM v7), including
-fixtures and `then returns`, now render with CLI 3.56.0 / Stage 4.83.0. Unsupported generated
+Supported UUID/String generation strategies, v15 freshness and scalar/named `returns`
+responses, fixtures and `then returns` render with CLI 3.57.0 / Stage 4.89.1. Unsupported generated
 types (`STAGE-ESM-028`) and result combinations (`-038`) still require case A or C:
 preserve the model and its specifications. See Stage's `references/admission.md`.
 Supported event-triggered Automation slices also render as managed Chronicle reactors;
@@ -83,9 +83,9 @@ refused reactions, captures and Translate slices remain gap-fill.
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on the standalone
 tool, so report V3 and V4 from that tool. The pinned CLI/Stage pair
 (`cratis-screenplay-toolchain/references/versions.md`) reaches v8 route checks
-and construct admission through v13. Public publication,
-foreign events/event captures and v10 reaction identity/filters/production overrides
-still receive typed refusals; reducer filters render. Keep refused scope as case A/C,
+and construct admission through v15. Public/foreign events and production overrides
+still refuse; semantic reaction/reducer filters and role/authenticated `runs as` render.
+Claim-reading/opaque system gates, legacy actor/filter paths and mixed effects still refuse. Keep refused scope as case A/C,
 never infer target support from binding. Read Stage's `references/admission.md` and
 toolchain `references/sources-and-streams.md`.
 
@@ -96,7 +96,7 @@ transaction; a retry can repeat the events). The scaffold now includes the mixed
 but Stage still refuses it because redelivery can duplicate events. `[OnceOnly]` excludes replay,
 not retries. Keep the modeled reaction whole; gap-fill needs a proven retry-safe realization,
 not splitting or dropping effects to get a render. Source: Stage
-`v4.83.0:Documentation/reference/reaction-rendering.md:50-88`.
+`v4.89.1:Documentation/reference/reaction-rendering.md:53-98`.
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and
 a whole-application V5 is never claimed from a subset. `--scope` renders an admitted part (the whole
@@ -110,7 +110,7 @@ model still compiles and binds) and its V5 states the scope.
    `--project-name`, `--root-namespace` and target `cratis`. Take V1 and V3 from
    `cratis-screenplay-toolchain`; report each with tool and version. V3 from a different
    compiler version does not prove the cratis-bundled binder admits the model (the bundle is
-   4.145.1, the standalone tool 4.145.0). `cratis screenplay validate --executable <root>` binds with
+   4.147.1, the standalone tool 4.148.0). `cratis screenplay validate --executable <root>` binds with
    the bundled compiler and writes nothing: use it as the bundled-binder check (toolchain `references/verdicts.md`).
 2. **Probe.** `cratis render <model-root> --name <App> --destination <probe-dir> -o json`
    (exit 0 published, 5 refused with nothing published, 1 missing input); add `--check` to plan
@@ -157,7 +157,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   (`cratis-application-slice-conformance` `references/build-prompts.md`).
 - One ledger scope per `slice-implementer` brief; the brief carries addresses and paths, not contents.
 - Model-enforced rules realized in code (state-dependent rules) need a protected read or
-  concurrency scope; never claim them from prose. Stage 4.83.0 rendered apps scaffold
+  concurrency scope; never claim them from prose. Stage 4.89.1 rendered apps scaffold
   the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`; API availability alone is not verified enforcement.
 - Adapters that call outside systems follow `cratis-engineering-effect-boundaries`; slice
   specifications follow `cratis-application-slice-specifications`.

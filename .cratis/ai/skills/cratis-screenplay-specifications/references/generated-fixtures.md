@@ -1,7 +1,7 @@
-## Generated fixtures and return expectations (ESM v7)
+## Generated fixtures and return expectations (ESM v7 and v15)
 
 Standalone `screenplay` 4.68.0 or later binds and runs these, and so does the current cratis bundle (the
-cratis 3.28.3 bundle, 4.66.0, did not); CLI 3.56.0 / Stage 4.83.0 render UUID-concept generated values,
+cratis 3.28.3 bundle, 4.66.0, did not); CLI 3.57.0 / Stage 4.89.1 render supported UUID/String generation strategies,
 scalar/named responses, fixtures and `then returns`. Unsupported types/result combinations
 remain `STAGE-ESM-028`/`-038`; preserve refused specifications as gap-fill contracts. The model and rules are in `cratis-screenplay-command-surface`; the
 complete example is `cratis-screenplay-toolchain` `references/generated-responses-example.md`. Read that file when writing generated-value fixtures or scalar and record return expectations and needing a complete reference-executable model.
@@ -35,6 +35,13 @@ specification RegisteringReturnsIdentifiers
   keeps its own outcome.
 - For a generated identifier `for` is the generation fixture, not a destination assertion: expected events state their
   own destinations. For commands without a generated identifier `when ... for` keeps the destination assertion.
-  UUID spellings on generated values normalize to lowercase hyphenated form.
+  UUID fixtures require canonical lowercase hyphenated form. From v15, pins must also match
+  exact strategy size, case, UUID version/variant and zero trailing encoding bits; invalid pins are
+  Contract rejections. Earlier models check canonical UUID type, not its version.
+- A serialized concept generation strategy selects v15 and Guarded whole-source freshness for all
+  generated destinations, including implicit UUIDs. Reusing a generated source with existing facts
+  rejects the entire command with Concurrency, without append, response or silent retry. Below v15
+  fixtures retain legacy reuse. See the complete [strategy example](../../cratis-screenplay-toolchain/references/generation-strategies-example.md)
+  and command-surface `references/generated-values-and-responses.md` for tagged sources.
 - A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)` (no fixture channel); a
   response-only command runs and its response is discarded.

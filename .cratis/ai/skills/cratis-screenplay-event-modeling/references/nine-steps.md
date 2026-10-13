@@ -199,7 +199,7 @@ system state?"* If no, it is co-production — one `StateChange` slice with seve
 
 **Output:** the `reaction`, in an `Automation` slice. It binds on the standalone
 `screenplay` and the `cratis` bundle (ESM v6; the 3.27.1 bundle rejected the slice at binding) and
-Stage 4.83.0 renders supported event-triggered Automation; refused scope stays gap-fill (versions:
+Stage 4.89.1 renders supported event-triggered Automation; refused scope stays gap-fill (versions:
 `cratis-screenplay-toolchain`). A reaction that `produces` and `invokes` stays one reaction: Stage
 refuses it (`STAGE-ESM-037`) but Arc 22.72.0 and later run it as one reactor (events first, then
 commands; no cross-effect transaction; the scaffold includes the handler, but retries can duplicate events), so gap-fill it whole, never split it. When the automation decides from a view, declare it under

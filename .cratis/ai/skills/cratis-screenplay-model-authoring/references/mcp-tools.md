@@ -245,7 +245,9 @@ response-only command reports `syntaxOnly: false` and a null `executionReadiness
 also uses operations, streams, handlers or exact numeric mode keeps a readiness string naming each
 unadmitted feature. Null readiness does not prove the whole application binds or that every generation
 fixture exists. Canonical `executable-model` pages include `generated`, `response`, `generatedValues`
-and `thenReturns` when present. Form response scopes and a renderer response type remain downstream work.
+and `thenReturns` when present. Screenplay 4.148.0 resolves form/execute-success response names (no ESM change);
+Scene runtime continuation binding remains downstream at Stage 4.89.1. See UI composition
+`references/response-continuations.md` for scope, failure PLAY0685 and tagged evidence.
 
 ## Descriptions and specification views
 

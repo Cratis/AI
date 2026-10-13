@@ -7,14 +7,14 @@
 - `Customizations/` (unmanaged)
 - Re-render checklist
 
-Read at Stage `v4.24.0`, with the scaffold pins re-read at `v4.83.0` (`Scaffolding/CratisBackendApplicationScaffold*.cs`,
+Read at Stage `v4.24.0`, with the scaffold pins re-read at `v4.89.1` (`Scaffolding/CratisBackendApplicationScaffold*.cs`,
 `CratisFrontendApplicationScaffold.cs`, `README.md`,
 `Documentation/guides/customize-rendered-application.md`) and checked against a real
 render (see [render-example.md](render-example.md)).
 
 ## Scaffold pins
 
-The pin rows below are source-checked at Stage `v4.83.0` (the Stage in CLI 3.56.0),
+The pin rows below are source-checked at Stage `v4.89.1` (the Stage in CLI 3.57.0),
 `Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs:59-71`
 (`Current`) and `CratisFrontendPackageSet.cs:208-229` (`Current`; read the argument
 list, not the class summary). The scaffold pins an exact release per package;
@@ -24,8 +24,8 @@ probes above keep their original labels.
 | Item | Value |
 | --- | --- |
 | Target framework | .NET 10 (`net10.0`), `Microsoft.NET.Sdk.Web` |
-| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, `Cratis.Arc.Chronicle.Testing`) | `22.78.0` (includes Arc's events-and-commands reactor result handler; Stage still refuses mixed reactions because redelivery can duplicate the appended events)  |
-| Chronicle client | `Cratis.Chronicle`, `.AspNetCore` and `.Testing` `19.45.0`, matched to the `cratis/chronicle:19.45.0-development` image in the compose file |
+| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, `Cratis.Arc.Chronicle.Testing`) | `22.83.0` (includes Arc's events-and-commands reactor result handler; Stage still refuses mixed reactions because redelivery can duplicate the appended events)  |
+| Chronicle client | `Cratis.Chronicle`, `.AspNetCore` and `.Testing` `19.54.0`, matched to the `cratis/chronicle:19.54.0-development` image in the compose file |
 | Embedded reverse extraction | `CratisEmbeddedScreenplayEnabled=false`: the source `.play` is authoritative |
 | Test packages | `Cratis.Specifications` and `.XUnit` 4.1.1, Microsoft.NET.Test.Sdk 18.10.1, NSubstitute 6.2.0, xunit 2.9.3, xunit runner 4.0.0; **Debug configuration only** (`IsTestProject` when Debug) |
 | Frontend | Vite 8.3.0 and React 19.3.0; `@cratis/arc`, `arc.react`, `arc.vite` 22.58.2; `@cratis/components` 4.26.2; `@cratis/scene.*` 4.22.1; `@cratis/fundamentals` 7.22.8 |
@@ -34,7 +34,7 @@ probes above keep their original labels.
 The Scene family pin above applies to six scaffold dependencies:
 `@cratis/scene.blueprint.default`, `@cratis/scene.components`, `@cratis/scene.engine`,
 `@cratis/scene.model`, `@cratis/scene.primereact`, and `@cratis/scene.react`.
-Source: Stage `v4.83.0:Source/Rendering.Cratis/Scaffolding/CratisFrontendApplicationScaffold.cs`, `Dependencies`,
+Source: Stage `v4.89.1:Source/Rendering.Cratis/Scaffolding/CratisFrontendApplicationScaffold.cs`, `Dependencies`,
 and `CratisFrontendPackageSet.cs`, `Current`. `@cratis/scene` is **not** a package
 in this family. Read [Scene runtime](scene-runtime.md) when distinguishing the
 runtime from a hand-built Components page. The latest Components verification
@@ -66,7 +66,7 @@ Chronicle event-store name in `appsettings.json` and the default project name an
 namespace.
 
 Whether modeled `screen` declarations become faithful screens is a runtime question, not a
-publication result: the Stage 4.83.0 scaffold emits Arc `CommandForm` shells over Scene typed
+publication result: the Stage 4.89.1 scaffold emits Arc `CommandForm` shells over Scene typed
 bindings and navigation contributions, but claim UI fidelity only from a browser run
 (`SKILL.md`, UI parity). Screens stay managed.
 
@@ -102,7 +102,7 @@ Every file is optional. Rules that bite:
   modeled authorization covers only what Stage renders.
 
 What the seam does **not** do: it repairs no rejected model and renders nothing.
-Stage 4.83.0 renders supported event-triggered Automation slices as managed Chronicle
+Stage 4.89.1 renders supported event-triggered Automation slices as managed Chronicle
 reactors; refused reactions, captures and Translate slices remain hand-written gap-fill
 with the model as their contract. See [admission.md](admission.md). Keep `Customizations/` under version control: whether a re-render keeps
 it depends on the publisher, and `cratis render` writes only the planned paths and

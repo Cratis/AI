@@ -5,12 +5,13 @@ the automation-and-translation addendum to `cratis-screenplay-render-and-gap-fil
 skill for the admission, publication and ownership rules.
 
 ## Stage rendering versus gap-fill
-CLI 3.56.0 / Stage 4.83.0 render supported event-triggered Automation slices as Chronicle
+CLI 3.57.0 / Stage 4.89.1 render supported event-triggered Automation slices as Chronicle
 reactors. Translate/captures, non-event triggers and opaque bodies remain `STAGE-ESM-024`;
-`runs as` (`-034`), `from` (`-035`), mixed effects (`-037`), unsupported mappings (`-039`)
+Claim-reading/opaque `runs as` gates (`-034`), legacy `from` (`-035`), mixed effects (`-037`), unsupported mappings (`-039`)
 and protected destinations (`-040`) also remain refused. Command specs that cascade into
-reactions remain `-011`. Only refused scope is hand-written delivery with the model as
-its contract. Source: Stage `v4.83.0:Documentation/reference/reaction-rendering.md:6-88`;
+reactions remain `-011`; supported single-hop append specs now render, as do semantic
+reaction `from` and role/authenticated system identities. Only refused scope is hand-written delivery with the model as
+its contract. Source: Stage `v4.89.1:Documentation/reference/reaction-rendering.md:6-98`;
 full admission: `cratis-stage-rendering-and-sandbox` `references/admission.md`. (History: cratis
 3.28.2 and 3.28.3 refused such a model whole with `STAGE-ESM-016`, and 3.27.1 stopped earlier with PLAY0268.)
 

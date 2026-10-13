@@ -5,8 +5,8 @@ One complete document with every construct family. Design mode, not executable. 
 Binding blockers: unquoted import, `reads` (PLAY0271), `starts with`. Caller-supplied collection equality filters bind as ESM v14 since 4.143.0; context/single-result filters remain blocked. Executable shapes are in the sibling examples. The bare-marker fence compiles warning-free on standalone 4.127.0; the earlier legacy-marker version compiled on 4.66.0 and CLI 3.28.2. `RecordingAPayment` lists the `InvoiceClosed` cascade, which the cratis 3.27.1 bundle (4.60.1) rejected with a false PLAY0285 ("outcome cannot be produced by 'RecordPayment'"); 3.28.2 accepts it.
 
 Concept compliance itself binds as ESM v13 on standalone 4.142.0 (first released
-in 4.141.0); reasons remain report-only PLAY0270. CLI 3.56.0 bundles Screenplay
-4.145.1 / Stage 4.83.0 and renders v13 concept protection. Binder-only PLAY0268
+in 4.141.0); reasons remain report-only PLAY0270. CLI 3.57.0 bundles Screenplay
+4.147.1 / Stage 4.89.1 and renders v13 concept protection. Binder-only PLAY0268
 refusals and subject-lineage limits: command-surface `references/compliance.md`.
 
 ```screenplay test=unbound

@@ -108,9 +108,9 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
 - [ ] Bind with the runtime's compiler; pins: toolchain `references/versions.md`.
-      CLI 3.56.0 / Stage 4.83.0 admit through v13, including supported event Automation,
-      UUID generation/responses, enum numbers and compliance. Translate/captures,
-      refused reactions and v14 filters remain gaps (Stage `references/admission.md`).
+      CLI 3.57.0 / Stage 4.89.1 admit through v15, including supported event Automation,
+      generation strategies/responses, equality filters, enum numbers and compliance. Translate/captures
+      and refused reactions remain gaps (Stage `references/admission.md`).
       Mixed effects remain `STAGE-ESM-037`: retries can duplicate events. Keep the reaction
       whole and prove retry-safe gap-fill; never split or drop effects.
 
@@ -129,7 +129,7 @@ What binds depends on **which tool** you ask, so name the tool and its version:
 
 - `Automation` and `Translate` slices, reactions, captures and triggers bind (ESM v6) on the
   standalone tool and the CLI bundle. (Historical: the cratis 3.27.1 bundle, Screenplay 4.60.1,
-  reported *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage 4.83.0 renders supported event-triggered Automation, not Translate/captures or non-event triggers.
+  reported *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage 4.89.1 renders supported event-triggered Automation, not Translate/captures or non-event triggers.
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
@@ -142,10 +142,10 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   qualifying Double literals lower exactly as v11 and non-positional enum numbers
   as v12. Use `screenplay test` or MCP `run-specifications` for V4.
   Operations/systems, the `numbers exact` **source mode** (PLAY0268) and
-  refusal/redelivery remain unadmitted. CLI 3.56.0 / Stage 4.83.0 render UUID-concept generated values,
+  refusal/redelivery remain unadmitted. CLI 3.57.0 / Stage 4.89.1 render supported generation strategies and v15 freshness,
   scalar/named responses, enum numbers, compliance and supported event reactions.
-  The pair reaches construct checks through v13, not blanket rendering; v14 filters
-  bind but remain refused. Current boundaries and source evidence:
+  The pair reaches construct checks through v15, not blanket rendering; supported v14 filters
+  now render. Current boundaries and source evidence:
   `cratis-screenplay-toolchain/references/renderable-subset.md`.
   Source/binding admission and target realization are separate gates.
 

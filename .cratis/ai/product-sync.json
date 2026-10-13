@@ -27,9 +27,9 @@
       "repository": "Cratis/Stage",
       "packages": [],
       "synced": {
-        "version": "4.83.0",
+        "version": "4.89.1",
         "date": "2026-10-13",
-        "by": "Cratis/AI#623"
+        "by": "Cratis/AI#643"
       },
       "covers": {
         "skills": [
@@ -46,7 +46,7 @@
         ],
         "rules": []
       },
-      "notes": "Source-checked Stage v4.83.0 bundled by CLI v3.56.0: ESM v1-v13, UUID-concept generated values/responses, enum numbers, concept compliance, validated scalar query keys and supported event-triggered Automation rendering; scaffold pins re-read. ESM v14 filters, mixed reaction effects and other typed refusals retained. Historical probes keep original versions; standalone Stage beyond 4.83.0 not taken."
+      "notes": "Source-checked Stage v4.89.1 bundled by CLI v3.57.0: ESM v1-v15, collection equality filters, UUID/String strategies and freshness, role/authenticated reaction identity, reaction observer filters and single-hop append specifications. Scaffold pins and docker docs re-read, including Host compliance and non-text secret refusal 041. Mixed effects, claim/opaque system gates, deeper cascades and other typed refusals retained. Historical probes retain original versions; no new render/browser/Docker probe."
     },
     {
       "id": "arc",
@@ -122,9 +122,9 @@
         }
       ],
       "synced": {
-        "version": "3.56.0",
+        "version": "3.57.0",
         "date": "2026-10-13",
-        "by": "Cratis/AI#623"
+        "by": "Cratis/AI#643"
       },
       "covers": {
         "skills": [
@@ -153,7 +153,7 @@
         ],
         "rules": []
       },
-      "notes": "Render bundle source-checked at v3.56.0: Screenplay 4.145.1 and Stage 4.83.0; CLI rendering admits ESM v1-v13 and refuses v14 filters before planning. Other CLI surfaces retain their v3.53.1 evidence from Cratis/AI#620 unless separately re-verified. No new render/browser probe; standalone Screenplay pin remains 4.145.0 because the 4.148.0 delta needs a separate language sync."
+      "notes": "Render bundle source-checked at v3.57.0: Screenplay 4.147.1 and Stage 4.89.1; CLI rendering admits ESM v1-v15. Other CLI surfaces retain their v3.53.1 evidence from Cratis/AI#620 unless separately re-verified. No new render/browser probe. Standalone 4.148.0 response-name resolution is not in this bundle."
     },
     {
       "id": "screenplay",
@@ -166,9 +166,9 @@
         }
       ],
       "synced": {
-        "version": "4.145.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#636"
+        "version": "4.148.0",
+        "date": "2026-10-13",
+        "by": "Cratis/AI#643"
       },
       "covers": {
         "skills": [
@@ -196,7 +196,7 @@
         ],
         "rules": []
       },
-      "notes": "Standalone tool and byte-identical v4.145.0 Golden contract pinned for Cratis/AI#636 and #633. Preferred syntax and read-only proposal specification execution checked at v4.145.0; historical parser/binder evidence begins at 4.31.0 and remains separately qualified. The CLI's older bundle is not upgraded by this pin."
+      "notes": "Standalone 4.148.0 tool and byte-identical published/Golden contract pinned for Cratis/AI#643 and #642. Teaches ESM v15 strategies, strict fixtures and whole-source freshness, plus returned-name continuation scope and PLAY0685; golden vectors shipped in 4.146.0. Historical parser/binder evidence remains separately qualified. This pin does not upgrade CLI's compiler or Scene response continuation runtime."
     },
     {
       "id": "scene",

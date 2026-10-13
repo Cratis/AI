@@ -6,7 +6,7 @@
 - Admitted on both compilers
 - Equality query filters (ESM v14, since 4.143.0)
 - Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
-- Generated values and responses (ESM v7): standalone 4.68.0 or later; the cratis 3.56.0 bundle binds them too
+- Generated values and responses (ESM v7/v15): current compiler and renderer boundaries
 - Released public boundaries and observer routes
 - Code attachments (what binds, what never does)
 - Refused (code, reason): fix, or record as a mode gap
@@ -18,13 +18,14 @@ Current pins: `versions.md`. Detailed
 admits routes as ESM v8, public/direction constructs as v9, identity/overrides/filters
 as v10, qualifying non-route Double literals as v11 (exact lowering of Double-mode literals)
 and non-positional enum numbers as v12; concept compliance as v13; caller-supplied
-collection equality filters as v14 since 4.143.0. Operations, the `numbers exact` **source mode** (PLAY0268) and
+collection equality filters as v14 since 4.143.0; concept generation strategies/freshness
+as v15 since 4.147.0. Operations, the `numbers exact` **source mode** (PLAY0268) and
 reaction refusals/redelivery remain unadmitted. Use the actual
 binder before promoting an older probe to a current capability claim.
 
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler version: the standalone tool (4.145.0) binds through v14; the compiler bundled in cratis
-3.56.0 (4.145.1) binds through v14, while rendering admits through v13; older bundles (4.66.0 in cratis 3.28.x, admitting v1 to v6; 4.60.1 before 3.28.2, v1 to v5)
+compiler version: the standalone tool (4.148.0) binds through v15; the compiler bundled in cratis
+3.57.0 (4.147.1) and its renderer admit through v15; older bundles (4.66.0 in cratis 3.28.x, admitting v1 to v6; 4.60.1 before 3.28.2, v1 to v5)
 are history.
 Tool facts and the exact v6 messages: `versions.md`. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
@@ -39,7 +40,7 @@ never bind (`verdicts.md`).
 Complete examples that bind live in `executable-example.md` (both compilers),
 `pdl-example.md` (projections, both compilers) and `automation-translate-example.md`
 (ESM v6; standalone tool and cratis 3.28.2 or later) and `generated-responses-example.md`
-(ESM v7; standalone tool 4.68.0 or later, and the cratis 3.56.0 bundle).
+(ESM v7; standalone tool 4.68.0 or later, and the cratis 3.57.0 bundle).
 
 ## Caller and compliance boundary (4.142.0)
 
@@ -51,7 +52,7 @@ readiness. Executable reads of declared `$identity.<detail>` do (PLAY0268);
 `$context.identity` remains built-ins only. Purposes and event `subject` marks
 are metadata (PLAY0270), not source resolution, retention or subject propagation.
 Bare `pii`/`personal` and `secret` concepts, scopes and qualifiers bind as v13
-on standalone 4.142.0; CLI 3.56.0 bundles Screenplay 4.145.1, which binds them too. Enum/identity
+on standalone 4.142.0; CLI 3.57.0 bundles Screenplay 4.147.1, which binds them too. Enum/identity
 compliance and events mixing protected values with explicit subject marks remain
 refused; see command-surface `references/compliance.md` for the precise boundary.
 Legacy spellings compile with PLAY0565 information; duplicates warn PLAY0653.
@@ -106,9 +107,9 @@ same-named scalar primitive/concept/enum property of the same nominal type
 filters AND with `by`; optional omission does not narrow, supplied null is refused.
 `then query … arguments` and `when query` accept both `by` and filters; PLAY0468
 reports unknown/repeated/missing required arguments. Collection results match by
-read model/key regardless of row order. The standalone 4.145.0 pin admits this;
-CLI 3.56.0's 4.145.1 compiler also binds it. CLI rendering and Stage 4.83.0
-admit through v13, not v14 (`CLI-RENDER-004` / direct `STAGE-ESM-016`). Complete compiled specs:
+read model/key regardless of row order. The standalone 4.148.0 pin admits this;
+CLI 3.57.0's 4.147.1 compiler and Stage 4.89.1 admit it through v15, subject to
+construct checks (snapshot lists/DateTime filters/parameter order still refuse). Complete compiled specs:
 read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
 
 ## Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
@@ -118,7 +119,7 @@ read-surface [equality filters](../../cratis-screenplay-read-surface/references/
   ...` with an explicit `for`. Without a declared actor, a gated invocation denies.
   On 4.125.0 reaction `runs as system role "<Role>"` supplies the actor and
   selects ESM v10; keep the gate. CLI 3.41.0's older compiler rejected this syntax;
-  The pinned CLI bundle (`versions.md`) supports it, but Stage refuses reaction identity with STAGE-ESM-034.
+  The pinned CLI bundle (`versions.md`) supports it, and Stage renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034.
   Standalone reference execution admits it.
 - Application `trigger` declarations and `when trigger` specifications.
 - `slice Translate` with `capture` (`key`, `map ... translate`, `append ... when x from "a"
@@ -130,20 +131,24 @@ read-surface [equality filters](../../cratis-screenplay-read-surface/references/
 - Command specifications that list reaction cascades (no false PLAY0285).
 - In a `then` list after `when append`, only what followed the appended event.
 
-## Generated values and responses (ESM v7): standalone 4.68.0 or later; the cratis 3.56.0 bundle binds them too
+## Generated values and responses (ESM v7/v15): current compiler and renderer boundaries
 
 Facts read at `v4.68.0`: decision 0026 and `Documentation/screenplay/{commands,specifications,interoperability}.md`.
 A model selects ESM v7 only when it uses a generated property, a response, a generated fixture or a `then returns`
 expectation; every other model keeps its version, bytes and revision. The cratis CLI 3.28.3 (bundled 4.66.0)
-reported `PLAY0268` for these constructs (history). The current CLI (3.56.0, bundled 4.145.1) binds them
-and Stage 4.83.0 renders required scalar UUID-concept generated values, scalar/named responses,
+reported `PLAY0268` for these constructs (history). The current CLI (3.57.0, bundled 4.147.1) binds them
+and Stage 4.89.1 renders supported UUID/String strategies, v15 freshness, scalar/named responses,
 fixtures and `then returns`. Unsupported generated types (`-028`) and result combinations
 (`-038`) remain refused; see `renderable-subset.md` and command-surface
-`references/generated-values-and-responses.md`. Complete example:
-`generated-responses-example.md`.
+`references/generated-values-and-responses.md`. The v15 rules below are sourced at
+Screenplay `v4.148.0:Documentation/screenplay/generated-values.md:26-60`.
+Complete examples: `generated-responses-example.md`, `generation-strategies-example.md`.
 
-- A generated property is command-only, required, scalar and a concept backed by `Uuid`; bare `Uuid`, optional and collection
-  types are invalid. Modifier order is `Type optional generated identifier`.
+- A generated property is command-only, required, scalar and a generatable concept backed by Uuid or String;
+  bare primitives, optional and collection types are invalid. Uuid has implicit `uuid`; String needs a strategy.
+  Explicit serialized generation selects v15, with strict fixture encoding and whole-source freshness for all
+  generated destinations. `pattern`, `random`, `rule`, `sequence`, generated rules/secrets remain unadmitted.
+  See command-surface `references/generated-values-and-responses.md` and `generation-strategies-example.md`. Modifier order is `Type optional generated identifier`.
 - Generated values are not request inputs, form fields, invocation arguments or ordinary `when` values. Generation
   runs after authorization and validation and before productions, so a denial or a validation failure never
   reaches it.
@@ -183,7 +188,7 @@ Qualifying retained non-route Double literals bind/reference-execute as v11 on
 Non-positional enum member numbers bind as ESM v12 from 4.139.0; positional
 pins preserve the earlier executable version/bytes. The optional canonical last
 `numbers` array parallels `values`; specifications still use member names.
-Consumers must admit v12 explicitly; CLI 3.56.0/Stage 4.83.0 do. Syntax:
+Consumers must admit v12 explicitly; CLI 3.57.0/Stage 4.89.1 do. Syntax:
 command-surface `references/enum-numbers.md`; version contract: `versions.md`.
 
 Concept `pii`/`personal` and `secret`, qualifiers and scopes bind as optional
@@ -191,7 +196,7 @@ Concept `pii`/`personal` and `secret`, qualifiers and scopes bind as optional
 report-only PLAY0270; reference execution proves neither encryption nor erasure.
 Enum/identity concepts and an event combining personal or explicitly subject-scoped
 secret values with an explicit `subject` mark refuse PLAY0268 at binding only.
-CLI 3.56.0 bundles Screenplay 4.145.1 / Stage 4.83.0 and renders v13 concept
+CLI 3.57.0 bundles Screenplay 4.147.1 / Stage 4.89.1 and renders v13 concept
 protection; protected identities/enums still refuse `STAGE-ESM-040`. Preserve protection, not a falsely green bind.
 
 ## Code attachments (what binds, what never does)
@@ -237,7 +242,7 @@ bodies still leave their owner non-executable.
 | --- | --- | --- |
 | `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **cratis before 3.28.2 bundles only** (4.60.1); messages in `versions.md` |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
-| `pii` or `secret` on a concept | PLAY0268 | Historical blanket refusal on CLI 3.53.1's 4.137.0 bundle only. CLI 3.56.0 and standalone 4.142.0+ admit v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
+| `pii` or `secret` on a concept | PLAY0268 | Historical blanket refusal on CLI 3.53.1's 4.137.0 bundle only. CLI 3.57.0 and standalone 4.142.0+ admit v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
 | `query` with a composite `by` block, or `by ... from` context-derived arguments | PLAY0268 | composite `by` blocks remain unadmitted (#599). An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too (since 4.105.0) |
 | Context `from`, single-result filters, `scoped to`, `performer` queries | PLAY0268 | Typed query context, filtering of single results, opaque scope and query implementation remain unadmitted; each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
@@ -280,7 +285,7 @@ bodies still leave their owner non-executable.
 Do not remove `pii`, `secret`, `authorize` or policies, list queries, automations or
 rules a domain needs just to make binding pass. Report `V3 blocked: <codes>` and record the
 slice in the gap list. A `pii` or `secret` marker selects v13 on standalone
-4.142.0 (since 4.141.0). CLI 3.56.0 bundles Screenplay 4.145.1 / Stage 4.83.0, which renders concept
+4.142.0 (since 4.141.0). CLI 3.57.0 bundles Screenplay 4.147.1 / Stage 4.89.1, which renders concept
 protection; protected identities/enums still refuse `STAGE-ESM-040`. Either attribute on an identifier or typed destination is a source error
 PLAY0515 on the current compiler (including stream-id parts and route mapping
 sources). Chronicle also rejects `[PII]`/`[Encrypted]` on event-source identifiers

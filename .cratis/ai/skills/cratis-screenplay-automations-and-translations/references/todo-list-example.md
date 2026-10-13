@@ -7,7 +7,7 @@
 A complete model: a result opens a work item, a reaction invokes a command, the command's fact
 closes the item. It binds on Screenplay 4.66.0 (`executableReady: true`), standalone and through `cratis screenplay mcp`
 3.28.2. Historical rendering: 3.28.2 refused the whole model (`STAGE-ESM-016`),
-Stage 4.73.1 the reaction (`-024`). Stage 4.83.0 renders supported event reactions,
+Stage 4.73.1 the reaction (`-024`). Stage 4.89.1 renders supported event reactions,
 but this model's clock/cascade specs remain refused (`-024`/`-011`); keep them intact. The cratis 3.27.1 bundle (4.60.1)
 rejected the Automation slice at binding with PLAY0268. Versions: `cratis-screenplay-toolchain` `references/versions.md`.
 

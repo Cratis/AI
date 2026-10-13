@@ -14,18 +14,19 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | `when <Cmd>` -> `then <Event>` / `then error` / `then denied` | yes | yes | yes |
 | `given <Event>` with `for` | yes | yes (needed for keyed views) | yes |
 | `given readmodel` | yes | yes (complete instance with key) | only as the query-only lookup below |
-| `when append <Event>` | yes | yes | no |
+| `when append <Event>` | yes | yes | supported single-hop reaction effects/invocation only; fan-out, deeper cascades and other refused assertions retain STAGE-ESM-011 |
 | `then readmodel` / `then query` (keyed `ById`, `arguments`, `result`) | yes | yes | yes |
 | `then query` on an unfiltered list or a list narrowed by one `by` key (observable too) | yes | yes since 4.105.0: no `arguments` for an unkeyed list, one `result` per row stating the read-model identifier, no `result` = empty list | observable lists render, a non-observable list is `STAGE-ESM-010` (Stage 4.73.1) |
-| Collection query with caller-supplied equality `filter`, including observable | yes | yes since 4.143.0, ESM v14: same-named scalar property/type, AND with `by`; optional omission allowed, supplied null refused; PLAY0468 checks arguments; row order does not matter | no on CLI 3.56.0 / Stage 4.83.0 (v13 ceiling; CLI-RENDER-004 / direct STAGE-ESM-016) |
+| Collection query with caller-supplied equality `filter`, including observable | yes | yes since 4.143.0, ESM v14: same-named scalar property/type, AND with `by`; optional omission allowed, supplied null refused; PLAY0468 checks arguments; row order does not matter | yes on supported observable collections in CLI 3.57.0 / Stage 4.89.1; DateTime/filter parameter order and snapshot lists refuse -010; independent Stage executor still refuses filtered assertions (-010) |
 | Context `from`, single-result filters, `scoped to`, `performer` or composite `by` | yes | PLAY0268: query context, collection-only filtering, opaque scope/implementation or multipart lookup are unadmitted | no |
 | `then no readmodel <RM> for "<key>"` | yes | yes | no |
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
 | `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | yes (standalone and any current cratis; history: a cratis before 3.28.2 bundle no, see versions.md) | no |
-| Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no: STAGE-ESM-011; generated CommandScenario does not settle reactions (Stage 4.83.0) |
-| `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later and the current cratis bundle (history: PLAY0268 on the 4.66.0 bundled in cratis 3.28.x) | yes on Stage 4.83.0 for required scalar UUID-concept generation and scalar/named responses; unsupported types/combinations remain -028/-038 |
+| Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no: STAGE-ESM-011; generated CommandScenario does not settle reactions (Stage 4.89.1) |
+| `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later and the current cratis bundle (history: PLAY0268 on the 4.66.0 bundled in cratis 3.28.x) | yes on Stage 4.89.1 for supported UUID/String strategies and v15 freshness and scalar/named responses; unsupported types/combinations remain -028/-038 |
+| v15 generation strategy fixtures and used-source rejection | yes | strict encoding/size/case/version/variant; Contract for invalid pins, Concurrency for reused source | supported strategies/freshness render; invalid pins refuse -011, unpinned unordered/projected assertions -038; source: command-surface `references/generated-values-and-responses.md` |
 | `then events in any order` | yes | yes | yes |
-| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | The pinned CLI reaches Stage route checks (toolchain `references/versions.md`); routed read-model/query replay now renders (Stage 4.83.0); reserved names/unformattable fixtures remain STAGE-ESM-030 |
+| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | The pinned CLI reaches Stage route checks (toolchain `references/versions.md`); routed read-model/query replay now renders (Stage 4.89.1); reserved names/unformattable fixtures remain STAGE-ESM-030 |
 | Typed examples and overrides | yes | expanded and type-checked before binding; required fields remain required | depends on expanded contract, not fixture reuse |
 | `given operation ... fails`, `then operation`, `then compensated` | yes | unadmitted PLAY0268 | gap-fill |
 | Refusal branches, `when redelivered`, `then no events` | yes | unadmitted PLAY0268 | gap-fill |

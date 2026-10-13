@@ -108,8 +108,11 @@ contract. A consumer admitting v10 must include all three, not just identity.
 Composite **read-model** keys are separate and remain unadmitted (PLAY0268, #599).
 
 Previous CLI 3.46.1/Stage 4.52.0 refused versions above v7 before planning.
-The pinned CLI/Stage pair (`versions.md`) admits through v13 to construct checks: production overrides
-still refuse STAGE-ESM-036 and reaction filters STAGE-ESM-035; reducer filters render.
+The pinned CLI/Stage pair (`versions.md`) admits through v15 to construct checks: production overrides
+still refuse STAGE-ESM-036; reaction/reducer filters render on the semantic path,
+while legacy syntax paths retain STAGE-ESM-035.
+Source: Stage `v4.89.1:Source/Rendering.Cratis/Semantics/SemanticVersionFeatureAdmission.cs:27-34`,
+`Documentation/reference/reaction-rendering.md:33-34,83-98`.
 A supported version number alone never proves target support or a passing render.
 
 Source: Screenplay `v4.135.0:Documentation/screenplay/{event-sources,readmodels,reactions,diagnostics}.md`,
