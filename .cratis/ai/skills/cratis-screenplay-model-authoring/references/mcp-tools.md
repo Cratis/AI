@@ -265,23 +265,31 @@ pin, but retains a pin for a different earlier name. Contradictory generation pi
 refuse the rename. Do not promise a generation-2 payload-removal repair or a
 `PLAY0470` repair: neither is available.
 
-On Screenplay **4.150.0**, event pins warn **PLAY0686** at binding. Event
-`propose-rename` output includes the same warning even when unrelated authoring
-errors prevent binding. The pin is not yet carried to renderers: generated code
-uses the new name. Do not rely on it to keep old stored events readable in rendered
-apps; retain intended pins and report the target compatibility gap. Decision 0075's
-future `storedName` ESM admission is not delivered by this warning.
-Sources: Cratis/Screenplay `v4.150.0`,
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Structure.cs:157-168`,
-`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82-90`, and
-`decisions/0075-carry-the-stored-event-type-name-in-the-executable-model.md:23-46`.
+On Screenplay **4.152.0**, differing event pins carry `storedName` on the current
+contract and select **ESM v16**. All generations share the effective stored name;
+pins must be event-name identifiers, unique across the application (PLAY0472).
+An equal-name pin is a no-op: no `storedName` or v16 selection; PLAY0471 removal
+preserves canonical bytes. **The interim event-pin warning is retired** and the compatibility
+`eventPinWarnings` array in proposals is empty. The pin does not replace or rehash
+`EventContractId`; use the identity-preserving rename, not a text/catalog bypass.
+
+Consumers must explicitly admit v16 and preserve stored names or refuse the model.
+Stage 4.92.0 / CLI 3.59.0 still stop at v15, so do not promise rendered storage
+compatibility, delete intended pins or treat reference specs as storage tests.
+Decision 0070's release-baseline tooling is not released in 4.152.0: the explicit
+`newGeneration` / `eventNeverPersisted` decision remains, not baseline-derived
+mutability. Sources: Cratis/Screenplay `v4.152.0`,
+`Documentation/screenplay/events.md:116-124`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs:15-35`,
+`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82`;
+target evidence: toolchain `references/versions.md` (Stored-name rendering boundary).
 
 A stream whose stored name is exactly `All`, from its name or `id "All"`,
 refuses executable binding/readiness with PLAY0273. Use discovered `propose-rename`
 to change that stored stream name; pinning it back to `All` is not a repair.
 There is no typed PLAY0273 repair for this case. Existing `All` history reads as
-source-only appends. Source/stream pins otherwise travel as ESM v8 stored names,
-unlike event pins. Source: Cratis/Screenplay `v4.150.0`,
+source-only appends. Source/stream pins otherwise travel as ESM v8 stored names;
+event stored names require v16. Source: Cratis/Screenplay `v4.150.0`,
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.EventSources.cs:17-52` and
 `decisions/0073-reserve-the-stored-event-stream-name-all.md:35-63`.
 

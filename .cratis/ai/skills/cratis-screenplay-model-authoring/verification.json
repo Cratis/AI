@@ -3,8 +3,11 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "PLAY0686" },
-    { "kind": "skill-contains", "value": "uses the new name", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "the interim warning is retired" },
+    { "kind": "skill-contains", "value": "`eventPinWarnings` array in proposals is empty", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "shared by all generations and unique (PLAY0472)" },
+    { "kind": "skill-contains", "value": "ESM v16", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "Stage 4.92.0 / CLI 3.59.0 still stop at v15", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "Existing `All` history reads as", "file": "references/mcp-tools.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "Edit through MCP proposals, not hand-edited text" },

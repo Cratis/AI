@@ -16,6 +16,9 @@ exactly produces **no artifacts at all**, never thinner ones. Read the admission
 before promising that a model can be rendered, and render it to find out: the source
 reading in this skill is not a render result.
 
+ESM v16 stored-name rendering is not released in Stage 4.92.0 / CLI 3.59.0;
+keep pins. Evidence: toolchain `references/versions.md`, Stored-name rendering boundary.
+
 Authored UI has its own parity hazard. Historically (Stage 4.24) Stage rendered a default React/Vite
 scaffold and did not prove that modeled screens, templates, forms, toolbars,
 components, outlets, package icons or routes were implemented. The first fully
@@ -46,12 +49,10 @@ were read at Stage `v4.73.1` (`Source/Rendering.Cratis/**`, `Documentation/guide
 (`Documentation/reference/screenplay.md`, `Source/Cli/Commands/Render/**`), not by a render run
 unless a line says *observed*. Current CLI 3.57.0 bundle/admission and scaffold pins were re-read at the tagged
 sources in `references/admission.md` and `references/rendered-application.md`.
-Pins: toolchain `references/versions.md`; its
-binder is behind the standalone compiler. Stage's scaffold pins Arc, Chronicle, Components, Scene and
-Fundamentals releases (listed in the rendered application reference). Scene's
-runtime surface was re-read at the Scene tag in that scaffold table
-(`README.md`, `Source/JavaScript/{model,engine,react,components}/**`). These are **not** the latest releases; do not bump them in managed files
-([rendered application](references/rendered-application.md)).
+The bundled binder is behind standalone. The scaffold pins Arc, Chronicle, Components, Scene and
+Fundamentals, **not** latest releases; never bump managed files by hand ([rendered application](references/rendered-application.md)).
+Scene runtime evidence uses that table's tag: `README.md` and
+`Source/JavaScript/{model,engine,react,components}/**`.
 
 Historical executed baselines (history, not current claims): Stage `v4.24.2` and cli
 `v3.28.2`/`v3.28.3` (Cratis/cli#253; the example in [render-example.md](references/render-example.md)),

@@ -191,9 +191,9 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    A text rename plus an `id "<old name>"` pin preserves authored stored-name intent
    but leaves the identity catalog pointing at the old declaration; the next
    `apply` can mint new identities silently. Use the identity-preserving operation.
-   At Screenplay 4.150.0, PLAY0686 and event rename output warn that the pin is
-   not carried to renderers: generated code uses the new name. Do not rely on it
-   for rendered stored-history compatibility; evidence and limits: `mcp-tools.md`.
+   Screenplay 4.152.0 carries differing event pins as `storedName` in ESM v16;
+   that does not repair a stale catalog or admit the model to Stage 4.92.0 / CLI
+   3.59.0 (still v15). Evidence and target limits: `mcp-tools.md`.
 5. **A session without MCP** (a subagent, or a harness with no server) carries out a
    requested rename by text with `id "<Old>"` pins and an identity note when no
    `.screenplay/identities.json` exists. When it exists, it does not edit

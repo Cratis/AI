@@ -27,7 +27,7 @@ Screenplay v4.144.0: model notes sources/lines in `references/model-notes.md`;
 v4.142.0 add/rename/remove planner in `references/property-links.md`;
 compliance in command-surface `references/compliance.md`. Generation MCP: v4.149.0,
 [fields/repairs/sources](references/mcp-tools.md#concept-generation-41490). Other MCP evidence:
-v4.139.0 `Documentation/screenplay/mcp/`.
+v4.139.0 `Documentation/screenplay/mcp/`. Stored names: v4.152.0, `references/mcp-tools.md`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
 Historical probes remain 4.66.0; registration example compilation/execution
@@ -208,15 +208,13 @@ from silently changing the reviewed candidate.
 Opt-in MCP `checks: "enum-pinning"` / `--check enum-pinning` (PLAY0671) hints at
 stored enums, not correctness repairs. Arguments/review: `references/mcp-tools.md`.
 
-Use `propose-extract-inline-event` on the inline `EventSyntax` handle before adding
-a generation (canonical formatting consent; refuses comment loss; no reverse
-operation). Event `propose-rename` pins `id "<old name>"` by default; use
-`eventNeverPersisted: true` only when known. Since **4.150.0**, PLAY0686 and
-event rename output warn: pins do not reach renderers, which use the new name.
-Do not promise rendered stored-history compatibility. Stored stream `All` (even
-`id "All"`) refuses PLAY0273; rename it without retaining that pin.
-Read `references/mcp-tools.md` for repair/rename limits, migration and evidence:
-[MCP tool guide](references/mcp-tools.md).
+Extract inline events with `propose-extract-inline-event` before adding a generation
+(canonical consent; no comment loss or reverse operation). Event renames pin the
+old name; `eventNeverPersisted: true` requires storage evidence. **4.152.0** carries
+`storedName` in ESM v16; the interim warning is retired. Pins are event-name identifiers,
+shared by all generations and unique (PLAY0472). Stage 4.92.0 / CLI 3.59.0 do not
+admit v16. Stored stream `All` (even `id "All"`) refuses PLAY0273; rename without
+retaining that pin. Repair/rename limits and tagged evidence: [MCP tool guide](references/mcp-tools.md).
 
 ## Choose a readable layout
 

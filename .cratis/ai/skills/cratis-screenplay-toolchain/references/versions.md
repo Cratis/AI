@@ -3,6 +3,7 @@
 ## Contents
 
 - Pin set
+- Stored-name rendering boundary
 - Equality-filter rendering boundary
 - Two compilers, one rule
 - Commands and exit codes
@@ -19,7 +20,7 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.151.0** | Released tag `v4.151.0`, published NuGet tool and byte-identical published/Golden contract; non-blank text `not empty` in every ESM version, reserved stream `All` / event pin warning PLAY0686, and child-before-parent reference deferral; retains ESM v15 and generation MCP repairs |
+| Screenplay language, standalone tool and MCP | **4.152.0** | Released tag `v4.152.0`, published NuGet tool and byte-identical published/Golden contract; differing event pins carry `storedName` in ESM v16 and the interim pin warning is retired; retains non-blank text `not empty`, reserved stream `All`, child deferral and generation MCP repairs |
 | cratis CLI | **3.57.0** | Released tag `v3.57.0`; source-checked, not a new render/browser probe |
 | Screenplay bundled by CLI | **4.147.1** | CLI `v3.57.0:Directory.Packages.props:8`; binds through v15; does not include 4.148.0 response-name continuation resolution or 4.149.0 generation summary/entropy repairs |
 | Stage bundled by CLI | **4.89.1** | Same file, line 10; Stage `v4.89.1:Directory.Packages.props` pins Screenplay 4.147.1; rendering admits through v15 |
@@ -53,10 +54,41 @@ and `Source/Cli.Specs/for_AiMcpRegistration/when_installing/with_a_composed_prof
 at tag `v3.46.1` (CLI#322 / CLI#311). This minimum does not re-label the compiler
 or renderer probes below as results from the newer bundle.
 
+## Stored-name rendering boundary
+
+Screenplay **4.152.0** carries differing event pins in ESM v16. Consumers (Stage,
+CLI, Studio or any strict reader) must explicitly admit v16 and preserve
+`storedName`, or refuse it; a package upgrade alone is not admission. No claim of
+Studio admission is made here. Equal-name pins omit the member and retain earlier
+versions/bytes; generations share one effective stored name. See streams-and-consistency
+`references/evolution.md` for pin validation, identity and storage migration.
+
+Latest released **CLI 3.59.0** still bundles **Screenplay 4.147.1 / Stage 4.92.0**.
+CLI `RenderedSemanticVersions.Newest` remains v15; Stage's feature check uses
+`EsmSchemaV15Support`, and event rendering emits argument-free `[EventType]`, not
+`[EventType("<storedName>")]`. Neither released consumer admits v16. Keep the pin
+and report the render gap; do not silently render under the new name. These are
+tagged source checks, not new render/browser probes. The 3.57.0 bundle below
+remains the previously verified render vector, not the latest release.
+
+Sources: Cratis/Screenplay `v4.152.0:Documentation/screenplay/events.md:116-124`,
+`Source/DotNET/Screenplay/Semantics/Versions.cs:796-816`,
+`Source/DotNET/Screenplay/Semantics/Serialization/SemanticModelRead.Contracts.cs:196`;
+Cratis/cli `v3.59.0:Directory.Packages.props:8-10`,
+`Source/Cli/Commands/Render/RenderedSemanticVersions.cs:34-47`;
+Cratis/Stage `v4.92.0:Directory.Packages.props:31-33`,
+`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:105`,
+`SemanticStateChangeArtifactRenderer.cs:244-251` in the same folder.
+
+Decision 0070 is accepted, but its release-baseline implementation is **not released**
+in Screenplay 4.152.0. Its tagged contract has no baseline commands, list tool or
+proposal view, and the published schema is absent. Keep explicit event evolution
+choices; do not teach the planned sidecar/tooling as an installed capability.
+
 ## Equality-filter rendering boundary
 
 Caller-supplied collection equality filters shipped in Screenplay **4.143.0**
-(decision 0069), selecting ESM v14; the standalone **4.151.0** pin binds and
+(decision 0069), selecting ESM v14; the standalone **4.152.0** pin binds and
 reference-tests them. No-filter models retain their version/bytes/revision.
 CLI **3.57.0** bundles Screenplay **4.147.1** / Stage **4.89.1** and renders
 collection equality filters, including optional omission and AND with `by`.
@@ -71,7 +103,7 @@ read-surface [equality filters](../../cratis-screenplay-read-surface/references/
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.151.0 and CLI 3.57.0's 4.147.1 bundle are different releases.
+Standalone Screenplay 4.152.0 and CLI 3.57.0's 4.147.1 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -91,8 +123,8 @@ Cratis/cli `v3.57.0:Directory.Packages.props:8,35-37`; Cratis/Screenplay
 are source-checked at `v4.149.0:McpGenerationDetails.cs:13-83` under the same MCP
 source folder; detailed evidence: model-authoring `references/mcp-tools.md`.
 The 4.147.1 bundle also predates child deferral (4.149.1), reserved stream `All`
-/ event pin warning PLAY0686 (4.150.0), and the non-blank text `not empty`
-reference correction (4.151.0). The latter changes outcomes in every ESM version,
+(4.150.0), the non-blank text `not empty` reference correction (4.151.0), and
+stored event names (4.152.0, ESM v16; interim pin warning retired). The text correction changes outcomes in every ESM version,
 not canonical bytes. See `executable-subset.md` and `diagnostics.md` for tagged
 source evidence and target boundaries.
 
@@ -147,8 +179,8 @@ when recording, resolving, paging or reviewing orphan impact.
 
 ## Admission boundaries
 
-Screenplay `v4.148.0:Source/DotNET/Screenplay/Semantics/Versions.cs:744-766` supports
-schema pairs through v15. Admission selects by use:
+Screenplay `v4.152.0:Source/DotNET/Screenplay/Semantics/Versions.cs:796-816` supports
+schema pairs through v16. Admission selects by use:
 
 - v7: generated values/responses and policy negation.
 - v8: sources/streams and command/specification routes.
@@ -203,6 +235,12 @@ schema pairs through v15. Admission selects by use:
   without retry or partial append. CLI 3.57.0 / Stage 4.89.1 render supported
   strategies with explicit atomic freshness scopes. Details and remaining refusals:
   command-surface `references/generated-values-and-responses.md`.
+- **Published v16 in 4.152.0:** differing event `id` pins serialize optional
+  `storedName` once on the current event contract, shared by prior revisions.
+  Equal-name pins and models without differing pins retain earlier bytes/version.
+  PLAY0472 refuses invalid identifiers, generation disagreement and stored-name
+  collisions. The interim pin warning is retired; consumers must admit v16 explicitly (the
+  released Stage/CLI do not). Details: Stored-name rendering boundary above.
 
 Decision 0066 freezes a version when any exposing NuGet/npm package is published,
 including prereleases. Later byte-changing features take the next version at

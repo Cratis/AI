@@ -11,7 +11,7 @@
 - Rendering is a different verdict
 - Verified product sources
 
-Screenplay **4.143.0 and later**, including the standalone **4.151.0** pin,
+Screenplay **4.143.0 and later**, including the standalone **4.152.0** pin,
 binds `filter <name> <Type> [optional]` on a collection query when:
 
 - there is no `from` source;
