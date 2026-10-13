@@ -92,12 +92,39 @@ Rule numbers refer to the numbered list in [`../rules/general.md`](../rules/gene
 
 - Editing a file whose header marks it as Cratis-generated output — rule 15 `[contract]`
 - Writing content that opens with such a header (hand-authoring a "generated" proxy)
-- `Directory.Packages.props`, `global.json`, `NuGet.config`, `yarn.lock`, `package-lock.json`,
-  `pnpm-lock.yaml`, `packages.lock.json` — the Source-of-Truth Discipline rule
+- `Directory.Packages.props`, `global.json`, `NuGet.config` (also `NuGet.Config` and `nuget.config`),
+  `yarn.lock`, `package-lock.json`, `pnpm-lock.yaml`, `packages.lock.json` — unless the
+  repository's dependency-manifest policy allows them (see below)
 - `.env`, `.env.*`, `*.env` — secrets
 
 The generated-file check is anchored: the marker must be a comment opener at the start of one of
 the first five lines. A rule file or a document that merely *mentions* the marker is not blocked.
+
+### Dependency-manifest writes
+
+Manifest writes are allowed **silently by default** when Git's `origin` points to
+`github.com/Cratis/<repo>` over HTTPS or SSH (including `git@github.com:Cratis/<repo>.git`;
+host and owner are case-insensitive). The hook resolves the repository from the tool's working
+directory, including nested directories and linked worktrees. A missing or non-Cratis origin
+keeps the block. Installed corpus files and selected profiles do **not** prove organization
+ownership: consumer applications can have exactly the same installation and profiles.
+
+Set a repository-owned boolean in `.cratis/ai.json` to override that default in both Claude Code
+and Pi:
+
+```json
+{ "allowDependencyManifestWrites": false }
+```
+
+`false` re-enables the manifest block in a Cratis repository; `true` allows manifest writes
+in any repository. Merge this property into the existing configuration. An absent, malformed,
+or non-boolean setting uses the origin-based default. This setting never permits generated
+output or `.env` writes. The protected basename list is unchanged; `package.json` is not
+part of this guard's manifest category.
+
+This allowance is not authorization for unrelated upgrades: keep changes task-focused and
+call out version bumps in the PR description. Other repositories retain the rule requiring
+an explicit request; their setting is a mechanical opt-out, not a change to that rule.
 
 **Blocked outright** (`PreToolUse` on `Bash`, exit 2): a `cratis chronicle` command that is not
 read-only. The **cratis-chronicle-cli-operations** skill makes `--yes` the authorization boundary for
@@ -502,7 +529,7 @@ Each is an explicit, auditable opt-out — none of them is a default.
 
 | Variable | Effect |
 |---|---|
-| `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | allows one protected write; this is the "unless explicitly asked" case for dependency manifests |
+| `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | bypasses all write protection, including generated files and `.env`, while set in the harness environment; use only for an explicitly requested protected write. Repository-scoped manifest allowance uses `.cratis/ai.json` instead and never bypasses those protections |
 | `CRATIS_HOOKS_SKIP_SCAN=1` | disables the pattern pass |
 | `CRATIS_HOOKS_SKIP_GATE=1` | disables the quality gate |
 | `CRATIS_HOOKS_GATE_DRYRUN=1` | prints which gates would run, and why, then exits 0 |
