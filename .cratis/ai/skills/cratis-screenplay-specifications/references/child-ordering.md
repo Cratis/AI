@@ -3,6 +3,12 @@
 
 # Child-before-parent specifications (4.149.1 and later)
 
+## Contents
+
+- Verified product sources
+- Complete model
+- Known routing difference — decision 0007
+
 Views combining sources must tolerate any arrival order. The reference evaluator
 retains a parentless child and retries it in arrival order using its original event
 values, event-source context and parent key. Resolving a child can release a

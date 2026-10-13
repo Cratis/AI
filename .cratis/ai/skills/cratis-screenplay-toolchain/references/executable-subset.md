@@ -4,6 +4,8 @@
 
 - Caller and compliance boundary (4.142.0)
 - Admitted on both compilers
+- Text `not empty` reference correction (4.151.0)
+- Child-before-parent reference execution (4.149.1)
 - Equality query filters (ESM v14, since 4.143.0)
 - Admitted from Screenplay 4.61 (ESM v6): standalone tool and cratis 3.28.2 or later
 - Generated values and responses (ESM v7/v15): current compiler and renderer boundaries

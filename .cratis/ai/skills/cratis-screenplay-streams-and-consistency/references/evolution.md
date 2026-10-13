@@ -1,5 +1,14 @@
 # Event evolution
 
+## Contents
+
+- Classify the change
+- Event pins do not reach renderers yet (4.150.0)
+- Enum identities are stored contracts
+- Compatibility scenarios (write before editing)
+- Identity rules
+- Identity owner
+
 Stored facts outlive the code and the model that wrote them. Plan a change by asking what
 happens to facts already stored, to every reader of the event, and to the deployment window
 when old and new code run side by side. The best evolution is the one you avoid: short

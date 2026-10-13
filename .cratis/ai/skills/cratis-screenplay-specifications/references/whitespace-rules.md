@@ -3,6 +3,11 @@
 
 # Whitespace-only rule rejection (4.151.0)
 
+## Contents
+
+- Verified product sources
+- Complete model
+
 Text `not empty` rejects null, empty text and Unicode `White_Space`-only text
 for concept and command property rules. Screenplay **4.151.0** corrects reference
 outcomes for **every ESM version**, without changing canonical bytes. Existing

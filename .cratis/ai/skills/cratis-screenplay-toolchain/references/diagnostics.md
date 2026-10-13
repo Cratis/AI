@@ -6,6 +6,7 @@
 - Source reference and identifier checks
 - Public events and translation direction
 - Explicit enum member numbers
+- Reserved stored names and event pin warnings (4.150.0)
 - Named keys, production routes and observer filters
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
