@@ -3,6 +3,9 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "PLAY0686" },
+    { "kind": "skill-contains", "value": "uses the new name", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "Existing `All` history reads as", "file": "references/mcp-tools.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "Edit through MCP proposals, not hand-edited text" },
     { "kind": "skill-contains", "value": "CLI 3.57.0 bundles MCP 4.147.1" },

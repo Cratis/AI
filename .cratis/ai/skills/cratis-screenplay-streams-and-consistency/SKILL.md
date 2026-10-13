@@ -152,6 +152,9 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
 - Generations are declared in full, numbered 1..N without gaps, in the same slice
   (PLAY0446-0448). Referencing a removed property is PLAY0273; a `given` needing a historical
   shape is PLAY0449. An `id` pin equal to the event's current name is PLAY0471 (information).
+  Since Screenplay **4.150.0**, event pins also warn PLAY0686 at binding: they are
+  not carried to renderers, so generated code uses the new name. Do not rely on
+  the pin to preserve stored-event readability in rendered apps; see `references/evolution.md`.
 - `reads` is PLAY0271 and `require` over read-model paths is PLAY0268 at binding. A `concurrency`
   block compiles but is PLAY0271 at binding. Keep both when they state real intent; they are not
   protection. `description` text never reaches rendered code: a rule that lives only in prose is
@@ -167,7 +170,12 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
   nominal type mismatch. Composite ids use at least two named scalar parts,
   complete named mappings and canonical comparison, not guessed legacy splits.
   Stored key-schema changes require a new stream identity or migration; see
-  toolchain `references/sources-and-streams.md`.
+  toolchain `references/sources-and-streams.md`. Since Screenplay **4.150.0**,
+  a stored stream name exactly `All` (name or `id "All"`) refuses binding with
+  PLAY0273, parallel to source `Default`. Streams `all`, `ALL` and `Default`
+  remain valid. Rename via `propose-rename`; a pin retaining `All` cannot fix it.
+  Existing `All` history reads as source-only appends, not the renamed stream.
+  Source evidence and migration limits are in that reference.
 - Chronicle (open at v19.50.0): the SQL and InMemory providers do not settle unique claims
   (#3744); index updates run after commit and may fail silently (#4123); composite values can
   collide on the separator (#4131). A declared constraint is a declaration, not a runtime test.

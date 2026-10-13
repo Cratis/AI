@@ -261,6 +261,8 @@ produces when isProForma == true
 Routes bind as ESM v8; production `stream Source.Stream` overrides
 select v10. Read toolchain [routes](../cratis-screenplay-toolchain/references/production-routes-and-filters.md)
 and [source/stream declarations](../cratis-screenplay-toolchain/references/sources-and-streams.md).
+Since **4.150.0**, stored stream `All` / `id "All"` refuses PLAY0273;
+rename and history-migration guidance is in that reference.
 `public event X` is a local export; `event X from "store"` is a locally declared,
 unverified foreign shape. Commands never produce public events. Read
 [translation direction](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)

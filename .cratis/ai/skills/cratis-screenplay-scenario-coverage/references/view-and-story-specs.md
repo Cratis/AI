@@ -128,6 +128,17 @@ not prove an entire list is empty: assert the unkeyed list query itself (an unke
 ## Ordering, lag and rebuild
 - **Out of order across sources**: if a joined or cross-context fact can arrive first, add a
   family member with that order and say what the view shows meanwhile (joins never create rows).
+  For a child before its parent, standalone Screenplay **4.149.1 and later** defers the
+  original child event and retries it when the parent exists, at any nesting depth.
+  Pin `given <ChildEvent>`, then `given <ParentEvent>`, then `then readmodel`; also cover
+  a given child followed by `when append <ParentEvent>` and "parent never arrives"
+  (child stays absent). An ambiguous parent still fails closed. Pending children survive
+  given/when and accepted command commits; this does not prove runtime ordering or races.
+  Complete passing example and creation-event routing caveat:
+  [child ordering](../../cratis-screenplay-specifications/references/child-ordering.md).
+  Sources: Cratis/Screenplay `v4.149.1`,
+  `Documentation/screenplay/projections/semantic-model.md:77-81` and
+  `Source/DotNET/Screenplay/Semantics/Execution/SemanticScopedProjection.Deferred.cs:11-96`.
 - **Projection lag**: a spec asserts the settled state. If a screen decision depends on the view
   being current (a booking screen that must not offer a taken berth), that is not protection:
   the command needs its own constraint, or the rule is `recorded` as target-enforced.
