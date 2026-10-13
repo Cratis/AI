@@ -1,0 +1,77 @@
+{
+  "skill": "cratis-arc-command-validation",
+  "queries": [
+    {
+      "query": "Add a rule that rejects a registration when the course is full and make it hold under concurrency.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My CommandValidator reads a read model but two requests both pass. How do I fix it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Does concurrency: true on an Arc routing attribute guard the decision?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Where should a range or format rule on a command property live?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Choose between ConceptValidator, CommandValidator and Provide for a rejection.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "A protected command with a validator that has constructor dependencies returns HTTP 500. Why?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Return Result of event or ValidationResult from Handle when the state is missing.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Reject a command when a stream already holds a conflicting event.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define a brand new Arc command and its event source id.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-command"
+    },
+    {
+      "query": "Make a user's email unique using UniqueAttribute.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-event-constraints"
+    },
+    {
+      "query": "Write the specification for a command rejection.",
+      "shouldTrigger": false,
+      "note": "cratis-application-slice-specifications"
+    },
+    {
+      "query": "Authorize a command with a role attribute.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-authentication-authorization-and-identity"
+    },
+    {
+      "query": "Explain how IDecisionReads admits a projection and handles unit-of-work ownership.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-decision-reads"
+    },
+    {
+      "query": "Expose a paged query for a read model.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-read-model"
+    },
+    {
+      "query": "Configure the Chronicle kernel storage.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-hosting"
+    },
+    {
+      "query": "Model the events and streams of a checkout before writing code.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-event-modeling"
+    }
+  ]
+}

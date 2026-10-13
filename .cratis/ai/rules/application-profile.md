@@ -17,7 +17,7 @@ Pick exactly one type per slice folder — determined by what the slice *does*.
 
 | Type | What it does | Contents |
 | --- | --- | --- |
-| **State Change** | Accepts a command, appends events | Command + validator + event(s); optional `[Passive]` read model for command-side decisions |
+| **State Change** | Accepts a command, appends events | Command + validator + event(s); optional `[Passive]` for a current read; a rule that must hold under concurrency needs a decision read or constraint (see the `cratis-chronicle-decision-reads` skill, `references/choosing-how-a-rule-holds.md`) |
 | **State View** | Projects events into a queryable read model | `[ReadModel]` + model-bound projection + static query method(s) |
 | **Automation** | Reacts to events, calls external systems / `ICommandPipeline`, or returns follow-up commands/events (including to another stream) | Reactor only |
 | **Translation** | Takes data from outside our own facts (an external system or another service) and records it as our facts | An adapter at the boundary, often a reactor |
