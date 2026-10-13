@@ -3,7 +3,7 @@
 
 ## Discovery and explicit registration
 
-Verified at **Cratis/Chronicle v19.50.0**:
+Source: Cratis/Chronicle:
 `Source/Clients/DotNET/DefaultClientArtifactsProvider.cs`,
 `Registrations/ExplicitArtifacts.cs`, `Projections/IProjections.cs`,
 `Reactors/IReactors.cs`.

@@ -49,7 +49,7 @@ required, not through an invented switch. Sources:
 
 ## What a namespace actually isolates
 
-Verified against the storage naming and the grain keys, not inferred:
+Derived from the storage naming and the grain keys, not inferred:
 
 **Per namespace:**
 

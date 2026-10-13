@@ -1,6 +1,6 @@
 ## Discovery and registration
 
-Verified at `Chronicle.Kotlin v6.13.0`: `ClientArtifacts`,
+Source: `Chronicle.Kotlin`: `ClientArtifacts`,
 `ArtifactRegistrations.registerAll` and `EventStore`.
 
 `ClientArtifacts` scans the classpath with ClassGraph

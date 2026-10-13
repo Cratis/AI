@@ -3,7 +3,7 @@
 
 # Append API
 
-Verified at `Cratis/Chronicle.Elixir v3.10.2`; paths below are under `Source/chronicle/lib/chronicle/`.
+Source: `Cratis/Chronicle.Elixir`; paths below are under `Source/chronicle/lib/chronicle/`.
 
 ## Append functions and readers
 
