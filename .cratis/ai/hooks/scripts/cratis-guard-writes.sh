@@ -70,16 +70,24 @@ fi
 
 # ── 2. Dependency manifests, lockfiles, SDK and NuGet configuration ───────────
 manifest_writes_allowed() {
-    local setting="" origin
-    if [ -f "$root/.cratis/ai.json" ]; then
+    local setting="" origin directory policy_root
+    # Authorization belongs to the write target, which may be outside the session's checkout.
+    # New files can have nonexistent parents; find their nearest existing directory first.
+    directory="$(dirname "$file")"
+    while [ ! -d "$directory" ]; do
+        [ "$directory" != "/" ] || return 1
+        directory="$(dirname "$directory")"
+    done
+    policy_root="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null)" || return 1
+    if [ -f "$policy_root/.cratis/ai.json" ]; then
         # Only actual booleans override the default; jq's `// empty` would discard false.
-        setting="$(jq -r '.allowDependencyManifestWrites | select(type == "boolean") | tostring' "$root/.cratis/ai.json" 2>/dev/null || true)"
+        setting="$(jq -r '.allowDependencyManifestWrites | select(type == "boolean") | tostring' "$policy_root/.cratis/ai.json" 2>/dev/null || true)"
     fi
     case "$setting" in
         true) return 0 ;;
         false) return 1 ;;
     esac
-    origin="$(git -C "$root" remote get-url origin 2>/dev/null || true)"
+    origin="$(git -C "$policy_root" remote get-url origin 2>/dev/null || true)"
     # Anchor host, owner and the single repository segment; never infer ownership from profiles.
     printf '%s\n' "$origin" | LC_ALL=C grep -Eiq '^(https://github\.com/|git@github\.com:|ssh://git@github\.com(:[0-9]+)?/)cratis/[a-z0-9_.-]+/?$'
 }

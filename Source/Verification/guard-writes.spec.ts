@@ -145,6 +145,46 @@ function piToolCall() {
     return toolCall;
 }
 
+test('manifest policy follows the write target across repositories and nonexistent directories, not the session cwd', async () => {
+    const cratis = scratchRepository('git@github.com:Cratis/AI.git');
+    const consumer = scratchRepository('https://github.com/Consumer/App.git');
+    const optedOut = scratchRepository('https://github.com/Cratis/Arc.git');
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-guard-outside-'));
+    const toolCall = piToolCall();
+    try {
+        assert.notEqual(spawnSync('git', ['-C', outside, 'rev-parse', '--show-toplevel']).status, 0, 'outside fixture is not in a Git repository');
+        mkdirSync(join(optedOut.root, '.cratis'), { recursive: true });
+        writeFileSync(join(optedOut.root, '.cratis', 'ai.json'), '{"allowDependencyManifestWrites": false}');
+        mkdirSync(join(outside, '.cratis'), { recursive: true });
+        writeFileSync(join(outside, '.cratis', 'ai.json'), '{"allowDependencyManifestWrites": true}');
+        const cases: Array<[cwd: string, target: string, expected: string]> = [
+            [cratis.root, consumer.manifest, BLOCK],
+            [consumer.root, cratis.manifest, ALLOW],
+            [cratis.root, optedOut.manifest, BLOCK],
+            [cratis.root, join(cratis.root, 'New', 'Nested', 'Directory.Packages.props'), ALLOW],
+            [consumer.root, join(cratis.root, 'New', 'Nested', 'Directory.Packages.props'), ALLOW],
+            [cratis.root, join(optedOut.root, 'New', 'Nested', 'global.json'), BLOCK],
+            [cratis.root, join(outside, 'New', 'Nested', 'global.json'), BLOCK],
+        ];
+        for (const [cwd, target, expected] of cases) {
+            for (const path of [target, relative(cwd, target)]) {
+                const payload = { cwd, tool_input: { file_path: path, content: 'x' } };
+                const result = runGuard(payload, cwd);
+                assert.equal(result.verdict, expected, `${cwd} -> ${path}: ${result.stderr}`);
+                if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
+                const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
+                assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${cwd} -> ${path}`);
+            }
+        }
+        assert.equal(runGuard({ cwd: cratis.root, tool_input: { file_path: join(outside, 'global.json'), content: 'x' } }, cratis.root, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).verdict, ALLOW);
+    } finally {
+        cratis.dispose();
+        consumer.dispose();
+        optedOut.dispose();
+        rmSync(outside, { recursive: true, force: true });
+    }
+});
+
 test('repository manifest settings override the origin default identically through the shell and Pi', async () => {
     const toolCall = piToolCall();
     const configurations: Array<[configuration: string, override: string | undefined]> = [
