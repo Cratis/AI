@@ -20,7 +20,7 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.152.0** | Released tag `v4.152.0`, published NuGet tool and byte-identical published/Golden contract; differing event pins carry `storedName` in ESM v16 and the interim pin warning is retired; retains non-blank text `not empty`, reserved stream `All`, child deferral and generation MCP repairs |
+| Screenplay language, standalone tool and MCP | **4.153.0** | Released tag `v4.153.0`, published NuGet tool and byte-identical published/Golden contract; release-baseline admission/check, MCP review and evidence-derived event mutability; retains v16 `storedName`, non-blank text, reserved stream `All`, child deferral and generation repairs |
 | cratis CLI | **3.57.0** | Released tag `v3.57.0`; source-checked, not a new render/browser probe |
 | Screenplay bundled by CLI | **4.147.1** | CLI `v3.57.0:Directory.Packages.props:8`; binds through v15; does not include 4.148.0 response-name continuation resolution or 4.149.0 generation summary/entropy repairs |
 | Stage bundled by CLI | **4.89.1** | Same file, line 10; Stage `v4.89.1:Directory.Packages.props` pins Screenplay 4.147.1; rendering admits through v15 |
@@ -80,15 +80,19 @@ Cratis/Stage `v4.92.0:Directory.Packages.props:31-33`,
 `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:105`,
 `SemanticStateChangeArtifactRenderer.cs:244-251` in the same folder.
 
-Decision 0070 is accepted, but its release-baseline implementation is **not released**
-in Screenplay 4.152.0. Its tagged contract has no baseline commands, list tool or
-proposal view, and the published schema is absent. Keep explicit event evolution
-choices; do not teach the planned sidecar/tooling as an installed capability.
+Decision 0070's release baseline ships in **4.153.0**. Admit explicitly in the
+release job and commit `.screenplay/release-baseline.json`; review event mutability
+with `screenplay_list_release_baseline` / `read-proposal view=release-baseline`.
+No baseline still requires an explicit event mode; unadmitted revisions default to
+in-place edits, admitted revisions accept only explicit `newGeneration`.
+Never hand-edit except a reviewed correction. CLI exits, schema, MCP revision guards
+and the `--from-esm` stored-name limitation: model-authoring
+[release baseline](../../cratis-screenplay-model-authoring/references/release-baseline.md).
 
 ## Equality-filter rendering boundary
 
 Caller-supplied collection equality filters shipped in Screenplay **4.143.0**
-(decision 0069), selecting ESM v14; the standalone **4.152.0** pin binds and
+(decision 0069), selecting ESM v14; the standalone **4.153.0** pin binds and
 reference-tests them. No-filter models retain their version/bytes/revision.
 CLI **3.57.0** bundles Screenplay **4.147.1** / Stage **4.89.1** and renders
 collection equality filters, including optional omission and AND with `by`.
@@ -103,7 +107,7 @@ read-surface [equality filters](../../cratis-screenplay-read-surface/references/
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.152.0 and CLI 3.57.0's 4.147.1 bundle are different releases.
+Standalone Screenplay 4.153.0 and CLI 3.57.0's 4.147.1 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -124,7 +128,8 @@ are source-checked at `v4.149.0:McpGenerationDetails.cs:13-83` under the same MC
 source folder; detailed evidence: model-authoring `references/mcp-tools.md`.
 The 4.147.1 bundle also predates child deferral (4.149.1), reserved stream `All`
 (4.150.0), the non-blank text `not empty` reference correction (4.151.0), and
-stored event names (4.152.0, ESM v16; interim pin warning retired). The text correction changes outcomes in every ESM version,
+stored event names (4.152.0, ESM v16; interim pin warning retired) and release
+baselines (4.153.0). The text correction changes outcomes in every ESM version,
 not canonical bytes. See `executable-subset.md` and `diagnostics.md` for tagged
 source evidence and target boundaries.
 
@@ -137,6 +142,7 @@ source evidence and target boundaries.
 | CLI source validation | `cratis screenplay validate <root> --warnings-as-errors -o json-compact` | Read producer exit and JSON errors/warnings/file count. Passing source-only probe on CLI 3.41.0: dependencies example, exit 0 |
 | Binding | MCP workspace readiness and `executable-diagnostics` | V2 reads diagnostics; V3 requires binding with no blocking diagnostics |
 | Reference specifications | `screenplay test <root> [--filter <address>] [--format text|json]`, or MCP `run-specifications` (`specification`, `scope`, `offset`, `limit`, `expectedSourceRevision`; `proposalId` from 4.145.0) | 0 all selected passed; 1 failed; 2 invalid arguments/input/selection or IO; 3 unsupported or unbound. `test` rejects `--no-color`; counts of zero do not prove coverage |
+| Release baseline | `screenplay baseline admit <root> --release <label>`; `screenplay baseline check <root>` | Admit in the release job, commit the sidecar; check before later edits. 0 success, 1 changed/missing revision, 2 unavailable/unreadable or invalid input/write failure. Independent of V1–V5; full preconditions and exceptions: model-authoring `references/release-baseline.md` |
 | Rendering | `cratis render` | Separate admission, publication, target build and target tests (V5) |
 
 Source validation does not bind or run attached code. Reference execution is

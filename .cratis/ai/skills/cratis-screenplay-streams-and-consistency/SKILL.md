@@ -128,7 +128,9 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    `references/compliance.md` for allowed types and the policy/encryption distinction.
 5. **Plan evolution** with `references/evolution.md`: classify each event change (additive,
    meaning change, rename, removal, split or merge) and write its compatibility scenarios before
-   editing. Pin persisted/public enum member numbers before reordering or removing
+   editing. Admit the **4.153.0 release baseline** in the release job; admitted
+   revisions need `newGeneration`. Modes/CLI/MCP: `references/evolution.md`.
+   Pin persisted/public enum member numbers before reordering or removing
    members; never renumber or reuse a published number. Positional pins preserve
    executable bytes; non-positional pins need ESM v12 consumer admission.
    Renames and other identity-affecting edits are made by the identity owner (the

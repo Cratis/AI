@@ -15,6 +15,17 @@ when old and new code run side by side. The best evolution is the one you avoid:
 lifecycles and events that record what the business decided (not table rows) change less.
 
 ## Classify the change
+
+**Screenplay 4.153.0 release baseline:** commit `.screenplay/release-baseline.json`,
+written by explicit `screenplay baseline admit <root> --release <label>` in the release
+job; gate later edits with `screenplay baseline check <root>`. Without a baseline,
+current-property edits still require exactly one of `newGeneration` or
+`eventNeverPersisted`; unadmitted revisions default to in-place edits; admitted
+revisions accept only explicit `newGeneration`. Never hand-edit the sidecar except
+a reviewed correction. The baseline freezes resolved shared schemas too, not just
+event declaration text. Full CLI exits, MCP review and source evidence:
+model-authoring [release baseline](../../cratis-screenplay-model-authoring/references/release-baseline.md).
+
 Edit class depends on whether the event is **persisted** (facts may be stored: the model was
 accepted, deployed or rendered into a running system; ask when unsure). Changing an
 unpersisted event's members is an ordinary text edit when no `.screenplay/identities.json` exists; with it, adding or removing event properties changes catalog addresses and goes through MCP. Any change to a
@@ -56,8 +67,8 @@ promise rendered storage compatibility or remove the pin to make rendering pass.
 A passing reference specification is not a stored-history test: reference facts
 still use contract/display names. If an older renderer already stored events under
 the new name, switching the stored type needs a reviewed baseline correction or
-data migration, not a silent re-render. Release-baseline tooling from decision 0070
-is not in the 4.152.0 release; do not assume that correction command exists.
+data migration, not a silent re-render. Release-baseline tooling ships in 4.153.0;
+its `--from-esm` stored-name limitation is in the release-baseline reference.
 
 Sources: Cratis/Screenplay `v4.152.0`, `Documentation/screenplay/events.md:116-124`,
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs:15-35`,
@@ -110,8 +121,10 @@ For each changed event, answer in the slice `documentation` or `STATE.md`:
 - Generations of one event live in one slice; a same-named event in another slice is a
   different contract, not a generation (and ambiguous to the binder).
 - Leave `id` absent on new events; a pin equal to the event's current name is information
-  PLAY0471 (Screenplay `events.md`). MCP and workspace renames add the pin by default because
-  the tool cannot know whether events were stored; set "never persisted" only when you know.
+  PLAY0471 (Screenplay `events.md`). Without a release baseline, renames pin by default;
+  "never persisted" requires storage evidence. With a baseline, an unadmitted event gets
+  no new pin; any admitted revision requires retaining its stored name and refuses
+  `eventNeverPersisted`. Inspect `eventRename.mutability` / `pinAdded` before apply.
 - Every rename, move or removal of an event, constraint, command, read model, slice, feature
   or module is identity-affecting and is done by the identity owner.
 

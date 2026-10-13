@@ -21290,6 +21290,7 @@
         "proposalId"
       ],
       "optionalParameters": [
+        "expectedReleaseBaselineRevision",
         "expectedRepairEvidenceRevision",
         "includeContent"
       ],
@@ -21310,6 +21311,9 @@
             "default": false
           },
           "expectedRepairEvidenceRevision": {
+            "type": "string"
+          },
+          "expectedReleaseBaselineRevision": {
             "type": "string"
           }
         },
@@ -21663,6 +21667,7 @@
       ],
       "optionalParameters": [
         "eventRenames",
+        "expectedReleaseBaselineRevision",
         "formatting",
         "includeContent",
         "layout",
@@ -22147,6 +22152,9 @@
               "additionalProperties": false
             },
             "maxItems": 256
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -22678,6 +22686,34 @@
       }
     },
     {
+      "name": "list-release-baseline",
+      "requiredParameters": [],
+      "optionalParameters": [
+        "expectedReleaseBaselineRevision",
+        "limit",
+        "offset"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
       "name": "merged-document",
       "requiredParameters": [],
       "optionalParameters": [
@@ -22792,6 +22828,7 @@
         "documentId",
         "eventRenames",
         "expectedDescription",
+        "expectedReleaseBaselineRevision",
         "includeContent",
         "operation",
         "operations",
@@ -23419,6 +23456,9 @@
               "additionalProperties": false
             },
             "maxItems": 256
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -23450,6 +23490,7 @@
       "optionalParameters": [
         "documents",
         "eventRenames",
+        "expectedReleaseBaselineRevision",
         "includeContent",
         "operations",
         "referencePolicy",
@@ -24356,6 +24397,9 @@
               "additionalProperties": false
             },
             "maxItems": 256
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -24375,6 +24419,7 @@
         "subject"
       ],
       "optionalParameters": [
+        "expectedReleaseBaselineRevision",
         "includeContent",
         "validation"
       ],
@@ -24423,6 +24468,9 @@
           "includeContent": {
             "type": "boolean",
             "default": false
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -24442,7 +24490,9 @@
         "expectedRevision",
         "operations"
       ],
-      "optionalParameters": [],
+      "optionalParameters": [
+        "expectedReleaseBaselineRevision"
+      ],
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -24830,6 +24880,9 @@
             },
             "maxItems": 200,
             "minItems": 1
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -24850,6 +24903,7 @@
         "target"
       ],
       "optionalParameters": [
+        "expectedReleaseBaselineRevision",
         "formatting",
         "includeContent",
         "newParentHandle",
@@ -25055,6 +25109,9 @@
           "includeContent": {
             "type": "boolean",
             "default": false
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -25075,6 +25132,7 @@
         "subject"
       ],
       "optionalParameters": [
+        "expectedReleaseBaselineRevision",
         "includeContent",
         "validation"
       ],
@@ -25123,6 +25181,9 @@
           "includeContent": {
             "type": "boolean",
             "default": false
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -25147,6 +25208,7 @@
         "eventNeverPersisted",
         "expectedName",
         "expectedOwnerName",
+        "expectedReleaseBaselineRevision",
         "fixtureValue",
         "formatting",
         "hops",
@@ -25390,6 +25452,9 @@
           "includeContent": {
             "type": "boolean",
             "default": false
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -25470,6 +25535,7 @@
       ],
       "optionalParameters": [
         "eventNeverPersisted",
+        "expectedReleaseBaselineRevision",
         "formatting",
         "includeContent",
         "validation"
@@ -25531,6 +25597,9 @@
           "includeContent": {
             "type": "boolean",
             "default": false
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -25553,6 +25622,7 @@
         "subject"
       ],
       "optionalParameters": [
+        "expectedReleaseBaselineRevision",
         "expectedRepairEvidenceRevision",
         "includeContent",
         "line",
@@ -25611,6 +25681,9 @@
           },
           "expectedRepairEvidenceRevision": {
             "type": "string"
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -25633,6 +25706,7 @@
       ],
       "optionalParameters": [
         "eventRenames",
+        "expectedReleaseBaselineRevision",
         "includeContent",
         "referencePolicy",
         "retiredEventAddresses",
@@ -26236,6 +26310,9 @@
               "additionalProperties": false
             },
             "maxItems": 256
+          },
+          "expectedReleaseBaselineRevision": {
+            "type": "string"
           }
         },
         "required": [
@@ -26355,6 +26432,7 @@
         "documentId",
         "expectedDescriptorContractRevision",
         "expectedNotesRevision",
+        "expectedReleaseBaselineRevision",
         "expectedRepairEvidenceRevision",
         "expectedSourceRevision",
         "limit",
@@ -26379,7 +26457,8 @@
               "typed-contexts",
               "dropped-comments",
               "semantic-diff",
-              "notes"
+              "notes",
+              "release-baseline"
             ]
           },
           "documentId": {
@@ -26404,6 +26483,9 @@
             "type": "string"
           },
           "expectedNotesRevision": {
+            "type": "string"
+          },
+          "expectedReleaseBaselineRevision": {
             "type": "string"
           }
         },
@@ -27095,6 +27177,21 @@
         "--controller-name",
         "--format"
       ],
+      "aliases": []
+    },
+    {
+      "name": "baseline admit",
+      "usage": "screenplay baseline admit \u003Croot\u003E [--release \u003Clabel\u003E] [--from-esm \u003Cfile\u003E]",
+      "options": [
+        "--from-esm",
+        "--release"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "baseline check",
+      "usage": "screenplay baseline check \u003Croot\u003E",
+      "options": [],
       "aliases": []
     },
     {

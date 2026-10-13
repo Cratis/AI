@@ -3,6 +3,16 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": ".screenplay/release-baseline.json", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "screenplay baseline admit", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "screenplay baseline check", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "screenplay_list_release_baseline", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "read-proposal view=release-baseline", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "BaselinedRevisionImmutable", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "StaleReleaseBaseline", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "Never hand-edit the sidecar", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "**reviewed correction**", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "ShippedStoredNameMismatch", "file": "references/release-baseline.md" },
     { "kind": "skill-contains", "value": "the interim warning is retired" },
     { "kind": "skill-contains", "value": "`eventPinWarnings` array in proposals is empty", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "shared by all generations and unique (PLAY0472)" },
@@ -131,7 +141,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Only `apply` and `recover-workspace` write"
+      "value": "Only `apply` / `recover-workspace` write source/catalog"
     },
     {
       "kind": "skill-contains",

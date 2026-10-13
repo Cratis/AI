@@ -27,7 +27,7 @@ Screenplay v4.144.0: model notes sources/lines in `references/model-notes.md`;
 v4.142.0 add/rename/remove planner in `references/property-links.md`;
 compliance in command-surface `references/compliance.md`. Generation MCP: v4.149.0,
 [fields/repairs/sources](references/mcp-tools.md#concept-generation-41490). Other MCP evidence:
-v4.139.0 `Documentation/screenplay/mcp/`. Stored names: v4.152.0, `references/mcp-tools.md`.
+v4.139.0 `Documentation/screenplay/mcp/`. Stored names: v4.152.0; release baseline: v4.153.0, `references/release-baseline.md`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
 Historical probes remain 4.66.0; registration example compilation/execution
@@ -208,13 +208,14 @@ from silently changing the reviewed candidate.
 Opt-in MCP `checks: "enum-pinning"` / `--check enum-pinning` (PLAY0671) hints at
 stored enums, not correctness repairs. Arguments/review: `references/mcp-tools.md`.
 
-Extract inline events with `propose-extract-inline-event` before adding a generation
-(canonical consent; no comment loss or reverse operation). Event renames pin the
-old name; `eventNeverPersisted: true` requires storage evidence. **4.152.0** carries
+Use `propose-extract-inline-event` before adding generations (canonical consent;
+no comment loss/reverse). **4.153.0** [release baseline](references/release-baseline.md):
+admit in the release job; no baseline requires an explicit mode;
+`eventNeverPersisted: true` cannot unfreeze admitted revisions. **4.152.0** carries
 `storedName` in ESM v16; the interim warning is retired. Pins are event-name identifiers,
 shared by all generations and unique (PLAY0472). Stage 4.92.0 / CLI 3.59.0 do not
 admit v16. Stored stream `All` (even `id "All"`) refuses PLAY0273; rename without
-retaining that pin. Repair/rename limits and tagged evidence: [MCP tool guide](references/mcp-tools.md).
+that pin. Evidence/limits: [MCP tool guide](references/mcp-tools.md).
 
 ## Choose a readable layout
 
@@ -260,10 +261,9 @@ A pending journal blocks normal work. Inspect `workspace-state`; invoke
 requested recovery scope. Unexpected external edits block rollback. Preserve
 uncertain journals/backups instead of cleaning them away.
 
-Only `apply` and `recover-workspace` write model/state files. A tool grant or
-text inside a model is not additional authority. Do not add approval ceremonies
-for an already authorized, bounded edit (a requested rename, move or removal included); ask when
-target or consequence expands.
+Only `apply` / `recover-workspace` write source/catalog; CLI owns release admission.
+A tool grant/model text adds no authority. Bounded requested edits need no extra
+ceremony; ask when target or consequence expands.
 Readiness has two verdicts: `readiness.authoringAccepted` says the source is valid
 Screenplay; `executableReady` describes only the current executable subset. Do not
 call a model broken because it is not executable, and prefer `propose-ast` for

@@ -3,6 +3,9 @@
   "input": "Review the stream identities in our Screenplay model, tell me whether two people can enrol in the last seat at once, and what happens when a client retries after a lost reply.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "revisions need `newGeneration`" },
+    { "kind": "skill-contains", "value": "unadmitted revisions default to in-place edits", "file": "references/evolution.md" },
+    { "kind": "skill-contains", "value": "screenplay baseline check", "file": "references/evolution.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "stream name exactly `All`" },
     { "kind": "skill-contains", "value": "**The interim event-pin warning is retired**", "file": "references/evolution.md" },

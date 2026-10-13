@@ -258,9 +258,11 @@ tags and identities survive; canonical ESM must stay byte-identical and every
 comment must survive exactly once. Extract before adding `generation`, not after
 making the document parser-invalid. This is a refactoring, not a diagnostic repair.
 
-`propose-rename` conservatively pins an event's previous effective name. Set
-`eventNeverPersisted: true` only with knowledge of storage history; the identity
-catalog is not that evidence. It skips a new pin, removes a redundant current-name
+`propose-rename` consults release-baseline mutability in **4.153.0**: without a
+baseline it conservatively pins the previous effective name; an unadmitted event
+gets no new pin, while any admitted revision requires preserving its stored name.
+`eventNeverPersisted: true` is refused for admitted revisions; otherwise it needs
+storage-history knowledge, not merely an identity catalog. It skips a new pin, removes a redundant current-name
 pin, but retains a pin for a different earlier name. Contradictory generation pins
 refuse the rename. Do not promise a generation-2 payload-removal repair or a
 `PLAY0470` repair: neither is available.
@@ -276,9 +278,10 @@ preserves canonical bytes. **The interim event-pin warning is retired** and the 
 Consumers must explicitly admit v16 and preserve stored names or refuse the model.
 Stage 4.92.0 / CLI 3.59.0 still stop at v15, so do not promise rendered storage
 compatibility, delete intended pins or treat reference specs as storage tests.
-Decision 0070's release-baseline tooling is not released in 4.152.0: the explicit
-`newGeneration` / `eventNeverPersisted` decision remains, not baseline-derived
-mutability. Sources: Cratis/Screenplay `v4.152.0`,
+Decision 0070's release baseline ships in **4.153.0**: admit in the release job,
+inspect `screenplay_list_release_baseline` and `read-proposal view=release-baseline`,
+then choose edits from evidence. Workflow, flags, guards and recovery:
+[release baseline](release-baseline.md). Sources: Cratis/Screenplay `v4.152.0`,
 `Documentation/screenplay/events.md:116-124`,
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs:15-35`,
 `Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82`;

@@ -153,20 +153,24 @@ Unrelated same-named fields appear in `property.notChanged`.
 Read `property.needsDecision` for refusal reasons and located candidates;
 `property.chainCandidates` lists unselected chain members, not automatic edits.
 A refusal returns `success: false` and no writable partial candidate. Missing an
-event mode returns `EventContractChangeRequiresDecision`; do not bypass it by
-text editing or claiming the catalog proves non-persistence.
+event mode without a baseline returns `EventContractChangeRequiresDecision`; never
+bypass it by text editing or claiming the catalog proves non-persistence.
 
-For any selected event property (including optional additions), choose exactly one mode: `newGeneration: true`
-appends N+1 and preserves history; `eventNeverPersisted: true` edits current N in
-place and requires actual knowledge that it was never stored. Neither flag selects
-additional events. New generations require transformations before Chronicle deployment.
+At **4.153.0**, read [release-baseline evidence](release-baseline.md) before choosing:
+`noBaseline` requires exactly one of `newGeneration: true` or
+`eventNeverPersisted: true`, even for optional additions; `notInBaseline` defaults
+to `inPlace`; `baselined` accepts only explicit `newGeneration: true`, otherwise
+`BaselinedRevisionImmutable`. Never assert non-persistence to unfreeze an admitted
+revision. New generations append N+1; in-place edits keep current N. Neither flag
+selects extra events. Chronicle still needs transformations before deployment.
 
 Default validation is `Authoring` (optional `Executable`), formatting
 `PreserveTrivia`, reference policy always `Safe`. Structural changes require
 explicit `CanonicalizeTouchedDocuments` consent. Inspect retained `read-proposal`
 and `view: "semantic-diff"` before `apply`; only apply writes source and identities.
 Review `property.generations`, always an array ordered by canonical event address,
-with one entry per selected event: `event`, `from`, `to`, `mode`. In-place edits
+with one entry per selected event: `event`, `from`, `to`, `mode`, `mutability`
+(`basis`, `releaseBaselineRevision`, `admittedIn`). In-place edits
 have equal revisions. `[]` means no accepted planned event edits, not success;
 there is no singular `property.generation`. `deployableWithoutTransformation`
 and `esmVersionKnown` are independent of authoring acceptance.

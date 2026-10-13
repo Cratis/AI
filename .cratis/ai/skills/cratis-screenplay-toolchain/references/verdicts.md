@@ -3,6 +3,7 @@
 ## Contents
 
 - V1: authorable
+- Release-baseline gate (independent of V1–V5)
 - V2: executable diagnostics
 - V3: binding-ready
 - V4: reference specifications run
@@ -48,12 +49,22 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 - Syntax and consistency checks (PLAY0282 to PLAY0294) run; binding does not.
 - Report: `V1 pass (screenplay 4.139.0, 3 files)`, `V1 fail: PLAY0029 a.play:12 ...`.
 
+## Release-baseline gate (independent of V1–V5)
+
+On standalone **4.153.0**, run `screenplay baseline check <model-root>` before
+accepting edits to released event contracts: 0 matching, 1 changed/missing revision,
+2 cannot check/unreadable. An absent baseline is not proof of release admission.
+In the release job, `screenplay baseline admit <model-root> --release <label>`
+records revisions; commit the sidecar. Neither command changes canonical ESM or
+substitutes for migration/target tests. Preconditions, MCP review and tagged
+sources: model-authoring [release baseline](../../cratis-screenplay-model-authoring/references/release-baseline.md).
+
 ## V2: executable diagnostics
 
 Needs an MCP connection (V2 and V3 belong to the session that owns MCP; a subagent without
 MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh output). Without
 MCP, a binding check exists: `cratis screenplay validate --executable <root>` binds with the
-**bundled** compiler (CLI 3.57.0 bundles Screenplay 4.147.1, not standalone 4.152.0), never
+**bundled** compiler (CLI 3.57.0 bundles Screenplay 4.147.1, not standalone 4.153.0), never
 renders or writes files, and exits 5 with "The model does not bind into an executable semantic
 model" when it does not. Report it as `V3 (bundled 4.137.0 via cratis validate --executable)`; it
 gives binding errors, not the V2 `executable-diagnostics` view, so V2 stays MCP-only.
