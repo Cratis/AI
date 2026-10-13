@@ -47,7 +47,7 @@
     { "kind": "skill-contains", "value": "**Published v15 in 4.147.0:**", "file": "references/versions.md" },
     { "kind": "skill-contains", "value": "protected identities/enums (`-040`)", "file": "references/renderable-subset.md" },
     { "kind": "skill-contains", "value": "PLAY0514" },
-    { "kind": "skill-contains", "value": "**4.148.0**", "file": "references/versions.md" },
+    { "kind": "skill-contains", "value": "**4.149.0**", "file": "references/versions.md" },
     { "kind": "skill-contains", "value": "RejectsAUsedGeneratedSource", "file": "references/generation-strategies-example.md" },
     { "kind": "skill-contains", "value": "bind as ESM v8" },
     { "kind": "skill-contains", "value": "PLAY0530/0531", "file": "references/diagnostics.md" },

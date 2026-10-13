@@ -112,6 +112,11 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    `Owner.generationN.member`. Follow direct mapping counterparts one query at a
    time; inspect incomplete/ambiguous evidence and `reasons`. `complete: false`
    is not an empty successful result. Shapes/roles: [property links](property-links.md).
+   On Screenplay 4.149.0, inspect concept `generate` with `declaration-details`
+   `kind: "Concept"`, `view: "summary"`: `generation.executable.status` distinguishes
+   `admitted`, `refused`, `notAssessed`; empty local error codes do not prove binding.
+   The CLI 3.57.0 / MCP 4.147.1 bundle lacks this summary and entropy repairs.
+   Fields and tagged evidence: [concept generation](mcp-tools.md#concept-generation-41490).
 3. `open-workspace` and keep `revision` and `catalogRevision`. Opening writes
    nothing. With `identityPersistence: "root-local-on-apply"` the identities file
    is written only by `apply`.
@@ -196,11 +201,23 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 | --- | --- | --- |
 | Address-preserving | descriptions; bodies of rules and expressions; mappings between members that already exist; any edit that adds, removes or renames no addressed element. Also every edit in a model with no `.screenplay/identities.json` except persisted names | bounded text edit of the `.play` file, then compile the folder; or `propose-ast` |
 | Catalog-changing (identity file present) | add, remove or rename a declaration (slice, command, event, read model, projection, ...), a property of a command, event, read model, composite type or trigger, a query, a query argument or a specification; create, delete, rename or move a mapped `.play` document (McpState refuses reopening with `IdentityMappingConflict`; use document operations in `propose-ast`); rename, remove or move an event, command, read model, constraint, module, feature or slice; move declarations between files (slices and features across logical parents: `propose-move`); contract evolution of a persisted event (new generation, property added, removed or retyped) | `propose-rename` or a reviewed `propose-ast`; never a blind text rename. Renaming a constraint resets its uniqueness index: ask first unless the request names it, then report the reset. A persisted event rename needs `id "OldName"` (added by default) |
-| Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479`, `0516`, `0563`, `0564`, `0565`, `0614`, `0653` (and recipe-only `0397`) | `propose-repair` with `formatting`; PLAY0166/0478 may pin attachment evidence (`pinRepairEvidence` and `expectedRepairEvidenceRevision`), never fix-all PLAY0478 |
+| Concept `generate` | set/change/remove strategy and modifiers | `propose-ast` replaces `ConceptSyntax.generation` (`GenerationSyntax`; omit/null to remove), or reviewed `propose-source`; never hand-edit `generate` text. Preserve other concept members and inspect executable diagnostics: sequence PLAY0682, preview strategies/generated-concept rules PLAY0268. |
+| Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479`, `0516`, `0563`, `0564`, `0565`, `0614`, `0653`, `0683`, `0684` (and recipe-only `0397`) | `propose-repair` with `formatting`; PLAY0166/0478 may pin attachment evidence (`pinRepairEvidence` and `expectedRepairEvidenceRevision`), never fix-all PLAY0478 |
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
 | Parser-invalid document | no editable handles | `propose-source` `replace-document` with corrected source, or typed `propose-ast` document replacement |
 | Unadmitted constructs | systems/operations, the `numbers exact` source mode, refusal/redelivery | reviewed Authoring `propose-source` (whole documents) or `propose-ast` (typed edits); preserve intent and report PLAY0268 |
 | Admitted source/stream routing | ESM v8 at 4.125.0 | typed `propose-ast`; `propose-rename` repairs proven route references; target admission separate |
+
+PLAY0683/PLAY0684 repairs raise NanoID size or bytes count to at least 64 random
+bits using the concept subject (possibly across documents). PLAY0683 can instead
+add uniqueness when exactly one production maps the command property to exactly
+one event property: use the command-property subject. Discover `repair-capabilities`
+and `read-workspace view: "repairs"`, then `propose-repair` with both revisions and
+`CanonicalizeTouchedDocuments`; review every changed document before apply.
+Neither action supports fix-all or pinned evidence. A concept change affects all
+uses; uniqueness changes append-time behavior. Derived regex, matches/checksum
+repairs and rule-proof status await phase 2b-2; details and source citations are in
+[concept generation](mcp-tools.md#concept-generation-41490).
 
 ## Self-describing identity migration refusals
 

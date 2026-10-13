@@ -110,7 +110,7 @@ model still compiles and binds) and its V5 states the scope.
    `--project-name`, `--root-namespace` and target `cratis`. Take V1 and V3 from
    `cratis-screenplay-toolchain`; report each with tool and version. V3 from a different
    compiler version does not prove the cratis-bundled binder admits the model (the bundle is
-   4.147.1, the standalone tool 4.148.0). `cratis screenplay validate --executable <root>` binds with
+   4.147.1, the standalone tool 4.149.0). `cratis screenplay validate --executable <root>` binds with
    the bundled compiler and writes nothing: use it as the bundled-binder check (toolchain `references/verdicts.md`).
 2. **Probe.** `cratis render <model-root> --name <App> --destination <probe-dir> -o json`
    (exit 0 published, 5 refused with nothing published, 1 missing input); add `--check` to plan

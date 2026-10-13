@@ -4,6 +4,9 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "screenplay_declaration_details", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "do not hand-edit the text", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "CLI **3.57.0** / MCP **4.147.1** lacks this summary", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "optional concept `compliance` as ESM v13", "file": "references/compliance.md" },
     { "kind": "skill-contains", "value": "PLAY0268 at binding only", "file": "references/compliance.md" },
     { "kind": "skill-contains", "value": "reasons stay report-only PLAY0270", "file": "references/compliance.md" },

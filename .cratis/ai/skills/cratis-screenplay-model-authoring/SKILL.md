@@ -25,7 +25,8 @@ same model root or workspace export to all checks. Workflow:
 
 Screenplay v4.144.0: model notes sources/lines in `references/model-notes.md`;
 v4.142.0 add/rename/remove planner in `references/property-links.md`;
-compliance in command-surface `references/compliance.md`. Other MCP evidence:
+compliance in command-surface `references/compliance.md`. Generation MCP: v4.149.0,
+[fields/repairs/sources](references/mcp-tools.md#concept-generation-41490). Other MCP evidence:
 v4.139.0 `Documentation/screenplay/mcp/`.
 Discover installed tools and schemas; CLI bundles can differ from the standalone
 tool. Pins are in `cratis-screenplay-toolchain` `references/versions.md`.
@@ -73,10 +74,10 @@ The CLI entry point is:
 cratis screenplay mcp <model-folder>
 ```
 
-It runs the bundled server. Do not ask the user to install a second global .NET
-tool, start Docker, or hand-copy managed MCP configuration as the normal setup.
-Inspect installation/status output: unsupported client adapters or conflicts are
-not evidence that the server was configured successfully.
+CLI 3.57.0 bundles MCP 4.147.1, lacking the generation summary/entropy repairs.
+Discover installed capabilities. Do not ask for a second global .NET tool, Docker
+or hand-copied managed MCP configuration. Installation/status must confirm adapter
+support and no conflicts.
 
 If the MCP is unavailable, report that gap. Do not claim compiler-validated AST
 editing while falling back to regex. Existing standalone `screenplay mcp` users
@@ -91,6 +92,8 @@ can keep that entry point; use the project's supported installation channel.
    Before a property change, read [property links](references/property-links.md):
    `kind: "Property"`, `Owner.member` / `Owner.generationN.member`, direct mappings.
    `complete: false` is incomplete evidence, never a successful empty list.
+   For `generate`, inspect Concept `summary`: entropy and admission are separate.
+   Edit through MCP proposals, not hand-edited text; [generation guide](references/mcp-tools.md#concept-generation-41490).
 3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
    edges, declared-dependency coverage, cycles and advisory order; the board's
    dependency-map toggle exposes this evidence visually. Unknown or ambiguous
@@ -127,8 +130,8 @@ query argument or specification goes through MCP, and an `id` pin is not enough 
 a rename, move or removal is the approval: do not ask again at `apply`. Without MCP, text-rename
 with `id "<Old>"` pins and an identity note; only with `identities.json` and no MCP, return the
 request to the owning session, saying first it is NOT done.
-Proposals are connection-local (at most 16), so only the connection owner proposes
-and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
+Proposals are connection-local (16 cap); only the owner proposes/applies.
+Others send an edit request ([MCP loop](references/mcp-loop.md)).
 
 - Apply is not crash-atomic across files: it journals its inverse first. The model
   root must be trusted and exclusively writable during effects.
@@ -156,25 +159,22 @@ and applies; others send an edit request ([MCP loop](references/mcp-loop.md)).
    model. Paging and read-only candidate semantics: [MCP tool guide](references/mcp-tools.md#run-reference-specifications).
 8. `apply` only the reviewed server-produced proposal within the user's requested
    change. The proposal ID and before revisions are required; stale state rejects.
-   When the user asked for the change to be applied ("apply it when you're done",
-   "apply each change"), apply once the proposal checks out instead of asking again;
+   When the user already requested apply, do it after checks without asking again;
    otherwise show the proposal and ask once.
 9. When the host draws views, `visualize-model` shows the board. It follows the files
    on disk while open, so after an apply do not re-request it; just say what changed.
 
-Node handles are revision-bound occurrences, not durable IDs. A logical module
-or feature can have multiple physical fragments. Do not edit one header and
-assume every fragment changed. After apply, fetch fresh handles/revisions.
+Handles are revision-bound occurrences, not durable IDs. Modules/features can
+span fragments; one header edit may not change all. After apply, fetch fresh handles/revisions.
 
-Read [failures and limits](references/mcp-loop.md#failures-use-failurekind-never-message-text)
-when a call refuses or paging hits a limit; use `failureKind`, never message text.
+On refusal, use `failureKind`, never message text ([failures/limits](references/mcp-loop.md#failures-use-failurekind-never-message-text)).
 After revision/disk/identity drift, reopen and re-propose. For `ApplyOutcomeUnknown`
 or EOF during `apply`, **never retry apply**: reconnect, inspect `workspace-state`
 and ask. Never delete `.screenplay/pending.json`. Limits reject, never truncate.
 
-Choose formatting explicitly and disclose dropped comments before applying;
-read [formatting and limits](references/mcp-loop.md#formatting-and-limits) for
-`PreserveTrivia`, canonical consent, comment review and byte preservation.
+Choose formatting and disclose dropped comments before apply:
+[formatting/limits](references/mcp-loop.md#formatting-and-limits) covers
+`PreserveTrivia`, canonical consent and byte preservation.
 
 `identityMigrationIssues`: read the [MCP loop](references/mcp-loop.md).
 
@@ -199,6 +199,9 @@ from silently changing the reviewed candidate.
   No automatic generation-evolution repair ships.
 - `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
   migrates all occurrences together. Keep the `query Q => observable?` exception.
+- PLAY0683/PLAY0684: raise entropy (concept subject) or PLAY0683 uniqueness
+  (command-property subject). Individual review, canonical formatting, no pinned
+  evidence; [limits](references/mcp-tools.md#concept-generation-41490).
 - Compliance repairs PLAY0565/0653: [MCP tool guide](references/mcp-tools.md).
 
 `propose-number-enum-members` pins an unnumbered enum to current positions.
@@ -240,11 +243,10 @@ the edited fragment.
 
 ## Preserve state and recover explicitly
 
-Keep `.screenplay/identities.json` alongside the model in source control. Only
-`apply` writes it (with the `.play` changes); `open-workspace` never creates it, and
-a model only ever text-edited has none. A restart must not silently mint new IDs:
-do not delete or overwrite conflicting identity state to get a green result, and do
-not text-rename identity-affecting declarations in a model that has it.
+Commit `.screenplay/identities.json` with the model. Only `apply` writes it;
+`open-workspace` never creates it; text-only models have none. Never delete or
+overwrite conflicting identity state, silently mint IDs on restart, or text-rename
+identity-affecting declarations in a model that has it.
 
 Default root discovery preserves ancestor identity state and journals. Inspect
 `rootBindingConflict` in `open-workspace`/`workspace-state` when several state roots
