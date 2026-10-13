@@ -88,9 +88,9 @@ failure/budget expiry, and unknown commit facts.
 With Chronicle, `tuple(event, operation)` stages the event, executes the operation,
 then completes the append scope before deciding compensation. Known append
 rejection compensates; unknown/partial acknowledgment does not claim rollback.
-The tagged `Documentation/commands/operations/index.md` still says events and
+`Documentation/commands/operations/index.md` can say events and
 operations cannot combine; `ChronicleCommandScope.ts` and the live integration
-specs establish the supported combination at this tag.
+specs establish the supported combination.
 
 There is no distributed transaction, automatic retry, durable recovery journal
 or crash recovery. Compensation success is not proof an external effect was

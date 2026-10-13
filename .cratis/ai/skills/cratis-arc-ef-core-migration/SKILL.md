@@ -19,10 +19,7 @@ Everything else is ordinary EF Core.
 | `Cratis.Arc.Core` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute`, `ICanResolveReadModelForCommand` |
 | `Microsoft.EntityFrameworkCore` | EF Core itself, including all migration tooling |
 
-> Arc EF context, builder and observation surface rechecked.
-> Verify provider-specific migration behavior against the configured provider.
-
-Reverify before claiming support for another version.
+Verify provider-specific migration behavior against the configured provider and the installed Arc version.
 
 ⚠️ **Arc ships no migration tooling of its own.** There is no design-time
 DbContext factory, no migration runner, no table-name constant convention, and

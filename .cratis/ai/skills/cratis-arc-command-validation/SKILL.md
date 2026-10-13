@@ -28,7 +28,7 @@ rejection on it.)
 | `Cratis.Chronicle` | Read-model resolution for command-side injection |
 | `FluentValidation` | `RuleFor(...)`, `.WithMessage(...)` |
 
-Fundamentals rechecked in
+Fundamentals'
 [`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/main/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
 success is first, error second, with implicit conversions from both types.
 
