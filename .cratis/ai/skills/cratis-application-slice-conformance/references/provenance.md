@@ -22,11 +22,19 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 
 No TrogonStack/agentskills text is used in this skill.
 
+### Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `record-evidence` (classic stack) | `build-prompts.md` result pointer; Slice Implementer output, using the fallback record in `cratis-screenplay-render-and-gap-fill` | adapted closely: one row per element, field and specification, files created and modified, shared seams, assumptions and checks, with no code excerpts; the board note dropped |
+
 ## Method lineage
 
 | Idea | Used in | Credit |
 | --- | --- | --- |
 | Visible non-behavioral assumptions while decisions still block | `build-prompts.md` escalation; Slice Implementer contract gate | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`classic backend-prompt`, `classic CLAUDE.md`), used with their explicit consent; idea, our own wording |
 | Look for an existing realization before selecting one delivered sibling | `build-prompts.md` mandatory flow; Slice Implementer realization search | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`classic build-state-change`, `classic build-state-view`), used with their explicit consent; idea, our own wording |
-| Compact realization map with named shared seams | `build-prompts.md` result pointer; Slice Implementer output, using the fallback record schema | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`record-evidence`), used with their explicit consent; idea, our own wording |
 | Completed work leaves the pending-work view | `checklists.md` Automation and Translation | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`prototype`), used with their explicit consent; idea, our own wording |

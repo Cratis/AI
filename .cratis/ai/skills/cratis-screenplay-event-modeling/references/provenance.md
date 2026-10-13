@@ -7,12 +7,6 @@
   as noted in `SKILL.md`; Cratis divergences are stated there.
 - Screenplay vocabulary and the model-first rule come from the Cratis Screenplay documentation.
 
-| Idea | Used in | Credit |
-|---|---|---|
-| Every value starts at one specific place and is carried by name | `SKILL.md` *The prime directive* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-information-completeness`), used with their explicit consent; idea, our own wording |
-| Reads discipline for a rule's decision values, in the Chronicle-only path | `cratis-chronicle-event-modeling` `SKILL.md` *Decide before implementing* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-identifying-inputs`), used with their explicit consent; idea, our own wording |
-
-
 ## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,
@@ -22,6 +16,16 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 |---|---|---|
 | `.claude/skills/eventmodeling-orchestrating-event-modeling/SKILL.md`: "Do not cut corners to save tokens or effort" | `SKILL.md` paragraph "Do not cut corners to save tokens or effort" (short form; full text in the lifecycle skill) | Adapted closely; restored from #493; translated to Screenplay |
 | `.claude/skills/eventmodeling-interview-protocol/SKILL.md`: when to ask, unless told not to ask | `SKILL.md` paragraph "Ask only what the step needs" (short form; full text in the lifecycle skill) | Adapted closely; restored from #493; recording moved to STATE.md |
+
+### Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `eventmodeling-information-completeness` | `SKILL.md` *The prime directive* | adapted closely: every value starts at one specific place and is carried by name; an unknown origin is a gap, never a default |
+| `eventmodeling-identifying-inputs` | `cratis-chronicle-event-modeling` `SKILL.md` *Decide before implementing* | adapted closely: a rule's decision values classified as input, state or context; context supplied by the pipeline or a time source, never read inside the decision |
 
 ## Method lineage in SKILL.md
 

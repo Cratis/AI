@@ -19,7 +19,8 @@ section "Analysis history"), then:
 
 1. `git -C <repo> merge-base --is-ancestor <commit> HEAD` : is the recorded commit still an ancestor?
 2. `git -C <repo> log --reverse --oneline <commit>..HEAD -- <feature folders>` : what touched the
-   feature since, oldest first. The folders come from the feature's "Where it lives" table.
+   feature since, oldest first. The folders come from the feature's "Where each feature lives"
+   table (evidence template, section 6).
 3. `git -C <repo> status --porcelain -- <feature folders>` : uncommitted changes count too.
 
 Then decide per feature:
@@ -28,11 +29,11 @@ Then decide per feature:
 |---|---|
 | Nothing touched the feature folders | Leave the feature alone. Say "unchanged since the recorded identity". |
 | Files changed | Reread only those files. Refresh the `path:start-end` locators that point into them. Mark every evidence row whose locator moved or vanished `stale` until reread, then update or retire it. Re-apply the decisions that depended on those rows and ask about what the diff cannot explain. |
-| Files changed outside every feature's folders | Candidates for a new feature or a missing "Where it lives" entry. Ask before adding. |
+| Files changed outside every feature's folders | Candidates for a new feature or a missing "Where each feature lives" entry. Ask before adding. |
 | Commit no longer reachable (rewritten history), no git at all, or the recorded identity was dirty | Reread that feature in full (for a dirty identity, at least the files the diff names plus the files that were dirty then). Say so in the history row. |
 
-Every run appends a row to each feature's analysis history, including a run that found no change.
-Rows are append-only.
+Every run appends a row to each feature's analysis history, also when nothing changed (format and
+rules: evidence template, section 7).
 
 ### Freeze verification
 
@@ -66,9 +67,8 @@ doubt, merge. A pass that finds sub-journeys offers them as new features instead
 current one.
 
 Pass 0 order: ask which feature to deepen next. Unattended, choose by risk and available evidence,
-and say that you chose. Features still at Pass 0 are `not yet extracted` in the loss report; they are
-never counted as done. A partial candidate may go to review when its loss report lists them (the
-Gate in `../SKILL.md` then applies to the extracted scope).
+and say that you chose. Features still at Pass 0 go to the loss report's "Not yet extracted"
+section (`loss-report-template.md`); a partial candidate may go to review with them listed.
 
 End every pass with: what changed, the sub-journeys found, the open questions, and the choice
 "which feature next, deeper here, or stop".

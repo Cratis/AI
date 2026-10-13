@@ -81,4 +81,4 @@ mirrors (`All{Table}s`). Prologue never sees reads.
 ## Realization convention
 Once a few features are evidenced, record how this system realizes each kind of behavior
 (`evidence-table-template.md` section 10) and check later passes against it; deviations are
-questions. A locator that cannot be found is `not found`, never "to build".
+questions.

@@ -2,7 +2,7 @@
 
 ## Moved and rewritten (Cratis)
 - The render workflow of the earlier model skill set: capability probe, renderability
-  classification, delivery protocol, drift and fallback ledger. Rewritten for Stage 4.24 and cli
+  classification, delivery protocol, drift and fallback record. Rewritten for Stage 4.24 and cli
   3.27.1, then re-verified on cli 3.28.2 (Stage 4.24.1) and 3.28.3 (Stage 4.24.2) by running `cratis render`; the
   helper scripts are not shipped (their steps are the manual commands in `references/delivery-protocol.md`).
 - The fallback-conformance checklist moved into `cratis-application-slice-conformance`
@@ -23,9 +23,12 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 
 No TrogonStack/agentskills text is used in this skill.
 
-## Method lineage
+### Eventmodelers Build-Kits
 
-| Idea | Used in | Credit |
-| --- | --- | --- |
-| Inspect code changes individually from the verification baseline | `drift-and-ledger.md`, hand-written change procedure; `SKILL.md` step 8 | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`detect-model-drift`), used with their explicit consent; idea, our own wording |
-| Map slice declarations to their realization, shared seams and delivery identity | `drift-and-ledger.md`, fallback record; `gap-fill-handoff.md`, result pointer | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`record-evidence`), used with their explicit consent; idea, our own wording |
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `detect-model-drift` | `references/drift-and-fallback-record.md` *Hand-written code changed since it was last verified*; `SKILL.md` step 8 | adapted closely: baseline from the recorded identity, commits walked oldest first rather than a net diff, behavior separated from noise per file, one finding at the declaration where it begins, planned model work and restorations not reported; model-first default kept, so the fix restores code or raises a model edit request |
+| `record-evidence` (classic stack) | `references/drift-and-fallback-record.md` *Fallback record*; `references/gap-fill-handoff.md` result pointer | adapted closely: element, field and specification mapping, files, shared seams, assumptions and checks per slice, with no code excerpts |

@@ -79,7 +79,7 @@ Proxies now exist. Build React components from the generated proxies (`react.md`
 
 ## Working discipline
 
-- One slice per run by default; stop when it is done or blocked. Under a ledger brief (one assigned ledger scope, which may hold several slices), implement one slice at a time within that scope and never select another scope. Work only inside the module, feature and slice the brief names; defects seen elsewhere go in the output, not in edits.
+- One slice per run by default; stop when it is done or blocked. Under a scoped brief (one assigned scope, which may hold several slices), implement one slice at a time within that scope and never select another scope. Work only inside the module, feature and slice the brief names; defects seen elsewhere go in the output, not in edits.
 - Explicit realization requirements in a `.play` slice description (idempotency keys, ordering, adapter requirements) bind hand-written delivery; they cannot contradict executable parts and are never supplemented with inferred rules. Descriptive prose that is not an explicit requirement is a hint. Name each requirement you used in the output.
 - Follow the repository's actual conventions where they differ from generic template guidance, and report the drift as a learning candidate; binding rules and contract requirements are never overridden by conventions.
 - Before reporting `done`, check you did not stub a rule, drop a contracted field or weaken protection to finish sooner; do the larger correct version or report `partial`.
@@ -101,7 +101,7 @@ Proxies now exist. Build React components from the generated proxies (`react.md`
 
 - `Status: done | partial | blocked` (meanings in **cratis-application-slice-conformance**: `done` = everything maps, nothing invented, gates green; `partial` = listed gaps remain; `blocked` = one specific question is open).
 - The contract used (`.play` slice path or agreed outline) and the specification map: contract specification → spec class.
-- Include the realization fields defined in **cratis-screenplay-render-and-gap-fill**, `references/drift-and-ledger.md` "Fallback record", rather than inventing another packet schema.
+- Include the realization fields defined in **cratis-screenplay-render-and-gap-fill**, `references/drift-and-fallback-record.md` "Fallback record", rather than inventing another packet schema.
 - Files created/modified (paths), each gate result, anything you couldn't verify (e.g. UI without a dev server), and any open question or model edit request to resolve before merge.
 - Reusable learnings (0–3 bullets): conventions, gotchas or cross-file couplings that apply beyond this slice; not slice details or debugging notes. The parent decides whether one belongs in `AGENTS.md`; do not edit it yourself.
 

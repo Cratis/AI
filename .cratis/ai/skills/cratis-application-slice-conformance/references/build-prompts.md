@@ -104,9 +104,9 @@ ends the iteration; the brief, never the agent, changes scope.
    and two workers can both write it. Rely on atomic claiming only where a tracker provides a
    verified compare-and-set operation; there, a rejected claim means another worker owns the
    slice: do not retry it, take the next one assigned to you, or report that nothing remains.
-4. Work on one slice only; never chain two in one iteration. Under a ledger brief (one assigned
-   ledger scope, which may hold several slices), take one slice at a time within that scope and
-   never select another scope; one slice per run stays the default outside a ledger brief.
+4. Work on one slice only; never chain two in one iteration. Under a scoped brief (one assigned
+   scope, which may hold several slices), take one slice at a time within that scope and
+   never select another scope; one slice per run stays the default outside a scoped brief.
 5. Read the slice's contract. Explicit realization requirements in the description bind the
    implementation, cannot contradict executable parts and are never supplemented with inferred
    rules; descriptive prose that is not an explicit requirement is a hint. Name each requirement
@@ -137,7 +137,7 @@ slice, invalid spec-name conversion or an unspecified layout may follow local co
 Return each assumption with its address and consequence if wrong in the fallback record.
 `blocked` means progress needs a person, not that confirmation seemed safer.
 
-Stop conditions: after one slice, stop regardless of what else is assigned (under a ledger brief,
+Stop conditions: after one slice, stop regardless of what else is assigned (under a scoped brief,
 after one slice, or when the assigned scope is done or blocked, and never continue into another
 scope); if nothing in the
 scope is assigned, report that and stop; if every slice in the scope is `done`, report that.
@@ -147,7 +147,7 @@ scope is assigned, report that and stop; if every slice in the scope is `done`, 
 Use the lifecycle's report and state format (`cratis-screenplay-modeling-lifecycle`
 `references/handoff-template.md`, with its `STATE.md` under `.ai-work/`) when it is installed,
 otherwise this shape. In either format, include the realization fields defined once in
-`cratis-screenplay-render-and-gap-fill/references/drift-and-ledger.md`, "Fallback record";
+`cratis-screenplay-render-and-gap-fill/references/drift-and-fallback-record.md`, "Fallback record";
 do not create a second field schema. One packet per slice, returned to the coordinator, not
 appended per step:
 

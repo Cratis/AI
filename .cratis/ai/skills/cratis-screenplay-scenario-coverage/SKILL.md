@@ -105,7 +105,7 @@ question is not four approvals.
 | Rule rejection | Which input is refused, with what message? | one spec per rule; `then error "<exact message>"` (prefer `$strings.<key>`); always pinned (a bare `then error` is valid language but not accepted here) |
 | Denial | Who must not do this? | `given caller` without the policy -> `then denied`; one per gated command and query, only where the whole Boolean gate is false; ownership claims need other-owner denial |
 | State violation | Which prior facts make this wrong? | givens + constraint (`unique event` exclusivity) -> `then error`; else `recorded` |
-| Duplicate / retry | What if this is done again to something already in that state? | `when <Command>`, same identifier, earlier fact as `given` -> constraint message, or the accepted repeat |
+| Duplicate / retry | Done again to something in that state, or sent twice (lost acknowledgement)? | `when <Command>`, same identifier, earlier fact as `given` -> constraint message, or the accepted repeat |
 | Competing claim | Two people claim the same thing at once? | `when <Command>`, other source's fact as `given` (different `for`) -> constraint "another event source..." |
 | Alternative path | Which branches exist, including "nothing happens"? | true and false witnesses per `produces when`; unconditional productions always fire |
 | Ordering | Facts late or out of order? | view family with reordered givens; translation specs; else `recorded` |

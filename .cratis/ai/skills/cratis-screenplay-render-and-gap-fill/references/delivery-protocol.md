@@ -49,7 +49,7 @@ file (for example `--logger "trx"` with a results directory under the probe fold
 - **Admission:** ok, or error codes classified with `renderability-gate.md`.
 - **Publication:** written, unchanged and removed counts, plus `recovered`. `refused` when a managed file
   was modified, an unmanaged file sits on a planned path, a modified stale file would be removed,
-  or the manifest identity changed (`drift-and-ledger.md`). Ok means `recovered: false` and
+  or the manifest identity changed (`drift-and-fallback-record.md`). Ok means `recovered: false` and
   `written + unchanged` equal to the artifact count (for a `--scope` render, the scope's artifacts: other
   scopes' files are preserved and never counted; compare against the receipt's `owners`/`sources` for the
   selected slices and the `orphaned` list). The receipt's `sources` (CLI 3.45.0 or later) map generated files back to
@@ -100,7 +100,7 @@ rejected model renderable, and never turns a refusal into a V5 pass.
 ## 5. Done check (before reporting)
 - Every modeled specification in the rendered scope has a generated class family that passed.
 - No hand-written behaviour duplicates or extends a rendered slice.
-- Seam adapters only serve named seams; authorized business gap-fill is in the ledger; no managed file was edited.
+- Seam adapters only serve named seams; authorized business gap-fill is in the fallback record; no managed file was edited.
 - UI omissions are listed: modeled screens, forms, layouts, themes and persona views that the
   default composition does not render.
 - V5 is reported as four lines, with the scope it covers stated. The runtime (`docker compose

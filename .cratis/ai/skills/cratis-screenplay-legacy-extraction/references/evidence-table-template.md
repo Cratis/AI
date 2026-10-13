@@ -93,7 +93,7 @@ Per slice: expert, date, verdict, open items. Capture cleanup confirmation (who 
 statements, verification query output summary) or "no capture run".
 
 ## 6. Where each feature lives
-One table per feature, written at Pass 0 and refreshed by re-entry (`re-entry-and-passes.md`).
+One table per feature, written at Pass 0; re-entry refreshes it (`re-entry-and-passes.md`).
 
 | Area | Folder or package | Key symbols |
 |---|---|---|

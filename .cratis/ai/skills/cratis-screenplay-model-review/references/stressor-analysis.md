@@ -5,7 +5,7 @@ behaves when the world changes: an outside partner disappears, a rule of law cha
 leaves. Run it on request, or for business-critical scope, after the critic review and before
 acceptance. It reads the model and proposes edit requests; it never edits. The method is
 residuality theory (Barry O'Reilly), applied to event models in the Eventmodelers work of
-Martin Dilger and Nebulit GmbH; the wording here is our own.
+Martin Dilger and Nebulit GmbH, which this reference adapts closely (`provenance.md`).
 
 ## Contents
 

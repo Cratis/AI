@@ -31,6 +31,15 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | `.claude/skills/examples/SKILL.md`: neighborhood-first reading, never overwrite existing examples, short domain-specific values, report fields changed and reused | `references/scenario-catalogue.md` "Example data" | Handoff report (fixtures changed, preserved, reused value origins, inconsistencies) adapted; rest idea, our own wording kept (board tooling, `add_field_examples` and name-based type guessing dropped because declared types decide values) |
 | `.claude/skills/eventmodeling-elaborating-scenarios/SKILL.md`: Step 3 skip unresolved steps, board-only restrictions, "every scenario produces events" | none | Considered and not adopted: removing a prerequisite changes the test; Screenplay has rejections and queries |
 
+### Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `eventmodeling-elaborating-scenarios` | `references/scenario-catalogue.md` sections 2 and 5, *Example data*; `references/scenario-examples.md`; `references/coverage-matrix.md` *Cell values*; `SKILL.md` | adapted closely: a rejection earns a scenario only if a domain expert could recognize the rule, the duplicate question put as a business question, essential values shown in the body with the rest left out, descriptions that carry no fact a step could state, and a closed list of technical cases left unspecified; concept-rule and once-only specifications are kept on purpose, and a repeat the business would notice is never technical |
+
 ## Cratis-original
 Coverage matrix and obligation derivation from declarations, cell vocabulary (`spec`, `n/a`,
 `recorded`, `open`, `question`, `gap`), scenario types per Screenplay semantics, denial fixtures
@@ -47,12 +56,3 @@ the berth reservations example.
   open when written: cited as not available.
 - Stage v4.24.0: `STAGE-ESM-015` and `STAGE-ESM-011` admission diagnostics for policies and
   fixtures (`Documentation/guides/build-renderer-target.md`).
-
-## Method lineage
-
-| Idea | Used in | Credit |
-|---|---|---|
-| A rejection earns a scenario only if a domain expert could recognize the rule; duplicates as a business question | `references/scenario-catalogue.md` §2, §5; `SKILL.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`), used with their explicit consent; idea, our own wording; concept-rule and once-only specs are kept on purpose |
-| Deciding values visible in the specification; descriptions carry no fact a step could state | `references/scenario-catalogue.md` *Example data*; `references/scenario-examples.md`; `cratis-screenplay-specifications` quality checklist | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`), used with their explicit consent; idea, our own wording |
-| A closed list of deliberately unspecified technical cases | `references/coverage-matrix.md` *Cell values* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`), used with their explicit consent; idea, our own wording |
-

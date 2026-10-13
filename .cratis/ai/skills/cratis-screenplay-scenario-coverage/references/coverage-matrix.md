@@ -23,9 +23,11 @@ Write it **before** drafting specs, keep it in `.ai-work/screenplay/<model-slug>
   Chronicle DCB, or a constraint). It is also in the phase report.
 - `n/a: technical` - deliberately unspecified because the language or runtime already
   guarantees it. The list is closed: binder-enforced shape (type, required property),
-  collision of `generated` identifiers, transport retry handled by the runtime. Anything else
-  needs a domain reason or another cell value. Review treats a spec in these categories as a
-  smell, not as coverage.
+  collision of `generated` identifiers, and an infrastructure fault the runtime absorbs with
+  nothing a person could notice. A repeat or re-delivery the business would notice (a second
+  fact, email, charge or count) is never technical: it is Duplicate/retry (catalogue section 5).
+  Anything else needs a domain reason or another cell value. Review treats a spec in these
+  categories as a smell, not as coverage.
 - `open: <required case>` - planned but not yet drafted. Never counts as coverage.
 - `question: <id>` - needs a domain answer; listed in open questions.
 - `gap: <code>` - expressible in design mode but blocked in the chosen mode (e.g. removal in

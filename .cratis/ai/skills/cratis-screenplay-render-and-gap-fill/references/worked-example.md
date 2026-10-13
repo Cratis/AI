@@ -5,7 +5,7 @@
 - The model
 - The probe
 - Classification
-- Decision and ledger entry
+- Decision and fallback record entry
 - The report
 
 A marina model with one renderable command and one snapshot list view. The model compiles and binds;
@@ -92,7 +92,7 @@ lookup, or marking the list `observable`. The first changes what the harbour mas
 second changes delivery from a snapshot to a live subscription. Both are **modeling decisions for
 the user**, never renderer workarounds. Here the user keeps the snapshot list.
 
-## Decision and ledger entry
+## Decision and fallback record entry
 
 Case A, then case B for `ReserveBerth` (rendered with `--scope`) and case C for the list: the user keeps
 the full model, the view is delivered by hand, and the model stays the contract.
