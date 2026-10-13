@@ -42,9 +42,11 @@ Screenplay meaning, and when you meet the older usage, translate it and say so.
 - Screenplay **`reaction`**: the construct that models it (`when` trigger, optional `where`,
   `invokes` a command or `produces` events).
 - Chronicle **reactor**: C# observer, usually for side effects; it does not by itself define
-  business decisions. A Screenplay reaction is authorable and bindable, but Stage 4.73.1 renders no Automation or
-  Translate slice: the reactor and command are gap-fill code. A reaction that both produces events and invokes commands is
-  refused by Stage (`STAGE-ESM-037`); Arc 22.72.0 and later run one reactor returning events and commands (the Arc the Stage scaffold pins needs a proven override), so keep the reaction whole.
+  business decisions. Stage 4.83.0 renders supported event-triggered Automation as Chronicle reactors.
+  Translate/captures and refused reactions remain gap-fill. Mixed events and commands
+  in one handler remain `STAGE-ESM-037`: Arc supports the return shape, but redelivery
+  after a failed command duplicates events. Keep the reaction whole and prove retry safety.
+  Source boundary: Stage skill `references/admission.md`.
 
 ## Scenario vs specification
 "Scenario" is the Event Modeling example and the scenario *types* `cratis-screenplay-scenario-coverage` uses for

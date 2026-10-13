@@ -108,7 +108,7 @@ contract. A consumer admitting v10 must include all three, not just identity.
 Composite **read-model** keys are separate and remain unadmitted (PLAY0268, #599).
 
 Previous CLI 3.46.1/Stage 4.52.0 refused versions above v7 before planning.
-The pinned CLI/Stage pair (`versions.md`) admits through v10 to construct checks: production overrides
+The pinned CLI/Stage pair (`versions.md`) admits through v13 to construct checks: production overrides
 still refuse STAGE-ESM-036 and reaction filters STAGE-ESM-035; reducer filters render.
 A supported version number alone never proves target support or a passing render.
 

@@ -34,10 +34,11 @@ decides, not the slice type:
   `executableReady` over `screenplay mcp`.
 - **History:** the CLI 3.28.2 bundle (Screenplay 4.66.0) bound v6; the earlier 4.60.1 bundles
   refused it and falsely reported PLAY0285 (`references/versions.md`).
-- **Stage 4.73.1** admits ESM v1-v10 by version but renders no `Automation`, `Translate`, reaction or
-  capture (`STAGE-ESM-024`; `-037` for a reaction that produces and invokes, which Arc 22.72.0+
-  runs as one reactor; scaffold Arc needs override). The automation is gap-fill; the `.play` slice and its specifications
-  are the contract: `cratis-screenplay-render-and-gap-fill`.
+- **CLI 3.56.0 / Stage 4.83.0** render supported event-triggered Automation, not
+  Translate/captures, non-event triggers or opaque bodies (`-024`). `runs as`, `from`,
+  mixed effects, unsupported mappings and protected identities remain refused;
+  cascade specs remain `-011`. Keep refused scope as gap-fill. Full boundary and source
+  citations: `cratis-stage-rendering-and-sandbox` `references/admission.md`.
 
 Model them whenever the `.play` file is the deliverable, and say which tool bound
 them (`cratis-screenplay-toolchain` `references/versions.md` for versions and messages).

@@ -44,7 +44,9 @@ Current pins and the tool split: `cratis-screenplay-toolchain/references/version
 were read at Stage `v4.73.1` (`Source/Rendering.Cratis/**`, `Documentation/guides/build-renderer-target.md`,
 `Documentation/reference/render-plans.md`, `Documentation/docker/**`) and cli `v3.53.1`
 (`Documentation/reference/screenplay.md`, `Source/Cli/Commands/Render/**`), not by a render run
-unless a line says *observed*. CLI 3.53.1 bundles a Screenplay and Stage listed in `cratis-screenplay-toolchain` `references/versions.md`, so its
+unless a line says *observed*. Current CLI 3.56.0 bundle/admission and scaffold pins were re-read at the tagged
+sources in `references/admission.md` and `references/rendered-application.md`.
+Pins: toolchain `references/versions.md`; its
 binder is behind the standalone compiler. Stage's scaffold pins Arc, Chronicle, Components, Scene and
 Fundamentals releases (listed in the rendered application reference). Scene's
 runtime surface was re-read at the Scene tag in that scaffold table
@@ -120,8 +122,8 @@ cratis render --workspace ./application.workspace.json --destination ./out
 ### Scoped renders
 
 `--scope` (CLI 3.49.0 or later) renders an admitted part while other slices wait for hand-written
-code or renderer support. The whole model must still compile and bind, so a `PLAY0268`, `pii`/`secret`,
-handler or ESM v11+ problem anywhere blocks even a scoped render. `PLAN-*` problems in unselected
+code or renderer support. The whole model must still compile and bind, so a `PLAY0268`, protected identity/enum,
+handler or ESM v14+ rendering problem anywhere blocks even a scoped render. `PLAN-*` problems in unselected
 slices become warnings and `STAGE-ESM-*` refusals in unselected slices do not block. A scoped plan
 has no application scaffold or default Scene (with no manifest in the destination the plain scaffold
 is added). A dependency in another slice must be rendered first or listed too (`CLI-RENDER-014`);
@@ -136,12 +138,10 @@ receipt.
 
 Facts that surprise:
 
-- **Binding uses the CLI's bundled Screenplay** (the version listed in `cratis-screenplay-toolchain` `references/versions.md`; the standalone tool is
-  newer). A model that binds is not necessarily renderable: Stage 4.73.1 admits ESM v1 to v10 by
-  version, then refuses each construct it does not render with its own code (below). v11 or newer is
-  `CLI-RENDER-004`; direct Stage reports `STAGE-ESM-016`. Standalone Stage 4.75.0 admits v11 and 4.76.0
-  v1 to v12, and Stage 4.74.0 renders UUID-concept generated values and responses (read at `v4.76.0`),
-  but no cli release bundles them yet (cli 3.53.1 bundles Stage 4.73.1): cli users still need gap-fill.
+- **Binding uses the CLI's bundled Screenplay** (the version listed in `cratis-screenplay-toolchain` `references/versions.md`; the versions differ). A model that binds is not necessarily renderable: CLI 3.56.0 / Stage
+  4.83.0 admit ESM v1 to v13, then check each construct. v14 collection filters bind but
+  rendering reports `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`). Generated UUID-concept
+  values, scalar/named responses, enum numbers and concept compliance now render.
 - **Render never builds, tests or runs** the output. A published render is admission and
   publication only; build and tests are separate results (see "Verify"). Admission can be
   green while a rendered Debug test fails (the example hit this with a query assertion).
@@ -152,29 +152,29 @@ Facts that surprise:
 - `cratis render` and `cratis screenplay validate` are different gates: a model can
   validate and still refuse here.
 
-## Current admission (Stage 4.73.1)
+## Current admission (Stage 4.83.0)
 
-Source reading, not a render run. One blocking diagnostic fails the whole selected scope and
-publishes nothing. Codes and fixes: [references/admission.md](references/admission.md); the
-exhaustive ledger is `cratis-screenplay-toolchain/references/renderable-subset.md`.
+Source reading, not a render run. One blocker refuses the selected scope, publishing
+nothing. Codes, limits and tagged source citations: [references/admission.md](references/admission.md);
+ledger: `cratis-screenplay-toolchain/references/renderable-subset.md`.
 
-- **Renders:** concepts, composite types, collections, optionals; `StateChange` slices (one command,
-  unconditional `produces`, portable validation); `StateView` slices with flat or scoped
-  projections and pure reducers (reducer `from` filters render); keyed optional snapshot queries and
-  **observable** list queries (keyed or unkeyed); authorization (role-only, authenticated, opaque
-  pure policies, claim conditions, `not`/and/or; roles read through the identity's `RoleClaimType`);
-  unique constraints; named event sources, streams and routes (ESM v8); case tables; whole numbers
-  as `long`; modeled specifications as Debug xunit classes; authored UI through Scene.
-- **Refused with a code:** `Automation` and `Translate` slices, reactions, captures, triggers and clock
-  specifications (`STAGE-ESM-024`); a reaction that both produces events and invokes commands
-  (`STAGE-ESM-037`); generated command values (`-028`) and responses (`-029`); `then no readmodel` (`-027`);
-  evolved events (`-026`); public events and event-target projections (`-032`); foreign origins and
-  event-source captures (`-033`); reaction `runsAs`, `from` filters and per-production route overrides
-  (`-034`, `-035`, `-036`); code validation (`-005`); a non-observable list query (`-010`);
-  `produces when`, composite-key projections, `all`. Reducer filters render. The CLI/Stage pair reaches
-  construct checks through v10; a bound v11 model is `CLI-RENDER-004`.
-- **Refused at binding (`PLAY0268`/`PLAY0271`):** `reads`, `concurrency`, command `handler`s,
-  `filter`, `scoped to`, `performer` and composite `by` queries, `pii`/`secret` compliance markers.
+- **Renders:** concepts/types/collections/optionals; portable StateChange and StateView slices,
+  flat/scoped projections, pure reducers and reducer `from` filters; keyed optional snapshots,
+  observable lists; portable authorization and unique constraints; v8 sources/streams/routes
+  and routed companion replay; case tables, `long` whole numbers and enum numbers; required
+  scalar UUID-concept generation, scalar/named responses, fixtures and `then returns`; concept
+  compliance; supported event-triggered Automation as `[OnceOnly]` Chronicle reactors;
+  Debug specifications and authored UI through Scene.
+- **Refused:** Translate/captures, non-event triggers, opaque bodies and clock specs (`STAGE-ESM-024`);
+  mixed effects (`STAGE-ESM-037`, redelivery duplicates events); unsupported reaction mappings (`-039`),
+  protected identities/enums (`-040`); unsupported generated types/results (`-028`/`-038`);
+  direct-append/cascade specs (`-011`), absence (`-027`), evolution (`-026`), public/foreign events
+  (`-032`/`-033`), reaction actor/filter and production overrides (`-034`–`-036`), code validation
+  (`-005`), snapshot lists (`-010`), conditional productions, composite projection keys and `all`.
+  Through v13 is construct admission; v14 filters remain `CLI-RENDER-004`.
+- **Binding refusals (`PLAY0268`/`PLAY0271`):** `reads`, `concurrency`, handlers,
+  context/single-result filters, opaque scope/performer, composite `by`, enum/identity
+  compliance and subject lineage. Never drop protection.
 
 A refusal is not a licence to weaken the model: drop no specification, event generation or
 protection to get a render; keep the model, record the capability gap and gap-fill. The 4.24-era

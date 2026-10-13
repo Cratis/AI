@@ -16,6 +16,6 @@
     { "kind": "skill-contains", "value": "bind and reference-execute as ESM v8" },
     { "kind": "skill-contains", "value": "STAGE-ESM-026" },
     { "kind": "skill-contains", "value": "generated values give no\n   idempotency, retry or deduplication guarantee" },
-    { "kind": "skill-contains", "value": "Stage construct checks through v10" }
+    { "kind": "skill-contains", "value": "Stage construct checks through v13" }
   ]
 }

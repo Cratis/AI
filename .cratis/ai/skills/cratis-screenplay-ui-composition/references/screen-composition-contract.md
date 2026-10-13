@@ -245,10 +245,11 @@ when a single screen owns the button. A parameter that reads a selection is a ty
 data-context path). A dialog destination must state every input with a typed `with`/`parameter`
 binding; a runtime default is not an authored contract.
 
-Scene 4.21 runtime capabilities (source-checked at the Scene tag in the
-scaffold pin table, not a browser run). Authoring acceptance, executable
+Scene 4.21 runtime capabilities (source-checked at Scene v4.21.0, not a browser
+run or a recheck at the newer scaffold pin). Authoring acceptance, executable
 admission and runtime support stay separate — a Scene release is not a Stage
-release. Stage 4.73.1 pins that Scene release; never upgrade managed files by hand:
+release. The current Stage scaffold pins a newer Scene release (Stage skill
+`references/rendered-application.md`); never upgrade managed files by hand:
 
 - **Hierarchy and routes.** `Screen.path` and `NavigationItem.hierarchy` carry
   module/feature paths, outermost first. Browser/hash history

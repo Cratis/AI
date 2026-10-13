@@ -38,8 +38,8 @@ number. Removing a member still needs replay and mixed-reader compatibility deci
 
 Numbered members may have sparse or negative unique int32 values, all or none per
 enum. Source authoring shipped in 4.137.0; non-positional numbers bind as ESM v12
-in 4.139.0. Positional pins retain older executable bytes/version. CLI 3.53.1 and
-Stage 4.73.1 bundle 4.137.0 and do not admit v12; keep the pins and report the gap.
+in 4.139.0. Positional pins retain older executable bytes/version. CLI 3.56.0 bundles Screenplay 4.145.1 /
+Stage 4.83.0, admitting v12 and rendering explicit member numbers; keep the pins.
 Short-lived input/view-only enums may remain positional. Use opt-in
 `--check enum-pinning` (PLAY0671) to find unnumbered enums used by event properties.
 Syntax/example and source evidence: command-surface [enum numbers](../../cratis-screenplay-command-surface/references/enum-numbers.md).

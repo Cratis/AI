@@ -30,7 +30,7 @@ per tool call and read each result from its exit status, never from a grep of th
 | --- | --- | --- |
 | Admission and publication | `cratis render <root> --name <App> --destination <dir> [--project-name <P>] [--root-namespace <N>] -o json` (forward every option recorded in section 1) | exit 0 published (receipt on stdout), 5 refused (diagnostics, nothing published), 1 missing input |
 | Drift or pending-change check | the same command plus `--check` (and `--scope`, `--force` as used) | no write, no recovery: exit 0 current, 6 `changes_pending`, 5 planning failure, refusal or pending recovery |
-| Bundled-binder check | `cratis screenplay validate --executable <root>` | exit 5 with "does not bind into an executable semantic model" when it does not; never renders or writes. Uses the bundled compiler (CLI 3.53.1 = Screenplay 4.137.0), not standalone 4.139.0 |
+| Bundled-binder check | `cratis screenplay validate --executable <root>` | exit 5 with "does not bind into an executable semantic model" when it does not; never renders or writes. Uses the bundled compiler (CLI 3.56.0 = Screenplay 4.145.1), not standalone 4.145.0 |
 | Debug build | `dotnet build <dir>/<Project>.csproj -c Debug` | the build's exit status |
 | Debug tests | `dotnet test <dir>/<Project>.csproj -c Debug --no-build` | the test runner's exit status plus per-test results |
 | List the generated classes | `dotnet test <dir>/<Project>.csproj -c Debug --no-build --list-tests` | the names to map to specifications |

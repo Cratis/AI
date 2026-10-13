@@ -71,8 +71,18 @@ wins and no secret scope is stored; reasons stay report-only PLAY0270.
 Unmarked models keep their exact executable bytes and revision. The reference
 evaluator runs marked models with unchanged outcomes but tests neither encryption
 nor erasure. Consumers must explicitly admit v13 and realize the protection;
-CLI 3.53.1 bundles Screenplay 4.137.0, which refuses markers; standalone Stage
-4.76.0 admits only through v12 (Stage#345 tracks v13 admission). Never remove protection to fit either tool.
+CLI 3.56.0 bundles Screenplay 4.145.1 / Stage 4.83.0 and admits v13. Stage
+renders `[PII]` or `[Encrypted]` + `[NotAudited]` on the concept, honoring secret
+namespace/global scope; personal classification wins. Every protected command input,
+including personal data and nested/collection uses, also gets property-level
+`[NotAudited]`. Qualifiers do not alter the generated attribute; reasons remain metadata.
+Protected identity uses and enum concepts refuse `STAGE-ESM-040` (the source binder
+already refuses the enum/identity shapes below). No explicit subject lineage renders.
+Never remove protection to fit a tool. Sources: CLI
+`v3.56.0:Directory.Packages.props:8-10`; Stage `v4.83.0`,
+`Documentation/reference/compliance-rendering.md:16-54`,
+`Source/Rendering.Cratis/Semantics/SemanticCratisAdmission.Compliance.cs:12-33`,
+`SemanticCommandCompliance.cs:14-28`.
 
 Enum and identity concepts still refuse PLAY0268 at binding only (identity means
 event-source/stream identity); source validation alone cannot report this binder diagnostic.

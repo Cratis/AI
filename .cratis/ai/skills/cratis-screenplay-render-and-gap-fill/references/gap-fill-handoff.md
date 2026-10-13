@@ -74,8 +74,9 @@ are available to gap-fill, with projection/key admission and active enrollment),
 a caller-supplied status is not enforcement.
 
 ## Automation and Translate scope
-Stage (4.73.1) renders no Automation or Translate slice and no reaction or capture, so the whole
-automation is gap-fill, written against the slice and its specifications. The realization follows the actual construct and
+Stage 4.83.0 renders supported event-triggered Automation as Chronicle reactors.
+Translate/captures and refused reactions are gap-fill against the slice and its specifications;
+see Stage's `references/admission.md` for precise limits. The realization follows the actual construct and
 trigger, not the slice label: a capture is an ingestion adapter, an event reaction (including a
 translator reaction) is a reactor, a clock or application trigger is a scheduler or host signal. Where they are
 registered depends on the case. Case B (a generated base exists, and the user authorized the
@@ -93,7 +94,7 @@ captures-and-reactions `references/invocation-identity.md`.
 
 A reaction that both produces events and invokes commands keeps its single modeled form
 (`STAGE-ESM-037` is Stage's refusal, not a model defect). Hand-write one reactor returning the events
-and the commands: on Arc 22.72.0 or later (the Arc the Stage scaffold pins accepts a collection in a command handler only when every element is a command, so a rendered app needs a proven dependency override) the runtime appends the events first as one batch, then
+and the commands: on Arc 22.72.0 or later (the Stage 4.83.0 scaffold includes the handler, but mixed reactions remain refused because redelivery can duplicate events) the runtime appends the events first as one batch, then
 runs the commands in order, with no transaction across the two effects; a failing command stops the
 later ones but keeps the committed events, and a retry can append the events again, so make the
 handler idempotent independently of `[OnceOnly]`, which excludes replay only, not recovery

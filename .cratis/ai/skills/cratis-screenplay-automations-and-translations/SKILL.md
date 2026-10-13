@@ -73,7 +73,9 @@ even when it blocks binding. Never record bearer tokens, magic links or signed U
 
 ## Verified product sources
 Current pins: toolchain `references/versions.md`. Language claims were re-read at Screenplay v4.139.0,
-renderer claims at Stage v4.73.1 (no Automation, Translate, reaction or capture: `STAGE-ESM-024`), the
+renderer claims at Stage v4.83.0 (`Documentation/reference/reaction-rendering.md:6-88`,
+`Source/Rendering.Cratis/Semantics/SemanticVersionFeatureAdmission.cs:25-45`): supported
+event-triggered Automation renders; Translate/captures and refused reactions stay gap-fill. The
 runtime facts at Arc v22.72.0 and Chronicle v19.50.1. Older reads kept as history:
 
 | Package | Version | Used for |

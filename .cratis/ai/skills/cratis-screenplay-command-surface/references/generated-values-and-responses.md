@@ -3,11 +3,15 @@
 A `generated` command property and `returns` response bind and reference-execute
 as ESM v7 (checked at 4.68.0). Current pins:
 `cratis-screenplay-toolchain/references/versions.md`. CLI#261 is closed: CLI now admits v7
-to Stage planning, and the 4.137.0 compiler in CLI 3.53.1 binds it. Stage 4.73.1 still refuses
-generated values and responses with STAGE-ESM-028/029 (Stage#175), as the historical CLI 3.41.0 corpus did.
-Standalone Stage 4.74.0 and later render server-generated UUID-concept values and scalar or named
-responses (read at `v4.76.0`), but no cli release bundles them yet, so `cratis render` through cli 3.53.1 still
-refuses. Screenplay 4.139.0 has only `generated` / `generated identifier`; no `generate` strategy form exists. Do not turn this into a blanket compiler
+to Stage planning. CLI 3.56.0 bundles Screenplay 4.145.1 and Stage 4.83.0, which renders
+required scalar UUID-concept generated values, scalar/named responses, generation fixtures and
+`then returns`. The historical CLI 3.41.0 STAGE-ESM-028/029 probe no longer describes this bundle.
+Unsupported generated types still refuse STAGE-ESM-028; routed results, generated-concept rules,
+legacy destination allocation, generated unique-constraint mappings and response/name collisions
+refuse STAGE-ESM-038. Binding alone never proves rendering.
+Sources: CLI `v3.56.0:Directory.Packages.props:8-10`; Stage `v4.83.0`,
+`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:287-305,380-399,454-493`,
+`SemanticCratisAdmission.CommandResults.cs:12-55`, `SemanticSurfaceLedger.cs:112-116`. Screenplay 4.139.0 has only `generated` / `generated identifier`; no `generate` strategy form exists. Do not turn this into a blanket compiler
 refusal or promise a render from binding alone. Preserve the contract for gap-fill
 where admission refuses. Historical rules below were read at 4.68.0. Complete compiled example:
 `cratis-screenplay-toolchain` `references/generated-responses-example.md`.
@@ -47,7 +51,7 @@ Rules (all read at `v4.68.0`):
 
 Operations remain authorable/unadmitted (PLAY0268). Named event sources,
 streams and command/specification routes instead bind and reference-execute as
-ESM v8 at 4.125.0; the pinned CLI (toolchain `references/versions.md`) reaches Stage admission through v10,
+ESM v8 at 4.125.0; the pinned CLI (toolchain `references/versions.md`) reaches Stage admission through v13,
 not blanket target support. Syntax/MCP acceptance alone is not execution. Source/stream
 forms and realization boundary: `cratis-screenplay-toolchain`
 `references/sources-and-streams.md`. Do not infer further syntax or provider

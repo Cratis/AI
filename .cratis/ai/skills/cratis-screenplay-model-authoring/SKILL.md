@@ -289,7 +289,7 @@ paths or diagnosing `PLAY0430`-`PLAY0434`; `read-workspace`/`read-proposal`
   boundaries v9, identity/overrides/filters v10, qualifying non-route Double
   literals v11, enum numbers v12, compliance v13 (since 4.141.0;
   limits: command-surface `references/compliance.md`).
-  CLI 3.53.1/Stage 4.73.1 bundle 4.137.0 and do not admit v12. Never drop or stub source contracts to bind.
+  CLI 3.56.0 bundles Screenplay 4.145.1 / Stage 4.83.0 and renders v12 enum numbers. Never drop or stub source contracts to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
 - If execution is intended, validate with the owning downstream runtime as well.

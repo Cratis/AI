@@ -178,7 +178,8 @@ integration support.
 
 Never let an external system's ids, codes or shapes become our domain vocabulary: translate at
 the edge, keep the external reference as a property when it is needed for correlation or dedup.
-Stage renders no Automation or Translate slice today, so the whole translation is gap-fill code
+Stage 4.83.0 renders supported internal event-triggered Automation, but Translate,
+captures and foreign/public event boundaries remain refused. The translation is gap-fill
 with the model as its contract (`cratis-screenplay-render-and-gap-fill`).
 
 ## Change data capture is not a domain event

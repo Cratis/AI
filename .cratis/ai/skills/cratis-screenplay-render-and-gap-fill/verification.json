@@ -44,8 +44,8 @@
       "kind": "skill-contains",
       "value": "STAGE-ESM-026"
     },
-    { "kind": "skill-contains", "value": "Generated command values and `returns` responses (ESM v7) bind and run" },
-    { "kind": "skill-contains", "value": "STAGE-ESM-028`/`STAGE-ESM-029" },
+    { "kind": "skill-contains", "value": "now render with CLI 3.56.0 / Stage 4.83.0" },
+    { "kind": "skill-contains", "value": "Unsupported generated\ntypes (`STAGE-ESM-028`) and result combinations (`-038`)" },
     { "kind": "skill-contains", "value": "authored-UI parity" },
     { "kind": "skill-contains", "value": "responsible tool version" }
   ]
