@@ -109,7 +109,8 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    - Forbidden: a caller-supplied copy of state in `require`, a boolean attestation input
      (`confirmsX == true`) standing in for a rule, and rules hidden in `handler` or
      implementation-hint prose. An unguarded materialized read is unsafe for a protected
-     decision; that is not "read models never drive decisions".
+     decision; that is not "read models never drive decisions". See
+     `../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md`.
 3. **Play the races and retries.** For each enforced or recorded rule write the concurrent case
    (two commands at once), the retry case (same request again after a lost reply) and the
    duplicate case (same intent, new id). State the outcome and which construct produces it.

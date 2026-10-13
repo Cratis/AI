@@ -217,8 +217,9 @@ stream metadata on commands and aggregate roots.
 Read [decisions and routing](references/decisions-and-routing.md) when a command
 needs guarded state, stream-id templates, definition-backed routes, event tags or
 post-commit `CompleteStream`. Plain read-model injection remains advisory;
-`Result<,>` alone is not concurrency protection. Explicit routing on a returned
-`EventForEventSourceId` wins over command context.
+`Result<,>` and `concurrency: true` are not protection; see
+[choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
+A returned `EventForEventSourceId` route wins over command context.
 
 Two attributes are spelled `[Key]`. Chronicle reads `Cratis.Chronicle.Keys.KeyAttribute`.
 Marking `System.ComponentModel.DataAnnotations.KeyAttribute` in an application
@@ -256,7 +257,8 @@ public record Open<Thing>(<ThingId> Id, <OwnerId> OwnerId)
 - `Provide` runs after authorization and validation.
 
 An Arc read model can also be injected directly into `Provide`, `Handle`, or a
-`CommandValidator<T>` — but only by **the command's own resolved key**. Reading a
+`CommandValidator<T>` — but only by **the command's own resolved key**, as a plain
+read that guards nothing. Reading a
 read model keyed by anything else needs an explicit by-id read, and an absent
 instance does not always arrive as `null`. Read
 [read-model injection](references/read-model-injection.md) before relying on a

@@ -134,8 +134,12 @@ public sealed class ReducerAttribute(string id = "", string? eventSequence = def
 `Cratis.Chronicle.ReadModels.PassiveAttribute` (`[Passive]`) goes on the **read
 model type** and makes it passive as a whole: no sink, nothing materialized, and
 the instance is computed on demand when it is read. Reach for it when a
-command-side decision needs the model strongly consistent at the moment it is
-read.
+command-side read needs the model current at the moment it is read. Passive is
+fresher, not safer: a passive reducer read captures no position and guards nothing,
+and a reducer (or a self-reducing model, since Chronicle 19.58.0) is refused by
+decision reads. For a rule that must hold under concurrent writers use a flat
+projection with a decision read; see
+[choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
 
 ## Filtering which events reach the reducer
 

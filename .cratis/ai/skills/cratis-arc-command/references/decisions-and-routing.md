@@ -1,5 +1,13 @@
 # Protected decisions and routed streams
 
+## Contents
+
+- Pick the guarded read
+- Definition-backed routes and templates
+- Tags and completion
+- Decision specifications
+- Sources at v22.75.0
+
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
@@ -7,8 +15,11 @@ Verified at **Arc v22.75.0**. These features require `Cratis.Arc.Chronicle`.
 
 ## Pick the guarded read
 
-Plain injected read models and `IReadModels.GetInstanceById` are advisory. A
-`Result<TEvent, ValidationResult>` rejects a request but does not enroll a guard.
+Plain injected read models and `IReadModels.GetInstanceById` are advisory,
+materialized or passive. A `Result<TEvent, ValidationResult>` rejects a request
+but does not enroll a guard. Uniqueness and create-once belong to a Chronicle
+constraint, not to any read. For the routing steps, the matrix and the traps read
+[choosing how a rule holds](../../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
 
 - For one stream, inject `IStreamReads` into `Provide`, call `ForCommand()`, and
   return `StreamDecision.Append(...)` from `Handle`. It returns
@@ -19,20 +30,36 @@ Plain injected read models and `IReadModels.GetInstanceById` are advisory. A
   `Provide`/`Handle` (`Exists`/`Instance`). Command-aware `IDecisionReads.Get<T>`
   enrolls reads of other keys. Only Chronicle-admitted direct event-source-keyed
   projections with a known event-type set qualify; reducers, joins, children,
-  passive and incomplete definitions are refused. Arc certifies parameterless
+  open-ended event types and incomplete definitions are refused. Arc certifies parameterless
   validators it constructs; constructor dependencies and uncertified instances
-  are refused. Keep all decision state out of validators, including static
-  members and service locators. `[Unprotected]` on the command opts out; never
+  are refused: a protected command's discoverable validator needs exactly one
+  public parameterless constructor, otherwise the command fails with HTTP 500.
+  The decision model needs an `Id` property, an event-source key and a flat
+  projection; self-reducing models are refused like reducers. When the command has
+  several id-like properties, implement `ICanProvideEventSourceId`: `[Key]` does
+  not silence `ARCCHR0002`. Keep all decision state out of validators, including
+  static members and service locators. `[Unprotected]` on the command opts out; never
   combine it with `[ProtectedDecision]`. A parameter-level marker acknowledges
   tooling, not a runtime opt-out. `Validate` is advisory, not a commit promise.
-- Automatic `concurrency: true` on the routing attributes supplies stream-level
-  scopes. Exact returned scopes replace automatic capture; remove the flags
-  when returning `EventsWithConcurrencyScopes` (ARCCHR0016).
+- `concurrency: true` on the routing attributes is **not** a guard for the
+  decision: Arc reads the narrowed tail after `Handle`, so it only widens or
+  narrows the window the default check covers. Exact returned scopes replace
+  automatic capture; remove the flags when returning `EventsWithConcurrencyScopes`
+  (ARCCHR0016). The default check also reads the tail after `Handle`, and the first
+  append into a scope is unchecked unless `CheckFirstAppendIntoAScope` is set.
 
 Do not manually append or commit to bypass the owner-capable unit of work.
-Protection does not guard foreign writers, external state, revisions, redactions,
-migrations or changes to projection definitions. A successful empty protected
-command still validates enrolled reads. In contrast, `StreamDecision.Append([])`
+The guard detects every matching event appended after its boundary, whoever wrote
+it, but it protects only guarded decisions: an unguarded writer deciding on the
+same facts can still append on stale state, so the rule holds only when every
+deciding writer is guarded or the rule is a constraint. Protection does not guard foreign writers, external state, revisions, redactions,
+migrations or changes to projection definitions. Protection is per command and
+opt-in; an unmarked command keeps its plain reads, and a conflict is returned as a
+`ConcurrencyViolation` validation result with no automatic retry. A protected command that
+stages no events commits an empty guarded batch: current kernels validate the
+enrolled reads (a scope with an actual boundary or expecting no matching event) and write nothing, while a kernel that rejects an empty batch
+raises `DecisionReadValidateOnlyNotSupported` (HTTP 500), so cover it with an
+integration specification. In contrast, `StreamDecision.Append([])`
 returns no scopes: use it only for an identical retry, not a rejected request.
 
 ## Definition-backed routes and templates
