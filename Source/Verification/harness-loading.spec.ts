@@ -12,6 +12,7 @@ import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import { checkCopilotInstructions, copilotInstructionsDirectory, copilotMarker, rewriteCopilotLinks } from '../Harness.Setup/copilot-instructions.ts';
 import { frontmatter, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
+import { lineCount } from './skill-structure.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const corpusRoot = join(repositoryRoot, '.cratis', 'ai');
@@ -66,6 +67,23 @@ test('every supported harness resolves the canonical skill corpus', () => {
         assert.equal(skillCount(join(repositoryRoot, path)), 103, path);
         assert.equal(realpathSync(join(repositoryRoot, path)), realpathSync(join(corpusRoot, 'skills')), path);
     }
+});
+
+test('Codex OpenCode and Cursor discover the authoring rule through the root policy', () => {
+    const policy = join(corpusRoot, 'rules/general.md');
+    const row = '| Authoring or reviewing skills, rules, agents or prompts | `authoring-skills.md` |';
+    for (const harness of ['Codex', 'OpenCode']) {
+        const entry = join(repositoryRoot, 'AGENTS.md');
+        assert.equal(realpathSync(entry), realpathSync(policy), harness);
+        assert.ok(readFileSync(entry, 'utf8').includes(row), harness);
+    }
+    const cursor = readFileSync(join(repositoryRoot, '.cursor/rules/cratis.mdc'), 'utf8');
+    assert.match(cursor, /alwaysApply: true/);
+    assert.match(cursor, /@\.cratis\/ai\/rules\/general\.md/);
+    const general = readFileSync(policy, 'utf8');
+    assert.ok(general.includes(row), 'Cursor follows the root policy to the authoring rule');
+    assert.ok(lineCount(general) <= 200, 'authoring discovery must stay within the always-on budget');
+    assert.ok(readFileSync(join(dirname(policy), 'authoring-skills.md'), 'utf8').includes('## 10. Review checklist'));
 });
 
 test('fresh Go adapter trees expose root policy traversal separately from discoverable skills', async () => {

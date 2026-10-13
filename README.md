@@ -189,8 +189,9 @@ The verification enforces the structural rules:
   rules, the core workflow, the traps and the pointers. Target 400 lines / 16,000 characters; a
   headroom warning starts at 18,000 characters. Detail that only some tasks
   need goes into `references/`.
-- Every other file is linked directly from `SKILL.md`. Agents may only preview a file that is reached
-  through another reference file.
+- Every supporting file is linked directly from `SKILL.md`, except `LICENSE`, `NOTICE`,
+  `verification.json` and reasoned existing asset exceptions (which fail when stale). Agents may
+  only preview a file that is reached through another reference file.
 - A reference file longer than 100 lines opens with a `## Contents` list of its `##` headings, so a
   partial read still shows everything the file covers. Generate it rather than writing it by hand:
   `yarn workspace @cratis/ai-verification run contents` (add `--check` to verify). A file that is one
@@ -199,9 +200,10 @@ The verification enforces the structural rules:
 The guidance that cannot be checked mechanically:
 
 - Put the key use case first in the description and keep it short: listings truncate long
-  descriptions and drop rarely used ones. Change a description only with the trigger evaluation
-  before and after, and when a request goes to a neighbor, name that request in the right skill's
-  description rather than adding keywords.
+  descriptions and drop rarely used ones. When authorized to spend model usage, run trigger
+  evaluations before and after a description change; otherwise report routing as unverified.
+  When a request goes to a neighbor, name that request in the right skill's description rather
+  than adding keywords.
 - Link a reference with the situation that calls for it: "Read `references/x.md` when ...", not
   "see `references/x.md`".
 - Keep the traps an agent must know before it acts in `SKILL.md`, near the top. Claude Code keeps only
@@ -210,8 +212,8 @@ The guidance that cannot be checked mechanically:
 - Describe behavior without release history, evidence citations or relative-time claims. Keep a
   code-breaking prerequisite in one `Requires` line with the version check and fallback; pins belong
   in `product-sync.json` and compatibility documentation, not skill prose.
-- Name the MCP server once, then its protocol tool; consult the model-authoring skill's MCP mapping
-  for harness-native names. Resolve user-configured server aliases rather than assuming a prefix.
+- Name the MCP server once, then its protocol tool; resolve harness-native invocation names from
+  the connected client's tool listing. Resolve user-configured server aliases rather than assuming a prefix.
 - Use one term per concept throughout a skill.
 - Explain why a rule exists instead of raising its volume.
 
@@ -224,7 +226,9 @@ always fail on defects. `SKILL_HYGIENE_MODE` continues to control the existing s
 Behavior evaluations live in `Evaluations/skills/<name>/trigger.json` and `evals.json`, outside the
 shipped corpus. New skills require both files. `Evaluations/unevaluated.json` records the existing
 coverage gap with reasons; comparison against the Git base allows that list only to shrink. CI
-checks shape and coverage and runs runner specs; it never spends model usage. Locally,
+checks shape and coverage and runs runner specs; it never spends model usage. Each set has 16–20
+unique trigger queries (8–10 positive and 8–10 negative) and 3–5 output tasks with 3–5 nonempty
+assertions each. Near-miss quality and sibling-naming notes are review guidance. Locally,
 use an installed, logged-in `pi` or `claude` (default models: `openai-codex/gpt-6.1-sol` with medium
 thinking, or `sonnet`). These commands make paid model calls:
 

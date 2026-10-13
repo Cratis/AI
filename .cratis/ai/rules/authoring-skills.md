@@ -14,7 +14,7 @@ paths:
 
 ## 1. What a skill is
 
-Trigger (when to use / when not) · the how (steps, patterns, one minimal correct example each) · choosing (use X when…, not Y) · pitfalls (with the diagnostic code you'll see) · verification (command + what a pass looks like). Timeless: describe current behaviour without saying it is current.
+Trigger (when to use / when not) · the how (steps, patterns, one minimal correct example each) · choosing (use X when…, not Y) · pitfalls (with the diagnostic code you'll see) · verification (command + what a pass looks like). Timeless: describe current behavior without saying it is current.
 
 A code-breaking prerequisite belongs in one `Requires` line with the version-check command and the fallback. This is a compatibility gate, not a release history. Use American English in authored text.
 
@@ -24,14 +24,16 @@ Use portable fields: `name`, `description`, `license`, `compatibility`, `metadat
 
 - Match `name` to the directory: 1–64 lowercase letters, digits and single hyphens; no edge hyphen or reserved `anthropic`/`claude` words. These constraints keep discovery portable.
 - Lead the description with what the skill does, then `Use when…` and `Not for…` (name the sibling to use). Include concrete words from the user's request so the router can distinguish neighbors.
-- Use neutral imperative or third-person phrasing, not `I`/`you`/`your`; descriptions enter instruction context, where shifting voice obscures who acts.
+- Use neutral imperative or third-person phrasing, not `I`/`you`/`your`; descriptions enter instruction context, where shifting voice obscures who acts. Quoted command text and inline code are not the author's voice.
 - Aim below 700 characters, within the hard 1–1024 limit. No tag-like text, versions or research-process vocabulary: the listing is for routing, not evidence.
+
+An explicit trigger clause (`Use when`, `Load when`, `Read when` or an equivalent) and neutral voice are required even with `SKILL_AUTHORING_MODE=warn`. Negative routing and meta-language findings follow that switch; the 700-character target is guidance, not a gate.
 
 ## 3. Budget and progressive disclosure
 
 Target at most 400 body lines and 16,000 characters; the hard limits remain 500 lines and 20,000 characters. A warning starts at 18,000 characters to leave editing and compaction headroom; characters only approximate tokens.
 
-Keep decision rules, the core workflow and pre-action traps in `SKILL.md`. Move conditional detail to `references/`, with a direct `Read references/x.md when…` pointer for every file, including assets and scripts. Direct pointers prevent partial nested reads from hiding required context. References over 100 lines open with generated `## Contents`; a single fenced example with an early introduction is exempt because it has no sections to navigate. Use forward-slash paths for portability.
+Keep decision rules, the core workflow and pre-action traps in `SKILL.md`. Move conditional detail to `references/`, with a direct `Read references/x.md when…` pointer for every file, including assets and scripts. `LICENSE`, `NOTICE` and `verification.json` are exempt as licensing/verifier metadata; existing reasoned asset exceptions fail when stale. Direct pointers prevent partial nested reads from hiding required context. References over 100 lines open with generated `## Contents`; a single fenced example with an early introduction is exempt because it has no sections to navigate. Use forward-slash paths for portability.
 
 ## 4. Timeless text
 
@@ -49,7 +51,7 @@ Link the owning rule instead of copying it into skills, agents or prompts; copie
 
 ## 7. MCP tools
 
-Name the server once, then its protocol tool: for example, the `screenplay` MCP server's `propose-ast` tool. Consult the model-authoring skill's `references/mcp-tools.md` for harness-native names instead of guessing a portable invocation string. For servers the corpus does not register, resolve the user's configured alias; a fixed prefix can address the wrong server.
+Name the server once, then its protocol tool: for example, the `screenplay` MCP server's `propose-ast` tool. Resolve the harness-native invocation name from the connected client's tool listing instead of assuming one naming scheme works in every harness. For servers the corpus does not register, resolve the user's configured alias; a fixed prefix can address the wrong server.
 
 ## 8. Deterministic scripts
 
@@ -57,7 +59,7 @@ Put repeatable mechanical operations in `scripts/` when a script can eliminate r
 
 ## 9. Evaluations
 
-Give new skills both trigger and output evaluation inputs. Existing unevaluated skills are a shrinking baseline, not permission to exempt new ones. For an application-profile skill, use 8–10 positive and 8–10 tricky near-miss queries, naming the sibling that should win in negative notes, plus 3–5 output tasks with objective assertions. Compare with-skill outputs to a without-skill baseline to show what the instructions improve.
+Give new skills both trigger and output evaluation inputs. Existing unevaluated skills are a shrinking baseline, not permission to exempt new ones. Each evaluation set has 16–20 unique trigger queries: 8–10 positive (`shouldTrigger: true`) and 8–10 negative (`shouldTrigger: false`), plus 3–5 output tasks with 3–5 nonempty assertions each. Make negatives tricky near-misses and name the sibling that should win in their notes; that note quality is review guidance, not a shape check. Compare with-skill outputs to a without-skill baseline to show what the instructions improve.
 
 When changing a description, run trigger evaluations before and after when authorized to spend model usage. Keep results untracked in `.ai-work/skill-evaluations/` and summarize them for reviewers, not in the skill. CI validates inputs without calling models; missing model runs remain explicitly unverified.
 

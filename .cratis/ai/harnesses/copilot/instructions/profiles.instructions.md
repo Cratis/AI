@@ -389,7 +389,8 @@ profile: application
 - **No profile tag** - Universal rules that apply to both profiles
 
 [authoring-skills.md](./authoring-skills.instructions.md) is universal but path-scoped to corpus
-skills, rules, agents and prompts; authoring guidance is not loaded for unrelated files.
+skills, rules, agents and prompts. Harnesses without path-rule loading discover it
+through `general.md`'s Where to Look table; its body is needed only for authoring work.
 
 ## Finding Profile Information
 

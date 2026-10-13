@@ -38,7 +38,9 @@ export function skillAuthoringFindings(file: string, content: string): Authoring
             const { value, line } = description;
             if (!/\b(?:(?:Use|Load|Read) (?:this )?(?:skill )?(?:when|for|to|before|whenever|if)|Trigger)\b/i.test(value)) add('description-when', 'Add an explicit Use when clause.', line);
             if (!/\b(?:Not for|Not when|Do not use|Don't use)\b|\buse `[^`]+` instead/i.test(value)) add('description-when-not', 'Add a negative routing boundary.', line);
-            for (const match of value.matchAll(/\b(?:I|I'll|my|you|your)\b/gi)) add('description-voice', match[0], line);
+            // Quoted commands and inline code are examples, not the description author's voice.
+            const voice = value.replace(/(`+)[\s\S]*?\1|"(?:\\.|[^"\\])*"|(?<!\w)'(?:\\.|[^'\\])*'(?!\w)|“[^”]*”|‘[^’]*’/g, ' ');
+            for (const match of voice.matchAll(/\b(?:I|I'll|my|you|your)\b/gi)) add('description-voice', match[0], line);
         }
         const body = skillBody(content);
         if (body.length >= 18_000) add('body-headroom', `${body.length} characters; target at most 16,000.`);

@@ -157,6 +157,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Reviewing or explaining a `.play` model | the **cratis-screenplay-model-review** skill |
 | Turning an existing system into a model | the **cratis-screenplay-legacy-extraction** skill |
 | Rendering or gap-filling an accepted model | the **cratis-screenplay-render-and-gap-fill** skill, then **cratis-stage-rendering-and-sandbox** for renderer facts |
+| Authoring or reviewing skills, rules, agents or prompts | `authoring-skills.md` |
 | Step-by-step recipes | `.cratis/ai/skills/` |
 
 ## Source-of-Truth Discipline

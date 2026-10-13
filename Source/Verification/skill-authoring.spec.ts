@@ -11,7 +11,7 @@ const skill = (description = 'Build an example. Use when demonstrating behavior.
 const rules = (content: string, path = file) => skillAuthoringFindings(path, content).map(finding => finding.rule);
 
 test('description-when recognizes explicit routing forms and rejects implicit triggers', () => {
-    for (const clause of ['Use when writing', 'Load this skill before writing', 'Read for examples', 'Use to write', 'Use whenever writing', 'Use if writing', 'Trigger on examples']) {
+    for (const clause of ['Use when writing', 'Load when writing', 'Read when writing', 'Use this skill when writing', 'Load this skill before writing', 'Read for examples', 'Use to write', 'Use whenever writing', 'Use if writing', 'Trigger on examples', 'Build examples. Use when writing', 'For examples, load when writing']) {
         assert.ok(!rules(skill(clause + '. Not for queries.')).includes('description-when'), clause);
     }
     assert.ok(rules(skill('Build an example. After discovery.')).includes('description-when'));
@@ -28,6 +28,11 @@ test('description-when-not recognizes boundaries and named alternatives', () => 
 test('description voice rejects first and second person but allows domain we/our and word substrings', () => {
     for (const word of ['I', "I'll", 'my', 'you', 'your', 'YOUR']) assert.ok(rules(skill(`Use when ${word} write.`)).includes('description-voice'));
     assert.ok(!rules(skill('Use when recording our own facts; we own the young entity. Not for queries.')).includes('description-voice'));
+    for (const command of ['`echo "your input"`', '``echo `my` ``', '"who am I"', "'print your input'", '“echo your input”', '‘echo my input’']) {
+        assert.ok(!rules(skill(`Use when the user runs ${command}. Not for queries.`)).includes('description-voice'), command);
+    }
+    assert.ok(rules(skill('Use when running `echo "your input"` with your shell.')).includes('description-voice'));
+    assert.ok(rules(skill("Use when I'll run the command.")).includes('description-voice'));
     assert.deepEqual(skillAuthoringFindings(file, '---\ndescription: [broken\n---\n'), []);
     assert.deepEqual(skillAuthoringFindings(file, '---\ndescription: 123\n---\n'), []);
     assert.deepEqual(skillAuthoringFindings(file, '---\nmetadata:\n  description: your\n---\n'), []);
