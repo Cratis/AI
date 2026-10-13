@@ -2,7 +2,7 @@
 
 ## Contents
 
-- What was run
+- Check it
 - What came out
 
 A complete marina-berth model that `cratis render` accepts, followed by what the

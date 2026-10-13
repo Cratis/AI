@@ -129,7 +129,7 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
 - **Refused:** Translate/captures, non-event triggers, opaque bodies and clock specs (`STAGE-ESM-024`);
   mixed effects (`STAGE-ESM-037`, redelivery duplicates events); unsupported reaction mappings (`-039`),
   protected identities/enums (`-040`), non-text secrets (`-041`); generated types/results (`-028`/`-038`);
-  appends beyond single-hop/cascade specs (`-011`), absence (`-027`), evolution (`-026`), public/foreign events
+  appends beyond single-hop/cascade specs (`-011`), absence (`-027`), evolution (`STAGE-ESM-026`), public/foreign events
   (`-032`/`-033`), claim-reading/opaque `runs as` gates (`-034`), legacy filters (`-035`), production
   overrides (`-036`), code validation (`-005`), snapshot lists/DateTime filters (`-010`), conditional
   productions, composite projection keys and `all`. Through v15 is construct admission.
