@@ -3,8 +3,9 @@
 A complete design-mode model showing the three evolution routes from `evolution.md`: a new
 generation (compatible change), an identity-aware rename that keeps the authored stored-name
 intent as an `id` pin, and a changed meaning that becomes a new event. Several generations
-select ESM v4. At Screenplay 4.150.0 the pin warns PLAY0686 at binding: renderers
-still use the new name, so this example does not prove stored-history compatibility.
+alone select ESM v4; the differing event pin selects v16 in Screenplay 4.152.0.
+It carries `storedName`, but released Stage 4.92.0 does not admit v16: this example
+does not prove rendered stored-history compatibility.
 See `evolution.md` for source evidence and the deployment boundary.
 
 ```screenplay
@@ -12,11 +13,11 @@ See `evolution.md` for source evidence and the deployment boundary.
 // - MembershipRenewed: a compatible change (new property with a defined default for old facts),
 //   declared as generation 2 in full beside generation 1, in the same slice.
 // - MembershipPaused: the persisted event formerly stored as "MembershipSuspended"; renamed
-//   through the identity-aware path, which pins the old name in authoring, not rendered storage.
+//   through the identity-aware path, which carries the old storedName in ESM v16.
 // - MembershipEnded vs MembershipTerminatedForBreach: a change of meaning is a NEW event, not
 //   a generation.
 // Screenplay does not express migrations/upcasters (Documentation/screenplay/events.md); the
-// target must convert generation 1 facts. Multiple generations select ESM v4.
+// target must convert generation 1 facts and explicitly admit storedName in ESM v16.
 
 concept MembershipId : Uuid
 

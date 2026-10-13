@@ -3,7 +3,7 @@
 ## Contents
 
 - Classify the change
-- Event pins do not reach renderers yet (4.150.0)
+- Stored event names (ESM v16, 4.152.0)
 - Enum identities are stored contracts
 - Compatibility scenarios (write before editing)
 - Identity rules
@@ -15,6 +15,17 @@ when old and new code run side by side. The best evolution is the one you avoid:
 lifecycles and events that record what the business decided (not table rows) change less.
 
 ## Classify the change
+
+**Screenplay 4.153.0 release baseline:** commit `.screenplay/release-baseline.json`,
+written by explicit `screenplay baseline admit <root> --release <label>` in the release
+job; gate later edits with `screenplay baseline check <root>`. Without a baseline,
+current-property edits still require exactly one of `newGeneration` or
+`eventNeverPersisted`; unadmitted revisions default to in-place edits; admitted
+revisions accept only explicit `newGeneration`. Never hand-edit the sidecar except
+a reviewed correction. The baseline freezes resolved shared schemas too, not just
+event declaration text. Full CLI exits, MCP review and source evidence:
+model-authoring [release baseline](../../cratis-screenplay-model-authoring/references/release-baseline.md).
+
 Edit class depends on whether the event is **persisted** (facts may be stored: the model was
 accepted, deployed or rendered into a running system; ask when unsure). Changing an
 unpersisted event's members is an ordinary text edit when no `.screenplay/identities.json` exists; with it, adding or removing event properties changes catalog addresses and goes through MCP. Any change to a
@@ -29,29 +40,43 @@ compatibility scenarios below first; the identity owner then applies the change 
 | add a property with no sensible old value | the old fact lacks information | usually a **new event** for the new situation, or a separate fact recording the extra information | review with the expert |
 | remove a property | yes, if no reader needs it | new generation without it; every reference fails with PLAY0273 until removed | contract evolution, check readers |
 | change meaning (same name, different business fact) | **no** | **new event** with its own name; old event stays for history | identity: add, not rename |
-| rename (same meaning) | yes | identity-aware rename by the identity owner; `id "OldName"` preserves the authored stored-name intent, **not rendered storage** at the current pin (PLAY0686) | identity-affecting |
+| rename (same meaning) | yes | identity-aware rename by the identity owner; `id "OldName"` carries the old stored name in ESM v16; the target must admit it explicitly | identity-affecting |
 | split one event into two / merge two | depends | new events from now on; never rewrite history; projections read both old and new | identity-affecting |
 | rename a constraint | n/a | starts an empty index: values claimed before are unprotected. Ask first | identity-affecting |
 
-## Event pins do not reach renderers yet (4.150.0)
+## Stored event names (ESM v16, 4.152.0)
 
-An event `id` pin is authoring metadata until the ESM carries stored names.
-Screenplay **4.150.0** warns **PLAY0686** at binding, and event `propose-rename`
-reports the same caveat even when unrelated syntax prevents binding: generated
-code uses the new event name. Do not rely on a pin to keep existing stored events
-readable in a rendered app. Retain the intended pin and report this compatibility
-gap; do not delete it, set `eventNeverPersisted` without evidence, or treat a
-passing reference specification as a stored-history test. Confirm the actual
-stored type in the owning target and plan target migration/compatibility work
-before deployment. Decision 0075's future `storedName` ESM admission and renderer
-support are **not shipped** by this warning.
+A rename that keeps the same business fact and must read old stored events pins
+its old stored name: `event NewName` with `id "OldName"`. Screenplay **4.152.0**
+carries a differing pin as `storedName` on the current event contract and selects
+ESM v16. All generations share that effective stored name (pin, otherwise name);
+it does not replace or rehash the catalog's portable `EventContractId`.
 
-Sources: Cratis/Screenplay `v4.150.0`,
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Structure.cs:157-168`,
-`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82-90`, and
-`decisions/0075-carry-the-stored-event-type-name-in-the-executable-model.md:23-46`.
-Source/stream pins are different: their stored names already travel in ESM v8;
-stream `All` is reserved regardless of a pin (toolchain `sources-and-streams.md`).
+Pins must be event-name identifiers: ASCII letter or underscore first, then word
+characters, nonempty and without surrounding whitespace. Invalid pins, different
+effective names across generations and duplicate stored names across the application
+refuse binding with **PLAY0472**. An equal-name pin is a no-op: no `storedName`, no
+v16 selection; PLAY0471 removal preserves ESM bytes. Models without differing pins
+retain earlier versions, bytes and revisions. **The interim event-pin warning is retired**; MCP's
+compatibility `eventPinWarnings` array is empty.
+
+Consumers must explicitly admit v16 and preserve `storedName`, or refuse it.
+Released Stage **4.92.0** and CLI **3.59.0** do not: Stage admits through v15 and
+emits argument-free `[EventType]`; CLI still bundles Screenplay 4.147.1. Do not
+promise rendered storage compatibility or remove the pin to make rendering pass.
+A passing reference specification is not a stored-history test: reference facts
+still use contract/display names. If an older renderer already stored events under
+the new name, switching the stored type needs a reviewed baseline correction or
+data migration, not a silent re-render. Release-baseline tooling ships in 4.153.0;
+its `--from-esm` stored-name limitation is in the release-baseline reference.
+
+Sources: Cratis/Screenplay `v4.152.0`, `Documentation/screenplay/events.md:116-124`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs:15-35`,
+`SemanticModelBinder.Structure.cs:16-17,215` in the same folder, and
+`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82`.
+Target evidence: toolchain `references/versions.md` (Stored-name rendering boundary).
+Source/stream stored names already travel in ESM v8; stream `All` remains reserved
+regardless of a pin (toolchain `sources-and-streams.md`).
 
 A test for "generation or new event": a new version must be convertible from the old one
 without inventing facts. If it is not, it is a different event.
@@ -96,8 +121,10 @@ For each changed event, answer in the slice `documentation` or `STATE.md`:
 - Generations of one event live in one slice; a same-named event in another slice is a
   different contract, not a generation (and ambiguous to the binder).
 - Leave `id` absent on new events; a pin equal to the event's current name is information
-  PLAY0471 (Screenplay `events.md`). MCP and workspace renames add the pin by default because
-  the tool cannot know whether events were stored; set "never persisted" only when you know.
+  PLAY0471 (Screenplay `events.md`). Without a release baseline, renames pin by default;
+  "never persisted" requires storage evidence. With a baseline, an unadmitted event gets
+  no new pin; any admitted revision requires retaining its stored name and refuses
+  `eventNeverPersisted`. Inspect `eventRename.mutability` / `pinAdded` before apply.
 - Every rename, move or removal of an event, constraint, command, read model, slice, feature
   or module is identity-affecting and is done by the identity owner.
 

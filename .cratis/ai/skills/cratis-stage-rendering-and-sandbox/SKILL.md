@@ -16,6 +16,9 @@ exactly produces **no artifacts at all**, never thinner ones. Read the admission
 before promising that a model can be rendered, and render it to find out: the source
 reading in this skill is not a render result.
 
+Stage 4.92.0 / CLI 3.59.0 do not render ESM v16 stored names. Keep pins;
+evidence: toolchain `references/versions.md`.
+
 Authored UI has its own parity hazard. Historically (Stage 4.24) Stage rendered a default React/Vite
 scaffold and did not prove that modeled screens, templates, forms, toolbars,
 components, outlets, package icons or routes were implemented. The first fully
@@ -40,12 +43,12 @@ argument or an invalid semantic option.
 
 ## Verified product sources
 
-Current pins and the tool split: `cratis-screenplay-toolchain/references/versions.md`. Facts here
-were read at Stage `v4.73.1` (`Source/Rendering.Cratis/**`, `Documentation/guides/build-renderer-target.md`,
-`Documentation/reference/render-plans.md`, `Documentation/docker/**`) and cli `v3.53.1`
-(`Documentation/reference/screenplay.md`, `Source/Cli/Commands/Render/**`), not by a render run
-unless a line says *observed*. Current CLI 3.57.0 bundle/admission and scaffold pins were re-read at the tagged
-sources in `references/admission.md` and `references/rendered-application.md`.
+Pins/tool split: toolchain `references/versions.md`; CLI 3.57.0 bundle and scaffold
+source evidence: `references/admission.md`, `references/rendered-application.md`.
+Historical reads: Stage `v4.73.1` (`Source/Rendering.Cratis/**`,
+`Documentation/guides/build-renderer-target.md`, `Documentation/reference/render-plans.md`,
+`Documentation/docker/**`) and cli `v3.53.1` (`Documentation/reference/screenplay.md`,
+`Source/Cli/Commands/Render/**`), not render runs unless labeled *observed*.
 The bundled binder trails standalone (toolchain `references/versions.md`).
 Stage's scaffold pins Arc, Chronicle, Components, Scene and Fundamentals
 ([rendered application](references/rendered-application.md)), not latest releases; never bump managed files.

@@ -15,6 +15,16 @@ import { syncIssue } from './contract/issue.ts';
 import { Kind } from './contract/Kind.ts';
 import { cleanDocument, selfTest, specimen } from './contract/self-test.ts';
 
+const nestedCommands = {
+    ...specimen,
+    cliCommands: [
+        ...specimen.cliCommands,
+        { name: 'baseline admit', options: ['--release', '--from-esm'], aliases: [] },
+        { name: 'baseline check', options: [], aliases: [] },
+        { name: 'report processing', options: ['--format'], aliases: [] },
+    ],
+};
+
 const exception: Exception = { file: 'old.md', text: 'MCP at v1.0.0 had 29 tools.', kind: Kind.ToolCount, value: '29', reason: 'Historical v1.0.0 probe; remove when the old probe is removed.' };
 
 async function withCorpus(action: (root: string) => Promise<void>): Promise<void> {
@@ -69,6 +79,30 @@ describe('when extracting Screenplay contract subjects', () => {
     it('should recognize standalone subcommands and their own options', () => {
         const subjects = extract('commands.md', '`screenplay test <root> --filter Example`\nscreenplay <root> --scope Module\n', specimen);
         assert.deepEqual(subjects.filter(subject => subject.kind === Kind.CliOption).map(subject => [subject.value, subject.owner]), [['--filter', 'test'], ['--scope', 'validate']]);
+    });
+    it('should recognize both baseline subcommands and other published two-word commands', () => {
+        const content = '`screenplay baseline admit <root> --release v1 --from-esm shipped.json`\nscreenplay baseline check <root>\n`screenplay report processing <root> --format json`\n';
+        const subjects = extract('commands.md', content, nestedCommands);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.CliCommand).map(subject => subject.value), ['baseline admit', 'baseline check', 'report processing']);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.CliOption).map(subject => [subject.value, subject.owner]), [['--release', 'baseline admit'], ['--from-esm', 'baseline admit'], ['--format', 'report processing']]);
+        assert.deepEqual(check(nestedCommands, [cleanDocument, { file: 'commands.md', content }]).problems, []);
+    });
+    it('should prefer the longest published command and retain nested option ownership', () => {
+        const contract = { ...nestedCommands, cliCommands: [{ name: 'baseline', options: [], aliases: [] }, ...nestedCommands.cliCommands] };
+        const content = '`screenplay baseline admit <root>`\nUse `--release v1`.\n\n| Route |\n| --- |\n| `screenplay baseline admit <root>` |\n| `--from-esm shipped.json` |\n| `screenplay baseline check <root>` |\n| `--release v1` |\n';
+        const subjects = extract('options.md', content, contract);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.CliCommand).map(subject => subject.value), ['baseline admit', 'baseline admit', 'baseline check']);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.CliOption).map(subject => [subject.value, subject.owner]), [['--release', 'baseline admit'], ['--from-esm', 'baseline admit'], ['--release', 'baseline check']]);
+        assert.ok(check(contract, [cleanDocument, { file: 'options.md', content }]).problems.includes('options.md:9 unknown screenplay baseline check option --release.'));
+    });
+    it('should still flag unknown commands and reject non-word subcommand matches', () => {
+        const content = '`screenplay unknown command --release v1`\n`screenplay baseline unknown <root>`\n`screenplay baseline admit-extra <root> --release v1`\n`screenplay baseline check-extra <root>`\n';
+        const subjects = extract('unknown.md', content, nestedCommands);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.CliCommand).map(subject => subject.value), ['unknown', 'baseline', 'baseline', 'baseline']);
+        const result = check(nestedCommands, [cleanDocument, { file: 'unknown.md', content }]);
+        assert.ok(result.problems.includes('unknown.md:1 unknown screenplay CLI command unknown.'));
+        for (const line of [2, 3, 4]) assert.ok(result.problems.includes(`unknown.md:${line} unknown screenplay CLI command baseline.`));
+        assert.ok(result.problems.includes('unknown.md:3 unknown screenplay baseline option --release.'));
     });
     it('should inherit detached options only within a standalone paragraph or table column', () => {
         const content = '`screenplay <root>` with `--scope Module`\n\n| Layer | Route |\n| --- | --- |\n| Source | `screenplay <root>` |\n| Scope | `--scope Module` |\n| CLI | `cratis screenplay validate <root>` |\n| CLI option | `--warnings-as-errors` |\n\n`--unowned`\n';

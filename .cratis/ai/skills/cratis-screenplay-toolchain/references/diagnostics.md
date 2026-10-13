@@ -6,7 +6,7 @@
 - Source reference and identifier checks
 - Public events and translation direction
 - Explicit enum member numbers
-- Reserved stored names and event pin warnings (4.150.0)
+- Reserved stored names and event pins (4.152.0)
 - Named keys, production routes and observer filters
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
@@ -99,23 +99,25 @@ remain specification values. Non-positional pins select v12; positional pins kee
 older executable bytes/version. Consumer admission is separate (`versions.md`).
 Source: `v4.139.0:Documentation/screenplay/diagnostics.md`, decision 0065.
 
-## Reserved stored names and event pin warnings (4.150.0)
+## Reserved stored names and event pins (4.152.0)
 
 | Code | Layer / severity | Meaning / fix |
 | --- | --- | --- |
 | PLAY0273 | Binding error | A stored source exactly `Default`, or stored stream exactly `All` (name or `id "All"` pin), is reserved. Authoring still parses/prints it. Rename the stream with discovered `propose-rename`; keeping `id "All"` cannot fix it. Comparison is ordinal: streams `all`, `ALL` and `Default` remain valid. Old `All` events read as source-only appends; moving history needs a Chronicle migration, not a language repair. |
-| PLAY0686 | Binding warning; event rename proposal also reports it | Event `id` pins do not yet travel in the ESM to renderers; generated code uses the new name. Do not rely on a pin to preserve stored-event readability in rendered apps. Retain intended pins and report the target compatibility gap, rather than delete them to hide the warning. No automatic repair. |
+| PLAY0472 | Binding error | An event pin is not a valid event-name identifier, effective stored names differ across generations, or two events share a stored name. Use a valid, application-unique stored name shared by all generations; never rename stored history merely to hide the error. |
+| PLAY0686 | Retired | Screenplay 4.152.0 carries differing event pins as `storedName` in ESM v16. MCP's compatibility `eventPinWarnings` array is empty. Renderer admission remains separate; released Stage 4.92.0 and CLI 3.59.0 do not admit v16. |
 
 MCP readiness exposes the binding refusal. PLAY0273 is reused, not a new ESM
-version; match its reserved-name message before choosing the rename. PLAY0686
-is not evidence that decision 0075's future `storedName` admission has shipped.
-Source/stream pins already travel in ESM v8 and are not event pins.
+version; match its reserved-name message before choosing the rename.
+Source/stream pins already travel in ESM v8; differing event pins require v16.
+Equal-name event pins are no-ops; PLAY0471 removal preserves canonical bytes.
 Sources: Cratis/Screenplay `v4.150.0`,
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.EventSources.cs:17-52`,
-`SemanticModelBinder.Structure.cs:157-168` in the same folder,
-`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82-90`, and
-`decisions/0073-reserve-the-stored-event-stream-name-all.md:35-63` /
-`decisions/0075-carry-the-stored-event-type-name-in-the-executable-model.md:23-46`.
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.EventSources.cs:17-52` and
+`decisions/0073-reserve-the-stored-event-stream-name-all.md:35-63`;
+`v4.152.0:Documentation/screenplay/events.md:116-124`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs:15-35`,
+`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82`.
+Target evidence: `versions.md` (Stored-name rendering boundary).
 
 ## Named keys, production routes and observer filters
 

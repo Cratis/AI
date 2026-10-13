@@ -166,9 +166,9 @@
         }
       ],
       "synced": {
-        "version": "4.151.0",
+        "version": "4.153.0",
         "date": "2026-10-13",
-        "by": "Cratis/AI#652"
+        "by": "Cratis/AI#655"
       },
       "covers": {
         "skills": [
@@ -196,7 +196,7 @@
         ],
         "rules": []
       },
-      "notes": "Standalone 4.151.0 and byte-identical published/Golden contract pinned for Cratis/AI#648, #650 and #652. Text not empty rejects Unicode White_Space-only values in every ESM version without changing canonical bytes; collections and identity text remain unchanged. Stored stream All is reserved at binding (PLAY0273), including id pins; event pins warn PLAY0686 because their stored names do not yet reach renderers. Child-before-parent reference deferral is executable across given/when and accepted commits; parent absence leaves children out, ambiguous parents fail, and decision 0007's creation-event routing difference remains. Adds the concept generation MCP summary, typed strategy editing guidance and PLAY0683/PLAY0684 entropy/uniqueness repairs; derived regex, matches/checksum repair and rule-proof status remain unshipped. Retains ESM v15 strategies, strict fixtures, whole-source freshness and 4.148.0 response-name resolution. Historical evidence stays qualified. CLI 3.57.0 / MCP 4.147.1 lacks the new summary and repairs; this pin does not upgrade CLI or Scene runtime."
+      "notes": "Standalone 4.153.0 and byte-identical published/Golden contract pinned for Cratis/AI#655; retains Cratis/AI#654, #648, #650 and #652. Text not empty rejects Unicode White_Space-only values in every ESM version without changing canonical bytes; collections and identity text remain unchanged. Stored stream All is reserved at binding (PLAY0273), including id pins; differing event pins carry storedName in ESM v16; equal-name pins are no-ops, PLAY0472 checks validity/generation agreement/uniqueness, and PLAY0686 is retired. Latest released Stage 4.92.0 / CLI 3.59.0 still admit only through v15 (CLI bundles Screenplay 4.147.1), so stored-name rendering is not released. Decision 0070 release baseline (Cratis/AI#655) ships CLI admit/check, committed sidecar, MCP list/proposal review and independent revision guards. No baseline requires an explicit event mode; unadmitted revisions default to inPlace; admitted revisions require newGeneration. Only a reviewed correction may hand-edit the baseline. The 4.153.0 from-esm route uses contract.Name rather than StoredName and can refuse pinned renames; source boundary is documented, not hidden. Child-before-parent reference deferral is executable across given/when and accepted commits; parent absence leaves children out, ambiguous parents fail, and decision 0007's creation-event routing difference remains. Adds the concept generation MCP summary, typed strategy editing guidance and PLAY0683/PLAY0684 entropy/uniqueness repairs; derived regex, matches/checksum repair and rule-proof status remain unshipped. Retains ESM v15 strategies, strict fixtures, whole-source freshness and 4.148.0 response-name resolution. Historical evidence stays qualified. CLI 3.57.0 / MCP 4.147.1 lacks the new summary and repairs; this pin does not upgrade CLI or Scene runtime."
     },
     {
       "id": "scene",

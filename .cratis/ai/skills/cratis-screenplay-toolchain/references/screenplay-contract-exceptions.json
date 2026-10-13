@@ -61,5 +61,12 @@
     "kind": "toolCount",
     "value": "37",
     "reason": "Historical CLI 3.40.7 / standalone 4.122.0 transcript (version vector in preceding lines). Remove when this probe is removed or replaced."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/diagnostics.md",
+    "text": "| PLAY0686 | Retired | Screenplay 4.152.0 carries differing event pins as `storedName` in ESM v16. MCP's compatibility `eventPinWarnings` array is empty. Renderer admission remains separate; released Stage 4.92.0 and CLI 3.59.0 do not admit v16. |",
+    "kind": "diagnostic",
+    "value": "PLAY0686",
+    "reason": "Explicit retirement notice, not an active diagnostic or repair recommendation. Screenplay v4.152.0 published contract marks PLAY0686 retired; Documentation/screenplay/events.md:124 confirms retirement and empty compatibility warnings. Remove when this notice is removed or replaced."
   }
 ]

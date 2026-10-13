@@ -12,7 +12,7 @@
 
 `generated` properties and `returns` bind/reference-execute since 4.68.0 (ESM v7).
 Concept generation strategies and whole-source freshness shipped in Screenplay
-4.147.0 (ESM v15); standalone pin **4.151.0** includes them. CLI **3.57.0** bundles
+4.147.0 (ESM v15); standalone pin **4.153.0** includes them. CLI **3.57.0** bundles
 Screenplay **4.147.1** / Stage **4.89.1**, rendering the supported strategies,
 scalar/named responses, fixtures and `then returns`. Binding is not rendering.
 Historical CLI 3.41.0 STAGE-ESM-028/029 probes do not describe this bundle.
