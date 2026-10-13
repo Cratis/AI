@@ -88,7 +88,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8 on 4.125.0.
-   the CLI (toolchain `references/renderable-subset.md`) reaches Stage construct checks through v15; keep the routing
+   The CLI (toolchain `references/renderable-subset.md`) reaches Stage construct checks through v15; keep the routing
    contract when target admission requires gap-fill. Forms/boundaries:
    toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0 and later; Stage 4.89.1 renders supported UUID/String strategies and v15 freshness; unsupported types/results still refuse -028/-038) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no
