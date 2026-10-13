@@ -59,11 +59,18 @@ Read the skill before writing the artifact it covers; the rules alone are not th
 | Translation | by the actual construct and trigger, not the label: a `capture` is an ingestion adapter (`cratis-engineering-effect-boundaries`); a translator `reaction` is `cratis-chronicle-reactor` (cross-service: inbox/`[EventStore]`); a clock or application trigger is a scheduler or host signal | as Automation |
 | UI | `cratis-arc-react-page`, `cratis-arc-command-typescript`, `cratis-arc-query-typescript` | `cratis-application-react-specifications` |
 
+#### Find the realization before writing
+Search case-insensitively for the qualified slice folder and command, event, read-model and reactor names. Existing code makes this a diff against the contract: update the owned realization in place, never create another beside it. Reuse referenced Chronicle events and read models. Persisted event shape changes go through **cratis-chronicle-event-type-migration**, not an in-place property removal or rename; identity changes return to the identity owner. An unowned path is a hand-off, not permission to edit it.
+
+For a new slice, read one delivered sibling of the same type, preferring the same feature, then module, then shared events or read model. Read only its contract and realization files. Mirror its file shape, naming, spec layout and authorized registration seams; the contract and corpus rules win over precedent. Report a rule-breaking precedent instead of copying it.
+
 #### When the contract is unclear
-Read the contract and the slice-type skills fully first; most slices need no question. If a requirement is still ambiguous, contradictory or missing a decision, do not guess and do not build that part anyway. Stop that scope with `Status: blocked` and one specific question (for a `.play` slice, an edit request: address, change, reason). Finish unaffected scope only if it stands on its own. When a `.play` description contradicts an executable part (specification, mapping, constraint, authorization), that is a model defect: stop that scope and return an edit request.
+Read the contract and the slice-type skills fully first; most slices need no question. Block that scope for a missing or conflicting rule, authorization, money, time or identity behavior; an undecided event, command or field name; an undeclared/unimported referenced event or view; or prose contradicting executable parts. Return `Status: blocked` with one question or model edit request (address, change, reason). Finish unaffected scope only if it stands on its own. The lifecycle's `references/stop-or-assume.md` delivery triggers and unconditional stops apply and win.
+
+Assume visibly only for non-behavioral details: missing labels use spaced command/property names; isolation may need fresh test identifiers; file placement inside the slice, conversion of invalid spec names and unspecified layout follow local conventions. Record each address, choice and consequence if wrong in the fallback record. Never infer a business name or rule from this exception. `blocked` means a person must decide, not that asking felt safer.
 
 ### Phase 2 — Backend
-Write `<Module>/<Feature>/<Slice>/<Slice>.cs` with all backend artifacts (declaration order per `general.md`). **Gate:** build clean in **Debug and Release** (zero errors/warnings — Debug validates `#if DEBUG` spec code and regenerates the TypeScript proxies; build Release with `-p:CratisProxiesOutputPath=` to skip re-running proxy generation).
+Update the existing realization or, for a new slice, write `<Module>/<Feature>/<Slice>/<Slice>.cs` with all backend artifacts (declaration order per `general.md`). **Gate:** build clean in **Debug and Release** (zero errors/warnings — Debug validates `#if DEBUG` spec code and regenerates the TypeScript proxies; build Release with `-p:CratisProxiesOutputPath=` to skip re-running proxy generation).
 
 ### Phase 3 — Specs
 When a slice is re-delivered (the contract gained specifications), diff the contract's specification list against the existing spec classes first: each missing specification is the work list, even when the backend is unchanged. A slice is done only when every contract specification has an executable spec that passes; there is no contract specification without a spec equivalent. A spec changes only after an approved contract revision, and unaffected assertions are preserved.
@@ -97,9 +104,12 @@ Proxies now exist. Build React components from the generated proxies (`react.md`
 
 - `Status: done | partial | blocked` (meanings in **cratis-application-slice-conformance**: `done` = everything maps, nothing invented, gates green; `partial` = listed gaps remain; `blocked` = one specific question is open).
 - The contract used (`.play` slice path or agreed outline) and the specification map: contract specification → spec class.
+- Include the realization fields defined in **cratis-screenplay-render-and-gap-fill**, `references/drift-and-ledger.md` "Fallback record", rather than inventing another packet schema.
 - Files created/modified (paths), each gate result, anything you couldn't verify (e.g. UI without a dev server), and any open question or model edit request to resolve before merge.
 - Reusable learnings (0–3 bullets): conventions, gotchas or cross-file couplings that apply beyond this slice; not slice details or debugging notes. The parent decides whether one belongs in `AGENTS.md`; do not edit it yourself.
 
 ## Lineage
+
+The visible-assumption, existing-realization and result-record ideas are credited in **cratis-application-slice-conformance**, `references/provenance.md` "Method lineage"; wording here is our own.
 
 The re-delivery, specification-oracle and working-discipline items adapt the build prompts of agentic-engineer by Martin Dilger and Nebulit GmbH (https://github.com/Nebulit-GmbH/agentic-engineer, commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`; https://nebulit.de), used with their explicit consent.

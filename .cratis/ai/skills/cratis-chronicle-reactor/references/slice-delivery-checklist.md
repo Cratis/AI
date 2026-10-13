@@ -82,6 +82,8 @@ fact, not handled (`references/domain-failures.md`).
 - [ ] Handlers that return events or commands carry `[OnceOnly]`; the effect is idempotent regardless
 - [ ] A gated command has `[ExecuteCommandsAsSystem]` naming the role the command requires
 - [ ] Repeated delivery of the same trigger is specified (what happens when it fires twice)
+- [ ] For a pending-work read model, the successful effect records the event that removes the
+  selected item, directly or through the invoked command; success leaves no completed work pending
 - [ ] A modeled slice matches its `.play` contract; the model was not edited to fit the code
 - [ ] The reactor has no route; a command meant only for the automation is gated and the reactor runs it as that role; no processor or lock configuration, no dead-letter store
 - [ ] The build has no `CHR0004`, `CHR0005`, `CHR0008`, `CHR0013`, `CHR0022`, `CHR0031` or `CHR0032` outstanding and the specifications pass
@@ -91,3 +93,6 @@ The trigger-to-command field mapping is part of the contract, so give it its own
 direct call asserting the returned command, or a `ReactorScenario` where wiring matters). The
 command's own `CommandScenario` covers the command side separately; neither replaces the other.
 Details: `references/specifications.md`.
+Where a pending-work view drives the reaction, its read-model specification seeds the trigger
+and then the completion event and asserts that the item is absent. Link it from the reaction's
+specification map: command success alone cannot show the queue will stop selecting that item.

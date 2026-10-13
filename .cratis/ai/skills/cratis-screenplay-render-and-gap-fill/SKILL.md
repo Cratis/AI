@@ -143,7 +143,8 @@ model still compiles and binds) and its V5 states the scope.
    default composition is a failure (Stage 4.24 rendered the default composition only).
 8. **Drift:** `cratis render ... --check` (exit 6 pending); also compare the manifest's `semanticRevision`
    with a fresh render under the same inputs. For hand-written scope, `cratis screenplay conform` gives
-   structural code-vs-model evidence (`references/drift-and-ledger.md`).
+   structural code-vs-model evidence (`references/drift-and-ledger.md`). For changes since verification,
+   follow that reference's "Hand-written code changed since it was last verified" procedure.
 9. **Hand off** the packet: verdict lines, spec mapping, edit requests for the modeler, ledger
    entries, UI omissions, learning candidates (at most 3).
 

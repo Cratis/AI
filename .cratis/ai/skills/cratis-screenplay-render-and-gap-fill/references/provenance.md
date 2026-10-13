@@ -22,3 +22,10 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | `.claude/skills/update-slice-status/SKILL.md`: closed status vocabulary and the already-in-status claim guard | `references/gap-fill-handoff.md`; the `done \| partial \| blocked` status | Idea; our own wording kept (statuses differ on purpose) |
 
 No TrogonStack/agentskills text is used in this skill.
+
+## Method lineage
+
+| Idea | Used in | Credit |
+| --- | --- | --- |
+| Inspect code changes individually from the verification baseline | `drift-and-ledger.md`, hand-written change procedure; `SKILL.md` step 8 | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`detect-model-drift`); idea, our own wording |
+| Map slice declarations to their realization, shared seams and delivery identity | `drift-and-ledger.md`, fallback record; `gap-fill-handoff.md`, result pointer | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`record-evidence`); idea, our own wording |

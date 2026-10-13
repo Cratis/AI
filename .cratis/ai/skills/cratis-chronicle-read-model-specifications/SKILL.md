@@ -190,6 +190,8 @@ need no wrapper. Keep one outcome per `should_` fact.
 
 ## Step 6 — Cover the read model, not just one event
 
+For `.play` setup, assertions and case tables, read `cratis-application-slice-specifications`, "Reading a `.play` specification".
+
 One summation example proves one event. Take the inventory from the contract
 (the `.play` read model and its specifications, or the agreed outline); without
 one, derive it from the projection and say so. Then check each line:
