@@ -12,6 +12,7 @@ Three layers:
 | Hard block | `PreToolUse` on a write | `scripts/cratis-guard-writes.sh` | zero | exits **2** — the write does not happen |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-store-mutations.sh` | zero; parses only commands that mention `cratis` | exits **2** — the store-changing `cratis chronicle` command does not run |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-pr-body.sh` | fetches shared rules only for `gh pr create/edit` | exits **2** for inline bodies, invalid notes or conflicting release labels; warns and allows when offline with no cache |
+| Cleanup of delivered work | `PostToolUse` on `Bash` (`gh pr merge`, `git pull/merge/worktree`) and `SessionStart` (Pi: `tool_result` and `session_start`) | `scripts/cratis-cleanup-worktrees.sh --hook` | zero when the command is unrelated | never blocks; removes delivered worktrees and branches, reports what it kept |
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
 
@@ -59,6 +60,29 @@ Tracked-file stability follows Git-visible contents, not byte-exact disk content
 conversion and Git's assume-unchanged or skip-worktree settings can hide raw disk changes. If you
 use those settings, independently verify raw file contents or remove the hiding settings before
 relying on this check.
+
+## Cleanup of delivered work
+
+`scripts/cratis-cleanup-worktrees.sh` is the one place that removes linked worktrees and local
+branches after their work shipped; worktrees pile up otherwise (`gh pr merge --delete-branch`
+cannot delete a branch that a worktree still has checked out, so the pair is left behind) and eat disk.
+It removes only on **evidence of delivery**, never on a guess: the tip is merged into `origin/<default>`
+and was integrated rather than merely sitting on the default branch's first-parent history (where a
+brand-new empty branch sits), or it is merged and its upstream is gone, or GitHub reports a merged pull
+request whose head is exactly that tip. It never forces: a dirty, locked or current worktree is kept, as
+is anything undelivered, and every kept item is reported with its reason. Ignored files (`node_modules`,
+build output, `.ai-work/`) go with a delivered worktree; they are the disk being reclaimed.
+
+- **When it runs.** After a Bash command that delivers or integrates work, and at the start of every
+  session, so orphans left by any earlier session, crash or harness are collected too.
+  Claude Code and Pi are wired (`settings.template.json`, the `cratis-hooks` Pi extension).
+  Harnesses with no hook wiring (Copilot, Cursor, OpenCode) rely on the **ship-changes** prompt, whose
+  final step runs the same script, and on running it by hand.
+- **By hand.** `bash .cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh [--dry-run]` from any worktree;
+  run from the main checkout to also collect the worktree you are standing in.
+- **Self-test.** `--self-test` plants delivered, dirty, unmerged and brand-new cases and fails if any is
+  handled wrongly.
+- **Opt out.** `CRATIS_HOOKS_SKIP_CLEANUP=1`.
 
 ## What is enforced
 

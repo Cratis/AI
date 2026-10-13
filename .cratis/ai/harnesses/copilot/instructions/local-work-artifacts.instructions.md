@@ -38,12 +38,18 @@ dumps, and similar coordination files. These are **work records, not documentati
 - **A worktree is a work record too.** Create it outside the repository tree, for
   example in a sibling `../.worktrees/` directory. A nested worktree inherits the
   parent's `.globalconfig` alongside its own, causing .NET's `MultipleGlobalAnalyzerKeys`
-  errors or silently changing analyzer severities. Remove the worktree you created for
-  a task once its branch is merged to the default branch — pushed is not merged. Do it
-  from the parent checkout, after `git status --ignored` in the worktree, because a
-  nested `.ai-work/`, `.env` files and local databases are ignored and are deleted with it.
-  If the branch must outlive the task unmerged, leave the worktree and say so in the
-  handoff. Never `--force` a removal; a refusal means look, not push harder.
+  errors or silently changing analyzer severities. **Delivered work is cleaned up by
+  `.cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh`, not by memory:** run it from the
+  main checkout when a pull request merges or you finish a task (hooks also run it after
+  `gh pr merge` and at session start where the harness supports them, and **ship-changes**
+  ends with it). It removes a worktree and its branch only on evidence the work reached the
+  default branch — pushed is not merged — and never forces; ignored files such as a nested
+  `.ai-work/`, `.env` files and local databases are deleted with it, so move anything you
+  still need out first. Do not hand-remove worktrees or `git branch -D` a delivered branch
+  when the script can; and `gh pr merge --delete-branch` from inside a worktree leaves the
+  worktree and branch behind, which is why the script exists. If the branch must outlive the
+  task unmerged, leave the worktree and say so in the handoff. Never `--force` a removal; a
+  refusal means look, not push harder.
 - **A decision log is not a work record.** A decision — a durable choice with a
   decider and a date — is documentation: it lives in **`decisions/`** (or the
   repository's documented decisions folder) and is reviewed like any other

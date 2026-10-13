@@ -10,6 +10,8 @@
  *   Claude PreToolUse  (Bash)        →  Pi `tool_call`      →  cratis-guard-store-mutations.sh  (exit 2 = block)
  *   Claude PreToolUse  (Bash)        →  Pi `tool_call`      →  cratis-guard-pr-body.sh  (exit 2 = block)
  *   Claude PostToolUse (Write|Edit)  →  Pi `tool_result`    →  cratis-pattern-scan.sh  (advisory context)
+ *   Claude PostToolUse (Bash)        →  Pi `tool_result`    →  cratis-cleanup-worktrees.sh --hook  (removes delivered worktrees/branches)
+ *   Claude SessionStart              →  Pi `session_start`  →  cratis-cleanup-worktrees.sh --hook  (sweeps orphans left by any earlier session)
  *   Explicit Pi `cratis_quality_gate` tool → cratis-quality-gate.sh  (exit 2 = failed)
  *
  * The quality gate is the one deliberate difference from Claude. It builds and tests the repository, which can
@@ -80,11 +82,11 @@ interface ScriptRun {
  * writes it exists to refuse. Callers decide what to do with `failed`; this function only reports
  * it honestly.
  */
-function runScript(script: string, stdinJson: string, cwd: string, signal?: AbortSignal): Promise<ScriptRun> {
+function runScript(script: string, stdinJson: string, cwd: string, signal?: AbortSignal, args: string[] = []): Promise<ScriptRun> {
 	return new Promise<ScriptRun>((resolve) => {
 		let proc: ReturnType<typeof spawn>;
 		try {
-			proc = spawn("bash", [script], { cwd, stdio: ["pipe", "pipe", "pipe"] });
+			proc = spawn("bash", [script, ...args], { cwd, stdio: ["pipe", "pipe", "pipe"] });
 		} catch (error) {
 			resolve({ code: 127, stdout: "", stderr: String(error), failed: true });
 			return;
@@ -187,6 +189,7 @@ export default function (pi: ExtensionAPI) {
 	const guardPrBody = path.join(scriptsDir, "cratis-guard-pr-body.sh");
 	const patternScan = path.join(scriptsDir, "cratis-pattern-scan.sh");
 	const qualityGate = path.join(scriptsDir, "cratis-quality-gate.sh");
+	const cleanupWorktrees = path.join(scriptsDir, "cratis-cleanup-worktrees.sh");
 
 	// The explicit gate owns its subprocesses; shutdown also cancels a still-running tool.
 	const activeGateRuns = new Map<AbortController, Promise<void>>();
@@ -230,8 +233,38 @@ export default function (pi: ExtensionAPI) {
 		return runBlockingGuard(guardWrites, "cratis-guard-writes", "write", payload, ctx, "write guards");
 	});
 
+	// ── Cleanup of delivered worktrees and branches ──
+	// The script decides on evidence that the work reached the default branch and only then removes anything; this
+	// bridge just fires it at the same moments Claude does: after a delivering command, and when a session starts.
+	// A failure here must never fail the tool call that already succeeded, so it is reported, not thrown.
+	async function sweepDelivered(hookEvent: "PostToolUse" | "SessionStart", command: string | undefined, cwd: string, signal?: AbortSignal): Promise<string> {
+		if (!isInstalled(cleanupWorktrees)) return "";
+		const payload = JSON.stringify({ hook_event_name: hookEvent, cwd, tool_input: command ? { command } : undefined });
+		const run = await runScript(cleanupWorktrees, payload, cwd, signal, ["--hook"]);
+		if (run.failed) return "cratis-cleanup-worktrees is installed but could not be run, so delivered worktrees were not cleaned up.";
+		try {
+			return JSON.parse(run.stdout)?.hookSpecificOutput?.additionalContext?.trim() ?? run.stderr.trim();
+		} catch {
+			return run.stderr.trim();
+		}
+	}
+	pi.on("session_start", async (_event, ctx) => {
+		const message = await sweepDelivered("SessionStart", undefined, ctx.cwd);
+		if (message) pi.sendMessage({ customType: "cratis-cleanup-worktrees", content: message, display: true });
+	});
+	async function sweepAfterBash(event: any, ctx: ExtensionContext) {
+		if (event.isError) return;
+		const command = event.input?.command;
+		if (typeof command !== "string") return;
+		const message = await sweepDelivered("PostToolUse", command, ctx.cwd, ctx.signal);
+		if (!message) return;
+		const existing = Array.isArray(event.content) ? event.content : [];
+		return { content: [...existing, { type: "text", text: `\n\n[cratis-hooks]\n${message}` }] };
+	}
+
 	// ── PostToolUse → deterministic pattern scan (advisory; injects reminders the model sees) ──
 	pi.on("tool_result", async (event, ctx) => {
+		if (event.toolName === "bash") return sweepAfterBash(event, ctx);
 		if (event.toolName !== "write" && event.toolName !== "edit") return;
 		if (event.isError) return;
 		const { filePath } = writeTarget(event.toolName, (event as any).input);
