@@ -15,7 +15,7 @@ The admitted model shape is deliberately small. A model Stage cannot render exac
 produces **no artifacts at all**, never thinner ones. Render the model to find out
 whether it is admitted; reading the admission rules is not a render result.
 
-Requires cratis CLI ≥ 3.57 (`cratis --version`) for everything below; an older CLI lacks `--scope`, `--check` or admission of the newest ESM versions and reports `CLI-RENDER-004` or `STAGE-ESM-016` for them.
+Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
 
 ## When to use
 

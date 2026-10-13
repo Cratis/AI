@@ -47,8 +47,10 @@ authorization instead, which is the thing to test for production behavior (Debug
 of a render, [render-example.md](render-example.md)).
 
 The semantic Host encrypts personal-data and secret concepts at rest through Chronicle and
-releases values on read; erasure deletes event-source keys. It does not supply explicit
-subject lineage. Non-text `secret` concepts refuse `STAGE-ESM-041` (`pii secret` uses
+releases values on read; erasure deletes event-source keys. Encryption applies to new
+writes only: events already stored in plaintext in an existing Play store are not
+retroactively encrypted, and key deletion is not erasure of those earlier plaintext events.
+It does not supply explicit subject lineage. Non-text `secret` concepts refuse `STAGE-ESM-041` (`pii secret` uses
 PII only). It executes equality filters, but its specification executor refuses filtered
 query assertions with `STAGE-ESM-010`.
 
@@ -100,11 +102,13 @@ invalid semantic option.
   admitted commands through Arc's in-memory pipeline; supports explicit-source and routed
   given events, unconditional production, event assertions, caller and authorization,
   command rules, unique constraints, flat and event-source-keyed scoped projections, and
-  unprotected optional snapshot queries. Report schema `stage-spec-run/1` with outcomes
+  optional snapshot queries, including protected ones: portable authorization is evaluated
+  with the fixture caller, query arguments and key, and an expected denial matches only
+  `then denied`. Report schema `stage-spec-run/1` with outcomes
   `Passed`, `Failed`, `Unsupported` (carrying kind, construct id and reason) or
   `Cancelled`. Not supported: given read models, conditional production, implicit identity
-  allocation, external effects, composite values, protected queries, queries other than
-  optional snapshots. Unsupported is never a pass. Do not feed the file to a legacy reader.
+  allocation, external effects, composite values, queries other than optional snapshots, and
+  a reached opaque authorization policy (reported as `Unsupported`). Unsupported is never a pass. Do not feed the file to a legacy reader.
 
 How the runner relates to the verdicts: a structural pass is not a behavioral result. The
 semantic engine is Stage's own executor running through Arc's in-memory pipeline. It is
