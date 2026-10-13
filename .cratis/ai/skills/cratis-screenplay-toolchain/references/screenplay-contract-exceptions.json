@@ -18,7 +18,7 @@
     "text": "is not proof of coverage. `test` rejects `--no-color` (exit 2).",
     "kind": "cliOption",
     "value": "--no-color",
-    "reason": "Negative option guidance, not a command recommendation; Screenplay v4.145.0 ModelTest.cs:22-26. Remove with the warning."
+    "reason": "Negative option guidance, not a command recommendation: `screenplay test` rejects the option. Remove with the warning."
   },
   {
     "file": ".cratis/ai/skills/cratis-screenplay-model-authoring/references/mcp-loop.md",
@@ -56,17 +56,10 @@
     "reason": "Source evidence explicitly pinned to v4.66.0. Remove when this older source vector is removed or replaced."
   },
   {
-    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/SKILL.md",
-    "text": "and the stdio transcript exposed 37 tools; standalone language 4.122.0 was",
-    "kind": "toolCount",
-    "value": "37",
-    "reason": "Historical CLI 3.40.7 / standalone 4.122.0 transcript (version vector in preceding lines). Remove when this probe is removed or replaced."
-  },
-  {
     "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/diagnostics.md",
-    "text": "| PLAY0686 | Retired | Screenplay 4.152.0 carries differing event pins as `storedName` in ESM v16. MCP's compatibility `eventPinWarnings` array is empty. Renderer admission remains separate; released Stage 4.92.0 and CLI 3.59.0 do not admit v16. |",
+    "text": "| PLAY0686 | Retired | Differing event pins travel as `storedName` in ESM v16. MCP's compatibility `eventPinWarnings` array is empty. Renderer admission is separate: a renderer that does not admit v16 must refuse the model rather than render it under the new name. |",
     "kind": "diagnostic",
     "value": "PLAY0686",
-    "reason": "Explicit retirement notice, not an active diagnostic or repair recommendation. Screenplay v4.152.0 published contract marks PLAY0686 retired; Documentation/screenplay/events.md:124 confirms retirement and empty compatibility warnings. Remove when this notice is removed or replaced."
+    "reason": "Explicit retirement notice, not an active diagnostic or repair recommendation. The published contract marks PLAY0686 retired. Remove when this notice is removed or replaced."
   }
 ]

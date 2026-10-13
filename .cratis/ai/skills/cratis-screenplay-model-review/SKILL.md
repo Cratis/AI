@@ -35,7 +35,7 @@ adapted to `.play` declarations (`references/provenance.md`).
 | Screenplay | `v4.144.0` | `Documentation/screenplay/model-notes.md:12-77,93-121`, decision 0045:40-79; notes MCP sources in model-authoring `references/model-notes.md` |
 | cratis CLI | `v3.28.3` | bundles Screenplay 4.66.0 and Stage 4.24.2; see the toolchain skill |
 
-Historical sources remain versioned above; current pins: toolchain `references/versions.md`. Compilation (V1) does not establish reference execution.
+Historical sources remain versioned above; current pins: toolchain `SKILL.md`. Compilation (V1) does not establish reference execution.
 
 ## Interview phase
 Skip if the brief names the scope, the mode and the review kind.

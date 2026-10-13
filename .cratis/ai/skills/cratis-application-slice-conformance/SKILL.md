@@ -38,7 +38,7 @@ other infrastructure. Change behaviour in the model first, never in managed outp
 ## Verified product sources
 
 This skill is a method: it names no API of its own. Product facts it relies on are pinned
-to these tags; when the Screenplay skills are installed their `references/versions.md`
+to these tags; when the Screenplay skills are installed their `SKILL.md`
 (in `cratis-screenplay-toolchain`) holds the full table.
 
 | Fact used here | Source |

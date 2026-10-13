@@ -1,11 +1,11 @@
 # Specification forms by mode
 
 The subsets themselves (what binds, what renders) are owned by `cratis-screenplay-toolchain`
-(its executable and renderable subset references); version facts by its `references/versions.md`. This file
+(its executable and renderable subset references); version facts by its `SKILL.md`. This file
 says what that means for writing specs. A form outside the chosen mode is never deleted from a
 design model: keep it and record the gap. The detailed Stage 4.24.x rows below
 retain historical admission evidence; current pins are in
-`cratis-screenplay-toolchain/references/versions.md`. Run actual target admission instead of assuming old restrictions carry over.
+`cratis-screenplay-toolchain/SKILL.md`. Run actual target admission instead of assuming old restrictions carry over.
 Typed example/override forms: `cratis-screenplay-specifications`
 `references/examples-and-routes.md`.
 
@@ -21,12 +21,12 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Context `from`, single-result filters, `scoped to`, `performer` or composite `by` | yes | PLAY0268: query context, collection-only filtering, opaque scope/implementation or multipart lookup are unadmitted | no |
 | `then no readmodel <RM> for "<key>"` | yes | yes | no |
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
-| `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | yes (standalone and any current cratis; history: a cratis before 3.28.2 bundle no, see versions.md) | no |
+| `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | yes (standalone and any current cratis; history: a cratis before 3.28.2 bundle no, see the toolchain `SKILL.md`) | no |
 | Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on a cratis before 3.28.2 bundle only; see SKILL.md "Version skew" | no: STAGE-ESM-011; generated CommandScenario does not settle reactions (Stage 4.89.1) |
 | `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on standalone Screenplay 4.68.0 or later and the current cratis bundle (history: PLAY0268 on the 4.66.0 bundled in cratis 3.28.x) | yes on Stage 4.89.1 for supported UUID/String strategies and v15 freshness and scalar/named responses; unsupported types/combinations remain -028/-038 |
 | v15 generation strategy fixtures and used-source rejection | yes | strict encoding/size/case/version/variant; Contract for invalid pins, Concurrency for reused source | supported strategies/freshness render; invalid pins refuse -011, unpinned unordered/projected assertions -038; source: command-surface `references/generated-values-and-responses.md` |
 | `then events in any order` | yes | yes | yes |
-| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | The pinned CLI reaches Stage route checks (toolchain `references/versions.md`); routed read-model/query replay now renders (Stage 4.89.1); reserved names/unformattable fixtures remain STAGE-ESM-030 |
+| Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 at 4.125.0 | The pinned CLI reaches Stage route checks (toolchain `SKILL.md`); routed read-model/query replay now renders (Stage 4.89.1); reserved names/unformattable fixtures remain STAGE-ESM-030 |
 | Typed examples and overrides | yes | expanded and type-checked before binding; required fields remain required | depends on expanded contract, not fixture reuse |
 | `given operation ... fails`, `then operation`, `then compensated` | yes | unadmitted PLAY0268 | gap-fill |
 | Refusal branches, `when redelivered`, `then no events` | yes | unadmitted PLAY0268 | gap-fill |

@@ -144,7 +144,7 @@ using literals only; encoding escapes `%`/`|` and preserves declaration order.
 Source: v4.127.0 `event-sources.md`, `specifications.md`, `diagnostics.md`.
 
 Previous CLI 3.46.1 refused above v7; the pinned CLI/Stage pair
-(`cratis-screenplay-toolchain/references/versions.md`) reaches route checks through v10. Routed read-model/query replay can still refuse
+(`cratis-screenplay-toolchain/SKILL.md`) reaches route checks through v10. Routed read-model/query replay can still refuse
 STAGE-ESM-030. Source/reference success never establishes target parity.
 
 Command and read-model examples refuse routes (PLAY0526). Effective role and

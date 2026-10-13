@@ -36,7 +36,7 @@ then hands off to review (P5) and acceptance (P6).
 
 ## Verified product sources
 
-Current pins: `cratis-screenplay-toolchain` `references/versions.md`. The sources below were read
+Current pins: `cratis-screenplay-toolchain` `SKILL.md`. The sources below were read
 at the versions named in each row (CLI 3.53.1 bundles Prologue
 2.0.0; the Screenplay, Stage and Arc.Screenplay it bundles are in that pin set, and are not the latest releases). Checked at these sources:
 

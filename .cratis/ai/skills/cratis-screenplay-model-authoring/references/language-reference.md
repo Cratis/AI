@@ -226,7 +226,7 @@ The ESM version is selected by what a model uses, never by the author:
   `Translate` slices. The Cratis CLI 3.28.2 bundles Screenplay 4.66.0 and binds them;
   before 3.28.2 bundled 4.60.1 (ESM 5 at most), where these constructs failed
   binding with `PLAY0268`. Name the tool
-  with every bound result; `cratis-screenplay-toolchain` (`references/versions.md`)
+  with every bound result; `cratis-screenplay-toolchain`
   holds the per-tool table.
 - **v7** (Screenplay 4.68.0 and later; `Versions.cs`) admits generated command properties, `returns`
   responses, generated fixtures and `then returns` expectations, and is selected only by a model that

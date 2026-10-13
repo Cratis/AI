@@ -28,7 +28,7 @@ The historical parser/binder/reference-runner version table is in the source not
 
 Specification syntax was checked against Screenplay v4.127.0 `specifications.md`;
 older probes in the table remain historical. Pins: `cratis-screenplay-toolchain`
-`references/versions.md`. Compile commands check source, not reference execution.
+`SKILL.md`. Compile commands check source, not reference execution.
 Use `screenplay test` or MCP `run-specifications` for V4; Stage/target tests are
 separate evidence. On Screenplay **4.145.0 and later**, propose → review →
 `run-specifications` with `proposalId` → apply.
@@ -287,7 +287,7 @@ For view specifications:
 ## Verify
 
 - [ ] Validate the complete root with warnings as errors, naming tool/version.
-      Standalone pin: `cratis-screenplay-toolchain/references/versions.md`. Run specification examples through
+      Standalone pin: `cratis-screenplay-toolchain/SKILL.md`. Run specification examples through
       `screenplay test`; expected unadmitted syntax reports unbound, not passed.
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.

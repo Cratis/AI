@@ -246,7 +246,7 @@ Slice design is done when these hold; otherwise report what is open.
 
 Examples compile with `screenplay` 4.68.0 `--warnaserror` and `cratis screenplay validate
 --warnings-as-errors` (cratis 3.28.2 or later); other pins: `cratis-screenplay-toolchain`
-`references/versions.md`. Compiling proves syntax, not that the model is executable or renders.
+`SKILL.md`. Compiling proves syntax, not that the model is executable or renders.
 
 ## Verify
 

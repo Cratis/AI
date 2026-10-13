@@ -285,7 +285,7 @@ then choose edits from evidence. Workflow, flags, guards and recovery:
 `Documentation/screenplay/events.md:116-124`,
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs:15-35`,
 `Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82`;
-target evidence: toolchain `references/versions.md` (Stored-name rendering boundary).
+target evidence: toolchain `SKILL.md` (Stored-name rendering boundary).
 
 A stream whose stored name is exactly `All`, from its name or `id "All"`,
 refuses executable binding/readiness with PLAY0273. Use discovered `propose-rename`
@@ -369,7 +369,7 @@ persona/policy and table/case/caseParameter provenance. Neither view executes.
 
 Screenplay v4.127.0 `mcp/reference.md` and `authoring-tools.md` describe these
 additions (checked at 4.127.0). Discover installed schemas; current compiler
-and bundle pins are in `cratis-screenplay-toolchain/references/versions.md`.
+and bundle pins are in `cratis-screenplay-toolchain/SKILL.md`.
 
 - Identity/detail summaries expose declared sources; `$identity` has its own
   expression node. The block alone stays executable-ready, but executable reads
@@ -513,7 +513,7 @@ the open model as candidate:
 ```
 
 These source objects require Screenplay 4.131.0; compare the bundled compiler
-in `cratis-screenplay-toolchain/references/versions.md` with that minimum
+in `cratis-screenplay-toolchain/SKILL.md` with that minimum
 (previous CLI 3.46.1 bundled 4.130.0).
 Discover installed schemas rather than assuming bundle parity.
 Check that the registered worktree is checked out at the intended commit and

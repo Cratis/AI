@@ -42,7 +42,7 @@ the berth reservations example.
 - Screenplay v4.66.0 (`c89198b`): `Documentation/screenplay/specifications.md` (actions, outcomes,
   `then denied`, `then no readmodel`, `then query`, `then events in any order`, PLAY0352,
   PLAY0389) and the probes recorded in the version table of `cratis-screenplay-toolchain`
-  `references/versions.md`.
+  `SKILL.md`.
 - Screenplay#390 (specification obligations in MCP) and #394 (multi-step specifications) were
   open when written: cited as not available.
 - Stage v4.24.0: `STAGE-ESM-015` and `STAGE-ESM-011` admission diagnostics for policies and
