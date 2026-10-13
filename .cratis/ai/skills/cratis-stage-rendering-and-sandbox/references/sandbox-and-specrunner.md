@@ -2,32 +2,44 @@
 
 ## Contents
 
-- Current behavior at Stage 4.83.0 (source reading; Docker not run)
+- Current behavior at Stage 4.89.1 (source reading; Docker not run)
 - Specification engine selection at Stage 4.78.0 and CLI 3.53.1
 - The sandbox: a partial, disposable runtime
 - The specification runner
 - Choosing between them
 
-Read at Stage `v4.24.0`, then re-read for the current paragraph below at `v4.83.0` (`README.md`, `Documentation/docker/index.md`,
+Read at Stage `v4.24.0`, then re-read for the current paragraph below at `v4.89.1` (`README.md`, `Documentation/docker/index.md`,
 `Documentation/docker/spec-runner.md`, `Documentation/reference/urls.md`) and cli
 `v3.28.2` (`Commands/Run/*`, unchanged since `v3.27.1`). Docker was **not run** for this skill: every behaviour here
 is documented behaviour, not an observed result. Both images are still shipped.
 
-## Current behavior at Stage 4.83.0 (source reading; Docker not run)
+## Current behavior at Stage 4.89.1 (source reading; Docker not run)
 
-Read from `Documentation/docker/index.md` (lines 127-155) and `docker/spec-runner.md` (lines 11-19) at
-`v4.83.0`, the Stage that CLI 3.56.0 bundles and `cratis run` starts. The default EventModel engine refuses
+Read from `Documentation/docker/index.md:127-166,273-309` and `docker/spec-runner.md:11-43` at
+`v4.89.1`, the Stage that CLI 3.57.0 bundles and `cratis run` starts. The default EventModel engine refuses
 named event sources, streams and routes with `STAGE-ESM-030` (`/stage/status` reports
 `state: "unsupported"` and `/api/**` answers 501), so the default `cratis run` does not run a routed model.
 Both engines refuse public events (`-032`), foreign or source-event captures (`-033`), directed Translate
 slices (`-024`) and reducer observer filters (`-035`); the legacy engine also refuses reaction identity and
 reaction observer filters (`-034`, `-035`), and per-production route overrides fail `-036` on the semantic
-engine. The semantic engine (`Stage__Runtime__Engine=semantic`) admits exact ESM v1 to v13 version pairs,
+engine. The semantic engine (`Stage__Runtime__Engine=semantic`, Screenplay 4.147.1) admits exact ESM v1 to v15 version pairs,
 executes routes and runs event-triggered reactions (including `where`, `runs as`, `from`, productions,
 invocations and cascades), settling them with the initiating command in one batch; clock, application,
-startup and shutdown triggers and opaque reaction bodies still fail `-024`. It does not encrypt or redact
-personal-data or secret values. The structural specification runner is deprecated: it prints a deprecation
+startup and shutdown triggers and opaque reaction bodies still fail `-024`.
+The semantic Host now encrypts personal-data/secret concepts at rest through Chronicle and releases
+values on read; erasure deletes event-source keys. Existing stores retain earlier plaintext events;
+explicit subject lineage is not supplied. Non-text `secret` concepts refuse `STAGE-ESM-041`
+(`pii secret` uses PII only). It executes v14 equality filters, but the independent semantic
+specification executor refuses filtered query assertions with `STAGE-ESM-010`; seeded read-model
+specifications retain the GivenReadModel gap. v15 supplies strategies and whole-source freshness.
+Renderer support for reaction `from` and role/authenticated `runs as` does not relax legacy-engine
+034/035 refusals. The structural specification runner is deprecated: it prints a deprecation
 notice, refuses routes with exit 1 and writes no results file. Exit codes `0`/`1`/`2` are as in `SKILL.md`.
+The semantic Host exposes `POST /stage/semantic/specifications/run`, running fresh isolated
+scenarios in a child process, never the live world/log. Read every report outcome: HTTP 200
+is not a specification pass. Cancellation kills the child tree; timeout is 504, launch/nonzero/invalid
+report is 502. Timeout defaults to 120 seconds (1–600, including queue); specifications remain
+available after a later world-rebuild/registration failure if the model was admitted.
 The sections below describe the 4.24-era behavior and remain the engine comparison.
 
 ## Specification engine selection at Stage 4.78.0 and CLI 3.53.1

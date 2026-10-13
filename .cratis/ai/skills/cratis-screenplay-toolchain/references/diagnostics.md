@@ -174,7 +174,7 @@ Identity declarations and event `subject` are metadata; reading a declared
 `$identity` detail in executable clauses is PLAY0268. `runs as` is admitted as
 ESM v10 in the current standalone, not a current PLAY0268 gap. At standalone
 4.142.0, concept compliance binds as v13 (since 4.141.0); enum/identity compliance and protected
-events with explicit subject marks still refuse PLAY0268. CLI 3.56.0's 4.145.1
+events with explicit subject marks still refuse PLAY0268. CLI 3.57.0's 4.147.1
 bundle also binds concept compliance; purpose metadata is PLAY0270. See command-surface
 `references/compliance.md` and `references/context.md` for syntax and limits.
 
@@ -326,6 +326,9 @@ or V4 execution. Run the CLI or MCP for those verdicts. Authority:
 | PLAY0469 (I/W) | command identifier copied into the payload while targeting it |
 | PLAY0479 (I) | legacy `?` optional |
 | PLAY0480/0484 | modifier order `Type optional generated identifier` |
+| PLAY0682 | `generate sequence` is reserved; keep the intended sequence as a capability gap |
+| PLAY0683/0684 | generated identifier below 64 random bits is an error; non-identifier entropy warning (single-property uniqueness may suppress it) |
+| PLAY0685 | own response name used under execute failure; outer successful responses remain available. Screenplay 4.148.0, UI composition `references/response-continuations.md` |
 | PLAY0289 | (binding) no documents: empty root |
 
 Fix order: E at V1 -> W at V1 -> silent-gap check -> V2 codes (if the mode needs V3).
@@ -334,9 +337,9 @@ Report each as `code file:line one-line meaning`; never paste more than about 30
 ## Render admission (V5): `STAGE-*`, `CLI-RENDER-*`, `STAGE-CRATIS-*`
 Full table with causes: `renderable-subset.md`. The Stage 4.24.x rows below
 retain historical source/probe evidence. The pinned CLI/Stage pair (`versions.md`) admits
-through v13 to construct checks; above it is CLI-RENDER-004 (direct Stage:
+through v15 to construct checks; above it is CLI-RENDER-004 (direct Stage:
 STAGE-ESM-016). Publication STAGE-ESM-032, foreign facts/event captures 033,
-reaction identity 034, reaction filters 035 and production overrides 036 remain
+claim-reading/opaque reaction gates 034, legacy filters 035 and production overrides 036 remain
 refused; reducer filters render. Previous CLI 3.46.1 admitted through v7; its
 v7 corpus received STAGE-ESM-028/029, not the older v7 version gate.
 Codes in the historical snapshot:

@@ -77,8 +77,8 @@ length mismatch, duplicates, non-int32 entries or a positional array (non-canoni
 Programmatic validation enforces the same contract. Specifications still compare
 names; numbers are neither alternative fixture values nor flags.
 
-Consumers must **explicitly admit v12**. CLI 3.56.0 (Screenplay 4.145.1 / Stage
-4.83.0) admits through v13 and renders explicit numbers as `Member = N` (sparse
+Consumers must **explicitly admit v12**. CLI 3.57.0 (Screenplay 4.147.1 / Stage
+4.89.1) admits through v15 and renders explicit numbers as `Member = N` (sparse
 and negative, `-0` as 0; unnumbered enums keep declaration order). Stage first
 admitted v12 in 4.76.0. Do not remove enum pins to fit an older consumer;
 report its admission gap. See toolchain `references/versions.md`.
@@ -87,7 +87,7 @@ Sources checked at `v4.139.0`: `Documentation/screenplay/concepts.md`,
 `interoperability.md`, `diagnostics.md`, `mcp/authoring-tools.md`, decision 0065,
 `Semantics/Versions.cs`, `SemanticModelValidator.EnumMemberNumbers.cs` and the
 source-backed `EnumMemberNumbersCorpus.V12` (under `Source/DotNET/`). Consumer
-pins: CLI `v3.56.0:Directory.Packages.props:8-10` and
-`Source/Cli/Commands/Render/RenderedSemanticVersions.cs:33`; Stage `v4.83.0`,
+pins: CLI `v3.57.0:Directory.Packages.props:8-10` and
+`Source/Cli/Commands/Render/RenderedSemanticVersions.cs:34`; Stage `v4.89.1`,
 `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`,
 `SemanticEnumMembers.cs:15-26`, `SemanticCommonArtifactRenderer.cs:56-65`.

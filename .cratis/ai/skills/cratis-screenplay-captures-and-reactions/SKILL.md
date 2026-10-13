@@ -34,9 +34,9 @@ decides, not the slice type:
   `executableReady` over `screenplay mcp`.
 - **History:** the CLI 3.28.2 bundle (Screenplay 4.66.0) bound v6; the earlier 4.60.1 bundles
   refused it and falsely reported PLAY0285 (`references/versions.md`).
-- **CLI 3.56.0 / Stage 4.83.0** render supported event-triggered Automation, not
-  Translate/captures, non-event triggers or opaque bodies (`-024`). `runs as`, `from`,
-  mixed effects, unsupported mappings and protected identities remain refused;
+- **CLI 3.57.0 / Stage 4.89.1** render supported event-triggered Automation, not
+  Translate/captures, non-event triggers or opaque bodies (`-024`). Role/authenticated `runs as`
+  and semantic `from` render; claim/opaque gates, mixed effects and unsupported mappings remain refused;
   cascade specs remain `-011`. Keep refused scope as gap-fill. Full boundary and source
   citations: `cratis-stage-rendering-and-sandbox` `references/admission.md`.
 
@@ -72,8 +72,8 @@ scenario, claim/unknown semantics and PLAY0647–0652/0557 diagnostics.
 
 Historical CLI 3.41.0's 4.114.0 compiler rejected this source with PLAY0137.
 Previous CLI 3.46.1 refused v10 (CLI-RENDER-004); the pinned CLI/Stage pair (toolchain
-`references/versions.md`) reaches construct admission, still refusing identity (STAGE-ESM-034).
-Target realization is gap-fill, using Arc `[ExecuteCommandsAsSystem]` for returned commands. Without that attribute
+`references/versions.md`) renders supported identity, refusing claim-reading/opaque gates (STAGE-ESM-034).
+Stage emits Arc `[ExecuteCommandsAsSystem]`; refused scope uses authorized gap-fill. The attribute is for returned commands. Without that attribute
 Arc supplies no principal and `[Authorize]`/`[Roles]` deny. Each invoked command
 is atomic, not the whole cascade; earlier accepted facts remain after a later refusal.
 

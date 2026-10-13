@@ -29,14 +29,14 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 | Construct | Standalone disposition (v4.125.0/v4.139.0 evidence; compliance updated at v4.141.0) |
 | --- | --- |
 | `persona`, domain/authentication metadata | Report-only; unknown named policies remain source defects |
-| Compliance concepts | Bare `pii`/`personal` and `secret`, qualifiers and scope bind as v13 (4.142.0 checked); enum/identity compliance and events combining personal or explicitly subject-scoped secret values with an explicit `subject` mark refuse PLAY0268 at binding only. CLI 3.56.0's 4.145.1 bundle binds markers; Stage 4.83.0 renders v13 protection, not protected identities/enums or subject lineage. Never remove protection |
+| Compliance concepts | Bare `pii`/`personal` and `secret`, qualifiers and scope bind as v13 (4.142.0 checked); enum/identity compliance and events combining personal or explicitly subject-scoped secret values with an explicit `subject` mark refuse PLAY0268 at binding only. CLI 3.57.0's 4.147.1 bundle binds markers; Stage 4.89.1 renders v13 protection, not protected identities/enums or subject lineage. Never remove protection |
 | Identity details / processing purposes / event subject | Report-only metadata (4.127.0); executable detail reads refuse PLAY0268, not source declaration errors |
 | Composite stream ids | v8 routing; complete named parts/canonical comparisons, PLAY0515 refuses protected keys/sources; not a legacy text split |
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
-| Generated values/responses | v7 binding/reference execution; Stage 4.83.0 renders required scalar UUID concepts, scalar/named responses and fixtures; unsupported types/combinations remain -028/-038 |
-| Sources/streams and command/specification routes | v8 binding/reference execution; the pinned CLI (toolchain `references/versions.md`) reaches Stage checks through v13 |
-| Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage planner refuses reaction identity (STAGE-ESM-034), not v10 as a version |
+| Generated values/responses | v7 binding/reference execution; v15 strategies/strict fixtures/freshness since Screenplay 4.147.0. Stage 4.89.1 renders supported UUID/String strategies, responses and fixtures; unsupported types/combinations remain -028/-038 |
+| Sources/streams and command/specification routes | v8 binding/reference execution; the pinned CLI (toolchain `references/versions.md`) reaches Stage checks through v15 |
+| Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage 4.89.1 renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034, not a v10 version refusal |
 | Operations/systems, `numbers exact` source mode, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
 | UI | Authoring/deferred metadata; runtime support is a separate consumer contract |
 

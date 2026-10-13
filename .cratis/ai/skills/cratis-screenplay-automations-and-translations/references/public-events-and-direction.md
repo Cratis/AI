@@ -121,7 +121,7 @@ ESM v9 shipped in Screenplay 4.117.0 and is selected only by use of public event
 origins, direction, event-target builders or events-source captures. At 4.135.0,
 publication reference scenarios execute; imported shapes still refuse binding.
 Stage 4.52.0 (previous CLI 3.46.1, history) audited only through v7. The pinned CLI/Stage pair (toolchain `references/versions.md`)
-reaches construct admission through v13 but still refuses publication (STAGE-ESM-032), foreign
+reaches construct admission through v15 but still refuses publication (STAGE-ESM-032), foreign
 events/events-source captures (STAGE-ESM-033); source admission is not rendering.
 
 Source: Screenplay `v4.135.0:Documentation/screenplay/fixtures/public-events.play`,

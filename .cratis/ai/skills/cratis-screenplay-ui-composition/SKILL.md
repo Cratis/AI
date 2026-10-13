@@ -283,11 +283,12 @@ module Invoicing
 
 The inline event targets `invoiceId`; the projection gets it from event context.
 Scalar/named `returns` bind and reference-execute since Screenplay 4.68.0 (ESM v7).
-CLI 3.56.0 / Stage 4.83.0 render responses and UUID-concept generation, subject to
-`STAGE-ESM-038` combinations (command-surface `references/generated-values-and-responses.md`).
-Form `on submit` and interaction `on success` response-name scopes, failure clearing
-and response execution remain unavailable at the standalone pin.
+Renderer generation/response limits: command-surface `references/generated-values-and-responses.md`.
+Screenplay 4.148.0 resolves response names in form submit and execute success;
+own failure use is PLAY0685. No ESM change; Scene runtime binding remains downstream.
 An existing success continuation does not imply a response contract.
+Read [response continuations](references/response-continuations.md) for precedence,
+nested/failure scopes, PLAY0485, examples and tagged evidence.
 
 - Write the one-off case inline; name it with `behavior` when several places need
   the same wiring. A `uses` site must supply exactly the declared parameters

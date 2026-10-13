@@ -64,7 +64,7 @@ payload field the event never declares, so the event payload line matters.
   fills it. Here the user supplies the berth. Other sources are a prefill (`populate via query`
   or `populate from item` when the user chose a berth on the previous screen) or a modeled
   selection. `generated identifier` is ESM v7: it binds on standalone Screenplay 4.68.0 and later and on the current
-  cratis bundle (`PLAY0268` on the 4.66.0 bundled in `cratis` 3.28.x); CLI 3.56.0 / Stage 4.83.0 render required scalar UUID-concept generated
+  cratis bundle (`PLAY0268` on the 4.66.0 bundled in `cratis` 3.28.x); CLI 3.57.0 / Stage 4.89.1 render supported UUID/String-concept generated
   identifiers; unsupported generated/result combinations remain refused (command-surface
   `references/generated-values-and-responses.md`).
 - The form is found through the input screen's `action BookBerth`; neither screen names it. A click

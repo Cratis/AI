@@ -53,11 +53,11 @@ module Collections
 - A reached reaction with a code body (`file` or inline) returns unsupported, as
   does a reaction that never settles. The reference stops at 1,000 new facts per
   scenario and 10,000 due occurrences per clock advance.
-- A model that uses these forms selects ESM v6 (`schemaVersion: 6`). Stage 4.83.0
-  admits ESM v1-v13 and renders supported event-triggered Automation, but not Translate,
-  captures, non-event triggers or opaque bodies (`-024`), `runsAs` (`-034`), `from` (`-035`)
-  or mixed effects (`-037`). Direct-append specs and command specs cascading into reactions
-  remain `-011`. Keep refused scope as gap-fill against this contract: `cratis-screenplay-render-and-gap-fill`.
+- A model that uses these forms selects ESM v6 (`schemaVersion: 6`). Stage 4.89.1
+  admits ESM v1-v15 and renders supported event-triggered Automation, but not Translate,
+  captures, non-event triggers or opaque bodies (`-024`), claim-reading/opaque `runs as` gates (`-034`), legacy filters (`-035`)
+  or mixed effects (`-037`). Single-hop reaction append specs render; deeper appends and
+  command specs cascading into reactions remain `-011`. Keep refused scope as gap-fill against this contract: `cratis-screenplay-render-and-gap-fill`.
 
 ### Version skew: cascades and the false `PLAY0285` (cratis before 3.28.2)
 

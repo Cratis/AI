@@ -44,7 +44,7 @@
       "kind": "skill-contains",
       "value": "STAGE-ESM-026"
     },
-    { "kind": "skill-contains", "value": "now render with CLI 3.56.0 / Stage 4.83.0" },
+    { "kind": "skill-contains", "value": "render with CLI 3.57.0 / Stage 4.89.1" },
     { "kind": "skill-contains", "value": "Unsupported generated\ntypes (`STAGE-ESM-028`) and result combinations (`-038`)" },
     { "kind": "skill-contains", "value": "authored-UI parity" },
     { "kind": "skill-contains", "value": "responsible tool version" }

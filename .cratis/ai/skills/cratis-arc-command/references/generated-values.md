@@ -163,5 +163,6 @@ the prior verification): `Source/DotNET/Arc.Core/Commands/ModelBound/GeneratedVa
 
 This release has no freshness/collision guard, contextual clock/tenant/pattern
 generation, or additional built-in strategies beyond Fundamentals' UUID/UUIDv7
-helpers. Do not teach proposals as available APIs or invent Screenplay `generate`
-syntax for this feature.
+helpers at this Arc tag. Screenplay 4.147.0+ separately admits concept `generate`
+strategies and freshness; see `cratis-screenplay-command-surface/references/generated-values-and-responses.md`
+for that language contract and Stage's explicit scopes, not native Arc freshness support.

@@ -3,6 +3,11 @@
   "input": "Declare the application shell, a screen template and a command form.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "PLAY0685", "file": "references/response-continuations.md" },
+    { "kind": "skill-contains", "value": "PLAY0485", "file": "references/response-continuations.md" },
+    { "kind": "skill-contains", "value": "Form fields and behavior parameters\nwin", "file": "references/response-continuations.md" },
+    { "kind": "skill-contains", "value": "outer successful response remains available", "file": "references/response-continuations.md" },
+    { "kind": "skill-contains", "value": "binding/navigation remains blocked on Scene #53", "file": "references/response-continuations.md" },
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",

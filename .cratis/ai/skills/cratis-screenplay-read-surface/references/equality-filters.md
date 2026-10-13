@@ -11,7 +11,7 @@
 - Rendering is a different verdict
 - Verified product sources
 
-Screenplay **4.143.0 and later**, including the standalone **4.145.0** pin,
+Screenplay **4.143.0 and later**, including the standalone **4.148.0** pin,
 binds `filter <name> <Type> [optional]` on a collection query when:
 
 - there is no `from` source;
@@ -189,11 +189,14 @@ module FilteringExamples
 
 ## Rendering is a different verdict
 
-**CLI 3.56.0** bundles **Screenplay 4.145.1 / Stage 4.83.0**. Its compiler
-binds v14 filters, but rendering admits through **ESM v13**, not v14:
-`CLI-RENDER-004` before planning (direct Stage: `STAGE-ESM-016`).
-Standalone V3/V4 success therefore does not prove rendering. A consumer must
-explicitly admit v14 and preserve filter arguments and equality selection;
+**CLI 3.57.0** bundles **Screenplay 4.147.1 / Stage 4.89.1**, admitting through
+**ESM v15**. Equality filters render on observable collections, with or without
+`by`, combined by AND. Optional omission is preserved. Snapshot lists, DateTime
+filters and required filter parameters after optional ones refuse `STAGE-ESM-010`;
+parameter name collisions refuse `-012`. Generated query specifications pass named
+arguments and check result counts. The semantic Host executes filters, but the
+independent specification executor refuses filtered assertions with `-010`
+(and retains the GivenReadModel gap). V3/V4 is still not a render/build/test result;
 never erase filters to obtain a render.
 
 ## Verified product sources
@@ -202,7 +205,9 @@ never erase filters to obtain a render.
   `decisions/0069-admit-equality-query-filters-as-esm-v14.md`;
   `Documentation/screenplay/queries.md` (Executable equality filters),
   `specifications.md:145,307-319,409-428`; admission shipped in v4.143.0.
-- Stage **v4.83.0**: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`
-  uses `EsmSchemaV13Support`; `Directory.Packages.props` pins Screenplay 4.141.0.
-- CLI **v3.56.0**: `Directory.Packages.props:8-10` pins Screenplay 4.145.1 / Stage
-  4.83.0; `Source/Cli/Commands/Render/RenderedSemanticVersions.cs:33-47` admits v1-v13.
+- Stage **v4.89.1**: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:105`
+  uses `EsmSchemaV15Support`; `SemanticCratisAdmission.StateView.cs:139-178`
+  checks filters/order; `Documentation/docker/index.md:143-153`, `docker/spec-runner.md:35-43`
+  distinguish Host and independent executor.
+- CLI **v3.57.0**: `Directory.Packages.props:8-10` pins Screenplay 4.147.1 / Stage
+  4.89.1; `Source/Cli/Commands/Render/RenderedSemanticVersions.cs:34-47` admits v1-v15.

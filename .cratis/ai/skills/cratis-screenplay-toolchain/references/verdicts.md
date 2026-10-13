@@ -53,7 +53,7 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 Needs an MCP connection (V2 and V3 belong to the session that owns MCP; a subagent without
 MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh output). Without
 MCP, a binding check exists: `cratis screenplay validate --executable <root>` binds with the
-**bundled** compiler (CLI 3.56.0 bundles Screenplay 4.145.1, not standalone 4.145.0), never
+**bundled** compiler (CLI 3.57.0 bundles Screenplay 4.147.1, not standalone 4.148.0), never
 renders or writes files, and exits 5 with "The model does not bind into an executable semantic
 model" when it does not. Report it as `V3 (bundled 4.137.0 via cratis validate --executable)`; it
 gives binding errors, not the V2 `executable-diagnostics` view, so V2 stays MCP-only.
@@ -89,7 +89,7 @@ never "specifications pass".
   Bare `pii`/`personal` and `secret` bind as v13 on standalone 4.142.0; reasons
   remain report-only PLAY0270. Enum/identity compliance and personal or explicitly
   subject-scoped secret event values with an explicit `subject` mark still refuse
-  PLAY0268 at binding only. CLI 3.56.0 bundles Screenplay 4.145.1 / Stage 4.83.0 and renders v13
+  PLAY0268 at binding only. CLI 3.57.0 bundles Screenplay 4.147.1 / Stage 4.89.1 and renders v13
   concept protection (not protected identities/enums or explicit subject lineage).
   V3 does not prove rendering.
 - A blocked V3 is not repaired by deleting protection or domain rules. Never remove `pii`,

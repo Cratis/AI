@@ -13,7 +13,7 @@ Runtime source evidence retained at Scene v4.21.0 (not reverified at the newer
 Scene release now listed in [scaffold pins](rendered-application.md)):
 Scene `README.md`, `Documentation/package-hosting.md`, and
 `Source/JavaScript/{model,engine,react,components}/**`. Stage package selection
-was re-read at Stage `v4.83.0:Source/Rendering.Cratis/Scaffolding/CratisFrontendPackageSet.cs:208-229`
+was re-read at Stage `v4.89.1:Source/Rendering.Cratis/Scaffolding/CratisFrontendPackageSet.cs:208-229`
 (`Current`); dependency names are in `CratisFrontendApplicationScaffold.cs` (`Dependencies`). This is not a render
 or browser test.
 

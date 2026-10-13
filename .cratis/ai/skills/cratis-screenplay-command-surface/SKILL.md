@@ -29,6 +29,7 @@ Pins: toolchain `references/versions.md`; sources below. Compilation is not exec
 - `4.68.0` (`79801bf`): generated-value/response rule probes (ESM v7).
 - `4.127.0`: identity and compliance syntax (`identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`).
 - `4.141.0`: v13 compliance admission; rechecked at `4.142.0`: `references/compliance.md`.
+- `4.148.0`: v15 generation strategies/strict fixtures/freshness; Stage `4.89.1` realization: `references/generated-values-and-responses.md`.
 
 "Parses" and "runs" are different claims. The executable profile, and what
 each construct binds to, is in the `cratis-screenplay-model-authoring` language
@@ -290,15 +291,16 @@ An empty block or an unknown dimension is an error. Omitting `concurrency` does
 not mean unchecked appends: Chronicle's default optimistic concurrency applies
 to the routed scope. This does not make command `reads` protected.
 
-## Generated values and responses (ESM v7)
+## Generated values and responses (ESM v7 and v15)
 
-Generated values/responses bind as ESM v7, including in the current CLI bundle.
-The historical CLI 3.41.0 check admitted v7 to Stage planning; its canonical corpus got generated-value
-and response refusals STAGE-ESM-028/029. Binding is not a render claim.
-Read [references/generated-values-and-responses.md](references/generated-values-and-responses.md) when adding or
-reviewing `generated` properties, `returns` responses, or decision 0023 constructs.
-Read `cratis-screenplay-toolchain/references/generated-responses-example.md` when adding generated command values or response assertions and you need a complete compiled example.
-Read `cratis-screenplay-toolchain/references/sources-and-streams.md` when authoring named event sources, streams or command routes that require hand-written realization.
+UUID generation/responses bind as v7; serialized concept `generate` selects v15:
+UUIDv7/ULID/TypeID/NanoID/bytes, strict fixtures and whole-source freshness.
+Reuse rejects Concurrency, no append/retry. Generated rules/secrets and pattern/random/rule
+remain refused. Historical CLI 3.41.0 refusals: STAGE-ESM-028/029.
+Read [references/generated-values-and-responses.md](references/generated-values-and-responses.md)
+for `generated`, `generate`, `returns`, strict fixtures/freshness and renderer limits.
+Complete example: `cratis-screenplay-toolchain/references/generated-responses-example.md`.
+Routes and realization: `cratis-screenplay-toolchain/references/sources-and-streams.md`.
 
 ## `constraint` — uniqueness at append time
 

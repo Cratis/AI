@@ -25,7 +25,7 @@ effects. If the answer is "populate a queryable model", it is not a reactor.
 > `.cratis/ai.json`; master definition in `cratis-screenplay-modeling-lifecycle`), the automation is
 > a modeled slice: find it (`Automation` or `Translate`), treat its `produces` /
 > `invokes`, conditions and fields as the contract, and write the reactor only as
-> gap-fill for what the model leaves to code (Stage 4.83.0 renders supported event-triggered Automation;
+> gap-fill for what the model leaves to code (Stage 4.89.1 renders supported event-triggered Automation;
 > Translate/captures and refused reactions remain gap-fill; Stage skill `references/admission.md`). Use `cratis-screenplay-automations-and-translations` to
 > change the model; never change the model to fit the reactor, and never leave a
 > modeled rule living only in the reactor. If the repository is not opted in

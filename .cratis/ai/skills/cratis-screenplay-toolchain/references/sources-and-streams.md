@@ -15,8 +15,8 @@ Sources, streams and command/specification routes bind and reference-execute as
 `specifications.md`, `Versions.cs`; the complete example below compiled with
 `--warnaserror` and passed `screenplay test` on 4.125.0.
 
-The pinned CLI/Stage pair (`versions.md`) admits through v13 to construct checks, including v8
-routes. Stage 4.83.0 renders routed read-model/query companion replay; reserved names and
+The pinned CLI/Stage pair (`versions.md`) admits through v15 to construct checks, including v8
+routes. Stage 4.89.1 renders routed read-model/query companion replay; reserved names and
 unformattable fixtures remain STAGE-ESM-030 (`Documentation/reference/event-source-routing.md:62-72`);
 run admission before promising parity. Previous CLI 3.46.1/Stage 4.52.0 refused
 above v7 with CLI-RENDER-004. Keep routing intact when a target refuses it;
