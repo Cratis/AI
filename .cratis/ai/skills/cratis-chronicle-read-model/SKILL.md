@@ -23,7 +23,8 @@ This skill is verified against these exact sources:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Events`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.ReadModels` |
+| `Cratis.Chronicle` | `18.3.0` | Existing event, key and read-model APIs |
+| `Cratis.Chronicle` | `19.59.4` | Style/discovery: `Source/Clients/DotNET/Reducers/{SelfReducerMethods,RegisteredReducerReadModel}.cs`, `ReadModels/ReadModelBuilderOwnership.cs`, `DefaultClientArtifactsProvider.cs` at tag `v19.59.4` |
 | `Cratis.Arc.Core` | `22.75.0` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute` and `PathAttribute` |
 | `Cratis.Arc.MongoDB` | `22.75.0` | the `Observe` family of `IMongoCollection<T>` extensions |
 
@@ -94,27 +95,52 @@ and [query cost and composition](references/queries.md#cost-and-composition).
 
 ## Step 3 — Choose a projection or a reducer
 
-| | Projection | Reducer |
-| --- | --- | --- |
-| Shape | the model is mostly a mapping of event fields | the next state is a function of the current state |
-| Expressed as | model-bound attributes, or the fluent builder | C# control flow in a handler method |
-| Reach for it | first, and second | only after both projection forms fail |
+For application code, work down this ladder:
 
-A reducer is a legitimate style when the transition genuinely depends on prior
-state — it is not a failure mode. It *is* a failure mode when it re-implements
-something an attribute already expresses. Work down the ladder: model-bound
-attributes, then the fluent builder, then a reducer.
+1. **Model-bound attributes** when the mapping reads clearly on the model.
+2. **Fluent `IProjectionFor<T>`** when the definition needs structure or an
+   attribute-free contract. Counters, joins, children and composite keys remain
+   projection features; fluent lambdas are not arbitrary per-event code.
+3. **Reducer code** when branching on prior state, calculations or guards read
+   better as state transitions. A reducer is a normal choice, not a last resort.
+   For new .NET code default to a **self-reducing model**: public static
+   `Reduce(TEvent @event, TSelf? current[, EventContext context])` on the model,
+   returning `TSelf`/`TSelf?` or `Task` of it. No marker or model activation.
+   Use a separate **`IReducerFor<T>`** when the fold needs injected services,
+   replay-time instance state or separation from the model.
+4. **Nominated plain instance class** only when the contract/reducer assembly
+   cannot reference Chronicle; configure `ChronicleOptions.ExplicitArtifacts`
+   at the composition root before creating stores.
 
-Both are discovered by convention. Nothing is registered.
+**PDL** is for definitions authored outside application code (Workbench,
+Screenplay, ad-hoc queries), not the code-first default. This ladder does not
+claim Stage renders static self reducers. The self form is .NET-only
+(Cratis/Chronicle#4851); other SDKs keep their own reducer contracts.
 
-Use the projection skill for the attribute and builder surface, and the reducer
-skill for handler signatures and the nullable-current rule.
+Default discovery finds projections, interface reducers and complete self shapes.
+Explicit registration remains available, and plain instance reducers require
+nomination; see [discovery](../cratis-chronicle-client-dotnet/references/discovery.md).
+An existing complete static shape becomes a reducer on upgrade without adding a
+marker. Near misses warn (CHR0058). A self model and a competing projection or
+reducer in one catalog fail with `AmbiguousReadModelBuilder`; remove the old
+builder when switching and verify storage/replay separately from output equality.
+
+Read [projection behavior](../cratis-chronicle-projection/SKILL.md) for mappings
+and [reducers](../cratis-chronicle-reducer/SKILL.md) for complete signatures,
+null deletion, replay hooks and preserving admission/ordering guards. Reducers
+are source-keyed, have no native joins and are refused by decision reads.
 
 ## Step 4 — Add a query surface, if the model is read from outside
 
 Queries are **static** methods on the read-model record, discovered by Arc.
 Marking the record with `[ReadModel]` from `Cratis.Arc.Queries.ModelBound` is
-what gives it that surface.
+what gives it that surface. For a self-reducing model, put its `Reduce` methods
+and queries on this same record. Before `ARC_VERSION_TBD`, use
+`[ReadModel(RequireQueryAttribute = true)]` plus `[Query]` on intended queries to
+avoid exposing folds. From `ARC_VERSION_TBD`, Arc excludes methods taking the
+model itself from query discovery, and Arc.Chronicle claims self models for
+command injection. See the existing
+[explicit query-discovery guidance](references/queries.md#discovery-rules).
 
 ```csharp
 using System.Reactive.Subjects;
@@ -206,7 +232,7 @@ This access distinction was checked against Chronicle **v19.31.2**
 
 `[Passive]` on its own does **not** make a read model a projection. It is
 deliberately excluded from the annotations that do; it changes how an existing
-projection is registered.
+projection or reducer is read; it is not a builder by itself.
 
 ## Step 6 — Build and verify
 
@@ -236,6 +262,8 @@ spans streams.
   `EventSourceId<T>` value.
 - No reserved compliance-subject property name is used.
 - Read-model properties carry no defaults that could hide unwired projection.
+- The style follows the ladder; a self model has no competing builder, and Arc
+  folds are excluded from query exposure for the consuming version.
 - Query methods are `static` and declare `ISubject<...>` rather than a concrete
   subject type.
 - A direct `GetInstanceById` result is checked for absence before use.
