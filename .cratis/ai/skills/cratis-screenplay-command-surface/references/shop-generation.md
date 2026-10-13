@@ -19,7 +19,8 @@ recovery describes that strategy shape, not equivalent clock/tenant semantics.
 Context-member/rule recovery stays in code (Screenplay#616 phase 3).
 
 The shop's ApiKey remains a **secret**. In .NET its factory is `Bytes(32)` and its
-concept is `[NotAudited]`; executable secret generation is **not released in
+concept is `[NotAudited]`. It is never an identifier (event-source IDs are plaintext
+metadata); a separate `ApiKeyId` identifies the key. Executable secret generation is **not released in
 Screenplay** (phase 4). The declaration below preserves classification without
 adding `generate bytes 32` or a generated command property. No API-key issuance
 behavior is claimed; retain it as an explicit gap/owning implementation contract.
