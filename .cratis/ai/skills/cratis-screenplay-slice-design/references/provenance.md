@@ -44,6 +44,6 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 
 | Idea | Used in | Credit |
 |---|---|---|
-| A rule's decision values are listed and classified as input, state or context | `references/command-inventory.md` *Values a rule reads*; `references/field-lineage.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-identifying-inputs`); idea, our own wording; the upstream mechanism of putting time and the acting user on the command is not adopted |
-| Information completeness checked per field as it is added; where information starts | `references/field-lineage.md` *Where information starts*, *Check as you edit* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-information-completeness`); idea, our own wording |
+| A rule's decision values are listed and classified as input, state or context | `references/command-inventory.md` *Values a rule reads*; `references/field-lineage.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-identifying-inputs`), used with their explicit consent; idea, our own wording; the upstream mechanism of putting time and the acting user on the command is not adopted |
+| Information completeness checked per field as it is added; where information starts | `references/field-lineage.md` *Where information starts*, *Check as you edit* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-information-completeness`), used with their explicit consent; idea, our own wording |
 

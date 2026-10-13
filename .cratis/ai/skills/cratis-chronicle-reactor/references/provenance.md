@@ -4,7 +4,7 @@
 
 | Idea | Used in | Credit |
 | --- | --- | --- |
-| Successful work is removed from its pending-work view and removal is specified | `slice-delivery-checklist.md`, Checklist and Specifications | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`prototype`); idea, our own wording |
+| Successful work is removed from its pending-work view and removal is specified | `slice-delivery-checklist.md`, Checklist and Specifications | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`prototype`), used with their explicit consent; idea, our own wording |
 
 ## Adapted closely (Martin Dilger and Nebulit GmbH)
 

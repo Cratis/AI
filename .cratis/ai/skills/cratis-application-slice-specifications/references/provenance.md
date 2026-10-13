@@ -16,4 +16,4 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 
 | Idea | Used in | Credit |
 | --- | --- | --- |
-| Scenario decision state and essential values become setup and assertions, while background notes stay context | `SKILL.md`, Reading a `.play` specification | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`place-element`, `examples`, `classic build-state-change`, `classic build-state-view`); idea, our own wording |
+| Scenario decision state and essential values become setup and assertions, while background notes stay context | `SKILL.md`, Reading a `.play` specification | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`place-element`, `examples`, `classic build-state-change`, `classic build-state-view`), used with their explicit consent; idea, our own wording |

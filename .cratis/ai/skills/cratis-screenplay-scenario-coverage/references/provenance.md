@@ -52,7 +52,7 @@ the berth reservations example.
 
 | Idea | Used in | Credit |
 |---|---|---|
-| A rejection earns a scenario only if a domain expert could recognize the rule; duplicates as a business question | `references/scenario-catalogue.md` §2, §5; `SKILL.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`); idea, our own wording; concept-rule and once-only specs are kept on purpose |
-| Deciding values visible in the specification; descriptions carry no fact a step could state | `references/scenario-catalogue.md` *Example data*; `references/scenario-examples.md`; `cratis-screenplay-specifications` quality checklist | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`); idea, our own wording |
-| A closed list of deliberately unspecified technical cases | `references/coverage-matrix.md` *Cell values* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`); idea, our own wording |
+| A rejection earns a scenario only if a domain expert could recognize the rule; duplicates as a business question | `references/scenario-catalogue.md` §2, §5; `SKILL.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`), used with their explicit consent; idea, our own wording; concept-rule and once-only specs are kept on purpose |
+| Deciding values visible in the specification; descriptions carry no fact a step could state | `references/scenario-catalogue.md` *Example data*; `references/scenario-examples.md`; `cratis-screenplay-specifications` quality checklist | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`), used with their explicit consent; idea, our own wording |
+| A closed list of deliberately unspecified technical cases | `references/coverage-matrix.md` *Cell values* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-elaborating-scenarios`), used with their explicit consent; idea, our own wording |
 

@@ -9,8 +9,8 @@
 
 | Idea | Used in | Credit |
 |---|---|---|
-| Every value starts at one specific place and is carried by name | `SKILL.md` *The prime directive* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-information-completeness`); idea, our own wording |
-| Reads discipline for a rule's decision values, in the Chronicle-only path | `cratis-chronicle-event-modeling` `SKILL.md` *Decide before implementing* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-identifying-inputs`); idea, our own wording |
+| Every value starts at one specific place and is carried by name | `SKILL.md` *The prime directive* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-information-completeness`), used with their explicit consent; idea, our own wording |
+| Reads discipline for a rule's decision values, in the Chronicle-only path | `cratis-chronicle-event-modeling` `SKILL.md` *Decide before implementing* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-identifying-inputs`), used with their explicit consent; idea, our own wording |
 
 
 ## Adapted closely (Martin Dilger and Nebulit GmbH)

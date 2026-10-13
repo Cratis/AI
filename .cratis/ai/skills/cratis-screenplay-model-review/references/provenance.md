@@ -43,6 +43,6 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 
 | Idea | Used in | Credit |
 |---|---|---|
-| Stressor, residue and incidence-matrix resilience pass | `references/stressor-analysis.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`stressor-analysis`); idea, our own wording; the method is residuality theory by Barry O'Reilly |
-| Following one piece of information through the model | `references/model-inventory-report.md` *Information journey* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`data-journey`); idea, our own wording |
+| Stressor, residue and incidence-matrix resilience pass | `references/stressor-analysis.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`stressor-analysis`), used with their explicit consent; idea, our own wording; the method is residuality theory by Barry O'Reilly |
+| Following one piece of information through the model | `references/model-inventory-report.md` *Information journey* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`data-journey`), used with their explicit consent; idea, our own wording |
 

@@ -27,5 +27,5 @@ No TrogonStack/agentskills text is used in this skill.
 
 | Idea | Used in | Credit |
 | --- | --- | --- |
-| Inspect code changes individually from the verification baseline | `drift-and-ledger.md`, hand-written change procedure; `SKILL.md` step 8 | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`detect-model-drift`); idea, our own wording |
-| Map slice declarations to their realization, shared seams and delivery identity | `drift-and-ledger.md`, fallback record; `gap-fill-handoff.md`, result pointer | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`record-evidence`); idea, our own wording |
+| Inspect code changes individually from the verification baseline | `drift-and-ledger.md`, hand-written change procedure; `SKILL.md` step 8 | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`detect-model-drift`), used with their explicit consent; idea, our own wording |
+| Map slice declarations to their realization, shared seams and delivery identity | `drift-and-ledger.md`, fallback record; `gap-fill-handoff.md`, result pointer | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`record-evidence`), used with their explicit consent; idea, our own wording |
