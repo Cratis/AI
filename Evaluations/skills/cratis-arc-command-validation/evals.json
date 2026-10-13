@@ -28,12 +28,12 @@
     {
       "id": 3,
       "name": "unique-email-and-ambiguous-key",
-      "prompt": "RegisterUser(Email, ReferrerId) must reject a duplicate email. The handler checks a UserByEmail read model. Which mechanism should it use, and why does the command resolve its event source id oddly with two id-like properties?",
-      "expected_output": "A Chronicle unique constraint, not a read-model check; ARCCHR0002 for several candidates, resolved with ICanProvideEventSourceId because [Key] does not silence it.",
+      "prompt": "RegisterUser(Email, ReferrerId), where Email and ReferrerId are both EventSourceId-derived properties, must reject a duplicate email. The handler checks a UserByEmail read model. Which mechanism should it use, and why does the command resolve its event source id oddly with two such properties?",
+      "expected_output": "A Chronicle unique constraint, not a read-model check; ARCCHR0002 for two key candidates, resolved with ICanProvideEventSourceId because [Key] does not silence it.",
       "assertions": [
         "Routes uniqueness to a Chronicle constraint that binds every writer, not to a read-model pre-check or validator.",
         "Explains the claim is settled after the durable append and a violation is a result mapped to a validation failure.",
-        "Explains several id-like properties raise ARCCHR0002 and the command should implement ICanProvideEventSourceId because [Key] does not silence it.",
+        "Explains two key-candidate properties raise ARCCHR0002 and the command should implement ICanProvideEventSourceId because [Key] does not silence it.",
         "Does not present a plain read-model injection as race-safe."
       ]
     }

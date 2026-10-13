@@ -205,9 +205,8 @@ Chronicle resolves the command's event source id in this order:
    property on the command;
 4. otherwise a freshly generated id.
 
-A command with more than one candidate property is ambiguous and `ARCCHR0002`
-warns; implement `ICanProvideEventSourceId` to say which value wins. Do not rely
-on property order.
+Two or more candidates raise `ARCCHR0002` (`[Key]` does not silence it); Arc
+silently takes the first declared. Implement `ICanProvideEventSourceId`.
 
 `[Key]` on a positional record's primary-constructor parameter is recognized
 and counted once. Child-only/nested read-model types are not standalone

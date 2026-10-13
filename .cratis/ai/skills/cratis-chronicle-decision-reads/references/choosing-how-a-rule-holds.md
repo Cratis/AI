@@ -101,8 +101,9 @@ uniqueness (with release on a removal event), create-once and closed streams.
   (#3744 and the decision's gap list). A constraint is the right mechanism, not an
   unconditional proof.
 - Tenants in different namespaces can claim the same value.
-- `[RemoveConstraint]` only reads `[Unique]` on a property; on a fluent constraint
-  it compiles and does nothing. Use `.RemovedWith<T>()`.
+- `[RemoveConstraint]` releases attribute constraints (`[Unique]` on a property
+  or on the event type); on a fluent `IConstraint` it compiles and does nothing,
+  so use `.RemovedWith<T>()` there.
 - It is not re-run when the kernel retries a duplicate sequence number.
 - For a friendly message use `.WithMessage`; Arc maps a violation to HTTP 400.
 
@@ -132,9 +133,10 @@ stored tail filtered by key, types and route). See the skill's
   still append on stale state and break the rule. The rule holds only when every
   writer that decides on it is guarded, or when it is a constraint, which checks
   every append.
-- **Conflict.** No automatic retry. Reread and decide again, or resubmit. Foreign
-  writers, revise/redact, other sequences, external state and projection definition
-  changes are outside the guard.
+- **Conflict.** No automatic retry. Reread and decide again, or resubmit. Revise/redact,
+  other sequences, external state, projection definition changes and writes that
+  bypass the kernel's serialized append path (duplicate grain activations, direct
+  storage writes) are outside the guard.
 - **Empty protected commit.** A unit that enrolled a decision read and staged no
   events appends an empty batch with the guard scopes. At Chronicle v19.59.1 the kernel
   validators (`AppendManyValidator`, `AppendManyForEventSourcesValidator`) accept an
@@ -163,7 +165,7 @@ stored tail filtered by key, types and route). See the skill's
 | `concurrency: true` on `EventStreamId`, `EventStreamType` or `EventSourceType` | reads the narrowed tail after `Handle`; changes granularity, not the decision. A command that also reads `IReadModels` still triggers `ARCCHR0011` | decision read, explicit scope or stream decision |
 | Default (no attributes) | Arc reads the tail when the unit of work commits, after `Handle` | only protects the window between that read and the write |
 | First append into a scope | unchecked unless `ChronicleOptions.ConcurrencyOptions.CheckFirstAppendIntoAScope` is set | constraint, or an aggregate (new aggregates expect no first event) |
-| Several id-like command properties | `ARCCHR0002`, which `[Key]` does not silence; Arc picks an `EventSourceId`-derived type, never a `ConceptAs<Guid>` | implement `ICanProvideEventSourceId` |
+| Two or more key candidates (`EventSourceId`-typed, `[Key]`-marked or implicitly convertible) | `ARCCHR0002` warns, and `[Key]` does not silence it. At runtime Arc silently takes the first eligible property in declaration order (`EventSourceId`-typed or `[Key]`-marked, no priority for derived types; an unmarked `ConceptAs<Guid>` is not eligible). With one candidate Arc keys by it silently; with none each call gets a new id | implement `ICanProvideEventSourceId` |
 | No id property | a random event source id per call; nothing can conflict | give the command a key |
 | `[Unprotected]` command taking `DecisionRead<T>` | resolves to an unguarded read | use `[ProtectedDecision]` |
 | Injected `IEventLog.Append` in `Handle` | immediate write that survives a conflict rollback | return events |
@@ -208,4 +210,4 @@ append. Decision reads are .NET only.
 - The decision-read model is admitted (flat projection, `Id`, event-source keyed).
 - Cross-key rules append one event per source atomically.
 - A specification interleaves a competing append and asserts the conflict.
-- What stays unguarded (foreign writers, external state, revisions) is stated.
+- What stays unguarded (an unguarded writer's own decision, external state, revisions) is stated.

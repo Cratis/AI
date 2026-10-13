@@ -272,9 +272,9 @@ removing a manual closure. Closing does not erase history or prevent replay.
 - **The constraint never fires.** You used class-level `[Unique]` for a value
   that has to be unique across event sources, or property-level `[Unique]` for
   a "one per event source" rule. Re-read Step 1 — the kind is the switch.
-- **`[RemoveConstraint]` releases nothing.** It only reads `[Unique]` on a
-  property: on a fluent constraint it compiles and does nothing, so use
-  `.RemovedWith<T>()` there. Otherwise the string does not match the
+- **`[RemoveConstraint]` releases nothing.** It releases attribute constraints
+  (`[Unique]` on a property or on the event type); on a fluent `IConstraint` it
+  compiles and does nothing, so use `.RemovedWith<T>()` there. Otherwise the string does not match the
   `[Unique]` name. When `[Unique]` had no explicit name the real name is the
   member or type name, which is easy to get wrong; name it explicitly.
 - **`PropertyDoesNotExistOnEventType` at startup.** A non-member-access lambda

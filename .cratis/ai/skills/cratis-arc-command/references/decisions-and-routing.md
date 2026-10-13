@@ -36,8 +36,9 @@ constraint, not to any read. For the routing steps, the matrix and the traps rea
   public parameterless constructor, otherwise the command fails with HTTP 500.
   The decision model needs an `Id` property, an event-source key and a flat
   projection; self-reducing models are refused like reducers. When the command has
-  several id-like properties, implement `ICanProvideEventSourceId`: `[Key]` does
-  not silence `ARCCHR0002`. Keep all decision state out of validators, including
+  two or more key candidates, implement `ICanProvideEventSourceId`: `[Key]` does
+  not silence `ARCCHR0002`, and Arc silently keys by the first eligible property
+  in declaration order. Keep all decision state out of validators, including
   static members and service locators. `[Unprotected]` on the command opts out; never
   combine it with `[ProtectedDecision]`. A parameter-level marker acknowledges
   tooling, not a runtime opt-out. `Validate` is advisory, not a commit promise.
@@ -52,8 +53,10 @@ Do not manually append or commit to bypass the owner-capable unit of work.
 The guard detects every matching event appended after its boundary, whoever wrote
 it, but it protects only guarded decisions: an unguarded writer deciding on the
 same facts can still append on stale state, so the rule holds only when every
-deciding writer is guarded or the rule is a constraint. Protection does not guard foreign writers, external state, revisions, redactions,
-migrations or changes to projection definitions. Protection is per command and
+deciding writer is guarded or the rule is a constraint. Protection does not guard an unguarded writer's own decision (a plain read,
+`[Unprotected]` or a direct append), external state, revisions, redactions,
+migrations, changes to projection definitions or writes that bypass the kernel's
+serialized append path. Protection is per command and
 opt-in; an unmarked command keeps its plain reads, and a conflict is returned as a
 `ConcurrencyViolation` validation result with no automatic retry. A protected command that
 stages no events commits an empty guarded batch: current kernels validate the
