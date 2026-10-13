@@ -9,17 +9,9 @@
 - Packages and ownership
 - Runtime capabilities
 
-Runtime source evidence retained at Scene v4.21.0 (not reverified at the newer
-Scene release now listed in [scaffold pins](rendered-application.md)):
-Scene `README.md`, `Documentation/package-hosting.md`, and
-`Source/JavaScript/{model,engine,react,components}/**`. Stage package selection
-was re-read at Stage `v4.89.1:Source/Rendering.Cratis/Scaffolding/CratisFrontendPackageSet.cs:208-229`
-(`Current`); dependency names are in `CratisFrontendApplicationScaffold.cs` (`Dependencies`). This is not a render
-or browser test.
-
 ## What Scene is
 
-Scene is the **experimental**, platform-neutral UI object model and runtime of
+Scene is the platform-neutral UI object model and runtime of
 the model-first stack: Screenplay describes the application; Stage emits it;
 Scene represents and renders its UI. Studio's design-time tools edit this model.
 `Cratis.Scene.Model` / `@cratis/scene.model` hold screens, layouts, forms,
@@ -36,10 +28,10 @@ The npm family is `@cratis/scene.model`, `@cratis/scene.engine`,
 `@cratis/scene.react`, `@cratis/scene.components`, `@cratis/scene.primereact`,
 `@cratis/scene.blueprint.default`, `@cratis/scene.blueprint.components`, and
 `@cratis/scene.tailwind`. `@cratis/scene` is not this product's package id.
-Stage pins six members at the shared version in the scaffold table; it does not
+Stage installs six members at one shared version (see the rendered `package.json`); it does not
 install every family member. `@cratis/scene.components` maps Components onto
 Scene and offers a runtime-only `/runtime` entry (no design-time bundle).
-Its Components peer range is `^4.13.0`, not Stage's exact scaffold pin.
+Its Components peer range is a range, not Stage's exact scaffold pin.
 
 Stage manages `scene.json`, `src/bindings.ts`, the generated host and runtime
 files through `.cratis-render.json`. Change the accepted `.play` model and render
@@ -49,7 +41,7 @@ release is not a Stage release and does not prove Stage emits a new capability.
 
 ## Runtime capabilities
 
-At the current scaffold Scene release (4.21):
+The scaffold's Scene runtime provides:
 
 - `Screen.path` and `NavigationItem.hierarchy` describe module/feature paths,
   outermost first. Nested `core:outlet` composition keeps parent screens visible.

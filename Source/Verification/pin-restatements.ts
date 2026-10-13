@@ -2,10 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 /**
- * Keeps current dependency pins in exactly two places: the Stage scaffold table in
- * `cratis-stage-rendering-and-sandbox/references/rendered-application.md` and the CLI bundle table in
- * `cratis-screenplay-toolchain/references/versions.md`. Everything else points at those tables, so a release bump edits
- * two files instead of sweeping the corpus.
+ * Keeps current dependency pins in exactly two places: the Stage scaffold table in `Documentation/compatibility.md`
+ * (maintainer page, not agent-loaded) and the CLI bundle table in `cratis-screenplay-toolchain/references/versions.md`.
+ * Skills describe behavior and never restate a current pin, so a release bump edits those tables instead of sweeping the corpus.
  *
  * Design: only the dependency pins are policed (the scaffold's Arc, Chronicle, Components, Scene and `@cratis/arc`, and
  * the bundled Cratis.Arc.Screenplay). The CLI, Stage and bundled Screenplay version tokens are deliberately NOT banned:
@@ -14,7 +13,7 @@
  * listed in `pin-restatement-exceptions.json` with a reason; an entry that matches nothing fails, so the list shrinks.
  */
 
-export const scaffoldTable = '.cratis/ai/skills/cratis-stage-rendering-and-sandbox/references/rendered-application.md';
+export const scaffoldTable = 'Documentation/compatibility.md';
 export const bundleTable = '.cratis/ai/skills/cratis-screenplay-toolchain/references/versions.md';
 
 export interface Pin {
@@ -99,7 +98,7 @@ export function pinRestatements(files: SourceFile[], pins: Pin[], exceptions: Pi
                 }
             }
             for (const pin of pins.filter(candidate => occurrence(candidate.value).test(remaining))) {
-                problems.push(`${file.path}:${index + 1} restates the current ${pin.label} pin ${pin.value}; point at the central table instead (${pin.label === 'Cratis.Arc.Screenplay' ? bundleTable : scaffoldTable}) or list a reasoned exception.`);
+                problems.push(`${file.path}:${index + 1} restates the current ${pin.label} pin ${pin.value}; describe the behavior without the pin (current value in ${pin.label === 'Cratis.Arc.Screenplay' ? bundleTable : scaffoldTable}) or list a reasoned exception.`);
             }
         });
     }

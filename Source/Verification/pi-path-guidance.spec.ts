@@ -1078,6 +1078,8 @@ test('verify.ts rejects a skill with a bad paths entry and accepts the corpus wi
             cpSync(join(repositoryRoot, entry), join(workspace, entry), { recursive: true });
         }
         cpSync(join(repositoryRoot, '.agents', 'plugins'), join(workspace, '.agents', 'plugins'), { recursive: true });
+        mkdirSync(join(workspace, 'Documentation'), { recursive: true });
+        cpSync(join(repositoryRoot, 'Documentation', 'compatibility.md'), join(workspace, 'Documentation', 'compatibility.md'));
         mkdirSync(join(workspace, 'Source', 'Pi.Plugin'), { recursive: true });
         cpSync(join(repositoryRoot, 'Source', 'Pi.Plugin', 'package.json'), join(workspace, 'Source', 'Pi.Plugin', 'package.json'));
         mkdirSync(join(workspace, 'Source', 'Verification', 'play'), { recursive: true });
