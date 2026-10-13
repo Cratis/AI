@@ -2,6 +2,8 @@
 
 ## Contents
 
+- Choosing a strategy
+- When not to
 - The concept declares how; the property declares that
 - Inspect and edit generation through MCP
 - Version and freshness

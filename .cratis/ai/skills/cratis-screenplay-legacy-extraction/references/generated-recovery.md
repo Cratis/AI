@@ -3,10 +3,19 @@
 
 # Generated-value recovery: adapter version matters
 
+## Contents
+
+- Version gate and sources
+- Choosing a strategy
+- When not to
+- Recover what is proven
+- Pins are not local generation
+- Incomplete recovery is a loss report
+
 ## Version gate and sources
 
 These forms are source-checked at **Arc 22.87.1**, not promised for the CLI's
-adapter. **CLI 3.57.0 bundles Arc.Screenplay 22.54.0** even though its Screenplay
+adapter. **CLI 3.57.0 bundles an older Arc.Screenplay adapter** (see the toolchain [versions](../../cratis-screenplay-toolchain/references/versions.md)) even though its Screenplay
 4.147.1 and Stage 4.89.1 admit v15 strategies. A standalone compiler upgrade
 cannot add recovery to that adapter. Check the resolved generator before using
 this guidance; do not bump managed product pins to hide the difference.

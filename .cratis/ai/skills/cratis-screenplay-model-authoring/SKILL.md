@@ -23,7 +23,7 @@ same model root or workspace export to all checks. Workflow:
 
 ## Verified product sources
 
-Screenplay: notes v4.144.0 (`references/model-notes.md`); property planner
+Screenplay v4.144.0: notes (`references/model-notes.md`); property planner
 v4.142.0 (`references/property-links.md`); compliance (command-surface
 `references/compliance.md`); generation MCP v4.149.0
 ([sources](references/mcp-tools.md#concept-generation-41490)); other MCP v4.139.0
@@ -99,7 +99,7 @@ can keep that entry point; use the project's supported installation channel.
    Before a property change, read [property links](references/property-links.md):
    `kind: "Property"`, `Owner.member` / `Owner.generationN.member`, direct mappings.
    `complete: false` is incomplete evidence, never a successful empty list.
-   Generation: [Concept summary, entropy, admission and MCP proposals](references/mcp-tools.md#concept-generation-41490), never hand-edited text.
+   Edit through MCP proposals, not hand-edited text; [generation](references/mcp-tools.md#concept-generation-41490).
 3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
    edges, declared-dependency coverage, cycles and advisory order; the board's
    dependency-map toggle exposes this evidence visually. Unknown or ambiguous

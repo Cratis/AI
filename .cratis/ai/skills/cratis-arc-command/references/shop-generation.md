@@ -3,6 +3,12 @@
 
 # Shop commands: generation stays out of requests
 
+## Contents
+
+- Choosing a strategy
+- When not to generate
+- Verified released sources
+
 ## Choosing a strategy
 
 Use the [same shop concepts](../../cratis-fundamentals-concept/references/shop-generation.md):

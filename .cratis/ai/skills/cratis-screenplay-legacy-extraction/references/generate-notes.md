@@ -7,7 +7,6 @@
 - Coverage (what a provider reads)
 - Diagnostics are the loss list
 - Arc recovery and authoring-only options
-- Arc 22.87.1 generated-parameter, strategy and pin recovery
 - Arc 22.76.0 enum and response recovery
 - Arc 22.70.0 compliance recovery
 - Generated-document self-check on compiler upgrades

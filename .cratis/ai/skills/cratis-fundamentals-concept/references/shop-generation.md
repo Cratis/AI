@@ -3,6 +3,12 @@
 
 # Small-shop generation: choose the value's job
 
+## Contents
+
+- Choosing a strategy
+- When not to generate
+- Verified released sources
+
 ## Choosing a strategy
 
 At **Fundamentals 7.24.0**, a shop can use CustomerId (`cus_` + ULID) for

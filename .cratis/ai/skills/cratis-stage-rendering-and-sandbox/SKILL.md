@@ -47,8 +47,8 @@ were read at Stage `v4.73.1` (`Source/Rendering.Cratis/**`, `Documentation/guide
 unless a line says *observed*. Current CLI 3.57.0 bundle/admission and scaffold pins were re-read at the tagged
 sources in `references/admission.md` and `references/rendered-application.md`.
 The bundled binder trails standalone (toolchain `references/versions.md`).
-[Scaffold pins](references/rendered-application.md) include Arc, Chronicle, Components,
-Scene and Fundamentals, not their latest releases; never bump managed files.
+Stage's scaffold pins Arc, Chronicle, Components, Scene and Fundamentals
+([rendered application](references/rendered-application.md)), not latest releases; never bump managed files.
 Scene was re-read at that scaffold tag: `README.md`,
 `Source/JavaScript/{model,engine,react,components}/**`.
 
