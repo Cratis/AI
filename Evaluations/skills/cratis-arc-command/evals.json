@@ -39,14 +39,14 @@
     {
       "id": 4,
       "name": "migrate-server-generated-id",
-      "prompt": "Our Arc 22.68.0 command is `[Command] public record RegisterCart(CartName Name) { public (CartId, CartRegistered) Handle() { var id = new CartId(Guid.NewGuid()); return (id, new(Name)); } }`. CartId derives from EventSourceId<Guid> and CartRegistered is already registered. Migrate the server-owned allocation without making it a request input. Show the concept strategy, command and a minimal pinned CommandScenario spec in your reply; do not write files.",
-      "expected_output": "CartId implements IGeneratable<CartId> with New using GenerateValue.Uuid or UuidV7. Handle receives a named GeneratedValue CartId and preserves the id/event tuple response. The spec pins a known typed id before execution and checks success and the captured/returned id.",
+      "prompt": "Our Arc 22.68.0 command is `[Command] public record RegisterCart(CartName Name) { public (CartId, CartRegistered) Handle() { var id = new CartId(Guid.NewGuid()); return (id, new(Name)); } }`. CartId derives from EventSourceId<Guid> and CartRegistered is already registered. Migrate the server-owned allocation without making it a request input. Show the concept strategy, command and a minimal pinned CommandScenario spec in your reply; do not write files. Then separately compare the shop on Arc 22.87.1 / Fundamentals 7.24.0: OrderId.New(GenerationContext) uses TypeId(order, context), scenario Clock/Tenant setup, and secret ApiKey Bytes(32) has NotAudited on its concept. Does TypeID encode Tenant, does Clock fix randomness, and does NotAudited protect event payloads/logs?",
+      "expected_output": "CartId implements IGeneratable<CartId> with New using GenerateValue.Uuid or UuidV7. Handle receives a named GeneratedValue CartId and preserves the id/event tuple response. The spec pins a known typed id before execution and checks success and the captured/returned id. Separately, at Arc 22.87.1 the shop OrderId receives captured ReceivedAt/tenant context; Clock and Tenant configure before execution, with Clock before initialization. TypeID uses Now only, not Tenant; a clock does not fix random suffixes. ApiKey NotAudited excludes command causation only, never event payloads or logs; credential delivery and hash storage remain separate.",
       "assertions": [
         "Keeps CartId derived from EventSourceId<Guid>, implements IGeneratable<CartId> and uses GenerateValue rather than Guid.NewGuid in Handle.",
         "Uses GeneratedValue on a non-nullable Handle parameter and keeps the id out of command request properties.",
         "Preserves the id/event tuple so the response selects the Chronicle stream and returns the id to the caller.",
         "Pins the same generated name with a typed concept before scenario execution and asserts success plus the returned or captured id.",
-        "Explains strict scenario defaults and does not replace the production generator or claim generation is idempotency."
+        "Explains strict scenario defaults and non-idempotency; separately gates context/Clock/Tenant to 22.87.1, distinguishes time from random suffix and tenant isolation, and limits ApiKey NotAudited to command causation rather than event/log protection."
       ]
     },
     {

@@ -180,10 +180,18 @@ the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
 A command with an authorization gate, a validation rule and a uniqueness constraint, specified in full with inline events, optional-aware queries and read-model assertions.
 Read [references/worked-example.md](references/worked-example.md) when writing or checking a complete command, view or constraint specification and you need the full compiled model to copy the shape from.
 
+## Choosing a strategy
+
+Read [shop fixtures and strategy choices](references/generated-fixtures.md).
+
+## When not to
+
+Pins/clock do not realize unreleased context or secret generation; preserve the contract.
+
 ## Generated fixtures and return expectations (ESM v7)
 
-Current standalone and bundled compilers bind generated fixtures (`generated <name> = <value>`, `for` beneath `when`) and `then returns` as ESM v7. If execution reaches generation without every generated value supplied, the run is unsupported and never passes.
-Read [references/generated-fixtures.md](references/generated-fixtures.md) when writing generated-value fixtures or scalar and record return expectations for a command.
+Current compilers bind fixtures/returns. Reached generation without every pin is
+unsupported, never passed. The fixture reference covers strict v15 shapes and freshness.
 
 ## Actions beyond commands
 

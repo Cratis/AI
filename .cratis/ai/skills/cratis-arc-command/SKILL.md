@@ -172,25 +172,27 @@ public record Transfer(<AccountId> From, <AccountId> To, <Money> Amount)
 
 ## Generate a server-owned new identifier
 
-**Arc 22.66.0+**, verified at **v22.75.0**: the create-command example above
-requires `<ThingId>` to implement `IGeneratable<ThingId>` with a static `New()`
-strategy (Fundamentals 7.23.0+; see `cratis-fundamentals-concept`). Replace
-`Guid.NewGuid()` or `<ThingId>.New()` inside `Handle()` with a generated parameter,
-not a new request property. Return the id as the ordinary response or in the
-id/event tuple so the caller receives it.
+**Arc 22.66.0+**: replace local `New()` with a `[GeneratedValue]` Handle parameter,
+never a request property. Use a non-nullable self-generatable concept and a unique,
+case-sensitive generated name. Return the value explicitly if the caller needs it.
+Read [generated values](references/generated-values.md) for Provide/DI boundaries,
+validation/captures, ARC0022–ARC0025, migration and named pins; newer context
+factories are version-qualified in the shop reference below.
 
-`[GeneratedValue]` is in `Cratis.Arc.Commands.ModelBound` and applies only to
-parameters of a non-static command `Handle()`. Arc generates after `Provide()`
-control results permit execution, validates the concept, then invokes `Handle`.
-`Provide()` and DI cannot override it. Use a non-nullable self-generatable type,
-not raw `Guid`; names default to the parameter name or an explicit attribute name
-and are case-sensitive, non-empty and unique within the command.
+## Choosing a strategy
 
-Keep client-chosen ids/references as inputs and services/read models as ordinary
-dependencies. A UUID is not a secret, token, authorization proof, idempotency key,
-or a gapless/sequential invoice number. For validation failures, captures,
-ARC0022–ARC0025, migration and the pinned-spec workflow, read
-[generated values](references/generated-values.md).
+Use the [threaded shop example](references/shop-generation.md): CustomerId
+(`cus_` + ULID), context-aware TypeID OrderId, NanoID InviteCode and secret
+`Bytes(32)` ApiKey. Arc 22.87.1 resolves Fundamentals 7.24.0 and passes captured
+received time/tenant to context factories; released Clock/Tenant scenario setup
+is shown there. Earlier version-qualified examples above remain unchanged.
+
+## When not to generate
+
+Keep client-owned IDs as inputs. Generation is not authorization, tenant
+isolation, idempotency, freshness or gapless invoice numbering. Credentials need
+explicit entropy, `[NotAudited]`, authorized delivery and hash storage; never
+log captures or persist plaintext authentication keys. See [boundaries](references/shop-generation.md#when-not-to-generate).
 
 ## Where the event source id comes from
 

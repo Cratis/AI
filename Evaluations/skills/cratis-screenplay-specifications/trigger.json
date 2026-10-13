@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-screenplay-specifications",
+  "queries": [
+    { "query": "Write a pinned Screenplay specification for RegisterProject returning its generated identifier and receipt.", "shouldTrigger": true },
+    { "query": "Does given clock produce a reproducible UUIDv7 in a .play specification without a pin?", "shouldTrigger": true },
+    { "query": "Our v15 generated fixture has the wrong UUID variant. Should the reference test pass?", "shouldTrigger": true },
+    { "query": "Specify a generated source collision using prior facts on another stream and a pinned command id.", "shouldTrigger": true },
+    { "query": "What is the difference between for under when and generated receipt in Screenplay specifications?", "shouldTrigger": true },
+    { "query": "Add a then denied example for a caller who cannot cancel an invoice in .play.", "shouldTrigger": true },
+    { "query": "Use given readmodel and when query with then result to specify a Screenplay view.", "shouldTrigger": true },
+    { "query": "Can a then returns assertion coexist with event assertions in a Screenplay command spec?", "shouldTrigger": true },
+    { "query": "Choose a NanoID alphabet and strategy for the concept in a new .play command.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
+    { "query": "Write a C# CommandScenario with PinGeneratedValue.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "Stage refuses clock specifications; help me understand its rendering admission.", "shouldTrigger": false, "note": "cratis-stage-rendering-and-sandbox" },
+    { "query": "Recover New() calls and their scenarios from our old Arc source.", "shouldTrigger": false, "note": "cratis-screenplay-legacy-extraction" },
+    { "query": "Review the whole event model for missing business scenarios and field lineage.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Plan a workshop to decide which scenarios every command needs.", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "Use MCP propose-property to rename our command input with revision guards.", "shouldTrigger": false, "note": "cratis-screenplay-model-authoring" },
+    { "query": "Debug a failed partition in the running Chronicle server.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" }
+  ]
+}

@@ -15,7 +15,7 @@ This skill is verified against these exact public releases:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Fundamentals` | `7.23.0` | `Cratis.Concepts.ConceptAs<T>`, `IGeneratable<TSelf>` and `GenerateValue` |
+| `Cratis.Fundamentals` | `7.24.0` | `ConceptAs<T>`, `IGeneratable<TSelf>`, `IGeneratableInContext<TSelf>`, `GenerationContext` and `GenerateValue` |
 | `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Events.EventSourceId` and `EventSourceId<T>` |
 | `@cratis/fundamentals` | `7.23.0` | TypeScript `ConceptAs<T>`, `field`, `Guid`, and JSON conversion |
 
@@ -114,17 +114,26 @@ bits from `RandomNumberGenerator`:
   millisecond, and clock adjustments can reorder values.
 
 Neither helper guarantees uniqueness; a collision is extremely unlikely, not
-impossible. `IGeneratable<TSelf>` is not limited to Guid-backed concepts, but
-`GenerateValue` only produces UUIDs.
+impossible. Fundamentals **7.24.0** also supplies ULID, TypeID, NanoID and encoded
+bytes. `IGeneratableInContext<TSelf>` declares static `New(GenerationContext)`
+for a captured time and portable tenant. Built-ins consume time, not tenant;
+context is not tenant isolation. Default time is rejected, not replaced with now.
+Sources and the complete shop example: [shop generation](references/shop-generation.md).
 
-Do not generate when:
+## Choosing a strategy
 
-- The client supplies the identifier. It is an input; keep it.
-- The value must be secret or authenticate someone. A UUID is an identifier,
-  not a token; use a dedicated secure-token API.
-- The same input must yield the same value. Random generation is not
-  idempotency; derive the value deterministically, or persist and reuse the
-  first one.
+The shared shop uses CustomerId (`cus_` + ULID), context-aware OrderId (TypeID),
+InviteCode (NanoID), and secret ApiKey (`Bytes(32)`, `[NotAudited]` in its host).
+Read [choices, time/tenant context and protection](references/shop-generation.md).
+Resolve Fundamentals 7.24.0 before using these newer helpers; the earlier 7.23.0
+UUID examples remain supported.
+
+## When not to generate
+
+Client-supplied identities stay inputs; random generation is not idempotency or
+gapless numbering. UUIDs are not credentials. Byte generation can create a secret
+in 7.24.0, but audit suppression, authorized delivery and hash storage are separate
+host responsibilities; never treat randomness as protection.
 
 In specifications, construct the concept from a known value
 (`new <ConceptName>(Guid.Parse("…"))`) and assert against it. Do not seed or
@@ -258,7 +267,8 @@ repository structure.
 - Enums remain enums.
 - A concept that creates its own value implements `IGeneratable<TSelf>`; a
   Guid-backed one uses `GenerateValue`, not `Guid.NewGuid()` or `Random`.
-  Client-supplied, secret or idempotent values are not generated.
+  Client-supplied/idempotent values are not freshly generated; secrets use the
+  explicit entropy, audit and storage contract in [shop generation](references/shop-generation.md).
 - Null absence uses a nullable concept reference rather than a null wrapped
   value.
 - Primitive-to-derived conversions and sentinels exist only when justified by

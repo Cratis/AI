@@ -46,12 +46,11 @@ were read at Stage `v4.73.1` (`Source/Rendering.Cratis/**`, `Documentation/guide
 (`Documentation/reference/screenplay.md`, `Source/Cli/Commands/Render/**`), not by a render run
 unless a line says *observed*. Current CLI 3.57.0 bundle/admission and scaffold pins were re-read at the tagged
 sources in `references/admission.md` and `references/rendered-application.md`.
-Pins: toolchain `references/versions.md`; its
-binder is behind the standalone compiler. Stage's scaffold pins Arc, Chronicle, Components, Scene and
-Fundamentals releases (listed in the rendered application reference). Scene's
-runtime surface was re-read at the Scene tag in that scaffold table
-(`README.md`, `Source/JavaScript/{model,engine,react,components}/**`). These are **not** the latest releases; do not bump them in managed files
-([rendered application](references/rendered-application.md)).
+The bundled binder trails standalone (toolchain `references/versions.md`).
+Stage's scaffold pins Arc, Chronicle, Components, Scene and Fundamentals
+([rendered application](references/rendered-application.md)), not latest releases; never bump managed files.
+Scene was re-read at that scaffold tag: `README.md`,
+`Source/JavaScript/{model,engine,react,components}/**`.
 
 Historical executed baselines (history, not current claims): Stage `v4.24.2` and cli
 `v3.28.2`/`v3.28.3` (Cratis/cli#253; the example in [render-example.md](references/render-example.md)),
@@ -183,6 +182,14 @@ admission (ESM v1 to v4, keyed optional queries only) is kept as history in `ref
 `<remarks>`; Stage#178 closed), never as validation, authorization or behavior, so a rule that exists
 only in prose is not enforced. A documentation edit changes managed-file hashes (a `--check` exit
 `6`), and characters invalid in XML block rendering with `CLI-RENDER-005`.
+
+## Choosing a strategy
+
+Read [shop strategy choices](references/choosing-generation.md) before rendering.
+
+## When not to
+
+That reference separates v15 scopes from future Arc freshness and unshipped context/secrets.
 
 ## What it emits
 
