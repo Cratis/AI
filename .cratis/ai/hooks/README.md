@@ -70,8 +70,9 @@ It removes only on **evidence of delivery**, never on a guess: the tip is merged
 and was integrated rather than merely sitting on the default branch's first-parent history (where a
 brand-new empty branch sits), or it is merged and its upstream is gone, or GitHub reports a merged pull
 request whose head is exactly that tip. It never forces: a dirty, locked or current worktree is kept, as
-is anything undelivered, and every kept item is reported with its reason. Ignored files (`node_modules`,
-build output, `.ai-work/`) go with a delivered worktree; they are the disk being reclaimed.
+is anything undelivered, and every kept item is reported with its reason. Worktrees with non-empty
+`.ai-work/` directories are kept as "has untracked work records (.ai-work/)" by default, including
+ignored records. Other ignored files (`node_modules`, build output) go with a delivered worktree.
 
 - **When it runs.** After a Bash command that delivers or integrates work, and at the start of every
   session, so orphans left by any earlier session, crash or harness are collected too.
@@ -79,9 +80,14 @@ build output, `.ai-work/`) go with a delivered worktree; they are the disk being
   Harnesses with no hook wiring (Copilot, Cursor, OpenCode) rely on the **ship-changes** prompt, whose
   final step runs the same script, and on running it by hand.
 - **By hand.** `bash .cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh [--dry-run]` from any worktree;
-  run from the main checkout to also collect the worktree you are standing in.
-- **Self-test.** `--self-test` plants delivered, dirty, unmerged and brand-new cases and fails if any is
-  handled wrongly.
+  run from the main checkout to also collect the worktree you are standing in. Add
+  `--include-work-records` only after preserving any records you still need: it permits deleting
+  `.ai-work/` content, but never overrides locks or other safety checks. Hook mode ignores this flag;
+  automatic hooks never opt in.
+- **Pin a long-lived worktree.** Use `git worktree lock <path>` to keep it out of cleanup; release the
+  pin with `git worktree unlock <path>` when ready.
+- **Self-test.** `--self-test` plants delivered, dirty, unmerged, brand-new, work-record and locked cases
+  (including detached locks), checks manual opt-in and hook protection, and fails if any is handled wrongly.
 - **Opt out.** `CRATIS_HOOKS_SKIP_CLEANUP=1`.
 
 ## What is enforced
