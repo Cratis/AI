@@ -44,8 +44,8 @@ at the versions named in each row (CLI 3.53.1 bundles Prologue
 | --- | --- |
 | `generate` options, no default-file certainty (stdout when `--file` is absent), spec-project exclusion by name, `CLI0005/0009/0014-0017` | cli `v3.28.2:Source/Cli/Commands/Screenplay/{GenerateScreenplayCommand,GenerateScreenplaySettings,ScreenplayProjectSelection,ScreenplayDiagnosticCodes}.cs` |
 | `SP0016` (rule in code, computed message, `When`/`Unless` written as unconditional), `SP0024` (source did not compile) | Arc `v22.50.5:Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`, `Documentation/backend/csharp/generating-a-screenplay.md` |
-| Enum number preservation (SP0067–SP0069) and response-read/mutation proof | Arc `v22.76.0:Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`, `Analysis/Types/{ConceptRegistry,FlagsEnumUses}.cs`, `Analysis/Specifications/SpecificationReturnValues.cs`; `references/generate-notes.md` |
-| Non-default secret scope in authoring mode, SP0061–SP0063, self-check contract on compiler upgrades | Arc `v22.70.0:Documentation/backend/csharp/generating-a-screenplay.md`, `Source/DotNET/Screenplay/Verification/ExpectedBindingDiagnostics.cs`; `references/generate-notes.md` |
+| Generated strategies/parameters/pins and loss inventory | Arc 22.87.1: [tagged sources and adapter gate](references/generated-recovery.md) |
+| Enum/response recovery (22.76.0); compliance/self-check (22.70.0) | Arc: [tagged sources and limits](references/generate-notes.md) |
 | `prologue start` is an interactive wizard that writes `cratis-prologue.json`; `interpret --no-llm` never creates a chat client; a local `llm.enabled` setting wins over the global CLI configuration; the provider is announced before evidence is sent (cli#241, closed) | cli `v3.53.1:Source/Cli/Commands/Prologue/{StartPrologueCommand,InterpretPrologueSettings,InterpretPrologueCommand,LlmOptionsResolver}.cs`, `Documentation/reference/prologue.md` |
 | `generate` and `conform` evaluate the project with MSBuild (design-time build; may run project targets and write `obj/`); `conform` exit 0/1/2, structural only | cli `v3.53.1:Documentation/reference/screenplay.md`, `Source/Cli/Commands/Screenplay/ConformScreenplayCommand.cs` |
 | Extractor effects (CDC enable, publication and replication slot), POST/PUT/DELETE only, 2 s correlation window, interpret payload (uncapped model outline and names, observed lists capped at 50, schema tables capped per schema observation), existing slot/publication reused; cleanup missing (Prologue#37) | Prologue `v2.0.0:Source/Extractor/Sources/**`, `Source/Configuration/*`, `Source/Interpretation/EvidenceFormatter.cs` |
@@ -53,6 +53,11 @@ at the versions named in each row (CLI 3.53.1 bundles Prologue
 | MCP semantic-diff compares canonical workspace exports; structural comparison is not execution equivalence | Screenplay `v4.125.0:Documentation/screenplay/mcp/reference.md` |
 
 Every complete `screenplay` fence here compiles with the standalone compiler 4.139.0 (`--warnaserror`).
+
+## Choosing a recovered strategy / when not to
+
+Read [choices, boundaries and recovery losses](references/generated-recovery.md)
+before inferring generation: Arc 22.87.1 forms do not describe CLI 3.57.0's older adapter.
 
 ## Interview phase
 **Skip if** the brief already records the freeze or "not applicable", the observable

@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-screenplay-command-surface",
+  "queries": [
+    { "query": "Choose a generation strategy for a server-owned String concept in our .play model and mark the command property generated identifier.", "shouldTrigger": true },
+    { "query": "Can generate sequence give our Screenplay invoice numbers a legally gapless allocation?", "shouldTrigger": true },
+    { "query": "Declare a Screenplay command that produces AccountCreated and returns its generated id.", "shouldTrigger": true },
+    { "query": "Our generated concept has a validation rule. Is that executable on Screenplay 4.151.0?", "shouldTrigger": true },
+    { "query": "Model an append-time unique email constraint and release it when the account is retired.", "shouldTrigger": true },
+    { "query": "Write a policy and persona for the CancelInvoice command in .play.", "shouldTrigger": true },
+    { "query": "Should the client-minted DraftId in this Screenplay command be marked generated?", "shouldTrigger": true },
+    { "query": "How many random bits does generate nanoid 16 with a 16-symbol alphabet provide for an identifier?", "shouldTrigger": true },
+    { "query": "Pin a generated identifier in a Screenplay given/when/then specification.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Use revision-checked MCP tools to edit the concept generation AST.", "shouldTrigger": false, "note": "cratis-screenplay-model-authoring" },
+    { "query": "Recover generated Handle parameters from an existing Arc codebase into a candidate model.", "shouldTrigger": false, "note": "cratis-screenplay-legacy-extraction" },
+    { "query": "Stage refused our generated command with STAGE-ESM-038; what can it render?", "shouldTrigger": false, "note": "cratis-stage-rendering-and-sandbox" },
+    { "query": "Write a fluent Chronicle projection in C#.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Model a screen template and its toolbar dialog in .play.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" },
+    { "query": "Declare a Screenplay query over InvoiceSummary with paging filters.", "shouldTrigger": false, "note": "cratis-screenplay-read-surface" },
+    { "query": "Interview me about a new billing domain and discover its event timeline.", "shouldTrigger": false, "note": "cratis-screenplay-discovery" }
+  ]
+}

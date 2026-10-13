@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-screenplay-command-surface",
+  "evals": [
+    {
+      "id": 1,
+      "name": "choose-concept-strategy-and-entropy",
+      "prompt": "On Screenplay 4.151.0, CreateReference needs a server-owned String identifier with prefix ref_ and a 16-symbol hexadecimal alphabet. Propose the concept and command property declarations for a 16-character random portion. Explain its entropy, whether the prefix helps, and the gates needed. Compare UUIDv7, ULID and TypeID if time ordering matters. Reply only; do not edit or run tools.",
+      "expected_output": "Reference is a String concept with generate nanoid 16 alphabet \"abcdef0123456789\" prefix \"ref_\"; reference Reference generated identifier belongs on the command. Sixteen positions times four bits is 64 bits, meeting the identifier floor; prefix adds none. UUIDv7 is a time-visible UUID, ULID compact time-ordered text and TypeID typed lowercase text, not strict within-millisecond sequencing. Inspect admission independently of entropy; compile, bind/reference-execute with a valid whole-value pin and check target support separately.",
+      "assertions": [
+        "Places generate nanoid 16 alphabet and prefix on the String concept, with generated identifier on the command property, not a per-property strategy.",
+        "Computes 64 random bits, states the 64-bit identifier minimum and gives no entropy credit to the prefix or time.",
+        "Distinguishes UUIDv7, ULID and TypeID by purpose and rejects strict within-millisecond ordering.",
+        "Separates authoring, binding/reference execution and target support; does not call entropy evidence an executable or render verdict."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "refuse-gapless-invoice-generation",
+      "prompt": "Our Screenplay 4.151.0 billing model needs legally gapless invoice numbers shared across concurrent commands. Can generate sequence, a random number with retries, generate pattern with a date, or generate rule that reads the previous invoice solve it today? We also receive a client-minted DraftId and a webhook idempotency key. Reply only with what to model or leave open, without inventing allocator APIs.",
+      "expected_output": "None of the generation strategies is a released gapless allocator. generate sequence is reserved (PLAY0682); pattern/random/rule parse but refuse executable binding (PLAY0268), and read-then-write plus randomness cannot enforce a gapless concurrent allocation. Keep the allocator requirement as an explicit capability gap/owning implementation question (Screenplay#619), not a fake executable strategy. DraftId remains an input; idempotency needs a persisted/deterministic request mapping with independent uniqueness, not new randomness or a future derive promise.",
+      "assertions": [
+        "Refuses randomness, retries and read-then-write as a gapless concurrent invoice allocator.",
+        "Names sequence as reserved and pattern/random/rule as non-executable, not shipped solutions.",
+        "Preserves the business requirement as an explicit capability gap without inventing a sequence or derive API.",
+        "Keeps client-minted identity as input and treats idempotency/uniqueness independently of generation."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "generation-is-not-protection",
+      "prompt": "A CreateAccount command on Screenplay 4.151.0 has a generated UUIDv7 identifier. A teammate wants to use the ID as a password-reset secret, remove the authorization policy, and add a generated-concept matches rule because the generation summary's entropy is high. Is that admitted and safe? What if the MCP executable.status is notAssessed because another declaration fails binding? Reply only.",
+      "expected_output": "A time-visible identifier is neither a credential nor authorization. Keep the policy and protection; secret generation and generated-concept validation/rule consistency are not admitted. High entropy does not prove security or rule consistency. notAssessed is unknown due to unrelated binding failure, not admitted; inspect diagnostics, repair the actual model within scope and reassess. Do not invent derived regex/checksum/rule-proof repairs.",
+      "assertions": [
+        "Rejects the identifier as a password-reset secret and retains independent authorization.",
+        "States generated secrets and generated-concept validation/rule consistency are unadmitted, never deletes classification/rules to obtain admission.",
+        "Treats notAssessed as unknown rather than admitted and distinguishes entropy from whole-model binding.",
+        "Does not promise derived regex, checksum or rule-proof repairs as released capabilities."
+      ]
+    }
+  ]
+}

@@ -182,8 +182,10 @@ Read [references/worked-example.md](references/worked-example.md) when writing o
 
 ## Generated fixtures and return expectations (ESM v7)
 
-Current standalone and bundled compilers bind generated fixtures (`generated <name> = <value>`, `for` beneath `when`) and `then returns` as ESM v7. If execution reaches generation without every generated value supplied, the run is unsupported and never passes.
-Read [references/generated-fixtures.md](references/generated-fixtures.md) when writing generated-value fixtures or scalar and record return expectations for a command.
+ESM v7 fixtures and returns bind in current standalone/bundled compilers.
+Reached generation without every pin is unsupported, never passed.
+Read [fixtures, choosing a strategy and when not to](references/generated-fixtures.md)
+for `for`/named pins, clock caveats, strict v15 shapes, freshness and return expectations.
 
 ## Actions beyond commands
 

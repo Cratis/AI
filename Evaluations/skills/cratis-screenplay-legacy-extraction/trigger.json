@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-screenplay-legacy-extraction",
+  "queries": [
+    { "query": "Extract our Arc commands with generated Handle parameters and reconcile missing literal pins in the recovered model.", "shouldTrigger": true },
+    { "query": "Does upgrading standalone Screenplay upgrade the Arc recovery adapter bundled in cratis CLI 3.57.0?", "shouldTrigger": true },
+    { "query": "Our recovered .play omits a New() scenario. Explain the local generation fallback and loss report.", "shouldTrigger": true },
+    { "query": "SP0073 reports a context.Now factory body during model extraction; should I invent generate rule?", "shouldTrigger": true },
+    { "query": "Turn this legacy Rails application into an evidence-backed Screenplay candidate model.", "shouldTrigger": true },
+    { "query": "Reconcile Prologue observations with static source evidence and keep/change/remove decisions.", "shouldTrigger": true },
+    { "query": "Our v14-capped generator dropped a required payload mapping and its production. How should we report SP0012 and SP0039?", "shouldTrigger": true },
+    { "query": "Plan a side-car migration for a frozen legacy system with unknown rule recovery.", "shouldTrigger": true },
+    { "query": "Design a new Screenplay command and choose its server-owned NanoID strategy.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
+    { "query": "Pin a generated identifier in a hand-authored Screenplay specification.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Review our finished .play model without editing it.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Render the accepted model into an application and gap-fill it.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "Inspect a quarantined observer on our running Chronicle store.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Interview us about a greenfield domain's event timeline.", "shouldTrigger": false, "note": "cratis-screenplay-discovery" },
+    { "query": "Rename an existing model concept through Screenplay MCP with identity preservation.", "shouldTrigger": false, "note": "cratis-screenplay-model-authoring" },
+    { "query": "Write the C# event-source concept with IGeneratable and GenerateValue.Uuid.", "shouldTrigger": false, "note": "cratis-fundamentals-concept" }
+  ]
+}
