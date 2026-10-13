@@ -37,7 +37,7 @@ function matches(file: string, lines: Array<{ text: string; line: number }>, rul
 function descriptionFindings(file: string, content: string, closing: number) {
     const lines = content.split('\n');
     const openingOffset = lines[0].length + 1;
-    const document = parseDocument(lines.slice(1, closing).join('\n'));
+    const document = parseDocument(lines.slice(1, closing).join('\n') + '\n');
     // Malformed YAML is already reported by the frontmatter validator.
     if (document.errors.length > 0) return [];
     const description = document.get('description', true);
