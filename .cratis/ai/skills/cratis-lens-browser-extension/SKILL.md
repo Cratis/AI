@@ -17,17 +17,15 @@ the developer points it at. Nothing in it is production tooling.
 
 ## Verified product sources
 
-| Source | Version | Purpose |
-| --- | --- | --- |
-| `Cratis/Lens` `Source/` | `v0.0.1`, manifest `1.0.0` | The extension itself; no newer release |
-| `Cratis.Arc.Core` | `22.75.0` | The `/.cratis/*` endpoints, the forwarded-identity contract, and the tenancy header Lens depends on |
+| Source | Purpose |
+| --- | --- |
+| `Cratis/Lens` `Source/` | The extension itself; no newer release |
+| `Cratis.Arc.Core` | The `/.cratis/*` endpoints, the forwarded-identity contract, and the tenancy header Lens depends on |
 
-Behavior was read at Lens `v0.0.1` and `main`; the Source diff is metadata/build
-packaging only. The release predates the previously verified `3ee4882` commit.
-Arc evidence: [ArcOptions.cs:61–80](https://github.com/Cratis/Arc/blob/v22.75.0/Source/DotNET/Arc.Core/ArcOptions.cs#L61-L80),
-[MicrosoftIdentityPlatformAuthenticationHandler.cs:28–40](https://github.com/Cratis/Arc/blob/v22.75.0/Source/DotNET/Arc.Core/Identity/MicrosoftIdentityPlatformAuthenticationHandler.cs#L28-L40),
-[IntrospectionOptions.cs](https://github.com/Cratis/Arc/blob/v22.75.0/Source/DotNET/Arc.Core/Introspection/IntrospectionOptions.cs)
-and [DiscoveryExposure.cs:102–138](https://github.com/Cratis/Arc/blob/v22.75.0/Source/DotNET/Arc.Core/Introspection/DiscoveryExposure.cs#L102-L138).
+Arc evidence: [ArcOptions.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/ArcOptions.cs),
+[MicrosoftIdentityPlatformAuthenticationHandler.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Identity/MicrosoftIdentityPlatformAuthenticationHandler.cs),
+[IntrospectionOptions.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Introspection/IntrospectionOptions.cs)
+and [DiscoveryExposure.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Introspection/DiscoveryExposure.cs).
 
 ⚠️ **There is no published store listing.** Nothing in the Lens repository links
 a Chrome Web Store, Edge Add-ons, AMO, or App Store entry — the only store URLs
@@ -67,7 +65,7 @@ same three the pull-request workflow runs. There is no lint script.
 
 On `main`, `yarn build-package` runs `scripts/build-package.js` and writes zip
 packages into repo-root `dist/`; the manifest description changed, but the name
-is still **Cratis Lens**. At `v0.0.1` the script instead zips to `lens-extension.zip`.
+is still **Cratis Lens**. the script instead zips to `lens-extension.zip`.
 
 The code uses the `chrome.*` namespace throughout with no polyfill. The release
 workflow also packages for Edge, Firefox and Safari, but no cross-browser
@@ -90,20 +88,20 @@ strips client-supplied identity headers.
 | `GET /.cratis/tenants` | every `ICanProvideTenants`, identity discovery policy | The importable tenant list |
 | `GET /.cratis/identity-details/schema` | the identity endpoint mapper | The schema-driven editor for a user's `identityDetails` |
 
-At Arc v22.75.0 discovery is anonymous by default **only in Development**.
+Discovery is anonymous by default **only in Development**.
 Against a deployed host Lens needs the user signed in; hosts unable to authenticate
 omit those routes (404). `Introspection.Enabled` controls catalogs and
 `IdentityDiscovery` the roster/tenant/schema routes. Forwarded identity switching
 also needs the explicit host-wide `TrustForwardedIdentityHeaders` opt-in, only
 behind a header-stripping ingress. Source:
-[secure defaults](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/upgrading/secure-defaults.mdx).
+[secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/upgrading/secure-defaults.mdx).
 `MapIntrospectionEndpoints` runs during Arc activation, subject to these settings. The user and tenant
 routes return whatever the application implements — with **no implementation
 registered they return an empty list**, and Lens treats a `404` on either as
 "empty", not "broken". Users and tenants can also be created by hand in Lens's
 Settings, so an application that provides neither still works.
 
-At Arc `22.75.0`, all five discovery routes are anonymous by default only in
+All five discovery routes are anonymous by default only in
 **Development**. Elsewhere they require authentication, or are not mapped when
 the host cannot enforce it. `Cratis:Arc:Introspection` options `Enabled` and
 `IdentityDiscovery` control mapping; `RequireAuthentication` and `Roles` control
@@ -144,7 +142,7 @@ application needs no change.
 ⚠️ **`tenantHeaderName` has no user interface.** It is a stored setting with a
 default and nothing binds it to an input. An application that resolves tenancy
 by query parameter, claim, subdomain, or a renamed header **cannot be driven by
-Lens at manifest `1.0.0` (`3ee4882`)** without editing `chrome.storage.local` by hand. Guidance describing
+Lens** without editing `chrome.storage.local` by hand. Guidance describing
 a "Tenant Header Name" field on an options page is describing something that
 does not exist — there is no `options_page` in the manifest at all.
 
@@ -178,7 +176,7 @@ Pick both on the **Context** tab. Two things then happen, in this order:
 2. It deletes the Arc identity cookie `.cratis-identity` on the detected base URL
    and page origins, then reloads every open tab on those origins.
 
-At Arc v22.75.0 the backend neither reads nor writes that legacy identity
+The backend neither reads nor writes that legacy identity
 cookie. Lens still deletes it for older hosts; reloading clears the frontend's
 in-memory identity and asks `/.cratis/me` again. Header-based switching requires
 the host-wide trust opt-in and a suitable development/ingress boundary; the
@@ -206,7 +204,7 @@ query is always `GET`, with `{name}` segments in the route substituted from the
 path-parameter inputs and the same context headers.
 
 ⚠️ **The schema-driven payload form does not receive a schema from
-Arc `22.75.0`.** Lens reads an optional property named `schema` off each introspection
+Arc.** Lens reads an optional property named `schema` off each introspection
 item, and falls back to trying `/.cratis/types/{type}`, `/.cratis/schema/{type}`,
 `/.cratis/schemas/{type}` and `/.cratis/types?type={type}` in turn. Arc names the
 property **`payloadSchema`** on a command and **`argumentsSchema`** on a query,
@@ -230,10 +228,10 @@ unwrapped from the first of `data`, `result`, `items`, `results`, `value`,
 the Settings user/tenant refresh does send both. So an application that puts
 authentication in front of `/.cratis/commands` and `/.cratis/queries` breaks
 those tabs while Settings may keep working. This is the default outside
-Development at Arc `22.75.0`. Run the app in **Development**, or knowingly set
+Development. Run the app in **Development**, or knowingly set
 `Cratis:Arc:Introspection:RequireAuthentication=false` on an isolated development
 host; do not weaken production discovery for Lens.
-Evidence: [Lens introspection.ts:100–131](https://github.com/Cratis/Lens/blob/v0.0.1/Source/arc/introspection.ts#L100-L131).
+Evidence: [Lens introspection.ts](https://github.com/Cratis/Lens/blob/main/Source/arc/introspection.ts).
 
 Queries are path-parameter GETs only: no query-string arguments, no paging or
 sorting inputs, and no observable subscription from the popup.

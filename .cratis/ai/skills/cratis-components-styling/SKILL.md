@@ -15,9 +15,9 @@ first-run problem — start by checking the CSS entry.
 
 ## Verified product sources
 
-| Package | Version | Verified from |
-| --- | --- | --- |
-| `@cratis/components` | `4.26.4` | its package manifest (`exports`, no vendor UI dependency or peer), `Source/tokens.css`, `Source/MIGRATION.md`, `Documentation/Styling/*`, `Documentation/Common/cratis-components-provider.md`, `Documentation/renderers/*` |
+| Package | Verified from |
+| --- | --- |
+| `@cratis/components` | its package manifest (`exports`, no vendor UI dependency or peer), `Source/tokens.css`, `Source/MIGRATION.md`, `Documentation/Styling/*`, `Documentation/Common/cratis-components-provider.md`, `Documentation/renderers/*` |
 
 Components declares **no** PrimeReact, PrimeIcons or PrimeUI dependency or peer.
 React Aria supplies focus, overlay, collection and date behavior *internally* —
@@ -114,7 +114,7 @@ document.documentElement.classList.toggle('cratis-dark', darkMode);
   `:root:not(.cratis-light)`. Match the scheme selectors' specificity and place
   overrides after the import, including subtree selectors when using islands.
   Or omit `theme` and use the product-theme setup below.
-- Components 4.22.1+ maps Arc's `--color-error` / `--color-error-bg` in both dark
+- Components maps Arc's `--color-error` / `--color-error-bg` in both dark
   schemes. A product theme omitting `theme` must define those variables itself;
   do not carry forward the old dark-error contrast workaround.
 

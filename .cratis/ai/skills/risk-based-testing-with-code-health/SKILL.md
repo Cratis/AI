@@ -4,7 +4,7 @@ description: Use when a user asks what to test first based on CodeScene findings
 license: Apache-2.0
 ---
 
-<!-- Modified by Cratis from CodeScene AB's original (Apache-2.0): added profile guard, policy note, license field and this notice. Upstream: https://github.com/codescene-oss/codescene-mcp-server/blob/96aad9180a4261e048a81806b510108896b3c576/skills/risk-based-testing-with-code-health/SKILL.md -->
+<!-- Modified by Cratis from CodeScene AB's original (Apache-2.0): added profile guard, policy note, license field and this notice. Upstream: https://github.com/codescene-oss/codescene-mcp-server (skills/risk-based-testing-with-code-health/SKILL.md; see NOTICE) -->
 
 # Risk-Based Testing With Code Health
 
@@ -14,7 +14,7 @@ Use only in repositories that opted into `cratis/codescene` and have CodeScene M
 Use this skill when the goal is to turn CodeScene risk signals into practical testing priorities.
 The output should help testers and developers focus limited test time on the code most likely to produce defects.
 
-The primary signal is always the **current branch's change set** — what has actually changed is more immediately actionable than historical hotspots. Hotspots provide background context and catch systemic risk, but they should not displace focus from files the branch has already touched.
+The primary signal is always the **current branch's change set** — what has actually changed is more immediately actionable than long-standing hotspots. Hotspots provide background context and catch systemic risk, but they should not displace focus from files the branch has already touched.
 
 ## When to Use
 - A user asks where testing should focus based on CodeScene hotspots.
@@ -35,7 +35,7 @@ Use `making-the-business-case-for-code-health` for ROI framing.
 - Optional: business criticality hints from the user (for example: release-blocking areas, customer-facing commands)
 
 ## Quick Reference
-- `list_technical_debt_hotspots_for_project`: Identify high-risk files using low Code Health and high historical churn.
+- `list_technical_debt_hotspots_for_project`: Identify high-risk files using low Code Health and high past churn.
 - `analyze_change_set`: Evaluate immediate risk in the current branch vs target base.
 - `code_health_score`: Inspect specific files in detail.
 - `code_ownership_for_path`: Route high-risk areas to likely reviewers/domain experts.
