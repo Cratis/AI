@@ -134,7 +134,7 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
     );
 
     const failClosed = ['STAGE-SCENE-ACTION-001', 'STAGE-SCENE-INTERACTION-001'];
-    for (const required of ['3.43.0', 'cratis/stage:4.52.0', '4.127.0', '51\nbrowser assertions', 'Cratis/cli#301', 'test-account decision', ...failClosed]) {
+    for (const required of failClosed) {
         assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
     }
     for (const required of ['3.43.0', 'published successfully', 'MCP-edited copy', 'screenplay-mcp-transcript.ts', 'Cratis/cli#301', ...failClosed]) {

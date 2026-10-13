@@ -1,19 +1,19 @@
-# Example: a model inside the Stage 4.24 renderable subset
+# Example: a renderable model
 
 ## Contents
 
 - What was run
 - What came out
 
-A complete marina-berth model that `cratis render` 3.28.2 and 3.28.3 accept, followed by what the
-render produced and how each claim was checked. Use it as a shape to stay inside when a
+A complete marina-berth model that `cratis render` accepts, followed by what the
+render produces and how to check it. Use it as a shape to stay inside when a
 model must be renderable; it is not a template for richer slices (see `admission.md`).
 
 ```screenplay
-// cratis-stage-rendering-and-sandbox: a complete model inside the Stage 4.24 renderable subset.
+// cratis-stage-rendering-and-sandbox: a complete renderable model.
 // Two commands with one event each, one projection with a removal, one keyed snapshot query,
 // declarative authorization and three reference specifications. Compiles with warnings as errors
-// and renders with `cratis render`; no code attachments, no ESM v4+ constructs.
+// and renders with `cratis render`; no code attachments, no evolved events.
 
 domain Harbour.Marina
 
@@ -98,7 +98,7 @@ module Berths
 Why it is shaped this way:
 
 - Each command has one unconditional `produces`, with a typed `for` on the identifier.
-- The policy requires authentication as well as the role. (On cratis 3.27.1 a role alone was refused with `STAGE-ESM-015`; Stage 4.73.1 renders a role-only policy, reading roles through the identity's `RoleClaimType`. The authenticated form still renders.)
+- The policy requires authentication as well as the role. A role-only policy also renders, reading roles through the identity's `RoleClaimType`. Two `require` lines in one policy are `PLAY0441`: combine them with `and`.
 - The projection has a `from` and a `remove with`, so Stage renders it as a scoped
   projection keyed by the event source. The identifier is never mapped: the key
   establishes it, and mapping it is `STAGE-ESM-017`.
@@ -106,33 +106,29 @@ Why it is shaped this way:
   identifier. It has no `authorize`, so it renders as `[AllowAnonymous]`.
 - The specifications that assert a query sit in the **command** slice: a `then query`
   needs the `when` command of its own slice and the `then` event as well.
-- No `handler`, no code attachments, no reactions, no ESM v4 or newer constructs.
+- No `handler`, no code attachments, no reactions, no evolved events.
 
-## What was run
+## Check it
 
-**Re-probed on cratis 3.53.1 (Stage 4.73.1; admission and publication only, build and tests not re-run):** the model compiles with the standalone 4.139.0 tool, its 3 specifications pass in the reference runner, and `cratis render` exits 0 with 56 artifacts written to a scratch destination (the plan grew with the scaffold). The counts and results in the table below are the cratis 3.28.2 observations.
-
-All with cratis 3.28.2 (re-run end to end from 3.27.1: same counts; admission and publication re-run on 3.28.3 with Stage 4.24.2: the same 30 artifacts) on a folder holding only `berths.play`:
-
-| Step | Command | Result |
+| Step | Command | A pass looks like |
 | --- | --- | --- |
-| Compile | `screenplay <folder> --warnaserror` (4.66.0) and `cratis screenplay validate <folder> --warnings-as-errors` | 0 errors, 0 warnings |
-| Admission and publication | `cratis render <folder> --name Marina --destination out -o json` | exit 0, 30 artifacts written, `recovered: false` |
-| Re-render | the same command | `written: 0`, `unchanged: 30` |
+| Compile | `cratis screenplay validate <folder> --warnings-as-errors` | 0 errors, 0 warnings |
+| Admission and publication | `cratis render <folder> --name Marina --destination out -o json` | exit 0, artifacts written, `recovered: false` |
+| Re-render | the same command | `written: 0`, `unchanged` equals the artifact count |
 | Local edit | append a line to `out/Program.cs`, render again | exit 5: `Managed artifact 'Program.cs' was modified by the user; pass --force to replace it.` |
-| Forced | the same with `--force` | `written: 1`, `unchanged: 29` |
+| Forced | the same with `--force` | `written: 1`, the rest `unchanged` |
 | Missing name | render without `--name` | exit 5: `A valid --name is required and must be a C# identifier` |
-| Debug build | `dotnet build out/Marina.csproj -c Debug` | succeeded, 0 warnings, 0 errors |
-| Debug tests | `dotnet test out/Marina.csproj -c Debug` | 7 passed, 0 failed |
+| Debug build | `dotnet build out/Marina.csproj -c Debug` | succeeds, 0 warnings, 0 errors |
+| Debug tests | `dotnet test out/Marina.csproj -c Debug` | all specification classes pass |
 
-Runtime (`docker compose up`, `/healthz`) and the frontend build were **not run**.
+Runtime (`docker compose up`, `/healthz`) and the frontend build are separate results.
 
-**Admission is not a passing test.** An earlier draft of the query specification also
-asserted `berthId` in the `result`. It was admitted and built, and its rendered Debug
-test failed (`should_return_the_expected_read_model`): the scoped projection does not set
-the identifier property in that scenario. Dropping the identifier from the `result` made
-all 7 tests pass. That removes an assertion about the key, so it is an accepted
-trade-off only when the model's owner agrees; otherwise record it as a capability gap.
+**Admission is not a passing test.** A query specification that also asserts `berthId` in the
+`result` is admitted and builds, but its rendered Debug test fails
+(`should_return_the_expected_read_model`): the scoped projection does not set the
+identifier property in that scenario. Dropping the identifier from the `result` makes the
+tests pass. That removes an assertion about the key, so it is an accepted trade-off only
+when the model's owner agrees; otherwise record it as a capability gap.
 
 ## What came out
 
