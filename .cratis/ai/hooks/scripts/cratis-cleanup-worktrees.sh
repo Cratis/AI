@@ -22,6 +22,7 @@
 #
 # Exit: 0 ran (kept items are not failures), 2 could not run. Opt out: CRATIS_HOOKS_SKIP_CLEANUP=1.
 # Portable: bash 3.2, BSD + GNU userland.
+# shellcheck disable=SC2016  # the self-test checks are single-quoted on purpose: they are eval-ed later
 set -uo pipefail
 
 DRY=0; QUIET=0; FETCH=1; HOOK=0; SELFTEST=0
@@ -48,7 +49,7 @@ if [ "$HOOK" = 1 ]; then
     fi
     cwd=""
     command -v jq >/dev/null 2>&1 && cwd=$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null)
-    [ -n "$cwd" ] && [ -d "$cwd" ] && cd "$cwd"
+    if [ -n "$cwd" ] && [ -d "$cwd" ]; then cd "$cwd" || exit 0; fi
 fi
 [ "${CRATIS_HOOKS_SKIP_CLEANUP:-}" = 1 ] && [ "$SELFTEST" = 0 ] && exit 0
 
@@ -89,7 +90,7 @@ fi
 git rev-parse --git-dir >/dev/null 2>&1 || { [ "$QUIET" = 1 ] || echo "cratis-cleanup-worktrees: not in a git repository" >&2; exit "$([ "$HOOK" = 1 ] && echo 0 || echo 2)"; }
 here=$(pwd -P)
 main_wt=$(git worktree list --porcelain | awk 'NR==1 && $1=="worktree"{sub(/^worktree /,""); print; exit}')
-[ -n "$main_wt" ] && [ -d "$main_wt" ] || { echo "cratis-cleanup-worktrees: cannot find the main worktree" >&2; exit 2; }
+if [ ! -d "$main_wt" ]; then echo "cratis-cleanup-worktrees: cannot find the main worktree" >&2; exit 2; fi
 cd "$main_wt" || exit 2
 
 if [ "$FETCH" = 1 ]; then git fetch --prune --quiet origin >/dev/null 2>&1 || LOG_NOFETCH=1; fi
@@ -153,7 +154,7 @@ process_worktree
 # ── Local branches ────────────────────────────────────────────────────────────
 in_use=$(git worktree list --porcelain | sed -n 's#^branch refs/heads/##p')
 while IFS='|' read -r b bsha; do
-    [ -n "$b" ] && [ "$b" != "$default_local" ] || continue
+    if [ -z "$b" ] || [ "$b" = "$default_local" ]; then continue; fi
     printf '%s\n' "$in_use" | grep -qx "$b" && continue
     if ev=$(delivered "$bsha" "$b" "$(track_of "$b")"); then
         if [ "$DRY" = 1 ]; then note_removed "branch $b: would delete, $ev"
@@ -169,7 +170,7 @@ summary="cratis-cleanup-worktrees: ${#REMOVED[@]} removed, ${#KEPT[@]} kept"
 [ "$FREED_KB" -gt 0 ] && summary="$summary, $((FREED_KB / 1024)) MB freed"
 [ "${LOG_NOFETCH:-0}" = 1 ] && summary="$summary (fetch failed: compared against the last fetched $default)"
 if [ "$HOOK" = 1 ]; then
-    [ "${#REMOVED[@]}" -gt 0 ] || [ "$EVENT" = "SessionStart" -a "${#KEPT[@]}" -gt 0 ] || exit 0
+    [ "${#REMOVED[@]}" -gt 0 ] || { [ "$EVENT" = "SessionStart" ] && [ "${#KEPT[@]}" -gt 0 ]; } || exit 0
     msg="$summary."
     [ "${#KEPT[@]}" -gt 0 ] && msg="$msg Kept (not delivered or not safe to remove): $(printf '%s; ' "${KEPT[@]}")"
     command -v jq >/dev/null 2>&1 && jq -nc --arg m "$msg" --arg e "$EVENT" '{systemMessage:$m,hookSpecificOutput:{hookEventName:$e,additionalContext:$m}}' || printf '%s\n' "$msg" >&2
