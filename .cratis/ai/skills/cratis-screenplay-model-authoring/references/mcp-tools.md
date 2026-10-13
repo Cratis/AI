@@ -8,6 +8,7 @@
 - Tool groups
 - Run reference specifications
 - Whole-source authoring
+- Concept generation (4.149.0)
 - Diagnostic repairs and refactorings
 - Syntax-only constructs through the MCP
 - Descriptions and specification views
@@ -135,6 +136,80 @@ dropped comments, identity changes and introduced executable errors through
 `read-proposal`, then `apply` with before revisions. Accepted authoring source with
 `executableReady: false` is not running behavior.
 
+## Concept generation (4.149.0)
+
+Inspect `screenplay_declaration_details` (`declaration-details`) with
+`kind: "Concept"`, `view: "summary"` and the concept's address. Its `details.generation`
+exists only for authored `generate`; an implicit UUID default has no block.
+
+| Field | Meaning |
+| --- | --- |
+| `strategy` | Authored strategy name |
+| `modifiers` | Only set `prefix`, `case`, `size`, `alphabet`, `count`, `encoding`; omitted defaults are not filled in |
+| `previewArguments` | Present only for authored `pattern`, `checksum`, `range`, `rule`; each is `{value, executable: false}` |
+| `entropyBits` | Exact random bits, or null for unknown strategy/invalid entropy inputs |
+| `entropyUnknownReason` | Present only when entropy is unknown |
+| `valuesAtOnePercentCollision` | JSON number estimating the 1% birthday collision count, or null; scientific notation can exceed client floating-point range |
+| `executable` | `status`, `diagnosticCodes`, and `reason` only for `notAssessed` |
+
+`executable.status` is `refused` when compiler **errors** target the concept or its
+`generation`; `admitted` only when the whole model produced an executable model
+and no such error exists; otherwise `notAssessed`, with a reason that whole-model
+binding failed. `diagnosticCodes` contains only errors at these two locations.
+An empty list is not admission; low-entropy property diagnostics require workspace
+inspection. Invalid alphabets/non-positive sizes or counts yield null estimates
+with `entropyUnknownReason`, preserving compiler diagnostics. Time, prefixes,
+case and encoding add no randomness; the compiler, details and repairs share
+`GenerationEntropy`, not an agent's parallel estimate.
+
+Use MCP proposals, not hand-edited `generate` text. Discover `syntax-schema` and
+read the `ConceptSyntax` handle, then `screenplay_propose_ast` (`propose-ast`)
+`replace` that concept while preserving its other members: set/change its typed
+`generation` (`kind: "GenerationSyntax"`), or omit/null it to remove the strategy.
+`screenplay_propose_source` (`propose-source`) accepts the equivalent complete
+source document under the same revision/review contract. Canonical printing
+retains `generate`. Review `read-proposal` changes and `view: "executable-diagnostics"`,
+run candidate specifications where executable, then explicitly `apply`.
+Authoring acceptance does not imply executable readiness: `sequence` reports
+PLAY0682; `pattern`/`random`/`rule` and generated-concept validation rules report
+PLAY0268. Do not retype a refused proposal to bypass those diagnostics.
+
+`screenplay_repair_capabilities` advertises PLAY0683/PLAY0684. Discover concrete
+verified actions with `read-workspace view: "repairs"` at the diagnostic revision:
+
+| Code | Selected action and subject |
+| --- | --- |
+| PLAY0683/PLAY0684 | Raise generation to at least 64 random bits: smallest NanoID size for its alphabet, or bytes count 8. Subject is the **concept**, possibly in another document. |
+| PLAY0683 | Add a unique constraint for the generated property: exactly one production maps it to exactly one non-nested event property. Subject is the **command property**; add to its slice. Not offered for identifiers or a colliding constraint name. |
+
+Send the returned `diagnosticCode` and `subject` to `screenplay_propose_repair`
+(`propose-repair`) with both revisions and
+`formatting: "CanonicalizeTouchedDocuments"`. Subjects distinguish the two PLAY0683
+actions; there is no extra selector. Both require individual review (`canFixAll: false`),
+with no pinned attachment evidence. A length change affects every use of the
+concept; uniqueness changes append-time behavior. Review every changed document
+before applying; discovery/proposal write nothing. The saved-file VS Code repair
+picker does not expose these entropy actions.
+
+Derived regexes, derived `matches`/checksum repairs and rule-proof status are
+**not shipped** in this view (Screenplay#616 phase 2b-2); MCP does not generate values.
+CLI **3.57.0** bundles MCP **4.147.1**: `cratis screenplay mcp` lacks this generation
+summary and entropy repairs. Existing typed concept proposals predate the new
+summary; discover installed schemas rather than assuming the standalone surface.
+
+Sources: Cratis/Screenplay **v4.149.0**,
+`Source/DotNET/Screenplay.Mcp/McpGenerationDetails.cs:13-83`,
+`McpDeclarationDetails.cs:160`, `McpRepairCapabilities.cs:10-24`,
+`Source/DotNET/Screenplay/Workspaces/WorkspaceGenerationRepairs.cs:29-134`,
+`Source/DotNET/Screenplay/Semantics/GenerationEntropy.cs:15-60`,
+`Source/DotNET/Screenplay.Mcp/for_McpAuthoringWorkflow/when_authoring_generation.cs:10-97`,
+`when_describing_generation.cs:10-118`, `when_repairing_generation.cs:10-50`;
+`Documentation/screenplay/mcp/reference.md:103-128` and
+`generated-values.md:62-70`. Bundle evidence: Cratis/cli
+`v3.57.0:Directory.Packages.props:8,35-37`; Cratis/Screenplay **v4.147.1**,
+`Source/DotNET/Screenplay.Mcp/McpDeclarationDetails.cs:153-160` and
+`McpRepairCapabilities.cs:10-24`.
+
 ## Diagnostic repairs and refactorings
 
 Check installed `tools/list` before using these capabilities. Read `read-workspace`
@@ -151,6 +226,7 @@ with `view: "diagnostics"`, then `view: "repairs"` at the current revision.
 | `PLAY0563/0564` | Expand a one-line interaction alternative / turn a strict item `where` into one block-form `when`. Individual review, canonical formatting, no pinned evidence; refuse comment loss. Opaque non-item-condition text has no PLAY0564 repair. |
 | `PLAY0614` | Declare Translate direction only when exactly one inbound/outbound interpretation fits public metadata; never change event visibility to make a repair fit. |
 | `PLAY0661` | Complete command reads only when each missing part has one same-named compatible source; preserve authored parts and refuse ambiguity. Queries and trigger reads have no repair. |
+| `PLAY0683/0684` | Raise NanoID size/bytes count using the concept subject; PLAY0683 also offers uniqueness using the command-property subject. Individual review, canonical formatting, no pinned evidence; see [concept generation](#concept-generation-41490). |
 | `PLAY0664` | Remove an override identical to the command's complete source/stream/id route. |
 | `PLAY0516` | Move a producing sibling declaration/import before its consumer, or pin an already placed file before a retained glob. Preserve catalogs, comments, placement and executable readiness; introduce no timeline findings. Own-sub-feature edges, cycles, unranked members and mixed/different-parent boundaries have no repair. Rediscover after each move; pinned evidence is unsupported. |
 

@@ -3,13 +3,14 @@
 ## Contents
 
 - The concept declares how; the property declares that
+- Inspect and edit generation through MCP
 - Version and freshness
 - Responses and pre-generation boundaries
 - What CLI 3.57.0 / Stage 4.89.1 realizes
 
 `generated` properties and `returns` bind/reference-execute since 4.68.0 (ESM v7).
 Concept generation strategies and whole-source freshness shipped in Screenplay
-4.147.0 (ESM v15); standalone pin **4.148.0** includes them. CLI **3.57.0** bundles
+4.147.0 (ESM v15); standalone pin **4.149.0** includes them. CLI **3.57.0** bundles
 Screenplay **4.147.1** / Stage **4.89.1**, rendering the supported strategies,
 scalar/named responses, fixtures and `then returns`. Binding is not rendering.
 Historical CLI 3.41.0 STAGE-ESM-028/029 probes do not describe this bundle.
@@ -70,6 +71,40 @@ Stage render generated unique-constraint mappings.
 `generate sequence` is reserved (PLAY0682). Generated-concept validation rules
 and compliance markers, including generated secrets, remain refused. Do not
 remove classification or pretend a random String is a credential contract.
+
+## Inspect and edit generation through MCP
+
+Screenplay **4.149.0** adds a concept `generation` summary and entropy repairs.
+Use `screenplay_declaration_details` with `kind: "Concept"`, `view: "summary"`:
+only authored `generate` gets a block, with strategy, set modifiers,
+preview-only arguments, `entropyBits`, `entropyUnknownReason` when null,
+`valuesAtOnePercentCollision` and `executable.status`. Status is `admitted` only
+after whole-model binding, `refused` for errors at this concept/generation, or
+`notAssessed` with a reason for unrelated binding failures. Empty local codes do
+not prove admission; large collision counts may exceed client numeric range.
+
+Set/change/remove `generate` through `screenplay_propose_ast` (replace the concept's
+`GenerationSyntax`, omit/null `generation` to remove) or reviewed
+`screenplay_propose_source`; do not hand-edit the text. Inspect executable
+diagnostics independently of authoring acceptance: sequence PLAY0682;
+pattern/random/rule and generated-concept rules PLAY0268. Review, run candidate
+specifications where executable, then apply with revisions.
+
+`screenplay_repair_capabilities` advertises PLAY0683/0684; workspace repairs supply
+the selected `diagnosticCode` and `subject` for `screenplay_propose_repair`.
+The concept subject raises NanoID to the smallest size reaching 64 random bits
+for its alphabet, or bytes count to 8 (possibly in another document). PLAY0683
+also offers uniqueness for a non-identifier command-property subject only when
+exactly one production maps it to exactly one event property. Both require
+individual review and `CanonicalizeTouchedDocuments`, with no pinned evidence.
+Length changes affect all concept uses; uniqueness changes append-time behavior.
+Derived regex, matches/checksum repairs and rule-proof status are not shipped.
+CLI **3.57.0** / MCP **4.147.1** lacks this summary and these repairs; it still
+supports existing typed concept proposals. Full fields, mapping limits and tagged
+source evidence: [MCP generation guide](../../cratis-screenplay-model-authoring/references/mcp-tools.md#concept-generation-41490).
+Sources: Cratis/Screenplay `v4.149.0:Documentation/screenplay/generated-values.md:62-70`,
+`Source/DotNET/Screenplay.Mcp/McpGenerationDetails.cs:13-83`,
+`Source/DotNET/Screenplay/Workspaces/WorkspaceGenerationRepairs.cs:29-134`.
 
 ## Version and freshness
 

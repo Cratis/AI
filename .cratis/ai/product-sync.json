@@ -166,9 +166,9 @@
         }
       ],
       "synced": {
-        "version": "4.148.0",
+        "version": "4.149.0",
         "date": "2026-10-13",
-        "by": "Cratis/AI#643"
+        "by": "Cratis/AI#645"
       },
       "covers": {
         "skills": [
@@ -196,7 +196,7 @@
         ],
         "rules": []
       },
-      "notes": "Standalone 4.148.0 tool and byte-identical published/Golden contract pinned for Cratis/AI#643 and #642. Teaches ESM v15 strategies, strict fixtures and whole-source freshness, plus returned-name continuation scope and PLAY0685; golden vectors shipped in 4.146.0. Historical parser/binder evidence remains separately qualified. This pin does not upgrade CLI's compiler or Scene response continuation runtime."
+      "notes": "Standalone 4.149.0 tool and byte-identical published/Golden contract pinned for Cratis/AI#645. Adds the concept generation MCP summary, typed strategy editing guidance and PLAY0683/PLAY0684 entropy/uniqueness repairs; derived regex, matches/checksum repair and rule-proof status remain unshipped. Retains ESM v15 strategies, strict fixtures, whole-source freshness and 4.148.0 response-name resolution. Historical evidence stays qualified. CLI 3.57.0 / MCP 4.147.1 lacks the new summary and repairs; this pin does not upgrade CLI or Scene runtime."
     },
     {
       "id": "scene",

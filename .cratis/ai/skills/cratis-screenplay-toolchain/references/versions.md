@@ -19,9 +19,9 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.148.0** | Released tag `v4.148.0`, published NuGet tool and byte-identical Golden contract; ESM v15 generation strategies/freshness and response-name continuation resolution |
+| Screenplay language, standalone tool and MCP | **4.149.0** | Released tag `v4.149.0`, published NuGet tool and byte-identical Golden contract; concept generation MCP summary/entropy repairs, retaining ESM v15 and 4.148.0 response-name resolution |
 | cratis CLI | **3.57.0** | Released tag `v3.57.0`; source-checked, not a new render/browser probe |
-| Screenplay bundled by CLI | **4.147.1** | CLI `v3.57.0:Directory.Packages.props:8`; binds through v15; does not include 4.148.0 response-name continuation resolution |
+| Screenplay bundled by CLI | **4.147.1** | CLI `v3.57.0:Directory.Packages.props:8`; binds through v15; does not include 4.148.0 response-name continuation resolution or 4.149.0 generation summary/entropy repairs |
 | Stage bundled by CLI | **4.89.1** | Same file, line 10; Stage `v4.89.1:Directory.Packages.props` pins Screenplay 4.147.1; rendering admits through v15 |
 | Historical standalone Stage source baseline | **4.76.0** (Screenplay 4.139.0) | First v12 enum-number rendering; generated UUID-concept values and responses shipped in 4.74.0, v11 admission in 4.75.0. Those capabilities are now in the CLI bundle; standalone Stage beyond the bundled release is not this baseline |
 | Screenplay.Generation / CritterStack / Prologue bundled by CLI | **0.18.0 / 0.24.0 / 2.0.0** | CLI `v3.57.0:Directory.Packages.props:5-7,28-33`. Latest released: Generation 0.18.1, CritterStack 0.26.0, Prologue 2.0.0 (no release after 2.0.0); the newer Generation and CritterStack releases are not in a cli |
@@ -56,7 +56,7 @@ or renderer probes below as results from the newer bundle.
 ## Equality-filter rendering boundary
 
 Caller-supplied collection equality filters shipped in Screenplay **4.143.0**
-(decision 0069), selecting ESM v14; the standalone **4.148.0** pin binds and
+(decision 0069), selecting ESM v14; the standalone **4.149.0** pin binds and
 reference-tests them. No-filter models retain their version/bytes/revision.
 CLI **3.57.0** bundles Screenplay **4.147.1** / Stage **4.89.1** and renders
 collection equality filters, including optional omission and AND with `by`.
@@ -71,7 +71,7 @@ read-surface [equality filters](../../cratis-screenplay-read-surface/references/
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.148.0 and CLI 3.57.0's 4.147.1 bundle are different releases.
+Standalone Screenplay 4.149.0 and CLI 3.57.0's 4.147.1 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -83,7 +83,13 @@ Do not treat a clean fragment or scoped result as whole-application success.
 MCP server launch: `screenplay mcp <model-root>` or
 `cratis screenplay mcp <model-root>`. Discover `tools/list`, views and schemas
 rather than counting tools. Connection, worktree switching and root-state
-conflicts: `cratis-screenplay-model-authoring`.
+conflicts: `cratis-screenplay-model-authoring`. CLI 3.57.0's MCP 4.147.1 lacks
+4.149.0's concept generation summary and PLAY0683/PLAY0684 repairs. Source:
+Cratis/cli `v3.57.0:Directory.Packages.props:8,35-37`; Cratis/Screenplay
+`v4.147.1:Source/DotNET/Screenplay.Mcp/McpDeclarationDetails.cs:153-160` and
+`McpRepairCapabilities.cs:10-24`. The standalone generation fields and repairs
+are source-checked at `v4.149.0:McpGenerationDetails.cs:13-83` under the same MCP
+source folder; detailed evidence: model-authoring `references/mcp-tools.md`.
 
 ## Commands and exit codes
 
