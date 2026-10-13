@@ -163,7 +163,7 @@ Stage emits strategy-specific `IGeneratable<T>.New()` factories over Fundamental
 `EventsWithConcurrencyScopes` with `BeforeFirst` whole-source scopes; Chronicle
 checks atomically at append: a batch's scopes are checked once against the state before
 the batch, all or nothing ([appending many](https://github.com/Cratis/Chronicle/blob/v19.59.1/Documentation/events/appending-many.mdx)),
-and since Chronicle 19.40.1 a storage retry that renumbers the append checks them again
+and a storage retry that renumbers the append checks them again
 (`AppendWithRetries` in [EventSequence.cs](https://github.com/Cratis/Chronicle/blob/v19.59.1/Source/Kernel/Core/EventSequences/EventSequence.cs#L722-L737)).
 Background: [Chronicle concurrency](https://github.com/Cratis/Chronicle/blob/v19.59.1/Documentation/events/concurrency.mdx). Generated rejection specs assert
 `ValidationResultReason.ConcurrencyViolation`, not Arc's message text. This is
