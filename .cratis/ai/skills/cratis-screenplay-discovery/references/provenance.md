@@ -45,3 +45,11 @@ Not adopted: board, chapter, column and `place-element` mechanics; the board API
 The divergent sweep lenses, the not-an-event filter and its exceptions, the edit kinds, the
 compiled discovery skeleton, persona Cannot resolution to gates and denial specs (S6), the
 compiler-contract notes and identity-affecting edit routing.
+
+## Method lineage
+
+Ideas only, in our own wording; no upstream text, table or template is reused.
+
+| Idea | Where used | Credit |
+|---|---|---|
+| Document intake rigor: certainty marks, exact figures with locators, contradictions as one question, stated perspective, a coverage pass, marking changes on an amended document | `references/domain-analysis-template.md` "Intake rigor for documents", `SKILL.md` "Evidence and privacy" | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`summarize`); idea, our own wording |

@@ -59,6 +59,10 @@
     {
       "kind": "skill-contains",
       "value": "inventory report produced"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "references/re-entry-and-passes.md"
     }
   ]
 }

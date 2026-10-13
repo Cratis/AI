@@ -22,6 +22,11 @@ short; cite evidence rows (`E12`) and questions (`Q3`) instead of repeating cont
   status codes (ignored), time-only correlation, PostgreSQL column over-reporting.
 - Generator lag that applies here: generations, appended-event specs, reactions, triggers.
 
+## Not yet extracted
+Features still at Pass 0 (`re-entry-and-passes.md`), each with the reason and what would trigger its
+next pass. They are never counted as done. Features whose evidence is `stale` after re-entry are
+listed too.
+
 ## Behaviour not observed
 Routes, jobs or tables the inventory found but no evidence exercised. Each is `unknown`,
 with the bounded check done (for example "searched for callers: none found in 3 files")

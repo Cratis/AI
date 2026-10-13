@@ -87,7 +87,7 @@ Critical questions (full wording, why they matter and follow-up triggers:
 
 **Unattended:** do not stop. Assume the most restrictive answer (clone only, no capture, no
 hosted-model disclosure, freeze unknown), record each assumption visibly in `INTERVIEW.md`, and
-produce only what that allows. A missing freeze agreement blocks side-car work, not documentation.
+produce only what that allows. A missing freeze blocks side-car work, not documentation.
 
 ## Procedure
 
@@ -99,11 +99,15 @@ candidate into the model root only when the brief says so; otherwise
 **L0 Inventory and coverage.** List every way behaviour enters or leaves the system: HTTP routes,
 UI form posts, message consumers, scheduled jobs, database triggers, stored procedures,
 batch/ETL, admin scripts, inbound and outbound integrations, existing event stores. For each
-family record which evidence source covers it (`generate` provider, Prologue, UI walk, or none).
+family record which evidence source covers it (`generate` provider, Prologue, UI walk, tests, or none).
 Uncovered families go to targeted reading. Before treating a generated `.play` as a substitute
 for code, write down what the provider omits (`references/generate-notes.md`) and what Prologue
-cannot see (`references/prologue-safety.md`). Delegate sweeps over about three files to a
-read-only exploration subagent where the harness has one.
+cannot see (`references/prologue-safety.md`). Delegate sweeps over about three files to a read-only subagent where the harness has one.
+
+**Re-entry and passes** (`references/re-entry-and-passes.md`). A later run first checks each
+feature's recorded source identity with read-only git, rereads only what changed and verifies the
+freeze. Go broad first (Pass 0: features and milestone events), then deepen one feature per pass;
+passes are scope stages, orthogonal to L0-L4.
 
 **L1 Static evidence.** Where a provider fits (.NET Arc, Marten, Critter Stack):
 `cratis screenplay generate <solution> --file .ai-work/screenplay/<model-slug>/legacy/static/static.play [--provider ...]`.
@@ -113,7 +117,7 @@ written under `obj/`. Run it only on source the user trusts, in a clone or workt
 write to, never in the user's live legacy checkout, and name the target in the approval
 (`references/generate-notes.md`).
 Every diagnostic is a loss row; every non-lowered fact is resolved or waived. Validate the
-generated file as-is and record the result; never fix or edit it in place. For a running
+generated file as-is and record the result; never edit it in place. For a running
 Chronicle source add bounded live-store evidence (`references/chronicle-observations.md`).
 
 **L2 Dynamic evidence (approval-gated).** Prologue capture changes target databases and routes
@@ -141,13 +145,14 @@ not the server rule or event behind it. Screens and real query usage are the sou
 models, not table mirrors.
 
 **L3 Evidence table.** One row per observed fact (`references/evidence-table-template.md`):
-source, locator, fact, strength, classification (intent / consequence / infrastructure / noise /
-unknown), generator disposition, candidate element, target decision. A write with no user command
+source (tests included), locator, fact, strength, classification (intent / consequence /
+infrastructure / noise / unknown), generator disposition, candidate element, target decision. Keep
+decisions, terms and where each feature lives there too. A write with no user command
 behind it is maintenance, correction, integration, scheduled business process (only with an
 evidenced trigger) or unexplained; never assume an automation. Log each code read with `file:line`.
 Resolve open rows with targeted reads in this order: generated `.play` and diagnostics, Prologue
 output, code. Reread when a source changed or rows conflict. Translation rules from technical
-signal to candidate meaning: `references/signal-to-intent.md`.
+signal to candidate meaning (tests, generic engines, reference data, order): `references/signal-to-intent.md`.
 
 **Traceability checkpoint.** Every repository-backed code or schema claim resolves through its
 evidence id to an inspected `path:start-end` (file name exactly as given, `CheckinService.cs:40-54`)
@@ -165,9 +170,8 @@ chain per slice before handoff (evidence template); never manufacture references
    the MCP `propose-move` tool (identity-preserving; it refuses identity loss, collisions and
    captures) rather than retyping the declarations (`cratis-screenplay-model-authoring`):
    - one StateChange per decision a person or system makes; events are facts experts recognise;
-     consequences (derived counters, denormalised copies) become projections; an automation only
-     when evidence shows a separate decision; no generic names (`Update/Edit/Save<Noun>`,
-     `<Noun>Updated`): split by intent;
+     consequences (counters, denormalised copies) become projections; an automation only when
+     evidence shows a separate decision; no generic names (`Update/Edit/Save<Noun>`, `<Noun>Updated`): split by intent;
    - refusals: input or constraint rejection is `validate` / `require` / constraint plus
      `then error` with the exact message from code; authorization refusal is `authorize` plus
      `then denied`. Legacy HTTP codes and check order go in the slice `documentation`;
@@ -175,17 +179,10 @@ chain per slice before handoff (evidence template); never manufacture references
      in the model today**, target named; a unique index with business meaning becomes
      `unique ... on <every event that sets it>` with `released by`
      (`references/rule-modeling.md`);
-   - preserve personal-data/secret protection and authorization found in code,
-     using `pii` / `secret` and evidenced secret scope; Arc 22.70.0 recovery
-     losses (SP0061–SP0063) need review (`references/generate-notes.md`).
-     Deprecated marker repairs keep legal notes intact, never guess a purpose or basis. Derive purpose/use/retention
-     declarations only from evidence or expert decisions; run `--check purposes`
-     and inspect the processing record as prompts, not a legal verdict. Keep
-     hand-joined legacy ids scalar; never infer composite parts by splitting text.
-     Event `subject` is report-only; distinguish observed lineage from runtime
-     realization. See command-surface `references/compliance.md`.
-     Every role gate has `authorize`
-     plus a `then denied` spec, else a recorded gap; rules you cannot express truthfully are
+   - preserve personal-data/secret protection and authorization found in code (`pii` / `secret`,
+     evidenced scope); derive purpose, use and retention only from evidence or expert decisions
+     (`references/rule-modeling.md`, "Personal data and secrets").
+   - Every role gate has `authorize` plus a `then denied` spec, else a recorded gap; rules you cannot express truthfully are
      recorded one by one, never fabricated.
 3. Cite evidence ids in each slice `description` ("Evidence: E3, E7"). Read `references/intent-example.md` when authoring the intentional candidate to check the complete example of evidence citations, re-slicing, constraints, authorization and recorded state-dependent rules.
 4. **Scenario reconciliation** with `cratis-screenplay-scenario-coverage` before review: success
@@ -198,14 +195,14 @@ chain per slice before handoff (evidence template); never manufacture references
    source errors, run `--check field-origins,event-consumers,personas,purposes` and treat each
    finding as an inventory row, never a verdict.
 6. Write the loss report (`references/loss-report-template.md`) and the expert question list
-   (`references/expert-verification.md`).
+   (`references/expert-verification.md`, with a plain-language retelling and keep / change / new / remove view per feature).
 
 **The final report itself carries exact locators.** Every evidence-backed claim in it gives an
 exact `file:line` locator (or `file:start-end`) inline, file name exactly as given. An evidence id
 or a pointer to another file is not enough. A claim without a locator is `unknown`.
 
 Report in the final message when the brief says so (locators, mapping, assumptions, questions),
-handoff packet appended, first line `Outcome:`; no prose reports in the model root. Then hand off: independent review (`cratis-screenplay-model-review`), expert verification, acceptance (P6).
+handoff packet appended, first line `Outcome:`; no prose reports in the model root. Then hand off to independent review (`cratis-screenplay-model-review`), expert verification and acceptance (P6).
 
 ## Rules
 
@@ -225,9 +222,8 @@ handoff packet appended, first line `Outcome:`; no prose reports in the model ro
   re-routing, load or scenario runs that write data, cleanup DDL, hosted language-model use.
   Production needs DBA sign-off (`rules/capability-is-not-authority.md`).
 - No claims of execution equivalence from structure. MCP `semantic-diff` compares
-  same-application canonical exports with authoritative catalogs; it does not guess
-  rename continuity, run specifications or prove recovered behavior. Inspect
-  incomplete sections and exclusions before using the result in the loss report.
+  same-application canonical exports; it does not guess renames, run specifications or prove
+  recovered behavior. Inspect its incomplete sections before using it in the loss report.
 - Never weaken protection (authorization, `pii`, rules) to make the candidate compile.
 
 ## Gate
@@ -238,8 +234,9 @@ The candidate may go to review only when all hold, each a result or "not run: <r
 - Every generator diagnostic and Prologue blind spot is a row or a loss-report line; every slice
   cites evidence ids or an expert statement; every row has a classification and a target decision
   or open question.
-- Evidence ids resolve to inspected `path:start-end` at the recorded source identity, and the
-  report shows the compact locators (a UI-only extraction says it has none).
+- Features not yet extracted are listed in the loss report; the rest of this gate applies to the extracted scope.
+- Evidence ids resolve to inspected `path:start-end` at the recorded source identity, shown as
+  compact locators in the report (a UI-only extraction says it has none).
 - Scenario applicability was reconciled (missing denials, competing claims, branches, removals
   named); V1 clean on the candidate folder, warnings as errors; inventory report produced.
 - Capture: approvals, snapshot and cleanup confirmation, or "no capture"; interpret: effective
@@ -251,7 +248,7 @@ The candidate may go to review only when all hold, each a result or "not run: <r
   "automatic" and "equivalent"; every unknown has a question, an owner and an interim assumption.
 - `prologue start`, Extractor runs, interpret and cleanup appear only as proposals or with a
   recorded approval.
-- The candidate compiles and matches the shape of `references/intent-example.md`.
+- The candidate compiles and matches `references/intent-example.md`.
 
 ## Route near misses
 
@@ -266,7 +263,7 @@ The candidate may go to review only when all hold, each a result or "not run: <r
 
 ## Lineage
 
-Sources, licences and adaptation notes: `references/provenance.md`. The interview protocol and
-side-car planning adapt TrogonStack agentskills (MIT); the bounded UI walk and the candidate
-inventory adapt Martin Dilger and Nebulit GmbH's discover-storyboard and analyze-existing-model, with their
-agreement; the rest is Cratis. Read `references/provenance.md` when checking attribution, licenses or the origin of an adapted workflow.
+Sources, licences and adaptation notes: `references/provenance.md` (read it when checking attribution
+or the origin of an adapted workflow). Interview and side-car planning adapt TrogonStack agentskills
+(MIT); the UI walk and candidate inventory adapt Martin Dilger and Nebulit GmbH's work, with their
+agreement; the method ideas are credited there; the rest is Cratis.

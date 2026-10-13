@@ -10,6 +10,10 @@ discover-storyboard (see provenance), with the board and HTML-reconstruction ste
   plan uses. No tools or no access blocks only this evidence source: say so in one message
   (what is missing, which source it blocks), record the gap and continue with source,
   document and expert evidence. Never install tools to fill the gap.
+- **Never a gate.** Ask once at the start whether a running instance and a test account exist,
+  then carry on with static evidence. Until the answer arrives, record "running instance: not
+  answered yet". When access arrives later, the walk confirms or corrects the order and screens
+  already derived from the code.
 - **Discovery parameters.** Reuse answers already in the brief. Ask only for what is missing,
   in two questions at most:
   1. "What URL should I open to start?" (start URL, actor or role, permitted environment)

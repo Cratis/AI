@@ -1,5 +1,19 @@
 # Evidence table template
 
+## Contents
+
+- 1. Coverage (from L0)
+- 2. Evidence rows
+- Traceability reconciliation
+- 3. Read log
+- 4. Unknowns and questions
+- 5. Sign-off
+- 6. Where each feature lives
+- 7. Analysis history
+- 8. Decisions
+- 9. Terms
+- 10. Realization convention
+
 Keep one file per model: `.ai-work/screenplay/<model-slug>/legacy/EVIDENCE.md`. It is the single place
 where as-is facts, their sources and the proposed target decisions meet. Agents and reviewers
 cite row ids (`E12`) instead of pasting code or captures.
@@ -20,8 +34,8 @@ templates, table and column names, and path:line, not values.
 | Column | Content |
 |---|---|
 | `id` | `E<n>`, stable; never renumber |
-| `source` | static (generate) / dynamic (Prologue) / code / UI / runtime (Chronicle) / doc / expert |
-| `locator` | Repository-backed code/schema claims: the inspected repository-relative `path:start-end`, with the file name exactly as given (`CheckinService.cs:40-54`, never shortened), bound to the source identity. Runtime (Chronicle): target, event store, namespace, schema identity + generation or bounded event range, observation time. Other sources: capture file + record, redacted UI route + observation id, document section/version, generated declaration address + diagnostic, or person + date. Never substitute one source type's locator for another's |
+| `source` | static (generate) / dynamic (Prologue) / code / test / UI / runtime (Chronicle) / doc / expert |
+| `locator` | Repository-backed code, test and schema claims: the inspected repository-relative `path:start-end`, with the file name exactly as given (`CheckinService.cs:40-54`, never shortened; for a test, the test method's range), bound to the source identity. A locator that cannot be found is recorded as `not found` and the claim stays `unknown`; it is never rewritten as "to build". Runtime (Chronicle): target, event store, namespace, schema identity + generation or bounded event range, observation time. Other sources: capture file + record, redacted UI route + observation id, document section/version, generated declaration address + diagnostic, or person + date. Never substitute one source type's locator for another's |
 | `observed fact` | what was seen, in neutral words ("POST /checkins inserts Checkins and updates Hooks") |
 | `technical shape` | method + route, tables (op, columns), status-code mix, frequency, span names |
 | `strength` | Exact / Configured / Conventional / Heuristic (generator ladder), Observed (capture), Read (code), Stated (person) |
@@ -77,3 +91,51 @@ answer, and what the candidate assumes meanwhile. Unknowns are kept, not dropped
 ## 5. Sign-off
 Per slice: expert, date, verdict, open items. Capture cleanup confirmation (who ran which
 statements, verification query output summary) or "no capture run".
+
+## 6. Where each feature lives
+One table per feature, written at Pass 0 and refreshed by re-entry (`re-entry-and-passes.md`).
+
+| Area | Folder or package | Key symbols |
+|---|---|---|
+| API | `src/Checkins/` | `CheckinService`, `CheckinsController` |
+| Persistence | `db/checkins/` | `Checkins` table, `Hooks` table |
+| Tests | `tests/Checkins/` | `CheckinServiceTests` |
+| UI | `web/checkins/` | check-in form |
+
+## 7. Analysis history
+Per feature, append-only; a re-entry that finds nothing new still gets a row.
+
+| # | Date | Source identity | Pass | Scope (folders) | Result |
+|---|---|---|---|---|---|
+| 1 | 2025-03-02 | commit and digest (helper) | 0 | whole system | 4 features, milestone events only |
+| 2 | 2025-03-09 | same commit | 1 | `src/Checkins/` | 6 slices, 2 questions open |
+| 3 | 2025-03-30 | newer commit | re-entry | `CheckinService.cs`, `db/checkins/` | one rule changed, rows E8 and E9 reread |
+
+## 8. Decisions
+One row per decision, written in the same batch as the model edit that applies it.
+
+| # | Kind | Declaration address | Why | Evidence ids | Confirmed by |
+|---|---|---|---|---|---|
+| D1 | merge | `Cloakroom/Intake/TakeInCoat` | the insert and the hook update are one decision | E1 | code |
+| D2 | order | `BookingAVisit` | a visit needs a registered pet | E2 | expert |
+| D3 | not modeled | none | nightly hook reset has no known owner | E4 | assumed |
+
+Kinds: element mapping, order, term, override (an expert outranks the code), merge or split, not
+modeled, reference data, assumption. `Confirmed by` is `code`, `expert` or `assumed`; an assumed row
+also has a question in section 4. Decisions about the target (keep, change, remove) stay in the
+evidence rows, not here.
+
+## 9. Terms
+The model carries the business word; this table carries the code word, so code readers and business
+readers find each other.
+
+| Code term | Business term | Where used | Confirmed by |
+|---|---|---|---|
+| `PetType` | Species | `Pets` table, `PetService` | expert |
+
+## 10. Realization convention
+After the first few features are evidenced, write down how this system realizes each kind of
+behavior, citing evidence ids: creation is an insert into the entity table, a transition is a status
+column update, a read is a repository method plus DTO, background work is the named scheduler. Use
+it to speed up later passes. A feature that deviates from it is a question, because deviations are
+where hidden rules live.
