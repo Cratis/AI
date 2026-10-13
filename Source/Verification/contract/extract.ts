@@ -14,6 +14,14 @@ export function expandCodes(first: string, last?: string): string[] {
     return Array.from({ length: end - start + 1 }, (_, index) => `PLAY${String(start + index).padStart(4, '0')}`);
 }
 
+/** Match the longest published command by whole words; retain unknown first words for validation. */
+function cliCommandName(arguments_: string, commandNames: string[]): string {
+    const words = arguments_.trim().split(/\s+/);
+    const published = commandNames.find(name => name.split(/\s+/).every((word, index) => word === words[index]));
+    if (published !== undefined) return published;
+    return /^[a-z][a-z-]*$/.test(words[0]) ? words[0] : '';
+}
+
 /**
  * Tool slots are Tools table cells, an explicit MCP/tool prefix, and name(arguments).
  * Additionally recognize published names in an MCP paragraph/heading, not arbitrary view names.
@@ -23,6 +31,9 @@ export function extract(file: string, content: string, contract: Contract, probl
     const subjects: Subject[] = [];
     const lines = content.split(/\r?\n/);
     const toolNames = new Set(contract.mcpTools.map(tool => tool.name));
+    const commandNames = [...new Set(contract.cliCommands.flatMap(command => [command.name, ...command.aliases]))]
+        .filter(name => /^[a-z][a-z-]*(?:\s+[a-z][a-z-]*)*$/.test(name))
+        .sort((left, right) => right.split(/\s+/).length - left.split(/\s+/).length);
     let headings: Array<{ level: number; text: string }> = [];
     let toolColumn = -1;
     const tableCommands = new Map<number, string>();
@@ -96,8 +107,8 @@ export function extract(file: string, content: string, contract: Contract, probl
         // Option-only spans inherit only an actual earlier command in the same paragraph.
         for (const previous of lines.slice(paragraphStart, index).join('\n').matchAll(/`([^`\n]+)`/g)) {
             if (/^cratis\b/.test(previous[1])) paragraphCommand = undefined;
-            const command = /^screenplay\s+(\S+)/.exec(previous[1]);
-            if (command) paragraphCommand = /^[a-z][a-z-]*$/.test(command[1]) ? command[1] : '';
+            const command = /^screenplay\s+(.+)/.exec(previous[1]);
+            if (command) paragraphCommand = cliCommandName(command[1], commandNames);
         }
         for (const span of spans) {
             const column = text.slice(0, span.index).split('|').length - 1;
@@ -109,8 +120,7 @@ export function extract(file: string, content: string, contract: Contract, probl
             const command = /^\s*(?:\$\s*)?screenplay\s+([^`\n;]+)/.exec(span.text);
             if (command) {
                 const arguments_ = command[1].split(/\s+(?:or|and)\s+/)[0];
-                const first = arguments_.trim().split(/\s+/)[0];
-                const name = /^[a-z][a-z-]*$/.test(first) ? first : '';
+                const name = cliCommandName(arguments_, commandNames);
                 paragraphCommand = name;
                 if (cells.length) tableCommands.set(column, name);
                 add(Kind.CliCommand, name);
