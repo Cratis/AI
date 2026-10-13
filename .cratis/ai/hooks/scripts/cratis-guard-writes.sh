@@ -29,14 +29,35 @@ hook_have jq || exit 0
 root="$(hook_repo_root)"
 cwd="$(hook_json "$input" '.cwd')"
 [ -n "$cwd" ] || cwd="$root"
-# Pi can run the bundled script in a consumer checkout; resolve its repository, not the bundle.
-root="$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || printf '%s\n' "$cwd")"
 
 file="$(hook_json "$input" '.tool_input.file_path')"
 [ -n "$file" ] || file="$(hook_json "$input" '.tool_input.notebook_path')"
 [ -n "$file" ] || exit 0
 
+# Lexically normalize before any Git lookup or parent walk, including nonexistent segments.
+# Component parsing preserves spaces and glob characters without depending on realpath.
+normalize_target_path() {
+    local remaining="$1" normalized="" component
+    while [ -n "$remaining" ]; do
+        component="${remaining%%/*}"
+        if [ "$remaining" = "$component" ]; then
+            remaining=""
+        else
+            remaining="${remaining#*/}"
+        fi
+        case "$component" in
+            "" | .) ;;
+            ..) normalized="${normalized%/*}" ;;
+            *) normalized="$normalized/$component" ;;
+        esac
+    done
+    printf '%s\n' "${normalized:-/}"
+}
+
 file="$(hook_abspath "$file" "$cwd")"
+file="$(normalize_target_path "$file")"
+# Pi can run the bundled script in a consumer checkout; this root is only for diagnostics.
+root="$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || printf '%s\n' "$cwd")"
 rel="$(hook_relpath "$file" "$root")"
 base="$(basename "$file")"
 
@@ -78,6 +99,8 @@ manifest_writes_allowed() {
         [ "$directory" != "/" ] || return 1
         directory="$(dirname "$directory")"
     done
+    # Follow existing directory symlinks before asking Git which repository owns the target.
+    directory="$(cd -P "$directory" 2>/dev/null && pwd -P)" || return 1
     policy_root="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null)" || return 1
     if [ -f "$policy_root/.cratis/ai.json" ]; then
         # Only actual booleans override the default; jq's `// empty` would discard false.

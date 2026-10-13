@@ -105,8 +105,10 @@ the first five lines. A rule file or a document that merely *mentions* the marke
 Manifest writes are allowed **silently by default** when Git's `origin` points to
 `github.com/Cratis/<repo>` over HTTPS or SSH (including `git@github.com:Cratis/<repo>.git`;
 host and owner are case-insensitive). The hook resolves the policy repository from the write
-target, resolving relative paths against the tool's working directory and walking up to the
-nearest existing directory for new files. Nested directories and linked worktrees work too.
+target, resolving relative paths against the tool's working directory, lexically collapsing
+repeated separators, `.` and `..`, then walking up to the nearest existing directory for new
+files. That directory is resolved physically before Git lookup, so symlinked directories use
+the repository they actually point into. Nested directories and linked worktrees work too.
 A missing or non-Cratis origin keeps the block; targets outside any Git repository are blocked. Installed corpus files and selected profiles do **not** prove organization
 ownership: consumer applications can have exactly the same installation and profiles.
 

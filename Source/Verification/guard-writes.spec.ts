@@ -13,9 +13,9 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
+import { basename, join, relative, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
@@ -182,6 +182,39 @@ test('manifest policy follows the write target across repositories and nonexiste
         consumer.dispose();
         optedOut.dispose();
         rmSync(outside, { recursive: true, force: true });
+    }
+});
+
+test('manifest policy normalizes missing path components and follows physical directory ownership in the shell and Pi', async () => {
+    const cratis = scratchRepository('git@github.com:Cratis/AI.git');
+    const consumer = scratchRepository('https://github.com/Consumer/App.git');
+    const toolCall = piToolCall();
+    try {
+        const linked = join(cratis.root, 'Linked Consumer');
+        symlinkSync(consumer.root, linked, 'dir');
+        const cases: Array<[cwd: string, path: string, expected: string]> = [
+            [cratis.root, `Missing/../../${basename(consumer.root)}/global.json`, BLOCK],
+            [cratis.root, `./Missing//../..//${basename(consumer.root)}/./global.json`, BLOCK],
+            [cratis.root, `./../${basename(consumer.root)}//./global.json`, BLOCK],
+            [consumer.root, `./Missing/../../${basename(cratis.root)}//./global.json`, ALLOW],
+            [cratis.root, './New//Missing/.././global.json', ALLOW],
+            [cratis.root, `${cratis.root}//./global.json`, ALLOW],
+            [cratis.root, './Linked Consumer//./global.json', BLOCK],
+            [cratis.root, './Linked Consumer//New/Missing/.././global.json', BLOCK],
+            [cratis.root, `/../../..${consumer.root}//./global.json`, BLOCK],
+            [consumer.root, `/../../..${cratis.root}//./global.json`, ALLOW],
+        ];
+        for (const [cwd, path, expected] of cases) {
+            const result = runGuard({ cwd, tool_input: { file_path: path, content: 'x' } }, cwd);
+            assert.equal(result.verdict, expected, `${cwd} -> ${path}: ${result.stderr}`);
+            if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
+            // Pi forwards this original path and cwd unchanged; the shared script normalizes them.
+            const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
+            assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${cwd} -> ${path}`);
+        }
+    } finally {
+        cratis.dispose();
+        consumer.dispose();
     }
 });
 
