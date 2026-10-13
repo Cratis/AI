@@ -42,7 +42,7 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
 
 ## Verified product sources
 
-Current pins are listed once in `cratis-screenplay-toolchain` `references/versions.md`. The
+Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`. The
 statements below were checked at these older tags (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3,
 Stage v4.24.2, Arc v22.50.5, Chronicle v19.32.0), kept as provenance, not as current pins.
 Model notes use Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`

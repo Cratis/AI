@@ -40,8 +40,8 @@ the executed vector renders on Scene 4.15.0. Packages published since are newer 
 that vector and are not claimed browser-verified. Scene 4.17.0 was the earlier
 source-checked runtime summary, not a new executed vector. Scene runtime capabilities
 below were source-checked at the current scaffold's Scene tag; this does not
-re-label the historical execution result. Current pins:
-`cratis-screenplay-toolchain/references/versions.md`.
+re-label the historical execution result. Tool versions:
+`cratis-screenplay-toolchain/SKILL.md`.
 All three levels hold for the canonical `ScreenComposition` corpus on the historical vector:
 
 - authoring and executable admission: MCP opens it with `sourceSuccess true`,

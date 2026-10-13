@@ -148,7 +148,7 @@ Historical verified public vector and executable checks:
   `cratis/stage:4.52.0` and which bundled Screenplay 4.127.0. Published since,
   and not verified by this vector: Scene 4.17.0, Screenplay 4.133.1, Stage 4.64.0,
   previous CLI 3.46.1 (bundling Screenplay 4.130.0, then-default Stage 4.52.0) and
-  Studio 0.152.2. Current pins: `cratis-screenplay-toolchain/references/versions.md`.
+  Studio 0.152.2. Tool versions: `cratis-screenplay-toolchain/SKILL.md`.
   Compiler claims from this `cratis` probe are 4.127.0 claims, not current
   bundled-compiler claims;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`

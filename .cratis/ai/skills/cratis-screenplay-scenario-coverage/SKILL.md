@@ -26,8 +26,8 @@ language cannot express today are recorded, not faked. Grammar and outcome compa
 ## Verified product sources
 Screenplay v4.66.0 (`c89198b`) and v4.68.0 (`79801bf`, ESM v7 fixtures and `then returns`) were the
 original sources; released behavior was re-read at v4.139.0 (`Documentation/screenplay/specifications.md`,
-`queries.md`, the standalone compiler). Current pins, the bundle and the probes are in
-`cratis-screenplay-toolchain` `references/versions.md`. At Screenplay v4.127.0,
+`queries.md`, the standalone compiler). Reading the installed tool and bundle versions is covered in
+`cratis-screenplay-toolchain` `SKILL.md`. At Screenplay v4.127.0,
 MCP `find-specification-obligations` derives SPEC001–SPEC008 from declarations;
 met means matching authored presence, not full coverage or passing execution.
 Use it to seed, never replace, the matrix. Multi-step storylines remain unavailable;

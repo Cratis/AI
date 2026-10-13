@@ -186,8 +186,8 @@ The table and binding inventory below retain their historical 4.66.0/4.68.0
 probe labels; do not use them as current tool admission evidence. At 4.125.0,
 `screenplay test` and MCP `run-specifications` expose reference execution,
 and sources/streams/routes bind as ESM v8. Operations and exact numeric mode
-still refuse binding. Use the installed tool and the version table in
-`cratis-screenplay-toolchain` for current verdicts, not an older negative probe.
+still refuse binding. Use the installed tool, read as described in
+`cratis-screenplay-toolchain`, for current verdicts, not an older negative probe.
 
 A construct can be in one of four states. Say which one you checked.
 
@@ -226,8 +226,8 @@ The ESM version is selected by what a model uses, never by the author:
   `Translate` slices. The Cratis CLI 3.28.2 bundles Screenplay 4.66.0 and binds them;
   before 3.28.2 bundled 4.60.1 (ESM 5 at most), where these constructs failed
   binding with `PLAY0268`. Name the tool
-  with every bound result; `cratis-screenplay-toolchain` (`references/versions.md`)
-  holds the per-tool table.
+  with every bound result; `cratis-screenplay-toolchain`
+  describes the two compilers.
 - **v7** (Screenplay 4.68.0 and later; `Versions.cs`) admits generated command properties, `returns`
   responses, generated fixtures and `then returns` expectations, and is selected only by a model that
   uses one (decision 0026). The Cratis CLI 3.28.3 bundles 4.66.0 and reports `PLAY0268`; Stage 4.24.2
