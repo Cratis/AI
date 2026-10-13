@@ -387,6 +387,9 @@ profile: application
 - **`profile: framework`** - Rules for contributing to Cratis framework repos
 - **No profile tag** - Universal rules that apply to both profiles
 
+[authoring-skills.md](./authoring-skills.md) is universal but path-scoped to corpus
+skills, rules, agents and prompts; authoring guidance is not loaded for unrelated files.
+
 ## Finding Profile Information
 
 - **Full catalog:** [profile-catalog.json](../profile-catalog.json)
