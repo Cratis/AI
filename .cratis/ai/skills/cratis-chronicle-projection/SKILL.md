@@ -8,8 +8,12 @@ license: MIT
 
 A projection consumes **events** and produces read-model state. It is pure: no
 side effects, and it never reads another read model. Prefer model-bound
-attributes on the read model; fall back to the fluent builder only when the
-attributes cannot express the shape; reach for a reducer only after both fail.
+attributes on the read model; use the fluent builder when mappings need
+structure or the model should stay attribute-free; choose reducer code when
+state transitions read better as code. Follow the
+[read-model style ladder](../cratis-chronicle-read-model/SKILL.md#step-3--choose-a-projection-or-a-reducer):
+a self-reducing model is the new .NET reducer default, not a mandatory separate
+class. See [reducers](../cratis-chronicle-reducer/SKILL.md) for that contract.
 
 ## Verified product sources
 
@@ -17,7 +21,8 @@ This skill is verified against this exact source:
 
 | Package | Version | Purpose |
 | --- | --- | --- |
-| `Cratis.Chronicle` | `19.50.1` | `Cratis.Chronicle.Projections`, `Cratis.Chronicle.Projections.ModelBound`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.EventSequences` |
+| `Cratis.Chronicle` | `19.50.1` | Existing projections, model-bound attributes, keys and event-sequence APIs |
+| `Cratis.Chronicle` | `19.59.4` | Self-model builder conflicts: `Source/Clients/DotNET/ReadModels/ReadModelBuilderOwnership.cs`, `Reducers/SelfReducerMethods.cs` at tag `v19.59.4` |
 
 Reverify product sources before claiming support for another version.
 
@@ -70,10 +75,10 @@ targets. Two things there are worth knowing before you write anything:
   `[FromEvent<T>]` is an **object-initializer property**, never a constructor
   argument: `[Count<TEvent>(ConstantKey = "<key>")]`.
 
-## Fluent projections — the fallback
+## Fluent projections — structured mappings
 
-Use `Cratis.Chronicle.Projections.IProjectionFor<TReadModel>` when the attributes
-cannot express the shape — for example when two events feed one child collection
+Use `Cratis.Chronicle.Projections.IProjectionFor<TReadModel>` when the mapping
+needs structure or an attribute-free model — for example when two events feed one child collection
 through different key properties.
 
 ```csharp
@@ -92,7 +97,7 @@ public class <ReadModelName>Projection : IProjectionFor<<ReadModelName>>
 the interface** — do not add one. Use `[Projection(id: "<id>")]` when the
 identity must be explicit.
 
-When attributes cannot express the shape and you use the fluent builder, read [references/fluent-builder.md](references/fluent-builder.md) for the real
+When you use the fluent builder, read [references/fluent-builder.md](references/fluent-builder.md) for the real
 member list. The trap that costs the most time: **`UsingKey`, `UsingParentKey`,
 `UsingCompositeKey`, and `UsingConstantKey` are not on the projection builder.**
 They live on the per-event builder that `From<TEvent>` hands to your callback.
@@ -108,7 +113,9 @@ one collection. Preserve security/compliance boundaries when choosing the shape.
 
 When replacing a reducer, preserve creation/admission and late-event guards;
 an unconditional `[SetValue<T>]` is not equivalent to guarded state transition
-code. See the reducer skill's conversion guidance. Evaluate variants below when
+code. A self model cannot also have a competing projection in the same catalog
+(`AmbiguousReadModelBuilder`); remove the old builder when switching. See the
+reducer skill's conversion guidance. Evaluate variants below when
 shapes diverge; do not mandate them for every status field.
 
 ## Joins are on events, never on read models
@@ -297,8 +304,9 @@ projection spans streams.
 
 ## Verify
 
-- Model-bound attributes were exhausted before the fluent builder, and the
-  fluent builder before any reducer.
+- The style follows the read-model ladder: attributes for clear mappings,
+  fluent for structure, reducer code for clearer state transitions; conversion
+  preserves guards and leaves no competing self-model builder.
 - `.AutoMap()` is called only inside a `.NoAutoMap()` scope.
 - Every join is on an event type; CHR0042 overlaps are deliberate.
 - One class implements only one `IProjectionFor<T>` (CHR0057).
