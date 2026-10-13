@@ -1,5 +1,11 @@
 # Provenance
 
+## Method lineage
+
+| Idea | Used in | Credit |
+| --- | --- | --- |
+| Successful work is removed from its pending-work view and removal is specified | `slice-delivery-checklist.md`, Checklist and Specifications | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`prototype`); idea, our own wording |
+
 ## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,

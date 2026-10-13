@@ -102,6 +102,18 @@ Rule numbers refer to the numbered list in [`../rules/general.md`](../rules/gene
   `yarn.lock`, `package-lock.json`, `pnpm-lock.yaml`, `packages.lock.json` — unless the
   repository's dependency-manifest policy allows them (see below)
 - `.env`, `.env.*`, `*.env` — secrets
+- Agent controls: `.claude/settings.json`, `.claude/settings.local.json`, `.mcp.json`,
+  `.pi/settings.json` and `.pi/extensions/**`
+- With `.cratis/ai.manifest.json` present, the installed `.cratis/ai/**`, `.claude/**` and `.pi/**`
+  trees. Both addressed paths and symlink destinations are checked, including the Claude settings
+  link to the hook template. The uninstalled Cratis/AI source repository is exempt from this
+  agent-control category so its authored corpus and harness adapters remain editable.
+
+For agent controls, report the intended change rather than rewriting permissions or hooks.
+A person edits settings; `cratis ai update` replaces managed files using the CLI's filesystem
+operations, not agent Write/Edit calls. This guard checks **Write/Edit targets only**: shell
+redirection, `cp`, another tool or process can still write them. It is a guardrail, not a sandbox;
+do not use those routes to work around a block.
 
 The generated-file check is anchored: the marker must be a comment opener at the start of one of
 the first five lines. A rule file or a document that merely *mentions* the marker is not blocked.
@@ -532,13 +544,28 @@ two configurations the way the shipped gates do: Release clears the path, Debug 
 `general.md` makes the Debug build the canonical trigger for regenerating the TypeScript proxies
 the frontend phase depends on.
 
+## Unattended runs
+
+Keep hooks active and do not use blanket permission bypass. Prefer a permission allowlist that
+refuses unknown calls instead of waiting for a person who is not present. A blocked run reports
+the intended action and the permitted alternative; it does not loosen its own controls.
+Supply credentials through the environment, never echo them or place them in committed files.
+A missing or disabled hook is not evidence that a protected action is safe.
+
+## Method lineage
+
+| Idea | Used in | Credit |
+| --- | --- | --- |
+| Protect agent permissions and hook configuration from its own file tools | Write guard agent-control category | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`agent-permissions`); idea, our own wording |
+| Refuse unknown unattended calls and keep credentials out of output | Unattended runs | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`agent-permissions`, `bash-guard`); idea, our own wording |
+
 ## Escape hatches
 
 Each is an explicit, auditable opt-out — none of them is a default.
 
 | Variable | Effect |
 |---|---|
-| `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | bypasses all write protection, including generated files and `.env`, while set in the harness environment; use only for an explicitly requested protected write. Repository-scoped manifest allowance uses `.cratis/ai.json` instead and never bypasses those protections |
+| `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | bypasses all write protection, including generated files, `.env`, agent controls and installed trees, while set in the harness environment; use only for an explicitly requested protected write. Repository-scoped manifest allowance uses `.cratis/ai.json` instead and never bypasses those protections |
 | `CRATIS_HOOKS_SKIP_SCAN=1` | disables the pattern pass |
 | `CRATIS_HOOKS_SKIP_GATE=1` | disables the quality gate |
 | `CRATIS_HOOKS_GATE_DRYRUN=1` | prints which gates would run, and why, then exits 0 |

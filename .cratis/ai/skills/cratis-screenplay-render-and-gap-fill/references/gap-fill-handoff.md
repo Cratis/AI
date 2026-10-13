@@ -45,9 +45,9 @@ The brief also carries, from the slice build prompts (`cratis-application-slice-
 `done` only if every scenario in the contract is implemented and no specification lacks an
 executable equivalent; a re-delivery can be only added specifications; touch only the slice's
 own paths; do not change existing specification files unless an approved contract revision says so (`build-prompts.md` section 1); when the
-requirements are genuinely ambiguous or contradictory, do not guess and do not build anyway,
-return an edit request and report `blocked`. Ownership is assigned per brief, one implementer
-per scope; a ledger or `STATE.md` line records it and is not a lock, and atomic claiming is used
+requirements hit the delivery block list, return an edit request and report `blocked`; non-behavioral
+assumptions follow `build-prompts.md` section 3 and remain visible. Ownership is assigned per brief,
+one implementer per scope; a fallback record or `STATE.md` line records it and is not a lock, and atomic claiming is used
 only where a tracker provides a verified operation. Git effects follow the brief's separate
 authorization.
 
@@ -57,8 +57,9 @@ ambiguous addresses; contracts are never inferred from names.
 
 ## What comes back
 - Status `done | partial | blocked` from `cratis-application-slice-conformance`.
-- The specification mapping (specification, test, result), the field inventory, divergences
-  with who approved them, and the check results, recorded in the ledger entry.
+- The realization fields from `drift-and-ledger.md`, "Fallback record", in the slice's result
+  packet; this includes the element and specification mappings, files, shared seams, assumptions,
+  identities and check results without a second schema.
 - Edit requests for the modeler session: address, change, rationale. Walkthrough-derived cases
   belong in accepted `.play` specifications first, never as a second behavioural contract in
   code-only tests. Integration tests may check wiring and persistence without inventing rules.

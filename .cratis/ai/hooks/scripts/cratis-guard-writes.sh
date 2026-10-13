@@ -7,6 +7,7 @@
 #   2. Dependency manifests — Directory.Packages.props, global.json, lockfiles, NuGet config
 #                             (allowed by default for a github.com/Cratis origin)
 #   3. Environment files    — .env and friends (secrets)
+#   4. Agent controls       — permissions, hooks and installed managed corpus/adapters
 #
 # .cratis/ai.json allowDependencyManifestWrites overrides only the manifest policy:
 # true allows them in any repository; false blocks them even in a Cratis repository.
@@ -65,6 +66,64 @@ block() {
     printf 'BLOCKED by cratis-guard-writes: %s\n\n%s\n\n%s\n' "$rel" "$1" "$2" >&2
     exit 2
 }
+
+# Check both the addressed path and its physical destination: settings may be symlinks to
+# templates, and an innocently named link may target a protected file. Preserve missing suffixes.
+physical_target_path() {
+    local target="$1" directory suffix="" link hops=0
+    while [ -L "$target" ]; do
+        hops=$((hops + 1))
+        [ "$hops" -le 40 ] || return 1
+        link="$(readlink "$target")" || return 1
+        target="$(hook_abspath "$link" "$(dirname "$target")")"
+    done
+    directory="$(dirname "$target")"
+    suffix="/$(basename "$target")"
+    while [ ! -d "$directory" ]; do
+        [ "$directory" != "/" ] || return 1
+        suffix="/$(basename "$directory")$suffix"
+        directory="$(dirname "$directory")"
+    done
+    directory="$(cd -P "$directory" 2>/dev/null && pwd -P)" || return 1
+    printf '%s\n' "${directory%/}$suffix"
+}
+
+# ── 4. Agent controls and installed managed trees ─────────────────────────────
+agent_control_target() {
+    local target="$1" directory policy_root target_rel origin
+    directory="$(dirname "$target")"
+    # Keep the addressed spelling here, even when an adapter directory is a symlink.
+    # .git is a directory in a checkout and a file in a linked worktree.
+    while [ ! -e "$directory/.git" ]; do
+        [ "$directory" != "/" ] || return 1
+        directory="$(dirname "$directory")"
+    done
+    policy_root="$directory"
+    target_rel="$(hook_relpath "$target" "$policy_root")"
+    if [ -f "$policy_root/.cratis/ai.manifest.json" ]; then
+        case "$target_rel" in
+            .cratis/ai/* | .claude/* | .pi/*) return 0 ;;
+        esac
+    else
+        # The corpus is authored source in Cratis/AI, not a managed installation.
+        origin="$(git -C "$policy_root" remote get-url origin 2>/dev/null || true)"
+        if printf '%s\n' "$origin" | LC_ALL=C grep -Eiq '^(https://github\.com/|git@github\.com:|ssh://git@github\.com(:[0-9]+)?/)cratis/ai(\.git)?/?$'; then
+            return 1
+        fi
+    fi
+    case "$target_rel" in
+        .claude/settings.json | .claude/settings.local.json | .mcp.json \
+            | .pi/settings.json | .pi/extensions/*) return 0 ;;
+    esac
+    return 1
+}
+
+physical_file="$(physical_target_path "$file" || true)"
+if agent_control_target "$file" || { [ -n "$physical_file" ] && agent_control_target "$physical_file"; }; then
+    block \
+        "This target controls the agent's permissions or extensions, or belongs to an installed managed corpus/adapter tree. Agent Write/Edit calls may not alter their own controls or managed instructions." \
+        "Instead: report the intended change. Use 'cratis ai update' for managed files, or let a person change settings. An explicitly authorized protected write requires CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 in the harness environment. Do not retry through a shell write."
+fi
 
 # ── 1. Generated files ────────────────────────────────────────────────────────
 # The marker must be a real header: a comment opener at the start of one of the first few lines.
