@@ -29,7 +29,7 @@ test('every Claude hook command runs its script through bash', () => {
     const commands = wiredCommands();
     assert.ok(commands.length >= 5, `expected the five wired guards, found ${commands.length}`);
     for (const command of commands) {
-        assert.match(command, /^bash "\$CLAUDE_PROJECT_DIR"\/\.cratis\/ai\/hooks\/scripts\/[a-z-]+\.sh$/, command);
+        assert.match(command, /^bash "\$CLAUDE_PROJECT_DIR"\/\.cratis\/ai\/hooks\/scripts\/[a-z-]+\.sh( --hook)?$/, command);
     }
 });
 
