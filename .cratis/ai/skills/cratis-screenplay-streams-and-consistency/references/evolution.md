@@ -20,9 +20,29 @@ compatibility scenarios below first; the identity owner then applies the change 
 | add a property with no sensible old value | the old fact lacks information | usually a **new event** for the new situation, or a separate fact recording the extra information | review with the expert |
 | remove a property | yes, if no reader needs it | new generation without it; every reference fails with PLAY0273 until removed | contract evolution, check readers |
 | change meaning (same name, different business fact) | **no** | **new event** with its own name; old event stays for history | identity: add, not rename |
-| rename (same meaning) | yes | identity-aware rename by the identity owner; the stored name is kept with `id "OldName"` | identity-affecting |
+| rename (same meaning) | yes | identity-aware rename by the identity owner; `id "OldName"` preserves the authored stored-name intent, **not rendered storage** at the current pin (PLAY0686) | identity-affecting |
 | split one event into two / merge two | depends | new events from now on; never rewrite history; projections read both old and new | identity-affecting |
 | rename a constraint | n/a | starts an empty index: values claimed before are unprotected. Ask first | identity-affecting |
+
+## Event pins do not reach renderers yet (4.150.0)
+
+An event `id` pin is authoring metadata until the ESM carries stored names.
+Screenplay **4.150.0** warns **PLAY0686** at binding, and event `propose-rename`
+reports the same caveat even when unrelated syntax prevents binding: generated
+code uses the new event name. Do not rely on a pin to keep existing stored events
+readable in a rendered app. Retain the intended pin and report this compatibility
+gap; do not delete it, set `eventNeverPersisted` without evidence, or treat a
+passing reference specification as a stored-history test. Confirm the actual
+stored type in the owning target and plan target migration/compatibility work
+before deployment. Decision 0075's future `storedName` ESM admission and renderer
+support are **not shipped** by this warning.
+
+Sources: Cratis/Screenplay `v4.150.0`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Structure.cs:157-168`,
+`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82-90`, and
+`decisions/0075-carry-the-stored-event-type-name-in-the-executable-model.md:23-46`.
+Source/stream pins are different: their stored names already travel in ESM v8;
+stream `All` is reserved regardless of a pin (toolchain `sources-and-streams.md`).
 
 A test for "generation or new event": a new version must be convertible from the old one
 without inventing facts. If it is not, it is a different event.

@@ -4,6 +4,8 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "stream name exactly `All`" },
+    { "kind": "skill-contains", "value": "not rendered storage", "file": "references/evolution.md" },
     { "kind": "skill-contains", "value": "never arrives leaves the child absent", "file": "references/consistency-and-concurrency.md" },
     { "kind": "skill-contains", "value": "one business identity per stream" },
     { "kind": "skill-contains", "value": "NOT enforced in the model today" },

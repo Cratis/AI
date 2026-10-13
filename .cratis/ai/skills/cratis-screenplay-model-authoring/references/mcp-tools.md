@@ -265,6 +265,26 @@ pin, but retains a pin for a different earlier name. Contradictory generation pi
 refuse the rename. Do not promise a generation-2 payload-removal repair or a
 `PLAY0470` repair: neither is available.
 
+On Screenplay **4.150.0**, event pins warn **PLAY0686** at binding. Event
+`propose-rename` output includes the same warning even when unrelated authoring
+errors prevent binding. The pin is not yet carried to renderers: generated code
+uses the new name. Do not rely on it to keep old stored events readable in rendered
+apps; retain intended pins and report the target compatibility gap. Decision 0075's
+future `storedName` ESM admission is not delivered by this warning.
+Sources: Cratis/Screenplay `v4.150.0`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Structure.cs:157-168`,
+`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82-90`, and
+`decisions/0075-carry-the-stored-event-type-name-in-the-executable-model.md:23-46`.
+
+A stream whose stored name is exactly `All`, from its name or `id "All"`,
+refuses executable binding/readiness with PLAY0273. Use discovered `propose-rename`
+to change that stored stream name; pinning it back to `All` is not a repair.
+There is no typed PLAY0273 repair for this case. Existing `All` history reads as
+source-only appends. Source/stream pins otherwise travel as ESM v8 stored names,
+unlike event pins. Source: Cratis/Screenplay `v4.150.0`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.EventSources.cs:17-52` and
+`decisions/0073-reserve-the-stored-event-stream-name-all.md:35-63`.
+
 VS Code and Monaco provide local PLAY0479 optionality and PLAY0471 redundant-id
 fixes without .NET. PLAY0471 removes the whole id line; a trailing comment blocks
 it. VS Code also has an experimental opt-in trusted C# bridge for PLAY0166/PLAY0478:

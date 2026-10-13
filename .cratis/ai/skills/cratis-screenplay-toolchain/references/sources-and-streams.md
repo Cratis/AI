@@ -39,6 +39,26 @@ use a bare nested `streamId` followed by all named part mappings exactly once.
 A property literally named `stream` is written `@stream` where the command clause
 would otherwise consume it. Do not invent source-only route syntax.
 
+On Screenplay **4.150.0 and later**, exactly `All` is reserved as a stored stream
+name (declaration name or `id "All"` pin), just as `Default` is reserved for a
+stored source name. Comparison is ordinal: streams `all`, `ALL` and `Default`
+remain valid. Authoring parses/prints these names; executable binding and MCP
+readiness refuse `All` with **PLAY0273**. Stage's STAGE-ESM-030 remains defense
+in depth, not an additional admitted route.
+
+Rename the stream through discovered `propose-rename`; an `id "All"` pin is
+not a fix. Remove or replace an existing `id "All"` with a typed edit, then
+review executable readiness before applying. Source/stream pins normally preserve
+stored names, but this rename
+must change the stored stream name. Chronicle uses `All` for appends without a
+stream, so existing history stored under `All` reads as source-only appends
+(or unrouted facts), not as the newly named stream. Moving that history needs
+an explicit Chronicle data migration, not a language repair or invented route.
+Sources: Cratis/Screenplay `v4.150.0`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.EventSources.cs:17-52`,
+`Documentation/screenplay/event-sources.md:7,132-134`, and
+`decisions/0073-reserve-the-stored-event-stream-name-all.md:25-51,63`.
+
 ```screenplay
 concept AccountId : Uuid
 concept Month : Int

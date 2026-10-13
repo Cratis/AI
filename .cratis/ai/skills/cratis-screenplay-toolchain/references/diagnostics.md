@@ -98,6 +98,24 @@ remain specification values. Non-positional pins select v12; positional pins kee
 older executable bytes/version. Consumer admission is separate (`versions.md`).
 Source: `v4.139.0:Documentation/screenplay/diagnostics.md`, decision 0065.
 
+## Reserved stored names and event pin warnings (4.150.0)
+
+| Code | Layer / severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0273 | Binding error | A stored source exactly `Default`, or stored stream exactly `All` (name or `id "All"` pin), is reserved. Authoring still parses/prints it. Rename the stream with discovered `propose-rename`; keeping `id "All"` cannot fix it. Comparison is ordinal: streams `all`, `ALL` and `Default` remain valid. Old `All` events read as source-only appends; moving history needs a Chronicle migration, not a language repair. |
+| PLAY0686 | Binding warning; event rename proposal also reports it | Event `id` pins do not yet travel in the ESM to renderers; generated code uses the new name. Do not rely on a pin to preserve stored-event readability in rendered apps. Retain intended pins and report the target compatibility gap, rather than delete them to hide the warning. No automatic repair. |
+
+MCP readiness exposes the binding refusal. PLAY0273 is reused, not a new ESM
+version; match its reserved-name message before choosing the rename. PLAY0686
+is not evidence that decision 0075's future `storedName` admission has shipped.
+Source/stream pins already travel in ESM v8 and are not event pins.
+Sources: Cratis/Screenplay `v4.150.0`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.EventSources.cs:17-52`,
+`SemanticModelBinder.Structure.cs:157-168` in the same folder,
+`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82-90`, and
+`decisions/0073-reserve-the-stored-event-stream-name-all.md:35-63` /
+`decisions/0075-carry-the-stored-event-type-name-in-the-executable-model.md:23-46`.
+
 ## Named keys, production routes and observer filters
 
 | Code | Severity | Meaning / fix |
