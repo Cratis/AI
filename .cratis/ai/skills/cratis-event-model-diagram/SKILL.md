@@ -21,7 +21,7 @@ before relying on a construct.
 
 The Cratis artifacts a diagram refers to were originally checked against `Cratis.Chronicle`
 18.3.0 and re-read against Chronicle 19.50.0 and the Arc query and command surface it is used with
-(current pins: `cratis-screenplay-toolchain` `references/versions.md`). The Mermaid claim above is
+(tool versions: `cratis-screenplay-toolchain` `SKILL.md`). The Mermaid claim above is
 external and was not re-verified here.
 
 ## What an event model is

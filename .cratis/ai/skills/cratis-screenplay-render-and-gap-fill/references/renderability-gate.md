@@ -2,8 +2,8 @@
 
 The admitted subset itself (what Stage renders, member by member) is owned by
 `cratis-stage-rendering-and-sandbox` (`references/admission.md`, the code table) and
-`cratis-screenplay-toolchain` (`references/renderable-subset.md`); version facts are in
-`cratis-screenplay-toolchain` `references/versions.md`. This file is about **classifying** what the
+`cratis-screenplay-toolchain` (`references/renderable-subset.md`); reading installed versions is in
+`cratis-screenplay-toolchain` `SKILL.md`. This file is about **classifying** what the
 probe reports and choosing what to do. Do not copy the code table here.
 
 ## Pipeline that produces the codes

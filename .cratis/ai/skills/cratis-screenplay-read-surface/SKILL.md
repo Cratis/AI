@@ -316,7 +316,7 @@ binding failures are errors.
       parameter, dialog input, outlet route) has a source in the screen contract
       or an explicitly provided template/form context.
 
-Read `references/versions.md` in `cratis-screenplay-toolchain` when choosing a tool, checking versions, or assessing executable and renderable subsets. Where a construct sits in the
+Read `SKILL.md` in `cratis-screenplay-toolchain` when choosing a tool, reading installed versions, or assessing executable and renderable subsets. Where a construct sits in the
 method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 Read [screen patterns](references/screen-patterns.md) when deciding whether a screen is an input, status or error-state screen and which `data` and `action` lines it needs.

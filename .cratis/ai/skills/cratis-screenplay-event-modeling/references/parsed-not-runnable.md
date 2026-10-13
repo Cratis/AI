@@ -6,7 +6,7 @@ The binder selects v8 for event routes, v10 for declared reaction identity, v11 
 exact-lowered Double-mode literals and v12 for non-positional enum numbers.
 Compliance checked against 4.142.0 `SemanticModelBinder.Compliance.cs` and
 `SemanticModelValidator.Compliance.cs`; it selects v13 (first released in 4.141.0).
-Pins and consumer boundaries: toolchain `references/versions.md`.
+Tool versions and consumer boundaries: toolchain `SKILL.md`.
 
 ## Which ESM version a model needs
 
@@ -35,7 +35,7 @@ Pins and consumer boundaries: toolchain `references/versions.md`.
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
 | Generated values/responses | v7 binding/reference execution; v15 strategies/strict fixtures/freshness since Screenplay 4.147.0. Stage 4.89.1 renders supported UUID/String strategies, responses and fixtures; unsupported types/combinations remain -028/-038 |
-| Sources/streams and command/specification routes | v8 binding/reference execution; the pinned CLI (toolchain `references/versions.md`) reaches Stage checks through v15 |
+| Sources/streams and command/specification routes | v8 binding/reference execution; the CLI (toolchain `references/renderable-subset.md`) reaches Stage checks through v15 |
 | Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage 4.89.1 renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034, not a v10 version refusal |
 | Operations/systems, `numbers exact` source mode, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
 | UI | Authoring/deferred metadata; runtime support is a separate consumer contract |

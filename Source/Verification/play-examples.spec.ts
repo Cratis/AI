@@ -23,7 +23,8 @@ async function withCorpus(action: (root: string, skill: string) => Promise<void>
     try {
         await mkdir(skill, { recursive: true });
         await mkdir(join(root, '.cratis/ai/skills/cratis-screenplay-toolchain/references'), { recursive: true });
-        await writeFile(join(root, '.cratis/ai/skills/cratis-screenplay-toolchain/references/versions.md'), pin);
+        await mkdir(join(root, 'Documentation'), { recursive: true });
+        await writeFile(join(root, 'Documentation/compatibility.md'), pin);
         await mkdir(join(root, '.cratis/ai/agents'), { recursive: true });
         await mkdir(join(root, 'Evaluations/skills'), { recursive: true });
         await mkdir(join(root, 'Source/Verification/play'), { recursive: true });

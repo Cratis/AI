@@ -367,7 +367,7 @@ Read [pdl-grammar.md](references/pdl-grammar.md) when checking exact syntax, int
 - [ ] A reducer is present only because a projection genuinely could not express it,
       and every rule has a body in a tagged fence or a `file`.
 
-Read `cratis-screenplay-toolchain` (`references/versions.md`) when selecting a tool/version or checking tool capabilities and the executable and renderable subsets. Where a construct sits in the
+Read `cratis-screenplay-toolchain` when selecting a tool/version or checking tool capabilities and the executable and renderable subsets. Where a construct sits in the
 method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses

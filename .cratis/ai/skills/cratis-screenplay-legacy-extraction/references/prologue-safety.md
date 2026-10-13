@@ -11,7 +11,7 @@
 Sources: Prologue `v2.0.0` (the version CLI 3.53.1 bundles; Extractor, Configuration,
 Interpretation) and cratis CLI `v3.53.1` (`Source/Cli/Commands/Prologue/*`,
 `LlmOptionsResolver.cs`, `Documentation/reference/prologue.md`). Tool versions: `cratis-screenplay-toolchain`
-`references/versions.md`.
+`SKILL.md`.
 Everything here that touches a target system is
 **proposed** by the screenplay-modeler (legacy extraction) and run only by the user or DBA (or the main session
 with explicit approval).

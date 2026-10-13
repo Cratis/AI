@@ -52,7 +52,7 @@ export function parseFences(file: string, content: string): { fences: Fence[]; p
 
 export function pinnedVersion(content: string): string {
     const match = /^\| Screenplay language, standalone tool and MCP \| \*\*(\d+\.\d+\.\d+)\*\*/m.exec(content);
-    if (!match) throw new Error('Standalone Screenplay pin is missing from versions.md.');
+    if (!match) throw new Error('Standalone Screenplay pin is missing from Documentation/compatibility.md.');
     return match[1];
 }
 

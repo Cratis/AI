@@ -22,8 +22,8 @@ Markdown in project documentation; `.play` is the single flow model.
 ## Verified product sources
 
 Read [product sources](references/product-sources.md) for retained historical
-parser/binder probes and refusal/redelivery evidence. Current pins are in toolchain
-`references/versions.md`; historical examples are not current execution evidence.
+parser/binder probes and refusal/redelivery evidence. Tool versions are covered in toolchain
+`SKILL.md`; historical examples are not current execution evidence.
 
 ⚠️ **Which tool admits them depends on its Screenplay version.** The ESM level
 decides, not the slice type:
@@ -33,7 +33,7 @@ decides, not the slice type:
   reference runner executes them. Probed: the complete example below is
   `executableReady` over `screenplay mcp`.
 - **History:** the CLI 3.28.2 bundle (Screenplay 4.66.0) bound v6; the earlier 4.60.1 bundles
-  refused it and falsely reported PLAY0285 (`references/versions.md`).
+  refused it and falsely reported PLAY0285 (toolchain `references/diagnostics.md`).
 - **CLI 3.57.0 / Stage 4.89.1** render supported event-triggered Automation, not
   Translate/captures, non-event triggers or opaque bodies (`-024`). Role/authenticated `runs as`
   and semantic `from` render; claim/opaque gates, mixed effects and unsupported mappings remain refused;
@@ -41,7 +41,7 @@ decides, not the slice type:
   citations: `cratis-stage-rendering-and-sandbox` `references/admission.md`.
 
 Model them whenever the `.play` file is the deliverable, and say which tool bound
-them (`cratis-screenplay-toolchain` `references/versions.md` for versions and messages).
+them (`cratis-screenplay-toolchain` `references/diagnostics.md` for messages).
 Method (the four-part automation test, loops, translations versus automations):
 `cratis-screenplay-automations-and-translations`.
 
@@ -71,8 +71,8 @@ Read [invocation identity](references/invocation-identity.md) for the checked
 scenario, claim/unknown semantics and PLAY0647–0652/0557 diagnostics.
 
 Historical CLI 3.41.0's 4.114.0 compiler rejected this source with PLAY0137.
-Previous CLI 3.46.1 refused v10 (CLI-RENDER-004); the pinned CLI/Stage pair (toolchain
-`references/versions.md`) renders supported identity, refusing claim-reading/opaque gates (STAGE-ESM-034).
+Previous CLI 3.46.1 refused v10 (CLI-RENDER-004); the CLI/Stage pair (toolchain
+`references/renderable-subset.md`) renders supported identity, refusing claim-reading/opaque gates (STAGE-ESM-034).
 Stage emits Arc `[ExecuteCommandsAsSystem]`; refused scope uses authorized gap-fill. The attribute is for returned commands. Without that attribute
 Arc supplies no principal and `[Authorize]`/`[Roles]` deny. Each invoked command
 is atomic, not the whole cascade; earlier accepted facts remain after a later refusal.
