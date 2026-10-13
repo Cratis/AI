@@ -93,7 +93,7 @@ function scratch(command: string[]) {
 
 test('the Pi bridge has no automatic gate handler at any turn boundary', () => {
     const { handlers, tool } = bridge();
-    assert.deepEqual([...handlers.keys()].sort(), ['session_shutdown', 'tool_call', 'tool_result']);
+    assert.deepEqual([...handlers.keys()].sort(), ['session_shutdown', 'session_start', 'tool_call', 'tool_result']);
     assert.equal(tool.executionMode, 'sequential', 'the gate must not run beside an edit in the same batch');
 });
 

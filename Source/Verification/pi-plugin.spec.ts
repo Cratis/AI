@@ -237,7 +237,7 @@ test('Cratis quality hooks register an explicit gate but no automatic turn-end c
         sendUserMessage() { assert.fail('quality hooks must not request a follow-up'); },
     } as unknown as ExtensionAPI);
     assert.ok(tools.includes('cratis_quality_gate'));
-    assert.deepEqual(handlers.sort(), ['session_shutdown', 'tool_call', 'tool_result']);
+    assert.deepEqual(handlers.sort(), ['session_shutdown', 'session_start', 'tool_call', 'tool_result']);
 });
 
 test('the Pi package filters rules for framework CSharp documentation repositories', () => {
