@@ -166,9 +166,9 @@
         }
       ],
       "synced": {
-        "version": "4.149.1",
+        "version": "4.151.0",
         "date": "2026-10-13",
-        "by": "Cratis/AI#648"
+        "by": "Cratis/AI#648, Cratis/AI#650, Cratis/AI#652"
       },
       "covers": {
         "skills": [
@@ -196,7 +196,7 @@
         ],
         "rules": []
       },
-      "notes": "Standalone 4.149.1 and byte-identical published/Golden contract pinned for Cratis/AI#648. Child-before-parent reference deferral is executable across given/when and accepted commits; parent absence leaves children out, ambiguous parents fail, and decision 0007's creation-event routing difference remains. Adds the concept generation MCP summary, typed strategy editing guidance and PLAY0683/PLAY0684 entropy/uniqueness repairs; derived regex, matches/checksum repair and rule-proof status remain unshipped. Retains ESM v15 strategies, strict fixtures, whole-source freshness and 4.148.0 response-name resolution. Historical evidence stays qualified. CLI 3.57.0 / MCP 4.147.1 lacks the new summary and repairs; this pin does not upgrade CLI or Scene runtime."
+      "notes": "Standalone 4.151.0 and byte-identical published/Golden contract pinned for Cratis/AI#648, #650 and #652. Text not empty rejects Unicode White_Space-only values in every ESM version without changing canonical bytes; collections and identity text remain unchanged. Stored stream All is reserved at binding (PLAY0273), including id pins; event pins warn PLAY0686 because their stored names do not yet reach renderers. Child-before-parent reference deferral is executable across given/when and accepted commits; parent absence leaves children out, ambiguous parents fail, and decision 0007's creation-event routing difference remains. Adds the concept generation MCP summary, typed strategy editing guidance and PLAY0683/PLAY0684 entropy/uniqueness repairs; derived regex, matches/checksum repair and rule-proof status remain unshipped. Retains ESM v15 strategies, strict fixtures, whole-source freshness and 4.148.0 response-name resolution. Historical evidence stays qualified. CLI 3.57.0 / MCP 4.147.1 lacks the new summary and repairs; this pin does not upgrade CLI or Scene runtime."
     },
     {
       "id": "scene",

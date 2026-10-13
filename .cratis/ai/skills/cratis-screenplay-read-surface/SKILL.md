@@ -178,7 +178,7 @@ on the header line is a declaration error, not a shorthand.
 
 ### What runs
 
-These bind on standalone 4.149.1: keyed `=> RM optional`, unfiltered collections,
+These bind on standalone 4.151.0: keyed `=> RM optional`, unfiltered collections,
 collections narrowed by caller-supplied `by`, and their `observable` forms.
 Caller-supplied equality filters on collections select ESM v14: same-named scalar
 primitive/concept/enum properties, same nominal type ignoring optionality, no

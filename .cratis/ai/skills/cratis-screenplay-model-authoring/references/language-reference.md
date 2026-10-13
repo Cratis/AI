@@ -250,7 +250,7 @@ the standalone 4.66.0 tool for the rows marked "probed"; Cratis CLI 3.28.2 and 3
 Screenplay 4.66.0 (before 3.28.2, Screenplay 4.60.1, differ where stated).
 
 Read-model identity below is corrected to 4.135.0; equality query filters are
-updated to standalone 4.149.1 (admitted in 4.143.0, ESM v14):
+updated to standalone 4.151.0 (admitted in 4.143.0, ESM v14):
 explicit trailing `key` wins; otherwise single-instance queries in the owning slice
 must agree on `by`. Only with no single-instance identifier and an admitted list
 query does conventional `*Id` inference run. Queryless views need explicit `key`.

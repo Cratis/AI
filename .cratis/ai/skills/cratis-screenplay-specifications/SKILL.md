@@ -70,14 +70,8 @@ target has one normalized behavior to match.
   cascades" ([references/reactions-and-cascades.md](references/reactions-and-cascades.md)). Under `cratis` before 3.28.2 (Screenplay 4.60.1) `when clock`, `when trigger`
   and `when capture` failed binding with `PLAY0268`, and so did reactions and captures; they
   bind on 4.66.0 and `cratis` 3.28.2.
-- On standalone Screenplay **4.149.1 and later**, child projection events before
-  their parents are deferred, not failed: they are retried in arrival order using
-  their original values and parent keys, including grandchildren and across given/when
-  or accepted command commits. A parent that never arrives leaves the child absent;
-  an ambiguous parent still fails closed. Pin both arrival orders and absence with
-  [child-ordering specifications](references/child-ordering.md). This is reference
-  evidence, not Chronicle runtime conformance; decision 0007's earlier-child-creation
-  routing branch remains a known difference. Sources and complete model are in that reference.
+- Since **4.149.1**, children defer; an ambiguous parent still fails closed.
+  [Child ordering](references/child-ordering.md): specs and decision 0007 caveat.
 - A rejected individual command or append leaves the world unchanged; an accepted
   one commits once, then the read models and queries are compared. There is no
   scenario-wide transaction in v6: when a later effect of a cascade or capture
@@ -242,6 +236,9 @@ constraint — that is the constraint speaking, not the view.)
 
 Write an error specification for a rule that depends on existing system state or that another business could plausibly set differently. A format, range or presence rule on one value belongs on the concept with its own `validate` block, with **one rejection specification per concept rule**, through one command that uses the concept, not one per use.
 Read [references/concept-rules.md](references/concept-rules.md) when deciding whether a rule needs an error specification or a concept `validate`, or when you need the complete concept-rule example with boundary acceptances and rejections.
+
+**4.151.0** text `not empty`: [whitespace rejection specs and boundaries](references/whitespace-rules.md).
+Old whitespace-acceptance specs now fail. This applies to every ESM version.
 
 ## Application-boundary coverage
 

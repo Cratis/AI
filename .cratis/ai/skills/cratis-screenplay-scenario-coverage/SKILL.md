@@ -83,11 +83,10 @@ question is not four approvals.
    anonymous/ownership or unsynthesizable personas. Syntax and complete model:
    `cratis-screenplay-specifications` `references/persona-callers-and-cases.md`.
 8. **Separate view pass**: population, each update, accumulation, removal (with a surviving
-   row), absence, ordering. Mark lifecycle branches as branches. Views combining sources
-   must tolerate any arrival order, including a child before its parent. Standalone
-   Screenplay **4.149.1 and later** can reference-run that case: given the child, then
-   the parent, then assert the read model. Also pin "parent never arrives": the child
-   stays absent. Details and source evidence: `references/view-and-story-specs.md`.
+   row), absence, ordering. Mark lifecycle branches. Views combining sources must
+   tolerate any arrival order. Since **4.149.1**, pin a child before its parent:
+   given child, then parent, then read model; "parent never arrives" leaves the
+   child absent. Evidence/example: `references/view-and-story-specs.md`.
 9. **State-dependent rules**: `reads <View>` + `require <expr> message "..."` as stated intent,
    marked **NOT enforced in the model today** in the slice `description` (binding reports
    PLAY0268/0271: expected in design mode; Screenplay#129), target named (Arc
@@ -149,7 +148,10 @@ target requirements.
   destination matters. A competing-claim given needs a *different* `for`.
 - Format rules belong on a `concept`: give each concept rule representative acceptance,
   rejection and boundary specs once (through one command that carries it), not on every use;
-  never `n/a` automatically. This matches `cratis-screenplay-specifications`, which also
+  never `n/a` automatically. Include a whitespace-only rejection for text `not empty`:
+  **4.151.0** changes outcomes in every ESM version. Unicode/identity boundaries
+  and evidence: command-surface `references/validate-rules.md`.
+  This matches `cratis-screenplay-specifications`, which also
   requires one rejection spec per concept rule. Business rules get one rejection spec each.
 - Persona Cannot lines are intent: each needs an executable gate plus a `then denied` spec whose
   caller is a synthesized persona witness or an explicit gate fixture, else record a gap.

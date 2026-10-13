@@ -19,7 +19,7 @@ probe; older probes retain their original labels in the other references.
 
 | Source | Pin | Evidence |
 | --- | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.149.1** | Released tag `v4.149.1`, byte-identical published/Golden contract; child-before-parent reference deferral, retaining generation MCP summary/entropy repairs, ESM v15 and 4.148.0 response-name resolution |
+| Screenplay language, standalone tool and MCP | **4.151.0** | Released tag `v4.151.0`, published NuGet tool and byte-identical published/Golden contract; non-blank text `not empty` in every ESM version, reserved stream `All` / event pin warning PLAY0686, and child-before-parent reference deferral; retains ESM v15 and generation MCP repairs |
 | cratis CLI | **3.57.0** | Released tag `v3.57.0`; source-checked, not a new render/browser probe |
 | Screenplay bundled by CLI | **4.147.1** | CLI `v3.57.0:Directory.Packages.props:8`; binds through v15; does not include 4.148.0 response-name continuation resolution or 4.149.0 generation summary/entropy repairs |
 | Stage bundled by CLI | **4.89.1** | Same file, line 10; Stage `v4.89.1:Directory.Packages.props` pins Screenplay 4.147.1; rendering admits through v15 |
@@ -56,7 +56,7 @@ or renderer probes below as results from the newer bundle.
 ## Equality-filter rendering boundary
 
 Caller-supplied collection equality filters shipped in Screenplay **4.143.0**
-(decision 0069), selecting ESM v14; the standalone **4.149.1** pin binds and
+(decision 0069), selecting ESM v14; the standalone **4.151.0** pin binds and
 reference-tests them. No-filter models retain their version/bytes/revision.
 CLI **3.57.0** bundles Screenplay **4.147.1** / Stage **4.89.1** and renders
 collection equality filters, including optional omission and AND with `by`.
@@ -71,7 +71,7 @@ read-surface [equality filters](../../cratis-screenplay-read-surface/references/
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.149.1 and CLI 3.57.0's 4.147.1 bundle are different releases.
+Standalone Screenplay 4.151.0 and CLI 3.57.0's 4.147.1 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -90,6 +90,11 @@ Cratis/cli `v3.57.0:Directory.Packages.props:8,35-37`; Cratis/Screenplay
 `McpRepairCapabilities.cs:10-24`. The standalone generation fields and repairs
 are source-checked at `v4.149.0:McpGenerationDetails.cs:13-83` under the same MCP
 source folder; detailed evidence: model-authoring `references/mcp-tools.md`.
+The 4.147.1 bundle also predates child deferral (4.149.1), reserved stream `All`
+/ event pin warning PLAY0686 (4.150.0), and the non-blank text `not empty`
+reference correction (4.151.0). The latter changes outcomes in every ESM version,
+not canonical bytes. See `executable-subset.md` and `diagnostics.md` for tagged
+source evidence and target boundaries.
 
 ## Commands and exit codes
 

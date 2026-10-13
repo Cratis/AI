@@ -24,7 +24,7 @@ reaction refusals/redelivery remain unadmitted. Use the actual
 binder before promoting an older probe to a current capability claim.
 
 What the binder admits, and what it refuses with which code. The answer depends on the
-compiler version: the standalone tool (4.149.1) binds through v15; the compiler bundled in cratis
+compiler version: the standalone tool (4.151.0) binds through v15; the compiler bundled in cratis
 3.57.0 (4.147.1) and its renderer admit through v15; older bundles (4.66.0 in cratis 3.28.x, admitting v1 to v6; 4.60.1 before 3.28.2, v1 to v5)
 are history.
 Tool facts and the exact v6 messages: `versions.md`. Always name
@@ -99,6 +99,21 @@ caller and purpose guidance retains v4.127.0 `context.md`, `identity.md`, `purpo
 - `seed`. Personas, screens and descriptions are PLAY0270/PLAY0269 information, not
   blocking.
 
+## Text `not empty` reference correction (4.151.0)
+
+Screenplay **4.151.0** changes reference outcomes in **every ESM version**:
+concept and command property `not empty` reject null, empty and whitespace-only
+text, using Unicode `White_Space` (.NET `char.IsWhiteSpace`). U+0085 and U+00A0
+count; U+FEFF does not. No trimming/normalization or canonical-byte/ESM-version
+change. Specifications that relied on whitespace being accepted now fail.
+Collections still require only one element, and event-source/stream-id identity
+text still treats whitespace as a value. This does not upgrade the older bundled
+compiler or Stage/Arc target behavior; run their own specs to establish parity.
+Sources: Cratis/Screenplay `v4.151.0`,
+`Source/DotNET/Screenplay/Semantics/Execution/SemanticEvaluator.cs:102-110` and
+`Documentation/screenplay/commands.md:404-407`. Complete passing model:
+[whitespace rules](../../cratis-screenplay-specifications/references/whitespace-rules.md).
+
 ## Child-before-parent reference execution (4.149.1)
 
 An admitted child projection event before its parent is deferred, not Unsupported.
@@ -123,7 +138,7 @@ same-named scalar primitive/concept/enum property of the same nominal type
 filters AND with `by`; optional omission does not narrow, supplied null is refused.
 `then query … arguments` and `when query` accept both `by` and filters; PLAY0468
 reports unknown/repeated/missing required arguments. Collection results match by
-read model/key regardless of row order. The standalone 4.149.1 pin admits this;
+read model/key regardless of row order. The standalone 4.151.0 pin admits this;
 CLI 3.57.0's 4.147.1 compiler and Stage 4.89.1 admit it through v15, subject to
 construct checks (snapshot lists/DateTime filters/parameter order still refuse). Complete compiled specs:
 read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).

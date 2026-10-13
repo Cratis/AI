@@ -24,7 +24,7 @@ files is one application: always check the folder, never one file of it.
 
 When choosing or upgrading a tool, or checking version-specific capabilities, read `references/versions.md`; it is the only version table, and other skills point to it. For exact diagnostic codes, MCP names/parameters and standalone CLI options, search the large published [references/screenplay-contract.json](references/screenplay-contract.json), pinned by [references/screenplay-contract.version](references/screenplay-contract.version), rather than loading it in full. Locate a diagnostic by its exact `code` (for example `"code": "PLAY0029"`), a tool by its exact `name` (for example `"name": "read-workspace"`), or a command in `cliCommands`; read the matched object for retirement, parameters or options. [references/screenplay-contract-exceptions.json](references/screenplay-contract-exceptions.json) records reasoned exceptions for historical statements; it does not change the current contract.
 
-The standalone pin is Screenplay 4.149.1.
+The standalone pin is Screenplay 4.151.0.
 CLI and bundled package pins: `references/versions.md`. The single version table records
 released source evidence and historical probes separately; do not relabel an old
 render/browser result as a probe of the current packages.
@@ -46,7 +46,7 @@ or the current standalone pin.
 3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for
    current language checks and reference specifications; `cratis` for rendering
    and generation. Bundled and standalone versions differ (CLI 3.57.0 bundles 4.147.1;
-   the standalone pin is 4.149.1). Report both tool and
+   the standalone pin is 4.151.0). Report both tool and
    version, rather than transferring a verdict across releases.
 4. **Know the mode** (design, executable, renderable) and write from its subset.
 5. **Capability is not correctness.** The tool you ran decides what is accepted today; the

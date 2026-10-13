@@ -211,14 +211,11 @@ stored enums, not correctness repairs. Arguments/review: `references/mcp-tools.m
 Use `propose-extract-inline-event` on the inline `EventSyntax` handle before adding
 a generation (canonical formatting consent; refuses comment loss; no reverse
 operation). Event `propose-rename` pins `id "<old name>"` by default; use
-`eventNeverPersisted: true` only when that is known. At Screenplay **4.150.0**,
-event pins warn PLAY0686 and `propose-rename` reports the caveat: pins are not yet
-carried to renderers, so generated code uses the new name. Do not promise stored
-history remains readable in rendered apps; retain the pin's intent and report the
-target compatibility gap. Source/stream pins already travel in ESM v8, but a
-stream stored as `All` (even `id "All"`) is refused with PLAY0273: rename the
-stream rather than retain the reserved stored name. Read `references/mcp-tools.md`
-before proposing a repair, rename or inline-event extraction, for exact limits and evidence:
+`eventNeverPersisted: true` only when known. Since **4.150.0**, PLAY0686 and
+event rename output warn: pins do not reach renderers, which use the new name.
+Do not promise rendered stored-history compatibility. Stored stream `All` (even
+`id "All"`) refuses PLAY0273; rename it without retaining that pin.
+Read `references/mcp-tools.md` for repair/rename limits, migration and evidence:
 [MCP tool guide](references/mcp-tools.md).
 
 ## Choose a readable layout

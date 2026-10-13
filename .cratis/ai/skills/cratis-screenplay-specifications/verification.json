@@ -4,6 +4,10 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "Old whitespace-acceptance specs now fail." },
+    { "kind": "skill-contains", "value": "specification RejectingWhitespaceOnAConcept", "file": "references/whitespace-rules.md" },
+    { "kind": "skill-contains", "value": "specification RejectingWhitespaceOnAProperty", "file": "references/whitespace-rules.md" },
+    { "kind": "skill-contains", "value": "U+0085 and U+00A0 are whitespace; U+FEFF is not.", "file": "references/whitespace-rules.md" },
     { "kind": "skill-contains", "value": "an ambiguous parent still fails closed" },
     { "kind": "skill-contains", "value": "specification ChildBeforeGivenParent", "file": "references/child-ordering.md" },
     { "kind": "skill-contains", "value": "specification ParentNeverArrives", "file": "references/child-ordering.md" },
