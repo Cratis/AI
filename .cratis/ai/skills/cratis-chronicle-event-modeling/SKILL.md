@@ -132,7 +132,9 @@ If a field can only be filled by reaching into another behavior's read model to
 *learn a fact the events should have carried*, you have found a missing event or
 a wrong stream boundary. Fix the model. A read-only cross-slice read through
 Chronicle is allowed where the rule needs it (an injected read model read by
-explicit key, or a `[Passive]` projection for a command-side decision); see
+explicit key, or a `[Passive]` projection for a current read; a rule that must hold under
+concurrency needs a decision read or constraint, see
+[choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md)); see
 Cross-slice patterns in `rules/vertical-slices.md`. Make such a read deliberate
 and name it in the brief, with the consistency it needs: a rule that must hold
 under concurrency needs enrolled guarded reads, not plain injection or a stale

@@ -36,6 +36,18 @@
         "Keeps the summary and embedded children bounded and places growing attempts in a separately paged timeline.",
         "Verifies materialized state by driving contributing events through read-model specifications, with separate event-source setup for each contributing stream."
       ]
+    },
+    {
+      "id": 4,
+      "name": "passive-read-is-not-a-guard",
+      "prompt": "We marked the StockLevel read model [Passive] so the handler always sees fresh stock, then append OrderPlaced if stock > 0. Is the rule now safe under concurrent orders?",
+      "expected_output": "No: passive is fresh but unguarded; use a decision read over a flat event-source-keyed projection with an Id, not a reducer or self-reducing model.",
+      "assertions": [
+        "States passive is fresher, not safer: a passive read captures no position and enrolls no guard, so two concurrent orders can both pass.",
+        "Offers a decision read over a flat, event-source-keyed projection with an Id property (or a constraint/aggregate where it fits) for the rule.",
+        "Notes reducers and self-reducing models are refused by decision reads (19.58.0 for self-reducing).",
+        "Does not call a materialized read model a guard either; it may lag the log."
+      ]
     }
   ]
 }

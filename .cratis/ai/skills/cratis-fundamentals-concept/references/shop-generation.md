@@ -88,7 +88,9 @@ before the Unix epoch. A fixed context fixes the timestamp, not random suffixes.
 - Client-minted customer/order IDs stay inputs. Do not replace them on retry.
 - Random values supply neither idempotency nor gapless invoice allocation.
 - An ID is not an authentication token or authorization policy.
-- ApiKey is a **secret**, not an event-source ID. `[NotAudited]` withholds command
+- ApiKey is a **secret**, not an event-source ID: event-source IDs are plaintext metadata
+  and cannot be encrypted. Use a separate `ApiKeyId` as the identity and keep ApiKey a
+  secret value property. `[NotAudited]` withholds command
   causation values; it does not protect logs, responses or storage. Deliver a
   credential only over an authorized secure channel and retain its hash, not
   plaintext. For a retained operational integration secret instead, use

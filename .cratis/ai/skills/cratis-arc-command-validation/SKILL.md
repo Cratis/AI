@@ -63,6 +63,11 @@ another version.
 
 ## Step 1 — Choose the mechanism by what the decision *is*
 
+Which mechanism makes a rule hold under concurrent writers (constraint, protected
+decision, stream decision, aggregate, scope, reactor repair) is routed in
+[choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
+A validator is never that mechanism.
+
 | The rule is… | Put it in |
 | --- | --- |
 | A reusable value invariant — length, format, range | `ConceptValidator<T>` on the concept type |
@@ -116,7 +121,11 @@ public class TransferFundsValidator : CommandValidator<TransferFunds>
 - The validator is discovered by type — no registration.
 - Constructor dependencies (read models, services) are injected. A read model
   injected here resolves the same way as one injected into `Handle()`; see
-  Step 5 for what "the same way" actually means.
+  Step 5 for what "the same way" actually means. A validator that reads state is
+  **advisory only**: it shows the state at validation time and guards nothing, so
+  use it for a friendly early message, never as the rule. A `[ProtectedDecision]`
+  command refuses a discoverable validator unless it has exactly one public
+  parameterless constructor (otherwise HTTP 500), so keep state rules out of it.
 - **Omit the validator entirely when there are no rules.** An empty subclass is
   noise the reader has to check.
 - Single-property intrinsic rules belong on `ConceptValidator<T>` instead, so
@@ -162,13 +171,18 @@ append. Choose the first boundary that fits at Arc v22.75.0:
 2. Projected state: mark the command `[ProtectedDecision]` and take
    `DecisionRead<T>` (`.Exists`/`.Instance`) or command-aware `IDecisionReads`.
    Only Chronicle-admitted, direct event-source-keyed projections with known
-   event types qualify; reducers, joins, children and passive shapes are refused.
+   event types qualify; reducers (including self-reducing models), joins, children and open-ended event
+   types are refused. The model needs an `Id` property.
    Only parameterless validators constructed/certified by Arc run. Constructor
    dependencies are refused; static/service-locator decision state is still your
    responsibility. Command-level `[Unprotected]` opts out, not into safety.
 3. Stream-level automatic scopes: `concurrency: true` on routing attributes
-   (`EventStreamId`, `EventStreamType`, `EventSourceType`). Exact returned scopes
-   take precedence; do not combine automatic capture with exact scopes.
+   (`EventStreamId`, `EventStreamType`, `EventSourceType`). It is **not** a guard
+   for the decision: like the default check it reads the tail after `Handle`.
+   Exact returned scopes take precedence; do not combine automatic capture with
+   exact scopes. A guard detects every matching event after its boundary, whoever
+   wrote it, but it protects only guarded decisions, so every writer that decides
+   on the rule needs one, or the rule must be a constraint.
 
 `ARCCHR0011/0012` flag unprotected reads and immediate append bypasses. Return
 events, never append them directly. Read
