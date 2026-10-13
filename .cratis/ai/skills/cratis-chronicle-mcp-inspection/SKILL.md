@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-mcp-inspection
-description: Inspect a running Chronicle store through MCP using the exact v2.0.0 tool-effect inventory, bounded reads and design-time schema tools. Use when choosing an MCP capability, interpreting redacted output, checking deployment profiles or diagnosing the target context. Job-control tools are effectful, not inspection; unknown tools remain evidence-blocked.
+description: Inspect a running Chronicle store through MCP using the exact tool-effect inventory, bounded reads and design-time schema tools. Use when choosing an MCP capability, interpreting redacted output, checking deployment profiles or diagnosing the target context. Job-control tools are effectful, not inspection; unknown tools remain evidence-blocked.
 license: MIT
 ---
 
@@ -15,12 +15,12 @@ to inspect does not authorize a mutation.
 
 ## Verified product sources
 
-| Source | Version | Purpose |
-| --- | --- | --- |
-| `Cratis/Chronicle.Mcp` | `v2.0.0` | `Source/Tools/**`, `Source/Authorization/ToolCatalog.cs`, deployment profiles and target resolution |
-| `Cratis/cli` | `v3.53.1` | `Source/Cli/Commands/Ai/AiMcpHarnesses.cs`, manual rather than corpus-managed Chronicle registration |
+| Source | Purpose |
+| --- | --- |
+| `Cratis/Chronicle.Mcp` | `Source/Tools/**`, `Source/Authorization/ToolCatalog.cs`, deployment profiles and target resolution |
+| `Cratis/cli` | `Source/Cli/Commands/Ai/AiMcpHarnesses.cs`, manual rather than corpus-managed Chronicle registration |
 
-The v2.0.0 surface has **27 tools: 24 read-only and 3 mutating**, plus three
+The surface has **27 tools: 24 read-only and 3 mutating**, plus three
 prompts. All tools declare `OpenWorld=false`. Annotations corroborate the
 classification; the implementation owns it. Only `stop_job`, `resume_job` and
 `delete_job` call mutating RPCs.

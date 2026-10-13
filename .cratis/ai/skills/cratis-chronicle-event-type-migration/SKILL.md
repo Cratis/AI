@@ -31,12 +31,12 @@ events.
 
 ## Verified product sources
 
-This skill is verified against these exact sources:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `19.50.1` | `Cratis.Chronicle.Events` and `Cratis.Chronicle.Events.Migrations` |
-| `Cratis.Chronicle.CodeAnalysis` | `19.50.1` | `CHR0012`, `CHR0037`, `CHR0049`, `CHR0050` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `Cratis.Chronicle.Events` and `Cratis.Chronicle.Events.Migrations` |
+| `Cratis.Chronicle.CodeAnalysis` | `CHR0012`, `CHR0037`, `CHR0049`, `CHR0050` |
 
 Reverify product sources before claiming support for another version.
 
@@ -178,7 +178,7 @@ target schema supplies absence/drops undeclared properties. That is a migration
 fact, not a reason to put nullable facts on newly authored events. Schema `title`
 is ignored, so renaming a CLR record with a pinned `[EventType("id")]` does not
 raise `EventTypeSchemaChanged`. A property described only by `default` may gain
-`type`/`format` without that error. Source at v19.50.0:
+`type`/`format` without that error. Source:
 `Documentation/migrations/dotnet-client.mdx` and the kernel event-type schema comparison.
 
 ## Step 3 — When the values changed meaning, declare a value map
@@ -235,7 +235,7 @@ dependencies.
 
 ## Backfill scope and rollout
 
-At v19.50.0 (`Documentation/migrations/index.md:62-74`), registering a new
+Per `Documentation/migrations/index.md`, registering a new
 generation starts **add-only** backfill in the **default namespace's event log
 only**. Other namespaces and sequences are not covered. Existing stored
 representations remain unchanged; changing a migration alone does not launch
@@ -248,8 +248,8 @@ kernel silo is upgraded**; an old worker can still overwrite content mid-rollout
 `Compatibility` remains the default. With
 `ChronicleOptions.EventGenerationDelivery = EventGenerationDelivery.Pinned`,
 reactors and reducers receive the generation of their handler's CLR event type
-(verified at **19.41.0**). Typed materialized projection clauses receive the
-generation they declare (verified at **19.48.0**), including joins, children,
+. Typed materialized projection clauses receive the
+generation they declare, including joins, children,
 removals, and event-content keys on live, catch-up, and replay.
 
 Read [references/pinned-generations.md](references/pinned-generations.md) for

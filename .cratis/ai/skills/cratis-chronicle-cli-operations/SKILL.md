@@ -12,18 +12,16 @@ event you are not sure was appended — read the server instead of the code.
 
 ## Verified product sources
 
-This skill is verified against these exact sources:
+This skill draws on these sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Cli` | `3.53.1` | command effects, confirmations, contexts, output and command tree |
-| `Cratis.Chronicle` | `19.32.0` | the CLI's Chronicle client package |
-| `Cratis.Chronicle` | `19.50.1` | server authentication configuration and development-client registration |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Cli` | command effects, confirmations, contexts, output and command tree |
+| `Cratis.Chronicle` | the CLI's Chronicle client package; server authentication configuration and development-client registration |
 
-Re-verified at `Cratis/cli v3.53.1`: since 3.2.0, observer removal,
-partition-quarantine clearing, server-bound login and broader diagnose scope
-have changed operational guidance. Read [command effects](references/command-effects.md)
-when classifying a mutation or confirmation; it cites the exact tag.
+Observer removal, partition-quarantine clearing, server-bound login and diagnose scope
+are operational. Read [command effects](references/command-effects.md)
+when classifying a mutation or confirmation.
 
 The CLI ships a **versioned machine-readable catalog of its own surface**, and
 that catalog is the authority for exact command names, `effect` and
@@ -85,15 +83,15 @@ notice explains the mismatch.
 
 Use `cratis chronicle login <user>` (`--secret` or prompt), `chronicle logout`
 and `chronicle auth status -o json` (`tokenServer`, `loginMatchesServer`). Login
-refuses multi-host and `chronicle+srv://` targets. CLIs before 3.21.0 discarded
-the login token; log in again after upgrading. Context values can be changed
+refuses multi-host and `chronicle+srv://` targets. Older CLIs discarded
+the login token; log in again if `auth status` shows no token. Context values can be changed
 with `context set-value server|event-store|namespace|client-id|client-secret`.
 Keep secrets out of logs and committed configuration.
-Evidence: [ChronicleSettings.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/ChronicleSettings.cs)
-and [authentication](https://github.com/Cratis/cli/blob/v3.53.1/Documentation/chronicle/auth.md).
-Server evidence at Chronicle v19.50.1:
-[authentication configuration](https://github.com/Cratis/Chronicle/blob/v19.50.1/Source/Kernel/Core/Configuration/Authentication.cs)
-and [development-client registration](https://github.com/Cratis/Chronicle/blob/v19.50.1/Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs)
+Evidence: [ChronicleSettings.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/ChronicleSettings.cs)
+and [authentication](https://github.com/Cratis/cli/blob/main/Documentation/chronicle/auth.md).
+Server evidence:
+[authentication configuration](https://github.com/Cratis/Chronicle/blob/main/Source/Kernel/Core/Configuration/Authentication.cs)
+and [development-client registration](https://github.com/Cratis/Chronicle/blob/main/Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs)
 (`EnsureDefaultClientCredentials`, compiled under `DEVELOPMENT`).
 
 Prefer a named context over repeating a connection string:
@@ -166,8 +164,8 @@ The catalog recommends plain for `event-types list`, `projections list` and
   automatically under the configured budget; quarantined partitions stop retrying.
   Missing `IsQuarantined` is Unknown, not healthy. A stale value can mean lag or a
   stopped partition: inspect attempts and observer state rather than guessing.
-  Observer clear does not clear partition quarantine. Source: Chronicle
-  **v19.50.1**, `Documentation/concepts/observers.mdx`.
+Observer clear does not clear partition quarantine. Source: Chronicle
+  `Documentation/concepts/observers.mdx`.
 - **Fix the cause before replaying.** Replaying into an unfixed handler fails the
   same way and buries the original error under a newer one.
 - **A quarantined observer does not resume by itself.** A quarantine ends when
@@ -179,7 +177,7 @@ The catalog recommends plain for `event-types list`, `projections list` and
 
 - **Observer and partition quarantine are separate.** `observers clear-quarantine`
   clears only the observer. `observers clear-partition-quarantine <observer> <partition>`
-  needs Chronicle 19.29.0+, resets the retry budget and retries unless `--no-retry`
+needs a kernel that supports partition quarantine, resets the retry budget and retries unless `--no-retry`
   is given; handler side effects may repeat. `retry-partition` exits non-zero
   when quarantined or not failed. `jobs resume` resumes Stopped jobs, not Failed.
 
@@ -202,7 +200,7 @@ These commands mutate the running store:
 - `chronicle users add`, `chronicle users remove`
 - `chronicle applications add`, `chronicle applications remove`
 
-This is the v3.53.1 surface, not the authority for later versions; check the
+Check the installed catalog's `effect` before acting; it is the authority. `chronicle login/logout` are `local`, while
 catalog's `effect` before acting. `chronicle login/logout` are `local`, while
 `chronicle workbench` is `destructive` because its keys can mutate the store.
 
@@ -264,7 +262,7 @@ authorization.
 - The terminal Workbench (`cratis chronicle workbench`) presents the same data
   with mutating keys; a human at a terminal uses it, not an agent harness.
 - The browser Workbench owns redaction, revision, and event-type authoring.
-- Narrator (VS Code extension `cratis.narrator`, verified at `v3.0.2`) browses stores, event types, observers and projections from the editor, using the same contexts in `~/.cratis/config.json`.
+- Narrator (VS Code extension `cratis.narrator`) browses stores, event types, observers and projections from the editor, using the same contexts in `~/.cratis/config.json`.
 - Source-level diagnosis belongs in the application's own diagnostic workflow;
   start there when the symptom reproduces locally, and start here when it is
   only visible on a running server.

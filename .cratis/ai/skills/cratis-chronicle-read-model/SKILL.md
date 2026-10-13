@@ -19,13 +19,13 @@ all.
 
 ## Verified product sources
 
-This skill is verified against these exact sources:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Events`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.ReadModels` |
-| `Cratis.Arc.Core` | `22.75.0` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute` and `PathAttribute` |
-| `Cratis.Arc.MongoDB` | `22.75.0` | the `Observe` family of `IMongoCollection<T>` extensions |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `Cratis.Chronicle.Events`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.ReadModels` |
+| `Cratis.Arc.Core` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute` and `PathAttribute` |
+| `Cratis.Arc.MongoDB` | the `Observe` family of `IMongoCollection<T>` extensions |
 
 Reverify product sources before claiming support for another version. Confirm
 the exact Arc package version in the consuming project before citing one.
@@ -81,7 +81,7 @@ public record <ReadModelName>(
 
 Prefer a slim, purpose-built projection over assembling a screen by repeatedly
 joining broad collections at query time. A summary needs summary fields, not
-every detail and historical entry. This is a design convention, **not a
+every detail and past entry. This is a design convention, **not a
 one-collection framework requirement**: bounded query composition remains valid,
 including when separate security or compliance boundaries must be preserved.
 
@@ -200,9 +200,9 @@ history length, invocation frequency, and the consistency/security requirement;
 repeated reconstruction of large histories on a hot path is the concern.
 Passivity does not itself authorize access or encrypt secrets.
 
-This access distinction was checked against Chronicle **v19.31.2**
-([passive projections](https://github.com/Cratis/Chronicle/blob/v19.31.2/Documentation/projections/declarative/passive.mdx),
-[passive reducers](https://github.com/Cratis/Chronicle/blob/v19.31.2/Documentation/reducers/passive-reducers.mdx)).
+This access distinction is described in
+([passive projections](https://github.com/Cratis/Chronicle/blob/main/Documentation/projections/declarative/passive.mdx),
+[passive reducers](https://github.com/Cratis/Chronicle/blob/main/Documentation/reducers/passive-reducers.mdx)).
 
 `[Passive]` on its own does **not** make a read model a projection. It is
 deliberately excluded from the annotations that do; it changes how an existing

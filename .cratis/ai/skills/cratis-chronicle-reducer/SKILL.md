@@ -13,11 +13,11 @@ was never written, and it will be flagged for conversion in review.
 
 ## Verified product sources
 
-This skill is verified against this exact source:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `19.50.1` | `Cratis.Chronicle.Reducers`, `Cratis.Chronicle.ReadModels`, `Cratis.Chronicle.Events` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `Cratis.Chronicle.Reducers`, `Cratis.Chronicle.ReadModels`, `Cratis.Chronicle.Events` |
 
 Reverify product sources before claiming support for another version.
 
@@ -136,7 +136,7 @@ model type** and makes it passive as a whole: no sink, nothing materialized, and
 the instance is computed on demand when it is read. Reach for it when a
 command-side read needs the model current at the moment it is read. Passive is
 fresher, not safer: a passive reducer read captures no position and guards nothing,
-and a reducer (or a self-reducing model, since Chronicle 19.58.0) is refused by
+and a reducer (or a self-reducing model) is refused by
 decision reads. For a rule that must hold under concurrent writers use a flat
 projection with a decision read; see
 [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
@@ -178,11 +178,11 @@ Filters remain effective during catch-up, replay and failed-partition recovery.
 The kernel classifies new definitions under `observers.definitionEvolution`:
 `Automatic` (default), `PartialOnly`, or `Manual`. Reducer method fingerprints
 make code changes visible even without subscription changes; assembly versions
-are ignored since 19.29.4 (that upgrade replays each reducer once). Changed
+are ignored. Changed
 implementation, keys or filters require full replay; adding event types permits
 partial replay only when history proves they follow all previously consumed
 events per source. Interleaved history requires full replay. Manual policies
-leave recommendations; they do not silently rebuild. Source at v19.50.0:
+leave recommendations; they do not silently rebuild. Source:
 `Documentation/hosting/configuration/observers.md`.
 
 ## Specifications
