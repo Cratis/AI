@@ -36,6 +36,18 @@
         "Says random generation does not give idempotency and suggests deriving the id deterministically or persisting and reusing the first one.",
         "Does not recommend System.Random for any case."
       ]
+    },
+    {
+      "id": 4,
+      "name": "shop-context-and-secret-boundaries",
+      "prompt": "Our shop resolves Cratis.Fundamentals 7.24.0. CustomerId is cus_ plus ULID, OrderId uses TypeID with IGeneratableInContext, InviteCode is NanoID and ApiKey is Bytes(32). Show the OrderId factory with a GenerationContext and explain what time/tenant it consumes. Does TypeID encode the tenant? Does fixing the context fix the random suffix? How must the Arc-hosted ApiKey be protected? Reply only.",
+      "expected_output": "OrderId implements IGeneratableInContext<OrderId> with static New(GenerationContext context) returning new(GenerateValue.TypeId(\"order\", context)). Context holds captured DateTimeOffset Now and portable string Tenant; default tenant is the zero-GUID string. TypeID consumes Now, not Tenant, and a fixed clock does not fix randomness. Keep tenant isolation separate and do not place arbitrary tenant IDs in a TypeID prefix. ApiKey has 256 random bits but remains a secret: NotAudited, authorized delivery, no logging, hash storage for credentials; Encrypted plus NotAudited applies to retained operational secrets.",
+      "assertions": [
+        "Uses the released static IGeneratableInContext<OrderId>.New(GenerationContext) contract and TypeId(order, context), not an invented overload or System.Random.",
+        "States context carries time and portable tenant with zero-GUID default, while built-in TypeID uses time only and does not supply tenant isolation.",
+        "Distinguishes fixed timestamp from random suffix and rejects strict within-millisecond ordering or arbitrary tenant prefixes.",
+        "Treats Bytes(32) ApiKey as a 256-bit secret with audit/delivery/hash-storage safeguards, not a UUID credential or automatic encryption claim."
+      ]
     }
   ]
 }

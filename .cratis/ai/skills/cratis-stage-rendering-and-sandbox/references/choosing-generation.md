@@ -1,7 +1,15 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Choosing a generation strategy / when not to
+# Shop generation choices
+
+## Choosing a strategy
+
+Render only the released part of the [shared shop model](../../cratis-screenplay-command-surface/references/shop-generation.md):
+CustomerId (`cus_` + ULID), TypeID OrderId and NanoID InviteCode. ApiKey remains
+secret with no generated property; do not turn .NET Bytes(32) credential generation
+into a promise of Stage secret generation. The Arc context-aware OrderId is not
+Stage's wall-clock TypeID factory or tenant isolation.
 
 Select the strategy on the model's concept, not in managed C#: implicit UUID for
 ordinary identity, UUIDv7/ULID for time-ordered values, TypeID for typed text,
@@ -10,6 +18,8 @@ NanoID for opaque text or bytes for an exact entropy budget. Read the shared
 for exact shapes and refusals. Time-ordered factories use wall clock, not
 receipt-time `GenerationContext`; neither strict millisecond order nor `given clock`
 ID synthesis is promised.
+
+## When not to
 
 Do not generate client-owned inputs, idempotency keys, gapless invoice numbers or
 secrets. Generation is not authorization, projection readiness or external-effect

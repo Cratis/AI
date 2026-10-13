@@ -37,10 +37,14 @@ personal data in notes. Read [model notes](references/model-notes.md) when
 listing, recording or resolving questions: `list-model-notes`,
 `propose-model-notes`, `read-proposal view=notes`, refs and orphan review.
 
-## Choosing a generation strategy / when not to
+## Choosing a strategy
 
-Read [strategy choices and boundaries](references/choosing-generation.md)
-before choosing concept generation, entropy or `generated identifier`.
+Read [shop strategies and entropy](references/choosing-generation.md) before
+editing concept generation or `generated identifier`.
+
+## When not to
+
+The same reference separates inputs, credentials and unreleased context/secret generation.
 
 ## Locate and connect
 

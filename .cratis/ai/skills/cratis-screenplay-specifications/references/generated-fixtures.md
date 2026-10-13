@@ -1,6 +1,12 @@
 ## Generated fixtures and return expectations (ESM v7 and v15)
 
-### Choosing a strategy / when not to
+### Choosing a strategy
+
+Use the [shop example](../../cratis-screenplay-command-surface/references/shop-generation.md):
+pin CustomerId (`cus_` + ULID), OrderId (TypeID) and InviteCode (NanoID) as
+whole values. ApiKey stays secret with no executable generation; do not write a
+passing issuance spec that invents its .NET Bytes(32) factory in Screenplay.
+OrderId pins do not realize Arc's received-time/tenant context either.
 
 Choose the concept's strategy for the job, then pin a whole value matching it:
 `for` for its generated identifier, named `generated` fixtures for other values.
@@ -8,6 +14,8 @@ Use the shared [strategy reference](../../cratis-screenplay-command-surface/refe
 for UUID, time-ordered, typed/opaque text and byte-budget choices and exact shapes.
 `given clock` supplies `$context.occurred`, not a generated time-ordered ID;
 a seed is not a portable fixture.
+
+### When not to
 
 Pins do not prove randomness, authorization, idempotency, storage freshness or
 secret safety. Client-minted IDs stay inputs; gapless invoice numbering needs an
@@ -21,19 +29,20 @@ Standalone `screenplay` 4.68.0 or later binds and runs these, and so does the cu
 cratis 3.28.3 bundle, 4.66.0, did not); CLI 3.57.0 / Stage 4.89.1 render supported UUID/String generation strategies,
 scalar/named responses, fixtures and `then returns`. Unsupported types/result combinations
 remain `STAGE-ESM-028`/`-038`; preserve refused specifications as gap-fill contracts. The model and rules are in `cratis-screenplay-command-surface`; the
-complete example is `cratis-screenplay-toolchain` `references/generated-responses-example.md`. Read that file when writing generated-value fixtures or scalar and record return expectations and needing a complete reference-executable model.
+complete threaded model is the linked shop example. The excerpt below belongs
+to its RegisterCustomer command and uses the same concept declarations.
 
 ```screenplay excerpt
-specification RegisteringReturnsIdentifiers
-  when RegisterProject
-    for "11111111-1111-1111-1111-111111111111"
-    generated receiptId = "22222222-2222-2222-2222-222222222222"
-    name = "Apollo"
-  then ProjectRegistered
-    for "11111111-1111-1111-1111-111111111111"
-    name = "Apollo"
+specification RegistersWithPinnedValues
+  when RegisterCustomer
+    for "cus_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+    generated inviteCode = "abcdefghijklmnopqrstu"
+  then CustomerRegistered
+    for "cus_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+    inviteCode = "abcdefghijklmnopqrstu"
   then returns
-    receiptId = "22222222-2222-2222-2222-222222222222"
+    customerId = "cus_01ARZ3NDEKTSV4RRFFQ69G5FAV"
+    inviteCode = "abcdefghijklmnopqrstu"
 ```
 
 - `for` beneath `when` supplies the generated identifier and an indented `generated <name> = <value>` supplies any other

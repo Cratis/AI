@@ -183,10 +183,13 @@ admission (ESM v1 to v4, keyed optional queries only) is kept as history in `ref
 only in prose is not enforced. A documentation edit changes managed-file hashes (a `--check` exit
 `6`), and characters invalid in XML block rendering with `CLI-RENDER-005`.
 
-## Choosing a generation strategy / when not to
+## Choosing a strategy
 
-Read [strategy choices and boundaries](references/choosing-generation.md)
-before rendering generation; it distinguishes v15 scopes, clocks and future Arc freshness.
+Read [shop strategy choices](references/choosing-generation.md) before rendering.
+
+## When not to
+
+That reference separates v15 scopes from future Arc freshness and unshipped context/secrets.
 
 ## What it emits
 

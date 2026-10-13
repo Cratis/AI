@@ -20,12 +20,24 @@ Tagged evidence:
 - Arc `v22.87.1:Source/DotNET/Screenplay/Analysis/Specifications/GeneratedValuePins.cs:138-175`.
 - cli `v3.57.0:Directory.Packages.props:5-14`.
 
-## Choosing a recovered strategy / when not to
+## Choosing a strategy
+
+Use the [same shop vocabulary](../../cratis-screenplay-command-surface/references/shop-generation.md):
+CustomerId (`cus_` + ULID), OrderId (TypeID), InviteCode (NanoID), ApiKey (secret
+Bytes(32) with .NET `[NotAudited]`). Do not claim exact recovery of every factory:
+the custom `cus_` interpolation is not a recognized single factory call;
+TypeID can recover a passed-through context's strategy, not equivalent receipt-time/
+tenant behavior. Context-member bodies and generated secrets remain unreleased
+Screenplay scope. Preserve ApiKey's protection and source code, not an unprotected
+replacement String. The intentional candidate can author the released customer
+prefix strategy with an explicit target decision, separate from as-is proof.
 
 Recover the strategy the source proves; do not choose a replacement because a
 factory is named `New()`. Use the existing [strategy reference](../../cratis-screenplay-command-surface/references/generated-values-and-responses.md)
 for meaning and shapes, then the forms below for parameter factories, literal pins
 and retained source pointers.
+
+## When not to
 
 Do not infer generation for client-supplied IDs, deduplication keys or gapless
 invoice numbers, or turn an observed secret into a random String. Preserve

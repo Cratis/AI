@@ -54,10 +54,14 @@ at the versions named in each row (CLI 3.53.1 bundles Prologue
 
 Every complete `screenplay` fence here compiles with the standalone compiler 4.139.0 (`--warnaserror`).
 
-## Choosing a recovered strategy / when not to
+## Choosing a strategy
 
-Read [choices, boundaries and recovery losses](references/generated-recovery.md)
-before inferring generation: Arc 22.87.1 forms do not describe CLI 3.57.0's older adapter.
+Read [shop recovery and version gates](references/generated-recovery.md) before
+inferring generation from code.
+
+## When not to
+
+That reference preserves input/protection ownership and unshipped context/secret contracts.
 
 ## Interview phase
 **Skip if** the brief already records the freeze or "not applicable", the observable

@@ -22,24 +22,25 @@ Cratis/cli `v3.57.0:Directory.Packages.props:8-10`; Cratis/Stage
 `v4.89.1:Documentation/reference/generated-values-rendering.md:6-146`.
 Decision 0054 describes later phases too; only its shipped phase 2b-1 is taught here.
 
+## Choosing a strategy
+
+Use the [threaded shop model](shop-generation.md): CustomerId is `cus_` + ULID,
+OrderId is TypeID, InviteCode is NanoID. It links the same .NET concepts but does
+not claim their received-time/tenant context or secret ApiKey Bytes(32) factory
+is executable in Screenplay. The table below owns exact strategy shapes.
+
+## When not to
+
+Client-minted values remain inputs. Generation is not authorization, idempotency,
+gapless invoice allocation or a credential contract. Preserve ApiKey's `secret`
+classification without generated properties; context/secret execution remains
+Screenplay#616 phases 3/4, not a reason to strip protection.
+
 ## The concept declares how; the property declares that
 
-```screenplay excerpt
-concept ProjectId : Uuid
-  generate uuidv7
-concept ReceiptCode : String
-  generate nanoid
-command RegisterProject
-  projectId ProjectId generated identifier
-  receipt ReceiptCode generated
-  name String
-  produces event ProjectRegistered
-    name String = name
-    receipt ReceiptCode = receipt
-  returns
-    projectId = projectId
-    receipt ReceiptCode = receipt
-```
+The complete reference-executable [shop example](shop-generation.md) declares
+strategies on concepts and `generated`/`generated identifier` on properties.
+It includes whole-value fixture pins and returned IDs.
 
 A generated property must be a required scalar **concept**, not a bare primitive,
 optional value or collection. Only Uuid and String generation are executable.

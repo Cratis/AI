@@ -3,37 +3,37 @@
   "evals": [
     {
       "id": 1,
-      "name": "pin-generated-identifier-and-receipt",
-      "prompt": "Write only a Screenplay specification excerpt for RegisterProject. It has projectId ProjectId generated identifier, receipt ReceiptCode generated, and name String. ProjectId is implicit Uuid and ReceiptCode is String with generate bytes 8 hex, so the model is v15. The inline event ProjectRegistered carries name and receipt and targets projectId; returns has projectId and receipt. Pin projectId to 12345678-1234-4234-8234-123456789abc, receipt to 0123456789abcdef, and name Apollo. Do not change the command or turn generated properties into inputs.",
-      "expected_output": "specification RegisteringReturnsIdentifiers with when RegisterProject, indented for \"12345678-1234-4234-8234-123456789abc\", generated receipt = \"0123456789abcdef\" and name = \"Apollo\"; then ProjectRegistered with its own for and full name/receipt payload; then returns with projectId and receipt matching the pins. Both pins match v15 shapes and no seed/request mapping is introduced.",
+      "name": "pin-shop-customer-and-invite",
+      "prompt": "Write only a Screenplay specification excerpt for the shop's RegisterCustomer. It has customerId CustomerId generated identifier and inviteCode InviteCode generated. CustomerId is String with generate ulid prefix cus_ and InviteCode uses generate nanoid. Inline CustomerRegistered carries inviteCode and targets customerId; returns has customerId and inviteCode. Pin customerId to cus_01ARZ3NDEKTSV4RRFFQ69G5FAV and inviteCode to abcdefghijklmnopqrstu. Do not change the command or turn generated properties into inputs.",
+      "expected_output": "specification RegistersWithPinnedValues with when RegisterCustomer, indented for \"cus_01ARZ3NDEKTSV4RRFFQ69G5FAV\" and generated inviteCode = \"abcdefghijklmnopqrstu\"; then CustomerRegistered with its own for and complete inviteCode payload; then returns with customerId and inviteCode matching the same pins. Both pins match v15 shapes; no seed/request mapping is introduced.",
       "assertions": [
-        "Pins the generated identifier with indented for beneath when, not an input property or a generated projectId fixture.",
-        "Pins receipt using generated receipt = with the exact 16 lowercase hexadecimal characters.",
-        "States the expected event's own destination and complete name/receipt payload.",
+        "Pins the generated CustomerId with indented for beneath when, not an input property or a generated customerId fixture.",
+        "Pins InviteCode using generated inviteCode = with the exact 21-symbol NanoID value.",
+        "States the expected event's own destination and complete inviteCode payload.",
         "Asserts both named response fields against the same whole-value pins without changing the command."
       ]
     },
     {
       "id": 2,
-      "name": "clock-does-not-draw-identifiers",
-      "prompt": "On Screenplay 4.151.0 a command uses a UUIDv7 generated identifier and an event's $context.occurred. I set given clock to 2026-10-05T08:00:00Z and a random seed, but omitted the identifier pin. Will the reference evaluator create the same UUIDv7 and pass? How should I specify it, and what differs on Stage 4.89.1? Reply only.",
-      "expected_output": "given clock supplies $context.occurred, not a generated UUIDv7. Pin the whole identifier with for and any other generated values by name; seeds are not portable fixtures. Reaching unpinned generation is Unsupported(IdentityAllocation), not pass. Stage's generated Debug specs can use AllowGeneration with relational captured-value assertions under supported expectations, but its in-memory executor still requires pins. Stage time-ordered factories use wall clock, not receipt time, and clock specs are refused.",
+      "name": "clock-does-not-draw-shop-identifiers",
+      "prompt": "On Screenplay 4.151.0 our shop's PlaceOrder uses a TypeID OrderId generated identifier and an event's $context.occurred. I set given clock to 2026-10-05T08:00:00Z and a random seed but omitted the identifier pin. Will the reference evaluator create the same OrderId and pass? We also want a secret ApiKey generation spec matching .NET Bytes(32). How should we specify this, and what differs on Stage 4.89.1? Reply only.",
+      "expected_output": "given clock supplies $context.occurred, not a generated TypeID. Pin the whole OrderId with for and other generated values by name; seeds are not portable fixtures. Reaching unpinned generation is Unsupported(IdentityAllocation), not pass. Preserve ApiKey secret and report generation as unadmitted, not a successful issuance spec. Stage Debug specs can use AllowGeneration with supported relational assertions but its in-memory executor requires pins; its time-ordered factories use wall clock, not Arc receipt-time/tenant context, and clock specs are refused.",
       "assertions": [
-        "Separates given clock's occurred timestamp from generated UUIDv7 and rejects seed-based portable fixtures.",
-        "Requires the whole identifier pin via for and named pins for other values, reporting missing reference fixtures as Unsupported rather than passed.",
-        "Distinguishes Stage Debug relational generation from deterministic reference/in-memory executor requirements.",
-        "States Stage 4.89.1 uses wall clock for time-ordered factories and refuses clock specifications."
+        "Separates given clock's occurred timestamp from generated OrderId and rejects seed-based portable fixtures.",
+        "Requires the whole identifier pin via for, reporting missing reference fixtures as Unsupported rather than passed.",
+        "Preserves ApiKey's secret contract without inventing a passing generated-secret specification.",
+        "Distinguishes Stage Debug relational generation from deterministic reference/in-memory requirements, wall-clock factories and unsupported clock specs."
       ]
     },
     {
       "id": 3,
-      "name": "strict-fixtures-and-source-freshness",
-      "prompt": "Our v15 Screenplay model has implicit Uuid generated destinations and one serialized bytes generation strategy. A success spec pins its identifier to 11111111-1111-1111-1111-111111111111. Another pins a valid lowercase v4 RFC-variant UUID whose whole source already has prior facts on a different stream. Should both pass, should the runner retry, and would either pin prove authorization or randomness? Compare pre-v15. Reply only.",
-      "expected_output": "The first v15 pin is a Contract rejection because it is not version-4/RFC-variant. The valid reused source yields whole-command Concurrency with no append or response and no silent retry, regardless of stream/event type. The serialized strategy makes all generated destinations guarded, including implicit UUIDs. Older models check canonical UUID type but not version and retain legacy unguarded reuse. Pins demonstrate deterministic behavior, not entropy, authorization, idempotency or storage/runtime correctness.",
+      "name": "strict-shop-fixtures-and-source-freshness",
+      "prompt": "Our v15 shop model uses generate typeid order for OrderId. A success spec pins it to order_00000000000000000000000000 (a zero UUID suffix, not v7/RFC-variant). Another pins a valid TypeID whose whole source already has prior facts on another stream. Should either pass, should the runner retry, and would a pin prove authorization or randomness? Compare older implicit-UUID models without serialized generation. Reply only.",
+      "expected_output": "The invalid TypeID pin is a v15 Contract rejection because the UUID suffix does not have the required version/variant. The valid reused source yields whole-command Concurrency with no append or response and no silent retry regardless of stream/event type. Serialized generation selects v15 guarding all generated destinations. Older implicit-UUID models retain canonical-only checks and unguarded reuse; removing the TypeID strategy is not an equivalent older model. Pins demonstrate deterministic behavior, not entropy, authorization, idempotency or target storage correctness.",
       "assertions": [
-        "Rejects the non-v4/non-RFC-variant identifier pin as a v15 Contract failure, not client validation.",
+        "Rejects the invalid TypeID suffix as a v15 Contract failure, not client validation.",
         "Reports existing whole-source facts as Concurrency with no append/response or silent retry even on another stream.",
-        "Explains serialized strategy selection guards all v15 generated destinations and contrasts older canonical-only checks and unguarded reuse.",
+        "Explains v15 guard selection versus historical implicit-UUID unguarded models, without treating strategy removal as equivalent behavior.",
         "Does not treat pins as proof of randomness, authorization, idempotency or target storage correctness."
       ]
     }
