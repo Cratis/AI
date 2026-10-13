@@ -135,9 +135,9 @@ are source-keyed, have no native joins and are refused by decision reads.
 Queries are **static** methods on the read-model record, discovered by Arc.
 Marking the record with `[ReadModel]` from `Cratis.Arc.Queries.ModelBound` is
 what gives it that surface. For a self-reducing model, put its `Reduce` methods
-and queries on this same record. Before `ARC_VERSION_TBD`, use
+and queries on this same record. Before Arc 22.90.0, use
 `[ReadModel(RequireQueryAttribute = true)]` plus `[Query]` on intended queries to
-avoid exposing folds. From `ARC_VERSION_TBD`, Arc excludes methods taking the
+avoid exposing folds. From Arc 22.90.0, Arc excludes methods taking the
 model itself from query discovery, and Arc.Chronicle claims self models for
 command injection. See the existing
 [explicit query-discovery guidance](references/queries.md#discovery-rules).

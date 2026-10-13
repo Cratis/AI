@@ -93,10 +93,10 @@ No model activation, parameterless constructor or reducer marker is needed.
 ### Arc on the same record
 
 In Arc applications keep `[ReadModel]`, `Reduce` methods and static queries on
-one record. Before `ARC_VERSION_TBD`, use
+one record. Before Arc 22.90.0, use
 `[ReadModel(RequireQueryAttribute = true)]` with `[Query]` on intended endpoints;
 see [query discovery](../cratis-chronicle-read-model/references/queries.md#discovery-rules).
-From `ARC_VERSION_TBD`, Arc excludes methods taking the model itself from query
+From Arc 22.90.0, Arc excludes methods taking the model itself from query
 discovery, and Arc.Chronicle claims self-reducing models for command injection.
 Check the consuming Arc version; Chronicle's discovery does not fix older Arc.
 
