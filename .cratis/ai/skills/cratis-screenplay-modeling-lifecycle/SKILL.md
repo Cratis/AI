@@ -43,7 +43,7 @@ an unproven pass.
 | An accepted model covers the scope | **Model** | Change the `.play`, verify V1-V3, review, then render or gap-fill |
 | Opted in, but this scope has no model yet | **Model** | New behavior starts in discovery, then slice design |
 | A computed rule inside a modeled slice | **Model + code attachment** | `csharp`/`file` block; it binds only as the construct allows (`cratis-screenplay-model-authoring`) |
-| Scope Stage cannot render yet, including every modeled automation and translation (Stage 4.73.1 renders neither; the whole behavior is gap-fill, not just its outside call; a reaction that produces and invokes stays one reaction, `STAGE-ESM-037`, hand-written as one reactor on Arc 22.72.0 or later) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
+| Scope Stage cannot render yet (Stage 4.83.0 renders supported event-triggered Automation; Translate/captures and refused reactions remain gap-fill. Mixed effects stay one reaction, `STAGE-ESM-037`; a hand-written realization must prove retry safety) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
 | Outside call, transport or credentials | **Adapter code** | `Customizations/` or the host, applying `cratis-engineering-effect-boundaries` |
 | Infrastructure, clients, framework-profile repositories, brownfield not opted in | **Code** | Arc, Chronicle, spec and React skills; trivial changes keep the proportional-delegation policy |
 
@@ -221,7 +221,7 @@ the packet opens with `Outcome:`; STATE.md is current.
 ## Verified product sources
 Model notes: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`,
 `decisions/0045-model-notes-sidecar.md:40-79`; exact tool sources in model-authoring
-`references/model-notes.md`. Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Current pins (Stage 4.73.1, cratis CLI 3.53.1 and the rest) are in that file. Older source reads used here: Screenplay
+`references/model-notes.md`. Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Current pins (Stage 4.83.0, cratis CLI 3.56.0 and the rest) are in that file. Older source reads used here: Screenplay
 `v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);

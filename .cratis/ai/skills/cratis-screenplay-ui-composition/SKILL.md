@@ -281,13 +281,12 @@ module Invoicing
         by invoiceId InvoiceId
 ```
 
-The inline event targets `invoiceId` without copying it into payload; the
-projection obtains it from event context. A command `returns` clause (scalar or
-record) binds and executes from standalone Screenplay 4.68.0 (ESM v7, `commands.md`,
-"Generated values and responses") and in the current cratis bundle (the 4.66.0 in 3.28.x reported `PLAY0268`);
-Stage 4.73.1 refuses it (`STAGE-ESM-029`; generated properties `-028`). Form `on submit` and
-interaction `on success` response-name scopes, failure clearing and response
-execution remain unavailable.
+The inline event targets `invoiceId`; the projection gets it from event context.
+Scalar/named `returns` bind and reference-execute since Screenplay 4.68.0 (ESM v7).
+CLI 3.56.0 / Stage 4.83.0 render responses and UUID-concept generation, subject to
+`STAGE-ESM-038` combinations (command-surface `references/generated-values-and-responses.md`).
+Form `on submit` and interaction `on success` response-name scopes, failure clearing
+and response execution remain unavailable at the standalone pin.
 An existing success continuation does not imply a response contract.
 
 - Write the one-off case inline; name it with `behavior` when several places need

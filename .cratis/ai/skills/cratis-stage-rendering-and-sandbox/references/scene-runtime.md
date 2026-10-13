@@ -9,11 +9,12 @@
 - Packages and ownership
 - Runtime capabilities
 
-Source-checked at the Scene release in [scaffold pins](rendered-application.md),
+Runtime source evidence retained at Scene v4.21.0 (not reverified at the newer
+Scene release now listed in [scaffold pins](rendered-application.md)):
 Scene `README.md`, `Documentation/package-hosting.md`, and
 `Source/JavaScript/{model,engine,react,components}/**`. Stage package selection
-was checked at v4.73.1, `CratisFrontendPackageSet.cs` (`Current`) and
-`CratisFrontendApplicationScaffold.cs` (`Dependencies`). This is not a render
+was re-read at Stage `v4.83.0:Source/Rendering.Cratis/Scaffolding/CratisFrontendPackageSet.cs:208-229`
+(`Current`); dependency names are in `CratisFrontendApplicationScaffold.cs` (`Dependencies`). This is not a render
 or browser test.
 
 ## What Scene is

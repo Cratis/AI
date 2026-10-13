@@ -23,10 +23,11 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 ## Verified product sources
 
 Version pins live once in `cratis-screenplay-toolchain` `references/versions.md`; read it before
-selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage, older
-than the standalone compiler. Render options (`--scope`,
+selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage;
+its compiler version differs from the standalone pin. Render options (`--scope`,
 `--check`, `--package-set`) and exit codes were read at cli `v3.53.1` `Documentation/reference/screenplay.md`
-and `cratis render --help`; admission at Stage `v4.73.1`. Stage's scaffold pins Arc and
+and `cratis render --help`; admission at Stage `v4.83.0` (`SemanticVersionFeatures.cs:100`,
+`SemanticVersionFeatureAdmission.cs:25-45`, `SemanticCratisAdmission.Automation.cs:15-123`). Stage's scaffold pins Arc and
 Chronicle releases, which are not the latest (`cratis-stage-rendering-and-sandbox`
 `references/rendered-application.md`). Source reading is not a new render run.
 
@@ -70,17 +71,19 @@ assume an answer to 4, and record it as `blocked` for the user.
 | **B. Generated base plus authorized gap-fill** | an admitted render (whole, or a `--scope` of the admitted slices) exists and the user separately authorized hand-written scope, or a seam the model names needs an adapter | the generated output stays managed and untouched; hand-written code lives in `Customizations/` or a separate project (seam adapters by this skill, business gap-fill by `slice-implementer`), serves named model elements only, never claims render admission, and V5 is reported for the generated base **with its scope stated** |
 | **C. Fully hand-written delivery** | the scope cannot render and no generated base is wanted | `slice-implementer` delivers it with the model as the contract (`references/gap-fill-handoff.md`); V5 is `not run: no render` |
 
-Evolved events are gap-fill too: Stage still refuses (4.73.1) any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract.
+Evolved events are gap-fill too: Stage still refuses (4.83.0) any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract.
 
-Generated command values and `returns` responses (ESM v7) bind and run in the reference runner on the standalone
-tool. Stage still refuses them with `STAGE-ESM-028`/`STAGE-ESM-029` (4.73.1). When target admission refuses these members, use case A or C: keep
-the model, hand-write the command and its response with the model (and its fixtures and `then returns`
-specifications) as the contract, and report V3 from the standalone tool and V5 as `not run: no render`.
+Generated UUID-concept values and scalar/named `returns` responses (ESM v7), including
+fixtures and `then returns`, now render with CLI 3.56.0 / Stage 4.83.0. Unsupported generated
+types (`STAGE-ESM-028`) and result combinations (`-038`) still require case A or C:
+preserve the model and its specifications. See Stage's `references/admission.md`.
+Supported event-triggered Automation slices also render as managed Chronicle reactors;
+refused reactions, captures and Translate slices remain gap-fill.
 
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on the standalone
 tool, so report V3 and V4 from that tool. The pinned CLI/Stage pair
 (`cratis-screenplay-toolchain/references/versions.md`) reaches v8 route checks
-and construct admission through v10. Public publication,
+and construct admission through v13. Public publication,
 foreign events/event captures and v10 reaction identity/filters/production overrides
 still receive typed refusals; reducer filters render. Keep refused scope as case A/C,
 never infer target support from binding. Read Stage's `references/admission.md` and
@@ -89,10 +92,11 @@ toolchain `references/sources-and-streams.md`.
 **Mixed reaction effects.** A reaction that both `produces` events and `invokes` commands is refused by
 Stage (`STAGE-ESM-037`, Stage#207) although Arc 22.72.0 and later run one reactor returning events
 and commands (events appended first as one batch, then commands in order, no cross-effect
-transaction; a retry can repeat the events, so use `[OnceOnly]`/idempotent handling per
-`cratis-chronicle-reactor`). Keep the modeled reaction whole and gap-fill it as that one reactor; never
-split it or drop an effect to get a render. The scaffold pins an older Arc; whether a newer Arc
-override in `Customizations/Dependencies.props` restores next to it is unverified, so prove it with a restore and build.
+transaction; a retry can repeat the events). The scaffold now includes the mixed-result handler,
+but Stage still refuses it because redelivery can duplicate events. `[OnceOnly]` excludes replay,
+not retries. Keep the modeled reaction whole; gap-fill needs a proven retry-safe realization,
+not splitting or dropping effects to get a render. Source: Stage
+`v4.83.0:Documentation/reference/reaction-rendering.md:50-88`.
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and
 a whole-application V5 is never claimed from a subset. `--scope` renders an admitted part (the whole
@@ -106,7 +110,7 @@ model still compiles and binds) and its V5 states the scope.
    `--project-name`, `--root-namespace` and target `cratis`. Take V1 and V3 from
    `cratis-screenplay-toolchain`; report each with tool and version. V3 from a different
    compiler version does not prove the cratis-bundled binder admits the model (the bundle is
-   4.137.0, the standalone tool 4.139.0). `cratis screenplay validate --executable <root>` binds with
+   4.145.1, the standalone tool 4.145.0). `cratis screenplay validate --executable <root>` binds with
    the bundled compiler and writes nothing: use it as the bundled-binder check (toolchain `references/verdicts.md`).
 2. **Probe.** `cratis render <model-root> --name <App> --destination <probe-dir> -o json`
    (exit 0 published, 5 refused with nothing published, 1 missing input); add `--check` to plan
@@ -153,7 +157,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   (`cratis-application-slice-conformance` `references/build-prompts.md`).
 - One ledger scope per `slice-implementer` brief; the brief carries addresses and paths, not contents.
 - Model-enforced rules realized in code (state-dependent rules) need a protected read or
-  concurrency scope; never claim them from prose. Stage 4.73.1 rendered apps scaffold
+  concurrency scope; never claim them from prose. Stage 4.83.0 rendered apps scaffold
   the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`; API availability alone is not verified enforcement.
 - Adapters that call outside systems follow `cratis-engineering-effect-boundaries`; slice
   specifications follow `cratis-application-slice-specifications`.
@@ -205,7 +209,7 @@ Before reporting done:
 - Which specification forms Stage accepts: `cratis-screenplay-scenario-coverage`, `cratis-screenplay-specifications`.
 - Verdict commands, subsets, versions: `cratis-screenplay-toolchain`.
 - Renderer facts, publication recovery, sandbox: `cratis-stage-rendering-and-sandbox`.
-- Automation or translation scope (the whole slice is gap-fill): `cratis-screenplay-automations-and-translations`.
+- Refused automation or translation scope (the refused behavior is gap-fill): `cratis-screenplay-automations-and-translations`.
 - Hand-written code against its contract: `cratis-application-slice-conformance`.
 - Code review of delivered code: `cratis-code-review`.
 

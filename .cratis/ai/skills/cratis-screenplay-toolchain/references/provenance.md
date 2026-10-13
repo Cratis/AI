@@ -74,7 +74,7 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
   ESM v7 and v11 allocations; added numbers-exact, concurrency, approval-policy, visualization,
   bodied-reducer, file-mode and cascade rows.
 - Corrected the code-attachment rule (a handler never binds, with or without `hint`), the
-  automation rendering rule (Stage renders no Automation or Translate slices) and the
+  historical automation rendering rule (Stage 4.24 rendered no Automation or Translate slices; current admission is in `renderable-subset.md`) and the
   Stage output description (a React/Vite scaffold is emitted too).
 - Verdict names follow the frozen V1 to V5 (V2 is executable diagnostics, V3 binding-ready);
   the earlier "authoring accepted" meaning of V2 was dropped because it proves only that the

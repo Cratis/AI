@@ -7,36 +7,34 @@
 - `Customizations/` (unmanaged)
 - Re-render checklist
 
-Read at Stage `v4.24.0`, with the scaffold pins re-read at `v4.73.1` (`Scaffolding/CratisBackendApplicationScaffold*.cs`,
+Read at Stage `v4.24.0`, with the scaffold pins re-read at `v4.83.0` (`Scaffolding/CratisBackendApplicationScaffold*.cs`,
 `CratisFrontendApplicationScaffold.cs`, `README.md`,
 `Documentation/guides/customize-rendered-application.md`) and checked against a real
 render (see [render-example.md](render-example.md)).
 
 ## Scaffold pins
 
-The pin rows below are source-checked at Stage `v4.73.1` (the Stage in CLI 3.53.1),
-`Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs` (`Current`),
-`CratisBackendApplicationScaffold.cs` and `CratisFrontendPackageSet.cs` (`Current`; read the
-`Current` argument list, because the class summary still quotes older Scene and Components
-versions). The scaffold pins an exact release per package and lags the latest releases by design
-(Arc 22.72.0 and Chronicle 19.50.0 were current when this was checked); moving them is a Stage
-change, so a re-render under a newer Stage is how they change. Earlier runtime/customization
+The pin rows below are source-checked at Stage `v4.83.0` (the Stage in CLI 3.56.0),
+`Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs:59-71`
+(`Current`) and `CratisFrontendPackageSet.cs:208-229` (`Current`; read the argument
+list, not the class summary). The scaffold pins an exact release per package;
+moving them is a Stage change, so a re-render under a newer Stage is how they change. Earlier runtime/customization
 probes above keep their original labels.
 
 | Item | Value |
 | --- | --- |
 | Target framework | .NET 10 (`net10.0`), `Microsoft.NET.Sdk.Web` |
-| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, `Cratis.Arc.Chronicle.Testing`) | `22.68.0` (below Arc 22.70, so reverse-generator compliance diagnostics and the like are not in the scaffold; reactors returning events and commands need Arc 22.72.0 or later, so a hand-written mixed reactor in a rendered app needs a proven dependency override; Arc 22.68.0's handler accepts a collection only when every element is a command) |
+| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, `Cratis.Arc.Chronicle.Testing`) | `22.78.0` (includes Arc's events-and-commands reactor result handler; Stage still refuses mixed reactions because redelivery can duplicate the appended events)  |
 | Chronicle client | `Cratis.Chronicle`, `.AspNetCore` and `.Testing` `19.45.0`, matched to the `cratis/chronicle:19.45.0-development` image in the compose file |
 | Embedded reverse extraction | `CratisEmbeddedScreenplayEnabled=false`: the source `.play` is authoritative |
 | Test packages | `Cratis.Specifications` and `.XUnit` 4.1.1, Microsoft.NET.Test.Sdk 18.10.1, NSubstitute 6.2.0, xunit 2.9.3, xunit runner 4.0.0; **Debug configuration only** (`IsTestProject` when Debug) |
-| Frontend | Vite 8.3.0 and React 19.3.0; `@cratis/arc`, `arc.react`, `arc.vite` 22.58.2; `@cratis/components` 4.26.2; `@cratis/scene.*` 4.21.0; `@cratis/fundamentals` 7.22.8 |
+| Frontend | Vite 8.3.0 and React 19.3.0; `@cratis/arc`, `arc.react`, `arc.vite` 22.58.2; `@cratis/components` 4.26.2; `@cratis/scene.*` 4.22.1; `@cratis/fundamentals` 7.22.8 |
 | Package management | central package management **off**; `Directory.Packages.props` is managed, do not edit it |
 
 The Scene family pin above applies to six scaffold dependencies:
 `@cratis/scene.blueprint.default`, `@cratis/scene.components`, `@cratis/scene.engine`,
 `@cratis/scene.model`, `@cratis/scene.primereact`, and `@cratis/scene.react`.
-Source: Stage `v4.73.1:CratisFrontendApplicationScaffold.cs`, `Dependencies`,
+Source: Stage `v4.83.0:Source/Rendering.Cratis/Scaffolding/CratisFrontendApplicationScaffold.cs`, `Dependencies`,
 and `CratisFrontendPackageSet.cs`, `Current`. `@cratis/scene` is **not** a package
 in this family. Read [Scene runtime](scene-runtime.md) when distinguishing the
 runtime from a hand-built Components page. The latest Components verification
@@ -50,10 +48,9 @@ the protected command profile and enroll an admitted projection/key read in the
 active unit of work. Source-checked at Arc v22.72.0 `ProtectedDecisionAttribute.cs`
 and `CommandDecisionReads.cs`, Chronicle v19.50.0 `DecisionRead.cs`/`IDecisionReads.cs`.
 Stage does not turn `.play` `reads`/`require` into protected decisions. Upgrading Arc or Chronicle inside a rendered application is a re-render under a newer
-Stage, not an edit of the managed files. Hand-written scope that needs a newer Arc (for example a
-reactor returning events and commands) can raise the version through `Customizations/Dependencies.props`
-(explicit `Version`, imported last; central management is off), but whether that override restores
-cleanly beside the managed 22.68.0 reference is **unverified**: prove it with a restore and build. The compose file binds local ports `27017` and
+Stage, not an edit of the managed files. Hand-written scope that needs a newer dependency can raise its version through
+`Customizations/Dependencies.props` (explicit `Version`, imported last; central management
+is off), but any override must be proven with a restore and build. The compose file binds local ports `27017` and
 `35000`, keeps data in the named volumes `chronicle-data` and `chronicle-config`, and
 `docker compose down --volumes` is the only thing that deletes them.
 
@@ -69,7 +66,7 @@ Chronicle event-store name in `appsettings.json` and the default project name an
 namespace.
 
 Whether modeled `screen` declarations become faithful screens is a runtime question, not a
-publication result: the Stage 4.73.1 scaffold emits Arc `CommandForm` shells over Scene typed
+publication result: the Stage 4.83.0 scaffold emits Arc `CommandForm` shells over Scene typed
 bindings and navigation contributions, but claim UI fidelity only from a browser run
 (`SKILL.md`, UI parity). Screens stay managed.
 
@@ -104,10 +101,10 @@ Every file is optional. Rules that bite:
 - Mapped endpoints are anonymous unless secured with ASP.NET Core authorization;
   modeled authorization covers only what Stage renders.
 
-What the seam does **not** do: it binds no modeled reaction or capture, runs no
-Automation or Translate slice and renders nothing. An automation or translation is
-hand-written (gap-fill) with its adapters and DI registration here, and the model remains
-its contract. Keep `Customizations/` under version control: whether a re-render keeps
+What the seam does **not** do: it repairs no rejected model and renders nothing.
+Stage 4.83.0 renders supported event-triggered Automation slices as managed Chronicle
+reactors; refused reactions, captures and Translate slices remain hand-written gap-fill
+with the model as their contract. See [admission.md](admission.md). Keep `Customizations/` under version control: whether a re-render keeps
 it depends on the publisher, and `cratis render` writes only the planned paths and
 refuses unmanaged files at them.
 

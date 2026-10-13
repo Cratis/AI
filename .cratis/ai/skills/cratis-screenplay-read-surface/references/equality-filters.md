@@ -189,11 +189,10 @@ module FilteringExamples
 
 ## Rendering is a different verdict
 
-The latest Stage release checked here, **v4.80.0**, admits version pairs through
-**ESM v13**, not v14, and its legacy query renderer also refuses authored filter
-contracts. **CLI 3.53.1** bundles **Screenplay 4.137.0 / Stage 4.73.1**:
-its compiler predates v14 and its renderer admits through v10. Standalone V3/V4
-success therefore proves neither bundled binding nor rendering. A consumer must
+**CLI 3.56.0** bundles **Screenplay 4.145.1 / Stage 4.83.0**. Its compiler
+binds v14 filters, but rendering admits through **ESM v13**, not v14:
+`CLI-RENDER-004` before planning (direct Stage: `STAGE-ESM-016`).
+Standalone V3/V4 success therefore does not prove rendering. A consumer must
 explicitly admit v14 and preserve filter arguments and equality selection;
 never erase filters to obtain a render.
 
@@ -203,9 +202,7 @@ never erase filters to obtain a render.
   `decisions/0069-admit-equality-query-filters-as-esm-v14.md`;
   `Documentation/screenplay/queries.md` (Executable equality filters),
   `specifications.md:145,307-319,409-428`; admission shipped in v4.143.0.
-- Stage **v4.80.0**: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:95-100`
-  uses `EsmSchemaV13Support`; `Renderers/QueryAdmission.cs:13-22` refuses filters;
-  `Directory.Packages.props` pins Screenplay 4.141.0.
-- Stage **v4.73.1**: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:89`
-  uses `EsmSchemaV10Support`. CLI **v3.53.1**:
-  `Directory.Packages.props:8,10` pins Screenplay 4.137.0 and Stage 4.73.1.
+- Stage **v4.83.0**: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`
+  uses `EsmSchemaV13Support`; `Directory.Packages.props` pins Screenplay 4.141.0.
+- CLI **v3.56.0**: `Directory.Packages.props:8-10` pins Screenplay 4.145.1 / Stage
+  4.83.0; `Source/Cli/Commands/Render/RenderedSemanticVersions.cs:33-47` admits v1-v13.

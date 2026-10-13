@@ -17,8 +17,8 @@ Event `subject` remains report-only, despite accepted future lineage work.
 Rechecked at 4.142.0: concept `pii`/`personal` and `secret` bind as v13, while
 reasons stay PLAY0270 report-only. PLAY0268 at binding only rejects enum/identity
 compliance and events mixing personal or explicitly subject-scoped secret values
-with an explicit `subject` mark. CLI 3.53.1 bundles Screenplay 4.137.0, which
-refuses markers; standalone Stage 4.76.0 admits only through v12 (Stage#345). These are distinct boundaries,
+with an explicit `subject` mark. CLI 3.56.0 bundles Screenplay 4.145.1 / Stage 4.83.0 and
+renders v13 concept protection; protected identities/enums remain refused. These are distinct boundaries,
 not a reason to remove protection.
 
 `D/` is Screenplay `Documentation/screenplay/` at **v4.66.0**; line numbers were re-read at

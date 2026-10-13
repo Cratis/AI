@@ -45,7 +45,7 @@ or Screenplay 4.145.0.
    PLAY0029 (a misspelt keyword or a `type` inside a slice) drops a construct silently.
 3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for
    current language checks and reference specifications; `cratis` for rendering
-   and generation. Bundled and standalone versions differ (CLI 3.53.1 bundles 4.137.0;
+   and generation. Bundled and standalone versions differ (CLI 3.56.0 bundles 4.145.1;
    the standalone pin is 4.145.0). Report both tool and
    version, rather than transferring a verdict across releases.
 4. **Know the mode** (design, executable, renderable) and write from its subset.
@@ -70,7 +70,7 @@ or Screenplay 4.145.0.
 | Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform` |
 | Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
 | MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
-| Render version boundary | Binder admission is not Stage admission | Pinned CLI (`versions.md`) passes through ESM v10 to Stage construct admission; bound newer models: `CLI-RENDER-004` |
+| Render version boundary | Binder admission is not Stage admission | Pinned CLI (`versions.md`) passes through ESM v13 to Stage construct admission; bound newer models: `CLI-RENDER-004` |
 
 Read `references/versions.md` when you need the exact messages, exit codes or the MCP roots bug.
 
@@ -108,17 +108,19 @@ changes with the root folder name.
   filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268. Read
   read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md). No handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
   `concurrency` do not bind (PLAY0271); concept compliance binds as v13 on standalone
-  4.142.0 (since 4.141.0), not the pinned CLI (precise refusals: command-surface `references/compliance.md`);
+  4.142.0 (since 4.141.0) and the pinned CLI (precise refusals: command-surface `references/compliance.md`);
   v6 constructs bind on Screenplay 4.61 or
   later (standalone, and cratis 3.28.2 or later); generated values and `returns` responses bind (ESM v7)
   from Screenplay 4.68.0 (also in the current CLI bundle) (`references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
-- **Renderable** (V5): `references/renderable-subset.md` has the current Stage 4.73.1 table and
-  explicitly labeled older probes. The CLI admits through v10 to Stage construct checks; generated
-  values and responses get `STAGE-ESM-028`/`029`, not a blanket compiler refusal. Run admission
+- **Renderable** (V5): `references/renderable-subset.md` has the current Stage 4.83.0 table and
+  explicitly labeled older probes. CLI 3.56.0 admits through v13; generated UUID-concept
+  values/responses, enum numbers, compliance and supported event reactions render.
+  Unsupported generated types still get `STAGE-ESM-028`; result combinations get `-038`.
+  v14 filters bind but rendering refuses `CLI-RENDER-004`. Run admission
   before claiming a particular model renders (`cratis render --scope` for an admitted part, `--check`
   for no-write planning).
 - **Event sources, streams and routes** bind as ESM v8 at 4.125.0.
-  The pinned CLI/Stage pair (`references/versions.md`) reaches admission through v10, not blanket
+  The pinned CLI/Stage pair (`references/versions.md`) reaches admission through v13, not blanket
   rendering. Operations and exact numeric source mode remain unadmitted.
   Details: `references/sources-and-streams.md` and `references/versions.md`.
 - **Released v9/v10 and published v11:** public contracts and direction select v9;
@@ -130,10 +132,9 @@ changes with the root folder name.
 
 - **Published v12 (4.139.0):** non-positional enum numbers bind; canonical
   `numbers` parallels `values`. Positional pins preserve earlier executable
-  bytes/version. Specifications still use names. The pinned CLI's compiler accepts source
-  authoring but refuses non-positional numbers at binding (PLAY0268), before
-  renderer admission. Neither its compiler nor Stage reads v12 ESM; upgrading
-  only the compiler would not lift their v10 admission ceiling (`references/versions.md`). Syntax:
+  bytes/version. Specifications still use names. CLI 3.56.0's compiler binds
+  non-positional numbers, and Stage 4.83.0 admits v12 and emits `Member = N`.
+  v14 collection filters still exceed the renderer's v13 ceiling (`references/versions.md`). Syntax:
   command-surface `references/enum-numbers.md`; errors PLAY0667–0670 and opt-in
   `enum-pinning` hint PLAY0671: `references/diagnostics.md`.
 

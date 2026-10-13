@@ -20,15 +20,15 @@ probe; older probes retain their original labels in the other references.
 | Source | Pin | Evidence |
 | --- | --- | --- |
 | Screenplay language, standalone tool and MCP | **4.145.0** (`bf58b489`) | Released tag `v4.145.0`, published NuGet tool and byte-identical Golden contract; read-only proposal specification execution with `proposalId`; model notes/open-question gate and ESM v14 equality filters retained |
-| cratis CLI | **3.53.1** | Released tag `v3.53.1`; source-checked, not a new render/browser probe |
-| Screenplay bundled by CLI | **4.137.0** | CLI `v3.53.1:Directory.Packages.props`; enum-number authoring, not v12 binding |
-| Stage bundled by CLI | **4.73.1** | Same file; Stage's own `Directory.Packages.props` also pins Screenplay 4.137.0 |
-| Historical standalone Stage source baseline | **4.76.0** (Screenplay 4.139.0) | Released tag `v4.76.0`; no cli release bundles Stage 4.74.0 to 4.76.0, so a cli user observes none of it. It admits ESM v1 to v12 (v11 from 4.75.0, v12 from 4.76.0), renders UUID-concept generated values and responses (4.74.0) and explicit enum numbers (4.76.0). Its scaffold pins match 4.73.1 (Arc 22.68.0, Chronicle 19.45.0, frontend pins); `Directory.Packages.props` takes Scene 4.21.0 |
-| Screenplay.Generation / CritterStack / Prologue bundled by CLI | **0.18.0 / 0.24.0 / 2.0.0** | CLI `v3.53.1:Directory.Packages.props`. Latest released: Generation 0.18.1, CritterStack 0.26.0, Prologue 2.0.0 (no release after 2.0.0); the newer Generation and CritterStack releases are not in a cli |
+| cratis CLI | **3.56.0** | Released tag `v3.56.0`; source-checked, not a new render/browser probe |
+| Screenplay bundled by CLI | **4.145.1** | CLI `v3.56.0:Directory.Packages.props:8`; binds v12 enum numbers, v13 compliance and v14 collection filters |
+| Stage bundled by CLI | **4.83.0** | Same file, line 10; Stage `v4.83.0:Directory.Packages.props` pins Screenplay 4.141.0; rendering admits through v13, not v14 |
+| Historical standalone Stage source baseline | **4.76.0** (Screenplay 4.139.0) | First v12 enum-number rendering; generated UUID-concept values and responses shipped in 4.74.0, v11 admission in 4.75.0. Those capabilities are now in the CLI bundle; standalone Stage beyond 4.83.0 is not this baseline |
+| Screenplay.Generation / CritterStack / Prologue bundled by CLI | **0.18.0 / 0.24.0 / 2.0.0** | CLI `v3.56.0:Directory.Packages.props:5-7,28-33`. Latest released: Generation 0.18.1, CritterStack 0.26.0, Prologue 2.0.0 (no release after 2.0.0); the newer Generation and CritterStack releases are not in a cli |
 | Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | Same file; this is the generator package, not a blanket rendered-app dependency pin |
 | Chronicle / Fundamentals bundled by CLI | **19.32.0 / 7.22.8** | Same file |
-| Latest Arc / Chronicle / Fundamentals released when this was checked | **22.76.0 / 19.51.0 / 7.23.0** | Released tags; newer than the CLI bundle and than Stage's scaffold. Arc 22.72.0 and later run a reactor returning events and commands (absent through 22.71.0); the Stage 4.73.1 scaffold pins Arc 22.68.0, whose command handler accepts a collection only when every element is a command, so a rendered app needs a proven dependency override to 22.72.0 or later |
-| Stage 4.73.1 rendered backend and frontend | **Arc 22.68.0 / Chronicle 19.45.0**; `@cratis/components` 4.26.2, `@cratis/scene.*` 4.21.0, `@cratis/arc` 22.58.2, Fundamentals 7.22.8 | Stage `v4.73.1:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs` and `CratisFrontendPackageSet.cs` (`Current`); not the latest releases and not bumped by hand |
+| Previously checked Arc / Chronicle / Fundamentals releases | **22.76.0 / 19.51.0 / 7.23.0** | Historical product reads, not latest-release claims. Arc 22.72.0+ supports events-and-commands reactor results; Stage still refuses mixed reactions because failed commands can cause duplicate events on redelivery |
+| Stage 4.83.0 rendered backend and frontend | **Arc 22.78.0 / Chronicle 19.45.0**; `@cratis/components` 4.26.2, `@cratis/scene.*` 4.22.1, `@cratis/arc` 22.58.2, Fundamentals 7.22.8 | Stage `v4.83.0:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs:59-71` and `CratisFrontendPackageSet.cs:208-229` (`Current`); not bumped by hand |
 | Historical Stage 4.51.3 rendered backend | **Arc 22.50.5 / Chronicle 19.32.0** | Stage `v4.51.3:Source/Rendering.Cratis/Scaffolding/CratisBackendApplicationScaffoldProfile.cs`; client/testing/image match; scaffold disables embedded reverse extraction |
 
 Scene's family id denotes the six scaffold packages listed in
@@ -58,20 +58,19 @@ or renderer probes below as results from the newer bundle.
 Caller-supplied collection equality filters shipped in Screenplay **4.143.0**
 (decision 0069), selecting ESM v14; the standalone **4.145.0** pin binds and
 reference-tests them. No-filter models retain their version/bytes/revision.
-The latest released Stage checked for this boundary, **4.80.0**, admits through
-v13 (`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`,
-`EsmSchemaV13Support`) and refuses authored filters in its legacy renderer
-(`Renderers/QueryAdmission.cs:13-22`); it pins Screenplay 4.141.0. It does not
-admit v14. CLI **3.53.1** still bundles Screenplay **4.137.0** / Stage **4.73.1**,
-whose audited pair ceiling is v10 (`SemanticVersionFeatures.cs:89`). These are
-source checks at Stage `v4.80.0` / `v4.73.1` and CLI `v3.53.1`, not new render
-probes or scaffold dependency upgrades. A future consumer must explicitly admit
+CLI **3.56.0** bundles Screenplay **4.145.1** / Stage **4.83.0**: its compiler
+binds filters, but rendering refuses v14 with `CLI-RENDER-004` before planning.
+Direct Stage refuses v14 with `STAGE-ESM-016`; it admits through v13
+(`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`,
+`EsmSchemaV13Support`). Sources: CLI `v3.56.0:Directory.Packages.props:8-10`,
+`Source/Cli/Commands/Render/RenderedSemanticVersions.cs:33-47`; Stage `v4.83.0`.
+These are source checks, not new render probes. A future consumer must explicitly admit
 v14 and preserve equality selection rather than drop filters. Complete examples:
 read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
 
 ## Two compilers, one rule
 
-Standalone Screenplay 4.145.0 and CLI 3.53.1's 4.137.0 bundle are different releases.
+Standalone Screenplay 4.145.0 and CLI 3.56.0's 4.145.1 bundle are different releases.
 Prefer standalone for the current language checks; CLI owns generation, Prologue
 and rendering. Name the tool/version with every verdict. No verdict transfers
 between differing compilers without checking the same inputs there.
@@ -107,12 +106,13 @@ unbinds the entire model and prevents every specification running.
 ## Model notes gate
 
 **Standalone Screenplay 4.144.0** ships `--open-questions report|fail`.
-**Cratis CLI 3.53.1 does not have this gate** and bundles Screenplay 4.137.0,
-which also predates the notes MCP tools. Do not add this option to
-`cratis screenplay validate` or assume its bundled MCP supports model notes.
+**Cratis CLI 3.56.0 does not have this gate** on `cratis screenplay validate`.
+Its bundled compiler is newer; that does not add the standalone tool's option to
+the CLI adapter. Discover bundled MCP schemas separately. Historical:
+**Cratis CLI 3.53.1 does not have this gate** and its older compiler predated notes tools.
 Sources: Screenplay `v4.144.0:Source/DotNET/Tool/ModelOpenQuestions.cs:18-69,87-131`;
-CLI `v3.53.1:Source/Cli/Commands/Screenplay/ValidateScreenplaySettings.cs:11-85`
-and `Directory.Packages.props:8,35-37`. No newer Cratis CLI gate was verified.
+CLI `v3.56.0:Source/Cli/Commands/Screenplay/ValidateScreenplaySettings.cs:11-85`
+and `Directory.Packages.props:8,35-37`.
 
 ```shell
 screenplay <model-folder> --open-questions report --no-color
@@ -173,8 +173,9 @@ schema pairs through v14. Admission selects by use:
   it proves no storage encryption or erasure. Enum/identity compliance and an
   event combining personal or explicitly subject-scoped secret values with an
   explicit `subject` mark refuse PLAY0268. See command-surface
-  `references/compliance.md` and Screenplay decision 0068. Stage 4.76.0 admits
-  only through v12; no current cli bundles this compiler or admits v13.
+  `references/compliance.md` and Screenplay decision 0068. CLI 3.56.0 and
+  Stage 4.83.0 admit v13 and render protection; protected identities/enums
+  remain `STAGE-ESM-040`.
 - **Published v14 in 4.143.0:** caller-supplied equality filters on collection
   queries with same-named, type-matched scalar read-model properties; no `from`.
   Optional filters may be omitted, supplied null is refused, and `by` plus supplied
@@ -193,19 +194,14 @@ Composite read-model keys/query blocks are also still PLAY0268 (#599), not
 admitted by the 4.129.0 authoring delivery; a single explicit key preserves bytes.
 Never delete these contracts to obtain a green bind.
 
-CLI 3.53.1 `RenderedSemanticVersions.Newest` is **v10**:
-`Source/Cli/Commands/Render/RenderedSemanticVersions.cs`. Stage 4.73.1 uses
-EsmSchemaV10Support in `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs`
-and construct checks in `SemanticVersionFeatureAdmission.cs`. Both bundle
-Screenplay 4.137.0: non-positional enum numbers pass source validation but
-fail executable binding with PLAY0268, before renderer version admission.
-Standalone >= 4.139.0 binds them as v12; that verdict does not transfer to
-`cratis render`. The bundled compiler and Stage do not support reading v12 ESM.
-A compiler upgrade alone would not lift the CLI/Stage v10 admission ceiling.
-Bound v11 models get CLI-RENDER-004 before planning (STAGE-ESM-016 at the
-Stage version gate); this is not the diagnostic path for v12 source on these pins.
-Through v10 is not blanket
-render support: public publication STAGE-ESM-032, foreign events/event captures
+CLI 3.56.0 `RenderedSemanticVersions.Newest` is **v13**
+(`Source/Cli/Commands/Render/RenderedSemanticVersions.cs:33-47`). Stage 4.83.0
+uses `EsmSchemaV13Support` (`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`)
+and construct checks in `SemanticVersionFeatureAdmission.cs:25-45`.
+Non-positional enum numbers, generated UUID-concept values/responses and concept
+compliance now reach rendering. Bound v14 collection filters still get
+`CLI-RENDER-004` before planning (`STAGE-ESM-016` at the direct Stage gate).
+Through v13 is not blanket render support: public publication STAGE-ESM-032, foreign events/event captures
 033, reaction identity 034, reaction filters 035 and production overrides 036
 remain refused; reducer filters render. ESM v8 routes reach their own checks.
 Previous CLI 3.46.1/Stage 4.52.0 admitted only through v7 (CLI-RENDER-004 and
@@ -219,7 +215,7 @@ read them as tested snapshots, not as a claim that Stage 4.52.0 shares every
 
 Stage case tables require 4.59.0; ESM v8 whole numbers as `long` and the
 pre-v8 out-of-`int` refusal STAGE-ESM-031 require 4.61.0. Historical CLI 3.50.0
-defaulted to Stage 4.67.0; current CLI 3.53.1 defaults to 4.73.1, so both rules apply. Previous CLI 3.46.1 bundled Screenplay
+defaulted to Stage 4.67.0; current CLI 3.56.0 defaults to 4.83.0, so both rules apply. Previous CLI 3.46.1 bundled Screenplay
 4.130.0 and Stage 4.52.0; neither rule applied there. `cratis run --tag 4.63.2`
 selects a newer sandbox image only (`RunSettings.cs`), not a renderer package.
 `cratis render` has a statically bundled target (`RenderSettings.cs`,
@@ -228,8 +224,8 @@ The Stage skill teaches the version-gated examples.
 
 At 4.127.0, `$identity` aliases built-in caller paths; declared identity details
 remain metadata and their executable reads report PLAY0268. Bare `pii`/`secret`
-bind as v13 on standalone 4.142.0, but still block binding on CLI 3.53.1's
-4.137.0 bundle; `personal` aliases `pii`. Legacy markers are accepted with
+bind as v13 on standalone 4.142.0 and CLI 3.56.0's
+4.145.1 bundle; `personal` aliases `pii`. Legacy markers are accepted with
 PLAY0565 information, duplicates warn PLAY0653. Event `subject` and processing
 purposes are report-only metadata (PLAY0270); purpose checks/reports do not prove
 lawfulness or enforce retention. See command-surface context/compliance references.

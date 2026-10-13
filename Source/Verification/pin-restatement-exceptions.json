@@ -5,28 +5,8 @@
     "reason": "Verified-product-sources row: the version at which the DataTable paging surface was verified"
   },
   {
-    "file": ".cratis/ai/skills/cratis-fundamentals-concept/SKILL.md",
-    "text": "also verified at v22.68.0",
-    "reason": "Verification tag for the Fundamentals pin claim"
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-arc-command/references/generated-values.md",
-    "text": "and analyzers in **22.68.0**",
-    "reason": "Release in which the generated-value attribute and analyzers were verified"
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-arc-command/references/generated-values.md",
-    "text": "**v22.68.0**, which pins Fundamentals",
-    "reason": "Verification tag and the Fundamentals version that release pins"
-  },
-  {
-    "file": "Evaluations/skills/cratis-arc-command/evals.json",
-    "text": "Our Arc 22.68.0 command",
-    "reason": "Eval prompt states the Arc release at which the generated-value feature was verified"
-  },
-  {
-    "file": "Evaluations/skills/cratis-arc-command/evals.json",
-    "text": "We use Arc 22.68.0.",
-    "reason": "Eval prompt states the Arc release at which the generated-value feature was verified"
+    "file": ".cratis/ai/skills/cratis-components-styling/SKILL.md",
+    "text": "Components 4.22.1+",
+    "reason": "Components release that introduced the dark-error mapping, not a restatement of the numerically identical Scene scaffold pin. Remove when that collision or the historical capability claim disappears; the unused-entry check enforces this."
   }
 ]

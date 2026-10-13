@@ -12,7 +12,7 @@ technique: partial work stays visible and nothing is skipped because it looked r
 Result is `complete` only when every column is filled or says why it does not apply (for example
 "direct effect: immediate, internal, cannot fail"). `open` names the unresolved decision and who
 answers. `blocked` names the actual capability gap with intended behavior. For example,
-the pinned CLI/Stage pair (toolchain `references/versions.md`) admits ESM v10 to construct checks, where reaction identity
+the pinned CLI/Stage pair (toolchain `references/versions.md`) admits through ESM v13 to construct checks, where reaction identity
 is refused with STAGE-ESM-034. Previous CLI 3.46.1 refused v10 at the version gate
 with CLI-RENDER-004; do not report that historical refusal as the current gap.
 

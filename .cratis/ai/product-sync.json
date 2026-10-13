@@ -27,9 +27,9 @@
       "repository": "Cratis/Stage",
       "packages": [],
       "synced": {
-        "version": "4.76.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "4.83.0",
+        "date": "2026-10-13",
+        "by": "Cratis/AI#623"
       },
       "covers": {
         "skills": [
@@ -46,7 +46,7 @@
         ],
         "rules": []
       },
-      "notes": "cratis-application-slice-conformance retains Stage 4.24.0 evidence; other probes and current source reads are newer. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification. Synced to the 4.76.0 delta read in Cratis/AI#620; cli 3.53.1 bundles Stage 4.73.1."
+      "notes": "Source-checked Stage v4.83.0 bundled by CLI v3.56.0: ESM v1-v13, UUID-concept generated values/responses, enum numbers, concept compliance, validated scalar query keys and supported event-triggered Automation rendering; scaffold pins re-read. ESM v14 filters, mixed reaction effects and other typed refusals retained. Historical probes keep original versions; standalone Stage beyond 4.83.0 not taken."
     },
     {
       "id": "arc",
@@ -122,9 +122,9 @@
         }
       ],
       "synced": {
-        "version": "3.53.1",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "3.56.0",
+        "date": "2026-10-13",
+        "by": "Cratis/AI#623"
       },
       "covers": {
         "skills": [
@@ -153,7 +153,7 @@
         ],
         "rules": []
       },
-      "notes": "Synced to v3.53.1 command and bundled-tool source in Cratis/AI#620; historical probes remain separately qualified."
+      "notes": "Render bundle source-checked at v3.56.0: Screenplay 4.145.1 and Stage 4.83.0; CLI rendering admits ESM v1-v13 and refuses v14 filters before planning. Other CLI surfaces retain their v3.53.1 evidence from Cratis/AI#620 unless separately re-verified. No new render/browser probe; standalone Screenplay pin remains 4.145.0 because the 4.148.0 delta needs a separate language sync."
     },
     {
       "id": "screenplay",

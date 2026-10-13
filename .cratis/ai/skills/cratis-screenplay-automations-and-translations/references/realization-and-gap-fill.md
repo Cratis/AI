@@ -4,16 +4,21 @@ The `.play` revision is the contract; this file says what that means once code i
 the automation-and-translation addendum to `cratis-screenplay-render-and-gap-fill`; read that
 skill for the admission, publication and ownership rules.
 
-## What Stage does not do
-Stage 4.73.1 renders no Automation or Translate slice, reaction or capture (Stage#79): each reaction
-or capture refuses with `STAGE-ESM-024` (plus `-034` runsAs, `-035` filters, `-037` mixed effects). So the
-automation or translation is hand-written delivery with the model as its contract. (History: cratis
+## Stage rendering versus gap-fill
+CLI 3.56.0 / Stage 4.83.0 render supported event-triggered Automation slices as Chronicle
+reactors. Translate/captures, non-event triggers and opaque bodies remain `STAGE-ESM-024`;
+`runs as` (`-034`), `from` (`-035`), mixed effects (`-037`), unsupported mappings (`-039`)
+and protected destinations (`-040`) also remain refused. Command specs that cascade into
+reactions remain `-011`. Only refused scope is hand-written delivery with the model as
+its contract. Source: Stage `v4.83.0:Documentation/reference/reaction-rendering.md:6-88`;
+full admission: `cratis-stage-rendering-and-sandbox` `references/admission.md`. (History: cratis
 3.28.2 and 3.28.3 refused such a model whole with `STAGE-ESM-016`, and 3.27.1 stopped earlier with PLAY0268.)
 
 A reaction that both `produces` events and `invokes` commands stays one modeled reaction. Hand-write one
-reactor that returns the events and the commands: Arc 22.72.0 and later append the events first as one
-batch, then run the commands in order, with no transaction across them (a retry can repeat both, so keep
-both repeatable); the Arc the Stage scaffold pins (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`) accepts a collection in a command handler only when every element is a command, so a rendered app needs a proven dependency override to Arc 22.72.0 or later. Never split the reaction to dodge `STAGE-ESM-037`. A `Customizations/` file never makes a
+retry-safe reactor: the scaffold already includes Arc's mixed-result handler, but it appends
+events before running commands, so a denied/rejected command fails the partition and
+redelivery duplicates the events. `[OnceOnly]` prevents replay, not retries. Prove the
+recovery behavior rather than assuming this handler supplies all-or-nothing settlement. Never split the reaction to dodge `STAGE-ESM-037`. A `Customizations/` file never makes a
 rejected model renderable, and never claim a whole-application V5 from a subset. Choose the route
 with `cratis-screenplay-render-and-gap-fill`.
 

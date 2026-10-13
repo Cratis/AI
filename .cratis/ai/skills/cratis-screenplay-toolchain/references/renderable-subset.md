@@ -2,26 +2,26 @@
 
 ## Contents
 
-- Current admission (Stage 4.73.1)
+- Current admission (Stage 4.83.0)
 - Historical: what Stage 4.24 admitted
 - Authoring consequences in renderable mode
 - Ownership, publication and recovery
 - Reading V5
 
-Current compiler/CLI/Stage pins: `versions.md`. CLI/Stage admit through v10 to construct
-checks, not blanket rendering; above v10 is CLI-RENDER-004 (direct Stage:
+Current compiler/CLI/Stage pins: `versions.md`. CLI 3.56.0 / Stage 4.83.0 admit through v13 to construct
+checks, not blanket rendering; above v13 is CLI-RENDER-004 (direct Stage:
 STAGE-ESM-016). v9 publication/foreign facts and v10 reaction identity,
 reaction filters and production overrides still refuse STAGE-ESM-032–036;
-reducer filters render. v8 routes reach specific checks (including routed
-read-model/query replay refusal STAGE-ESM-030). Case tables and v8+ `long`
+reducer filters render. v8 routed read-model/query companion replay now renders; reserved names and
+unformattable fixtures remain STAGE-ESM-030 (Stage
+`v4.83.0:Documentation/reference/event-source-routing.md:62-72`). Case tables and v8+ `long`
 whole numbers apply to the current default. Previous CLI 3.46.1/Stage 4.52.0
 admitted only through v7 and applied neither newer rule. The historical v7 canonical-corpus check got
 STAGE-ESM-028/029 for generated values/responses
 (`v3.41.0:Source/Cli.Specs/for_ScreenplayPlanning/when_planning_an_esm_v7_model.cs`).
 The following detailed Stage 4.24.x results are **historical**, not reverified
-4.73.1 claims. Non-positional enum numbers select v12 on standalone 4.139.0,
-but the CLI's 4.137.0 compiler does not bind them and Stage does not admit v12.
-Keep the pins and report the consumer gap. Run the bundled renderer before asserting current renderability.
+4.83.0 claims. Non-positional enum numbers select v12 and now render through
+the CLI bundle; concept compliance selects v13 and also renders. Run the bundled renderer before asserting current renderability.
 
 Historical sources, all read at tags: Stage v4.24.1 `Source/Rendering.Cratis/Semantics/SemanticSurfaceLedger.cs`
 (an exhaustive map of every ESM member to Rendered, Rejected(code) or Ignored),
@@ -31,34 +31,38 @@ render itself before claiming renderability: this table is a reading of the sour
 render result.
 
 Renderable is a strict subset of executable (`executable-subset.md`). Order of events in
-`cratis render`: the CLI binds the **whole** model with its **bundled Screenplay** (4.137.0 in cratis
-3.53.1, so PLAY0268 and friends appear first, even with `--scope`), then Stage admits or rejects
+`cratis render`: the CLI binds the **whole** model with its **bundled Screenplay** (4.145.1 in cratis
+3.56.0, so PLAY0268 and friends appear first, even with `--scope`), then Stage admits or rejects
 members of the selected scope. (Historical, cratis 3.28.2: an ESM v6 model bound but Stage refused it
 whole with `STAGE-ESM-016`.)
 
-## Current admission (Stage 4.73.1)
+## Current admission (Stage 4.83.0)
 
-Read at Stage `v4.73.1` (`Documentation/guides/build-renderer-target.md`, `SemanticVersionFeatures.cs`,
-`SemanticCratisAdmission*.cs`) and cli `v3.53.1`; source reading, not a render run (the worked
-example in `cratis-screenplay-render-and-gap-fill` was probed). Stage admits ESM v1 to v10 by
+Read at Stage `v4.83.0` (`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`,
+`SemanticVersionFeatureAdmission.cs:25-45`, `SemanticCratisAdmission.Automation.cs:15-123`,
+`Documentation/guides/build-renderer-target.md:306-347`) and CLI
+`v3.56.0:Source/Cli/Commands/Render/RenderedSemanticVersions.cs:33-47`.
+Source reading, not a render run. Stage admits ESM v1 to v13 by
 version; each construct it does not render refuses with its own code before any artifact is planned.
 
-| Area | Renders at 4.73.1 | Refused (code) |
+| Area | Renders at 4.83.0 | Refused (code) |
 | --- | --- | --- |
-| Slice kinds | `StateChange`, `StateView` | `Automation`, `Translate`, every reaction, capture, application trigger and clock specification (`STAGE-ESM-001`/`-024`); a reaction that both produces and invokes (`-037`, Stage#207; Arc 22.72.0+ can run it, and the Arc the scaffold pins needs a proven override; hand-write one reactor, never split the reaction) |
-| Queries | optional keyed snapshot lookups; observable collections, keyed or unkeyed (since 4.49.0) | a snapshot list: `STAGE-ESM-010`; context/single-result filters, opaque `scoped to`/`performer` and composite `by`: PLAY0268. Caller-supplied collection equality filters bind since 4.143.0 as v14, above this bundle's v10 admission ceiling |
+| Slice kinds | `StateChange`, `StateView`, supported event-triggered `Automation` with Chronicle reactors | Translate, captures, non-event triggers, opaque bodies, clock/trigger/capture specs (`-024`); `runs as` (`-034`), `from` (`-035`), mixed effects from one handler (`-037`, redelivery can duplicate events), unsupported conditions/destinations/mappings (`-039`). Keep refused reactions whole |
+| Queries | optional keyed snapshot lookups; observable collections, keyed or unkeyed (since 4.49.0) | a snapshot list: `STAGE-ESM-010`; context/single-result filters, opaque `scoped to`/`performer` and composite `by`: PLAY0268. Caller-supplied collection equality filters bind since 4.143.0 as v14, above this bundle's v13 rendering ceiling; validated scalar keys render as primitives and convert inside the query (an out-of-rule key finds no instance), nested validated keys still refuse `-010` |
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false; Stage 4.73.1 `IsSupportedClaimPath`), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`; Stage 4.73.1 `IsTextualSubject`, a restriction separate from declarative claim targets) |
-| Event sources, streams, routes (ESM v8) | rendered, with routed specifications | reserved stored names, unformattable routed fixtures, unsupported routed replay (`STAGE-ESM-030`) |
+| Event sources, streams, routes (ESM v8) | rendered, including routed read-model/query companion replay | reserved stored names, unformattable routed fixtures (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
-| Generated values and responses (v7) | not rendered by Stage 4.73.1 (cli 3.53.1); rendered from standalone Stage 4.74.0 (UUID concepts, scalar and named responses) | `STAGE-ESM-028`/`-029` at 4.73.1 (Stage#175); `STAGE-ESM-038` for combinations the target cannot preserve |
-| Specifications | as in Stage's `admission.md` | `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims, `$context.occurred`-derived fixed values asserted (`-011`) |
+| Generated values and responses (v7) | required scalar UUID concepts, scalar/named responses, generation fixtures and `then returns` | unsupported generated types (`-028`); routed/generated-rule/legacy-allocation/unique-constraint/name-collision or unsupported response combinations, unpinned unordered/projected expectations (`-038`); no blanket `-029` refusal |
+| Enum numbers / compliance | explicit enum numbers (v12); concept `[PII]` or scoped `[Encrypted]` + `[NotAudited]` (v13), property-level `[NotAudited]` for protected command inputs | protected identities/enums (`-040`); explicit subject lineage remains unadmitted |
+| Specifications | as in Stage's `admission.md` | direct appends and commands cascading into reactions (`-011`); `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims, `$context.occurred`-derived fixed values asserted (`-011`) |
 | v9 and v10 | reducer observer `from` filters | public events and event-target projections (`-032`); foreign origins and event-source captures (`-033`); directed Translate (`-024`); reaction `runsAs` (`-034`); reaction `from` filters (`-035`); per-production route overrides (`-036`) |
 | Evolved events | initial revisions only | `STAGE-ESM-026` (Stage#204) |
 | Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only (Stage#178 closed) | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
-CLI 3.53.1 bundles Screenplay 4.137.0. That compiler refuses `reads` and
-`concurrency` (PLAY0271), command `handler`s and concept `pii`/`secret` markers
-(PLAY0268) at binding, before Stage admission. Rows below naming Stage 4.24
+CLI 3.56.0 bundles Screenplay 4.145.1. That compiler still refuses `reads` and
+`concurrency` (PLAY0271), command `handler`s (PLAY0268) at binding, before Stage
+admission. It binds v13 compliance and v14 collection filters; rendering refuses
+v14 before planning. Rows below naming Stage 4.24
 behavior are historical.
 
 ## Historical: what Stage 4.24 admitted
@@ -92,9 +96,8 @@ whole automation is hand-written (gap-fill).
 At standalone 4.127.0, compliance uses bare `pii`/`secret` (legacy markers are
 accepted with PLAY0565 information); either still refuses binding on that compiler.
 Standalone 4.142.0 admits concept compliance as v13 (from 4.141.0) with narrower refusals
-(command-surface `references/compliance.md`). CLI 3.53.1 bundles Screenplay
-4.137.0, which refuses markers; standalone Stage 4.76.0 admits only through v12
-(Stage#345). Identity blocks,
+(command-surface `references/compliance.md`). CLI 3.56.0 bundles Screenplay
+4.145.1 / Stage 4.83.0 and renders concept protection as v13. Identity blocks,
 purposes and event `subject` are authoring metadata, not provider realization;
 executing identity detail reads still refuses PLAY0268. Current source/stream
 routes are admitted as v8, including composite ids, not the historical binding
@@ -110,9 +113,9 @@ legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
   readmodel`). The seeded when-less `then query` only checks a lookup over a given read-model
   state; it proves no projection (Stage `SemanticSpecificationAdmission.Callers.cs`).
 - Use `$context.occurred` only; no `$context.identity.*` mappings.
-- A list query binds (unfiltered, or narrowed by one `by` key); Stage 4.73.1 renders it only as an
-  `observable` collection, and refuses a snapshot list with `STAGE-ESM-010`. `filter`, `scoped to` and
-  `performer` queries block binding of the whole application. Keep a list the domain needs and report
+- A list query binds (unfiltered, or narrowed by one `by` key); Stage 4.83.0 renders it only as an
+  `observable` collection, and refuses a snapshot list with `STAGE-ESM-010`. Caller-supplied collection filters bind as v14 but block rendering;
+  context/single-result filters, opaque `scoped to` and `performer` block binding. Keep a list the domain needs and report
   the capability gap; marking it `observable` or keying it is a modeling decision for the user.
 - A `handler` (with or without `implementation` or `hint`) never binds; the slice is
   gap-fill, never "customized into" rendering.
@@ -137,7 +140,7 @@ legacy ids or drop protected ids into routing to fit a renderer (PLAY0515).
   `Customizations/styles.css`. The planner never reads it, and it never binds a modeled
   reaction or capture. A customization never makes a rejected model renderable.
 - `cratis render` does **not** build, test or run the application.
-- Stage 4.73.1's scaffold pins .NET 10 and Arc and Chronicle client/kernel releases
+- Stage 4.83.0's scaffold pins .NET 10 and Arc and Chronicle client/kernel releases
   and emits a `.frontend/` React/Vite app (Components and Scene releases pinned too); these are not the latest
   releases (`cratis-stage-rendering-and-sandbox` `references/rendered-application.md`).
   `CratisEmbeddedScreenplayEnabled=false`; `Directory.Packages.props` is managed,

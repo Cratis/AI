@@ -2,29 +2,33 @@
 
 ## Contents
 
-- Current behavior at Stage 4.73.1 (source reading; Docker not run)
+- Current behavior at Stage 4.83.0 (source reading; Docker not run)
 - Specification engine selection at Stage 4.78.0 and CLI 3.53.1
 - The sandbox: a partial, disposable runtime
 - The specification runner
 - Choosing between them
 
-Read at Stage `v4.24.0`, then re-read for the current paragraph below at `v4.73.1` (`README.md`, `Documentation/docker/index.md`,
+Read at Stage `v4.24.0`, then re-read for the current paragraph below at `v4.83.0` (`README.md`, `Documentation/docker/index.md`,
 `Documentation/docker/spec-runner.md`, `Documentation/reference/urls.md`) and cli
 `v3.28.2` (`Commands/Run/*`, unchanged since `v3.27.1`). Docker was **not run** for this skill: every behaviour here
 is documented behaviour, not an observed result. Both images are still shipped.
 
-## Current behavior at Stage 4.73.1 (source reading; Docker not run)
+## Current behavior at Stage 4.83.0 (source reading; Docker not run)
 
-Read from `Documentation/docker/index.md` and `docker/spec-runner.md` at `v4.73.1` and the CLI
-3.53.1 reference. The default EventModel engine refuses named event sources, streams and routes
-with `STAGE-ESM-030` (`/stage/status` reports `state: "unsupported"` and `/api/**` answers 501),
-so `cratis run` does not run a routed model: render it with `cratis render`. Both engines refuse
-public events (`-032`), foreign or source-event captures (`-033`) and reaction identity, filters
-and overrides (`-034` to `-036`); reactions are refused (`-024`, `-037`). The semantic engine admits
-ESM v1 to v10 version pairs and executes routes. The structural specification runner is deprecated:
-it prints a deprecation notice, refuses routes with exit 1 and writes no results file. Exit codes
-`0`/`1`/`2` are as in `SKILL.md`. The sections below describe the 4.24-era behavior and remain the
-engine comparison.
+Read from `Documentation/docker/index.md` (lines 127-155) and `docker/spec-runner.md` (lines 11-19) at
+`v4.83.0`, the Stage that CLI 3.56.0 bundles and `cratis run` starts. The default EventModel engine refuses
+named event sources, streams and routes with `STAGE-ESM-030` (`/stage/status` reports
+`state: "unsupported"` and `/api/**` answers 501), so the default `cratis run` does not run a routed model.
+Both engines refuse public events (`-032`), foreign or source-event captures (`-033`), directed Translate
+slices (`-024`) and reducer observer filters (`-035`); the legacy engine also refuses reaction identity and
+reaction observer filters (`-034`, `-035`), and per-production route overrides fail `-036` on the semantic
+engine. The semantic engine (`Stage__Runtime__Engine=semantic`) admits exact ESM v1 to v13 version pairs,
+executes routes and runs event-triggered reactions (including `where`, `runs as`, `from`, productions,
+invocations and cascades), settling them with the initiating command in one batch; clock, application,
+startup and shutdown triggers and opaque reaction bodies still fail `-024`. It does not encrypt or redact
+personal-data or secret values. The structural specification runner is deprecated: it prints a deprecation
+notice, refuses routes with exit 1 and writes no results file. Exit codes `0`/`1`/`2` are as in `SKILL.md`.
+The sections below describe the 4.24-era behavior and remain the engine comparison.
 
 ## Specification engine selection at Stage 4.78.0 and CLI 3.53.1
 

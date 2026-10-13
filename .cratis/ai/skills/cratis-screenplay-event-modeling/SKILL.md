@@ -107,13 +107,12 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Every event is past tense, single-purpose, and carries no event-source id.
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
-- [ ] If the model must reach a runtime, check it binds with the tool that will
-      consume it. Current pins: `cratis-screenplay-toolchain` `references/versions.md`. Stage 4.73.1
-      (in CLI 3.53.1) admits ESM v1 to v10 by version and renders `StateChange` and `StateView`
-      slices; reactions, captures, Automation and Translate, and the v7+ constructs in Stage's
-      admission table refuse with their own `STAGE-ESM-*` code, so those scopes are gap-fill with
-      the model as the contract. A reaction that produces events and invokes commands is refused
-      (`STAGE-ESM-037`) although Arc 22.72.0 and later can run it (the Arc the Stage scaffold pins needs a proven override): hand-write it as one reactor, never split the modeled reaction.
+- [ ] Bind with the runtime's compiler; pins: toolchain `references/versions.md`.
+      CLI 3.56.0 / Stage 4.83.0 admit through v13, including supported event Automation,
+      UUID generation/responses, enum numbers and compliance. Translate/captures,
+      refused reactions and v14 filters remain gaps (Stage `references/admission.md`).
+      Mixed effects remain `STAGE-ESM-037`: retries can duplicate events. Keep the reaction
+      whole and prove retry-safe gap-fill; never split or drop effects.
 
 ## Parsed is not runnable
 
@@ -130,12 +129,12 @@ What binds depends on **which tool** you ask, so name the tool and its version:
 
 - `Automation` and `Translate` slices, reactions, captures and triggers bind (ESM v6) on the
   standalone tool and the CLI bundle. (Historical: the cratis 3.27.1 bundle, Screenplay 4.60.1,
-  reported *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage 4.73.1 renders none of them.
+  reported *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage 4.83.0 renders supported event-triggered Automation, not Translate/captures or non-event triggers.
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
 - `persona` declarations are report-only and never block; bare `pii` and `secret`
-  concepts bind as ESM v13 on standalone 4.142.0 (since 4.141.0), but still block the pinned CLI.
+  concepts bind as ESM v13 on standalone 4.142.0 (since 4.141.0), and the pinned CLI; Stage renders admitted v13 protection.
   Enum/identity compliance and protected events with explicit subject marks remain
   refused (PLAY0268); see command-surface `references/compliance.md`. Keep protection.
 - Generated values/responses bind and reference-execute as v7; sources, streams
@@ -143,10 +142,11 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   qualifying Double literals lower exactly as v11 and non-positional enum numbers
   as v12. Use `screenplay test` or MCP `run-specifications` for V4.
   Operations/systems, the `numbers exact` **source mode** (PLAY0268) and
-  refusal/redelivery remain unadmitted. Stage still refuses generated values and
-  responses (`STAGE-ESM-028`/`029`). For the pinned CLI/Stage pair
-  (`cratis-screenplay-toolchain/references/versions.md`), v10 reaches construct
-  admission, not full support.
+  refusal/redelivery remain unadmitted. CLI 3.56.0 / Stage 4.83.0 render UUID-concept generated values,
+  scalar/named responses, enum numbers, compliance and supported event reactions.
+  The pair reaches construct checks through v13, not blanket rendering; v14 filters
+  bind but remain refused. Current boundaries and source evidence:
+  `cratis-screenplay-toolchain/references/renderable-subset.md`.
   Source/binding admission and target realization are separate gates.
 
 The ESM versions, the full disposition table and the Step 7 clock example's binding

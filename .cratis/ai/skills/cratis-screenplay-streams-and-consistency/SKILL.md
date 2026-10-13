@@ -38,7 +38,7 @@ the CLI bundle's Chronicle is in `cratis-screenplay-toolchain` `references/versi
 | Screenplay | v4.68.0 (`79801bf`) | ESM v7 generated values (`generated identifier`, decision 0026) and decision 0025's numbering; the diagnostics below were read at v4.66.0 (`c89198b`): `identifier`, `for`, constraints, generations, `id` pins, diagnostics PLAY0019/0135/0268/0271/0273/0391-0393/0446-0449/0469/0471 |
 | Chronicle | v19.50.0 (read; first read at v19.32.0 `f17a2ff`) | CHR0012, CHR0034; open defects #3744, #4123, #4131 (still open) |
 | Arc | v22.72.0 | `[ProtectedDecision]` and `DecisionRead<T>` (since v22.39.0) |
-| Stage | v4.73.1 | rendered apps pin the Arc and Chronicle client/kernel listed in the Stage skill's `references/rendered-application.md`; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
+| Stage | v4.83.0 | rendered apps pin the Arc and Chronicle client/kernel listed in the Stage skill's `references/rendered-application.md`; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
 
 Full pin table: `references/versions.md` in `cratis-screenplay-toolchain`. Re-check the three
 Chronicle issues before relying on a constraint in a later release.
@@ -88,9 +88,9 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8 on 4.125.0.
-   The pinned CLI (toolchain `references/versions.md`) reaches Stage construct checks through v10; keep the routing
+   The pinned CLI (toolchain `references/versions.md`) reaches Stage construct checks through v13; keep the routing
    contract when target admission requires gap-fill. Forms/boundaries:
-   toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0 and later; Stage 4.73.1 refuses it, STAGE-ESM-028) is
+   toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0 and later; Stage 4.83.0 renders required scalar UUID concepts; unsupported types/results still refuse -028/-038) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no
    idempotency, retry or deduplication guarantee. When a retry must find the same stream, the caller
    supplies the identifier before the first attempt.

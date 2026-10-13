@@ -77,16 +77,17 @@ length mismatch, duplicates, non-int32 entries or a positional array (non-canoni
 Programmatic validation enforces the same contract. Specifications still compare
 names; numbers are neither alternative fixture values nor flags.
 
-Consumers must **explicitly admit v12**. CLI 3.53.1 and Stage 4.73.1 both bundle
-Screenplay 4.137.0: `cratis render`/Stage do not admit v12 yet. A model with
-non-positional numbers compiles and binds with standalone Screenplay >= 4.139.0,
-but does not render through that CLI. Standalone Stage 4.76.0 is the first Stage that admits v12 and
-renders explicit numbers as `Member = N` (sparse and negative, `-0` as 0; unnumbered enums keep declaration
-order), but no cli release bundles it yet. Do not remove its pins to pass rendering;
-report the consumer gap. See toolchain `references/versions.md`.
+Consumers must **explicitly admit v12**. CLI 3.56.0 (Screenplay 4.145.1 / Stage
+4.83.0) admits through v13 and renders explicit numbers as `Member = N` (sparse
+and negative, `-0` as 0; unnumbered enums keep declaration order). Stage first
+admitted v12 in 4.76.0. Do not remove enum pins to fit an older consumer;
+report its admission gap. See toolchain `references/versions.md`.
 
 Sources checked at `v4.139.0`: `Documentation/screenplay/concepts.md`,
 `interoperability.md`, `diagnostics.md`, `mcp/authoring-tools.md`, decision 0065,
 `Semantics/Versions.cs`, `SemanticModelValidator.EnumMemberNumbers.cs` and the
 source-backed `EnumMemberNumbersCorpus.V12` (under `Source/DotNET/`). Consumer
-pins: CLI `v3.53.1:Directory.Packages.props`, Stage `v4.73.1:Directory.Packages.props`; Stage `v4.76.0` release notes (#296).
+pins: CLI `v3.56.0:Directory.Packages.props:8-10` and
+`Source/Cli/Commands/Render/RenderedSemanticVersions.cs:33`; Stage `v4.83.0`,
+`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`,
+`SemanticEnumMembers.cs:15-26`, `SemanticCommonArtifactRenderer.cs:56-65`.
