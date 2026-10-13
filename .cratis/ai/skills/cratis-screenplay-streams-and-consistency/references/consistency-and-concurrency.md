@@ -161,7 +161,16 @@ behaviour. Write the answer in the slice `documentation`.
 ## 7. Ordering
 - Within one source, facts are in append order. Across sources, do not assume an order
   unless a single sequence guarantees it in the target; views combining sources must tolerate
-  any arrival order (a child before its parent).
+  any arrival order (a child before its parent). On standalone Screenplay **4.149.1
+  and later**, pin that order with `given <ChildEvent>`, then `given <ParentEvent>`,
+  then `then readmodel`; also cover a given child followed by `when append <ParentEvent>`.
+  The reference evaluator defers the child until its original parent exists. A parent
+  that never arrives leaves the child absent; an ambiguous parent still fails closed.
+  This is reference execution, not a Chronicle runtime/race proof. Complete example:
+  [child ordering](../../cratis-screenplay-specifications/references/child-ordering.md).
+  Sources: Cratis/Screenplay `v4.149.1`,
+  `Documentation/screenplay/projections/semantic-model.md:77-81` and
+  `Source/DotNET/Screenplay/Semantics/Execution/SemanticScopedProjection.Deferred.cs:11-96`.
 - Constraints are evaluated in append order, including earlier appends of the same command.
 
 ## 8. Projection lag and rebuild

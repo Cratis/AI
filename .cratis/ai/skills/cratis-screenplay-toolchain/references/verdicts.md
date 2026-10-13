@@ -53,7 +53,7 @@ V3 are read from the MCP server or from a render, V1 and V5 from the CLIs.
 Needs an MCP connection (V2 and V3 belong to the session that owns MCP; a subagent without
 MCP reports `V2 not run: no MCP in this agent` unless the brief supplies fresh output). Without
 MCP, a binding check exists: `cratis screenplay validate --executable <root>` binds with the
-**bundled** compiler (CLI 3.57.0 bundles Screenplay 4.147.1, not standalone 4.149.0), never
+**bundled** compiler (CLI 3.57.0 bundles Screenplay 4.147.1, not standalone 4.149.1), never
 renders or writes files, and exits 5 with "The model does not bind into an executable semantic
 model" when it does not. Report it as `V3 (bundled 4.137.0 via cratis validate --executable)`; it
 gives binding errors, not the V2 `executable-diagnostics` view, so V2 stays MCP-only.

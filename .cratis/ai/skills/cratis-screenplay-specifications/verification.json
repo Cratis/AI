@@ -4,6 +4,10 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "an ambiguous parent still fails closed" },
+    { "kind": "skill-contains", "value": "specification ChildBeforeGivenParent", "file": "references/child-ordering.md" },
+    { "kind": "skill-contains", "value": "specification ParentNeverArrives", "file": "references/child-ordering.md" },
+    { "kind": "skill-contains", "value": "earlier-child-creation branch", "file": "references/child-ordering.md" },
     {
       "kind": "skill-contains",
       "value": "main `fd18129`", "file": "references/source-notes.md"

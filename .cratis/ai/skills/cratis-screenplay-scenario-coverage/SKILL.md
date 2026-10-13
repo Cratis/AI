@@ -83,7 +83,11 @@ question is not four approvals.
    anonymous/ownership or unsynthesizable personas. Syntax and complete model:
    `cratis-screenplay-specifications` `references/persona-callers-and-cases.md`.
 8. **Separate view pass**: population, each update, accumulation, removal (with a surviving
-   row), absence, ordering. Mark lifecycle branches as branches.
+   row), absence, ordering. Mark lifecycle branches as branches. Views combining sources
+   must tolerate any arrival order, including a child before its parent. Standalone
+   Screenplay **4.149.1 and later** can reference-run that case: given the child, then
+   the parent, then assert the read model. Also pin "parent never arrives": the child
+   stays absent. Details and source evidence: `references/view-and-story-specs.md`.
 9. **State-dependent rules**: `reads <View>` + `require <expr> message "..."` as stated intent,
    marked **NOT enforced in the model today** in the slice `description` (binding reports
    PLAY0268/0271: expected in design mode; Screenplay#129), target named (Arc
