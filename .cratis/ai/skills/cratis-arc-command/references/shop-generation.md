@@ -90,7 +90,9 @@ and captured-time semantics, never one exact random suffix.
 - Randomness is not idempotency, storage freshness or a gapless invoice allocator.
   Arc#3129 freshness is not delivered by this parameter API; Stage's v15 explicit
   scopes are a separate realization.
-- ApiKey is a credential, never a Chronicle stream ID. `[NotAudited]` protects
+- ApiKey is a credential, never a Chronicle stream ID: event-source IDs are plaintext
+  metadata and cannot be encrypted. Identify the key with a separate `ApiKeyId` and keep
+  ApiKey a secret value property. `[NotAudited]` protects
   causation only. Never log captures, return secrets on public endpoints, or
   append plaintext authentication credentials. Retain a hash; for retained
   operational secrets use `[Encrypted]` plus `[NotAudited]`.
