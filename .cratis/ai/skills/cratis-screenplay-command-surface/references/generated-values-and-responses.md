@@ -61,8 +61,8 @@ String backing. `case lower|upper` applies only to String uuid/uuidv7, ulid and
 hex/base32 bytes; it never changes the prefix. `alphabet "chars"` replaces
 NanoID's alphabet with 2–256 distinct printable ASCII characters (the repertoire
 has only 95). TypeID has its own prefix and accepts none of these modifiers.
-Time and prefixes add no entropy. Below 64 random bits is PLAY0683 for an
-identifier; non-identifiers warn PLAY0684 unless a single-property unique
+Time and prefixes add no entropy. Below 64 random bits is PLAY0684 (error) for an
+identifier; non-identifiers warn PLAY0683 unless a single-property unique
 constraint covers the mapped event property. That suppression does not make
 Stage render generated unique-constraint mappings.
 
@@ -131,10 +131,13 @@ Time-based factories use wall clock, not command-receipt timestamps.
 | Refusal | Still unsupported |
 | --- | --- |
 | STAGE-ESM-028 | Unknown strategies, non-concepts, optional/collection generation; every explicit strategy on the legacy syntax engine |
-| STAGE-ESM-011 | Invalid v15 fixture shape; clock/sequence fixtures remain unsupported |
+| STAGE-ESM-011 | A v15 fixture that does not match its strategy shape |
 | STAGE-ESM-038 | Routing combined with generation/responses; generated-property rules/requirements or concept rules; occurrence parameter/response/factory name collisions; unsupported response sources/composites/collections; generated unique-constraint mappings; generated identifier plus destination-less plain production |
 | STAGE-ESM-038 | Unpinned generation with unordered event, read-model or query expectations |
 | STAGE-ESM-004 / -006 | Multi-command StateChange slices / conditional productions |
+
+Sequence generation is refused at binding (PLAY0682) and never reaches Stage;
+clock fixtures remain unsupported.
 
 Missing pins in generated Debug specs use `AllowGeneration()` with relational
 assertions against captured values; v15 captures also check strategy shape.

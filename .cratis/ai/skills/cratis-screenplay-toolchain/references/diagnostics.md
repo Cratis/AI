@@ -327,7 +327,7 @@ or V4 execution. Run the CLI or MCP for those verdicts. Authority:
 | PLAY0479 (I) | legacy `?` optional |
 | PLAY0480/0484 | modifier order `Type optional generated identifier` |
 | PLAY0682 | `generate sequence` is reserved; keep the intended sequence as a capability gap |
-| PLAY0683/0684 | generated identifier below 64 random bits is an error; non-identifier entropy warning (single-property uniqueness may suppress it) |
+| PLAY0683/0684 | PLAY0683: generated non-identifier below 64 random bits warns (a single-property unique constraint suppresses it); PLAY0684: generated identifier below 64 random bits is an error |
 | PLAY0685 | own response name used under execute failure; outer successful responses remain available. Screenplay 4.148.0, UI composition `references/response-continuations.md` |
 | PLAY0289 | (binding) no documents: empty root |
 
