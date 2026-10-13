@@ -5,10 +5,11 @@
 #   1. Generated files      — anything whose header marks it as Cratis-generated output
 #                             (.cratis/ai/rules/general.md rule 15 [contract])
 #   2. Dependency manifests — Directory.Packages.props, global.json, lockfiles, NuGet config
+#                             (allowed by default for a github.com/Cratis origin)
 #   3. Environment files    — .env and friends (secrets)
 #
-# 2 and 3 come from the Source-of-Truth Discipline rule: "Don't change dependency manifests /
-# lockfiles / global.json / NuGet config unless explicitly asked."
+# .cratis/ai.json allowDependencyManifestWrites overrides only the manifest policy:
+# true allows them in any repository; false blocks them even in a Cratis repository.
 #
 # Escape hatch for the "unless explicitly asked" case — the user asks, you set it for the call:
 #   CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1
@@ -33,7 +34,30 @@ file="$(hook_json "$input" '.tool_input.file_path')"
 [ -n "$file" ] || file="$(hook_json "$input" '.tool_input.notebook_path')"
 [ -n "$file" ] || exit 0
 
+# Lexically normalize before any Git lookup or parent walk, including nonexistent segments.
+# Component parsing preserves spaces and glob characters without depending on realpath.
+normalize_target_path() {
+    local remaining="$1" normalized="" component
+    while [ -n "$remaining" ]; do
+        component="${remaining%%/*}"
+        if [ "$remaining" = "$component" ]; then
+            remaining=""
+        else
+            remaining="${remaining#*/}"
+        fi
+        case "$component" in
+            "" | .) ;;
+            ..) normalized="${normalized%/*}" ;;
+            *) normalized="$normalized/$component" ;;
+        esac
+    done
+    printf '%s\n' "${normalized:-/}"
+}
+
 file="$(hook_abspath "$file" "$cwd")"
+file="$(normalize_target_path "$file")"
+# Pi can run the bundled script in a consumer checkout; this root is only for diagnostics.
+root="$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || printf '%s\n' "$cwd")"
 rel="$(hook_relpath "$file" "$root")"
 base="$(basename "$file")"
 
@@ -66,12 +90,38 @@ if [ -n "$new_content" ] \
 fi
 
 # ── 2. Dependency manifests, lockfiles, SDK and NuGet configuration ───────────
+manifest_writes_allowed() {
+    local setting="" origin directory policy_root
+    # Authorization belongs to the write target, which may be outside the session's checkout.
+    # New files can have nonexistent parents; find their nearest existing directory first.
+    directory="$(dirname "$file")"
+    while [ ! -d "$directory" ]; do
+        [ "$directory" != "/" ] || return 1
+        directory="$(dirname "$directory")"
+    done
+    # Follow existing directory symlinks before asking Git which repository owns the target.
+    directory="$(cd -P "$directory" 2>/dev/null && pwd -P)" || return 1
+    policy_root="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null)" || return 1
+    if [ -f "$policy_root/.cratis/ai.json" ]; then
+        # Only actual booleans override the default; jq's `// empty` would discard false.
+        setting="$(jq -r '.allowDependencyManifestWrites | select(type == "boolean") | tostring' "$policy_root/.cratis/ai.json" 2>/dev/null || true)"
+    fi
+    case "$setting" in
+        true) return 0 ;;
+        false) return 1 ;;
+    esac
+    origin="$(git -C "$policy_root" remote get-url origin 2>/dev/null || true)"
+    # Anchor host, owner and the single repository segment; never infer ownership from profiles.
+    printf '%s\n' "$origin" | LC_ALL=C grep -Eiq '^(https://github\.com/|git@github\.com:|ssh://git@github\.com(:[0-9]+)?/)cratis/[a-z0-9_.-]+/?$'
+}
+
 case "$base" in
     Directory.Packages.props | global.json | NuGet.config | NuGet.Config | nuget.config \
         | yarn.lock | package-lock.json | pnpm-lock.yaml | packages.lock.json)
+        if manifest_writes_allowed; then exit 0; fi
         block \
             "'$base' is a dependency manifest / lockfile / SDK or NuGet configuration file. .cratis/ai/rules/general.md (Source-of-Truth Discipline): don't change these unless explicitly asked." \
-            "If the user explicitly asked for this change, re-run the tool call with CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 exported. Otherwise take the dependency as given and solve the problem in source."
+            "To allow dependency updates for this repository, set allowDependencyManifestWrites to true in .cratis/ai.json. If the user explicitly asked for this change, re-run the tool call with CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 exported. Otherwise take the dependency as given and solve the problem in source."
         ;;
 esac
 
