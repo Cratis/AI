@@ -3,7 +3,7 @@
 
 ## Read models and projections
 
-Verified at `Cratis/Chronicle.TypeScript` **v6.51.0**:
+Source: `Cratis/Chronicle.TypeScript`:
 `Source/readModels/IReadModels.ts`, `indexDecorator.ts`,
 `Source/projections/modelBound/**`, `declarative/**`, and
 `Source/events/constraints/**`.
@@ -32,7 +32,7 @@ Verified at `Cratis/Chronicle.TypeScript` **v6.51.0**:
   implementing `IProjectionFor<TReadModel>` with
   `define(builder: IProjectionBuilderFor<TReadModel>): void`.
 
-Chronicle's `@readModel()` is deprecated since 6.7.0: infer the read model from
+Chronicle's `@readModel()` is deprecated: infer the read model from
 mappings or the type supplied to projection/reducer registration. A custom id
 uses `static readonly readModelId = 'custom-id'`. This does **not** deprecate
 Arc's separate `@readModel()` query marker.
@@ -55,7 +55,7 @@ Arc's separate `@readModel()` query marker.
 ### Append-time constraints
 
 `@unique()` and repeatable `@removeConstraint(name)` are exported from
-`@cratis/chronicle` and `@cratis/chronicle/events` since 6.8.0.
+`@cratis/chronicle` and `@cratis/chronicle/events`.
 `@unique(name?, message?)` or `@unique({ name, message, eventSequences })`
 marks a property unique across sources, or a class unique per source.
 Same-named declarations merge; conflicting scopes throw.

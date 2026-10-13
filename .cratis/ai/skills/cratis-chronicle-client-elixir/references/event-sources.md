@@ -3,7 +3,7 @@
 
 # Event sources and streams
 
-Verified at `Cratis/Chronicle.Elixir v3.10.2`: `Source/chronicle/lib/chronicle/event_sources/event_source.ex`, `event_sources/routing.ex`, `event_sequences/definition_routing.ex`, and `Documentation/event-sources.md`. Definitions require **Chronicle 19.30.0+**.
+Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/event_sources/event_source.ex`, `event_sources/routing.ex`, `event_sequences/definition_routing.ex`, and `Documentation/event-sources.md`. Definitions need a kernel that supports named event source definitions.
 
 An event source definition gives appends a stable name, optional streams and default concurrency dimensions. It belongs to the append, not the event type; the same event type can go through different definitions. Appends without a definition keep their existing routing and have no registered-source metadata.
 

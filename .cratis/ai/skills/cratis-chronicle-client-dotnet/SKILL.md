@@ -16,19 +16,17 @@ There is no host requirement and no application architecture imposed.
 
 ## Verified product sources
 
-Verified against `Cratis/Chronicle` **v19.50.1**. The client surface is unchanged
-from v19.50.0; earlier release numbers identify feature availability.
+Source: `Cratis/Chronicle`.
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `19.50.1` | `ChronicleClient`, `IEventStore`, `[EventType]`, observers |
-| `Cratis.Chronicle.Connections` | `19.50.1` | `ChronicleConnectionString`, connection lifecycle |
-| `Cratis.Chronicle.AspNetCore` | `19.50.1` | ASP.NET Core wiring, header/subdomain namespace resolvers |
-| `Cratis.Chronicle.Testing` | `19.50.1` | in-process scenarios |
-| `Cratis.Chronicle.CodeAnalysis` | `19.50.1` | CHR analyzers, distributed as a client dependency |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `ChronicleClient`, `IEventStore`, `[EventType]`, observers |
+| `Cratis.Chronicle.Connections` | `ChronicleConnectionString`, connection lifecycle |
+| `Cratis.Chronicle.AspNetCore` | ASP.NET Core wiring, header/subdomain namespace resolvers |
+| `Cratis.Chronicle.Testing` | in-process scenarios |
+| `Cratis.Chronicle.CodeAnalysis` | CHR analyzers, distributed as a client dependency |
 
 Take the version from nuget.org, not the `1.0.0` source pack-time placeholder.
-Reverify before claiming another version.
 
 ## Lifecycle
 
@@ -91,7 +89,7 @@ dotnet add package Cratis.Chronicle              # console / worker service
 dotnet add package Cratis.Chronicle.AspNetCore   # ASP.NET Core
 ```
 
-Since 19.4.8, `Cratis.Chronicle` brings `Cratis.Chronicle.CodeAnalysis` as a
+`Cratis.Chronicle` brings `Cratis.Chronicle.CodeAnalysis` as a
 package dependency: consumers receive the CHR analyzers without opting in.
 The package id is still separate; Chronicle does not run these analyzers over
 its own generic client plumbing. Source: `Source/Clients/DotNET/DotNET.csproj`.
@@ -140,7 +138,7 @@ on development kernels; production always enforces it.
 **There is no `ChronicleUrl` type and no microservice id.** The identity of a
 connection is a connection string plus an event store name and optionally a
 namespace. `ChronicleConnectionString` lives in `Cratis.Chronicle.Connections`
-(`Source/Clients/Connections/ChronicleConnectionString.cs:33`):
+(`Source/Clients/Connections/ChronicleConnectionString.cs`):
 
 ```
 chronicle://host[:port]/?opts
@@ -161,10 +159,10 @@ client also falls back to these development credentials, including through
 application, directly in persistent storage. Switching that storage to a
 production image does not remove it: remove the development application and any
 configuration declaration that would recreate it. Do not infer other clients'
-authentication behavior from this one. Verified at **v19.50.0**:
-`Source/Clients/DotNET/ChronicleClient.cs:334-345`,
-`Source/Clients/Connections/ServiceCollectionExtensions.cs:57-68`, and
-`Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs:170-208`.
+authentication behavior from this one. Source:
+`Source/Clients/DotNET/ChronicleClient.cs`,
+`Source/Clients/Connections/ServiceCollectionExtensions.cs`, and
+`Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs`.
 Read [host wiring](references/hosting.md) for the deployment distinction.
 
 > **Certificate validation is skipped by default, and that is deliberate.** The
@@ -188,9 +186,8 @@ Read [references/hosting.md](references/hosting.md) when wiring Chronicle into a
 
 `ChronicleOptions.EventGenerationDelivery` defaults to `Compatibility`. Opt in
 with `EventGenerationDelivery.Pinned` (`Cratis.Chronicle.Observation`) **before
-connecting**. Reactors/reducers receive their handler's CLR event generation
-(**19.41.0+**); typed materialized projections use each clause's CLR generation
-(**19.48.0+**), reverified at **19.50.0**.
+connecting**. Reactors/reducers receive their handler's CLR event generation;
+typed materialized projections use each clause's CLR generation.
 
 Read [references/pinned-generation-delivery.md](references/pinned-generation-delivery.md)
 for compiling standalone/host configuration, registration constraints, and the
@@ -214,7 +211,7 @@ public record <EventName>(<Type> <Property>);
 ```
 
 `EventTypeAttribute` is in `Cratis.Chronicle.Events` —
-`Source/Clients/DotNET/Events/EventTypeAttribute.cs:20`:
+`Source/Clients/DotNET/Events/EventTypeAttribute.cs`:
 
 ```csharp
 public sealed class EventTypeAttribute(string id = "", uint generation = EventTypeGeneration.FirstValue) : Attribute
@@ -227,13 +224,13 @@ public sealed class EventTypeAttribute(string id = "", uint generation = EventTy
 For a new event, pass nothing: the type name is the identifier. Use `generation`
 only when evolving a contract that already exists, and prefer
 `EventTypeGenerationForAttribute<TEventType>` over a second `[EventType]` — the
-guidance is in the attribute's own remarks (`EventTypeAttribute.cs:14-18`).
+guidance is in the attribute's own remarks (`EventTypeAttribute.cs`).
 
 ## Appending
 
 `IEventLog : IEventSequence` is a marker
-(`Source/Clients/DotNET/EventSequences/IEventLog.cs:9`); the surface is on
-`IEventSequence` (`Source/Clients/DotNET/EventSequences/IEventSequence.cs:14`):
+(`Source/Clients/DotNET/EventSequences/IEventLog.cs`); the surface is on
+`IEventSequence` (`Source/Clients/DotNET/EventSequences/IEventSequence.cs`):
 
 ```csharp
 Task<AppendResult> Append(                                   // :115
@@ -252,7 +249,7 @@ Task<AppendManyResult> AppendMany(EventSourceId eventSourceId, IEnumerable<objec
 Task<AppendManyResult> AppendMany(IEnumerable<EventForEventSourceId> events, /* ... */);                            // :167
 ```
 
-Event source definitions (Chronicle 19.30.0 and later): a never-instantiated type marked
+Event source definitions: a never-instantiated type marked
 `IEventSource`, named by `[EventSource(name)]` (default: the type name without a trailing
 `EventSource`) and declaring streams with `[EventStream(name)]` (all in
 `Cratis.Chronicle.EventSources`; both take `Description` and `Concurrency`). Append through
@@ -287,11 +284,11 @@ if (!result.IsSuccess)
 
 - `EventSourceId` is a `record EventSourceId(string Value) : ConceptAs<string>`
   with implicit conversion from `string` and `Guid`
-  (`Source/Clients/DotNET/Events/EventSourceId.cs:12`, `:37`, `:44`).
+  (`Source/Clients/DotNET/Events/EventSourceId.cs`).
 - `AppendResult` carries `SequenceNumber`, `IsSuccess`,
   `HasConstraintViolations`, `HasConcurrencyViolations`, `HasErrors`,
   `ConstraintViolations`, `ConcurrencyViolation`, `Errors`, and the routing facts
-  (`Source/Clients/DotNET/EventSequences/AppendResult.cs:13-59`).
+  (`Source/Clients/DotNET/EventSequences/AppendResult.cs`).
 - The `IEnumerable<EventForEventSourceId>` overload is the way to append across
   several event sources in one batch.
 - **There is no `AppendAnonymous`.** It does not exist anywhere in the product.
@@ -315,22 +312,22 @@ await unitOfWork.Commit();
 ```
 
 `ITransactionalEventSequence` returns `Task`, not a result
-(`Source/Clients/DotNET/EventSequences/ITransactionalEventSequence.cs:33`); the
+(`Source/Clients/DotNET/EventSequences/ITransactionalEventSequence.cs`); the
 results live on the unit of work.
 
 ## Observing
 
 | Artifact | Shape | Source |
 | --- | --- | --- |
-| Reactor | marker `IReactor` (empty interface), `[Reactor]` optional | `Reactors/IReactor.cs:9`, `Reactors/ReactorAttribute.cs:14` |
-| Reducer | `IReducerFor<TReadModel>` | `Reducers/IReducerFor.cs:10` |
-| Projection | `IProjectionFor<TReadModel>` with `Define(IProjectionBuilderFor<TReadModel>)` | `Projections/IProjectionFor.cs:10-17` |
+| Reactor | marker `IReactor` (empty interface), `[Reactor]` optional | `Reactors/IReactor.cs`, `Reactors/ReactorAttribute.cs` |
+| Reducer | `IReducerFor<TReadModel>` | `Reducers/IReducerFor.cs` |
+| Projection | `IProjectionFor<TReadModel>` with `Define(IProjectionBuilderFor<TReadModel>)` | `Projections/IProjectionFor.cs` |
 | Model-bound projection | attributes on the read model | `Projections/ModelBound/` |
-| Read model reactor | marker `IReadModelReactor`, methods `Added`/`Modified`/`Removed` | `ReadModels/IReadModelReactor.cs:10-18` |
+| Read model reactor | marker `IReadModelReactor`, methods `Added`/`Modified`/`Removed` | `ReadModels/IReadModelReactor.cs` |
 
 **A reactor handler is found by its first parameter's type**, and further
 parameters are resolved as dependencies — `EventContext`, a read model, a service
-(`Source/Clients/DotNET/Reactors/EventHandlerMethods.cs:21-46`, `:89-103`). The
+(`Source/Clients/DotNET/Reactors/EventHandlerMethods.cs`). The
 return may be `Task`, `void`, or a side-effect event type.
 
 ```csharp
@@ -353,10 +350,10 @@ public class <ReactorName>(<IDependency> <dependency>) : IReactor
 
 Read models are queried through `eventStore.ReadModels`
 (`Source/Clients/DotNET/ReadModels/IReadModels.cs`):
-`GetInstanceById<TReadModel>(ReadModelKey, ReadModelSessionId?)` (`:38`),
-`GetInstances<TReadModel>(EventCount?)` (`:55`),
-`GetSnapshotsById<TReadModel>` (`:63`),
-`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()` (`:70`).
+`GetInstanceById<TReadModel>(ReadModelKey, ReadModelSessionId?)`,
+`GetInstances<TReadModel>(EventCount?)`,
+`GetSnapshotsById<TReadModel>`,
+`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()`.
 
 ## Discovery
 
@@ -377,7 +374,7 @@ Read [references/discovery.md](references/discovery.md) when an event type, reac
 | Polling `IsConnected` to know it is ready | Connected is not registered; use `WaitForRegistration` |
 | Treating a quiet reactor as "no events yet" | Keepalive loss stops observers while appends keep succeeding |
 | Returning from `Main` after appending | The observation stream dies with the process |
-| Assuming no CHR analyzers without an explicit reference | The client brings `Cratis.Chronicle.CodeAnalysis` transitively since 19.4.8 |
+| Assuming no CHR analyzers without an explicit reference | The client brings `Cratis.Chronicle.CodeAnalysis` transitively |
 | Copying a version out of the repository | It is a `1.0.0` placeholder; take it from nuget.org |
 
 ## Verify

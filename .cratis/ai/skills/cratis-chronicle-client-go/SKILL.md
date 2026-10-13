@@ -10,9 +10,8 @@ compatibility: Go 1.26 or later; Chronicle.Go v0.9.1 with the Chronicle 19.32.3 
 
 # Chronicle from Go
 
-> **Experimental v0:** Chronicle.Go **v0.9.1**, verified kernel profile
-> **Chronicle 19.32.3**. Companion guidance targets Arc.Go **v0.1.1** and
-> Fundamentals.Go **v0.3.2**. Minor releases may break APIs.
+> **Experimental v0:** minor releases may break APIs; pin the module version you test against.
+> Companion guidance: Arc.Go and Fundamentals.Go.
 
 This is a standalone event-store client, not an Arc HTTP framework. Use explicit
 registration rather than C# attributes or assembly discovery. Events are immutable
@@ -21,19 +20,19 @@ not an event payload property.
 
 ## Verified product sources
 
-| Product | Tag | Source checked |
-| --- | --- | --- |
-| Chronicle.Go (`github.com/cratis/chronicle.go`) | `v0.9.1` | `client.go`, `options.go`, `options_transport.go`, `registry.go`, `registry_projections.go`, `registry_readmodels.go`, `registry_reactors.go`, `eventsequences/sequence.go`, `internal/decision/decision.go`, `captures/service.go`, `captures/redaction.go`, `examples/getting-started/main.go`, `examples/projections/main.go` |
+| Product | Source checked |
+| --- | --- |
+| Chronicle.Go (`github.com/cratis/chronicle.go`) | `client.go`, `options.go`, `options_transport.go`, `registry.go`, `registry_projections.go`, `registry_readmodels.go`, `registry_reactors.go`, `eventsequences/sequence.go`, `internal/decision/decision.go`, `captures/service.go`, `captures/redaction.go`, `examples/getting-started/main.go`, `examples/projections/main.go` |
 
-[Source at v0.9.1](https://github.com/Cratis/Chronicle.Go/tree/v0.9.1)
-and its [parity ledger](https://github.com/Cratis/Chronicle.Go/blob/v0.9.1/Documentation/parity.md)
-qualify supported behavior. The README's older statement that observers,
+[Source](https://github.com/Cratis/Chronicle.Go)
+and its [parity document](https://github.com/Cratis/Chronicle.Go/blob/main/Documentation/parity.md)
+qualify supported behavior. A README that says observers,
 projections and automatic lifecycle recovery are absent is stale; those surfaces
 exist, but that does **not** mean whole-product parity.
 
 ## Register and append
 
-Install `github.com/cratis/chronicle.go@v0.9.1` in a consumer module. This complete
+Install `github.com/cratis/chronicle.go` at your chosen release in a consumer module. This complete
 package appends one event using **local development** defaults:
 
 ```go
@@ -88,7 +87,7 @@ concurrency/idempotency semantics before retrying, never a generic write retry.
 Use stable persisted event IDs and explicit `json` names for cross-language data.
 
 For a runnable program and its observable append position, use the tagged
-[getting-started example](https://github.com/Cratis/Chronicle.Go/blob/v0.9.1/examples/getting-started/main.go).
+[getting-started example](https://github.com/Cratis/Chronicle.Go/blob/main/examples/getting-started/main.go).
 This compileable package does not itself start a kernel or prove a successful append.
 
 ## Connection and gRPC ownership
@@ -132,15 +131,15 @@ recreating effect dispatch; use projections for materialization, reactors for ef
 `reactors.OnceOnly` excludes replay; it does **not** deduplicate failed-partition
 recovery. Effects may repeat after errors, cleanup failures or reconnect. Keep them
 idempotent. The kernel owns recovery/quarantine and progress; do not invent resume
-positions or acknowledge before successful processing and cleanup. Read the tagged
-[reactor guide](https://github.com/Cratis/Chronicle.Go/blob/v0.9.1/Documentation/reactors.md)
+positions or acknowledge before successful processing and cleanup. Read the
+[reactor guide](https://github.com/Cratis/Chronicle.Go/blob/main/Documentation/reactors.md)
 for exact effect, replay and registration-readiness limits.
 
 ## Unsupported does not mean success
 
-Decision guards require the verified 19.32.3 profile and compatibility preflight;
+Decision guards require a supported kernel profile and compatibility preflight;
 unsupported kernels return `ErrUnsupported`. Protected operations have their own
-19.32.x capability gates; this release supports qualified protected revisions and
+kernel capability gates; the client supports qualified protected revisions and
 classified read-model replay routes, not every protected watch/profile.
 Do not use the deprecated `readmodels.DecisionProtectedModel` or
 `DecisionProtectionMetadata` compatibility hooks for new work.
@@ -158,5 +157,4 @@ pretend a rejected configuration was applied.
   profiles; pure decisions can use standard `testing` directly.
 - Exercise registration, cancellation, reconnect, borrowed connections and joined
   cleanup against the pinned kernel before claiming runtime parity.
-- Chronicle.Go v0.9.1 requires Fundamentals.Go v0.1.0; the separate concepts skill's
-  v0.3.2 pin is not a required dependency upgrade.
+- Check the module's `go.mod` for the Fundamentals.Go it requires; the separate concepts skill is not a required dependency upgrade.
