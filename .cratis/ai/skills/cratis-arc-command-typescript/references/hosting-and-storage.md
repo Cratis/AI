@@ -10,7 +10,7 @@
 - Observable-query WebSockets from a dev server
 - Storage integrations
 
-Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release): `Documentation/overview.md`, `hosts/**`,
+Source: `Cratis/Arc.TypeScript` (source preview): `Documentation/overview.md`, `hosts/**`,
 `mongodb/getting-started.md`, `sql/getting-started.md`,
 `chronicle/registration-options.md`, and the `Express`, `Fastify`, `Hono`,
 `MongoDB`, `Drizzle` and `Chronicle` package exports. None of these packages is
@@ -39,9 +39,9 @@ export const arc = await builder.build();
 | --- | --- | --- |
 | Standalone Node host | `@cratis/arc.core`: `app.run()` or `app.start()` | none |
 | Your own `node:http`/`node:https` server | `@cratis/arc.core`: `createArcNodeHandler(server)` | none |
-| Express 5 | `@cratis/arc.express`: `app.use(cratisArc(arc))` | `express` `^5.0.0` |
-| Fastify 5 | `@cratis/arc.fastify`: `app.register(cratisArc, { arc })` | `fastify` `^5.0.0` |
-| Hono 4 | `@cratis/arc.hono`: `app.use(cratisArc(arc))`; Node: `serveCratisArc` | `hono` `^4.0.0`; optional `@hono/node-server` `^1.19.11` |
+| Express 5 | `@cratis/arc.express`: `app.use(cratisArc(arc))` | `express` |
+| Fastify 5 | `@cratis/arc.fastify`: `app.register(cratisArc, { arc })` | `fastify` |
+| Hono 4 | `@cratis/arc.hono`: `app.use(cratisArc(arc))`; Node: `serveCratisArc` | `hono`; optional `@hono/node-server` |
 | Fetch API host | `@cratis/arc.core/fetch`: `app.fetch(request)` | none |
 
 Every adapter dispatches only exact raw-path matches on a fixed internal origin
@@ -170,9 +170,9 @@ adds a builder method when imported; the exported function form is equivalent.
 
 | Integration | Register | Inject |
 | --- | --- | --- |
-| MongoDB (`@cratis/arc.mongodb`, peer `mongodb` `^6.21.0`) | `import '@cratis/arc.mongodb'; builder.withMongoDB({ client, databaseNameResolver, readModels: [TaskRecord] })` or `withMongoDB(builder, options)` | `service(mongoCollection(TaskRecord))` in `@query`, or `@inject(mongoCollection(TaskRecord))`; `commandReadModel(TaskRecord)` in commands |
-| SQL through Drizzle (`@cratis/arc.drizzle`, peers `drizzle-orm` `^0.45.0` and `rxjs` `^7.8.2`) | `import '@cratis/arc.drizzle'; builder.withDrizzle({ dialect: DrizzleDialect.SQLite, database, readModels: [{ type: TaskRecord, table: tasks }] })` | `service(drizzleReadModel(TaskRecord))` for read-only query handles; `@inject(drizzleDatabase<SQLJsDatabase>())` for a writable handle in commands; `commandReadModel(TaskRecord)` |
-| Chronicle (`@cratis/arc.chronicle`, experimental, peer `@cratis/chronicle` `^6.29.0`) | `import '@cratis/arc.chronicle'; builder.withChronicle({ connectionString, eventStore })` or `withChronicle(builder, options)` | Commands return events; queries take `service(ChronicleReadModels)`; `commandReadModel(Type)` |
+| MongoDB (`@cratis/arc.mongodb`, peer `mongodb`) | `import '@cratis/arc.mongodb'; builder.withMongoDB({ client, databaseNameResolver, readModels: [TaskRecord] })` or `withMongoDB(builder, options)` | `service(mongoCollection(TaskRecord))` in `@query`, or `@inject(mongoCollection(TaskRecord))`; `commandReadModel(TaskRecord)` in commands |
+| SQL through Drizzle (`@cratis/arc.drizzle`, peers `drizzle-orm` and `rxjs`) | `import '@cratis/arc.drizzle'; builder.withDrizzle({ dialect: DrizzleDialect.SQLite, database, readModels: [{ type: TaskRecord, table: tasks }] })` | `service(drizzleReadModel(TaskRecord))` for read-only query handles; `@inject(drizzleDatabase<SQLJsDatabase>())` for a writable handle in commands; `commandReadModel(TaskRecord)` |
+| Chronicle (`@cratis/arc.chronicle`, experimental, peer `@cratis/chronicle`) | `import '@cratis/arc.chronicle'; builder.withChronicle({ connectionString, eventStore })` or `withChronicle(builder, options)` | Commands return events; queries take `service(ChronicleReadModels)`; `commandReadModel(Type)` |
 
 - **MongoDB**: list every injected model in `readModels`; a model left out has
   no collection token. `@key()` marks the field stored as `_id` (otherwise a

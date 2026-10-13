@@ -3,7 +3,7 @@
 
 # Identity, authorization and discovery access
 
-Verified at `Cratis/Arc.TypeScript` **v0.57.2** (GitHub pre-release, not on npm):
+Source: `Cratis/Arc.TypeScript` (GitHub pre-release, not on npm):
 `Source/Core/authentication/**`, `identity/**`, `introspection/**`,
 `Documentation/core/authentication.md`, `authorization.md`,
 `Documentation/identity/**`, `hosts/native-principal.md`, and
@@ -61,7 +61,7 @@ published React identity hooks can display it, but server protection still
 belongs on every operation. Local users/tenants are development fixtures, not
 production credentials; keep simulated identities on loopback hosts.
 
-## Secure introspection defaults (0.56.0+)
+## Secure introspection defaults
 
 `/.cratis/commands`, `/.cratis/queries`, `/.cratis/identity-details/schema`,
 `/.cratis/users`, `/.cratis/tenants`, and `/openapi.json` are anonymous only in

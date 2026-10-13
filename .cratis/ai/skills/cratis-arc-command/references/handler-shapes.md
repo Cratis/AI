@@ -9,8 +9,7 @@
 - Cross-stream appends
 - Failure shapes
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc.Chronicle` **v22.75.0**
-(Chronicle dependency 19.39.1). Sources: `Source/DotNET/Arc.Core/Commands/CommandPipeline.cs`,
+Source: `Cratis.Arc.Core` and `Cratis.Arc.Chronicle`. Sources: `Source/DotNET/Arc.Core/Commands/CommandPipeline.cs`,
 `CommandOperationExecution.cs` and `Source/DotNET/Chronicle/Commands/CommandContextExtensions.cs`.
 Read [decisions and routing](decisions-and-routing.md) for guarded reads,
 stream templates, tags and post-commit completion.
@@ -137,8 +136,8 @@ public IEnumerable<object> Handle() =>
 `EventStreamId` init members when the target stream is not the default.
 Explicit wrapper routing wins over command-context routing in every return shape.
 
-A command that always appends through a Chronicle event source definition (Arc 22.49.0
-and later, definitions from Chronicle 19.30.0) declares it with
+A command that always appends through a Chronicle event source definition (Requires Arc 22.49.0
+and a kernel that supports definitions) declares it with
 `[EventSource<TSource>(stream)]` from `Cratis.Arc.Chronicle.Commands`; the definition
 supplies the event source type and validates the optional stream name:
 

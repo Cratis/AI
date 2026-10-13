@@ -10,7 +10,7 @@
 - Recovery follows commit facts
 - Chronicle aggregates (experimental)
 
-Verified at `Cratis/Arc.TypeScript` **v0.57.2** (source preview, not on npm):
+Source: `Cratis/Arc.TypeScript` (source preview, not on npm):
 `Source/Core/commands/CommandOperation.ts`, operation execution/recovery code,
 `Source/Chronicle/ChronicleCommandScope.ts`, `commandAggregate.ts`,
 `Documentation/commands/operations/reference.md`, and
@@ -111,4 +111,4 @@ tail is captured at load and appended as an exact concurrency scope; another
 append to the route rejects the entire batch. Projection reads may lag this
 rehydrated state. Use ChronicleKernelScenario for aggregate/concurrency specs,
 not the in-memory scenario. Registered event-source-definition routing for Arc
-commands/aggregates is **not** part of v0.57.2.
+commands/aggregates is **not** supported.

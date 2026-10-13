@@ -7,7 +7,7 @@
 - Client side
 - Executing with a severity
 
-Verified against `Cratis.Arc.Core` and `@cratis/arc` **v22.75.0**.
+Source: `Cratis.Arc.Core` and `@cratis/arc`.
 Sources: `Source/DotNET/Arc.Core/Commands/CommandResult.cs`,
 `CommandValidationResults.cs` and `Source/JavaScript/Arc/commands/Command.ts`.
 

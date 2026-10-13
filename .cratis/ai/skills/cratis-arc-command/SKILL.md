@@ -24,27 +24,23 @@ or a combination.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.Core` | `22.75.0` | `Cratis.Arc.Commands.ModelBound.CommandAttribute`, `CommandResult`, `CommandValidator<T>` |
-| `Cratis.Arc.Chronicle` | `22.75.0` | event append handling, `Cratis.Arc.Chronicle.Commands.NotAuditedAttribute` |
-| `Cratis.Arc.ProxyGenerator.Build` | `22.75.0` | `CratisProxiesOutputPath` MSBuild integration |
-| `Cratis.Fundamentals` | `7.23.0` | `Cratis.Monads.Result<TResult, TError>` |
-| `Cratis.Chronicle` | `18.3.0` | `EventTypeAttribute`, `EventForEventSourceId`, `ICanProvideEventSourceId` |
-| `@cratis/arc` | `22.75.0` | `ICommand`, `CommandResult`, `ValidationResult` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.Core` | `Cratis.Arc.Commands.ModelBound.CommandAttribute`, `CommandResult`, `CommandValidator<T>` |
+| `Cratis.Arc.Chronicle` | event append handling, `Cratis.Arc.Chronicle.Commands.NotAuditedAttribute` |
+| `Cratis.Arc.ProxyGenerator.Build` | `CratisProxiesOutputPath` MSBuild integration |
+| `Cratis.Fundamentals` | `Cratis.Monads.Result<TResult, TError>` |
+| `Cratis.Chronicle` | `EventTypeAttribute`, `EventForEventSourceId`, `ICanProvideEventSourceId` |
+| `@cratis/arc` | `ICommand`, `CommandResult`, `ValidationResult` |
 
-> Arc surface rechecked at v22.75.0, including the source-pinned references below.
-> Arc's package dependency is Chronicle 19.39.1 / Fundamentals 7.23.0; separately
-> version-qualified Chronicle/Fundamentals claims retain their own verification.
 
-Fundamentals rechecked at v7.23.0 in
-[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
+Fundamentals:
+[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/main/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
 success is first, error second, with implicit conversions from both types.
 
-Reverify before claiming support for another version. Arc without Chronicle is a
+Arc without Chronicle is a
 supported setup; everything on this page that appends events needs Chronicle.
-Operation guidance below is rechecked at **Arc v22.75.0**; see
-`cratis-arc-command-operation` for its source and recovery contract.
+See `cratis-arc-command-operation` for the operation source and recovery contract.
 
 ## Declare the command
 
@@ -172,20 +168,22 @@ public record Transfer(<AccountId> From, <AccountId> To, <Money> Amount)
 
 ## Generate a server-owned new identifier
 
-**Arc 22.66.0+**: replace local `New()` with a `[GeneratedValue]` Handle parameter,
+Requires Arc 22.66.0 for `[GeneratedValue]`.
+
+Replace local `New()` with a `[GeneratedValue]` Handle parameter,
 never a request property. Use a non-nullable self-generatable concept and a unique,
 case-sensitive generated name. Return the value explicitly if the caller needs it.
 Read [generated values](references/generated-values.md) for Provide/DI boundaries,
-validation/captures, ARC0022–ARC0025, migration and named pins; newer context
-factories are version-qualified in the shop reference below.
+validation/captures, ARC0022–ARC0025, migration and named pins; context
+factories are covered in the shop reference below.
 
 ## Choosing a strategy
 
 Use the [threaded shop example](references/shop-generation.md): CustomerId
 (`cus_` + ULID), context-aware TypeID OrderId, NanoID InviteCode and secret
-`Bytes(32)` ApiKey. Arc 22.87.1 resolves Fundamentals 7.24.0 and passes captured
-received time/tenant to context factories; released Clock/Tenant scenario setup
-is shown there. Earlier version-qualified examples above remain unchanged.
+`Bytes(32)` ApiKey. Context factories receive captured
+received time/tenant (Requires Arc 22.87.1); Clock/Tenant scenario setup
+is shown there.
 
 ## When not to generate
 
@@ -272,7 +270,7 @@ property is added.
 | Marking | Use for | Effect |
 | --- | --- | --- |
 | `[PII]` (Chronicle) | personal data | encrypted in the event and enrolled in erasure; already withheld from causation |
-| `[Encrypted]` (Chronicle, `Cratis.Chronicle.ProtectedValues`, 19.32.0+) | an operational secret the system retains — a third-party API key, a company's bank account number | encrypted at rest on the event, no erasure; does not withhold it from causation |
+| `[Encrypted]` (Chronicle, `Cratis.Chronicle.ProtectedValues`) | an operational secret the system retains — a third-party API key, a company's bank account number | encrypted at rest on the event, no erasure; does not withhold it from causation |
 | `[NotAudited]` (Arc Chronicle) | the same operational secret, and any credential given as a command input | withheld from causation, nothing else |
 
 A retained operational secret needs **both** `[Encrypted]` and `[NotAudited]`; either alone leaves a gap. A credential used for authentication (password, token) is marked `[NotAudited]` on the command and reaches an event only as a hash or a reference, never encrypted. Never combine `[PII]` with `[Encrypted]` (`CHR0053`).

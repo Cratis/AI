@@ -13,13 +13,13 @@ Everything else is ordinary EF Core.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.EntityFrameworkCore` | `22.75.0` | `BaseDbContext`, `ReadOnlyDbContext`, `WithEntityFrameworkCore`, column helpers, `EntityFrameworkReadModelForCommandResolver` |
-| `Cratis.Arc.Core` | `22.75.0` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute`, `ICanResolveReadModelForCommand` |
-| `Microsoft.EntityFrameworkCore` | `10.0.11` | EF Core itself, including all migration tooling |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.EntityFrameworkCore` | `BaseDbContext`, `ReadOnlyDbContext`, `WithEntityFrameworkCore`, column helpers, `EntityFrameworkReadModelForCommandResolver` |
+| `Cratis.Arc.Core` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute`, `ICanResolveReadModelForCommand` |
+| `Microsoft.EntityFrameworkCore` | EF Core itself, including all migration tooling |
 
-> Arc EF context, builder and observation surface rechecked at v22.75.0.
+> Arc EF context, builder and observation surface rechecked.
 > Verify provider-specific migration behavior against the configured provider.
 
 Reverify before claiming support for another version.
@@ -196,7 +196,7 @@ Auxiliary observations can pass `ignoreQueryContext: true` so only the primary
 uses client paging/sorting and writes totals. `ObserveSingle`/`ObserveById` emit
 `default` when the row is absent/deleted/outside the filter, remaining subscribed.
 Indexer-property keys (shared-type entities) are supported; composite and
-shadow-only keys are refused at setup. Source at Arc v22.75.0:
+shadow-only keys are refused at setup. Source:
 `Source/DotNET/EntityFrameworkCore/Observe/DbSetObserveExtensions.cs`.
 
 ⚠️ Database-level change notification differs by provider: PostgreSQL uses

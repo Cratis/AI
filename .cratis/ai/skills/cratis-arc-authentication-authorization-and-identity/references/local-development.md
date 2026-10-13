@@ -1,6 +1,6 @@
 # Running with an identity locally
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.75.0`.
+Source: `Cratis.Arc.Core` and `Cratis.Arc`.
 
 ## What Arc does not give you
 
@@ -28,11 +28,11 @@ public record User(ClientPrincipal MicrosoftIdentity, object Details);
 public interface ICanProvideUsers { Task<IEnumerable<User>> Provide(); }
 ```
 
-At **v22.75.0**, both follow `Introspection.IdentityDiscovery` and discovery
+Both follow `Introspection.IdentityDiscovery` and discovery
 access settings: anonymous by default only in Development, authenticated elsewhere,
 or unmapped (404) if the host cannot authenticate. Return development fixtures,
 not production users or tenants.
-Source: [secure defaults](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/upgrading/secure-defaults.mdx).
+Source: [secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/upgrading/secure-defaults.mdx).
 
 ## Supplying an identity locally
 
