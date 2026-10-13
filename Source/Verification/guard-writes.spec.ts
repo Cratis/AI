@@ -309,7 +309,7 @@ test('agent controls and installed trees are protected without blocking authored
     const toolCall = piToolCall();
     const controls = ['.claude/settings.json', '.claude/settings.local.json', '.mcp.json', '.pi/settings.json', '.pi/extensions/custom/index.ts'];
     const managed = ['.cratis/ai/hooks/settings.template.json', '.cratis/ai/skills/custom/SKILL.md', '.claude/agents/custom.md', '.pi/agents/custom.md'];
-    const ordinary = ['Source/Ordinary.cs', '.cratis/ai.json', '.claude-like/settings.json', '.pi-like/settings.json', '.mcp.json.backup'];
+    const ordinary = ['Source/Ordinary.cs', '.cratis/ai.json', '.claude-like/settings.json', '.pi-like/settings.json', '.mcp.json.backup', '.claude/skills/x/SKILL.md', '.claude/commands/local.md', '.claude/settings.fragments/local.json', '.pi/skills/x/SKILL.md'];
     try {
         mkdirSync(join(consumer.root, '.cratis', 'ai', 'hooks'), { recursive: true });
         mkdirSync(join(consumer.root, '.claude'), { recursive: true });
@@ -322,9 +322,20 @@ test('agent controls and installed trees are protected without blocking authored
         symlinkSync('.cratis/ai', join(consumer.root, 'corpus-alias'), 'dir');
         symlinkSync('.claude', join(consumer.root, 'claude-alias'), 'dir');
         const controlAliases = ['settings-alias.json', 'claude-alias/settings.local.json'];
-        const managedAliases = ['corpus-alias/skills/new/SKILL.md', 'claude-alias/agents/custom.md'];
+        mkdirSync(join(consumer.root, '.cratis', 'ai', 'skills'), { recursive: true });
+        mkdirSync(join(consumer.root, '.claude', 'skills'), { recursive: true });
+        symlinkSync('../../.cratis/ai/skills', join(consumer.root, '.claude', 'skills', 'shared'), 'dir');
+        const managedAliases = ['corpus-alias/skills/new/SKILL.md', 'claude-alias/agents/custom.md', '.claude/skills/shared/new/SKILL.md'];
         for (const installed of [false, true]) {
-            if (installed) writeFileSync(join(consumer.root, '.cratis', 'ai.manifest.json'), '{}');
+            if (installed) writeFileSync(join(consumer.root, '.cratis', 'ai.manifest.json'), JSON.stringify({
+                SourceRevision: 'fixture',
+                Files: [{ Source: 'agents/custom.md', Destination: 'agents/custom.md', Hash: 'fixture' }],
+                Integrations: [
+                    { Path: '.claude/agents/custom.md', Target: '../../.cratis/ai/agents/custom.md', IsDirectory: false },
+                    { Path: '.pi/agents/custom.md', Target: '../../.cratis/ai/agents/custom.md', IsDirectory: false },
+                    { Path: '.claude/commands/managed', Target: '../../.cratis/ai/prompts', IsDirectory: true },
+                ],
+            }));
             for (const name of [...controls, ...controlAliases, ...managed, ...managedAliases, ...ordinary]) {
                 const expected = installed
                     ? !ordinary.includes(name)
@@ -339,6 +350,27 @@ test('agent controls and installed trees are protected without blocking authored
                     const bridged = await toolCall({ toolName, input: { path, content: 'x', edits: [{ oldText: 'a', newText: 'b' }] } }, { cwd: source.root }) as { block?: boolean } | undefined;
                     assert.equal(bridged?.block === true, expected, `Pi: ${installed}, ${name}`);
                 }
+            }
+        }
+        const managedChild = join(consumer.root, '.claude', 'commands', 'managed', 'ship.md');
+        assert.equal(runGuard({ tool_input: { file_path: managedChild, content: 'x' } }, source.root).verdict, BLOCK, 'a listed directory owns its children');
+        assert.equal(runGuard({ tool_input: { file_path: join(consumer.root, '.claude', 'commands', 'managed-like', 'ship.md'), content: 'x' } }, source.root).verdict, ALLOW, 'a directory prefix look-alike is not owned');
+        for (const manifest of ['not json', '{"Integrations":"invalid"}', '{}']) {
+            writeFileSync(join(consumer.root, '.cratis', 'ai.manifest.json'), manifest);
+            const cases: Array<[name: string, expected: string]> = [
+                ...controls.map(name => [name, BLOCK] as [string, string]),
+                ...ordinary.map(name => [name, ALLOW] as [string, string]),
+                ['.cratis/ai/skills/custom/SKILL.md', BLOCK],
+                ['.claude/agents/custom.md', ALLOW],
+                ['.pi/agents/custom.md', ALLOW],
+                ['.claude/commands/managed/ship.md', ALLOW],
+                ['.claude/skills/shared/new/SKILL.md', BLOCK],
+            ];
+            for (const [name, expected] of cases) {
+                const path = join(consumer.root, name);
+                assert.equal(runGuard({ tool_input: { file_path: path, content: 'x' } }, source.root).verdict, expected, `${manifest}, ${name}`);
+                const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd: source.root }) as { block?: boolean } | undefined;
+                assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${manifest}, ${name}`);
             }
         }
         for (const name of [...controls, ...managed]) {

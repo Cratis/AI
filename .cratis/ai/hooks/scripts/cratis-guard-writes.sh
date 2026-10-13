@@ -102,7 +102,23 @@ agent_control_target() {
     target_rel="$(hook_relpath "$target" "$policy_root")"
     if [ -f "$policy_root/.cratis/ai.manifest.json" ]; then
         case "$target_rel" in
-            .cratis/ai/* | .claude/* | .pi/*) return 0 ;;
+            .cratis/ai/*) return 0 ;;
+            .claude/* | .pi/*)
+                # The installer records adapter ownership in Integrations (Path, IsDirectory),
+                # not Files: those destinations are relative to the managed corpus root.
+                # An unreadable/invalid manifest cannot establish ownership of local adapters.
+                # Allow unclassified paths; corpus paths and explicit controls still block.
+                if jq -e --arg path "$target_rel" '
+                    (.Integrations // [])
+                    | if type != "array" then false else
+                        [.[] | select(type == "object") | select(.Path | type == "string")]
+                        | any(.[]; . as $entry | $entry.Path == $path
+                            or ($entry.IsDirectory == true and ($path | startswith($entry.Path + "/"))))
+                      end
+                ' "$policy_root/.cratis/ai.manifest.json" >/dev/null 2>&1; then
+                    return 0
+                fi
+                ;;
         esac
     else
         # The corpus is authored source in Cratis/AI, not a managed installation.
