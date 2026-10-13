@@ -391,7 +391,7 @@ Redaction is a system-event request that removes payload availability from the e
 
 ## Cross-slice patterns **[convention]**
 
-Cross-slice access is **read-only and goes through Chronicle** — inject another slice's read model (validator/`Provide()`/`Handle()`), read by explicit key with `IReadModels.GetInstanceById`, mark a `[Passive]` projection for command-side decisions, or react to its events. **Never** instantiate or DI another slice's command/handler/service.
+Cross-slice access is **read-only and goes through Chronicle** — inject another slice's read model (validator/`Provide()`/`Handle()`), read by explicit key with `IReadModels.GetInstanceById`, mark a `[Passive]` projection for a current read (a rule that must hold under concurrency needs a decision read or constraint, see the `cratis-chronicle-decision-reads` skill's `references/choosing-how-a-rule-holds.md`), or react to its events. **Never** instantiate or DI another slice's command/handler/service.
 
 **DCB (Dynamic Consistency Boundary):** the boundary is the event state explicitly
 enrolled in guarded decisions, not every model a command reads. Use stream

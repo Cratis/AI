@@ -173,12 +173,19 @@ Neighbouring members include `GetInstances<T>`, `GetSnapshotsById<T>`,
 surface on `IReadModels`** — filtered reads go through the sink, which is what
 the Arc query methods above do.
 
-### `[Passive]` when the read is a command-side decision
+### `[Passive]` when the read must be current
 
 `Cratis.Chronicle.ReadModels.PassiveAttribute` on the read-model type makes it
 passive: no sink, nothing materialized, and the instance is computed on demand
-from the events at the moment it is read. Reach for it when a decision needs the
-model **strongly consistent** rather than eventually consistent.
+from the events at the moment it is read. Reach for it when a read must be
+current rather than eventually consistent.
+
+**Passive is fresher, not safer.** A materialized read may lag the log; a passive
+read is current when read. Neither captures a position or enrolls a guard, so
+neither makes a rule hold when two requests race. To guard a decision use a decision
+read over a flat, event-source-keyed projection with an `Id` property (reducers and
+self-reducing models are refused), a constraint for uniqueness, or an aggregate;
+see [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
 
 **`IMongoCollection<T>` reads only the sink.** It cannot compute passive state:
 a fresh passive model has no maintained collection, and a formerly active one
@@ -232,6 +239,8 @@ spans streams.
 - Query methods are `static` and declare `ISubject<...>` rather than a concrete
   subject type.
 - A direct `GetInstanceById` result is checked for absence before use.
+- A plain read, materialized or passive, is never presented as the guard of a
+  write-side rule.
 - Passive access goes through Chronicle, not a sink collection; consistency,
   access frequency, and non-materialization requirements justify the choice.
 - Summary payloads and embedded children are bounded; growing histories have

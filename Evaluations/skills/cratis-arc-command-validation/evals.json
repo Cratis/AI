@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-command-validation",
+  "evals": [
+    {
+      "id": 1,
+      "name": "validator-reading-state-is-not-the-rule",
+      "prompt": "Our Arc command RegisterForCourse has a CommandValidator that injects IReadModels and rejects when the course is full. Two requests still both succeed. Fix it and make the command [ProtectedDecision].",
+      "expected_output": "A validator that reads is advisory; move the rule to a DecisionRead<T> in Handle; a protected command refuses validators that are not exactly one public parameterless constructor (HTTP 500).",
+      "assertions": [
+        "States a validator that reads state is advisory and guards nothing, keeping at most shape rules in it.",
+        "Moves the capacity rule into a DecisionRead<T> on a [ProtectedDecision] command returning Result<TEvent, ValidationResult>.",
+        "Notes a protected command refuses a discoverable validator unless it has exactly one public parameterless constructor, otherwise HTTP 500.",
+        "Requires the decision model to be a flat event-source-keyed projection with an Id property and notes there is no automatic retry on conflict."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "concurrency-true-is-not-the-guard",
+      "prompt": "We added concurrency: true to the EventSourceId attribute on our Arc command so the stock check is protected. Is that enough?",
+      "expected_output": "No: concurrency: true reads the tail after Handle like the default check; it is not a guard for the decision.",
+      "assertions": [
+        "States concurrency: true and the default check read the tail after Handle and do not guard the facts the handler decided on.",
+        "Recommends [ProtectedDecision] + DecisionRead<T>, IStreamReads/StreamDecision, or explicit returned scopes depending on the rule shape.",
+        "Notes ARCCHR0011 still flags a command that reads IReadModels and that exact returned scopes replace automatic capture (ARCCHR0016).",
+        "States the rule holds only when every writer that decides on it is guarded, or when it is a constraint."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "unique-email-and-ambiguous-key",
+      "prompt": "RegisterUser(Email, ReferrerId), where Email and ReferrerId are both EventSourceId-derived properties, must reject a duplicate email. The handler checks a UserByEmail read model. Which mechanism should it use, and why does the command resolve its event source id oddly with two such properties?",
+      "expected_output": "A Chronicle unique constraint, not a read-model check; ARCCHR0002 for two key candidates, resolved with ICanProvideEventSourceId because [Key] does not silence it.",
+      "assertions": [
+        "Routes uniqueness to a Chronicle constraint that binds every writer, not to a read-model pre-check or validator.",
+        "Explains the claim is settled after the durable append and a violation is a result mapped to a validation failure.",
+        "Explains two key-candidate properties raise ARCCHR0002 and the command should implement ICanProvideEventSourceId because [Key] does not silence it.",
+        "Does not present a plain read-model injection as race-safe."
+      ]
+    }
+  ]
+}
