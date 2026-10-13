@@ -57,7 +57,7 @@ One spec in the slice does not cover the others.
 - Projection lag: the reaction's `reads` sees the queue before or after the closing fact?
   The decision must not depend on it (it is not protected).
 
-## Spec limits (tool differences: `cratis-screenplay-toolchain` `references/versions.md`)
+## Spec limits (tool differences: `cratis-screenplay-toolchain` `SKILL.md`)
 - Current admitted Automation/Translate specifications run through standalone
   `screenplay test` or MCP `run-specifications`. Validate/render alone is not V4;
   report unsupported/unbound separately from passing scenarios.

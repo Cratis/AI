@@ -40,8 +40,8 @@ identity, effect and pending-work contract at that point; do not postpone it to 
 - Reaction `runs as system role "<Role>"` declares an invocation actor (ESM v10).
   Without it the invoke has no caller. Historical CLI 3.41.0's 4.114.0 compiler
   rejected the syntax (PLAY0137); previous CLI 3.46.1 refused ESM v10
-  at render admission (CLI-RENDER-004). The pinned CLI/Stage pair (toolchain
-  `references/versions.md`) renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034. Checked model/diagnostics: captures-and-reactions
+  at render admission (CLI-RENDER-004). The CLI/Stage pair (toolchain
+  `references/renderable-subset.md`) renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034. Checked model/diagnostics: captures-and-reactions
   `references/invocation-identity.md`.
 
 ## Effect guarantees and recovery traps
@@ -72,7 +72,7 @@ even when it blocks binding. Never record bearer tokens, magic links or signed U
 (a keyed hash or reference at most), and never put PII on the event-source id.
 
 ## Verified product sources
-Current pins: toolchain `references/versions.md`. Language claims were re-read at Screenplay v4.139.0,
+Tool versions: toolchain `SKILL.md`. Language claims were re-read at Screenplay v4.139.0,
 renderer claims at Stage v4.89.1 (`Documentation/reference/reaction-rendering.md:6-98`,
 `Source/Rendering.Cratis/Semantics/SemanticVersionFeatureAdmission.cs:25-46`): supported
 event-triggered Automation renders; Translate/captures and refused reactions stay gap-fill. The
@@ -86,7 +86,7 @@ runtime facts at Arc v22.72.0 and Chronicle v19.50.1. Older reads kept as histor
 | Arc | v22.72.0 (read; v22.50.5 earlier) | `ExecuteCommandsAsSystemAttribute` (since v20.56.0); mixed events-and-commands reactor returns (since v22.72.0) |
 | Chronicle | v19.50.1 (read; v19.32.0 earlier) | `OnceOnlyAttribute`, `ReactorDelivery`, `Documentation/code-analysis/CHR0022.mdx` and `Documentation/reactors/delivery-identity.mdx` |
 
-Read `references/versions.md` in `cratis-screenplay-toolchain` when selecting a tool or checking the full version and capability pins. Reverify before claiming
+Read `SKILL.md` in `cratis-screenplay-toolchain` when selecting a tool; read the installed versions with `screenplay --version` and `cratis --version`. Reverify before claiming
 another version behaves the same.
 
 ## When / when not

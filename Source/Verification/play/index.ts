@@ -42,7 +42,7 @@ export async function verifyPlayExamples(root: string, runner: Runner = run, env
     }
     let version: string;
     try {
-        version = pinnedVersion(await readFile(join(skills, 'cratis-screenplay-toolchain/references/versions.md'), 'utf8'));
+        version = pinnedVersion(await readFile(join(root, 'Documentation/compatibility.md'), 'utf8'));
     } catch (error) {
         report.problems.push(String(error));
         report.outcome = Outcome.Defects;

@@ -279,7 +279,7 @@ They do not run the example input through a model or prove writing quality.
 `yarn workspace @cratis/ai-verification run verify` also checks Screenplay/Stage skills,
 Screenplay agents and rules mentioning Screenplay offline against the unchanged release
 contract in the toolchain skill's `references/screenplay-contract.json`. Its adjacent
-`.version` must match the standalone pin in `versions.md`. PLAY codes (including expanded
+`.version` must match the standalone pin in `Documentation/compatibility.md`. PLAY codes (including expanded
 ranges with plain or backticked endpoints), MCP names and named invocation parameters, stated tool counts and standalone
 `screenplay` CLI commands/options produce file:line findings. Every subject kind must be
 nonempty. Run the planted-defect self-test with:
@@ -350,7 +350,7 @@ Fence info strings declare what verification checks:
 
 Run `yarn workspace @cratis/ai-verification run verify`. The tool is resolved
 from `CRATIS_SCREENPLAY_TOOL` or `screenplay` on PATH; its version must match the
-standalone pin in the toolchain skill's `references/versions.md`. To require it
+standalone pin in `Documentation/compatibility.md`. To require it
 locally, run `CRATIS_SCREENPLAY_TOOL=/path/to/screenplay CRATIS_REQUIRE_SCREENPLAY=1
 yarn workspace @cratis/ai-verification run verify` on one shell line. CI installs
 that pin and requires the check. An unavailable tool is reported as SKIPPED

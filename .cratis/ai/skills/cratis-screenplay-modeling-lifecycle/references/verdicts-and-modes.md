@@ -11,7 +11,7 @@
 - Modes
 
 Exact commands, exit codes, admitted subsets and every version-specific fact live in
-`cratis-screenplay-toolchain` (`references/versions.md` and its subset references). This file
+`cratis-screenplay-toolchain` (`SKILL.md` and its subset references). This file
 defines what each result means and how to report it. Do not copy version facts here.
 
 ## Five independent results

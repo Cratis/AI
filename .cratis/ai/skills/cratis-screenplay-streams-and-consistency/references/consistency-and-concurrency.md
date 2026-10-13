@@ -13,7 +13,7 @@
 - 9. Corrections and backdated facts
 - 10. Specification limits (no local spec engine)
 
-Historical checks: Screenplay v4.66.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.2 (current pins in `versions.md` of
+Historical checks: Screenplay v4.66.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.2 (for installed tool versions see `SKILL.md` of
 `cratis-screenplay-toolchain`).
 
 Routing identity checks verified at 4.127.0: PLAY0515 refuses personal/secret
@@ -198,7 +198,7 @@ behaviour. Write the answer in the slice `documentation`.
   between two different sources: `for` on `given` events (ESM v2) establishes a claim on one source
   and attempts the same value on another (`specifications.md`; `streams-example.md` uses it). It is a
   sequential history, not a race proof. The `constraints.md` sentence that it "cannot yet show a
-  collision between two event sources" is stale (`cratis-screenplay-toolchain` `references/doc-contradictions.md`).
+  collision between two event sources" is stale (Screenplay `constraints.md` versus `specifications.md`).
   Spec outcomes come only from a reference run (V4) or rendered tests. See `cratis-screenplay-scenario-coverage`.
 - Constraint violation messages are fixed strings: copy them exactly into `then error`.
 - For every value constraint write a competing-claim spec (one source owns the value, a

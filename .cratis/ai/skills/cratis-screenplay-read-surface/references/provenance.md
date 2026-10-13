@@ -15,7 +15,7 @@ mechanics; Screenplay screens are declarative and Stage renders them.
 
 ## Other lineage
 
-- Screenplay language documentation and the released tool, pinned in `cratis-screenplay-toolchain`
-  `references/versions.md`: the `readmodel`, `query` and `screen` constructs.
+- Screenplay language documentation and the released tool, as described in `cratis-screenplay-toolchain`
+  `SKILL.md`: the `readmodel`, `query` and `screen` constructs.
 - Event Modeling (Adam Dymitruk) and Martin Dilger, *Understanding Eventsourcing*: the screen as the point where
   a person reads a view and decides.

@@ -4,7 +4,18 @@ Maintainer reference for the product releases the AI corpus is checked against. 
 not carry these versions: they describe behavior, and an agent reads the exact pins from
 the tool or the rendered output it is working with. Update a table when the corpus is synced
 to a new release (see [product-sync.md](./product-sync.md)); `Source/Verification/pin-restatements.ts`
-parses the scaffold table below and fails when a skill restates a current pin.
+parses the CLI and scaffold tables below and fails when a skill restates a current pin.
+`Source/Verification/play/fences.ts` (`pinnedVersion`) reads the standalone Screenplay row, which
+CI installs and which must match `references/screenplay-contract.version` in the toolchain skill.
+
+## Standalone Screenplay tool
+
+| Item | Value |
+| --- | --- |
+| Screenplay language, standalone tool and MCP | **4.153.0** |
+
+The published `screenplay-contract.json` beside the toolchain skill's references is byte-identical to
+this release's contract, and `screenplay-contract.version` names the same version.
 
 ## Cratis CLI
 
@@ -14,6 +25,7 @@ parses the scaffold table below and fails when a skill restates a current pin.
 | Bundled Stage (renderer and sandbox image) | `4.89.1`, admits ESM v1 to v15 |
 | Bundled Screenplay compiler | `4.147.1`, binds through ESM v15 |
 | Bundled Screenplay.Generation / CritterStack / Prologue | `0.18.0` / `0.24.0` / `2.0.0` |
+| Bundled Cratis.Arc.Screenplay (generator package) | `22.54.0` |
 | Bundled Chronicle / Fundamentals | `19.32.0` / `7.22.8` |
 
 ## Stage rendered-application scaffold

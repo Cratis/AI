@@ -221,7 +221,7 @@ the packet opens with `Outcome:`; STATE.md is current.
 ## Verified product sources
 Model notes: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`,
 `decisions/0045-model-notes-sidecar.md:40-79`; exact tool sources in model-authoring
-`references/model-notes.md`. Full pin table: `cratis-screenplay-toolchain/references/versions.md`. Read `cratis-screenplay-toolchain/references/versions.md` when selecting or reverifying tool versions. Current pins (Stage 4.89.1, cratis CLI 3.57.0 and the rest) are in that file. Older source reads used here: Screenplay
+`references/model-notes.md`. Tool versions: `cratis-screenplay-toolchain/SKILL.md`. Read `cratis-screenplay-toolchain/SKILL.md` when selecting or reverifying tool versions. Older source reads used here: Screenplay
 `v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);

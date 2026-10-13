@@ -120,10 +120,9 @@ test('MCP transcript harness sends real protocol requests instead of returning a
     assert.ok(!content.includes('blocked-missing-mcp'));
 });
 
-test('stage, render and toolchain guidance carry the verified screens-release vector', () => {
+test('stage and render guidance carry the verified screens-release vector', () => {
     const stage = skill('cratis-stage-rendering-and-sandbox');
     const render = skill('cratis-screenplay-render-and-gap-fill');
-    const toolchain = skill('cratis-screenplay-toolchain');
     const workflow = readFileSync(
         join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'),
         'utf8',
@@ -139,9 +138,6 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
     }
     for (const required of ['3.43.0', 'published successfully', 'MCP-edited copy', 'screenplay-mcp-transcript.ts', 'Cratis/cli#301', ...failClosed]) {
         assert.ok(render.includes(required), `render guidance is missing ${required}`);
-    }
-    for (const required of ['3.40.7', '4.51.1', '4.114.0', '4.122.0', 'executableReady true', '37 tools']) {
-        assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
     }
     for (const required of ['3.43.0', '9 requests and 9 responses', 'StaleRevision', 'cratis/stage:4.52.0', '--check', 'bySource', 'semantic-diff', ...failClosed]) {
         assert.ok(workflow.includes(required), `authoring workflow is missing ${required}`);

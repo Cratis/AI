@@ -70,7 +70,7 @@ jobs:
 
       - name: Install the pinned standalone Screenplay tool
         run: |
-          version=$(node --experimental-strip-types --input-type=module -e "import { readFileSync } from 'node:fs'; import { pinnedVersion } from './Source/Verification/play/fences.ts'; console.log(pinnedVersion(readFileSync('.cratis/ai/skills/cratis-screenplay-toolchain/references/versions.md', 'utf8')));")
+          version=$(node --experimental-strip-types --input-type=module -e "import { readFileSync } from 'node:fs'; import { pinnedVersion } from './Source/Verification/play/fences.ts'; console.log(pinnedVersion(readFileSync('Documentation/compatibility.md', 'utf8')));")
           dotnet tool install Cratis.Screenplay.Tool --version "$version" --tool-path "$RUNNER_TEMP/screenplay"
 
       - name: Verify corpus and skill behavior

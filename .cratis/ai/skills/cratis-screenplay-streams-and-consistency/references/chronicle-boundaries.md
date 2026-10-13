@@ -1,7 +1,7 @@
 # Chronicle boundaries
 
 Read when consistency, tenancy or personal data decides where a boundary falls. These are
-target facts; the `.play` model declares only part of them (`versions.md` in
+target facts; the `.play` model declares only part of them (`references/executable-subset.md` in
 `cratis-screenplay-toolchain`).
 
 ## Pins

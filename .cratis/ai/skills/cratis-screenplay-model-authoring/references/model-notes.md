@@ -202,7 +202,7 @@ and never writes the sidecar.
 
 ## Question gate is independent of compilation
 
-Read toolchain [versions](../../cratis-screenplay-toolchain/references/versions.md#model-notes-gate)
+Read toolchain [model notes gate](../../cratis-screenplay-toolchain/references/verdicts.md#model-notes-gate)
 when choosing the CLI gate. **Standalone Screenplay 4.144.0 has it; Cratis CLI
 3.53.1 does not.** `--warnaserror` alone ignores notes. Tasks and ordinary notes
 do not fail the question gate; resolving questions is not V1–V5 evidence.

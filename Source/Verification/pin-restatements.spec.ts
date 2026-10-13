@@ -17,10 +17,10 @@ const scaffold = `## Scaffold pins
 | Chronicle client | \`Cratis.Chronicle\` \`19.45.0\`, matched to the \`19.45.0-development\` image |
 | Frontend | Vite 8.3.0; \`@cratis/arc\`, \`arc.react\` 22.58.2; \`@cratis/components\` 4.26.2; \`@cratis/scene.*\` 4.21.0; \`@cratis/fundamentals\` 7.22.8 |
 `;
-const bundle = `| Source | Pin | Evidence |
-| --- | --- | --- |
-| cratis CLI | **3.53.1** | tag |
-| Cratis.Arc.Screenplay bundled by CLI | **22.54.0** | file |
+const bundle = `| Item | Value |
+| --- | --- |
+| Release | cratis CLI \`3.53.1\` |
+| Bundled Cratis.Arc.Screenplay (generator package) | \`22.54.0\` |
 `;
 const pins = [...scaffoldPins(scaffold), ...bundlePins(bundle)];
 

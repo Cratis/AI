@@ -53,7 +53,7 @@ needs `then error` or `then denied`. Reopen when the evidence ceases to answer i
 
 Question gating is separate from V1: standalone Screenplay 4.144.0 has
 `--open-questions fail`; Cratis CLI 3.53.1 does not. Read toolchain
-`references/versions.md` "Model notes gate" when a phase requires no open questions.
+`references/verdicts.md` "Model notes gate" when a phase requires no open questions.
 Product evidence: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77,93-121`,
 `decisions/0045-model-notes-sidecar.md:40-79` and the model-authoring source table.
 

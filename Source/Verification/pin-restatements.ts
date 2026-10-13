@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 /**
- * Keeps current dependency pins in exactly two places: the Stage scaffold table in `Documentation/compatibility.md`
- * (maintainer page, not agent-loaded) and the CLI bundle table in `cratis-screenplay-toolchain/references/versions.md`.
+ * Keeps current dependency pins in one place: the CLI bundle and Stage scaffold tables in `Documentation/compatibility.md`
+ * (maintainer page, not agent-loaded).
  * Skills describe behavior and never restate a current pin, so a release bump edits those tables instead of sweeping the corpus.
  *
  * Design: only the dependency pins are policed (the scaffold's Arc, Chronicle, Components, Scene and `@cratis/arc`, and
@@ -14,7 +14,7 @@
  */
 
 export const scaffoldTable = 'Documentation/compatibility.md';
-export const bundleTable = '.cratis/ai/skills/cratis-screenplay-toolchain/references/versions.md';
+export const bundleTable = 'Documentation/compatibility.md';
 
 export interface Pin {
     label: string;
@@ -64,11 +64,11 @@ export function scaffoldPins(content: string): Pin[] {
     return pins;
 }
 
-/** The bundled Cratis.Arc.Screenplay pin from the CLI bundle "Pin set" table. */
+/** The bundled Cratis.Arc.Screenplay pin from the CLI table. */
 export function bundlePins(content: string): Pin[] {
     const pins: Pin[] = [];
     for (const [source, pin] of tableRows(content).filter(row => row.length >= 2)) {
-        if (source.startsWith('Cratis.Arc.Screenplay bundled by CLI')) add(pins, 'Cratis.Arc.Screenplay', firstVersion(pin));
+        if (source.startsWith('Bundled Cratis.Arc.Screenplay')) add(pins, 'Cratis.Arc.Screenplay', firstVersion(pin));
     }
     return pins;
 }
@@ -82,7 +82,7 @@ const occurrence = (value: string) => new RegExp(`(?<![\\w.])v?${value.replaceAl
 /** Messages for each occurrence of a current pin outside the two central tables that no exception covers, and for each stale exception. */
 export function pinRestatements(files: SourceFile[], pins: Pin[], exceptions: PinException[]): PinReport {
     const problems: string[] = [];
-    if (pins.length === 0) problems.push('No dependency pins were parsed from the scaffold and bundle tables; the check would pass vacuously.');
+    if (pins.length === 0) problems.push('No dependency pins were parsed from the CLI and scaffold tables; the check would pass vacuously.');
     const scanned = files.filter(file => file.path !== scaffoldTable && file.path !== bundleTable);
     if (scanned.length === 0) problems.push('No skill files were scanned for restated pins; the check would pass vacuously.');
     const used = new Set<PinException>();
