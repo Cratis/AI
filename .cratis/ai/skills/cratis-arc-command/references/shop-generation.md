@@ -7,7 +7,7 @@
 
 - Choosing a strategy
 - When not to generate
-- Verified released sources
+- Sources
 
 ## Choosing a strategy
 

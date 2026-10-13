@@ -2,7 +2,7 @@
 
 ## Contents
 
-- Versions differ — check the one you run
+- Version requirements
 - Attributes
 - Composition and precedence
 - Named policies
