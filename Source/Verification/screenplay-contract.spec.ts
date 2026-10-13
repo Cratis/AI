@@ -36,7 +36,8 @@ async function withCorpus(action: (root: string) => Promise<void>): Promise<void
         await writeFile(join(root, referenceDirectory, 'screenplay-contract.json'), JSON.stringify(specimen));
         await writeFile(join(root, referenceDirectory, 'screenplay-contract.version'), '4.127.0\n');
         await writeFile(join(root, referenceDirectory, 'screenplay-contract-exceptions.json'), '[]');
-        await writeFile(join(root, referenceDirectory, 'versions.md'), '| Screenplay language, standalone tool and MCP | **4.127.0** |');
+        await mkdir(join(root, 'Documentation'), { recursive: true });
+        await writeFile(join(root, 'Documentation/compatibility.md'), '| Screenplay language, standalone tool and MCP | **4.127.0** |');
         await writeFile(join(root, '.cratis/ai/skills/cratis-screenplay-toolchain/SKILL.md'), cleanDocument.content);
         await action(root);
     } finally {
