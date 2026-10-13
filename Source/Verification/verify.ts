@@ -18,6 +18,7 @@ import { verifySkillEvaluations } from './skill-evaluations.ts';
 import { bundlePins, bundleTable, pinRestatements, pinSummary, scaffoldPins, scaffoldTable, type PinException } from './pin-restatements.ts';
 import { danglingSkillReferences } from './skill-references.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
+import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
 import { referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
 
 interface Profile {
@@ -36,6 +37,9 @@ const root = resolve(process.argv[2] ?? '../..');
 const corpus = join(root, '.cratis', 'ai');
 const failures: string[] = [];
 const scenarioResults: Array<{ scenario: string; skill: string; digest: string }> = [];
+// Start informationally; set SKILL_HYGIENE_MODE=fail after the corpus cleanup.
+const skillHygieneMode = process.env.SKILL_HYGIENE_MODE ?? 'warn';
+const hygieneFindings: ReturnType<typeof skillHygieneFindings> = [];
 
 async function exists(path: string): Promise<boolean> {
     try {
@@ -169,6 +173,7 @@ for (const directory of skillDirectories) {
         continue;
     }
     const skillContent = await readFile(skillFile, 'utf8');
+    hygieneFindings.push(...skillHygieneFindings(relative(root, skillFile), skillContent));
     const metadata = frontmatter(skillContent);
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, skillFile)} must declare name and description.`);
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
@@ -178,9 +183,17 @@ for (const directory of skillDirectories) {
     const referenceFiles = (await files(skillDirectory)).filter(path => path.endsWith('.md') && path !== skillFile);
     failures.push(...skillReferenceProblems(relative(root, skillFile), skillBody(skillContent), referenceFiles.map(path => relative(skillDirectory, path).replaceAll('\\', '/'))));
     for (const referenceFile of referenceFiles) {
-        failures.push(...referenceContentsProblems(relative(root, referenceFile), await readFile(referenceFile, 'utf8')));
+        const referenceContent = await readFile(referenceFile, 'utf8');
+        failures.push(...referenceContentsProblems(relative(root, referenceFile), referenceContent));
+        if (relative(skillDirectory, referenceFile).replaceAll('\\', '/').startsWith('references/')) {
+            hygieneFindings.push(...skillHygieneFindings(relative(root, referenceFile), referenceContent));
+        }
     }
 }
+const hygieneReport = skillHygieneReport(hygieneFindings);
+failures.push(...skillHygieneProblems(hygieneFindings, skillHygieneMode));
+console.log(`Skill hygiene (${skillHygieneMode}): ${hygieneReport.total} findings in ${hygieneReport.perFile.length} files.`);
+console.log(JSON.stringify({ skillHygiene: { mode: skillHygieneMode, ...hygieneReport } }, null, 2));
 
 for (const prompt of (await readdir(join(corpus, 'prompts'))).filter(name => name.endsWith('.md'))) {
     const path = join(corpus, 'prompts', prompt);
