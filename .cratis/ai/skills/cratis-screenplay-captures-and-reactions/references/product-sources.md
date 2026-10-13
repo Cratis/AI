@@ -11,5 +11,5 @@
 
 The table records historical examples/probes, not current execution evidence.
 Refusal/redelivery guidance follows released v4.125.0 `reactions.md`/`specifications.md`.
-Current pins live in toolchain `SKILL.md`; reverify before promoting
+Tool versions are covered in toolchain `SKILL.md`; reverify before promoting
 an old probe to that version.

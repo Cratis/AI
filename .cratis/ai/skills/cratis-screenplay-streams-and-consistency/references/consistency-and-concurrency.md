@@ -13,7 +13,7 @@
 - 9. Corrections and backdated facts
 - 10. Specification limits (no local spec engine)
 
-Historical checks: Screenplay v4.66.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.2 (current tool facts in `SKILL.md` of
+Historical checks: Screenplay v4.66.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.2 (for installed tool versions see `SKILL.md` of
 `cratis-screenplay-toolchain`).
 
 Routing identity checks verified at 4.127.0: PLAY0515 refuses personal/secret

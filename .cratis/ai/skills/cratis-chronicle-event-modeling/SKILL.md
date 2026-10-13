@@ -42,7 +42,7 @@ Verified against **Cratis/Chronicle v19.50.1**:
 `ProtectedValues/EncryptedAttribute.cs`, `EventSources/`, `Events/PublicAttribute.cs`,
 `Sinks/PublishToAttribute.cs`, and `Events/Constraints/ClosesStreamAttribute.cs`
 (paths under `Source/Clients/DotNET/` unless otherwise stated).
-Current version pins: `cratis-screenplay-toolchain` `SKILL.md`.
+Tool versions: `cratis-screenplay-toolchain` `SKILL.md`.
 
 | Package | Purpose |
 | --- | --- |

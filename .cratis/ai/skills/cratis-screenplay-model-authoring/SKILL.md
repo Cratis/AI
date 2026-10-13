@@ -29,7 +29,7 @@ v4.142.0 (`references/property-links.md`); compliance (command-surface
 ([sources](references/mcp-tools.md#concept-generation-41490)); other MCP v4.139.0
 `Documentation/screenplay/mcp/`. Stored names v4.152.0; baseline v4.153.0
 (`references/release-baseline.md`). Discover installed schemas; bundles differ.
-Pins: toolchain `SKILL.md`. Historical probes 4.66.0; registration
+Tool versions: toolchain `SKILL.md`. Historical probes 4.66.0; registration
 compilation/execution 4.68.0. Attribution: `references/provenance.md`.
 
 Record open modeling questions as `question` notes in committed

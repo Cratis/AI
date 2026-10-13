@@ -29,7 +29,7 @@ Chronicle, asserting one append wins, one is rejected, and `IAppendResult.Concur
 is `true` (a skipped check and a passing one look identical otherwise; a current client against
 an older kernel always reads `false`). This was source- and documentation-inspected, not
 concurrency-tested here. The Stage scaffold pins Chronicle client/kernel and Arc releases (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`;
-the CLI bundle's Chronicle is in `cratis-screenplay-toolchain` `SKILL.md`); the APIs exist for gap-fill, not as automatically rendered enforcement.
+the CLI bundle's Chronicle follows the installed CLI: `cratis --version`); the APIs exist for gap-fill, not as automatically rendered enforcement.
 
 ## Verified product sources
 
@@ -40,7 +40,7 @@ the CLI bundle's Chronicle is in `cratis-screenplay-toolchain` `SKILL.md`); the 
 | Arc | v22.72.0 | `[ProtectedDecision]` and `DecisionRead<T>` (since v22.39.0) |
 | Stage | v4.89.1 | rendered apps pin the Arc and Chronicle client/kernel listed in the Stage skill's `references/rendered-application.md`; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
 
-Full pin table: `SKILL.md` in `cratis-screenplay-toolchain`. Re-check the three
+Tool versions: `cratis-screenplay-toolchain` `SKILL.md`. Re-check the three
 Chronicle issues before relying on a constraint in a later release.
 
 ## When / when not
@@ -88,7 +88,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8 on 4.125.0.
-   The pinned CLI (toolchain `SKILL.md`) reaches Stage construct checks through v15; keep the routing
+   the CLI (toolchain `references/renderable-subset.md`) reaches Stage construct checks through v15; keep the routing
    contract when target admission requires gap-fill. Forms/boundaries:
    toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0 and later; Stage 4.89.1 renders supported UUID/String strategies and v15 freshness; unsupported types/results still refuse -028/-038) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no
@@ -144,7 +144,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    decisions and capability gaps in `STATE.md`. Then the gate below.
 
 ## Rules
-**Compiler contracts** (diagnostics at Screenplay v4.66.0 and v4.68.0; capability per tool in the toolchain `SKILL.md`)
+**Compiler contracts** (diagnostics at Screenplay v4.66.0 and v4.68.0; capability per tool in the toolchain `references/executable-subset.md`)
 - `identifier` on an event property is PLAY0019; the source id is never payload by declaration.
   Copying it as a payload value is PLAY0469 (information, warning for inline events).
 - In the executable model a production's `for` must resolve to the command's scalar identifier:

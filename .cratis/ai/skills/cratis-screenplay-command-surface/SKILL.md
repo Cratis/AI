@@ -22,7 +22,7 @@ Markdown in project documentation; `.play` is the single flow model.
 
 ## Verified product sources
 
-Pins: toolchain `SKILL.md`; sources below. Compilation is not execution.
+Tool versions: toolchain `SKILL.md`; sources below. Compilation is not execution.
 
 - `4.31.0`: original examples and executable boundaries; main `fd18129`: inline events, repairs, canonical `optional`.
 - `4.66.0` (`c89198b`): `handler`, code attachments, `persona` and compliance binding (`Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs`).
@@ -370,7 +370,7 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
 ## Verify
 
 - [ ] Validate the complete model root with warnings as errors; name the tool,
-      version and result. Pins: toolchain `SKILL.md`;
+      version and result. Tool versions: toolchain `SKILL.md`;
       bundle compatibility and execution are separate checks.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
@@ -387,7 +387,7 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
       runnable or renderable without saying which tool admits it.
 - [ ] No event carries an optional property covering two situations.
 
-Compiler pins and admission: `cratis-screenplay-toolchain/SKILL.md`.
+Compiler versions and admission: `cratis-screenplay-toolchain/SKILL.md`.
 Method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-design`.
 
 ## Route near misses

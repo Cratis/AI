@@ -15,7 +15,7 @@
 ## Version gate and sources
 
 These forms are source-checked at **Arc 22.87.1**, not promised for the CLI's
-adapter. **CLI 3.57.0 bundles an older Arc.Screenplay adapter** (see the toolchain [versions](../../cratis-screenplay-toolchain/SKILL.md)) even though its Screenplay
+adapter. **CLI 3.57.0 bundles an older Arc.Screenplay adapter** (compare `cratis --version` and the generator package actually loaded) even though its Screenplay
 4.147.1 and Stage 4.89.1 admit v15 strategies. A standalone compiler upgrade
 cannot add recovery to that adapter. Check the resolved generator before using
 this guidance; do not bump managed product pins to hide the difference.

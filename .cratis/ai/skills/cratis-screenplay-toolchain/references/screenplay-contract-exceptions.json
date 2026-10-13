@@ -46,7 +46,7 @@
     "text": "  remains on disk. On CLI 3.43.0: 9 requests and 9 responses, 37 tools,",
     "kind": "toolCount",
     "value": "37",
-    "reason": "Measured historical CLI 3.43.0 transcript, whose bundled Screenplay 4.127.0 exposes 37 tools. Current compiler and bundle pins are in references/versions.md; this count describes only that transcript. Remove when the transcript is removed or replaced."
+    "reason": "Measured historical CLI 3.43.0 transcript, whose bundled Screenplay 4.127.0 exposes 37 tools. Current compiler and bundle versions are in Documentation/compatibility.md; this count describes only that transcript. Remove when the transcript is removed or replaced."
   },
   {
     "file": ".cratis/ai/skills/cratis-screenplay-model-review/SKILL.md",

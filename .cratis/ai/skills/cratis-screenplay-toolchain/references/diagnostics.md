@@ -27,7 +27,7 @@ I (never fails, even with `--warnings-as-errors`). `PLAY` = compiler, `SP` = Arc
 Where each layer appears: `screenplay <folder>` / `cratis screenplay validate` = syntax and
 consistency (V1). MCP `executable-diagnostics` = binding (V2 reads them, V3 needs none:
 PLAY0268-0274, 0350-0352, 0389, 0449). `cratis render` = binding with the bundled compiler,
-then STAGE (V5 admission). Tool differences: `versions.md`.
+then STAGE (V5 admission). Tool differences: `../SKILL.md` ("Tool versions and the contract").
 
 ## Warnings that hide defects (always validate with `--warnings-as-errors`)
 | Code | Meaning | Fix |
@@ -350,13 +350,14 @@ Publication STAGE-ESM-032, foreign facts/event captures 033, claim-reading/opaqu
 | STAGE-ESM-016 | model above the admitted ESM schema: whole model refused |
 | STAGE-ESM-025 | a typed-context member references a historical event revision or property identity; only the current revision renders |
 | STAGE-ESM-026 | a selected event, or an event a selected scope depends on, is above its initial revision; Stage cannot render event-type migrations; gap-fill and hand-write the migrations |
-| STAGE-ESM-001 | slice kind is not `StateChange`/`StateView` (Automation, Translate) |
-| STAGE-ESM-004 / 006 / 013 | more than one command per `StateChange`; conditional or value-expression production; other context value |
-| STAGE-ESM-005 / 015 | code rule or code validation; opaque policy or an ownership claim against a Uuid-backed target |
-| STAGE-ESM-007 / 009 / 010 / 017 | projection shape (one per read model, cardinality, query delivery, keys, `all`, event-context values) |
-| STAGE-ESM-011 | specification shape not rendered (`when append`, `then no readmodel`, composite values) |
-| STAGE-ESM-014 | constraint shape (multi-claim in one command, intra-command multi-event change) |
-| STAGE-ESM-019/022 | reducer body outside the pure allowlist |
+| STAGE-ESM-001 | unsupported slice kind; `StateChange`, `StateView` and event-triggered `Automation` render, Translate is STAGE-ESM-024 |
+| STAGE-ESM-004 / 006 / 013 | a `StateChange` without exactly one command; `produces` that cannot render (conditional, literal or computed mappings, duplicate tags); event-context value other than `$context.occurred` (reactions: `$context.causedBy.*`, `$context.eventSourceId`) |
+| STAGE-ESM-005 / 015 | code rule or code validation bodies; authorization Stage cannot render exactly (role-claim URIs, nested or unresolved opaque policies, opaque-policy subjects that are not text, Uuid, Date or DateTime). Role-only, authenticated, opaque pure policies and Uuid/Date/DateTime/text claim targets render |
+| STAGE-ESM-007 / 009 / 010 / 017 | projection shape (one projection or reducer per read model, affected-instance key, query delivery such as a snapshot list, keys, `all`, event-context values) |
+| STAGE-ESM-011 | specification shape not rendered (`when append` outside the single-hop reaction subset, command specifications that cascade into reactions, composite values, an unauthenticated caller carrying roles or claims, v15 fixtures that do not match their strategy). Command scenarios and single-hop reaction appends render |
+| STAGE-ESM-014 | constraint shape (multi-claim in one command, optional or composite targets) |
+| STAGE-ESM-019/022 | reducer or opaque pure policy body outside the pure allowlist |
+| STAGE-ESM-024 | interval, schedule, application, startup and shutdown triggers, opaque reaction bodies, captures, Translate, clock/trigger/capture specifications |
 | STAGE-ESM-020 | a body the model requires is missing or changed (content hash check); blocks publication |
 | STAGE-CRATIS-005 | a modeled artifact would render into `Customizations/` |
 Fix by changing the model only where the domain allows it; otherwise the slice is gap-fill

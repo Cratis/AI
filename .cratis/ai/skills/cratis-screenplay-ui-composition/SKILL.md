@@ -27,7 +27,7 @@ Markdown in project documentation; `.play` is the single flow model.
 
 ## Verified product sources
 
-Current pins: toolchain `SKILL.md`; UI statements were re-read at Screenplay v4.139.0
+Tool versions: toolchain `SKILL.md`; UI statements were re-read at Screenplay v4.139.0
 (`screens.md`, `contributions.md`, `forms.md`, `templates.md`, `ui-profile.md`, `fixtures/screen-release-ui.play`). Older provenance:
 `4.31.0` (original parser evidence), main `fd18129` (cancellation routing, `optional`), `4.66.0` (`c89198b`: `PLAY0269`).
 
@@ -41,7 +41,7 @@ Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
 Those checks established the original baseline. The changed cancellation
 example uses the newer main commit above, not the old tag.
 
-Read `SKILL.md` in `cratis-screenplay-toolchain` when choosing or checking tool versions for these examples.
+Read `SKILL.md` in `cratis-screenplay-toolchain` when reading installed tool versions for these examples.
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a

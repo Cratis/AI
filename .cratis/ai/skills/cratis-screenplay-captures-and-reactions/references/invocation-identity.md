@@ -71,12 +71,12 @@ module Work
 
 Historical CLI 3.41.0 bundled Screenplay 4.114.0, which did not parse `runs as`:
 the example's `cratis screenplay validate --executable --warnings-as-errors`
-returned PLAY0137, exit 5. This is not a current parser claim. The pinned CLI/Stage pair
-(`cratis-screenplay-toolchain/SKILL.md`) renders role-only/authenticated-only reaction invocation gates with `[ExecuteCommandsAsSystem]`;
+returned PLAY0137, exit 5. This is not a current parser claim. The CLI/Stage pair
+(`cratis-screenplay-toolchain/references/renderable-subset.md`) renders role-only/authenticated-only reaction invocation gates with `[ExecuteCommandsAsSystem]`;
 claim-reading or opaque gates still refuse STAGE-ESM-034 (including claim reads under `not`/`or`).
 Source: Stage `v4.89.1:Source/Rendering.Cratis/Semantics/SemanticCratisAdmission.ReactionIdentity.cs:11-28`;
 `Documentation/reference/reaction-rendering.md:57-59`. Previous CLI 3.46.1/Stage 4.52.0
-audited through v7 only (`SKILL.md` in toolchain).
+audited through v7 only (toolchain `references/renderable-subset.md`).
 Clock/application-trigger identities have no Stage Arc realization either.
 Use authorized gap-fill with the model as contract; returned-command Arc identity
 uses `[ExecuteCommandsAsSystem]`, never permission inferred from a model header.

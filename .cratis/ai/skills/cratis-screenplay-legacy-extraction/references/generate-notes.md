@@ -12,8 +12,7 @@
 - Generated-document self-check on compiler upgrades
 - Reading the output cheaply
 
-Flags verified with `cratis screenplay generate --help` on the version recorded in
-cratis-screenplay-toolchain `SKILL.md`; behaviour from the cratis CLI
+Flags verified with `cratis screenplay generate --help` on the installed CLI (`cratis --version`); behaviour from the cratis CLI
 (`v3.28.2:Source/Cli/Commands/Screenplay/`; the generate files are unchanged since `v3.27.1`), Arc `v22.50.5`
 (`Documentation/backend/csharp/generating-a-screenplay.md`,
 `Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`), Screenplay.Generation `v0.18.0` and
@@ -21,7 +20,7 @@ Screenplay.CritterStack `v0.24.0` (the versions cli 3.53.1 bundles). Later relea
 `SKILL.md`.
 
 For the current standalone compiler and CLI bundle, use the toolchain's
-[version table](../../cratis-screenplay-toolchain/SKILL.md).
+[Tool versions and the contract](../../cratis-screenplay-toolchain/SKILL.md).
 The compliance and self-check sections below are source-checked at Arc 22.70.0
 (`Documentation/backend/csharp/generating-a-screenplay.md`,
 `Analysis/Types/{ConceptRegistry,PersonalDataMarkings,TypesTheDocumentCannotName}.cs`,
@@ -132,7 +131,7 @@ Source-verified at Arc `v22.76.0:Source/DotNET/Screenplay/Emission/Concepts/Conc
 `Analysis/Specifications/SpecificationReturnValues.cs`, and
 `Documentation/backend/csharp/generating-a-screenplay.md`. Arc 22.76.0 takes
 Screenplay 4.139.0, not 4.141.0. The CLI bundles an older generator; see the
-central toolchain `SKILL.md` rather than assuming parity.
+toolchain `SKILL.md` (installed versions) rather than assuming parity.
 
 Every enum member now emits its stored integer, including positional members.
 Sparse, negative and reordered values preserve identity when representable as int32

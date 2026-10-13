@@ -74,7 +74,7 @@ Sources: Cratis/Screenplay `v4.152.0`, `Documentation/screenplay/events.md:116-1
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs:15-35`,
 `SemanticModelBinder.Structure.cs:16-17,215` in the same folder, and
 `Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82`.
-Target evidence: toolchain `SKILL.md` (Stored-name rendering boundary).
+Target evidence: toolchain `references/diagnostics.md` (Reserved stored names and event pins).
 Source/stream stored names already travel in ESM v8; stream `All` remains reserved
 regardless of a pin (toolchain `sources-and-streams.md`).
 

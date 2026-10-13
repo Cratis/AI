@@ -34,7 +34,7 @@ Compare in this order:
    never V4 or V5; it needs the same generation options (`--domain`, `--feature-root`, `--module`,
    `--skip-segments`, `--modules-from-namespace-roots`) that reproduce the authored placement, or
    everything looks missing. MSBuild evaluates the project (use a trusted clone) and the bundle's
-   `Cratis.Arc.Screenplay` is the version in `cratis-screenplay-toolchain` `SKILL.md`, so recovery behaves like that adapter. It does not replace
+   `Cratis.Arc.Screenplay` is whichever version the CLI bundles (check `cratis --version` against the generator package loaded), so recovery behaves like that adapter. It does not replace
    `cratis-application-slice-conformance`, which reconciles specifications, rules and behavior.
    Whether it is meaningful on a Stage-rendered application is unverified.
 

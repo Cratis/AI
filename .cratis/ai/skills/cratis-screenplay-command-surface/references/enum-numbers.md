@@ -81,7 +81,7 @@ Consumers must **explicitly admit v12**. CLI 3.57.0 (Screenplay 4.147.1 / Stage
 4.89.1) admits through v15 and renders explicit numbers as `Member = N` (sparse
 and negative, `-0` as 0; unnumbered enums keep declaration order). Stage first
 admitted v12 in 4.76.0. Do not remove enum pins to fit an older consumer;
-report its admission gap. See toolchain `SKILL.md`.
+report its admission gap. See toolchain `references/renderable-subset.md`.
 
 Sources checked at `v4.139.0`: `Documentation/screenplay/concepts.md`,
 `interoperability.md`, `diagnostics.md`, `mcp/authoring-tools.md`, decision 0065,

@@ -100,7 +100,7 @@ Reverse generation is not the C# provider mapping above. Source authority: Arc
 secrets), `Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`
 and `Source/DotNET/Screenplay/Analysis/Types/PersonalDataMarkings.cs`.
 SP0058 to SP0060 exist from Arc.Screenplay 22.61.0 (or earlier); SP0061 to SP0063 first ship in 22.70.0 (read at
-v22.70.0 and v22.72.0), so the full set described here needs 22.70.0 or later. CLI 3.53.1 bundles an Arc.Screenplay older than that (its version is in `cratis-screenplay-toolchain` `SKILL.md`), which has
+v22.70.0 and v22.72.0), so the full set described here needs 22.70.0 or later. CLI 3.53.1 bundles an Arc.Screenplay older than that, which has
 none of SP0061 to SP0063, so the CLI shows none of them; check the generator package actually loaded.
 
 - Both `[Encrypted]` and `[NotAudited]` must be on the concept to recover

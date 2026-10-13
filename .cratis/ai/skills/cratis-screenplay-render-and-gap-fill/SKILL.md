@@ -22,7 +22,7 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 
 ## Verified product sources
 
-Version pins live once in `cratis-screenplay-toolchain` `SKILL.md`; read it before
+Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it before
 selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage;
 its compiler version differs from the standalone pin. Render options (`--scope`,
 `--check`, `--package-set`) and exit codes were read at cli `v3.53.1` `Documentation/reference/screenplay.md`
@@ -81,8 +81,8 @@ Supported event-triggered Automation slices also render as managed Chronicle rea
 refused reactions, captures and Translate slices remain gap-fill.
 
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on the standalone
-tool, so report V3 and V4 from that tool. The pinned CLI/Stage pair
-(`cratis-screenplay-toolchain/SKILL.md`) reaches v8 route checks
+tool, so report V3 and V4 from that tool. The CLI/Stage pair
+(`cratis-screenplay-toolchain/references/renderable-subset.md`) reaches v8 route checks
 and construct admission through v15. Public/foreign events and production overrides
 still refuse; semantic reaction/reducer filters and role/authenticated `runs as` render.
 Claim-reading/opaque system gates, legacy actor/filter paths and mixed effects still refuse. Keep refused scope as case A/C,

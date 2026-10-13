@@ -35,7 +35,7 @@ Stage admits ESM versions up to the one the bundled CLI renders; each construct 
 | Specifications | command scenarios and supported single-hop reaction appends; Stage's `admission.md` | appends outside the single-hop subset and commands cascading into reactions (`-011`); `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims, `$context.occurred`-derived fixed values asserted (`-011`) |
 | v9 and v10 | reaction/reducer `from` filters; role/authenticated `runs as` | public events and event-target projections (`-032`); foreign origins and event-source captures (`-033`); directed Translate (`-024`); claim-reading/opaque `runs as` gates (`-034`); legacy `from` (`-035`); per-production route overrides (`-036`) |
 | Evolved events | initial revisions only (migrations are not rendered) | `STAGE-ESM-026` |
-| Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only  | characters invalid in XML: `CLI-RENDER-005`; never behavior |
+| Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
 The CLI's bundled compiler still refuses `reads` and `concurrency` (PLAY0271) and command
 `handler`s (PLAY0268) at binding, before Stage admission. Supported filters and strategies render.
@@ -55,7 +55,7 @@ ids into routing to fit a renderer (PLAY0515).
 - Only supported single-hop reaction `when append` specifications render; no general when-less event-replay proofs. Prove a projection
   with a command-action scenario (given events, `when <Command>`, `then query` or `then
   readmodel`). The seeded when-less `then query` only checks a lookup over a given read-model
-  state; it proves no projection .
+  state; it proves no projection.
 - Use `$context.occurred` only; no `$context.identity.*` mappings.
 - A list query binds (unfiltered, or narrowed by one `by` key); Stage renders it only as an
   `observable` collection, including supported equality filters, and refuses a snapshot list with `STAGE-ESM-010`;

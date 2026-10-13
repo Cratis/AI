@@ -107,7 +107,7 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Every event is past tense, single-purpose, and carries no event-source id.
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
-- [ ] Bind with the runtime's compiler; pins: toolchain `SKILL.md`.
+- [ ] Bind with the runtime's compiler; tool versions: toolchain `SKILL.md`.
       CLI 3.57.0 / Stage 4.89.1 admit through v15, including supported event Automation,
       generation strategies/responses, equality filters, enum numbers and compliance. Translate/captures
       and refused reactions remain gaps (Stage `references/admission.md`).
@@ -172,7 +172,7 @@ source is the single flow model.
 
 ## Verified product sources
 
-Current pins and which tool reports what live only in `cratis-screenplay-toolchain`
+Which tool reports what, and how to read installed versions, live only in `cratis-screenplay-toolchain`
 `SKILL.md`; read it before choosing a tool or reporting a version-dependent verdict.
 The nine-step examples compile with the standalone compiler 4.139.0 and their specifications run
 in the reference runner (compilation does not establish reference execution).

@@ -44,7 +44,6 @@ Compiler syntax: `cheat-sheet.md`. Negative capability claims depend on the tool
     Requires Arc 22.39.0 or later for `[ProtectedDecision]`.
 
 Identity and compliance traps (`identity.md`, `concepts.md`, `events.md`, `purposes.md`, `diagnostics.md` in the Screenplay documentation):
-`purposes.md`, `diagnostics.md`):
 - `$identity` built-ins alias `$context.identity`; declared detail reads are PLAY0268,
   while an identity block alone does not block readiness. `scoped to` is opaque,
   not a detail reference. Query sources need keyed single compatible results and
