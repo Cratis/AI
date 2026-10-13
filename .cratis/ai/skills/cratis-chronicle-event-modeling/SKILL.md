@@ -72,7 +72,10 @@ these are the `Automation` and `Translate` slice types.
 
 - **Behavior name and type** for each step in the flow.
 - **Commands** — their inputs and the authorization that gates them. Commands
-  are imperative intents.
+  are imperative intents. For each rejection condition, name the values it reads
+  as input, read state or context (time, caller, tenant). Context comes from the
+  command pipeline or an injected time source, never from the wall clock inside
+  the decision, so a specification can fix it.
 - **Events** — past-tense, one-purpose facts. Names must be self-describing:
   `<Entity><PastTenseVerb>`, never a bare `Created`.
 - **The event-source id for every event.** Events never carry their own

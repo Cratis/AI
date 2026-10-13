@@ -29,6 +29,8 @@ Screenplay specifications.
 | Then (success) | every expected event with payload and an explicit `for`, including events the command declares inline (the inline default applies to the `produces event` declaration, not to the expectation) | "an event is produced" |
 | Then (refusal) | `then error "Invoice already settled"`, the rule's own message | `then error` with no message, or `then error ""` |
 | Then (denial) | `then denied` | `then error` for a caller who is not allowed |
+| Description | the behavior witnessed, or an outside condition or regulation | `description "customer already ordered twice"` with no givens (write two `given OrderPlaced` with the same `for`) |
+| Values | the deciding values stated literally, others from a typed `example` | every field filled with noise, so the deciding value hides |
 | Reason | slice `documentation` says why the rule exists | the rule appears only in a spec title |
 
 ## 1. Command: success, rule rejection and denial

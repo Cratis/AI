@@ -39,3 +39,11 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | `.build-kit/.slices/restaurant/*/slice.json` | none in this skill | patterns only; passed to scenario coverage (spec example values that vary one rule) |
 | `.claude/skills/eventmodeling-identifying-outputs/SKILL.md`, "Common Patterns": status, list, timeline and processor-decision view patterns | `references/read-model-design.md` "Common view patterns" | Adapted closely as a table over `readmodel`, projection and `query`; the pseudo-code blocks became prose |
 | `.claude/skills/eventmodeling-orchestrating-event-modeling/SKILL.md`, "Recognizing a dedicated business event behind a derived condition": the "is this fact worth a new event" test, producing it by automation, fold only redundant causes, display-only conditions stay projections | `references/derived-condition-events.md` | Adapted closely; the todo-list translation pattern became a `reaction` that `produces` (a pending-work view only when the work can wait, retry or fail); the >3-events heuristic stays in `read-model-design.md`; board placement, 0,0-node scans and `validate_model` batch calls not adopted |
+
+## Method lineage
+
+| Idea | Used in | Credit |
+|---|---|---|
+| A rule's decision values are listed and classified as input, state or context | `references/command-inventory.md` *Values a rule reads*; `references/field-lineage.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-identifying-inputs`); idea, our own wording; the upstream mechanism of putting time and the acting user on the command is not adopted |
+| Information completeness checked per field as it is added; where information starts | `references/field-lineage.md` *Where information starts*, *Check as you edit* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`eventmodeling-information-completeness`); idea, our own wording |
+

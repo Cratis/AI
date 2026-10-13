@@ -38,3 +38,11 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
   of information-level modeling smells, open at v4.66.0).
 - Rejected anti-patterns (`checklist.md` R): Cratis/Screenplay strategy decisions and the
   closure comments of the Screenplay issues that rejected them.
+
+## Method lineage
+
+| Idea | Used in | Credit |
+|---|---|---|
+| Stressor, residue and incidence-matrix resilience pass | `references/stressor-analysis.md` | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`stressor-analysis`); idea, our own wording; the method is residuality theory by Barry O'Reilly |
+| Following one piece of information through the model | `references/model-inventory-report.md` *Information journey* | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`data-journey`); idea, our own wording |
+

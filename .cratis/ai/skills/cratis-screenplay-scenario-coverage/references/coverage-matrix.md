@@ -21,6 +21,11 @@ Write it **before** drafting specs, keep it in `.ai-work/screenplay/<model-slug>
   PLAY0268/0271; report the model as design-complete, not binding-ready) and marked
   NOT enforced in the slice `description`, with its target named (Arc `[ProtectedDecision]`,
   Chronicle DCB, or a constraint). It is also in the phase report.
+- `n/a: technical` - deliberately unspecified because the language or runtime already
+  guarantees it. The list is closed: binder-enforced shape (type, required property),
+  collision of `generated` identifiers, transport retry handled by the runtime. Anything else
+  needs a domain reason or another cell value. Review treats a spec in these categories as a
+  smell, not as coverage.
 - `open: <required case>` - planned but not yet drafted. Never counts as coverage.
 - `question: <id>` - needs a domain answer; listed in open questions.
 - `gap: <code>` - expressible in design mode but blocked in the chosen mode (e.g. removal in
