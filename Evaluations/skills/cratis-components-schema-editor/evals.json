@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-components-schema-editor",
+  "evals": [
+    {
+      "id": 1,
+      "name": "schema-editor-wiring",
+      "prompt": "Wire a Cratis SchemaEditor in table layout so an admin can edit an event type's schema and save it with our persist(schema) function. The parent also wants to force edit mode from a prop. Give the React code in your reply and explain how save and editMode behave; do not write files.",
+      "expected_output": "Parent holds schema in state, updates it from onChange (complete new schema), and persists the held state from onSave, which takes no arguments and returns the editor to read mode. editMode is initial state only; remount with key to force a mode.",
+      "assertions": [
+        "Imports SchemaEditor and JsonSchema from @cratis/components/SchemaEditor and keeps the schema in parent state updated from onChange.",
+        "Persists the schema already held from onChange inside onSave, stating that onSave receives no arguments.",
+        "States that editMode is initial state only and later changes have no effect; remounting with a key is the way to force a mode.",
+        "Passes labels in a localized application instead of relying on English defaults."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "ref-and-narrow-subset",
+      "prompt": "Our JSON schema uses $ref to a shared Address definition under definitions. The Cratis SchemaEditor renders the address property with no children. Explain why and what we should do. Reply only.",
+      "expected_output": "The editor consumes a narrow hand-rolled JsonSchema subset; $ref and definitions are declared but never resolved; navigation walks properties and items literally. Inline the referenced shape before passing, do not rely on references for rendering.",
+      "assertions": [
+        "Says $ref and definitions are declared in the type but never resolved by the editor.",
+        "Says nested navigation walks properties and items literally.",
+        "Recommends supplying a schema whose shapes are inline rather than relying on references for rendering.",
+        "Describes the schema type as a narrow subset and not a full JSON Schema draft type."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "type-change-side-effects",
+      "prompt": "An admin changes a property in SchemaEditor from int32 to array and then to object, then to string. What happens to format, items and properties at each switch, and what names does the editor accept for properties? Reply only.",
+      "expected_output": "Switching to array seeds items as a string and clears format; to object seeds an empty properties and clears format and items; to anything else clears both items and properties. Names must be non-empty, match identifier pattern (letter or underscore then letters, digits, underscores) and be unique among siblings; Save is disabled while any name is invalid.",
+      "assertions": [
+        "Says switching to array seeds items as a string and clears format.",
+        "Says switching to object seeds empty properties and clears format and items.",
+        "Says switching to another type clears both items and properties.",
+        "States names must be non-empty, identifier-shaped and unique among siblings, and that Save is disabled while a name is invalid."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "object-content-editor-limits",
+      "prompt": "We use ObjectContentEditor with editMode to let support staff fix a stored payload whose schema has an optional `nickname` string and a nested `address` object. Gating Save on onValidationChange blocks saving when nickname is empty, and the address shows no editor. Explain both and how to design around them. Reply only.",
+      "expected_output": "In edit mode every field is treated as required regardless of schema required, so onValidationChange reports errors for empty optional values; schema required is only consulted in read mode. Only root-level properties are editable; array and object values render not-yet-supported text and nested navigation is read-only. Gate saving on own rules or stay read-only. onValidationChange never fires outside edit mode.",
+      "assertions": [
+        "Says that in edit mode every field is treated as required regardless of the schema's required list.",
+        "Says only root-level properties are editable and object or array values are not editable.",
+        "Suggests gating saving on the caller's own rules or staying read-only rather than relying on onValidationChange for optional values.",
+        "Notes onValidationChange does not fire outside edit mode."
+      ]
+    }
+  ]
+}

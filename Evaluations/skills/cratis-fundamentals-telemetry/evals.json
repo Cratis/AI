@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-fundamentals-telemetry",
+  "evals": [
+    {
+      "id": 1,
+      "name": "generated-instrumentation-declaration",
+      "prompt": "In namespace MyApplication.Reports our ReportWorker needs: a counter reports.completed tagged with the outcome, a gauge reports.pending, a histogram reports.duration in seconds, and a span reports.build tagged with the format. Give the complete C# declaration file using Cratis.Metrics.Roslyn and a call-site snippet that records them. Reply only; no files.",
+      "expected_output": "A static partial class in a namespace with static partial extension methods on IMeter<ReportWorker> / IActivitySource<ReportWorker>; [Counter<int>], [Gauge<int>], [Histogram<double>] with unit 's', [Span] returning IActivityScope<ReportWorker>; [Tag] from Cratis.Diagnostics for tags; call site uses `using var` for the span and records seconds.",
+      "assertions": [
+        "Declares a static partial class in a namespace with static partial methods, not an instance partial class.",
+        "Uses IMeter<ReportWorker> as the first parameter for metrics and IActivitySource<ReportWorker> returning IActivityScope<ReportWorker> for the span.",
+        "Uses the unit \"s\" on the histogram and records the measurement in seconds.",
+        "Assigns the span scope with using at the call site.",
+        "Marks tags with [Tag(...)] and does not add a second parameter of the measurement type as a tag."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "nothing-exported-subscription",
+      "prompt": "Generation works and a listener sees reports.completed increment, but the OTLP collector never receives it. Our worker is MyApplication.Reports.ReportWorker and we call AddCratisInstrumentation(). Diagnose and give the host setup. Reply only; give the C# in the answer.",
+      "expected_output": "Unkeyed instruments are named by typeof(T).FullName and AddCratisInstrumentation subscribes only to Cratis.*; application namespaces need an explicit AddMeter/AddSource through options.ConfigureMetrics/ConfigureTracing in AddCratisOpenTelemetry. Also check OTLP endpoint is configured (opt-in), SDK disablement and sampler independently.",
+      "assertions": [
+        "States that unkeyed instruments are named by typeof(T).FullName rather than the metric name or service name.",
+        "States AddCratisInstrumentation subscribes only to Cratis.* so the application namespace needs an explicit meter and source subscription.",
+        "Adds AddMeter(typeof(ReportWorker).FullName!) and AddSource(typeof(ReportWorker).FullName!) through ConfigureMetrics and ConfigureTracing.",
+        "Says OTLP export is opt-in and no configured endpoint means no OTLP exporter."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "export-config-and-secrets",
+      "prompt": "We must send traces and metrics over HTTP/protobuf to a collector at a shared URL, with a different logs endpoint, and an auth header. How should it be configured, and where does the header come from? Reply only.",
+      "expected_output": "Use OTEL_EXPORTER_OTLP_ENDPOINT with OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf (shared endpoint gains /v1/traces, /v1/metrics, /v1/logs), signal-specific OTEL_EXPORTER_OTLP_LOGS_ENDPOINT used as supplied; environment overrides config keys; headers are secrets from approved environment or secret mechanism, never code or committed config.",
+      "assertions": [
+        "Uses OTEL_EXPORTER_OTLP_ENDPOINT as the shared endpoint and OTEL_EXPORTER_OTLP_LOGS_ENDPOINT as the signal-specific override.",
+        "Sets the protocol to http/protobuf and says the shared endpoint gains /v1/traces, /v1/metrics or /v1/logs while signal-specific endpoints are used as supplied.",
+        "Says exporter headers are secrets obtained from the approved environment or secret mechanism, never in a snippet or committed configuration.",
+        "Says environment values take precedence over configuration keys."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "tag-cardinality",
+      "prompt": "A teammate wants a [Tag(\"customer.id\")] on orders.placed and a [Tag(\"email\")] on the login counter so support can graph per user. Review the plan. Reply only.",
+      "expected_output": "Do not put credentials, personal payloads or unbounded entity IDs in metric labels; choose bounded categories. Telemetry is measurements, not business facts or audit records.",
+      "assertions": [
+        "Rejects unbounded entity IDs such as customer id as metric labels.",
+        "Rejects personal data such as email as a metric label.",
+        "Recommends bounded categories as tags instead.",
+        "Says business facts or audit records belong elsewhere and are kept separate from telemetry."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "upgrade-metric-names",
+      "prompt": "After bumping Cratis.Fundamentals our Prometheus metric names changed, and a service that relied on Fundamentals' transitive OpenTelemetry package no longer compiles. What happened and what do we do? Reply only.",
+      "expected_output": "Regenerating after an upgrade from Fundamentals older than 7.20.0 can rename exported Prometheus metrics because descriptions are HELP text, not units; rebuild the consumer and update dashboards/alerts that used the description-suffixed names. Fundamentals stopped bringing the OpenTelemetry SDK transitively; add the explicit telemetry package (Cratis.OpenTelemetry).",
+      "assertions": [
+        "Says upgrading from a Fundamentals older than 7.20.0 can rename exported Prometheus metrics.",
+        "Says to rebuild the consumer and update dashboards and alerts that used the old description-suffixed names.",
+        "Says Fundamentals no longer brings the OpenTelemetry SDK transitively and an explicit telemetry package reference is needed."
+      ]
+    }
+  ]
+}

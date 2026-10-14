@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-orleans-jobs",
+  "queries": [
+    { "query": "we need a rebuild-catalog task in our Orleans silo that survives restarts and runs steps in parallel. should that be a Job with job steps?", "shouldTrigger": true },
+    { "query": "job step PerformStep mutates the state snapshot but after restart the progress is gone", "shouldTrigger": true },
+    { "query": "index repair must finish before the catalog rebuild starts, but the repair steps can run in parallel. how do I order them with Cratis.Orleans?", "shouldTrigger": true },
+    { "query": "IJobsManager.Resume returned false and my code waited forever for a completion callback", "shouldTrigger": true },
+    { "query": "Do I have to create the SQL tables for Cratis.Orleans.Storage.Sql jobs by hand or does the provider do it?", "shouldTrigger": true },
+    { "query": "our job step charges the payment provider and after a crash it charged twice. is exactly-once possible with these jobs?", "shouldTrigger": true },
+    { "query": "completed job state is kept but I can't read the successful step's result later. where did it go?", "shouldTrigger": true },
+    { "query": "how to set MaxParallelSteps and checkpoint intervals, Configure(options => options.MaxParallelSteps = 4) doesn't compile", "shouldTrigger": true },
+    { "query": "two job step grains got the same GrainType and the silo refuses to start", "shouldTrigger": true },
+    { "query": "a stage fails; how do I let the job continue to the next stage for a best-effort cleanup stage?", "shouldTrigger": true },
+    { "query": "list the running Chronicle jobs on our production server and stop the stuck one", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "A Chronicle reactor that sends an email after an event, retry on failure.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Validate a command's fields before it executes.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Run a scheduled nightly command through the Arc command pipeline without HTTP.", "shouldTrigger": false, "note": "cratis-arc-command-execution" },
+    { "query": "Make the Orleans grain handle a multi-tenant namespace for projections.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Add metrics and spans to the background worker.", "shouldTrigger": false, "note": "cratis-fundamentals-telemetry" },
+    { "query": "Review this Orleans change for N+1 and replay performance.", "shouldTrigger": false, "note": "cratis-performance-review" },
+    { "query": "Model a saga as events with compensation using the event-sourced state machine docs for a business process.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+  ]
+}

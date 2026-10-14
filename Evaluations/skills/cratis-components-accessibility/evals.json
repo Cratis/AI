@@ -1,0 +1,64 @@
+{
+  "skill_name": "cratis-components-accessibility",
+  "evals": [
+    {
+      "id": 1,
+      "name": "destructive-dialog-focus",
+      "prompt": "Our React app uses a Cratis Components CommandDialog for DeleteAccount with okLabel 'Delete'. QA reports that a user who holds Enter on the Delete row button can confirm the dialog before reading it. Explain the cause and show the corrected JSX in your reply; do not write files.",
+      "expected_output": "Names the armed-Enter hazard: the default initial focus is the confirm button, so a held or repeating Enter fires click on it. Fix is initialFocus set to DialogInitialFocus.Cancel (or Content), imported from @cratis/components/Dialogs.",
+      "assertions": [
+        "Explains that the default initial focus is the confirm button and that a held or repeating Enter or Space can click it immediately.",
+        "Sets initialFocus to DialogInitialFocus.Cancel on the dialog (Content is also acceptable).",
+        "Imports DialogInitialFocus from @cratis/components/Dialogs.",
+        "Does not suggest removing initial focus entirely, because Dialog has no focus-nothing option."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "localized-accessible-names",
+      "prompt": "We ship a Spanish build of an app using Cratis Components. A screen reader still announces English for the wizard Next/Previous buttons, the dialog Close button, and the DataPage paginator. Explain the precedence the library uses to resolve these names and how to localize them once for the app and for one special instance. Reply only, no files.",
+      "expected_output": "A named component prop wins, then the matching CratisComponentsProvider messages group, then the English default. Set messages (dialog, stepper, paginator, dataTable) on the provider once; use per-instance props such as closeAriaLabel, nextLabel, paginatorAriaLabels for exceptions. Any group left at English default is a defect.",
+      "assertions": [
+        "States the precedence: named component prop first, then provider message, then the English default.",
+        "Recommends setting the messages groups on CratisComponentsProvider once for the locale.",
+        "Names matching groups or props, such as messages.stepper or nextLabel/previousLabel, messages.dialog or closeAriaLabel, and messages.paginator or paginatorAriaLabels.",
+        "Treats a component or provider message group left at its English default in a localized app as a defect."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "name-on-focusable-element",
+      "prompt": "A Cratis Dropdown is wrapped in our FormRow component that puts id and aria-describedby on an outer div. Clicking the external label no longer focuses the control and our test `getByRole('combobox')` finds nothing. Explain both problems and show the fixed usage. Reply with code in the answer only.",
+      "expected_output": "The id and aria attributes must reach the focusable trigger; Dropdown routes id and aria-* to its trigger. A single select follows button/listbox pattern, only filtered one is a combobox, so query by accessible name or the trigger part.",
+      "assertions": [
+        "Says id, tabIndex and aria-* must be forwarded to the focusable child instead of being put on a container or wrapper.",
+        "Shows a label with htmlFor matching the Dropdown id and aria-describedby passed to the Dropdown itself.",
+        "Explains that a single-select Dropdown is a button/listbox pattern rather than a combobox, so the test should query by accessible name or the trigger part (data-cratis-part='trigger') instead of role combobox."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "pt-aria-and-duplicate-errors",
+      "prompt": "A teammate wants to (a) push role='status' and aria-label through `pt` onto a part of a Cratis component that is already labelled, and (b) add their own aria-describedby linking each CommandForm field to the visible validation text. Review both ideas. Reply only.",
+      "expected_output": "Reject both: parts are for presentation, named behavior props override conflicting part attributes or create competing semantics; CommandForm fields already render a visually hidden errors span linked via aria-describedby, so a second wiring announces twice.",
+      "assertions": [
+        "Says pt and data-cratis-part are for presentation (className, style, data attributes), not for role or aria attributes.",
+        "Says named behavior props override conflicting part attributes or produce two competing semantics.",
+        "Says CommandForm fields already render a visually hidden errors span linked through aria-describedby.",
+        "Advises against wiring a second aria-describedby to the visible error because it would be announced twice."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "honest-conformance-claim",
+      "prompt": "Our compliance lead asks: 'Cratis Components runs axe in its tests, so can we state in our VPAT that every screen built with it is WCAG 2.2 AA conformant?' Give a short, accurate answer for the lead. Reply only.",
+      "expected_output": "No. axe-core (WCAG 2 A and AA rules) runs on representative foundation surfaces only; it is not conformance certification, covers no keyboard order, focus restoration, screen-reader phrasing or color relationships, and the application owns visible focus, contrast, skip links and verification in its supported assistive technologies.",
+      "assertions": [
+        "Declines to claim conformance, saying the automated scan is not a certification.",
+        "States the axe scan covers representative surfaces and not every component.",
+        "Says keyboard order, focus restoration, screen-reader output or color relationships need verification in the application.",
+        "Says the application or custom design still owns visible focus, contrast and skip links."
+      ]
+    }
+  ]
+}

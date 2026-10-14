@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-components-stepper-command-dialog",
+  "queries": [
+    { "query": "the CreateProject command has like 12 fields, too much for one dialog. can we split it into stages like contact, details, budget in a wizard?", "shouldTrigger": true },
+    { "query": "StepperCommandDialog Next stays disabled on step 2 even though I filled everything. what controls Next?", "shouldTrigger": true },
+    { "query": "edit wizard for UpdateProject: the project id has to be in the command but the user doesn't type it, and name comes from a query a bit later. how do I seed?", "shouldTrigger": true },
+    { "query": "my pt prop on StepperCommandDialog does nothing to the dialog frame", "shouldTrigger": true },
+    { "query": "I wrapped two StepperPanels in a fragment and the wizard only shows one step", "shouldTrigger": true },
+    { "query": "can I embed the stepper directly in a page without the dialog chrome? we need onFailed handling and no double submits", "shouldTrigger": true },
+    { "query": "vertical orientation for the register employee wizard with Continue and Back labels", "shouldTrigger": true },
+    { "query": "I added my own Cancel button in the wizard footer, users can cancel mid-submit. what's the right way?", "shouldTrigger": true },
+    { "query": "Submit stays disabled forever because I seed a required budget value in onBeforeExecute", "shouldTrigger": true },
+    { "query": "opening wizard with prefilled invalid values should show errors right away not after first keystroke", "shouldTrigger": true },
+    { "query": "A simple CommandDialog to rename a boat with a single name field.", "shouldTrigger": false, "note": "cratis-arc-react-page (ordinary CommandDialog)" },
+    { "query": "Build the whole page shell with DataPage, menu items and a query-backed table.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Make my destructive confirm dialog focus Cancel first and localize the Close label.", "shouldTrigger": false, "note": "cratis-components-accessibility" },
+    { "query": "How do I theme the dialog backdrop and stepper numbers with --cratis tokens?", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Write the C# command and validator for CreateProject.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Add the server-side rule that email must be unique when CreateProject runs.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Pick between tabs and a toggle group for the project details screen.", "shouldTrigger": false, "note": "cratis-components-common-controls" },
+    { "query": "A canvas tool palette with fan-out shapes.", "shouldTrigger": false, "note": "cratis-components-toolbar" }
+  ]
+}
