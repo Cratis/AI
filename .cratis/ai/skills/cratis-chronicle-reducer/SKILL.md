@@ -26,10 +26,7 @@ their own contracts. This guidance does not claim Stage renders the self form.
 
 Sources:
 
-| Package | Purpose |
-| --- | --- |
-| `Cratis.Chronicle` | `Cratis.Chronicle.Reducers`, `Cratis.Chronicle.ReadModels`, `Cratis.Chronicle.Events`; self and instance forms, discovery and ownership (`Source/Clients/DotNET/Reducers/{SelfReducerMethods,SelfReducerInvoker,SelfReducerReplayHooks,RegisteredReducerReadModel,ReducerInvoker,ReducerCatalog}.cs`, `ReadModels/ReadModelBuilderOwnership.cs`, `DefaultClientArtifactsProvider.cs`) |
-| `Cratis.Chronicle.Testing` | `Source/Clients/Testing/ReadModels/ReadModelScenario.cs`: static folds through scenarios |
+Read [references/product-sources.md](references/product-sources.md) when you need the source files behind discovery and ownership.
 
 Reverify product sources before claiming support for another version.
 
@@ -105,22 +102,7 @@ Check the consuming Arc version; Chronicle's discovery does not fix older Arc.
 
 When the fold needs the separation described above, use the classic form:
 
-```csharp
-using Cratis.Chronicle.Events;
-using Cratis.Chronicle.Reducers;
-
-// This fold lives separately because the model is a shared data contract.
-public class <ReadModelName>Reducer : IReducerFor<<ReadModelName>>
-{
-    public <ReadModelName> <Opened>(<OpenedEvent> @event, <ReadModelName>? current, EventContext context) =>
-        new(<initialValue>, context.Occurred);
-
-    public <ReadModelName> <Changed>(<ChangedEvent> @event, <ReadModelName>? current) =>
-        current is null
-            ? new(<initialValue>, default)
-            : current with { <Property> = <computedFrom(current, @event)> };
-}
-```
+Read [references/instance-reducer-example.md](references/instance-reducer-example.md) when you need a worked `IReducerFor<T>` instance reducer.
 
 `IReducerFor<TReadModel>` is a marker with no members, constrained to
 `where TReadModel : class`.
@@ -256,70 +238,13 @@ same store catalog: `AmbiguousReadModelBuilder` rejects it. `[Passive]`, sequenc
 selection, filters and `[Reducer]` alone do not establish projection ownership.
 Remove the old builder when switching; registration is not a data migration.
 
-## Optional self replay hooks
+## Replay
 
-Independently optional public static non-generic hooks return exactly `Task`:
+Read [references/replay-hooks-and-definition-changes.md](references/replay-hooks-and-definition-changes.md) when a self model needs `BeginReplay`/`EndReplay` hooks (they return exactly `Task`; do not assume delivery is exactly once) or when a code, key or filter change must replay (`observers.definitionEvolution`). Requires Chronicle 19.29.4 for method-fingerprint change detection; assembly versions are ignored.
 
-```csharp
-public static Task BeginReplay() => Task.CompletedTask;
-public static Task EndReplay() => Task.CompletedTask;
-public static Task BeginReplayPartition(Partition partition) => Task.CompletedTask;
-public static Task EndReplayPartition(Partition partition) => Task.CompletedTask;
-```
+## Filtering
 
-Place these methods on the model and import `Cratis.Chronicle.Observation` for
-`Partition`. Global hooks accept only trailing class/interface service arguments;
-partition hooks require `Partition` first. Services resolve in the notification's
-async DI scope; missing registrations fail. Events, the model, `EventContext`
-and extra partition arguments are not hook services. Chronicle awaits hooks and
-scope disposal; absent hooks create no scope. Do not assume full replay delivers
-partition notifications, failures deliver an end hook, or delivery is exactly
-once. Instance reducers retain replay notification interfaces.
-
-## Filtering which events reach the reducer
-
-Place filters on the self model or separate reducer class. These attributes
-genuinely filter a reducer's input, matching append metadata:
-
-| Attribute | Filters on |
-| --- | --- |
-| `[FilterEventsByTag("<tag>")]` | an appended tag; repeatable, and any one match admits the event |
-| `[EventSourceType("<value>")]` | the appended event source type |
-| `[EventStreamType("<value>")]` | the appended event stream type |
-| `[FromEventSource<TSource>("<stream>")]` | the source definition and declared stream (`Cratis.Chronicle.EventSources`) |
-
-`[Tag]` and `[Tags]` **label** the artifact; they do not filter. Note also that a
-**projection cannot be filtered at all** — its definition has no field for it.
-When you need metadata-based selection, a reducer or a reactor is where it can
-happen.
-
-The matching append supplies that metadata:
-
-```csharp
-await eventStore.EventLog.Append(
-    <eventSourceId>,
-    new <EventName>(<arguments>),
-    eventStreamType: "<stream-type>",
-    eventSourceType: "<source-type>",
-    tags: ["<tag>"]);
-```
-
-Mind the parameter order on `Append`: `eventStreamType` comes before
-`eventStreamId`, which comes before `eventSourceType`.
-CHR0055 flags an unknown typed stream and CHR0056 contradictory routing.
-Filters remain effective during catch-up, replay and failed-partition recovery.
-
-## Definition changes replay
-
-The kernel classifies new definitions under `observers.definitionEvolution`:
-`Automatic` (default), `PartialOnly`, or `Manual`. Reducer method fingerprints
-make code changes visible even without subscription changes; assembly versions
-are ignored (Requires Chronicle 19.29.4). Changed
-implementation, keys or filters require full replay; adding event types permits
-partial replay only when history proves they follow all previously consumed
-events per source. Interleaved history requires full replay. Manual policies
-leave recommendations; they do not silently rebuild. Source:
-`Documentation/hosting/configuration/observers.md`.
+Read [references/filtering.md](references/filtering.md) when restricting which events reach a reducer (tag, event source type, stream type or declared source). `[Tag]` and `[Tags]` label and do not filter; a projection cannot be filtered at all.
 
 ## Specifications
 
@@ -329,17 +254,7 @@ Add `ReadModelScenario<TReadModel>` only where event dispatch, filtering,
 metadata or read-model wiring contribute proof; drive the event sequence and
 assert on the resulting instance there. For the self example:
 
-```csharp
-var next = AccountBalance.Reduce(new FundsCredited(new Money(10m)), null);
-next.Total.Value.ShouldEqual(10m);
-
-using var scenario = new ReadModelScenario<AccountBalance>();
-await scenario.Given.ForEventSource("account-42").Events(
-    new FundsCredited(new Money(10m)),
-    new BalanceCleared(),
-    new FundsCredited(new Money(3m)));
-scenario.Instance!.Total.Value.ShouldEqual(3m);
-```
+Read [references/specification-example.md](references/specification-example.md) when you need a worked direct-call and `ReadModelScenario` spec.
 
 Import `Cratis.Chronicle.Testing.ReadModels` for the scenario and the project's
 specification assertions. Test deletion alone as absence, then recreation;
