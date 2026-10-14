@@ -1,5 +1,9 @@
 ---
-applyTo: "**/*"
+applyTo: "**/.github/pull_request_template*,**/.github/PULL_REQUEST_TEMPLATE/**,**/COMMIT_EDITMSG"
+paths:
+  - "**/.github/pull_request_template*"
+  - "**/.github/PULL_REQUEST_TEMPLATE/**"
+  - "**/COMMIT_EDITMSG"
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
