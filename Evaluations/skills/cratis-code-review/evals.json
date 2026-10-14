@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-code-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "slice-review-report",
+      "prompt": "Review this change and give the report in your reply (do not write files). Gates are green. File Bookings/Boats/RegisterBoat/RegisterBoat.cs:\n```csharp\nnamespace Cratis.Sample;\n[Command]\npublic record RegisterBoat(Guid BoatId, string Name)\n{\n    public BoatRegistered Handle()\n    {\n        if (Name == null) throw new InvalidOperationException(\"Name missing\");\n        return new BoatRegistered(BoatId, Name);\n    }\n}\n[EventType]\npublic record BoatRegistered(Guid BoatId, string Name);\n```",
+      "expected_output": "Starts with a one-line Review result (Changes requested). Blocking: business rejection thrown instead of returned as ValidationResult/validator (500 not validation error); event carries the event-source id; built-in exception type. Also raw Guid/string rather than concepts/EventSourceId; == null; missing XML docs. Each blocking item names a consequence and gives a fix; states what was not reviewed.",
+      "assertions": [
+        "Opens with a single-line review result of the form Approved, Approved with comments, or Changes requested, and picks Changes requested.",
+        "Flags the throw from Handle as blocking because it becomes an HTTP 500 instead of a validation error, and recommends a validator or ValidationResult.",
+        "Flags the event carrying the event-source id (BoatId) and the use of a built-in exception type.",
+        "Flags raw Guid and string instead of concept types, with identity derived from EventSourceId<T> rather than ConceptAs<Guid>.",
+        "Names the consequence for blocking findings and says what was not reviewed."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "red-build-and-severity",
+      "prompt": "A teammate asks you to review a change but `dotnet build` fails with two analyzer errors and one spec is red. They want a full style report anyway, and they mark every finding as blocking so nothing is prioritized. How should the review proceed and how should findings be classified? Reply only.",
+      "expected_output": "Run the gates first; a gate failure is the finding and the review stops since there is nothing to review under a red build. Do not restate compiler/analyzer output as review findings. Separate blocking from suggestions with consequences; if everything blocks nothing is prioritized.",
+      "assertions": [
+        "Says gates (build, specifications, lint) are run first and a gate failure is reported as the finding with the review stopping.",
+        "Says a review should not restate what the compiler or analyzer already reports.",
+        "Says blocking issues must be separated from suggestions, and that treating everything as blocking prioritizes nothing.",
+        "Says a blocking finding names a consequence rather than just citing a rule."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "singleton-scoped-dependency",
+      "prompt": "In review: `[Singleton] public class BoatCatalog(IEventStore eventStore, IMongoCollection<Boat> boats)`; the event store call is used in a handler. Also this changed line moves an old unchanged file's `== null` check. What do you report and how severe is each? Reply only.",
+      "expected_output": "A [Singleton] must not take a scoped dependency such as the event store or a MongoDB collection/database/client; make the type transient or scoped (IServiceScopeFactory only for a service the host resolves once). A pre-existing violation in a line the change did not touch is a note, never a blocker.",
+      "assertions": [
+        "Flags the singleton taking the event store and a MongoDB collection as a blocking finding.",
+        "Recommends making the type transient or scoped instead.",
+        "Says a pre-existing violation on a line the change did not touch is a note, not a blocker."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "spec-coverage-review",
+      "prompt": "The change adds a command with one validation rule, one business-rule rejection and a unique constraint. The specs: a happy-path spec, a validation spec asserting only the error message text 'Name is required', a spec for a property getter, and a Thread.Sleep(500) before an assertion. Review the specification coverage. Reply only.",
+      "expected_output": "Validation failure spec must assert both ShouldNotBeSuccessful() and ShouldHaveValidationErrors(); message strings are not asserted by default; missing spec for business-rule rejection; missing EventScenario spec asserting the constraint name; trivial getter spec should not exist; no sleeping.",
+      "assertions": [
+        "Says the validation failure specification must assert both ShouldNotBeSuccessful() and ShouldHaveValidationErrors().",
+        "Says presentation message strings are not asserted by default.",
+        "Flags the missing business-rule rejection specification and the missing EventScenario constraint specification asserting the constraint name.",
+        "Flags the trivial property getter specification and the sleep in a specification."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "routing-and-convention-vs-contract",
+      "prompt": "While reviewing, a teammate says 'the framework requires every slice to be in its own folder and requires a single file per slice' and asks you to also include a full security audit and a deep replay-performance analysis in the same report. How do you handle it? Reply only.",
+      "expected_output": "Slice folder shape and single-file default are house conventions, not framework contracts; Handle() on the record and [Path] are contracts. Don't call a convention a framework requirement. A focused security audit goes to cratis-security-review; scalability analysis to cratis-performance-review; do not restate specialist performance findings; only flag visible performance items in passing.",
+      "assertions": [
+        "Says the slice folder shape and single-file default are house conventions, not framework contracts.",
+        "Names Handle() on the record or the [Path] attribute as framework contracts.",
+        "Routes a focused security audit to the security review skill and a scalability analysis to the performance review skill.",
+        "Says the report states what was not reviewed."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-fundamentals-type-discovery",
+  "queries": [
+    { "query": "I have 6 IReportFormatter implementations and a ReportFormatters class that picks the one where CanHandle is true. I'm tired of adding AddSingleton lines every time", "shouldTrigger": true },
+    { "query": "injecting IEnumerable<IValidationRule> gives me an empty list even though I have five rules. what's up?", "shouldTrigger": true },
+    { "query": "[Singleton] doesn't resolve in my class, what namespace is it in", "shouldTrigger": true },
+    { "query": "how do I get every handler for an event dispatched without registering each one by hand? we use Cratis", "shouldTrigger": true },
+    { "query": "IInstancesOf<T> enumerates but one implementation is silently missing from the set", "shouldTrigger": true },
+    { "query": "plain console host with Cratis.Fundamentals: IInstancesOf can't be resolved at startup", "shouldTrigger": true },
+    { "query": "a scoped strategy implementation and my singleton consumer using IInstancesOf blows up with scope validation", "shouldTrigger": true },
+    { "query": "I only need the Types of every implementation of IPlugin, not instances. what do I inject?", "shouldTrigger": true },
+    { "query": "app crashed on startup: a registration for a deleted filter class is still in the composition root", "shouldTrigger": true },
+    { "query": "how do I test that the discovered filter chain isn't empty, assertions pass even when there are zero filters", "shouldTrigger": true },
+    { "query": "Register a single IClock implementation as a singleton in DI.", "shouldTrigger": false, "note": "ordinary single-service DI; IFoo->Foo convention, cratis-engineering-csharp-conventions" },
+    { "query": "Add a counter and a span for the report worker and export through OpenTelemetry.", "shouldTrigger": false, "note": "cratis-fundamentals-telemetry" },
+    { "query": "Make this method return IEnumerable<Order> to the caller instead of a List.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" },
+    { "query": "Write a reactor that reacts to BoatBooked events and sends email.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Orleans job step grain registration and stage barriers.", "shouldTrigger": false, "note": "cratis-orleans-jobs" },
+    { "query": "Review the C# changes for naming and record usage.", "shouldTrigger": false, "note": "cratis-code-review" },
+    { "query": "Arc command that gets a service injected into Handle.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Generate Roslyn source for my own attribute in an analyzer project.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "skill_name": "cratis-components-toolbar",
+  "evals": [
+    {
+      "id": 1,
+      "name": "drawing-toolbar-active",
+      "prompt": "Build a vertical drawing toolbar with Select, Draw and Rectangle tools where the chosen tool shows as active, using Cratis Components and react-icons. Show the TSX in your reply and note the import path and what the active prop does for accessibility. Do not write files.",
+      "expected_output": "Toolbar and ToolbarButton imported from @cratis/components/Toolbar; each ToolbarButton has a required title (tooltip and accessible name) and icon as a React node; active bound to state sets aria-pressed; toolbar named with aria-label.",
+      "assertions": [
+        "Imports from @cratis/components/Toolbar, not the root barrel.",
+        "Gives every ToolbarButton a title prop and does not use a tooltip prop on ToolbarButton.",
+        "Passes icons as React nodes such as <FaPencil />.",
+        "States that supplying active sets aria-pressed, and names the toolbar with aria-label or aria-labelledby."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "horizontal-zoom-strip",
+      "prompt": "Make a horizontal zoom strip: zoom out, a button showing the current percent that resets to 100, zoom in, a separator and a Help button. The tooltips currently cover the bar. Give the TSX in your reply; no files.",
+      "expected_output": "Toolbar orientation='horizontal', ToolbarSeparator with orientation='horizontal', tooltipPosition='bottom' (or top) on buttons, text prop for the percent value, titles on all buttons.",
+      "assertions": [
+        "Sets orientation='horizontal' on Toolbar and the same orientation on ToolbarSeparator.",
+        "Sets tooltipPosition to bottom or top on the buttons, since the default is right.",
+        "Uses the text prop on the button that displays the zoom percentage.",
+        "Gives every button a title."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "fan-out-and-folder-props",
+      "prompt": "Add to a toolbar docked on the right screen edge: (a) a Shapes button that fans out Rectangle and Circle, (b) a Tools folder showing Draw and Erase as a list. Which label prop does each component take, and which direction should the fan-out go? Show TSX. Reply only.",
+      "expected_output": "ToolbarFanOutItem takes required icon and tooltip (the one component whose label is tooltip) with fanOutDirection='left' away from the right edge; ToolbarFolder takes title and icon with mode='list'. Inner buttons use title.",
+      "assertions": [
+        "Uses tooltip, not title, as the label prop on ToolbarFanOutItem and passes the required icon.",
+        "Uses title on ToolbarFolder with mode='list'.",
+        "Sets fanOutDirection to left so it fans away from the screen edge the toolbar sits against.",
+        "Uses title on the nested ToolbarButtons."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "slots-and-no-compound",
+      "prompt": "A property panel deep in the tree should contribute tool options to the toolbar when mode === 'draw'. A teammate wrote <Toolbar.Group slotName='tool-options' /> and a ToolbarSlot outside any provider. Fix it and explain how the slot mechanism works. Reply with code in the answer.",
+      "expected_output": "Exports are flat siblings, no compound members: ToolbarGroup. Wrap region in ToolbarSlotProvider; ToolbarSlot with matching slotName and order publishes content, renders nothing where it sits; the consuming ToolbarGroup slotName (or ToolbarLayout) shows it ordered ascending by order. Both inside the same provider.",
+      "assertions": [
+        "Uses <ToolbarGroup> instead of the nonexistent <Toolbar.Group> compound member.",
+        "Wraps both the ToolbarSlot and the Toolbar in the same ToolbarSlotProvider.",
+        "Matches slotName between the ToolbarSlot and the consuming ToolbarGroup.",
+        "Says ToolbarSlot renders nothing where it sits and content appears in the consumer ordered ascending by order."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "icon-font-strings",
+      "prompt": "A dev passes icon='fa-solid fa-pencil' to ToolbarButton and sees no glyph. Explain why and what to do instead. Reply only.",
+      "expected_output": "icon is a React node (preferred) or a complete consumer-owned icon-font class string rendered on an <i> unchanged. Components installs no icon font; the product must load the stylesheet and pass every class the font needs. Prefer react-icons nodes or a custom SVG component.",
+      "assertions": [
+        "States that Components installs no icon font.",
+        "Says a string icon is rendered on an <i> unchanged so the product must load the font stylesheet and pass every class needed.",
+        "Recommends a React node icon such as one from react-icons/fa6 or a custom SVG component."
+      ]
+    }
+  ]
+}

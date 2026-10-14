@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-components-styling",
+  "evals": [
+    {
+      "id": 1,
+      "name": "unstyled-first-run",
+      "prompt": "A new Cratis Components 4 app renders every control unstyled and no toast ever shows. Give the exact index.css and the provider setup that fix it, and explain the ordering. Code in your reply; do not write files.",
+      "expected_output": "index.css imports @cratis/components/tokens first, then styles, then optionally theme, imported from the entry with import './index.css'. CratisComponentsProvider from the package root wraps the tree with locale and toaster so toasts show; mount exactly one toaster. Provider carries no theme.",
+      "assertions": [
+        "Imports @cratis/components/tokens before @cratis/components/styles, with theme optional and last.",
+        "Mounts CratisComponentsProvider imported from the package root @cratis/components above the app.",
+        "Enables the toaster through the toaster prop on the provider and says to mount only one toaster, not both the provider's and a standalone one.",
+        "States the provider carries locale and messages but no theme."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "dark-mode-and-overrides",
+      "prompt": "We import the baseline theme. Dark mode must follow a user toggle, and our `:root { --cratis-surface-ground: #fafafa }` override is ignored when dark. Show how to toggle dark mode and how to fix the override. Reply only.",
+      "expected_output": "Toggle with document.documentElement.classList.toggle('cratis-dark', darkMode); no provider option. A plain :root rule after theme loses to dark selectors like :root.cratis-dark, so match the scheme selector specificity and place overrides after the import, or omit theme and use a product theme. Use token not hard-coded hex for chrome.",
+      "assertions": [
+        "Toggles dark mode by adding or removing the cratis-dark class on the root element, not via a provider option.",
+        "Explains a plain :root override loses to dark selectors such as :root.cratis-dark.",
+        "Fixes it by matching the scheme selectors' specificity and placing overrides after the theme import, or by omitting theme.",
+        "Does not suggest hard-coding a hex value in component styles for UI chrome."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "pt-wrong-surface",
+      "prompt": "Our `pt` on DataPage and on StepperCommandDialog changes nothing visible. Explain which prop targets which surface for DataPage, StepperCommandDialog and Column filters, and how to find the right part name for a selector. Reply only.",
+      "expected_output": "DataPage: tablePt (DataTableParts), paginatorPt (TablePaginatorParts), menubarPt (ButtonParts). StepperCommandDialog: pt is the inner stepper, dialogPt the outer dialog. Column: filterPt for the filter popup. Read data-cratis-part off the rendered element or the parts manifest because the Toolbar family prefixes names; ptOptions and unstyled do nothing; there is no global provider pt.",
+      "assertions": [
+        "Names tablePt, paginatorPt and menubarPt as the DataPage surface props.",
+        "Says StepperCommandDialog pt targets the inner stepper and dialogPt the outer dialog.",
+        "Names filterPt for a Column filter popup.",
+        "Says to read the data-cratis-part value from the rendered element rather than guessing, and not to target React Aria class names."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "migration-leftovers",
+      "prompt": "Migrating from Components 3: the provider has license, theme, unstyled and ptOptions, and package.json still lists primereact and primeicons. What should we do with each? Reply only.",
+      "expected_output": "Components 4 has no Prime dependency; remove leftover Prime packages unless the app itself imports them directly (then that island owns its provider, theme and license). The Components 3 renderer keys (license, theme, defaults, global pt, ptOptions, ripple, unstyled, z-index) are type errors on purpose; theming is CSS via tokens/theme; ptOptions/unstyled as pt props are no-ops.",
+      "assertions": [
+        "Says Components 4 declares no PrimeReact or PrimeIcons dependency and leftover Prime packages should be removed unless the application imports them directly.",
+        "Says the old provider keys such as license, theme and unstyled are type errors on purpose.",
+        "Says theming is done with CSS: the tokens, styles and optional theme stylesheet entries and --cratis-* custom properties.",
+        "Says ptOptions and unstyled do nothing."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "tailwind-layers",
+      "prompt": "Our app uses Tailwind and component rules beat our utilities while `pt` classes lose. We declared the layer order after the imports. What is wrong and what exactly should we do? Reply only.",
+      "expected_output": "Tailwind is one supported way to write the CSS, not the default; styles ships no Preflight. The host must put the layer order in its first @layer statement parsed before any stylesheet (e.g. inline style), naming properties, theme, base, cratis-theme, cratis-components, cratis-utilities, components, utilities; declaring after imports cannot reorder established layers.",
+      "assertions": [
+        "Says declaring the layer order after the imports cannot reorder layers already established.",
+        "Says the layer-order statement must be the first @layer statement parsed, before any stylesheet, for example an inline style in the host.",
+        "Includes the cratis-theme, cratis-components and cratis-utilities layers above the product's components and utilities layers.",
+        "Says Cratis internal utilities are prefixed cratis: and are not public styling hooks."
+      ]
+    }
+  ]
+}

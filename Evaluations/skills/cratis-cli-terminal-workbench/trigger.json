@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-cli-terminal-workbench",
+  "queries": [
+    { "query": "how do I open the full-screen terminal UI for chronicle and jump between observers, failures and jobs?", "shouldTrigger": true },
+    { "query": "I know the observer's name but not which view it's in, fastest way in the cratis workbench TUI?", "shouldTrigger": true },
+    { "query": "pressed Ctrl+C in the cratis workbench and it didn't quit, just copied something. how do I exit?", "shouldTrigger": true },
+    { "query": "cratis chronicle workbench -o json gives a validation error", "shouldTrigger": true },
+    { "query": "in the workbench Failures view what does T and P do? and does Enter confirm the modal?", "shouldTrigger": true },
+    { "query": "can the terminal workbench redact an event or revise it?", "shouldTrigger": true },
+    { "query": "filter observers by state in the TUI, what's the syntax?", "shouldTrigger": true },
+    { "query": "I located the failing partition interactively, how do I record it as evidence for the ticket?", "shouldTrigger": true },
+    { "query": "can my AI agent launch and drive the cratis workbench to inspect production?", "shouldTrigger": true },
+    { "query": "switch event store and namespace inside the terminal workbench, which keys?", "shouldTrigger": true },
+    { "query": "Open the Chronicle web UI on port 35000 and redact an event.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" },
+    { "query": "Script that lists failed partitions as json and pipes the ids into another command.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Which MCP tool lists observers in Chronicle?", "shouldTrigger": false, "note": "cratis-chronicle-mcp-inspection" },
+    { "query": "Install the cratis CLI and set up contexts and login.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Build a terminal UI for my own tool with Spectre.Console.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" },
+    { "query": "Browser extension to inspect Arc commands and queries live.", "shouldTrigger": false, "note": "cratis-lens-browser-extension" },
+    { "query": "Replay an observer after fixing the handler on the staging server.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Configure Features:Workbench so the browser workbench is served.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" }
+  ]
+}
