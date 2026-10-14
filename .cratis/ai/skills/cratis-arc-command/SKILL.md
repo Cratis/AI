@@ -154,6 +154,10 @@ Use the [threaded shop example](references/shop-generation.md): CustomerId
 received time/tenant (Requires Arc 22.83.0); Clock/Tenant scenario setup
 is shown there.
 
+Read references/fresh-identifiers.md when a generated value is an append target:
+Requires Arc 22.95.0 for whole-source emptiness protection, collision outcomes,
+explicit opt-out and decision-mode scenario setup.
+
 ## When not to generate
 
 Read [references/generation-boundaries.md](references/generation-boundaries.md) when deciding whether to generate.

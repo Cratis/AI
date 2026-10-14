@@ -33,6 +33,11 @@ That is the first thing to check when a build succeeds but no proxies appear.
 Output folders mirror the C# **namespace**, not the file path. A command in
 `<Root>.<Feature>` lands in `<output>/<Feature>/`.
 
+Requires Arc 22.82.0 for collection command responses to generate array types
+in `Command<...>` and `useCommand<...>` (for example `IEnumerable<ProjectSummary>`
+becomes `ProjectSummary[]`). Check the generator package version and regenerate;
+older proxies can type the already-array runtime response incorrectly.
+
 ## MSBuild properties
 
 Properties below are forwarded by the package's `.props`/`.targets`; boolean

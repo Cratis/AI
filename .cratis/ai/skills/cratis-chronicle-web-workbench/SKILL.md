@@ -79,6 +79,15 @@ the host root and from environment variables prefixed `Cratis__Chronicle__`.
 false silently disables the Workbench**, because the Workbench is nothing but a
 client of that API.
 
+Requires Chronicle 19.55.0 for `Workbench:BasePath`
+(`Cratis__Chronicle__Workbench__BasePath`) behind a path-routed proxy. It prefixes
+page assets and API/stream/WebSocket routes and accepts stripped or retained
+prefixes; gRPC clients do not use it. Requires 19.56.1 for all navigation and
+Read Models redirects to retain that prefix. Check the kernel version; older
+kernels need a dedicated host/root route. This is explicit configuration, not
+`X-Forwarded-Prefix` trust. Leave it empty for a Stage-bundled kernel whose
+Workbench page is already rewritten by Stage.
+
 An application that embeds Chronicle can host the Workbench as a side-car web
 server instead, on its own port and optionally under a base path.
 
@@ -148,6 +157,7 @@ Everything below mutates the running server.
 | Screen | Operation | Confirmed in the UI? |
 | --- | --- | --- |
 | Observers | Replay observer | yes |
+| Observers | Fast forward to sequence tail | yes |
 | Observers | Clear quarantine | **no** |
 | Observers | Remove observer | yes |
 | Failed partitions | Retry partition | **no** |
@@ -167,6 +177,11 @@ Everything below mutates the running server.
 | Users | Add, change password, require password change, remove | last two |
 | Applications | Add, change secret, remove | remove |
 | Development Tools | **Reset kernel state** | yes |
+
+Requires Chronicle 19.56.0 for Fast forward: it skips every unhandled event,
+discards failed partitions and retains already-built state. This is deliberate
+loss of pending processing, not a repair or replay. Read the hosting operations
+reference before authorizing it; older Workbenches have no such action.
 
 **A missing confirmation dialog is not permission.** Clear quarantine, retry
 partition, stop/resume/delete job, and perform recommendation all fire on the

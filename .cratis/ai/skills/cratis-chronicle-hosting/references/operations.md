@@ -3,6 +3,13 @@
 
 # Recovery, retention and upgrades
 
+## Contents
+
+- Observer behavior
+- Causation values and incidents
+- SQL database ownership
+- Upgrade and restore
+
 Source: `Cratis/Chronicle`:
 `Documentation/hosting/configuration/{observers,events,clustering}.md`,
 `Documentation/hosting/production.md`,
@@ -33,6 +40,30 @@ observer quarantine suppresses automatic recovery for the whole observer.
 Sources: `Documentation/concepts/observers.mdx`,
 `Documentation/projections/registration-lifecycle.md`, and
 `Source/Kernel/Core/Observation/Jobs/{CatchUpObserver,ReplayObserver}.cs`.
+
+Requires Chronicle 19.56.0 for authorized `FastForward` on .NET `IReactors`,
+`IReducers` and `IProjections` (by observer id or generic artifact), and the
+Workbench action. It moves to the sequence tail, discards failed partitions and
+keeps built state without invoking skipped events. Inspect `FastForwardResult`
+and its outcome: replaying/unavailable is not success. Record the exact observer,
+position and skipped scope before authorization; replay from the required history
+is a recovery action, not automatic undo. Check the kernel/client version;
+older deployments have no fast-forward operation.
+
+Requires Chronicle 19.62.2 for suspected-skip diagnostics:
+`chronicle-observer-events-suspected-skipped` and
+`chronicle-appended-events-queue-events-possibly-undelivered`, with rate-limited
+warnings identifying the affected observer/position/reason. Delivery behavior is
+unchanged; absence of a warning does not prove complete historical processing.
+
+Requires Chronicle 19.59.4 for `Shutdown:DrainTimeout`
+(`Cratis__Chronicle__Shutdown__DrainTimeout`, default eight seconds), capped below
+the host shutdown timeout. It bounds in-flight observer completion and MongoDB
+buffer flushing; overdue work is logged and recorded as failed where time allows.
+Requires 19.55.2 for catch-up/replay progress to wait for confirmed buffered writes
+on every silo and resume from the last durable position after a failed window.
+Check the kernel version and shutdown logs; neither guarantee makes an interrupted
+external effect exactly once.
 
 ### Next-event lookup failures
 
@@ -73,6 +104,17 @@ observer failure/quarantine counters support alerting without dumping event
 payloads. Inspect the configured metrics endpoint and incident queries; counters
 are operational evidence, not proof that a failed partition recovered. Do not
 reintroduce high-cardinality partition labels into exported failure metrics.
+
+## SQL database ownership
+
+Requires Chronicle 19.62.3 for recorded SQL database bindings in the cluster
+`DatabaseNames` table and hashed names beyond PostgreSQL's 63-byte/SQL Server's
+128-character limits. Existing bindings do not move automatically. An ambiguous
+truncated legacy deployment fails with `DatabaseOwnershipUnresolved`; follow the
+product's SQL database-name migration guide before restarting, never reset its
+storage to bypass the failure. Overlong cluster names fail startup, and incomplete
+migrations fail with `DatabaseMigrationIncomplete`. Check the kernel version and
+inspect bindings before an authorized migration; older naming can share databases.
 
 ## Upgrade and restore
 

@@ -107,7 +107,7 @@ fact, not handled (`references/domain-failures.md`).
 - [ ] The slice contract was read first and every trigger, condition, command and field came from it
 - [ ] The trigger event is an `[EventType]` from the owning contracts project
 - [ ] The command (or events) it fires exists and has its own specifications
-- [ ] One handler per trigger event; first parameter is the trigger; no `ReactorSideEffect`, no injected `IEventLog`
+- [ ] One handler per trigger event; first parameter is the trigger; no invented `ReactorSideEffect` wrapper, no injected `IEventLog`
 - [ ] Every command or event field is mapped from the trigger, an injected read model or a stated mapping; none invented or defaulted
 - [ ] Every skip condition is the contract's, with a specification on each side of it
 - [ ] Handlers that return events or commands carry `[OnceOnly]`; the effect is idempotent regardless

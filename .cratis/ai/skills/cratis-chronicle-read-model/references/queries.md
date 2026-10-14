@@ -37,6 +37,9 @@ are never queries. Use `[ReadModel(RequireQueryAttribute = true)]` and `[Query]`
 on intended endpoints when the type also has folds (`Create`/`Reduce`) or public
 helpers. `[Query]` alone does not hide siblings. ARC0026 checks invalid/ambiguous
 query declarations; ARCCHR0019 warns about fold-like statics exposed by convention.
+Requires Arc 22.90.0 for automatic exclusion of methods taking the model itself,
+including `Reduce(event, current)`; `[Query]` cannot force such a method into an
+endpoint. On older Arc keep the explicit `[Query]` policy above; check the package version.
 A `CancellationToken` parameter is supplied by Arc, not a query argument/proxy
 input. Concept parameters are always caller-supplied, never DI. Invalid bool,
 overflow, concept or collection-element GET/QUERY arguments return HTTP 400.
@@ -95,6 +98,13 @@ public static ISubject<<ReadModelName>> Observe<SingularName>ById(
 ```
 
 Return `ISubject<...>` directly. Do **not** return `Task<ISubject<...>>`.
+
+For Chronicle-maintained models, prefer `IReadModels.Observe<T>()` over direct
+sink access so registered collection names, keys and protected-value release are
+preserved.
+Requires Chronicle 19.54.0; read
+[collection observation](collection-observation.md) when exposing such a list.
+The MongoDB extension examples here remain for provider-owned collections.
 
 ## The `Observe` family — exact signatures
 
@@ -205,5 +215,6 @@ public record <ReadModelName>(...)
 When only backend code reads the model, skip `[ReadModel]` entirely and use
 `IEventStore.ReadModels.GetInstanceById<T>(key)`. Its declared return type is
 non-nullable even though no instance may exist, so test the result. There is no
-predicate or `IQueryable` surface on `IReadModels` — filtered reads belong on the
-sink, which is what the query methods above use.
+general predicate or `IQueryable` snapshot surface on `IReadModels`.
+`Observe<T>(filter)` is a collection-observation API, not a server-side filtered
+snapshot query; see [collection observation](collection-observation.md).

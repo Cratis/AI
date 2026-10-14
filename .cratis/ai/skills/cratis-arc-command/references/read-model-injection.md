@@ -35,6 +35,12 @@ var other = await readModels.GetInstanceById<<Other>>((EventSourceId)<OtherId>);
 `ReadModelKey` converts implicitly from `EventSourceId`, `Guid` and `string`, so
 the cast is all that is needed.
 
+Requires Arc 22.93.0 for ARCCHR0023 (no unique key-type match), ARCCHR0025
+(keyless command reads a newly generated id and finds no model) and ARCCHR0026
+(command or validator reads Chronicle state through `IMongoCollection<T>`).
+These diagnostics expose lookup mistakes; they do not change plain-read protection.
+Check the package version, and inspect keys explicitly on older versions.
+
 ## Nullability is the required/optional switch
 
 | Parameter | No instance for the command's key |
@@ -80,6 +86,11 @@ created: Chronicle computes it on demand and seeds the initial state from the
 read model's schema, filling every non-nullable value property with its type
 default. Neither the `is null` guard nor the non-nullable "must exist" switch
 fires there.
+
+Requires Chronicle 19.53.3 for nullable string/bool concepts in read-model schemas
+to stay nullable, including unset passive properties. Check the client version;
+older schemas can turn these into defaults. Event-type schemas are unaffected,
+and this does not turn an absent passive projection into `null`.
 
 ⚠️ This is invisible when a status enum's `0` is a real state — absent becomes
 byte-identical to freshly created, so a command reads never-invited as already

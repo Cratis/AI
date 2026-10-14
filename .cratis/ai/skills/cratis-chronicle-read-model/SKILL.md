@@ -179,7 +179,10 @@ The rules Arc's discovery actually enforces:
   reach for ASP.NET's `[Route]`.
 
 Read [references/queries.md](references/queries.md) for the `Observe` family and
-the difference between snapshot and observable queries.
+the difference between snapshot and observable queries. Read
+references/collection-observation.md when exposing a Chronicle-maintained list:
+Requires Chronicle 19.54.0 for storage-independent `IReadModels.Observe<T>()`,
+with registered keys and protected-value release.
 
 ## Step 5 — Or read the instance directly
 
@@ -196,9 +199,10 @@ so an id can be passed directly. **The declared return type is not nullable even
 though no instance may exist** — check the result before dereferencing it.
 
 Neighbouring members include `GetInstances<T>`, `GetSnapshotsById<T>`,
-`Watch<T>`, `Release<T>`, and `Register`. **There is no predicate or `IQueryable`
-surface on `IReadModels`** — filtered reads go through the sink, which is what
-the Arc query methods above do.
+`Watch<T>`, `Observe<T>(filter)`, `Release<T>`, and `Register`. **There is no
+general predicate or `IQueryable` snapshot surface on `IReadModels`**.
+The observation filter runs client-side after release; it does not narrow server
+reads, transport, sorting or paging.
 
 ### `[Passive]` when the read must be current
 

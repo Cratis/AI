@@ -58,6 +58,34 @@ later options edits affect only subsequently created stores. For an existing sto
 constraint, reducer and read-model registration APIs. Fluent reactors use typed
 `On<TEvent>` handlers or catch-all `Subscribe`.
 
+Requires Chronicle 19.52.0 for marker-free event types, reactors, reducers,
+constraints, event sources and migrations. Check the client package version;
+older versions require their attributes/interfaces. Both generic and `Type`
+forms are available on `ExplicitArtifacts`: `RegisterEventType`, `RegisterReactor`,
+`RegisterReducer`, `RegisterConstraint`, `RegisterEventSource`, `RegisterMigration`.
+Use markers by default; nominate plain contracts at the composition root when
+an assembly cannot reference Chronicle.
+
+`RegisterEventType<T>(configure)` supports `WithId`, `Generation`, `Public`,
+`Private`, `ForEventStore`, `PublishTo`. Omitted facets inherit declarations,
+then defaults. Equal peers coalesce; contradictory ids, generations or facets
+fail with `ConflictingArtifactDeclaration`, and contradictory artifact kinds
+fail with `ConflictingArtifactKind`. Two types sharing an id and generation fail.
+A plain constraint needs one public synchronous `void Define(IConstraintBuilder)`.
+Plain migrations use typed public synchronous `Upcast` and `Downcast` methods;
+read **cratis-chronicle-event-type-migration** before registering them.
+Preparation failures prevent registration effects and are reported as registration
+failures, not retried as connection failures.
+
+Registration visibility and publication eligibility are separate. Owning-store
+membership or `Public()`/`[Public]` can grant publication eligibility;
+`Private()` does not subtract it. Foreign ownership alone does not grant it.
+`PublishTo` chooses a destination (outbox by default), not eligibility; the event
+log is not a publication destination. Type-based observer registration, state
+and replay operations resolve store-local aliases; import the reactor/reducer
+namespace for plain-class generic extensions. Custom old-only registries throw
+`TypeBasedArtifactRegistrationNotSupported` for unsupported new operations.
+
 ## Plain-class reducer nomination
 
 Only nominate a plain instance reducer when its assembly cannot reference
@@ -128,4 +156,8 @@ Read models are queried through `eventStore.ReadModels`
 `GetInstanceById<TReadModel>(ReadModelKey, ReadModelSessionId?)`,
 `GetInstances<TReadModel>(EventCount?)`,
 `GetSnapshotsById<TReadModel>`,
-`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()`.
+`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()`, and
+`ISubject<IEnumerable<TReadModel>> Observe<TReadModel>(filter)`.
+Requires Chronicle 19.54.0. Read
+[collection observation](../../cratis-chronicle-read-model/references/collection-observation.md)
+when exposing a whole-list snapshot; its filter is client-side.

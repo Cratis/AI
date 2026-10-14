@@ -81,6 +81,13 @@ sequence serialize, so racing claims of the same unique value cannot both win.
 Seeding can specify source/stream routing through the `ForEventSource`,
 `For<TEvent>` and `ForEvents` overloads.
 
+Requires Chronicle 19.59.0 for `scenario.ReadModels` to read and observe
+projections (including children and joins) and reducers from the scenario's own
+events, not a shared default store. Check the testing package version; on older
+packages use a dedicated `ReadModelScenario` rather than assuming shared storage.
+Requires Chronicle 19.52.0 for per-run `Defaults` to honor marker-free
+`ExplicitArtifacts`; see the .NET client's discovery reference.
+
 ## Step 2 — Seed prior state through `Given`
 
 ```csharp

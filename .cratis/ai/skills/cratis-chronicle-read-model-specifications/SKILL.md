@@ -121,6 +121,14 @@ For a filtered reducer, seed the routing metadata as well:
 unrouted seeds no longer reach a handler for another stream. Child-before-parent
 writes are retried when the parent later arrives; decimal seeds retain exact values.
 
+Requires Chronicle 19.53.1 for nested child `IdentifiedBy` paths to update/remove
+the existing child rather than duplicate it, and 19.53.2 for in-memory child joins
+to preserve the root and all matching siblings. Check the testing/client versions;
+older in-memory outcomes can diverge from persistent sinks. Cover root properties,
+sibling preservation and nested child update/removal, not only one joined value.
+Requires Chronicle 19.58.0 for reducer tag filters and seeded tags/source/stream
+metadata to match production; include matching and excluded events.
+
 Events are processed in the order supplied. Seed before asserting, and do not
 try to separate a "setup" `Given` from an "act" `Given` — for a read model they
 are the same phase.

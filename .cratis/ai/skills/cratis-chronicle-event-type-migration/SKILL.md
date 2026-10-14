@@ -40,6 +40,11 @@ Sources:
 
 Reverify product sources before claiming support for another version.
 
+Requires Chronicle 19.52.0 for marker-free migration nomination through
+`ExplicitArtifacts.RegisterMigration<T>()`. Read references/explicit-migrations.md
+when event endpoints are plain/aliased or a migration cannot reference Chronicle;
+check the client package version, since older clients need migration markers.
+
 ## Generations
 
 `Cratis.Chronicle.Events.EventTypeAttribute` carries the identity and the
@@ -141,6 +146,11 @@ members:
 | `Split(targetProperty, sourceProperty, separator, part)` | one old value becomes several |
 | `Combine(targetProperty, separator, params sourceProperties)` | several old values become one |
 | `MapValues(targetProperty, sourceProperty, map)` | one direction's value translation |
+
+Requires Chronicle 19.51.1 for `DefaultValue` and `MapValues` on concept
+properties to write the underlying primitive rather than a `{ Value: ... }`
+object. Check the client package version; older definitions need an upgrade
+before relying on concept-valued defaults/maps.
 
 There is **no `Rename`** — the method is `RenamedFrom`. There is **no `Join`** —
 concatenation is `Combine`.
@@ -261,6 +271,14 @@ rejections, persisted PDL pins, and testing limits. Configure the opt-in through
 syntax. `ReadModelScenario` and `ReactorScenario` do **not** emulate the kernel's
 pinned-generation migration and release; prove delivery with real-client
 integration, not a scenario-only assertion.
+
+Requires Chronicle 19.60.0 for webhook generation pinning with
+`WithGenerationDelivery(EventGenerationDelivery.Pinned)` on the .NET builder
+(or direct registration's `GenerationDelivery`). Live delivery, catch-up, replay
+and partition retries use the subscribed generation; unknown or duplicate
+same-id generations fail registration before recording it. Migration/release
+failure sends no request and fails the batch for retry. Check client/kernel
+versions; older webhooks retain compatibility delivery, not this guarantee.
 
 ## Do not model absence with a nullable property
 
