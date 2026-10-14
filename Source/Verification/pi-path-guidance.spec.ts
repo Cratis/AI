@@ -1084,7 +1084,8 @@ test('verify.ts rejects a skill with a bad paths entry and accepts the corpus wi
         cpSync(join(repositoryRoot, 'Source', 'Pi.Plugin', 'package.json'), join(workspace, 'Source', 'Pi.Plugin', 'package.json'));
         mkdirSync(join(workspace, 'Source', 'Verification', 'play'), { recursive: true });
         cpSync(join(repositoryRoot, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'), join(workspace, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'));
-        const verify = () => spawnSync(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), workspace], { encoding: 'utf8', cwd: join(repositoryRoot, 'Source', 'Verification') });
+        const env = { ...process.env, CI: '', GITHUB_ACTIONS: '', GITHUB_EVENT_PATH: '', GITHUB_EVENT_NAME: '' };
+        const verify = (overrides: NodeJS.ProcessEnv = {}) => spawnSync(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), workspace], { encoding: 'utf8', cwd: join(repositoryRoot, 'Source', 'Verification'), env: { ...env, ...overrides } });
 
         const skillFile = join(workspace, '.cratis', 'ai', 'skills', 'cratis-specifications-csharp', 'SKILL.md');
         const original = readFileSync(skillFile, 'utf8');
@@ -1092,6 +1093,11 @@ test('verify.ts rejects a skill with a bad paths entry and accepts the corpus wi
         assert.doesNotMatch(original, /\npaths:/, "the plain 'paths' key is Claude Code's conditional activation");
         const baseline = verify();
         assert.equal(baseline.status, 0, `${baseline.stdout}${baseline.stderr}`);
+        assert.match(baseline.stdout, /Evaluation coverage base comparison: skipped.*static coverage checks still run/);
+        const ciWithoutBase = verify({ GITHUB_ACTIONS: 'true' });
+        assert.equal(ciWithoutBase.status, 2, `${ciWithoutBase.stdout}${ciWithoutBase.stderr}`);
+        assert.match(ciWithoutBase.stderr, /Evaluation coverage base could not resolve in CI/);
+        assert.doesNotMatch(ciWithoutBase.stdout, /base comparison: skipped/);
 
         writeFileSync(skillFile, original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"'));
         const rejected = verify();

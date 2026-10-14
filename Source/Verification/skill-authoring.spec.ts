@@ -124,7 +124,17 @@ test('evaluation coverage ratchets only shrink, require reasons, and cannot exem
     assert.ok(evaluationCoverageFindings(['existing'], ['existing'], baseline, baseline).length > 0);
     assert.ok(evaluationCoverageFindings([], [], baseline, baseline).length > 0);
     assert.ok(evaluationCoverageFindings(['existing'], [], [], baseline).length > 0);
-    assert.ok(evaluationCoverageFindings(['existing'], [], baseline, undefined).length > 0);
+    assert.deepEqual(evaluationCoverageFindings(['existing'], [], baseline, undefined), []);
+    assert.ok(evaluationCoverageFindings(['existing'], [], baseline, null).length > 0);
+});
+
+test('static evaluation coverage checks still reject missing coverage, invalid reasons and stale exemptions without a base', () => {
+    assert.ok(evaluationCoverageFindings(['existing'], [], {}, undefined).length > 0);
+    for (const reason of ['', 'line\nbreak', 123]) assert.ok(evaluationCoverageFindings(['existing'], [], { existing: reason }, undefined).length > 0);
+    assert.ok(evaluationCoverageFindings(['existing'], [], { absent: 'Missing skill.' }, undefined).some(finding => finding.matchedText.includes('stale exemption')));
+    assert.ok(evaluationCoverageFindings(['existing'], ['existing'], { existing: 'Now evaluated.' }, undefined).some(finding => finding.matchedText.includes('stale exemption')));
+    assert.ok(evaluationCoverageFindings([], [], {}, undefined).length > 0);
+    assert.ok(evaluationCoverageFindings(['existing'], [], [], undefined).length > 0);
 });
 
 test('CI ratchet selects immutable event bases and rejects malformed or zero revisions', () => {

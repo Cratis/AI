@@ -164,10 +164,12 @@ const skillEvaluations = await verifySkillEvaluations(root, skillDirectories.map
 failures.push(...skillEvaluations.problems);
 const evaluatedSkills = (await readdir(join(root, 'Evaluations', 'skills'), { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name);
 try {
+    const baseline = evaluationCoverageBaseline(root);
+    if (baseline === undefined) console.log('Evaluation coverage base comparison: skipped (no resolvable Git base); static coverage checks still run.');
     authoringFindings.push(...evaluationCoverageFindings(
         skillDirectories.map(entry => entry.name), evaluatedSkills,
         JSON.parse(await readFile(join(root, 'Evaluations', 'unevaluated.json'), 'utf8')),
-        evaluationCoverageBaseline(root)));
+        baseline));
 } catch (error) {
     console.error(`Evaluation coverage could not run: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(2);
