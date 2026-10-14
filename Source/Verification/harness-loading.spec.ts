@@ -86,6 +86,45 @@ test('Codex OpenCode and Cursor discover the authoring rule through the root pol
     assert.ok(readFileSync(join(dirname(policy), 'authoring-skills.md'), 'utf8').includes('## 10. Review checklist'));
 });
 
+test('every path-scoped rule stays reachable in each harness', () => {
+    const general = readFileSync(join(corpusRoot, 'rules/general.md'), 'utf8');
+    const universal = new Set(['**', '**/*', '*']);
+    const cursor = readFileSync(join(repositoryRoot, '.cursor/rules/cratis.mdc'), 'utf8');
+    const scoped = readdirSync(join(corpusRoot, 'rules')).filter(name => name.endsWith('.md') && name !== 'general.md')
+        .filter(name => {
+            const fields = frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8'));
+            return [...(fields.get('paths') ?? []), ...(fields.get('applyTo') ?? [])].some(glob => !universal.has(glob));
+        });
+    assert.ok(scoped.length > 30, 'the sweep must inspect the scoped rules');
+    for (const name of scoped) {
+        const canonical = readFileSync(join(corpusRoot, 'rules', name), 'utf8');
+        const fields = frontmatter(canonical);
+        // Claude Code: .claude/rules is the canonical directory and `paths` scopes the rule.
+        assert.equal(readFileSync(join(repositoryRoot, '.claude/rules', name), 'utf8'), canonical, `${name}: Claude Code`);
+        assert.ok(fields.has('paths'), `${name}: Claude Code needs paths`);
+        // Copilot: a generated adapter carries the same scope.
+        const adapter = readFileSync(join(repositoryRoot, '.github/instructions', name.replace(/\.md$/, '.instructions.md')), 'utf8');
+        assert.ok(fields.has('applyTo') && /^applyTo:/m.test(adapter), `${name}: Copilot needs applyTo`);
+        // Codex, OpenCode (AGENTS.md), Cursor (alwaysApply -> general.md) and Pi's static context have no scoped loading:
+        // the root policy must name the rule so it can be read when the work needs it.
+        assert.ok(general.includes(`\`${name}\``) || general.includes(`](./${name})`), `${name}: general.md must route to it`);
+    }
+    assert.match(cursor, /alwaysApply: true/);
+});
+
+test('rules a flow needs before any file is touched stay always-on in every harness', () => {
+    // Committing, opening a pull request, writing a plan and the universal code principles edit no scoped file,
+    // so no path scope can guarantee they load; they stay unscoped and general.md routes to them.
+    const general = readFileSync(join(corpusRoot, 'rules/general.md'), 'utf8');
+    for (const name of ['git-commits.md', 'pull-requests.md', 'local-work-artifacts.md', 'code-quality.md', 'glossary.md']) {
+        const fields = frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8'));
+        assert.ok(!fields.has('paths'), `${name}: Claude Code loads it at launch only without paths`);
+        assert.deepEqual(fields.get('applyTo'), ['**/*'], `${name}: Copilot applies it to every file`);
+        assert.ok(general.includes(`\`${name}\``) || general.includes(`](./${name})`), `${name}: general.md routes to it`);
+        assert.match(readFileSync(join(repositoryRoot, '.github/instructions', name.replace(/\.md$/, '.instructions.md')), 'utf8'), /^applyTo: "\*\*\/\*"/m);
+    }
+});
+
 test('fresh Go adapter trees expose root policy traversal separately from discoverable skills', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'cratis-go-harness-'));
     try {

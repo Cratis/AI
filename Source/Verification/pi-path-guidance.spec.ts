@@ -119,7 +119,8 @@ test('fresh Go sessions attach canonical source and module rules independently o
         writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/language/go'], languages: ['go'] }));
         assert.doesNotMatch(textOf(session(project, []).read('main.go')), /# Go framework parity/);
         writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] }));
-        for (const path of ['main.go', 'go.mod', 'go.sum']) assert.equal(session(project, []).read(path), undefined, 'non-Go selection');
+        // A Go file in a repository that did not select Go receives no Go-specific rule.
+        for (const path of ['main.go', 'go.mod', 'go.sum']) assert.doesNotMatch(textOf(session(project, []).read(path)), /# Go conventions|# Go framework parity/, 'non-Go selection');
     } finally {
         rmSync(project, { recursive: true, force: true });
     }

@@ -83,7 +83,7 @@ When changing a description, run trigger evaluations before and after when autho
 
 ## 11. Always-on content
 
-Keep `general.md` to facts needed in every session, at most 200 lines. Warn above 24,000 bytes and above 60,000 combined bytes for rules without `paths`; line length alone can hide context bloat. Review globally applied Copilot instructions above 4,000 characters. These budgets leave room for source and task context, rather than promising a token count.
+Keep `general.md` to facts needed in every session, at most 200 lines. Warn above 24,000 bytes and above 91,000 combined bytes for rules without `paths`; line length alone can hide context bloat. Review globally applied Copilot instructions above 4,000 characters. These budgets leave room for source and task context, rather than promising a token count.
 
 Use path-scoped rules for file-specific invariants and skills for particular operations. Hooks and CI enforce mechanical constraints; natural-language rules do not replace permission controls.
 

@@ -1,5 +1,19 @@
 ---
-applyTo: "**/*"
+applyTo: "**/*.cs,**/*.csproj,**/*.ts,**/*.tsx,**/*.go,**/go.mod,**/go.sum,**/*.kt,**/*.kts,**/*.java,**/*.ex,**/*.exs,**/*.play"
+paths:
+  - "**/*.cs"
+  - "**/*.csproj"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.go"
+  - "**/go.mod"
+  - "**/go.sum"
+  - "**/*.kt"
+  - "**/*.kts"
+  - "**/*.java"
+  - "**/*.ex"
+  - "**/*.exs"
+  - "**/*.play"
 profile: application
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
