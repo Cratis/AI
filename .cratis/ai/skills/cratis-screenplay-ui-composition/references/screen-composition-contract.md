@@ -340,3 +340,9 @@ columns, `on row-click navigate to <Screen> by <param>`, sections, conditional
 `when … execute … with … from …` actions and localized labels.
 The AI corpus may link to that path and name the expected checks, but must not copy
 the `.play` source into `.cratis/ai/` or maintain a second canonical application.
+
+These constructs went unhighlighted and uncompleted by the Monaco and VS Code
+language service until every construct the parser
+dispatches on had a keyword entry. On an older language-service version they still
+look unrecognized — **check `screenplay`, not the editor**, because absent
+highlighting was never evidence that a construct is wrong.
