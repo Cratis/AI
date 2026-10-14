@@ -173,41 +173,11 @@ It takes a dotted path (`clear Owner.Note`) and escapes reserved names
 
 ## Arithmetic
 
-| Line | Effect |
-| --- | --- |
-| `count <prop>` | +1, expressing *counting occurrences* |
-| `increment <prop>` | +1, expressing *modifying state* |
-| `decrement <prop>` | −1 |
-| `add <prop> by <expr>` | += expression |
-| `subtract <prop> by <expr>` | −= expression |
-
-`count` and `increment` behave identically; the difference is intent. The target
-must be numeric.
+`count`/`increment` add one, `decrement` subtracts one, `add`/`subtract <prop> by <expr>` change by an expression; the target must be numeric. Read [references/joins.md](references/joins.md) for the full table.
 
 ## Joins
 
-Excerpt, inside a `projection` whose read model has `customerId` and
-`customerName`:
-
-```screenplay excerpt
-join customer on customerId
-  with CustomerCreated
-    customerName = name
-  with CustomerUpdated
-    customerName = name
-```
-
-`join <label> on <property>` (error `PLAY0063` otherwise), then one or more
-`with <EventType>` blocks (error `PLAY0064` otherwise). **A join never creates an
-instance**: a joined event updates every existing instance whose `on` property
-equals the joined event's event source id. Chronicle discards the label, but
-inside `children` and `nested` the compiler's completeness check (`PLAY0284`)
-counts the label as the field the join fills, so name it after that field there.
-Joins work at a projection's own level and inside `children`. Inside `nested`,
-Chronicle's engine does not wire a join, a `children` block or a
-`remove via join`; they bind, but the reference execution plan refuses them.
-A join cannot declare its own key or trigger removal — that is
-`remove via join on`.
+`join <label> on <property>` followed by `with <EventType>` blocks; **A join never creates an instance** (`PLAY0063`, `PLAY0064`). Read [references/joins.md](references/joins.md) when writing a join, including inside `children` or `nested`.
 
 ## Children and nested
 
@@ -255,41 +225,7 @@ coexist.
 
 ## Variants — one identity, mutually exclusive read models
 
-Excerpt: the events and the three read models (each with a keyed query) are
-declared elsewhere. Every event about an issue is appended with the issue's
-identifier as its event source.
-
-```screenplay excerpt
-projection WorkItem
-  from TitleChanged
-    title = title
-  variant BacklogItem
-    enters on IssueCreated
-  variant DevelopmentItem
-    enters on IssueStarted
-  variant PullRequestItem
-    enters on PullRequestCreated
-```
-
-Each variant is its own read model; only its `enters on` events create it.
-Everything else, including a projection-level shared handler, is update-only: it
-becomes a join on the variant's identifier, matched against the handler's key
-(here the event source).
-
-⚠️ **Mutual exclusion works through the event source identity.** Entering a
-variant removes the entity from its siblings, and that removal is always keyed by
-the entering event's source identity, whatever key the `enters on` line declares.
-Keep the event source equal to the entity's identifier, as above. An
-`enters on IssueStarted key issueId` whose `issueId` differs from the event
-source creates the development item under `issueId` but removes the backlog item
-keyed by the event source instead, so the issue stays in both variants.
-
-Diagnostics: no `enters on` (`PLAY0382`), a shared mapping a variant's read
-model lacks (`PLAY0383`), duplicate variant names (`PLAY0384`), an entering
-event claimed twice (`PLAY0385`). The executable model binds variants the way Chronicle's client SDK
-reclassifies them; Chronicle's hosted declaration language does not lower them
-yet. Use variants for genuinely different shapes, not for
-a single `status` field.
+Each `variant` is its own read model created only by its `enters on` events, and mutual exclusion works through the event source identity: keep the event source equal to the entity identifier or the issue stays in both variants. Read [references/variants.md](references/variants.md) when modeling an entity with exclusive lifecycle shapes or fixing `PLAY0382`–`PLAY0385`.
 
 ## When PDL is not enough — the reducer
 
