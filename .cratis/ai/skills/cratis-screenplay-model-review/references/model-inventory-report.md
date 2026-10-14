@@ -75,9 +75,11 @@ anti-patterns.md>, or "none"
 ## Information journey (optional)
 
 One piece of information per journey ("name and email" are two; do the first, offer the second).
-An ambiguous subject: ask once, listing the candidate properties. Find the carriers with
-`search-declarations` (the obvious name variants, in the model's language), then trace with
-`find-references` `kind: "Property"` on each carrier, following the roles `mapping-source`,
+An ambiguous subject: ask once, listing the candidate properties. Find the carriers by inspecting
+the properties of the scoped declarations (`declaration-details`, `read-ast` or the model source):
+`search-declarations` matches declaration names and addresses only, never properties, so an empty
+name search does not mean there are no carriers. Then trace with `find-references` (`address`,
+`kind: "Property"`) on each carrier's qualified property address, following the roles `mapping-source`,
 `mapping-target`, `automap`, `screen-binding`, `assertion`, `key` and `condition` until nothing new
 appears (model-authoring `references/property-links.md`). An incomplete result or `opaque` and
 `unclassified` links are named as such, never guessed past. A property that only sounds related

@@ -316,4 +316,4 @@ module Berths
   single-instance `by`, else unambiguous `*Id` only with an admitted list query and
   no single-instance identifier. Queryless views need explicit `key`. The identifier
   equals the projection's key (table above); check target renderer admission separately.
-- Design-only shapes listed with the V3 code they cause.
+- Each design-only shape (one the renderer does not admit) is listed with the V3 diagnostic code it causes.

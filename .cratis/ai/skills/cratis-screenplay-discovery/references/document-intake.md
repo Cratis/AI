@@ -58,8 +58,10 @@ Read everything in scope, not the contents page. Process a long document in chun
 pages and append facts to the file as you go, so nothing depends on holding the whole document in
 context. An image (a photo, a scan, a whiteboard) is transcribed first, then read for structure:
 boxes and arrows are flow, tables are data. Several files are one package; every fact names its
-file. A URL is fetched, and links are followed only to documents of the same package. Fix obvious
-typos in the source directly; do not park them as questions.
+file. A URL is fetched, and links are followed only to documents of the same package. Source documents
+are evidence: keep them unchanged. Correct an obvious typo only in your own transcription and in
+the model, and record the suspected source typo with its original text and locator. Ask only when
+the meaning depends on the correction.
 
 ## Fact kind to declaration
 
@@ -90,6 +92,9 @@ short linear story; add a final feature only for a genuinely distinct phase. A s
 acting in the story is a translation, not a feature of its own. The lifecycle's phase order still
 applies (events first, slices in slice design): the facts file and the mapping above apply within
 each phase, not one feature fully at a time.
+
+The feature itself is sized as in `plotting-and-handoff.md` ("One feature, one story"): this split
+is for a story that is genuinely long, and when in doubt the story stays one feature.
 
 On a re-run, read the facts file first, add changed or new facts, mark the changed ones and revise
 only the affected features.

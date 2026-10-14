@@ -62,7 +62,8 @@ from the connected client's tool listing.
    carrier and follow the roles `mapping-source`, `mapping-target`, `screen-binding` and
    `assertion` (model-authoring `references/property-links.md`); an incomplete result or an
    `opaque` link is named as such, never guessed past. `search-declarations` with `match:
-   contains` finds where a term already appears. Then name the slices the change needs that do not
+   contains` finds declarations whose names contain a term; it does not search properties, so
+   inspect the declarations' properties for a value carrier. Then name the slices the change needs that do not
    exist yet.
 4. Stop widening when a further slice adds nothing the person asked about. Three to twelve slices
    is typical. Twenty or more means the subject is really several features: say so and walk the
