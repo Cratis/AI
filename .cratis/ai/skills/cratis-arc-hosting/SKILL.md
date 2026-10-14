@@ -94,3 +94,4 @@ Source: [secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/
 - EF schema/migrations: `cratis-arc-ef-core-migration`.
 - Authentication and identity: `cratis-arc-authentication-authorization-and-identity`.
 - A standalone Chronicle client or running store: the Chronicle client/CLI skills.
+- Several Arc services with their own event stores: `cratis-multi-service-architecture`; running them together locally: `cratis-multi-service-local-orchestration`.

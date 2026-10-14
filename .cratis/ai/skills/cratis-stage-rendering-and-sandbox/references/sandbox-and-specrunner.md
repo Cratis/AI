@@ -50,8 +50,8 @@ The semantic Host encrypts personal-data and secret concepts at rest through Chr
 releases values on read; erasure deletes event-source keys. Encryption applies to new
 writes only: events already stored in plaintext in an existing Play store are not
 retroactively encrypted, and key deletion is not erasure of those earlier plaintext events.
-It does not supply explicit subject lineage. Non-text `secret` concepts refuse `STAGE-ESM-041` (`pii secret` uses
-PII only). It executes equality filters, but its specification executor refuses filtered
+It does not supply explicit subject lineage. Non-text `secret` concepts render/run in their original types
+(Requires Stage 4.96.0); older engines report `STAGE-ESM-041`. `pii secret` uses PII only. It executes equality filters, but its specification executor refuses filtered
 query assertions with `STAGE-ESM-010`.
 
 The semantic Host exposes `POST /stage/semantic/specifications/run`, running fresh isolated

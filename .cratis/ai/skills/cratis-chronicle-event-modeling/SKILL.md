@@ -116,9 +116,10 @@ manual scope completion, reopening and its crash/reindex limits. Closing refuses
 new appends; it does not erase history or stop projection replay. Specify a
 late append refusal and an unrelated scope remaining open.
 
-`[Public]` permits an event type to leave the event log; `[PublishTo("sequence")]`
-selects publication for projection/reducer output. Private types cannot go to
-outbox, and the event log is not a publication target. Translate inbox facts
+`[Public]` grants publication eligibility; `[PublishTo("sequence")]` selects the
+projection/reducer event-output destination (outbox by default), not eligibility.
+Owning-store membership can also grant eligibility, so private registration
+visibility alone does not forbid publication. The event log is not a publication target. Translate inbox facts
 into local facts at the boundary rather than treating external contracts as
 local commands. Named tags are plaintext, indexed metadata: never personal data.
 
@@ -242,3 +243,4 @@ remain separately authorized; a ready model authorizes none of them.
   same; the artifact is a file that compiles, and the four behavior types above
   map onto its `StateChange`, `StateView`, `Automation` and `Translate` slices.
 - Drawing a decided model as a diagram: `cratis-event-model-diagram`.
+- A flow that crosses services, each owning its own event store: `cratis-multi-service-architecture`.

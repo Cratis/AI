@@ -21,8 +21,10 @@ Tool versions and consumer boundaries: toolchain `SKILL.md`.
   enum member numbers (`cratis-screenplay-command-surface` `references/enum-numbers.md`).
 - v13 for concept `pii`/`personal` and `secret`, personal qualifiers and secret scopes.
   Reasons remain report-only PLAY0270; binding proves neither encryption nor erasure.
-- Operations/systems, the exact numeric **source mode** (`numbers exact`) and refusal/redelivery
-  remain unadmitted (PLAY0268). Version allocation is not inferred from an older planning decision.
+- v17 for `when redelivered` and `then no events`; v19 for reaction
+  refusal branches and `$refusal` values. Older compilers report PLAY0268.
+- Operations/systems and the exact numeric **source mode** (`numbers exact`) remain unadmitted
+  (PLAY0268). Version allocation is not inferred from an older planning decision.
 
 ## Dispositions to keep apart
 
@@ -35,9 +37,11 @@ Tool versions and consumer boundaries: toolchain `SKILL.md`.
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
 | Generated values/responses | v7 binding/reference execution; v15 strategies/strict fixtures/freshness. Stage renders supported UUID/String strategies, responses and fixtures; unsupported types/combinations remain -028/-038 |
-| Sources/streams and command/specification routes | v8 binding/reference execution; the CLI (toolchain `references/renderable-subset.md`) reaches Stage checks through v15 |
+| Sources/streams and command/specification routes | v8 binding/reference execution; the CLI (toolchain `references/renderable-subset.md`) reaches Stage checks through its bundled ceiling (v16 without v17 support) |
 | Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034, not a v10 version refusal |
-| Operations/systems, `numbers exact` source mode, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
+| Redelivery and `then no events` | v17 binding/reference execution; older compilers refuse PLAY0268 |
+| Reaction refusal branches and `$refusal` | v19 binding/reference execution; older compilers refuse PLAY0268 |
+| Operations/systems, `numbers exact` source mode | Source accepted; whole binding refuses PLAY0268 |
 | UI | Authoring/deferred metadata; runtime support is a separate consumer contract |
 
 Run standalone `screenplay test` or MCP `run-specifications` for V4. Compile
@@ -77,8 +81,8 @@ accepted proposal or parsed node with a running application.
   and command/specification routes as v8; reaction `runs as` identity as v10;
   qualifying Double literals lower exactly as v11 and non-positional enum numbers
   as v12. Use `screenplay test` or MCP `run-specifications` for V4.
-  Operations/systems, the `numbers exact` **source mode** (PLAY0268) and
-  refusal/redelivery remain unadmitted. The CLI and Stage render supported generation strategies and v15 freshness,
+  Operations/systems and the `numbers exact` **source mode** remain unadmitted
+  (PLAY0268); redelivery/no-event assertions execute as v17 and refusals as v19. The CLI and Stage render supported generation strategies and v15 freshness,
   scalar/named responses, enum numbers, compliance and supported event reactions.
   The pair reaches construct checks through the ESM version it bundles, not blanket rendering; supported v14 filters
   render. Current boundaries and source evidence:

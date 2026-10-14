@@ -127,6 +127,10 @@ changes with the root folder name.
 - **Concept strategies (v15):** concept strategies and Guarded freshness; strict fixture shapes,
   no silent retry. Read [references/generation-strategies-example.md](references/generation-strategies-example.md)
   and command-surface `references/generated-values-and-responses.md` for supported strategies/refusals.
+- **v17–v20:** recovery/no-event assertions (v17), query Validation errors (v18),
+  invocation refusal branches (v19), generated-concept rules (v20). Read
+  `references/executable-subset.md` when choosing a version; specifications and
+  command-surface references own examples. Newer binding is not render admission.
 - **Caller/compliance metadata:** `$identity` aliases caller built-ins;
   additional identity details are metadata and executable reads still refuse.
   Bare `pii`/`secret` replace legacy spellings; `pii personal` repeats one marker
@@ -203,7 +207,8 @@ reason; blocked verdicts list codes and keep the protection they blocked on.
 
 Read [model notes gate](references/verdicts.md#model-notes-gate) when checking
 unresolved questions: the standalone tool has `--open-questions fail`; `cratis screenplay validate`
-does not. It is separate from compilation and `--warnaserror`.
+does through `--open-questions report|fail`. It is separate from compilation and `--warnaserror`.
+Requires Cratis CLI 3.60.0 or later (`cratis --version`) for that option; older CLIs lack it.
 
 ## Route near misses
 

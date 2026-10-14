@@ -34,6 +34,19 @@ Requires Chronicle 19.9.0 for decision reads, and a Chronicle 19.39.0 kernel for
 Reverify a client/kernel pair rather than disabling
 compatibility checking to force a read through.
 
+Requires Chronicle 19.62.0 for host enrollment contributors:
+`IUnitOfWork.AddEnrollmentContributor(IUnitOfWorkEnrollmentContributor)` returns
+a disposable removal handle. Contributors require scopes before staging through
+`AddEvent`, `AddEvents`, named-tag and transactional append paths. Equal scopes
+merge; a conflict throws `ConflictingEnrollmentScope` without staging that call.
+Required scopes remain until completion even after handle disposal; contributed
+units accept only one sequence. Reentrant mutation and failed `Enrolled`
+notifications fail closed (`UnitOfWorkMutatedDuringEnrollment`,
+`UnitOfWorkEnrollmentNotificationFailed`). This is a host integration extension,
+not a command-side alternative to returned guarded events. Check the client
+package version; older custom units throw
+`UnitOfWorkEnrollmentContributorsNotSupported` when attached.
+
 ## Route the work
 
 - For Arc `[ProtectedDecision]`, Arc command/handler shapes and Arc `IStreamReads`,
@@ -87,6 +100,10 @@ queries. Select one stream type, not `EventStreamType.All`; a stream-keyed
 projection also needs an explicit stream id, not the default wildcard.
 `AdmitForStream<T>()` checks this shape; unsupported readers/kernels refuse with
 `StreamScopeNotSupported`. Do not fall back to an unguarded query on refusal.
+
+Requires Arc 22.81.0 for these stream overloads inside Arc commands to use
+command protection, caching and enrollment; older Arc refuses them. Check Arc
+as well as the Chronicle client/kernel pair before choosing this path.
 
 ## Commit and inspect conflicts
 

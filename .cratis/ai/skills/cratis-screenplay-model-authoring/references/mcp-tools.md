@@ -121,6 +121,14 @@ A folder is one application; a file selects only itself and its imports.
 models; `"Executable"` requires binding and never falls back. Default
 `referencePolicy: "Safe"` and identity migrations/retirements work as for
 `propose-ast`. Whole-file authoring needs neither base64 nor typed node JSON.
+Default hand-written document edits to `formatting: "PreserveExactSource"`: even
+added imports/features keep supplied comments, alignment, blank lines and CRLF;
+replacements retain the original BOM policy, with the same validation and no
+PLAY0288. Choose `CanonicalizeTouchedDocuments` only for canonical output;
+`PreserveTrivia` still refuses structural changes and points to exact source mode.
+`propose-ast` exact mode is unchanged.
+
+Requires Screenplay 4.158.0 or later (`screenplay --version`); older source proposals refuse exact structural edits.
 
 | Document operation | Shape members besides `operation` |
 | --- | --- |
@@ -135,7 +143,17 @@ is parsed in final-set import placement before the typed transaction. Parse/impo
 errors return `SourceParseFailed` with located `authoringDiagnostics`, no proposal
 ID. Other validation failures use ordinary authoring rejection. Inspect exact bytes,
 dropped comments, identity changes and introduced executable errors through
-`read-proposal`, then `apply` with before revisions. Accepted authoring source with
+`read-proposal`, then `apply` with before revisions. Report the returned `summary`
+(one paragraph, also the second text block after JSON). Nonzero
+`authoringDiagnosticCount` counts checks during proposing, not just resulting-source
+faults: inspect `authoringDiagnosticSeverities` (`errors`, `warnings`, `information`,
+`codes`) and page `read-proposal view=diagnostics`. PLAY0288 alone reports canonical
+printing even with zero dropped comments; `after.readiness` counts the source's own
+diagnostics. Keep checking `droppedCommentCount` and `introducedExecutableErrors`.
+
+Requires Screenplay 4.156.0 or later (`screenplay --version`) for summary/severity fields; older servers lack them.
+
+Accepted authoring source with
 `executableReady: false` is not running behavior.
 
 ## Concept generation
@@ -154,10 +172,10 @@ exists only for authored `generate`; an implicit UUID default has no block.
 | `valuesAtOnePercentCollision` | JSON number estimating the 1% birthday collision count, or null; scientific notation can exceed client floating-point range |
 | `executable` | `status`, `diagnosticCodes`, and `reason` only for `notAssessed` |
 
-`executable.status` is `refused` when compiler **errors** target the concept or its
-`generation`; `admitted` only when the whole model produced an executable model
+`executable.status` is `refused` when compiler **errors** target the concept, its
+`generation` or its rules; `admitted` only when the whole model produced an executable model
 and no such error exists; otherwise `notAssessed`, with a reason that whole-model
-binding failed. `diagnosticCodes` contains only errors at these two locations.
+binding failed. `diagnosticCodes` contains only errors at these declaration locations.
 An empty list is not admission; low-entropy property diagnostics require workspace
 inspection. Invalid alphabets/non-positive sizes or counts yield null estimates
 with `entropyUnknownReason`, preserving compiler diagnostics. Time, prefixes,
@@ -193,8 +211,12 @@ concept; uniqueness changes append-time behavior. Review every changed document
 before applying; discovery/proposal write nothing. The saved-file VS Code repair
 picker does not expose these entropy actions.
 
-Derived regexes, derived `matches`/checksum repairs and rule-proof status are
-**not shipped** in this view; MCP does not generate values. The CLI-bundled MCP can lack
+PLAY0688 repair replaces a refuted generated-concept rule with the strategy-derived
+`matches` pattern. Review it as a validation change for input/stored values too.
+PLAY0689 is an unproven warning, not proof; checksum repairs remain unadmitted.
+MCP does not generate values.
+
+Requires Screenplay 4.164.0 or later (`screenplay --version`) for generated-rule proofs and PLAY0688 repair; older servers lack this action. The CLI-bundled MCP can lack
 this generation summary and the entropy repairs. Existing typed concept proposals predate the
 new summary; discover installed schemas rather than assuming the standalone surface.
 
@@ -217,6 +239,7 @@ with `view: "diagnostics"`, then `view: "repairs"` at the current revision.
 | `PLAY0563/0564` | Expand a one-line interaction alternative / turn a strict item `where` into one block-form `when`. Individual review, canonical formatting, no pinned evidence; refuse comment loss. Opaque non-item-condition text has no PLAY0564 repair. |
 | `PLAY0614` | Declare Translate direction only when exactly one inbound/outbound interpretation fits public metadata; never change event visibility to make a repair fit. |
 | `PLAY0661` | Complete command reads only when each missing part has one same-named compatible source; preserve authored parts and refuse ambiguity. Queries and trigger reads have no repair. |
+| `PLAY0688` | Replace a refuted generated-concept rule with the strategy-derived `matches`; review every concept use affected by the changed rule. |
 | `PLAY0683/0684` | Raise NanoID size/bytes count using the concept subject; PLAY0683 also offers uniqueness using the command-property subject. Individual review, canonical formatting, no pinned evidence; see [concept generation](#concept-generation). |
 | `PLAY0664` | Remove an override identical to the command's complete source/stream/id route. |
 | `PLAY0516` | Move a producing sibling declaration/import before its consumer, or pin an already placed file before a retained glob. Preserve catalogs, comments, placement and executable readiness; introduce no timeline findings. Own-sub-feature edges, cycles, unranked members and mixed/different-parent boundaries have no repair. Rediscover after each move; pinned evidence is unsupported. |

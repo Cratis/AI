@@ -48,7 +48,7 @@ Ask only what is missing: (1) instance - what real-world thing the stream is abo
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8.
-   The CLI (toolchain `references/renderable-subset.md`) reaches Stage construct checks through v15; keep the routing
+   The CLI (toolchain `references/renderable-subset.md`) reaches Stage construct checks through its bundled ceiling; keep the routing
    contract when target admission requires gap-fill. Forms/boundaries:
    toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7; Stage renders supported UUID/String strategies and v15 freshness; unsupported types/results still refuse -028/-038) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no
@@ -99,6 +99,7 @@ Ask only what is missing: (1) instance - what real-world thing the stream is abo
    interface and processor inventory, one real interaction walked across each boundary, coupling
    check. Keep team, module, stream and deployment boundaries distinct; inbound facts via
    Translate; unresolved decisions stay visible.
+   Read [references/multi-service-models.md](references/multi-service-models.md) when the system spans several services, each with its own event store and model folder.
 7. **Record and gate.** Durable rationale in feature and slice `documentation`; open consistency
    decisions and capability gaps in `STATE.md`. Then the gate below.
 

@@ -70,6 +70,12 @@ from AutoMap and CHR0024. Sources: `Projections/ModelBound/NotProjectedAttribute
 | `[SubtractFrom<T>]` | `<T>` | `(string? eventPropertyName = default)` | property, parameter; repeatable |
 | `[ClearWith<T>]` | `<T>` | **none** | class, property, parameter; repeatable |
 
+Requires Chronicle 19.51.1 for dotted CLR member paths in model-bound attributes
+and naming-policy conversion of every nested path segment. Check the client/kernel
+versions; earlier nested mappings can remain empty. A corrected definition follows
+`observers.definitionEvolution`: Automatic rebuilds it, while PartialOnly/Manual
+can recommend replay. Do not assume upgrading repaired stored state.
+
 ## Counters
 
 | Attribute | Arity | Parameters | Targets |

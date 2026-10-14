@@ -97,6 +97,13 @@ The same file's "Trusted reverse proxies" section specifies:
   Forward public HTTPS for HTTPS-sensitive middleware. Do not trust a public
   HTTP scheme while fronting a TLS listener: cookie mutations fail antiforgery.
 
+Requires Chronicle 19.55.0 for configurable kernel gRPC receive/send limits.
+Receive defaults to 100 MiB; send is unlimited unless configured. Set
+`Cratis__Chronicle__MaxReceiveMessageSize` / `__MaxSendMessageSize` in bytes.
+Check the deployed kernel version; older kernels' 4 MiB receive limit can cause
+`ResourceExhausted` even when the client permits 100 MiB. Bound batches rather
+than increasing limits without accounting for memory.
+
 ## Probe without opening another API entrance
 
 Set `health.port` for a dedicated HTTP/1.1 probe listener. `health.tls=false`
@@ -120,6 +127,7 @@ Read [recovery and upgrades](references/operations.md) when changing observer
 retry/quarantine settings, definition evolution, retention, alerts, or restoring
 and upgrading a cluster. See **cratis-chronicle-web-workbench** for browser
 exposure and **cratis-chronicle-cli-operations** for authorized live operations.
+Several services share one kernel with one event store each: see **cratis-multi-service-architecture**, and **cratis-multi-service-local-orchestration** for an AppHost or compose file.
 
 ## Verify
 

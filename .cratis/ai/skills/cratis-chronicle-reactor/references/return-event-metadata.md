@@ -2,6 +2,13 @@
 
 This reference holds the returned-event examples, the cross-stream wrapper and where append metadata for a bare event comes from.
 
+Requires Chronicle 19.63.0 for `[ReactorSideEffect]`
+(`Cratis.Chronicle.Reactors.SideEffects`) to mark a custom synchronous return type
+for CHR0054, including arrays and `IEnumerable<T>`. The marker informs the
+analyzer only; a registered `IReactorSideEffectHandler` must still claim/process
+the value. Check client/analyzer versions with `dotnet list package`; older
+analyzers flag synchronous custom returns even when the runtime handler accepts them.
+
 ### Returning events instead of injecting `IEventLog`
 
 Return events rather than inject `IEventLog`: **a convention, not an analyzer

@@ -82,6 +82,10 @@ filters on collections bind as ESM v14; `from`, single-result filters, `scoped t
 [equality filters](references/equality-filters.md) for the admitted shape, a complete
 compiled specification model and the Stage/CLI ceilings. Keep a list the domain needs.
 
+Concept keys/supplied filters validate after authorization: invalid means Validation,
+not absence; omitted optional filters are unchecked. Read [query rejections](../cratis-screenplay-specifications/references/query-rejections.md) when specifying this.
+Requires Screenplay 4.161.0 (`screenplay --version`); older runners may answer absence.
+
 Return-type forms after `=>`: `ReadModel`, `ReadModel optional`, `ReadModel[]`,
 each optionally prefixed `observable`. `ReadModel[] optional` permits an absent
 collection, not absent items. Legacy `Type?` reports information `PLAY0479`,

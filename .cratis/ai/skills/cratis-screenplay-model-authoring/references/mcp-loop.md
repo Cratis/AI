@@ -128,16 +128,24 @@ connection. Passing `open-workspace.path` does **not** avoid it, because the err
    Otherwise propose one coherent change (a slice works best): `propose-source` for whole
    `.play` text, `propose-ast` for focused typed edits, with
    `validation: "Authoring"`, `referencePolicy: "Safe"` (`Draft` only for
-   deliberate, reported gaps), `formatting: "PreserveTrivia"` for value and mapping
-   patches, otherwise `CanonicalizeTouchedDocuments` (reprints the touched files).
-6. Review: `read-proposal` (`view` changes, then before/after per document, then
-   `dropped-comments`), `introducedExecutableErrors`, `droppedCommentCount`. On
+   deliberate, reported gaps). For hand-written source use `propose-source` with
+   `formatting: "PreserveExactSource"` to keep supplied text, even structural edits.
+   For typed AST value/mapping patches use `PreserveTrivia`; structural AST edits
+   need `CanonicalizeTouchedDocuments` (reprints the touched files).
+6. Report the proposal from its one-paragraph `summary` (also the second text
+   block after JSON), rather than inventing a summary from counts. Review
+   `authoringDiagnosticSeverities.errors` and `codes`: nonzero
+   `authoringDiagnosticCount` counts proposal checks, including PLAY0288 canonical
+   printing even with no dropped comments; `after.readiness` counts resulting-source
+   diagnostics only. Page `read-proposal view=diagnostics`, then changes,
+   before/after per document and `dropped-comments`; keep checking
+   `introducedExecutableErrors` and `droppedCommentCount`. On
    MCP-Apps hosts `visualize-model` with the `proposalId` shows Current and
    Proposed, and its `sketch` argument previews a what-if of whole documents
    without writing. An
    unintended executable regression is discarded (`discard-proposal`) and
    re-proposed. Intent the user has accepted that does not run yet (operations,
-   the `numbers exact` source mode or refusal/redelivery; PLAY0268 by design)
+   the `numbers exact` source mode; PLAY0268 by design)
    may be applied from a reviewed `Authoring` proposal: disclose the new
    diagnostics, report V3 as not binding-ready, and never drop or stub the
    construct. The server's own guidance is to apply such a proposal only when
@@ -202,11 +210,11 @@ connection. Passing `open-workspace.path` does **not** avoid it, because the err
 | --- | --- | --- |
 | Address-preserving | descriptions; bodies of rules and expressions; mappings between members that already exist; any edit that adds, removes or renames no addressed element. Also every edit in a model with no `.screenplay/identities.json` except persisted names | bounded text edit of the `.play` file, then compile the folder; or `propose-ast` |
 | Catalog-changing (identity file present) | add, remove or rename a declaration (slice, command, event, read model, projection, ...), a property of a command, event, read model, composite type or trigger, a query, a query argument or a specification; create, delete, rename or move a mapped `.play` document (McpState refuses reopening with `IdentityMappingConflict`; use document operations in `propose-ast`); rename, remove or move an event, command, read model, constraint, module, feature or slice; move declarations between files (slices and features across logical parents: `propose-move`); contract evolution of a persisted event (new generation, property added, removed or retyped) | `propose-rename` or a reviewed `propose-ast`; never a blind text rename. Renaming a constraint resets its uniqueness index: ask first unless the request names it, then report the reset. A persisted event rename needs `id "OldName"` (added by default) |
-| Concept `generate` | set/change/remove strategy and modifiers | `propose-ast` replaces `ConceptSyntax.generation` (`GenerationSyntax`; omit/null to remove), or reviewed `propose-source`; never hand-edit `generate` text. Preserve other concept members and inspect executable diagnostics: sequence PLAY0682, preview strategies/generated-concept rules PLAY0268. |
+| Concept `generate` | set/change/remove strategy and modifiers | `propose-ast` replaces `ConceptSyntax.generation` (`GenerationSyntax`; omit/null to remove), or reviewed `propose-source`; never hand-edit `generate` text. Preserve other concept members and inspect executable diagnostics: sequence PLAY0682, preview strategies PLAY0268, generated-rule proofs PLAY0688/0689. |
 | Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479`, `0516`, `0563`, `0564`, `0565`, `0614`, `0653`, `0683`, `0684` (and recipe-only `0397`) | `propose-repair` with `formatting`; PLAY0166/0478 may pin attachment evidence (`pinRepairEvidence` and `expectedRepairEvidenceRevision`), never fix-all PLAY0478 |
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
 | Parser-invalid document | no editable handles | `propose-source` `replace-document` with corrected source, or typed `propose-ast` document replacement |
-| Unadmitted constructs | systems/operations, the `numbers exact` source mode, refusal/redelivery | reviewed Authoring `propose-source` (whole documents) or `propose-ast` (typed edits); preserve intent and report PLAY0268 |
+| Unadmitted constructs | systems/operations, the `numbers exact` source mode | reviewed Authoring `propose-source` (whole documents) or `propose-ast` (typed edits); preserve intent and report PLAY0268 |
 | Admitted source/stream routing | ESM v8 | typed `propose-ast`; `propose-rename` repairs proven route references; target admission separate |
 
 PLAY0683/PLAY0684 repairs raise NanoID size or bytes count to at least 64 random
@@ -308,11 +316,19 @@ per page. Excluded directories: `.git`, `.ai-work`, `.screenplay`, `bin`, `obj`,
 
 ## Formatting and limits
 
-Formatting is explicit. Prefer `PreserveTrivia` for identifier, literal-value and
-whole-mapping edits; it rewrites only the changed span. Structural edits (add,
-remove, move) need `CanonicalizeTouchedDocuments`, which keeps attached comments
-and the authored member order within a document but normalizes whitespace and
-blank lines. Before applying, check the proposal's `droppedCommentCount`; when it
+Formatting is explicit. Default hand-written `propose-source` edits to
+`PreserveExactSource`: supplied comments, alignment, blank lines and line endings
+(including CRLF) survive structural edits; replacements retain the original BOM
+policy. The same parsing, identity, reference and compilation checks run, without
+PLAY0288. Choose `CanonicalizeTouchedDocuments` only when canonical output is
+wanted. `propose-ast` exact mode is unchanged: `PreserveTrivia` rewrites supported
+value/mapping spans and refuses structural changes; structural AST edits need
+canonical printing. Its refusal points source authors to `PreserveExactSource`.
+
+Requires Screenplay 4.158.0 or later (`screenplay --version`) for exact structural source proposals; older servers refuse that mode.
+Requires Screenplay 4.156.0 or later (`screenplay --version`) for proposal `summary` and `authoringDiagnosticSeverities`; older servers lack these review fields.
+
+ Before applying, check the proposal's `droppedCommentCount`; when it
 is not zero, read `read-proposal` with `view: "dropped-comments"` and disclose
 each lost comment (`PLAY0288` also reports their count and lines). Untouched
 documents retain exact bytes. A printer that loses requested structural fields

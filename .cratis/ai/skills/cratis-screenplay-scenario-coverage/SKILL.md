@@ -91,7 +91,15 @@ Ask only what is missing: depth, known rules and edge cases (one allowed and the
 ## Scenario types (decide each per command; detail in `references/scenario-catalogue.md`)
 Decide each of these per command: happy path; rule rejection (one spec per rule, exact pinned `then error`); denial (`given caller` without the policy, `then denied`, one per gated command and query); state violation; duplicate or retry; competing claim; alternative path; ordering; external failure; compensation; evolution; and the view pass. Read [references/scenario-catalogue.md](references/scenario-catalogue.md) ("Scenario types at a glance") for each type's question and usual shape.
 
-For recovery intent, `when redelivered <Event> to <Reaction>` must select one definitely matching effective given and no undecided candidate; redelivery remains authoring-only (PLAY0268), never evidence of an executed retry. Read `references/scenario-catalogue.md` ("Redelivery selectors") for naming `stream` or `no stream`.
+For recovery, `when redelivered <Event> to <Reaction>` must select one definitely
+matching effective given and no undecided candidate. It delivers only to the named
+reaction without re-appending the input; `then no events` explicitly checks no
+new facts from the settled cascade (ESM v17). Read `references/scenario-catalogue.md`
+("Redelivery selectors") when choosing retry/no-effect cases or `stream`/`no stream`.
+Read [query rejection examples](../cratis-screenplay-specifications/references/query-rejections.md)
+when specifying malformed keys/filters versus valid absence (ESM v18).
+Requires Screenplay 4.157.0 (`screenplay --version`) for v17, 4.161.0 for query
+validation/error assertions; older tools do not execute these contracts.
 
 **Once, idempotent, exactly once are different claims.** A `unique event` constraint proves the
 *fact* occurs once per event source; it does not make *command handling* idempotent (a retry is

@@ -130,6 +130,13 @@ public class PullRequestItemProjection : IProjectionFor<PullRequestItem>
 }
 ```
 
+A non-entering event appended before creation is retained as an early join:
+it cannot create the variant, but its value is applied when the entering event
+creates it. Requires Chronicle 19.57.1 for `ReadModelScenario` to reproduce this
+and fluent-variant removal of peers, and for CHR0024 to recognize entering/shared
+mapping sources. Check the testing/analyzer versions; older scenarios can miss
+these states. Specify both early-join admission and mutually exclusive variants.
+
 **Why this matters:** without the reclassification, an out-of-order or
 replayed `BuildCompleted` could resurrect a `PullRequestItem` for an entity
 that has since moved to another variant — or one that was never a pull request

@@ -80,8 +80,8 @@ fails the partition. Decide from the contract, in this order:
    type or treating every validation failure as a duplicate. Preserve the modeled system identity
    when using the pipeline; a returned command's role handling is not implicit in an imperative call.
 2. A refusal branch states the disposition: realize its exact selector and its acknowledgment
-   or produced fact. Screenplay refusal branches are authoring-only; hand-written delivery keeps
-   the model as the contract, not a claim of reference execution or render admission.
+   or produced fact. Screenplay refusal branches reference-execute as v19 (Requires Screenplay 4.160.0);
+   render admission is a separate question per target, and hand-written delivery keeps the model as the contract.
 3. The redelivery specification expects an error, or no redelivery disposition is stated: do not
    acknowledge on your own, because that changes failure behavior. Report the possibility of a
    paused partition on recovery as an edit request to the model owner.
@@ -107,7 +107,7 @@ fact, not handled (`references/domain-failures.md`).
 - [ ] The slice contract was read first and every trigger, condition, command and field came from it
 - [ ] The trigger event is an `[EventType]` from the owning contracts project
 - [ ] The command (or events) it fires exists and has its own specifications
-- [ ] One handler per trigger event; first parameter is the trigger; no `ReactorSideEffect`, no injected `IEventLog`
+- [ ] One handler per trigger event; first parameter is the trigger; no invented `ReactorSideEffect` wrapper, no injected `IEventLog`
 - [ ] Every command or event field is mapped from the trigger, an injected read model or a stated mapping; none invented or defaulted
 - [ ] Every skip condition is the contract's, with a specification on each side of it
 - [ ] Handlers that return events or commands carry `[OnceOnly]`; the effect is idempotent regardless

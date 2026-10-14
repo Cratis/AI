@@ -221,6 +221,7 @@ The full critic pass (evidence, severity, business-question review) is
 
 Choose the coarsest layout that keeps source and diffs readable; compile the folder, or its root file, as one application, because compiling files individually reports false unknown-type errors (`PLAY0165`, `PLAY0166`, `PLAY0167`).
 Read [references/file-layout.md](references/file-layout.md) when choosing or changing the file layout, writing `import` barrels, or compiling a split model.
+Read [multi-service models](../cratis-screenplay-streams-and-consistency/references/multi-service-models.md) when the system is several services with their own event stores: one model folder per service, never one folder over all of them.
 
 ## Route near misses
 

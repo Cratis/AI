@@ -18,7 +18,13 @@ This reference holds registration wiring, the registration wait, keepalive and w
   reactor/reducer subscription readiness (use `WaitTillSubscribed` / `WaitTillActive`).
   Successful active projection registration includes observer subscription, not
   read-your-writes: inspect the append's `WaitForCompletion` result or read a
-  passive model. Source: `Registrations/RegistrationOutcome.cs`.
+  passive model.
+  Requires Chronicle 19.65.0 for `IsRegistering`: other members
+  retain the preceding run's outcome during re-registration, so readiness needs
+  `IsSuccess && !IsRegistering`. Disconnect with automatic registration marks
+  it in progress; `WaitForRegistration` waits for that new run rather than
+  returning stale success. Check the package version; older clients need
+  explicit reconnect-readiness coordination. Source: `Registrations/RegistrationOutcome.cs`.
 - **Keepalive is a bidirectional stream plus a watchdog.** The watchdog monitors
   every `MonitorIntervalMilliseconds = 1000`
   (`Source/Clients/Connections/ConnectionWatchdog.cs`) and a keepalive that

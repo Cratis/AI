@@ -57,7 +57,7 @@ void Establish() => _scenario.Given.ForEventSourceId(_id).NoReadModel<Order>();
 ```
 
 The builders live in `Cratis.Chronicle.Testing.Reactors`. Exact signatures on
-`ReactorSourceGivenBuilder<TReactor>` (`where TReactor : class, IReactor`):
+`ReactorSourceGivenBuilder<TReactor>` (`where TReactor : class`; plain reactors require explicit nomination):
 
 ```csharp
 public ReactorSourceGivenBuilder<TReactor> ReadModel<TReadModel>(TReadModel readModel)
@@ -128,10 +128,16 @@ Specify the contract, not only the happy path:
 - **Repeated delivery.** Recovery re-delivers the same event even with
   `[OnceOnly]`, so specify what the reactor does the second time (one effect, an
   idempotent write, or a receipt keyed by `ReactorDelivery`). The scenario gives
-  every event it delivers its own sequence number, so firing the same event twice
-  through `Given` is two deliveries, not a re-delivery; to prove the
-  re-delivery guard, call the handler twice with the same `ReactorDelivery`, or
-  assert it on the collaborator that holds the receipt. Map a contract redelivery specification
+  every event passed through `Given.Events` its own sequence number, so firing
+  the same event twice there is two occurrences, not redelivery. Requires
+  Chronicle 19.61.0 for `History` and `Redeliver`: record without invoking using
+  `var occurrence = await scenario.Given.ForEventSource(id).History(@event);`,
+  then `await scenario.Redeliver(occurrence);` twice. The original context,
+  stream routing and `ReactorDelivery` identity are preserved, with ordinary
+  filters, explicit read-model setup and produced-event recording. Both
+  class-based and fluent scenarios support it; `History` does not append to the
+  event store. Check the testing package version; on older packages call the
+  handler twice with the same context/delivery or test the receipt collaborator. Map a contract redelivery specification
   one to one: deliver the same trigger with the same delivery identity, or call directly with the
   command already applied, and assert its disposition (no new events, the named fact, or refusal
   surfaced as failure). The refusing-command procedure is in `slice-delivery-checklist.md`.

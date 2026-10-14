@@ -79,7 +79,8 @@ including personal data and nested/collection uses, also gets property-level
 `[NotAudited]`. Qualifiers do not alter the generated attribute; reasons remain metadata.
 Protected identity uses and enum concepts refuse `STAGE-ESM-040` (the source binder
 already refuses the enum/identity shapes below). Non-text `secret` concepts (Int/Decimal/Bool/Date/DateTime/Uuid)
-refuse `STAGE-ESM-041`; `pii secret` uses PII and is exempt. No explicit subject lineage renders.
+render with their original types (Requires Stage 4.96.0); older renderers refuse
+`STAGE-ESM-041`. `pii secret` uses PII only. No explicit subject lineage renders.
 The semantic Host now protects values at rest and releases them on read, but existing stores keep
 earlier plaintext events. Reference/specification success does not prove storage protection.
 Never remove protection to fit a tool. Sources: Stage

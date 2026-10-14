@@ -168,6 +168,15 @@ Do not reach for `IEventLog` to do this instead. `ARCCHR0007` warns when a
 command's `Handle` injects `IEventLog`, because that bypasses Arc's append
 pipeline along with its correlation and ordering guarantees.
 
+Requires Arc 22.85.1 for single-source event collections with a compliance
+subject to append atomically even without a command transaction, and 22.87.1
+for multi-source/mixed wrapper collections to do so. Check `dotnet list package`;
+older immediate paths can leave earlier events appended on a later refusal.
+One id routed to several streams without a declared guard can still require
+individual appends: a batch has one guard per source. For atomicity, use the
+command transaction or compatible explicit scopes; do not infer rollback from
+the failed result alone.
+
 ## Failure shapes
 
 | Situation | What the caller sees |

@@ -149,10 +149,14 @@ Others send an edit request ([MCP loop](references/mcp-loop.md)).
    `propose-ast` batches. Inspect the chain and never guess past a refusal:
    [property links](references/property-links.md). Otherwise use `propose-source`
    (whole text) or `propose-ast` (typed edits); `propose` is executable-only.
+   Default hand-written source to `PreserveExactSource` (Requires Screenplay 4.158.0,
+   `screenplay --version`); read `references/mcp-loop.md` when choosing formatting.
 5. Keep reference policy `Safe`. Use `Draft` only for deliberately requested
    unresolved model debt and report that debt; it does not waive structural,
    identity or binding-protection checks.
-6. Inspect `read-proposal` before/after bytes and diagnostics, including the
+6. Report `summary`, inspect severity errors/codes rather than counts
+   (Requires Screenplay 4.156.0, `screenplay --version`); read `references/mcp-loop.md`
+   when reviewing PLAY0288, comment loss or introduced executable errors. Inspect `read-proposal` before/after bytes and diagnostics, including the
    identity-state change through `workspace-state`. Review `orphanedNotes` on
    source proposals; reanchor or resolve affected questions before applying
    ([notes and orphan impact](references/model-notes.md#source-proposals-can-orphan-notes)).

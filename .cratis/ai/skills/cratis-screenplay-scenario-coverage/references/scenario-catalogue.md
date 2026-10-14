@@ -163,13 +163,13 @@ name them as unfinished.
   all conditions are false the unconditional productions still occur. See
   `RecordingACleanDeparture` (only `BoatDeparted`) and `RecordingADepartureWithDamage` (both).
 - Zero new facts: a command whose productions are all conditional may be accepted with no
-  facts. `then no events` parses but binding refuses it with PLAY0268: state the zero-fact outcome through a
-  read-model or query assertion, and an action with no outcome at all does not bind. A command spec with no `then` events but with a
-  view or query assertion is still executable as a zero-fact check: the runner compares the
-  command's facts with the (empty) expected list by exact count, so any fact produced fails it
-. Write it that way, name it for the zero-fact outcome, and keep the view
-  assertion for the visible state. Record the obligation as unasserted only where the runner is
-  not available.
+  facts. Use `then no events` (ESM v17) to assert the action and its cascade added
+  nothing; after `when append` it asserts nothing followed the input. Keep a
+  view/query assertion too when visible state matters. Omission is not an explicit
+  no-event assertion, and an action with no outcome does not bind. Do not combine
+  it with events, event-order expectations, an error or denial (PLAY0545).
+
+Requires Screenplay 4.157.0 or later (`screenplay --version`); older compilers refuse no-event assertions with PLAY0268.
 
 ## 8. Ordering and timing
 - Ask: "Can these facts arrive late, early or out of order? What happens at the boundary of a
@@ -278,9 +278,11 @@ rules, gates, mappings or contracts to make an example pass.
 For recovery intent, `when redelivered <Event> to <Reaction>` must select one
 definitely matching effective given and no undecided candidate. Name `stream`
 (with a complete id) or `no stream` when givens differ only by route; omitting it
-is a wildcard, not an unrouted selector. Redelivery remains authoring-only
-(PLAY0268), never evidence of an executed retry. Details:
-`cratis-screenplay-specifications` `references/examples-and-routes.md`.
+is a wildcard, not an unrouted selector. Redelivery reference-executes as ESM v17:
+it fires only the named reaction, never re-appends the input, then settles new
+facts. Use it for retry/idempotent reaction/recovery cases, not command resubmission,
+clock repetition, replay exclusion or proof of external exactly-once effects.
+Details: `cratis-screenplay-specifications` `references/examples-and-routes.md`.
 
 ## Scenario types at a glance
 

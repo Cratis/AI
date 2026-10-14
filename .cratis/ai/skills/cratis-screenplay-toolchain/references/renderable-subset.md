@@ -21,19 +21,30 @@ and concept compliance (v13) render.
 
 ## Current admission
 
-Stage admits ESM versions up to the one the bundled CLI renders; each construct it does not render refuses with its own code before any artifact is planned. This table is a reading of the renderer's admission, not a render result: run the bundled renderer before asserting renderability.
+Stage admits exact ESM v1–v17 and v19 pairs, not v18 or v20; v19 does not imply v18
+admission. The CLI's bundled Stage can be older: read installed versions and the
+pins in `product-sync.json`, not the standalone compiler's version. Each construct
+it does not render refuses with its own code before any artifact is planned.
+
+Requires Stage 4.96.0 for stored event names (v16), 4.101.0 for no-event assertions (v17), 4.102.0 for refusal branches (v19), and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
+Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering; a bundle that stops at v16 refuses newer models with CLI-RENDER-004.
+
+This table is a reading of the renderer's admission, not a render result: run the bundled renderer before asserting renderability.
 
 | Area | Renders | Refused (code) |
 | --- | --- | --- |
 | Slice kinds | `StateChange`, `StateView`, supported event-triggered `Automation` with Chronicle reactors | Translate, captures, non-event triggers, opaque bodies, clock/trigger/capture specs (`-024`); claim-reading/opaque `runs as` gates (`-034`), mixed effects from one handler (`-037`, redelivery can duplicate events), unsupported conditions/destinations/mappings (`-039`). Keep refused reactions whole |
-| Queries | optional keyed snapshot lookups; observable collections, keyed or unkeyed, with v14 equality filters | a snapshot list: `STAGE-ESM-010`; context/single-result filters, opaque `scoped to`/`performer` and composite `by`: PLAY0268. DateTime filters and required parameters after optional filters refuse `-010`; filter-name collisions refuse `-012`; validated scalar keys render as primitives and convert inside the query (an out-of-rule key finds no instance), nested validated keys still refuse `-010` |
+| Queries | optional keyed snapshot lookups; snapshot or observable collections, keyed or unkeyed, with v14 equality filters | context/single-result filters, opaque `scoped to`/`performer` and composite `by`: PLAY0268. DateTime filters and required parameters after optional filters refuse `-010`; filter-name collisions refuse `-012`; validated scalar keys render as primitives and convert inside the query (an out-of-rule key finds no instance), nested validated keys still refuse `-010` |
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, including routed read-model/query companion replay | reserved stored names, unformattable routed fixtures (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
-| Generated values and responses (v7/v15) | required scalar UUID/String strategies, Guarded v15 freshness, scalar/named responses, generation fixtures and `then returns` | unsupported generated types (`-028`); routed/generated-rule/legacy-allocation/unique-constraint/name-collision or unsupported response combinations, unpinned unordered/projected expectations (`-038`); no blanket `-029` refusal |
-| Enum numbers / compliance | explicit enum numbers (v12); concept `[PII]` or scoped `[Encrypted]` + `[NotAudited]` (v13), property-level `[NotAudited]` for protected command inputs | protected identities/enums (`-040`); non-text secrets (`-041`, not `pii secret`); explicit subject lineage remains unadmitted |
-| Specifications | command scenarios and supported single-hop reaction appends; Stage's `admission.md` | appends outside the single-hop subset and commands cascading into reactions (`-011`); `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims, `$context.occurred`-derived fixed values asserted (`-011`) |
+| Generated values and responses (v7/v15) | required scalar UUID/String strategies, Guarded v15 freshness, scalar/named responses, generation fixtures and `then returns` | unsupported generated types (`-028`); routed/generated-rule/legacy-allocation/name-collision or unsupported response combinations, unpinned unordered/projected expectations (`-038`); no blanket `-029` refusal |
+| Enum numbers / compliance | explicit enum numbers (v12); concept `[PII]` or scoped `[Encrypted]` + `[NotAudited]` (v13), property-level `[NotAudited]` for protected command inputs | protected identities/enums (`-040`); explicit subject lineage remains unadmitted |
+| Specifications | command scenarios and supported single-hop reaction appends; Stage's `admission.md` | appends outside the single-hop subset and commands cascading into reactions (`-011`); `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims (`-011`); command `given clock` renders only whole milliseconds at or after 1970 |
 | v9 and v10 | reaction/reducer `from` filters; role/authenticated `runs as` | public events and event-target projections (`-032`); foreign origins and event-source captures (`-033`); directed Translate (`-024`); claim-reading/opaque `runs as` gates (`-034`); legacy `from` (`-035`); per-production route overrides (`-036`) |
+| Stored event names (v16) | `[EventType("storedName")]` retains stored identity while the class follows the model name | changed/unreadable destination event ids: `STAGE-EVENT-002`, CLI `CLI-RENDER-016` |
+| No events / redelivery (v17) | otherwise admitted command no-event specs; one production-only reaction no-effect spec; located redelivery to one trigger with productions or one supported invocation | fan-out, deeper cascades, constraints, read/query expectations, redelivery with refusal branches, appends with no observer: `-011` |
+| Refusal branches (v19) | ordered Arc `OnRefused`/`Acknowledge`, refusal values and supported single-hop append specs | same-event multi-trigger refusal groups, localized `$refusal.message`, ambiguous multiple-constraint `$refusal.constraint`: `-039`; specification limits: `-011` |
 | Evolved events | initial revisions only (migrations are not rendered) | `STAGE-ESM-026` |
 | Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
@@ -50,15 +61,19 @@ ids into routing to fit a renderer (PLAY0515).
 
 ## Authoring consequences in renderable mode
 
-- `produces when` is STAGE-ESM-006: split conditional outcomes into separate commands, or
-  record the slice as non-renderable (gap-fill) without distorting a design-mode model.
+- Conditional productions render as guarded events; skipped productions make no
+  freshness claim, and all skipped means accepted with no append. Multiple commands
+  in one StateChange render. Expression/enum conditions retain STAGE-ESM-006.
+  Requires Stage 4.98.0; older renderers refuse these shapes.
 - Only supported single-hop reaction `when append` specifications render; no general when-less event-replay proofs. Prove a projection
   with a command-action scenario (given events, `when <Command>`, `then query` or `then
   readmodel`). The seeded when-less `then query` only checks a lookup over a given read-model
   state; it proves no projection.
 - Use `$context.occurred` only; no `$context.identity.*` mappings.
-- A list query binds (unfiltered, or narrowed by one `by` key); Stage renders it only as an
-  `observable` collection, including supported equality filters, and refuses a snapshot list with `STAGE-ESM-010`;
+- A list query binds (unfiltered, or narrowed by one `by` key); Stage renders snapshot and
+  observable collections, including supported equality filters;
+  Requires Stage 4.90.0 for snapshot lists and live `IReadModels.Observe` streams;
+  older renderers refuse snapshot lists with STAGE-ESM-010.
   context/single-result filters, opaque `scoped to` and `performer` block binding. Keep a list the domain needs and report
   the capability gap; marking it `observable` or keying it is a modeling decision for the user.
 - A `handler` (with or without `implementation` or `hint`) never binds; the slice is
@@ -75,6 +90,10 @@ ids into routing to fit a renderer (PLAY0515).
 - Recovery runs before planning. A result with `recovered: true` means stop and reconcile.
 - `--force` replaces a *modified active managed* file only. It never overwrites unmanaged
   files and never deletes modified stale files.
+- Persisted PATH roots use `.screenplay/identities.json` read-only, never temporary
+  replacement identities. `--name` must match the saved name (CLI-RENDER-018);
+  root-open failures are CLI-RENDER-017.
+  Requires Cratis CLI 3.62.0 (`cratis --version`); older PATH rendering ignores persisted identities.
 - `--name` is **required** for plain source and sets the application identity (it also
   defaults the project name and root namespace). Attachments are read from the model root,
   so render from a dedicated model folder.

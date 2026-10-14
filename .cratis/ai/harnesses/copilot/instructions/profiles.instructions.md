@@ -151,6 +151,21 @@ Node.js server and a C# or React-frontend project has no use for them. Select
 Standalone Chronicle client usage (no Arc) in TypeScript is
 `cratis-chronicle-client-typescript`.
 
+### Several services with their own event stores
+
+`cratis/chronicle/core` carries both multi-service skills, so every profile that
+includes it loads them: `cratis/application`, `cratis/application/arc-chronicle`,
+`cratis/application/chronicle-dotnet`, and `cratis/application/csharp` and
+`cratis/chronicle` through `cratis/chronicle/compliance`.
+
+| Skill | Covers |
+| --- | --- |
+| `cratis-multi-service-architecture` | Store per service on one kernel, namespace alignment, public contract events and the outbox, consumer routes, delivery semantics, PII across stores, contract versioning, Arc between services |
+| `cratis-multi-service-local-orchestration` | Repository layout with contracts projects, .NET Aspire AppHost, Docker Compose with a MongoDB replica set, per-service settings, CLI contexts per store, frontends per service |
+
+Modeling such a system in Screenplay (one model folder per service) is
+`cratis-screenplay-streams-and-consistency`'s multi-service reference.
+
 ### Experimental Go modules
 
 Select `cratis/language/go` for a Go repository without importing any HTTP or

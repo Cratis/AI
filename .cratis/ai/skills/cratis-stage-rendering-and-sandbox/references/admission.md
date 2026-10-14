@@ -4,14 +4,21 @@
 
 - How a refusal arrives
 - Event-reaction boundary
+- Recovery, stored identity and baseline boundaries
 - Diagnostic codes
 - Projections
 - Pure reducer bodies
 - Specification rules (`STAGE-ESM-011`)
 - Refusals seen while drafting a model
 
-Stage admits ESM v1 to v15 to construct planning; a newer model reports `CLI-RENDER-004`
-(direct Stage: `STAGE-ESM-016`). Binding with the CLI's bundled compiler is a separate
+Stage admits exact ESM v1–v17 and v19 language/semantic pairs to construct planning,
+not v18 or v20; unknown pairs report `STAGE-ESM-016`. The CLI's bundled renderer
+may stop at v16 and refuse newer models with `CLI-RENDER-004`.
+
+Requires Stage 4.96.0 for v16, 4.101.0 for v17, 4.102.0 for v19, and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
+Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering.
+
+Binding with the CLI's bundled compiler is a separate
 prerequisite. The exhaustive construct table is `references/renderable-subset.md` in
 `cratis-screenplay-toolchain`; run the real render before claiming anything is admitted.
 
@@ -65,24 +72,57 @@ keep refusing them (034/035). ESM v8 routed read-model/query companion replay re
 seeding source and stream metadata through `ReadModelScenario`; reserved names and
 unformattable routed fixtures remain `STAGE-ESM-030`.
 
+## Recovery, stored identity and baseline boundaries
+
+Rendered redelivery uses Chronicle `History`/`Redeliver` for one named event trigger,
+with direct productions or one supported invocation. The selected given keeps its
+sequence number, correlation and routing; it is not appended again. Fan-out, deeper
+cascades, constraints, read/query expectations and redelivery with refusal branches
+retain STAGE-ESM-011. `then no events` renders for otherwise admitted commands and
+one production-only reaction, including false `where`/excluded observer filters;
+no-observer appends and invoked-command empty-effect cases retain -011.
+
+Refusal branches render as ordered Arc `OnRefused`/`Acknowledge`; first match wins,
+handling stops that trigger, and bare refusal never catches authorization. Same-event
+multi-trigger refusal groups, localized `$refusal.message`, or `$refusal.constraint`
+when several constraints can fail together report STAGE-ESM-039. Unsupported branch
+conditions/routes/mappings retain -039, specification shapes -011.
+
+Differing event pins render as `[EventType("storedName")]`; the class follows the
+model name. Destination event-id changes or unreadable existing ids block every
+publication scope with STAGE-EVENT-002 / CLI-RENDER-016, even under `--force`.
+Requires Cratis CLI 3.60.0 (`cratis --version`) for this publication check; older
+CLIs do not enforce it at every scope.
+
+STAGE-BASELINE-001 (changed admitted revision), -002 (missing), -003 (unreadable or
+wrong application) and -004 (unavailable or wrong model revision) are whole-application
+warnings, including scoped renders; they do not stop publication. Keep
+`screenplay baseline check` as the CI gate, separate from event-id publication safety.
+Requires Stage 4.97.0 and Cratis CLI 3.61.0 (`cratis --version`) for baseline warnings;
+older renderers do not report them. Persisted PATH roots render their saved identities
+read-only; root-open failures are CLI-RENDER-017, name mismatch CLI-RENDER-018.
+Requires Cratis CLI 3.62.0 (`cratis --version`); older PATH rendering ignores these identities.
+
+Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4.98.0 for multiple commands/conditional productions; older renderers refuse those shapes.
+
 ## Diagnostic codes
 
 | Code | Meaning | Usual fix |
 | --- | --- | --- |
 | `STAGE-ESM-001` | Unsupported slice kind; `StateChange`, `StateView` and supported event-triggered `Automation` slices render; Translate is `-024` | Keep the model; gap-fill refused scope |
 | `STAGE-ESM-002`, `-003` | Concept values or validation Stage cannot express; unresolved property type | Simplify the concept; fix the type |
-| `STAGE-ESM-004` | A `StateChange` slice without exactly one command | One command per slice |
+| `STAGE-ESM-004` | A `StateChange` slice without commands | Add the modeled command; multiple commands render |
 | `STAGE-ESM-005` | Code validation or rule predicate bodies; or a command beyond the first capability (optional event property, event revision other than the first, validation or requirement that cannot be rendered, neither `produces` nor a response) | Use declarative validation; non-initial event generations are not rendered |
-| `STAGE-ESM-006` | `produces` that cannot render without changing its destination or mappings (`produces when`, literal or computed mappings, `for` not a command identifier, mappings not one-to-one with event properties, duplicate tags) | Map properties one to one; conditional outcomes (`produces when`) are a different behavior, so gap-fill unless the owner accepts splitting them into commands |
+| `STAGE-ESM-006` | `produces` that cannot render without changing its destination or mappings (expression/enum conditions, literal or computed mappings, `for` not a command identifier, mappings not one-to-one with event properties, duplicate tags) | Map properties one to one; supported conditional productions render as guarded events, not separate commands |
 | `STAGE-ESM-007`, `-008`, `-009` | Projection count per read model (exactly one projection or reducer each); unresolvable properties or no single read-model transition (**flat** projections only); affected instance not one, not keyed by an event property, or not the event-source identity (flat projections only) | One projection per read model; see "Projections" below |
-| `STAGE-ESM-010` | A query is neither an optional snapshot lookup by the read-model identifier nor an observable collection query (for example a snapshot list); each query is checked on its own. Observable list queries (keyed or unkeyed) render. A scalar validated key renders as its primitive and is converted inside the query, so an out-of-rule key finds no instance instead of failing validation; a validated concept inside a composite or collection argument is refused | Keyed `XById => X optional` queries or `observable` lists; a snapshot list is gap-fill. Equality filters render on observable collections; DateTime filters, required filters after optional ones, nested validated arguments and snapshot lists refuse 010. Filter-name collisions refuse 012. Context/single-result filters, opaque scope/performer and composite `by` remain PLAY0268 |
+| `STAGE-ESM-010` | A query is neither an optional snapshot lookup by the read-model identifier nor a supported snapshot/observable collection query; each query is checked on its own. Both collection modes render. A scalar validated key renders as its primitive and is converted inside the query, so an out-of-rule key finds no instance instead of failing validation; a validated concept inside a composite or collection argument is refused | Keyed `XById => X optional` queries or snapshot/observable lists. Equality filters render on both collections; DateTime filters, required filters after optional ones and nested validated arguments refuse 010. Filter-name collisions refuse 012. Context/single-result filters, opaque scope/performer and composite `by` remain PLAY0268 |
 | `STAGE-ESM-011` | A specification cannot render (see the rules below) | Reshape it only if the assertion keeps its meaning; otherwise keep the specification, record the gap, and gap-fill with the specification as the oracle. Never weaken or delete it to get a render |
 | `STAGE-ESM-012` | Generated C# names collide (properties, types, namespaces, constraints) | Rename |
 | `STAGE-ESM-013` | An event-context value other than `$context.occurred` mapped in `produces` | Map a command property when that preserves the meaning; otherwise gap-fill |
 | `STAGE-ESM-014` | A constraint Chronicle cannot reproduce (kind, scope, message; multi-claim in one command; optional or composite targets) | A different constraint is a requirement change for the model owner; otherwise gap-fill |
 | `STAGE-ESM-015` | Authorization Stage cannot render exactly: a role-claim URI, an opaque policy nested inside a condition, an unresolved or non-portable policy, no single identifier, an opaque-policy subject that is not text, Uuid, Date or DateTime (a restriction on opaque-policy subjects, separate from declarative claim targets), an unsupported claim artifact. Role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false) and `not`/and/or render; roles are read through the identity's `RoleClaimType` | Reshape the policy to a portable condition; otherwise gap-fill |
-| `STAGE-ESM-016` | Model language/semantic pair is not an audited ESM v1 to v15 pair; the CLI reports `CLI-RENDER-004` above v15 first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
-| `STAGE-ESM-017` | Read model or projection cannot render (property names that collide with Chronicle paths or expression syntax, mappings that overwrite the key or child identity, composite keys, `all`, the refused scope shapes below) | Reshape the projection without changing what it records, or record the gap |
+| `STAGE-ESM-016` | Model language/semantic pair is not an audited ESM v1–v17 or v19 pair; v18 and v20 remain refused. A CLI bundle stopping at v16 reports `CLI-RENDER-004` above v16 first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
+| `STAGE-ESM-017` | Read model or projection cannot render (property names that collide with Chronicle paths or expression syntax, mappings that overwrite the key or child identity, composite keys, unsupported `all` mappings, the refused scope shapes below) | Reshape the projection without changing what it records, or record the gap |
 | `STAGE-ESM-018` | `$strings.` key missing in the default locale or containing formatting characters | Fix the strings |
 | `STAGE-ESM-019` | Reducer structure or body not admitted (outside a `StateView`, impure, does not compile) | An equivalent pure body, or gap-fill |
 | `STAGE-ESM-020` | Implementation body missing, changed (hash differs) or refused by the loader | Provide the body inside the model root |
@@ -92,7 +132,7 @@ unformattable routed fixtures remain `STAGE-ESM-030`.
 | `STAGE-ESM-024` | Interval, schedule, application, startup and shutdown triggers, opaque reaction bodies, captures, Translate (including directed Translate), and clock/trigger/capture specifications. Event-triggered Automation slices render as Chronicle reactors, subject to `-013` and `-034` to `-040` below | Keep refused scope as gap-fill; do not confuse semantic Host settlement with live reactor delivery |
 | `STAGE-ESM-027` | A specification asserting a read model is absent (`then no readmodel`) is not rendered (the semantic specification engine executes keyed absence) | Keep the specification; verify absence another way and record the gap |
 | `STAGE-ESM-028`, `-029` | Generated values or responses Stage cannot render. Supported scalar UUID/String-concept strategies, v15 freshness, generation fixtures, scalar/named responses and `then returns` render; unsupported generated types report `-028` | Probe the supported form; preserve refused combinations as gap-fill |
-| `STAGE-ESM-038` | Generated/response results combined with routes, generated-property/concept rules, legacy allocation, generated unique-constraint mappings, non-scalar/non-command response sources or generated-name collisions | Keep the model; gap-fill that command |
+| `STAGE-ESM-038` | Generated/response results combined with routes, generated-property/concept rules, legacy allocation, non-scalar/non-command response sources or generated-name collisions | Keep the model; gap-fill that command |
 | `STAGE-ESM-039`, `-040` | Reaction conditions, destinations or mappings outside the faithful target subset; protected identity uses (including reaction destinations) and protected enum concepts | See the event-reaction boundary above; never declassify protected values |
 | `STAGE-ESM-030` | Named event-source or stream definition with a reserved stored name; unformattable routed fixtures or command replay routes. The default sandbox engine also reports it for every routed model | Rename the reserved name; render the model with `cratis render`, not `cratis run` |
 | `STAGE-ESM-031` | Whole-number literal outside the C# `int` range below ESM v8 (v8 and later render `long`) | Raise the model to v8 constructs or gap-fill |
@@ -100,13 +140,13 @@ unformattable routed fixtures remain `STAGE-ESM-030`.
 | `STAGE-ESM-034` | Reaction `runs as` invoking claim-reading or opaque authorization; every `runs as` on legacy syntax paths | Keep the gate; gap-fill |
 | `STAGE-ESM-035` | Observer filters on legacy syntax paths; semantic reaction/reducer filters render | Use semantic admission |
 | `STAGE-ESM-036` | Per-production route overrides | Gap-fill |
-| `STAGE-ESM-041` | Non-text secret concepts (Int/Decimal/Bool/Date/DateTime/Uuid), not `pii secret` | Keep classification; text backing only if it preserves the contract |
+| `STAGE-ESM-041` | Older renderers refuse non-text secrets; supported renderers keep their original types | Keep classification; upgrade the renderer, never declassify |
 | `STAGE-ESM-037` | Events and commands from one handler, even across separate triggers on the same event in one reaction. The scaffold's Arc supports mixed results, but appends events before commands; a refused command causes redelivery and duplicate events | **Do not split the modeled reaction or drop an effect.** Gap-fill only with a proven retry-safe implementation; `[OnceOnly]` excludes replay, not retry |
 | `STAGE-ESM-023` | Information: transition bodies analysed | none |
 | `STAGE-CRATIS-001` to `-005` | Profile or `scene.json` not the package-owned shape; unrecognized or missing scaffold input; artifact path collision (`-004`, for example case names that normalize to one path); a modeled module or feature that would render into the reserved `Customizations/` (`-005`) | Rename the module, feature or case |
 | `STAGE-AUTH-001` | Authorization cannot be rendered faithfully | As `STAGE-ESM-015` |
 | `CLI-RENDER-001`, `-002` | Unknown target; invalid rendering name | Fix the option, or the model |
-| `CLI-RENDER-004` | The bound model is newer than ESM v15 | Not fixable by editing: keep the model, gap-fill |
+| `CLI-RENDER-004` | The bound model is above the CLI bundle's admitted ceiling (v16 for a bundle without v17 support) | Not fixable by editing: keep the model, gap-fill |
 | `CLI-RENDER-005`, `-006` | Authored metadata with characters invalid in XML blocks rendering of XML doc comments; a document set that cannot be read as a workspace renders without comments (warning) | Remove the invalid characters |
 | `CLI-RENDER-007` to `-010` | `ui profile` refusals (package set, profile shape) | See `--package-set` |
 | `CLI-RENDER-011` to `-014` | `--scope`: unknown address; ambiguous feature and slice name; aggregate or unrecognized policy layout (render the whole application once); a dependency not in the manifest or the scope | Fix the address or add the owning scope |
@@ -148,7 +188,7 @@ Stage renders two projection forms; the restrictions differ.
   `$eventSourceId` key. Forms: several distinct `from` blocks, `remove with`, root
   `join ... on`, `children` with an identified element (one level, no children or joins
   inside a child; `remove with` and `remove via join` inside a child are admitted), `nested`
-  over an optional composite property, and `every` with set-from-event-source mappings. Keys
+  over an optional composite property, and `every`/`all` with set-from-event-source mappings. Keys
   are an event property or the event source. The key establishes the identifier, so it must
   end up unmapped: a mapping onto it is refused unless it copies the key's own event
   property, so an event-source key admits no mapping at all (`STAGE-ESM-017`). Auto-map
@@ -156,7 +196,14 @@ Stage renders two projection forms; the restrictions differ.
   declare `no automap` and map the other properties explicitly. `from E` and
   `from E key $eventSourceId` render when the identifier ends up unmapped, whether or not
   the event repeats the identifier.
-- Refused in a scope (`STAGE-ESM-017`): composite keys; `all` (FromAll); `every` with
+- `all` renders as Chronicle `FromAll` for event-source-identity mappings, including
+  unrelated event types/sources.
+  Requires Stage 4.91.0; older renderers refuse it.
+  Every property it leaves unmapped must be optional, text (not an enum) or a single
+  composite object so unrelated instances keep it unset, not a value-type default
+  Requires Stage 4.93.0 for this check; older renderers can silently materialize defaults.
+- Refused in a scope (`STAGE-ESM-017`): composite keys; empty/literal `all` mappings;
+  unmapped `all` properties outside that nullable subset; `every` with
   children included beside children or nested blocks; root `remove via join`; joins,
   children or join removals inside `nested`; a `clear` inside `nested`; recursive children
   and joins inside a child; duplicate event contracts among `from`, join or
@@ -180,9 +227,10 @@ same slice, a required Guid or text identifier and a matching keyed query. Code 
 
 ## Specification rules (`STAGE-ESM-011`)
 
-- A specification needs a `when <Command>` of its own slice (`PLAY0273` otherwise), and
-  its `then` events must be as many as the command `produces` (a `then query`
-  spec fails until it also asserts the event).
+- A command-action specification needs a `when <Command>` of its own slice
+  (`PLAY0273` otherwise). Assert all productions taken by its condition witnesses,
+  not skipped ones; use `then no events` for accepted no-effect behavior. A view/query
+  assertion does not excuse omitting events that were produced.
 - A `given caller` with a role-claim URI is refused; `role "X"` is accepted. `then denied`
   needs an authorized command and a `given caller`; a `then query` on a protected query
   needs a `given caller`.

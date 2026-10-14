@@ -60,7 +60,7 @@ refused reactions, captures and Translate slices remain gap-fill.
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on the standalone
 tool, so report V3 and V4 from that tool. The CLI/Stage pair
 (`cratis-screenplay-toolchain/references/renderable-subset.md`) reaches v8 route checks
-and construct admission through v15. Public/foreign events and production overrides
+and construct admission through v16. Public/foreign events and production overrides
 still refuse; semantic reaction/reducer filters and role/authenticated `runs as` render.
 Claim-reading/opaque system gates, legacy actor/filter paths and mixed effects still refuse. Keep refused scope as case A/C,
 never infer target support from binding. Read Stage's `references/admission.md` and
@@ -74,6 +74,10 @@ but Stage still refuses it because redelivery can duplicate events. `[OnceOnly]`
 not retries. Keep the modeled reaction whole; gap-fill needs a proven retry-safe realization,
 not splitting or dropping effects to get a render. Source: Stage
 `Documentation/reference/reaction-rendering.md`.
+
+Read Stage's `references/admission.md` when checking v17/v19 or query validation:
+primitive query arguments still answer absence, not Screenplay's Validation.
+Query errors need v18 admission; do not delete rules or claim parity.
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and
 a whole-application V5 is never claimed from a subset. `--scope` renders an admitted part (the whole

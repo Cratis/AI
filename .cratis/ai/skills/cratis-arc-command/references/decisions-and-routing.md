@@ -49,6 +49,12 @@ constraint, not to any read. For the routing steps, the matrix and the traps rea
   (ARCCHR0016). The default check also reads the tail after `Handle`, and the first
   append into a scope is unchecked unless `CheckFirstAppendIntoAScope` is set.
 
+Requires Arc 22.81.0 for stream-scoped `IDecisionReads.Get<T>`,
+`GetDetached<T>` and `AdmitForStream<T>` to participate in command protection,
+caching and enrollment. Older Arc refuses these stream reads inside commands;
+check the Arc package version before choosing this path. `[Unprotected]` command
+reads are unguarded, not refused.
+
 Do not manually append or commit to bypass the owner-capable unit of work.
 The guard detects every matching event appended after its boundary, whoever wrote
 it, but it protects only guarded decisions: an unguarded writer deciding on the
@@ -88,6 +94,13 @@ two independent stream decisions for the same source and assume both are guarded
 `route.Route(id, fact)` produces a routing wrapper. Explicit routing on a returned
 `EventForEventSourceId` wins over command context in every return shape.
 
+Requires Arc 22.79.0 for legacy wrapper-route validation on definition-routed
+commands: a registered definition with an undeclared stream fails with
+`EventStreamDoesNotBelongToEventSource`. ARCCHR0020 flags literal mistakes;
+ARCCHR0021 recommends `EventSource = typeof(...)` and `EventStream` instead of
+legacy strings. Older legacy routing can append to an undeclared stream; use the
+typed definition route rather than relying on strings.
+
 ## Tags and completion
 
 In `Cratis.Arc.Chronicle.Commands`, `[EventTag("projectId", nameof(ProjectId))]`
@@ -100,10 +113,15 @@ to returned events, not manual appends or aggregate commits.
 
 Return `CompleteStream` (`Cratis.Arc.Chronicle.Streams`) alone or with events in
 a command tuple. It completes **after commit**, not atomically with append.
-Completion is keyed by stream type/id across the entire event log, not source id.
+Requires Arc 22.81.0 and Chronicle kernel 19.39.0 for source-scoped completion:
+a declared key, `ICanProvideEventSourceId` or response-supplied id scopes the
+command's completion to that source (and resolved source type). A keyless command
+still closes the stream type/id across the log; its internally generated id does
+not scope completion. Older Arc closes across sources; an older kernel refuses
+scoped completion, never falling back to all sources. Check both versions.
 A failure leaves earlier events committed; retry completion rather than blindly
-duplicating events. Reactors may return it directly, using the observed route;
-reactor tuples/collections cannot mix it with events.
+duplicating events. Reactors may return it directly, scoped to the observed
+source id/type and stream route; reactor tuples/collections cannot mix it with events.
 
 ## Decision specifications
 
@@ -113,6 +131,7 @@ Call `new CommandScenario<T>().UseDecisionReads()` before seeding events.
 cannot supply guards. Assert a real nonempty decision conflicts on the intended
 route, and that an independent route is not over-guarded.
 `ShouldHaveCompletedStream(type, id)` asserts completion;
+`ShouldHaveCompletedStream(ClosedStreamScope)` asserts the exact owner and route;
 `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` checks projection
 admission in assembly-level specs.
 
