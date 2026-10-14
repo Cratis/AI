@@ -58,36 +58,7 @@ Requires `@cratis/chronicle` 6.49.0, Chronicle kernel 19.30.0 and `@cratis/chron
 
 ## Project setup
 
-```shell
-yarn add @cratis/chronicle @cratis/fundamentals reflect-metadata
-```
-
-`@cratis/fundamentals` is a peer dependency, so it does not arrive on its own.
-`reflect-metadata` is now a regular dependency. Import it **once, at the entry
-point**, before any decorated class is loaded:
-
-```typescript
-import 'reflect-metadata';
-```
-
-The package is **ESM-only** and needs Node.js **22.19+** for its `undici`
-dependency (the client itself has no `engines` field). Standard TC39 decorators
-are supported (TypeScript 5.2+) and are the documentation default:
-
-```jsonc
-// tsconfig.json — standard decorator mode
-{
-    "compilerOptions": {
-        "target": "ES2022",
-        "lib": ["ES2022", "ESNext.Decorators"]
-    }
-}
-```
-
-Legacy mode with `experimentalDecorators: true` and
-`emitDecoratorMetadata: true` still works. Standard decorators and esbuild/tsx
-emit no type metadata: declare every serialized property with `@field(Type)`
-from `@cratis/fundamentals`; default values are only an inference fallback.
+Read [references/project-setup.md](references/project-setup.md) when installing the package, importing `reflect-metadata`, or choosing decorator settings. Standard TC39 decorators are the default; esbuild/tsx emit no type metadata, so every property needs `@field(Type)`.
 
 ## Connecting
 
@@ -120,54 +91,7 @@ exist — it calls `ensureEventStore`.
 `dispose()` is **synchronous**, not
 `Symbol.dispose` or `Symbol.asyncDispose`. After disposal every call throws.
 
-### Options
-
-`ChronicleOptions` has a **private constructor** (`Source/ChronicleOptions.ts`);
-use `ChronicleOptions.fromConnectionString(connectionString, options?)` or
-`ChronicleOptions.development(options?)`.
-
-The optional bag accepts `telemetry`, `logger`, `clientArtifactsProvider`,
-`discoveryPatterns`, `defaultSinkTypeId`, `reactorResultHandler`,
-`artifactActivator`, and `readModelNamingPolicy`. `defaultSinkTypeId` defaults
-to `WellKnownSinks.MongoDB`.
-
-> `programIdentifier`, `softwareVersion`, and `softwareCommit` exist on the type
-> but **neither public factory forwards them**, so they cannot be set.
-> Do not write guidance that configures them.
-
-### The connection string
-
-Schemes `chronicle://` and `chronicle+srv://`, default port `35000`
-(`Source/connection/ChronicleConnectionString.ts`). Query parameters: `apiKey`,
-`disableTls`, `skipTlsValidation`, `certificatePath`, `certificatePassword`,
-`loadBalancer`, `srvNameServer`.
-
-Two facts to carry into production guidance:
-
-- **`skipTlsValidation` defaults to `true`.** TLS is on but the certificate chain
-  is not validated, because a development kernel serves a self-signed
-  certificate. Set `?skipTlsValidation=false` against a real server.
-- **A connection string with no credentials silently falls back to the
-  development client credentials** (`Source/connection/ChronicleConnection.ts`).
-  An anonymous-looking connection string is not anonymous; it is
-  `chronicle-dev-client`.
-
-> **There is no `./connection` subpath export.** `ChronicleConnectionString`,
-> `ChronicleConnectionStringBuilder`, `AuthenticationMode`, and `LoadBalancerMode`
-> are unreachable from the public entry points — `Source/index.ts` never
-> re-exports them and `Source/package.json`'s `exports` map has no
-> `"./connection"` key. **Application code passes a connection *string*.** Do not
-> write an example that imports a connection-string type.
-
-The subpath exports that do exist: `.`, `./events`, `./eventSequences`,
-`./eventStoreSubscriptions`, `./compliance`, `./reactors`, `./reducers`,
-`./seeding`, `./readModels`, `./projections`, `./jobs`, `./webhooks`,
-`./externalServices`, `./identities`, `./observation`, `./sinks`, `./schemas`,
-`./types`, `./artifacts`, `./identity`, `./auditing`, `./correlation`,
-`./transactions`, `./confidentiality`, `./patterns`, `./testing`, and
-`./package.json`. Event-source APIs are root exports; there is no
-`./eventSources` subpath. `IncompatibleChronicleServer` and
-`RejectedChronicleCredentials` are also root exports.
+Read [references/connection-options.md](references/connection-options.md) when building `ChronicleOptions`, writing a connection string, or listing the public subpath exports. Pass a connection string; there is no `./connection` export.
 
 ## Event types
 
@@ -339,31 +263,7 @@ in parallel, and re-runs for every cached event store on reconnect.
 
 ## Lifecycle
 
-- A health-check watchdog runs `getVersionInfo` every 5 seconds and reconnects on
-  failure; the interval handle is `unref()`'d so it does not hold the process open.
-- Reconnect uses exponential backoff with jitter, capped at 30 seconds, rebuilding
-  the gRPC channel on every attempt.
-- **Keepalive registration is what keeps observers alive.** Losing it triggers a
-  full reconnect, because the kernel tears down the client's observers otherwise.
-- Failed operations are retried once after reconnecting, keyed on gRPC status
-  codes 4/13/14 plus a substring match over the error text.
-
-The client reports its **installed package version**, read from
-`@cratis/chronicle/package.json`, and performs `CheckCompatibility` with
-`ProtocolVersion` and the contracts descriptor set before a connection is usable
-and before event-sequence calls. `IncompatibleChronicleServer` is a permanent
-verdict, not retried (`Source/connection/CompatibilityPreflight.ts`).
-Three consecutive credential rejections cause `RejectedChronicleCredentials`.
-A failed token request is logged and the call proceeds without a token (allowing
-an auth-less kernel); tokens come from the selected server, not the first host.
-
-Requires `@cratis/chronicle` 6.43.0 for the built-in spans below.
-
-Built-in spans use `cratis.chronicle.client.*` and scope
-`Cratis.Chronicle.Client`; metrics use seconds. Legacy millisecond metrics and
-`chronicle.*` attributes are retired except the retained exact-string
-`chronicle.sequence_number`. The old constants, `ChronicleMetrics`, and
-`telemetry.spanNames` are deprecated; migrate dashboards.
+Read [references/lifecycle.md](references/lifecycle.md) when diagnosing reconnects, keepalive, rejected credentials or telemetry names. The client reports its installed package version, and `IncompatibleChronicleServer` is a permanent verdict, not retried.
 
 ## Artifact activation
 

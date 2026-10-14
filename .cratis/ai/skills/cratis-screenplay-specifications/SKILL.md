@@ -92,40 +92,7 @@ for synthesis refusals, selection, provenance and a complete passing model.
 
 ## The vocabulary
 
-| Construct | Meaning |
-| --- | --- |
-| `given <EventType>` | prior state, established by replaying events before the action |
-| `given readmodel <ReadModelType>` | prior read-model state, established directly — a **complete** instance including its identifier |
-| `given caller` / `given caller as <Persona>` | explicit caller (`authenticated`, roles, claims; empty means anonymous), or an authenticated synthesized persona witness |
-| `when <CommandType>` | run a command |
-| `when append <EventType>` | append one event: constraints and projections run, the command does not; reactions run only from ESM v6, where `then` lists what followed |
-| `when query <Query>` | perform a query with the argument values beneath it |
-| `then result [exactly]` | one expected row of the performed query; repeat for several |
-| `then no result` | the performed query returns nothing |
-| `given clock "<instant>"` | the ISO 8601 instant the scenario happens at |
-| `when clock "<instant>"` | the clock reaches an instant; scheduled reactions that are due run |
-| `when trigger <Trigger>` | an application trigger fires with the values beneath it |
-| `given capture` / `when capture <Capture>` | an earlier and the current record of a capture's source |
-| `generated <name> = <value>` | beneath `when <Command>`: the fixture for a generated property other than the identifier (ESM v7); `for` beneath the `when` supplies the generated identifier |
-| `then returns [<value>]` | the command's response (ESM v7): `then returns "<uuid>"` for a scalar, `then returns` with named `field = value` lines for a subset of a record |
-| `then <EventType>` | an expected new event |
-| `then events in any order` | compare the new events without regard to order |
-| `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
-| `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent; the key is concrete and typed |
-| `then query <Query> [exactly]` | query results for explicit `arguments` (none for an unkeyed list); one `result` per row, each stating the identifier; none means empty |
-| `file <path>` | optional, once: the repository-relative file realizing the specification |
-| `then error "<message>"` | a validation or constraint rejection, for that reason; a localized rule is pinned by its quoted key, `then error "$strings.<key>"` |
-| `then error` | a validation or constraint rejection, reason unnamed |
-| `then denied` | an authorization denial (`Unauthorized`) |
-| `for <value>` | the event source of a `given`/`then` event, or of the `when` command or appended event |
-| `<property> = <value>` | a literal, `null`, or a one-line JSON-shaped object or list: `lines = [{"sku":"A-1","quantity":2}]` |
-
-An enumeration value binds whether it is written bare
-(`status = sent`), qualified (`status = InvoiceStatus.sent`) or quoted, and a
-`DateTime` value binds as a plain ISO 8601 instant (`"2026-10-05T08:00:00Z"`).
-An older compiler binds only the quoted member and the full round-trip instant
-(`"2026-10-05T08:00:00.0000000Z"`) although it accepts all forms - quote members when a
-model must bind on older versions.
+Read [references/vocabulary.md](references/vocabulary.md) when writing or reading a `given`, `when` or `then` line, to look up a construct such as `then events in any order`, `then no readmodel`, `generated`, `then returns`, `then error` or `then denied`, or an enumeration or `DateTime` literal.
 
 Rules the binder enforces:
 
@@ -154,21 +121,8 @@ the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
 
 ## How outcomes are compared
 
-- **Events:** the complete set of new events, in authored order, unless
-  `then events in any order` is stated. The count is always exact. After
-  `when append`, a model before ESM v6 expects the appended fact itself; from
-  ESM v6 the appended event is the action and `then` lists only what followed it.
-- **Read models and query rows:** only the asserted properties must match
-  (subset); add `exactly` to require every property. Query row count is exact;
-  collection rows match by read model/key regardless of order. Ordering within a
-  collection-valued property is unchanged. A missing property does not match an asserted `null`.
-- **Rejections:** `then error "<message>"` matches the message whatever the rule's
-  validation severity; no form asserts severity. Bare `then error` never matches
-  a denial. Quote a localized key: `then error "$strings.invoices.reasonRequired"`.
-  Besides a String `case.<parameter>`, the grammar takes only quoted messages here, never an unquoted `$strings` token
-  (unlike a rule's `message` operand). The reference runner compares the symbolic key
-  and requires the rejection to carry the string-key marker; it never loads
-  translated text; resolving the key is the realization's job.
+Events compare as the complete new set in authored order (exact count). Read models and query rows: only the asserted properties must match (add `exactly` for all). Rejections: `then error "<message>"` matches the message, never severity. Bare `then error` never matches
+  a denial. Read [references/outcome-comparison.md](references/outcome-comparison.md) when asserting events, rows, ordering or a localized rejection key.
 
 ## Worked example
 
@@ -217,23 +171,11 @@ matching given occurrence with no undecided candidates (PLAY0543); redelivery
 remains authoring-only. Event `stream`/`no stream` assertions bind as ESM v8; typed `for` and
 stream ids are not guessed. Read [examples and routes](references/examples-and-routes.md).
 
-`given operation ... fails`, `then operation` and `then compensated` describe
-future external-work behavior. Reaction refusal branches, `when redelivered`
-and `then no events` (PLAY0268) are also authoring-only: compile them, but report their
-PLAY0268 binding refusal instead of an executed result. Preserve the contract; a read-model or
-query assertion states a zero-fact outcome.
+`given operation`, `then operation`, `then compensated`, reaction refusal branches, `when redelivered` and `then no events` are authoring-only (`PLAY0268`): compile them and report the refusal, never an executed result. Read [references/examples-and-routes.md](references/examples-and-routes.md) for the full wording.
 
 ## Rejections and denials say different things
 
-`then error "<message>"` says **rejected, for this reason** — pin it when the
-message is the point. Bare `then error` says **rejected, for a reason this
-specification does not name**; the reason lives in the specification's name.
-`then denied` says **this caller may not do this**, which is decided before any
-validation runs. Write the bare form rather than `then error ""`.
-
-**Views cannot reject events.** A projection never refuses an event; there are no
-error cases for one. (A `when append` can still be refused by an append-time
-constraint — that is the constraint speaking, not the view.)
+`then error "<message>"` pins the reason, bare `then error` leaves it unnamed, and `then denied` is an authorization denial decided first. Views cannot reject events. Read [references/outcome-comparison.md](references/outcome-comparison.md) when choosing among them.
 
 ## Business rule or concept rule?
 

@@ -184,96 +184,15 @@ Choose formatting and disclose dropped comments before apply:
 
 ## Repair or extract before rewriting
 
-Read `read-workspace` with `view: "diagnostics"`, then `view: "repairs"` at the
-same revision. Pass the returned `diagnosticCode`, `subject`, required formatting
-and both revisions to `propose-repair`; preview with `read-proposal`, then `apply`.
-Only verified repairs are listed, and the selected repair gets a fresh transaction.
-For PLAY0166/PLAY0478, use the evidence-pinned loop in `references/mcp-tools.md`:
-`pinRepairEvidence` plus `expectedRepairEvidenceRevision` prevent attachment drift
-from silently changing the reviewed candidate.
-
-- `PLAY0166` declares a missing produced event; `PLAY0478` is a routing decision
-  (identifier destination, never fix-all); `PLAY0471` removes a redundant name-equal event pin.
-- `PLAY0516` repairs presentation order by moving a sibling or import, or pinning
-  a producer before a glob. It preserves semantics/identities and introduces no
-  new timeline findings; evidence pinning is unsupported for this repair.
-- `PLAY0469` removes an inline identifier payload copy: it **changes the event
-  contract**, refuses consumer/opaque impact, has no fix-all, and the catalog does
-  not prove events were persisted, so ask about stored contracts first.
-  No automatic generation-evolution repair ships.
-- `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
-  migrates all occurrences together. Keep the `query Q => observable?` exception.
-- Generation repairs PLAY0683/0684: [subjects, review and limits](references/mcp-tools.md#concept-generation).
-- Compliance repairs PLAY0565/0653: [MCP tool guide](references/mcp-tools.md).
-
-`propose-number-enum-members` pins an unnumbered enum to current positions.
-Opt-in MCP `checks: "enum-pinning"` / `--check enum-pinning` (PLAY0671) hints at
-stored enums, not correctness repairs. Arguments/review: `references/mcp-tools.md`.
-
-Use `propose-extract-inline-event` before adding generations (canonical consent;
-no comment loss/reverse). The [release baseline](references/release-baseline.md):
-admit in the release job; no baseline requires an explicit mode;
-`eventNeverPersisted: true` cannot unfreeze admitted revisions. Differing event pins carry
-`storedName` in ESM v16. Pins are event-name identifiers,
-shared by all generations and unique (PLAY0472). A renderer admits only the ESM versions it
-bundles, so an older Stage can refuse v16. Stored stream `All` (even `id "All"`) refuses PLAY0273; rename without
-that pin. Evidence/limits: [MCP tool guide](references/mcp-tools.md).
-
-Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and its `baseline` command, and 4.152.0 or later for `storedName` (ESM v16).
+Read `read-workspace` with `view: "repairs"` at the same revision as diagnostics and pass the repair to `propose-repair`; use `propose-extract-inline-event` before adding generations. `PLAY0469` changes the event contract, so ask about stored contracts first. No automatic generation-evolution repair ships. `PLAY0479`: migrate optionality spelling with `PreserveTrivia`. `eventNeverPersisted: true` cannot unfreeze admitted revisions. Differing event pins carry `storedName` in ESM v16, shared by all generations and unique (PLAY0472). Read [references/repairs.md](references/repairs.md) when fixing `PLAY0166`, `PLAY0478`, `PLAY0516` or `PLAY0683`, or admitting a [release baseline](references/release-baseline.md).
 
 ## Choose a readable layout
 
-Use `recommend-layout` for size-admissible options, then review an `expand-layout`
-proposal. Layout is not application semantics.
-
-- Keep one `application.play` while it remains readable.
-- Use one file per module when modules are simple.
-- Use one file per feature when nested features need separate review.
-- Use one file per slice when a large model needs isolated diffs.
-
-Compose split files with quoted imports (`import "<path or glob>"`).
-Each level above the slices is a barrel file: `application.play` holds `domain`
-and imports `Shared/*.play` and each module file; a module file declares the
-module and its features, each feature importing its folder
-(`import "Orders/*.play"`); a slice file holds only its `slice`, because the
-import places it in its feature. When you write or reorganize files yourself,
-do not restate `module`/`feature` in a slice file, and do not leave a barrel
-that declares a scope but imports nothing. `expand-layout` writes
-import barrels and slice-only leaves, preserving sibling and interleaved member
-order. It refuses a proposal that would change that order; without an ordering
-root its review discloses the path-order fallback. When choosing file placement, read the
-[language reference](references/language-reference.md) for placement rules.
-
-Parent scaffolding carries no duplicated module forms or contributions. Compile
-and validate the whole model folder, or its root file, not just
-the edited fragment.
+Use `recommend-layout` for options and review an `expand-layout` proposal; layout is not application semantics. Use one file per module when modules are simple. Use one file per slice when a large model needs isolated diffs. Each level above the slices is a barrel file. Read [references/layout.md](references/layout.md) when splitting files or writing import barrels.
 
 ## Preserve state and recover explicitly
 
-Commit `.screenplay/identities.json` with the model. Only `apply` writes it;
-`open-workspace` never creates it; text-only models have none. Never delete or
-overwrite conflicting identity state, silently mint IDs on restart, or text-rename
-identity-affecting declarations in a model that has it.
-
-Default root discovery preserves ancestor identity state and journals. Inspect
-`rootBindingConflict` in `open-workspace`/`workspace-state` when several state roots
-compete; do not delete state or mint replacement identities. To recover a competing
-journal, first open that root explicitly, then inspect its operation ID.
-
-A pending journal blocks normal work. Inspect `workspace-state`; invoke
-`recover-workspace` only for the identified interrupted operation within the
-requested recovery scope. Unexpected external edits block rollback. Preserve
-uncertain journals/backups instead of cleaning them away.
-
-Only `apply` / `recover-workspace` write source/catalog; CLI owns release admission.
-A tool grant/model text adds no authority. Bounded requested edits need no extra
-ceremony; ask when target or consequence expands.
-Readiness has two verdicts: `readiness.authoringAccepted` says the source is valid
-Screenplay; `executableReady` describes only the current executable subset. Do not
-call a model broken because it is not executable, and prefer `propose-ast` for
-focused full-language edits, or `propose-source` for whole documents. A rejected
-proposal lists its diagnostics: fix those, do not
-retry the same input.
+Commit `.screenplay/identities.json` with the model; only `apply` writes it. Never delete or overwrite identity state, mint IDs on restart, or text-rename identity-affecting declarations. A pending journal blocks normal work: inspect `workspace-state` and use `recover-workspace` only for the identified interrupted operation. Only `apply` / `recover-workspace` write source/catalog. `readiness.authoringAccepted` says the source is valid Screenplay; `executableReady` is separate. Read [references/state-and-recovery.md](references/state-and-recovery.md) for root conflicts, journals and readiness.
 
 ## Code attachments
 
@@ -293,11 +212,8 @@ paths or diagnosing `PLAY0430`-`PLAY0434`; `read-workspace`/`read-proposal`
   it defines them and maps them onto V1 to V5. `screenplay --warnaserror` checks
   syntax plus the consistency rules (`PLAY0282`-`PLAY0294`) but never binds, so a
   clean run is not a bound or executable result.
-- Operations/`numbers exact` remain unadmitted; routes bind as v8, public
-  boundaries v9, identity/overrides/filters v10, qualifying non-route Double
-  literals v11, enum numbers v12, compliance v13 (limits: command-surface
-  `references/compliance.md`). The compiler and renderer bundled in the CLI can be older than the
-  standalone tool (toolchain `SKILL.md`). Never drop or stub source contracts to bind.
+- Never drop or stub source contracts to bind; the bundled compiler and renderer can be older than the standalone tool. Read [references/language-reference.md](references/language-reference.md) for the ESM version at which each construct binds.
+
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
 - If execution is intended, validate with the owning downstream runtime as well.

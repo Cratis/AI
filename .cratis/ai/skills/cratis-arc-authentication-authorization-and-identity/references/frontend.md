@@ -6,6 +6,7 @@
 - `@cratis/arc.react/identity`
 - `RequireRole`
 - MVVM
+- Identity hook examples
 
 Source: `@cratis/arc` and `@cratis/arc.react`.
 
@@ -115,3 +116,21 @@ server, where the decision cannot be edited.
 `@cratis/arc.react.mvvm` has **no** identity hook, provider, context, or type. It
 registers `IIdentityProvider` → `IdentityProvider` in its container so a view
 model can constructor-inject it. That is the whole integration.
+
+## Identity hook examples
+
+```tsx
+import { Arc } from '@cratis/arc.react';
+
+<Arc detailsType={<Details>}>{children}</Arc>
+```
+
+`<Arc>` renders the `IdentityProvider` context for you. Inside it:
+
+```tsx
+import { useIdentity, RequireRole } from '@cratis/arc.react/identity';
+
+const identity = useIdentity(<Details>, <defaultDetails>);
+// identity.id, .name, .roles, .details, .isSet, .isInRole(role)
+// identity.isLoading, identity.clearIdentity()
+```

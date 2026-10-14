@@ -9,6 +9,8 @@
 - `CommandForm` fields
 - `Dialog` — data without a command
 - Host-registered confirmation and busy indicators
+- Step 6 — Confirming, and showing that work is in progress
+- Initial focus
 
 The Cratis dialog wrappers own command execution, validation timing, busy
 state, and footer buttons. Never use a vendor or hand-rolled modal — dialogs are Components-owned.
@@ -253,3 +255,48 @@ buttons from the dialog request. `BusyIndicatorDialog` takes the busy-indicator
 request. Register both once at the app root through `DialogComponents` and
 raise them by hook — see the skill's Step 6. From a view model, use the
 injectable `IDialogs` abstraction instead of the hooks.
+
+## Step 6 — Confirming, and showing that work is in progress
+
+Do not build a confirmation or busy dialog into a page. `ConfirmationDialog` and
+`BusyIndicatorDialog` are registered once at the app root through
+`DialogComponents` and raised by hook, which is what keeps every one of them
+identical:
+
+```tsx
+import { DialogComponents } from '@cratis/arc.react/dialogs';
+import { BusyIndicatorDialog, ConfirmationDialog } from '@cratis/components/Dialogs';
+
+<DialogComponents confirmation={ConfirmationDialog} busyIndicator={BusyIndicatorDialog}>
+    <YourApp />
+</DialogComponents>
+```
+
+```tsx
+import { DialogButtons, DialogResult, useBusyIndicator, useConfirmationDialog } from '@cratis/arc.react/dialogs';
+
+const [confirm] = useConfirmationDialog();
+if (await confirm('Delete this account?', `"${account.name}" disappears permanently.`, DialogButtons.YesNo) !== DialogResult.Yes) return;
+```
+
+A busy indicator is modal and deliberately non-dismissible, so reserve it for
+work the user genuinely cannot proceed past — a multi-step import, a migration.
+For an ordinary command behind a button, the in-flight disabled button is the
+right control; a modal that flashes for 200 ms tells the user nothing. When you
+do use one, pair it with the close call in a `finally`:
+
+```tsx
+const [showBusy, closeBusy] = useBusyIndicator('Importing', 'This takes a moment.');
+showBusy();
+try { await importEverything(); } finally { closeBusy(); }
+```
+
+## Initial focus
+
+`DialogInitialFocus.Confirm` is the default and *arms* the confirm button — a
+browser fires `click` from the `keydown` of Enter, so a held Enter confirms.
+For a destructive dialog use `DialogInitialFocus.Cancel`, which focuses the
+least destructive action and degrades to `Content` when the button set has
+nothing to dismiss with. `DialogInitialFocus.Content` focuses the title so
+nothing is armed. There is deliberately no "focus nothing" option — a modal
+must move focus into itself.

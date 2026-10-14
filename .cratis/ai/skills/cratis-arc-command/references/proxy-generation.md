@@ -6,6 +6,7 @@
 - MSBuild properties
 - What the generator extracts for client-side validation
 - Failure modes
+- Blocking severity
 
 Source: `Cratis.Arc.ProxyGenerator.Build`.
 
@@ -107,3 +108,10 @@ property.
 | Files appear under an unexpected folder | The folder mirrors the namespace; change the namespace or use `NamespaceRoot`/`CratisProxiesSegmentsToSkip` |
 | Stale proxies after a rename | `dotnet clean` then `dotnet build`; the generator does not delete by default |
 | A rule validates on the server but not in the browser | The rule is not in the extractable set above |
+
+## Blocking severity
+
+`[BlockOnValidationSeverity(ValidationResultSeverity.Warning)]` declares the
+lowest blocking severity for validation, `Provide` and execution. Caller
+`allowedSeverity`/`X-Allowed-Severity` can only make it stricter; `Unknown` blocks.
+The proxy carries `blockOnValidationSeverity` and honors it client-side.

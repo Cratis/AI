@@ -19,13 +19,7 @@ frontend. Project setup, the builder, and hosts are in
 
 ## Verified product sources
 
-Source: `Cratis/Arc.TypeScript` (source preview;
-server packages not on npm), reading
-`Source/Core/queries/index.ts`, `Documentation/queries/**`,
-`Documentation/mongodb/**`, `Documentation/sql/**`,
-`Documentation/testing/queries.md` and `observable-queries.md`, and
-`Samples/Tasks` / `Samples/Library`. RxJS is an optional peer of
-`@cratis/arc.core`, required only for RxJS sources.
+Read [references/product-sources.md](references/product-sources.md) for the source files; RxJS is an optional peer for RxJS sources.
 
 ## Declare a read model and its queries
 
@@ -238,54 +232,7 @@ false`).
 The storage integrations register tenant-scoped service tokens; a query never
 chooses a database itself.
 
-```typescript
-// MongoDB — register with builder.withMongoDB({ ..., readModels: [TaskRecord] })
-import { query, queryOptions, readModel, service, type QueryOptions } from '@cratis/arc.core';
-import { mongoCollection, type MongoCollection } from '@cratis/arc.mongodb';
-
-const tasks = mongoCollection(TaskRecord);
-
-@readModel()
-export class TaskQueries {
-    @query(service(tasks))
-    static async all(items: MongoCollection<TaskRecord>): Promise<TaskRecord[]> { return items.find(); }
-
-    @query(service(tasks), queryOptions())
-    static async page(items: MongoCollection<TaskRecord>, options: QueryOptions) { return items.queryPage({}, options); }
-
-    @query({ observable: true }, service(tasks))
-    static changes(items: MongoCollection<TaskRecord>) { return items.observe(); }
-}
-```
-
-```typescript
-// Drizzle — register with builder.withDrizzle({ dialect, database, readModels: [{ type: TaskRecord, table: tasks }] })
-import { drizzleReadModel, type DrizzleReadModels } from '@cratis/arc.drizzle';
-
-@readModel()
-export class TaskQueries {
-    @query(service(drizzleReadModel(TaskRecord)), queryOptions())
-    static page(tasks: DrizzleReadModels<TaskRecord>, options: QueryOptions) { return tasks.queryPage(undefined, options); }
-}
-```
-
-```typescript
-// Chronicle (experimental) — Samples/Library/Features/Authors/Listing/Listing.ts
-import { ChronicleReadModels } from '@cratis/arc.chronicle';
-import { fromEvent } from '@cratis/chronicle/projections';
-
-@readModel()
-@fromEvent(AuthorRegistered)
-export class Author {
-    @field(AuthorId) id!: AuthorId;
-    @field(AuthorName) name!: AuthorName;
-
-    @query({ observable: true }, service(ChronicleReadModels))
-    static allAuthors(models: ChronicleReadModels): Observable<Author[]> {
-        return models.observeAll(Author, author => author.id.toString());
-    }
-}
-```
+Read [references/storage-examples.md](references/storage-examples.md) for worked MongoDB, Drizzle and Chronicle query examples.
 
 - MongoDB: every injected model is listed in `withMongoDB`'s `readModels`;
   `observe()` needs a replica set. Build owner filters from the verified
@@ -312,25 +259,7 @@ when implementing Drizzle observation or serving protected raw MongoDB documents
 `@cratis/arc.testing` runs the real query pipeline in-process. From
 `Samples/Tasks`:
 
-```typescript
-import { ObservableQueryScenario, QueryScenario } from '@cratis/arc.testing';
-import { Tasks } from '../../../Tasks.js';
-import { TaskItem } from '../../Listing.js';
-import { metadata } from '../../../../generatedMetadata.js';
-
-export class a_task_listing {
-    tasks = new Tasks();
-    query = QueryScenario.for<{ id: string; title: string }[]>(TaskItem, 'allTasks');
-    observable = ObservableQueryScenario.for<{ id: string; title: string }[]>(TaskItem, 'observeAllTasks');
-
-    constructor() {
-        this.query.extend(builder => builder.useGeneratedMetadata(metadata));
-        this.observable.extend(builder => builder.useGeneratedMetadata(metadata));
-        this.query.services.addSingleton(Tasks, this.tasks);
-        this.observable.services.addSingleton(Tasks, this.tasks);
-    }
-}
-```
+Read [references/scenario-example.md](references/scenario-example.md) when you need a worked scenario context class.
 
 - `QueryScenario.for<T>(ReadModel, 'methodName', ...artifacts)` — `T` is the
   **wire** shape (`data` is JSON-shaped; concepts arrive as strings), not a
