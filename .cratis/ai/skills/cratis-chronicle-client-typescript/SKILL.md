@@ -49,10 +49,12 @@ Source: `Cratis/Chronicle.TypeScript`, reading
 > a placeholder; `publish-version.js` overwrites it at publish time. Take the version
 > from npm.
 
-**Upgrade the kernel first.** The client requires a kernel that supports its
-contract compatibility check and, for registered event sources, named event source
-definitions. Reactors replay by default, so review side-effect handlers when
+**Upgrade the kernel first.** Reactors replay by default, so review side-effect handlers when
 upgrading.
+
+Requires Chronicle kernel 18.4.1 for the contract compatibility check and for omitted append routes.
+
+Requires `@cratis/chronicle` 6.49.0, Chronicle kernel 19.30.0 and `@cratis/chronicle.contracts` 19.30.0 for registered event sources.
 
 ## Project setup
 
@@ -229,6 +231,8 @@ if (!result.isSuccess) {
   `concurrencyScope`, `concurrencyScopes`, `eventSource`, and `eventStream`.
   The reserved legacy `eventSourceId` option does not override the method's id.
 
+Requires `@cratis/chronicle` 6.0.0 for omitted append routes.
+
 **Single `append()` supports routing and subject options.** An
 unspecified route is omitted on the wire; the kernel resolves source `Default`,
 stream type `All`, stream id `Default`. Subject precedence is the explicit option,
@@ -251,7 +255,7 @@ await unitOfWork.commit();
 ```
 
 `ITransactionalEventSequence` returns `Promise<void>`, not an `AppendResult`;
-results are on the unit of work. Transactional appends retain
+results are on the unit of work. Requires `@cratis/chronicle` 6.51.0 for transactional appends to retain
 routing, subject, occurrence, tags and concurrency scopes in enrollment order;
 conflicting scopes for one source throw `ConflictingConcurrencyScopesInUnitOfWork`
 before enrollment.
@@ -352,6 +356,8 @@ verdict, not retried (`Source/connection/CompatibilityPreflight.ts`).
 Three consecutive credential rejections cause `RejectedChronicleCredentials`.
 A failed token request is logged and the call proceeds without a token (allowing
 an auth-less kernel); tokens come from the selected server, not the first host.
+
+Requires `@cratis/chronicle` 6.43.0 for the built-in spans below.
 
 Built-in spans use `cratis.chronicle.client.*` and scope
 `Cratis.Chronicle.Client`; metrics use seconds. Legacy millisecond metrics and

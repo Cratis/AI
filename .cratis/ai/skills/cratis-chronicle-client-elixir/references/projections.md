@@ -13,6 +13,8 @@ Multi-word atom references are encoded as camelCase correctly: `set: [owner_name
 
 ## Composite keys and event context
 
+Requires `cratis_chronicle` 3.9.0.
+
 This module excerpt assumes a registered `MyApp.Events.AccountOpened` event. The key names and part order are preserved:
 
 ```elixir
@@ -38,6 +40,8 @@ Composite parts accept event-field atoms, explicit expression strings and litera
 **`Occurred.Year` is the calendar year, not the ISO week-year.** Do not assume that pairing it with `Occurred.Week` gives an ISO week identity at a year boundary; settle the required business key first.
 
 ## Dictionary counters
+
+Requires `cratis_chronicle` 3.1.0.
 
 On a read model with `defstruct event_counts: %{}`, this excerpt increments one entry per event type:
 

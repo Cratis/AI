@@ -9,7 +9,7 @@ Source: `Cratis/Chronicle`: `ChronicleConnection.cs`,
 is sufficient, including for a standalone `ChronicleClient`. Use this only for
 a known-safe skew against a kernel that cannot yet be redeployed: it hides
 **genuine incompatibilities too**. This is independent of `skipTlsValidation`.
-The kernel orders contract comparison by protocol version, so added
+Requires Chronicle kernel 19.0.1: it orders contract comparison by protocol version, so added
 fields in a newer client do not by themselves make an older kernel incompatible.
 
 The compatibility check is a server-side RPC, and **the client

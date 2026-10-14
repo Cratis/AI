@@ -32,7 +32,7 @@ Arc supplies the route, body binding, validation, authorization, and the
 Source: `Cratis/Arc.TypeScript` (source preview), reading package exports, `Documentation/**`, and
 `Samples/Tasks` / `Samples/Library`. Behavior on the development branch is excluded.
 
-Requires the Chronicle SDK peer `^6.29.0` and Fundamentals peer `^7.19.6`.
+Requires the Chronicle SDK peer `^6.29.0`, Fundamentals peer `^7.19.6`, `@opentelemetry/api` `^1.9.0` and (optional, for RxJS observable queries) `rxjs` `^7.8.2`.
 
 The Chronicle integration
 needs Node 22.19+, `zod ^4.1`, `rxjs ^7.8.2`, and an optional
@@ -140,6 +140,8 @@ await app.run({ port: Number(process.env.PORT ?? 3000) });
 `Cratis:Arc:Development: true` is local-only.
 
 ### Secure discovery defaults
+
+Requires Arc for TypeScript 0.56.0 for these defaults.
 
 Outside **Development**, catalogs, identity discovery and `/openapi.json` require
 authentication; without it they are unmapped with a warning. Explicitly requiring

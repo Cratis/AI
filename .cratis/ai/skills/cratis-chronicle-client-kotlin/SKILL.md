@@ -32,10 +32,11 @@ All three artifacts are published to Maven Central under `io.cratis` (their
 > the checked-in source never carries the real number. Take it from Maven
 > Central.
 
-> **The client and the kernel version independently.** The client requires a
-> compatible kernel: `CompatibilityPreflight` checks contracts
+> **The client and the kernel version independently.** `CompatibilityPreflight` checks contracts
 > at connect and throws `ChronicleServerIncompatible`; do not infer a supported
 > pair just because both products are "latest".
+
+Requires Chronicle kernel 19.30.0 for event source definitions and streams.
 
 ## Common pitfalls
 
@@ -103,7 +104,7 @@ registration, artifact activation, sink type or OpenTelemetry options.
 
 ### The connection string
 
-`ChronicleConnectionString.kt` documents the grammar at:
+`ChronicleConnectionString.kt` documents the grammar:
 
 ```
 chronicle://<host>[:<port>][,<host>[:<port>]...][?<options>]
@@ -116,8 +117,7 @@ Default port is `35000`. Recognized query keys, lowercased at parse time
 `loadbalancer`, `srvnameserver`. `apiKey` is parsed but rejected at client
 creation with `IllegalArgumentException`: the kernel has no API-key authentication.
 Use `user:password@`. Omitting credentials selects `chronicle-dev-client` /
-`chronicle-dev-secret`; these are development credentials, not a production setup. `ChronicleConnectionString.parse(String)` is on the companion
-, and `ChronicleConnectionString.DEVELOPMENT` points at
+`chronicle-dev-secret`; these are development credentials, not a production setup. `ChronicleConnectionString.parse(String)` is on the companion, and `ChronicleConnectionString.DEVELOPMENT` points at
 `localhost:35000` with the `chronicle-dev-client` / `chronicle-dev-secret`
 credentials.
 
@@ -217,6 +217,8 @@ if (!result.isSuccess) {
 `concurrencyScope`, `eventSourceType`, `eventStreamType`, `eventStreamId`,
 `subject`, `tags`, `occurred`, `causation`, `eventSource`, `eventStream`.
 
+Requires Chronicle.Kotlin 6.0.0 for kernel-resolved routing.
+
 Omitted/empty routing resolves **in the kernel** to
 `Default` / `All` / `Default` (source type / stream type / stream id).
 The client no longer substitutes the event source id as stream id. Preserve a
@@ -231,7 +233,7 @@ expectsNoMatchingEvent = true)`; a concrete sequence number and this flag are
 mutually exclusive (package `eventSequences.concurrency`).
 
 Event-source definitions and their named streams are optional, discovered
-artifacts requiring a kernel that supports them.
+artifacts (kernel requirement above).
 Read [references/event-sources.md](references/event-sources.md) when declaring
 `@EventSource`/`@EventStream` or appending through a definition.
 
@@ -307,8 +309,8 @@ process (`observation/ReducersService.kt`).
 ### Read models and model-bound projections
 
 Read models are queried through `store.readModels`
-(`readModels/IReadModelsService.kt`): `getInstanceByKey(readModelClass, key): T?`
-, `getInstances(readModelClass, eventCount)`,
+(`readModels/IReadModelsService.kt`): `getInstanceByKey(readModelClass, key): T?`,
+`getInstances(readModelClass, eventCount)`,
 `getSnapshotsById`, and `watch(readModelClass): Flow<ReadModelChangeset<T>>`
 (which is **not** suspending — it hands back a `Flow`).
 
@@ -332,7 +334,7 @@ append includes that event rather than waiting for a materialized observer.
 
 ### Variants — mutually exclusive read models for one entity's lifecycle
 
-338: Variants let several read models share one identity and be mutually exclusive; each variant must declare an `@EntersOn`/`entersOn(...)` event or registration throws `VariantMustDeclareEntersOnEvent`.
+Variants let several read models share one identity and be mutually exclusive; each variant must declare an `@EntersOn`/`entersOn(...)` event or registration throws `VariantMustDeclareEntersOnEvent`.
 
 Requires Chronicle.Kotlin 6.5.0 for end-to-end variant key support; replay affected projections once when moving from an earlier version.
 
@@ -364,8 +366,10 @@ Read [references/connection-lifecycle.md](references/connection-lifecycle.md) wh
 folds a reducer through the same handler-shape rules as production
 (`ReadModelScenario.kt`). Its scope is small — appends and reducer folds
 only; there is no in-process reactor, projection, or constraint scenario
-(`Testing/api/Testing.api`). `EventScenario` assertions and
-`eventsOf` count only events appended after the last `given`.
+(`Testing/api/Testing.api`).
+
+Requires Chronicle.Kotlin 6.5.0 for `EventScenario` assertions and
+`eventsOf` to count only events appended after the last `given`.
 
 ## Verify
 

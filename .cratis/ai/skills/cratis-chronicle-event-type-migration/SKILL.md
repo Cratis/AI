@@ -245,10 +245,12 @@ kernel silo is upgraded**; an old worker can still overwrite content mid-rollout
 
 ## Choose the generation an observer receives
 
+Requires Chronicle 19.41.0 for reactors and reducers, and 19.48.0 for typed materialized projections.
+
 `Compatibility` remains the default. With
 `ChronicleOptions.EventGenerationDelivery = EventGenerationDelivery.Pinned`,
-reactors and reducers receive the generation of their handler's CLR event type
-. Typed materialized projection clauses receive the
+reactors and reducers receive the generation of their handler's CLR event type.
+Typed materialized projection clauses receive the
 generation they declare, including joins, children,
 removals, and event-content keys on live, catch-up, and replay.
 

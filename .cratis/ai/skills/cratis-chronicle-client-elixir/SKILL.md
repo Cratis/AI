@@ -31,6 +31,8 @@ Read [references/upgrading.md](references/upgrading.md) when moving an applicati
 > `pii` classification once, mirroring `ConceptAs<T>`) is the preferred way to
 > classify a personal value; a client without it annotates fields with `pii/1,2`.
 
+Requires `cratis_chronicle` 3.0.0 for `Chronicle.Concept`.
+
 > **The repository's `VERSION` file is a build-time placeholder** overwritten by the publish workflow. Never quote it.
 
 > Use namespaced modules (`Chronicle.Events.EventType`, not `Chronicle.EventType`); older READMEs got this wrong. Maintained
@@ -83,22 +85,22 @@ end
 Pass **child-spec keyword options**. The client reads no application env;
 your app must read its own configuration and pass it in (`lib/chronicle/client.ex`).
 
-| Option | Default | Line |
-| --- | --- | --- |
-| `:name` | `Chronicle.Client` | |
-| `:connection_string` | `ConnectionString.default/0` | — |
-| `:event_store` | `"default"` | |
-| `:namespace` | `"Default"` — capital D | |
-| `:discover` | `true` | |
-| `:otp_app` | none; falls back to scanning loaded modules | |
-| `:event_types`, `:event_sources`, `:migrations`, `:reactors`, `:reducers`, `:read_models`, `:projections`, `:seeders`, `:webhooks`, `:event_store_subscriptions`, `:global_handlers` | `[]`, merged with discovered | |
-| `:default_sink_type_id` | `:mongodb`; accepts `:mongodb`, `:sql`, `:in_memory`, `:none` or a raw string | |
-| `:server_address` | alternative `"host:port"` address | connection option |
+| Option | Default |
+| --- | --- |
+| `:name` | `Chronicle.Client` |
+| `:connection_string` | `ConnectionString.default/0` |
+| `:event_store` | `"default"` |
+| `:namespace` | `"Default"` — capital D |
+| `:discover` | `true` |
+| `:otp_app` | none; falls back to scanning loaded modules |
+| `:event_types`, `:event_sources`, `:migrations`, `:reactors`, `:reducers`, `:read_models`, `:projections`, `:seeders`, `:webhooks`, `:event_store_subscriptions`, `:global_handlers` | `[]`, merged with discovered |
+| `:default_sink_type_id` | `:mongodb`; accepts `:mongodb`, `:sql`, `:in_memory`, `:none` or a raw string |
+| `:server_address` | alternative `"host:port"` address (connection option) |
 | `:skip_tls_validation`, `:load_balancer`, `:grpc_options`, `:reconnect_base_delay`, `:reconnect_max_delay` | forwarded to the connection | — |
-| `:retry_attempts` | accepted for compatibility, **ignored** | `connections/connection.ex` |
+| `:retry_attempts` | accepted for compatibility, **ignored** |
 
-> The moduledoc at `client.ex` says the namespace defaults to `"default"`.
-> The code at uses `"Default"`. **Trust the code.**
+> The moduledoc in `client.ex` says the namespace defaults to `"default"`.
+> The code uses `"Default"`. **Trust the code.**
 
 **Set `:otp_app`.** With it, discovery is scoped to your application's modules;
 without it the client falls back to scanning every loaded module.
@@ -131,7 +133,7 @@ broadcasts `{:chronicle_lifecycle, phase, connection_id}` with three phases
 | `:registered` | the registration coordinator registered the base artifacts |
 
 **Wait for `:registered`, never merely `:connected`** — the module's own docs say
-so at, because reducers and reactors are not attached until registration
+so, because reducers and reactors are not attached until registration
 finishes.
 
 ```elixir
@@ -143,7 +145,7 @@ case Lifecycle.wait_until(Lifecycle.name_for(Chronicle.Client), :registered, 30_
 end
 ```
 
-`wait_until(lifecycle, target_phase, timeout \\ 30_000)` is at.
+`wait_until(lifecycle, target_phase, timeout \\ 30_000)` is the blocking wait.
 `subscribe/1` returns `{:ok, phase, connection_id}` **and** sends it as a message,
 which closes the subscribe-after-transition race; `phase/1` is the plain
 read.
@@ -186,8 +188,7 @@ end
 `use Chronicle.Events.EventType` takes `:id` through `Keyword.fetch!`
 (`lib/chronicle/events/event_type.ex`) — **the id is required**, unlike the
 .NET, Kotlin, and TypeScript clients where it defaults to the type name. Give it
-a stable, kebab-case string and never change it. `:generation` defaults to `1`
-.
+a stable, kebab-case string and never change it. `:generation` defaults to `1`.
 
 **Use typed defaults on events and read models.** Schemas come from struct
 defaults: `nil` registers as string, numbers as number, booleans as boolean;
@@ -247,7 +248,7 @@ do not blindly retry a timed-out write.
 a constraint violation, which is a fine choice in a script and the wrong one in a
 GenServer.
 
-Read [references/event-sources.md](references/event-sources.md) when declaring named event sources/streams, deriving concurrency scopes or routing mixed-source batches; definitions require a kernel that supports named event source definitions.
+Read [references/event-sources.md](references/event-sources.md) when declaring named event sources/streams, deriving concurrency scopes or routing mixed-source batches; definitions require Chronicle kernel 19.30.0 or later.
 
 A unit of work is a process: `Chronicle.begin_unit_of_work/1` starts an `Agent`,
 and while one is current for the calling process `append`/`append_many` buffer
@@ -400,7 +401,7 @@ Read [references/pitfalls.md](references/pitfalls.md) when troubleshooting disco
 ## Verify
 
 - Elixir 1.18+ and `mix deps.get` resolve the intended published client; contracts
-  and kernel are compatible (event source definitions need a kernel that supports them).
+  and kernel are compatible (event source definitions need Chronicle kernel 19.30.0 or later).
 - Local development uses `ConnectionString.development()` or explicit credentials.
 - `Chronicle.Client` is in the supervision tree with an explicit `:otp_app`, and
   the tree starts clean.

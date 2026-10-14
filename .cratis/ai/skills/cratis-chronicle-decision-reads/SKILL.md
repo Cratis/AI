@@ -29,7 +29,9 @@ use, and the traps. A plain read, a validator read, `Result<,>` and
 | `Cratis.Chronicle` transactions | `Source/Clients/DotNET/Transactions/{IUnitOfWork,UnitOfWork,DecisionReadCommitOwner,UnitOfWorkLifecyclePolicy}.cs` |
 | `Cratis.Chronicle` scope resolution | `Source/Clients/DotNET/EventSequences/Concurrency/DefinitionConcurrencyScopeResolver.cs` |
 
-Stream-scoped reads require a kernel that supports them. Reverify a client/kernel pair rather than disabling
+Requires Chronicle 19.9.0 for decision reads, and a Chronicle 19.39.0 kernel for stream-scoped reads.
+
+Reverify a client/kernel pair rather than disabling
 compatibility checking to force a read through.
 
 ## Route the work

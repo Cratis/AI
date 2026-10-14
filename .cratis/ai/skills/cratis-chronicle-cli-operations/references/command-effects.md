@@ -46,7 +46,7 @@ Critical effect implementations at the tag:
   deletes observer records across all namespaces, leaves read model data,
   refuses running/subscribed observers.
 - [ClearPartitionQuarantineCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Observers/ClearPartitionQuarantineCommand.cs):
-kernel support for partition quarantine, resets retry budget, retries unless `--no-retry`.
+Chronicle 19.29.0 or later, resets retry budget, retries unless `--no-retry`.
 - [ChronicleCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/ChronicleCommand.cs):
   confirmation handling shared by prompted commands.
 - [WorkbenchCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Workbench/WorkbenchCommand.cs):

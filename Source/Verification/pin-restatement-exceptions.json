@@ -1,1 +1,7 @@
-[]
+[
+  {
+    "file": ".cratis/ai/skills/cratis-components-styling/SKILL.md",
+    "text": "Requires Components 4.22.1",
+    "reason": "Components release that introduced the dark-error mapping, a real version gate and not a restatement of the numerically identical Scene scaffold pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
+  }
+]

@@ -63,6 +63,8 @@ production credentials; keep simulated identities on loopback hosts.
 
 ## Secure introspection defaults
 
+Requires Arc for TypeScript 0.56.0 for these defaults.
+
 `/.cratis/commands`, `/.cratis/queries`, `/.cratis/identity-details/schema`,
 `/.cratis/users`, `/.cratis/tenants`, and `/openapi.json` are anonymous only in
 Development by default. Elsewhere they require an authenticated principal from

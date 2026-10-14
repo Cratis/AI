@@ -88,6 +88,8 @@ strips client-supplied identity headers.
 | `GET /.cratis/tenants` | every `ICanProvideTenants`, identity discovery policy | The importable tenant list |
 | `GET /.cratis/identity-details/schema` | the identity endpoint mapper | The schema-driven editor for a user's `identityDetails` |
 
+Requires Arc 22.45.0 for discovery to be anonymous by default **only in Development**; older versions serve it anonymously everywhere.
+
 Discovery is anonymous by default **only in Development**.
 Against a deployed host Lens needs the user signed in; hosts unable to authenticate
 omit those routes (404). `Introspection.Enabled` controls catalogs and

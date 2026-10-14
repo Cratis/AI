@@ -83,8 +83,7 @@ notice explains the mismatch.
 
 Use `cratis chronicle login <user>` (`--secret` or prompt), `chronicle logout`
 and `chronicle auth status -o json` (`tokenServer`, `loginMatchesServer`). Login
-refuses multi-host and `chronicle+srv://` targets. Older CLIs discarded
-the login token; log in again if `auth status` shows no token. Context values can be changed
+refuses multi-host and `chronicle+srv://` targets. Requires cratis CLI 3.21.0 for login to keep the token; an older CLI discarded it, so log in again if `auth status` shows no token. Context values can be changed
 with `context set-value server|event-store|namespace|client-id|client-secret`.
 Keep secrets out of logs and committed configuration.
 Evidence: [ChronicleSettings.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/ChronicleSettings.cs)
@@ -177,7 +176,7 @@ Observer clear does not clear partition quarantine. Source: Chronicle
 
 - **Observer and partition quarantine are separate.** `observers clear-quarantine`
   clears only the observer. `observers clear-partition-quarantine <observer> <partition>`
-needs a kernel that supports partition quarantine, resets the retry budget and retries unless `--no-retry`
+needs Chronicle 19.29.0 or later, resets the retry budget and retries unless `--no-retry`
   is given; handler side effects may repeat. `retry-partition` exits non-zero
   when quarantined or not failed. `jobs resume` resumes Stopped jobs, not Failed.
 

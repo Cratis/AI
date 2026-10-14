@@ -7,6 +7,8 @@ Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/{concept,comp
 
 `pii/1,2` marks personal data for compliance encryption and right-to-erasure. `encrypted/1,2,3` marks non-personal operational secrets for separate confidentiality encryption with no compliance erasure operation. Its scopes are `:subject` (default), `:namespace`, `:global`. They are not interchangeable.
 
+Requires `cratis_chronicle` 3.5.0 for `encrypted/1,2,3`.
+
 ```elixir
 # Copyright (c) Cratis. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.

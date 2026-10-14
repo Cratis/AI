@@ -161,7 +161,7 @@ Stepper-level props (inherited from the stepper customization surface):
 
 Command-form props (`initialValues`, `currentValues`, `validateOn`,
 `validateOnInit`, `onSuccess`, `onValidationFailure`, `onFailed`,
-`autoServerValidate`, …) all apply as well. Horizontal steppers show names below
+`autoServerValidate`, …) all apply as well. Horizontal steppers (Requires Components 4.26.3) show names below
 numbers and wrap. Panels are named by their headers through
 `aria-labelledby`; custom header ids are preserved.
 

@@ -35,6 +35,8 @@ await builder.discover(new URL('./Features/', import.meta.url));
 export const arc = await builder.build();
 ```
 
+Requires the peers `express` `^5.0.0`, `fastify` `^5.0.0`, `hono` `^4.0.0` and (optional) `@hono/node-server` `^1.19.11` for the matching adapters.
+
 | Host | Package and entry point | Framework peer |
 | --- | --- | --- |
 | Standalone Node host | `@cratis/arc.core`: `app.run()` or `app.start()` | none |
@@ -167,6 +169,8 @@ ArcApplication.createBuilder({ query: { allowedOrigins: ['http://127.0.0.1:5173'
 
 Arc requires no database and no event store. Each integration is optional and
 adds a builder method when imported; the exported function form is equivalent.
+
+Requires the peers `mongodb` `^6.21.0`, `drizzle-orm` `^0.45.0`, `rxjs` `^7.8.2` and `@cratis/chronicle` `^6.29.0` for the matching integrations.
 
 | Integration | Register | Inject |
 | --- | --- | --- |

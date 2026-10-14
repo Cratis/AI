@@ -63,6 +63,8 @@ are `[PII]` for personal data and `[Encrypted]` for retained operational secrets
 there is no `[Redact]`, `[Erase]`, `[Anonymize]`, or `[Encrypt]` annotation.
 Redaction is an API call. `[NotAudited]` belongs to Arc, not Chronicle.
 
+Requires Chronicle 19.32.0 for `[Encrypted]`.
+
 `[Encrypted]` (`Cratis.Chronicle.ProtectedValues`) is a
 security marker, not a compliance category: it encrypts an operational secret
 (API key, token, a company's bank account number) at rest with no data subject
@@ -192,7 +194,7 @@ Use redaction for content that should never have been appended. Use key erasure
 for a subject exercising a right to erasure. They are different mechanisms and
 one does not imply the other.
 
-Redaction also drops retained causation property values, revision
+Requires Chronicle 19.11.0 for redaction to also drop retained causation property values, revision
 history and content hashes. It does not reach backups, oplogs or events already
 forwarded elsewhere. Subject erasure does **not** erase causation values: these
 are not encrypted under the subject key. Kernel configuration

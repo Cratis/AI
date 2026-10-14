@@ -36,6 +36,8 @@ Multiple projection or reducer targets in one class fail discovery with
 `TypeImplementsMultipleProjectionInterfaces` / `TypeMustImplementOnlyOneReducer`
 (analyzer CHR0057). They are not silently flattened into independent artifacts.
 
+Requires Chronicle 19.58.0 for self shapes.
+
 Complete self shapes are marker-free discovery signals (.NET-only).
 Existing static helpers can therefore become reducers on upgrade.
 No model is activated, and `Reduce` cannot take injected services. Static near
@@ -123,7 +125,7 @@ it is not something you write. `Source/Clients/DotNET/Observation/` holds
 
 Read models are queried through `eventStore.ReadModels`
 (`Source/Clients/DotNET/ReadModels/IReadModels.cs`):
-`GetInstanceById<TReadModel>(ReadModelKey, ReadModelSessionId?)` (`:38`),
-`GetInstances<TReadModel>(EventCount?)` (`:55`),
-`GetSnapshotsById<TReadModel>` (`:63`),
-`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()` (`:70`).
+`GetInstanceById<TReadModel>(ReadModelKey, ReadModelSessionId?)`,
+`GetInstances<TReadModel>(EventCount?)`,
+`GetSnapshotsById<TReadModel>`,
+`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()`.

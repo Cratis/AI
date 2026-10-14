@@ -94,7 +94,7 @@ A constraint binds every writer, whichever client or service appends, per namesp
 and per event sequence. It cannot count, sum or test a predicate; it expresses
 uniqueness (with release on a removal event), create-once and closed streams.
 
-- The claim is settled after the durable append (decision 0005, accepted, not yet
+- The claim is settled after the durable append (not yet
   implemented in every store). A failed index update is logged and a later duplicate
   may pass until a reindex. SQL and InMemory stores do not yet settle claims
   A constraint is the right mechanism, not an
@@ -137,7 +137,7 @@ stored tail filtered by key, types and route). See the skill's
   bypass the kernel's serialized append path (duplicate grain activations, direct
   storage writes) are outside the guard.
 - **Empty protected commit.** A unit that enrolled a decision read and staged no
-  events appends an empty batch with the guard scopes. The kernel
+  events appends an empty batch with the guard scopes. On Chronicle 19.59.1 or later the kernel
   validators (`AppendManyValidator`, `AppendManyForEventSourcesValidator`) accept an
   empty batch when a scope carries an actual boundary or expects no matching event, and the integration
   spec `for_ReadModels/when_reading_for_a_decision` shows `AppendMany([], guardedBy:)`

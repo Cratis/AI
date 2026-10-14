@@ -137,7 +137,7 @@ for exact effect, replay and registration-readiness limits.
 
 ## Unsupported does not mean success
 
-Decision guards require a supported kernel profile and compatibility preflight;
+Requires Chronicle kernel 19.32.3 for decision guards, with compatibility preflight;
 unsupported kernels return `ErrUnsupported`. Protected operations have their own
 kernel capability gates; the client supports qualified protected revisions and
 classified read-model replay routes, not every protected watch/profile.

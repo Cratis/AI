@@ -26,7 +26,7 @@ Source: `Cratis/Chronicle`.
 | `Cratis.Chronicle.Testing` | in-process scenarios |
 | `Cratis.Chronicle.CodeAnalysis` | CHR analyzers, distributed as a client dependency |
 
-Take the version from nuget.org, not the `1.0.0` source pack-time placeholder.
+Take the version from nuget.org, not the placeholder version in the source.
 
 ## Lifecycle
 
@@ -89,7 +89,7 @@ dotnet add package Cratis.Chronicle              # console / worker service
 dotnet add package Cratis.Chronicle.AspNetCore   # ASP.NET Core
 ```
 
-`Cratis.Chronicle` brings `Cratis.Chronicle.CodeAnalysis` as a
+Requires Chronicle 19.4.8 for `Cratis.Chronicle` to bring `Cratis.Chronicle.CodeAnalysis` as a
 package dependency: consumers receive the CHR analyzers without opting in.
 The package id is still separate; Chronicle does not run these analyzers over
 its own generic client plumbing. Source: `Source/Clients/DotNET/DotNET.csproj`.
@@ -189,6 +189,8 @@ with `EventGenerationDelivery.Pinned` (`Cratis.Chronicle.Observation`) **before
 connecting**. Reactors/reducers receive their handler's CLR event generation;
 typed materialized projections use each clause's CLR generation.
 
+Requires Chronicle 19.41.0 for reactors/reducers and 19.48.0 for typed materialized projections.
+
 Read [references/pinned-generation-delivery.md](references/pinned-generation-delivery.md)
 for compiling standalone/host configuration, registration constraints, and the
 Compatibility-only surfaces. For migration, PDL pin persistence, and integration
@@ -248,6 +250,8 @@ Task<AppendResult> Append(                                   // :115
 Task<AppendManyResult> AppendMany(EventSourceId eventSourceId, IEnumerable<object> events, /* same optionals */);  // :144
 Task<AppendManyResult> AppendMany(IEnumerable<EventForEventSourceId> events, /* ... */);                            // :167
 ```
+
+Requires Chronicle kernel 19.30.0 for event source definitions.
 
 Event source definitions: a never-instantiated type marked
 `IEventSource`, named by `[EventSource(name)]` (default: the type name without a trailing
@@ -357,7 +361,7 @@ plain-class registration or `AutoDiscoverAndRegister = false`.
 | Treating a quiet reactor as "no events yet" | Keepalive loss stops observers while appends keep succeeding |
 | Returning from `Main` after appending | The observation stream dies with the process |
 | Assuming no CHR analyzers without an explicit reference | The client brings `Cratis.Chronicle.CodeAnalysis` transitively |
-| Copying a version out of the repository | It is a `1.0.0` placeholder; take it from nuget.org |
+| Copying a version out of the repository | It is a placeholder; take it from nuget.org |
 
 ## Verify
 

@@ -42,8 +42,10 @@ public class SessionMustStillBeActive(ISessions sessions) : IGuardObservableQuer
 Arc API, and never an always-true stub.
 
 It runs on **every emission** of **every subscription**, on **every transport**:
-the multiplexed hub, WebSocket and SSE. It also runs with
-read-model interceptors on plain HTTP snapshots, waits and long polls.
+the multiplexed hub, WebSocket and SSE.
+
+Requires Arc 22.69.1 for guards and read-model interceptors on plain HTTP snapshots, waits and long polls; on an older Arc those requests are not guarded.
+
 Source: [ObservableQueryHttp.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Queries/ObservableQueryHttp.cs).
 
 ## Verdicts
@@ -106,7 +108,7 @@ a failure.
 
 ## What a guard does not protect
 
-- Plain HTTP **is** guarded: suppression returns 202 until an allowed
+- Plain HTTP **is** guarded (Requires Arc 22.69.1; older versions leave it unguarded): suppression returns 202 until an allowed
   emission (or the wait deadline), denial returns unauthorized with no data.
   Keep safe data selection and initial
   authorization on every query regardless of transport.

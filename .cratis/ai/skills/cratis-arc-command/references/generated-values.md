@@ -14,8 +14,11 @@
 
 ## Declare the value and command
 
-Requires Arc 22.66.0 for generated parameters, scenario pinning,
-and analyzers.
+Requires Arc 22.66.0 for generated parameters.
+
+Requires Arc 22.67.0 for scenario pinning.
+
+Requires Arc 22.68.0 for the ARC0022–ARC0025 analyzers.
 
 For the current threaded example, read [shop commands](shop-generation.md) and
 [shop concepts](../../cratis-fundamentals-concept/references/shop-generation.md).

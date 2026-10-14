@@ -54,7 +54,7 @@ Arc's separate `@readModel()` query marker.
 
 ### Append-time constraints
 
-`@unique()` and repeatable `@removeConstraint(name)` are exported from
+Requires `@cratis/chronicle` 6.8.0 for `@unique()` and repeatable `@removeConstraint(name)`, exported from
 `@cratis/chronicle` and `@cratis/chronicle/events`.
 `@unique(name?, message?)` or `@unique({ name, message, eventSequences })`
 marks a property unique across sources, or a class unique per source.

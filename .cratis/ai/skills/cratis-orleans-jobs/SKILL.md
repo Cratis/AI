@@ -32,7 +32,7 @@ A job plans recoverable work; each step is a grain and does the work. Use it for
 - Implement `PrepareStep(TRequest)` → `Task<Result<PrepareJobStepError>>`; `InitializeState(TRequest)` → `ValueTask`, called after preparation succeeds; and `PerformStep(TState, CancellationToken)` → `Task<Catch<JobStepResult>>` (`JobStep.cs`). `TResult` is the step's result type; the work method returns the framework's `JobStepResult` envelope, not `TResult` directly.
 - Give the concrete job and step unique `[GrainType("product-specific-name")]` names. Use serializable request/state/result types. Do not reuse a class-derived grain name across assemblies (`Jobs/JobsManager.cs`, `Documentation/how-to/host-the-silo.md`, and `orleans.md`).
 
-`PerformStep` runs **outside the activation context** with a state snapshot obtained through the grain reference. Mutating that snapshot does not persist it; do not access/write grain `State` directly from background work (`JobStep.cs`). Keep progress/state coordination on grain calls. The framework owns stop reporting; do not report cancellation again from a `PerformWork` override (`:390-450`, `Documentation/concepts/jobs.md`).
+`PerformStep` runs **outside the activation context** with a state snapshot obtained through the grain reference. Mutating that snapshot does not persist it; do not access/write grain `State` directly from background work (`JobStep.cs`). Keep progress/state coordination on grain calls. Requires Cratis.Orleans 1.16.2 for framework-owned stop reporting; there, do not report cancellation again from a `PerformWork` override (`Documentation/concepts/jobs.md`).
 
 ## 2. Plan dependencies as stages
 
@@ -90,7 +90,7 @@ Evidence: each package's `*JobsStorageServiceCollectionExtensions.cs`; MongoDB `
 
 ### SQL schema creation
 
-The product's SQL setup docs say to create the schema yourself. **The provider applies migrations automatically**: `SqlJobsStorage.GetFor` calls `EnsureSchema`, which calls `dbContext.Database.Migrate()` before constructing storage (`Source/Orleans.Storage.Sql/SqlJobsStorage.cs`). The migration is `Jobs/Migrations/v1_0_0.cs`; do not substitute `EnsureCreated` or hand-create those tables. The connection needs permissions to apply the migration, and scope-to-database mapping must be deliberate. Storage is cached per scope/namespace; `IJobsStorage.Reset()` clears the cache and the next resolution migrates again (`SqlJobsStorage.cs`). This resolves the documentation conflict from source, not from a release-note inference.
+The product's SQL setup docs say to create the schema yourself. Requires Cratis.Orleans 1.16.3 for **the provider to apply migrations automatically**: `SqlJobsStorage.GetFor` calls `EnsureSchema`, which calls `dbContext.Database.Migrate()` before constructing storage (`Source/Orleans.Storage.Sql/SqlJobsStorage.cs`). The migration is `Jobs/Migrations/v1_0_0.cs`; do not substitute `EnsureCreated` or hand-create those tables. The connection needs permissions to apply the migration, and scope-to-database mapping must be deliberate. Storage is cached per scope/namespace; `IJobsStorage.Reset()` clears the cache and the next resolution migrates again (`SqlJobsStorage.cs`). This resolves the documentation conflict from source, not from a release-note inference.
 
 Configure `JobsOptions` through the host's options registration. Its properties are **init-only**: supply a constructed instance via the options mechanism rather than assigning them in a `Configure(options => options.Property = …)` callback (`JobsOptions.cs`).
 

@@ -42,6 +42,8 @@ is the trust boundary. But it means:
   the application itself to validate a token, that is ordinary ASP.NET Core
   authentication you configure yourself.
 
+Requires Arc 22.43.0 for secure forwarded-header handling. On an older Arc the unsigned identity headers are trusted from any caller who can reach the host; upgrade, or make the ingress the only path to the backend.
+
 Forwarded identity headers are ignored unless the host opts
 in with `Cratis:Arc:TrustForwardedIdentityHeaders=true` or
 `builder.AddCratis(options => options.TrustForwardedIdentityHeaders = true)`.
@@ -92,6 +94,8 @@ public class <Name>IdentityDetailsProvider : IProvideIdentityDetails<<Details>>
 | `GET /.cratis/users` | Development tooling — aggregates every `ICanProvideUsers` |
 | `GET /.cratis/tenants` | Development tooling — aggregates every `ICanProvideTenants` |
 | `GET /.cratis/commands`, `GET /.cratis/queries` | Introspection catalogs of operation names, types and routes (`MapIntrospectionEndpoints()`) |
+
+Requires Arc 22.45.0 for authenticated discovery by default. On an older Arc the discovery routes are anonymous in every environment, so do not expose such a host.
 
 Discovery is anonymous only when the host's
 `IHostEnvironment.IsDevelopment()` is true. Elsewhere it requires authentication;
@@ -190,8 +194,8 @@ restrictive verdict wins, and a guard that throws, or cannot be constructed, fai
 closed — the latter denies every observable query in the process. The principal comes
 from `ObservableQueryEmissionContext.Principal`, never from ambient accessors or
 `IHttpContextAccessor`; the guard is constructed per emission, so keep it cheap and
-cache in a singleton. Guards and read-model interceptors also
-protect plain HTTP snapshots, waits and long polls. Read
+cache in a singleton. Requires Arc 22.69.1 for guards and read-model interceptors to also
+protect plain HTTP snapshots, waits and long polls; older versions leave them unguarded. Read
 [observable emission guards](references/observable-emission-guards.md) when implementing or reviewing revocation of an observable-query subscription.
 
 ### Validators are not an authorization boundary

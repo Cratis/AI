@@ -218,7 +218,7 @@ Declare only the derived-type conversions your domain API needs.
 
 String and Guid remain the safest stream-id primitives. In Chronicle
 (`Source/Clients/DotNET/Events/EventSourceId.cs`), numeric/date/time ids
-and concepts wrapping them convert with invariant culture.
+and concepts wrapping them convert with invariant culture (Requires Chronicle 19.37.3).
 `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly` use `"O"`; `TimeSpan` uses
 `"c"`. Decimal `123.45` stays `"123.45"` even under nb-NO.
 **Existing streams may have different legacy ids** if written under date/time or

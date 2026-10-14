@@ -37,7 +37,15 @@ Requires Arc 22.51.0 for `IdentityDiscovery`, which controls the users/tenants/d
 
 On an Arc older than 22.21.0 only Arc's own attributes count, and only `Roles` is evaluated: `Policy` and `AuthenticationSchemes` are read by nothing, so `[Authorize(Policy = "…")]` enforces nothing, and Microsoft's `[Authorize]`/`[AllowAnonymous]` are **not** enforced on model-bound commands and read models (a command protected only with Microsoft's attribute is open to every caller). Either upgrade, or use only Arc's attributes with roles and treat everything else as unenforced. Do not write a policy-protected endpoint on an Arc older than 22.23.0.
 
-Current behavior that changed defaults over time and is described in the sections below: forwarded identity headers need a host-wide trust opt-in, guest-policy endpoints are reachable over HTTP (including with an authenticated fallback), discovery is anonymous only in Development, and the backend neither reads nor writes the identity cookie.
+Requires Arc 22.31.2 for identity and declaration continuity to be rechecked around policy evaluation.
+
+Requires Arc 22.43.0 for forwarded identity headers to need a host-wide trust opt-in; older versions trust them from any caller.
+
+Requires Arc 22.44.2 for guest-policy endpoints to be reachable over HTTP, including with an authenticated fallback.
+
+Requires Arc 22.45.0 for discovery to be anonymous only in Development; older versions serve it anonymously everywhere.
+
+Requires Arc 22.46.0 for the backend to neither read nor write the identity cookie.
 
 ## Attributes
 

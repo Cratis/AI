@@ -25,6 +25,8 @@ Query parameters: `apiKey`, `disableTls`, `skipTlsValidation`, `certificatePath`
 
 `skip_tls_validation` defaults to **true** in both the struct and parser (`connection_string.ex`). TLS encrypts traffic but does not authenticate the server with that default. Set `skipTlsValidation=false` outside local development. `disableTls` is only for a TLS-terminating proxy; the kernel itself serves TLS.
 
+Requires `cratis_chronicle` 3.7.0 for client certificates.
+
 `certificatePath` accepts PKCS#12 (`.p12`/`.pfx`) or PEM containing a certificate and matching private key. `certificatePassword` unlocks protected files. The identity is presented to both gRPC and the OAuth token endpoint; invalid files, wrong passwords or mismatched keys fail startup. PKCS#12 loading needs `openssl`. Client certificates cannot be combined with `disableTls=true`.
 
 **A client certificate does not trust the server.** With a client certificate, put custom server-verification options on `GRPC.Credential` passed as `:cred` through `:grpc_options`, not in adapter-level `:transport_opts`. For example, this option excerpt assumes `trusted_der` is an approved DER-encoded CA certificate:
@@ -36,6 +38,8 @@ grpc_options: [
 ```
 
 This credential configures the **gRPC channel only**; OAuth server verification still follows `skipTlsValidation` and the system trust store. Install the CA in that trust store when client credentials need it. Conflicting identity or adapter-level verification overrides are rejected at startup.
+
+Requires `cratis_chronicle` 3.8.0 for the client-owned transport.
 
 The client uses grpc 1.x and Mint 1.11+, owns its transport, and needs no `GRPC.Client.Supervisor`. If the application calls `GRPC.Stub.connect/2` independently, specify `adapter: GRPC.Client.Adapters.Mint` there too (or explicitly depend on Gun). Application-level Mint `client_settings` must retain `enable_push: false`; grpc replaces rather than merges those settings and the client rejects unsafe overrides.
 

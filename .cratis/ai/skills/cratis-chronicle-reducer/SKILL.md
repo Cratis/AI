@@ -13,6 +13,8 @@ branching on prior state, calculations or guards read better as code. A reducer
 is a normal choice, not a last resort. For the application-code ladder and PDL's
 outside-code role, read [choosing a style](../cratis-chronicle-read-model/SKILL.md#step-3--choose-a-projection-or-a-reducer).
 
+Requires Chronicle 19.58.0 for self-reducing read models.
+
 For new .NET reducers, default to **self-reducing read models**: public static
 `Reduce` methods beside the state, discovered by shape without a marker. Use a
 separate `IReducerFor<T>` for fold-time DI, replay-time instance state or useful
@@ -237,7 +239,7 @@ projection with a decision read; see
 
 ## Discovery, upgrades and ownership
 
-Complete marker-free static shapes become reducers on upgrade,
+Requires Chronicle 19.58.0: complete marker-free static shapes become reducers on upgrade,
 including existing helpers. Review them before upgrading. Near-miss static
 `Reduce` declarations whose current/result refers to the model warn (CHR0058)
 and are skipped by implicit discovery; explicit nomination throws
@@ -312,7 +314,7 @@ Filters remain effective during catch-up, replay and failed-partition recovery.
 The kernel classifies new definitions under `observers.definitionEvolution`:
 `Automatic` (default), `PartialOnly`, or `Manual`. Reducer method fingerprints
 make code changes visible even without subscription changes; assembly versions
-are ignored. Changed
+are ignored (Requires Chronicle 19.29.4). Changed
 implementation, keys or filters require full replay; adding event types permits
 partial replay only when history proves they follow all previously consumed
 events per source. Interleaved history requires full replay. Manual policies

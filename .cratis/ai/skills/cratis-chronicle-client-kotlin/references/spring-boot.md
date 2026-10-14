@@ -21,19 +21,19 @@ cratis:
 
 Everything else has a default (`ChronicleProperties.kt`):
 
-| Key under `cratis.chronicle` | Default | Line |
-| --- | --- | --- |
-| `connection-string` | the development connection string | |
-| `event-store` | `"Default"` | |
-| `namespace` | `"Default"` | |
-| `auto-discover-and-register` | `true` | |
-| `artifact-packages` | empty — falls back to Spring's auto-configuration packages | |
-| `default-sink-type-id` | `null` | |
-| `program-identifier` | `null` — falls back to `spring.application.name` | |
-| `registration-timeout` | `PT30S` | |
-| `namespace-resolution.strategy` | `FIXED` | |
-| `namespace-resolution.http-header` | `"x-cratis-tenant-id"` | |
-| `namespace-resolution.claim` | `"tenant_id"` | |
+| Key under `cratis.chronicle` | Default |
+| --- | --- |
+| `connection-string` | the development connection string |
+| `event-store` | `"Default"` |
+| `namespace` | `"Default"` |
+| `auto-discover-and-register` | `true` |
+| `artifact-packages` | empty — falls back to Spring's auto-configuration packages |
+| `default-sink-type-id` | `null` |
+| `program-identifier` | `null` — falls back to `spring.application.name` |
+| `registration-timeout` | `PT30S` |
+| `namespace-resolution.strategy` | `FIXED` |
+| `namespace-resolution.http-header` | `"x-cratis-tenant-id"` |
+| `namespace-resolution.claim` | `"tenant_id"` |
 | `unit-of-work.enabled` | `true` | `ChronicleProperties.UnitOfWork` |
 | `causation.enabled` | `true` | `ChronicleProperties.Causation` |
 | `identity.enabled` | `true` | `ChronicleProperties.Identity` |
@@ -42,7 +42,7 @@ The starter selects a unique `ReadModelNamingPolicy` bean. With none or an
 ambiguous set, it retains identifier-based naming. A rejected connection at
 startup propagates `ChronicleConnectionFailed` and fails the application;
 an unreachable kernel only logs after `registration-timeout` and keeps retrying.
-Chronicle needs a recent kotlinx-coroutines; remove an older
+Requires kotlinx-coroutines 1.10.2 or later; remove an older
 `kotlin-coroutines.version` override.
 
 `NamespaceResolution.Strategy` is `FIXED`, `HTTP_HEADER`, `SUBDOMAIN`,
@@ -53,7 +53,7 @@ facade `Chronicle` (`ChronicleAutoConfiguration.kt`). `Chronicle` wraps
 the suspending API in blocking calls and takes `Class<T>` rather than
 `KClass<T>`, so Java can use it unchanged —
 `Integrations/SpringBoot/src/main/kotlin/io/cratis/chronicle/spring/Chronicle.kt`,
-`append` at, `appendMany` at.
+`append` and `appendMany`.
 
 `ChronicleWebAutoConfiguration` is **servlet-only**
 (`@ConditionalOnWebApplication(SERVLET)`, `ChronicleWebAutoConfiguration.kt`).

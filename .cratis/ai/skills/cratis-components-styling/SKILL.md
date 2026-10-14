@@ -114,7 +114,7 @@ document.documentElement.classList.toggle('cratis-dark', darkMode);
   `:root:not(.cratis-light)`. Match the scheme selectors' specificity and place
   overrides after the import, including subtree selectors when using islands.
   Or omit `theme` and use the product-theme setup below.
-- Components maps Arc's `--color-error` / `--color-error-bg` in both dark
+- Requires Components 4.22.1: it maps Arc's `--color-error` / `--color-error-bg` in both dark
   schemes. A product theme omitting `theme` must define those variables itself;
   do not carry forward the old dark-error contrast workaround.
 

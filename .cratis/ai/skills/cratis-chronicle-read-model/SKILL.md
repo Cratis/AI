@@ -116,6 +116,8 @@ Screenplay, ad-hoc queries), not the code-first default. This ladder does not
 claim Stage renders static self reducers. The self form is .NET-only;
 other SDKs keep their own reducer contracts.
 
+Requires Chronicle 19.58.0 for self-reducing read models.
+
 Default discovery finds projections, interface reducers and complete self shapes.
 Explicit registration remains available, and plain instance reducers require
 nomination; see [discovery](../cratis-chronicle-client-dotnet/references/discovery.md).

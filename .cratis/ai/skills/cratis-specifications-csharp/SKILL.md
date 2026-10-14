@@ -106,7 +106,7 @@ Specification projects are named `<Source>.Specs`. Add a `PackageReference` to
 namespace stays `Cratis.Specifications`. The house runner is xUnit **2.x**
 not xUnit v3. Supported targets are net8.0/net9.0/net10.0;
 net48 was dropped (retain 3.x for that target).
-`Cratis.Specifications.NUnit` is an alternative with the same base pattern,
+Requires `Cratis.Specifications.NUnit` 4.0.0. It is an alternative with the same base pattern,
 `[Test]` instead of `[Fact]`, and **public** test methods.
 
 ### Pin server-generated Handle values
@@ -292,7 +292,7 @@ between collaborators. That is where defects hide.
 ## Verify
 
 CRSPEC0001–CRSPEC0007 ship as **warnings** in `Cratis.Specifications`, `.XUnit`,
-and `.NUnit`. A warnings-as-errors build enforces them: `should_` names,
+and `.NUnit` (Requires 4.0.0). A warnings-as-errors build enforces them: `should_` names,
 one specification per file (given contexts exempt), no facts on given contexts,
 test attributes on `should_` methods, no explicit base lifecycle calls, public
 specification classes, and no `Because` on given contexts. See

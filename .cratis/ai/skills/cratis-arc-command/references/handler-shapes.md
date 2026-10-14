@@ -136,8 +136,9 @@ public IEnumerable<object> Handle() =>
 `EventStreamId` init members when the target stream is not the default.
 Explicit wrapper routing wins over command-context routing in every return shape.
 
-A command that always appends through a Chronicle event source definition (Requires Arc 22.49.0
-and a kernel that supports definitions) declares it with
+Requires Arc 22.49.0 and Chronicle 19.30.0 for event source definitions on commands.
+
+A command that always appends through a Chronicle event source definition declares it with
 `[EventSource<TSource>(stream)]` from `Cratis.Arc.Chronicle.Commands`; the definition
 supplies the event source type and validates the optional stream name:
 

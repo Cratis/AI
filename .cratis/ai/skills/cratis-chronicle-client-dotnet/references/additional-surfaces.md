@@ -12,6 +12,8 @@ and `Documentation/event-seeding/seeding-with-csharp.mdx`. Connection checks:
 
 ## Tags and ambiguous appends
 
+Requires Chronicle 19.15.0 for named tags.
+
 `AppendWithNamedTags` / `AppendManyWithNamedTags` and
 `EventForEventSourceId.NamedTags` carry structured tags. Tags are
 plaintext and indexed: never personal data, credentials or business payloads.

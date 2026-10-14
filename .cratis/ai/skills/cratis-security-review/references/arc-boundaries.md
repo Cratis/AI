@@ -28,7 +28,8 @@ Source: Arc. Each source below is a path in the Arc repository.
   `[Authorize]` is enforced only by the ASP.NET host; policies/schemes fail closed
   on supported hosts. A method declaration **replaces** the type declaration.
   Guest access requires every policy in the declaration to opt in
-  (`evaluatesAnonymous`), without roles/schemes. Guest endpoints are
+  (`evaluatesAnonymous`), without roles/schemes.
+  Requires Arc 22.44.2 for guest endpoints to be
   reachable through HTTP even with an authenticated fallback policy. Keep an
   intentional `IFallbackAuthorizationEvaluator` baseline; it is separate from
   ASP.NET's `FallbackPolicy`.
@@ -45,7 +46,8 @@ Source: Arc. Each source below is a path in the Arc repository.
   widen it with sensitive payloads or mistake this for a promise of no ids.
   [Telemetry names](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/WellKnownTelemetryNames.cs).
 - Returned reactor commands marked `[ExecuteCommandsAsSystem]` use a narrow
-  disposed system scope. The system scope never carries the caller principal;
+  disposed system scope.
+  Requires Arc 22.72.0 so the system scope never carries the caller principal (earlier versions leaked it);
   manually executing commands still needs explicit actor ownership.
   [Executor](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle/Reactors/CommandSideEffectExecutor.cs).
 - Revocable observable data needs `IGuardObservableQueryEmission`; it applies to

@@ -248,7 +248,7 @@ or a reactor rather than annotating the projection.
   event types are excluded). It is for audit/log models; pair it with
   `[NotRewindable]`. It targets a **property only**, not a positional parameter.
   Fluent `.FromAll()` can count into dictionaries using a per-event context key.
-- `[FromEvery]` captures across events the model **already** consumes, including
+- `[FromEvery]` (Requires Chronicle 19.49.0 for child-only events) captures across events the model **already** consumes, including
   events handled **only by child or nested-child collections**, updating the
   owning parent. It subscribes to nothing new. Model-bound always
   includes children; fluent `IFromEveryBuilder.ExcludeChildProjections()` opts

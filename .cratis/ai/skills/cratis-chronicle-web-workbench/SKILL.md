@@ -131,7 +131,7 @@ Reducers, Reactors, Sinks and a store-wide Sequences view have routes but no men
 entry (their menu lines are commented out in `EventStore.tsx`). Event types uses
 one list with a side panel (Schema and Observers tabs). Observer details includes
 connected clients in Summary; Failed partitions has Retry and a detail panel.
-The Help menu is available. Source:
+The Help menu needs Chronicle 19.39.2. Source:
 `Source/Workbench/Features/EventStore/EventStore.tsx`,
 `Namespaces/Observers/ObserverDetails.tsx`, `Namespaces/FailedPartitions/FailedPartitions.tsx`,
 and `General/EventTypes/TypeDetails.tsx` (paths relative to that feature).
