@@ -59,3 +59,36 @@ Trigger reads do not enforce decision consistency. Event generations and typed r
 but historical schemas do not supply deployed migrations.
 Check actual binder, runner and consumer admission instead of equating an
 accepted proposal or parsed node with a running application.
+
+
+## What binds depends on which tool
+
+- `Automation` and `Translate` slices, reactions, captures and triggers bind (ESM v6) on the
+  standalone tool and a CLI bundle that admits v6. (An older bundle
+  reports *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage renders supported event-triggered Automation, not Translate/captures or non-event triggers.
+- `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
+  protected against stale state. A reaction trigger's `reads` that only `invokes` is
+  report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
+- `persona` declarations are report-only and never block; bare `pii` and `secret`
+  concepts bind as ESM v13 (Requires Screenplay 4.141.0 or later); Stage renders admitted v13 protection.
+  Enum/identity compliance and protected events with explicit subject marks remain
+  refused (PLAY0268); see command-surface `references/compliance.md`. Keep protection.
+- Generated values/responses bind and reference-execute as v7; sources, streams
+  and command/specification routes as v8; reaction `runs as` identity as v10;
+  qualifying Double literals lower exactly as v11 and non-positional enum numbers
+  as v12. Use `screenplay test` or MCP `run-specifications` for V4.
+  Operations/systems, the `numbers exact` **source mode** (PLAY0268) and
+  refusal/redelivery remain unadmitted. The CLI and Stage render supported generation strategies and v15 freshness,
+  scalar/named responses, enum numbers, compliance and supported event reactions.
+  The pair reaches construct checks through the ESM version it bundles, not blanket rendering; supported v14 filters
+  render. Current boundaries and source evidence:
+  `cratis-screenplay-toolchain/references/renderable-subset.md`.
+  Source/binding admission and target realization are separate gates.
+
+## A CLI and Stage that admit v15
+
+      A CLI and Stage that admit v15 also admit supported event Automation,
+      generation strategies/responses, equality filters, enum numbers and compliance. Translate/captures
+      and refused reactions remain gaps (Stage `references/admission.md`).
+      Mixed effects remain `STAGE-ESM-037`: retries can duplicate events. Keep the reaction
+whole and prove retry-safe gap-fill; never split or drop effects.

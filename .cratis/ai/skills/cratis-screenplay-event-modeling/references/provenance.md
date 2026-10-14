@@ -38,3 +38,9 @@ Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilg
 > Screenplay adopts that vocabulary directly: *"Slices are the atom - everything
 > lives inside a typed slice aligned with Event Modeling's vocabulary."*
 > Where Cratis deliberately diverges, this skill says so.
+
+The nine-step examples compile with the standalone compiler and their specifications run
+in the reference runner (compilation does not establish reference execution).
+
+Sources: Screenplay `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md` and
+`projections/keys.md`; the inline-contract and event-context changes follow `commands.md` and `events.md`.

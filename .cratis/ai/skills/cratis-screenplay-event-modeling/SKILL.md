@@ -17,14 +17,7 @@ assumptions, keep asking *"and then what happens?"* after every event, every
 command, every answer. Use business language. Do not discuss databases, APIs, or
 frameworks during modeling.
 
-**Ask only what the step needs.** Missing or ambiguous information: ask the one question that
-changes the model most, and follow a vague answer ("it depends", "usually") with "what decides
-it?". Already known: do not ask. Told not to stop (unattended run): assume the
-most reasonable answer, say so visibly where it can be corrected, never guess silently. Assume
-visibly during modeling; delivery blocks any guess that could encode a wrong rule, authorization,
-money or time behavior. Contradictions, a third review round, a gate only the user can accept,
-and approvals not yet given always stop
-(`cratis-screenplay-modeling-lifecycle`, `references/stop-or-assume.md`). Read `cratis-screenplay-modeling-lifecycle`'s `references/stop-or-assume.md` when information is missing or contradictory, or when deciding whether unattended work may proceed.
+**Ask only what the step needs:** ask the one question that changes the model most; in an unattended run assume visibly, never silently; contradictions, a third review round and missing approvals always stop. Read [references/facilitation-stance.md](references/facilitation-stance.md) for the full rule, and `cratis-screenplay-modeling-lifecycle`'s `references/stop-or-assume.md` when information is missing or contradictory, or when deciding whether unattended work may proceed.
 
 **Do not cut corners to save tokens or effort.** A rule that needs more slices, events, views,
 translation steps or specifications gets them written; budget is never a reason to delete a
@@ -88,7 +81,6 @@ keeps the activities, Screenplay output and facilitation questions of each step:
 
 Read [references/nine-steps.md](references/nine-steps.md) when facilitating a workflow and needing a step's activities, required output, or questions. Read [references/invoicing-example.md](references/invoicing-example.md) when you need a complete worked `.play` document (RegisterInvoice command and InvoiceList view) to copy the shape from.
 
-
 ## Verify
 
 ```shell
@@ -108,11 +100,7 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
 - [ ] Bind with the runtime's compiler; tool versions: toolchain `SKILL.md`.
-      A CLI and Stage that admit v15 also admit supported event Automation,
-      generation strategies/responses, equality filters, enum numbers and compliance. Translate/captures
-      and refused reactions remain gaps (Stage `references/admission.md`).
-      Mixed effects remain `STAGE-ESM-037`: retries can duplicate events. Keep the reaction
-      whole and prove retry-safe gap-fill; never split or drop effects.
+      Read [references/parsed-not-runnable.md](references/parsed-not-runnable.md) (section "A CLI and Stage that admit v15") when judging what Stage renders: Translate/captures and refused reactions stay gaps, and mixed effects stay `STAGE-ESM-037`.
 
 ## Parsed is not runnable
 
@@ -126,28 +114,7 @@ The independent verdicts V1 to V5 that report them are in
 `cratis-screenplay-modeling-lifecycle`.
 
 What binds depends on **which tool** you ask, so name the tool and its version:
-
-- `Automation` and `Translate` slices, reactions, captures and triggers bind (ESM v6) on the
-  standalone tool and a CLI bundle that admits v6. (An older bundle
-  reports *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage renders supported event-triggered Automation, not Translate/captures or non-event triggers.
-- `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
-  protected against stale state. A reaction trigger's `reads` that only `invokes` is
-  report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
-- `persona` declarations are report-only and never block; bare `pii` and `secret`
-  concepts bind as ESM v13 (Requires Screenplay 4.141.0 or later); Stage renders admitted v13 protection.
-  Enum/identity compliance and protected events with explicit subject marks remain
-  refused (PLAY0268); see command-surface `references/compliance.md`. Keep protection.
-- Generated values/responses bind and reference-execute as v7; sources, streams
-  and command/specification routes as v8; reaction `runs as` identity as v10;
-  qualifying Double literals lower exactly as v11 and non-positional enum numbers
-  as v12. Use `screenplay test` or MCP `run-specifications` for V4.
-  Operations/systems, the `numbers exact` **source mode** (PLAY0268) and
-  refusal/redelivery remain unadmitted. The CLI and Stage render supported generation strategies and v15 freshness,
-  scalar/named responses, enum numbers, compliance and supported event reactions.
-  The pair reaches construct checks through the ESM version it bundles, not blanket rendering; supported v14 filters
-  render. Current boundaries and source evidence:
-  `cratis-screenplay-toolchain/references/renderable-subset.md`.
-  Source/binding admission and target realization are separate gates.
+Read [references/parsed-not-runnable.md](references/parsed-not-runnable.md) (section "What binds depends on which tool") when stating what a tool binds or renders (`reads`/`concurrency` fail with `PLAY0271`; `persona` declarations are report-only; an older bundle reports *Slice '<name>' of type '<type>' is not admitted by ESM v1.*).
 
 The ESM versions, the full disposition table and the Step 7 clock example's binding
 result are in [references/parsed-not-runnable.md](references/parsed-not-runnable.md)
@@ -158,28 +125,12 @@ evidence a construct works downstream.
 
 ## Locate the model
 
-Look first for the project's existing `.play` files: the folder holding them is the
-model. A new model goes under the repository's `Source/` or `src/` folder, else in a
-`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
-configuration and the shared AI corpus only. This is the
-conventional home for consumer-owned `.play` source; do not invent another
-location or search the whole repository before checking it.
-
-`cratis ai install` manages `.cratis/ai/`, never model files. Never
-hand-copy Screenplay source between repositories. Keep Markdown that explains,
-questions or navigates the model in the repository's documentation; the `.play`
-source is the single flow model.
+Look first for the project's existing `.play` files: the folder holding them is the model; a new model goes under `Source/` or `src/`, else `Screenplay/`, never under `.cratis/`. Read [references/file-layout.md](references/file-layout.md) (section "Locate the model") when the location is unclear or source might be copied between repositories. `cratis ai install` manages `.cratis/ai/`, never model files.
 
 ## Verified product sources
 
 Which tool reports what, and how to read installed versions, live only in `cratis-screenplay-toolchain`
 `SKILL.md`; read it before choosing a tool or reporting a version-dependent verdict.
-The nine-step examples compile with the standalone compiler and their specifications run
-in the reference runner (compilation does not establish reference execution).
-
-Sources: Screenplay `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md` and
-`projections/keys.md`; the inline-contract and event-context changes follow `commands.md` and `events.md`.
-
 Read [references/slice-type-rules.md](references/slice-type-rules.md) when deciding if a behavior is an Automation or a Translate slice.
 
 ## Two phases - discovery, then design
@@ -192,13 +143,7 @@ do not assume; it lands as `module`, `persona` and `import`; protocol in
 
 ## Keep modeling reasoning with its declaration
 
-Use `description` for summaries and fenced Markdown `documentation` on modules,
-features, slices, commands, read models and reactions (also events) for assumptions,
-boundaries and rejected alternatives. Do not leave that reasoning only in comments
-or disconnected notes. Both are report-only (PLAY0270), never executable rules.
-Specifications use `description` to name the witnessed behavior; longer reasoning
-belongs to their slice. Syntax, merge rules and diagnostics:
-[model reasoning](../cratis-screenplay-slice-design/references/model-reasoning.md).
+Read [references/modeling-reasoning.md](references/modeling-reasoning.md) when recording assumptions, boundaries or rejected alternatives on a declaration (`description`, `documentation`).
 
 ## The prime directive: do not lose information
 
@@ -250,7 +195,6 @@ compile or will not be safe. Both are deliberate.
   the modeled `reads` + `require` intent, specifications, and the recorded
   target-enforcement gap described above.
 
-
 ## Naming the primitives is the highest-value work
 
 Name concepts before events, classify personal data at the concept, keep events past tense and single-purpose, and never put the event-source identity in an event payload.
@@ -273,7 +217,6 @@ The full critic pass (evidence, severity, business-question review) is
    instances - ask *"can there be more than one of these at once?"* for each field.
 8. No cross-cutting infrastructure is modeled as a `Translate` slice.
 
-
 ## Choose a file layout
 
 Choose the coarsest layout that keeps source and diffs readable; compile the folder, or its root file, as one application, because compiling files individually reports false unknown-type errors (`PLAY0165`, `PLAY0166`, `PLAY0167`).
@@ -283,18 +226,7 @@ Read [references/file-layout.md](references/file-layout.md) when choosing or cha
 
 The lifecycle, toolchain and phase skills are in "Start here" above. Construct and neighbouring skills:
 
-| Need | Skill |
-| --- | --- |
-| Commands, validation, authorization, `produces`, concurrency, `$context` | `cratis-screenplay-command-surface` |
-| Projections - PDL keys, joins, children, removal, arithmetic | `cratis-screenplay-projections` |
-| Read models, queries, screens | `cratis-screenplay-read-surface` |
-| Layouts, templates, forms, contributions, themes, i18n | `cratis-screenplay-ui-composition` |
-| Captures (CDL), reactions, triggers | `cratis-screenplay-captures-and-reactions` |
-| Given/when/then specifications | `cratis-screenplay-specifications` |
-| Language mechanics, the compiler, the admitted set | `cratis-screenplay-model-authoring` |
-| Rendering a settled model into an application | `cratis-stage-rendering-and-sandbox` |
-| Drawing the model as a Mermaid diagram | `cratis-event-model-diagram` |
-| Modeling against hand-written Chronicle C# | `cratis-chronicle-event-modeling` |
+Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when the need is a construct, authoring, rendering, diagram or Chronicle C# skill.
 
 ## Lineage
 Method lineage, Nebulit material and licenses: `references/provenance.md`. Read it when checking method lineage, attribution, or adaptation permissions.
