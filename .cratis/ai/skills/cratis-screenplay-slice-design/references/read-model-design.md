@@ -99,9 +99,10 @@ usually two views.
   list whose status is set by booking, cancellation and maintenance events). Do not use that
   as a reason to fold in fields without the same wide fan-in: a berth's name and pier (set by
   one or two events) and its live availability (derived across its whole lifecycle) are two
-  kinds of computation even on one page. Split them when you can name the consequence; if
-  you keep one view, note which field has the irreducible fan-in and why (in the slice
-  `description`).
+  kinds of computation even on one page. Mixed kinds of computation split by default. Keep one
+  view only with a written reason in the slice `documentation` that names the field with the
+  irreducible fan-in and why. Fan-in alone, within one kind of computation, splits only for a
+  named consequence (next section).
 - A screen with several components has one `data` line per component, each
   `data <RM> via query <Q>` from its own read model (several `data` lines per screen are
   valid; `cratis-screenplay-read-surface`). A split component sits next to its own source
@@ -114,8 +115,10 @@ usually two views.
 For each read-model field, count the events that set it. More than about three is a signal to
 look at, not a rule: a status fed by a long lifecycle is normal. Ask whether the field mixes
 concerns that should be separate views, and whether every contributing event is genuinely a
-change to *this* value. Report a problem only when it has a consequence (coupling, a view that
-must change whenever unrelated facts change).
+change to *this* value. Within one kind of computation, report a problem only when it has a
+consequence (coupling, a view that must change whenever unrelated facts change). Fields set once
+by one or two events that ride with a field derived across the whole lifecycle are mixed kinds,
+and that case splits by default (Components).
 
 ## Builder and freshness
 
@@ -130,6 +133,12 @@ one read-model instance (compose queries across person-scoped views instead).
 
 Every `from` event must set or affect a field (AutoMap counts); otherwise drop it or record why
 it stays.
+
+A builder is deterministic: replaying the same events gives the same view. A reducer body reads
+only the event, the current state and the context members the reducer exposes (`context.Occurred`
+for time, never the wall clock). It calls no service, reads no other view and causes no effect.
+Work that needs any of those is an automation that records a fact, which the view then projects.
+Stage admits only pure reducer bodies for the same reason (`cratis-screenplay-projections`).
 
 ## Query shape follows the business view
 
@@ -295,6 +304,14 @@ module Berths
 - Every consumer that needs state has its read model (a blank creation form and a direct reaction
   with a documented no-pending-work reason need none); every read model has a consumer.
 - Every field traced (`field-lineage.md`).
+- Every failure, refusal-received or cancellation fact a person must act on shows in some view
+  (a status literal plus the reason), or the omission is a stated decision (see "Omissions are
+  decisions"). Pin it with a view specification (`cratis-screenplay-scenario-coverage`
+  `references/scenario-catalogue.md` section 9).
+- Every persona's Reads line has a screen whose `data` shows it, and every persona's Does line
+  reaches a screen or form `action` for that decision. A persona with neither is missing screens
+  (add them) or is not part of this scope (revise its Does/Reads in discovery, or record why). A
+  read-only persona is legitimate.
 - Executable scope: one identity per read model: explicit `key`, else agreeing
   single-instance `by`, else unambiguous `*Id` only with an admitted list query and
   no single-instance identifier. Queryless views need explicit `key`. The identifier

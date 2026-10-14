@@ -1,5 +1,14 @@
 # Provenance and licences
 
+## Contents
+
+- Shared template for sibling skills (copy this header; replace the tables)
+- 1. Adapted from MIT sources
+- 2. Adapted closely (Martin Dilger and Nebulit GmbH)
+- Eventmodelers Build-Kits
+- Not adopted from agentic-engineer (rejected, with reasons)
+- 3. Method lineage
+
 ## Shared template for sibling skills (copy this header; replace the tables)
 
 Every new Screenplay method skill keeps a `references/provenance.md` shaped like this one. Three
@@ -55,6 +64,18 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | `.claude/skills/eventmodeling-core-rules/SKILL.md`: modeling and critic postures never mixed; a known refusal is a documented rule | `SKILL.md` "Modes", "Do not cut corners to save tokens or effort" | Idea; our wording kept |
 | `.claude/skills/connect/SKILL.md`: discover capabilities once per session | `SKILL.md` "Run protocol", `references/identity-and-edits.md` | Idea; our wording kept |
 | `.claude/skills/eventmodeling-core-rules/SKILL.md`: modes (modeling versus critic), element definitions and naming, causality, role catalog, field lineage, open question versus decided failure, offline-first, anti-patterns, structural shapes, quick self-check | `references/core-rules-digest.md` | Adapted closely as a one-page card translated to `.play` constructs. Not adopted: lanes, the single-issuer command rule, linked copies, the translation chain with a never-closing todo list, "read model never drives command validation" (Screenplay `reads` + `require`), the update-feeding-read-model procedure; "bed" is a candidate signal here, not an always-flag |
+
+## Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `eventmodeling-core-rules` ("Concrete Over Generic") | `references/core-rules-digest.md` *Anti-patterns to reject early*, *Quick self-check*; `cratis-chronicle-event-modeling` `SKILL.md` | copied and translated: one real flow with real values instead of a generic structure, with the carve-out for a platform that is itself the product |
+| `eventmodeling-orchestrating-event-modeling` (every role has a screen) and `eventmodeling-storyboarding-events` | `references/phases.md` P2 gate | adapted closely: a persona's Does and Reads lines reach a screen; a read-only persona stays legitimate |
+| kit `CLAUDE.md` (only touch slices whose status is `Created` unless confirmed; a subagent inherits no session state) | `references/phases.md` *Slices under delivery*; `references/per-turn-protocol.md` steps 2 and 3 | adapted closely: delivery status in the plan replaces board status; naming the slice is the approval for exactly those declarations |
+| `eventmodeling-designing-event-models`, `eventmodeling-core-rules`, `eventmodeling-plotting-events` | `cratis-chronicle-event-modeling` `SKILL.md` *Decide before implementing*, *Verify the brief* | adapted closely: command issuers, story order, refused transitions and the rejected event kinds, for the code-first brief |
 
 ## Not adopted from agentic-engineer (rejected, with reasons)
 

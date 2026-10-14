@@ -11,6 +11,7 @@
 - 7. Shapes to question in review
 - 8. Chain completion checkpoint
 - 9. Fan-out
+- 10. Long-running process shapes
 
 Complete compiled example: `todo-list-example.md` (binds on Screenplay 4.66.0 and later; the list query
 excerpt binds too, and the retry sweep that needs code is shown as a marked excerpt).
@@ -163,3 +164,26 @@ ambiguous. Historical event generations are exempt.
 Record one outcome fact per item. Never record a batch completion fact while some items
 failed or are unknown; partial success is failure at an effect boundary
 (`cratis-engineering-effect-boundaries`).
+
+## 10. Long-running process shapes
+A durable workflow engine does not exist in the language. A process that waits, escalates,
+compensates or fans out is modeled as chained Automation slices over facts and pending-work
+views, never as a hidden engine. Start from the signal, take the shape, then check the shape's
+specifications.
+
+| Signal in the process | Screenplay shape |
+|---|---|
+| One trigger, one command | One Automation slice (§1) |
+| Trigger, command, wait for a fact, command | Two Automation slices chained by facts, each with its pending-work view |
+| Wait for human approval or outside confirmation | A pending view the person's screen reads, with the approval command on it; a clock reaction over the same view escalates on timeout |
+| Compensate when step N fails | A failure fact and a compensating command for every completed step, each with its own view (`effects-and-idempotency.md`, option 2) |
+| Timer or delay | A clock reaction over a due-items view (§6) |
+| Fan out, then wait for all | One fact per item plus a completion view that counts outstanding items (§9). Durable fan-out is outside the language: say so in the verdict |
+| Parent and child | The child has its own stream and completion fact; the parent's view waits for it |
+| Scatter and gather | One translation per reply into a fact, and a view that decides when enough replies have arrived |
+
+One trigger and one command is a plain automation. Anything else in the table is a process:
+every step has a recorded fact, so a restart resumes from state and never from memory.
+Specify two paths for each process shape: the timeout path (nothing arrives in time) and the
+compensation order (undoing completed steps in reverse). A shape with no timeout path can wait
+forever, which is a completion defect (§8).

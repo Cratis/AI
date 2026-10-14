@@ -186,6 +186,17 @@ name them as unfinished.
 - Shape: the reported outcome is a **fact** (a refusal received is an event), specified in the
   Translate or Automation slice; a missing answer is a time-based scenario. A rejection
   (`then error`) is only for requests we refuse ourselves.
+- **Shown:** a failure fact that someone must act on reaches a view the person reads (a status
+  literal and the reason, mapped from the failure event). Pin it with a view specification:
+  `given <OpeningFact>`, `given <FailureFact>`, then `then query` with the failed status and
+  the reason. A failure only an automation sees is covered by the review question in
+  `cratis-screenplay-automations-and-translations`. A failure a person must act on that no
+  screen shows is a gap.
+- **Recoverable:** after the failure fact, the retry the business allows is accepted:
+  `given <FailureFact>`, `when <RetryCommand>`, `then <AttemptFact>`. It catches a once-only
+  constraint (`unique event`) that locks legitimate recovery out, and is the opposite case to
+  section 5 (duplicate action). `RetryingPaymentAfterADecline` in `invoicing-dues-example.md` is the
+  complete form. When the business forbids a retry, the case is a state violation with its message.
 - n/a: no external system in the path.
 
 ## 10. Compensation
@@ -193,6 +204,12 @@ name them as unfinished.
 - Shape: the reversal command's own specs, plus a spec proving the effect of the reversal:
   a released claim (`ReservingABerthNightFreedByACancellation`) or a removed row
   (`BerthBoardLifecycle3Cancelled`). Corrections are new facts, never edits of old ones.
+- When undoing one fact obliges follow-up work (a refund after a paid booking is cancelled), the
+  follow-up is an Automation slice. Specify it there: `given <PriorFact>`, `when append
+  <CancellationFact>`, `then <RefundRequested>` (or the pending-work row), and the case where no
+  compensation is owed (cancelled before payment: no refund fact). Recipes:
+  `cratis-screenplay-automations-and-translations` `references/cases-to-specify.md`;
+  `RequestingARefundAfterAReversal` in `invoicing-dues-design.md` is the complete form.
 - Often reveals a missing event: if nothing can undo a fact the business can reverse, ask.
 
 ## 11. Evolution compatibility

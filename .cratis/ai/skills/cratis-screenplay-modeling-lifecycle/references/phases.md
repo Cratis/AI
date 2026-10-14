@@ -70,7 +70,12 @@ phase, a decision important enough that a later reader could misread the model (
 - **Carry-forward**: slices with commands (reachable, authorized origins), events, read models with
   projections and queries, screens, reactions and captures, consistency decisions, slice dependencies.
 - **Gate**: V1 clean after the batch; every command has a reachable, authorized origin; every screen
-  data need is served by a read model; every field has a known origin.
+  data need is served by a read model; every field has a known origin; every persona's Does line
+  reaches a screen or form `action` for that decision and every Reads line has a screen whose
+  `data` shows it. A persona with neither is missing screens (add them) or is not part of this
+  scope (revise its Does/Reads in discovery, or record why). A read-only persona is legitimate.
+  The opt-in `personas` check (`PLAY0574`, `PLAY0575`) proves gate reachability, not screen
+  reachability, so this walk stays manual.
 - **Skip when**: no reactions, schedules or outside facts are in scope (automations); event-source
   identity, destinations, constraints, stored-state decisions, retries and persisted-contract
   evolution are absent or already verified and unchanged (streams). Command count is not the criterion.
@@ -153,6 +158,16 @@ No other phase is skipped. P3-P5 scale to the change but always run for semantic
 | Review request | P5 | report only |
 | Executable or render request on an accepted model | P7 / P8 | P9 |
 | Question from a running Chronicle system | read-only `cratis-chronicle-cli-operations` | update the model at P2 if needed |
+
+**Slices under delivery.** Where a delivery plan exists (the `cratis-screenplay-delivery-planning`
+status block), check a slice's planning status before changing it. A `todo` slice changes through
+the entry points above. A slice that is `in progress`, `blocked` or `done` is read-only for
+modeling unless the request names it. Naming it is the approval for exactly those declarations
+and nothing wider. Otherwise do the rest of the request, return an edit request naming the slice,
+its status and the intended change, and open the packet's report with that part as NOT done. The
+reason: someone is building against the slice as it stands. Changing a `done` slice reopens its
+delivery: tell the plan owner, and expect conformance (`cratis-application-slice-conformance`) and
+the affected specifications to rerun.
 
 ## Resume mid-workflow
 1. Read STATE.md only, not old transcripts.
