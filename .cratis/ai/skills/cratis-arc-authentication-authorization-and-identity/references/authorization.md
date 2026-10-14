@@ -14,6 +14,7 @@
 - Direct calls bypass authorization
 - The principal and system actors
 - Protected decisions and validators
+- Analyzer diagnostics
 
 Source: `Cratis.Arc.Core` and `Cratis.Arc`. Everything below is in `Cratis.Arc.Authorization` unless stated.
 
@@ -330,3 +331,11 @@ factory-supplied or altered rules fail closed. Keep static/service-locator state
 out of them too: certification is not proof of input purity. Validators that
 read decision state are a known limitation.
 Source: [protected validator boundary](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md).
+
+## Analyzer diagnostics
+
+`ARC0011` warns when a `[Roles]` argument is a string literal: use
+`nameof(<RoleEnum>.<Member>)` so a rename is a compile error rather than a silent
+authorization failure. `ARC0019` flags `[AllowAnonymous]` with `[Authorize]`/`[Roles]`,
+`ARC0020` flags an ASP.NET Core attribute that is not enforced without Arc's ASP.NET
+Core integration, and `ARC0021` flags `AuthenticationSchemes` on the Core host.

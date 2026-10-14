@@ -9,6 +9,7 @@
 - Forwarded headers, ingress requirements and protected introspection
 - What is not here
 - The security boundary, stated plainly
+- AuthenticationResult
 
 Source: `Cratis.Arc.Core` and `Cratis.Arc`. Types are in
 `Cratis.Arc.Authentication` and `Cratis.Arc.Identity`.
@@ -198,3 +199,10 @@ sent it. Any caller that can reach the application can author the entire
 serialized principal, including the fields Arc reads. Trust it exactly as far as
 you trust that your ingress is the only thing that can set it — which means the
 application must not be reachable any other way.
+
+## AuthenticationResult
+
+`AuthenticationResult` is
+`record (ClaimsPrincipal? Principal = default, AuthenticationFailure? Failure = default)`
+with `Anonymous`, `Succeeded(principal)` and `Failed(reason)`, and
+`IsAuthenticated => Principal is not null`.
