@@ -47,15 +47,7 @@ environments, the evidence-disclosure policy and the domain experts. Otherwise a
 missing, one question per turn, the most blocking first (the harness's question tool if any). Record answers in `.ai-work/screenplay/<model-slug>/legacy/INTERVIEW.md`
 (`references/interview-findings.md`) and in the Interview Trail of `STATE.md`.
 
-Critical questions (full wording, why they matter and follow-up triggers:
-`references/interview-findings.md`; adapted from the TrogonStack legacy-integration interview):
-system state and documentation; the **freeze agreement** (no new features, only bug fixes, no
-schema changes: most critical when a migration or side-car is planned, because without it the
-extracted events go stale; a documentation-only extraction records "freeze not applicable");
-observation and extraction feasibility (a clone or staging by default); data sensitivity and
-disclosure, including whether the client lets legacy evidence into the model repository
-(`references/re-entry-and-passes.md` section 4); people and goal (who decides keep / change /
-remove); timeline, staffing and risk for a migration.
+Critical questions (full wording and follow-up triggers: `references/interview-findings.md`): system state and documentation; the **freeze agreement** (most critical when a migration or side-car is planned, because without it the extracted events go stale); observation and extraction feasibility; data sensitivity and disclosure; people and goal; timeline, staffing and risk.
 
 **Unattended:** do not stop. Assume the most restrictive answer (clone only, no capture, no
 hosted-model disclosure, freeze unknown), record each assumption visibly in `INTERVIEW.md`, and
@@ -223,14 +215,7 @@ The candidate may go to review only when all hold, each a result or "not run: <r
 
 ## Route near misses
 
-- Greenfield discovery: `cratis-screenplay-discovery`; slice shapes: `cratis-screenplay-slice-design`;
-  identity and invariants: `cratis-screenplay-streams-and-consistency`; integrations and jobs:
-  `cratis-screenplay-automations-and-translations`; coverage: `cratis-screenplay-scenario-coverage`;
-  review of the candidate: `cratis-screenplay-model-review`; rendering:
-  `cratis-screenplay-render-and-gap-fill`.
-- Syntax and verdicts: `cratis-screenplay-toolchain`; phases, identity and approvals:
-  `cratis-screenplay-modeling-lifecycle`; running Chronicle: `cratis-chronicle-cli-operations`,
-  `cratis-chronicle-mcp-inspection`.
+Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when the work is greenfield discovery, slice shapes, streams, integrations, coverage, review, rendering, tooling or running Chronicle.
 
 ## Lineage
 
