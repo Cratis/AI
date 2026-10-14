@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-toolchain",
+  "evals": [
+    {
+      "id": 1,
+      "name": "verdict-report",
+      "prompt": "I ran `screenplay Bookings/Commands.play` and it printed no errors, so I'm telling the team 'the model is fine and executable'. What is wrong with that and how should I report it? Reply only; do not write files.",
+      "expected_output": "Check the folder, not one file, with warnings as errors (`screenplay <folder> --warnaserror`). A clean V1 proves only that the model is authorable, not executable; V2/V3 need MCP or `cratis screenplay validate --executable`. Report one line per verdict, tool and version first, and `not run` with the reason is a valid result.",
+      "assertions": [
+        "Says the whole folder must be checked, not one file of it.",
+        "Says warnings must be treated as errors (`--warnaserror`), citing silent drops like PLAY0029.",
+        "Says a clean V1 proves only authorable, not executable; binding (V3) needs MCP or `cratis screenplay validate --executable`.",
+        "Reports verdicts as one line each with tool and version, accepting `not run` with a reason."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "tool-skew",
+      "prompt": "The standalone screenplay binds our model with reactions, but `cratis render` refuses it with CLI-RENDER-004 and a teammate proposes deleting the reactions so the CLI accepts it. What is going on and what do you do? Reply only; do not write files.",
+      "expected_output": "The standalone tool and the compiler bundled in the CLI are different releases; the bundled one can be older, and the CLI renders only ESM versions it knows (a newer bound model gets CLI-RENDER-004). Read `screenplay --version`, `cratis --version` and `which -a cratis`, name the tool for each verdict and do not transfer a verdict across tools. Never remove constructs to pass; report blocked with codes and record the tool gap.",
+      "assertions": [
+        "Explains that the standalone and CLI-bundled compilers are different releases and the CLI renders only ESM versions it knows.",
+        "Reads `screenplay --version`, `cratis --version` and `which -a cratis` to find a stale or shadowing copy.",
+        "Refuses to delete the reactions, reporting the verdict as blocked with the codes and recording a tool gap.",
+        "Says each verdict must name the tool and version and a verdict from one tool is not transferred to another."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "keep-protection",
+      "prompt": "V3 is blocked with PLAY0268 because a concept carries `pii`. The lead says 'remove the pii marker and the authorize line, we need green by tonight'. What do you do? Reply only; do not write files.",
+      "expected_output": "Never remove `pii`, `secret`, authorization, list queries, automations or rules to reach V3 or a render. Capability is not correctness: keep the correct model, report the verdict as blocked with the codes, and record a tool gap. 'Not run' with the reason is a valid result.",
+      "assertions": [
+        "Refuses to remove the `pii` marker or the authorization to reach V3.",
+        "Reports V3 as blocked and lists the codes (for example `V3 blocked: PLAY0268`).",
+        "States that capability is not correctness and the tool gap is recorded, not fixed by reshaping the model.",
+        "Says a clean verdict proves only its own layer."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "identity-edit-route",
+      "prompt": "The repo has `.screenplay/identities.json`. I want to rename the event BerthAssigned to BerthAllocated by find-and-replace in the .play files, and also fix a typo in a command's description. Which edits may be plain text? Reply only; do not write files.",
+      "expected_output": "With `.screenplay/identities.json`, adding, removing or renaming an addressed element goes through MCP (typed operations such as `propose-rename`) by the identity owner; a text edit never gets around an MCP refusal. Bounded text edits are for edits that leave catalog addresses unchanged, such as descriptions, followed by V1.",
+      "assertions": [
+        "Says the event rename must go through MCP (`propose-rename`) by the identity owner, not a find-and-replace.",
+        "Says fixing a description typo is a bounded text edit that leaves catalog addresses unchanged, followed by V1.",
+        "Says a text edit must never be used to get around an MCP refusal.",
+        "Says a session without MCP returns the request to the owning session."
+      ]
+    }
+  ]
+}

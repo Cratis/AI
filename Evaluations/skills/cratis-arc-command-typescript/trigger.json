@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-arc-command-typescript",
+  "queries": [
+    { "query": "how do i write a RegisterTask command in our Node server that uses Arc for TypeScript? i have a TaskTitle concept", "shouldTrigger": true },
+    { "query": "npm install @cratis/arc.core fails with 404. what package do I install to get the Arc server for Node?", "shouldTrigger": true },
+    { "query": "my @command class compiles but the route never shows up. i think discovery doesn't see it", "shouldTrigger": true },
+    { "query": "build() fails with 'Unbound handle parameters on RenameTask.handle'. what's missing?", "shouldTrigger": true },
+    { "query": "express app returns 400 malformedRequest for every Arc command after mounting cratisArc(arc). what did I do wrong?", "shouldTrigger": true },
+    { "query": "useGeneratedMetadata throws Stale generated artifact metadata for RegisterAuthor. how do I fix and keep CI honest?", "shouldTrigger": true },
+    { "query": "In my Fastify backend I want the command to deny the call when the task belongs to another user. do I throw?", "shouldTrigger": true },
+    { "query": "Return an AuthorRegistered event from handle() in our TypeScript Arc server and make the key the event source", "shouldTrigger": true },
+    { "query": "can I put @roles on the handle method of an Arc TypeScript command like in the .NET version?", "shouldTrigger": true },
+    { "query": "Define RegisterBoat in our C# Arc app with Handle returning a tuple of id and event.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Kotlin Spring service: declare a command with handle returning a Chronicle event.", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "Add a notEmpty rule for the title on the TypeScript server's RegisterTask command validator.", "shouldTrigger": false, "note": "cratis-arc-validation-typescript" },
+    { "query": "Write the @readModel with an observable query for tasks in our Node Arc server.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "My React page should call the generated RegisterTask proxy with use() and show the result.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "From a plain Node worker append an event directly with the Chronicle SDK and register a reactor.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "A nightly C# job must run the existing command through ICommandPipeline.", "shouldTrigger": false, "note": "cratis-arc-command-execution" },
+    { "query": "How do I model the Tasks feature slice and its events before writing any code?", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+  ]
+}

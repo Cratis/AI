@@ -1,0 +1,50 @@
+{
+  "skill_name": "cratis-chronicle-event-specifications",
+  "evals": [
+    {
+      "id": 1,
+      "name": "duplicate-constraint-spec",
+      "prompt": "Write a Cratis Specification class using EventScenario that proves registering an author named 'Jane Smith' twice (different author ids) violates the AuthorConstraintNames.UniqueAuthorName constraint. Give the code in your reply; do not write files.",
+      "expected_output": "A new EventScenario in Establish, seeding via Given.ForEventSource(...).Events(...), appending through scenario.EventLog.Append in Because, asserting ShouldBeFailed and ShouldHaveConstraintViolationFor the constraint name, disposing the scenario in Destroy.",
+      "assertions": [
+        "Creates a new EventScenario per specification and seeds the first registration through scenario.Given.ForEventSource(...).Events(...), not as the act under test.",
+        "Performs the duplicate append in the act phase through scenario.EventLog.Append or scenario.When.",
+        "Asserts ShouldBeFailed and ShouldHaveConstraintViolationFor with the constraint name rather than the message text.",
+        "Disposes the scenario in Destroy()."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "concurrency-vacuous",
+      "prompt": "A developer writes an EventScenario spec using `scenario.EventLog.Append(id, evt)` with no explicit scope and asserts `ShouldNotHaveConcurrencyViolations()` to prove their concurrency handling works. Is that a valid proof? What should they do? Reply only.",
+      "expected_output": "Not valid: the default strategy answers ConcurrencyScope.None, which the validator skips, so the assertion passes vacuously; specify concurrency with an out-of-process integration spec against the real kernel.",
+      "assertions": [
+        "States the scenario's default strategy answers ConcurrencyScope.None, which the validator skips.",
+        "States that the assertion passes vacuously and proves nothing.",
+        "Recommends an out-of-process integration specification against the real kernel for concurrency."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "when-events-short-circuit",
+      "prompt": "A spec appends three events through `scenario.When.ForEventSource(id).Events(first, second, third)` and `ShouldHaveConstraintViolationFor(...)` fails with an empty violation list, though the conflict is on the third event. Why, and how do you fix the spec? Reply only.",
+      "expected_output": "When...Events stops at the first non-successful append, so the conflict on the third event may never be reached; assert on the first failure, or seed with Given and append the conflicting event on its own.",
+      "assertions": [
+        "States that When...Events stops at the first non-successful append and the result reflects that first failure.",
+        "Explains the conflicting event may not have been reached by the append.",
+        "Suggests seeding earlier events through Given and appending the conflicting event alone, or otherwise asserting on the first failure."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "suite-order-and-trust",
+      "prompt": "A constraint spec passes when run alone but fails in the full suite, and the team never saw it fail. What are the likely cause and the fix, and how do you gain trust that the spec is meaningful? Reply only.",
+      "expected_output": "A hard-coded unique value collided with another spec's claim; use per-spec unique values such as Guid.NewGuid; verify the spec goes red by removing the seeding Given once.",
+      "assertions": [
+        "Identifies a hard-coded unique value colliding with another specification's claim as the likely cause.",
+        "Recommends per-specification unique values such as $\"{Guid.NewGuid():N}\".",
+        "Recommends removing the seeding Given once to confirm the specification goes red before trusting it green."
+      ]
+    }
+  ]
+}

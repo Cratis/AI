@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-application-slice-specifications",
+  "queries": [
+    { "query": "how do I spec a RegisterProject command so I know the event is appended? it's an Arc + Chronicle app", "shouldTrigger": true },
+    { "query": "where do the spec files for a slice live and why is everything wrapped in #if DEBUG?", "shouldTrigger": true },
+    { "query": "which scenario class goes with a state change slice vs a state view vs a reactor?", "shouldTrigger": true },
+    { "query": "does calling Handle() directly run validation and authorization?", "shouldTrigger": true },
+    { "query": "my rejection spec still passes after I deleted the rule. why?", "shouldTrigger": true },
+    { "query": "seed existing events before executing a command in a CommandScenario", "shouldTrigger": true },
+    { "query": "does ShouldHaveAppendedEvent take an Action or a predicate?", "shouldTrigger": true },
+    { "query": "how do I translate a .play specification with then denied into a C# spec?", "shouldTrigger": true },
+    { "query": "spec passes alone but fails in the suite, i hard-coded the project name", "shouldTrigger": true },
+    { "query": "what must I cover for every State Change slice: validation, rules, constraints, repeats?", "shouldTrigger": true },
+    { "query": "Write specs for a library in the Cratis.Fundamentals repository using the plain Specification base.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "Write a vitest spec for the React view model of this slice.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "Specify a unique constraint on its own with an EventScenario.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" },
+    { "query": "Specify a projection on its own with a ReadModelScenario.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "Seed a read model and exception handling for a ReactorScenario of my reactor.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Check my hand-written slice against the .play contract element by element.", "shouldTrigger": false, "note": "cratis-application-slice-conformance" },
+    { "query": "Which scenarios does the .play model need for this command?", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "How should I name and scope specs in any language?", "shouldTrigger": false, "note": "cratis-specification-by-example" },
+    { "query": "Which validation rule belongs in the CommandValidator for this command?", "shouldTrigger": false, "note": "cratis-arc-command-validation" }
+  ]
+}

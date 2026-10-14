@@ -1,0 +1,51 @@
+{
+  "skill_name": "cratis-arc-observable-query-http",
+  "evals": [
+    {
+      "id": 1,
+      "name": "plain-curl-202",
+      "prompt": "A developer runs `curl https://localhost:5001/api/bookings/observe-active-bookings` against an Arc observable query returning ISubject<IEnumerable<Booking>> and gets HTTP 202 with no data. They think it is a crash. Explain and give the curl commands to (a) get the first payload, with a 10 second cap, and (b) watch it live. Reply only.",
+      "expected_output": "202 is the normal not-ready state; use waitForFirstResult=true with waitForFirstResultTimeout=10 for the first payload, and Accept: text/event-stream with --no-buffer for live streaming.",
+      "assertions": [
+        "Explains that 202 Accepted with a not-ready result means the observable has not produced its first value and is a normal transient state, not a failure.",
+        "Gives a curl using waitForFirstResult=true and waitForFirstResultTimeout=10 in the query string.",
+        "Gives a curl with the header Accept: text/event-stream, using --no-buffer.",
+        "Says that waitForFirstResultTimeout is in seconds."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "wait-outcomes",
+      "prompt": "With `?waitForFirstResult=true`, what HTTP statuses can come back for an ISubject query, under which conditions, and what is the default timeout? Reply only.",
+      "expected_output": "200 with a QueryResult when a value arrives, 408 when the timeout elapses, 500 when the observable completes without emitting; default timeout 30 seconds.",
+      "assertions": [
+        "States 200 with the QueryResult data when a value arrives.",
+        "States 408 Request Timeout when the timeout elapses.",
+        "States 500 with an error result when the observable completes without ever emitting.",
+        "States the default timeout is 30 seconds."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "async-enumerable-and-transport",
+      "prompt": "curl against an Arc query that returns IAsyncEnumerable<T> responds 400 with a message about WebSocket. Explain why, how Arc picks a transport in general, and how to inspect that query. Reply only.",
+      "expected_output": "Arc checks WebSocket upgrade, then Accept containing text/event-stream, then plain HTTP; a plain curl is the third case where IAsyncEnumerable queries answer 400 and never a QueryResult, so inspect such a query over WebSocket.",
+      "assertions": [
+        "Lists the transport order: WebSocket upgrade first, then Server-Sent Events when Accept contains text/event-stream, then plain HTTP.",
+        "States a plain curl lands on plain HTTP, where an IAsyncEnumerable query answers 400 and never a QueryResult.",
+        "Says to inspect an IAsyncEnumerable query over WebSocket."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "long-polling-cost",
+      "prompt": "Our corporate proxy buffers SSE. Show a terminal long-polling loop for the observable query at /api/bookings/observe-active and mention the cost of doing this on a hot paged query. Reply only.",
+      "expected_output": "A while loop calling curl with waitForFirstResult=true and a timeout; each iteration re-runs the whole query pipeline including authorization and the Count of a paged query.",
+      "assertions": [
+        "Shows a loop that repeatedly calls curl with waitForFirstResult=true and a waitForFirstResultTimeout.",
+        "States that each iteration re-runs the whole query pipeline server-side, including authorization.",
+        "States that a paged query also re-runs its Count() each iteration, so long polling a hot query is not free."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-arc-command-execution",
+  "queries": [
+    { "query": "when OrderShipped is observed our reactor has to run the existing NotifyCustomer command. how do i call it from C# without going through http?", "shouldTrigger": true },
+    { "query": "nightly background service needs to run ExpireStaleBookings and I want to know if it failed because of auth, validation or an exception. what do I read on the result?", "shouldTrigger": true },
+    { "query": "How do I get the typed response of a command from backend code? Execute returns CommandResult but I need the BookingId the handler returns.", "shouldTrigger": true },
+    { "query": "I want to check whether a command would pass validation before I charge the card, without actually running Handle. Is there a pre-flight call?", "shouldTrigger": true },
+    { "query": "ICommandPipeline.Execute has an allowedSeverity argument. If I pass Warning, do warnings block the command?", "shouldTrigger": true },
+    { "query": "ARCCHR0006 warning on my reactor handler that executes a command. what does it want me to do and is OnceOnly enough?", "shouldTrigger": true },
+    { "query": "my scheduled job throws an exception when result.IsValid is false, and the caller loses the validation messages. what is the better pattern?", "shouldTrigger": true },
+    { "query": "Should I use the Execute overload that takes an IServiceProvider or the plain one when a hosted service runs a command?", "shouldTrigger": true },
+    { "query": "bulk approve: 50 items, each approval is an existing command. i call pipeline.Execute inside another command's Handle. will they commit together?", "shouldTrigger": true },
+    { "query": "Define a new ArchiveInvoice command with a Handle that returns the InvoiceArchived event.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Return a ReserveSeat ICommandOperation from Handle and write the Compensate method for it.", "shouldTrigger": false, "note": "cratis-arc-command-operation" },
+    { "query": "Add a rule so ArchiveInvoice rejects an empty reason with a field message.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Send the welcome email when CustomerRegistered is appended and skip it during replay. Write the reactor.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "From my React form I call the generated ArchiveInvoice proxy with execute(). How do I show the validation results?", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "In our Node Arc for TypeScript server, how do I run a command from a scheduled task?", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "I need to append an event to another customer's stream from inside my Handle. Should I inject IEventLog?", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Write a spec that runs BookBoat through CommandScenario and asserts the appended event.", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "Which Arc auth attribute should protect the ApproveBudget command so only finance staff can call it?", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" }
+  ]
+}

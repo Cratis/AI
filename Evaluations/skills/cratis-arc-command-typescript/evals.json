@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-arc-command-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "declare-register-command",
+      "prompt": "In an Arc for TypeScript Node server, write a RegisterTask command with an id and a title, both domain concepts (TaskId wraps Guid, TaskTitle wraps string, already written). It stores the task through an injected `Tasks` service and returns the id. Give the code in your reply; do not write files.",
+      "expected_output": "An exported class decorated @command() from @cratis/arc.core with @field(Type) inputs imported from @cratis/fundamentals, a public instance handle() taking the service and returning the id, named for the action without a Command suffix.",
+      "assertions": [
+        "Decorates an exported class with @command() imported from @cratis/arc.core.",
+        "Imports @field from @cratis/fundamentals, not from Arc, and declares each input with @field(Type).",
+        "Declares a public instance handle() that returns the id value as the response.",
+        "Names the class RegisterTask rather than RegisterTaskCommand."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "install-and-client-confusion",
+      "prompt": "A teammate says: 'just run `npm install @cratis/arc` to get the Node server for our Arc for TypeScript commands, and `npm install @cratis/arc.core` if that fails.' Correct them. Reply only.",
+      "expected_output": "The server packages are an unpublished source preview so npm install of @cratis/arc.core fails; @cratis/arc is the published client runtime used by generated proxies and is not the server.",
+      "assertions": [
+        "States that the server packages such as @cratis/arc.core are an unpublished source preview not available on npm.",
+        "States that @cratis/arc is a different package, the published client runtime used by generated proxies in the frontend.",
+        "Does not tell the user to install @cratis/arc to obtain a server."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "reject-and-deny",
+      "prompt": "In an Arc for TypeScript command `RenameTask`, the task may not exist, and only the task's owner may rename it. The developer currently throws an Error in handle() for both. Show how provide() and handle() should report these, and say how authorization decorators should be applied. Reply only; code in the reply.",
+      "expected_output": "Use rejected(validation(...)) from provide() for the missing task and denied(reason) for the owner check, not thrown errors; authorization decorators go on the class, never on handle() or provide().",
+      "assertions": [
+        "Returns rejected(...) with a validation result for the missing task instead of throwing.",
+        "Returns denied(reason) for the not-the-owner decision, which maps to a 403.",
+        "Explains that a thrown error becomes a 500 with a redacted message and should not be used for rejections the user can act on.",
+        "States that authorization decorators belong on the class and fail the build when placed on handle() or provide()."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "return-chronicle-event",
+      "prompt": "With @cratis/arc.chronicle registered, write `RegisterAuthor` for an Arc for TypeScript server so it appends an `AuthorRegistered` event on the stream of the author id. Give the code in your reply; do not write files.",
+      "expected_output": "The event class with @eventType() from @cratis/chronicle/events beside the command, created through its constructor in handle(); @key() on the id field names the event source; no direct SDK append.",
+      "assertions": [
+        "Declares the event with @eventType() imported from @cratis/chronicle/events and @field declarations.",
+        "Marks the id field with @key() so it becomes the event source.",
+        "Returns a new event instance from handle() through its constructor instead of appending through the SDK.",
+        "Notes that the returned event is consumed on the server so the result carries no response."
+      ]
+    }
+  ]
+}

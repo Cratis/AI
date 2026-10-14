@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-components-common-controls",
+  "queries": [
+    { "query": "need a searchable picker for choosing a customer account, options come from the server and I want a 'loading accounts' message while it fetches", "shouldTrigger": true },
+    { "query": "Cratis ComboBox: user types a name that isn't in the list, I want an 'Add new' footer. does the action create the option?", "shouldTrigger": true },
+    { "query": "switch between compact and expanded view with a segmented control, only one active at a time. what component and what does onChange give me?", "shouldTrigger": true },
+    { "query": "Tabs onChange gives me a string id, how do I keep the selected tab in my own state and render the history panel?", "shouldTrigger": true },
+    { "query": "i set editable={false} on TagGroup to make it read only but users can still delete tags, why", "shouldTrigger": true },
+    { "query": "tag input where typing a comma or semicolon commits the tag and duplicates are blocked", "shouldTrigger": true },
+    { "query": "show Home > Accounts > Current account trail at the top, last item should not be a link", "shouldTrigger": true },
+    { "query": "server-side filtering for ComboBox: how do I stop it filtering locally and handle stale responses when typing fast?", "shouldTrigger": true },
+    { "query": "my combobox shows an empty list when the load is denied, how do I show a failure message instead of no options?", "shouldTrigger": true },
+    { "query": "breadcrumbs on a page that also has a sidebar trail, how do I name them so screen readers can tell them apart?", "shouldTrigger": true },
+    { "query": "Bind a command property to a text input inside a CommandForm for the RenameAccount command.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Show a sortable table of accounts with paginator and global search backed by an Arc query.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Dropdown aria-label and the trigger part: how do I test it with the accessible name?", "shouldTrigger": false, "note": "cratis-components-accessibility" },
+    { "query": "Make a vertical icon toolbar with a drawer for my drawing canvas palette.", "shouldTrigger": false, "note": "cratis-components-toolbar" },
+    { "query": "Override --cratis-accent in dark mode and import the three stylesheet entries.", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Multi-step dialog wizard for registering a vessel with Next and Back buttons.", "shouldTrigger": false, "note": "cratis-components-stepper-command-dialog" },
+    { "query": "Edit the properties of a JSON schema with nested objects.", "shouldTrigger": false, "note": "cratis-components-schema-editor" },
+    { "query": "Use React Router to navigate between routes when the selected tab changes and guard the routes by role.", "shouldTrigger": false, "note": "cratis-arc-react-page" }
+  ]
+}

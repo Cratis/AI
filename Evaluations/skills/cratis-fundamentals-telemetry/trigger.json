@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-fundamentals-telemetry",
+  "queries": [
+    { "query": "we want a counter for completed reports with an outcome tag in our .NET worker, using the Cratis generated metrics. what does the declaration look like?", "shouldTrigger": true },
+    { "query": "the generator produces code and the counter increments in a listener test but nothing reaches our collector. our class is MyApplication.Reports.ReportWorker", "shouldTrigger": true },
+    { "query": "how do I record the duration of a PDF build as a histogram in seconds and wrap the build in a span?", "shouldTrigger": true },
+    { "query": "after bumping Cratis.Fundamentals our Prometheus metric names changed and the dashboards broke", "shouldTrigger": true },
+    { "query": "AddCratisOpenTelemetry vs WithCratis, we already call services.AddOpenTelemetry() in the host", "shouldTrigger": true },
+    { "query": "what's the right way to turn on OTLP export for the app without hardcoding the endpoint?", "shouldTrigger": true },
+    { "query": "CRT0001 warning on my Span method call site, what does it want?", "shouldTrigger": true },
+    { "query": "can I add the customer id as a tag on the orders.placed counter so we can graph per customer?", "shouldTrigger": true },
+    { "query": "my partial metric method has a double parameter for the value and another double for a tag, the generator treats the wrong one as the measurement", "shouldTrigger": true },
+    { "query": "after upgrading, the app fails because the OpenTelemetry SDK types are gone, Fundamentals used to bring them", "shouldTrigger": true },
+    { "query": "Set up Grafana dashboards and an OpenTelemetry collector pipeline with tail sampling for production.", "shouldTrigger": false, "note": "operating a collector is out of scope; no telemetry skill, use cratis-engineering-effect-boundaries only for code-side boundaries" },
+    { "query": "Record who changed the customer's address for the compliance audit trail.", "shouldTrigger": false, "note": "cratis-chronicle-compliance (audit records, not telemetry)" },
+    { "query": "Make the notification handler fan out to every INotificationChannel implementation without manual registration.", "shouldTrigger": false, "note": "cratis-fundamentals-type-discovery" },
+    { "query": "Append an OrderPlaced event for each order and project order totals.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "Review this change for slow queries, unbounded loops and observer replay cost.", "shouldTrigger": false, "note": "cratis-performance-review" },
+    { "query": "Orleans job that retries a failing step and exposes its progress.", "shouldTrigger": false, "note": "cratis-orleans-jobs" },
+    { "query": "Check our logs for leaked passwords and tokens after the last commit.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Inspect observer lag on a running Chronicle server from the terminal.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" }
+  ]
+}

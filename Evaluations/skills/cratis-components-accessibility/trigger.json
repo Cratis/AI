@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-components-accessibility",
+  "queries": [
+    { "query": "our Delete account confirmation dialog sometimes confirms instantly when the user holds Enter on the Delete button. how do we stop that in Cratis Components?", "shouldTrigger": true },
+    { "query": "we localize the app to Norwegian but screen readers still read 'Next' and 'Previous' on the wizard and 'Close' on dialogs in English. where do those strings come from?", "shouldTrigger": true },
+    { "query": "my Dropdown test fails with getByRole('combobox'). the label htmlFor points at the id but the test cannot find it", "shouldTrigger": true },
+    { "query": "DatePickerInput id doesn't behave like a text input id, how do I give the date field an accessible name?", "shouldTrigger": true },
+    { "query": "is it ok to put role and aria-label through pt on a part of a Cratis component to fix a screen reader complaint?", "shouldTrigger": true },
+    { "query": "should I add my own aria-describedby pointing at the red error text under CommandForm fields? screen reader users say errors are read twice", "shouldTrigger": true },
+    { "query": "icon button with a FaPlus next to the text 'Add boat' gets announced as 'plus Add boat'. what's the convention in our components?", "shouldTrigger": true },
+    { "query": "can I tell the auditor that Cratis Components is WCAG 2.2 AA conformant because it runs axe in its specs?", "shouldTrigger": true },
+    { "query": "DataPage paginator buttons and the column filter menu are English only in our French build. which props or provider messages should I set?", "shouldTrigger": true },
+    { "query": "I wrapped Dropdown in my own FormRow component and the label click no longer focuses it. aria and id are on the outer div", "shouldTrigger": true },
+    { "query": "How do I put a canvas-style icon toolbar with a drawer and fan-out menu on my whiteboard page?", "shouldTrigger": false, "note": "cratis-components-toolbar" },
+    { "query": "Which control should I use for a searchable entity picker bound to a selected key with a loading message?", "shouldTrigger": false, "note": "cratis-components-common-controls" },
+    { "query": "How do I override --cratis-focus-ring and the dark theme colors, and which stylesheets must the app import?", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Build a three-step wizard dialog for the RegisterVessel command with a validation per step.", "shouldTrigger": false, "note": "cratis-components-stepper-command-dialog" },
+    { "query": "Give me a general WCAG 2.2 audit checklist for our marketing website: contrast ratios, heading order, skip links.", "shouldTrigger": false, "note": "cratis-components-accessibility does not cover general WCAG; cratis-code-review for changed code review" },
+    { "query": "Wire the CommandForm InputTextField for the RenameBoat command so the name is bound to the command property.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Edit a JSON schema's property structure and drill into nested objects in a SchemaEditor.", "shouldTrigger": false, "note": "cratis-components-schema-editor" },
+    { "query": "Pivot viewer filters and a time machine snapshot on the fleet page, how do I compose them?", "shouldTrigger": false, "note": "cratis-components-data-surfaces" },
+    { "query": "Review this PR for XSS and missing authorization on the new endpoint.", "shouldTrigger": false, "note": "cratis-security-review" }
+  ]
+}

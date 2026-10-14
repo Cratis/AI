@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-chronicle-client-elixir",
+  "evals": [
+    {
+      "id": 1,
+      "name": "start-and-wait",
+      "prompt": "Write the Elixir application module for `MyApp` that starts the Chronicle client for event store 'quickstart' against a local development kernel, and the code that waits until the client is really ready before the app claims readiness. Give the code in your reply; do not write files.",
+      "expected_output": "Chronicle.Client in the supervision tree with ConnectionString.development(), event_store and otp_app options; wait with Lifecycle.wait_until for :registered, not :connected.",
+      "assertions": [
+        "Adds {Chronicle.Client, ...} to the application's supervision children with connection_string, event_store and otp_app.",
+        "Uses Chronicle.Connections.ConnectionString.development() for the local connection string.",
+        "Waits with Lifecycle.wait_until for the :registered phase rather than :connected.",
+        "Handles the {:error, :timeout} outcome of the wait."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "event-type-and-append",
+      "prompt": "Define an Elixir event type `FundsDeposited` with an amount and append it for event source 'account-1' from a GenServer, handling a constraint violation without crashing. Give the code in your reply; do not write files.",
+      "expected_output": "use Chronicle.Events.EventType with an explicit, stable kebab-case id and typed struct defaults; append matches :ok and {:error, ...} tuples including {:constraint_violations, _}.",
+      "assertions": [
+        "Passes an explicit id to use Chronicle.Events.EventType, because unlike other clients the id is required.",
+        "Uses typed defaults in defstruct such as amount: 0 so a schema can be generated.",
+        "Calls Chronicle.append with the event source id first and the event struct second.",
+        "Matches {:error, {:constraint_violations, violations}} and a general {:error, reason} rather than a bare :ok match, which would raise MatchError."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "reactor-and-collisions",
+      "prompt": "In an Elixir app using cratis_chronicle, explain how a reactor declares which events it handles and what handle/2 may return, and why `MyApp.ReadModels.Account` and `Other.ReadModels.Account` would conflict. Reply only.",
+      "expected_output": "@handles accumulating attribute with pattern matching in handle/2 returning :ok, {:error, term} or {:ok, event(s)} which are appended as a side effect; read model id is the last module segment so pass id: to disambiguate.",
+      "assertions": [
+        "Says @handles is an accumulating module attribute declaring the subscription and handle/2 dispatches by pattern matching.",
+        "Says handle/2 returning {:ok, event_or_events} appends those events as a side effect, and a failed side-effect append makes the result an error.",
+        "Says the read model id sent to the kernel is the last module segment so both register as Account, and passing id: disambiguates."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "hex-and-tls",
+      "prompt": "A developer sees that the Chronicle.Elixir repository tag has a `Chronicle.Concept` macro and a VERSION file of 0.0.0, so they quote 0.0.0 and expect mix deps.get to fetch the tag; the production connection string uses defaults. What do you correct? Reply only.",
+      "expected_output": "A git tag is not a Hex release; mix deps.get fetches only published versions; Chronicle.Concept needs cratis_chronicle 3.0.0; VERSION is a placeholder; skip_tls_validation defaults to true so production must set skipTlsValidation=false.",
+      "assertions": [
+        "States that a git tag is not a Hex release and mix deps.get fetches only published versions.",
+        "States that the repository VERSION file is a placeholder and must not be quoted.",
+        "States that skip_tls_validation defaults to true and production must set skipTlsValidation=false.",
+        "States Chronicle.Concept requires cratis_chronicle 3.0.0."
+      ]
+    }
+  ]
+}

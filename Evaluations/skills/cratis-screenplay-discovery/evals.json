@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-discovery",
+  "evals": [
+    {
+      "id": 1,
+      "name": "event-naming-filter",
+      "prompt": "From a workshop we got this candidate list for a marina: CustomerUpdated, BerthStatusChanged, PriceCalculated, PaymentProcessed, BerthAssigned. Apply discovery's naming and not-an-event filters and say what you would keep, rename or turn into something else. Reply only; do not write files.",
+      "expected_output": "Keep specific past-tense business facts such as BerthAssigned; reject generic edit events (CustomerUpdated, BerthStatusChanged) and ask which business fact happened. PriceCalculated is a view unless the calculation is itself a decision the business must show later (a quoted price). Two to four words, specific.",
+      "assertions": [
+        "Rejects generic edit events such as `CustomerUpdated` and `BerthStatusChanged` and asks which specific business fact happened.",
+        "Keeps `BerthAssigned` as a specific past-tense business event.",
+        "Says a calculated value is a view, not an event, unless the calculation is itself a decision the business must be able to show later, such as a quoted price.",
+        "States that an event is a past-tense business verb of about two to four words."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "unattended-assumptions",
+      "prompt": "You are running unattended: nobody can answer questions. The brief says 'harbor staff assign berths to boats and sometimes a boat is turned away'. It does not say who may turn a boat away or what happens to a waiting boat. How do you proceed, and where do open questions and assumptions go? Reply only; do not write files.",
+      "expected_output": "Never stop to ask. Take the most reasonable assumption visibly, record the open question and assumption as a `question` note anchored to the element (not just chat or `description` text), carry them in STATE.md with the note id, and keep decisions apart from assumptions. Do not put secrets or personal data in notes.",
+      "assertions": [
+        "Proceeds without stopping to ask the user.",
+        "Records each open question as a `question` note anchored to the model element, not only in chat or `description` text.",
+        "Carries the open question and assumption in STATE.md for handoff.",
+        "Keeps decisions separate from assumptions and puts no secrets or personal data in note text."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "feature-is-a-journey",
+      "prompt": "A teammate proposes one feature called 'Cancel booking' containing a single event BookingCancelled, and another feature 'Berth request' where a request is either approved or declined by one decision. Is each a good feature? How should forks be classified and what must the plot name? Reply only; do not write files.",
+      "expected_output": "A feature is a journey a single expert could tell end to end, never one operation or screen. A decision with exclusive results is an outcome branch in the same feature (sibling events); a fork decided before the process starts with everything after differing is a separate story and its own feature. Name every terminal state and every undo or correction path.",
+      "assertions": [
+        "Says a feature must read aloud as a journey and a single operation such as 'Cancel booking' is not a feature.",
+        "Classifies one decision with exclusive results as an outcome branch, kept in the same feature as sibling events.",
+        "Classifies a fork decided before the process starts, with everything after differing, as a separate story with its own feature.",
+        "Requires naming every terminal state and every undo or correction path, treating a dead end as an open question."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "personas-and-causes",
+      "prompt": "The draft model has one persona called User that 'does everything'. The input also mentions a nightly harbor-authority feed and a reminder that fires on its own. How do you reshape personas and causes during discovery? Reply only; do not write files.",
+      "expected_output": "Avoid a generic User; personas are roles with a purpose, each with Does / Reads / Cannot in its description and policy lines. A read-only persona is legitimate. Non-human causes (schedules, outside parties, our own follow-up) go in STATE.md, and every Cannot line is a denial candidate.",
+      "assertions": [
+        "Replaces the generic `User` with roles that each have a purpose.",
+        "Records Does / Reads / Cannot in each persona's description.",
+        "Records the feed and the self-firing reminder as non-human causes in STATE.md rather than as personas that act.",
+        "Lists every Cannot line as a denial candidate for later design."
+      ]
+    }
+  ]
+}

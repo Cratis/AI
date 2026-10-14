@@ -1,0 +1,64 @@
+{
+  "skill_name": "cratis-lens-browser-extension",
+  "evals": [
+    {
+      "id": 1,
+      "name": "install-path",
+      "prompt": "A teammate asks where to install Cratis Lens from and how to build it. Give the steps and the safety caveats for the browser profile. Reply only.",
+      "expected_output": "There is no published store listing; build from source and load unpacked: cd Source, yarn install, yarn build (writes Source/dist), then chrome://extensions with Developer mode and Load unpacked selecting Source/dist; listed as Cratis Lens. yarn dev is a watch build and the extension must be reloaded after each rebuild; yarn ci runs typecheck, test and build. Chromium is the supported target. It is a development tool with broad permissions (cookies, declarativeNetRequest, <all_urls>); keep it out of a profile used for anything but development; the user roster with claims is stored unencrypted in chrome.storage.local.",
+      "assertions": [
+        "Says there is no published store listing and the install path is building from source and loading unpacked.",
+        "Gives yarn install and yarn build in Source and loading Source/dist through Load unpacked with Developer mode.",
+        "Says the extension should be kept out of a browser profile used for anything other than development because of its broad permissions.",
+        "Says the stored user roster including claims is unencrypted in chrome.storage.local."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "identity-switch-ignored",
+      "prompt": "We switch the active user in Lens on the Context tab and the Arc app still treats us as anonymous. What does Lens send, what must the Arc host enable, and what safety condition applies? Reply only.",
+      "expected_output": "Lens sends exactly three forwarded client-principal headers (X-MS-CLIENT-PRINCIPAL-ID, -NAME and X-MS-CLIENT-PRINCIPAL as base64 of principal JSON). Arc ignores them and treats the request as anonymous unless Cratis:Arc:TrustForwardedIdentityHeaders=true (default false). Never enable on an exposed application without a trusted ingress that strips client-supplied identity headers. It is Lens's only identity mode: no bearer, no OIDC.",
+      "assertions": [
+        "Says Lens sends the three X-MS-CLIENT-PRINCIPAL forwarded headers.",
+        "Says Arc ignores them unless Cratis:Arc:TrustForwardedIdentityHeaders is set to true and that the default is false.",
+        "Says the opt-in must not be enabled on an exposed application without a trusted ingress that strips client-supplied identity headers.",
+        "Says this header mode is Lens's only identity mode, with no bearer token or OIDC sign-in."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "detection-and-empty-payload",
+      "prompt": "Lens' Commands tab is disabled on our non-React frontend, and on another app it fires every command with an empty payload object saying 'No payload schema available'. Explain both. Reply only.",
+      "expected_output": "Detection injects into the page main world looking for an element with id root, a React fiber or container key, and a context value with reconnectQueries or a configuration with base URL keys; falls back to a path pattern then localhost/127.0.0.1. A non-React frontend, another root id or renamed fiber keys leaves Lens undetected: Commands, Queries and Query Diagnostics tabs are disabled and only Context and Settings work. The payload form reads a schema property that Arc does not name that way (Arc uses payloadSchema on commands and argumentsSchema on queries) and none of the fallback routes are mapped, so there is no schema and no raw JSON editor; commands only fire with {}. This is not a broken app; queries are unaffected.",
+      "assertions": [
+        "Says Lens detects the app by looking for a React root element with id root, a React fiber key and a context carrying reconnectQueries or a configuration base URL.",
+        "Says a non-React frontend or a root with another id leaves Lens undetected and disables the Commands, Queries and Query Diagnostics tabs while Context and Settings work.",
+        "Says Arc names the schema property payloadSchema on commands and argumentsSchema on queries while Lens reads a property named schema, so the payload form has no schema.",
+        "Says there is no raw JSON editor so such commands can only be fired with an empty object, and that queries are unaffected."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "discovery-and-websocket",
+      "prompt": "On a deployed staging app the Commands and Queries tabs are empty though Settings still lists users. Also observable queries seem to ignore the impersonated identity. Explain why, and what is acceptable to change. Reply only.",
+      "expected_output": "Discovery routes (/.cratis/commands, queries, users, tenants, identity-details/schema) are anonymous by default only in Development; elsewhere they require authentication or are not mapped. The two introspection fetches send no headers and no credentials while the Settings user/tenant refresh sends both, so authentication in front of commands/queries breaks those tabs. Run the app in Development, or knowingly set Cratis:Arc:Introspection:RequireAuthentication=false on an isolated development host; do not weaken production discovery for Lens. Header rules match XMLHTTPREQUEST only, so navigations, WebSocket and EventSource/SSE carry no injected headers; observable-query transports are not covered.",
+      "assertions": [
+        "Says the discovery routes are anonymous by default only in Development and require authentication or are not mapped elsewhere.",
+        "Says the introspection fetches for commands and queries send no headers or credentials, unlike the Settings user and tenant refresh.",
+        "Says to run in Development or knowingly relax RequireAuthentication only on an isolated development host, and not to weaken production discovery for Lens.",
+        "Says header injection matches XMLHttpRequest only, so WebSocket and SSE observable-query transports do not receive injected headers."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "tenant-header",
+      "prompt": "Our Arc app resolves tenancy from a claim; someone says to just change the 'Tenant Header Name' in Lens' options page. What is the truth? Reply only.",
+      "expected_output": "Lens sets one header named by tenantHeaderName, default x-cratis-tenant-id, matching TenancyOptions.HttpHeader default and Arc's default Header resolver. tenantHeaderName has no user interface and there is no options_page in the manifest; an app that resolves tenancy by query parameter, claim, subdomain or a renamed header cannot be driven by Lens without editing chrome.storage.local by hand.",
+      "assertions": [
+        "Says Lens sets a single tenant header whose default name is x-cratis-tenant-id, matching Arc's default header resolver.",
+        "Says tenantHeaderName has no user interface and the manifest has no options page, so no Tenant Header Name field exists.",
+        "Says an app resolving tenancy by claim, query parameter, subdomain or a renamed header cannot be driven by Lens without editing chrome.storage.local by hand."
+      ]
+    }
+  ]
+}

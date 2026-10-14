@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-chronicle-reactor",
+  "evals": [
+    {
+      "id": 1,
+      "name": "email-reactor",
+      "prompt": "In a C# Chronicle app, write a reactor that sends a confirmation email through an injected `IMailService` when `BoatBooked` is appended. The email must not be resent when the observer is replayed. Give the code in your reply; do not write files.",
+      "expected_output": "A class implementing IReactor with a primary-constructor service, a handler whose first parameter is the BoatBooked event, marked [OnceOnly], and a note that recovery can still redeliver so the effect should be idempotent.",
+      "assertions": [
+        "The class implements IReactor, injects IMailService through its constructor, and holds no mutable state.",
+        "The handler's first parameter is the BoatBooked event type; dispatch is by that type, not the method name.",
+        "Marks the handler or class with [OnceOnly] to exclude replay.",
+        "Notes that [OnceOnly] is replay exclusion, not deduplication, so partition recovery can run the handler again and the side effect should be idempotent."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "return-follow-up-event",
+      "prompt": "A Chronicle reactor must append `InvoiceRequested` on the *customer's* event source (id taken from `OrderPlaced.CustomerId`) when `OrderPlaced` is observed on the order stream. The developer wants to inject IEventLog and call Append. Show the correct approach. Give the code in your reply; do not write files.",
+      "expected_output": "Return an EventForEventSourceId carrying the customer's event source id and the event instead of injecting IEventLog, with [OnceOnly] because it returns event side effects (CHR0022).",
+      "assertions": [
+        "Returns EventForEventSourceId (or Task of it) with the customer's id and the InvoiceRequested event instead of injecting IEventLog.",
+        "Adds [OnceOnly] because a handler returning event side effects would otherwise append duplicates on replay (analyzer CHR0022).",
+        "States that a returned side-effect event that fails to append (for example a constraint violation) pauses the failing partition."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "malformed-input-and-failure",
+      "prompt": "A reactor consuming events from another service throws an exception whenever a payload is malformed, and after repeated failures the whole observer stops. Explain what happens in Chronicle and what the reactor should do instead. Reply only.",
+      "expected_output": "A throw pauses the failing event-source partition and repeated failures can quarantine the observer; a reactor is not a data-quality gate, so append a failure or dead-letter event or surface it operationally and skip the partial side effect.",
+      "assertions": [
+        "States that a thrown exception pauses the failing event-source partition until the cause is resolved.",
+        "States that repeated failures can quarantine the observer, stopping retries until an operator clears it or it subscribes again.",
+        "Says a reactor is not a data-quality gate and should not throw to reject a malformed event.",
+        "Recommends appending a failure or dead-letter event, or surfacing it through the operational path, and skipping the partial side effect."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "identity-and-return-types",
+      "prompt": "Two questions about Chronicle reactors: (a) a developer renames the reactor class that sends emails and no explicit id was set; what happens? (b) a handler returns `string`; what happens? Reply only.",
+      "expected_output": "(a) Identity defaults to the full type name so a rename creates a new observer that catches up from the start and repeats side effects; use a stable explicit id; (b) an unclaimed return value fails the partition with UnhandledReactorReturnValue (CHR0054 flags it at build).",
+      "assertions": [
+        "States that without an explicit id the reactor identity is its full type name, so a rename creates a new observer that catches up from the start and repeats side effects.",
+        "Recommends a stable explicit id for side-effecting reactors and notes [OnceOnly] does not prevent the catch-up repeat.",
+        "States an unsupported return value fails the partition with UnhandledReactorReturnValue.",
+        "Mentions analyzer CHR0054 flagging an unsupported return type at build time."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-arc-validation-typescript",
+  "queries": [
+    { "query": "RegisterTask on our Node Arc server should refuse an empty title and one over 100 characters. where does that rule go?", "shouldTrigger": true },
+    { "query": "i want every TaskTitle to reject values starting with ! no matter which command uses it. ConceptValidator?", "shouldTrigger": true },
+    { "query": "rename should fail when the task already has this title. the rule needs the stored task. how do I read it in a validator?", "shouldTrigger": true },
+    { "query": "validatorFailed 400 comes back instead of my message when a task is missing. what causes that in readModelForValidation", "shouldTrigger": true },
+    { "query": "can a client send X-Allowed-Severity: 3 to make errors not block an Arc TypeScript command?", "shouldTrigger": true },
+    { "query": "my query takes a search term and must reject empty terms. how do I validate query arguments in Arc for TypeScript?", "shouldTrigger": true },
+    { "query": "what's the difference between returning rejected() from provide and writing a CommandValidator rule?", "shouldTrigger": true },
+    { "query": "my spec calls shouldHaveValidationErrorFor('title') and passes even when the message differs a bit. why?", "shouldTrigger": true },
+    { "query": "a validator class in our TS server is never picked up. rule never runs", "shouldTrigger": true },
+    { "query": "Add a FluentValidation style rule to the C# BookBoat command.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Kotlin Arc command needs a rule rejecting end before start.", "shouldTrigger": false, "note": "cratis-arc-validation-kotlin" },
+    { "query": "Define a new RegisterTask command class with a handle method in the Node server.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Make two RegisterTask requests with the same title impossible even under concurrency.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Define a @readModel with a static query for tasks in the Node server.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Show the validation message under the field in my React form.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Only librarians may register authors in our TypeScript Arc server.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Validate that the incoming Chronicle event has a valid schema before appending from a worker.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-delivery-planning",
+  "evals": [
+    {
+      "id": 1,
+      "name": "first-estimate-no-history",
+      "prompt": "Our accepted Screenplay model has 20 slices: 9 StateChange, 7 StateView, 3 Automation and 1 Translate. The team has no completed slices yet. The sponsor wants 'a number of weeks, with 90% confidence'. How do you answer and what does the plan state? Reply only; do not write files.",
+      "expected_output": "Count slices by type and split rendered versus hand-written (Automation and Translate are hand-written against the model unless admission shows otherwise). With no history it is a first estimate without history: a wide range with its basis, replaced as slices complete. No accuracy figure that cannot be traced to a count and a rate.",
+      "assertions": [
+        "Counts slices by type (not features) and separates rendered from hand-written, treating Automation and Translate as hand-written unless admission is checked per slice.",
+        "Labels the result a first estimate without history and gives a wide range rather than a single number.",
+        "Refuses to quote a 90% confidence figure or duration that cannot be traced to a count and a rate.",
+        "Adds separate lines for non-slice work such as modeling and review gates, outside-system integration, and environment and deployment."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "waves-from-events",
+      "prompt": "Slices: S1 RegisterBoat (StateChange) produces BoatRegistered. S2 BookBoat (StateChange) consumes BoatRegistered and produces BoatBooked. S3 BookingsOverview (StateView) consumes BoatBooked. S4 BoatList (StateView) consumes BoatRegistered. S5 SendReminder (Automation) consumes BoatBooked. Build the dependency waves and say what two developers can start on day one. Reply only; do not write files.",
+      "expected_output": "Wave 1: S1. Wave 2: S2 and S4 (independent, parallel). Wave 3: S3 and S5. Events are the contract, so S2 can be built against synthetic `given` BoatRegistered events before S1 is finished. S5 is an Automation, hand-written.",
+      "assertions": [
+        "Places S1 alone in wave 1 and S2 with S4 in wave 2.",
+        "Places S3 and S5 in wave 3 and says slices within a wave are independent and can run in parallel.",
+        "States that a consumer slice can be built against synthetic `given` events before its producer is finished, because events are the contract.",
+        "Classifies S5 as hand-written rather than rendered."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "claimed-slice",
+      "prompt": "I want to start the InvoiceSend slice. Its tracking issue has status block 'InvoiceSend: in progress' and an assignee who is not me. The agent next to me suggests I just take it, since I am faster. What do I do? Also list the allowed per-slice statuses. Reply only; do not write files.",
+      "expected_output": "Do not take it over and do not report an error: pick another slice. The per-slice statuses are todo, in progress, blocked and done, a closed set separate from the issue's own state.",
+      "assertions": [
+        "Says to pick another slice and not take over a slice that is already in progress.",
+        "Does not treat the existing claim as an error to report.",
+        "Lists the closed per-slice status set: todo, in progress, blocked, done.",
+        "Notes that a blocked status names the producer, decision or external party it waits on."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "cycle-and-replan",
+      "prompt": "While building the dependency table for our model we find S6 ApproveOrder consumes OrderChecked and S7 CheckOrder consumes OrderApproved, so each waits on the other. A manager says 'just schedule them together in one wave'. Meanwhile 6 of 12 StateChange slices are done in 3 weeks, all rendered. What do you do about the cycle, and how do you update the estimate for the remaining slices? Reply only; do not write files.",
+      "expected_output": "A cycle is a feedback loop: return it to slice design (usually an Automation slice) and never schedule around it. For the estimate use the team's own completed-slice rate for the matching type and realization, report a range with its basis, note the sample is small, and keep hand-written slices separate.",
+      "assertions": [
+        "Rejects scheduling the cycle into one wave and returns it to slice design, noting a feedback loop is usually an Automation slice.",
+        "Bases the estimate on the team's own completed slices (6 in 3 weeks) as a range with its basis.",
+        "Says the small sample or one project's rate may not transfer to a different kind of slice.",
+        "Prices hand-written slices separately from rendered ones and recounts if the model changes."
+      ]
+    }
+  ]
+}

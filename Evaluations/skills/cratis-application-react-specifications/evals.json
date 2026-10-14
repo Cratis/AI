@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-application-react-specifications",
+  "evals": [
+    {
+      "id": 1,
+      "name": "view-model-spec",
+      "prompt": "Our slice has `CandidatesViewModel` (plain class with `setSearch(text)` and a `filteredItems` getter). Write the Vitest specification that checks filtering by search text, and say where the file goes. Give the code in your reply; do not write files.",
+      "expected_output": "File under `<Slice>/for_CandidatesViewModel/when_filtering_by_search_text/and_<extra>.ts` in snake_case. Vitest with Mocha-style `describe('when ...')`, `beforeEach` that constructs the view model directly and acts once, and `it('should ...')` with spaces asserting one outcome using Chai `.should`, never `expect()`.",
+      "assertions": [
+        "Places the spec next to the unit under `for_CandidatesViewModel/when_<context>/` in snake_case.",
+        "Uses `describe('when ...')` naming the scenario and `it('should ...')` with spaces asserting one outcome.",
+        "Constructs the view model directly in `beforeEach` with no React involved, doing the arrange and act once.",
+        "Asserts with the Chai `.should` interface (for example `viewModel.filteredItems.should.have.lengthOf(1)`) and not `expect()`."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "command-result-branches",
+      "prompt": "A helper runs a command outside a command dialog and reports state to the page. Which branches do I specify and how do I fake the command without the network? Reply only; do not write files.",
+      "expected_output": "Each granular result flag is a branch: `isAuthorized`, `isValid` with `validationResults`, `hasExceptions`, and the success path. Stub the command and return a result object per branch rather than reaching for the network, with Sinon stubs.",
+      "assertions": [
+        "Lists the branches: unauthorized (`isAuthorized`), invalid (`isValid` with `validationResults`), exceptions (`hasExceptions`) and success.",
+        "Stubs the command to return a result object per branch instead of using the network.",
+        "Uses Sinon (`sinon.stub()` or `createStubInstance`) for dependencies.",
+        "Gives each branch its own scenario (`describe('when ...')`) with `it('should ...')` asserting one outcome."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "component-spec",
+      "prompt": "We need a spec for `MyDialog` that must show a disabled confirm button while busy. The dialog wraps `Dialog` from `@cratis/components/Dialogs`. How do you write it and what environment do you assume? Give the code in your reply; do not write files.",
+      "expected_output": "The environment is `node`: render server-side markup with `renderToStaticMarkup` and mock only the external component boundary with `vi.mock`, using typed mock props. Avoid snapshots. Add jsdom or Testing Library only when behavior needs DOM events; a real Cratis Components render needs `CratisComponentsProvider` and a `ResizeObserver` stub in jsdom.",
+      "assertions": [
+        "Renders with `renderToStaticMarkup` in the `node` environment and asserts on the resulting markup (for example that it includes `disabled`).",
+        "Mocks only the external component boundary with `vi.mock('@cratis/components/Dialogs', ...)` using typed props rather than `any`.",
+        "Does not use a snapshot.",
+        "Says jsdom or Testing Library is added only when behavior needs DOM events, and a real Cratis Components render needs `CratisComponentsProvider` and a `ResizeObserver` stub."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "what-not-to-specify",
+      "prompt": "A teammate's plan: snapshot every page, add a spec for the generated command proxy, write a Storybook story for the live Bookings page wired to Arc hooks, and keep a component with four `useState` calls and a state-syncing `useEffect`. Review the plan. Reply only; do not write files.",
+      "expected_output": "Do not specify generated Cratis proxies, Components or framework internals, or use snapshots. Stories are for reusable components, not live slice pages wired to Arc hooks, and a `play:` function is documentation and QA, not the enforced gate. State logic with three or more `useState` calls, a state-synchronizing `useEffect` or derived values belongs in a view model or tested state module.",
+      "assertions": [
+        "Rejects snapshots and specs of generated proxies or framework internals.",
+        "Says stories are for reusable components, not live slice pages wired to Arc query and command hooks.",
+        "Says an interaction `play:` function is documentation and QA and the enforced behavioral gate is the Vitest specification.",
+        "Says logic with three or more `useState` calls or a state-synchronizing `useEffect` should be extracted into a view model or tested state module."
+      ]
+    }
+  ]
+}

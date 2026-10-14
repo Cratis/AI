@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-components-stepper-command-dialog",
+  "evals": [
+    {
+      "id": 1,
+      "name": "three-step-wizard",
+      "prompt": "Build a React StepperCommandDialog for the generated CreateProject command (email, name, description, budget) in three named steps: Contact info, Project details, Budget. It must close with the dialog result when it succeeds or is cancelled. Give the code in your reply; do not write files.",
+      "expected_output": "StepperCommandDialog<CreateProject> with command, title, okLabel, onSuccess/onCancel closing via useDialogContext, and three direct StepperPanel children each with a header. CommandForm fields (InputTextField, TextAreaField, NumberField) bound with value accessors; each property on exactly one step. Imports from the CommandDialog and CommandForm subpaths.",
+      "assertions": [
+        "Imports StepperCommandDialog and StepperPanel from @cratis/components/CommandDialog and fields from @cratis/components/CommandForm, not the root barrel.",
+        "Gives each of three direct StepperPanel children a header.",
+        "Binds each command property with a CommandForm field and a value accessor on exactly one step.",
+        "Closes via the dialog context in onSuccess and onCancel."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "edit-wizard-seeding",
+      "prompt": "For an UpdateProject stepper wizard, projectId must be in the command but is not user-entered, and name and description arrive late from a query. A dev seeds projectId inside onBeforeExecute and Submit never enables. Explain the cause and show the corrected props. Reply only.",
+      "expected_output": "Validation runs against pre-transform values, so values required for validity seeded in onBeforeExecute leave Submit disabled. Use initialValues for the synchronous baseline (projectId) and currentValues for the reactive overlay (name, description). initialValues is also the change-tracking baseline. validateOnInit shows errors for prepopulated invalid values immediately.",
+      "assertions": [
+        "Explains validation runs against the values before onBeforeExecute transforms them, so Submit stays disabled.",
+        "Puts projectId in initialValues, the synchronous baseline.",
+        "Puts late-arriving query values in currentValues, the reactive overlay.",
+        "Mentions validateOnInit for showing errors on mount when pre-populated values are invalid."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "fragment-and-pt-mistakes",
+      "prompt": "Two problems on our wizard: (1) three steps are wrapped in a single <> fragment and only one step appears; (2) `pt={{ root: { className: 'wide' } }}` has no effect on the dialog frame; (3) the footer has our own Cancel button which can abandon a half-submitted wizard. Diagnose each and give fixes. Reply only.",
+      "expected_output": "A fragment counts as one step: give each step its own StepperPanel child. pt targets the inner stepper; use dialogPt and dialogClassName for the outer dialog. Do not hand-roll a Cancel button; set showCancel. The dialog already withdraws close, Escape and backdrop dismissal while the command runs.",
+      "assertions": [
+        "Says a fragment counts as one step and each step needs its own StepperPanel direct child.",
+        "Says pt targets the inner stepper and dialogPt or dialogClassName reaches the outer dialog.",
+        "Recommends the showCancel prop instead of a hand-rolled footer Cancel button.",
+        "Says the dialog withdraws close, Escape and backdrop dismissal while the command is executing."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "choose-and-embed",
+      "prompt": "We have a four-field RenameVessel form and a separate 14-field onboarding command we want to show as a guided flow directly inside a page (no modal). Which Cratis Components piece fits each, and what extra behavior does the embedded one offer? Reply only.",
+      "expected_output": "Four-field form is usually still an ordinary CommandDialog. The onboarding flow: CommandStepper (same subpath) is the stepper without dialog chrome, same StepperPanel children, reports onException/onUnauthorized/onFailed including validation failures, and guards against double submission.",
+      "assertions": [
+        "Says a four-field form is usually still an ordinary CommandDialog rather than a stepper wizard.",
+        "Recommends CommandStepper for embedding the wizard directly in a page without dialog chrome.",
+        "States CommandStepper takes the same StepperPanel children.",
+        "Mentions it reports onException, onUnauthorized and onFailed and guards against double submission."
+      ]
+    }
+  ]
+}

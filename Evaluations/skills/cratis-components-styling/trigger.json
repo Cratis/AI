@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-components-styling",
+  "queries": [
+    { "query": "just set up a new Cratis frontend and every component renders completely unstyled. what did I miss?", "shouldTrigger": true },
+    { "query": "how do I turn on dark mode in our Cratis Components app, do I pass a theme to the provider?", "shouldTrigger": true },
+    { "query": "my :root override of --cratis-surface-ground is ignored in dark mode", "shouldTrigger": true },
+    { "query": "we upgraded from Components 3 and CratisComponentsProvider now errors on theme and unstyled props. what replaces them?", "shouldTrigger": true },
+    { "query": "I need to restyle just the trigger and popover of one Dropdown with our own class names", "shouldTrigger": true },
+    { "query": "pt on my DataPage doesn't change the table. which prop reaches the table vs the paginator?", "shouldTrigger": true },
+    { "query": "Tailwind utilities lose to component styles in our Cratis app, how do the cascade layers need to be ordered?", "shouldTrigger": true },
+    { "query": "map our brand palette to the design tokens: primary, action, surface, text. where does that CSS go?", "shouldTrigger": true },
+    { "query": "toasts never appear, I call the notifications API after a command succeeds", "shouldTrigger": true },
+    { "query": "should I keep primereact and primeicons in package.json after moving to Components 4?", "shouldTrigger": true },
+    { "query": "A dialog whose destructive confirm should focus Cancel first.", "shouldTrigger": false, "note": "cratis-components-accessibility" },
+    { "query": "Which component for a searchable picker, tabs and breadcrumbs?", "shouldTrigger": false, "note": "cratis-components-common-controls" },
+    { "query": "Build a DataPage with a query-backed table, column filters and menu items.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Pan and zoom canvas with a minimap.", "shouldTrigger": false, "note": "cratis-components-data-surfaces" },
+    { "query": "Toolbar button tooltipPosition and fan-out direction.", "shouldTrigger": false, "note": "cratis-components-toolbar" },
+    { "query": "Use stepper wizard dialog for the command with per-step validation.", "shouldTrigger": false, "note": "cratis-components-stepper-command-dialog" },
+    { "query": "Write a marketing landing page hero for our docs site with brand voice.", "shouldTrigger": false, "note": "cratis-developer-marketing" },
+    { "query": "Edit a schema in the tree layout of SchemaEditor and style its parts.", "shouldTrigger": false, "note": "cratis-components-schema-editor" }
+  ]
+}
