@@ -196,6 +196,7 @@ the tenant identifier in the resolver rather than relying on that.
 | Comparing sequence numbers across namespaces | they are independent sequences |
 | Erasing personal data in one namespace and calling it done | erasure is per namespace |
 | Relying on namespace casing | lookup is case-insensitive, storage naming is not |
+| Modeling each service as a namespace of one store, or naming a tenant's namespace differently per service | a namespace is a tenant inside one store; forwarding between services' stores keeps the namespace name (`cratis-multi-service-architecture`) |
 
 ## Verify
 

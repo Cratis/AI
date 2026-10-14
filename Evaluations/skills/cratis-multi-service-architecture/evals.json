@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-multi-service-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "name": "store-per-service-on-one-kernel",
+      "prompt": "We are splitting a Cratis .NET application into Ordering and Billing. One teammate wants one event store with a namespace per service, another wants a separate Chronicle kernel per service. Recommend a topology and explain why. Reply only.",
+      "expected_output": "One event store per service on one shared kernel. Namespaces are tenants inside a store, not services, and forwarding keeps the namespace name. Subscriptions forward only inside one kernel, so separate kernels need an application-owned transport.",
+      "assertions": [
+        "Recommends one event store per service hosted on one Chronicle kernel.",
+        "Rejects namespaces as service boundaries and explains that namespaces are tenants inside a store.",
+        "States that outbox-to-inbox forwarding works only within one kernel, so a kernel per service cannot use subscriptions.",
+        "Says tenant namespace names must be identical across services because forwarding keeps the namespace name."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "publish-contract-without-atomicity-gap",
+      "prompt": "Our Ordering command handler appends OrderPlaced to the event log and then appends OrderAccepted to the outbox for Billing. Is that fine? Show the shape you would use instead. Reply only; do not write files.",
+      "expected_output": "Two appends are not atomic, so the private fact can exist without its publication. Publish with an event-target projection (IProjectionFor<OrderAccepted> From<OrderPlaced>) of a public contract type in a contracts project with [EventStore(\"Ordering\")], or a reactor appending to the outbox when a fold cannot express it.",
+      "assertions": [
+        "Explains that appending to the event log and then the outbox is not atomic.",
+        "Recommends an event-target projection targeting the public event type as the default publication.",
+        "Marks the contract public through [EventStore] on a contracts project or [Public], and keeps it out of the event log.",
+        "Mentions that the outbox refuses private event types and the refusal is an append-result error, not an exception."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "idempotent-consumer",
+      "prompt": "Billing translates Ordering's OrderAccepted into InvoiceRequested and also charges a card. We saw a double charge after a partition recovered. What delivery guarantees apply and how do we fix it? Reply only.",
+      "expected_output": "Cross-store delivery is at least once and ordered only per event source. Use a ReactorDelivery receipt for retry, recovery and replay of one inbox event; it does not detect a second inbox copy of the same contract fact, so key on a business identity where that matters. OnceOnly only excludes replay.",
+      "assertions": [
+        "States that delivery between stores is at least once, with ordering only per event source.",
+        "Recommends a receipt keyed on ReactorDelivery.Id checked before the side effect.",
+        "Notes that ReactorDelivery differs for a duplicate copy of the same fact in the inbox and suggests a business-key or constraint guard.",
+        "Does not present [OnceOnly] as deduplication."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "arc-between-services",
+      "prompt": "In our Arc services, Billing's command needs a credit limit owned by Customers. Is there an Arc client to call the Customers query from Billing's backend, and does Arc pass the tenant along? Reply only.",
+      "expected_output": "Arc has no server-side client for another service's commands or queries; prefer events. If a call is needed, fetch in Provide() with an application-owned HTTP client, forward the tenant yourself, authenticate as the service, and let the callee enforce authorization.",
+      "assertions": [
+        "States that Arc provides no server-side client for another service's commands or queries.",
+        "Prefers events between services and places any necessary call in Provide() through an application-owned client.",
+        "States that identity and tenant propagation between services is the application's responsibility.",
+        "Does not treat forwarded identity details as authorization evidence."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-multi-service-local-orchestration",
+  "evals": [
+    {
+      "id": 1,
+      "name": "aspire-apphost-for-two-services",
+      "prompt": "Write the AppHost Program.cs for two Arc services, Ordering and Billing, each with its own Chronicle event store, using Cratis.Chronicle.Aspire. Explain any setting the services need. Reply only; do not write files.",
+      "expected_output": "One AddCratisChronicle resource with a replica-set MongoDB from AddCratisChronicleMongoDB, and per service explicit Cratis__Chronicle__ConnectionString built from the grpc endpoint, Cratis__Chronicle__EventStore, Arc MongoDB settings and WaitFor(chronicle).",
+      "assertions": [
+        "Uses a single Chronicle resource for both services rather than one kernel per service.",
+        "Sets Cratis__Chronicle__ConnectionString explicitly and explains that WithReference alone supplies ConnectionStrings__chronicle, which the client does not read.",
+        "Sets a distinct Cratis__Chronicle__EventStore per service.",
+        "Uses a MongoDB replica set (AddCratisChronicleMongoDB) rather than Aspire's standalone AddMongoDB for Chronicle storage."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "compose-startup-order",
+      "prompt": "Give us a docker-compose layout for MongoDB, Chronicle and two Cratis services that starts in a reliable order for local development. Explain the ports. Reply only.",
+      "expected_output": "MongoDB as a replica set with an init job, Chronicle gated on the init job and health-checked on a dedicated health port, services gated on Chronicle health with per-service connection and store settings; publish only 35000 on 127.0.0.1 and leave 11111/30000 unpublished.",
+      "assertions": [
+        "Starts MongoDB with --replSet and initiates the replica set before Chronicle starts.",
+        "Gates the services on Chronicle health using the health endpoint rather than container start alone.",
+        "Gives each service its own Cratis__Chronicle__EventStore and a connection string to the chronicle service.",
+        "Explains port 35000 versus the Orleans ports 11111 and 30000 and keeps development ports on 127.0.0.1."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "repository-layout-and-models",
+      "prompt": "We have Ordering, Billing and Shipping in one repository, each modeled in Screenplay. Propose the folder layout, where contracts live and where the .play files go. Reply only.",
+      "expected_output": "One folder per service with its own project, appsettings naming its store and frontend; a Contracts project per producer referenced by consumers; one Screenplay model folder per service, never one folder above all services because a folder is one application.",
+      "assertions": [
+        "Gives each service its own folder, project, event-store setting and frontend.",
+        "Places public events in a contracts project per producer that consumers reference instead of the producer's service project.",
+        "Keeps one Screenplay model folder per service and warns that a single folder over all services merges them into one application."
+      ]
+    }
+  ]
+}

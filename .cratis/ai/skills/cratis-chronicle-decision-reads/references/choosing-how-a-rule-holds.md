@@ -22,9 +22,9 @@ validator, endpoint or handler that reads state and then appends.
 
 Checked against the Chronicle and Arc sources. Published guides, which
 this agrees with:
-[Chronicle: choosing how a rule holds](/chronicle/dynamic-consistency-boundary/choosing/),
-[decision reads](/chronicle/read-models/decision-reads/),
-[Arc: choosing how a command's rule holds](/arc/backend/csharp/chronicle/consistency/).
+[Chronicle: choosing how a rule holds](https://www.cratis.io/chronicle/dynamic-consistency-boundary/choosing/),
+[decision reads](https://www.cratis.io/chronicle/read-models/decision-reads/),
+[Arc: choosing how a command's rule holds](https://www.cratis.io/arc/backend/csharp/chronicle/consistency/).
 
 ## Route first
 

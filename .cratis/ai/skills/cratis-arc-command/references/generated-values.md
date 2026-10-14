@@ -111,13 +111,13 @@ site: `PinGeneratedValue<TCommand, TOtherCommand>(name, concept)`.
 
 Published guides:
 
-- [Generated values](/arc/backend/csharp/commands/generated-values/)
-- [Pin generated values in command specs](/arc/backend/csharp/testing/generated-values/)
-- [Migrate generated identifiers](/arc/upgrading/generated-values/)
-- Analyzer pages: [ARC0022](/arc/backend/csharp/code-analysis/arc0022/),
-  [ARC0023](/arc/backend/csharp/code-analysis/arc0023/),
-  [ARC0024](/arc/backend/csharp/code-analysis/arc0024/),
-  [ARC0025](/arc/backend/csharp/code-analysis/arc0025/).
+- [Generated values](https://www.cratis.io/arc/backend/csharp/commands/generated-values/)
+- [Pin generated values in command specs](https://www.cratis.io/arc/backend/csharp/testing/generated-values/)
+- [Migrate generated identifiers](https://www.cratis.io/arc/upgrading/generated-values/)
+- Analyzer pages: [ARC0022](https://www.cratis.io/arc/backend/csharp/code-analysis/arc0022/),
+  [ARC0023](https://www.cratis.io/arc/backend/csharp/code-analysis/arc0023/),
+  [ARC0024](https://www.cratis.io/arc/backend/csharp/code-analysis/arc0024/),
+  [ARC0025](https://www.cratis.io/arc/backend/csharp/code-analysis/arc0025/).
 
 Source: `Source/DotNET/Arc.Core/Commands/ModelBound/GeneratedValueAttribute.cs`,
 `Commands/GeneratedValueParameters.cs`, `GeneratedValueFactories.cs`,

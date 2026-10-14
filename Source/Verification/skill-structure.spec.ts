@@ -198,10 +198,10 @@ test('skill-contains retains SKILL.md semantics and supports reference content w
     assert.match(skillContainsAssertionProblems('verification.json', { ...assertion, file: '../secret.md' }, 'reference only')[0], /must not escape/);
 });
 
-test('relative links resolve from the linking file, skipping code, schemes, site paths and anchors', () => {
+test('relative links resolve from the linking file, skipping code, schemes and anchors', () => {
     const content = [
         'Read [hosting](references/hosting.md) and [ops](operations.md#intent).',
-        'See [site](/arc/backend/), [web](https://cratis.io), [mail](mailto:a@b.c) and [here](#contents).',
+        'See [web](https://cratis.io), [mail](mailto:a@b.c) and [here](#contents).',
         'Inline `[x](missing-inline.md)` is code.',
         '```md',
         '[fenced](missing-fenced.md)',
@@ -211,4 +211,16 @@ test('relative links resolve from the linking file, skipping code, schemes, site
     assert.deepEqual(brokenRelativeLinkProblems('skill/references/x.md', content, target => existing.has(target)),
         ["skill/references/x.md links to 'references/hosting.md', which does not exist relative to the file."]);
     assert.deepEqual(brokenRelativeLinkProblems('skill/SKILL.md', '[ok](operations.md)', target => existing.has(target)), []);
+});
+
+test('a site-absolute link in skill Markdown fails instead of being skipped', () => {
+    const content = [
+        'See [generated values](/arc/backend/csharp/commands/generated-values/#pins) and [web](https://www.cratis.io/arc/).',
+        'Inline `[x](/chronicle/inline/)` is code.',
+        '```md',
+        '[fenced](/chronicle/fenced/)',
+        '```',
+    ].join('\n');
+    assert.deepEqual(brokenRelativeLinkProblems('skill/references/x.md', content, () => true),
+        ["skill/references/x.md links to the site path '/arc/backend/csharp/commands/generated-values/'; use the absolute documentation URL (https://www.cratis.io/arc/backend/csharp/commands/generated-values/)."]);
 });

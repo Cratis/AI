@@ -162,7 +162,7 @@ public class and_value_is_pinned : Specification
 - Do not log or trace captures. Do not replace/seed the production generator.
   A direct-call decision spec supplies the known argument to `Handle()` itself.
 
-Guide: [Pin generated values in command specs](/arc/backend/csharp/testing/generated-values/).
+Guide: [Pin generated values in command specs](https://www.cratis.io/arc/backend/csharp/testing/generated-values/).
 Source: `Source/DotNET/Testing/Commands/CommandScenarioGeneratedValueExtensions.cs`,
 `ScenarioGeneratedValueFixture.cs`, `ScenarioGeneratedValues.cs` and
 `GeneratedValuesCommandScenarioExtender.cs`;

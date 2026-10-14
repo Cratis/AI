@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-multi-service-local-orchestration",
+  "queries": [
+    { "query": "Write an Aspire AppHost that runs our Ordering and Billing Cratis services on one Chronicle kernel.", "shouldTrigger": true },
+    { "query": "Our service uses WithReference(chronicle) in the AppHost but connects to localhost:35000. Why?", "shouldTrigger": true },
+    { "query": "Create a docker-compose file with MongoDB, Chronicle and our two Cratis services, started in the right order.", "shouldTrigger": true },
+    { "query": "How should we lay out a repository that holds three Cratis services and their shared event contracts?", "shouldTrigger": true },
+    { "query": "Chronicle observers do nothing when we use Aspire's AddMongoDB as its storage. What is wrong?", "shouldTrigger": true },
+    { "query": "Set up cratis CLI contexts so we can switch between the Ordering and Billing event stores locally.", "shouldTrigger": true },
+    { "query": "Each of our services has its own React frontend. How do we run them all locally against the right backends?", "shouldTrigger": true },
+    { "query": "We rendered two services with Stage and both compose files fight over ports 27017 and 35000.", "shouldTrigger": true },
+    { "query": "What health check should gate our services on the Chronicle container in compose?", "shouldTrigger": true },
+    { "query": "Should Ordering and Billing share one Chronicle event store or have one each?", "shouldTrigger": false, "note": "cratis-multi-service-architecture" },
+    { "query": "Configure production TLS and encryption certificates for the Chronicle kernel.", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
+    { "query": "Bootstrap a single ASP.NET Arc host with AddCratis.", "shouldTrigger": false, "note": "cratis-arc-hosting" },
+    { "query": "List failed partitions on our running Chronicle server.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Render our accepted Screenplay model into an application and gap-fill the rest.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "Connect a standalone .NET worker to Chronicle with a connection string.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Theme our React frontend with Cratis Components design tokens.", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Run the Stage sandbox container for one model.", "shouldTrigger": false, "note": "cratis-stage-rendering-and-sandbox" },
+    { "query": "Make our consumer reactor idempotent for events from another store.", "shouldTrigger": false, "note": "cratis-multi-service-architecture" }
+  ]
+}
