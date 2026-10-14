@@ -1,0 +1,63 @@
+{
+  "skill_name": "cratis-fundamentals-type-discovery",
+  "evals": [
+    {
+      "id": 1,
+      "name": "formatters-dispatcher",
+      "prompt": "We have IReportFormatter with CsvReportFormatter and JsonReportFormatter, each with CanHandle(ReportRequest) and Format(Report), and a ReportFormatters class implementing IReportFormatters that picks the matching one. Registration today is three services.AddSingleton lines. Rewrite so adding a formatter is a single-file change. Give the C# in your reply, including the lines to delete; do not write files.",
+      "expected_output": "Consumer injects IInstancesOf<IReportFormatter> (from Cratis.Types), [Singleton] from Cratis.DependencyInjection on implementations and consumer, LINQ on the IEnumerable<T>, and the three AddSingleton registrations deleted. Host needs AddTypeDiscovery in a plain host.",
+      "assertions": [
+        "Injects IInstancesOf<IReportFormatter> into ReportFormatters and uses it as an IEnumerable with LINQ.",
+        "Uses [Singleton] with using Cratis.DependencyInjection for lifetime rather than manual registration.",
+        "Deletes the AddSingleton registrations for the implementations and the consumer.",
+        "Mentions a plain host must call services.AddTypeDiscovery() (Arc's AddCratisArc already does)."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "empty-ienumerable",
+      "prompt": "Our dispatcher takes IEnumerable<IValidationRule> and iterating it finds nothing, yet five rule classes exist and the app starts fine. Explain why it is silent, and name the diagnostics to use when an implementation is missing from an IInstancesOf set. Reply only.",
+      "expected_output": "IEnumerable<T> only sees hand-registered implementations and fails silently empty. Use IInstancesOf<T>. When one is missing: inspect ITypes.DiscoveryMode and ITypes.Assemblies and TypeDiscoveryDiagnostics.FindMissingContributors; causes include assembly not contributing a generated provider, abstract/generic/inaccessible types, the generator not referenced via project reference.",
+      "assertions": [
+        "Says injecting IEnumerable<T> only sees hand-registered implementations and returns empty without an error.",
+        "Recommends IInstancesOf<IValidationRule> instead.",
+        "Names ITypes.DiscoveryMode and ITypes.Assemblies or TypeDiscoveryDiagnostics.FindMissingContributors as diagnostics.",
+        "Lists causes such as abstract, generic or inaccessible types, or an assembly that did not contribute a generated provider."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "lifetime-captive",
+      "prompt": "One filter implementation is [Scoped] and the consumer is a [Singleton] that injects IInstancesOf<IFilter>. It fails scope validation. Another filter has no attribute and a new instance appears on every touch. Explain both and how to fix each. Reply only.",
+      "expected_output": "Instances resolve on every enumeration through the captured provider; a singleton captures the root provider so a scoped implementation is captive or fails validation; use a scoped or transient consumer resolved in a scope. No lifetime attribute means Transient by convention; add [Singleton] if intended. The convention reads only [Singleton], [Scoped], none.",
+      "assertions": [
+        "Says a singleton consumer captures the root provider, so a scoped implementation is captive or fails scope validation.",
+        "Recommends a scoped or transient consumer resolved inside a scope when any implementation is scoped.",
+        "Says an implementation without a lifetime attribute is Transient by convention and should get [Singleton] if that is the intent.",
+        "States the convention reads exactly [Singleton], [Scoped], or neither."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "non-vacuous-proof",
+      "prompt": "How should we prove the discovered filter chain works after this change? A teammate's spec only asserts that running the chain throws nothing. Reply only.",
+      "expected_output": "dotnet build zero warnings/errors, run specs; assert the count of discovered implementations since a fan-out over an empty set passes everything; assert ITypes.DiscoveryMode and contributing assembly names; EventSource Cratis.Fundamentals.TypeDiscovery with dotnet-trace for startup diagnostics.",
+      "assertions": [
+        "Says the spec must assert the count of discovered implementations because an empty fan-out passes assertions that only check nothing went wrong.",
+        "Says to assert the expected ITypes.DiscoveryMode and contributing assembly names.",
+        "Requires a zero-warning build and running the affected specifications."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "near-miss-routing",
+      "prompt": "Should we use IInstancesOf<T> for each of: (a) a PaymentService that has exactly one IPaymentGateway implementation chosen at composition time, (b) a method that returns a list of values to its caller, (c) a tool that only needs the Type of every IPlugin implementation? Reply only.",
+      "expected_output": "(a) No: constructor-inject the interface and let the IFoo->Foo convention resolve it. (b) No: IEnumerable<T>/IReadOnlyList<T> is still the right return type. (c) Inject IImplementationsOf<T>, which enumerates Type rather than T.",
+      "assertions": [
+        "Says a single implementation chosen at composition time is constructor-injected through the interface and convention, not IInstancesOf.",
+        "Says returning a sequence of values keeps IEnumerable<T> or IReadOnlyList<T> as the return type.",
+        "Recommends IImplementationsOf<T> when only the types are needed."
+      ]
+    }
+  ]
+}

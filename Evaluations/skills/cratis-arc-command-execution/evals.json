@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-arc-command-execution",
+  "evals": [
+    {
+      "id": 1,
+      "name": "reactor-executes-command",
+      "prompt": "A Cratis Arc C# reactor must run the existing `NotifyCustomer(CustomerId Id, string Message)` command whenever `OrderShipped` is observed. Write the reactor and say what happens on replay and on partition recovery. Give the code in your reply; do not write files.",
+      "expected_output": "A reactor injecting ICommandPipeline and calling the scopeless Execute, marked [OnceOnly], with the caveat that OnceOnly is replay exclusion rather than deduplication so the command must still be idempotent.",
+      "assertions": [
+        "Injects ICommandPipeline and calls the scopeless Execute(command) overload rather than the IServiceProvider overload.",
+        "Marks the handler [OnceOnly] so it is skipped during replay, and mentions the ARCCHR0006 diagnostic.",
+        "States that [OnceOnly] is replay exclusion, not deduplication, so recovering a failed partition can run the handler again.",
+        "Says the executed command should be idempotent regardless."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "read-result-by-flag",
+      "prompt": "A hosted service calls `var result = await pipeline.Execute<BookingId>(new ExtendBooking(id, days));` and then does `if (!result.IsSuccess) throw new Exception(\"failed\");` before using `result.Response`. Critique this and show the corrected code. Reply only; no files.",
+      "expected_output": "Branch on IsAuthorized, IsValid and HasExceptions instead of only IsSuccess, surface the structured failure instead of throwing, and read Response only on success because it is default on failure.",
+      "assertions": [
+        "Explains that IsSuccess is derived (IsAuthorized && IsValid && !HasExceptions) and cannot distinguish a forbidden caller from rejected input or a crash.",
+        "Branches on IsAuthorized, IsValid and HasExceptions, using AuthorizationFailureReason, ValidationResults or ExceptionMessages for the detail.",
+        "Does not convert an invalid result into a thrown exception because that discards ValidationResults.",
+        "States that Response is default on failure, and that Execute<TResult> throws InvalidCastException when the handler returned a different type."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "severity-and-preflight",
+      "prompt": "We want to ask Arc whether a `PlaceOrder` command would be accepted before we reserve stock, without any side effect, and we want warnings to be reported on the result but not to block. Which pipeline calls and arguments do we use, and which severities block? Reply only.",
+      "expected_output": "Use pipeline.Validate(command, ValidationResultSeverity.Warning): Validate runs authorization and validation filters only, so Provide and Handle never run; with an allowedSeverity anything strictly greater blocks.",
+      "assertions": [
+        "Uses Validate on ICommandPipeline and says Provide() and Handle() never run.",
+        "Passes ValidationResultSeverity.Warning as allowedSeverity.",
+        "States that with an allowedSeverity, only severities strictly greater than it block, so Error still blocks and Warning does not.",
+        "Lists the severity levels as Unknown, Information, Warning, Error or states Error is 3."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "bulk-approval-atomicity",
+      "prompt": "Inside the Handle of `ApproveAll` a developer loops over 50 ids and calls `pipeline.Execute(new ApproveItem(id))` for each, then reports '50 approved' to the user. The app uses Arc with Chronicle. Explain what actually happens and what the two valid designs are. Reply only.",
+      "expected_output": "The nested commands join the outer ambient transaction, so only the outer owner commits, a child success means enrollment not persistence, and a later rejection can reject the whole batch. Choose all-or-nothing under one owning command or independent top-level executions.",
+      "assertions": [
+        "States that nested pipeline commands join the outer command's ambient transaction and only the outer owner commits.",
+        "States that a child's successful result means enrollment, not persistence, so reporting 50 approved before the outer result is known is wrong.",
+        "Offers an all-or-nothing design where one command owns the returned event batch and reports a single atomic outcome.",
+        "Offers independent outcomes through separate top-level executions, each awaited, with idempotent retries."
+      ]
+    }
+  ]
+}

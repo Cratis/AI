@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-chronicle-client-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "event-and-append",
+      "prompt": "Write a Node.js TypeScript script using @cratis/chronicle that connects to a local development Chronicle, defines an event `AuthorRegistered` with a name string, and appends it for the event source 'author-1', then prints the sequence number. Give the code in your reply; do not write files.",
+      "expected_output": "reflect-metadata imported first, ChronicleClient with ChronicleOptions.development(), @eventType class with @field(String), eventLog.append with a plain string source id, sequenceNumber read through .value, client.dispose in finally.",
+      "assertions": [
+        "Imports 'reflect-metadata' at the entry point and constructs ChronicleClient with ChronicleOptions.development().",
+        "Declares the event with @eventType() and an explicit @field(String) type on its property.",
+        "Passes the event source id as a plain string to store.eventLog.append and checks result.isSuccess.",
+        "Reads the sequence number as result.sequenceNumber.value because it wraps a bigint.",
+        "Calls client.dispose() in a finally block."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "reactor-dispatch-and-replay",
+      "prompt": "A TypeScript reactor `@reactor() class Welcome { async sendEmail(event: CustomerRegistered) {...} }` never fires, uses `event instanceof CustomerRegistered`, and would re-send emails on replay. Fix it and explain each problem. Reply with code.",
+      "expected_output": "Name the method after the camelCase event class (customerRegistered) or use @handles(CustomerRegistered); read properties only because the event is parsed JSON; add @onceOnly() for effects that must not run on replay, noting it does not prove exactly-once.",
+      "assertions": [
+        "Renames the method to the camelCase event class name customerRegistered or uses @handles(CustomerRegistered).",
+        "States that the event content is a parsed JSON plain object, so instanceof and event methods do not work.",
+        "Adds @onceOnly() to the method or class so the effect is skipped on replay.",
+        "Does not claim @onceOnly gives exactly-once effects or prevents failed-partition redelivery."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "production-pitfalls",
+      "prompt": "A team deploys compiled `dist/*.js` of a Chronicle TypeScript worker; nothing registers. They also use a connection string without credentials and default TLS. Explain what is wrong with each. Reply only.",
+      "expected_output": "Compiled-JS entries default to no scanning, so import artifact modules explicitly or set discoveryPatterns; a connection string without credentials falls back to development credentials; skipTlsValidation defaults to true.",
+      "assertions": [
+        "States that a compiled-JS entry defaults discovery to [] so artifact modules must be imported explicitly or discoveryPatterns set.",
+        "States that decorators register when their module is imported, so side-effect imports are load-bearing.",
+        "States that a connection string without credentials silently falls back to the development client credentials.",
+        "States that skipTlsValidation defaults to true, so production must set it to false."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "routing-and-package-facts",
+      "prompt": "Someone says 'import ChronicleConnectionString from @cratis/chronicle/connection and read the version from Source/package.json'. Also they want to continue a stream written before @cratis/chronicle 6.0. Correct them. Reply only.",
+      "expected_output": "There is no ./connection export, pass a connection string; the repository version is a placeholder, use npm; since 6.0 omitted routes resolve to Default/All/Default so to continue an older stream pass all three dimensions explicitly.",
+      "assertions": [
+        "States there is no ./connection export and a connection string is passed instead.",
+        "States the version in Source/package.json is a placeholder and the version should be taken from npm.",
+        "States that to continue a pre-6.0 stream all three route dimensions must be passed explicitly, for example sourceType 'Default', streamType 'Default' and streamId the id."
+      ]
+    }
+  ]
+}

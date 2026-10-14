@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-social-feed-post",
+  "queries": [
+    { "query": "draft a linkedin post about our new replay diagnostics. what should the first two lines say?", "shouldTrigger": true },
+    { "query": "can I use bold unicode letters for the hook in my linkedin post? the tool makes them look nice", "shouldTrigger": true },
+    { "query": "what image should lead this post about a command and the event it appends? code card or screenshot?", "shouldTrigger": true },
+    { "query": "where do we put the Cratis logo on a document carousel and on a GIF?", "shouldTrigger": true },
+    { "query": "is it true that putting the link in the first comment saves reach? should this post's link go in the body?", "shouldTrigger": true },
+    { "query": "review my post: it ends with 'Agree? Tag someone who needs this!'", "shouldTrigger": true },
+    { "query": "how much of a post shows before 'see more' and how do I make my opening land within it", "shouldTrigger": true },
+    { "query": "i have a screenshot of the workbench for the post. can i stamp our logo over the corner?", "shouldTrigger": true },
+    { "query": "adapt this linkedin post for Mastodon and Bluesky. do I just crosspost it?", "shouldTrigger": true },
+    { "query": "Someone commented a technical question under our post. Can you reply for me and post it?", "shouldTrigger": true },
+    { "query": "How many characters should this post be, and should I make it longer because long posts do better?", "shouldTrigger": false, "note": "cratis-content-length" },
+    { "query": "Make this paragraph sound less like AI wrote it and flag the repeated constructions across our last ten posts.", "shouldTrigger": false, "note": "cratis-writing-voice-and-cadence" },
+    { "query": "Which channels should we use for the launch and how do we measure whether the posts worked?", "shouldTrigger": false, "note": "cratis-developer-marketing" },
+    { "query": "Write the release notes for 15.2.0 with the upgrade steps.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Is the code on this code card verified against the real API and linked to the compiled source?", "shouldTrigger": false, "note": "cratis-technical-examples" },
+    { "query": "Write the documentation page for the feature with a tutorial structure.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Write a blog article with Markdown headings and code fences explaining replay.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Plan which channels the Arc launch goes to over the next month and how we measure it.", "shouldTrigger": false, "note": "cratis-developer-marketing" }
+  ]
+}

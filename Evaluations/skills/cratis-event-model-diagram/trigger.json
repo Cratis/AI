@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-event-model-diagram",
+  "queries": [
+    { "query": "draw a mermaid event model diagram for our Bookings module", "shouldTrigger": true },
+    { "query": "we added a CancelBooking command. update the diagram and the rules table", "shouldTrigger": true },
+    { "query": "eventmodeling diagram: how do I show one read model fed by three different events?", "shouldTrigger": true },
+    { "query": "mermaid eventmodeling tf vs rf, when do I use rf?", "shouldTrigger": true },
+    { "query": "my diagram has a screen name in the ui lane, is that wrong?", "shouldTrigger": true },
+    { "query": "document the Billing to Bookings cross-module flow in the system overview diagram", "shouldTrigger": true },
+    { "query": "what goes into the command rules table under the diagram?", "shouldTrigger": true },
+    { "query": "keep the mermaid diagram in sync with the .play model after I renamed an event", "shouldTrigger": true },
+    { "query": "how do I draw a webhook from an outside system turning into our own event?", "shouldTrigger": true },
+    { "query": "Decide the event vocabulary and stream boundaries for the Bookings module in Chronicle.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "Author the Bookings model as a .play document with slices and the nine-step map.", "shouldTrigger": false, "note": "cratis-screenplay-event-modeling" },
+    { "query": "Write the C# Chronicle reactor that sends the confirmation mail.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Write the projection that builds the BookingsOverview read model.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Review the finished model for gaps and unowned invariants.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Reverse-engineer the events from our legacy SQL tables.", "shouldTrigger": false, "note": "cratis-screenplay-legacy-extraction" },
+    { "query": "Which stream does BookingMoved belong to and what is the unique constraint?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Render the accepted model to C# with cratis render.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "Design the commands, inputs and refusals for the Bookings slice.", "shouldTrigger": false, "note": "cratis-screenplay-slice-design" }
+  ]
+}

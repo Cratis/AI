@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-arc-react-page",
+  "queries": [
+    { "query": "build me an accounts page that lists accounts with name and balance and an Add account button that opens a dialog. we have the generated AllAccounts and CreateAccount proxies", "shouldTrigger": true },
+    { "query": "import { DataPage } from '@cratis/components' gives a compile error after upgrading. what's the right import?", "shouldTrigger": true },
+    { "query": "my command dialog submit button stays disabled and validation never reruns. i put a plain TextInput inside the CommandDialog", "shouldTrigger": true },
+    { "query": "how do I ask the user to confirm before deleting a row? i was going to use window.confirm", "shouldTrigger": true },
+    { "query": "table should update live when a command succeeds, not after a refresh. which query type do I pass to DataPage?", "shouldTrigger": true },
+    { "query": "page has 4 useState calls and an effect that syncs the selected row. should I pull out a view model?", "shouldTrigger": true },
+    { "query": "show a details pane for the selected row next to the list in our Arc React app", "shouldTrigger": true },
+    { "query": "toasts never show up after a command executes even though I call toastCommandResult", "shouldTrigger": true },
+    { "query": "implement the Boats screen from our .play model as a page. what columns and actions go on it?", "shouldTrigger": true },
+    { "query": "Build a three-step wizard dialog that runs a command at the end.", "shouldTrigger": false, "note": "cratis-components-stepper-command-dialog" },
+    { "query": "Add a canvas tool palette with draggable tools to the editor.", "shouldTrigger": false, "note": "cratis-components-toolbar" },
+    { "query": "Change the color tokens and dark theme for Cratis components.", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Write the C# command and read model behind the accounts list.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Write specs for the page's view model with the frontend test gate.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "Change the .play screen so the accounts list has a new Status column in the model.", "shouldTrigger": false, "note": "cratis-screenplay-event-modeling" },
+    { "query": "Make the dialog keyboard accessible with correct focus and aria labels.", "shouldTrigger": false, "note": "cratis-components-accessibility" },
+    { "query": "Add a JSON schema editor to the settings page.", "shouldTrigger": false, "note": "cratis-components-schema-editor" },
+    { "query": "In our Node server using Arc for TypeScript, define a query for tasks.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" }
+  ]
+}

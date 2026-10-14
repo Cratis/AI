@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-application-slice-conformance",
+  "evals": [
+    {
+      "id": 1,
+      "name": "both-directions",
+      "prompt": "The contract (accepted .play slice) lists command inputs `boatId` and `endDate`, event BoatBooked(boatId, endDate), and a rule 'end date after start date'. The hand-written code has those inputs plus a `priority = \"high\"` default on the event, and an extra rule rejecting weekend bookings that appears nowhere in the model. The stream type and a `[OnceOnly]` attribute are also set. Reconcile it. Reply only; do not write files.",
+      "expected_output": "Reconcile in both directions. Contract to code: every listed element needs a realization, list each gap. Code to contract: the `priority` default and the weekend rule are invented; remove them or, if a real need, propose them for the contract and stop that scope. Framework metadata such as stream type, concurrency scope and `[OnceOnly]` is infrastructure and does not change the domain contract.",
+      "assertions": [
+        "Checks both directions: every contracted element has a realization, and every business field, default or rule in code has contract authority.",
+        "Flags the `priority` default and the weekend rule as invented, to be removed or proposed for the contract with that scope stopped.",
+        "Says stream type, concurrency scope and `[OnceOnly]` are framework metadata and infrastructure, not domain contract.",
+        "Says a rule that lives only in code is a defect, not a convenience."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "never-weaken-spec",
+      "prompt": "One spec derived from the model's `Rejecting overlapping bookings` keeps failing against our hand-written code, and the description prose of the slice says overlapping bookings are allowed. A colleague wants to delete the spec to turn CI green. How do you proceed? Reply only; do not write files.",
+      "expected_output": "Never edit, skip or delete a specification derived from the contract to make code pass: change the code or return an edit request. Executable parts (specifications, mappings, constraints, authorization) beat prose, so prose contradicting a specification is a model defect: stop that scope, return an edit request (address, change, reason) and do not pick a side silently.",
+      "assertions": [
+        "Refuses to edit, skip or delete the contract-derived specification to make code pass.",
+        "Says executable parts of the contract (specifications, mappings, constraints) take precedence over prose.",
+        "Treats the contradicting description as a model defect, stops that scope and returns an edit request with address, change and reason.",
+        "Says conflicting evidence is not absorbed: the status is `blocked` with the question open."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "find-the-contract",
+      "prompt": "For the Boats slice there is (a) a committed .play file under the model root with uncommitted working-tree edits, (b) an untracked draft Boats2.play under the root, and (c) a .play file outside the root. Which is the contract? And what if the repository has no model and is not opted in? Reply only; do not write files.",
+      "expected_output": "A committed file's HEAD version is the contract until the working-tree change is committed; staged or untracked files under the root are drafts, not contracts; a file outside the root is not a contract. Not opted in: never force a model; the agreed slice outline (fields, events, rules, scenarios) is the contract. Existing code has no authority over the contract.",
+      "assertions": [
+        "Says the committed file's HEAD version is the contract while its working-tree edits are a model change in progress.",
+        "Says the untracked draft and the file outside the root are not contracts.",
+        "Says that when the repository is not opted in a model is not forced and the agreed slice outline is the contract.",
+        "Says existing code has no authority over the contract."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "status-and-startup",
+      "prompt": "A reactor slice is finished: 11 of its 12 contract specifications have passing executable equivalents, the twelfth has no equivalent yet and no question is open. The ReactorScenario specs pass. What status do we report, and is the reactor verified? Reply only; do not write files.",
+      "expected_output": "A slice is `done` only when no specification lacks an executable equivalent, so report `partial` with the gap named. A ReactorScenario bypasses observer registration and cannot show that the application subscribes the reactor; verify real startup participation through the repository's integration route or a startup check and report it apart from the in-process specifications.",
+      "assertions": [
+        "Reports `Status: partial` and names the missing specification, because `done` requires every contract specification to have an executable equivalent.",
+        "Says a ReactorScenario bypasses observer registration so it cannot show the application subscribes the reactor.",
+        "Requires verifying that the real application discovers the reactor, observes the intended event store and sequence, and that a trigger event reaches it.",
+        "Says the runner and per-specification outcomes are reported apart from any integration result."
+      ]
+    }
+  ]
+}

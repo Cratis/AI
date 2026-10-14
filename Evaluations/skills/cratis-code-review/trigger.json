@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-code-review",
+  "queries": [
+    { "query": "can you review my PR for the new Bookings slice? check it against our architecture and style rules", "shouldTrigger": true },
+    { "query": "please check this change before I merge, anything blocking?", "shouldTrigger": true },
+    { "query": "validate my diff: command record, event, projection and specs. what must change vs what's just suggestions", "shouldTrigger": true },
+    { "query": "review these changed files and give me a report with blocking issues separated from nice-to-haves", "shouldTrigger": true },
+    { "query": "is this slice OK? it has a Features/ folder, a handler class and the event carries the boat id", "shouldTrigger": true },
+    { "query": "look over my C# for style problems the compiler won't catch, like == null and missing xml docs", "shouldTrigger": true },
+    { "query": "do a code review of the React part: any, hex colors and a hand-rolled modal", "shouldTrigger": true },
+    { "query": "did I cover this change with enough specifications? every validation rule and constraint", "shouldTrigger": true },
+    { "query": "a singleton in this PR takes IEventStore in its constructor. reviewer comment? ", "shouldTrigger": true },
+    { "query": "review my change but the build is red right now", "shouldTrigger": true },
+    { "query": "Do a focused security audit of the new endpoint: authz, injection and data exposure.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Analyze scalability: observer replay cost, read-model query shape and indexes for this change.", "shouldTrigger": false, "note": "cratis-performance-review" },
+    { "query": "Decide whether the booking should be one event or two, is the model right?", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "Write the C# command for CancelBooking.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Review the Screenplay .play model for the Bookings feature.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Review the documentation page I wrote for clarity and structure.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Check that the release notes for v2 are accurate.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Explain the C# naming and record conventions we follow.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-read-model-specifications",
+  "queries": [
+    { "query": "how do I write a spec that seeds ItemAdded events and asserts the OrderSummary total from my projection?", "shouldTrigger": true },
+    { "query": "ReadModelScenario.Instance is null after Given. why?", "shouldTrigger": true },
+    { "query": "MultipleInstancesMaterialized thrown when I read Instance in my scenario", "shouldTrigger": true },
+    { "query": "NoReadModelHandlerFound in ReadModelScenario. what is it looking for?", "shouldTrigger": true },
+    { "query": "is there a When in ReadModelScenario or is Given the act?", "shouldTrigger": true },
+    { "query": "do ReadModelScenario have ShouldBe assertions? my compile fails", "shouldTrigger": true },
+    { "query": "my spec seeds a pinned read model instance and passes but production is broken", "shouldTrigger": true },
+    { "query": "how to test a filtered reducer with event source type and stream metadata in the scenario", "shouldTrigger": true },
+    { "query": "what should I cover in specs for a projection so removal events are tested too?", "shouldTrigger": true },
+    { "query": "Test that a duplicate append violates a unique constraint.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" },
+    { "query": "Spec a command's validators and Handle in a slice.", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "Decide whether this read model needs a projection or a reducer.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Write the self-reducing model with static Reduce methods.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
+    { "query": "Specify a React page's view model behavior.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "TypeScript ReadModelScenario for Chronicle in a Node app.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Check finished code against the .play specification blocks.", "shouldTrigger": false, "note": "cratis-application-slice-conformance" },
+    { "query": "Write a fluent IProjectionFor definition mapping event properties.", "shouldTrigger": false, "note": "cratis-chronicle-projection" }
+  ]
+}

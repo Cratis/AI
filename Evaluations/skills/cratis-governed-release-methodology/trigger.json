@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-governed-release-methodology",
+  "queries": [
+    { "query": "we publish rules and skills that hosts read straight from a git ref. do we need checksums, an SBOM and provenance for that?", "shouldTrigger": true },
+    { "query": "what assurance tier does a 0.x preview of our npm package need before we can call it available?", "shouldTrigger": true },
+    { "query": "which release label should this PR get? it only changes a test file and a CI workflow", "shouldTrigger": true },
+    { "query": "how do i structure a canary before promotion for our nuget package so a failure stops the rollout", "shouldTrigger": true },
+    { "query": "we published a bad version to npm. can we roll it back and what should the recovery note say?", "shouldTrigger": true },
+    { "query": "the runner had host 2.1.235 but the canary needed 2.1.245, so the phase was skipped and shows green. is that okay?", "shouldTrigger": true },
+    { "query": "can I say the plugin is supported now that publishing automation is implemented and the static validation passes?", "shouldTrigger": true },
+    { "query": "I merged branch X into Y. X auto-closed as merged and started its own publish. what do I do with its label?", "shouldTrigger": true },
+    { "query": "someone wants to default to patch when unsure about the label. good policy?", "shouldTrigger": true },
+    { "query": "What does a provenance attestation prove versus an SBOM and a checksum for our container image?", "shouldTrigger": true },
+    { "query": "Write the npm publish command with the right tag and token handling for this package.", "shouldTrigger": false, "note": "publish-command syntax and credentials are out of scope" },
+    { "query": "Write the release notes for 15.0.0 and mention the breaking change.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Our publisher catches a 422 and reports success. How do we make partial success fail?", "shouldTrigger": false, "note": "cratis-engineering-effect-boundaries" },
+    { "query": "Record the decision to adopt trusted publishing as a decision record.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Review this C# for naming and formatting before release.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" },
+    { "query": "Plan the launch campaign and channels for the release.", "shouldTrigger": false, "note": "cratis-developer-marketing" },
+    { "query": "Do a security review of our GitHub Actions workflow permissions.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Write the post announcing that version to LinkedIn.", "shouldTrigger": false, "note": "cratis-social-feed-post" }
+  ]
+}

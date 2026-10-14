@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-arc-ef-core-migration",
+  "queries": [
+    { "query": "i need to add a Notes column to the Reservations table in our Arc app. how do i write the migration so it works on sqlite and postgres?", "shouldTrigger": true },
+    { "query": "WithEntityFrameworkCore() is in Program.cs but none of my DbContexts get registered. what am I missing?", "shouldTrigger": true },
+    { "query": "my [ReadModel] entity is a DbSet on a BaseDbContext and the command never gets it injected. no warning anywhere", "shouldTrigger": true },
+    { "query": "DbContext derived from ReadOnlyDbContext throws on SaveChangesAsync. is that expected?", "shouldTrigger": true },
+    { "query": "how do I store a settings object as a JSON column with Arc and EF Core and get the validation constraint?", "shouldTrigger": true },
+    { "query": "I made a typo in a migration that's already applied on staging. can I just edit the migration file?", "shouldTrigger": true },
+    { "query": "table.Column<string> in the migration generated a required column but I wanted nullable. what do the Arc helpers default to?", "shouldTrigger": true },
+    { "query": "Should I call UseSqlite in my context options or is there something that picks the provider from the connection string?", "shouldTrigger": true },
+    { "query": "our migrations pass in CI but production schema differs from the model. we use EnsureCreated in the specs", "shouldTrigger": true },
+    { "query": "Create a Chronicle read model and projection for the bookings list.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Add server-side paging and sorting to the BookingsOverview query.", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "Write a RegisterBoat command that returns the BoatRegistered event.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Our Spring Data JPA repository needs a new column for the vessel table.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
+    { "query": "Evolve the CustomerRegistered event type with a new required PhoneNumber field.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Use curl to watch the live bookings query as server-sent events.", "shouldTrigger": false, "note": "cratis-arc-observable-query-http" },
+    { "query": "Make the Postgres container and connection string available to the Aspire app host for local dev.", "shouldTrigger": false, "note": "cratis-multi-service-local-orchestration" },
+    { "query": "Write the Drizzle query that serves tasks from our Node Arc server.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" }
+  ]
+}

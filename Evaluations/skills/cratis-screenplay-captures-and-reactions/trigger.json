@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-screenplay-captures-and-reactions",
+  "queries": [
+    { "query": "write a reaction in the .play file that notifies the team when BuildFinished has outcome failed", "shouldTrigger": true },
+    { "query": "i get 'Expected a trigger in reaction body, got invokes' in my screenplay reaction. what did i do wrong?", "shouldTrigger": true },
+    { "query": "how do I declare a capture that takes rows from our CRM and appends CustomerImported, with key and map?", "shouldTrigger": true },
+    { "query": "reaction that runs every monday at 09:00 and invokes ExpireHolds - what is the time syntax?", "shouldTrigger": true },
+    { "query": "can I put two where lines on one reaction, one for each trigger?", "shouldTrigger": true },
+    { "query": "compile says PLAY0089 on my capture append when clause that uses both and and or", "shouldTrigger": true },
+    { "query": "how do I declare a custom trigger name an integration raises so the reaction knows what values it is handed?", "shouldTrigger": true },
+    { "query": "my trigger reads a view and produces an event directly and binding fails. why?", "shouldTrigger": true },
+    { "query": "a clock reaction produces an event but there is no source event. where does it get appended?", "shouldTrigger": true },
+    { "query": "how do I write `when redelivered` with `then no events` for a reaction in screenplay?", "shouldTrigger": true },
+    { "query": "Is this behavior an automation at all, and what stops the loop from running forever? Walk me through the four-part test and queue-or-direct choice.", "shouldTrigger": false, "note": "cratis-screenplay-automations-and-translations" },
+    { "query": "Does a unique constraint make the email effect exactly once? I need to decide who recovers failed records.", "shouldTrigger": false, "note": "cratis-screenplay-automations-and-translations" },
+    { "query": "Write the command with validate, authorize and produces for RegisterInvoice.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
+    { "query": "Declare a projection with children and a join that fills InvoiceDetails from events.", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
+    { "query": "Add a query with a status filter and a tenant `from` parameter, plus a screen that lists the result.", "shouldTrigger": false, "note": "cratis-screenplay-read-surface" },
+    { "query": "Write the C# Chronicle reactor class that handles OrderPlaced and calls the warehouse API.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Which compiler release admits ESM v6 and what does the CLI report when it does not?", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" },
+    { "query": "List every given/when/then case I need to cover refusals, denials and external failures for the whole model.", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "On row click open a dialog with a form and refresh the table afterwards.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" }
+  ]
+}

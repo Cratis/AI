@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-security-review",
+  "queries": [
+    { "query": "do a security review of my PR, it adds a ConnectPaymentProvider command with an ApiKey property", "shouldTrigger": true },
+    { "query": "audit this change: we removed a [Roles] attribute from the DeleteBoat command, anything worrying?", "shouldTrigger": true },
+    { "query": "is putting the customer's email in an event with [NotAudited] enough for GDPR erasure? review it", "shouldTrigger": true },
+    { "query": "security check of the frontend part: dangerouslySetInnerHTML and a token in localStorage", "shouldTrigger": true },
+    { "query": "reviewer noticed a property called Value that actually holds an API key and the analyzer didn't complain", "shouldTrigger": true },
+    { "query": "our logs show 403s for unauthorized commands, someone says we should grep for 401s. is that right?", "shouldTrigger": true },
+    { "query": "check for injection: this handler passes a user filename to Path.Combine and builds SQL by concatenation", "shouldTrigger": true },
+    { "query": "client sends the BoatId in the command and we use it as the event source id for access to the stream. review please", "shouldTrigger": true },
+    { "query": "query returns all tenants' orders but no current caller hits it. finding or not?", "shouldTrigger": true },
+    { "query": "before committing a diff that adds [AllowAnonymous], should I run a security pass?", "shouldTrigger": true },
+    { "query": "Implement login with JWT bearer and role policies for the Arc app.", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "How do I mark a property [PII], resolve subjects and run erasure?", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "General review of naming, slices and spec coverage.", "shouldTrigger": false, "note": "cratis-code-review" },
+    { "query": "Is this query going to scale? check replay and paging.", "shouldTrigger": false, "note": "cratis-performance-review" },
+    { "query": "Set the Studio MCP safety classification for a redacted output.", "shouldTrigger": false, "note": "cratis-studio-mcp-safety-guidance" },
+    { "query": "How do multi-tenant namespaces isolate event stores in Chronicle?", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Which operations does the Chronicle MCP expose and which ones change data?", "shouldTrigger": false, "note": "cratis-chronicle-mcp-inspection" },
+    { "query": "Make a uniqueness constraint so duplicates are rejected at append time.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" }
+  ]
+}

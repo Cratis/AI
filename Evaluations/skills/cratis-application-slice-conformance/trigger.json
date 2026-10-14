@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-application-slice-conformance",
+  "queries": [
+    { "query": "i hand-wrote the BookBoat slice after the render refused it. check my code against the model in both directions", "shouldTrigger": true },
+    { "query": "the model changed. which parts of the slice do I need to re-deliver?", "shouldTrigger": true },
+    { "query": "what does done mean for a gap-filled slice? done, partial or blocked?", "shouldTrigger": true },
+    { "query": "our code has a default value the contract never mentions. is that ok?", "shouldTrigger": true },
+    { "query": "a spec in the model contradicts the description prose. which one wins?", "shouldTrigger": true },
+    { "query": "map each .play specification to an executable spec in code and report the result", "shouldTrigger": true },
+    { "query": "this spec derived from the model keeps failing. can I delete it so the code passes?", "shouldTrigger": true },
+    { "query": "reviewing slice code: ReactorScenario passes but does the real app actually subscribe the reactor?", "shouldTrigger": true },
+    { "query": "what does `cratis screenplay conform` compare and what is its exit code 2?", "shouldTrigger": true },
+    { "query": "no model in this repo, only an agreed outline in the ticket. what is the contract?", "shouldTrigger": true },
+    { "query": "Decide what the slice should do and which events it needs.", "shouldTrigger": false, "note": "cratis-screenplay-slice-design" },
+    { "query": "Write the C# CommandScenario specifications for the slice.", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "Render the model with cratis render and publish it.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "Do a general code review of this diff for style and bugs.", "shouldTrigger": false, "note": "cratis-code-review" },
+    { "query": "Where should the date-range rule live in C#: validator, Handle or constraint?", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Which scenarios must the model itself have for this command?", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "Model the events for this hand-written Chronicle feature.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "How should I name specs with for_ and when_ folders?", "shouldTrigger": false, "note": "cratis-specification-by-example" },
+    { "query": "Do a security review of this slice's authorization.", "shouldTrigger": false, "note": "cratis-security-review" }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-specifications-csharp",
+  "queries": [
+    { "query": "how do I write a C# spec with Establish and Because and should_ methods?", "shouldTrigger": true },
+    { "query": "should I call base.Establish() in my given context?", "shouldTrigger": true },
+    { "query": "plain Specification or CommandScenario for testing Handle()?", "shouldTrigger": true },
+    { "query": "where do Because and the should_ facts go when I use given/ contexts?", "shouldTrigger": true },
+    { "query": "what's the project name and package reference for Cratis.Specifications.XUnit specs?", "shouldTrigger": true },
+    { "query": "my async ShouldXxx assertion silently passes. what is CHR0039?", "shouldTrigger": true },
+    { "query": "ReactorScenario throws ReadModelNotSeededForReactorScenario even though the parameter is nullable", "shouldTrigger": true },
+    { "query": "EventScenario ShouldHaveConcurrencyViolations never fails for my append", "shouldTrigger": true },
+    { "query": "GeneratedValueNotPinned comes back in my CommandScenario result", "shouldTrigger": true },
+    { "query": "how do I wait for observers to catch up in specs without Thread.Sleep?", "shouldTrigger": true },
+    { "query": "Write a given() context class with Sinon stubs for a TypeScript package.", "shouldTrigger": false, "note": "cratis-specifications-typescript" },
+    { "query": "Decide what the command should do with an overlapping date range.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "How do I name and scope specs in any language?", "shouldTrigger": false, "note": "cratis-specification-by-example" },
+    { "query": "List what to cover for a State Change slice in our application and where the files live.", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "Write a vitest view model spec for our React page.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "Specify append semantics and a unique constraint with EventScenario.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" },
+    { "query": "Specify a projection and reducer state from events.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "Write the specification block in the .play model.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Write Kotlin command scenarios for our Spring service.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" }
+  ]
+}

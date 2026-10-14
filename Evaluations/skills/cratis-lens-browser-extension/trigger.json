@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-lens-browser-extension",
+  "queries": [
+    { "query": "how do I install the Cratis Lens extension in Chrome? is it on the web store?", "shouldTrigger": true },
+    { "query": "lens doesn't detect my arc app, the commands tab is greyed out", "shouldTrigger": true },
+    { "query": "i switch the active user in lens but my app still sees me as anonymous", "shouldTrigger": true },
+    { "query": "can the browser extension run my RegisterBoat command from a popup against localhost?", "shouldTrigger": true },
+    { "query": "lens says no payload schema available and fires the command with empty object, is my app broken?", "shouldTrigger": true },
+    { "query": "our app resolves tenancy from a query parameter. can I set the tenant header name in lens settings?", "shouldTrigger": true },
+    { "query": "observable queries over websocket don't get the impersonation headers when I use lens, why?", "shouldTrigger": true },
+    { "query": "what endpoints does arc need to serve for Lens, /.cratis/users and tenants?", "shouldTrigger": true },
+    { "query": "is it ok to keep the lens extension installed in my normal browser profile where I do banking?", "shouldTrigger": true },
+    { "query": "Lens commands tab shows nothing on our deployed staging app but works locally", "shouldTrigger": true },
+    { "query": "Design authentication and role policies for our Arc application for production.", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Execute an existing command from a hosted background job without HTTP.", "shouldTrigger": false, "note": "cratis-arc-command-execution" },
+    { "query": "Use curl to read an observable query over SSE.", "shouldTrigger": false, "note": "cratis-arc-observable-query-http" },
+    { "query": "Inspect a Chronicle event store through the browser workbench.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" },
+    { "query": "Which MCP tools can the agent use to inspect Chronicle?", "shouldTrigger": false, "note": "cratis-chronicle-mcp-inspection" },
+    { "query": "Build a React page for listing boats with a query.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Multi-tenant namespaces in Chronicle for each customer.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Write a generic Chrome extension that rewrites request headers for any website.", "shouldTrigger": false, "note": "no Cratis skill; not about Lens or Arc" }
+  ]
+}

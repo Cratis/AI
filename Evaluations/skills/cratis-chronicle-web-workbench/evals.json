@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-chronicle-web-workbench",
+  "evals": [
+    {
+      "id": 1,
+      "name": "reach-and-enable",
+      "prompt": "Our team opens http://chronicle.internal:35000/ and fails; later someone sets Features:Api=false to reduce the attack surface and the Workbench vanishes. Explain the correct URL, why, and what happened after the config change. Reply only.",
+      "expected_output": "Kernel port 35000 is TLS because HTTP/1.1 and HTTP/2 multiplex through ALPN, so use https://<host>:35000/. Features:Workbench is ANDed with Features:Api; setting Api to false silently disables the Workbench because it is a client of that API. Configuration is under Cratis:Chronicle from chronicle.json or Cratis__Chronicle__ environment variables.",
+      "assertions": [
+        "Says the URL is https://<host>:35000/ because the port is TLS with HTTP/1.1 and HTTP/2 multiplexed through ALPN.",
+        "Says Features:Workbench is ANDed with Features:Api so setting Features:Api to false silently disables the Workbench.",
+        "Says the Workbench is a client of the HTTP API.",
+        "Names the configuration location as Cratis:Chronicle in chronicle.json or Cratis__Chronicle__ environment variables."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "exposure-decision",
+      "prompt": "A colleague proposes exposing the Workbench to the office network with Authentication:Enabled=false and says the client route guard protects it anyway, and that the Workbench masks personal data. Assess the claims. Reply only.",
+      "expected_output": "The static bundle is served anonymously by design; the client-side route guard is a UX affordance, not an access control; authorization is on the API calls. Disabling authentication removes it everywhere: every gRPC and HTTP endpoint answers anonymously, publishing the whole store. The Workbench applies no PII masking or redaction; assume operators see plaintext. Forwarded headers are trusted only from loopback or configured known proxies.",
+      "assertions": [
+        "Says the application bundle is served anonymously and the client-side route guard is not an access control.",
+        "Says turning authentication off makes every gRPC service and HTTP endpoint answer anonymously, publishing the whole event store to anyone who can reach it.",
+        "Says the Workbench applies no PII masking, field redaction or data classification and operators should be assumed to see plaintext personal data.",
+        "Says forwarded headers are trusted only from loopback or configured known proxies by default."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-confirmation-buttons",
+      "prompt": "Which of these Workbench actions ask for confirmation in the UI and which fire on the first click: Clear quarantine, Retry partition, Stop/Resume/Delete job, Perform recommendation, Replay observer, Remove observer, Ignore recommendation, Redact event? And does a missing dialog imply permission? Reply only.",
+      "expected_output": "No confirmation: Clear quarantine, Retry partition, Stop/Resume/Delete job, Perform recommendation. Confirmed: Replay observer, Remove observer, Ignore recommendation, Redact (twice: a confirmation and a required reason). A missing confirmation dialog is not permission; decide before clicking. Inspection does not authorize mutation.",
+      "assertions": [
+        "Lists Clear quarantine, Retry partition, Stop/Resume/Delete job and Perform recommendation as firing without a confirmation dialog.",
+        "Lists Replay observer, Remove observer, Ignore recommendation and Redact event as confirmed in the UI.",
+        "Says Redact requires a confirmation and a required reason.",
+        "Says a missing confirmation dialog is not permission and a request to inspect does not authorize a mutation."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "redact-revise-erasure",
+      "prompt": "A password was appended in an event. Someone proposes using Revise to fix it, then also using Redact for a GDPR subject erasure request. Explain what Redact and Revise do, what to check before Revise, and whether either answers an erasure request. Reply only.",
+      "expected_output": "Redact removes event content, retained causation property values, revision history and content hashes; requires a reason; records itself; does not reach backups, oplogs or already-forwarded events. Revise rewrites content; its confirmation lists the observers to be replayed, the blast radius. Neither is the mechanism for personal-data erasure, which is the kernel's key-destruction path keyed by compliance subject. The CLI has no equivalent.",
+      "assertions": [
+        "Says Redact removes event content, retained causation values, revision history and content hashes, requires a reason and does not reach backups, oplogs or already-forwarded events.",
+        "Says Revise rewrites event content and that its confirmation lists the observers that will be replayed, which is the blast radius to read before confirming.",
+        "Says neither Redact nor Revise is the mechanism for a personal-data erasure request, which is the kernel's key-destruction path by compliance subject.",
+        "Says redaction and revision are Workbench-only with no CLI equivalent."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "reset-and-fast-forward",
+      "prompt": "An operator wants to use Fast forward on a lagging observer in production and, to start clean, Reset kernel state from Development Tools. Explain what each does and the protection (or lack of it) in production builds. Reply only.",
+      "expected_output": "Fast forward skips every unhandled event, discards failed partitions and retains already-built state: deliberate loss of pending processing, not a repair or replay. Reset kernel state is the most destructive operation; the operation is compiled in only for development builds (in other builds the gRPC call exists, answers anonymously, and is a no-op), the screen reports unavailable, and a dialog guards it. Never run it against a store whose data is needed; production is protected by the operation not being there, not by authentication.",
+      "assertions": [
+        "Says Fast forward skips every unhandled event, discards failed partitions and retains already-built state, and is not a repair or replay.",
+        "Says Reset kernel state is the most destructive operation and must never be run against a store whose data anyone needs.",
+        "Says the reset operation is compiled in only for development builds and in other builds the call is a no-op that answers anonymously.",
+        "Says production is protected by the operation not being there rather than by authentication."
+      ]
+    }
+  ]
+}

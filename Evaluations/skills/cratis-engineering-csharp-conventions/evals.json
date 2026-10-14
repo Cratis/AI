@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-engineering-csharp-conventions",
+  "evals": [
+    {
+      "id": 1,
+      "name": "review-style-violations",
+      "prompt": "Review this C# and list what breaks the Cratis conventions. Reply only; do not write files.\n\nnamespace Library.Authors\n{\n    #region Lookup\n    public class AuthorLookupService : IAuthorLookup\n    {\n        readonly IAuthorStore store;\n        public Author Find(string id)\n        {\n            if (id == null) throw new ArgumentException(\"id\");\n            Author author = store.Get(id);\n            if (author == null) throw new AuthorNotFoundException(id);\n            return author;\n        }\n    }\n    #endregion\n}",
+      "expected_output": "Flags the region, the Service postfix, block-scoped namespace, the missing license header, the private field without underscore prefix, == null checks, the explicit type instead of var, a built-in exception, and the Exception suffix on the domain exception.",
+      "assertions": [
+        "Flags the #region block and says a file that needs regions needs refactoring instead.",
+        "Flags the Service postfix on AuthorLookupService as a technical postfix on a type name.",
+        "Flags AuthorNotFoundException for the Exception suffix, recommending AuthorNotFound.",
+        "Flags throwing the built-in ArgumentException and says to define a domain exception.",
+        "Flags == null and requires is null / is not null, and the private field needing an _camelCase name."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "singleton-with-scoped-dependency",
+      "prompt": "Our `[Singleton] public class TenantPriceCache(IPriceReadModels prices)` is returning empty results in production, and it throws nothing. IPriceReadModels is scoped to the tenant. A teammate suggests injecting IServiceScopeFactory to fix it. What is going on and what do you recommend? Reply only.",
+      "expected_output": "A singleton must not depend on tenant-, user- or request-bound state. Capturing the scoped collaborator silently binds to the root scope's default namespace and returns empty results. The fix is almost always dropping [Singleton], not IServiceScopeFactory. Enable scope validation locally first and sweep before deployed environments.",
+      "assertions": [
+        "Explains that the singleton silently captured a scoped collaborator bound to the root scope's default namespace, which is why nothing throws.",
+        "Recommends dropping [Singleton] so the class is scoped or transient, rather than reaching for IServiceScopeFactory.",
+        "Says anything taking a scoped dependency is scoped or transient, never a singleton.",
+        "Recommends ValidateScopes and ValidateOnBuild, enabled locally and fixed before reaching deployed environments."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "instances-of-discovery",
+      "prompt": "We have a dozen IValidationRule implementations. The plan is to inject IEnumerable<IValidationRule> and add a services.AddSingleton<IValidationRule, X>() line for each. Is that how Cratis code does it? Reply only.",
+      "expected_output": "Use IInstancesOf<T> from Cratis.Fundamentals to enumerate implementations; IEnumerable<T> only works when every implementation is hand-registered, defeating convention-based discovery. Do not register types that exist to be discovered by convention.",
+      "assertions": [
+        "Recommends IInstancesOf<T> rather than IEnumerable<T> for enumerating implementations.",
+        "Explains that IEnumerable<T> only works when every implementation is hand-registered, which defeats convention-based discovery.",
+        "Says not to add services.Add*<TInterface, TImplementation>() registrations for types meant to be discovered by convention.",
+        "Names Cratis.Fundamentals as the package that provides IInstancesOf<T>."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "convention-vs-contract",
+      "prompt": "A reviewer wrote: \"The framework requires that exception types have no Exception suffix; the build will fail otherwise.\" Is that accurate? Also, someone asks whether this skill can tell them what a Cratis product API does. Reply only.",
+      "expected_output": "These are house conventions, not framework contracts; nothing is enforced by an analyzer unless stated, so do not claim the framework requires them. Product API behavior is resolved against the owning product repository, not this style guide.",
+      "assertions": [
+        "Says the naming rule is a house convention, not a framework contract.",
+        "Says nothing here is enforced by an analyzer unless the skill says so, so the build claim should not be made.",
+        "Says what a Cratis product API does is resolved against the owning product repository, not the style guide."
+      ]
+    }
+  ]
+}

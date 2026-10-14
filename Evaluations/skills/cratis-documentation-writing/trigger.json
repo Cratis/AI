@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-documentation-writing",
+  "queries": [
+    { "query": "i need to write a getting started page for the reducers feature. what kind of page is it and how should it open?", "shouldTrigger": true },
+    { "query": "users keep asking in support how to rebuild a projection. the docs exist but nobody finds them. what do we change?", "shouldTrigger": true },
+    { "query": "review this docs page: it starts with an abstract definition of the product and then lists every option. what's wrong with it?", "shouldTrigger": true },
+    { "query": "Is this a how-to or a tutorial? it walks a newcomer through building a booking app but also has a table of every config setting", "shouldTrigger": true },
+    { "query": "we added a TypeScript client. which other doc pages need updating besides the product's own?", "shouldTrigger": true },
+    { "query": "write the reference page for the event type attributes: type, required or optional, defaults, valid values and errors", "shouldTrigger": true },
+    { "query": "Our tutorial shows the Chronicle server with a hardcoded admin password and binds to 0.0.0.0. Is that fine for a first page?", "shouldTrigger": true },
+    { "query": "How should a page present C# and TypeScript variants when the same steps don't run as written in both?", "shouldTrigger": true },
+    { "query": "A preview feature is only marked experimental in the sidebar. Where should the maturity warning go?", "shouldTrigger": true },
+    { "query": "I had a model draft this explanation page. How do I get it reviewed properly and who should I tell?", "shouldTrigger": true },
+    { "query": "Should the snippet in this guide be pasted by hand or extracted from a compiling sample project?", "shouldTrigger": false, "note": "cratis-technical-examples" },
+    { "query": "Write the release notes for 15.4.0 and the upgrade steps for the breaking API change.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Add an llms-full.txt and make sure an assistant can retrieve and cite the correct docs page.", "shouldTrigger": false, "note": "cratis-llm-friendly-documentation" },
+    { "query": "Draft the page for the Astro Starlight site once I know the repo, page type and product source, with the site's frontmatter and components.", "shouldTrigger": false, "note": "cratis-engineering-docs-authoring" },
+    { "query": "This README sounds machine-generated with the same triplets and tidy closers. Make the voice sound human.", "shouldTrigger": false, "note": "cratis-writing-voice-and-cadence" },
+    { "query": "How long should this 4,000-word tutorial be and where do I split it?", "shouldTrigger": false, "note": "cratis-content-length" },
+    { "query": "Write a LinkedIn post that points to the new docs page for the feature.", "shouldTrigger": false, "note": "cratis-social-feed-post" },
+    { "query": "Plan how to get developers to discover our docs: channels, cadence and measurement.", "shouldTrigger": false, "note": "cratis-developer-marketing" },
+    { "query": "Record the ruling that product docs live in each product's repository as a decision record.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" }
+  ]
+}

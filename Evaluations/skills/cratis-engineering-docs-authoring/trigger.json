@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-docs-authoring",
+  "queries": [
+    { "query": "draft the how-to page for rebuilding a projection. I know the repo, the page, the reader and the source files", "shouldTrigger": true },
+    { "query": "write the explanation page on why events are immutable for the Chronicle docs. target reader is a dev new to event sourcing", "shouldTrigger": true },
+    { "query": "i have the authoritative source for the CLI commands. write the reference page with tables of every command and flag", "shouldTrigger": true },
+    { "query": "Write a tutorial page for the Astro Starlight site that walks through the first reactor. Which frontmatter and components apply?", "shouldTrigger": true },
+    { "query": "can you draft the docs page? the owning repo is Chronicle, destination is Documentation/guides/replay.md, the type is how-to", "shouldTrigger": true },
+    { "query": "The product docs claim a feature but I can't find it in source. Should I still write that page section?", "shouldTrigger": true },
+    { "query": "after the example in my page, how much should I explain about what the framework did behind the scenes?", "shouldTrigger": true },
+    { "query": "draft an explanation page with a Mermaid diagram of how observers pick up events, reader is a backend dev", "shouldTrigger": true },
+    { "query": "Should I translate this C# example into the TypeScript client for the page by guessing the equivalent API?", "shouldTrigger": true },
+    { "query": "Decide whether a new page about the CLI belongs in the Chronicle repo or the site repo and wire it into the sidebar navigation.", "shouldTrigger": false, "note": "owning repository's navigation and source-map workflow" },
+    { "query": "Take a screenshot of the rendered page in light and dark mode and check the layout.", "shouldTrigger": false, "note": "owning site's visual QA workflow" },
+    { "query": "What type of page should this be and how do we plan the reader journey across the docs? Also review the support questions.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Is this snippet better extracted from a compiling sample or hand-written?", "shouldTrigger": false, "note": "cratis-technical-examples" },
+    { "query": "Make the docs retrievable by assistants with llms.txt and test whether an assistant cites the right page.", "shouldTrigger": false, "note": "cratis-llm-friendly-documentation" },
+    { "query": "Write the release notes for 16.0.0.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Write a decision record for choosing Starlight as the docs site.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Edit the Cratis product docs wording so it sounds human, not machine written.", "shouldTrigger": false, "note": "cratis-writing-voice-and-cadence" },
+    { "query": "How should this C# class be formatted and named in our repo?", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" }
+  ]
+}

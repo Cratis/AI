@@ -1,0 +1,66 @@
+{
+  "skill_name": "cratis-components-data-surfaces",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pivot-viewer-cards",
+      "prompt": "We have an already-loaded array of Vessel { id, name, category } in a React page. Show a PivotViewer for it grouped by category with search on name and a loading state, and answer: can the card be a React component, and can the page control which item is selected? Give the code in your reply; do not write files.",
+      "expected_output": "PivotViewer with data, dimensions {key,label,getValue}, getItemId, cardRenderer returning structured text ({title, values}), searchFields as direct property accessors, isLoading/loadingLabel. cardRenderer cannot return JSX (only detailRenderer can); there is no selectedItem prop, selection state is internal. Host bounds the dataset.",
+      "assertions": [
+        "Imports PivotViewer from the @cratis/components/PivotViewer subpath and supplies data, dimensions with key/label/getValue, and cardRenderer.",
+        "Returns structured text such as a title and values from cardRenderer and says it cannot return JSX; detailRenderer may return a React node.",
+        "States that selection, group and filter state is internal, with no selectedItem or onSelectedItemChange prop.",
+        "Uses searchFields as direct property accessors such as item => item.name rather than computed expressions.",
+        "Says the host must bound the dataset rather than loading an unbounded collection."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "time-machine-controlled-index",
+      "prompt": "Our page passes currentVersionIndex={selected} to TimeMachine and updates `selected` from a Back button, but the timeline never moves after the first render. Explain why, show a correct usage, and say whether TimeMachine fetches or replays history. Reply only.",
+      "expected_output": "currentVersionIndex is initial-only; later prop changes do not replace internal selection. Use onVersionChange(index) to observe; remount with a key if the page must force a selection. TimeMachine displays supplied Version snapshots (id, timestamp, label, content, events) and does not fetch, rebuild read models, or replay events; supply only authorized, redacted history.",
+      "assertions": [
+        "States that currentVersionIndex is initial-only and later prop changes do not move the internal selection.",
+        "Uses onVersionChange(index) to report selection and does not promise an externally controlled scrubber.",
+        "Says TimeMachine renders supplied versions and does not fetch history, rebuild a read model or replay events.",
+        "Says history shown must be authorized and redacted by the host."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "canvas-camera-vs-persistence",
+      "prompt": "Write a Canvas board with two DOM cards placed with CanvasItem and a minimap. A teammate plans to save card positions from onTransformChange and says pixi.js is optional so a DOM-only board needs no install. Review those two plans and give the board code. Reply only.",
+      "expected_output": "Board uses Canvas with showMinimap and CanvasItem x/y with ids and visible dimensions. onTransformChange reports zoom/pan (camera), not item positions; persist item edits in the host. pixi.js still must be installed because Canvas initializes Pixi via usePixiApplication even for DOM-only.",
+      "assertions": [
+        "Places cards with CanvasItem x and y inside Canvas, imported from @cratis/components/Canvas, and gives the board visible dimensions.",
+        "Says moving the camera (onTransformChange, initialZoom, initialPan) does not persist item positions and that item edits are persisted by the host.",
+        "Says pixi.js must still be installed even for a DOM-only Canvas because Canvas initializes Pixi.",
+        "Does not return React nodes from renderItem; Pixi items use renderItem returning a PIXI.Container."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "public-chat-conversation",
+      "prompt": "Bind a host-owned message list to a Cratis Components chat conversation (not the sidebar) without pulling Pixi into the bundle. Show the wrapper in TypeScript, and state what onSendMessage means for persistence and what the unauthorized status does. Reply with code in the answer only.",
+      "expected_output": "Import ChatConversation, ChatStatus and types from @cratis/components/Chat (not Canvas). Props messages, status, labels, onSendMessage(body, mentions). onSendMessage reports trimmed body and mentions; the host persists. ChatStatus.Unauthorized replaces messages and disables the composer, which is UI behavior and not backend enforcement. Public message has id, topicId, authorId, body, timestamp Date.",
+      "assertions": [
+        "Imports from @cratis/components/Chat rather than @cratis/components/Canvas, and says importing Canvas brings its Pixi dependency.",
+        "Uses onSendMessage with a body and mentions and says persistence is the host's responsibility.",
+        "Says ChatStatus.Unauthorized replaces messages and disables the composer but is not backend enforcement.",
+        "Does not invent an authorName property on messages; authors resolve through authorOf."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "chat-kit-vs-public",
+      "prompt": "A dev imports Chat from '@cratis/components/Chat' and passes it onSend and onClose, and sets an `id` expecting the message to be saved. Explain what is wrong with the import and the expectations. Reply only.",
+      "expected_output": "Public Chat subpath exports ChatConversation, ChatSidebar, ChatSidebarForObservableQueries, ChatTopicList; it does not export the Kit Chat. Kit Chat is exported through @cratis/components/Canvas, has onSend(text)/onClose and its own ChatMessage shape. Optional id publishes ChatMessageAdded at send time over an Arc messenger, not after persistence, so it is not durable delivery. Do not mix onSend with onSendMessage.",
+      "assertions": [
+        "Says the Chat subpath does not export the Kit Chat component and that Chat is exported via @cratis/components/Canvas.",
+        "Says the Kit Chat uses onSend(text) and its own message shape, distinct from the public conversation's onSendMessage.",
+        "Says the id publishes ChatMessageAdded at send time, not after persistence succeeds, so it is not durable delivery.",
+        "Recommends the non-spatial Chat subpath for ordinary host-data conversations."
+      ]
+    }
+  ]
+}

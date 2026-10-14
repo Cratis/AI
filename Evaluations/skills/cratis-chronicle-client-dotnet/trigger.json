@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-chronicle-client-dotnet",
+  "queries": [
+    { "query": "i have a console app, not Arc. how do i connect to Chronicle and append an event with the .NET client?", "shouldTrigger": true },
+    { "query": "where is IChronicleClient.Connect? I can't find it in Cratis.Chronicle", "shouldTrigger": true },
+    { "query": "my worker service appends events fine but the reactor never runs, it just exits after the append", "shouldTrigger": true },
+    { "query": "reactor with constructor dependencies throws because the deps are null in my standalone Chronicle client", "shouldTrigger": true },
+    { "query": "services.AddCratisChronicle(...) doesn't compile on IServiceCollection. what should I call in a worker host?", "shouldTrigger": true },
+    { "query": "we get IncompatibleServerException on connect after upgrading the nuget. what is the check doing?", "shouldTrigger": true },
+    { "query": "how do I wait until reactors and projections are registered, is polling IsConnected ok?", "shouldTrigger": true },
+    { "query": "AppendResult has constraint violations, what's on it and how do I append across several event sources in one batch?", "shouldTrigger": true },
+    { "query": "no logs at all from the Chronicle client in our service, what default am I missing and what does skipTlsValidation default to?", "shouldTrigger": true },
+    { "query": "Add a RegisterBoat command returning BoatRegistered in our Arc application.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Connect to Chronicle from a Node.js worker with @cratis/chronicle.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Connect from our Elixir OTP app and append with Chronicle.append.", "shouldTrigger": false, "note": "cratis-chronicle-client-elixir" },
+    { "query": "Kotlin Spring service needs to append events to Chronicle.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Run the Chronicle server in Docker and configure its storage.", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
+    { "query": "Write the reducer that builds the BookingsOverview read model from events.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
+    { "query": "Make sure two events can't use the same registration number with a unique constraint.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Pin event generations so my reactor gets the generation it handles, and migrate old events.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Write a scenario spec that appends events and asserts the projection result.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" }
+  ]
+}

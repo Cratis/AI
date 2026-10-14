@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-technical-examples",
+  "evals": [
+    {
+      "id": 1,
+      "name": "choose-source",
+      "prompt": "I'm writing a 10-step tutorial with four long code blocks, and one five-line illustration in an explanation page. How should the code for each be sourced and kept from drifting? Reply only; do not write files.",
+      "expected_output": "Long tutorial: a buildable sample or spec maintained with the product; extract displayed snippets from it, or keep a reproducible extraction or snippet-equality check run with the build in CI. Manual comparison is a one-time review, not a drift guard. Short illustration: the smallest self-contained block, every type and signature verified against first-party source at the supported version, with assumed setup stated.",
+      "assertions": [
+        "Recommends a buildable sample or spec maintained with the product for the long tutorial, with snippets extracted from it.",
+        "Says that without extraction tooling a reproducible snippet-equality check should run with the sample build in CI, and that manual comparison is only a one-time review, not a drift guard.",
+        "Says the five-line illustration does not need a new sample repository but must have every framework type and signature verified against first-party source at the supported version.",
+        "Says the illustration should state the domain types or setup it assumes rather than presenting a partial excerpt as a standalone app."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "compiles-but-fails",
+      "prompt": "The TypeScript tab of our docs example compiles, but at runtime the live query never updates. The plan is to ship it and add a note in the prose saying 'a refresh may be needed'. Also the build is green, so we say it's verified. Reply only.",
+      "expected_output": "A compiling tab is not a working tab. Confirm discovery/registration, proxy generation and runtime behavior against a real kernel and sink. Do not publish code that fails at runtime with a prose workaround; put working code in the tab and reference the tracking issue in a code comment. A rendered fence or green site build is not compilation or behavior proof.",
+      "assertions": [
+        "Says a compiling tab is not a working tab and that claimed runtime behavior such as live updates must be observed against a real kernel and sink.",
+        "Says not to publish code that fails at runtime with a workaround in the prose after it.",
+        "Says to put working code in the tab and reference the tracking issue in a code comment.",
+        "Says a rendered code fence or green docs build proves syntax highlighting, not compilation or behavior."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "validator-scope",
+      "prompt": "The Arc client snippet validator reported '38 snippets passed' on our PR, which also changes ordinary Markdown code fences in a product guide. A teammate says the guide's code is therefore verified. Is that right? Reply only.",
+      "expected_output": "No. The validator checks supported C# fences in Documentation/client-snippets/**; check the reported count and exclusions, since unsupported markers or legacy snippets are not proved compilable. It does not compile ordinary Markdown/MDX fences elsewhere; verify those against real source and a runnable sample/spec or explicit snippet comparison.",
+      "assertions": [
+        "Says the validator covers supported C# fences in Documentation/client-snippets and does not compile ordinary Markdown or MDX fences elsewhere in product docs.",
+        "Says to check the validator's reported count and exclusions because unsupported markers or legacy snippets are not proved compilable by a passing run.",
+        "Says the guide's fences should be verified against real source and a runnable sample, spec or explicit snippet comparison.",
+        "Does not claim coverage from a site build or a validator that never scans the page."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "multi-language-tabs",
+      "prompt": "We have a C# example and need to add a Kotlin tab. The Kotlin client doesn't exist yet for this feature, and the tabs name the id type differently (Guid vs String). A teammate suggests translating the C# call by hand and explaining in prose which name each tab uses. Reply only.",
+      "expected_output": "Do not translate a C# call by guess; offer only implementations that exist, compiled against their own SDK, using the established client-owned snippet mechanism. Use the same domain type names in every tab; if prose must explain names, fix the snippets. State each backend's id and response wire type and keep one id type per concept across a series.",
+      "assertions": [
+        "Refuses to hand-translate the C# call and says to offer only implementations that exist, compiled against their own SDK.",
+        "Says to use the same domain type names in every tab and to fix the snippets instead of explaining names in prose.",
+        "Says to state each backend's id and command-response wire type and keep one id type per concept across every page of a series."
+      ]
+    }
+  ]
+}
