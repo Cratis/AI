@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-event-specifications",
+  "queries": [
+    { "query": "how do I write a spec that appends a duplicate AuthorRegistered and checks the constraint rejected it, without a Chronicle server?", "shouldTrigger": true },
+    { "query": "EventScenario Given vs When, what's the difference and what do they return?", "shouldTrigger": true },
+    { "query": "ShouldHaveConstraintViolationFor fails with an empty list on my multi-event When...Events spec", "shouldTrigger": true },
+    { "query": "my spec for concurrency violation with EventScenario is always green. is that real?", "shouldTrigger": true },
+    { "query": "which assertions exist on IAppendResult in Cratis.Chronicle.Testing?", "shouldTrigger": true },
+    { "query": "constraint spec passes alone but fails when the whole suite runs", "shouldTrigger": true },
+    { "query": "i want to spec that AppendMany of two ItemAddedToCart events succeeds as a batch for one cart", "shouldTrigger": true },
+    { "query": "how to seed prior events for two different event sources before I append in a test", "shouldTrigger": true },
+    { "query": "do I wrap the event spec in #if DEBUG?", "shouldTrigger": true },
+    { "query": "Spec the command BookBoat through its validators and Handle.", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "Assert a projection builds BookingsOverview from events in a spec.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "Decide which unique constraint to put on the registration number.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Test a reactor in TypeScript without a kernel.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "What folder shape and naming style should my specifications have?", "shouldTrigger": false, "note": "cratis-specification-by-example" },
+    { "query": "React component tests for the accounts page.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "Integration test with the real kernel for concurrency scopes.", "shouldTrigger": false, "note": "real-kernel integration, not EventScenario" },
+    { "query": "Model the events for a new feature before coding.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+  ]
+}

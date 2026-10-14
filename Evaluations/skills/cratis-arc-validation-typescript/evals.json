@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-arc-validation-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "command-validator",
+      "prompt": "In an Arc for TypeScript server, `RegisterTask` has `title: TaskTitle` (a concept over string). It must be rejected when the title is empty ('A title is required') or longer than 100 characters ('A title can have at most 100 characters'). Write the validator and explain how it gets registered. Give the code in your reply; do not write files.",
+      "expected_output": "A CommandValidator<RegisterTask> decorated with @validator(RegisterTask) using ruleFor(...).notEmpty().withMessage(...) and maxLength(100); registered through discovery of an exported class or builder.add; every rule runs.",
+      "assertions": [
+        "Extends CommandValidator<RegisterTask> and carries @validator(RegisterTask).",
+        "Uses ruleFor(command => command.title) with notEmpty() and maxLength(100), each followed by withMessage(...).",
+        "Explains the validator is picked up by discover() when exported from the folder, or passed to builder.add(RegisterTask, RegisterTaskValidator); an unimported validator is never registered.",
+        "Notes that rules on a concept member receive the unwrapped primitive."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "choose-where-to-reject",
+      "prompt": "For an Arc for TypeScript command, where should each of these live? (a) the title must not start with '!' wherever TaskTitle appears; (b) only the task owner may rename, decided from data provide() already loads; (c) the title must differ from the stored title; (d) no two tasks may share a title even under concurrent requests. Reply only.",
+      "expected_output": "(a) ConceptValidator; (b) denied(...) from provide(); (c) CommandValidator rule using readModelForValidation; (d) a storage-boundary constraint or concurrency scope in Chronicle, not a validator.",
+      "assertions": [
+        "Places (a) in a ConceptValidator on TaskTitle.",
+        "Places (b) as denied(...) returned from provide(), keeping access control out of validators.",
+        "Places (c) in a CommandValidator rule that calls readModelForValidation.",
+        "Says (d) belongs at the storage boundary, for Chronicle a constraint or concurrency scope, because a stored-state check only tells what was true when it ran."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "severity-cap",
+      "prompt": "A client sends `X-Allowed-Severity: 3` to an Arc for TypeScript command whose validator produced only Error-severity results, hoping the command will run. Another caller does the same to a query. What happens in each case, and how does a spec run a command letting errors through? Reply only.",
+      "expected_output": "For an HTTP command the header 3 is capped to 2 (Warning) so errors always block; HTTP queries always use Warning and ignore the header; code callers can pass Severity.Error, such as CommandScenario.withAllowedValidationSeverity.",
+      "assertions": [
+        "States that for an HTTP command X-Allowed-Severity 3 is capped to 2 (Warning), so errors always block.",
+        "States that HTTP queries always use Warning and ignore the header.",
+        "States that executeCommand from code or CommandScenario.withAllowedValidationSeverity(...) can be given Severity.Error as given.",
+        "Does not claim this matches Arc on .NET; it is a deliberate safety difference."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "stored-state-and-assertions",
+      "prompt": "Write a RenameTask validator rule for Arc for TypeScript that rejects when the stored task already has the new title, and where the task may be missing. Then write what a spec should assert when the title is empty. Code in your reply; do not write files.",
+      "expected_output": "A mustAsync rule calling readModelForValidation(TaskView, { optional: true}) that handles null; the spec uses scenario.validate and asserts the member via shouldHaveValidationErrorForMember and that handle did not run.",
+      "assertions": [
+        "Uses mustAsync with readModelForValidation and passes { optional: true }, treating a null result as passing, since without it a missing model makes the rule throw and yields validatorFailed.",
+        "Says readModelForValidation works only inside a validator of a model-bound command with a resolved key.",
+        "Asserts the member with shouldHaveValidationErrorForMember rather than presentation text, using scenario.validate(...).",
+        "Proves handle() never ran using execute(...) or an assertion on the handler's side effects."
+      ]
+    }
+  ]
+}

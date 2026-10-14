@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-event-modeling",
+  "queries": [
+    { "query": "we're starting a boat rental feature. before any code, what events, streams and read models do we need? nothing is settled yet", "shouldTrigger": true },
+    { "query": "how should I decide the event source id for BookingRequested and BookingCancelled? one stream per booking or per boat?", "shouldTrigger": true },
+    { "query": "is an event called Created fine, or what naming should events have?", "shouldTrigger": true },
+    { "query": "my read model has a field I can't trace to any event. what does that mean for the design?", "shouldTrigger": true },
+    { "query": "we need to sketch a multi-step flow: customer books, payment gets confirmed by an outside provider, then we email. classify the behaviors", "shouldTrigger": true },
+    { "query": "should I make an event TotalPriceCalculated so the projection doesn't have to sum?", "shouldTrigger": true },
+    { "query": "events have optional fields in our draft. CHR0012 warns about nullable event properties. how should I model them?", "shouldTrigger": true },
+    { "query": "we hold personal data in the registration flow. when in modeling do I decide the subject and stream per person?", "shouldTrigger": true },
+    { "query": "write the implementation brief for the membership flow: commands, events, specs outline", "shouldTrigger": true },
+    { "query": "Draw the existing booking model as a diagram for the wiki.", "shouldTrigger": false, "note": "cratis-event-model-diagram" },
+    { "query": "Author the .play model for our accepted event model with slices.", "shouldTrigger": false, "note": "cratis-screenplay-event-modeling" },
+    { "query": "Add a nullable Phone to an existing event type without breaking old events.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Flow crosses three services that each own an event store. How should they talk?", "shouldTrigger": false, "note": "cratis-multi-service-architecture" },
+    { "query": "Write the reactor that sends the receipt email for BookingConfirmed.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Implement the RegisterBoat command; the events are already defined.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Enforce unique registration numbers at append time.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Write a projection for the existing BookingsOverview read model.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" }
+  ]
+}

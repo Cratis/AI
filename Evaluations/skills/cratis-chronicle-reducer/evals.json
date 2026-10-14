@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-chronicle-reducer",
+  "evals": [
+    {
+      "id": 1,
+      "name": "self-reducing-balance",
+      "prompt": "Write a C# Chronicle self-reducing read model `AccountBalance(Money Total)` handling `FundsCredited(Money Amount)` (creates or adds) and `FundsDebited(Money Amount)` (subtract only if the current balance covers it, otherwise leave the state unchanged, and never create state), and `BalanceCleared` (removes the instance). Give the code in your reply; do not write files.",
+      "expected_output": "Public static Reduce methods on the record taking the event and a nullable current; credit handles null current; debit returns current when absent or insufficient; cleared returns null; no DI or marker required.",
+      "assertions": [
+        "Declares public static methods named Reduce on the model itself, with the event as the first parameter and the model type as a nullable current second parameter.",
+        "Handles the null current state on the first credit by starting from zero.",
+        "Returns current unchanged (including null) for an insufficient or missing-state debit, rather than throwing.",
+        "Returns null from the BalanceCleared handler to delete or leave absent the state."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "instance-reducer-rules",
+      "prompt": "A separate `IReducerFor<AccountBalance>` has `AccountBalance OnCredit(FundsCredited e, AccountBalance current)` and throws `InvalidOperationException` when it receives an event it wants to ignore. Name the problems and the fixes, including how an instance reducer deletes state. Reply only.",
+      "expected_output": "Current must be declared nullable or indexing throws; dispatch is by the first parameter's type not the name; never throw to skip, return current unchanged; a bare Task result deletes in the instance form, null result sets absent.",
+      "assertions": [
+        "States the current-state parameter must be declared nullable, since a non-nullable one throws when the reducer's methods are indexed.",
+        "States that throwing to skip an event fails the event-source partition and stops the reducer for it; the fix is to return current unchanged.",
+        "States dispatch is by the first parameter's type, not the method name, with one handler per event type.",
+        "States that returning null (or in the instance form a bare Task) sets state to absent, which is how an instance is deleted, and so null must not mean ignore."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "choose-form",
+      "prompt": "A team wants a reducer for: (a) copying Name from a PersonRenamed event onto the read model and counting events; (b) a status model where an update before the creation event must not create state and a terminal state must not be resurrected. Which belong to a projection and which to a reducer, and what must be preserved when converting (b) to unconditional setters? Reply only.",
+      "expected_output": "(a) direct mapping and counters read best as projections; (b) prior-state branches and guards belong in a reducer; converting to unconditional setters can create state too early or resurrect a finished entity, so admission and ordering guards must be preserved.",
+      "assertions": [
+        "Says direct property mapping and counters usually read best as projections.",
+        "Says prior-state branches and guarded calculations often read best as reducers.",
+        "Says replacing guarded handlers with unconditional setters can create state too early or resurrect a finished entity.",
+        "Says specs should cover update-before-create, late events after completion, and repeated events."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "passive-and-di",
+      "prompt": "A developer puts [Passive] on a reducer read model and uses it in a command to enforce 'balance never below zero' under concurrent writers, and also wants to look up today's exchange rate from a service inside Reduce. What do you advise? Reply only.",
+      "expected_output": "Passive is fresher, not safer: a passive reducer read captures no position and guards nothing, and reducers are refused by decision reads, so use a flat projection with a decision read. Self Reduce has no DI; prefer event-recorded rates over today's service during replay.",
+      "assertions": [
+        "States that [Passive] makes reads fresher but not safer: a passive reducer read captures no position and guards nothing.",
+        "Recommends a flat projection with a decision read for a rule that must hold under concurrent writers, since reducers are refused by decision reads.",
+        "States that self-reducing Reduce methods accept no DI or extra service arguments.",
+        "Recommends preferring event-recorded rates or times over consulting today's service during replay."
+      ]
+    }
+  ]
+}

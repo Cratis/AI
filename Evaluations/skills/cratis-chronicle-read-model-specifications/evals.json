@@ -1,0 +1,51 @@
+{
+  "skill_name": "cratis-chronicle-read-model-specifications",
+  "evals": [
+    {
+      "id": 1,
+      "name": "projection-total-spec",
+      "prompt": "A projection builds `OrderSummary` (Total) from `OrderCreated` and `ItemAdded(decimal Price)` events on one order stream. Write a Cratis Specification class with ReadModelScenario that proves two items priced 9.99 and 4.50 give a total of 14.49. Give the code in your reply; do not write files.",
+      "expected_output": "A new ReadModelScenario<OrderSummary> in Establish, seeded with Given.ForEventSource(...).Events(...), no separate When, asserting Instance.Total with ShouldEqual and disposing the scenario.",
+      "assertions": [
+        "Creates a new ReadModelScenario<OrderSummary> per specification.",
+        "Seeds events with scenario.Given.ForEventSource(id).Events(...) and does not use a separate When, since Given is the act.",
+        "Asserts on scenario.Instance with ShouldEqual (not ShouldBe) because the scenario has no Should assertions of its own.",
+        "Disposes the scenario in Destroy()."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "null-or-multiple-instances",
+      "prompt": "(a) `scenario.Instance` is null after seeding events; (b) a different spec seeding events on two event sources gets MultipleInstancesMaterialized when reading Instance. Explain each and the fix. Reply only.",
+      "expected_output": "(a) No seeded event matched the projection, so check key resolution before property mapping; (b) Instance is ambiguous when more than one instance exists, use InstanceForEventSourceId(id) or Instances, or seed one source.",
+      "assertions": [
+        "States that a null Instance means no seeded event matched the projection so nothing was created, and to check key resolution before property mapping.",
+        "States that MultipleInstancesMaterialized means the seeded events produced more than one instance.",
+        "Recommends InstanceForEventSourceId(id) or the Instances dictionary, or seeding a single source."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "pinned-instance-trap",
+      "prompt": "A spec uses `Given.ForEventSource(id).ReadModel(instance)` to pin a materialized instance and then asserts properties; it passes but the production projection is broken. Why, and what coverage should a good projection spec have? Reply only.",
+      "expected_output": "Pinning an instance means the projection never ran; seed events instead. Cover every property, every subscribed event, removal events asserting absence, and partial updates leaving other properties unchanged.",
+      "assertions": [
+        "States that pinning a read-model instance bypasses the projection so the projection under question never ran; the spec should seed events.",
+        "Says every property should be asserted in at least one specification and every subscribed event should have a specification.",
+        "Says every removal or clearing event needs a specification asserting absence (Instance is null or the child is gone).",
+        "Says a later event updating only some properties needs a specification showing the others are unchanged."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "reducer-spec-scope",
+      "prompt": "For a pure reducer decision `AccountBalance.Reduce(FundsDebited, current)`, should the spec use ReadModelScenario? What does ReadModelScenario not prove regardless? Reply only.",
+      "expected_output": "Use Specification plus a direct call with explicit event and current state by default; add ReadModelScenario only when dispatch, filtering, metadata or wiring contribute proof. Scenarios substitute storage, observer lifecycle and compliance and do not prove real-kernel registration, replay, transport, encryption, erasure or migration.",
+      "assertions": [
+        "Says pure reducer decisions should use Specification and a direct call passing the event and current state explicitly.",
+        "Says ReadModelScenario is added only where event dispatch, filtering, metadata or read-model wiring contribute proof.",
+        "States that scenarios do not prove real-kernel registration, replay, transport, encryption, erasure or migration."
+      ]
+    }
+  ]
+}

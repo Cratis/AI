@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-client-typescript",
+  "queries": [
+    { "query": "node script that appends an event to Chronicle with @cratis/chronicle. how do I set up the client and event class?", "shouldTrigger": true },
+    { "query": "my reactor method is never called. it's named sendWelcomeEmail and handles CustomerRegistered", "shouldTrigger": true },
+    { "query": "instanceof CustomerRegistered returns false inside my reactor handler. why?", "shouldTrigger": true },
+    { "query": "registration fails with an unresolved member on my event under tsx. i don't have @field on properties", "shouldTrigger": true },
+    { "query": "result.sequenceNumber prints an object not a number after eventLog.append", "shouldTrigger": true },
+    { "query": "after deploying compiled dist js none of my reactors register. dev with ts worked", "shouldTrigger": true },
+    { "query": "how do I stop a reactor from re-sending emails when the kernel replays?", "shouldTrigger": true },
+    { "query": "ChronicleClient has no connect(). when does it actually connect?", "shouldTrigger": true },
+    { "query": "can I unit test a reactor in TypeScript without a running kernel?", "shouldTrigger": true },
+    { "query": "React page calls the generated RegisterTask proxy and shows results.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Define a command with @command and handle() in the Arc TypeScript server.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Connect from a .NET worker with ChronicleClient and AddCratisChronicle.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Kotlin Spring app appending events through the Chronicle client.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Elixir OTP app with Chronicle.Client in the supervision tree.", "shouldTrigger": false, "note": "cratis-chronicle-client-elixir" },
+    { "query": "Evolve an event type to generation 2 and write the upcaster.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Encrypt a stored partner secret and erase PII for a data subject.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Add a query for the tasks read model in the Node Arc server.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-compliance",
+  "queries": [
+    { "query": "a customer asked us to delete all their data. our events are append-only in Chronicle. how do we handle right to erasure?", "shouldTrigger": true },
+    { "query": "CustomerRegistered has email and full name. how do I mark them as personal data so they can be shredded later?", "shouldTrigger": true },
+    { "query": "I wrote [PII(\"collected for billing\")] but the rationale doesn't show up in the event schema. where should it go?", "shouldTrigger": true },
+    { "query": "events on the order stream carry the buyer's address. which person does erasure operate on and how do I set it?", "shouldTrigger": true },
+    { "query": "analyzer CHR0034 complains about PII on my event source id. our stream id is the email address", "shouldTrigger": true },
+    { "query": "after erasing a subject, appending a new PII value throws EncryptionKeyErased. is that a bug?", "shouldTrigger": true },
+    { "query": "all PII fields suddenly read back as empty strings after we moved the key store. no errors", "shouldTrigger": true },
+    { "query": "someone appended a medical note by mistake. how do I remove that one event's content from the store?", "shouldTrigger": true },
+    { "query": "I fetched a read model through the client and the personal fields look encrypted. what call decrypts them?", "shouldTrigger": true },
+    { "query": "Evolve CustomerRegistered with a new required PhoneNumber field in a new generation.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Which Arc policy should protect the admin-only erasure endpoint?", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Stop the partner API key from being logged in the command causation chain.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Elixir client: how do I annotate a field as PII in an event struct?", "shouldTrigger": false, "note": "cratis-chronicle-client-elixir" },
+    { "query": "Configure per-tenant namespaces so each tenant's events are separate.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Where do I configure the HashiCorp Vault key store on the Chronicle server?", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
+    { "query": "Draft a GDPR data protection policy for our company.", "shouldTrigger": false, "note": "generic data-protection policy; out of scope for the skill" },
+    { "query": "Design the stream boundaries and events for the membership feature.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+  ]
+}

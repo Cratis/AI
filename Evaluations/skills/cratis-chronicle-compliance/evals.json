@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-chronicle-compliance",
+  "evals": [
+    {
+      "id": 1,
+      "name": "mark-pii-and-rationale",
+      "prompt": "A C# Chronicle app has `public record EmailAddress(string Value) : ConceptAs<string>(Value);` and an event `CustomerRegistered(EmailAddress Email, string FullName, string Plan)` appended on a stream whose event source id is the customer id. Mark the personal data, record why it's collected, and say whether `[Subject]` is needed. Give the code in your reply; do not write files.",
+      "expected_output": "[PII] on the concept (or [property: PII] on positional properties), [ComplianceDetails(...)] for the rationale rather than a [PII] argument, Plan left unmarked, and no [Subject] because the event source is the person.",
+      "assertions": [
+        "Marks the email and the full name as personal data, using [PII] on the concept type or [property: PII] on positional record properties.",
+        "Leaves the non-personal Plan property unmarked.",
+        "Records the rationale with [ComplianceDetails(...)] and notes that a string passed to [PII] is never read by Chronicle.",
+        "Says [Subject] is not needed because the subject defaults to the event source id when the person owns the stream."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "erase-a-subject",
+      "prompt": "A user exercises the right to erasure. Show the C# call to erase subject 'customer-42' in Chronicle and explain exactly what it does to stored events, what happens when later code appends a new PII value for that subject, and what to do if the call throws EncryptionKeyErasureIncomplete. Reply only.",
+      "expected_output": "IPIIManager.DeleteEncryptionKeyFor via eventStore.PII; crypto-shredding leaves events as unreadable ciphertext; later appends fail with EncryptionKeyErased unless AllowNewEncryptionKeyFor is called; incomplete erasure is retried.",
+      "assertions": [
+        "Calls eventStore.PII.DeleteEncryptionKeyFor with the subject value.",
+        "Explains the events stay in the log and the PII values become unreadable ciphertext, which is crypto-shredding rather than deletion.",
+        "States that appending a new PII value for an erased subject fails with EncryptionKeyErased unless AllowNewEncryptionKeyFor is called deliberately.",
+        "States that EncryptionKeyErasureIncomplete means unfinished erasure that is safe to retry because the fence is already in place."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "stream-identity-pii",
+      "prompt": "Our `Member` event stream uses the member's email address as its event source id, and the developer wants to add [PII] on that id so erasure works. What happens and what should the model be instead? Reply only.",
+      "expected_output": "[PII] on an event-source id is rejected (CHR0034 and PIINotSupportedOnEventSourceId at runtime) since Chronicle cannot encrypt the id; use a random surrogate stream id and carry the email as a [PII] property.",
+      "assertions": [
+        "States [PII] on an event source id is rejected by analyzer CHR0034 and at runtime by PIINotSupportedOnEventSourceId.",
+        "Recommends a random surrogate stream id.",
+        "Recommends carrying the email as a [PII] property of the event."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "erasure-scope-and-secrets",
+      "prompt": "Compliance asks: (1) does erasing the subject also remove the CSV export the app emailed last month, and the old database backup? (2) A bearer token is placed in an event payload; is [PII] the right protection? (3) Which tool removes one wrongly appended event's content? Reply only.",
+      "expected_output": "Crypto-shredding doesn't reach exports or backups, so model erasure as a wider flow; secrets shouldn't be in events at all, store a keyed hash or reference ([Encrypted] only for retained operational secrets, never with PII); use IEventSequence.Redact for a specific event.",
+      "assertions": [
+        "States that crypto-shredding does nothing for copies outside Chronicle such as exported CSVs or database backups, so the erasure flow must cover them as a product decision.",
+        "States that a bearer token or similar secret should not be a durable event fact; store a keyed hash or opaque reference instead.",
+        "States that [Encrypted] is a security marker for retained operational secrets and must never be combined with [PII] on the same value.",
+        "Names IEventSequence.Redact as the way to remove a specific event's content, distinct from subject key erasure."
+      ]
+    }
+  ]
+}
