@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-event-model-diagram",
+  "evals": [
+    {
+      "id": 1,
+      "name": "automation-or-translation",
+      "prompt": "Module Bookings has two reactors. (1) EmailSender reacts to our own BookingConfirmed event and sends an email, producing nothing. (2) PaymentWebhookAdapter receives the payment provider's PaymentReceived fact and appends our PaymentSettled event. Write the Mermaid eventmodeling frames for both, with the right classification. Give the code in your reply; do not write files.",
+      "expected_output": "Classify by where the data comes from. (1) is an automation: `rf <n> evt BookingConfirmed`, `tf <n+1> pcr EmailSender`, and no cmd/evt frames because it invokes no command. (2) is a translation: an outside-origin event frame with an `<ExternalSource>.` prefix, the adapter `pcr`, then our event: `rf evt Provider.PaymentReceived`, `tf pcr PaymentWebhookAdapter`, `tf evt PaymentSettled`. Section headers are `%%` comments.",
+      "assertions": [
+        "Draws the email reactor as an automation that starts with `rf` on our own event and a `pcr` frame, with no command or event frames after it.",
+        "Draws the webhook as a translation starting at an outside-origin `evt` with an `<ExternalSource>.` prefix, then a `pcr` adapter, then our `evt`.",
+        "Says classification is by where the data comes from, not by how the reactor is built.",
+        "Uses `%%` comments for section headers and `rf`/`tf` frame prefixes with unique numbers."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fan-in-read-model",
+      "prompt": "Events: BoatRegistered (frame 03), BoatRetired (frame 06) and BoatRenamed (frame 09) all feed the FleetOverview read model. Two personas, Harbor Manager and Dock Worker, both look at it. Write the frames and say how the consumers are connected. Give the code in your reply; do not write files.",
+      "expected_output": "`tf 10 rmo FleetOverview ->> 03 ->> 06 ->> 09`; the first consumer ui frame auto-chains and each additional consumer needs an explicit `rf <n> ui <Persona> ->> 10`. The ui lane holds persona names, never screen names, and connections only point to earlier frames.",
+      "assertions": [
+        "Writes the read model with multiple sources as `->> 03 ->> 06 ->> 09`, referencing earlier frame numbers.",
+        "Declares the first consumer ui frame after the read model and each additional consumer as its own `rf` frame with an explicit `->>` back to the rmo.",
+        "Uses persona names (Harbor Manager, Dock Worker) in the ui lane, not screen names.",
+        "Notes that every connection goes to a later frame, never back to an earlier one."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "model-is-authority",
+      "prompt": "An accepted .play model covers the Bookings module. While diagramming I notice the code has an extra command, ExtendBooking, that the model does not have, and a manager asks me to add it to the diagram and to 'fix the model to match the diagram'. How do you proceed? Reply only; do not write files.",
+      "expected_output": "The accepted model is the authority when it covers the scope: render the diagram from its slices (StateChange, StateView, Automation, Translate), do not add unmodeled behavior, and report the extra command as drift separately (through render-and-gap-fill hand-written changes). Never change the model to match a diagram; the diagram is a view of it.",
+      "assertions": [
+        "Says the accepted `.play` model is the source for the diagram and the diagram is rendered from its slices.",
+        "Says not to add the unmodeled ExtendBooking command to the diagram and to report it as drift separately.",
+        "Refuses to change the model to match the diagram.",
+        "Says code that disagrees with the model is reported through `cratis-screenplay-render-and-gap-fill` (hand-written changes), not resolved in the diagram."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "later-event-and-rules-table",
+      "prompt": "In our diagram a later event, BookingExtended (frame 12), should change what the earlier BookingsOverview read model (frame 05) shows. A teammate wants to draw an arrow from frame 12 back to frame 05. Also the diagram has no table for commands that emit nothing. What do you do? Reply only; do not write files.",
+      "expected_output": "Connections read forward: do not draw an arrow back. Draw a new `rmo` frame after the later event, sourced from the events that now matter (the same read model carried to a later state), with its own consumer `ui` frame if a person looks at it. Add a `## Command rules` section after the diagram with a table of Command, Rules and Emits / result, including commands that emit no event.",
+      "assertions": [
+        "Rejects the arrow back to an earlier frame because connections read forward to later frames.",
+        "Adds a new `rmo` frame after the later event, sourced from the events that now matter, as the same read model at a later state.",
+        "Adds a `## Command rules` section with a table whose columns are Command, Rules and Emits / result.",
+        "Includes commands that emit no event in the rules table."
+      ]
+    }
+  ]
+}
