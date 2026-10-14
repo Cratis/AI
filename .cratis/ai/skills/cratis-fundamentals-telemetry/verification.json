@@ -10,6 +10,6 @@
     { "kind": "skill-contains", "value": "typeof(T).FullName" },
     { "kind": "skill-contains", "value": "AddCratisOpenTelemetry" },
     { "kind": "skill-contains", "value": "no configured endpoint means no OTLP exporter" },
-    { "kind": "skill-contains", "value": "descriptions are now HELP text, not units" }
+    { "kind": "skill-contains", "value": "descriptions are HELP text, not units" }
   ]
 }

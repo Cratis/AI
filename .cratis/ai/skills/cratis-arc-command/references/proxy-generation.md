@@ -7,7 +7,7 @@
 - What the generator extracts for client-side validation
 - Failure modes
 
-Verified against `Cratis.Arc.ProxyGenerator.Build` `22.75.0`.
+Source: `Cratis.Arc.ProxyGenerator.Build`.
 
 ## Wiring
 
@@ -51,7 +51,7 @@ switches without a declared default are off when absent.
 | `CratisProxiesSkipIndexGeneration` | `false` | Does not write the per-folder `index.ts` barrels |
 | `CratisProxiesUseSourceFileAsOutputFile` | `false` | Names the generated file after the C# source file rather than the type |
 | `CratisProxiesUseProxyFileSuffix` | off | Emits `Name.proxy.ts` and matching barrels; avoids `.ts`/`.tsx` basename collisions |
-| `CratisProxiesEmitInterfaces` | off | **Arc ≥ 22.15.0** (the underlying `--emit-interfaces` flag exists from 22.14.0; the MSBuild property from 22.15.0). Emits plain TypeScript `interface`s instead of `@field`-decorated classes — no `@cratis/fundamentals` import in the output. Only for consumers that never reconstruct instances from JSON; command and query proxies need the classes |
+| `CratisProxiesEmitInterfaces` | off | Emits plain TypeScript `interface`s instead of `@field`-decorated classes — no `@cratis/fundamentals` import in the output. Only for consumers that never reconstruct instances from JSON; command and query proxies need the classes. Needs Arc 22.15.0 or later. |
 
 ⚠️ `CratisProxiesSkipOutputDeletion` defaults to `true`. Guidance that tells you
 to set it to `true` "so the generator does not delete your hand-written files"
@@ -60,7 +60,7 @@ is describing the default, not a fix.
 The generator preserves hand-written `index.ts` exports, and generated files
 follow the Cratis ESLint configuration. Named concepts live only in the backend
 model: generated TypeScript erases them to primitives; nullable concept properties
-are optional. Source at Arc v22.75.0: `Tools/ProxyGenerator/ConceptMap.cs` and
+are optional. Sources:
 `Tools/ProxyGenerator.Build/build/Cratis.Arc.ProxyGenerator.Build.targets` under
 `Source/DotNET`.
 

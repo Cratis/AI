@@ -6,12 +6,12 @@
 - Definition-backed routes and templates
 - Tags and completion
 - Decision specifications
-- Sources at v22.75.0
+- Sources
 
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-Verified at **Arc v22.75.0**. These features require `Cratis.Arc.Chronicle`.
+Source: Arc. These features require `Cratis.Arc.Chronicle`.
 
 ## Pick the guarded read
 
@@ -78,7 +78,7 @@ ARCCHR0017/0018 check invalid templates/properties. On reactors the value is
 literal, not a command template. `AmbiguousEventStreamId` rejects a non-NotSet
 attribute value combined with `ICanProvideEventStreamId`, **including templates**.
 Choose the attribute or the interface, not both. Source:
-[EventStreamIdTemplate.cs](https://github.com/Cratis/Arc/blob/v22.75.0/Source/DotNET/Chronicle/Commands/EventStreamIdTemplate.cs).
+[EventStreamIdTemplate.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle/Commands/EventStreamIdTemplate.cs).
 
 `IEventRoutes.For<TSource>(stream).WithStreamId(value)` resolves an `EventRoute`;
 `IStreamReads.Stream(id, route)` guards that route, while `StreamType(id, route)`
@@ -116,10 +116,10 @@ route, and that an independent route is not over-guarded.
 `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` checks projection
 admission in assembly-level specs.
 
-## Sources at v22.75.0
+## Sources
 
-- [Stream decisions](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/chronicle/commands/stream-decisions.md)
-- [Protected read-model decisions and limitations](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md)
-- [Concurrency and templates](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/chronicle/commands/concurrency.md)
-- [Event tags](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/chronicle/commands/event-tags.md)
-- [Completing streams](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/chronicle/commands/completing-streams.md)
+- [Stream decisions](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/commands/stream-decisions.md)
+- [Protected read-model decisions and limitations](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md)
+- [Concurrency and templates](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/commands/concurrency.md)
+- [Event tags](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/commands/event-tags.md)
+- [Completing streams](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/commands/completing-streams.md)

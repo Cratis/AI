@@ -10,8 +10,7 @@
 
 ## Discovery and explicit registration
 
-Existing projection/reactor APIs were verified at **Cratis/Chronicle v19.50.0**.
-Self and nominated reducer discovery were verified at **v19.59.4**:
+Source: Cratis/Chronicle, covering projection/reactor APIs and self and nominated reducer discovery:
 `Source/Clients/DotNET/DefaultClientArtifactsProvider.cs`,
 `Reducers/{SelfReducerMethods,RegisteredReducerReadModel,ReducerCatalog}.cs`,
 `ReadModels/ReadModelBuilderOwnership.cs`,
@@ -37,8 +36,10 @@ Multiple projection or reducer targets in one class fail discovery with
 `TypeImplementsMultipleProjectionInterfaces` / `TypeMustImplementOnlyOneReducer`
 (analyzer CHR0057). They are not silently flattened into independent artifacts.
 
-Complete self shapes are marker-free discovery signals (.NET-only since
-19.58.0). Existing static helpers can therefore become reducers on upgrade.
+Requires Chronicle 19.58.0 for self shapes.
+
+Complete self shapes are marker-free discovery signals (.NET-only).
+Existing static helpers can therefore become reducers on upgrade.
 No model is activated, and `Reduce` cannot take injected services. Static near
 misses whose current/result refers to the model warn (CHR0058) and are skipped;
 explicit nomination rejects them. Once a valid shape exists, malformed siblings
@@ -99,10 +100,9 @@ is missing.
 
 ## Observer handlers and reads
 
-This existing handler/read surface was verified at **v19.50.1**.
 **A reactor handler is found by its first parameter's type**, and further
 parameters are resolved as dependencies — `EventContext`, a read model, a service
-(`Source/Clients/DotNET/Reactors/EventHandlerMethods.cs:21-46`, `:89-103`). The
+(`Source/Clients/DotNET/Reactors/EventHandlerMethods.cs`). The
 return may be `Task`, `void`, or a side-effect event type.
 
 ```csharp
@@ -125,7 +125,7 @@ it is not something you write. `Source/Clients/DotNET/Observation/` holds
 
 Read models are queried through `eventStore.ReadModels`
 (`Source/Clients/DotNET/ReadModels/IReadModels.cs`):
-`GetInstanceById<TReadModel>(ReadModelKey, ReadModelSessionId?)` (`:38`),
-`GetInstances<TReadModel>(EventCount?)` (`:55`),
-`GetSnapshotsById<TReadModel>` (`:63`),
-`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()` (`:70`).
+`GetInstanceById<TReadModel>(ReadModelKey, ReadModelSessionId?)`,
+`GetInstances<TReadModel>(EventCount?)`,
+`GetSnapshotsById<TReadModel>`,
+`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()`.

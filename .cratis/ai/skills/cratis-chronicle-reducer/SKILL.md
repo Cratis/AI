@@ -13,22 +13,23 @@ branching on prior state, calculations or guards read better as code. A reducer
 is a normal choice, not a last resort. For the application-code ladder and PDL's
 outside-code role, read [choosing a style](../cratis-chronicle-read-model/SKILL.md#step-3--choose-a-projection-or-a-reducer).
 
+Requires Chronicle 19.58.0 for self-reducing read models.
+
 For new .NET reducers, default to **self-reducing read models**: public static
 `Reduce` methods beside the state, discovered by shape without a marker. Use a
 separate `IReducerFor<T>` for fold-time DI, replay-time instance state or useful
 separation; nominate a plain class only when its assembly cannot reference
-Chronicle. Self reduction is .NET-only (Cratis/Chronicle#4851); other SDKs retain
+Chronicle. Self reduction is .NET-only; other SDKs retain
 their own contracts. This guidance does not claim Stage renders the self form.
 
 ## Verified product sources
 
-This skill is verified against this exact source:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `19.50.1` | Existing reducer, read-model and event APIs |
-| `Cratis.Chronicle` | `19.59.4` | `Source/Clients/DotNET/Reducers/{SelfReducerMethods,SelfReducerInvoker,SelfReducerReplayHooks,RegisteredReducerReadModel,ReducerInvoker,ReducerCatalog}.cs`, `ReadModels/ReadModelBuilderOwnership.cs`, `DefaultClientArtifactsProvider.cs` at tag `v19.59.4`: self/instance forms, discovery and ownership |
-| `Cratis.Chronicle.Testing` | `19.59.4` | `Source/Clients/Testing/ReadModels/ReadModelScenario.cs` at tag `v19.59.4`: static folds through scenarios |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `Cratis.Chronicle.Reducers`, `Cratis.Chronicle.ReadModels`, `Cratis.Chronicle.Events`; self and instance forms, discovery and ownership (`Source/Clients/DotNET/Reducers/{SelfReducerMethods,SelfReducerInvoker,SelfReducerReplayHooks,RegisteredReducerReadModel,ReducerInvoker,ReducerCatalog}.cs`, `ReadModels/ReadModelBuilderOwnership.cs`, `DefaultClientArtifactsProvider.cs`) |
+| `Cratis.Chronicle.Testing` | `Source/Clients/Testing/ReadModels/ReadModelScenario.cs`: static folds through scenarios |
 
 Reverify product sources before claiming support for another version.
 
@@ -93,10 +94,10 @@ No model activation, parameterless constructor or reducer marker is needed.
 ### Arc on the same record
 
 In Arc applications keep `[ReadModel]`, `Reduce` methods and static queries on
-one record. Before Arc 22.90.0, use
+one record. On an Arc older than 22.90.0, use
 `[ReadModel(RequireQueryAttribute = true)]` with `[Query]` on intended endpoints;
 see [query discovery](../cratis-chronicle-read-model/references/queries.md#discovery-rules).
-From Arc 22.90.0, Arc excludes methods taking the model itself from query
+Requires Arc 22.90.0 for the automatic behavior: Arc excludes methods taking the model itself from query
 discovery, and Arc.Chronicle claims self-reducing models for command injection.
 Check the consuming Arc version; Chronicle's discovery does not fix older Arc.
 
@@ -231,14 +232,14 @@ model type** and makes it passive as a whole: no sink, nothing materialized, and
 the instance is computed on demand when it is read. Reach for it when a
 command-side read needs the model current at the moment it is read. Passive is
 fresher, not safer: a passive reducer read captures no position and guards nothing,
-and a reducer (or a self-reducing model, since Chronicle 19.58.0) is refused by
+and a reducer (or a self-reducing model) is refused by
 decision reads. For a rule that must hold under concurrent writers use a flat
 projection with a decision read; see
 [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
 
 ## Discovery, upgrades and ownership
 
-Since 19.58.0, complete marker-free static shapes become reducers on upgrade,
+Requires Chronicle 19.58.0: complete marker-free static shapes become reducers on upgrade,
 including existing helpers. Review them before upgrading. Near-miss static
 `Reduce` declarations whose current/result refers to the model warn (CHR0058)
 and are skipped by implicit discovery; explicit nomination throws
@@ -313,11 +314,11 @@ Filters remain effective during catch-up, replay and failed-partition recovery.
 The kernel classifies new definitions under `observers.definitionEvolution`:
 `Automatic` (default), `PartialOnly`, or `Manual`. Reducer method fingerprints
 make code changes visible even without subscription changes; assembly versions
-are ignored since 19.29.4 (that upgrade replays each reducer once). Changed
+are ignored (Requires Chronicle 19.29.4). Changed
 implementation, keys or filters require full replay; adding event types permits
 partial replay only when history proves they follow all previously consumed
 events per source. Interleaved history requires full replay. Manual policies
-leave recommendations; they do not silently rebuild. Source at v19.50.0:
+leave recommendations; they do not silently rebuild. Source:
 `Documentation/hosting/configuration/observers.md`.
 
 ## Specifications

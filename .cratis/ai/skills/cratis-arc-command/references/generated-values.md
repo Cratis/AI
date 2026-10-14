@@ -14,13 +14,15 @@
 
 ## Declare the value and command
 
-Generated parameters arrived in Arc **22.66.0**, scenario pinning in **22.67.0**,
-and analyzers in **22.68.0**. The examples and behavior here are verified at
-**v22.68.0**, which pins Fundamentals **7.23.0**.
+Requires Arc 22.66.0 for generated parameters.
+
+Requires Arc 22.67.0 for scenario pinning.
+
+Requires Arc 22.68.0 for the ARC0022–ARC0025 analyzers.
 
 For the current threaded example, read [shop commands](shop-generation.md) and
 [shop concepts](../../cratis-fundamentals-concept/references/shop-generation.md).
-Those declarations are separately verified at Arc 22.87.1 / Fundamentals 7.24.0:
+Those declarations show:
 CustomerId (`cus_` + ULID), context-aware TypeID OrderId, NanoID InviteCode and
 secret bytes ApiKey. They allocate responses, not events or persisted entities.
 For a real Chronicle stream identity use `EventSourceId<T>`; return `(id, event)`
@@ -66,7 +68,7 @@ ordinary response, event and compliance contracts.
 
 ## Analyzer diagnostics
 
-Arc v22.75.0 reports these at compile time; none has a code fix. Runtime
+Arc reports these at compile time; none has a code fix. Runtime
 handler-construction checks remain for declarations compiled without analyzers.
 
 | Diagnostic | Severity | Fix |
@@ -117,17 +119,14 @@ Published guides:
   [ARC0024](/arc/backend/csharp/code-analysis/arc0024/),
   [ARC0025](/arc/backend/csharp/code-analysis/arc0025/).
 
-Source rechecked at **Arc v22.75.0** (generation/pinning APIs unchanged since
-the prior verification): `Source/DotNET/Arc.Core/Commands/ModelBound/GeneratedValueAttribute.cs`,
+Source: `Source/DotNET/Arc.Core/Commands/ModelBound/GeneratedValueAttribute.cs`,
 `Commands/GeneratedValueParameters.cs`, `GeneratedValueFactories.cs`,
 `CommandHandlerArgumentResolver.cs`, `GeneratedValueResolution.cs`;
 `Source/DotNET/Arc.Core.CodeAnalysis/DiagnosticDescriptors.cs`; and
 `Source/DotNET/Testing/Commands/CommandScenarioGeneratedValueExtensions.cs`.
 
-The older 22.75.0 baseline has no contextual generation beyond Fundamentals
-7.23.0 UUID helpers. Arc **22.87.1** separately supports received-time/tenant
-context and Fundamentals 7.24.0's additional strategies; [sources and Clock/Tenant
-setup](shop-generation.md). Neither tag supplies a native freshness/collision
-allocator or a pattern contract. Screenplay 4.147.0+ separately admits concept `generate`
+Contextual generation (received time and tenant) and Fundamentals' additional strategies need a newer Arc; [sources and Clock/Tenant
+setup](shop-generation.md). Arc does not supply a native freshness/collision
+allocator or a pattern contract. Screenplay separately admits concept `generate`
 strategies and freshness; see `cratis-screenplay-command-surface/references/generated-values-and-responses.md`
 for that language contract and Stage's explicit scopes, not native Arc freshness support.

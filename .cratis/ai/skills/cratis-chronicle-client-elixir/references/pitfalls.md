@@ -3,14 +3,14 @@
 
 # Common pitfalls
 
-Verified at `Cratis/Chronicle.Elixir v3.10.2`; historical qualifications are intentional.
+Source: `Cratis/Chronicle.Elixir`.
 
 | Pitfall | Why it bites |
 | --- | --- |
-| Copying the `v2.2.0` root README | Its module names do not exist; the `3.x` README is correct |
-| Using `Chronicle.Concept` on `2.2.0` | It ships from `3.0.0`; on `2.2.0` annotate fields with `pii/1,2` instead |
+| Copying an older root README | Its module names may not exist; use namespaced `Chronicle.*` modules |
+| Using `Chronicle.Concept` on a client that lacks it | Annotate fields with `pii/1,2` instead |
 | Combining `pii` and `encrypted` | The same leaf raises `PiiAndEncryptedCombinedNotSupported`; neither is allowed on an `event_source_id: true` concept |
-| Quoting the `VERSION` file | It is a `0.0.5` build-time placeholder |
+| Quoting the `VERSION` file | It is a build-time placeholder |
 | Putting options only in `config.exs` | The client reads no application env; your app must pass child-spec keyword options |
 | Omitting `:otp_app` | Discovery falls back to scanning every loaded module |
 | Assuming the namespace default is `"default"` | It is `"Default"`; the moduledoc is wrong |

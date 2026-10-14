@@ -18,21 +18,21 @@ the mechanism for uniqueness and create-once. It cannot count, sum or test a
 predicate: capacity and stock rules need a decision read, a stream decision or an
 aggregate. Read [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md)
 when it is unclear which one a rule needs. Limits: the claim is settled after the
-durable append (decision 0005), so a failed index update can let a later duplicate
+durable append, so a failed index update can let a later duplicate
 through until a reindex; constraints apply per event store namespace and event
 sequence, so tenants in different namespaces can claim the same value; and a
 constraint is not re-run when the kernel retries a duplicate sequence number.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` (client) | `19.50.1` | uniqueness, stream closing, constraint builders and append results |
-| `Cratis.Chronicle` code analysis | `19.50.1` | `CHR0017`, `CHR0018`, `CHR0020` |
-| `Cratis.Chronicle.Testing` | `19.50.1` | `EventScenario` and the `IAppendResult` `Should*` assertions |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` (client) | uniqueness, stream closing, constraint builders and append results |
+| `Cratis.Chronicle` code analysis | `CHR0017`, `CHR0018`, `CHR0020` |
+| `Cratis.Chronicle.Testing` | `EventScenario` and the `IAppendResult` `Should*` assertions |
 
 Sources: `Source/Clients/DotNET/Events/Constraints/`,
-`EventSequences/IEventSequence.cs` and `Source/Clients/Testing/` at v19.50.0.
+`EventSequences/IEventSequence.cs` and `Source/Clients/Testing/`.
 
 Reverify against the Chronicle repository before claiming support for another
 version. Never translate an attribute argument order or an assertion name from

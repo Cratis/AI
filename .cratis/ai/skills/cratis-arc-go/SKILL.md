@@ -2,7 +2,7 @@
 name: cratis-arc-go
 description: Build a Go HTTP CQRS application with Arc.Go commands, read-model queries, validation, identity and explicit hosting lifecycle. Use for the tagged root module and handwritten typed adapters. Do not use for Chronicle-only clients, C# or JVM Arc, or unpublished Go integration and generator modules.
 license: MIT
-compatibility: Go 1.26 or later for Arc.Go v0.1.1; root module only.
+compatibility: Go 1.26 or later; root module only.
 ---
 
 <!-- Copyright (c) Cratis. All rights reserved. -->
@@ -10,31 +10,31 @@ compatibility: Go 1.26 or later for Arc.Go v0.1.1; root module only.
 
 # Arc HTTP CQRS in Go
 
-> **Experimental v0:** Arc.Go **v0.1.1**. Companion guidance targets
-> Chronicle.Go **v0.9.1** and Fundamentals.Go **v0.3.2**. Minor releases may break APIs.
+> **Experimental v0:** minor releases may break APIs; pin the module version you test against.
+> Companion guidance: Chronicle.Go and Fundamentals.Go.
 
 **Only `github.com/cratis/arc.go`, the root module, is tagged.** Chronicle and
 MongoDB integrations, `arc-gen`, `arc-vet` and framework-host recipes are separate
-**source previews**, not installable released modules at v0.1.1. Do not prescribe
+**source previews**, not installable released modules. Do not prescribe
 those tools, promise generated proxies, or claim returned events append to
 Chronicle in this root-module setup. Arc commands can return ordinary responses
 without an event store.
 
 ## Verified product sources
 
-| Product | Tag | Source checked |
-| --- | --- | --- |
-| Arc.Go (`github.com/cratis/arc.go`) | `v0.1.1` | `builder.go`, `application.go`, `server.go`, `lifecycle.go`, `commands/registration.go`, `commands/result.go`, `queries/registration.go`, `queries/example_test.go`, `authentication/microsoft_identity.go`, `example_test.go`, `arctest/example_test.go` |
+| Product | Source checked |
+| --- | --- |
+| Arc.Go (`github.com/cratis/arc.go`) | `builder.go`, `application.go`, `server.go`, `lifecycle.go`, `commands/registration.go`, `commands/result.go`, `queries/registration.go`, `queries/example_test.go`, `authentication/microsoft_identity.go`, `example_test.go`, `arctest/example_test.go` |
 
-[Source at v0.1.1](https://github.com/Cratis/Arc.Go/tree/v0.1.1)
-is authoritative. The README's “no tagged Go release yet” wording is stale.
-The [parity ledger](https://github.com/Cratis/Arc.Go/blob/v0.1.1/Documentation/parity.md)
+[Source](https://github.com/Cratis/Arc.Go)
+is authoritative. A README that says there is no tagged Go release is stale.
+The [parity document](https://github.com/Cratis/Arc.Go/blob/main/Documentation/parity.md)
 reports bounded **Partial** conformance; a paired snapshot HTTP checkpoint with
-34/36 strict matches does not establish command, authentication, HEAD or whole-product parity.
+strict matches does not establish command, authentication, HEAD or whole-product parity.
 
 ## Declare, register and host a command
 
-Install `github.com/cratis/arc.go@v0.1.1` in a consumer module. This complete
+Install `github.com/cratis/arc.go` at your chosen release in a consumer module. This complete
 package exposes a greeting with explicit handwritten registration:
 
 ```go
@@ -114,7 +114,7 @@ Use a lifecycle-bearing `observable.Source` with `queries.RegisterObservable`,
 not an arbitrary channel returned from a snapshot registration. Preserve query
 identity, authorization/validation on emissions, backpressure and joined cleanup;
 SSE and WebSocket framing are not interchangeable. Consult the tagged
-[observable query guide](https://github.com/Cratis/Arc.Go/blob/v0.1.1/Documentation/backend/go/queries/observable-queries.md)
+[observable query guide](https://github.com/Cratis/Arc.Go/blob/main/Documentation/backend/go/queries/observable-queries.md)
 before choosing transport or delta behavior. Do not generalize its supported
 profile to an unpublished MongoDB/Chronicle provider.
 
@@ -144,5 +144,4 @@ into Go code.
 - Inline operations have commit-aware recovery, not a generic rollback promise;
   consult tagged operation sources before implementing effects or compensation.
 - A Chronicle-only client belongs in `cratis-chronicle-client-go`, not this skill.
-- Arc.Go v0.1.1 requires Fundamentals.Go v0.1.0; the separate concepts skill's
-  v0.3.2 pin is not a required dependency upgrade.
+- Check the module's `go.mod` for the Fundamentals.Go it requires; the separate concepts skill is not a required dependency upgrade.

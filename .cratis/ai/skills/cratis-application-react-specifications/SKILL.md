@@ -135,7 +135,7 @@ Cratis Components mount inside `CratisComponentsProvider`, so a specification
 that renders one for real must provide it (enable `toaster` only when asserting
 toasts). In jsdom, provide a `ResizeObserver` stub for any Components area that
 observes size, including observable tables, Filter and toolbars. Source-checked
-at Components v4.26.4 (`Source/**`); this is not a split-pane-only requirement.
+in Components (`Source/**`); this is not a split-pane-only requirement.
 
 ## Async and time
 

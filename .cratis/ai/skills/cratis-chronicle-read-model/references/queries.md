@@ -11,7 +11,7 @@
 - Custom routes
 - Reading without a query surface
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc.MongoDB` **v22.75.0**.
+Sources: `Cratis.Arc.Core` and `Cratis.Arc.MongoDB`.
 Chronicle projection behavior is owned by the Chronicle guidance.
 
 ## Where the pieces live
@@ -40,8 +40,8 @@ query declarations; ARCCHR0019 warns about fold-like statics exposed by conventi
 A `CancellationToken` parameter is supplied by Arc, not a query argument/proxy
 input. Concept parameters are always caller-supplied, never DI. Invalid bool,
 overflow, concept or collection-element GET/QUERY arguments return HTTP 400.
-Minimal-API concepts serialize as primitives since 22.26.0.
-Sources at Arc v22.75.0: `Arc.Core/Queries/ModelBound/ReadModelAttribute.cs`,
+Minimal-API concepts serialize as primitives.
+Sources: `Arc.Core/Queries/ModelBound/ReadModelAttribute.cs`,
 `QueryAttribute.cs`, and `Documentation/backend/csharp/chronicle/code-analysis/ARCCHR0019.md`.
 
 The declared return type is validated after unwrapping at most one `Task<>`:
@@ -149,9 +149,9 @@ Guard React `result.hasData` and `result.isReady` before dereferencing data.
 
 ## Cost and composition
 
-The behavior below was checked against **Arc v22.75.0**
-([collection observation](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/mongodb/observing-collections.md),
-[implementation](https://github.com/Cratis/Arc/blob/v22.75.0/Source/DotNET/MongoDB/MongoCollectionExtensions.cs)).
+The behavior below is described in
+([collection observation](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/mongodb/observing-collections.md),
+[implementation](https://github.com/Cratis/Arc/blob/main/Source/DotNET/MongoDB/MongoCollectionExtensions.cs)).
 Do not generalize it to every provider or custom observable.
 
 - Per-collection `Observe` reads an initial filtered set, retains it in memory,
@@ -177,9 +177,9 @@ Do not generalize it to every provider or custom observable.
 - Prefer a purpose-built projected summary for frequently recomputed joins.
   Query-time composition is supported, not forbidden. Bound each input and define
   count, paging, missing-related-data, and subscription-disposal behavior.
-  At v22.75.0 MongoDB and EF auxiliary observations can use `ignoreQueryContext: true` so client
+  MongoDB and EF auxiliary observations can use `ignoreQueryContext: true` so client
   paging/counts belong to the primary source. That option reads **all matching
-  auxiliary rows**; it is not a performance limit. Confirm version support before
+  auxiliary rows**; it is not a performance limit. Confirm the installed Arc supports it before
   using it, and keep an explicit narrow filter.
 
 Use the **cratis-arc-query-paging** skill for source-side paging. Paging an

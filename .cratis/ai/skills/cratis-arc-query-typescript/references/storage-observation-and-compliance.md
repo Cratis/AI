@@ -3,7 +3,7 @@
 
 # Storage observation and protected raw reads
 
-Verified at `Cratis/Arc.TypeScript` **v0.57.2** (source preview, not on npm):
+Source: `Cratis/Arc.TypeScript` (source preview, not on npm):
 `Source/Drizzle/DrizzleOptions.ts`, package exports and observation code,
 `Source/MongoDB/MongoReadModelsOptions.ts`, `Source/Chronicle/releaseRawDocument.ts`,
 `Documentation/sql/observing-tables.md`, `observing-postgresql.md`, and
@@ -11,7 +11,7 @@ Verified at `Cratis/Arc.TypeScript` **v0.57.2** (source preview, not on npm):
 
 ## Drizzle live queries
 
-`rxjs ^7.8.2` is a **required peer** of `@cratis/arc.drizzle`, even with
+`rxjs` is a **required peer** of `@cratis/arc.drizzle`, even with
 observation disabled. Starting an observation without opting in throws; it never
 silently returns a stream that will not update.
 

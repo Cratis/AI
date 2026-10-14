@@ -4,7 +4,7 @@ description: Use when AI-generated or AI-modified changes need a Code Health gat
 license: Apache-2.0
 ---
 
-<!-- Modified by Cratis from CodeScene AB's original (Apache-2.0): added profile guard, policy note, license field and this notice. Upstream: https://github.com/codescene-oss/codescene-mcp-server/blob/96aad9180a4261e048a81806b510108896b3c576/skills/safeguarding-ai-generated-code/SKILL.md -->
+<!-- Modified by Cratis from CodeScene AB's original (Apache-2.0): added profile guard, policy note, license field and this notice. Upstream: https://github.com/codescene-oss/codescene-mcp-server (skills/safeguarding-ai-generated-code/SKILL.md; see NOTICE) -->
 
 # Safeguarding AI-Generated Code
 
