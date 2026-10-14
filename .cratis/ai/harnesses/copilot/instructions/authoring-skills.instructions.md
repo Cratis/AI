@@ -40,6 +40,12 @@ Keep decision rules, the core workflow and pre-action traps in `SKILL.md`. Move 
 
 Describe behavior, syntax and diagnostics without dates or relative-time claims. Remove release/probe results, issue/PR/decision numbers, source-line citations, commit hashes, bundled versions and research-only pages; these age without helping the next task. No provenance, contradictions or release-baseline pages, nor verified-source headings in skills. Preserve a diagnostic's identifier, not the investigation history.
 
+Before removing a version, decide what it marks; deleting it blindly turns a true statement into a false one:
+
+- **History** (when something was verified, probed or shipped): remove it.
+- **The release that introduced a behavior**: keep it as a `Requires` line naming that release, confirmed in the product's release tags, never the version something happened to be checked at.
+- **A behavior that changed, or a defect fixed, in a release**: keep a `Requires` line that also says what older releases do, or remove it only when no supported user can run an older release.
+
 Keep pins in `product-sync.json` and compatibility documentation under `Documentation/`, not repeated prose. Track product-documentation conflicts in the product's issues. A minimum-construct table is useful only when it is short and contains actual code-breaking prerequisites.
 
 ## 5. Instruction style

@@ -219,7 +219,9 @@ The guidance that cannot be checked mechanically:
 
 `SKILL_AUTHORING_MODE=warn|fail` defaults to warnings for new content checks. Description trigger
 and voice, asset reachability, the evaluation-coverage ratchet and the 200-line `general.md` limit
-always fail on defects. `SKILL_HYGIENE_MODE` continues to control the existing skill-body lint.
+always fail on defects. The skill-body hygiene lint (versions outside `Requires` lines, issue numbers,
+source-line citations, hashes and history wording) fails verification; `SKILL_HYGIENE_MODE=warn` reports
+findings without failing.
 
 ### Evaluate skills
 
