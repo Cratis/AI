@@ -1,5 +1,7 @@
 ---
-applyTo: "**/*"
+applyTo: "**/.cratis/**"
+paths:
+  - "**/.cratis/**"
 ---
 
 # `.cratis/` is configuration, never a place to produce things

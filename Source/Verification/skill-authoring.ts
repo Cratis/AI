@@ -75,8 +75,60 @@ export function instructionAuthoringFindings(file: string, content: string): Aut
     return instructionHygieneFindings(file, content);
 }
 
+/** Warn-mode ceilings, set just above today's totals, for the rule bytes each harness loads at session start. */
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 113_000, copilot: 91_000, pi: 115_000, cursor: 23_000, 'codex-opencode': 23_000 };
+
+/** Warn-mode ceiling for the combined bytes of rules without `paths`, which Claude Code loads at session start. */
+export const unscopedRuleBudget = 91_000;
+
+const universalGlobs = new Set(['**', '**/*', '*']);
+
+function scopes(header: string, key: string): string[] {
+    const block = new RegExp(`^${key}:[ \\t]*([^\\n]*)((?:\\n[ \\t]+[^\\n]*)*)`, 'm').exec(header);
+    if (!block) return [];
+    return `${block[1]}\n${block[2]}`.split(/[\n,]/).map(part => part.replace(/^\s*-\s*/, '').trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+}
+
+/** What a harness loads besides the canonical rules: the generated Copilot adapters and the Cursor rule file. */
+export interface LoadedHarnessArtifacts {
+    copilotAdapters?: Array<{ file: string; content: string }>;
+    cursorRule?: string;
+}
+
+/**
+ * Rule bytes loaded at session start per harness, counting the artifacts each one reads:
+ * Claude Code reads CLAUDE.md (general.md) and every `.claude/rules` file without `paths`, so general.md arrives twice;
+ * Copilot reads copilot-instructions.md (general.md) and the generated adapters whose `applyTo` covers every file;
+ * Pi reads AGENTS.md (general.md) as a context file and puts every universal rule in the system prompt, so general.md is counted twice;
+ * Cursor reads its always-apply rule file and the general.md it references; Codex and OpenCode read AGENTS.md (general.md).
+ */
+export function alwaysOnHarnessBytes(entries: Array<{ file: string; content: string }>, loaded: LoadedHarnessArtifacts = {}): Record<string, number> {
+    const totals: Record<string, number> = { 'claude-code': 0, copilot: 0, pi: 0, cursor: 0, 'codex-opencode': 0 };
+    const universal = (header: string): boolean => scopes(header, 'applyTo').some(glob => universalGlobs.has(glob));
+    for (const { file, content } of entries) {
+        const header = content.slice(0, content.length - skillBody(content).length);
+        const bytes = Buffer.byteLength(content);
+        const applyTo = scopes(header, 'applyTo');
+        const paths = scopes(header, 'paths');
+        const general = file.endsWith('/general.md');
+        if (general) {
+            totals['claude-code'] += bytes;
+            totals.pi += bytes;
+            totals.cursor += bytes + Buffer.byteLength(loaded.cursorRule ?? '');
+            totals['codex-opencode'] += bytes;
+        }
+        if (paths.length === 0) totals['claude-code'] += bytes;
+        if (general || (!loaded.copilotAdapters && universal(header))) totals.copilot += bytes;
+        if ((applyTo.length === 0 && paths.length === 0) || [...applyTo, ...paths].some(glob => universalGlobs.has(glob))) totals.pi += bytes;
+    }
+    for (const { content } of loaded.copilotAdapters ?? []) {
+        if (universal(content.slice(0, content.length - skillBody(content).length))) totals.copilot += Buffer.byteLength(content);
+    }
+    return totals;
+}
+
 /** Byte and unscoped-rule totals complement the hard always-on line cap. */
-export function alwaysOnFindings(entries: Array<{ file: string; content: string }>): AuthoringFinding[] {
+export function alwaysOnFindings(entries: Array<{ file: string; content: string }>, budgets = alwaysOnHarnessBudgets, loaded: LoadedHarnessArtifacts = {}): AuthoringFinding[] {
     const findings: AuthoringFinding[] = [];
     let unscopedBytes = 0;
     for (const { file, content } of entries) {
@@ -90,7 +142,11 @@ export function alwaysOnFindings(entries: Array<{ file: string; content: string 
         }
         if (/^applyTo:\s*["']?\*\*\/\*["']?\s*$/m.test(header) && content.length > 4_000) add('copilot-budget', `${content.length} characters; review above 4,000.`);
     }
-    if (unscopedBytes > 60_000) findings.push({ file: '.cratis/ai/rules', line: 1, rule: 'unscoped-rule-bytes', matchedText: `${unscopedBytes} bytes; budget 60,000.` });
+    const totals = alwaysOnHarnessBytes(entries, loaded);
+    for (const [harness, budget] of Object.entries(budgets)) {
+        if (totals[harness] > budget) findings.push({ file: '.cratis/ai/rules', line: 1, rule: 'always-on-harness-bytes', matchedText: `${harness} loads ${totals[harness]} rule bytes at session start; budget ${budget}.` });
+    }
+    if (unscopedBytes > unscopedRuleBudget) findings.push({ file: '.cratis/ai/rules', line: 1, rule: 'unscoped-rule-bytes', matchedText: `${unscopedBytes} bytes; budget ${unscopedRuleBudget.toLocaleString('en-US')}.` });
     return findings;
 }
 
