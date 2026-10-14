@@ -56,6 +56,13 @@ name them as unfinished.
 
 ## 2. Rule rejection (one per rule)
 - Ask: "Which values would you refuse, and what would you tell the person?"
+- Test: could a domain expert recognize the rule from its message and argue about it? If not,
+  it is not a scenario. Not scenarios in Screenplay: a type mismatch the binder rejects, a
+  missing required property, malformed JSON, a collision of `generated` identifiers, an
+  infrastructure fault (matrix cell `n/a: technical`).
+- Deliberate exceptions: a concept rule is domain vocabulary that renders into a validator at
+  every use, so it gets its one acceptance, rejection and boundary set; this is not per-field
+  schema testing. Every rule stated in the brief or a persona `Cannot` line maps to a matrix cell.
 - Applies: every command `validate`/`require` rule that is a business rule, and every
   `concept` rule.
 - Concept rules travel with every use: cover each once with representative acceptance,
@@ -114,9 +121,12 @@ name them as unfinished.
   protected decision.
 
 ## 5. Duplicate action and retry
-- Ask: "What if the same request arrives twice - a double click, a timeout and retry, a
-  replayed message?"
-- Decide which promise the business needs:
+- Ask first as a business question: "What if someone does this again to something already in
+  that state?" (confirm a confirmed reservation, resolve a resolved todo). Then take the
+  delivery view: a double click, a timeout and retry, a replayed message; retry semantics are
+  owned by `cratis-screenplay-streams-and-consistency`.
+- Decide which promise the business needs (once-only facts are business promises, such as
+  "a reservation is confirmed once", and stay specified):
   - **once-only fact**: the second attempt must not create a second fact (`unique event`);
   - **idempotent handling**: the second attempt must *succeed* without a new fact - not
     expressible as a constraint outcome; record it as a target requirement;
@@ -176,6 +186,17 @@ name them as unfinished.
 - Shape: the reported outcome is a **fact** (a refusal received is an event), specified in the
   Translate or Automation slice; a missing answer is a time-based scenario. A rejection
   (`then error`) is only for requests we refuse ourselves.
+- **Shown:** a failure fact that someone must act on reaches a view the person reads (a status
+  literal and the reason, mapped from the failure event). Pin it with a view specification:
+  `given <OpeningFact>`, `given <FailureFact>`, then `then query` with the failed status and
+  the reason. A failure only an automation sees is covered by the review question in
+  `cratis-screenplay-automations-and-translations`. A failure a person must act on that no
+  screen shows is a gap.
+- **Recoverable:** after the failure fact, the retry the business allows is accepted:
+  `given <FailureFact>`, `when <RetryCommand>`, `then <AttemptFact>`. It catches a once-only
+  constraint (`unique event`) that locks legitimate recovery out, and is the opposite case to
+  section 5 (duplicate action). `RetryingPaymentAfterADecline` in `invoicing-dues-example.md` is the
+  complete form. When the business forbids a retry, the case is a state violation with its message.
 - n/a: no external system in the path.
 
 ## 10. Compensation
@@ -183,6 +204,12 @@ name them as unfinished.
 - Shape: the reversal command's own specs, plus a spec proving the effect of the reversal:
   a released claim (`ReservingABerthNightFreedByACancellation`) or a removed row
   (`BerthBoardLifecycle3Cancelled`). Corrections are new facts, never edits of old ones.
+- When undoing one fact obliges follow-up work (a refund after a paid booking is cancelled), the
+  follow-up is an Automation slice. Specify it there: `given <PriorFact>`, `when append
+  <CancellationFact>`, `then <RefundRequested>` (or the pending-work row), and the case where no
+  compensation is owed (cancelled before payment: no refund fact). Recipes:
+  `cratis-screenplay-automations-and-translations` `references/cases-to-specify.md`;
+  `RequestingARefundAfterAReversal` in `invoicing-dues-design.md` is the complete form.
 - Often reveals a missing event: if nothing can undo a fact the business can reverse, ask.
 
 ## 11. Evolution compatibility
@@ -221,6 +248,22 @@ rules, gates, mappings or contracts to make an example pass.
   condition. Denial: valid business input, vary only the caller. Validation: satisfy every other
   rule.
 - Unknown domain values stay questions, not plausible inventions.
+- Show the deciding values in the spec body: the values the rule reads (the command card's
+  `Reads:` line in slice-design `references/command-inventory.md`), the identities tying the
+  steps together (the same `for` and identifier throughout) and the asserted outcome. Choose them
+  at the edge that matters (one day past the limit, the amount exactly at the cap), never vague.
+  Screenplay requires every required property on givens, commands and expected events, so
+  put the non-deciding values in a typed `example` fixture at feature scope and write only
+  the deciding values as step overrides; reuse an example only where its meaning agrees across
+  features. If a rule needs a value no declaration carries, add the property (an input, event
+  field or view field) instead of explaining it in `description`.
+- Comparison differs by `then` form. An event `then` states every required property and the
+  whole set of new facts must match (assert nothing extra, in order unless `events in any
+  order`). `then readmodel` and `then query` match as a subset of the stated properties unless
+  `exactly` is written, and a query's row count is always exact. Use `exactly` only when an
+  unexpected extra property must fail.
+- A spec `description` names the behavior witnessed or an outside condition or regulation.
+  It never carries a fact that belongs in a `given`, a value or an outcome.
 - Handoff after fixture work reports: the spec names added or changed; each meaningful fixture
   change and why (a demonstrated contradiction, never a rule changed to fit); which existing
   intentional examples were preserved; where a reused value came from (the event, command input

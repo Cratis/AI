@@ -3,6 +3,7 @@
 ## Contents
 
 - Command card
+- Values a rule reads
 - The inventory
 - Filled for `worked-example.md`
 - Common mistakes
@@ -26,6 +27,7 @@ Origins:        <screen action / form / reaction invokes (event, clock or applic
                 a reaction)
 Inputs:         <property: Concept - who supplies it - why the caller decides it>
 Identifier:     <property naming the instance, or "allocation" with the reason>
+Reads:          <per rule: each value it reads, as input | state | context>
 Rules by layer: <concept validate | command validate/require | authorize | claim policy
                  | constraint | stored-state (NOT enforced, target named)>
 Success:        <event(s) with for <identifier>, payload mapping>
@@ -57,6 +59,70 @@ issues no command; any later command is reached through a reaction. Design
 these in `cratis-screenplay-automations-and-translations`. Every automation-issued command states
 what happens when it fails or is retried.
 
+## Values a rule reads
+
+Before placing a rule in a layer, list every value it reads and classify each one:
+
+- **input**: a command property the caller decides.
+- **state**: a `reads <View>` path, or the prior facts of the stream.
+- **context**: the time the decision occurs, the caller, the tenant.
+
+Decision state is the part of *state* a rule actually branches on. Derive it from the
+specifications, not from the event's shape: a "given no prior activity" and "given already
+{X}" pair means one flag for {X} (a presence check is a flag or a nullable instance); a
+scenario that discriminates on a value means that value. A `reads` view carries exactly the facts the command's specifications branch on, one field
+per fact. Add nothing because an event happens to carry it.
+
+A value that fits none of the three is a gap: a missing input, a missing view or a hidden
+dependency. Do not close it with prose in `description` or `handler`.
+
+Context is never a command property. The pipeline supplies who is calling and when, because a
+caller-supplied "who am I" or "what time is it" cannot be trusted, and a field the caller
+fills is still an input. A date the person chooses (a start day, a requested slot) is an
+input; "now" is context. A declarative `require` reads only command properties and read state,
+so a rule over context is a named `rule` with a code body (its `RuleContext` carries
+`Occurred`, `CausedBy` and `Tenant`), or an `authorize` policy when it concerns roles or
+claims. The reference runner cannot execute an opaque body: record that, do not delete the
+rule. When a rule depends on a local calendar day ("before midnight", "a business day"), state
+whose timezone applies and where it comes from (an input, a setting read through a view, or an
+open question).
+
+Give each context-reading rule its own inventory row, and have its specification state the
+context it relies on: `given clock` for time, `given caller` or `given caller as <Persona>`
+for the actor. A time rule without `given clock` is not pinned.
+
+~~~screenplay test=unbound
+domain Bikeshare.Rentals
+
+concept ReservationId : Uuid
+concept BikeId : Uuid
+
+module Rentals
+  feature Reservations
+    slice StateChange ReserveBike
+      command ReserveBike
+        reservationId ReservationId identifier
+        bikeId BikeId
+        startTime DateTime
+        validate
+          startTime rule StartsAfterRequest message "The start time has already passed"
+            ```csharp
+            return (DateTimeOffset)context.Value > context.Occurred;
+            ```
+        produces event BikeReserved
+          bikeId BikeId = bikeId
+          startTime DateTime = startTime
+          reservedAt DateTime = $context.occurred
+
+      specification RejectingAStartTimeInThePast
+        given clock "2026-06-01T09:00:00Z"
+        when ReserveBike
+          reservationId = "6b2a5f0e-6d1c-4f4e-9f57-3a9a6d3c8b10"
+          bikeId = "0d7c3a34-5a43-4c1a-8f7e-9a1c2b3d4e5f"
+          startTime = "2026-06-01T08:00:00Z"
+        then error "The start time has already passed"
+~~~
+
 ## The inventory
 
 One row per outcome. The layer says where the refusal is enforced; the spec column says
@@ -79,6 +145,8 @@ Rules for filling it:
   available, including Stage 4.73.1's rendered package set for gap-fill, not emitted
   protection; Chronicle DCB, or a
   constraint). It still gets a spec row, because the intended behaviour is the contract.
+- Every rule row names what the rule reads (input, state or context); a context read needs a
+  `given clock` or `given caller` in the spec that pins it.
 - A decided refusal never goes to open questions: it goes here, then to scenarios.
 - A refusal message is a fact of the design; keep the wording identical in the rule, the
   inventory and the spec.
@@ -122,6 +190,8 @@ not been asked the refusal questions.
 - A reaction invoking a gated command without `runs as system role "<Role>"`: the invocation has
   no caller and is refused; declare the trusted path with the role the gate admits
   (`cratis-screenplay-automations-and-translations`), never delete the gate.
+- A time- or actor-dependent rule written as if it only read inputs: its specification passes
+  for the wrong reason, or cannot be reproduced.
 - Refusals recorded as prose in the `description` with no layer and no spec row.
 - Personal data or secrets as command input: values are by default recorded in the causation chain, so treat them as permanent
   (retention can be configured in newer Chronicle; verify it, never audit secrets).

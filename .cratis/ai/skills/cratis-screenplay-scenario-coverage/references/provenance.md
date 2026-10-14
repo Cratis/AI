@@ -31,6 +31,16 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | `.claude/skills/examples/SKILL.md`: neighborhood-first reading, never overwrite existing examples, short domain-specific values, report fields changed and reused | `references/scenario-catalogue.md` "Example data" | Handoff report (fixtures changed, preserved, reused value origins, inconsistencies) adapted; rest idea, our own wording kept (board tooling, `add_field_examples` and name-based type guessing dropped because declared types decide values) |
 | `.claude/skills/eventmodeling-elaborating-scenarios/SKILL.md`: Step 3 skip unresolved steps, board-only restrictions, "every scenario produces events" | none | Considered and not adopted: removing a prerequisite changes the test; Screenplay has rejections and queries |
 
+### Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `eventmodeling-elaborating-scenarios` | `references/scenario-catalogue.md` sections 2 and 5, *Example data*; `references/scenario-examples.md`; `references/coverage-matrix.md` *Cell values*; `SKILL.md` | adapted closely: a rejection earns a scenario only if a domain expert could recognize the rule, the duplicate question put as a business question, essential values shown in the body with the rest left out, descriptions that carry no fact a step could state, and a closed list of technical cases left unspecified; concept-rule and once-only specifications are kept on purpose, and a repeat the business would notice is never technical |
+| `eventmodeling-elaborating-scenarios` (examples, error-state and compensation scenarios) and `eventmodeling-identifying-outputs` (error states shown) | `references/scenario-catalogue.md` sections 9 (*Shown*, *Recoverable*) and 10 (follow-up work after a reversal) | copied and translated: the payment-failure view update and the retry after failure, and the compensation triggered by a cancellation, restated as view and retry specifications and an Automation-slice specification; the board scenario syntax is dropped |
+
 ## Cratis-original
 Coverage matrix and obligation derivation from declarations, cell vocabulary (`spec`, `n/a`,
 `recorded`, `open`, `question`, `gap`), scenario types per Screenplay semantics, denial fixtures

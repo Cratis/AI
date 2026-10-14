@@ -1,5 +1,21 @@
 # Provenance
 
+## Method lineage
+
+| Idea | Used in | Credit |
+| --- | --- | --- |
+| Successful work is removed from its pending-work view and removal is specified | `slice-delivery-checklist.md`, Checklist and Specifications | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`prototype`), used with their explicit consent; idea, our own wording |
+
+## Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with their explicit consent.
+
+| Source skill | Used in | How |
+|---|---|---|
+| kurrent `build-automation` and `idempotent-dispatch-patterns`; opencqrs/umadb `build-automation` | `slice-delivery-checklist.md`, `specifications.md` | copied and translated: contract-authorized duplicate-refusal handling per dispatch, narrow result matching, independent fan-out; command exceptions replaced by Arc pipeline results |
+| axon/kurrent `build-automation` test cases | `specifications.md` | copied and translated: matching/non-matching state, temporal cases and per-item fan-out; independent Chronicle observers replace subscription-group ordering, and passive reads are not claimed as as-of snapshots |
+
 ## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,

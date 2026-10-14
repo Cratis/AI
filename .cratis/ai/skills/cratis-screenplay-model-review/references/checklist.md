@@ -81,7 +81,7 @@ the format in `worked-example.md`.
 | A4 | Every command input ends in an event field or is used by a rule | `produces`, `validate`, `require` | Q (an unused input is often a missed fact) |
 | A5 | Every event has a consumer (view, reaction, constraint, external contract) or a stated terminal reason | MCP `dependencies direction=incoming` | Q |
 | A6 | Every declared view is read by a screen, a reaction or an external caller | screens `data ... via query`, reaction `reads` | Q |
-| A7 | Data called "missing" was searched for elsewhere in the model first | `search-declarations` | procedure |
+| A7 | Data called "missing" was searched for elsewhere in the model first (declaration names via search, properties via declaration details) | `search-declarations`, `declaration-details` | procedure |
 | A8 | Step contracts hold: what each step needs (precondition) is what the previous step's fact provides; each step's postcondition names the fact and its fields | slice order, event fields | D |
 
 ## Phase 4. Ownership and identity (6 checks, B1-B6)
@@ -192,7 +192,7 @@ artifact is `N/A: <reason>`.
 
 | Id | Check (the rejected pattern) | Signal to look for | Severity |
 |---|---|---|---|
-| R1 | Code-first change that silently outranks accepted model intent | behaviour added in code with no `.play` counterpart; the model edited to match existing code; the model left stale after a code change; optional structural evidence: `cratis screenplay conform <model-root> --project <path>` (CLI 3.42.0+, exit 0/1/2, exact structural addresses only, never a behavioral or V4 verdict; MSBuild runs, so a trusted clone) | major (critical when the code contradicts a protection) |
+| R1 | Code-first change that silently outranks accepted model intent | behaviour added in code with no `.play` counterpart (for hand-written code changed since it was last checked, use `cratis-screenplay-render-and-gap-fill/references/drift-and-fallback-record.md`, section "Hand-written code changed since it was last verified"); the model edited to match existing code; the model left stale after a code change; optional structural evidence: `cratis screenplay conform <model-root> --project <path>` (CLI 3.42.0+, exit 0/1/2, exact structural addresses only, never a behavioral or V4 verdict; MSBuild runs, so a trusted clone) | major (critical when the code contradicts a protection) |
 | R2 | A diagram, board or document in place of executable semantics | a rule only in a board note, a description or a wiki page; no property, validation, constraint or spec behind it (E8) | major |
 | R3 | Claims of universal low-code, lossless recovery or target parity | words like "fully generated", "lossless", "any target" in a report or description | minor; major when it hides a gap |
 | R4 | Framework machinery in the domain vocabulary (saga, aggregate, passive objects, HTTP or broker detail) or syntax wanted because a framework API is common | declarations named after saga, handler classes, topics, endpoints; a request to add language syntax to mirror a framework API | minor; major when it shapes the model |

@@ -40,6 +40,19 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 
 Not adopted: board, chapter, column and `place-element` mechanics; the board API and `connect` skill.
 
+### Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `summarize` | `references/domain-analysis-template.md` *Intake rigor for documents* (now pointing to `references/document-intake.md`); `SKILL.md` *Evidence and privacy* | adapted closely: stated, implied or assumed marks, figures kept exactly with a locator, a contradiction as one question naming both passages, a stated perspective, a coverage pass against the model, changes marked on an amended document |
+| `summarize` | `references/document-intake.md` | copied and translated: the fact kinds, reading rules for long, image and multi-file sources, the fact-to-model mapping, the faithfulness rule on generic knowledge, feature sizing, the per-feature blueprint summary (a generated report, never a second source); chapter and board mechanics dropped |
+| `timeline` | `references/facilitation.md` | idea, own wording: a hotspot is a note beside the event, never an event |
+| `brainstorming-events` (`eventmodeling-brainstorming-events`) | `references/plotting-and-handoff.md` "One feature, one story"; `references/human-workshop.md` "Run sheet: design session" | copied and translated: a chapter is a journey and not an operation, the too-fine signals, merge when in doubt; the storyboarding, inputs, outputs and boundaries steps with the shown-versus-entered correction |
+| `core-rules` (`eventmodeling-core-rules`) | `references/event-naming.md` "Concrete over generic"; `SKILL.md` modeling defaults | copied and translated: one real flow with real values, also on a generic platform |
+
 ## Original to this corpus
 
 The divergent sweep lenses, the not-an-event filter and its exceptions, the edit kinds, the

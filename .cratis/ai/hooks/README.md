@@ -102,6 +102,18 @@ Rule numbers refer to the numbered list in [`../rules/general.md`](../rules/gene
   `yarn.lock`, `package-lock.json`, `pnpm-lock.yaml`, `packages.lock.json` — unless the
   repository's dependency-manifest policy allows them (see below)
 - `.env`, `.env.*`, `*.env` — secrets
+- Agent controls: `.claude/settings.json`, `.claude/settings.local.json`, `.mcp.json`,
+  `.pi/settings.json` and `.pi/extensions/**`
+- With `.cratis/ai.manifest.json` present, the installed `.cratis/ai/**`, `.claude/**` and `.pi/**`
+  trees. Both addressed paths and symlink destinations are checked, including the Claude settings
+  link to the hook template. The uninstalled Cratis/AI source repository is exempt from this
+  agent-control category so its authored corpus and harness adapters remain editable.
+
+For agent controls, report the intended change rather than rewriting permissions or hooks.
+A person edits settings; `cratis ai update` replaces managed files using the CLI's filesystem
+operations, not agent Write/Edit calls. This guard checks **Write/Edit targets only**: shell
+redirection, `cp`, another tool or process can still write them. It is a guardrail, not a sandbox;
+do not use those routes to work around a block.
 
 The generated-file check is anchored: the marker must be a comment opener at the start of one of
 the first five lines. A rule file or a document that merely *mentions* the marker is not blocked.
@@ -239,6 +251,29 @@ is missing, relevant PR commands in locally opted-in repositories warn rather th
 The two `within_type_attribute` patterns are not line greps — the scanner tracks C# attribute
 blocks and type scope (positional record, multi-line declaration, or braced body), so a nullable
 property is only reported when it really sits inside an `[EventType]`.
+
+### Advisory slice scope and migration review
+
+The quality gate calls `scripts/cratis-slice-scope-report.sh` with its changed paths on stdin.
+It recognizes only `Source/<Module>/<Feature>/<Slice>/<Slice>.cs` carrying a model-bound
+`[Command]` or `[ReadModel]` attribute. For each recognized slice it lists changed paths outside
+that folder as **seam or out of scope**; use that list for the delivery record's shared seams.
+For a changed anchor it notes a missing `when_*` specification under the slice. It does not
+judge whether a seam is authorized or whether existing specifications cover the contract.
+Unrecognized layouts are skipped silently; report failures never fail or bypass the real gates.
+The output is advisory in normal and dry-run modes, never verification evidence.
+
+The PostToolUse `cratis-append-only-migration` reminder likewise only asks for review of
+`Source/**/Migrations/*.cs` carrying `[Migration(`, excluding model snapshots. It cannot tell
+whether a migration is committed or applied, so it never blocks a legitimate uncommitted edit.
+Read `cratis-arc-ef-core-migration` for migration generation and application.
+
+The slice-scope and specification-presence report takes the idea of node Build-Kits
+`check-commit-scope` checks, with original wording. The migration reminder is copied and
+translated from classic `build-state-change` and node `append-only-migrations` to EF Core.
+Both credit Martin Dilger and Nebulit GmbH's
+[Eventmodelers Build-Kits](https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits), used with
+their explicit consent. Slice-only scope checks do not replace the repository's completion gate.
 
 ### Project-specific gate configuration
 
@@ -532,13 +567,28 @@ two configurations the way the shipped gates do: Release clears the path, Debug 
 `general.md` makes the Debug build the canonical trigger for regenerating the TypeScript proxies
 the frontend phase depends on.
 
+## Unattended runs
+
+Keep hooks active and do not use blanket permission bypass. Prefer a permission allowlist that
+refuses unknown calls instead of waiting for a person who is not present. A blocked run reports
+the intended action and the permitted alternative; it does not loosen its own controls.
+Supply credentials through the environment, never echo them or place them in committed files.
+A missing or disabled hook is not evidence that a protected action is safe.
+
+## Method lineage
+
+| Idea | Used in | Credit |
+| --- | --- | --- |
+| Protect agent permissions and hook configuration from its own file tools | Write guard agent-control category | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`agent-permissions`); idea, our own wording |
+| Refuse unknown unattended calls and keep credentials out of output | Unattended runs | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`agent-permissions`, `bash-guard`); idea, our own wording |
+
 ## Escape hatches
 
 Each is an explicit, auditable opt-out — none of them is a default.
 
 | Variable | Effect |
 |---|---|
-| `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | bypasses all write protection, including generated files and `.env`, while set in the harness environment; use only for an explicitly requested protected write. Repository-scoped manifest allowance uses `.cratis/ai.json` instead and never bypasses those protections |
+| `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | bypasses all write protection, including generated files, `.env`, agent controls and installed trees, while set in the harness environment; use only for an explicitly requested protected write. Repository-scoped manifest allowance uses `.cratis/ai.json` instead and never bypasses those protections |
 | `CRATIS_HOOKS_SKIP_SCAN=1` | disables the pattern pass |
 | `CRATIS_HOOKS_SKIP_GATE=1` | disables the quality gate |
 | `CRATIS_HOOKS_GATE_DRYRUN=1` | prints which gates would run, and why, then exits 0 |

@@ -126,7 +126,7 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
    (`references/integration-contracts.md`).
 2. **Is it an automation?** Write four lines: occurrence (event, clock, application trigger), state
    consulted, condition, effect. Always fires, consults nothing, cannot fail, touches nothing outside:
-   co-production, the command produces both facts. Otherwise continue (`references/automation-patterns.md`).
+   co-production, the command produces both facts. Otherwise continue (`references/automation-patterns.md`; a process with waits, approvals, compensation or fan-out: its §10).
 3. **Queue or direct?** A todo list (a read model whose membership is the pending work) when work can
    wait, retry, fail or need people. Name each opening and closing fact (result, cancellation,
    supersession), the work-item key and the recovery path. Direct reaction only for an immediate,
@@ -210,7 +210,7 @@ Never report a verdict without the tool and version that produced it.
   target-field completeness as well as source-field dispositions.
 - One happy path is not coverage: cite the spec or the missing case for each branch, denial, competing
   claim and closing event.
-- Every complete example compiles. Read `references/todo-list-example.md` when modeling a pending-work automation, and `references/translate-example.md` when modeling capture plus translator reactions.
+- Every complete example compiles. Read `references/todo-list-example.md` when modeling a pending-work automation (its design-only excerpts insert into `assets/pending-certificates.play` and `assets/retry-sweep.play`), and `references/translate-example.md` when modeling capture plus translator reactions.
 
 ## Route near misses
 - Grammar: `cratis-screenplay-captures-and-reactions`; invoked commands: `cratis-screenplay-command-surface`;

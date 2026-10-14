@@ -28,6 +28,14 @@
     ],
     "patterns": [
         {
+            "id": "cratis-append-only-migration",
+            "rule": "cratis-arc-ef-core-migration — Write the migration",
+            "pattern": "\\[Migration[[:space:]]*\\(",
+            "paths": ["Source/**/Migrations/*.cs"],
+            "exclude_paths": ["**/*ModelSnapshot.cs", "**/obj/**", "**/bin/**"],
+            "message": "Migration review (advisory): if this migration is committed or applied anywhere, correct it with a new migration (`dotnet ef migrations add`), not an edit. An unapplied, uncommitted migration may be removed (`dotnet ef migrations remove`) and regenerated. This scan does not determine commit or database state."
+        },
+        {
             "id": "cratis-automap-call",
             "rule": "general.md rule 10 [contract]",
             "pattern": "\\.AutoMap[[:space:]]*\\(",

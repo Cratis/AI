@@ -72,9 +72,20 @@ these are the `Automation` and `Translate` slice types.
 
 - **Behavior name and type** for each step in the flow.
 - **Commands** — their inputs and the authorization that gates them. Commands
-  are imperative intents.
+  are imperative intents. For each rejection condition, name the values it reads
+  as input, read state or context (time, caller, tenant). Context comes from the
+  command pipeline or an injected time source, never from the wall clock inside
+  the decision, so a specification can fix it.
+- **Who issues each command**: a named role or an automation, never a generic
+  user. Each role's "cannot" becomes authorization plus a denial specification.
+- **Story order**: the flow from its first trigger to every ending, with
+  branches and terminal facts named.
+- **Refused transitions**: per state, which commands are refused and by which
+  rule (a state-by-command table).
 - **Events** — past-tense, one-purpose facts. Names must be self-describing:
-  `<Entity><PastTenseVerb>`, never a bare `Created`.
+  `<Entity><PastTenseVerb>`, never a bare `Created`. Name them for one real
+  flow with real values. On a generic platform, model a case it handles
+  (`HullDamageReported`), not its machinery (`FormSubmitted` with `content`).
 - **The event-source id for every event.** Events never carry their own
   event-source id as a payload property; it lives in the event context. Deciding
   the id *is* deciding the stream boundary.
@@ -218,6 +229,9 @@ remain separately authorized; a ready model authorizes none of them.
   missing event.
 - Personal data has a decided subject, and the subject is person-level or the
   trade-off is surfaced.
+- No data-loading command (`LoadOrders`), UI event (`ButtonClicked`), technical
+  event (`ApiCalled`) or recomputed event.
+- Every state has its refusals listed.
 - The specification outline names the failures, not only the happy path.
 
 ## Route near misses

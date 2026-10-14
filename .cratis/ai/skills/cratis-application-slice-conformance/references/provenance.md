@@ -21,3 +21,23 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | `.build-kit/AGENTS.md`: learnings that the repository pattern beats the template; a mapping-versus-notes conflict resolved in favor of notes | `references/contract-and-precedence.md`; `references/build-prompts.md` section 5 | Repository-pattern idea adapted; the notes-over-mapping rule is not adopted because executable parts beat prose here |
 
 No TrogonStack/agentskills text is used in this skill.
+
+### Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `record-evidence` (classic stack) | `build-prompts.md` result pointer; Slice Implementer output, using the fallback record in `cratis-screenplay-render-and-gap-fill` | adapted closely: one row per element, field and specification, files created and modified, shared seams, assumptions and checks, with no code excerpts; the board note dropped |
+
+| modeling-kit `prototype` decision scenarios; shared `load-slice` and build prompt summary warning | `build-prompts.md` mandatory flow; `checklists.md` State Change | adapted closely: read all specifications together, read declarations rather than summaries, and refuse only for contracted rules |
+| shared `request-feedback` question form | `build-prompts.md` Escalation | adapted closely: name the slice, field/rule/specification and missing choice so the owner can answer without prior context |
+
+## Method lineage
+
+| Idea | Used in | Credit |
+| --- | --- | --- |
+| Visible non-behavioral assumptions while decisions still block | `build-prompts.md` escalation; Slice Implementer contract gate | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`classic backend-prompt`, `classic CLAUDE.md`), used with their explicit consent; idea, our own wording |
+| Look for an existing realization before selecting one delivered sibling | `build-prompts.md` mandatory flow; Slice Implementer realization search | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`classic build-state-change`, `classic build-state-view`), used with their explicit consent; idea, our own wording |
+| Completed work leaves the pending-work view | `checklists.md` Automation and Translation | Martin Dilger / Nebulit GmbH, Eventmodelers build kits (`prototype`), used with their explicit consent; idea, our own wording |
