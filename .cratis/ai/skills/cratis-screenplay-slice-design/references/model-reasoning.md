@@ -89,5 +89,5 @@ model above validates and its specification passes on standalone 4.127.0.
   **NOT enforced in the model today** (with its target) or **ASSUMED**; record durable
   reasoning, assumptions, causes and rejected alternatives in fenced Markdown
   `documentation` on the module, feature, slice, command, event, read model or reaction, not `//` comments or disconnected notes. These are report-only, not
-  enforcement. Read [model reasoning](references/model-reasoning.md) for owners,
+  enforcement. The rest of this reference covers owners,
   syntax, folder merge and PLAY0558/0559.

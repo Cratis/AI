@@ -86,7 +86,7 @@ or string dependencies after the event: use context, a read model or a service.
 
 The first parameter must carry `[EventType]` (CHR0005 error).
 
-Read [references/read-model-injection.md](references/read-model-injection.md) when a read-model parameter must be keyed by a related entity rather than the triggering event source (`ICanResolveReadModelKey`).
+A materialized read-model parameter is only as current as its observer; prefer the event's own data, and use `[Passive]` when the reactor needs a current read. Read [references/read-model-injection.md](references/read-model-injection.md) whenever a reactor injects a read model: how it is keyed (including a related entity's key through `ICanResolveReadModelKey`), when it is current, and which storage access CHR0032 flags.
 
 ## Return types
 

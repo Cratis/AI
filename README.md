@@ -187,7 +187,7 @@ The verification enforces the structural rules:
 - The `SKILL.md` body stays within 500 lines and 20,000 characters (the specification's "under 5,000
   tokens"). It loads in full whenever the skill triggers and stays in context, so it holds the decision
   rules, the core workflow, the traps and the pointers. Target 400 lines / 16,000 characters; a
-  headroom warning starts at 18,000 characters. Detail that only some tasks
+  headroom warning starts above 16,000 characters. Detail that only some tasks
   need goes into `references/`.
 - Every supporting file is linked directly from `SKILL.md`, except `LICENSE`, `NOTICE`,
   `verification.json` and reasoned existing asset exceptions (which fail when stale). Agents may

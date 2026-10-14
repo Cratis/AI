@@ -50,7 +50,7 @@ authentication behavior from this one. Source:
 `Source/Clients/DotNET/ChronicleClient.cs`,
 `Source/Clients/Connections/ServiceCollectionExtensions.cs`, and
 `Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs`.
-Read [host wiring](references/hosting.md) for the deployment distinction.
+Read [host wiring](hosting.md) for the deployment distinction.
 
 > **Certificate validation is skipped by default, and that is deliberate.** The
 > development Chronicle images (`latest-development` and `latest-development-slim`)
