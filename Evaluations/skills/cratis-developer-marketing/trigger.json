@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-developer-marketing",
+  "queries": [
+    { "query": "we're launching the new workbench next month. help me plan channels, who answers replies, and what a good result looks like", "shouldTrigger": true },
+    { "query": "how do we get more developers to actually try our event sourcing library? we have one person doing content part time", "shouldTrigger": true },
+    { "query": "should we crosspost the same article to dev.to, hashnode and linkedin or is there a better way to reuse it?", "shouldTrigger": true },
+    { "query": "i want a scorecard for our devrel content. github stars and impressions are going up, does that mean adoption?", "shouldTrigger": true },
+    { "query": "how should the founder's linkedin account differ from the company account? we want both active", "shouldTrigger": true },
+    { "query": "Is it ok to post our link in five subreddits and a Discord on launch day to get traction?", "shouldTrigger": true },
+    { "query": "How often should a 3-person team post? someone said 2-5 times a week is what works", "shouldTrigger": true },
+    { "query": "put the first-comment link trick in our plan, linkedin kills reach when the link is in the body right?", "shouldTrigger": true },
+    { "query": "Plan a repurposing strategy: we have one benchmark write-up and want entry points on X, Mastodon and YouTube without a teaser feel.", "shouldTrigger": true },
+    { "query": "Our GitHub Discussions is empty and people ask in a new Slack community instead. Should we open yet another chat space?", "shouldTrigger": true },
+    { "query": "Write the LinkedIn post about our benchmark, opening line and image placement included.", "shouldTrigger": false, "note": "cratis-social-feed-post" },
+    { "query": "How many characters can this X post be and how long should the tutorial run before we split it?", "shouldTrigger": false, "note": "cratis-content-length" },
+    { "query": "This announcement reads like AI wrote it. Remove the templated cadence and keep every caveat.", "shouldTrigger": false, "note": "cratis-writing-voice-and-cadence" },
+    { "query": "Write the 15.3.0 release notes and the migration guide for the breaking change.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Which Diataxis type is this page, and how do I structure the getting-started tutorial?", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Should this code snippet in the blog post be extracted from a compiling sample or is a short illustration fine?", "shouldTrigger": false, "note": "cratis-technical-examples" },
+    { "query": "Make our docs site retrievable by assistants and add an llms.txt that cites the right pages.", "shouldTrigger": false, "note": "cratis-llm-friendly-documentation" },
+    { "query": "Write a Show HN title and a first comment that sells the project.", "shouldTrigger": false, "note": "cratis-social-feed-post (AI does not write HN text)" },
+    { "query": "Record a decision on which channels we own, as a decision record with a decider.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" }
+  ]
+}

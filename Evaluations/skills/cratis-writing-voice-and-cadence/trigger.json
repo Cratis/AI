@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-writing-voice-and-cadence",
+  "queries": [
+    { "query": "this doc page reads like a machine wrote it. the same 'not X, but Y' move shows up in every paragraph. help me revise it", "shouldTrigger": true },
+    { "query": "i have our last ten release posts and they all open the same way and end with a tidy one-line moral. check the batch", "shouldTrigger": true },
+    { "query": "review this PR description for voice. it feels stiff and full of stock phrasing", "shouldTrigger": true },
+    { "query": "can you run an AI detector pass on this contributor's docs PR and tell me if they used ChatGPT?", "shouldTrigger": true },
+    { "query": "make this copy sound more human. add some contractions and a joke so it passes as written by a person", "shouldTrigger": true },
+    { "query": "I rewrote 'there is no need to' into 'without needing to'. Is that safe when polishing a paragraph?", "shouldTrigger": true },
+    { "query": "this founder post needs an anecdote about the late night we spent debugging. can you add one for him?", "shouldTrigger": true },
+    { "query": "the copy is wishy-washy with 'may', 'it should be noted' and 'we believe'. how do I tighten it without changing claims?", "shouldTrigger": true },
+    { "query": "we have 200 docs pages with approvals recorded. can we run a voice rewrite across all of them in one go?", "shouldTrigger": true },
+    { "query": "is overuse of em-dashes and 'delve' proof an article was AI-generated?", "shouldTrigger": true },
+    { "query": "Draft a LinkedIn post about the new feature with a strong hook in the first 140 characters.", "shouldTrigger": false, "note": "cratis-social-feed-post" },
+    { "query": "How long should this article be, and where should we split it?", "shouldTrigger": false, "note": "cratis-content-length" },
+    { "query": "Is this technical claim about reducers accurate? Check it against the Chronicle source.", "shouldTrigger": false, "note": "technical accuracy review, not voice" },
+    { "query": "Write the release notes for version 17.0.0 from the merged pull requests.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Write a new tutorial page for the reactor feature from scratch.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Plan which channels and cadence we use and how we measure developer engagement.", "shouldTrigger": false, "note": "cratis-developer-marketing" },
+    { "query": "Polish my Hacker News comment so it reads naturally before I post it.", "shouldTrigger": false, "note": "AI does not write or edit HN text" },
+    { "query": "Should the code sample in this post be extracted from a compiled sample?", "shouldTrigger": false, "note": "cratis-technical-examples" }
+  ]
+}

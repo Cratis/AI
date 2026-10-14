@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-content-length",
+  "queries": [
+    { "query": "how long should my linkedin post about projection rebuilds be? I have one tip and one code example", "shouldTrigger": true },
+    { "query": "my last 12 posts are all around 1,200 characters and they feel like a template. how do i vary the lengths without just padding?", "shouldTrigger": true },
+    { "query": "this blog draft is 4,200 words. should I split it into a series or leave it as one article?", "shouldTrigger": true },
+    { "query": "is 300 characters ok for an X post if I need to explain the replay bug and link the sample?", "shouldTrigger": true },
+    { "query": "we want a LinkedIn carousel for the migration guide. how many pages is too many?", "shouldTrigger": true },
+    { "query": "how many words should a newsletter issue with one product update be?", "shouldTrigger": true },
+    { "query": "Our tutorial for setting up the event store is 3,800 words. Can I cut it down? Every step seems necessary.", "shouldTrigger": true },
+    { "query": "what's a sensible length for a demo video showing the workbench, and when should I add chapters?", "shouldTrigger": true },
+    { "query": "someone told me LinkedIn posts over 1,300 characters get 27% more engagement so I should pad everything to that. true?", "shouldTrigger": true },
+    { "query": "Can you shorten this draft so it fits Bluesky's limit without dropping the version number and the caveat?", "shouldTrigger": true },
+    { "query": "Write the LinkedIn post announcing our new Chronicle release, opening line first, with a hook that works above the see-more fold.", "shouldTrigger": false, "note": "cratis-social-feed-post" },
+    { "query": "This draft sounds like it was written by a model: every paragraph ends in a punchy tagline. Rewrite it to sound human.", "shouldTrigger": false, "note": "cratis-writing-voice-and-cadence" },
+    { "query": "Plan our content program for the launch: which channels, who answers replies, and how do we measure adoption?", "shouldTrigger": false, "note": "cratis-developer-marketing" },
+    { "query": "Write the release notes for version 15.2.0 with the breaking changes and the migration steps.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Should this documentation page be a tutorial or a how-to guide, and what should the first paragraph say?", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Is this code sample in the article safe to publish, or should it be extracted from a compiling sample project?", "shouldTrigger": false, "note": "cratis-technical-examples" },
+    { "query": "Write the Hacker News submission title and first comment for our Show HN post.", "shouldTrigger": false, "note": "cratis-social-feed-post (AI does not write HN text)" },
+    { "query": "Check my docs site so that an assistant can find the right page and cite it. Should we publish llms-full.txt?", "shouldTrigger": false, "note": "cratis-llm-friendly-documentation" },
+    { "query": "Record the decision to keep long-form tutorials in the docs repository so nobody argues about it again.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" }
+  ]
+}

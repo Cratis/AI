@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-decision-record",
+  "queries": [
+    { "query": "we're about to change the public event contract across three repos. do we have to check anything in decisions/ first?", "shouldTrigger": true },
+    { "query": "in review the maintainer ruled we will never support sync-over-async in the client. how do i make sure that sticks for later work", "shouldTrigger": true },
+    { "query": "DR-0007 says we use polling but we've moved to push. how do I replace it without rewriting the old text?", "shouldTrigger": true },
+    { "query": "Draft a decision record proposing we drop the legacy storage adapter. What fields and status does it open with?", "shouldTrigger": true },
+    { "query": "my change contradicts an accepted record in decisions/. can i just work around it since the code is correct?", "shouldTrigger": true },
+    { "query": "The architecture team decided this in the meeting. Can I put 'architecture team' as the decider in the record?", "shouldTrigger": true },
+    { "query": "The build is green and the change merged, so can I mark the decision's stage as verified?", "shouldTrigger": true },
+    { "query": "how do I cite decision records in a pull request? commit trailer format?", "shouldTrigger": true },
+    { "query": "the decisions index doesn't list my new record and the consult step found 0 records. what does that mean?", "shouldTrigger": true },
+    { "query": "A user asked me to implement the plan in this issue. Do I need to open a decision record and get it approved first?", "shouldTrigger": true },
+    { "query": "Write the session handover note for tomorrow: what is done, what is blocked, what is next.", "shouldTrigger": false, "note": "work-record / handover workflow, not a decision record" },
+    { "query": "Write the how-to page explaining how event constraints work for users.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Draft the reference page for the command attributes using the Starlight format.", "shouldTrigger": false, "note": "cratis-engineering-docs-authoring" },
+    { "query": "Should this class have the Service postfix and where do regions go in our C# style?", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" },
+    { "query": "Write release notes for the new version and mention the breaking change.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Set the work item status to blocked on the upstream fix and note why.", "shouldTrigger": false, "note": "work item field, not a decision record" },
+    { "query": "Where should the retry and timeout boundary sit around this HTTP call, and how do I classify the failures?", "shouldTrigger": false, "note": "cratis-engineering-effect-boundaries" },
+    { "query": "Plan the release gates, approval roles and rollback evidence for the next governed release.", "shouldTrigger": false, "note": "cratis-governed-release-methodology" }
+  ]
+}

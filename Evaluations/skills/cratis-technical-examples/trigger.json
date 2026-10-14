@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-technical-examples",
+  "queries": [
+    { "query": "I'm adding a code snippet to the reducers tutorial. should I paste it or pull it from a sample project that compiles?", "shouldTrigger": true },
+    { "query": "how do I show the same command in C# and TypeScript tabs without translating by guess", "shouldTrigger": true },
+    { "query": "our docs snippet compiled but fails at runtime against the kernel. can I add a workaround sentence under it?", "shouldTrigger": true },
+    { "query": "what does the client snippet validator actually check? Our run passed with 12 snippets", "shouldTrigger": true },
+    { "query": "i'm building a sample app for the tutorial. what does it need: prerequisites, run command, reset, security shortcuts?", "shouldTrigger": true },
+    { "query": "write a before and after code block for the migration guide. How do I make sure they're right?", "shouldTrigger": true },
+    { "query": "is a rendered code fence in the docs build proof that the example compiles?", "shouldTrigger": true },
+    { "query": "my example uses a made-up IEventReplayer interface from memory to illustrate the idea. fine?", "shouldTrigger": true },
+    { "query": "Which id type should the Guid vs string tabs use and how do I keep it consistent across a series of pages?", "shouldTrigger": true },
+    { "query": "A five-line illustration in a how-to: do I need a full sample repo for that?", "shouldTrigger": true },
+    { "query": "Write the explanation page on why projections are eventually consistent, with a diagram.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Draft the Starlight page with frontmatter for the reference of event attributes.", "shouldTrigger": false, "note": "cratis-engineering-docs-authoring" },
+    { "query": "Write the C# for a RegisterBoat command that returns the id and appends BoatRegistered.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Write the release notes with the migration table for 19.0.0.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Make the code card in the LinkedIn post and give it alt text.", "shouldTrigger": false, "note": "cratis-social-feed-post" },
+    { "query": "Write the specification that proves the command appends the event.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "Check this C# for naming and formatting conventions in our repository.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" },
+    { "query": "How should I set up the TypeScript client to connect to Chronicle and append an event?", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Rewrite this tutorial intro so it reads like a person wrote it.", "shouldTrigger": false, "note": "cratis-writing-voice-and-cadence" }
+  ]
+}
