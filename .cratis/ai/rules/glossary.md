@@ -19,9 +19,9 @@ One precise line per load-bearing term, so the same word means the same thing ev
 
 ## Read side
 
-- **Read model** — a `[ReadModel]` record holding queryable derived state, built by a projection or reducer; exposes `static` query methods.
-- **Projection** — declares how a read model is built by consuming **events** (model-bound attributes, or fluent `IProjectionFor<T>`); pure events→state, no side effects, never reads other read models.
-- **Reducer** — `IReducerFor<T>`; a "current state + event → next state" read-model builder; the last-resort escape hatch when projections can't express the transition.
+- **Read model** — derived state built from events by a projection or reducer; an optional Arc `[ReadModel]` record exposes static queries, but Chronicle-only models need no query attribute.
+- **Projection** — declares how events build a read model (model-bound attributes, fluent `IProjectionFor<T>`, or PDL outside application code); pure events→state, no side effects, never reads other read models.
+- **Reducer** — a "current state + event → next state" builder when transitions read better as code; new .NET code defaults to static `Reduce(event, model? current[, EventContext])` on a self-reducing model (no marker), with `IReducerFor<T>` for DI/replay instance behavior/separation and nominated plain classes when their assembly cannot reference Chronicle. See **cratis-chronicle-reducer**; other SDKs retain their own contracts.
 - **Reactor** — `IReactor`; observes events and produces **side effects** (notifications, commands, follow-up events). The "if this then that".
 - **Observer** — Chronicle's umbrella for anything consuming an event sequence (projection, reducer, reactor); carries subscription / replay / **quarantine** state. Projection replay and catch-up each walk the sequence in one globally ordered job step; a new catch-up failure stops that step. Full replay is inactive and completion does not resume a quarantined observer (Chronicle v19.50.1, `Documentation/concepts/observers.mdx`, `Observation/Jobs/{CatchUpObserver,ReplayObserver}.cs` under `Source/Kernel/Core/`).
 - **Sink** — where a read model is persisted (MongoDB, EF Core).

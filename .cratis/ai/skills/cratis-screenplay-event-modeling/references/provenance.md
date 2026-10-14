@@ -17,6 +17,16 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | `.claude/skills/eventmodeling-orchestrating-event-modeling/SKILL.md`: "Do not cut corners to save tokens or effort" | `SKILL.md` paragraph "Do not cut corners to save tokens or effort" (short form; full text in the lifecycle skill) | Adapted closely; restored from #493; translated to Screenplay |
 | `.claude/skills/eventmodeling-interview-protocol/SKILL.md`: when to ask, unless told not to ask | `SKILL.md` paragraph "Ask only what the step needs" (short form; full text in the lifecycle skill) | Adapted closely; restored from #493; recording moved to STATE.md |
 
+### Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `eventmodeling-information-completeness` | `SKILL.md` *The prime directive* | adapted closely: every value starts at one specific place and is carried by name; an unknown origin is a gap, never a default |
+| `eventmodeling-identifying-inputs` | `cratis-chronicle-event-modeling` `SKILL.md` *Decide before implementing* | adapted closely: a rule's decision values classified as input, state or context; context supplied by the pipeline or a time source, never read inside the decision |
+
 ## Method lineage in SKILL.md
 
 > **Method lineage.** The two-phase process, the nine steps, the four patterns and

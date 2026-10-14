@@ -22,7 +22,10 @@ Ask only what is missing, one per turn.
 3. **Observation and extraction feasibility.** "Which environment may be observed (a clone or
    staging by default)? Can you query the database, is there an audit log or change tracking,
    who can grant change data capture or replication, is OpenTelemetry available, what workload
-   exists (test suite, scripted scenarios, mirrored traffic)?" Follow-ups: direct query, ask
+   exists (test suite, scripted scenarios, mirrored traffic)?" Ask once whether a running
+   instance and a test account exist; the answer never blocks. Continue with static evidence, record
+   "running instance: not answered yet", and when access arrives let the walk confirm or correct the
+   order and screens already derived. Follow-ups: direct query, ask
    for access and schema knowledge; CDC, name the DBA; changes to the legacy system are not
    allowed under a freeze.
 4. **Data sensitivity and disclosure.** "Which data is personal or sensitive, and which hosted
@@ -48,7 +51,7 @@ Ask only what is missing, one per turn.
 - Documentation and audit trails that exist:
 
 ## Freeze agreement  (gate)
-- Status: agreed / pending / blocked
+- Status: agreed / pending / blocked (a later run checks it: `re-entry-and-passes.md`)
 - Boundaries: what is frozen (features, schema, APIs), what is allowed (bug fixes)
 - Stakeholders who agreed: names, or "none yet"
 - Not applicable? Say why (for example documentation-only extraction, no side-car planned)

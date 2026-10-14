@@ -57,6 +57,17 @@ anti-patterns.md>, or "none"
 <2 to 4 sentences: maturity, the most important gap or risk, one concrete suggestion>
 ```
 
+## Information journey (optional)
+
+For one piece of information, such as a personal value or a figure people ask about, trace
+where it goes. List the stops in flow order, each with its role (enters, recorded, renamed or
+derived, read or shown, leaves the system) and the property name at that stop. Find the stops
+through `produces` mappings, projections, query results, screen bindings and reaction and
+capture mappings, never by name similarity; the origin rules are in slice-design
+`references/field-lineage.md`. A value recorded but never read, or shown but in no read model,
+is a finding. For personal data, link the journey to the compliance processing record
+(`cratis-chronicle-compliance`).
+
 ## Structural gaps to look for
 | Slice kind | Expect | Flag when missing |
 |---|---|---|

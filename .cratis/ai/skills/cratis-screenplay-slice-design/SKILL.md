@@ -74,7 +74,8 @@ report and slice `documentation`, and continue.
    separate reasons change these values, then split (`references/slicing.md` *Generic edits*).
    One input per thing the caller decides or supplies; `identifier` on the property naming the
    instance (omit only for allocation); inline `produces event <Name>` (no `for`) when the command owns the event; plain `produces <Name>` needs `for <identifier>`. Trace each input
-   (`references/field-lineage.md`). A conditional input is a granularity question: two
+   (`references/field-lineage.md`) and list the values each rule reads: input, state or context
+   (`references/command-inventory.md`). A conditional input is a granularity question: two
    decisions are two commands; one decision with a dependent rule is an implication
    (`require a == false or b > c`). Never a boolean attestation input (`confirmsX == true`)
    standing in for a rule. Place each rule in its layer (`references/rule-layers.md`). A rule
@@ -83,7 +84,7 @@ report and slice `documentation`, and continue.
    `[ProtectedDecision]` + `DecisionRead<T>` on Arc 22.39.0+ (available to gap-fill
    code with the Arc and Chronicle the Stage 4.73.1 scaffold pins); Chronicle DCB; or a constraint). Never copy state
    into the command as input or hide a rule in `handler` / hint prose; descriptions reach code
-   only as XML comments (Stage#178). Fill the **refusal inventory**: success, each distinct refusal with
+   only as XML comments. Fill the **refusal inventory**: success, each distinct refusal with
    layer and message, and the denied persona.
 4. **Name and shape the event.** Past tense, the specific change that became true
    (`LockerRelocated`, `VolumeCorrected`); never `XUpdated`/`Changed`/`Edited`/`Saved`/
@@ -131,7 +132,7 @@ report and slice `documentation`, and continue.
    (`references/read-model-design.md`). One actor's point of view
    per screen, at a real beat of the story, not one per persona for symmetry; know where the
    actor sees each state change's result. Beyond Level 1: `cratis-screenplay-ui-composition`.
-8. **Lineage pass.** Build the matrix in `references/field-lineage.md` from the `.play` files
+8. **Lineage pass.** After each field edit run `--check field-origins,input-surfaces`. Build the matrix in `references/field-lineage.md` from the `.play` files
    (read them), not from memory or an earlier summary. For each read model, write one line per
    contributing event in its StateView slice `documentation`: which fields it sets and why. An
    event with no reason does not belong in the view. A field without an origin is a gap: add
@@ -166,7 +167,7 @@ report and slice `documentation`, and continue.
 - A `unique` constraint names a property the event declares directly; the constraint name is
   its identity (renaming starts an empty index).
 - Unauthorized is `then denied`; a broken rule is `then error`; authorization runs first.
-- A mapping to an undeclared target fails only at binding (V3, PLAY0273); a declared property that nothing maps (for example after a one-sided rename that AutoMap relied on) is reported by no tool: check field lineage by hand.
+- A mapping to an undeclared target fails only at binding (V3, PLAY0273); a declared property that nothing maps (for example after a one-sided rename that AutoMap relied on) is reported by `field-origins` only where coverage is known: trace by hand too.
 
 ### Modeling defaults (follow unless the domain gives a reason not to)
 

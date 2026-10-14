@@ -40,6 +40,15 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 
 Not adopted: board, chapter, column and `place-element` mechanics; the board API and `connect` skill.
 
+### Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `summarize` | `references/domain-analysis-template.md` *Intake rigor for documents*; `SKILL.md` *Evidence and privacy* | adapted closely: stated, implied or assumed marks, figures kept exactly with a locator, a contradiction as one question naming both passages, a stated perspective, a coverage pass against the model, changes marked on an amended document |
+
 ## Original to this corpus
 
 The divergent sweep lenses, the not-an-event filter and its exceptions, the edit kinds, the

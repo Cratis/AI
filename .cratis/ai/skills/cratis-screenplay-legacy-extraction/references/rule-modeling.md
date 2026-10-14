@@ -34,3 +34,12 @@ when no constraint form fits, and record that as a loss. Purely technical keys s
 - Never PII on the event-source id; one data subject per event or stream.
 - Tokens, magic links and signed URLs are not facts (a keyed hash or reference at most).
 - Do not store clock-relative state (`IsOverdue`) in views; store the deadline.
+
+## Personal data and secrets
+Preserve the protection found in code with `pii` and `secret` and evidenced secret scope. Arc
+recovery losses (SP0061-SP0063) need review (`generate-notes.md`). Deprecated marker repairs keep
+legal notes intact and never guess a purpose or basis. Derive purpose, use and retention
+declarations only from evidence or expert decisions; run `--check purposes` and read the processing
+record as prompts, not a legal verdict. Keep hand-joined legacy ids scalar and never infer composite
+parts by splitting text. Event `subject` is report-only; distinguish observed lineage from runtime
+realization. See command-surface `references/compliance.md`.
