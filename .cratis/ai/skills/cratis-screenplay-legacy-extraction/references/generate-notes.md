@@ -101,6 +101,12 @@ An unconditional `result.ShouldNotBeAuthorized()` on a scenario's command result
 
 Requires Arc.Screenplay 22.98.0 or later for `then denied`; older releases withhold every denial specification with `SP0039`.
 
+### Literal-case tables
+
+When body-less concrete specification classes pass literal values to the primary constructor of one abstract scenario (`class Ada() : Registering("Ada")`), the generator states the scenario once with typed `parameter` lines and one `case` row per class. It folds the rows only when substituting each row's values into the base reproduces that row's steps, outcomes and caller exactly; textual similarity is not enough. Otherwise every row is stated individually and Information `SP0076` names why.
+
+Requires Arc.Screenplay 22.99.0 or later for case tables; older releases state every row individually.
+
 ## Diagnostics are the loss list
 - Families: `SP####` (Arc), `MARTEN####`, `WOLVERINE####`, `VOG####`, `GEN####`,
   `DOTNETSP####` (placement), `CLI####` (host). Each one is an evidence row or a loss-report

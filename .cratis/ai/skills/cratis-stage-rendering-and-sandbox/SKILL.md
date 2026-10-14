@@ -22,11 +22,10 @@ Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 mode
 - Deciding whether a model can be rendered, or reading a blocked render.
 - Re-rendering safely after the model or a managed file changed.
 - Checking what the generated UI does and does not prove.
-- Running the sandbox or the specification runner.
+- Running the sandbox or the specification runner, or a behavior walk.
 
-Not for authoring the model (`cratis-screenplay-model-authoring`), the end-to-end
-render and gap-fill workflow (`cratis-screenplay-render-and-gap-fill`), or the C# of a
-generated command or read model (`cratis-arc-command`, `cratis-chronicle-read-model`).
+Not for authoring the model (`cratis-screenplay-model-authoring`), the render and gap-fill
+workflow (`cratis-screenplay-render-and-gap-fill`), or generated C# (`cratis-arc-command`, `cratis-chronicle-read-model`).
 
 ## Model-first rule
 
@@ -60,8 +59,8 @@ cratis render --workspace ./application.workspace.json --destination ./out
 | `--package-set <FILE>` | Approved package set (JSON) of custom runtime packages the `ui profile` may use; the frontend installs exactly these |
 | `--force` | See "Publication and recovery" |
 
-Order of events: recover any interrupted earlier publication, compile, bind, build the
-execution plan, plan the target (Stage admission), validate artifacts, then publish.
+Order: recover any interrupted publication, compile, bind, build the plan, plan the target
+(Stage admission), validate artifacts, then publish.
 Exit `0` is a published render, `5` is a refusal with nothing published (diagnostics are
 printed), `1` is a missing input. Add `-o json` for the counts and the publication receipt.
 
@@ -104,8 +103,7 @@ backups). Never stage `.cratis-render/` in git; commit the manifest with the out
 - Recovery runs before planning, even when planning then fails. **`recovered: true` in the
   result means stop and reconcile**: the receipt does not describe what recovery changed.
 - An unchanged re-render writes nothing (`unchanged` equals the artifact count).
-- Use exclusive access to the destination; a receipt is a filesystem result, not a Git
-  commit, and the command creates no branch, commit or PR.
+- Use exclusive access to the destination; a receipt is a filesystem result, not a Git commit, and the command creates no branch, commit or PR.
 - Drift: `cratis render ... --check` is the first probe; exit `6` means pending changes.
   Otherwise compare successive manifests' `semanticRevision` for renders with the same
   `--name` and inputs. Do not compare the MCP `modelRevision` with the manifest: their
@@ -204,12 +202,18 @@ Specification runner exit codes: `0` means the run completed and the results fil
 written **even when a specification failed**, so read the outcomes; `1` is a missing or
 uncompilable input; `2` a missing required argument or an invalid semantic option.
 
+## Behavior walk (optional, after V3)
+
+Walk each persona's commands and screens in the sandbox's semantic engine and record what
+changes, when a domain expert should check the model by using it. It yields findings for
+the model owner only, changes nothing, is not UI review and is not V4 or V5 evidence.
+Prerequisites, the walk, finding kinds, limits and hand-off:
+Read [references/behavior-walk.md](references/behavior-walk.md) when planning or running it.
+
 ## Legacy direct-write rendering
 
-The syntax-based `IRenderer` and the optional `Cratis.Stage.Rendering.Cratis.Scaffolding`
-package write directly to disk, with no managed staging and no safe stale-file removal; a
-failure can leave the target unsafe and incomplete. Use `cratis render` (journaled,
-recoverable publication) instead.
+The syntax-based `IRenderer` and `Cratis.Stage.Rendering.Cratis.Scaffolding` write directly
+to disk with no managed staging and no safe stale-file removal; a failure can leave the target unsafe and incomplete. Use `cratis render`.
 
 ## Verify
 
@@ -224,8 +228,7 @@ recoverable publication) instead.
   file. The fix is an intent-preserving model change or a recorded gap, never an edit of
   managed output and never a weakened model.
 - No file under `.cratis-render/` is staged; managed files carry no local edits.
-- Stage's plan is deterministic (same input, same bytes and hashes); that is not a review,
-  and Stage never reviews, stages or approves anything.
+- Stage's plan is deterministic (same bytes and hashes); that is not a review, and Stage never reviews, stages or approves anything.
 - Sandbox expectations account for unenforced validation, authorization and query
   authorization on the default engine.
 - Runtime screen smoke coverage uses the same model root or workspace export as

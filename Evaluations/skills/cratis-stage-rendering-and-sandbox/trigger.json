@@ -38,6 +38,10 @@
       "shouldTrigger": true
     },
     {
+      "query": "Our model is accepted and renders. Before sign-off, how can a domain expert walk each persona's commands and see what changes in the Stage sandbox?",
+      "shouldTrigger": true
+    },
+    {
       "query": "Take our accepted model all the way to running code and hand what Stage cannot emit to the slice implementer.",
       "shouldTrigger": false,
       "note": "cratis-screenplay-render-and-gap-fill"
@@ -81,6 +85,11 @@
       "query": "Write C# CommandScenario specifications for a hand-written slice.",
       "shouldTrigger": false,
       "note": "cratis-application-slice-specifications"
+    },
+    {
+      "query": "Review our .play model against the checklist and report PASS or FAIL with findings pinned to declarations.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-model-review"
     }
   ]
 }

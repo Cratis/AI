@@ -122,6 +122,7 @@ phase, a decision important enough that a later reader could misread the model (
 - **Input**: the accepted identity.
 - **Carry-forward**: V3, and V4 where a route exists.
 - **Gate**: V3 ready; V4 result or "V4 not run: no route". Specs written or bound is never "specs pass".
+- **Optional after V3**: a behavior walk in the Stage sandbox (`cratis-stage-rendering-and-sandbox`); findings go to the model owner, and it is not V3, V4 or V5 evidence.
 - **Skip when**: design mode.
 
 ## P8 Render or fall back (`cratis-screenplay-render-and-gap-fill`)

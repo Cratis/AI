@@ -134,7 +134,7 @@ origin, NOT-enforced rules marked, coverage matrix filled, personas with their d
 fixed or explained before P5. The list: [quick self-check](references/quick-self-check.md).
 
 ## Business-question pass (explain brief)
-Be a sharp business analyst seeing the domain fresh: walk each persona's journey and ask only what a domain person must decide, in plain language with no engineering words (could a non-technical product owner read it and immediately understand what is being asked?), anchored to a place in the model, at most 12 questions (zero is valid). Method, element prompts and the model-word translation table: `references/business-questions.md`.
+Be a sharp business analyst seeing the domain fresh: walk each persona's journey and ask only what a domain person must decide, in plain language with no engineering words (could a non-technical product owner read it and immediately understand what is being asked?), anchored to a place in the model, at most 12 questions (zero is valid). Method, element prompts and the model-word translation table: `references/business-questions.md`. A behavior walk in the Stage sandbox (`cratis-stage-rendering-and-sandbox`) is a separate, optional check; its findings arrive here as review findings.
 
 ## Independent review
 P5 uses a fresh reviewer who authored nothing in scope; record reviewer/author models or `model: not exposed`, label a same-model review and let the user decide sufficiency. Read lifecycle "Independent review" when arranging P5; the model-family rationale is in `references/report-template.md` ("Independent review").
