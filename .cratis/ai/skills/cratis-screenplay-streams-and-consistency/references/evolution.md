@@ -8,6 +8,8 @@
 - Compatibility scenarios (write before editing)
 - Identity rules
 - Identity owner
+- Generations, pins and storedName diagnostics
+- Enum member numbers
 
 Stored facts outlive the code and the model that wrote them. Plan a change by asking what
 happens to facts already stored, to every reader of the event, and to the deployment window
@@ -141,3 +143,19 @@ the catalog-changing request to the owner; never leave a requested change silent
   events are gap-fill, with migrations hand-written per `cratis-chronicle-event-type-migration`.
 
 Complete compiled example: `evolution-example.md` (generation, rename pin, meaning change).
+
+## Generations, pins and storedName diagnostics
+
+- Generations are declared in full, numbered 1..N without gaps, in the same slice
+  (PLAY0446-0448). Referencing a removed property is PLAY0273; a `given` needing a previous-generation
+  shape is PLAY0449. An `id` pin equal to the event's current name is PLAY0471 (information).
+  Differing pins carry `storedName` in ESM v16;
+  equal-name pins are no-ops. Pins are event-name identifiers, shared by all
+  generations and unique application-wide (PLAY0472). Consumers must admit v16;
+  a renderer that stops before v16 does not. See `references/evolution.md`.
+
+## Enum member numbers
+
+   Pin persisted/public enum member numbers before reordering or removing
+   members; never renumber or reuse a published number. Positional pins preserve
+   executable bytes; non-positional pins need ESM v12 consumer admission.
