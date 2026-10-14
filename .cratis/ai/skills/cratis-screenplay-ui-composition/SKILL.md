@@ -61,6 +61,8 @@ work on a screen whose purpose is unsettled is rework.
    a board; that is optional, and the text review is enough. Do not
    use the Stage sandbox as the review: it renders only part of a screen, and
    nothing here establishes that Stage renders an authored screen faithfully.
+   A behavior walk of what commands change is a separate, optional check owned by
+   `cratis-stage-rendering-and-sandbox`.
 3. **Add structure only to screens whose Level 1 is agreed**: template, sections,
    forms, `on`/`uses`. Use Level 3 inline code last, only where Level 2 cannot
    say it.
