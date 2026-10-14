@@ -36,6 +36,14 @@ With `Cratis.Arc.Chronicle.Testing` and its Queries namespace, use
 The query must read that source via injected `IReadModels`; seeding does not
 replace arbitrary stores or produce later observable emissions after appends.
 
+For a query with `by`, `filter` or `scoped to`, seed instances for two keys, two filter values
+or two tenants with distinct callers, as applicable, and assert that each call returns only its
+own instances, plus the empty case. This pins the caller-isolation decision in
+`cratis-screenplay-read-surface` ("by vs filter"); caller scope must come from trusted context,
+not a caller-supplied tenant filter. Compare whole returned items when the contract states every
+value; otherwise assert each named value. A query backed by a database still needs that provider's
+integration setup: scenario pins do not replace arbitrary stores.
+
 ## Guarded decisions
 
 Call `new CommandScenario<TCommand>().UseDecisionReads()` before seeding. This

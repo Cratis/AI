@@ -130,6 +130,12 @@ field because `berthId` is the identifier, not something the user types.
 | A Level 3 `react` block | The block is already the implementation, with typed `Props`. Port it into a component that honors those `Props` | Convention |
 | `file Screens/X.tsx` | That file is the page. The model keeps the contract; the file must still show the declared data and actions | Stage's handling of the file reference is not verified |
 
+A screen hosting actions from several slices has one page composition point. The page may import
+those slices' exported dialogs or components and pass props; a slice's React internals do not
+import another slice's internals, because that couples their removal. Identity, tenant and theme
+state belongs in application-level providers. Removing a slice folder and its page registration
+should remove the feature without edits inside another slice.
+
 ## `form` and `field`
 
 | In the model | In the page | Status |

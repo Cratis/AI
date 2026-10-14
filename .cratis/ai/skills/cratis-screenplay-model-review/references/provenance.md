@@ -34,8 +34,11 @@ Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilg
 
 | Source skill | Used in | How |
 |---|---|---|
-| `stressor-analysis` | `references/stressor-analysis.md` | adapted closely: about fifteen wide stressors mostly from outside the model, one-sentence residues observed rather than designed, the person decides what is unacceptable, an incidence matrix sorted by hits, redesign per cluster, fresh stressors to compare before and after; the method is residuality theory by Barry O'Reilly; chat snippets and board writes dropped |
-| `data-journey` | `references/model-inventory-report.md` *Information journey* | adapted closely: one piece of information followed through its stops in flow order with a role and the property name at each stop, and recorded-but-never-read or shown-without-a-view as findings; the table and chat player dropped |
+| `stressor-analysis` | `references/stressor-analysis.md` | copied and translated: the goal sentence, the external floor and examples, the more-stressors step, the thin-coupling note and the Hit-by column; chat snippets dropped |
+| `data-journey` | `references/model-inventory-report.md` *Information journey* | copied and translated: the role table, name variants, sounds-related fields as different information, the headline; the property-link tracer replaces upstream's mapping walk |
+| `analyze-existing-model` | `references/model-inventory-report.md` | adapted closely: cost tiers, coverage split by slice kind, brief conversational mode, delivery status from tracking issues |
+| `walkthrough` | `references/walkthrough.md` | copied and translated: one step per slice, the explain and impact modes chosen by whether the subject is modeled, widening limits, the step fields, faithfulness and the pre-return check; the sketch is a `.play` fragment instead of board elements and HTML |
+| `wdyt` | `references/business-questions.md` | adapted closely: never re-ask an open question, the person picks which questions are kept, the owning session records them as notes |
 
 ## Other lineage
 

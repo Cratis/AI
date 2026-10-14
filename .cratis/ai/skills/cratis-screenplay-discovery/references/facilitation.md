@@ -60,3 +60,5 @@ in notes. See "Evidence and privacy" in SKILL.md.
    `documentation`, summaries in `description`. At 4.127.0 canonical printing retains
    documentation on its owner; MCP exposes it, but it changes no `modelRevision` and
    reaches no rendered code. Inspect dropped comments after canonicalizing edits.
+
+A hotspot (a pain point, a dispute) is an anchored `note` beside the event it concerns, never an event.

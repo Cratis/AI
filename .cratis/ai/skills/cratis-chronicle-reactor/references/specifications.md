@@ -129,7 +129,23 @@ Specify the contract, not only the happy path:
   every event it delivers its own sequence number, so firing the same event twice
   through `Given` is two deliveries, not a re-delivery; to prove the
   re-delivery guard, call the handler twice with the same `ReactorDelivery`, or
-  assert it on the collaborator that holds the receipt.
+  assert it on the collaborator that holds the receipt. Map a contract redelivery specification
+  one to one: deliver the same trigger with the same delivery identity, or call directly with the
+  command already applied, and assert its disposition (no new events, the named fact, or refusal
+  surfaced as failure). The refusing-command procedure is in `slice-delivery-checklist.md`.
+- **Read-model timing.** An injected materialized model has its own observer; resolving it does
+  not pin its state to the trigger's sequence number. It can lag the trigger or include later
+  events. Seed the state the contract means with `Given.ForEventSourceId(id).ReadModel(instance)`:
+  matching state dispatches, non-matching state does not, and a separate specification uses the
+  state before the setup event (or declared absence). These are decision specifications, not
+  proof of production ordering. For a decision exactly as of the trigger, prefer values carried
+  on that event. A `[Passive]` model computes on demand but is not an as-of snapshot; a
+  state-dependent invariant requiring atomic protection belongs in the invoked command through
+  `cratis-chronicle-decision-reads`.
+- **Per-item fan-out.** Seed two matching entries and one non-matching entry; assert exactly two
+  effects, each with its entry's values. When the contract requires independent progress,
+  specify an acknowledged duplicate refusal for one entry and prove the other entry still
+  completes. Unexpected refusals remain failures; successful entries must tolerate retry.
 - **Unrelated events.** `WithStrictEventSubscription()` belongs to
   `ReadModelScenario<T>` and only fails a specification that *seeds* an event the
   projection does not subscribe to; it does not prove a subscription set, and

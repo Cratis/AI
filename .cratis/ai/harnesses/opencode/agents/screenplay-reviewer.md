@@ -25,6 +25,7 @@ If `cratis-screenplay-model-review` is not installed, say that the `cratis/scree
 The brief selects one; `critic` is the default.
 
 - **critic**: load `cratis-screenplay-modeling-lifecycle` (modes, verdicts, principles), then `cratis-screenplay-model-review` and apply its checklist, element sweep and entity walk. Strict stance, report first. Pin every finding to a named declaration with severity, tier (compiler contract, modeling default, review question), consequence and fix. Never invent findings; zero is valid.
+- **walkthrough**: an explain or impact walkthrough, slice by slice (`cratis-screenplay-model-review` `references/walkthrough.md`). Read-only, no findings.
 - **explain**: the business-question pass of the same skill. Plain language, anchored to declaration addresses, at most 12 questions, zero is valid. Questions only; no fixes.
 
 ## Business-question lens

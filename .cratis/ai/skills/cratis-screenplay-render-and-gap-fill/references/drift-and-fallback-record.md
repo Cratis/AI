@@ -12,9 +12,8 @@
 The ownership manifest `.cratis-render.json` at the destination records `semanticRevision`
 (`rev1:<sha256>`), the target, the renderer, the application name and a hash per managed file.
 
-Facts verified with `cratis render` 3.28.2 on one model (historical probe; still how identity works): the same files rendered under the names
-`Marina` and `Harbour` gave different `semanticRevision` values, so **the application name is part
-of the revision**. The MCP workspace names the application after the model root folder (without
+Rendering the same model under different application names changes `semanticRevision`, so
+**the application name is part of the revision**. The MCP workspace names the application after the model root folder (without
 `.screenplay/identities.json`), so its `modelRevision` is not comparable with a render's manifest
 revision by assumption. Without `.screenplay/identities.json` it changes when the root folder is
 renamed (relocating the root while keeping its name does not); source positions and descriptions do
@@ -69,32 +68,10 @@ adapter, rebuild. Never edit the generated file.
 
 ## Hand-written code changed since it was last verified
 
-Use the fallback record's `last verified` code source identity, or the extraction's analysis
-history, as the baseline. If it is missing, unreachable or includes uncommitted changes, ask for
-an agreed starting commit; do not replace that question with a whole-repository comparison.
-
-1. List commits oldest first over the recorded files, shared seams and `Customizations/`, then
-   inspect each commit's changes per file. Include current uncommitted changes separately; a net
-   diff can hide a hand edit followed by another delivery.
-2. Separate behavior changes from dependency, CI, formatting and documentation noise. Ignore
-   work records and corpus configuration; Stage-managed output belongs to the manifest refusal
-   procedure above. Do not dismiss a changed rule merely because its commit also contains noise.
-3. Locate affected slices through the record's element map, field inventory and specification
-   mapping, then structural addresses from `cratis screenplay conform`, then names as a last
-   resort. Read only the contracts and changed code those mappings identify.
-4. Report each difference once, at the declaration where it begins: fields, rules/specifications,
-   screens, wiring (`produces`, `reads`, reaction or capture triggers), declarations or a whole
-   slice. Model-only work is planned delivery, not a code-change finding. A change restoring
-   conformance or an approved, recorded divergence is not a new finding.
-5. With an accepted model, restore the code to its contract by re-delivery, or return an explicit
-   model edit request through the modeler, review and acceptance, naming identity effects.
-   Accidental edits favor restoration; never silently revise the model to fit code. For an
-   extraction with no accepted model, propose updating the candidate from the new evidence,
-   retaining expert confirmation rather than treating the code as an accepted decision.
-
-Advance `last verified` only after every finding has a decided resolution and the resulting
-code has been checked. An unanswered finding keeps the baseline unchanged. This investigation
-and `conform` are not behavioral equivalence verdicts; passing specifications remain necessary.
+Read `references/hand-written-changes.md` for the read-only investigation: agree the baseline,
+walk changes per file, distinguish undelivered scope from removed delivered code, and return
+restoration briefs or model edit requests including affected screens. Neither this investigation
+nor `conform` is a behavioral equivalence verdict; passing specifications remain necessary.
 
 ## 4. Fallback record
 One file per model: `.ai-work/screenplay/<model-slug>/fallback-record.md`, untracked. A durable
@@ -117,7 +94,7 @@ One entry per assigned scope, with realization rows per slice:
 | assumptions | each declaration address, non-behavioral choice and consequence if wrong, or `none`; the delivery block list wins |
 | checks run | exact iteration and completion commands, each with result or `not run: <reason>` |
 | spec mapping | `.play` specification to test name, one line each; missing tests listed |
-| field inventory | `n/n` command, event and read-model properties mapped; extras: none, or listed with reason |
+| field inventory | one row per command, event and read-model property with its input-to-code-to-storage chain where applicable, or `no counterpart, because …`; `n/n` mapped; extras: none, or listed with reason |
 | realization requirements applied | explicit realization notes from slice `description` or `documentation` applied, one line each; other description prose used as a hint is listed separately |
 | spec delta | at re-delivery: specifications added, changed or removed since `last verified`, each with test status |
 | divergences | where the code deliberately differs from the model, with reason and approver |

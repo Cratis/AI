@@ -81,7 +81,8 @@ recreated HTML page is a design interpretation, not raw evidence; do not make on
 After the walk, group the observations by the workflow they belong to, in observed order,
 with branches and actor changes kept. One linear journey is one flow; distinct sections are
 one flow each. Tell the user, for example: "Observed 8 states across 2 flows: 'Reserve a berth'
-(5), 'Renew a membership' (3)". A flow is an evidence grouping, not a slice or feature
+(5), 'Renew a membership' (3)". Three to twelve states per flow is typical: split a longer flow
+at a phase boundary and merge fragments of one journey. A flow is an evidence grouping, not a slice or feature
 boundary: a page is not a slice boundary.
 
 ## Reconcile

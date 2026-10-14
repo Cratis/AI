@@ -7,6 +7,10 @@ acceptance. It reads the model and proposes edit requests; it never edits. The m
 residuality theory (Barry O'Reilly), applied to event models in the Eventmodelers work of
 Martin Dilger and Nebulit GmbH, which this reference adapts closely (`provenance.md`).
 
+The aim is a model whose every residue is acceptable to the business. A design shaped by many
+unrelated stressors tends to survive ones nobody listed, which is why variety matters more than
+likelihood.
+
 ## Contents
 
 - Procedure
@@ -20,19 +24,26 @@ Martin Dilger and Nebulit GmbH, which this reference adapts closely (`provenance
    commands, events, read models, reactions, captures and personas from the `.play` files or the
    MCP views, never from memory.
 2. **Stressors.** About fifteen, deliberately wide, in business words and without mechanics. Draw
-   most from outside the model (people, law, market, nature, partners, the organization itself)
-   and the rest from inside the domain. Alternate the two. Their value is variety, not
-   likelihood.
+   at least a third from outside the model (an office flooded, a new privacy law, the company
+   acquired, the key administrator leaves, a competitor goes free, the main customer goes
+   bankrupt) and the rest from the domain's own business. Alternate the two. One stressor per item,
+   eight words or fewer, no sub-lists, no field names, races or API mechanics. Their value is
+   variety, not likelihood.
 3. **Residue per stressor.** One sentence each: which slices still work, which facts are still
    recorded, which views go stale or wrong, who is not told. A residue is observed, not
-   designed. A fix is not a residue.
-4. **The person decides** which residues are unacceptable, because that is a business decision.
+   designed. A fix is not a residue. Name slices and declarations, never fields.
+4. **More stressors.** Before deciding, the person may ask for more. Keep every earlier stressor
+   with its number and residue and add about ten new ones aimed at the categories and declarations
+   the earlier list hit least (nature, law, people, market, data). Never replace the list.
+5. **The person decides** which residues are unacceptable, because that is a business decision.
    Unattended, record each as a question with an assumed default (lifecycle
-   `references/stop-or-assume.md`) and say so in the report.
-5. **Incidence matrix** (below). Name the shared cause of every cluster.
-6. **Redesign proposals** for one cluster at a time (below). State the new residue for each
+   `references/stop-or-assume.md`) and say so in the report. Deciding is the go-ahead for the
+   matrix: with fewer than five unacceptable residues, build it anyway and say the coupling it
+   shows is still thin.
+6. **Incidence matrix** (below). Name the shared cause of every cluster.
+7. **Redesign proposals** for one cluster at a time (below). State the new residue for each
    stressor.
-7. **Validate with fresh stressors** not used before. Report the share of acceptable residues
+8. **Validate with fresh stressors** not used before. Report the share of acceptable residues
    before and after. Stop when new stressors stop hitting declarations that were not hit before.
 
 Do not invent requirements. A stressor is a question about the business, answered by the person,
@@ -41,7 +52,8 @@ not a feature to add.
 ## Incidence matrix
 
 A Markdown table in the review report: one row per declaration a stressor hits, one column per
-unacceptable stressor, sorted by how many stressors hit the row. Declarations hit by the same
+unacceptable stressor, sorted by how many stressors hit the row. Over ten stressor columns, use one "Hit by" column
+(`S1, S4, S9`) and give the legend under the table. Declarations hit by the same
 stressors are hidden coupling: name the shared cause (one outside system, one persona, one
 clock). A cluster that crosses modules is boundary evidence for
 `cratis-screenplay-streams-and-consistency`.

@@ -39,6 +39,7 @@ Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilg
 | Source skill | Used in | How |
 |---|---|---|
 | `eventmodeling-elaborating-scenarios` | `references/scenario-catalogue.md` sections 2 and 5, *Example data*; `references/scenario-examples.md`; `references/coverage-matrix.md` *Cell values*; `SKILL.md` | adapted closely: a rejection earns a scenario only if a domain expert could recognize the rule, the duplicate question put as a business question, essential values shown in the body with the rest left out, descriptions that carry no fact a step could state, and a closed list of technical cases left unspecified; concept-rule and once-only specifications are kept on purpose, and a repeat the business would notice is never technical |
+| `eventmodeling-elaborating-scenarios` (examples, error-state and compensation scenarios) and `eventmodeling-identifying-outputs` (error states shown) | `references/scenario-catalogue.md` sections 9 (*Shown*, *Recoverable*) and 10 (follow-up work after a reversal) | copied and translated: the payment-failure view update and the retry after failure, and the compensation triggered by a cancellation, restated as view and retry specifications and an Automation-slice specification; the board scenario syntax is dropped |
 
 ## Cratis-original
 Coverage matrix and obligation derivation from declarations, cell vocabulary (`spec`, `n/a`,
