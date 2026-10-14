@@ -314,4 +314,3 @@ rejects the plan.
 
 The structure of this loop (ownership, edit-request shape, failure handling) is
 adapted from the project's earlier event-modeling toolkit draft.
-
