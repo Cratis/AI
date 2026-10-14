@@ -264,8 +264,34 @@ test('the Pi package filters rules for framework CSharp documentation repositori
         // The same selection applies to the rules path guidance delivers: csharp and documentation are selected...
         assert.ok(rulesForPath(project, 'Source/Thing.cs').some(rule => /# C# Conventions/.test(rule.content)));
         assert.ok(rulesForPath(project, 'Documentation/page.md').some(rule => /# How to write documentation/.test(rule.content)));
-        // ...typescript is not, so only rules shared with C# (framework, code quality, glossary) reach a .ts file.
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md']);
+        // ...typescript is not, so only the framework profile, which also covers C#, reaches a .ts file; code quality and the glossary are universal.
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['framework.md']);
+        assert.ok(universalRules(project).some(rule => rule.name === 'code-quality.md') && universalRules(project).some(rule => rule.name === 'glossary.md'));
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the profile rules reach a source file of every supported language for every language-only repository', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const files: Record<string, string> = { csharp: 'Source/Thing.cs', typescript: 'Source/thing.ts', go: 'Source/thing.go', kotlin: 'Source/Thing.kt', java: 'Source/Thing.java', elixir: 'lib/thing.ex' };
+        for (const [language, file] of Object.entries(files)) {
+            for (const [profile, rule] of [['cratis/engineering/csharp', 'framework.md'], ['cratis/application/csharp', 'application-profile.md']]) {
+                writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: [profile], languages: [language] }));
+                assert.ok(rulesForPath(project, file).some(candidate => candidate.name === rule), `${rule} reaches ${file} in a ${language}-only repository`);
+                assert.ok(managedRules(project).some(candidate => candidate.name === rule), `${rule} is selected in a ${language}-only repository`);
+            }
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/csharp'], languages: [language] }));
+            assert.ok(universalRules(project).some(rule => rule.name === 'code-quality.md'), `code quality is universal in a ${language}-only repository`);
+            assert.ok(universalRules(project).some(rule => rule.name === 'glossary.md'), `the glossary is universal in a ${language}-only repository`);
+        }
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/application/kotlin'], languages: ['kotlin'] }));
+        assert.ok(rulesForPath(project, 'Source/model.play').some(rule => rule.name === 'application-profile.md'), 'model files reach the application profile');
+        for (const name of ['git-commits.md', 'pull-requests.md', 'local-work-artifacts.md']) {
+            assert.ok(universalRules(project).some(rule => rule.name === name), `${name} is always on`);
+        }
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
@@ -279,12 +305,12 @@ test('path-scoped rules from the packaged corpus follow the selected languages a
 
         configure({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] });
         assert.ok(rulesForPath(project, 'Source/Thing.cs').length > 0, 'csharp is selected');
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md'], 'only rules shared with C# reach a TypeScript file in a csharp-only repository');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['framework.md'], 'only the framework profile, shared with C#, reaches a TypeScript file in a csharp-only repository');
         assert.deepEqual(rulesForPath(project, 'Documentation/page.md').map(rule => rule.name), [], 'no documentation rules without cratis/documentation');
 
         configure({ profiles: ['cratis/engineering/typescript', 'cratis/documentation'], languages: ['typescript'] });
         assert.ok(rulesForPath(project, 'Source/Thing.ts').length > 0, 'typescript is selected');
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md'], 'only rules shared with TypeScript reach a C# file in a typescript-only repository');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), ['framework.md'], 'only the framework profile, shared with TypeScript, reaches a C# file in a typescript-only repository');
         assert.ok(rulesForPath(project, 'Documentation/page.md').length > 0, 'cratis/documentation is selected');
 
         rmSync(join(project, '.cratis', 'ai.json'));
@@ -362,7 +388,8 @@ test('Go rules match source and module files only for selected Go languages', ()
         }
         configure('cratis/engineering/csharp', 'csharp');
         assert.ok(!managedRules(project).some(rule => ['go.md', 'go-engineering.md'].includes(rule.name)));
-        for (const path of paths) assert.deepEqual(rulesForPath(project, path), [], path);
+        // The framework profile covers every language, so it is the only rule a Go file still receives in a C#-only repository.
+        for (const path of paths) assert.deepEqual(rulesForPath(project, path).map(rule => rule.name), ['framework.md'], path);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }

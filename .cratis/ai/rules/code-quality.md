@@ -1,9 +1,5 @@
 ---
-applyTo: "**/*.cs,**/*.ts,**/*.tsx"
-paths:
-  - "**/*.cs"
-  - "**/*.ts"
-  - "**/*.tsx"
+applyTo: "**/*"
 ---
 
 # Code Quality

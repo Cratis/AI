@@ -1,8 +1,5 @@
 ---
-applyTo: "**/.ai-work/**,**/.gitignore"
-paths:
-  - "**/.ai-work/**"
-  - "**/.gitignore"
+applyTo: "**/*"
 ---
 
 # Local AI work artifacts belong in `.ai-work/` only

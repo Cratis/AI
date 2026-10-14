@@ -1,8 +1,5 @@
 ---
-applyTo: "**/.ai-work/**,**/.gitignore"
-paths:
-  - "**/.ai-work/**"
-  - "**/.gitignore"
+applyTo: "**/*"
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

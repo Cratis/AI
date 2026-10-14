@@ -1,10 +1,18 @@
 ---
-applyTo: "**/*.cs,**/*.csproj,**/*.ts,**/*.tsx"
+applyTo: "**/*.cs,**/*.csproj,**/*.ts,**/*.tsx,**/*.go,**/go.mod,**/go.sum,**/*.kt,**/*.kts,**/*.java,**/*.ex,**/*.exs"
 paths:
   - "**/*.cs"
   - "**/*.csproj"
   - "**/*.ts"
   - "**/*.tsx"
+  - "**/*.go"
+  - "**/go.mod"
+  - "**/go.sum"
+  - "**/*.kt"
+  - "**/*.kts"
+  - "**/*.java"
+  - "**/*.ex"
+  - "**/*.exs"
 profile: framework
 ---
 

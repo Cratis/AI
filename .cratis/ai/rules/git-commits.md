@@ -1,8 +1,5 @@
 ---
-applyTo: "**/COMMIT_EDITMSG,**/.github/pull_request_template*"
-paths:
-  - "**/COMMIT_EDITMSG"
-  - "**/.github/pull_request_template*"
+applyTo: "**/*"
 ---
 
 # How to Write Git Commits

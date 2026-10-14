@@ -112,6 +112,19 @@ test('every path-scoped rule stays reachable in each harness', () => {
     assert.match(cursor, /alwaysApply: true/);
 });
 
+test('rules a flow needs before any file is touched stay always-on in every harness', () => {
+    // Committing, opening a pull request, writing a plan and the universal code principles edit no scoped file,
+    // so no path scope can guarantee they load; they stay unscoped and general.md routes to them.
+    const general = readFileSync(join(corpusRoot, 'rules/general.md'), 'utf8');
+    for (const name of ['git-commits.md', 'pull-requests.md', 'local-work-artifacts.md', 'code-quality.md', 'glossary.md']) {
+        const fields = frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8'));
+        assert.ok(!fields.has('paths'), `${name}: Claude Code loads it at launch only without paths`);
+        assert.deepEqual(fields.get('applyTo'), ['**/*'], `${name}: Copilot applies it to every file`);
+        assert.ok(general.includes(`\`${name}\``) || general.includes(`](./${name})`), `${name}: general.md routes to it`);
+        assert.match(readFileSync(join(repositoryRoot, '.github/instructions', name.replace(/\.md$/, '.instructions.md')), 'utf8'), /^applyTo: "\*\*\/\*"/m);
+    }
+});
+
 test('fresh Go adapter trees expose root policy traversal separately from discoverable skills', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'cratis-go-harness-'));
     try {

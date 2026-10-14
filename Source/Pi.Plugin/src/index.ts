@@ -83,11 +83,19 @@ function ruleMatchesConfiguration(path: string, content: string, configuration: 
     const needsCSharp = applyTo.includes('.cs');
     const needsTypeScript = applyTo.includes('.ts') || path.endsWith('/rtk.md');
     const needsGo = applyTo.includes('.go') || applyTo.includes('go.mod') || applyTo.includes('go.sum');
+    const needsKotlin = applyTo.includes('.kt');
+    const needsJava = applyTo.includes('.java');
+    const needsElixir = applyTo.includes('.ex');
     const needsDocumentation = applyTo.includes('md');
-    if (!needsCSharp && !needsTypeScript && !needsGo && !needsDocumentation) return true;
+    // A scope that also names model files (`.play`) is not tied to one language, so it is always kept.
+    if (applyTo.includes('.play')) return true;
+    if (!needsCSharp && !needsTypeScript && !needsGo && !needsKotlin && !needsJava && !needsElixir && !needsDocumentation) return true;
     return (needsCSharp && languages.includes('csharp')) ||
         (needsTypeScript && languages.includes('typescript')) ||
         (needsGo && languages.includes('go')) ||
+        (needsKotlin && languages.includes('kotlin')) ||
+        (needsJava && languages.includes('java')) ||
+        (needsElixir && languages.includes('elixir')) ||
         (needsDocumentation && selectedProfiles.includes('cratis/documentation'));
 }
 

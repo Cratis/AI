@@ -1,8 +1,5 @@
 ---
-applyTo: "**/COMMIT_EDITMSG,**/.github/pull_request_template*"
-paths:
-  - "**/COMMIT_EDITMSG"
-  - "**/.github/pull_request_template*"
+applyTo: "**/*"
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

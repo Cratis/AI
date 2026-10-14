@@ -184,7 +184,12 @@ const referencingFiles = await Promise.all(['rules', 'prompts', 'agents'].map(as
 }));
 failures.push(...danglingSkillReferences(referencingFiles.flat(), skillDirectories.map(entry => entry.name)));
 for (const entry of referencingFiles.flat()) authoringFindings.push(...instructionAuthoringFindings(`.cratis/ai/${entry.path}`, entry.content));
-authoringFindings.push(...alwaysOnFindings(referencingFiles[0].map(entry => ({ file: `.cratis/ai/${entry.path}`, content: entry.content }))));
+const copilotAdapterNames = (await readdir(join(corpus, 'harnesses', 'copilot', 'instructions'))).filter(name => name.endsWith('.md'));
+const loadedArtifacts = {
+    copilotAdapters: await Promise.all(copilotAdapterNames.map(async name => ({ file: name, content: await readFile(join(corpus, 'harnesses', 'copilot', 'instructions', name), 'utf8') }))),
+    cursorRule: await readFile(join(corpus, 'harnesses', 'cursor', 'rules', 'cratis.mdc'), 'utf8'),
+};
+authoringFindings.push(...alwaysOnFindings(referencingFiles[0].map(entry => ({ file: `.cratis/ai/${entry.path}`, content: entry.content })), undefined, loadedArtifacts));
 for (const directory of skillDirectories) {
     const skillFile = join(corpus, 'skills', directory.name, 'SKILL.md');
     if (!await exists(skillFile)) {
