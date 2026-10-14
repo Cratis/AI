@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-model-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "review-without-editing",
+      "prompt": "Review the marina .play model before acceptance. Report findings; do not touch the model.",
+      "expected_output": "A critic-mode report: scope and source identity, V1 to V5 lines each a result or 'not run: reason', element sweep, entity walk, findings pinned to one declaration with severity, kind, rule, consequence and fix, and a verdict. Edit requests go to the owning session; no model file changes.",
+      "assertions": [
+        "Every finding names exactly one declaration or an explicit list, never 'several' or a wildcard.",
+        "All five verdict lines are present as a result or 'not run: <reason>'.",
+        "Fixes are returned as edit requests and no model file is changed.",
+        "Defects and business questions are in separate lists."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "impact-walkthrough",
+      "prompt": "We want to record the boat insurer before a berth can be assigned. Walk me through what changes in the model. Do not edit anything.",
+      "expected_output": "An impact walkthrough: a summary with the slice count split into existing, changed and new; one step per slice in run order with status, business-word description, rules from specifications and changes lines; a sketch for each new slice labeled as a proposal; unmodeled behavior reported as open questions, not rules. Ends with the proposal and offers edit requests for the modeler.",
+      "assertions": [
+        "Opens with a count split by existing, changed and new slices.",
+        "Uses one step per slice, not per element, and every step has a status.",
+        "Every changed step has changes and every new step has a sketch marked as a proposal.",
+        "States gaps as open questions, never as rules, and does not edit the model."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "explain-feature",
+      "prompt": "How does berth booking work? I cannot read .play.",
+      "expected_output": "An explain walkthrough: summary and a few sentences, then the feature's slices in the order a person lives them, in business words with rules taken from specifications. Chosen by the subject being modeled, read-only.",
+      "assertions": [
+        "Chooses explain mode because the subject is already modeled.",
+        "Writes one step per slice in run order using business words without declaration addresses in the text.",
+        "Takes rules only from specifications and marks anything unmodeled as an open question.",
+        "Does not edit the model."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "inventory-and-journey",
+      "prompt": "Give me a read-only inventory of this inherited model and then trace where the owner's email goes.",
+      "expected_output": "An inventory in the fixed shape (modules, elements, assertion coverage with the slices lacking one, structural gaps, orphans, summary) and a single-property journey with a headline and a table of roles: enters, recorded, changed, used, leaves, traced through property links with incomplete results named.",
+      "assertions": [
+        "Reports counts and assertion coverage as n of total with a percentage and names slices with none.",
+        "Traces one piece of information with the property-link roles and names incomplete or opaque links.",
+        "Gives a headline counting where it enters, is recorded and is used.",
+        "Makes no change to the model."
+      ]
+    }
+  ]
+}

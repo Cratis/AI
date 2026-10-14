@@ -220,6 +220,7 @@ Before reporting done:
 - `references/delivery-protocol.md` - inputs, commands, reading results, `Customizations/`.
 - `references/gap-fill-handoff.md` - the brief for `slice-implementer`, fallback record flow.
 - `references/drift-and-fallback-record.md` - drift, publication refusals, the fallback record, code changed since verification.
+- Read `references/hand-written-changes.md` when investigating hand-written changes against the contract; it defines finding kinds, resolution routing and the report.
 - Read `references/worked-example.md` when preparing the classification and report for a refused render; it contains a complete model.
 - Read `references/provenance.md` when checking sources and attribution for the render workflow or gap-fill brief.
 

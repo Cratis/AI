@@ -190,6 +190,7 @@ Top-level provider for microservice name and API base path. Config props (with d
 - Single responsibility — if you write a `// Section` comment inside a component, that section is its own component. Parent owns state; children receive props.
 - Single-file component → in the slice folder; multi-file → a folder named after the component with an `index.ts` re-export.
 - A `.tsx` belongs in the slice folder it implements — never one level up. A feature's pass-through layout renders only `<Outlet />`.
+- **Composition point and slice isolation.** A page is the one place that composes slices, through their exported components; slice internals never import another slice's internals; identity, tenant and theme providers belong to the application; deleting a slice folder and its page registration removes the feature. Detail: the `cratis-arc-react-page` skill, `references/from-screenplay.md`.
 
 ## Styling default
 

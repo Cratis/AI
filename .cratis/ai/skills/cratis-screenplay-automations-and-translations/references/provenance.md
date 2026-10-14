@@ -48,3 +48,13 @@ Previous CLI 3.46.1 refused v10 at its version gate. The CLI/Stage pair
 STAGE-ESM-034 (Stage `v4.89.1:Documentation/reference/reaction-rendering.md:57-59`).
 Public/direction forms and routes/filters follow Screenplay v4.135.0 decisions
 0049–0051 and 0060–0066, not the older inbound-only translation scope.
+
+## Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with the explicit consent of Martin Dilger and Nebulit GmbH.
+
+| Source skill | Used in | How |
+|---|---|---|
+| `build-automation-workflow` (axon stack): the decision table of signals that call for a workflow | `references/automation-patterns.md` §10 | copied and translated: the signal rows are kept, each answered with a Screenplay shape (chained Automation slices, pending-work views, clock reactions); the engine, step-handler and test mechanics are not adopted; the timeout and compensation-order checks follow its workflow tests |
+| `build-webhook` (supabase stack): inbound webhooks verify the provider's own signature, and the endpoint contract is written for an integrator who cannot read the code | `references/realization-and-gap-fill.md` (capture row), `references/integration-contracts.md` "Publish the inbound contract" | copied and translated: provider-signature authentication and the integrator-facing contract are kept; the function-registration and local-serve mechanics are dropped; "generate the aggregate id when the caller omits it" is not adopted because it breaks retry identity |

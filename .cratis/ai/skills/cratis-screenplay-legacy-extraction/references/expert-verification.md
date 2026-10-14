@@ -35,9 +35,23 @@ show is written as an explicit gap sentence ("Gap: who approves the refund?"), n
 Experts correct wording, order and missing steps directly on the retelling. The form follows Domain
 Storytelling (Stefan Hofer and Henning Schwentner).
 
+| Slice kind | Sentence |
+|---|---|
+| StateChange | persona, verb of the command, work object, (to whom it goes): "Attendant takes in Coat for Guest" |
+| StateView | system, shows, work object, to the persona of the screen: "Cloakroom shows Coat on hook to Attendant" |
+| Automation | system, verb, work object, to the recipient: "Cloakroom sends Reminder to Guest" |
+| Translate | outside system, reports, work object, to our system |
+
+Each actor keeps one name throughout, and systems and groups are named as such. An activity is one
+present-tense verb. Each sentence carries its slice address in the session sheet (not read aloud),
+so a correction lands on the right declaration. Scope is one feature, or every feature when there
+are at most six; otherwise ask which.
+
 **Impact view** (per feature, for target decisions). One line per slice marked keep, change, new or
 remove, with the one-line change and the evidence row. It makes the keep / change / remove decision
-visible per feature and names who relies on anything removed.
+visible per feature and names who relies on anything removed. Build it with the impact procedure
+in `cratis-screenplay-model-review` `references/walkthrough.md`, using keep, change, new and
+remove as the status.
 
 ## Questions per slice
 - Is this event something you would say happened, in these words? Is it one fact or several?

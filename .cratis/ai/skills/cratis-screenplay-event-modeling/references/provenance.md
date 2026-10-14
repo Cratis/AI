@@ -26,6 +26,8 @@ Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilg
 |---|---|---|
 | `eventmodeling-information-completeness` | `SKILL.md` *The prime directive* | adapted closely: every value starts at one specific place and is carried by name; an unknown origin is a gap, never a default |
 | `eventmodeling-identifying-inputs` | `cratis-chronicle-event-modeling` `SKILL.md` *Decide before implementing* | adapted closely: a rule's decision values classified as input, state or context; context supplied by the pipeline or a time source, never read inside the decision |
+| `eventmodeling-storyboarding-events` ("Mandatory Field Definitions") | `references/nine-steps.md` step 4 | copied and translated: a field is entered (becomes a command input) or shown (names its read model); a shown field never comes from the command the screen submits |
+| `eventmodeling-orchestrating-event-modeling` ("Place in narrative order, never type by type") | `references/nine-steps.md` step 9; full text in `cratis-screenplay-slice-design` `references/slicing.md` | copied and translated: slices are listed by type to count and review, and declared in story order |
 
 ## Method lineage in SKILL.md
 

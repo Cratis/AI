@@ -67,6 +67,12 @@ Before placing a rule in a layer, list every value it reads and classify each on
 - **state**: a `reads <View>` path, or the prior facts of the stream.
 - **context**: the time the decision occurs, the caller, the tenant.
 
+Decision state is the part of *state* a rule actually branches on. Derive it from the
+specifications, not from the event's shape: a "given no prior activity" and "given already
+{X}" pair means one flag for {X} (a presence check is a flag or a nullable instance); a
+scenario that discriminates on a value means that value. A `reads` view carries exactly the facts the command's specifications branch on, one field
+per fact. Add nothing because an event happens to carry it.
+
 A value that fits none of the three is a gap: a missing input, a missing view or a hidden
 dependency. Do not close it with prose in `description` or `handler`.
 

@@ -252,6 +252,29 @@ The two `within_type_attribute` patterns are not line greps — the scanner trac
 blocks and type scope (positional record, multi-line declaration, or braced body), so a nullable
 property is only reported when it really sits inside an `[EventType]`.
 
+### Advisory slice scope and migration review
+
+The quality gate calls `scripts/cratis-slice-scope-report.sh` with its changed paths on stdin.
+It recognizes only `Source/<Module>/<Feature>/<Slice>/<Slice>.cs` carrying a model-bound
+`[Command]` or `[ReadModel]` attribute. For each recognized slice it lists changed paths outside
+that folder as **seam or out of scope**; use that list for the delivery record's shared seams.
+For a changed anchor it notes a missing `when_*` specification under the slice. It does not
+judge whether a seam is authorized or whether existing specifications cover the contract.
+Unrecognized layouts are skipped silently; report failures never fail or bypass the real gates.
+The output is advisory in normal and dry-run modes, never verification evidence.
+
+The PostToolUse `cratis-append-only-migration` reminder likewise only asks for review of
+`Source/**/Migrations/*.cs` carrying `[Migration(`, excluding model snapshots. It cannot tell
+whether a migration is committed or applied, so it never blocks a legitimate uncommitted edit.
+Read `cratis-arc-ef-core-migration` for migration generation and application.
+
+The slice-scope and specification-presence report takes the idea of node Build-Kits
+`check-commit-scope` checks, with original wording. The migration reminder is copied and
+translated from classic `build-state-change` and node `append-only-migrations` to EF Core.
+Both credit Martin Dilger and Nebulit GmbH's
+[Eventmodelers Build-Kits](https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits), used with
+their explicit consent. Slice-only scope checks do not replace the repository's completion gate.
+
 ### Project-specific gate configuration
 
 The shipped gates discover the repository's own solution and package, so most repositories need no

@@ -1,0 +1,86 @@
+{
+  "skill": "cratis-screenplay-model-review",
+  "queries": [
+    {
+      "query": "Review our accepted .play model before we render it and report findings without changing anything.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Audit this extracted candidate model and give me a PASS or FAIL verdict with every finding pinned to a declaration.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run the element sweep and entity walk over the marina berth model.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Explain how the seasonal berth feature works, slice by slice, for someone who cannot read .play.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We need to record the boat's insurance. Which slices does that touch? Walk me through the impact before anyone edits the model.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Give me a read-only inventory of this inherited model: counts, specification coverage and orphans.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Trace where the owner's email enters the model and every place it is used, as a read-only journey.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Ask me the business questions a sharp analyst would about this model, in plain language.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run the resilience stressor pass on the payments feature and give me the incidence matrix.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Fix the missing denial specifications in the model.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-scenario-coverage"
+    },
+    {
+      "query": "Edit the model to rename an event and keep its identity.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-model-authoring"
+    },
+    {
+      "query": "Design the commands and screens for a new check-in slice.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-slice-design"
+    },
+    {
+      "query": "Turn this legacy ASP.NET system into a candidate .play model.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-legacy-extraction"
+    },
+    {
+      "query": "Interview us and storm the events of the harbor process.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-discovery"
+    },
+    {
+      "query": "Render the accepted model into an application.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-render-and-gap-fill"
+    },
+    {
+      "query": "Review this C# pull request for style and architecture.",
+      "shouldTrigger": false,
+      "note": "cratis-code-review"
+    },
+    {
+      "query": "Decide stream boundaries and where each invariant is enforced.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-streams-and-consistency"
+    },
+    {
+      "query": "Draw a Mermaid event model diagram for the module.",
+      "shouldTrigger": false,
+      "note": "cratis-event-model-diagram"
+    }
+  ]
+}

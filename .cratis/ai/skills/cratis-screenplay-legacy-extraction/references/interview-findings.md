@@ -13,7 +13,10 @@ Ask only what is missing, one per turn.
 1. **System state and documentation.** "Technology stack, age and last major change, database
    engine, size and version, current users and traffic, and what documentation or audit trails
    exist?" Follow-ups: incomplete documentation, ask for at least the schema; no audit trail,
-   ask whether `updated_at` columns exist; very large database, ask about bounded scopes.
+   ask whether `updated_at` columns exist; very large database, ask about bounded scopes. Record
+   the stack and the build and test commands from what CI runs, not from what a README claims; a
+   command you cannot determine is recorded as unknown. The commands matter because `generate` and
+   `conform` run the design-time build and need an approval that names them.
 2. **Freeze agreement** (most critical when a migration or side-car is planned). "Has the business
    agreed to freeze the legacy system: no new features, only bug fixes, no schema changes?"
    Why: without a freeze the extracted events go stale and the model describes a system that no
@@ -30,7 +33,9 @@ Ask only what is missing, one per turn.
    allowed under a freeze.
 4. **Data sensitivity and disclosure.** "Which data is personal or sensitive, and which hosted
    models may see evidence: none, redacted locators only, or named ones? What is the Prologue
-   language-model policy?" This fixes what the rest of the run may do.
+   language-model policy? May legacy evidence (folders, key symbols, locators) be committed to the
+   model repository, or must only evidence ids be?" This fixes what the rest of the run may do and
+   whether re-entry can start from committed notes (`re-entry-and-passes.md` section 4).
 5. **People and goal.** "Who are the domain experts, who decides keep / change / remove, and is
    the goal to document, modernize or migrate?" Follow-up: no expert named, record that the
    candidate cannot be accepted beyond the user's stated assumptions.
@@ -68,6 +73,7 @@ Ask only what is missing, one per turn.
 ## Data and privacy
 - PII classes present; which hosted models may see evidence (none / redacted locators only / named)
 - Prologue language-model policy (see `prologue-safety.md` section 3)
+- Evidence in the model repository: folders and key symbols in notes (yes) / evidence ids only (no)
 
 ## People
 - Domain experts (names and areas), who decides keep/change/remove

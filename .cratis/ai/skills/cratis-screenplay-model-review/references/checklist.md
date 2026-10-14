@@ -81,7 +81,7 @@ the format in `worked-example.md`.
 | A4 | Every command input ends in an event field or is used by a rule | `produces`, `validate`, `require` | Q (an unused input is often a missed fact) |
 | A5 | Every event has a consumer (view, reaction, constraint, external contract) or a stated terminal reason | MCP `dependencies direction=incoming` | Q |
 | A6 | Every declared view is read by a screen, a reaction or an external caller | screens `data ... via query`, reaction `reads` | Q |
-| A7 | Data called "missing" was searched for elsewhere in the model first | `search-declarations` | procedure |
+| A7 | Data called "missing" was searched for elsewhere in the model first (declaration names via search, properties via declaration details) | `search-declarations`, `declaration-details` | procedure |
 | A8 | Step contracts hold: what each step needs (precondition) is what the previous step's fact provides; each step's postcondition names the fact and its fields | slice order, event fields | D |
 
 ## Phase 4. Ownership and identity (6 checks, B1-B6)
