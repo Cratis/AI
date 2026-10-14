@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-chronicle-event-constraints",
+  "evals": [
+    {
+      "id": 1,
+      "name": "unique-email-with-release",
+      "prompt": "In a C# Chronicle app, `UserRegistered(EmailAddress Email, DisplayName Name)` must keep Email unique across all users, with the message 'Email already registered.', and `UserRemoved` must free the email again. Write both event types. Give the code in your reply; do not write files.",
+      "expected_output": "Property-level [Unique] with an explicit name and message passed by name on the Email parameter, and [RemoveConstraint] with the exact same name on UserRemoved.",
+      "assertions": [
+        "Puts [Unique] on the Email property (property-level), not on the class, because the value must be unique across event sources.",
+        "Passes the attribute arguments by name (name: ..., message: ...) and gives an explicit name.",
+        "Marks UserRemoved with [RemoveConstraint] using exactly the same name string as the [Unique] name.",
+        "Both event types carry [EventType]."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "case-insensitive-iconstraint",
+      "prompt": "Project names must be unique case-insensitively, and ProjectRemoved releases the name. A developer wrote `.On<ProjectRegistered>(e => e.Name.ToLower())` inside an IConstraint. Explain what happens and give the corrected constraint. Reply with code.",
+      "expected_output": "CHR0020 rejects a method call in the lambda; suppressing it leads to PropertyDoesNotExistOnEventType at startup. Use On<ProjectRegistered>(e => e.Name).IgnoreCasing().RemovedWith<ProjectRemoved>().",
+      "assertions": [
+        "States the lambda is a method call rather than a pure member-access chain and is rejected by analyzer CHR0020.",
+        "States that suppressing the analyzer fails at startup with PropertyDoesNotExistOnEventType.",
+        "Uses .On<ProjectRegistered>(e => e.Name).IgnoreCasing() instead of lowercasing in the lambda.",
+        "Uses .RemovedWith<ProjectRemoved>() on the fluent builder to release the claim."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "violation-is-a-result",
+      "prompt": "Write the EventScenario specification proving a second `ProjectRegistered(\"Acme\")` append is rejected by the project name constraint, and say how the violation is surfaced to the caller and what to assert. Give the code in your reply; do not write files.",
+      "expected_output": "Seed with Given, append again, assert failure and ShouldHaveConstraintViolationFor the constraint name; the violation comes back on the append result, not as an exception, and message text is not asserted by default.",
+      "assertions": [
+        "Seeds the conflicting state through the scenario's Given and appends the duplicate through the scenario's event log.",
+        "Asserts ShouldBeFailed and ShouldHaveConstraintViolationFor with the constraint name.",
+        "States that a violation comes back on the append result (HasConstraintViolations, ConstraintViolations) and is not thrown as an exception.",
+        "Does not assert the message text by default, since presentation text can change without behavior changing."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "constraint-boundaries",
+      "prompt": "A team wants a Chronicle constraint to enforce 'at most 10 bookings per boat' and also thinks the command's pre-check 'does the registration number exist?' is enough against concurrent requests. What do you tell them about what constraints can and cannot do? Reply only.",
+      "expected_output": "Constraints give append-time uniqueness/create-once that holds when requests race, but cannot count, sum or test predicates; capacity needs a decision read, stream decision or aggregate; a command pre-check reads possibly stale state.",
+      "assertions": [
+        "States that a constraint cannot count, sum or test a predicate, so a capacity rule needs a decision read, a stream decision or an aggregate.",
+        "States that a command-side pre-check reads state that may be stale by the time the append lands, whereas a constraint is evaluated inside the append.",
+        "States that uniqueness is the right use of a constraint and it binds every writer."
+      ]
+    }
+  ]
+}

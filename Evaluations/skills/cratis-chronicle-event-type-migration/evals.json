@@ -1,0 +1,51 @@
+{
+  "skill_name": "cratis-chronicle-event-type-migration",
+  "evals": [
+    {
+      "id": 1,
+      "name": "add-required-property",
+      "prompt": "`[EventType] public record CustomerRegistered(CustomerId Id, string Name);` has thousands of stored events. Add a required `Country` (string) property that old events should read as 'Unknown'. Write the C# for the records and the migration. Give the code in your reply; do not write files.",
+      "expected_output": "Current record bumped to [EventType(generation: 2)] with Country, prior record marked [EventTypeGenerationFor<CustomerRegistered>(1)], and an EventTypeMigration<CustomerRegistered, CustomerRegisteredV1> with Upcast using DefaultValue and a declared Downcast.",
+      "assertions": [
+        "Bumps the current record to [EventType(generation: 2)] and adds the Country property.",
+        "Keeps the old shape as a separate record marked [EventTypeGenerationFor<CustomerRegistered>(1)] without its own [EventType].",
+        "Derives a migration from EventTypeMigration<CustomerRegistered, CustomerRegisteredV1> and uses DefaultValue(target => target.Country, \"Unknown\") in Upcast.",
+        "Declares Downcast too, using IEventMigrationBuilder with the flipped generic order <CustomerRegisteredV1, CustomerRegistered>, even if its Properties lambda is empty."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "split-and-no-such-methods",
+      "prompt": "A stored event has `FullName`; the new generation has `FirstName` and `LastName`. A developer tries `properties.Rename(...)` and `properties.Join(...)`. Show the correct upcast and downcast property operations and say what is wrong with those names. Reply with code.",
+      "expected_output": "Upcast uses Split with PropertySeparator.Space and SplitPartIndex.First/Second; Downcast uses Combine; there is no Rename (RenamedFrom) and no Join (Combine).",
+      "assertions": [
+        "Upcast uses Split with PropertySeparator.Space and SplitPartIndex.First and SplitPartIndex.Second.",
+        "Downcast uses Combine with PropertySeparator.Space over the first and last name sources.",
+        "States there is no Rename (the method is RenamedFrom) and no Join (concatenation is Combine)."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "enum-change-rules",
+      "prompt": "For a stored event with an enum property, what happens and what is required for: (a) adding a member, (b) renaming a member, (c) removing a member, (d) renumbering members? Reply only.",
+      "expected_output": "Chronicle compares enums by underlying values: adding and renaming are compatible; removing and renumbering are incompatible, needing a new generation plus a value map via MapValues, otherwise registration fails with EventTypeSchemaChanged.",
+      "assertions": [
+        "States adding a member is compatible and needs no migration.",
+        "States renaming a member is compatible and needs no migration because the underlying values are unchanged.",
+        "States removing or renumbering members is incompatible and needs a new generation plus a value map.",
+        "States an incompatible change without a new generation fails registration with EventTypeSchemaChanged."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "greenfield-and-rollout",
+      "prompt": "A team is two days into a prototype with disposable dev data and wants to write migrations for every event tweak. Another team is about to register a new generation on a multi-silo production kernel. What do you advise each? Reply only.",
+      "expected_output": "Greenfield with disposable data: rename and change freely, a migration written too early is dead code. Production: registering starts add-only backfill in the default namespace's event log only, and new generations should be registered only after every kernel silo is upgraded.",
+      "assertions": [
+        "Advises the prototype team that migrations are only needed once events of the prior shape exist somewhere that cannot be regenerated, and they can otherwise rename and change freely.",
+        "States that registering a new generation starts add-only backfill in the default namespace's event log only.",
+        "States new generations should be registered only after every kernel silo is upgraded because an old worker can overwrite content mid-rollout."
+      ]
+    }
+  ]
+}
