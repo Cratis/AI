@@ -480,7 +480,7 @@ for (const succeeds of [true, false]) {
         const output = plan(
             {
                 [overrideFile]: JSON.stringify({
-                    gates: [{ id: 'backend-build-debug', workingDirectory: '.', requires: {}, command: [succeeds ? '/bin/true' : '/bin/false'] }],
+                    gates: [{ id: 'backend-build-debug', workingDirectory: '.', requires: {}, command: [succeeds ? 'true' : 'false'] }],
                 }),
             },
             {

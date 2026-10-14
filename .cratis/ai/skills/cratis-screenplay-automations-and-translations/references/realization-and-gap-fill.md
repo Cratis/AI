@@ -30,7 +30,7 @@ with `cratis-screenplay-render-and-gap-fill`.
 | trusted actor for `invokes` | `[ExecuteCommandsAsSystem("<role>")]` on the reactor plus a policy requiring the role (Arc, since v20.56.0; available in Stage 4.51.3's rendered Arc 22.50.5) | `cratis-chronicle-reactor` |
 | clock trigger, application trigger | scheduler or host signal that raises the occurrence | `cratis-engineering-effect-boundaries` |
 | call to an outside system | adapter behind an effect boundary, keyed by the idempotency key in the model | `cratis-engineering-effect-boundaries` |
-| capture source (webhook, poll, topic) | adapter that authenticates, parses and appends | `cratis-engineering-effect-boundaries` |
+| capture source (webhook, poll, topic) | adapter that authenticates (the provider's signature or shared secret, never an application user token, because the provider cannot obtain one), parses and appends, keeping the provider's retry identity | `cratis-engineering-effect-boundaries` |
 | replay versus recovery redelivery | `[OnceOnly]` for replay; a receipt keyed by `ReactorDelivery.Id` for recovery | `cratis-chronicle-reactor` |
 
 Stage 4.51.3 rendered apps pin Arc 22.50.5/Chronicle 19.32.0, so

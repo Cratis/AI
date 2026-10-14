@@ -34,7 +34,7 @@ $changed
 EOF
     if printf '%s\n' "$changed" | LC_ALL=C grep -Fxq "$anchor"; then
         spec_paths="$(printf '%s\n' "$paths" | CRATIS_SLICE="$slice/" awk '
-            index($0, ENVIRON["CRATIS_SLICE"]) == 1 && /\/when_[^/]+(\/|\.cs$)/ { print }
+            index($0, ENVIRON["CRATIS_SLICE"]) == 1 && /\/when_[^\/]+(\/|\.cs$)/ { print }
         ')"
         has_specs=0
         while IFS= read -r path; do
