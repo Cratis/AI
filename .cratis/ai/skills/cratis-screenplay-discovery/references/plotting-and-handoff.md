@@ -12,6 +12,7 @@
 - Storyline: one view walked through its states
 - 5. Plot checks
 - Handoff packet to `cratis-screenplay-slice-design`
+- Board order
 
 Plotting arranges the discovered events as a narrative: what happens first, what depends on
 what, what can happen instead, where it ends. In Screenplay the plot is written into the
@@ -199,3 +200,11 @@ Seeds for later skills:
 | Competition candidate | a competing-claim spec; consistency design |
 | Duplicate candidate | a duplicate or retry spec |
 | Ending | removal from affected views |
+
+## Board order
+
+- Boards keep authored declaration and import order: imports expand depth-first, glob
+  matches alphabetically. Unimported folder files remain visible after ranked siblings.
+  MCP `expand-layout` preserves this order with import barrels; an import-less
+  `PlayFileWriter.Expand` layout falls back to path order. Order is presentation, not
+  execution or identity. Keep causes and branches in the feature `documentation` and STATE.md.

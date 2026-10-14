@@ -216,3 +216,9 @@ acknowledgement and their whole-model refusal boundary are in
 captures-and-reactions `references/refusals-and-redelivery.md`.
 
 Authority: Screenplay `Documentation/screenplay/specifications.md`.
+
+`given operation ... fails`, `then operation` and `then compensated` describe
+future external-work behavior. Reaction refusal branches, `when redelivered`
+and `then no events` (PLAY0268) are also authoring-only: compile them, but report their
+PLAY0268 binding refusal instead of an executed result. Preserve the contract; a read-model or
+query assertion states a zero-fact outcome.

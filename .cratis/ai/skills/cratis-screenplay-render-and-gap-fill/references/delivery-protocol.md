@@ -8,6 +8,7 @@
 - 4. Customizations (bounded)
 - 5. Done check (before reporting)
 - 6. Stop and ask
+- Interview batch for render delivery
 
 The render phase proves and publishes; it does not write business behaviour. Run one phase
 per tool call and read each result from its exit status, never from a grep of the log.
@@ -112,3 +113,11 @@ has no field, event or specification behind it; two specifications contradict; a
 needs state nothing produces; a declared seam's contract conflicts with the model; or a
 description states behaviour that a specification, mapping or constraint contradicts. Name the
 slice, the element and what is missing. Everything else: proceed from what the model says.
+
+## Interview batch for render delivery
+
+1. **Which model, which accepted version?** (root, source identity from the lifecycle report).
+2. **Application name** for `--name` (it is part of the application identity: keep it identical on every re-render).
+3. **Destination.** Default `.ai-work/screenplay/<model-slug>/render-probe/<App>`; any other destination needs the user's intent.
+4. **If admission fails:** stay in design mode, change the model for business reasons, or gap-fill by hand? (the three cases below).
+5. **Seams:** outside systems, styles or packages the rendered app needs (`Customizations/`).

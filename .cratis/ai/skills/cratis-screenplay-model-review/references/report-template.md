@@ -9,6 +9,9 @@
 - Verdict rules
 - Findings across a re-review
 - Wording
+- Independent review
+- Question-note review
+- Re-review states
 
 Keep the report to findings and evidence; no file dumps. Addresses and paths, not contents.
 The check-by-check layout (per phase: how many checks; per check: status, element, evidence;
@@ -197,3 +200,21 @@ numbers. At most two fix rounds, then escalate to the user with what remains.
 ## Wording
 Never use shape nicknames (left chair, right chair, bed, book shelf) in text meant for business
 stakeholders; describe the concern in plain words. Reviewer-only sections may use them.
+
+## Independent review
+
+P5 uses a fresh reviewer who authored nothing in scope; a different model family
+is stronger. Record reviewer/author models or `model: not exposed`; label a
+same-model review and let the user decide sufficiency, never block as an authority
+ceremony. Read lifecycle "Independent review" when arranging P5.
+
+## Question-note review
+
+   when reviewing unresolved questions: list notes and orphan findings separately
+   from PLAY diagnostics. A read-only reviewer returns `question` note requests
+   to the owner, not writes; never put secrets or personal data in note text.
+
+## Re-review states
+
+- On a re-review, each earlier finding gets one state: fixed, open, accepted by the user,
+  rejected by the reviewer, or superseded (`references/report-template.md`).

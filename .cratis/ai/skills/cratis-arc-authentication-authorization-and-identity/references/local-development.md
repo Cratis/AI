@@ -86,3 +86,10 @@ Any local mechanism that lets the caller author its own principal is exactly the
 production risk described in [authentication](authentication.md). Keep it behind
 an environment check, and make sure the deployed application is unreachable
 except through the ingress that owns those headers.
+
+## Development fixtures
+
+Those endpoints follow the discovery exposure settings above. Return development
+fixtures from development providers; test deployed discovery access explicitly.
+Forwarded headers sent locally require the host-wide trust opt-in too; do not
+carry that shortcut into a directly reachable deployed host.

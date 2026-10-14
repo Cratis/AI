@@ -40,7 +40,7 @@ export function skillAuthoringFindings(file: string, content: string): Authoring
             for (const match of voice.matchAll(/\b(?:I|I'll|my|you|your)\b/gi)) add('description-voice', match[0], line);
         }
         const body = skillBody(content);
-        if (body.length >= 18_000) add('body-headroom', `${body.length} characters; target at most 16,000.`);
+        if (body.length > 16_000) add('body-headroom', `${body.length} characters; target at most 16,000.`);
     }
     if (/(?:^|\/)(?:provenance|doc-contradictions|drift-and-ledger|release-baseline)\.md$/.test(path)) add('no-meta-docs', path.split('/').pop()!);
     for (const { text, line } of proseLines(content, 0)) {

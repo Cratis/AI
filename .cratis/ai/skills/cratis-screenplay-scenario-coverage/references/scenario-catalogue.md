@@ -16,6 +16,8 @@
 - 11. Evolution compatibility
 - 12. Views
 - Example data
+- Redelivery selectors
+- Scenario types at a glance
 
 For each type: the question to put to the domain, when it applies, when "n/a" is a legitimate
 answer, the Screenplay shape, and traps. Excerpts point to the complete compiled example
@@ -270,3 +272,29 @@ rules, gates, mappings or contracts to make an example pass.
   or mapping it is traced to) and where values could not be traced; and unresolved
   inconsistencies between specs. Check the resulting source, not just that a write succeeded; a
   clean compile does not show the expected outcomes are right.
+
+## Redelivery selectors
+
+For recovery intent, `when redelivered <Event> to <Reaction>` must select one
+definitely matching effective given and no undecided candidate. Name `stream`
+(with a complete id) or `no stream` when givens differ only by route; omitting it
+is a wildcard, not an unrouted selector. Redelivery remains authoring-only
+(PLAY0268), never evidence of an executed retry. Details:
+`cratis-screenplay-specifications` `references/examples-and-routes.md`.
+
+## Scenario types at a glance
+
+| Type | Question | Usual Screenplay shape |
+|---|---|---|
+| Happy path | What facts does a valid request establish? | `when Cmd` -> every firing production, payload exact |
+| Rule rejection | Which input is refused, with what message? | one spec per rule; `then error "<exact message>"` (prefer `$strings.<key>`); always pinned (a bare `then error` is valid language but not accepted here) |
+| Denial | Who must not do this? | `given caller` without the policy -> `then denied`; one per gated command and query, only where the whole Boolean gate is false; ownership claims need other-owner denial |
+| State violation | Which prior facts make this wrong? | givens + constraint (`unique event` exclusivity) -> `then error`; else `recorded` |
+| Duplicate / retry | Done again to something in that state, or sent twice (lost acknowledgement)? | `when <Command>`, same identifier, earlier fact as `given` -> constraint message, or the accepted repeat |
+| Competing claim | Two people claim the same thing at once? | `when <Command>`, other source's fact as `given` (different `for`) -> constraint "another event source..." |
+| Alternative path | Which branches exist, including "nothing happens"? | true and false witnesses per `produces when`; unconditional productions always fire |
+| Ordering | Facts late or out of order? | view family with reordered givens; translation specs; else `recorded` |
+| External failure | The other system refuses, times out or answers twice? | outcome as a recorded fact (capture/translation), never a fake rejection |
+| Compensation | How is this undone, what does undoing free? | reversal command + spec showing the released claim or removed row |
+| Evolution | Do old facts still mean the same after a contract change? | spec on the new generation; compatibility reasoning in `documentation` |
+| View | What does each screen show after each fact? | `given` events (`for`) -> `then query`; `when append` -> update/removal |

@@ -1,5 +1,11 @@
 # Interview findings (legacy extraction)
 
+## Contents
+
+- Critical questions
+- Findings template
+- Critical questions
+
 Adapted from TrogonStack `eventmodeling-integrating-legacy-systems` (MIT; see `LICENSE`,
 `provenance.md`). Fill this in before L0 and keep it in
 `.ai-work/screenplay/<model-slug>/legacy/INTERVIEW.md`. Answers also go into the Interview
@@ -95,3 +101,15 @@ Ask only what is missing, one per turn.
 
 RECOMMENDATION: proceed / resolve blockers first / not recommended now (why)
 ```
+
+## Critical questions
+
+Critical questions (full wording, why they matter and follow-up triggers:
+`references/interview-findings.md`; adapted from the TrogonStack legacy-integration interview):
+system state and documentation; the **freeze agreement** (no new features, only bug fixes, no
+schema changes: most critical when a migration or side-car is planned, because without it the
+extracted events go stale; a documentation-only extraction records "freeze not applicable");
+observation and extraction feasibility (a clone or staging by default); data sensitivity and
+disclosure, including whether the client lets legacy evidence into the model repository
+(`references/re-entry-and-passes.md` section 4); people and goal (who decides keep / change /
+remove); timeline, staffing and risk for a migration.

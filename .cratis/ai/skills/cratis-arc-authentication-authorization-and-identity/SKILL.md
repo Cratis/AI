@@ -13,13 +13,7 @@ told about them. Each has its own extension point.
 
 ## Verified product sources
 
-| Package | Purpose |
-| --- | --- |
-| `Cratis.Arc.Core` | `Cratis.Arc.Identity`, `Cratis.Arc.Authorization`, `Cratis.Arc.Authentication`, `Cratis.Arc.Tenancy` |
-| `Cratis.Arc` | ASP.NET Core hosting, `AddMicrosoftIdentityPlatformIdentityAuthentication` |
-| `@cratis/arc` | `IdentityProvider`, `IIdentity` |
-| `@cratis/arc.react` | `IdentityProvider` component, `useIdentity`, `RequireRole` |
-| Cratis AuthProxy (`cratis/authproxy`) | the trusted ingress described in [AuthProxy](references/authproxy.md) |
+Read [references/product-sources.md](references/product-sources.md) when you need the owning package for an identity type.
 
 Authorization capabilities arrived over time: named policies, schemes, fallback baselines, guest policies and Microsoft-attribute enforcement all need a recent Arc. [authorization](references/authorization.md) lists the requirements; check them if you run an older version.
 
@@ -87,40 +81,9 @@ public class <Name>IdentityDetailsProvider : IProvideIdentityDetails<<Details>>
 
 ### The endpoints
 
-| Route | What it does |
-| --- | --- |
-| `GET /.cratis/me` | The current identity. 401 when not authenticated, 403 when the provider says not authorized, otherwise the principal-derived identity JSON |
-| `GET /.cratis/identity-details/schema` | The JSON schema of the details type (`{}` without a details provider) |
-| `GET /.cratis/users` | Development tooling — aggregates every `ICanProvideUsers` |
-| `GET /.cratis/tenants` | Development tooling — aggregates every `ICanProvideTenants` |
-| `GET /.cratis/commands`, `GET /.cratis/queries` | Introspection catalogs of operation names, types and routes (`MapIntrospectionEndpoints()`) |
+Read [references/identity-endpoints.md](references/identity-endpoints.md) when choosing what discovery routes a host exposes or how `/.cratis/me` and its caching behave.
 
 Requires Arc 22.45.0 for authenticated discovery by default. On an older Arc the discovery routes are anonymous in every environment, so do not expose such a host.
-
-Discovery is anonymous only when the host's
-`IHostEnvironment.IsDevelopment()` is true. Elsewhere it requires authentication;
-if the host cannot authenticate callers, the routes are not mapped (404) and a
-warning is logged. `RequireAuthentication` unset selects that environment default;
-explicit `true` requires authentication everywhere (startup fails if unavailable);
-explicit `false` exposes discovery anonymously everywhere, warning outside
-Development. `Roles` implies authentication and cannot combine with explicit
-`false`. `Enabled=false` removes the two catalogs; `IdentityDiscovery=false`
-removes users, tenants and the details schema. Setting both removes all discovery
-without authentication checks; `/.cratis/me` remains. `[ExcludeFromDiscovery]`
-hides commands, read models, queries and controllers from catalogs/OpenAPI, **not
-from invocation or authorization**. These are .NET settings, not a JVM contract.
-Source: [secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/upgrading/secure-defaults.mdx).
-
-`/.cratis/me` derives identity only from the authenticated request principal,
-never from `.cratis-identity`. The details provider runs for each authenticated
-identity request; `ModifyDetails` changes only the current response. Arc no
-longer writes the readable identity cookie (it expires a legacy one). Identity
-responses carry `Cache-Control: no-store, private` and `Vary: Cookie`.
-Stop reading the cookie; use `IdentityProvider.getCurrent()`/`refresh()` and
-`clearCache()` on logout. The frontend caches in memory, with a warned legacy
-cookie fallback **only after a 404**, never after 401/403.
-Sources: [IdentityProvider.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Identity/IdentityProvider.cs),
-[IdentityProvider.ts](https://github.com/Cratis/Arc/blob/main/Source/JavaScript/Arc/identity/IdentityProvider.ts).
 
 ## Authorization — what Arc evaluates
 
@@ -176,11 +139,7 @@ Current behavior:
   a query `QueryResult.Unauthorized(...)`; mapped Arc denials are 403, middleware may
   answer 401 or another shape.
 
-`ARC0011` warns when a `[Roles]` argument is a string literal: use
-`nameof(<RoleEnum>.<Member>)` so a rename is a compile error rather than a silent
-authorization failure. `ARC0019` flags `[AllowAnonymous]` with `[Authorize]`/`[Roles]`,
-`ARC0020` flags an ASP.NET Core attribute that is not enforced without Arc's ASP.NET
-Core integration, and `ARC0021` flags `AuthenticationSchemes` on the Core host.
+`ARC0011` warns on a `[Roles]` string literal (use `nameof`); the `ARC0019`–`ARC0021` diagnostics are explained in [authorization](references/authorization.md#analyzer-diagnostics).
 
 ### Observable queries and revocation
 
@@ -217,11 +176,6 @@ filters, and system-execution.
 Implement it and it is discovered — there is **no** `IArcBuilder` extension and
 **no** options type for authentication.
 
-`AuthenticationResult` is
-`record (ClaimsPrincipal? Principal = default, AuthenticationFailure? Failure = default)`
-with `Anonymous`, `Succeeded(principal)` and `Failed(reason)`, and
-`IsAuthenticated => Principal is not null`.
-
 Arc ships `MicrosoftIdentityPlatformAuthenticationHandler` in `Arc.Core`, which
 reads the forwarded principal. See
 [authentication](references/authentication.md) for the exact header contract,
@@ -248,21 +202,7 @@ namespace isolation — that is separate guidance.
 
 ## Frontend
 
-```tsx
-import { Arc } from '@cratis/arc.react';
-
-<Arc detailsType={<Details>}>{children}</Arc>
-```
-
-`<Arc>` renders the `IdentityProvider` context for you. Inside it:
-
-```tsx
-import { useIdentity, RequireRole } from '@cratis/arc.react/identity';
-
-const identity = useIdentity(<Details>, <defaultDetails>);
-// identity.id, .name, .roles, .details, .isSet, .isInRole(role)
-// identity.isLoading, identity.clearIdentity()
-```
+Read [references/frontend.md](references/frontend.md#identity-hook-examples) when you need the `<Arc>` provider and `useIdentity`/`RequireRole` examples.
 
 `useIdentity` has two overloads: `(type, defaultDetails?)` for type-safe details
 and `(defaultDetails?)` without. The default details stand in whenever there are
@@ -290,11 +230,6 @@ implements as `ICanProvideUsers` and `ICanProvideTenants`.
 
 To run locally with an identity, supply the forwarded headers yourself — see
 [local development](references/local-development.md).
-
-Those endpoints follow the discovery exposure settings above. Return development
-fixtures from development providers; test deployed discovery access explicitly.
-Forwarded headers sent locally require the host-wide trust opt-in too; do not
-carry that shortcut into a directly reachable deployed host.
 
 ## Verify
 

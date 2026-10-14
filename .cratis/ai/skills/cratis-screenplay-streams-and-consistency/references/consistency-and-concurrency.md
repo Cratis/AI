@@ -12,6 +12,7 @@
 - 8. Projection lag and rebuild
 - 9. Corrections and backdated facts
 - 10. Specification limits (no local spec engine)
+- First append into a scope
 
 For installed tool versions see `SKILL.md` of `cratis-screenplay-toolchain`.
 
@@ -209,3 +210,23 @@ behaviour. Write the answer in the slice `documentation`.
 - These are sequential histories. They do not run simultaneous commands or prove race safety;
   concurrent execution and failure-recovery tests belong to the target implementer, reported
   separately.
+
+## First append into a scope
+
+**First append into a scope.** The default optimistic
+strategy compares the scope's tail sequence number. When nothing matches the scope yet (the
+first event on a new event source, or the first event of a new source type, stream type or
+stream id), there is no tail and the append is **not checked**: two writers opening the same
+source or narrowed partition can both succeed. This is the append most exposed to a race, so a
+concurrency scope alone does not protect "only one writer may open this". For a target that
+needs it:
+- enable the check, application-wide with `ConcurrencyOptions.CheckFirstAppendIntoAScope`
+  (default `false`) or per append with `ConcurrencyScopeBuilder.ExpectingNoMatchingEvent()`,
+  and handle the `ConcurrencyViolation` it can now raise; or
+- use a unique event constraint, which the kernel enforces for every writer whether or not the
+  append declared a scope (the model's `unique event`).
+Require target evidence that the check ran: a concurrent first-append scenario against a real
+Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
+is `true` (a skipped check and a passing one look identical otherwise; a current client against
+an older kernel always reads `false`). Treat the default as unchecked until target evidence shows otherwise (a future major release can flip the default, so read the target's release notes). The Stage scaffold pins Chronicle client/kernel and Arc releases (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`;
+the CLI bundle's Chronicle follows the installed CLI: `cratis --version`); the APIs exist for gap-fill, not as automatically rendered enforcement.

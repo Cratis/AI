@@ -9,6 +9,12 @@ import test from 'node:test';
 const repositoryRoot = resolve(import.meta.dirname, '../..');
 const corpus = join(repositoryRoot, '.cratis/ai');
 const skill = (name: string) => readFileSync(join(corpus, 'skills', name, 'SKILL.md'), 'utf8');
+/** A skill's guidance includes the references its SKILL.md points to; depth moves there to keep the body within budget. */
+const skillWithReferences = (name: string) => {
+    const references = join(corpus, 'skills', name, 'references');
+    const files = existsSync(references) ? readdirSync(references).filter(file => file.endsWith('.md')).sort() : [];
+    return [skill(name), ...files.map(file => readFileSync(join(references, file), 'utf8'))].join('\n');
+};
 const compatibility = () => readFileSync(join(repositoryRoot, 'Documentation', 'compatibility.md'), 'utf8');
 const screensVector = () => {
     const content = compatibility();
@@ -131,7 +137,7 @@ test('MCP transcript harness sends real protocol requests instead of returning a
 
 test('stage and render guidance carry the verified screens-release vector', () => {
     const stage = skill('cratis-stage-rendering-and-sandbox');
-    const render = skill('cratis-screenplay-render-and-gap-fill');
+    const render = skillWithReferences('cratis-screenplay-render-and-gap-fill');
     const workflow = readFileSync(
         join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'),
         'utf8',

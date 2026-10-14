@@ -9,6 +9,7 @@
 - The reason line per contributing event
 - Gap handling
 - Adding or renaming a field along a chain (manual checklist)
+- Tracing caller details
 
 Every value in the model has a place it comes from and a place it goes. If you cannot say
 where a field comes from, the model is missing an input, an event field or a decision. If an
@@ -170,3 +171,11 @@ go to the identity owner):
 | 4 | command InstallLocker | `volume` | skipped: not part of this change |
 | 5 | concept Litres | none | skipped: unchanged |
 | 6 | specifications | read-model and query expectations only; LockerInstalled event expectations stay `volume` | updated |
+
+## Tracing caller details
+
+   Trace caller details to claims or a keyed single-result identity-source query
+   (built-in/claim/literal key, detail-independent effective gate, compatible result).
+   The `identity` block is authoring metadata; executable `$identity.<detail>` reads
+   remain PLAY0268. `scoped to` is opaque, not a detail reference; see command-surface
+   `references/context.md`.

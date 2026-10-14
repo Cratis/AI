@@ -318,3 +318,9 @@ Monaco uses `@cratis/screenplay-language`; VS Code uses `cratis.screenplay`.
 Neither highlighting nor completion establishes compiler validity. Verify the
 complete folder with the compiler after changes, and verify the owning downstream
 runtime separately if execution is the goal.
+
+- Operations/`numbers exact` remain unadmitted; routes bind as v8, public
+  boundaries v9, identity/overrides/filters v10, qualifying non-route Double
+  literals v11, enum numbers v12, compliance v13 (limits: command-surface
+  `references/compliance.md`). The compiler and renderer bundled in the CLI can be older than the
+  standalone tool (toolchain `SKILL.md`). Never drop or stub source contracts to bind.

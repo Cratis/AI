@@ -207,11 +207,4 @@ does not. It is separate from compilation and `--warnaserror`.
 
 ## Route near misses
 
-- What to model, phases, gates: `cratis-screenplay-modeling-lifecycle`.
-- MCP editing loop, proposals, identities: `cratis-screenplay-model-authoring`.
-- Construct depth: `cratis-screenplay-command-surface`, `cratis-screenplay-projections`,
-  `cratis-screenplay-read-surface`, `cratis-screenplay-captures-and-reactions`,
-  `cratis-screenplay-specifications`, `cratis-screenplay-ui-composition`.
-- Rendering and gap-fill: `cratis-screenplay-render-and-gap-fill`,
-  `cratis-stage-rendering-and-sandbox`.
-- Running systems (Chronicle server operations through the `cratis` CLI, with its authorization boundaries): `cratis-chronicle-cli-operations`.
+Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when the work is modeling phases, MCP editing, construct depth, rendering or running systems.

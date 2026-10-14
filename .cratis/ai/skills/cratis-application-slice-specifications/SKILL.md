@@ -80,30 +80,7 @@ you did.
 
 ### Reading a `.play` specification
 
-Read the actual assignments, not a prose retelling; syntax and supported forms belong to
-`cratis-screenplay-specifications`.
-- `given <Event>` becomes prior facts seeded with `Given.ForEventSource(...).Events(...)`.
-  `given readmodel <Type>` becomes a pinned complete `.ReadModel(...)` instance, including its
-  key: the contract deliberately makes event history irrelevant here. Protected decisions still
-  need event-backed guards (Step 5); report a pin that cannot witness the required enforcement.
-- `when <Command>` assignments fill that command; `given caller` supplies the scenario's caller,
-  not an invented default role. Use the matching scenario for append, query or reaction actions.
-- `then <Event>` assignments become the appended-event predicate;
-  `then readmodel` assignments become instance assertions. Assert every named value and honor
-  `exactly`, ordering and absence where stated. Do not assert an unmentioned generated identifier
-  or timestamp; still use required source identities to select the result. A broader property
-  coverage gap goes back to the contract owner rather than adding a new business assertion.
-- `description` and slice `documentation` provide context for a name or XML summary, not extra
-  setup, assertions or inferred rules. Explicit realization requirements still bind delivery;
-  reconcile them with executable parts through `cratis-application-slice-conformance`.
-- A `parameter`/`case` table yields independent examples by substituting each `case.<parameter>`
-  value. The reference runner identifies each row as `<Specification>_<Case>`; retain that name
-  in the specification map, while C# uses the repository's `when_.../and_<case>` convention.
-  Name parity is a mapping requirement, not a requirement to rename C# classes.
-- `then error` requires unsuccessful execution plus the named validation/constraint reason where
-  stated (Step 6). A specified message must be checked, using equality when exact wording is
-  contracted. `then denied` instead requires unsuccessful execution and `ShouldNotBeAuthorized()`;
-  it is not a validation error. Keep every other rule satisfied so the named refusal is witnessed.
+Read the actual assignments, not a prose retelling; `given` seeds events or a pinned read model, `when` fills the command, `then` becomes the appended-event predicate or an instance assertion, and `then denied` is `ShouldNotBeAuthorized()`, not a validation error. Read [references/reading-play-specifications.md](references/reading-play-specifications.md) when translating a `.play` specification, including `parameter`/`case` tables, into a specification class.
 
 ## Step 1 — Place the files
 
@@ -200,13 +177,8 @@ public class and_name_is_unique : Specification
 #endif
 ```
 
-The scenario's own surface is `Services`, `Context`, `Execute(command[, ct])`,
-`Validate(command)` (runs the filters without the handler), `LastResult`,
-`Operations` and the three operation assertions
-(`ShouldHaveExecutedOperation<T>()`, `ShouldHaveCompensatedOperation<T>()`,
-`ShouldHaveNoOperationInvocations()`); it is `IDisposable`/`IAsyncDisposable`.
-Seeding (`Given`), the event log and the event assertions arrive as extension
-members from the Chronicle integration.
+The scenario's surface (`Execute`, `Validate`, `LastResult`, `Operations`) is listed in [references/command-result-assertions.md](references/command-result-assertions.md); `Given` and the event assertions are extension members from the Chronicle integration.
+
 
 ## Step 5 — Seed prior state through `Given`
 
@@ -261,30 +233,7 @@ is named after: build the command valid in every other respect. Otherwise
 rule, and always run the "remove the rule, see it go red" check under *How it is
 proven*.
 
-`CommandResult` assertions, from `Cratis.Arc.Testing.Commands`, throwing
-`CommandResultAssertionException`:
-
-| Assertion | Says |
-| --- | --- |
-| `ShouldBeSuccessful()` / `ShouldNotBeSuccessful()` | Authorized, valid, no exceptions — or not |
-| `ShouldBeValid()` | Validation only; it checks neither authorization nor exceptions |
-| `ShouldHaveValidationErrors()` | At least one validation error |
-| `ShouldHaveValidationErrorFor(message)` | A validation error whose message **contains** that text (a substring match; compare messages for equality when exact wording is specified) |
-| `ShouldHaveValidationErrorBecauseOf(reason)` | A validation error with that `ValidationResultReason` |
-| `ShouldBeAuthorized()` / `ShouldNotBeAuthorized()` | The authorization outcome |
-| `ShouldHaveExceptions()` / `ShouldNotHaveExceptions()` | Whether the handler threw |
-| `ShouldHaveConstraintViolationFor(name)` | A constraint violation surfaced on the command result |
-
-`ShouldHaveValidationErrorBecauseOf(reason)` is the message-free way to say
-*which kind* of rejection happened — `ValidationResultReason.ConstraintViolation`,
-`ConcurrencyViolation`, `ValidatorFailed`, `Rule`. Prefer it over
-`ShouldHaveValidationErrorFor(message)`, which pins presentation text.
-
-Authorization failures are different in kind: an unauthorized result carries
-**no** validation errors, so assert `ShouldNotBeAuthorized()`. Adding an
-authorization attribute to an existing command therefore breaks both its
-happy-path and its validation-failure specifications — switch the assertions
-rather than patching around them.
+Read [references/command-result-assertions.md](references/command-result-assertions.md) when choosing a `CommandResult` assertion: `ShouldHaveValidationErrorBecauseOf(reason)` is the message-free way to say which kind of rejection happened, and an unauthorized result carries no validation errors, so assert `ShouldNotBeAuthorized()`.
 
 ## Step 7 — Assert what was appended
 

@@ -77,3 +77,12 @@ existing approval (a request that named the change is that approval), then appli
 How the first `.screenplay/identities.json` is created for a model that was only ever text-edited
 is not documented beyond "after the first apply". Ask before relying on a first apply to
 initialise identities, use `id` pins for persisted events, and record it in STATE.md when it applies.
+
+## Document mappings
+
+**Document mappings count too.** With `identities.json` present, creating, deleting, renaming or
+moving a mapped `.play` file changes no catalog address but still breaks reopening:
+`McpState.Open` throws `IdentityMappingConflict` ("mapped .play files are missing,
+renamed, or accompanied by unmapped files ... use an MCP proposal to move/add/delete documents
+explicitly"). Do these through MCP document operations (the `screenplay` server's `propose-ast` tool), never a file move or rename
+in the shell or editor.

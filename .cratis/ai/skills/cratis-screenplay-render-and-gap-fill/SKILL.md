@@ -22,25 +22,7 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 
 ## Verified product sources
 
-Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it before
-selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage;
-its compiler version differs from the standalone pin. Render options (`--scope`,
-`--check`, `--package-set`) and exit codes: cli `Documentation/reference/screenplay.md`
-and `cratis render --help`; admission: Stage `SemanticVersionFeatures.cs`,
-`SemanticVersionFeatureAdmission.cs`, `SemanticCratisAdmission.Automation.cs`. Stage's scaffold pins Arc and
-Chronicle releases, which are not necessarily the latest (`cratis-stage-rendering-and-sandbox`
-`references/rendered-application.md`). Source reading is not a new render run.
-
-The worked example (`references/worked-example.md`) was probed with the public CLI (observed). The
-canonical `ScreenComposition` corpus was rendered and published successfully, and an MCP-edited copy
-was rendered, run and checked in the browser. The AI
-repository's `screenplay-mcp-transcript.ts` harness proves the real stdio proposal/apply path against the
-packaged CLI. Guarded Close actions and double-click interactions are refused by an older Stage
-(`STAGE-SCENE-ACTION-001`, `STAGE-SCENE-INTERACTION-001`); a current Stage renders and runs them, and the codes
-remain for a guard Stage cannot evaluate, which is never emulated. UI-profile
-rejection (`CLI-RENDER-007` to `-010`) and render-then-recover are CLI behavior. The
-renderer facts are owned by `cratis-stage-rendering-and-sandbox`; this skill links them and never
-restates the admission table.
+Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it before selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage. Read [references/product-sources.md](references/product-sources.md) when checking a render claim against the CLI, Stage or probe sources; the renderer facts are owned by `cratis-stage-rendering-and-sandbox`.
 
 ## When to use / when not
 
@@ -53,11 +35,7 @@ restates the admission table.
 ## Interview phase
 **Skip if** the request names the model root, the application name, the destination and the
 decision on non-renderable scope. Otherwise ask only what is missing:
-1. **Which model, which accepted version?** (root, source identity from the lifecycle report).
-2. **Application name** for `--name` (it is part of the application identity: keep it identical on every re-render).
-3. **Destination.** Default `.ai-work/screenplay/<model-slug>/render-probe/<App>`; any other destination needs the user's intent.
-4. **If admission fails:** stay in design mode, change the model for business reasons, or gap-fill by hand? (the three cases below).
-5. **Seams:** outside systems, styles or packages the rendered app needs (`Customizations/`).
+Ask only what is missing: the model and accepted version, the application name for `--name` (identical on every re-render), the destination, the decision if admission fails (the three cases below), and the seams (`Customizations/`). Read [references/delivery-protocol.md](references/delivery-protocol.md) ("Interview batch for render delivery") for the defaults.
 
 Unattended: assume visibly (probe destination, default name from the model root folder), never
 assume an answer to 4, and record it as `blocked` for the user.
@@ -205,13 +183,7 @@ Before reporting done:
 
 ## Route near misses
 
-- Changing the model, mode or slices: `cratis-screenplay-slice-design`, `cratis-screenplay-modeling-lifecycle`.
-- Which specification forms Stage accepts: `cratis-screenplay-scenario-coverage`, `cratis-screenplay-specifications`.
-- Verdict commands, subsets, versions: `cratis-screenplay-toolchain`.
-- Renderer facts, publication recovery, sandbox: `cratis-stage-rendering-and-sandbox`.
-- Refused automation or translation scope (the refused behavior is gap-fill): `cratis-screenplay-automations-and-translations`.
-- Hand-written code against its contract: `cratis-application-slice-conformance`.
-- Code review of delivered code: `cratis-code-review`.
+Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when the work is model changes, specification forms, tooling, renderer facts, refused scope, conformance or code review rather than render delivery.
 
 ## References (load on demand)
 

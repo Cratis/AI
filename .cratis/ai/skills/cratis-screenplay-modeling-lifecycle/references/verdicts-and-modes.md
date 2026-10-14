@@ -9,6 +9,7 @@
 - Render revision drift
 - Tool-version gaps
 - Modes
+- Reporting the verdicts
 
 Exact commands, exit codes, admitted subsets and every version-specific fact live in
 `cratis-screenplay-toolchain` (`SKILL.md` and its subset references). This file
@@ -215,3 +216,10 @@ skill):
   `run-specifications`, obligations/smells and opt-in completeness are released
   at the toolchain pin; they do not prove full field lineage or target behavior.
   Check `cratis-screenplay-toolchain` before changing a verdict.
+
+## Reporting the verdicts
+
+Report all five at checkpoints and handoffs (between edit batches only those you ran), each a
+result or "not run: <reason>" naming tool and version. Never infer one from another or "fix" a
+correct model to silence a diagnostic (record a tool-version gap). Commands, report template,
+source identity: `references/verdicts-and-modes.md`. Read `references/verdicts-and-modes.md` before recording verdicts or establishing the source identity for acceptance.

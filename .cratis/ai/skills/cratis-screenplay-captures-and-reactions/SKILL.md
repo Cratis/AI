@@ -118,42 +118,7 @@ The full capture excerpt (`source`, `key`, `map` with `translate`, two `append` 
 
 Read [references/capture-map-and-example.md](references/capture-map-and-example.md) when writing a capture's `map` block, or when you need the excerpt of a capture with `append` and `children`.
 
-**`source <kind>`** with indented settings. The documented kinds and settings are
-`api` (`api`, `route`, `poll`), `webhook` (`path`) and `message` (`topic`).
-⚠️ The grammar is **open** — the parser accepts any kind and any setting name as
-free-form name/value pairs, so a typo is not caught. The three kinds are
-convention, not enforcement. `source events` (`from <Event>` lines, ESM v9) is the exception, with
-its own closed grammar (PLAY0610/0612/0616/0619/0620).
-
-**`key <property>`** names the source property identifying an instance. From ESM v6
-a capture without a `key` does not bind (`PLAY0268`). In a specification the
-reference is handed records (`given capture`, `when capture`) and never contacts a
-`source`, which stays realization metadata; events append to the event source the
-record's `key` names, and `$context.occurred` is the scenario's `given clock`.
-
-An event's external origin is declared on the `event` itself with `event X from "<origin>"` (ESM v9);
-outside records still enter through a `capture` in a `Translate` slice
-(`cratis-screenplay-automations-and-translations` `references/public-events-and-direction.md`).
-
-**`map`** reshapes properties before events are appended (rename, template, `translate`, `split`; mapping sources are `$.`, `$context.` and `$env.`); syntax is in the reference file linked above.
-
-**`append <Event>`** with optional `tag` lines and one `when` clause:
-
-| `when` form | Appends when |
-| --- | --- |
-| `when added` | an item appears in the source |
-| `when removed` | an item disappears from the source |
-| `when <Path>` | that property changes |
-| `when <Path> from <v> to <v>` | that property makes that exact transition |
-| `when <a> or <b> [or <c>]` | any of those properties change |
-| `when <a> and <b> [and <c>]` | all of those properties change |
-| ``when `<expression>` `` | a raw template expression is true (captured verbatim; from ESM v6 the reference evaluates fields, literals, `==`, `!=`, the ordering operators, `&&`, `||`, `!` and parentheses, and an expression outside that grammar does not bind) |
-
-⚠️ **`or` and `and` cannot be mixed in one clause** — `when a or b and c` is a
-compile error. Split it into two `append` blocks.
-
-**`children <collection> identified by <path>`** and **`nested <path>`** each take
-an optional `map` and any number of `append` blocks.
+**`source <kind>`** takes free-form settings, so a typo is not caught; **`key <property>`** is required to bind (`PLAY0268`); **`append <Event>`** takes one `when` clause, and `or` and `and` cannot be mixed in one clause (split into two `append` blocks). Read [references/capture-map-and-example.md](references/capture-map-and-example.md) for source kinds, `key` and specification behavior, the `when` forms table, `children` and `nested`.
 
 ## `reaction`
 
@@ -259,68 +224,13 @@ The excerpt of a reaction with `reads` on an event and on the clock is in the re
 
 Read [references/trigger-reads-example.md](references/trigger-reads-example.md) when writing a trigger `reads` with `by` or an alias, or a clock trigger that reads a whole view.
 
-- `reads` sits **under a trigger**, beside the values it takes and its effects.
-  Each trigger declares its own.
-- **`by` names a value that trigger takes** (`invoiceId` above). Naming anything
-  else is warning `PLAY0442`.
-- **Clock triggers read whole views.** `every` and `at` take no values, so
-  `reads <View>` works under them but `by` is error `PLAY0443`.
-- **Aliases follow the command rules.** A view read more than once needs an
-  alias on every read (`PLAY0410`), aliases are unique per trigger (`PLAY0411`),
-  and an alias must not match a trigger value (`PLAY0412`). A view no projection
-  in the document produces is warning `PLAY0177`.
-- **`reads` is a directive in a trigger body.** A trigger value named `reads` is
-  written `@reads`. A bare `reads` line is error `PLAY0175`, and
-  `reads <PrimitiveType>` is warning `PLAY0444`; both messages name the escape.
-- `for each <View>` is reserved for a future view-driven trigger. It is not a
-  trigger in the verified Screenplay versions (`PLAY0137`).
+- `reads` goes under a trigger; `by` names a value that trigger takes (else `PLAY0442`); **Clock triggers read whole views.** `by` under them is `PLAY0443`. Read [references/trigger-reads-example.md](references/trigger-reads-example.md) for alias rules (`PLAY0410`–`PLAY0412`, `PLAY0177`), the `@reads` escape (`PLAY0175`, `PLAY0444`) and the reserved `for each`.
 
 ⚠️ **Declared, not enforced.** See *Caller-less invokes and unprotected reads* above.
 
 ## `trigger`
 
-```screenplay
-concept Repository : String
-
-trigger BuildFinished
-  description "CI reported a finished build on a watched repository"
-  repository Repository
-  outcome String
-```
-
-A trigger declares two things: **that the name exists**, and **what an occurrence
-hands the reaction**. It deliberately declares nothing about what makes one occur —
-that belongs to whatever produces it, and keeping it out is what lets the set stay
-open. The type on a value is optional; a bare name is already a useful statement.
-
-**Name resolution, in order:** events the document declares or imports → triggers
-the document declares → triggers registered with the compiler, plus the built-in
-host signals. A registration wins over a built-in of the same name. Only when all
-three miss is the name reported unknown — a **warning** (`PLAY0248`), because the
-name may be known outside the document. A malformed reaction body is an error. If an event
-and a trigger share a name, the event wins for value validation and binding.
-
-**Built-in triggers:** `Startup` and `Shutdown`. The clock is built in too, but
-with its own syntax rather than a name.
-
-⚠️ **An application trigger is not a UI event.** What a button click, a form
-submit or entering a screen does is an *interaction*: an `on click` / `on submit`
-/ `on enter` clause or a named `behavior`, never a declared `trigger` (see
-`cratis-screenplay-ui-composition`). The two meet in two places: an interaction
-can observe a declared trigger with `on <Trigger>` and fire one with
-`raise <Trigger>`. A trigger named after a built-in interaction kind (`click`,
-`submit`, `enter`, …) is an error (`PLAY0326`).
-
-⚠️ Under a reaction trigger, `description`, `file`, `produces`, `invokes` and
-`reads` are directives, so a value with one of those names is written with `@`
-(`@file`, `@reads`).
-
-**Registration** (for a name only an integration knows) happens through the
-compiler's language registry, either name-only or with a shape. ⚠️ Stating **no**
-values and stating **none** are different claims: a definition with no value list
-says the registration does not describe the shape, so what a reaction takes is left
-alone; one with an **empty** list says an occurrence carries nothing, so taking
-something is reported. `Startup` and `Shutdown` are registered the second way.
+A `trigger` declares that a name exists and what an occurrence hands the reaction, never what makes it occur. Built-ins are `Startup` and `Shutdown`. An unknown name warns `PLAY0248`; **An application trigger is not a UI event** (`PLAY0326`); under a reaction trigger, values named `description`, `file`, `produces`, `invokes` or `reads` are written with `@`. Read [references/trigger-declaration.md](references/trigger-declaration.md) when declaring or registering a trigger or resolving a trigger name.
 
 ## Guidance, verbatim
 

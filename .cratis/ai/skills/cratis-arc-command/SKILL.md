@@ -24,19 +24,7 @@ or a combination.
 
 ## Verified product sources
 
-| Package | Purpose |
-| --- | --- |
-| `Cratis.Arc.Core` | `Cratis.Arc.Commands.ModelBound.CommandAttribute`, `CommandResult`, `CommandValidator<T>` |
-| `Cratis.Arc.Chronicle` | event append handling, `Cratis.Arc.Chronicle.Commands.NotAuditedAttribute` |
-| `Cratis.Arc.ProxyGenerator.Build` | `CratisProxiesOutputPath` MSBuild integration |
-| `Cratis.Fundamentals` | `Cratis.Monads.Result<TResult, TError>` |
-| `Cratis.Chronicle` | `EventTypeAttribute`, `EventForEventSourceId`, `ICanProvideEventSourceId` |
-| `@cratis/arc` | `ICommand`, `CommandResult`, `ValidationResult` |
-
-
-Fundamentals:
-[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/main/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
-success is first, error second, with implicit conversions from both types.
+Read [references/product-sources.md](references/product-sources.md) for the owning packages and `Result`.
 
 Arc without Chronicle is a
 supported setup; everything on this page that appends events needs Chronicle.
@@ -145,26 +133,7 @@ Two consequences worth knowing before writing the first command:
 - **Events never carry their own event source.** Cross-stream writes use
   `EventForEventSourceId`; they are not expressed by a property on the event.
 
-```csharp
-[Command]
-public record Register<Thing>(<ConceptType> <Name>)
-{
-    public (<ThingId>, <ThingRegistered>) Handle([GeneratedValue("thing")] <ThingId> id) =>
-        (id, new(<Name>));
-}
-```
-
-```csharp
-[Command]
-public record Transfer(<AccountId> From, <AccountId> To, <Money> Amount)
-{
-    public IEnumerable<object> Handle() =>
-    [
-        new EventForEventSourceId(From, new <Withdrawn>(Amount)),
-        new EventForEventSourceId(To, new <Deposited>(Amount)),
-    ];
-}
-```
+Read [references/return-shape-examples.md](references/return-shape-examples.md) for create and cross-stream examples.
 
 ## Generate a server-owned new identifier
 
@@ -187,10 +156,7 @@ is shown there.
 
 ## When not to generate
 
-Keep client-owned IDs as inputs. Generation is not authorization, tenant
-isolation, idempotency, freshness or gapless invoice numbering. Credentials need
-explicit entropy, `[NotAudited]`, authorized delivery and hash storage; never
-log captures or persist plaintext authentication keys. See [boundaries](references/shop-generation.md#when-not-to-generate).
+Read [references/generation-boundaries.md](references/generation-boundaries.md) when deciding whether to generate.
 
 ## Where the event source id comes from
 
@@ -206,11 +172,6 @@ Chronicle resolves the command's event source id in this order:
 Two or more candidates raise `ARCCHR0002` (`[Key]` does not silence it); Arc
 silently takes the first declared. Implement `ICanProvideEventSourceId`.
 
-`[Key]` on a positional record's primary-constructor parameter is recognized
-and counted once. Child-only/nested read-model types are not standalone
-command-scoped models. `[EventSource<TSource>(stream)]` supplies source type and
-stream metadata on commands and aggregate roots.
-
 Read [decisions and routing](references/decisions-and-routing.md) when a command
 needs guarded state, stream-id templates, definition-backed routes, event tags or
 post-commit `CompleteStream`. Plain read-model injection remains advisory;
@@ -218,10 +179,7 @@ post-commit `CompleteStream`. Plain read-model injection remains advisory;
 [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
 A returned `EventForEventSourceId` route wins over command context.
 
-Two attributes are spelled `[Key]`. Chronicle reads `Cratis.Chronicle.Keys.KeyAttribute`.
-Marking `System.ComponentModel.DataAnnotations.KeyAttribute` in an application
-that uses Chronicle compiles, resolves nothing, and silently invents a new event
-source id for every command — `ARCCHR0008` reports it.
+Read [references/event-source-id-details.md](references/event-source-id-details.md) when marking `[Key]` (two attributes share the name; `ARCCHR0008`) or using `[EventSource<TSource>]`.
 
 ## Fetch what the handler needs with `Provide()`
 
@@ -229,21 +187,7 @@ source id for every command — `ARCCHR0008` reports it.
 is to keep IO out of `Handle`: it fetches or computes values, and Arc binds them
 to `Handle`'s parameters by type.
 
-```csharp
-[Command]
-public record Open<Thing>(<ThingId> Id, <OwnerId> OwnerId)
-{
-    public async Task<Result<<Owner>, ValidationResult>> Provide(IReadModels readModels)
-    {
-        var owner = await readModels.GetInstanceById<<Owner>>((EventSourceId)OwnerId);
-        return owner is null
-            ? ValidationResult.Error("Owner must exist.")
-            : owner;
-    }
-
-    public <ThingOpened> Handle(<Owner> owner) => new(owner.Id);
-}
-```
+Read [references/provide-example.md](references/provide-example.md) for a worked `Provide()` example.
 
 - Short-circuit with `ValidationResult.Error(...)`; do not throw for a rejection
   the user can act on. A thrown exception surfaces as `HasExceptions` and HTTP
@@ -275,28 +219,7 @@ property is added.
 
 A retained operational secret needs **both** `[Encrypted]` and `[NotAudited]`; either alone leaves a gap. A credential used for authentication (password, token) is marked `[NotAudited]` on the command and reaches an event only as a hash or a reference, never encrypted. Never combine `[PII]` with `[Encrypted]` (`CHR0053`).
 
-```csharp
-[Command]
-public record Change<Secret>(
-    <UserId> User,
-    [property: NotAudited] string Old<Secret>,
-    [property: NotAudited] string New<Secret>)
-{
-    public <SecretChanged> Handle(I<Hasher> hasher) => new(hasher.Hash(New<Secret>));
-}
-```
-
-`[NotAudited]` applies to a class, struct, property, or parameter. On the type it
-withholds every property at once. Marking the concept type instead makes it
-travel to every command that takes that value. The command is still named on the
-chain either way; only the values are withheld.
-
-`ARCCHR0009` warns when a property's *name* reads like a secret and is unmarked.
-It cannot see a secret whose name does not say so, so a clean build means
-"nothing obvious was missed", not "no secrets are recorded". When the name only
-reads like a secret and the value is safe to record, the framework's own guidance
-is to mark it `[NotAudited]` anyway or rename the property — the value is written
-either way, so the reading is all a reviewer has to go on.
+Read [references/causation-details.md](references/causation-details.md) when marking an input `[NotAudited]` or reading `ARCCHR0009`.
 
 ## Generate the TypeScript proxy
 
@@ -313,28 +236,14 @@ either way, so the reading is all a reviewer has to go on.
 file path. When configuring proxy generation or diagnosing missing or stale output, read [proxy generation](references/proxy-generation.md) for the full
 set of MSBuild knobs and the common failures.
 
-`[BlockOnValidationSeverity(ValidationResultSeverity.Warning)]` declares the
-lowest blocking severity for validation, `Provide` and execution. Caller
-`allowedSeverity`/`X-Allowed-Severity` can only make it stricter; `Unknown` blocks.
-The proxy carries `blockOnValidationSeverity` and honors it client-side.
+Read [references/proxy-generation.md](references/proxy-generation.md#blocking-severity) when a command declares `[BlockOnValidationSeverity]`.
 
 ## The generated client contract
 
 The generated proxy is a `Command` from `@cratis/arc`. Its members are the same
 whatever renders it:
 
-| Member | What it does |
-| --- | --- |
-| `route` | The generated route, including the configured API prefix |
-| `roles` | The roles the command declares; empty when it declares none |
-| `<property>` | Get or set one value; setting raises `propertyChanged` |
-| `hasChanges` | True when any value differs from the initial values |
-| `execute(allowedSeverity?, ignoreWarnings?)` | Sends the command; resolves to `CommandResult` |
-| `validate()` | Runs authorization and validation on the server without the handler |
-| `validateClientSide()` | Runs only the extracted rules locally; never touches the network |
-| `setInitialValues(values)` | Sets the change-tracking baseline |
-| `setInitialValuesFromCurrentValues()` | Rebaselines onto the current values |
-| `revertChanges()` / `clear()` | Restore the baseline / reset everything |
+Read [references/client-contract.md](references/client-contract.md) for the generated proxy members.
 
 Read `references/command-result.md` when branching on a command result or matching validation failures to fields. Branch on the specific flag, not only on `isSuccess`. The exact `CommandResult`
 and `ValidationResult` shapes are in

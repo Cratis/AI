@@ -70,13 +70,7 @@ even when it blocks binding. Never record bearer tokens, magic links or signed U
 (a keyed hash or reference at most), and never put PII on the event-source id.
 
 ## Product sources
-Tool versions: toolchain `SKILL.md`. Language claims come from Screenplay
-`Documentation/screenplay/{reactions,captures,triggers,specifications,diagnostics}.md`;
-renderer claims from Stage `Documentation/reference/reaction-rendering.md`: supported
-event-triggered Automation renders; Translate/captures and refused reactions stay gap-fill.
-Runtime facts: Arc `ExecuteCommandsAsSystemAttribute` and mixed events-and-commands reactor
-returns; Chronicle `OnceOnlyAttribute`, `ReactorDelivery`, `Documentation/code-analysis/CHR0022.mdx`
-and `Documentation/reactors/delivery-identity.mdx`.
+Read [references/product-sources.md](references/product-sources.md) when checking a claim against the Screenplay, Stage, Arc or Chronicle sources.
 
 Requires Screenplay 4.125.0 or later (`screenplay --version`) for reaction `runs as system role` (ESM v10).
 
@@ -215,14 +209,7 @@ Never report a verdict without the tool and version that produced it.
 - Every complete example compiles. Read `references/todo-list-example.md` when modeling a pending-work automation (its design-only excerpts insert into `assets/pending-certificates.play` and `assets/retry-sweep.play`), and `references/translate-example.md` when modeling capture plus translator reactions.
 
 ## Route near misses
-- Grammar: `cratis-screenplay-captures-and-reactions`; invoked commands: `cratis-screenplay-command-surface`;
-  triggers versus UI interactions: `cratis-screenplay-ui-composition`.
-- Stream identity, constraints, races: `cratis-screenplay-streams-and-consistency`.
-- Specifications for these slices: `cratis-screenplay-scenario-coverage`, then `cratis-screenplay-specifications`.
-- Rendering, gap-fill and delivery route: `cratis-screenplay-render-and-gap-fill`.
-- Legacy database-only writes: `cratis-screenplay-legacy-extraction` classifies them first; not
-  automatically Translate.
-- Hand-written reactors and replay semantics: `cratis-chronicle-reactor`.
+Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when the work is grammar, streams, specifications, rendering, legacy writes or hand-written reactors.
 
 ## Lineage
 Read `references/provenance.md` when checking sources, adaptations, attribution, or approaches deliberately not adopted.

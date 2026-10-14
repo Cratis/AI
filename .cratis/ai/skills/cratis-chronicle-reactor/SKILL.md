@@ -86,31 +86,7 @@ or string dependencies after the event: use context, a read model or a service.
 
 The first parameter must carry `[EventType]` (CHR0005 error).
 
-### Injecting a read model
-
-A read-model parameter is materialized using the event context's event-source id
-by default. When the model's key differs from the triggering event's source —
-the event carries a related entity's id — implement `ICanResolveReadModelKey` on
-the reactor:
-
-```csharp
-public class <ReactorName> : IReactor, ICanResolveReadModelKey
-{
-    public ReadModelKey Resolve(object @event, EventContext context) =>
-        ((<EventName>)@event).<RelatedIdProperty>;
-
-    public Task <MethodName>(<EventName> @event, <ReadModelName> <readModel>) =>
-        Task.CompletedTask;
-}
-```
-
-The resolved key applies to every read-model parameter on the reactor.
-
-Materialized models are as current as their observer. `[Passive]` computes
-on demand without a sink when the reactor needs a current read.
-
-Prefer the event's own data. CHR0032 warns against injected storage primitives such as `IMongoCollection<T>`;
-read keyed state through read-model parameters or `IReadModels.GetInstanceById`.
+A materialized read-model parameter is only as current as its observer; prefer the event's own data, and use `[Passive]` when the reactor needs a current read. Read [references/read-model-injection.md](references/read-model-injection.md) whenever a reactor injects a read model: how it is keyed (including a related entity's key through `ICanResolveReadModelKey`), when it is current, and which storage access CHR0032 flags.
 
 ## Return types
 
@@ -134,53 +110,7 @@ restricted to `Task<T>`. An unclaimed return value **fails the partition** with
 return type at build time. Source: `Reactors/EventHandlerMethods.cs`,
 `Reactors/SideEffects/IReactorSideEffectHandler.cs`, `Reactors/UnhandledReactorReturnValue.cs`.
 
-### Returning events instead of injecting `IEventLog`
-
-Return events rather than inject `IEventLog`: **a convention, not an analyzer
-contract**. Returned appends stay inside Chronicle's transaction.
-
-```csharp
-// One event, on the triggering event's own event source.
-public Task<<ResultEvent>> <MethodName>(<EventName> @event, EventContext context) =>
-    Task.FromResult(new <ResultEvent>(@event.<Property>));
-
-// Several events on that same event source.
-public Task<IEnumerable<object>> <MethodName>(<EventName> @event, EventContext context) =>
-    Task.FromResult<IEnumerable<object>>([new <ResultEvent>(), new <OtherEvent>()]);
-```
-
-### Targeting another event source
-
-`Cratis.Chronicle.EventSequences.EventForEventSourceId(eventSourceId, @event,
-causation)` is the cross-stream wrapper. Its init members include `Subject`,
-`Occurred`, `Tags`, `EventSource` (`Type?`) and `EventStream` (`string?`). Routing
-defaults are `EventStreamType.All`, `EventStreamId.Default` and
-`EventSourceType.Default`. Source: `EventSequences/EventForEventSourceId.cs`.
-
-```csharp
-public Task<IEnumerable<EventForEventSourceId>> <MethodName>(<EventName> @event, EventContext context) =>
-    Task.FromResult<IEnumerable<EventForEventSourceId>>(
-    [
-        new(@event.<RelatedId>, new <ResultEvent>(@event.<Property>)),
-        new(@event.<OtherId>, new <OtherEvent>()) { EventStreamType = new("<stream-type>") },
-    ]);
-```
-
-It also carries `IEnumerable<NamedTag> NamedTags` (snapshotted on assignment).
-It does **not** carry an
-event sequence id; side effects are appended to the event log.
-
-### Where the metadata for a bare event comes from
-
-For a **bare** event return, Chronicle resolves the append metadata from the
-reactor itself: the `[EventSourceType]`, `[EventStreamType]`, and
-`[EventStreamId]` attributes, and the `ICanProvideEventSourceId`,
-`ICanProvideEventStreamId`, and `ICanProvideSubject` interfaces (all in
-`Cratis.Chronicle.Events`, each with one method).
-
-An `EventForEventSourceId` is **self-describing** — reactor-level metadata is not
-applied to it. In a mixed collection, bare items get the reactor metadata and
-wrapper items keep their own.
+Read [references/return-event-metadata.md](references/return-event-metadata.md) when returning events instead of injecting `IEventLog`, targeting another event source with `EventForEventSourceId`, or controlling the append metadata of a returned event.
 
 ## Replay
 
@@ -251,46 +181,11 @@ event types, then the event log.
 exception. All of a reactor's event types must come from one event store —
 analyzer **CHR0008** (error).
 
-### Cross-service events
+Read [references/cross-service-events.md](references/cross-service-events.md) when consuming events from another service through the inbox and outbox.
 
-Cross-service facts route through the outbox and inbox rather than a shared log.
-The producer appends its public contract event to the outbox sequence; the
-consuming observer listens on the implicit inbox sequence for the source store.
-Chronicle creates or reuses that subscription from the observer's `[EventStore]`
-metadata, or from `[EventStore]` on the event type or its assembly. Put
-`[assembly: EventStore("<source-store>")]` in a contracts project when every
-event there originates from one service.
+## Filtering
 
-## Filtering which events reach the reactor
-
-| Attribute | Effect |
-| --- | --- |
-| `[FilterEventsByTag("<tag>")]` | **filters** by appended tag; repeatable, and any one match admits the event |
-| `[EventSourceType("<value>")]` | **filters** by the appended event source type |
-| `[EventStreamType("<value>")]` | **filters** by the appended event stream type |
-| `[FromEventSource<TSource>("<stream>")]` | **filters** by a declared event source and stream (`Cratis.Chronicle.EventSources`) |
-| `[EventStreamId("<value>")]` | **does not filter**; it is append metadata for side effects |
-| `[Tag]`, `[Tags]` | **label** the reactor; they never filter |
-
-Filter categories combine with AND; tags within the tag category combine with OR.
-Typed source filters work on reactors and reducers, not projections (CHR0041).
-CHR0055 flags unknown streams; CHR0056 flags routing that contradicts the filter.
-Filters survive catch-up, replay and failed-partition recovery.
-`WaitForCompletion` excludes nonmatching observers when the .NET client supplies
-its first appended sequence number.
-These correspond to metadata supplied at append time:
-
-```csharp
-await eventStore.EventLog.Append(
-    <eventSourceId>,
-    new <EventName>(<arguments>),
-    eventStreamType: "<stream-type>",
-    eventSourceType: "<source-type>",
-    tags: ["<tag>"]);
-```
-
-A **projection cannot be filtered at all** — if you need metadata-based
-selection, a reactor or a reducer is where it happens.
+Read [references/filtering.md](references/filtering.md) when restricting which events reach a reactor by tag, event source type, stream type or declared source; `[EventStreamId]` does not filter, and a projection cannot be filtered at all.
 
 ## Invoking a command from a reactor
 

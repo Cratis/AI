@@ -50,13 +50,7 @@ import { DialogProps, DialogResult, useDialog } from '@cratis/arc.react/dialogs'
 
 ## Initial focus
 
-`DialogInitialFocus.Confirm` is the default and *arms* the confirm button — a
-browser fires `click` from the `keydown` of Enter, so a held Enter confirms.
-For a destructive dialog use `DialogInitialFocus.Cancel`, which focuses the
-least destructive action and degrades to `Content` when the button set has
-nothing to dismiss with. `DialogInitialFocus.Content` focuses the title so
-nothing is armed. There is deliberately no "focus nothing" option — a modal
-must move focus into itself.
+`DialogInitialFocus.Confirm` is the default and arms the confirm button, so a destructive dialog uses `DialogInitialFocus.Cancel`. Read [dialogs.md](references/dialogs.md) for the three options.
 
 ## Step 1 — Prerequisites
 
@@ -213,65 +207,11 @@ validation never re-runs and the submit button stays disabled. Seed values that 
 
 ## Step 6 — Confirming, and showing that work is in progress
 
-Do not build a confirmation or busy dialog into a page. `ConfirmationDialog` and
-`BusyIndicatorDialog` are registered once at the app root through
-`DialogComponents` and raised by hook, which is what keeps every one of them
-identical:
-
-```tsx
-import { DialogComponents } from '@cratis/arc.react/dialogs';
-import { BusyIndicatorDialog, ConfirmationDialog } from '@cratis/components/Dialogs';
-
-<DialogComponents confirmation={ConfirmationDialog} busyIndicator={BusyIndicatorDialog}>
-    <YourApp />
-</DialogComponents>
-```
-
-```tsx
-import { DialogButtons, DialogResult, useBusyIndicator, useConfirmationDialog } from '@cratis/arc.react/dialogs';
-
-const [confirm] = useConfirmationDialog();
-if (await confirm('Delete this account?', `"${account.name}" disappears permanently.`, DialogButtons.YesNo) !== DialogResult.Yes) return;
-```
-
-A busy indicator is modal and deliberately non-dismissible, so reserve it for
-work the user genuinely cannot proceed past — a multi-step import, a migration.
-For an ordinary command behind a button, the in-flight disabled button is the
-right control; a modal that flashes for 200 ms tells the user nothing. When you
-do use one, pair it with the close call in a `finally`:
-
-```tsx
-const [showBusy, closeBusy] = useBusyIndicator('Importing', 'This takes a moment.');
-showBusy();
-try { await importEverything(); } finally { closeBusy(); }
-```
+Do not build a confirmation or busy dialog into a page: register `ConfirmationDialog` and `BusyIndicatorDialog` once at the app root through `DialogComponents` and raise them by hook (`useConfirmationDialog`, `useBusyIndicator`). A busy indicator is modal and non-dismissible, so reserve it for work the user cannot proceed past, and pair `showBusy()` with a close in a `finally`. Read [dialogs.md](references/dialogs.md) for the registration and hook examples.
 
 ## Step 7 — Row selection and a details pane
 
-`selection` and `onSelectionChange` are controlled. The change event carries
-`value`, which is `null` when the selection is cleared.
-
-```tsx
-import type { DataTableSelectionChangeEvent } from '@cratis/components/DataTables';
-
-const [selected, setSelected] = useState<AccountSummary | null>(null);
-
-<DataPage
-    title='Accounts'
-    query={AllAccounts}
-    emptyMessage='No accounts yet.'
-    dataKey='id'
-    selection={selected}
-    onSelectionChange={(event: DataTableSelectionChangeEvent<AccountSummary>) => setSelected(event.value)}
-    detailsComponent={AccountDetails}>
-    <DataPage.Columns>
-        <Column field='name' header='Name' />
-    </DataPage.Columns>
-</DataPage>
-```
-
-`detailsComponent` receives `IDetailsComponentProps<T>` — `{ item, onRefresh? }`
-— and renders beside the table for the selected row.
+`selection` and `onSelectionChange` are controlled (`value` is `null` when cleared), and `detailsComponent` receives `{ item, onRefresh? }` for the selected row. Read [data-page.md](references/data-page.md) for the controlled-selection example.
 
 ## Step 8 — Snapshot or observable query
 

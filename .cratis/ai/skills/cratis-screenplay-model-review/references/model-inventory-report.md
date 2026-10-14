@@ -8,6 +8,7 @@
 - Structural gaps to look for
 - Delivery status (optional)
 - Not carried over
+- Optional read-only passes
 
 Use this for a read-only "what is in this model and where are the gaps" report on an
 existing, extracted or inherited `.play` model, before or without a full checklist run. It is
@@ -121,3 +122,10 @@ Otherwise the report carries no status counts.
 ## Not carried over
 Slice status counts are not in the report without that brief. An orphan that a board
 tool could not see is skipped with a note, never guessed.
+
+## Optional read-only passes
+
+Optional, on request, all read-only and yielding edit requests: one subject's information journey
+(`references/model-inventory-report.md`), a resilience pass over business-critical scope after the
+critic review and before acceptance (`references/stressor-analysis.md`), and a slice-by-slice
+explanation or impact walkthrough (`references/walkthrough.md`).

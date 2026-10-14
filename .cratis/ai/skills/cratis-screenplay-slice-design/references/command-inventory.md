@@ -7,6 +7,7 @@
 - The inventory
 - Filled for `worked-example.md`
 - Common mistakes
+- Interview batch for slice design
 
 For every command, record what it needs, where each input comes from, how it can succeed and
 every way it can be refused. The inventory is the design output that
@@ -197,3 +198,27 @@ not been asked the refusal questions.
   (retention can be configured in newer Chronicle; verify it, never audit secrets).
   Mark concepts bare `pii` for personal data or `secret` for operational secrets,
   never on the identifier; declare use/basis/retention in a purpose, not a reason.
+
+## Interview batch for slice design
+
+1. **Origin of each action.** Is it (A) user-initiated only, (B) automated, (C) a mix, or
+   started by a clock or outside system (schedule, webhook, feed)? Impact: separates screen
+   commands from automation (and a trusted path); clocks and outside records are designed in
+   `cratis-screenplay-automations-and-translations` (trigger, capture, reaction over imports).
+   Follow-up: if a mix, which user actions start automation, and what does it decide on its
+   own? If outside systems, which one and what data does it send?
+2. **Critical fields.** Which data matters most on each screen, and what decision does the
+   person make from each field? Impact: fields with no decision behind them are questions, not
+   requirements. Follow-up: for a field nobody can justify, ask whether it is history worth
+   keeping or can go.
+3. **Freshness and cost.** How stale may each view be, and what does a stale answer cost?
+   Impact: picks projection versus reducer, and one-shot versus `observable`. Follow-up: if a
+   wrong answer is expensive (a booking, a payment), that decision needs a protected read
+   (`references/rule-layers.md`), not a view. For every calculated or aggregated figure
+   (a total, a count, an average) ask whether it recalculates as source data changes ("so it
+   belongs in a view - does that match your expectation?") or whether someone agrees or
+   certifies a value (a fact, step 5).
+4. **Granularity.** When someone changes these values, why? Impact: separates decisions from
+   forms. Follow-up: when a screen edits several values, ask for each who changes it and why.
+5. **Existing UI or constraints.** Is there a screen or system to match? Impact: origins and
+   screen data. Follow-up: ask to see it; styling belongs to `cratis-screenplay-ui-composition`.

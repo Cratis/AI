@@ -18,18 +18,7 @@ Sources include `ArcSymbolProcessor.kt`, `GradlePlugin/ArcExtension.kt` and
 `Integrations/Cratis`/`Integrations/Chronicle` publishing blocks. Use a released
 version from Maven Central, not the local `0.0.0-SNAPSHOT`.
 
-| Artifact | Purpose |
-| --- | --- |
-| `io.cratis:arc` | `io.cratis.arc.artifacts.Command`, `CommandKey`, `FromServices` |
-| `io.cratis:arc-ksp` | the KSP processor that generates the command handler |
-| `io.cratis:arc-spring-boot-starter` | Spring Boot auto-configuration, the command pipeline host |
-| `io.cratis:cratis` | recommended single dependency for an event-sourced app: Arc, Spring Boot wiring and Chronicle integration |
-| `io.cratis:arc-chronicle-spring-boot-starter` | explicit alternative to `cratis`, same Arc version |
-| `io.cratis:arc-testing` | in-process command and query scenarios (test scope) |
-| `io.cratis:arc-spring-data-jpa`, `io.cratis:arc-spring-data-mongodb` | Spring Data read-model integrations |
-| `io.cratis:arc-rxjava3` | RxJava 3 observable queries |
-| `io.cratis:arc-observability-spring-boot-starter`, `io.cratis:arc-openapi-spring-boot-starter` | optional observability and OpenAPI |
-| `io.cratis.arc` Gradle plugin | applies Kotlin/JVM + KSP, adds the dependencies, configures the module name and proxy output |
+Read [references/artifacts.md](references/artifacts.md) when choosing `io.cratis` artifacts.
 
 Requires Arc.Kotlin 7.5.0 for the single `io.cratis:cratis` dependency.
 
@@ -49,42 +38,7 @@ application source files differ (Java records instead of Kotlin data classes).
 
 ## Set up the project
 
-```kotlin
-// settings.gradle.kts
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-```
-
-```kotlin
-// build.gradle.kts
-plugins {
-    id("io.cratis.arc") version "<version>"
-    kotlin("plugin.spring") version "2.4.20"
-    id("org.springframework.boot") version "4.1.1"
-    id("io.spring.dependency-management") version "1.1.7"
-}
-
-repositories {
-    mavenCentral()
-}
-
-cratisArc {
-    moduleName.set("<ModuleName>")
-    dependencyVersion.set("<version>")
-    endpoints {
-        segmentsToSkip.set(<packageSegmentsUnderModuleRoot>)
-    }
-}
-
-dependencies {
-    implementation("io.cratis:arc-spring-boot-starter:<version>")
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
-}
-```
+Read [references/project-setup.md](references/project-setup.md) when writing the Gradle build for a new project.
 
 The plugin applies Kotlin/JVM and KSP, targets JDK 17, and treats warnings as
 errors. `moduleName` names the generated artifact module and manifest; every
@@ -305,19 +259,7 @@ operation on an `@Authorize`-protected class is reachable without
 authentication — the shape a login-screen query needs on an otherwise
 protected read model):
 
-```kotlin
-@ReadModel
-@Authorize
-data class AuthenticationQueryItem(val message: String) {
-    companion object {
-        // Overrides the class: anyone may subscribe to this one.
-        @JvmStatic
-        @AllowAnonymous
-        fun anonymous(@FromServices source: AuthenticationQuerySource): Flow<AuthenticationQueryItem> =
-            source.observeAnonymous()
-    }
-}
-```
+Read [references/authorization-override-example.md](references/authorization-override-example.md) when you need the `@AllowAnonymous` operation-override example.
 
 Combining `@AllowAnonymous` with `@Authorize`/`@Roles` is only ever a
 contradiction — and only ever fails with `ARCKSP0108` — **on the exact same
