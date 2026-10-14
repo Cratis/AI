@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-arc-command-operation",
+  "queries": [
+    { "query": "BookSeat has to call our seat reservation service inline and undo it if the command fails later. how do i declare that in an Arc command?", "shouldTrigger": true },
+    { "query": "what does Handle return if I want to reserve two seats in order, and does a raw IEnumerable<ICommandOperation> work?", "shouldTrigger": true },
+    { "query": "ARC0017 error on my command that returns a list of operations. what is it asking for?", "shouldTrigger": true },
+    { "query": "i moved a payment service call out of Handle into an ICommandOperation. if the third operation throws, which ones get compensated?", "shouldTrigger": true },
+    { "query": "command failed with result not successful. can i assume nothing was committed and retry the whole thing?", "shouldTrigger": true },
+    { "query": "How do I test Compensate with CommandScenario so the original failure and the skipped operations are asserted?", "shouldTrigger": true },
+    { "query": "Our audit scope implements ICommandExecutionScope and now commands returning operations fail with InvalidCommandOperation before anything runs. why?", "shouldTrigger": true },
+    { "query": "Can I return events and operations from the same Handle? I currently return IEnumerable<object> and the external call never happens.", "shouldTrigger": true },
+    { "query": "is it ok to generate the idempotency key for the external call inside Handle with Guid.NewGuid?", "shouldTrigger": true },
+    { "query": "Send a receipt email and charge the card after BookingConfirmed is committed, with retries if the provider is down.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Execute my existing ChargeCard command from a background worker through the pipeline and read the result.", "shouldTrigger": false, "note": "cratis-arc-command-execution" },
+    { "query": "Make ChargeCard reject a negative amount with a field validation message.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Write a new RegisterBoat command that returns the BoatRegistered event.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "I want a custom response value handler that interprets a specialized return type from Handle.", "shouldTrigger": false, "note": "Arc response value handlers documentation, not application operations" },
+    { "query": "In Arc for TypeScript, how do I return a CommandOperation from handle() on the Node server?", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Add an EF Core migration for the new Reservations table.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },
+    { "query": "Provide() needs to load the boat from the read model before Handle runs. Where do I put the lookup?", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Make sure two RegisterBoat calls cannot create the same registration number.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" }
+  ]
+}

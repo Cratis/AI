@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-arc-ef-core-migration",
+  "evals": [
+    {
+      "id": 1,
+      "name": "migration-column-helpers",
+      "prompt": "An Arc app on EF Core needs a new `Marinas` table: a required string Id primary key, a required Name (max 200), a nullable integer BerthCount, a required DateTimeOffset OpenedAt, and a JSON column Amenities holding a list of strings. It must run on SQLite, SQL Server and PostgreSQL. Write the CreateTable migration code and say how the Amenities property is marked. Give the code in your reply; do not write files.",
+      "expected_output": "CreateTable using Arc's StringColumn, NumberColumn<int>, DateTimeOffsetColumn and JsonColumn<T> with migrationBuilder as the first argument, explicit nullable: false for required columns, and [Json] on the property.",
+      "assertions": [
+        "Uses Arc column helpers such as table.StringColumn(migrationBuilder, ...) rather than raw table.Column<T>() with hard-coded SQL types.",
+        "Passes nullable: false explicitly on the required columns because the helpers default nullable to true.",
+        "Uses NumberColumn<int> for BerthCount and DateTimeOffsetColumn for OpenedAt.",
+        "Uses table.JsonColumn<T>(migrationBuilder) for Amenities and marks the model property [Json]."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "silent-wiring-failures",
+      "prompt": "Two problems in an Arc EF Core app: (1) `arc.WithEntityFrameworkCore()` is called with no arguments and no DbContext is registered. (2) A `[ReadModel] Boat` entity exposed as `DbSet<Boat>` on `BoatsDbContext : BaseDbContext` queries fine, but a command parameter of type `Boat` is never resolved. Explain both causes and the fixes. Reply only.",
+      "expected_output": "Discovery needs AutoDiscoverDbContexts and a non-empty ConnectionString, which defaults to empty; command-side read-model resolution only uses ReadOnlyDbContext subtypes, so move the entity to a ReadOnlyDbContext.",
+      "assertions": [
+        "Explains that parameterless WithEntityFrameworkCore() discovers nothing because ConnectionString defaults to empty, and shows passing a connection string through the options.",
+        "Explains that a [ReadModel] entity on a plain BaseDbContext is never contributed to command-side resolution.",
+        "Recommends putting the read-model DbSet on a ReadOnlyDbContext subtype.",
+        "Mentions that the entity needs a single-property primary key for resolution."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "tooling-and-applied-migrations",
+      "prompt": "A developer asks Arc's migration runner to apply migrations, and separately wants to fix a wrong column length in a migration that was already applied on staging and committed, by editing that migration file. What do you tell them? Reply only.",
+      "expected_output": "Arc ships no migration tooling; use dotnet ef migrations add and database update. Applied or committed migrations are append-only; correct with a new migration; only unapplied and uncommitted ones may be removed.",
+      "assertions": [
+        "States that Arc ships no migration tooling or runner and that migrations are created and applied with standard EF Core tooling such as dotnet ef migrations add and database update.",
+        "States that a committed or applied migration must never be edited or deleted.",
+        "Recommends correcting the mistake with a new migration.",
+        "Says only a migration that is both unapplied and uncommitted may be removed with dotnet ef migrations remove."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "provider-and-specs",
+      "prompt": "Our specs use SQLite in-memory with EnsureCreated() and all pass, yet production fails because a migration does not match the model. Also the DbContext options hard-code UseNpgsql. What are the problems and fixes? Reply only.",
+      "expected_output": "EnsureCreated builds from the model, not migrations, so cover migrations against a real provider; use UseDatabaseFromConnectionString instead of hard-coding the provider.",
+      "assertions": [
+        "Explains that EnsureCreated() builds the schema from the model rather than from the migrations, so it cannot notice a mismatch.",
+        "Recommends testing the migration itself against a real provider when schema shape matters.",
+        "Recommends UseDatabaseFromConnectionString instead of hard-coding UseNpgsql, since it picks the provider from the connection string and installs the Arc migrations SQL generator."
+      ]
+    }
+  ]
+}
