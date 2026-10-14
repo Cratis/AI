@@ -74,6 +74,12 @@ targets. Two things there are worth knowing before you write anything:
   `[FromEvent<T>]` is an **object-initializer property**, never a constructor
   argument: `[Count<TEvent>(ConstantKey = "<key>")]`.
 
+A counter or aggregate (`[Increment<T>]`, `[Decrement<T>]`, `[Count<T>]`) sees the
+event, not the item's previous state. Its commands must refuse non-transitions
+(a close for an already closed item) or the counter drifts permanently and replay
+reproduces the drift; see **cratis-chronicle-event-modeling**
+(`references/event-log-hygiene.md`).
+
 ## Fluent projections — structured mappings
 
 Use `Cratis.Chronicle.Projections.IProjectionFor<TReadModel>` when the mapping

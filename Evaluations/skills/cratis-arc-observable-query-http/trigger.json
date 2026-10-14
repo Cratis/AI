@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-arc-observable-query-http",
+  "queries": [
+    { "query": "how can I look at what my observable bookings query returns from the terminal? curl just gives me 202", "shouldTrigger": true },
+    { "query": "curl on the observable query returns HTTP 202 Accepted with no data. is the server broken?", "shouldTrigger": true },
+    { "query": "i want to watch live updates of an Arc query with curl, like server-sent events", "shouldTrigger": true },
+    { "query": "What does waitForFirstResultTimeout do and what status do I get when it elapses?", "shouldTrigger": true },
+    { "query": "my proxy buffers SSE so I'm thinking of long polling the query endpoint with a bash loop. any caveats?", "shouldTrigger": true },
+    { "query": "curl on my IAsyncEnumerable query says AsyncEnumerable queries require WebSocket connection", "shouldTrigger": true },
+    { "query": "what is the shape of the JSON QueryResult that comes back, and is page zero-based?", "shouldTrigger": true },
+    { "query": "mongo-backed query stuck at Loading in the UI and no first result over http. where should I look first?", "shouldTrigger": true },
+    { "query": "what are the /.cratis/queries/sse routes for and should I drive them by hand for debugging?", "shouldTrigger": true },
+    { "query": "Implement a new observable query returning ISubject of bookings for a boat.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Add server-side paging with pageSize and totalItems to the bookings query.", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "List Chronicle observers and replay one that is failing using the command line.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Use the React proxy to subscribe to the bookings query in a page.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "In Arc for TypeScript, how do I declare an observable query with a BehaviorSubject?", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Browse the event log and read-model instances in the Chronicle web workbench.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" },
+    { "query": "Inspect a Chronicle event store through the MCP tools to see recent events.", "shouldTrigger": false, "note": "cratis-chronicle-mcp-inspection" },
+    { "query": "Execute the ReserveBoat command with curl and read the CommandResult.", "shouldTrigger": false, "note": "cratis-arc-command" }
+  ]
+}

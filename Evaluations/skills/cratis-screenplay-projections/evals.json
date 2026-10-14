@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-projections",
+  "evals": [
+    {
+      "id": 1,
+      "name": "projection-level-key",
+      "prompt": "This Screenplay projection leaves `status` empty after InvoiceSent. InvoiceSent carries `invoiceId`, which differs from its event source id. Explain and fix it. Give the code in your reply; do not write files.\n\n```\nprojection InvoiceDetails => InvoiceDetailsReadModel\n  key invoiceId\n  from InvoiceRegistered key invoiceId\n    status = \"draft\"\n  from InvoiceSent\n    status = \"sent\"\n```",
+      "expected_output": "A projection-level `key` routes nothing (warning PLAY0381). A `from` without a key does not inherit another `from`'s key; it defaults to the event source id, so InvoiceSent updates a different instance. Remove the projection-level key and write `from InvoiceSent key invoiceId`.",
+      "assertions": [
+        "Says the projection-level `key` parses but routes no event and produces warning PLAY0381.",
+        "Says a `from` without a key does not inherit another `from`'s key and defaults to the event source id.",
+        "Fixes it by keying each `from` (`from InvoiceSent key invoiceId`) and removing the projection-level key.",
+        "Advises running the compiler with warnings as errors."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "every-versus-all",
+      "prompt": "In a Screenplay projection for an Invoice I want lastUpdatedAt to change on invoice events but not when a line-item child event arrives, and separately a counter of every event type per event source. Which blocks do I use and what are the pitfalls? Reply only; do not write files.",
+      "expected_output": "Use `every` with `exclude children` for lastUpdatedAt: `every` fires only for event types named in the level's `from` and `join` blocks. Use `all` for the per-source counters over every event type in the system. They are not synonyms. `all` inside `children` or `nested` behaves as `every` (PLAY0380), and `exclude children` is not accepted inside a children block.",
+      "assertions": [
+        "Uses `every` with `exclude children` for the lastUpdatedAt mapping.",
+        "States that `every` fires only for the event types its level names in `from` and `join` blocks.",
+        "Uses `all` for the system-wide counters and says `all` fires for every event type in the system.",
+        "Warns that confusing `all` and `every` is the classic mistake, and that `all` inside `children` or `nested` behaves as `every` (PLAY0380)."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "join-never-creates",
+      "prompt": "InvoiceDetails should show the customer name. CustomerRenamed carries customerId and name. A colleague wrote `join customer on customerId` with `with CustomerRenamed` and expects an InvoiceDetails row to appear for a customer with no invoice yet. Explain what happens and what shapes the instance. Reply only; do not write files.",
+      "expected_output": "A join never creates an instance (PLAY0063, PLAY0064). `join <label> on <property>` followed by `with <EventType>` only maps onto an instance that a `from` block created, so no row appears. An unmatched `with` event does nothing.",
+      "assertions": [
+        "States that a join never creates an instance.",
+        "Describes the shape `join <label> on <property>` followed by `with <EventType>` blocks.",
+        "Says instances come from `from` blocks, so a customer without an invoice produces no InvoiceDetails row.",
+        "Mentions that automap or `no automap` under a joined event follows the level the join sits in."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "reducer-vs-projection",
+      "prompt": "An Order read model needs a lifecycle state machine whose next state depends on the current state, so a teammate wants a reducer. Show the reducer shape in Screenplay and say what the reference runner and specifications can do with it. Give the code in your reply; do not write files.",
+      "expected_output": "Use `reducer OrderLifecycle => OrderState` with an `on` rule per event, each with a body (tagged fence or `file`). `context.State` is null for the first event, the key is always the event source id, and returning null deletes the instance. The body is opaque, so a specification reading a reducer-built read model reports unsupported and never passes in the reference runner. Prefer a projection where one will do.",
+      "assertions": [
+        "Writes `reducer <Name> => <ReadModel>` with `on <Event>` rules that each have a body in a tagged fence or a `file`.",
+        "Says `context.State` is null for the first event and that the key is always the event source id.",
+        "Says the reference runner cannot compute reducer state, so a specification reading it reports unsupported and never passes.",
+        "Says a reducer is code and a projection is preferred wherever one will do."
+      ]
+    }
+  ]
+}

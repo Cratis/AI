@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-screenplay-toolchain",
+  "queries": [
+    { "query": "which command do I run to validate my whole .play folder with warnings as errors?", "shouldTrigger": true },
+    { "query": "what does V3 mean and how do I know my model is binding-ready?", "shouldTrigger": true },
+    { "query": "screenplay says PLAY0029 and one of my slice blocks just vanished from the model", "shouldTrigger": true },
+    { "query": "cratis render answers CLI-RENDER-004. what does that mean?", "shouldTrigger": true },
+    { "query": "standalone screenplay or cratis screenplay validate: which compiler should I trust for reactions?", "shouldTrigger": true },
+    { "query": "my validate is clean but I never saw the specifications run. how do I run them?", "shouldTrigger": true },
+    { "query": "what format should I report verdicts V1 to V5 in?", "shouldTrigger": true },
+    { "query": "i upgraded cratis but it still behaves like the old one. how do I see which version runs?", "shouldTrigger": true },
+    { "query": "can I put a handler on a command? binding says PLAY0268", "shouldTrigger": true },
+    { "query": "how do I look up what a diagnostic code like PLAY0191 means in the contract json?", "shouldTrigger": true },
+    { "query": "What are the phases P0 to P9 and who owns identity during modeling?", "shouldTrigger": false, "note": "cratis-screenplay-modeling-lifecycle" },
+    { "query": "Walk me through the MCP propose-ast, review and apply editing loop.", "shouldTrigger": false, "note": "cratis-screenplay-model-authoring" },
+    { "query": "Publish the rendered output and map the generated spec classes after the render.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "How does the Stage sandbox work and what does it enforce?", "shouldTrigger": false, "note": "cratis-stage-rendering-and-sandbox" },
+    { "query": "Write the projection with keys and a join for InvoiceDetails.", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
+    { "query": "Which slices does the model need for the harbor process?", "shouldTrigger": false, "note": "cratis-screenplay-event-modeling" },
+    { "query": "Check my hand-written C# against the slice's fields and specifications.", "shouldTrigger": false, "note": "cratis-application-slice-conformance" },
+    { "query": "Write the C# specification for the booking command with Establish and Because.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "What are the exact validate, authorize and produces lines for a command in .play?", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" }
+  ]
+}

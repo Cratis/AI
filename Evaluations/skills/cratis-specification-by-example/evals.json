@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-specification-by-example",
+  "evals": [
+    {
+      "id": 1,
+      "name": "path-from-sentence",
+      "prompt": "A suite contains `when_appending_event_with_migrations/and_event_is_generation_1/with_a_registered_migration` and a file `with_a_registered_migration_when_appending_a_generation_1_event`. Explain what is wrong with each and give the corrected layout. Reply only; do not write files.",
+      "expected_output": "Two `when`s in one path is always wrong, and `when` appears only in a `when_<behavior>` folder name. A folder level holding a single file is also wrong. Fold the context into the `when_` folder and make the outcomes flat files using the prepositions `and_`, `with_`, `without_`, `having_`, `given_`; add a sub-folder only when a condition has several outcomes of its own.",
+      "assertions": [
+        "Says two `when`s in one path is always wrong and `when` belongs only in a `when_<behavior>` folder name.",
+        "Says a folder level that holds a single file is wrong.",
+        "Folds the context into the `when_` folder name and uses flat outcome files such as `and_event_is_generation_1`.",
+        "Names the five outcome prepositions: `and_`, `with_`, `without_`, `having_`, `given_`."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "focused-and-trivial",
+      "prompt": "A spec file `AuthorServiceTests` covers the whole class: property getters, a log call, three registration outcomes with different setups. How do you restructure it, and what do you drop? Reply only; do not write files.",
+      "expected_output": "One behavior, one specification: each distinct outcome is its own file, and a second setup means a second file. Specify decisions, transformations, branching rules and coordination; drop auto-property and getter specs (a `when_getting_` name is the tell), trivial delegation, logging and compiler-checked null checks. Prefer a self-contained spec over a shared helper.",
+      "assertions": [
+        "Splits the file so each distinct outcome is its own specification file and a second setup means a second file.",
+        "Drops the property getter specs and treats a `when_getting_` or `when_returning_` name as the tell.",
+        "Drops the logging spec.",
+        "Prefers repeating a few setup lines so a spec is self-contained over a shared helper the reader must open."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "givens-and-actions",
+      "prompt": "Our `given/a_reactor_handler` context contains the call that handles the event and a `should_` assertion, to avoid repeating them. Is that acceptable? How should contexts be layered? Reply only; do not write files.",
+      "expected_output": "No. The action under test never appears in a context (CRSPEC0007) and assertions never appear in a context (CRSPEC0003); a context that acts is a specification several files silently share. Layer contexts: `all_dependencies` substitutes collaborators, `a_<subject>` builds the subject on top, and the concrete specification adds only what is unique. Name contexts `a_` or `an_`.",
+      "assertions": [
+        "Rejects the action in a context and cites CRSPEC0007.",
+        "Rejects the assertion in a context and cites CRSPEC0003.",
+        "Layers contexts as `all_dependencies` then `a_<subject>` then the concrete specification adding only what is unique.",
+        "Says contexts are named with an `a_` or `an_` prefix."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "observable-outcomes",
+      "prompt": "A spec sleeps 500 ms before asserting, asserts the exact English error sentence, and reads DateTime.Now. How do you fix it? Also what do we say at the end about the edges we skipped? Reply only; do not write files.",
+      "expected_output": "Never wait on the clock: await a completion signal under a deadline. Assert on the identity of what failed (error code, constraint name, typed result) rather than presentation text unless exact wording is the specified behavior; a `.play` rejection pins its message deliberately. Inject ambient things such as the clock. A spec that cannot fail proves nothing. Finish by naming what was not covered.",
+      "assertions": [
+        "Replaces the sleep with awaiting a completion signal under a deadline, since a sleep turns a race into a coin flip.",
+        "Asserts the identity of what failed instead of the presentation sentence, unless the exact wording is the specified behavior.",
+        "Injects the clock rather than reading ambient time.",
+        "Says the report names the unspecified edges instead of claiming the behavior is proven."
+      ]
+    }
+  ]
+}

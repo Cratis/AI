@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-multi-tenancy",
+  "queries": [
+    { "query": "we serve one customer today but a second tenant is coming. what should we do in our Chronicle code now so it doesn't hurt later?", "shouldTrigger": true },
+    { "query": "how does Chronicle pick the namespace for a request? i have an x-cratis-tenant-id header from the proxy", "shouldTrigger": true },
+    { "query": "what does a Chronicle namespace actually isolate? sequence numbers, observers, read models?", "shouldTrigger": true },
+    { "query": "all tenants end up in the Default namespace in our multi-tenant deployment", "shouldTrigger": true },
+    { "query": "I registered two IEventStoreNamespaceResolver implementations hoping one is a fallback. only one runs", "shouldTrigger": true },
+    { "query": "should each event carry a TenantId property in a Chronicle app?", "shouldTrigger": true },
+    { "query": "singleton service holding the event store returns empty results for tenant B", "shouldTrigger": true },
+    { "query": "a nightly job needs to process data for every tenant. how does it select the namespace without a request?", "shouldTrigger": true },
+    { "query": "erasing a person's data across two tenants. is one call enough?", "shouldTrigger": true },
+    { "query": "Set up login and role-based access for our tenant admins.", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Kotlin Spring app: how do I resolve the tenant per request in Arc?", "shouldTrigger": false, "note": "cratis-arc-identity-and-tenancy-kotlin" },
+    { "query": "Our three services each have their own Chronicle event store and forward events. Design that.", "shouldTrigger": false, "note": "cratis-multi-service-architecture" },
+    { "query": "Configure the Chronicle server's MongoDB storage and certificates.", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
+    { "query": "Mark PII fields and execute erasure for a subject.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Connect a Node worker to Chronicle with credentials.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Tenant-aware Arc command that uses the identity's tenant claim.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Replay a failing reactor for a single partition via the CLI.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" }
+  ]
+}

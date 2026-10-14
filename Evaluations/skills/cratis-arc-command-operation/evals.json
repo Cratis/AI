@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-arc-command-operation",
+  "evals": [
+    {
+      "id": 1,
+      "name": "declare-operation-with-compensation",
+      "prompt": "In a C# Arc app, `BookSeat(ReservationId ReservationId, SeatId SeatId)` currently injects `ISeatReservations` and calls `Reserve(...)` inside Handle, then returns the ReservationId. The reservation should be undone if the command fails later. Rewrite it so Handle only declares the work. `ISeatReservations` has `Task Reserve(ReservationId, SeatId, CancellationToken)` and `Task Cancel(ReservationId, CancellationToken)`. Give the code in your reply; do not write files.",
+      "expected_output": "An immutable record implementing ICommandOperation with Execute and Compensate taking services and a CancellationToken as method parameters, and a Handle returning a tuple of the response and the operation, with no direct service call left in Handle.",
+      "assertions": [
+        "Declares an immutable record implementing ICommandOperation with business data as properties.",
+        "Injects ISeatReservations as a method parameter of Execute and Compensate rather than capturing it in the record.",
+        "Execute and Compensate return Task (or void/ValueTask), not a value.",
+        "Handle returns a tuple containing the ReservationId response and the operation, and no longer calls the service directly."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "batch-shape",
+      "prompt": "A developer's `Handle()` returns `IEnumerable<object>` containing a `SeatReserved` event and two `ReserveSeat` operations; the events append but the external reservations never happen and no error is raised. Also they considered returning `IEnumerable<ICommandOperation>` for the two operations. Explain what is wrong and show the correct return signature. Reply only.",
+      "expected_output": "Operations inside IEnumerable<object> are silently treated as response data; a raw IEnumerable<ICommandOperation> is rejected (ARC0017). Use CommandOperations, and a tuple such as (IEnumerable<object> Events, CommandOperations Operations) for events plus operations.",
+      "assertions": [
+        "Explains that operations inside IEnumerable<object> or object[] are silently not executed and treated as ordinary response data.",
+        "States that a raw IEnumerable<ICommandOperation> is not a valid batch and is diagnosed as ARC0017.",
+        "Recommends returning CommandOperations for an ordered batch.",
+        "Shows a tuple like (IEnumerable<object> Events, CommandOperations Operations) for returning events together with operations."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "failure-compensation-order",
+      "prompt": "A command returns operations A, B, C, D in that order. C throws inside Execute. Which operations are compensated and in what order, and how does the commit state affect it? The caller sees `IsSuccess == false` and wants to retry blindly. Reply only.",
+      "expected_output": "Compensation runs C, B, A (never D) when the commit disposition is NoCommit/NotCommitted; Committed suppresses reversal; Unknown/Mixed is indeterminate. A failed result is not proof nothing committed, so no blind retry.",
+      "assertions": [
+        "States compensation runs in reverse order C, B, A and never D because D never started.",
+        "Explains that the throwing operation C is included because a lost acknowledgment may hide a successful external write.",
+        "Explains that Committed suppresses reversal and Unknown or Mixed is reported as indeterminate without guessing or reversing.",
+        "States that a failed result is not proof that nothing committed, so blind retry is unsafe."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "durable-delivery-boundary",
+      "prompt": "We want BookSeat to charge the customer's card and send a confirmation email, and both must still happen if the process crashes right after the events commit. Should these be ICommandOperations? Reply only.",
+      "expected_output": "No. Operations are immediate, inline, best-effort and in-process with no durable journal; reliable after-commit work belongs to a reactor, outbox or durable workflow.",
+      "assertions": [
+        "Says inline operations are not the right tool for delivery that must survive a crash.",
+        "Recommends a reactor, outbox or durable workflow for reliable work after commit.",
+        "States that recovery is best-effort and in-process with no durable journal and no automatic retries."
+      ]
+    }
+  ]
+}

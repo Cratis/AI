@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-arc-query-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "declare-read-model-queries",
+      "prompt": "In an Arc for TypeScript server, write a `TaskItem` read model (fields id: TaskId, title: TaskTitle) with two queries served from an injected `Tasks` service: `allTasks` returning all items, and `taskById(id)` where the task might not exist. Use explicit descriptors, not generated metadata. Give the code in your reply; do not write files.",
+      "expected_output": "An exported @readModel() class with @field members and static @query(...) methods whose descriptors match the parameter order, with taskById declared to return TaskItem | undefined.",
+      "assertions": [
+        "Decorates the exported class with @readModel() and each query as a static method with @query(...).",
+        "Uses argument('id', TaskId) and service(Tasks) descriptors in signature order.",
+        "Declares taskById's return type as TaskItem | undefined rather than catching and returning something else.",
+        "Keeps @field declarations from @cratis/fundamentals on the wire properties."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "absence-and-failure",
+      "prompt": "A TypeScript Arc query method wraps its database call in try/catch and returns `[]` on any error, and returns `null` when a task is missing. What status and body does the caller see for the missing task, and what is wrong with the catch? Reply only.",
+      "expected_output": "Absence is HTTP 200 success with no data property. Storage failures should throw so the caller gets a failed 500 result and can distinguish none from down.",
+      "assertions": [
+        "States that undefined or null yields HTTP 200 with isSuccess true and no data property.",
+        "States that absence is an answer, not an error.",
+        "Says storage failures should be allowed to throw, producing a failed result with status 500.",
+        "Explains that returning [] on error prevents the caller from telling none from down."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "observable-snapshot",
+      "prompt": "An Arc for TypeScript query returns an RxJS `Subject<TaskItem[]>`, and a snapshot GET answers 202 forever, and generated metadata is not installed. How should it be declared, what would answer 200 immediately, and what is the way to wait for a first value? Reply only.",
+      "expected_output": "Declare with @query({ observable: true }, ...) when no metadata; a BehaviorSubject answers 200 with the current value; Subject/Observable give 202 until first emission, and waitForFirstResult=true waits.",
+      "assertions": [
+        "Says that without generated metadata the query must be declared observable explicitly with @query({ observable: true }, ...).",
+        "Says a BehaviorSubject answers 200 immediately with the current value, while a Subject or Observable gives 202 with isReady false until the first emission.",
+        "Mentions ?waitForFirstResult=true (optionally with waitForFirstResultTimeout) to wait for the first emission."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "paging-in-source",
+      "prompt": "A TypeScript Arc query reads from a large table and should page in the database. Explain how to do it with queryOptions() and queryPage, what happens when the client also asks for sorting, and whether an observable query can do this. Reply only.",
+      "expected_output": "Add queryOptions() and return queryPage(items, totalItems) where items is exactly the requested page; pass the applied sort as third argument when sorting was requested or it answers 400; observable queries cannot return queryPage.",
+      "assertions": [
+        "Adds queryOptions() to bind paging and sorting and returns queryPage(items, totalItems).",
+        "States that items must be exactly the requested page.",
+        "States that when sorting was requested the applied sort must be passed as the third argument or the request answers 400.",
+        "States that an observable query cannot return queryPage."
+      ]
+    }
+  ]
+}

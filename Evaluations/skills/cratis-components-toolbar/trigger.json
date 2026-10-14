@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-components-toolbar",
+  "queries": [
+    { "query": "we're building a diagram editor and need the floating pill of icon buttons on the left, select/draw/rectangle, with the active one highlighted", "shouldTrigger": true },
+    { "query": "ToolbarButton tooltip prop doesn't exist? I pass tooltip='Draw' and the hover text is empty", "shouldTrigger": true },
+    { "query": "horizontal zoom control strip with minus, 100% and plus, tooltips are covering the bar", "shouldTrigger": true },
+    { "query": "buttons in the bar should change when the user switches from drawing mode to text mode, with a smooth morph", "shouldTrigger": true },
+    { "query": "a shapes button that slides out a sub-strip of rectangle and circle buttons toward the left", "shouldTrigger": true },
+    { "query": "I want a drawer of draggable shape tiles with headings that opens from a toolbar folder and closes after insert", "shouldTrigger": true },
+    { "query": "a property panel far away in the tree needs to add its buttons into the toolbar without prop drilling", "shouldTrigger": true },
+    { "query": "can I write <Toolbar.Group> like a compound component?", "shouldTrigger": true },
+    { "query": "toolbar keyboard: I want the WAI-ARIA toolbar pattern with a single tab stop", "shouldTrigger": true },
+    { "query": "my toolbar icon is a font awesome class string and nothing renders", "shouldTrigger": true },
+    { "query": "Add a Create and Delete action menu above the invoices data table page.", "shouldTrigger": false, "note": "cratis-arc-react-page (DataPage.MenuItems)" },
+    { "query": "Which tabs or toggle control for a view-mode switch in the details panel?", "shouldTrigger": false, "note": "cratis-components-common-controls" },
+    { "query": "Pan and zoom canvas board with a minimap and CanvasItem cards.", "shouldTrigger": false, "note": "cratis-components-data-surfaces" },
+    { "query": "General aria-label and localization rules for dialogs and form controls.", "shouldTrigger": false, "note": "cratis-components-accessibility" },
+    { "query": "Restyle the toolbar pill with --cratis tokens and a dark theme.", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Multi-step dialog wizard for a command.", "shouldTrigger": false, "note": "cratis-components-stepper-command-dialog" },
+    { "query": "Put a top navigation bar with menu links and breadcrumbs on my app shell.", "shouldTrigger": false, "note": "cratis-components-common-controls" },
+    { "query": "Write a Playwright test that clicks every toolbar tool.", "shouldTrigger": false, "note": "cratis-application-react-specifications" }
+  ]
+}

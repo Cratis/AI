@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-screenplay-projections",
+  "queries": [
+    { "query": "my screenplay projection never populates the read model for the second event, the status stays empty", "shouldTrigger": true },
+    { "query": "how do I count events per event type for each event source in a .play projection?", "shouldTrigger": true },
+    { "query": "join the customer name into the invoice read model in PDL, but no instance ever gets created from the join", "shouldTrigger": true },
+    { "query": "can I put `key invoiceId` at the top of the projection like in other languages?", "shouldTrigger": true },
+    { "query": "how do I write a children collection for line items with a parent in a screenplay projection?", "shouldTrigger": true },
+    { "query": "when should I use a reducer in a .play model instead of a projection?", "shouldTrigger": true },
+    { "query": "what is the difference between every and all in the projection declaration language?", "shouldTrigger": true },
+    { "query": "remove the read model instance when InvoiceCancelled arrives, in PDL", "shouldTrigger": true },
+    { "query": "automap copies a field I did not want in my projection. how do I turn it off for the join?", "shouldTrigger": true },
+    { "query": "two projections both build the same read model and the compiler says PLAY0191", "shouldTrigger": true },
+    { "query": "Write a C# class implementing IProjectionFor for my Chronicle read model.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Write a C# IReducerFor that keeps a running balance.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
+    { "query": "Add a query with a status filter and a tenant `from` parameter to the model.", "shouldTrigger": false, "note": "cratis-screenplay-read-surface" },
+    { "query": "Write the given/when/then specification that asserts the read model after InvoiceSent.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Take rows from an external CRM and turn them into events with a capture.", "shouldTrigger": false, "note": "cratis-screenplay-captures-and-reactions" },
+    { "query": "Which read models does the overview screen need, and what slice should own them?", "shouldTrigger": false, "note": "cratis-screenplay-slice-design" },
+    { "query": "Write C# specs that verify my projection result for a Chronicle read model.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "Bind table columns and a summary on the screen to the read model.", "shouldTrigger": false, "note": "cratis-screenplay-read-surface" },
+    { "query": "Which stream identity should the invoice events use?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" }
+  ]
+}

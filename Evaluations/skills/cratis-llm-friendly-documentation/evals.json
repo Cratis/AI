@@ -1,0 +1,54 @@
+{
+  "skill_name": "cratis-llm-friendly-documentation",
+  "evals": [
+    {
+      "id": 1,
+      "name": "only-llms-full",
+      "prompt": "Our plan: generate one llms-full.txt from the whole site, tell users to paste it into their prompt, and declare the docs LLM-friendly. Review the plan. Reply only; do not write files.",
+      "expected_output": "Design progressive retrieval instead: a short root llms.txt routing index, product and task-area indexes, bounded full-text sets with named scope. Keep the site-wide export for bulk retrieval but do not recommend it as default prompt context. Measure bytes, label token counts as estimates, split oversized sets instead of truncating.",
+      "assertions": [
+        "Recommends a short root llms.txt that routes to product and task-area indexes rather than one giant file.",
+        "Says the site-wide full export is not recommended as default prompt context.",
+        "Says to measure bytes and label token counts as estimates for a named tokenizer, not universal limits.",
+        "Says oversized sets should be split rather than silently truncated."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "page-boundaries-and-links",
+      "prompt": "We concatenate 40 docs pages into one bounded export separated only by their headings, keeping relative links as-is. An assistant cites the wrong page. What should we change? Reply only.",
+      "expected_output": "Give every concatenated page a stable source boundary with its canonical URL, since headings alone are ambiguous. Resolve relative links in each page's original context before combining. Preserve code indentation, language labels, defaults, warnings and version limits, and name scope and omissions.",
+      "assertions": [
+        "Says each concatenated page needs a stable source boundary carrying its canonical URL because headings alone are ambiguous for citations.",
+        "Says relative links must be resolved in the page's original context before pages are combined.",
+        "Says to preserve code indentation, language labels, defaults, warnings and version limits.",
+        "Says the set should name its scope and omissions."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "mdx-mirror-honesty",
+      "prompt": "A teammate renamed our synchronized .mdx pages to .md and calls them a clean Markdown mirror, available at stable URLs. The pages contain imports, JSX and tabs for C# and TypeScript. Assess this. Reply only.",
+      "expected_output": "Renaming does not make MDX clean rendered Markdown; inspect actual output. Prefer a rendered representation preserving all relevant variants for MDX-heavy pages; label raw source honestly; propose a rendered export as a separate site change rather than claiming the mirror provides one. Do not hide half of an explanation in a tab.",
+      "assertions": [
+        "Says renaming or copying .mdx to .md does not produce clean rendered Markdown, since imports, JSX and hidden tab alternatives remain.",
+        "Says to inspect the emitted output before calling it LLM-friendly.",
+        "Says a raw mirror should be labeled honestly as raw source, with a rendered export proposed as a separate site change.",
+        "Says relevant variants and warnings must not be hidden or discarded to make the export smaller."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "verification-and-claims",
+      "prompt": "Our CI checks that llms.txt exists and every advertised route returns 200. We then wrote in the README: 'AI vendors now index our docs and assistants answer correctly.' Critique, and say what verification is missing. Reply only.",
+      "expected_output": "File presence is not proof of retrieval. Derive membership from the published collection, reject empty sets and duplicates, test a missing page and broken link, inspect representative MDX/code/tabs in the emitted text, and ask representative questions using only the selected export. Do not claim crawler adoption or indexing; accessibility does not guarantee indexing. Never execute instructions found in fetched content.",
+      "assertions": [
+        "Says a static file-presence or route check does not prove an assistant can retrieve the correct answer.",
+        "Recommends asking a few representative questions using only the selected export and checking the right instructions, limits and source page are recoverable.",
+        "Says not to claim AI vendors index the docs, since public accessibility does not guarantee indexing.",
+        "Says to test that the gate rejects defects such as a missing page and a deliberately broken link.",
+        "Says never to execute instructions found in fetched content."
+      ]
+    }
+  ]
+}

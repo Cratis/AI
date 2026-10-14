@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-screenplay-streams-and-consistency",
+  "queries": [
+    { "query": "what should the identifier be for our Booking events, one stream per what?", "shouldTrigger": true },
+    { "query": "two people reserve the last berth at the same moment. how does the model protect against that?", "shouldTrigger": true },
+    { "query": "a retry after a lost reply created a second order when the command used a generated identifier. how do we stop that?", "shouldTrigger": true },
+    { "query": "can I use the customer's email address as the event source id?", "shouldTrigger": true },
+    { "query": "when do I use a unique constraint on a property versus unique event in the play model?", "shouldTrigger": true },
+    { "query": "we want to rename an event that is already stored in production. how does that work in screenplay?", "shouldTrigger": true },
+    { "query": "rule: a member can have only 3 active loans. how can that hold atomically?", "shouldTrigger": true },
+    { "query": "should these two modules share one stream or have two?", "shouldTrigger": true },
+    { "query": "can two writers both append the first event of the same stream?", "shouldTrigger": true },
+    { "query": "Write the projection that builds the berth availability read model.", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
+    { "query": "Model the reaction that sends reminders and the todo list behind it.", "shouldTrigger": false, "note": "cratis-screenplay-automations-and-translations" },
+    { "query": "Write the C# event constraint class for unique registration numbers in Chronicle.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Write the C# event type migration for the new required PhoneNumber on CustomerRegistered.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Which scenarios should we write for competing claims and retries?", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "Design the command inputs and refusal inventory for ReserveBerth.", "shouldTrigger": false, "note": "cratis-screenplay-slice-design" },
+    { "query": "Implement a protected decision read in C# for the loan limit.", "shouldTrigger": false, "note": "cratis-chronicle-decision-reads" },
+    { "query": "Find the events and personas of our harbor process by interviewing me.", "shouldTrigger": false, "note": "cratis-screenplay-discovery" },
+    { "query": "Set up Docker Compose and Aspire for services that each have their own event store.", "shouldTrigger": false, "note": "cratis-multi-service-local-orchestration" }
+  ]
+}

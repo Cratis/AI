@@ -1,0 +1,54 @@
+{
+  "skill_name": "cratis-specifications-csharp",
+  "evals": [
+    {
+      "id": 1,
+      "name": "spec-skeleton",
+      "prompt": "Write the C# specification structure for `AuthorService.Register(name)` which calls an `IAuthors` collaborator and returns the new author. Show a layered `given/` context and one concrete specification. Give the code in your reply; do not write files.",
+      "expected_output": "`for_AuthorService/given/all_dependencies.cs` with a protected `_authors` substitute set in `void Establish()`, `a_author_service : all_dependencies` building the SUT, and `when_registering` : a_author_service with one `void Because()` and `[Fact] void should_*()` expression-bodied facts. No base calls; `Because` only in the concrete spec; fields private in a concrete spec and protected in a context.",
+      "assertions": [
+        "Uses the `for_AuthorService/given/` folder with `all_dependencies` substituting the collaborator and `a_author_service` inheriting it.",
+        "Uses `void Establish()` and does not call `base.Establish()`.",
+        "Puts the single action in `void Because()` in the concrete specification only, never in the context.",
+        "Writes `[Fact] void should_...()` expression-bodied facts with one assertion each, using `ShouldXxx` assertions.",
+        "Makes fields `protected` in a `given/` context and `private` in the concrete specification, named `_camelCase`."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "choose-the-surface",
+      "prompt": "Pick the specification surface for: (1) a pure `Handle()` computing a price; (2) a command whose CommandValidator and `Provide()` must run and whose appended events matter; (3) a proof that two concurrent appends conflict. Reply only; do not write files.",
+      "expected_output": "(1) Plain method call with `Specification`. (2) `CommandScenario<TCommand>`. (3) Specify concurrency against the real kernel with an out-of-process integration specification, because `EventScenario` answers `ConcurrencyScope.None` so a violation is never produced and its negation passes vacuously.",
+      "assertions": [
+        "Chooses a plain method call with `Specification` for the pure `Handle()`.",
+        "Chooses `CommandScenario<TCommand>` for validators, `Provide()` and appended events.",
+        "Chooses an out-of-process integration specification against the real kernel for concurrency.",
+        "Explains that `EventScenario` wires a strategy that always answers `ConcurrencyScope.None`, so `ShouldHaveConcurrencyViolations()` cannot pass and its negation passes vacuously."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-sleeping",
+      "prompt": "Our spec does `await Task.Delay(2000)` after appending so observers catch up before asserting. What do we use instead, and which delays remain acceptable? Reply only; do not write files.",
+      "expected_output": "Await a signal: `appendResult.WaitForCompletion()` for observers, `eventStore.WaitForRegistration()` for artifacts, `WaitTillActive`/`WaitTillSubscribed`/`WaitTillReachesEventSequenceNumber`/`WaitForState` for observer state, otherwise a `SemaphoreSlim` or `TaskCompletionSource` under a timeout. A deadline is not a sleep. Allowed, with a comment naming which: a deliberately slow test double, an infrastructure readiness backoff, and `Task.Delay(1)`/`Task.Yield()` widening an interleaving window.",
+      "assertions": [
+        "Replaces the delay with a completion signal such as `appendResult.WaitForCompletion()`.",
+        "Names other waits: `eventStore.WaitForRegistration()`, observer `WaitTill...`/`WaitForState`, or a `SemaphoreSlim`/`TaskCompletionSource` awaited under a timeout.",
+        "Says a poll loop that sleeps between re-checks is still a sleep, while a deadline (timeout) is fine.",
+        "Lists the allowed delays: a deliberately slow test double, an infrastructure readiness backoff, and a `Task.Delay(1)` or `Task.Yield()` widening an interleaving window, each with a comment."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "pin-generated-values",
+      "prompt": "A `CommandScenario<RegisterOrder>` spec for a command whose Handle uses a server-generated OrderId gets a result with `GeneratedValueNotPinned`. What is happening, how do we fix it, and can a plain-call spec prove the generation? Reply only; do not write files.",
+      "expected_output": "The scenario defaults to strict generation, and `Execute` returns a command result carrying `GeneratedValueNotPinned` rather than throwing. Import `Cratis.Arc.Testing.Commands` and configure `PinGeneratedValue(name, concept)` before the first execution, then assert the response and events and `GeneratedValues.Last<T>(name)`. Use `AllowGeneration()` only when the exact value is irrelevant. A plain-call decision spec cannot prove pipeline generation or validation. Requires Arc 22.67.0.",
+      "assertions": [
+        "Says strict generation is the default and the missing pin is returned in the command result, not thrown.",
+        "Pins with `PinGeneratedValue(name, concept)` before the first execution and reads `GeneratedValues.Last<T>(name)` or `All<T>(name)`.",
+        "Says `AllowGeneration()` is only for when the exact value is irrelevant, and late changes throw `GeneratedValuesMustBePinnedBeforeExecution`.",
+        "Says a plain-call spec cannot prove pipeline generation or validation and the feature requires Arc 22.67.0."
+      ]
+    }
+  ]
+}

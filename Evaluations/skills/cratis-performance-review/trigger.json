@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-performance-review",
+  "queries": [
+    { "query": "can you check this PR for performance or scalability problems? it touches a projection and a list query", "shouldTrigger": true },
+    { "query": "will this new projection survive a full replay at production volume? we only tested with 100 seeded events", "shouldTrigger": true },
+    { "query": "my reactor loads the event log again inside the handler to get the boat details. slow?", "shouldTrigger": true },
+    { "query": "the bookings query does ToList() then Where() and returns List<Booking>. fine for a table that will grow to millions?", "shouldTrigger": true },
+    { "query": "someone embedded the base64 PDF in the InvoiceIssued event. how bad is that for scale", "shouldTrigger": true },
+    { "query": "scalability review of this change please: DataTable renders every row, inline object props, useEffect deps", "shouldTrigger": true },
+    { "query": "we count rows by loading the whole collection and checking .Count, review that", "shouldTrigger": true },
+    { "query": "projection joins on another read model, is that a perf issue?", "shouldTrigger": true },
+    { "query": "classify the perf findings by risk and say at what scale each bites", "shouldTrigger": true },
+    { "query": "validator calls the database to check a name is unused. any cost issue on the hot path?", "shouldTrigger": true },
+    { "query": "Add server-side paging to the existing BoatsOverview query.", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "General review of my change for architecture, naming and spec coverage.", "shouldTrigger": false, "note": "cratis-code-review" },
+    { "query": "Review this change for secrets in events, missing authorization and XSS.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Add a counter and histogram for request duration to the service.", "shouldTrigger": false, "note": "cratis-fundamentals-telemetry" },
+    { "query": "Write a projection that counts bookings per boat.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Tune the Orleans job checkpoint intervals and MaxParallelSteps.", "shouldTrigger": false, "note": "cratis-orleans-jobs" },
+    { "query": "Replay stuck, show observer lag on the running server.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Implement a virtualized table component from scratch for large data.", "shouldTrigger": false, "note": "cratis-components-data-surfaces" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-screenplay-render-and-gap-fill",
+  "queries": [
+    { "query": "does our accepted model render with cratis render? probe it before we commit to the plan", "shouldTrigger": true },
+    { "query": "cratis render exits 5 and published nothing. what are our options now?", "shouldTrigger": true },
+    { "query": "how do I report admission, publication, build and tests after a render as separate results?", "shouldTrigger": true },
+    { "query": "i changed the model after the last render. how do I check drift on the generated output?", "shouldTrigger": true },
+    { "query": "can I put the missing automation logic into Customizations so the render goes through?", "shouldTrigger": true },
+    { "query": "stage refuses my reaction that both produces an event and invokes a command. how do we deliver it?", "shouldTrigger": true },
+    { "query": "the model has an evolved event and the render fails with STAGE-ESM-026. what do we do?", "shouldTrigger": true },
+    { "query": "hand the non-renderable slice to slice-implementer with the model as the contract", "shouldTrigger": true },
+    { "query": "which generated spec classes map to which of my play specifications after a render?", "shouldTrigger": true },
+    { "query": "Change the command in the model so it stops being refused by the renderer, and redesign the slice inputs.", "shouldTrigger": false, "note": "cratis-screenplay-slice-design" },
+    { "query": "How does Stage's Roslyn allowlist for reducer bodies work inside the sandbox?", "shouldTrigger": false, "note": "cratis-stage-rendering-and-sandbox" },
+    { "query": "Check that my hand-written C# for this slice matches the model's fields and specifications.", "shouldTrigger": false, "note": "cratis-application-slice-conformance" },
+    { "query": "Which compiler release admits ESM v10 and how do I read the verdicts?", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" },
+    { "query": "Write the C# migration for an evolved event type in Chronicle.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Rename an event across the model with the MCP propose-rename operation.", "shouldTrigger": false, "note": "cratis-screenplay-model-authoring" },
+    { "query": "How long will it take to deliver these 20 slices with our team?", "shouldTrigger": false, "note": "cratis-screenplay-delivery-planning" },
+    { "query": "Write the given/when/then specifications for the berth reservation slice.", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "Review this pull request's C# for correctness and style.", "shouldTrigger": false, "note": "cratis-code-review" }
+  ]
+}

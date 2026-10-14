@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-chronicle-event-modeling",
+  "evals": [
+    {
+      "id": 1,
+      "name": "classify-behaviors",
+      "prompt": "The repository has no .play files and has not opted in to Screenplay modeling. A boat rental flow: (a) a customer requests a booking; (b) a list of active bookings per boat is shown; (c) when BookingConfirmed is appended, a confirmation email is sent; (d) a payment provider webhook tells us a payment cleared and we record it. Classify each behavior and say what each is built from. Reply only.",
+      "expected_output": "(a) state change: command, validation, events; (b) state view: read model plus projection or reducer; (c) automation: reacts to our own event, built with a reactor; (d) translation: outside data recorded as our own fact via an adapter at the boundary.",
+      "assertions": [
+        "Classifies the booking request as a state change built from a command, validation and events.",
+        "Classifies the active bookings list as a state view built from a read model plus a projection or reducer.",
+        "Classifies the confirmation email as an automation because it reacts to one of our own events, built with a reactor.",
+        "Classifies the payment webhook as a translation because it brings outside data in and records it as our own fact at the boundary."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "event-shape-rules",
+      "prompt": "A draft model has events `Created`, `TotalPriceCalculated(total)`, `BookingChanged(startDate, endDate?, note?)` and `ButtonClicked`. Review them against Chronicle event modeling guidance. Reply only.",
+      "expected_output": "Names must be self-describing past-tense <Entity><PastTenseVerb>; derived totals should be projected not appended; optional facts become separate events because event properties are non-nullable (CHR0012); UI events are not domain events.",
+      "assertions": [
+        "Says events must be self-describing past-tense facts like <Entity><PastTenseVerb> and a bare Created is not acceptable.",
+        "Says derived or aggregate state such as a total should be projected from source events rather than appended.",
+        "Says event properties should be non-nullable (analyzer CHR0012) and an optional fact is modeled as a separate event.",
+        "Says a UI event like ButtonClicked is not a domain event and should not be modeled."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "stream-boundary-and-traceability",
+      "prompt": "A read model property `OwnerName` has no event carrying it, and a teammate wants to fill it by reading another slice's read model inside the projection. Also an event carries its own event-source id as a payload property. What do you say about both? Reply only.",
+      "expected_output": "A field with no source event signals a missing event or command or a wrong stream boundary, not a nullable column; the event-source id lives in the event context and deciding it is deciding the stream boundary, so it must not be a payload property.",
+      "assertions": [
+        "States that a read model field with no source event is a missing event or command (or wrong stream boundary), to be resolved in the model rather than made a nullable column.",
+        "States that events never carry their own event-source id as a payload property because it lives in the event context.",
+        "States that deciding the event-source id is deciding the stream boundary."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "compliance-modeling",
+      "prompt": "While modeling a membership registration flow with names, emails and a natural identifier (national id) the team wants to use the national id as the event source id. How should the compliance side of the model be decided and what happens to that plan? Reply only.",
+      "expected_output": "Decide subject before shapes, prefer one subject per stream so the subject defaults to the event-source id; never put [PII] on an event-source id (CHR0034/CHR0052), so use a surrogate stream id and carry the national id as a [PII] property.",
+      "assertions": [
+        "Says the subject should be decided before choosing event and read-model shapes, preferring one subject per event stream.",
+        "Says [PII] or [Encrypted] on an event-source id is rejected (CHR0034 and CHR0052), so a sensitive natural identifier cannot be the stream id.",
+        "Recommends a surrogate stream id with the national id carried as a [PII] property.",
+        "Says [ComplianceDetails] records the rationale and a string argument to [PII] is not read."
+      ]
+    }
+  ]
+}

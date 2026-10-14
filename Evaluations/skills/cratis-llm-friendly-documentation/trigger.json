@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-llm-friendly-documentation",
+  "queries": [
+    { "query": "we want an llms.txt for our docs site. what should the root file contain?", "shouldTrigger": true },
+    { "query": "is it enough to publish llms-full.txt with everything in it so chatgpt and claude can answer questions about our product?", "shouldTrigger": true },
+    { "query": "how do we make our docs pages available as markdown for coding agents when the source is mdx with tabs and jsx", "shouldTrigger": true },
+    { "query": "our concatenated export has headings only between pages. how should each page boundary look so an assistant can cite it?", "shouldTrigger": true },
+    { "query": "how do I test that an assistant can actually find the right page from our export, not just that the file exists?", "shouldTrigger": true },
+    { "query": "the full docs export is 3 MB. should we tell people to paste it into their prompt?", "shouldTrigger": true },
+    { "query": "our docs show every client language in tabs. does that hurt retrieval for a one-language question?", "shouldTrigger": true },
+    { "query": "can we promise that adding llms.txt will get us indexed by the AI vendors?", "shouldTrigger": true },
+    { "query": "design per-product context sets for Prompter and the MCP server so they retrieve small complete pages", "shouldTrigger": true },
+    { "query": "my build check only verifies that the llms files exist and the routes return 200. is that enough?", "shouldTrigger": true },
+    { "query": "Should this page be a how-to or a tutorial, and how should its first paragraph read?", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Draft the reference page for the CLI with every flag and a table.", "shouldTrigger": false, "note": "cratis-engineering-docs-authoring" },
+    { "query": "Is this code sample safe to publish or should it be extracted from a compiling project?", "shouldTrigger": false, "note": "cratis-technical-examples" },
+    { "query": "How should the Chronicle MCP server inspect event types in a running instance?", "shouldTrigger": false, "note": "cratis-chronicle-mcp-inspection" },
+    { "query": "How long should the getting-started article be, and where do we split it?", "shouldTrigger": false, "note": "cratis-content-length" },
+    { "query": "Write a prompt for an assistant so it follows the instructions in the Cratis docs.", "shouldTrigger": false, "note": "public exports are not system instructions; not this skill" },
+    { "query": "Write release notes for the new docs export feature.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Make this announcement sound less like a model wrote it.", "shouldTrigger": false, "note": "cratis-writing-voice-and-cadence" }
+  ]
+}

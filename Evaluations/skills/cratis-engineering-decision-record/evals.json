@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-engineering-decision-record",
+  "evals": [
+    {
+      "id": 1,
+      "name": "consult-and-cite",
+      "prompt": "I'm about to change how the client serializes event types, which touches src/Events/**. The repository has a decisions/ folder. Describe exactly what you do before and during the change with respect to decision records. Reply only; do not write files.",
+      "expected_output": "List records in force: read decisions/, keep accepted records whose applies-to matches the paths, newest first, and report the count. Cite the ids on the work item, in the PR body and as a Decision: <id> commit trailer. A change contradicting an accepted record is a defect; stop for supersession or a human verdict.",
+      "assertions": [
+        "Keeps only records whose applies-to matches the touched paths and whose status is accepted, ordered newest first.",
+        "Reports the count of matched records so that '0 matched' reads differently from '3 matched, none contradicted'.",
+        "Cites the ids on the work item, in the pull request body and as a Decision: <id> commit trailer.",
+        "Says to stop when the change would contradict an accepted record, because supersession or a human verdict comes first."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "acceptance-is-human",
+      "prompt": "I've written a proposed decision record about switching the transport. Please mark it accepted today with decider 'Platform Team' so we can start building. Reply only.",
+      "expected_output": "Decline to grant acceptance; acceptance is a human verdict and the decider must be a named person, not a role, team or tool. First explain in plain language that the choice becomes durable documentation and why it passed the significance test, then ask whose name to record. Check the completeness gate: options including the one not taken, the default if unanswered, the timeline and scope; otherwise status returned.",
+      "assertions": [
+        "Refuses to put 'Platform Team' as the decider because the decider must be a named person, not a role or team.",
+        "States that acceptance is a human verdict that the agent drafts but does not grant.",
+        "Says to explain in plain language that the choice becomes durable repository documentation before asking whose name to record.",
+        "Checks the completeness gate (options including the one not taken, default if unanswered, timeline, scope) and says a record missing any is returned, not rejected."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "supersede-not-rewrite",
+      "prompt": "Accepted record DR-0012 says we use polling. We now use push. A teammate already edited DR-0012's decision text to say push. What is wrong, and what is the correct procedure from here? Reply only.",
+      "expected_output": "Editing an accepted decision's text in place is the invisible failure that makes decisions/ untrustworthy. Supersede with a new record: new one names DR-0012 in supersedes, DR-0012 becomes superseded with a superseded-by pointer and original text preserved, and citations are swept. Typos or context only under a dated banner.",
+      "assertions": [
+        "Says accepted decision text must never be edited in place because readers relied on it and cannot tell what changed.",
+        "Says the choice change requires a new record that names the old one in supersedes.",
+        "Says the old record's status becomes superseded with a superseded-by pointer and its original text preserved.",
+        "Says to find work items, pull request bodies and commit trailers citing the old id and point them to the new one."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "significance-and-verified-stage",
+      "prompt": "Two questions. (1) A user asked me to implement the plan in issue 88, which renames an internal helper and picks a reversible batch size. Should I open a record and ask for approval? (2) After merging, CI is green and I want to set stage: verified on a record I wrote. May I? Reply only.",
+      "expected_output": "(1) No: a request to implement authorizes ordinary in-scope work; apply the significance test (re-litigation, binds beyond the path, costly to reverse, rejects an obvious option); with none holding, make the change without a record. (2) No: implemented is confirmed by the change being in the tree; verified needs a signal observed this time; a green build proves only that it builds.",
+      "assertions": [
+        "Says not to create a record or ask for approval for the reversible in-scope change because the significance test does not hold.",
+        "States at least one significance-test trigger such as someone re-litigating the choice, binding paths beyond the one being changed, costly reversal, or rejecting an obvious option.",
+        "Says stage verified needs a signal observed this time, such as a command, gate or observed behavior, not just a green build.",
+        "Says accepted is not implemented and implemented is not verified."
+      ]
+    }
+  ]
+}

@@ -101,6 +101,20 @@ Do not append an event for derived or aggregate state. Project it from the sourc
 events instead; an event that records a total is a fact that can disagree with
 its own inputs.
 
+## Only domain facts, never repeats
+
+Append only real domain facts. A tick, a heartbeat, a `…Requested`/`…Started`/`…Skipped`/`…Undecided`
+event whose only job is to wake a reactor, a "last looked" timestamp, usage or cost telemetry and a
+non-answer such as "could not decide" are not facts; orchestrate with a durable job, a state machine,
+a reminder, a command operation or `ICommandPipeline` instead. An observation command (webhook, poll,
+sweep, retry, classifier) compares with current state and appends nothing when nothing changed.
+`…Changed` must be a real change, and a counter built from `[Increment]`/`[Decrement]` needs commands
+that refuse non-transitions. Read [references/event-log-hygiene.md](references/event-log-hygiene.md)
+when modeling an event vocabulary, an observation command or a counter, or measuring a log that grows
+faster than the product's activity. Read
+[references/event-log-cleanup-rollout.md](references/event-log-cleanup-rollout.md) when a release removes
+or reshapes many event types and the stored data must be repaired.
+
 ## Public facts and streams that end
 
 Declare source vocabulary with `IEventSource`, `[EventSource]` and `[EventStream]`;

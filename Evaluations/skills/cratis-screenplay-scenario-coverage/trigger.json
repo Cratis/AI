@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-screenplay-scenario-coverage",
+  "queries": [
+    { "query": "what scenarios should we write for the RegisterBoat command: rules, denial, duplicates?", "shouldTrigger": true },
+    { "query": "build a coverage matrix for my slice before I start drafting specs", "shouldTrigger": true },
+    { "query": "how do I specify in a .play spec that two people claim the same berth at the same time?", "shouldTrigger": true },
+    { "query": "one spec per rule or can I batch the rejections? and what should vary between them?", "shouldTrigger": true },
+    { "query": "does the spec for my unique event constraint prove the email goes out only once?", "shouldTrigger": true },
+    { "query": "should a read model with removals get a lifecycle family of specs or just single transitions?", "shouldTrigger": true },
+    { "query": "audit the given/when/then coverage in our model: we have 40 command specs and none for read models", "shouldTrigger": true },
+    { "query": "my denial spec for a gated query fails binding with PLAY0389", "shouldTrigger": true },
+    { "query": "retry after a lost reply: how do I pin that the reaction does not produce anything new?", "shouldTrigger": true },
+    { "query": "i'm running a scenario workshop with the business people, how do I get edge cases out of them", "shouldTrigger": true },
+    { "query": "What is the exact grammar of `then events in any order` and how are outcomes compared?", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Write a C# specification class with Establish and Because for the command handler.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "How do I turn user stories into given/when/should examples in general?", "shouldTrigger": false, "note": "cratis-specification-by-example" },
+    { "query": "Design the inputs and rules of the ReserveBerth command.", "shouldTrigger": false, "note": "cratis-screenplay-slice-design" },
+    { "query": "Where should the one-active-reservation invariant be enforced across streams?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Model the nightly retry sweep and the todo list behind it.", "shouldTrigger": false, "note": "cratis-screenplay-automations-and-translations" },
+    { "query": "Give me a full independent audit of the finished model.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Write Chronicle event specifications in C# for BoatRegistered.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" },
+    { "query": "Which screenplay command runs the reference specifications and which tool version do I need?", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" }
+  ]
+}

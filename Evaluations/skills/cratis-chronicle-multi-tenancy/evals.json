@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-chronicle-multi-tenancy",
+  "evals": [
+    {
+      "id": 1,
+      "name": "namespace-isolation",
+      "prompt": "Explain what a Chronicle namespace isolates and what is shared, and what that means for (a) a reactor on BookingConfirmed, (b) a unique constraint on registration number, (c) sequence numbers, (d) erasing a person's data who exists in two tenants. Reply only.",
+      "expected_output": "Per namespace: sequences, observers, read models, jobs, constraint state, encryption keys. Reactors fire once per namespace; two tenants can hold the same unique value; sequence numbers are independent; erasure is one call per namespace.",
+      "assertions": [
+        "States a reactor fires once per namespace that has the event, independently, not once globally.",
+        "States two tenants can hold the same unique value without violating a uniqueness constraint because constraint state is per namespace.",
+        "States sequence numbers are independent per namespace, so a sequence number only has meaning together with its namespace.",
+        "States erasure spanning tenants is one call per namespace and completing only some is an incomplete erasure."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "custom-resolver",
+      "prompt": "Write a C# IEventStoreNamespaceResolver that maps the current tenant from an injected `ITenantAccessor` (with `CurrentTenant` possibly null) to a Chronicle namespace, falling back to the default. Also say how registration picks resolvers when two are registered. Give the code in your reply; do not write files.",
+      "expected_output": "A class implementing the single synchronous Resolve() returning EventStoreNamespaceName, defaulting to EventStoreNamespaceName.Default, not caching the tenant; registration selects exactly one winner rather than a chain.",
+      "assertions": [
+        "Implements IEventStoreNamespaceResolver with a synchronous Resolve() returning EventStoreNamespaceName.",
+        "Falls back to EventStoreNamespaceName.Default when no tenant is resolved.",
+        "Does not cache the tenant inside the resolver, which is registered as a singleton while the event store is scoped.",
+        "States registration selects exactly one winner (builder-set resolver, then the client-options resolver type, then the default) and is not a priority chain."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "second-tenant-code-rules",
+      "prompt": "Review this single-tenant code for a future second tenant: events carry a `TenantId` property; a singleton `BookingCache` holds an `IEventStore` captured at startup and a static dictionary of bookings; a nightly job calls `GetEventStore(name)` with no namespace. List the problems and fixes. Reply only.",
+      "expected_output": "Remove tenant id from events because the namespace is the tenant; singletons must not hold tenant-scoped state and caches must key by tenant; background jobs must pass the namespace explicitly.",
+      "assertions": [
+        "Says events should not carry a tenant identifier because the namespace is the tenant and a property creates a second source of truth that can disagree.",
+        "Says a singleton holding an event store pins to the namespace of the root scope and returns empty results rather than failing.",
+        "Says any cache of tenant data must include the tenant in its key.",
+        "Says a background job has no request to resolve from, so it must pass the namespace explicitly."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "tenant-resolution-facts",
+      "prompt": "A developer says 'use Chronicle's TenantNamespaceResolver and an ICanResolveNamespace; if no resolver is configured Chronicle will isolate tenants by header anyway'. Correct them. Reply only.",
+      "expected_output": "TenantNamespaceResolver is an example you write yourself in Chronicle docs (Arc has its own); ICanResolveNamespace and INamespaceResolver do not exist, the contract is IEventStoreNamespaceResolver; without a resolver everything lands in Default with no isolation.",
+      "assertions": [
+        "States the contract is IEventStoreNamespaceResolver and that ICanResolveNamespace and INamespaceResolver do not exist.",
+        "States TenantNamespaceResolver is not a Chronicle type but an example resolver you write yourself.",
+        "States that with no resolver configured every tenant lands in the Default namespace and there is no isolation."
+      ]
+    }
+  ]
+}

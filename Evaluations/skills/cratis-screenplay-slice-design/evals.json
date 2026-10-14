@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-slice-design",
+  "evals": [
+    {
+      "id": 1,
+      "name": "generic-edit-command",
+      "prompt": "From discovery we have a screen 'Edit locker' with a form that calls `UpdateLocker` (name, size, location, volume) and produces `LockerUpdated`. Review this command and event design and propose a better one. Reply only; do not write files.",
+      "expected_output": "A form verb (Update, Edit, Save, Set, Change, Manage + noun) means several decisions share a form. Ask which separate business reasons change these values and split into imperative business commands such as ReassignLocker and CorrectLockerVolume, each producing a specific past-tense event such as LockerRelocated or VolumeCorrected. Never `XUpdated`/`Changed`/`Edited`.",
+      "assertions": [
+        "Flags `UpdateLocker` as a form-verb command that hides several decisions.",
+        "Splits it by the separate business reasons the values change, with imperative names like ReassignLocker or CorrectLockerVolume.",
+        "Replaces `LockerUpdated` with specific past-tense events such as LockerRelocated or VolumeCorrected.",
+        "Says an event must not be named XUpdated, Changed, Edited or Saved."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "stored-state-rule",
+      "prompt": "Rule: a member may have at most 3 active loans. The draft BorrowBook command takes an input `activeLoanCount` from the UI and `require activeLoanCount < 3`, plus an input `confirmsEligible == true`. Review it and show the correct modeling. Give the code or outline in your reply; do not write files.",
+      "expected_output": "A rule over stored state is `reads <View>` + `require ... message \"...\"` and the slice `description` marks it **NOT enforced in the model today** with its target named (Arc `[ProtectedDecision]` with `DecisionRead<T>`, Chronicle DCB, or a constraint). Never copy state into the command as an input and never use a boolean attestation input or hide the rule in handler or hint prose.",
+      "assertions": [
+        "Rejects the caller-supplied `activeLoanCount` input because state must not be copied into the command.",
+        "Rejects the boolean attestation input `confirmsEligible == true` standing in for a rule.",
+        "Writes the rule as `reads <View>` plus `require ... message \"...\"`.",
+        "Marks it **NOT enforced in the model today** in the slice `description` and names a target such as Arc `[ProtectedDecision]` with `DecisionRead<T>`, Chronicle DCB, or a constraint."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "events-or-views",
+      "prompt": "Stakeholders want to see (a) whether a loan is 'overdue', (b) the quoted rental price the customer was shown, and (c) a running total of fines. Decide for each whether it is an event or a view in the Screenplay model and why. Reply only; do not write files.",
+      "expected_output": "Ask whether the value was decided or supplied (event) or can be worked out from recorded facts (view). Time-relative states like 'overdue' are not stored: store the deadline and compute. A decided calculation such as a quoted price is a fact. A running figure is a view, never an `XRecalculated` event.",
+      "assertions": [
+        "Treats 'overdue' as a view over a stored deadline, not a stored state or event.",
+        "Treats the quoted price as a fact (event) because it is a decided calculation.",
+        "Treats the running fines total as a view and says never to model it as an `XRecalculated` event.",
+        "States the test: decided or supplied is an event; derivable from already-recorded facts is a view."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "acting-screen",
+      "prompt": "Our Level-1 screen 'ApproveRefund' has only `action ApproveRefund` and no data lines. A second screen 'RegisterBoat' has an action and no data. A third has neither. Which are acceptable? Also the list screen's query takes `filter ownerId` from the UI so users see only their rows. Review all of that. Reply only; do not write files.",
+      "expected_output": "A screen acting on an existing instance needs `data` from a view that supplies the identifier and the state the user decides on; only a creation screen may lack `data` and says so in the slice description. A screen with neither `data` nor `action` is a gap. Whose rows is part of the view; a caller-supplied filter is not access control.",
+      "assertions": [
+        "Says ApproveRefund, acting on an existing instance, needs `data` from a view that supplies the identifier and decision state.",
+        "Accepts RegisterBoat lacking `data` only as a creation screen and only if the slice `description` says so.",
+        "Says a screen with neither `data` nor `action` is a gap.",
+        "Says a caller-supplied `filter ownerId` is not access control, because whose rows a view shows is part of the view's design."
+      ]
+    }
+  ]
+}

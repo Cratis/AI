@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-screenplay-read-surface",
+  "queries": [
+    { "query": "add a query to list invoices filtered by status and customer in my .play file", "shouldTrigger": true },
+    { "query": "the tenant id should come from the context and not from the caller. how do I write that in the screenplay query?", "shouldTrigger": true },
+    { "query": "what does `scoped to global` do in a query?", "shouldTrigger": true },
+    { "query": "make the query live so the screen updates by itself. what is the observable syntax?", "shouldTrigger": true },
+    { "query": "level 1 screen with data via query and an action, in screenplay", "shouldTrigger": true },
+    { "query": "two slices both declare query All and the compiler warns about ambiguity", "shouldTrigger": true },
+    { "query": "read model keys: do I write trailing key or identifier on a property?", "shouldTrigger": true },
+    { "query": "my screen navigates to a screen that does not exist and the build is still green", "shouldTrigger": true },
+    { "query": "can I add paging and sorting to my screenplay query?", "shouldTrigger": true },
+    { "query": "table with columns and row-click navigate to the detail screen in the .play model", "shouldTrigger": true },
+    { "query": "How do events fill the InvoiceDetails read model: keys, joins and children?", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
+    { "query": "Lay out the screen with a MasterDetail template, a form and a toolbar.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" },
+    { "query": "Write the specification that runs `when query` and asserts `then result`.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Add paging and sorting to my C# Arc query using the framework.", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "Design the RegisterInvoice command with validate and authorize.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
+    { "query": "Build the React page for this query with the Arc generated hook.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Which read models should this model have at all?", "shouldTrigger": false, "note": "cratis-screenplay-event-modeling" },
+    { "query": "Create a hand-written C# read model class and its query for the bookings page.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Open a confirm dialog and execute the command when the user clicks Cancel.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" }
+  ]
+}

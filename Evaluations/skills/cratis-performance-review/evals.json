@@ -1,0 +1,56 @@
+{
+  "skill_name": "cratis-performance-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "chronicle-shape-findings",
+      "prompt": "Review this change for performance and give the report in your reply (no files). (1) A projection `.Join<InventoryLevel>(...)` on the InventoryLevel read model; (2) a reactor handler `Handle(OrderPlaced e)` that calls eventLog.GetForEventSourceId(e.OrderId) to get the items; (3) `InvoiceIssued(Guid Id, string PdfBase64)`; (4) a projection tested on 100 seeded events.",
+      "expected_output": "Opens with a one-line Performance review result; groups by section; each finding with risk and scale. Projections join on events, never read models; reactor must use event data not re-query; event must be small with a reference to content; replay judged at development volume proves nothing, ask whether full replay completes at production volume. Says reviewed shape, not measured.",
+      "assertions": [
+        "Opens with a single-line result of the form No issues, Minor findings, or Blocking issues found.",
+        "Flags the projection joining on a read model and says projections join on events.",
+        "Flags the reactor re-querying the event log and says the received event should carry what it needs.",
+        "Flags the base64 payload in an event because events are permanent and should carry a reference.",
+        "Says a replay over 100 seeded events proves nothing about production history and states the review judged code shape rather than measuring."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "query-shape",
+      "prompt": "Review: `public IEnumerable<Booking> AllBookings() => collection.AsQueryable().ToList().Where(b => b.Active).Skip(page*50).Take(50);` and `var total = (await ListAllBookings()).Count();`. Say what is wrong, how risky, and at what scale; and how paging should be fixed. Reply only.",
+      "expected_output": "ToList before Where materializes the whole collection; growable list should return IQueryable<T> so Arc applies server-side paging and sorting; slicing in memory reads the whole collection each request; hydrating to count is the same finding; filter on indexed fields. Don't invent alternative paging mechanism—cratis-arc-query-paging is authoritative.",
+      "assertions": [
+        "Flags ToList() before Where() and in-memory slicing as reading the whole collection on every request.",
+        "Recommends returning IQueryable<T> so Arc applies server-side paging and sorting.",
+        "Flags hydrating the collection to count it as the same finding as an unpaged list.",
+        "Defers the paging mechanism to the paging skill rather than inventing an alternative.",
+        "Classifies risk with High, Medium or Low and states the scale at which it bites."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "react-render-cost",
+      "prompt": "Review this React change for performance, giving risk levels: a DataTable over a growable orders list rendering all rows without a paginator; `<Chart options={{ smooth: true }} data={rows} />` inside a list; a useEffect with dependency array [rows, filters, user, theme] that refetches; and `JSON.parse(JSON.stringify(rows))`. Reply only.",
+      "expected_output": "DataTable over growable collection should use lazy loading and paginator; inline object literal prop is a new identity each render defeating memoization; over-broad useEffect dependencies re-run per render; no JSON deep clone. Classify and don't mark everything High.",
+      "assertions": [
+        "Says a DataTable over a growable collection should use lazy loading and a paginator rather than rendering every row.",
+        "Flags the inline object literal prop because it is a new identity every render and defeats memoization.",
+        "Flags the over-broad useEffect dependency array as re-running too often.",
+        "Flags JSON.parse(JSON.stringify(x)) deep cloning.",
+        "Differentiates risk levels instead of calling every finding High."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "shape-not-measurement",
+      "prompt": "A reviewer wants to close the performance review with 'this will handle 10k requests per second' because the code shape looks fine, and to mark all five findings High to get attention. What should the report say instead? Reply only.",
+      "expected_output": "A shape finding is not a measurement; the review reads code shape, not a benchmark, and should say what it did not measure and which items need a benchmark. Each finding states cost and scale; classification High/Medium/Low is the value, and when every finding is urgent none are.",
+      "assertions": [
+        "Says reading code gives shape and only running it gives cost, so a throughput claim would overstate the evidence.",
+        "Says the report names what was not measured or what needs a benchmark to settle.",
+        "Says classifying every finding High removes the value of classification.",
+        "Says each finding should state what it costs and at what scale."
+      ]
+    }
+  ]
+}

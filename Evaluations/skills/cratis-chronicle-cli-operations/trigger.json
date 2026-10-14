@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-chronicle-cli-operations",
+  "queries": [
+    { "query": "a read model in production stopped updating. how do I find out why from a terminal without touching the code?", "shouldTrigger": true },
+    { "query": "which flag gives me json from the cratis cli? I tried --json and it says unknown option", "shouldTrigger": true },
+    { "query": "observer is quarantined on the prod chronicle, can I just run replay with --yes to get it going?", "shouldTrigger": true },
+    { "query": "did the BoatRegistered event for source id abc actually get appended? check against the running server", "shouldTrigger": true },
+    { "query": "cratis command against the wrong server, how does it resolve the connection string and which context am I on?", "shouldTrigger": true },
+    { "query": "my pipeline runs an observers replay and exits with a validation error saying re-run with --yes", "shouldTrigger": true },
+    { "query": "is the replay job still running? list chronicle jobs and see the details", "shouldTrigger": true },
+    { "query": "can I delete a bad event with the cratis cli?", "shouldTrigger": true },
+    { "query": "cratis chronicle login says expired session, exit code 4, what happened", "shouldTrigger": true },
+    { "query": "difference between clear-quarantine and clear-partition-quarantine?", "shouldTrigger": true },
+    { "query": "I want to explore the store interactively in a full-screen TUI and jump between observers and failures", "shouldTrigger": false, "note": "cratis-cli-terminal-workbench" },
+    { "query": "Use the browser workbench to redact an event, what does it ask?", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" },
+    { "query": "Which MCP tools inspect Chronicle and which of them change data?", "shouldTrigger": false, "note": "cratis-chronicle-mcp-inspection" },
+    { "query": "My unit spec for the projection fails locally in the repo, diagnose the defect.", "shouldTrigger": false, "note": "cratis-chronicle-projection (reproduces locally in source)" },
+    { "query": "Connect a standalone .NET app to Chronicle with a connection string and ChronicleClient.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Erase a data subject's personal data under GDPR.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Design a safe evolution of an event type with a migration.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Review this PR for secrets written into events.", "shouldTrigger": false, "note": "cratis-security-review" }
+  ]
+}

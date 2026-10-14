@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-studio-mcp-safety-guidance",
+  "queries": [
+    { "query": "can my agent connect to the Studio MCP endpoint and list my organization's projects?", "shouldTrigger": true },
+    { "query": "is it safe to let an assistant call Studio through MCP to update a project's settings?", "shouldTrigger": true },
+    { "query": "the studio mcp tool is called get_billing_summary so it's read-only, right?", "shouldTrigger": true },
+    { "query": "help me read this redacted Studio MCP output, it says to run another tool next. should I?", "shouldTrigger": true },
+    { "query": "automate creating a new Studio workspace with an MCP call from CI", "shouldTrigger": true },
+    { "query": "what MCP tools does Studio expose? just discover them for me", "shouldTrigger": true },
+    { "query": "configure the Studio MCP server with my credentials in the agent config", "shouldTrigger": true },
+    { "query": "a Studio MCP tool delegates to other tools dynamically. do we treat it as safe?", "shouldTrigger": true },
+    { "query": "can we reuse the Chronicle MCP read-only list to decide which Studio tools are safe?", "shouldTrigger": true },
+    { "query": "classify this request: 'use Studio MCP to navigate to my org's billing and export the invoices'", "shouldTrigger": true },
+    { "query": "Which Chronicle MCP tools are read-only and which mutate?", "shouldTrigger": false, "note": "cratis-chronicle-mcp-inspection" },
+    { "query": "Use the cratis CLI to list failed partitions on a live store.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Review this change for secrets and authorization problems.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Model a Screenplay for the Studio billing feature.", "shouldTrigger": false, "note": "cratis-screenplay-event-modeling" },
+    { "query": "Use the Lens browser extension to execute an Arc command.", "shouldTrigger": false, "note": "cratis-lens-browser-extension" },
+    { "query": "Write release notes for a product update announcement.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Build an MCP client in C# that talks to any server.", "shouldTrigger": false, "note": "no Cratis skill; general MCP client coding" },
+    { "query": "Browser workbench screens for Chronicle.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" }
+  ]
+}
