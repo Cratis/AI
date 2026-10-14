@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-reducer",
+  "queries": [
+    { "query": "i need an account balance that credits and debits but ignores a debit when the balance is too low. projection can't do guards, right? how to write it in Chronicle?", "shouldTrigger": true },
+    { "query": "what does a self-reducing read model look like, with static Reduce methods?", "shouldTrigger": true },
+    { "query": "my IReducerFor handler takes a non-nullable current model and throws when indexed", "shouldTrigger": true },
+    { "query": "how do I delete the read model instance from a reducer on a BalanceCleared event?", "shouldTrigger": true },
+    { "query": "can I throw in a reducer to skip an event I don't care about?", "shouldTrigger": true },
+    { "query": "AmbiguousSelfReducerMethod at startup, I have two Reduce overloads for one event", "shouldTrigger": true },
+    { "query": "should my reducer take constructor dependencies and look up today's exchange rate when folding?", "shouldTrigger": true },
+    { "query": "when would a reducer be wrong and a projection be better?", "shouldTrigger": true },
+    { "query": "[Passive] on the reducer model. is a passive read safe for a concurrent command decision?", "shouldTrigger": true },
+    { "query": "Map the event properties onto the read model with [SetFrom] attributes.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Choose where the read model lives and its queries.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Send an email after the balance drops below zero.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Write the ReadModelScenario spec for the balance.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "TypeScript reducer registered with @reducer in a Node worker.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Elixir reducer with use Chronicle.Reducers.Reducer.", "shouldTrigger": false, "note": "cratis-chronicle-client-elixir" },
+    { "query": "Guard a rule under concurrent writers with a decision read.", "shouldTrigger": false, "note": "cratis-chronicle-decision-reads" },
+    { "query": "A Redux reducer for my React form state.", "shouldTrigger": false, "note": "cratis-arc-react-page" }
+  ]
+}
