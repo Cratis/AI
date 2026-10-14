@@ -41,8 +41,8 @@ effects. If the answer is "populate a queryable model", it is not a reactor.
 
 Scenario guards: see [specifications](references/specifications.md).
 
-> **There is no `ReactorSideEffect` type.** Use the supported return types below;
-> `EventForEventSourceId` supplies per-event metadata.
+> **There is no `ReactorSideEffect` return-value wrapper.** Use the supported
+> returns below; the `[ReactorSideEffect]` marker does not wrap an effect.
 
 ## Write the reactor
 
@@ -64,6 +64,9 @@ public class <ReactorName>(<IServiceType> <serviceName>) : IReactor
 `Cratis.Chronicle.Reactors.IReactor` is a **marker interface with no members**.
 Reactors are discovered by that interface — the `[Reactor]` attribute is optional
 and is not what makes a class a reactor. Generic types are not discovered.
+Requires Chronicle 19.52.0 for plain-class nomination; read
+[discovery](../cratis-chronicle-client-dotnet/references/discovery.md) when a
+contract assembly cannot reference Chronicle.
 
 ## Dispatch and parameters
 
@@ -84,7 +87,8 @@ A handler takes at least one parameter. Further parameters resolve by type:
 An unresolvable parameter throws. CHR0004 warns against primitive, value-type
 or string dependencies after the event: use context, a read model or a service.
 
-The first parameter must carry `[EventType]` (CHR0005 error).
+The first parameter must be a registered event type (CHR0005 error); explicit
+registration evidence needs Chronicle 19.52.0 (see discovery above).
 
 A materialized read-model parameter is only as current as its observer; prefer the event's own data, and use `[Passive]` when the reactor needs a current read. Read [references/read-model-injection.md](references/read-model-injection.md) whenever a reactor injects a read model: how it is keyed (including a related entity's key through `ICanResolveReadModelKey`), when it is current, and which storage access CHR0032 flags.
 
@@ -107,7 +111,8 @@ synchronous returns. Custom `IReactorSideEffectHandler` implementations can
 claim synchronous types through `CanHandleReturnType(Type)`; they are not
 restricted to `Task<T>`. An unclaimed return value **fails the partition** with
 `UnhandledReactorReturnValue`, naming its type. CHR0054 flags an unsupported
-return type at build time. Source: `Reactors/EventHandlerMethods.cs`,
+return type at build time. Read references/return-event-metadata.md for custom returns (`[ReactorSideEffect]` requires Chronicle 19.63.0).
+Source: `Reactors/EventHandlerMethods.cs`,
 `Reactors/SideEffects/IReactorSideEffectHandler.cs`, `Reactors/UnhandledReactorReturnValue.cs`.
 
 Read [references/return-event-metadata.md](references/return-event-metadata.md) when returning events instead of injecting `IEventLog`, targeting another event source with `EventForEventSourceId`, or controlling the append metadata of a returned event.
@@ -194,8 +199,9 @@ An automation that turns another area's facts into intent runs a command
 identity and imperative pipeline alternative, use **cratis-arc-command-execution**
 and **cratis-arc-command** rather than reimplementing command dispatch here.
 A reactor has no caller principal: choose the authorized identity explicitly.
-Keep `[OnceOnly]` and idempotency; a failed command must remain a visible
-partition failure. Inline operations can run again on reactor retry and do not
+Keep `[OnceOnly]` and idempotency. Expected refusals use `Invoke.Command` branches
+in **cratis-arc-command-execution**; handling stops remaining invocations.
+Unhandled refusals and framework failures remain partition failures. Inline operations can run again on reactor retry and do not
 replace durable delivery; see **cratis-arc-command-operation**.
 Mixed event-and-command returns and their ordering are owned by the Arc skills.
 
@@ -260,7 +266,7 @@ including passive ones; nullable parameters still need explicit absence.
   handler per event type.
 - Every additional parameter resolves to the event context, `ReactorDelivery`, a
   read model, or a service.
-- No handler returns or references `ReactorSideEffect`.
+- No handler returns an invented `ReactorSideEffect` wrapper.
 - No `IEventLog` is injected; side-effect events are returned instead.
 - Handlers returning events carry `[OnceOnly]`.
 - Side effects are idempotent even with `[OnceOnly]`, because recovery

@@ -76,6 +76,11 @@ that is also a command property takes both `[Encrypted]` and `[NotAudited]`.
 live in `Cratis.Chronicle.Confidentiality` (`ICanProvideSecurityMetadataForType`
 and `ICanProvideSecurityMetadataForProperty`).
 
+Requires Chronicle 19.54.1 for encrypted non-string properties/concepts (such as
+`int` and `bool`) to append and deserialize with their original types across
+subject, namespace and global scopes. Check the kernel version; earlier kernels
+can fail those appends. Verify a protected-value round trip, not only compilation.
+
 Mark only genuinely personal values. Business metadata, identifiers of
 non-persons, and amounts stay unmarked — every marked value costs an encryption
 round trip and becomes unreadable the moment the subject is erased.

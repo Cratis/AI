@@ -194,6 +194,10 @@ content to recompute the hashes, and skips subjects whose key has been erased so
 they do not all collide on the hash of an empty value. The index therefore holds
 plaintext-derived hashes, not the personal value itself.
 
+Read references/storage-uniqueness.md when upgrading SQL/in-memory constraints
+or reindexing duplicates: Requires Chronicle 19.59.7 for SQL atomic claim indexes,
+19.59.3 for in-memory claim preservation and 19.59.1 for duplicate-tolerant reindex.
+
 ## Step 6 — Specify the violation
 
 Specify the constraint with `EventScenario`: seed the conflicting state through

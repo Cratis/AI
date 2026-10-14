@@ -109,6 +109,11 @@ net48 was dropped (retain 3.x for that target).
 `Cratis.Specifications.NUnit` is an alternative with the same base pattern,
 `[Test]` instead of `[Fact]`, and **public** test methods.
 
+Requires Chronicle 19.53.0 for CHR0039 to be an error: await every awaitable
+`Should*` assertion and use an `async Task` fact, or its failure is discarded.
+Check the analyzer package version; do not treat older warning-only builds as
+proof that those assertions ran.
+
 ### Pin server-generated Handle values
 
 Requires Arc 22.67.0 for generated-value pinning.
