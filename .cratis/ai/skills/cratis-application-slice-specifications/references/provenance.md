@@ -12,6 +12,15 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | `.claude/skills/build-automation/SKILL.md`: checklist question "what happens if the command fires twice" | `SKILL.md` Step 3 item 5 | idea; our own wording kept |
 | `.claude/skills/build-automation/SKILL.md`: one error specification per rule; build from the slice definition first | `SKILL.md` Step 0 and Step 6 | idea; our own wording kept |
 
+## Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with their explicit consent.
+
+| Source skill | Used in | How |
+|---|---|---|
+| axon/kurrent `build-state-view` query tests | `query-and-decision-scenarios.md` | copied and translated: isolate query results by key/filter/caller scope and assert complete items where fully contracted; provider integration remains separate |
+
 ## Method lineage
 
 | Idea | Used in | Credit |
