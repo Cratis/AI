@@ -76,13 +76,24 @@ cratis screenplay generate <solution|project|folder> \
 ## Coverage (what a provider reads)
 | Provider | Reads | Does not read |
 |---|---|---|
-| Arc | commands, events, concepts, read models, projections, reducers, reactors, constraints, declarative FluentValidation rules, authorization policies, `produces` from constants and input paths, Chronicle integration specs as given/when/then, `.tsx` beside a slice as `screen`: `file`, `data … via query`, `title`, `table`/`column`, `action` and `toolbar actions`, read from Cratis Components only | handler bodies, rules written in code, computed messages (`SP0016`), screen `section`, `summary`, `navigate to` and `layout` (unread properties are `SP0028`; same-screen details, `useDialog` and enablement are `SP0077`), captures, personas, seeds, `secret` on older Arc (see Compliance recovery). A rule held to `When`/`Unless` is written down as if unconditional and `SP0016` names the condition: read the diagnostic, do not trust the declaration |
+| Arc | commands, events, concepts, read models, projections, reducers, reactors, constraints, declarative FluentValidation rules, authorization policies, `produces` from constants and input paths, Chronicle integration specs as given/when/then, `.tsx` beside a slice as `screen`: `file`, `data … via query`, `title`, `table`/`column`, `action` and `toolbar actions`, read from Cratis Components only, plus `navigate to` from literal react-router gestures (see Navigation below) | handler bodies, rules written in code, computed messages (`SP0016`), screen `section`, `summary` and `layout`, other navigation (unread properties are `SP0028`; same-screen details, `useDialog` and enablement are `SP0077`), captures, personas, seeds, `secret` on older Arc (see Compliance recovery). A rule held to `When`/`Unless` is written down as if unconditional and `SP0016` names the condition: read the diagnostic, do not trust the declaration |
 | Marten / Critter Stack (preview; an independent optional adapter built on the neutral Screenplay.Generation SDK, not affiliated with JasperFx: review every `GEN`/`MARTEN`/`WOLVERINE` diagnostic by hand) | aggregates, snapshots, HTTP and message handlers, document operations, queries, outgoing and delayed messages, saga facts | saga lifecycle, policies, middleware bodies, runtime tenancy, upcasting; unbounded extension code is reported by presence only |
 | any non-.NET stack | nothing | use Prologue and targeted reads |
 
 Requires Arc.Screenplay 22.60.0 or later for `title`, `table`/`column` and `action` recovery from Cratis Components, and 22.82.0 or later for `toolbar actions` and the `SP0077` report.
 
 Requires Arc.Screenplay 22.94.0 or later for cross-slice screen actions, toolbar items and `data … via query`, qualified with the shortest unique module/feature/slice scope; before it, those cross-slice bindings were omitted with `SP0028`.
+
+### Navigation
+
+The Arc provider reads route tables from TSX files that import `Route`, `Routes`, `createBrowserRouter`, `createHashRouter` or `createMemoryRouter` from `react-router` or `react-router-dom`: nested `<Route path=… element={<Screen />}>` declarations inside `<Routes>`, or literal route objects passed directly to a `create*Router` call. A route's element must be a sole component imported through a named relative import whose module file is exactly one screen file. Two gestures then become navigation:
+
+- A menu item's `command={() => navigate('/literal')}` becomes `item <name> navigate to <Screen>`.
+- A `CommandDialog onSuccess={() => navigate('/literal')}` becomes `navigate to <Screen>` under that command's action. Dialogs exposing the same command must agree on the destination; a conflict is reported, not combined.
+
+`navigate` must come from `const navigate = useNavigate()` in the same component body, and only absolute, quoted literal paths match. A required route parameter such as `:id` supplied by `/authors/42` becomes `parameter id from literal "42"`. A destination in another slice is qualified like other cross-slice references. Computed paths, unresolved routes and other navigation are not inferred; write them by hand and expect a regeneration to leave them out.
+
+Requires Arc.Screenplay 22.96.0 or later for navigation from route tables; older releases write no `navigate to` and report an unread success callback as `SP0028`.
 
 ## Diagnostics are the loss list
 - Families: `SP####` (Arc), `MARTEN####`, `WOLVERINE####`, `VOG####`, `GEN####`,
