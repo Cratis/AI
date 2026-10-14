@@ -76,9 +76,11 @@ cratis screenplay generate <solution|project|folder> \
 ## Coverage (what a provider reads)
 | Provider | Reads | Does not read |
 |---|---|---|
-| Arc | commands, events, concepts, read models, projections, reducers, reactors, constraints, declarative FluentValidation rules, authorization policies, `produces` from constants and input paths, Chronicle integration specs as given/when/then, `.tsx` beside a slice as `screen`: `file`, `data … via query`, `title`, `table`/`column`, `action` and `toolbar actions`, read from Cratis Components only | handler bodies, rules written in code, computed messages (`SP0016`), screen `section`, `summary`, `navigate to` and `layout` (unread properties are `SP0028`; same-screen details, `useDialog` and enablement are `SP0077`), captures, personas, seeds, `secret`. A rule held to `When`/`Unless` is written down as if unconditional and `SP0016` names the condition: read the diagnostic, do not trust the declaration |
+| Arc | commands, events, concepts, read models, projections, reducers, reactors, constraints, declarative FluentValidation rules, authorization policies, `produces` from constants and input paths, Chronicle integration specs as given/when/then, `.tsx` beside a slice as `screen`: `file`, `data … via query`, `title`, `table`/`column`, `action` and `toolbar actions`, read from Cratis Components only | handler bodies, rules written in code, computed messages (`SP0016`), screen `section`, `summary`, `navigate to` and `layout` (unread properties are `SP0028`; same-screen details, `useDialog` and enablement are `SP0077`), captures, personas, seeds, `secret` on older Arc (see Compliance recovery). A rule held to `When`/`Unless` is written down as if unconditional and `SP0016` names the condition: read the diagnostic, do not trust the declaration |
 | Marten / Critter Stack (preview; an independent optional adapter built on the neutral Screenplay.Generation SDK, not affiliated with JasperFx: review every `GEN`/`MARTEN`/`WOLVERINE` diagnostic by hand) | aggregates, snapshots, HTTP and message handlers, document operations, queries, outgoing and delayed messages, saga facts | saga lifecycle, policies, middleware bodies, runtime tenancy, upcasting; unbounded extension code is reported by presence only |
 | any non-.NET stack | nothing | use Prologue and targeted reads |
+
+Requires Arc.Screenplay 22.60.0 or later for `title`, `table`/`column` and `action` recovery from Cratis Components, and 22.82.0 or later for `toolbar actions` and the `SP0077` report.
 
 Requires Arc.Screenplay 22.94.0 or later for cross-slice screen actions, toolbar items and `data … via query`, qualified with the shortest unique module/feature/slice scope; before it, those cross-slice bindings were omitted with `SP0028`.
 
@@ -113,7 +115,7 @@ The expanded Arc recovery surface includes:
   Scenarios whose sources cannot be stated faithfully are omitted with SP0039;
   record the omission as a loss, never fabricate identities to retain a scenario.
 - Supported generated values (Arc.Screenplay 22.78.0 or later; non-UUID-v4 strategies 22.86.0 or later) and scalar/record
-  responses (22.76.0 or later) by default, without
+  responses by default, without
   the authoring-only flag. The older bundled adapter retains legacy representation
   for commands with successful scenarios. Arc recovers generated Handle
   parameters with concrete pins, but local `New()` values still have no pin seam;

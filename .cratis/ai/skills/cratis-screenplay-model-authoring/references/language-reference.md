@@ -87,7 +87,7 @@ are authoring-only and refuse executable binding (PLAY0268), while the block alo
 does not block readiness. Claim/query sources have exactly one source and no body.
 See command-surface `references/context.md` for key/type/gate restrictions.
 
-Requires Screenplay 4.121.0 or later (`screenplay --version`) for `$identity` and the identity block syntax.
+Requires Screenplay 4.121.0 or later (`screenplay --version`) for `$identity` expressions, and 4.122.0 or later for the `identity` block.
 
 `PropertySyntax.isSubject` marks an event's required unprotected scalar subject,
 omitted from structural JSON when false. It is lineage metadata (PLAY0270), not

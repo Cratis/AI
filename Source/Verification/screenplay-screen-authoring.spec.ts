@@ -244,7 +244,9 @@ test('the screens smoke replays the pinned public vector from the published corp
     const workflow = readFileSync(join(repositoryRoot, '.github', 'workflows', 'publish.yml'), 'utf8');
     const authoring = readFileSync(join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'), 'utf8');
 
-    assert.ok(screensVector().includes(`CLI ${pins.cli}`), `the smoke pins CLI ${pins.cli}, which is not the Smoke CLI recorded in Documentation/compatibility.md`);
+    const smokeRow = screensVector().split('\n').find(line => line.startsWith('| Smoke CLI |'));
+    assert.ok(smokeRow, 'the Screens release vector has no Smoke CLI row');
+    assert.match(smokeRow, new RegExp(`^\\| Smoke CLI \\| CLI ${pins.cli.replaceAll('.', '\\.')}\\b`), `the smoke pins CLI ${pins.cli}, which is not the Smoke CLI row in Documentation/compatibility.md`);
     assert.match(pins.corpusPackage, /^\d+\.\d+\.\d+$/);
     for (const required of ['--edit work-item-id-column', 'cratis render', 'materialize-corpus.cs', 'Cratis.Cli', 'executableReady']) {
         assert.ok(script.includes(required), `the smoke script is missing ${required}`);
