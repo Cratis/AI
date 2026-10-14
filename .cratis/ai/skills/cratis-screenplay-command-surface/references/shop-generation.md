@@ -16,12 +16,12 @@ encodings, entropy, MCP edits, fixtures and freshness.
 is time-ordered TypeID, not Arc's received-time/tenant factory contract; Stage
 emits a wall-clock `New()`. Passed-through GenerationContext in Arc source
 recovery describes that strategy shape, not equivalent clock/tenant semantics.
-Context-member/rule recovery stays in code .
+Context-member/rule recovery stays in code.
 
 The shop's ApiKey remains a **secret**. In .NET its factory is `Bytes(32)` and its
 concept is `[NotAudited]`. It is never an identifier (event-source IDs are plaintext
 metadata); a separate `ApiKeyId` identifies the key. Executable secret generation is **not released in
-Screenplay** . The declaration below preserves classification without
+Screenplay**. The declaration below preserves classification without
 adding `generate bytes 32` or a generated command property. No API-key issuance
 behavior is claimed; retain it as an explicit gap/owning implementation contract.
 
