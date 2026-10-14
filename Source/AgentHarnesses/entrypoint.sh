@@ -1180,6 +1180,12 @@ deliver_bundle_result() {
           usage: {inputTokens: $input, outputTokens: $output, costUsd: $cost, durationMs: $duration,
             cpuSeconds: $cpu, memoryBytes: $memory, model: $model, provider: $provider, harness: $harness},
           correlation: $correlation[0]}' > "$BUNDLE_OUTPUT/result.json" || return 1
+    local contract_error
+    if ! contract_error=$(node "$(dirname "${BASH_SOURCE[0]}")/contracts/check-result.mjs" \
+        --normalize --correlation "$BUNDLE_OUTPUT/correlation.json" "$BUNDLE_OUTPUT/result.json" 2>&1); then
+        BUNDLE_DELIVERY_ERROR="Could not deliver the result: $contract_error"
+        return 1
+    fi
     jq -j '.diff' "$BUNDLE_OUTPUT/result.json" > "$BUNDLE_OUTPUT/decoded.diff" || return 1
     if [[ "$(bundle_sha256 "$BUNDLE_OUTPUT/decoded.diff")" != "$hash" ]]; then
         BUNDLE_DELIVERY_ERROR="Could not deliver the result: decoded diff checksum does not match"

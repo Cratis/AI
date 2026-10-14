@@ -10,6 +10,8 @@ source "$HERE/lib/scratch.sh"
 scratch_create bundle-diff
 ROOT="$SCRATCH_ROOT"
 mkdir -p "$ROOT/bin" "$ROOT/tmp"
+cp -R "$HERE/../contracts" "$ROOT/contracts"
+CORRELATION=$(jq -c '.correlation + {nested: {feature: 7}}' "$ROOT/contracts/agent-worker-result.sample.json")
 mkfifo "$ROOT/hold"
 git init -qb main "$ROOT/seed"
 git -C "$ROOT/seed" config user.name fixture
@@ -57,6 +59,8 @@ cat > "$ROOT/bin/git" <<'STUB'
 if [[ "$FIXTURE_CASE" == invalid-diff && " $* " == *' --binary '* ]]; then
     "$FIXTURE_GIT" "$@" || exit $?
     printf '\377'
+elif [[ "$FIXTURE_CASE" == too-many-files && " $* " == *' --name-only '* ]]; then
+    for ((i=0; i<10001; i++)); do printf 'file-%s\0' "$i"; done
 else
     exec "$FIXTURE_GIT" "$@"
 fi
@@ -93,6 +97,11 @@ case "$url" in
         case "$url" in
             */result|*/progress) [[ -n "$timeout" && -n "$retry_time" && $((timeout + retry_time)) -lt 60 ]] ;;
         esac
+        if [[ "$url" == */result ]]; then
+            printf '%s' "$body" > "$root/check-result.json"
+            printf '%s' "${DIRECT_CORRELATION:-}" > "$root/check-correlation.json"
+            node "$root/contracts/check-result.mjs" --correlation "$root/check-correlation.json" "$root/check-result.json"
+        fi
         if [[ "$FIXTURE_CASE" == stalled-result && "$url" == */result && "$(jq -r .structured.outcome <<< "$body")" == Completed ]] ||
            [[ "$FIXTURE_CASE" == delivered-then-termination && "$url" == */progress && "$(jq -r .phase <<< "$body")" == diffReady ]]; then
             printf 'ready\n' > "$root/ready"
@@ -140,6 +149,11 @@ case "$FIXTURE_CASE" in
         printf '* diff\n' > .gitattributes ;;
     large) printf '%140000s' '' > large.txt ;;
     structured) printf '{"outcome":"Completed","summary":"Agent summary","gaps":["gap"],"selfChecks":["advisory"],"touchedFiles":["lie"]}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
+    mixed-items) jq -cn '{gaps: ["gap", {code: 7}, 42, null, true, ["nested"]], selfChecks: [null, {check: "build"}, 2, "kept"]}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
+    long-text) node -e 'require("node:fs").writeFileSync(process.env.DIRECT_STRUCTURED_RESULT_FILE, JSON.stringify({summary:"é".repeat(8200), gaps:["x".repeat(8200)]}))' ;;
+    unicode-text) node -e 'require("node:fs").writeFileSync(process.env.DIRECT_STRUCTURED_RESULT_FILE, JSON.stringify({summary:"😀".repeat(4200)}))' ;;
+    many-checks) jq -cn '{selfChecks: [range(1500) | tostring]}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
+    oversized-metadata) jq -cn '{gaps: [range(1000) | "x" * 100]}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
     refused) printf '{"outcome":"Refused"}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
     malformed) printf 'not json' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
     cancelled|index-lock)
@@ -185,7 +199,7 @@ run_worker() {
         DIRECT_BUNDLE_URL=http://fixture/bundle DIRECT_RESULT_URL=http://fixture/result \
         DIRECT_REQUEST_FILE="$ROOT/request.json" DIRECT_PROMPT='do the work' DIRECT_MODEL=fixture \
         DIRECT_PROGRESS_URL=http://fixture/progress DIRECT_CALLBACK_URL=http://fixture/callback \
-        DIRECT_CALLBACK_TOKEN=callback-secret DIRECT_CORRELATION='{"session":"spec","nested":{"feature":7}}' \
+        DIRECT_CALLBACK_TOKEN=callback-secret DIRECT_CORRELATION="$CORRELATION" \
         DIRECT_WORK_ID=run-1 "$@" bash "$ROOT/entrypoint.sh" > "$ROOT/$label.log" 2>&1 &
     WORKER=$!
     scratch_track_pid "$WORKER"
@@ -202,7 +216,7 @@ check_diff() {
     hash=$(shasum -a 256 "$ROOT/received.diff"); hash="${hash%% *}"
     [[ "$(jq -r .sha256 "$ROOT/result.json")" == "$hash" ]]
     git -C "$ROOT/seed" apply --check "$ROOT/received.diff"
-    jq -se '[.[] | select(.kind == "phase") | .phase] == ["started","cloned","agentRunning","diffReady"] and [.[] | select(.kind == "phase") | .sequence] == [1,2,3,4] and all(.[] | select(.kind == "phase"); .schemaVersion == 1 and .runId == "run-1" and .correlation.session == "spec") and (map(.structured.outcome // .phase // .status)) == ["started","cloned","started","agentRunning","Completed","diffReady","completed"]' "$ROOT/http.jsonl" >/dev/null
+    jq -se '[.[] | select(.kind == "phase") | .phase] == ["started","cloned","agentRunning","diffReady"] and [.[] | select(.kind == "phase") | .sequence] == [1,2,3,4] and all(.[] | select(.kind == "phase"); .schemaVersion == 1 and .runId == "run-1" and .correlation.session == "293f2084-f860-4d5a-bd6b-89b5b7894281") and (map(.structured.outcome // .phase // .status)) == ["started","cloned","started","agentRunning","Completed","diffReady","completed"]' "$ROOT/http.jsonl" >/dev/null
 }
 run_worker structured claude-code DIRECT_CONTEXT_MCP_URL=http://fixture/context DIRECT_CONTEXT_MCP_TOKEN=context-secret
 await_worker
@@ -229,6 +243,18 @@ await_worker
 check_diff
 jq -e '(.diff | contains("ignored-info.txt") or contains("ignored-config.txt") | not) and (.structured.touchedFiles | index("new file.txt")) != null' "$ROOT/result.json" >/dev/null
 cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
+for label in mixed-items long-text unicode-text many-checks; do
+    run_worker "$label" claude-code
+    await_worker
+    [[ $STATUS == 0 ]]
+    check_diff
+    case "$label" in
+        mixed-items) jq -e '.structured.gaps == ["gap", "{\"code\":7}", "42", "true", "[\"nested\"]"] and .structured.selfChecks == ["{\"check\":\"build\"}", "2", "kept"]' "$ROOT/result.json" >/dev/null ;;
+        long-text) jq -e '(.structured.summary | length) == 8192 and (.structured.summary | endswith("…")) and (.structured.gaps[0] | length) == 8192 and (.structured.gaps[0] | endswith("…"))' "$ROOT/result.json" >/dev/null ;;
+        unicode-text) node -e 'const s=JSON.parse(require("node:fs").readFileSync(process.argv[1])).structured.summary; if(s.length>8192 || s!=="😀".repeat(4095)+"…") process.exit(1)' "$ROOT/result.json" ;;
+        many-checks) jq -e '.structured.selfChecks == [range(1000) | tostring]' "$ROOT/result.json" >/dev/null ;;
+    esac
+done
 for label in empty refused malformed; do
     run_worker "$label" claude-code
     await_worker
@@ -239,16 +265,21 @@ for label in empty refused malformed; do
         malformed) jq -e '.structured.summary == "all done" and .structured.selfChecks == []' "$ROOT/result.json" >/dev/null ;;
     esac
 done
-for label in large progress-failure invalid-correlation; do
+for label in large progress-failure invalid-correlation missing-correlation opaque-correlation; do
     extras=()
-    [[ "$label" != invalid-correlation ]] || extras=(DIRECT_CORRELATION=invalid)
+    case "$label" in
+        invalid-correlation) extras=(DIRECT_CORRELATION=invalid) ;;
+        missing-correlation) extras=(DIRECT_CORRELATION=) ;;
+        opaque-correlation) extras=('DIRECT_CORRELATION={"session":"spec","nested":{"feature":7}}') ;;
+    esac
     run_worker "$label" claude-code "${extras[@]}"
     await_worker
     [[ $STATUS == 0 ]]
     case "$label" in
         large) jq -e '(.diff | length) > 140000 and (.structured.touchedFiles | index("large.txt")) != null' "$ROOT/result.json" >/dev/null ;;
         progress-failure) check_diff ;;
-        invalid-correlation) jq -e '.correlation == {}' "$ROOT/result.json" >/dev/null ;;
+        invalid-correlation|missing-correlation) jq -e '.correlation == {}' "$ROOT/result.json" >/dev/null ;;
+        opaque-correlation) jq -e '.correlation == {session:"spec",nested:{feature:7}}' "$ROOT/result.json" >/dev/null ;;
     esac
 done
 for invalid in missing absent; do
@@ -278,8 +309,10 @@ paths=(legacy.txt latin1.txt 'latin[1]*.txt')
 [[ "$(uname)" != Linux ]] || paths+=($'invalid-\351.txt')
 for path in "${paths[@]}"; do cmp "$ROOT/workspace/$path" "$ROOT/applied/$path"; done
 cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
-for label in delivery-failure agent-failure invalid-diff json-corruption; do
-    run_worker "$label" claude-code
+for label in delivery-failure agent-failure invalid-diff json-corruption too-many-files oversized-metadata oversized-usage; do
+    extras=()
+    [[ "$label" != oversized-usage ]] || extras=("DIRECT_MODEL=$(printf '%8300s' '' | tr ' ' x)")
+    run_worker "$label" claude-code "${extras[@]}"
     await_worker
     [[ $STATUS == 1 ]]
     jq -se 'any(.[]; .status == "failed") and all(.[]; .status != "completed" and .phase != "diffReady")' "$ROOT/http.jsonl" >/dev/null
@@ -287,6 +320,9 @@ for label in delivery-failure agent-failure invalid-diff json-corruption; do
     case "$label" in
         invalid-diff) jq -se 'any(.[]; .detail == "Could not deliver the result: diff is not valid UTF-8")' "$ROOT/http.jsonl" >/dev/null ;;
         json-corruption) jq -se 'any(.[]; .detail == "Could not deliver the result: decoded diff checksum does not match")' "$ROOT/http.jsonl" >/dev/null ;;
+        too-many-files) jq -se 'any(.[]; .detail == "Could not deliver the result: structured.touchedFiles: exceeds 10000 items")' "$ROOT/http.jsonl" >/dev/null ;;
+        oversized-metadata) jq -se 'any(.[]; .detail | strings | contains("metadata without diff"))' "$ROOT/http.jsonl" >/dev/null ;;
+        oversized-usage) jq -se 'any(.[]; .detail == "Could not deliver the result: usage: raw JSON exceeds 8192 characters")' "$ROOT/http.jsonl" >/dev/null ;;
     esac
 done
 mkfifo "$ROOT/ready"
