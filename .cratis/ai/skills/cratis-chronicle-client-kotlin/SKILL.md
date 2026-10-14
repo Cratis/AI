@@ -15,15 +15,7 @@ you construct a client, ask it for an event store, and append or observe.
 
 Source: `Cratis/Chronicle.Kotlin`, by source symbols and signatures.
 
-| Artifact | Source |
-| --- | --- |
-| `io.cratis:chronicle` | `Chronicle.Kotlin` |
-| `io.cratis:chronicle-spring-boot-starter` | `Integrations/SpringBoot` |
-| `io.cratis:chronicle-testing` | `Testing` |
-| `io.cratis:chronicle-contracts` | `Source/build.gradle.kts` (`chronicleContractsVersion`) |
-
-All three artifacts are published to Maven Central under `io.cratis` (their
-`build.gradle.kts` publishing blocks). The JVM toolchain is **17**.
+Read [references/product-sources.md](references/product-sources.md) when you need the artifacts and their source modules.
 
 > **Do not copy a version number out of the repository's README or docs.**
 > The version comes from a Gradle property injected at release time —
@@ -102,29 +94,7 @@ Narrow discovery with `withArtifactsFrom(vararg packages)` in a large app.
 Read [references/options.md](references/options.md) when setting naming policy,
 registration, artifact activation, sink type or OpenTelemetry options.
 
-### The connection string
-
-`ChronicleConnectionString.kt` documents the grammar:
-
-```
-chronicle://<host>[:<port>][,<host>[:<port>]...][?<options>]
-chronicle://<username>:<password>@<host>[:<port>][,...][?<options>]
-chronicle+srv://<host>[:<port>][?<options>]
-```
-
-Default port is `35000`. Recognized query keys, lowercased at parse time
-(`ChronicleConnectionString` parser): `disabletls`, `skiptlsvalidation`,
-`loadbalancer`, `srvnameserver`. `apiKey` is parsed but rejected at client
-creation with `IllegalArgumentException`: the kernel has no API-key authentication.
-Use `user:password@`. Omitting credentials selects `chronicle-dev-client` /
-`chronicle-dev-secret`; these are development credentials, not a production setup. `ChronicleConnectionString.parse(String)` is on the companion, and `ChronicleConnectionString.DEVELOPMENT` points at
-`localhost:35000` with the `chronicle-dev-client` / `chronicle-dev-secret`
-credentials.
-
-> **TLS is on, certificate validation is off by default** (`disableTls = false`,
-> `skipTlsValidation = true`), for a self-signed development kernel.
-> **Production must set `?skipTlsValidation=false`** for platform trust-store
-> chain validation (`ChronicleConnectionString.createCredentials`).
+Read [references/connection-string.md](references/connection-string.md) when writing a connection string or choosing credentials. A production string must set `?skipTlsValidation=false`; `apiKey` is rejected at client creation.
 
 ### Spring Boot
 
@@ -159,11 +129,7 @@ annotation class EventType(
 Two event classes with the same simple name in different packages therefore
 collide on the wire. Give one an explicit `id`.
 
-The house shape is a Kotlin `data class` with defaulted properties or a Java
-`record` (the Spring Boot samples). Property-level
-annotations that travel with the event: `@io.cratis.chronicle.keys.Key`,
-`@io.cratis.chronicle.compliance.Pii`, `@io.cratis.chronicle.Subject`,
-`@io.cratis.chronicle.schemas.JsonSchemaType`.
+Read [references/event-type-annotations.md](references/event-type-annotations.md) when choosing an event class shape or its property annotations.
 
 `@Pii` on a `ConceptAs` type is declared once and cascades to its uses.
 For operational secrets (API keys, partner credentials), use
@@ -226,11 +192,7 @@ legacy route by passing all three explicitly. Reads narrow only by supplied
 filters; single-source `appendMany` applies the routing options to every event.
 See the product's `Documentation/guides/migrate-append-routing.md`.
 
-For an idempotent create, narrow the concurrency scope and use
-`ConcurrencyScopeBuilder.withExpectsNoMatchingEvent()`. The equivalent is
-`ConcurrencyScope(EventSequenceNumber.unavailable, eventSourceId = true,
-expectsNoMatchingEvent = true)`; a concrete sequence number and this flag are
-mutually exclusive (package `eventSequences.concurrency`).
+Read [references/append-concurrency.md](references/append-concurrency.md) when an append must be an idempotent create (`withExpectsNoMatchingEvent()`).
 
 Event-source definitions and their named streams are optional, discovered
 artifacts (kernel requirement above).
@@ -279,58 +241,15 @@ triggering event source. A returned `List` is one atomic batch: one rejected
 event rejects all — `observation/ReactorSideEffects.kt`.
 This is how a reactor appends without ever touching the event log.
 
-`EventContext` is a data class with `sequenceNumber: Long`, `eventSourceId`,
-`eventType`, `occurred`, `correlationId`, `causedBy`, `eventSourceType`,
-`eventStreamType`, `eventStreamId`, `eventStore`, `namespace`, `causation`,
-`tags`, `hash`, `observationState`, `subject`, `eventSource` —
-`events/EventContext.kt`. Recompile when the constructor changes.
+Read [references/annotations-and-handlers.md](references/annotations-and-handlers.md#eventcontext) when you need the `EventContext` fields.
 
 ### The annotations
 
-| Annotation | Arguments | Source |
-| --- | --- | --- |
-| `@Reactor` | `id = ""`, `eventSequence = ""` | `observation/Reactor.kt` |
-| `@Reducer` | `id = ""`, `eventSequence = ""`, `isActive = true` | `observation/Reducer.kt` |
-| `@ReadModel` | `id = ""`, `displayName = ""` | `readModels/ReadModel.kt` |
-| `@Projection` | `id = ""`, `eventSequence = ""` — optional | `projections/Projection.kt` |
-| `@Constraint` | `id = ""` | `constraints/Constraint.kt` |
-| `@Seeder` | none | `seeding/Seeder.kt` |
-
-Handler-level: `@Replay`, `@OnceOnly`. Observer filtering: `@Tag`/`@Tags`,
-`@FilterEventsByTag`/`@FilterEventsByTags`, `@EventSequence`,
-`@EventSourceType`, `@EventStreamType`.
-
-A reducer's handler may be `(event)`, `(event, state)`, or
-`(event, state, context)` — the three shapes accepted by the dispatcher and by
-`ReadModelScenario` (`Testing/.../ReadModelScenario.kt`). **Reducers run
-client-side**: the kernel streams events and the handler is invoked in your
-process (`observation/ReducersService.kt`).
+Read [references/annotations-and-handlers.md](references/annotations-and-handlers.md) when choosing an observer annotation (`@Reactor`, `@Reducer`, `@ReadModel`, `@Projection`, `@Constraint`, `@Seeder`), its arguments, or the reducer handler shapes.
 
 ### Read models and model-bound projections
 
-Read models are queried through `store.readModels`
-(`readModels/IReadModelsService.kt`): `getInstanceByKey(readModelClass, key): T?`,
-`getInstances(readModelClass, eventCount)`,
-`getSnapshotsById`, and `watch(readModelClass): Flow<ReadModelChangeset<T>>`
-(which is **not** suspending — it hands back a `Flow`).
-
-A model-bound projection puts the projection on the read model with `@FromEvent`
-(`projections/FromEvent.kt`) and `@SetFrom`
-(`projections/SetFrom.kt`); the full family also includes `SetValue`,
-`SetFromContext`, `AddFrom`, `SubtractFrom`, `Increment`, `Decrement`, `Count`,
-`Join`, `RemovedWith`, `RemovedWithJoin`, `ChildrenFrom`, `ClearWith`,
-`FromAll`, `FromEvery`, `FromEventSourceId`, `CountFromAll`, `IncrementFromAll`,
-`DecrementFromAll`, `Nested`, `NoAutoMap`, `NoAutoMapProperties`,
-`NotRewindable`. The declarative
-alternative is a class implementing `IProjectionFor<TReadModel>`.
-Use fluent `set(...).toValue(...)` for a constant, or `toProperty(...)` for an
-event property. `set(...).to { }` is deprecated: it never evaluated the lambda.
-`noAutoMap()` is honored; composite key parts can use
-`toEventContextProperty(targetPropertyName, contextProperty)`.
-
-`@io.cratis.chronicle.readModels.Passive` and `@Reducer(isActive = false)`
-compute a passive model from its events on read, so a read immediately after an
-append includes that event rather than waiting for a materialized observer.
+Read [references/read-models-and-projections.md](references/read-models-and-projections.md) when querying read models through `store.readModels`, declaring a model-bound or `IProjectionFor` projection, or needing a passive model for read-your-writes.
 
 ### Variants — mutually exclusive read models for one entity's lifecycle
 
