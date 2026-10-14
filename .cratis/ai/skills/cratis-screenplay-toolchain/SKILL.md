@@ -17,7 +17,7 @@ skill answers "does it compile, bind, render, and which compiler said so". The m
 
 ## Locate the model
 
-Look first in the model root: the folder holding the project's `.play` files (else `Source/` or `src/`, else `Screenplay/`), or the root the project set with `mcpServers.screenplay.root` in `.cratis/ai.json`. A folder of `.play`
+Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` to locate the model root. A folder of `.play`
 files is one application: always check the folder, never one file of it.
 
 ## Tool versions and the contract

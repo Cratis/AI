@@ -10,10 +10,7 @@ Arc applies paging and sorting for you. You never write `Skip`/`Take` or read
 the query string — you choose a **return shape** that the framework can narrow.
 
 - An accepted `.play` model under the model root covers the behavior, or the
-  repository is opted in (the root holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project set
-  `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install
-  output, an uncommitted `.play` draft or a `.play` file outside the root does not count; master definition:
-  `cratis-screenplay-modeling-lifecycle`): change the model first with
+  repository is opted in (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs`): change the model first with
   `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
   say so and do not author `.play` from memory.
   Edit code here only for infrastructure, clients, adapters, Screenplay code

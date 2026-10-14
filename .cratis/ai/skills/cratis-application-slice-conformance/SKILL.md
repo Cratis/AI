@@ -52,17 +52,11 @@ This skill is a method: it names no API of its own. When the Screenplay skills a
 Find the contract before touching code; say which one you are using. These steps are enough on
 their own when the Screenplay skills are not installed; the master decision rule, when they
 are, is `cratis-screenplay-modeling-lifecycle` ("Decide the level first").
-1. An accepted `.play` model under the model root (the folder holding the project's `.play` files, or the root
-   set by `mcpServers.screenplay.root` in `.cratis/ai.json`) covers the slice (search
+Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` for the opt-in decision, model root and drafts.
+1. An accepted `.play` model under the model root covers the slice (search
    `**/*.play` for the slice, command, event and read-model names): the `.play` slice and its
-   specifications are the contract. "Accepted" means the `.play` file is in the committed tree
-   (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured). Staged or untracked files under the
-   root are drafts, not contracts; a file outside the root is not a contract. A committed file
-   with uncommitted working-tree edits is a model change in progress: its HEAD version is the
-   contract until the change is committed.
-2. The repository is opted in (the root holds a committed `.play` file, or the project
-   explicitly set that root, even if it is empty; an empty unconfigured directory, install
-   output, an installed skill or an uncommitted draft does not count) but this
+   specifications are the contract.
+2. The repository is opted in but this
    scope has no model yet: new behaviour starts in discovery and slice design
    (`cratis-screenplay-discovery`, `cratis-screenplay-slice-design`); do not code first. If those
    skills are not installed, say so and do not author `.play` from memory.
