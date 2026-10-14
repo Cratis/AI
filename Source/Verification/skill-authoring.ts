@@ -8,11 +8,8 @@ import { lineCount, referencesPath, skillBody } from './skill-structure.ts';
 
 const requiredRules = new Set(['description-when', 'description-voice', 'eval-coverage-ratchet', 'always-on-lines', 'asset-reachability']);
 
-/** Existing assets owned by the concurrent Screenplay cleanup; remove exceptions once directly linked. */
-export const assetExceptions = [
-    { file: '.cratis/ai/skills/cratis-screenplay-automations-and-translations/assets/pending-certificates.play', reason: 'Concurrent Screenplay cleanup owns this skill; link the asset there, then remove this exception.' },
-    { file: '.cratis/ai/skills/cratis-screenplay-automations-and-translations/assets/retry-sweep.play', reason: 'Concurrent Screenplay cleanup owns this skill; link the asset there, then remove this exception.' },
-];
+/** Skill assets allowed to stay unnamed in SKILL.md, each with a reason; a linked or removed asset makes its exception fail as stale. */
+export const assetExceptions: { file: string; reason: string }[] = [];
 
 /** Parse folded/quoted descriptions without scanning nested metadata or the body. */
 function descriptionOf(content: string): { value: string; line: number } | undefined {
