@@ -51,7 +51,7 @@ Read the skill before writing the artifact it covers; the rules alone are not th
 | Slice type | Before writing code | Specifications |
 |---|---|---|
 | State Change | `cratis-arc-command`, `cratis-arc-command-validation`, `cratis-fundamentals-concept`; `cratis-chronicle-event-constraints` for uniqueness | `cratis-application-slice-specifications`; `cratis-chronicle-event-specifications` for constraints |
-| State View | `cratis-chronicle-read-model`, `cratis-chronicle-projection` (`cratis-chronicle-reducer` only as a last resort) | `cratis-chronicle-read-model-specifications` |
+| State View | `cratis-chronicle-read-model`, `cratis-chronicle-projection` (`cratis-chronicle-reducer` when transitions read better as code) | `cratis-chronicle-read-model-specifications` |
 | Automation | `cratis-chronicle-reactor`; `cratis-arc-command-execution` or `cratis-arc-command-operation`; `cratis-engineering-effect-boundaries` for any outside call | Plain calls for pure reactor decisions; `ReactorScenario` for invocation/side effects (`cratis-specifications-csharp`), plus the invoked command's specs |
 | Translation | by the actual construct and trigger, not the label: a `capture` is an ingestion adapter (`cratis-engineering-effect-boundaries`); a translator `reaction` is `cratis-chronicle-reactor` (cross-service: inbox/`[EventStore]`); a clock or application trigger is a scheduler or host signal | as Automation |
 | UI | `cratis-arc-react-page`, `cratis-arc-command-typescript`, `cratis-arc-query-typescript` | `cratis-application-react-specifications` |
@@ -89,7 +89,7 @@ Proxies now exist. Build React components from the generated proxies (`react.md`
 
 - All backend artifacts in one `<Slice>.cs`; namespace mirrors the path; layout per `general.md` (no `Features/` wrapper; `<Module>` optional).
 - `Handle()` returns the event/result directly (no `Task.FromResult` without `await`); validation in `CommandValidator<T>`/`ConceptValidator<T>`/`Provide()`; **never throw for normal business rejection** — return `ValidationResult`/`Result<,>`.
-- Model-bound projections default; **never `.AutoMap()`**; reducers only as a last resort with justification.
+- Start with model-bound attributes, fluent for structured mappings, reducer code for clearer prior-state branches/calculations/guards; **never `.AutoMap()`**. New .NET reducers default to static `Reduce` on the model; separate `IReducerFor<T>` for DI/replay instance behavior/separation; plain-class nomination only when its assembly cannot reference Chronicle. Follow the read-model/reducer skills for Arc query discovery, exact signatures and builder ownership. Preserve admission/ordering guards when converting; do not infer Stage renders the self form or apply it to other SDKs.
 - Events: no arguments on `[EventType]`, non-nullable, past tense, `<summary>`, never carry the event-source id.
 - `[OnceOnly]` on non-idempotent reactor side effects; reactors return side-effect events or use `ICommandPipeline` (never `IEventLog`).
 - Specs compiled into the application assembly use `#if DEBUG`; dedicated spec projects need no wrapper. Command aliased, per-test unique values.

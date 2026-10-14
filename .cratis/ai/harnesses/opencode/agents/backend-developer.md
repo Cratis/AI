@@ -107,7 +107,7 @@ public record ProjectRegistered(ProjectName Name);
 
 - Record decorated with `[ReadModel]`; query methods are **static** methods on the record; custom paths use `[Path("...")]`.
 - **AutoMap is on by default — NEVER call `.AutoMap()`.** Matching property names map automatically; diverge with `[SetFrom<T>]` / `.Set().To()` only for genuine name differences. Re-enable `.AutoMap()` only inside a `.NoAutoMap()` scope.
-- Default to model-bound attributes (`[FromEvent<T>]` class-level, etc.); use fluent `IProjectionFor<T>` for joins/transforms; use a reducer for "current state + event → next state".
+- Start with model-bound attributes for clear mappings; use fluent `IProjectionFor<T>` when mappings need structure; choose reducer code when prior-state branches, calculations or guards read better as code. Default new .NET reducers to static `Reduce` on the model; use `IReducerFor<T>` for DI/replay instance behavior/separation and nominated plain classes only when their assembly cannot reference Chronicle. Follow **cratis-chronicle-read-model** and **cratis-chronicle-reducer** for signatures, Arc query discovery and ownership; preserve admission/ordering guards when converting. Other SDK and Stage contracts are unchanged.
 - Projections consume **events**, never other read models.
 - Identity concepts derive from `EventSourceId<T>` (not `ConceptAs<Guid>`).
 
