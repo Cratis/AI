@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-chronicle-web-workbench",
+  "queries": [
+    { "query": "what URL do I open for the chronicle workbench in the browser? http://host:35000 shows a TLS error", "shouldTrigger": true },
+    { "query": "we set Features:Api false for security and now the Workbench disappeared. why?", "shouldTrigger": true },
+    { "query": "someone wants to expose the chronicle workbench on the internal network with authentication disabled, thoughts?", "shouldTrigger": true },
+    { "query": "a user committed a secret in an event. how do I remove its content, redact or revise in the workbench?", "shouldTrigger": true },
+    { "query": "does the workbench mask personal data in the sequences screen?", "shouldTrigger": true },
+    { "query": "which workbench buttons fire on first click with no confirmation? I don't want to nuke anything", "shouldTrigger": true },
+    { "query": "Chronicle workbench behind a path-routed reverse proxy, how do I set the base path", "shouldTrigger": true },
+    { "query": "what does Fast forward do to an observer in the browser Workbench?", "shouldTrigger": true },
+    { "query": "what is Reset kernel state in the Development Tools screen and is a production build protected?", "shouldTrigger": true },
+    { "query": "is revising an event the way to answer a GDPR erasure request?", "shouldTrigger": true },
+    { "query": "Full-screen TUI in the cratis CLI for observers and jobs.", "shouldTrigger": false, "note": "cratis-cli-terminal-workbench" },
+    { "query": "Script observer replays through the cratis command with --yes.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Which MCP tools does Chronicle expose for inspection?", "shouldTrigger": false, "note": "cratis-chronicle-mcp-inspection" },
+    { "query": "Mark a property as PII and run erasure by subject.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Deploy Chronicle with certificates and a Kubernetes manifest.", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
+    { "query": "Change the React code of my app's page to add a button.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Browser extension that watches Arc commands and queries.", "shouldTrigger": false, "note": "cratis-lens-browser-extension" },
+    { "query": "Register a new event type in C# for BoatRegistered.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+  ]
+}

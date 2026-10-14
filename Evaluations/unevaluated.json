@@ -18,12 +18,10 @@
   "cratis-chronicle-event-modeling": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-chronicle-event-specifications": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-chronicle-event-type-migration": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-chronicle-mcp-inspection": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-chronicle-multi-tenancy": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-chronicle-reactor": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-chronicle-read-model-specifications": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-chronicle-reducer": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-chronicle-web-workbench": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-content-length": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-developer-marketing": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-documentation-writing": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
@@ -33,7 +31,6 @@
   "cratis-engineering-effect-boundaries": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-event-model-diagram": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-governed-release-methodology": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-lens-browser-extension": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-llm-friendly-documentation": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-release-notes": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-screenplay-automations-and-translations": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
@@ -51,7 +48,6 @@
   "cratis-specification-by-example": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-specifications-csharp": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-specifications-typescript": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-studio-mcp-safety-guidance": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-technical-examples": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-writing-voice-and-cadence": "Existing skill without evaluation inputs; remove when trigger and output cases are added."
 }
