@@ -138,9 +138,9 @@ origins and direction (ESM v9).
 | `PLAY0268` | A public or foreign `import` has no local shape; declare `event X from "Store"` with its fields |
 
 One capture reads one origin: split a capture whose `from` events come from several
-origins into one capture per origin.
+origins into one capture per origin (`PLAY0687`). Chronicle realizes one capture as one inbox observer and refuses a mixed capture at runtime.
 
-Requires Screenplay 4.155.0 or later for the error that enforces one origin per capture; older compilers accept a mixed capture silently, so check origins by review there.
+Requires Screenplay 4.155.0 or later for `PLAY0687`; older compilers accept a mixed capture silently, so check origins by review there.
 
 ## Tooling: one workspace and one verdict set per service
 

@@ -5,28 +5,13 @@
     "reason": "Components release that introduced the dark-error mapping, a real version gate and not a restatement of the numerically identical Scene scaffold pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
   },
   {
-    "file": ".cratis/ai/skills/cratis-application-slice-specifications/references/query-and-decision-scenarios.md",
-    "text": "Requires Arc 22.87.0 and Chronicle 19.54.0",
-    "reason": "Chronicle release that introduced in-process read-model collection observation, a real version gate and not a restatement of the numerically identical Stage scaffold Chronicle pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
+    "file": ".cratis/ai/skills/cratis-arc-command-execution/SKILL.md",
+    "text": "Requires Arc 22.88.0",
+    "reason": "Arc release that introduced ordered reactor command invocation and refusal classification, a real version gate and not a restatement of the numerically identical Stage scaffold Arc pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
   },
   {
-    "file": ".cratis/ai/skills/cratis-chronicle-client-dotnet/references/discovery.md",
-    "text": "Requires Chronicle 19.54.0",
-    "reason": "Chronicle release that introduced read-model collection observation, a real version gate and not a restatement of the numerically identical Stage scaffold Chronicle pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-chronicle-read-model/SKILL.md",
-    "text": "Requires Chronicle 19.54.0",
-    "reason": "Chronicle release that introduced read-model collection observation, a real version gate and not a restatement of the numerically identical Stage scaffold Chronicle pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-chronicle-read-model/references/collection-observation.md",
-    "text": "Requires Chronicle 19.54.0",
-    "reason": "Chronicle release that introduced read-model collection observation, a real version gate and not a restatement of the numerically identical Stage scaffold Chronicle pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-chronicle-read-model/references/queries.md",
-    "text": "Requires Chronicle 19.54.0",
-    "reason": "Chronicle release that introduced read-model collection observation, a real version gate and not a restatement of the numerically identical Stage scaffold Chronicle pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
+    "file": ".cratis/ai/skills/cratis-arc-command-execution/references/command-refusals.md",
+    "text": "Requires Arc 22.88.0",
+    "reason": "Arc release that introduced ordered reactor command invocation and refusal classification, a real version gate and not a restatement of the numerically identical Stage scaffold Arc pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
   }
 ]
