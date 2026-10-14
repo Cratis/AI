@@ -81,8 +81,8 @@ report and slice `documentation`, and continue.
    standing in for a rule. Place each rule in its layer (`references/rule-layers.md`). A rule
    over stored state is written as `reads <View>` + `require ... message "..."` and marked
    **NOT enforced in the model today** in the slice `description`, with its target named (Arc
-   `[ProtectedDecision]` + `DecisionRead<T>` on Arc 22.39.0+ (available to gap-fill
-   code with the Arc and Chronicle the Stage 4.73.1 scaffold pins); Chronicle DCB; or a constraint). Never copy state
+   `[ProtectedDecision]` + `DecisionRead<T>` (Requires Arc 22.39.0 or later; available to gap-fill
+   code with the Arc and Chronicle the Stage scaffold pins); Chronicle DCB; or a constraint). Never copy state
    into the command as input or hide a rule in `handler` / hint prose; descriptions reach code
    only as XML comments. Fill the **refusal inventory**: success, each distinct refusal with
    layer and message, and the denied persona.
@@ -120,8 +120,8 @@ report and slice `documentation`, and continue.
    need explicit `key`; read-surface `references/named-keys.md` gives the exact fallback.
    The identifier equals the projection's effective key (decision table in
    `references/read-model-design.md`; Stage rule in `references/admission.md` of
-   `cratis-stage-rendering-and-sandbox`). Collections and observable delivery bind at
-   4.135.0; check renderer admission separately.
+   `cratis-stage-rendering-and-sandbox`). Collections and observable delivery bind;
+   check renderer admission separately.
    Whose rows is part of the view; a caller-supplied filter is not access control.
 7. **Screens, Level 1.** `data <RM> via query <Q>` plus `action <Command>` per thing the user
    can do there. Build each slice as read model, screen, command, event. A screen acting on an
@@ -203,7 +203,7 @@ Mark view identity with trailing `key`. Use a composite key for independent view
 coordinates (resource + period), a natural single id for one entity's state.
 Supply every named part in single-instance queries and command/trigger reads;
 see read-surface `references/named-keys.md`. Composite view keys remain
-unadmitted (PLAY0268, #599), unlike admitted composite stream routes.
+unadmitted (PLAY0268), unlike admitted composite stream routes.
 Keep the true identity and report the gap rather than inventing a concatenated id.
 
 ## Identity-affecting edits on an existing model
@@ -239,14 +239,12 @@ Slice design is done when these hold; otherwise report what is open.
       per rule-carrying value; slice dependencies recorded.
 - [ ] V1 passed, and V3 (executable/renderable scope) with expected codes only, tool and version named.
 
-## Verified product sources
+## Product sources
 
-| Source | Pin | Used for |
-| --- | --- | --- |
-| Screenplay | `v4.66.0` (`c89198b`) | `commands.md`, `constraints.md`, `specifications.md`, `diagnostics.md` (`PLAY0191`, `PLAY0268`, `PLAY0271`, `PLAY0350`, `PLAY0381`, `PLAY0397`), `projections/keys.md` |
+Screenplay `commands.md`, `constraints.md`, `specifications.md`, `diagnostics.md` (`PLAY0191`, `PLAY0268`, `PLAY0271`, `PLAY0350`, `PLAY0381`, `PLAY0397`) and `projections/keys.md`.
 
-Examples compile with `screenplay` 4.68.0 `--warnaserror` and `cratis screenplay validate
---warnings-as-errors` (cratis 3.28.2 or later); other tool versions: `cratis-screenplay-toolchain`
+Examples compile with `screenplay --warnaserror` and `cratis screenplay validate
+--warnings-as-errors`; other tool versions: `cratis-screenplay-toolchain`
 `SKILL.md`. Compiling proves syntax, not that the model is executable or renders.
 
 ## Verify

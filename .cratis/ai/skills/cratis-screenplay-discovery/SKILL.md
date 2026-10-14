@@ -43,13 +43,11 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
   `references/document-intake.md` (facts file, certainty marks, exact figures, contradictions, a
   coverage pass, the blueprint summary).
 
-## Verified product sources
+## Product sources
 
-Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`. The
-statements below were checked at these older tags (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3,
-Stage v4.24.2, Arc v22.50.5, Chronicle v19.32.0), kept as provenance, not as current pins.
-Model notes use Screenplay `Documentation/screenplay/model-notes.md`
-and decision 0045:40-79; tool sources: model-authoring `references/model-notes.md`.
+Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`.
+Model notes use Screenplay `Documentation/screenplay/model-notes.md`;
+tool sources: model-authoring `references/model-notes.md`.
 
 | Fact used here | Source |
 | --- | --- |
@@ -62,7 +60,7 @@ and decision 0045:40-79; tool sources: model-authoring `references/model-notes.m
 | Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268); current markers are in `cratis-screenplay-command-surface` | `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs` |
 
 Every complete `screenplay` fence in this skill compiles with the standalone compiler
-4.139.0 (`--warnaserror`).
+(`--warnaserror`).
 
 ## Interview phase
 

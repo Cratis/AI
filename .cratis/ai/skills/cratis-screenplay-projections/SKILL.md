@@ -26,25 +26,15 @@ hand-copy Screenplay source between repositories. Keep Markdown that explains,
 questions or navigates the model in the repository's documentation; the `.play`
 source is the single flow model.
 
-## Verified product sources
+## Product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | PDL parser, validator, diagnostics, semantic binder |
-| `Cratis.Screenplay` | main `fd18129` | Inline event extraction and context identity guidance |
-| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Reducer-body binding (`Semantics/`); no PDL syntax change affects the examples |
+Screenplay `Documentation/screenplay/projections/` (including `semantic-model.md`, `keys.md`
+and `variants.md`), `readmodels.md`, `diagnostics.md`, `commands.md`, `events.md` and
+`mcp/authoring-tools.md` describe the PDL parser, validator, diagnostics, semantic binder and
+reducer-body binding (`Semantics/`). Every example below compiles with the standalone compiler.
+Reverify before claiming another version behaves the same.
 
-The update follows `commands.md`, `events.md` and `mcp/authoring-tools.md` at
-that main commit (after v4.52.0); no PDL example changes in this update.
-
-Originally checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`; the
-projection grammar was re-read for headers and dynamic keys):
-`Documentation/screenplay/projections/` (including `semantic-model.md`, `keys.md`
-and `variants.md`), `readmodels.md`, `diagnostics.md` and decisions 0001 and 0002.
-Every example below compiles with that version's compiler. Reverify before
-claiming another version behaves the same.
-
-**Chronicle decides what a projection means** (Screenplay decision 0001).
+**Chronicle decides what a projection means.**
 Screenplay owns the grammar; which instance an event affects, what a join may
 create and what a removal removes follow Chronicle's lowering. Syntax that
 compiles can still mean something other than it seems: read the warnings.
@@ -298,7 +288,7 @@ Diagnostics: no `enters on` (`PLAY0382`), a shared mapping a variant's read
 model lacks (`PLAY0383`), duplicate variant names (`PLAY0384`), an entering
 event claimed twice (`PLAY0385`). The executable model binds variants the way Chronicle's client SDK
 reclassifies them; Chronicle's hosted declaration language does not lower them
-yet (Cratis/Chronicle#4109). Use variants for genuinely different shapes, not for
+yet. Use variants for genuinely different shapes, not for
 a single `status` field.
 
 ## When PDL is not enough — the reducer
@@ -346,8 +336,7 @@ Read [pdl-grammar.md](references/pdl-grammar.md) when checking exact syntax, int
 
 - [ ] Standalone `screenplay <model> --warnaserror` reports zero errors and zero
       warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
-      (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
-      or lower). Name which tool produced the result. If it reports diagnostics, correct the model and rerun the same command; report unresolved diagnostics as blockers rather than a passing verification.
+      (an older bundled compiler can stop at a lower ESM version). Name which tool produced the result. If it reports diagnostics, correct the model and rerun the same command; report unresolved diagnostics as blockers rather than a passing verification.
 - [ ] Each read model has **exactly one** builder.
 - [ ] No projection-level `key`; every `from` that must address the same
       instance is keyed on the same identity.
