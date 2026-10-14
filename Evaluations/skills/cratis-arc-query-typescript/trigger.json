@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-arc-query-typescript",
+  "queries": [
+    { "query": "how do i expose a list of tasks from our Node Arc for TypeScript server? i have a TaskItem class", "shouldTrigger": true },
+    { "query": "@readModel class with static @query method but there's no route. what does Arc need?", "shouldTrigger": true },
+    { "query": "build() says Unbound parameters on TaskItem.taskById. how do i bind the id argument and the service?", "shouldTrigger": true },
+    { "query": "my query returns undefined when the task is missing. should that be a 404 or should I catch and return an empty array?", "shouldTrigger": true },
+    { "query": "snapshot GET on my observable query returns 202 forever with an RxJS Subject. how do I make it answer 200?", "shouldTrigger": true },
+    { "query": "i need the db to do the paging for my Drizzle backed query instead of slicing in memory. queryPage?", "shouldTrigger": true },
+    { "query": "role Reader on a static query method but the class has allowAnonymous. which wins?", "shouldTrigger": true },
+    { "query": "how do I test an observable query in my Arc TS server and assert how many emissions I got?", "shouldTrigger": true },
+    { "query": "can the HTTP QUERY method be used for structured arguments on Arc TypeScript query routes?", "shouldTrigger": true },
+    { "query": "Add an observable query to our C# Arc backend returning ISubject of bookings.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Define the RegisterTask command and its handle method in the Node server.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Add a validator for the query arguments of the TypeScript server's search query.", "shouldTrigger": false, "note": "cratis-arc-validation-typescript" },
+    { "query": "Use the generated TaskItem.allTasks proxy in a React page with paging controls.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Kotlin Spring service: add a query for vessels with paging.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" },
+    { "query": "Server-side paging and totalItems for a .NET Arc query.", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "Declare a Chronicle projection for TaskItem from the TaskRegistered event in TypeScript.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "From the terminal, stream the tasks live query with curl and SSE.", "shouldTrigger": false, "note": "cratis-arc-observable-query-http" }
+  ]
+}
