@@ -7,6 +7,15 @@ No TrogonStack text is adapted in this skill. Nebulit material is credited in th
 | Component APIs, props and hooks | Cratis Components 4.26.4 and Arc, see *Verified product sources* | MIT | original | SKILL.md, references/ |
 | Screenplay and Stage facts in the screen mapping | Cratis/Screenplay v4.66.0 and Cratis/Stage v4.24.0 documentation and source | MIT | original | references/from-screenplay.md |
 
+## Eventmodelers Build-Kits
+
+Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilger and Nebulit GmbH
+(https://nebulit.de), used with their explicit consent.
+
+| Source skill | Used in | How |
+|---|---|---|
+| supabase-react `build-state-change`, `build-state-view` and build-kit composition guideline | `from-screenplay.md`, Level 1 and 2 | copied and translated: page composition through exported dialogs/components, no cross-slice internals, deletability and application-level providers |
+
 ## Adapted closely (Martin Dilger and Nebulit GmbH)
 
 Source: https://github.com/Nebulit-GmbH/agentic-engineer at commit `07b0f30648d663cb588d7e2c7aa031af9dfc21f2`,

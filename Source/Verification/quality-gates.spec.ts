@@ -474,3 +474,26 @@ test('an override that states its own requires replaces the managed requirements
     assert.ok(noOp(output, 'frontend-compile'), output);
     assert.match(output, /script 'check' is not defined/);
 });
+
+for (const succeeds of [true, false]) {
+    test(`slice-scope advice does not change a ${succeeds ? 'passing' : 'failing'} product gate`, () => {
+        const output = plan(
+            {
+                [overrideFile]: JSON.stringify({
+                    gates: [{ id: 'backend-build-debug', workingDirectory: '.', requires: {}, command: [succeeds ? '/bin/true' : '/bin/false'] }],
+                }),
+            },
+            {
+                'Source/Marina/Bookings/BookBerth/BookBerth.cs': '[Command]\npublic record BookBerth;\n',
+                'shared.txt': 'seam\n',
+            },
+            {},
+            { dryrun: false, expectedStatus: succeeds ? 0 : 2 },
+        );
+        assert.match(output, /ADVISORY slice scope/);
+        assert.match(output, /seam or out of scope: shared.txt/);
+        assert.match(output, /specification folder not found/);
+        if (succeeds) assert.doesNotMatch(output, /QUALITY GATE FAILED/);
+        else assert.match(output, /QUALITY GATE FAILED: backend-build-debug/);
+    });
+}

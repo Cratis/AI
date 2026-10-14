@@ -31,6 +31,9 @@ Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilg
 |---|---|---|
 | `record-evidence` (classic stack) | `build-prompts.md` result pointer; Slice Implementer output, using the fallback record in `cratis-screenplay-render-and-gap-fill` | adapted closely: one row per element, field and specification, files created and modified, shared seams, assumptions and checks, with no code excerpts; the board note dropped |
 
+| modeling-kit `prototype` decision scenarios; shared `load-slice` and build prompt summary warning | `build-prompts.md` mandatory flow; `checklists.md` State Change | adapted closely: read all specifications together, read declarations rather than summaries, and refuse only for contracted rules |
+| shared `request-feedback` question form | `build-prompts.md` Escalation | adapted closely: name the slice, field/rule/specification and missing choice so the owner can answer without prior context |
+
 ## Method lineage
 
 | Idea | Used in | Credit |

@@ -44,7 +44,12 @@ event names, command names and business rules come exclusively from the contract
 invent, assume or guess a field or a rule that is not in it.
 
 1. Read the slice from the contract in full: description, realization notes, specifications,
-   concepts, inherited authorization, referenced events and views.
+   concepts, inherited authorization, referenced events and views. An outline or summary is not
+   the declarations; never infer that a slice has no elements or specifications from it.
+   Before writing the decision, line up all the command's specifications and read them together:
+   what their `given` facts share identifies decision state; what makes their `then` differ
+   identifies branches. Each error expectation pins the stated rule to its given situation;
+   read the rules too, because examples do not authorize invented rejection conditions.
 2. Search case-insensitively for the qualified slice folder and its command, event, read-model
    and reactor names before writing. If a realization exists, diff it against the contract and
    update it in place within owned paths; never build a second realization. Reuse referenced
@@ -136,6 +141,9 @@ command/property name, isolation may need fresh test identifiers, and file place
 slice, invalid spec-name conversion or an unspecified layout may follow local conventions.
 Return each assumption with its address and consequence if wrong in the fallback record.
 `blocked` means progress needs a person, not that confirmation seemed safer.
+Write the question so someone reading it cold understands it: name the slice, the exact field,
+rule or specification, what is missing or contradictory, and the concrete choice needed.
+"Please clarify" alone gives the owner nothing answerable.
 
 Stop conditions: after one slice, stop regardless of what else is assigned (under a scoped brief,
 after one slice, or when the assigned scope is done or blocked, and never continue into another
