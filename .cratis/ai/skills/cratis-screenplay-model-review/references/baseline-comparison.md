@@ -7,3 +7,10 @@ not two exports. Read model-authoring
 when comparing models: source selection, missing-path caveat, identity matching,
 revision-pinned paging and drift refusals. Use `read-proposal view=semantic-diff`
 for an unapplied proposal against disk. Neither proves behavioral equivalence.
+
+## Comparing with a baseline
+
+For comparison with `main`, use `semantic-diff` with a before path and the active workspace, and
+`read-proposal view=semantic-diff` for an unapplied proposal. Neither proves behavioral
+equivalence. Source selection, the baseline worktree check, identity matching and drift refusals:
+[baseline comparison](baseline-comparison.md).

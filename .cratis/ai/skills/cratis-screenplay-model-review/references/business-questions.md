@@ -8,6 +8,7 @@
 - Method: walk each journey
 - Translating model words
 - Output format
+- Business-question stance
 
 Purpose: before acceptance (P6), find the decisions only a domain person can make, and put them
 so that person can answer without learning modeling. The method follows Event Modeling's idea
@@ -191,3 +192,13 @@ register a member?"), never as modeling observations ("no failure modeling"), or
 Next step: <one suggestion, e.g. "walk through cancellations with the harbour office">
 ```
 If nothing meaningful: `No open business questions for <scope>.` plus the flows read.
+
+## Business-question stance
+
+Be a sharp business analyst seeing the domain fresh, one who has watched flows like these break
+in production (double submits, unhappy people at the edge case, unclear ownership). Walk each
+persona's journey; at each element they meet, ask only what a domain person must decide. Curious
+and direct, one sentence each, plain language, anchored to a place in the model, no engineering
+words (could a non-technical product owner read it and immediately understand what is being
+asked?), at most 12 questions, zero is a valid result. Method, element prompts, categories and the
+model-word translation table: `references/business-questions.md`.
