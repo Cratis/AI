@@ -14,11 +14,13 @@
 | `all > <v>` / `all >= <v>` | `lines.quantity all > 0` |
 | `rule <Name>` | `orgNumber rule BeAValidOrganizationNumber` |
 
-## `not empty` means non-blank text (4.151.0)
+## `not empty` means non-blank text
 
 On text, `not empty` rejects null, empty text and whitespace-only text; at least
 one non-whitespace character is required. Concept and command property rules
-have the same meaning in **every ESM version** from Screenplay **4.151.0**.
+have the same meaning in **every ESM version**.
+
+Requires Screenplay 4.151.0 or later (`screenplay --version`) for the Unicode `not empty` correction.
 The rule does not trim or normalize the value: `" a "` passes unchanged.
 Whitespace is Unicode `White_Space` (.NET `char.IsWhiteSpace`): U+0009–U+000D,
 U+0020, U+0085, U+00A0, U+1680, U+2000–U+200A, U+2028, U+2029, U+202F,
@@ -38,10 +40,10 @@ A standalone pass is not proof that a bundled compiler or renderer has adopted
 this correction. Complete exercised model:
 [whitespace rule specifications](../../cratis-screenplay-specifications/references/whitespace-rules.md).
 
-Sources: Cratis/Screenplay `v4.151.0`,
-`Source/DotNET/Screenplay/Semantics/Execution/SemanticEvaluator.cs:102-110`,
-`Documentation/screenplay/commands.md:404-407`, `concepts.md:190` in the same
-folder, and `decisions/0071-whitespace-only-text-does-not-satisfy-not-empty.md:37-41,79`.
+Sources: Cratis/Screenplay
+`Source/DotNET/Screenplay/Semantics/Execution/SemanticEvaluator.cs`,
+`Documentation/screenplay/commands.md`, `concepts.md` in the same
+folder.
 
 ## Rules whose logic is code
 
@@ -61,7 +63,7 @@ A bodied rule or fenced block on a validation, rule or policy binds as opaque co
 implementation. Two exceptions never bind: the command `handler`, and a `file`
 constraint (the binder records the requirement, then rejects it with `PLAY0268`;
 only `unique` constraints bind).
-Stage 4.73.1 renders pure reducer transitions and opaque policy bodies, but refuses command and
+Stage renders pure reducer transitions and opaque policy bodies, but refuses command and
 concept code validations and rule predicates (STAGE-ESM-005): those are gap-fill code. Prefer a
 declarative rule when one can say it. What binds and what the executable model rejects (Date and
 DateTime comparisons, nested-path rules): `cratis-screenplay-toolchain` `references/executable-subset.md`.

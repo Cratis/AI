@@ -428,5 +428,5 @@ module Invoicing
   (`ReversingAReceivedPayment`, `RequestingARefundAfterAReversal`) are in
   `invoicing-dues-design.md`, because the command needs a stored-state rule.
 - The query answers "absent" with no `result` block. The `ListOpenInvoices` list query and its two
-  specifications bind and run (list queries bind since Screenplay 4.105.0; they compiled but did
-  not bind at 4.66.0); only `filter`, `scoped to` and `performer` queries stay design-mode: see `view-and-story-specs.md`.
+  specifications bind and run (list queries bind on Screenplay 4.105.0 or later; they compiled but did
+  not bind); only `filter`, `scoped to` and `performer` queries stay design-mode: see `view-and-story-specs.md`.

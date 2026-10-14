@@ -20,25 +20,19 @@ root. Never put a model under `.cratis/` or hand-copy it between repositories.
 `cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
 Markdown in project documentation; `.play` is the single flow model.
 
-## Verified product sources
+## Product sources
 
-Retained inline-fact update evidence: [source notes](references/source-notes.md).
-
-The historical parser/binder/reference-runner version table is in the source notes.
-
-Specification syntax was checked against Screenplay v4.127.0 `specifications.md`;
-older probes in the table remain historical. Tool versions: `cratis-screenplay-toolchain`
-`SKILL.md`. Compile commands check source, not reference execution.
-Use `screenplay test` or MCP `run-specifications` for V4; Stage/target tests are
-separate evidence. On Screenplay **4.145.0 and later**, propose → review →
-`run-specifications` with `proposalId` → apply.
+Specification syntax follows Screenplay `Documentation/screenplay/specifications.md`.
+Tool versions: `cratis-screenplay-toolchain` `SKILL.md`. Compile commands check source, not
+reference execution. Use `screenplay test` or MCP `run-specifications` for V4; Stage/target
+tests are separate evidence. Propose → review → `run-specifications` with `proposalId` → apply.
 PLAY0285 (an impossible `then`) unbinds the whole model and blocks every spec.
 Unsupported/unbound is never a pass. Typed examples and
 route assertions are in [examples and routes](references/examples-and-routes.md).
 
-Read [source notes](references/source-notes.md) for the original v4.31.0
-reference-runner evidence and v4.48.0 action syntax. Historical evidence is not
-current execution evidence; run the changed examples at the standalone pin.
+Requires Screenplay 4.145.0 or later (`screenplay --version`) for `run-specifications` with `proposalId`.
+
+Read [source notes](references/source-notes.md) for the retained inline-fact and action-syntax evidence; run the changed examples at the standalone pin.
 
 ## Reference execution — what actually runs
 
@@ -66,12 +60,13 @@ target has one normalized behavior to match.
   rather than running partially: no specification in the model runs, including
   the ones that never touch the refused construct.
 - Reactions: before ESM v6 they never run, not even after `when append`. From ESM
-  v6 (standalone tool from 4.61.0) they run after every action, as in "Reactions and
-  cascades" ([references/reactions-and-cascades.md](references/reactions-and-cascades.md)). Under `cratis` before 3.28.2 (Screenplay 4.60.1) `when clock`, `when trigger`
-  and `when capture` failed binding with `PLAY0268`, and so did reactions and captures; they
-  bind on 4.66.0 and `cratis` 3.28.2.
-- Since **4.149.1**, children defer; an ambiguous parent still fails closed.
-  [Child ordering](references/child-ordering.md): specs and decision 0007 caveat.
+  v6 they run after every action, as in "Reactions and
+  cascades" ([references/reactions-and-cascades.md](references/reactions-and-cascades.md)). A compiler that stops before ESM v6 fails `when clock`, `when trigger`
+  and `when capture` binding with `PLAY0268`, and so reactions and captures.
+- Children defer until their parent exists; an ambiguous parent still fails closed.
+  [Child ordering](references/child-ordering.md): specs and routing caveat.
+
+  Requires Screenplay 4.149.1 or later (`screenplay --version`) for child deferral.
 - A rejected individual command or append leaves the world unchanged; an accepted
   one commits once, then the read models and queries are compared. There is no
   scenario-wide transaction in v6: when a later effect of a cascade or capture
@@ -104,19 +99,19 @@ for synthesis refusals, selection, provenance and a complete passing model.
 | `given caller` / `given caller as <Persona>` | explicit caller (`authenticated`, roles, claims; empty means anonymous), or an authenticated synthesized persona witness |
 | `when <CommandType>` | run a command |
 | `when append <EventType>` | append one event: constraints and projections run, the command does not; reactions run only from ESM v6, where `then` lists what followed |
-| `when query <Query>` | perform a query with the argument values beneath it (v4.48.0) |
-| `then result [exactly]` | one expected row of the performed query; repeat for several (v4.48.0) |
-| `then no result` | the performed query returns nothing (v4.48.0) |
-| `given clock "<instant>"` | the ISO 8601 instant the scenario happens at (v4.48.0) |
-| `when clock "<instant>"` | the clock reaches an instant; scheduled reactions that are due run (v4.48.0) |
-| `when trigger <Trigger>` | an application trigger fires with the values beneath it (v4.48.0) |
-| `given capture` / `when capture <Capture>` | an earlier and the current record of a capture's source (v4.48.0) |
+| `when query <Query>` | perform a query with the argument values beneath it |
+| `then result [exactly]` | one expected row of the performed query; repeat for several |
+| `then no result` | the performed query returns nothing |
+| `given clock "<instant>"` | the ISO 8601 instant the scenario happens at |
+| `when clock "<instant>"` | the clock reaches an instant; scheduled reactions that are due run |
+| `when trigger <Trigger>` | an application trigger fires with the values beneath it |
+| `given capture` / `when capture <Capture>` | an earlier and the current record of a capture's source |
 | `generated <name> = <value>` | beneath `when <Command>`: the fixture for a generated property other than the identifier (ESM v7); `for` beneath the `when` supplies the generated identifier |
 | `then returns [<value>]` | the command's response (ESM v7): `then returns "<uuid>"` for a scalar, `then returns` with named `field = value` lines for a subset of a record |
 | `then <EventType>` | an expected new event |
 | `then events in any order` | compare the new events without regard to order |
 | `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
-| `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent (v4.66.0); the key is concrete and typed |
+| `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent; the key is concrete and typed |
 | `then query <Query> [exactly]` | query results for explicit `arguments` (none for an unkeyed list); one `result` per row, each stating the identifier; none means empty |
 | `file <path>` | optional, once: the repository-relative file realizing the specification |
 | `then error "<message>"` | a validation or constraint rejection, for that reason; a localized rule is pinned by its quoted key, `then error "$strings.<key>"` |
@@ -125,12 +120,12 @@ for synthesis refusals, selection, provenance and a complete passing model.
 | `for <value>` | the event source of a `given`/`then` event, or of the `when` command or appended event |
 | `<property> = <value>` | a literal, `null`, or a one-line JSON-shaped object or list: `lines = [{"sku":"A-1","quantity":2}]` |
 
-From v4.48.0 an enumeration value binds whether it is written bare
+An enumeration value binds whether it is written bare
 (`status = sent`), qualified (`status = InvoiceStatus.sent`) or quoted, and a
 `DateTime` value binds as a plain ISO 8601 instant (`"2026-10-05T08:00:00Z"`).
-Before v4.48.0 only the quoted member and the full round-trip instant
-(`"2026-10-05T08:00:00.0000000Z"`) bound, although the compiler accepted all of
-them - quote members when a model must bind on older versions.
+An older compiler binds only the quoted member and the full round-trip instant
+(`"2026-10-05T08:00:00.0000000Z"`) although it accepts all forms - quote members when a
+model must bind on older versions.
 
 Rules the binder enforces:
 
@@ -186,7 +181,7 @@ Read [shop fixtures and strategy choices](references/generated-fixtures.md).
 
 ## When not to
 
-Pins/clock do not realize unreleased context or secret generation; preserve the contract.
+Pins/clock do not realize context or secret generation; preserve the contract.
 
 ## Generated fixtures and return expectations (ESM v7)
 
@@ -195,13 +190,13 @@ unsupported, never passed. The fixture reference covers strict v15 shapes and fr
 
 ## Actions beyond commands
 
-A slice is not always set off by a command: `given clock`, `when clock`, `when trigger`, `given capture`, `when capture` and `when query` (with `then result` / `then no result`) name what does. Use `given clock`, never `given time`. From ESM v6 (Screenplay 4.61.0 and later, `cratis` 3.28.2 and later) the reference runner executes the clock, trigger and capture actions; before ESM v6 only `when query` executed among them.
+A slice is not always set off by a command: `given clock`, `when clock`, `when trigger`, `given capture`, `when capture` and `when query` (with `then result` / `then no result`) name what does. Use `given clock`, never `given time`. From ESM v6 the reference runner executes the clock, trigger and capture actions; before ESM v6 only `when query` executed among them.
 Read [references/actions-beyond-commands.md](references/actions-beyond-commands.md) when the slice is an automation, translation or query view, or you need the action table, grammar and what the reference runner executes for each.
 
 ## Reactions and cascades (ESM v6)
 
-From ESM v6 every action sets reactions off and `then` events compare every new fact, the action's and the reactions'. A specification whose action is a command goes in the slice that declares the command. A false `PLAY0285` on a cascade under `cratis` before 3.28.2 is tool skew, not a modeling error: never delete the `then` line to silence it.
-Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when `cratis` reports `PLAY0285` on a model that `screenplay` accepts (it holds the "Version skew: cascades and the false `PLAY0285` (cratis before 3.28.2)" section).
+From ESM v6 every action sets reactions off and `then` events compare every new fact, the action's and the reactions'. A specification whose action is a command goes in the slice that declares the command. A false `PLAY0285` on a cascade under a compiler that stops before ESM v6 is tool skew, not a modeling error: never delete the `then` line to silence it.
+Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when `cratis` reports `PLAY0285` on a model that `screenplay` accepts (it holds the "Version skew: cascades and the false `PLAY0285`" section).
 
 ## Published-event specifications (released ESM v9)
 
@@ -210,7 +205,7 @@ not `then readmodel`. The follow-up event list is exhaustive and ordered. Read
 [publication example and fold cases](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
 Events-source captures and reached opaque event-target reducers return typed
 Unsupported, not a pass. Composite view fixtures need every key part but remain
-unadmitted (PLAY0268, #599); see read-surface `references/named-keys.md`.
+unadmitted (PLAY0268); see read-surface `references/named-keys.md`.
 
 ## Reusable fixtures, routes and recovery intent
 
@@ -224,7 +219,7 @@ stream ids are not guessed. Read [examples and routes](references/examples-and-r
 
 `given operation ... fails`, `then operation` and `then compensated` describe
 future external-work behavior. Reaction refusal branches, `when redelivered`
-and `then no events` (PLAY0268, #433) are also authoring-only: compile them, but report their
+and `then no events` (PLAY0268) are also authoring-only: compile them, but report their
 PLAY0268 binding refusal instead of an executed result. Preserve the contract; a read-model or
 query assertion states a zero-fact outcome.
 
@@ -245,8 +240,10 @@ constraint — that is the constraint speaking, not the view.)
 Write an error specification for a rule that depends on existing system state or that another business could plausibly set differently. A format, range or presence rule on one value belongs on the concept with its own `validate` block, with **one rejection specification per concept rule**, through one command that uses the concept, not one per use.
 Read [references/concept-rules.md](references/concept-rules.md) when deciding whether a rule needs an error specification or a concept `validate`, or when you need the complete concept-rule example with boundary acceptances and rejections.
 
-**4.151.0** text `not empty`: [whitespace rejection specs and boundaries](references/whitespace-rules.md).
-Old whitespace-acceptance specs now fail. This applies to every ESM version.
+Text `not empty`: [whitespace rejection specs and boundaries](references/whitespace-rules.md).
+Whitespace-acceptance specs fail. This applies to every ESM version.
+
+Requires Screenplay 4.151.0 or later (`screenplay --version`) for the Unicode `not empty` correction.
 
 ## Application-boundary coverage
 

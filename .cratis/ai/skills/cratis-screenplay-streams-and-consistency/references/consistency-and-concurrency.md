@@ -13,10 +13,9 @@
 - 9. Corrections and backdated facts
 - 10. Specification limits (no local spec engine)
 
-Historical checks: Screenplay v4.66.0, Chronicle v19.32.0, Arc v22.50.5, Stage v4.24.2 (for installed tool versions see `SKILL.md` of
-`cratis-screenplay-toolchain`).
+For installed tool versions see `SKILL.md` of `cratis-screenplay-toolchain`.
 
-Routing identity checks verified at 4.127.0: PLAY0515 refuses personal/secret
+Routing identity checks verified: PLAY0515 refuses personal/secret
 concepts in stream-id types, composite parts and route sources, including nested
 paths. Composite keys require every named scalar part, not a legacy separator
 split. Text must be well-formed, nonempty NFC and Double integer ids bounded by
@@ -43,8 +42,8 @@ Status describes how the model treats the requirement:
   compensating fact and the consequence that remains possible.
 
 `enforced` is a declaration, not a runtime test result. In Chronicle the kernel checks a
-constraint at append, but the SQL and InMemory providers do not settle unique claims today
-(Chronicle#3744) and index updates run after commit (#4123); composite values can collide when a component contains the separator (#4131); all three are open at v19.32.0: name the target's storage
+constraint at append, but before Chronicle 19.59.6 (InMemory: 19.59.3) the SQL and InMemory providers do not settle unique claims,
+and index updates run after commit; composite values can collide when a component contains the separator; name the target's storage
 provider when you rely on a constraint, record runtime evidence separately, and never claim
 atomic index-and-append durability. Per row, cite the exact construct or description address
 and the scenario names; on extracted models keep the legacy evidence locator and separate an
@@ -95,8 +94,8 @@ b. **reservation by identity**: if the scarce things can be named (seat 1..N, sl
 c. **accept and compensate**: allow the over-commit, detect it in a view or automation and
    record a compensating fact (`EnrolmentWaitlisted`); only when the business agrees.
 
-Target realization (for the handoff, not the model): in an Arc/Chronicle target (Arc v22.39.0 or
-later, Chronicle 19.23 or later) the rule is a `[ProtectedDecision]` command reading `DecisionRead<T>` (or `IDecisionReads.Get<T>(key)` for
+Target realization (for the handoff, not the model): in an Arc/Chronicle target (Arc 22.39.0 or
+later, Chronicle 19.23 or later; see the Requires line below) the rule is a `[ProtectedDecision]` command reading `DecisionRead<T>` (or `IDecisionReads.Get<T>(key)` for
 another event source) in `Provide()`/`Handle()` and returning a validation result; a conflict
 at commit is reported as a concurrency violation. Equivalently a Chronicle decision-consistency
 read with a `concurrency` scope on the event source or stream. A passive read is fresh
@@ -106,7 +105,7 @@ empty or `$eventSourceId`). Reducers, joins, children, nested sources and **even
 routing** (fan-in from many streams by a payload reference) are refused, and a concurrency scope
 on the referenced source does not see appends made on other sources. A rule over such a view, for
 example a course capacity computed from enrolment streams, needs option a or b: write the
-deciding fact on the source that owns the state, or give each scarce item its own identity. Sources: Arc `v22.72.0:Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md` (limits unchanged since v22.50.5);
+deciding fact on the source that owns the state, or give each scarce item its own identity. Sources: Arc `Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md` (limits unchanged);
 `chronicle-boundaries.md`.
 
 **Availability in Stage-rendered applications.** The Stage scaffold pins Arc and Chronicle client/kernel
@@ -119,14 +118,16 @@ read in the active unit of work. For refused shapes choose option a/b (state on
 its owning stream or one identity per scarce item), or agreed compensation c.
 Keep the rule **NOT enforced in the model today** with its race consequence.
 Never infer protection from `.play` `reads` + `require`, weaken the rule to render,
-or edit managed dependency files. Older Stage 4.24.x scaffolds predate these APIs. Arc 22.72.0 and Chronicle 19.50.0 are the latest releases; the scaffold does not move with them.
+or edit managed dependency files. A rendered scaffold pins its own Arc and Chronicle releases and does not move with newer ones.
+
+Requires Arc 22.39.0 or later and Chronicle 19.23.0 or later for `[ProtectedDecision]`.
 
 ## 4. Concurrency scenarios
 For each enforced or recorded rule write three short scenarios:
 - **race**: two commands for the same claim at the same moment -> which one wins, what the
   loser sees. With constraints: one append commits, the other is rejected. Note: Chronicle
   checks uniqueness before the commit and updates the index after it; index update failures
-  are logged, not rolled back (Screenplay `constraints.md`, Chronicle#4123, open at v19.32.0). Do not call it an
+  are logged, not rolled back (Screenplay `constraints.md`, Chronicle#4123, open). Do not call it an
   atomic index-and-append guarantee.
 - **retry** (same request and operation identity, after a lost reply) -> must not record a
   second occurrence, without blocking a different legitimate operation. A once-only fact uses
@@ -161,16 +162,16 @@ behaviour. Write the answer in the slice `documentation`.
 ## 7. Ordering
 - Within one source, facts are in append order. Across sources, do not assume an order
   unless a single sequence guarantees it in the target; views combining sources must tolerate
-  any arrival order (a child before its parent). On standalone Screenplay **4.149.1
-  and later**, pin that order with `given <ChildEvent>`, then `given <ParentEvent>`,
+  any arrival order (a child before its parent). Pin that order with `given <ChildEvent>`, then `given <ParentEvent>`,
   then `then readmodel`; also cover a given child followed by `when append <ParentEvent>`.
   The reference evaluator defers the child until its original parent exists. A parent
   that never arrives leaves the child absent; an ambiguous parent still fails closed.
   This is reference execution, not a Chronicle runtime/race proof. Complete example:
   [child ordering](../../cratis-screenplay-specifications/references/child-ordering.md).
-  Sources: Cratis/Screenplay `v4.149.1`,
-  `Documentation/screenplay/projections/semantic-model.md:77-81` and
-  `Source/DotNET/Screenplay/Semantics/Execution/SemanticScopedProjection.Deferred.cs:11-96`.
+  Requires Screenplay 4.149.1 or later (`screenplay --version`) for child-before-parent ordering.
+  Sources: Cratis/Screenplay
+  `Documentation/screenplay/projections/semantic-model.md` and
+  `Source/DotNET/Screenplay/Semantics/Execution/SemanticScopedProjection.Deferred.cs`.
 - Constraints are evaluated in append order, including earlier appends of the same command.
 
 ## 8. Projection lag and rebuild

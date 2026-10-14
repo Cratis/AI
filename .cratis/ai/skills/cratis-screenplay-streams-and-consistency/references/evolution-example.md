@@ -3,7 +3,7 @@
 A complete design-mode model showing the three evolution routes from `evolution.md`: a new
 generation (compatible change), an identity-aware rename that keeps the authored stored-name
 intent as an `id` pin, and a changed meaning that becomes a new event. Several generations
-alone select ESM v4; the differing event pin selects v16 in Screenplay 4.152.0.
+alone select ESM v4; the differing event pin selects v16.
 It carries `storedName`, but released Stage 4.92.0 does not admit v16: this example
 does not prove rendered stored-history compatibility.
 See `evolution.md` for source evidence and the deployment boundary.

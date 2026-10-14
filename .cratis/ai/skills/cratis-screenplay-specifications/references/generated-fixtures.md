@@ -21,12 +21,11 @@ Pins do not prove randomness, authorization, idempotency, storage freshness or
 secret safety. Client-minted IDs stay inputs; gapless invoice numbering needs an
 allocator, not a random fixture. Pattern/random/rule and secret generation remain
 unadmitted. Source: Screenplay
-`v4.151.0:Documentation/screenplay/generated-values/choosing.md:8-29,49-51`.
+`Documentation/screenplay/generated-values/choosing.md`.
 
 ### Fixtures and outcomes
 
-Standalone `screenplay` 4.68.0 or later binds and runs these, and so does the current cratis bundle (the
-cratis 3.28.3 bundle, 4.66.0, did not); CLI 3.57.0 / Stage 4.89.1 render supported UUID/String generation strategies,
+A compiler that admits ESM v7 binds and runs these; Stage renders supported UUID/String generation strategies,
 scalar/named responses, fixtures and `then returns`. Unsupported types/result combinations
 remain `STAGE-ESM-028`/`-038`; preserve refused specifications as gap-fill contracts. The model and rules are in `cratis-screenplay-command-surface`; the
 complete threaded model is the linked shop example. The excerpt below belongs
@@ -70,10 +69,10 @@ specification RegistersWithPinnedValues
   fixtures retain legacy reuse. See the complete [strategy example](../../cratis-screenplay-toolchain/references/generation-strategies-example.md)
   and command-surface `references/generated-values-and-responses.md` for tagged sources.
 - `given clock` supplies `$context.occurred`; it does not synthesize UUIDv7, ULID or
-  TypeID from that instant. Pin the whole identifier, never a seed. Stage 4.89.1's
+  TypeID from that instant. Pin the whole identifier, never a seed. Stage's
   time-ordered factories use wall clock, not command-receipt time, and its clock
   specifications remain unsupported. Sources: Screenplay
-  `v4.151.0:Documentation/screenplay/generated-values/choosing.md:51`; Stage
-  `v4.89.1:Documentation/reference/generated-values-rendering.md:138`.
+  `Documentation/screenplay/generated-values/choosing.md`; Stage
+  `Documentation/reference/generated-values-rendering.md`.
 - A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)` (no fixture channel); a
   response-only command runs and its response is discarded.

@@ -27,12 +27,14 @@ key; write a reconciliation case.
 
 ## Refusal disposition and redelivery
 
-At Screenplay 4.125.0 an invocation can state ordered `on refused` selectors for
+An invocation can state ordered `on refused` selectors for
 validation, constraint (optionally named) or explicit authorization denial.
 Bare refusal does not include authorization. A matching branch declares a fact
 or leaf `acknowledge`; `$refusal.reason`/`.message` are String details and
 `.constraint` belongs only to constraint selectors. This is **authoring-only**
 (PLAY0268), not evidence that a duplicate was safely acknowledged at runtime.
+
+Requires Screenplay 4.81.0 or later (`screenplay --version`) for `on refused` selectors and `$refusal` values.
 
 Recovery syntax `when redelivered <Event> to <Reaction>` selects exactly one
 existing given occurrence; it is not append or replay. `then no events` makes a

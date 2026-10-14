@@ -26,5 +26,4 @@ Do not replace client-minted inputs, authorization, idempotency keys or a gaples
 invoice allocator with generation. Secret generation, pattern/random/rule execution
 and generated-concept rule consistency are not released capabilities. Preserve
 refused rules instead of deleting them or inventing a repair.
-Source: Screenplay `v4.151.0:Documentation/screenplay/generated-values/choosing.md:6-29,49-51`;
-`Documentation/screenplay/generated-values.md:70-72`.
+Sources: `Documentation/screenplay/generated-values/choosing.md` and `Documentation/screenplay/generated-values.md` in `Cratis/Screenplay`.

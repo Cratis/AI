@@ -8,7 +8,7 @@ and Nebulit GmbH. The notice is in this skill's `LICENSE`.
 
 | Source file | Used in | How |
 |---|---|---|
-| `.claude/skills/eventmodeling-storyboarding-events/SKILL.md`, "Common Patterns": input screen, status screen, error state | `references/screen-patterns.md` | Adapted closely and mapped to `screen`, `data`, `action` and `specification` (`then error`); one screen per column, lanes, actor perspective rows and mandatory rendering not adopted; the example is compiled with Screenplay 4.139.0 |
+| `.claude/skills/eventmodeling-storyboarding-events/SKILL.md`, "Common Patterns": input screen, status screen, error state | `references/screen-patterns.md` | Adapted closely and mapped to `screen`, `data`, `action` and `specification` (`then error`); one screen per column, lanes, actor perspective rows and mandatory rendering not adopted; the example compiles with the standalone compiler |
 
 Not adopted: HTML screen reconstruction and wireframe sketching (`html-screen`, `storyboard-screen`), which are board
 mechanics; Screenplay screens are declarative and Stage renders them.

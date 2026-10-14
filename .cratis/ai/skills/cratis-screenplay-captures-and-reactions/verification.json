@@ -8,10 +8,6 @@
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
-      "value": "main `fd18129`", "file": "references/product-sources.md"
-    },
-    {
-      "kind": "skill-contains",
       "value": "command-only (`PLAY0474` in a reaction)"
     },
     {

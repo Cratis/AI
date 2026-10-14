@@ -25,23 +25,14 @@ root. Never put a model under `.cratis/` or hand-copy it between repositories.
 `cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
 Markdown in project documentation; `.play` is the single flow model.
 
-## Verified product sources
+## Product sources
 
-Tool versions: toolchain `SKILL.md`; UI statements were re-read at Screenplay v4.139.0
-(`screens.md`, `contributions.md`, `forms.md`, `templates.md`, `ui-profile.md`, `fixtures/screen-release-ui.play`). Older provenance:
-`4.31.0` (original parser evidence), main `fd18129` (cancellation routing, `optional`), `4.66.0` (`c89198b`: `PLAY0269`).
-
-Scene runtime sources: scaffold Scene tag, `Source/JavaScript/**`.
-
-The update follows `commands.md`, `events.md`, `queries.md` and decision 0023
-at that main commit (after v4.52.0). It does not verify UI rendering.
-
-Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
-`Documentation/screenplay/{templates,layout-arrangement,forms,contributions,interactions,ui-profile,theme,internationalization,file-references}.md`.
-Those checks established the original baseline. The changed cancellation
-example uses the newer main commit above, not the old tag.
-
-Read `SKILL.md` in `cratis-screenplay-toolchain` when reading installed tool versions for these examples.
+Tool versions: toolchain `SKILL.md`. UI statements come from Screenplay
+`screens.md`, `contributions.md`, `forms.md`, `templates.md`, `ui-profile.md`,
+`fixtures/screen-release-ui.play`, `layout-arrangement.md`, `interactions.md`, `theme.md`,
+`internationalization.md` and `file-references.md` under `Documentation/screenplay/`. Scene
+runtime sources: scaffold Scene tag, `Source/JavaScript/**`. This guidance does not verify
+UI rendering.
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
@@ -55,8 +46,8 @@ installed shape through MCP `syntax-schema`; details:
 `references/screen-composition-contract.md`.
 
 These constructs went unhighlighted and uncompleted by the Monaco and VS Code
-language service until `Cratis/Screenplay#199` gave every construct the parser
-dispatches on a keyword entry. On an older language-service version they still
+language service until every construct the parser
+dispatches on had a keyword entry. On an older language-service version they still
 look unrecognized — **check `screenplay`, not the editor**, because absent
 highlighting was never evidence that a construct is wrong.
 
@@ -218,13 +209,17 @@ module-level.
 `navigate to <Screen> by <param>` is **not** string interpolation; it reuses the
 same typed navigate binding a screen action uses.
 
-⚠️ At v4.139.0 a navigation contribution also carries `id`, `icon`, `presentation`, `group` and
+⚠️ A navigation contribution also carries `id`, `icon`, `presentation`, `group` and
 `destination outlet <name> | dialog <DialogTemplate> | external "<route>"`; its `navigate to` takes
 `route`, `outlet` and `parameter` lines, and an undeclared outlet or dialog target is `PLAY0654`
-(`contributions.md`). An explicit override for when nearest-enclosing is not the point you mean is
+(`contributions.md`).
+
+Requires Screenplay 4.133.0 or later (`screenplay --version`) for `PLAY0654` on an undeclared outlet or dialog target.
+
+An explicit override for when nearest-enclosing is not the point you mean is
 not in the language. The screens-release vector
-(canonical `ScreenComposition` corpus v1) adds typed screen composition; public
-CLI 3.53.1 renders it and passes the browser run. Report a refused form as a
+(canonical `ScreenComposition` corpus v1) adds typed screen composition; a
+renderer that admits it renders it and passes the browser run. Report a refused form as a
 capability gap, never a flat-list fallback; Studio production proof is separate.
 
 ## Interactions — what a click does
@@ -282,9 +277,9 @@ module Invoicing
 ```
 
 The inline event targets `invoiceId`; the projection gets it from event context.
-Scalar/named `returns` bind and reference-execute since Screenplay 4.68.0 (ESM v7).
+Scalar/named `returns` bind and reference-execute (ESM v7).
 Renderer generation/response limits: command-surface `references/generated-values-and-responses.md`.
-Screenplay 4.148.0 resolves response names in form submit and execute success;
+Screenplay resolves response names in form submit and execute success (Requires Screenplay 4.148.0 or later);
 own failure use is PLAY0685. No ESM change; Scene runtime binding remains downstream.
 An existing success continuation does not imply a response contract.
 Read [response continuations](references/response-continuations.md) for precedence,
@@ -390,8 +385,8 @@ The rules:
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` (standalone) reports zero errors and zero
-      warnings; `cratis screenplay validate --warnings-as-errors` says the same on
-      cratis 3.28.2 or later, which bundles the same compiler (versions: `cratis-screenplay-toolchain`
+      warnings; `cratis screenplay validate --warnings-as-errors` says the same when its bundled
+      compiler matches (versions: `cratis-screenplay-toolchain`
       `SKILL.md`).
 - [ ] Every screen in the flow has Level 1 reviewed before any layout, and every
       form field and screen field traces to a command or read-model property.

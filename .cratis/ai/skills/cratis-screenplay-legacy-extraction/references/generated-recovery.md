@@ -14,20 +14,24 @@
 
 ## Version gate and sources
 
-These forms are source-checked at **Arc 22.87.1**, not promised for the CLI's
-adapter. **CLI 3.57.0 bundles an older Arc.Screenplay adapter** (compare `cratis --version` and the generator package actually loaded) even though its Screenplay
-4.147.1 and Stage 4.89.1 admit v15 strategies. A standalone compiler upgrade
+These forms are not promised for the CLI's
+adapter. **The CLI can bundle an older Arc.Screenplay adapter** (compare `cratis --version` and the generator package actually loaded) even though its Screenplay
+compiler and Stage admit v15 strategies. A standalone compiler upgrade
 cannot add recovery to that adapter. Check the resolved generator before using
 this guidance; do not bump managed product pins to hide the difference.
 
+Each recovery below has its own gate; use the adapter that has the one you rely on:
+
+- Requires Arc.Screenplay 22.78.0 or later for `[GeneratedValue]` Handle parameters whose `New()` is a UUID v4 form, for the `generated identifier` and response they produce, and for scenario pins (`for` / `generated`). Before it none of this is recovered. From 22.78.0 until 22.86.0 any other strategy keeps its source form and reports SP0073.
+- Requires Arc.Screenplay 22.86.0 or later to recover UUIDv7, ULID, TypeID, NanoID, `Bytes` and hex strategies as concept `generate` lines (ESM v15) and a passed-through `GenerationContext`.
+
 Tagged evidence:
 
-- Arc `v22.87.1:Documentation/backend/csharp/generating-a-screenplay.md:244-290`.
-- Arc `v22.87.1:Source/DotNET/Screenplay/Analysis/Commands/GenerationStrategyReader.cs:23-55,64-96,103-133`;
-  `GenerationCallReader.cs:16-38,69-92,100-150`;
-  `GeneratedParameterReader.cs:138-150`.
-- Arc `v22.87.1:Source/DotNET/Screenplay/Analysis/Specifications/GeneratedValuePins.cs:138-175`.
-- cli `v3.57.0:Directory.Packages.props:5-14`.
+- Arc `Documentation/backend/csharp/generating-a-screenplay.md`.
+- Arc `Source/DotNET/Screenplay/Analysis/Commands/GenerationStrategyReader.cs`;
+  `GenerationCallReader.cs`;
+  `GeneratedParameterReader.cs`.
+- Arc `Source/DotNET/Screenplay/Analysis/Specifications/GeneratedValuePins.cs`.
 
 ## Choosing a strategy
 
@@ -53,10 +57,12 @@ invoice numbers, or turn an observed secret into a random String. Preserve
 protection and unrecovered code; rule/context-member bodies are not executable
 strategies. Report missing pins, withheld productions/scenarios and version caps
 as losses, not successful recovery. Sources: Arc
-`v22.87.1:Documentation/backend/csharp/generating-a-screenplay.md:244-290`;
-Screenplay `v4.151.0:Documentation/screenplay/generated-values/choosing.md:8-29`.
+`Documentation/backend/csharp/generating-a-screenplay.md`;
+Screenplay `Documentation/screenplay/generated-values/choosing.md`.
 
 ## Recover what is proven
+
+The UUID v4 forms, pins and the identifier/response rules in this section need Arc.Screenplay 22.78.0 or later; the other strategies in the list below need 22.86.0 or later.
 
 A `[GeneratedValue]` Handle parameter becomes a generated command property only
 for a required scalar Uuid/String concept with a proven strategy and no validator,
@@ -104,7 +110,7 @@ have no pinning seam. Successful scenarios retain legacy productions or handler
 references without generated values/responses, with SP0052; explicit given sources
 also preserve this fallback. Do not rewrite source code or fake a successful pin
 to make recovery look complete. Recovery of responses has its own proof limits
-in [generate notes](generate-notes.md#arc-22760-enum-and-response-recovery).
+in [generate notes](generate-notes.md#enum-and-response-recovery).
 
 ## Incomplete recovery is a loss report
 

@@ -15,7 +15,7 @@ protected, what is only recorded, and who acts. Grammar depth is in
 **Translation crosses an application boundary:** inbound turns outside data or foreign
 public events into private local facts; outbound publishes private facts as one local public
 event type. Declare `direction inbound|outbound` when public metadata is used; omission
-preserves historical inbound for legacy translations. Private-to-private follow-up is an
+preserves inbound for translations without a declared direction. Private-to-private follow-up is an
 Automation (`produces` or `invokes`), even when a Chronicle reactor realizes it.
 Read [public events and direction](references/public-events-and-direction.md) for released
 ESM v9 forms, event-target folds, publication specifications and the Unsupported capture limit.
@@ -28,19 +28,17 @@ identity, effect and pending-work contract at that point; do not postpone it to 
 
 ## Tool and realization facts (read before promising anything)
 - Reactions, clocks, triggers, captures and Automation/Translate slices compile (V1) and bind (V3)
-  on Screenplay 4.61 or later: the standalone tool and the cratis CLI 3.28.2 or later (3.53.1
-  bundles 4.137.0). Probed on 3.28.2: the complete examples are `executableReady`. A cratis bundle before 3.28.2
-  (4.60.1) reported PLAY0268 at binding: report "V3 blocked: PLAY0268 (ESM v6)" and
+  as ESM v6: the standalone tool and a CLI whose bundled compiler admits v6. A compiler that
+  stops before v6 reports PLAY0268 at binding: report "V3 blocked: PLAY0268 (ESM v6)" and
   name the tool, never remove them.
 - The pinned standalone tool runs admitted scenarios through `screenplay test` or MCP
   `run-specifications`; source validation and render publication do not run V4.
-- Stage 4.51.3 refuses Automation/Translate members with STAGE-ESM-024; its direct
-  planner audits through v7. Deliver that scope as authorized gap-fill
+- A renderer can refuse Automation/Translate members (STAGE-ESM-024) it does not realize.
+  Deliver that scope as authorized gap-fill
   (`references/realization-and-gap-fill.md`).
 - Reaction `runs as system role "<Role>"` declares an invocation actor (ESM v10).
-  Without it the invoke has no caller. Historical CLI 3.41.0's 4.114.0 compiler
-  rejected the syntax (PLAY0137); previous CLI 3.46.1 refused ESM v10
-  at render admission (CLI-RENDER-004). The CLI/Stage pair (toolchain
+  Without it the invoke has no caller. A compiler or renderer that stops before v10
+  rejects the syntax (PLAY0137) or refuses it at render admission (CLI-RENDER-004). The CLI/Stage pair (toolchain
   `references/renderable-subset.md`) renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034. Checked model/diagnostics: captures-and-reactions
   `references/invocation-identity.md`.
 
@@ -71,20 +69,24 @@ Personal data kept in events needs bare `pii` on its concept and a declared purp
 even when it blocks binding. Never record bearer tokens, magic links or signed URLs as facts
 (a keyed hash or reference at most), and never put PII on the event-source id.
 
-## Verified product sources
-Tool versions: toolchain `SKILL.md`. Language claims were re-read at Screenplay v4.139.0,
-renderer claims at Stage v4.89.1 (`Documentation/reference/reaction-rendering.md:6-98`,
-`Source/Rendering.Cratis/Semantics/SemanticVersionFeatureAdmission.cs:25-46`): supported
-event-triggered Automation renders; Translate/captures and refused reactions stay gap-fill. The
-runtime facts at Arc v22.72.0 and Chronicle v19.50.1. Older reads kept as history:
+## Product sources
+Tool versions: toolchain `SKILL.md`. Language claims come from Screenplay
+`Documentation/screenplay/{reactions,captures,triggers,specifications,diagnostics}.md`;
+renderer claims from Stage `Documentation/reference/reaction-rendering.md`: supported
+event-triggered Automation renders; Translate/captures and refused reactions stay gap-fill.
+Runtime facts: Arc `ExecuteCommandsAsSystemAttribute` and mixed events-and-commands reactor
+returns; Chronicle `OnceOnlyAttribute`, `ReactorDelivery`, `Documentation/code-analysis/CHR0022.mdx`
+and `Documentation/reactors/delivery-identity.mdx`.
 
-| Package | Version | Used for |
-| --- | --- | --- |
-| Screenplay | v4.66.0 (`c89198b`) | `Documentation/screenplay/{reactions,captures,triggers,specifications,diagnostics}.md`; examples compiled with the standalone tool |
-| cratis CLI | v3.28.3 | bundled Screenplay 4.66.0 and Stage 4.24.2 (before 3.28.2: 4.60.1, which gave PLAY0268 on v6 constructs and a false PLAY0285 on cascades, cli#242) |
-| Stage | v4.24.2 | admitted ESM v1 to v4; rendered no Automation or Translate slice |
-| Arc | v22.72.0 (read; v22.50.5 earlier) | `ExecuteCommandsAsSystemAttribute` (since v20.56.0); mixed events-and-commands reactor returns (since v22.72.0) |
-| Chronicle | v19.50.1 (read; v19.32.0 earlier) | `OnceOnlyAttribute`, `ReactorDelivery`, `Documentation/code-analysis/CHR0022.mdx` and `Documentation/reactors/delivery-identity.mdx` |
+Requires Screenplay 4.125.0 or later (`screenplay --version`) for reaction `runs as system role` (ESM v10).
+
+Requires Arc 20.56.0 or later for `[ExecuteCommandsAsSystem]`.
+
+Requires Arc 22.72.0 or later for a reactor that returns events and commands together; before it, a mixed return is not handled. Stage still refuses a reaction that both `produces` and `invokes` (`STAGE-ESM-037`), so a mixed reaction stays authorized gap-fill whatever the Arc release.
+
+Requires Screenplay 4.105.0 or later (`screenplay --version`) for list queries (`=> Item[]`); before it a list query is refused with PLAY0268.
+
+Requires Screenplay 4.124.0 or later (`screenplay --version`) for `--check privilege` (PLAY0652).
 
 Read `SKILL.md` in `cratis-screenplay-toolchain` when selecting a tool; read the installed versions with `screenplay --version` and `cratis --version`. Reverify before claiming
 another version behaves the same.
@@ -141,7 +143,7 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
    system principal only to reactors marked `[ExecuteCommandsAsSystem]`; without
    it there is no principal and `[Authorize]`/`[Roles]` deny. `runs as` covers returned
    or invoked commands, not imperative pipeline calls, reads, productions or causation.
-   On Screenplay 4.127.0 run `--check privilege --warnaserror` (PLAY0652) for
+   Run `--check privilege --warnaserror` (PLAY0652) for
    confused-deputy paths: every trigger-event producer must require **all** declared
    system roles. Ungated commands/captures/reaction productions warn; opaque gates
    are information, not proven safe. An OR alternative does not require a role.
@@ -160,7 +162,7 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
    named cases to `cratis-screenplay-scenario-coverage`. Produce the audit in `references/audit-format.md`.
 
 ## Rules
-**Compiler contracts** (diagnostics at 4.66.0)
+**Compiler contracts** (diagnostics)
 - No inline `produces event` in a reaction (PLAY0474); declare reaction-produced events in the slice.
 - Effects sit under a trigger; `description`, `where` and current `runs as` are reaction-level; one `where` per
   reaction (PLAY0252); a trigger may not repeat (PLAY0253).
@@ -171,7 +173,7 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
   separate binder check.
 - A trigger with `reads` that `produces` directly fails binding: decide in a command. `reads` never protects.
 - An authorized command exercised in a spec without `given caller` is PLAY0389 at binding.
-- A list query (`=> Item[]`) binds (Screenplay 4.105.0+; a snapshot list is not rendered, `STAGE-ESM-010`);
+- A list query (`=> Item[]`) binds (a snapshot list is not rendered, `STAGE-ESM-010`);
   a clock sweep that iterates items needs a code body the reference does not run
   (`references/todo-list-example.md`).
 
@@ -203,8 +205,8 @@ direct effect states "not applicable: no queue" with its reason (per-chain quest
 Never report a verdict without the tool and version that produced it.
 
 ## Verify
-- V1 and V3 per `cratis-screenplay-toolchain`, each with tool and version. On a cratis before 3.28.2
-  bundle report "V3 blocked: PLAY0268 (ESM v6)". Current admitted scenarios use
+- V1 and V3 per `cratis-screenplay-toolchain`, each with tool and version. When the bundled compiler stops before v6,
+  report "V3 blocked: PLAY0268 (ESM v6)". Current admitted scenarios use
   standalone `screenplay test`/MCP for V4; unsupported or unbound is not passed.
 - For each external source and type: its translation, or an explicit out-of-scope reason; check
   target-field completeness as well as source-field dispositions.
