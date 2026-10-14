@@ -5,7 +5,7 @@
 
 Source: `Cratis/Chronicle.Kotlin`: `eventSources/EventSource.kt`,
 `EventStream.kt`, `ConcurrencyDimension.kt`, `EventSources.kt` and
-`eventSequences/EventSequenceEventSources.kt`. 
+`eventSequences/EventSequenceEventSources.kt`.
 
 Requires Chronicle kernel 19.30.0 for named event source definitions.
 
