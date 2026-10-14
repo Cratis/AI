@@ -27,9 +27,9 @@
       "repository": "Cratis/Stage",
       "packages": [],
       "synced": {
-        "version": "4.89.1",
-        "date": "2026-10-13",
-        "by": "Cratis/AI#643"
+        "version": "4.103.0",
+        "date": "2026-10-14",
+        "by": "Cratis/AI#681"
       },
       "covers": {
         "skills": [
@@ -46,7 +46,7 @@
         ],
         "rules": []
       },
-      "notes": "Source-checked Stage v4.89.1 bundled by CLI v3.57.0: ESM v1-v15, collection equality filters, UUID/String strategies and freshness, role/authenticated reaction identity, reaction observer filters and single-hop append specifications. Scaffold pins and docker docs re-read, including Host compliance and non-text secret refusal 041. Mixed effects, claim/opaque system gates, deeper cascades and other typed refusals retained. Historical probes retain original versions; no new render/browser/Docker probe."
+      "notes": "Source-checked Stage v4.103.0: exact ESM v1-v17 and v19, not v18 or v20. Snapshot/live collection queries, identity-mapping all projections, stored event names, event-id publication checks, release-baseline warnings, command clock/receipt-time generation, conditional and multi-command slices, generated text constraints, no-event and bounded redelivery specs, refusal branches. Query concept validation still uses primitive workaround; Stage#370 is not released. CLI v3.62.0 bundles Stage 4.99.0, not 4.103.0. No new render/browser/Docker probe."
     },
     {
       "id": "arc",
@@ -122,9 +122,9 @@
         }
       ],
       "synced": {
-        "version": "3.57.0",
-        "date": "2026-10-13",
-        "by": "Cratis/AI#643"
+        "version": "3.62.0",
+        "date": "2026-10-14",
+        "by": "Cratis/AI#684"
       },
       "covers": {
         "skills": [
@@ -153,7 +153,7 @@
         ],
         "rules": []
       },
-      "notes": "Render bundle source-checked at v3.57.0: Screenplay 4.147.1 and Stage 4.89.1; CLI rendering admits ESM v1-v15. Other CLI surfaces retain their v3.53.1 evidence from Cratis/AI#620 unless separately re-verified. No new render/browser probe. Standalone 4.148.0 response-name resolution is not in this bundle."
+      "notes": "Render bundle source-checked at v3.62.0: Screenplay 4.159.0 and Stage 4.99.0; CLI rendering admits ESM v1-v16, not standalone v17-v20 capabilities. PATH render uses persisted root identities read-only, rejects root/name conflicts, checks destination event ids at every scope, and reports baseline warnings. CLI baseline admit/check and open-question validation are available. Other CLI operations retain prior evidence; no new render/browser probe."
     },
     {
       "id": "screenplay",
@@ -166,9 +166,9 @@
         }
       ],
       "synced": {
-        "version": "4.153.0",
-        "date": "2026-10-13",
-        "by": "Cratis/AI#655"
+        "version": "4.164.0",
+        "date": "2026-10-14",
+        "by": "Cratis/AI#668"
       },
       "covers": {
         "skills": [
@@ -196,7 +196,7 @@
         ],
         "rules": []
       },
-      "notes": "Standalone 4.153.0 and byte-identical published/Golden contract pinned for Cratis/AI#655; retains Cratis/AI#654, #648, #650 and #652. Text not empty rejects Unicode White_Space-only values in every ESM version without changing canonical bytes; collections and identity text remain unchanged. Stored stream All is reserved at binding (PLAY0273), including id pins; differing event pins carry storedName in ESM v16; equal-name pins are no-ops, PLAY0472 checks validity/generation agreement/uniqueness, and PLAY0686 is retired. Latest released Stage 4.92.0 / CLI 3.59.0 still admit only through v15 (CLI bundles Screenplay 4.147.1), so stored-name rendering is not released. Decision 0070 release baseline (Cratis/AI#655) ships CLI admit/check, committed sidecar, MCP list/proposal review and independent revision guards. No baseline requires an explicit event mode; unadmitted revisions default to inPlace; admitted revisions require newGeneration. Only a reviewed correction may hand-edit the baseline. The 4.153.0 from-esm route uses contract.Name rather than StoredName and can refuse pinned renames; source boundary is documented, not hidden. Child-before-parent reference deferral is executable across given/when and accepted commits; parent absence leaves children out, ambiguous parents fail, and decision 0007's creation-event routing difference remains. Adds the concept generation MCP summary, typed strategy editing guidance and PLAY0683/PLAY0684 entropy/uniqueness repairs; derived regex, matches/checksum repair and rule-proof status remain unshipped. Retains ESM v15 strategies, strict fixtures, whole-source freshness and 4.148.0 response-name resolution. Historical evidence stays qualified. CLI 3.57.0 / MCP 4.147.1 lacks the new summary and repairs; this pin does not upgrade CLI or Scene runtime."
+      "notes": "Standalone 4.164.0 and byte-identical compiler contract pinned. Cratis/AI#663: one origin per capture (PLAY0687). #668: executable no-event/redelivery v17. #684: concept query-argument validation in every version and query-error assertions v18. #681: executable refusal branches and refusal values v19. #666: proposal summary/severity counts and exact structural source proposals. Generated-concept rules select v20 with PLAY0688/0689 proofs and derived-matches repair; generated secrets and preview strategies remain refused. Release-baseline from-esm admission reads storedName. Standalone binding is not renderer admission: Stage 4.103.0 admits v1-v17 and v19; CLI 3.62.0 bundles Screenplay 4.159.0 / Stage 4.99.0 and renders through v16. Prior evidence remains unless superseded; no new renderer, Docker or browser probe."
     },
     {
       "id": "scene",

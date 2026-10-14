@@ -6,6 +6,7 @@
 - When not to
 - The concept declares how; the property declares that
 - Inspect and edit generation through MCP
+- Generated-concept rules (ESM v20)
 - Version and freshness
 - Responses and pre-generation boundaries
 - What the CLI and Stage realize
@@ -67,12 +68,12 @@ NanoID's alphabet with 2–256 distinct printable ASCII characters (the repertoi
 has only 95). TypeID has its own prefix and accepts none of these modifiers.
 Time and prefixes add no entropy. Below 64 random bits is PLAY0684 (error) for an
 identifier; non-identifiers warn PLAY0683 unless a single-property unique
-constraint covers the mapped event property. That suppression does not make
-Stage render generated unique-constraint mappings.
+constraint covers the mapped event property. That suppression is not a runtime collision guarantee; use the constraint when
+collisions must reject the command.
 
 `pattern`, `random`, `rule` and checksum syntax parse/print but refuse PLAY0268;
-`generate sequence` is reserved (PLAY0682). Generated-concept validation rules
-and compliance markers, including generated secrets, remain refused. Do not
+`generate sequence` is reserved (PLAY0682). Generated-concept validation rules select ESM v20; compliance markers, including
+generated secrets, remain refused. Do not
 remove classification or pretend a random String is a credential contract.
 
 ## Inspect and edit generation through MCP
@@ -90,7 +91,7 @@ Set/change/remove `generate` through `screenplay_propose_ast` (replace the conce
 `GenerationSyntax`, omit/null `generation` to remove) or reviewed
 `screenplay_propose_source`; do not hand-edit the text. Inspect executable
 diagnostics independently of authoring acceptance: sequence PLAY0682;
-pattern/random/rule and generated-concept rules PLAY0268. Review, run candidate
+pattern/random/rule PLAY0268; generated-rule proofs PLAY0688/0689. Review, run candidate
 specifications where executable, then apply with revisions.
 
 `screenplay_repair_capabilities` advertises PLAY0683/0684; workspace repairs supply
@@ -101,7 +102,9 @@ also offers uniqueness for a non-identifier command-property subject only when
 exactly one production maps it to exactly one event property. Both require
 individual review and `CanonicalizeTouchedDocuments`, with no pinned evidence.
 Length changes affect all concept uses; uniqueness changes append-time behavior.
-Derived regex, matches/checksum repairs and rule-proof status are not shipped.
+PLAY0688 repair replaces a refuted rule with the strategy-derived `matches`
+pattern. Review input/stored-value uses because this changes their validation,
+not just generation. Checksum repairs remain unadmitted.
 A CLI-bundled MCP can lack this summary and these repairs; it still
 supports existing typed concept proposals.
 
@@ -110,6 +113,30 @@ source evidence: [MCP generation guide](../../cratis-screenplay-model-authoring/
 Sources: Cratis/Screenplay `Documentation/screenplay/generated-values.md`,
 `Source/DotNET/Screenplay.Mcp/McpGenerationDetails.cs`,
 `Source/DotNET/Screenplay/Workspaces/WorkspaceGenerationRepairs.cs`.
+
+## Generated-concept rules (ESM v20)
+
+Requires Screenplay 4.164.0 or later (`screenplay --version`) for generated-concept rules; older compilers report PLAY0268.
+
+```screenplay
+concept InviteCode : String
+  generate nanoid
+  validate
+    matches "^[A-Za-z0-9_-]{21}$"
+```
+
+The compiler proves `not empty`, text length/min/max, equality/inequality and
+`matches` against the exact strategy shape. Proven rules bind silently; Refuted
+rules fail with PLAY0688 and a violating example; Unproven rules warn PLAY0689
+with a reason. A warning is not proof. Regex proof uses a bounded ASCII regular
+subset (classes, groups, alternation, repetition and end anchors, not lookaround,
+backreferences or flags) and proves containment only for unambiguous patterns
+that cannot backtrack on generated values. Passing samples alone prove nothing.
+Providers validate generated values too: a failing fixture is a Contract violation,
+not client rejection or a reason to redraw. Opaque rules need a target.
+
+Rules select v20 even on implicit UUID generation. No proof status is serialized;
+strategy changes do not silently change rules on stored/input values.
 
 ## Version and freshness
 
@@ -167,18 +194,26 @@ checks atomically at append: a batch's scopes are checked once against the state
 the batch, all or nothing, and a storage retry that renumbers the append checks them again. Generated rejection specs assert
 `ValidationResultReason.ConcurrencyViolation`, not Arc's message text. This is
 Stage's explicit realization, not a claim that Arc delivers the same guard.
-Time-based factories use wall clock, not command-receipt timestamps.
+Time-based factories use the command's receipt time through `IGeneratableInContext<T>`
+and `GenerationContext`, the same instant as `$context.occurred`.
+
+Requires Stage 4.94.0 or later for receipt-time generation; older factories use wall clock.
 
 | Refusal | Still unsupported |
 | --- | --- |
 | STAGE-ESM-028 | Unknown strategies, non-concepts, optional/collection generation; every explicit strategy on the legacy syntax engine |
 | STAGE-ESM-011 | A v15 fixture that does not match its strategy shape |
-| STAGE-ESM-038 | Routing combined with generation/responses; generated-property rules/requirements or concept rules; occurrence parameter/response/factory name collisions; unsupported response sources/composites/collections; generated unique-constraint mappings; generated identifier plus destination-less plain production |
+| STAGE-ESM-038 | Routing combined with generation/responses; generated-property rules/requirements or concept rules; occurrence parameter/response/factory name collisions; unsupported response sources/composites/collections; generated identifier plus destination-less plain production |
 | STAGE-ESM-038 | Unpinned generation with unordered event, read-model or query expectations |
-| STAGE-ESM-004 / -006 | Multi-command StateChange slices / conditional productions |
+| STAGE-ESM-004 / -006 | StateChange slices without commands / expression or enum production conditions |
 
 Sequence generation is refused at binding (PLAY0682) and never reaches Stage;
-clock fixtures remain unsupported.
+command `given clock` fixtures render when whole milliseconds at or after 1970;
+`when clock` and reaction/query/direct-append clocks remain refused.
+
+Requires Stage 4.95.0 for command clock fixtures, 4.98.0 for multiple commands and
+conditional productions, and 4.100.0 for generated text unique constraints; older
+renderers refuse those shapes. ESM v20 still needs a renderer that admits v20.
 
 Missing pins in generated Debug specs use `AllowGeneration()` with relational
 assertions against captured values; v15 captures also check strategy shape.

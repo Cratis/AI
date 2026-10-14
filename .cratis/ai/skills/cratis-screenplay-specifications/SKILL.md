@@ -97,10 +97,10 @@ Read [references/vocabulary.md](references/vocabulary.md) when writing or readin
 Rules the binder enforces:
 
 - **At most one action** — a command, `when append`, `when clock`, `when trigger`,
-  `when capture` or `when query` (`PLAY0097`, `PLAY0358`). Without an action,
-  assert only `then readmodel`, `then no readmodel` or `then query` (`PLAY0352`).
+  `when capture`, `when redelivered` or `when query` (`PLAY0097`, `PLAY0358`). Without an action,
+  assert only read state or one queried call with `then error` (ESM v18; otherwise PLAY0352).
 - **`then result` and `then no result` need `when query`**, and `when query`
-  needs one of them or `then denied` (`PLAY0465`). Each argument is a `by` or
+  needs one of them, `then denied` or a sole validation `then error` (`PLAY0465`). Each argument is a `by` or
   `filter` parameter of the query (`PLAY0468`).
 - **A clock instant is ISO 8601 with an offset or `Z`**, such as
   `"2026-10-05T08:00:00Z"` (`PLAY0461`); `given clock` appears at most once.
@@ -166,16 +166,23 @@ unadmitted (PLAY0268); see read-surface `references/named-keys.md`.
 Use typed `example` declarations for repeated event/command/read-model values;
 step overrides keep the action/outcome visible and carry authored/example/override
 provenance. Event examples can carry routes, replaced as a whole by a step.
-Redelivery locators may state `stream` or `no stream` to select one definitely
-matching given occurrence with no undecided candidates (PLAY0543); redelivery
-remains authoring-only. Event `stream`/`no stream` assertions bind as ESM v8; typed `for` and
-stream ids are not guessed. Read [examples and routes](references/examples-and-routes.md).
+Read [examples and routes](references/examples-and-routes.md) when locating a
+redelivered given (v17, PLAY0543) or asserting event routes (v8); it owns typed
+`for`, `stream`/`no stream`, complete ids and undecided-candidate rules.
 
-`given operation`, `then operation`, `then compensated`, reaction refusal branches, `when redelivered` and `then no events` are authoring-only (`PLAY0268`): compile them and report the refusal, never an executed result. Read [references/examples-and-routes.md](references/examples-and-routes.md) for the full wording.
+Operations remain authoring-only (PLAY0268). Read `references/examples-and-routes.md`
+when asserting `then no events` or located recovery without re-append (v17), and
+[refusal handling](../cratis-screenplay-captures-and-reactions/references/refusals-and-redelivery.md)
+when recording/acknowledging invocation refusals (v19).
+Requires Screenplay 4.157.0 (`screenplay --version`) for v17, 4.160.0 for v19;
+older compilers report PLAY0268.
 
 ## Rejections and denials say different things
 
-`then error "<message>"` pins the reason, bare `then error` leaves it unnamed, and `then denied` is an authorization denial decided first. Views cannot reject events. Read [references/outcome-comparison.md](references/outcome-comparison.md) when choosing among them.
+`then error "<message>"` pins the reason, bare `then error` leaves it unnamed, and `then denied` is an authorization denial decided first. Views cannot reject events.
+Read `references/query-rejections.md` when specifying malformed keys/filters
+(Validation `then error`, v18) versus valid absence (`then no result`).
+Requires Screenplay 4.161.0 (`screenplay --version`); older runners may answer absence. Read [references/outcome-comparison.md](references/outcome-comparison.md) when choosing among them.
 
 ## Business rule or concept rule?
 
@@ -222,7 +229,8 @@ For view specifications:
 - [ ] `given readmodel` is a complete instance with its identifier.
 - [ ] `then readmodel` states the identifier and the properties that matter; add
       `exactly` only when extra properties must fail the assertion.
-- [ ] No error cases — views cannot reject.
+- [ ] Queries cover out-of-rule concept arguments with `then error`; a valid
+      absent key uses `then no result`. Projections still cannot reject events.
 
 ## Verify
 

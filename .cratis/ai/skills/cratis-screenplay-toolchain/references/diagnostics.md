@@ -299,7 +299,7 @@ or V4 execution. Run the CLI or MCP for those verdicts.
 | PLAY0273 | incoherent: ambiguous `for`, property not on event revision, operand type mismatch, derived `$eventContext` path | fix the reference |
 | PLAY0350 | `null` in command/event value | Chronicle semantics (nullable event properties are CHR0012; an optional fact is a separate event), not only a binder limitation: specs cannot state an absent command/event value. Omit the value or record a capability gap; whether the optional detail is really a separate fact is a review question, not this code's fix |
 | PLAY0351 | given/then readmodel lacks the key property | add the keyed query's `by` property |
-| PLAY0352 | when-less spec asserting events/errors | add a `when` or assert readmodel/query |
+| PLAY0352 | when-less spec asserting an action outcome, except a sole query Validation error (v18) | add an action or assert readmodel/query |
 | PLAY0389 | gated command/query exercised without `given caller` | add `given caller` (empty block = anonymous) |
 
 ## Frequent errors
@@ -325,6 +325,7 @@ or V4 execution. Run the CLI or MCP for those verdicts.
 | PLAY0410/0411/0412 | same view read twice / duplicate alias / alias collision |
 | PLAY0453 | `then no readmodel` needs `RM for "<key>"` |
 | PLAY0461 | clock instant not ISO 8601 with `Z`/offset |
+| PLAY0465 | query action needs result/no-result/denial or one Validation error; a query error cannot mix with results/no-result/denial or more than one query |
 | PLAY0468 | `when query` argument is not a `by`/`filter` param |
 | PLAY0474 | `produces event` (inline) outside a command, e.g. in a reaction |
 | PLAY0478 (I) | plain `produces` without `for`: add `for <identifier>` |
@@ -333,6 +334,9 @@ or V4 execution. Run the CLI or MCP for those verdicts.
 | PLAY0480/0484 | modifier order `Type optional generated identifier` |
 | PLAY0682 | `generate sequence` is reserved; keep the intended sequence as a capability gap |
 | PLAY0683/0684 | PLAY0683: generated non-identifier below 64 random bits warns (a single-property unique constraint suppresses it); PLAY0684: generated identifier below 64 random bits is an error |
+| PLAY0687 | capture `source events` spans multiple origins; split into one capture per origin (event store) |
+| PLAY0688 | generated strategy refutes a concept rule; read its violating example, align the rule/strategy or review the derived-`matches` repair |
+| PLAY0689 (W) | generated-concept rule proof is undecided; reason names regex fragment/budget/opaque limits. Never treat a warning as proof |
 | PLAY0685 | own response name used under execute failure; outer successful responses remain available. UI composition `references/response-continuations.md` |
 | PLAY0289 | (binding) no documents: empty root |
 
@@ -351,14 +355,18 @@ Publication STAGE-ESM-032, foreign facts/event captures 033, claim-reading/opaqu
 | STAGE-ESM-025 | a typed-context member references a historical event revision or property identity; only the current revision renders |
 | STAGE-ESM-026 | a selected event, or an event a selected scope depends on, is above its initial revision; Stage cannot render event-type migrations; gap-fill and hand-write the migrations |
 | STAGE-ESM-001 | unsupported slice kind; `StateChange`, `StateView` and event-triggered `Automation` render, Translate is STAGE-ESM-024 |
-| STAGE-ESM-004 / 006 / 013 | a `StateChange` without exactly one command; `produces` that cannot render (conditional, literal or computed mappings, duplicate tags); event-context value other than `$context.occurred` (reactions: `$context.causedBy.*`, `$context.eventSourceId`) |
+| STAGE-ESM-004 / 006 / 013 | a `StateChange` without commands; `produces` that cannot render (expression/enum conditions, literal or computed mappings, duplicate tags); event-context value other than `$context.occurred` (reactions: `$context.causedBy.*`, `$context.eventSourceId`) |
 | STAGE-ESM-005 / 015 | code rule or code validation bodies; authorization Stage cannot render exactly (role-claim URIs, nested or unresolved opaque policies, opaque-policy subjects that are not text, Uuid, Date or DateTime). Role-only, authenticated, opaque pure policies and Uuid/Date/DateTime/text claim targets render |
-| STAGE-ESM-007 / 009 / 010 / 017 | projection shape (one projection or reducer per read model, affected-instance key, query delivery such as a snapshot list, keys, `all`, event-context values) |
+| STAGE-ESM-007 / 009 / 010 / 017 | projection shape (one projection or reducer per read model, affected-instance key, unsupported query shapes, keys, unsupported `all` mappings, event-context values) |
 | STAGE-ESM-011 | specification shape not rendered (`when append` outside the single-hop reaction subset, command specifications that cascade into reactions, composite values, an unauthenticated caller carrying roles or claims, v15 fixtures that do not match their strategy). Command scenarios and single-hop reaction appends render |
 | STAGE-ESM-014 | constraint shape (multi-claim in one command, optional or composite targets) |
 | STAGE-ESM-019/022 | reducer or opaque pure policy body outside the pure allowlist |
 | STAGE-ESM-024 | interval, schedule, application, startup and shutdown triggers, opaque reaction bodies, captures, Translate, clock/trigger/capture specifications |
 | STAGE-ESM-020 | a body the model requires is missing or changed (content hash check); blocks publication |
+| STAGE-ESM-039 | unsupported refusal branch conditions/routes/mappings, same-event multi-trigger refusal groups, localized `$refusal.message` or ambiguous multi-constraint `$refusal.constraint` |
+| STAGE-EVENT-002 / CLI-RENDER-016 | existing destination event type ids changed or unreadable; pin stored identity, never bypass with `--force` |
+| STAGE-BASELINE-001–004 | whole-application warnings: changed/missing admitted event revision, unreadable baseline, unavailable or stale assessment; keep `baseline check` as the independent CI gate |
+| CLI-RENDER-017 / 018 | persisted PATH root cannot open / `--name` differs from saved application name; resolve root state, never discard identities |
 | STAGE-CRATIS-005 | a modeled artifact would render into `Customizations/` |
 Fix by changing the model only where the domain allows it; otherwise the slice is gap-fill
 with the model as its contract (`cratis-screenplay-render-and-gap-fill`).

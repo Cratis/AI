@@ -18,11 +18,13 @@
 What the binder admits, and what it refuses with which code, depends on the compiler: the
 standalone tool binds the newest ESM versions, while the compiler bundled in the CLI (and the
 renderer that uses it) admits through an older version. Operations, the `numbers exact`
-**source mode** (PLAY0268) and reaction refusals/redelivery remain unadmitted. Routes bind as
+**source mode** (PLAY0268) remain unadmitted. Routes bind as
 ESM v8, public/direction constructs as v9, identity/overrides/filters as v10, qualifying
 non-route Double literals (exact lowering of Double-mode literals) as v11, non-positional enum
 numbers as v12, concept compliance as v13, caller-supplied collection equality filters as v14,
-concept generation strategies and freshness as v15 and stored event names as v16. Always name
+concept generation strategies and freshness as v15, stored event names as v16,
+no-event assertions/redelivery as v17, query-error specifications as v18,
+invocation refusal branches as v19 and generated-concept rules as v20. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass. Use the actual binder before promoting an older
@@ -127,7 +129,7 @@ filters AND with `by`; optional omission does not narrow, supplied null is refus
 `then query … arguments` and `when query` accept both `by` and filters; PLAY0468
 reports unknown/repeated/missing required arguments. Collection results match by
 read model/key regardless of row order. Stage admits and renders these filters, subject to
-construct checks (snapshot lists, DateTime filters and parameter order still refuse). Complete compiled specs:
+construct checks (DateTime filters and parameter order still refuse). Complete compiled specs:
 read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
 
 Requires Screenplay 4.143.0 or later (`screenplay --version`) for equality filters; earlier compilers refuse them.
@@ -169,14 +171,16 @@ Complete examples: `generated-responses-example.md`, `generation-strategies-exam
 - A generated property is command-only, required, scalar and a generatable concept backed by Uuid or String;
   bare primitives, optional and collection types are invalid. Uuid has implicit `uuid`; String needs a strategy.
   Explicit serialized generation selects v15, with strict fixture encoding and whole-source freshness for all
-  generated destinations. `pattern`, `random`, `rule`, `sequence`, generated rules/secrets remain unadmitted.
+  generated destinations. `pattern`, `random`, `rule`, `sequence` and generated secrets remain unadmitted;
+  generated-concept rules bind as v20 with proof diagnostics PLAY0688/0689.
   See command-surface `references/generated-values-and-responses.md` and `generation-strategies-example.md`. Modifier order is `Type optional generated identifier`.
 - Generated values are not request inputs, form fields, invocation arguments or ordinary `when` values. Generation
   runs after authorization and validation and before productions, so a denial or a validation failure never
   reaches it.
 - A policy (including inherited or composed ones and the implicit `subject` of a generated identifier), a property
   rule or a requirement that references a generated value reports `PLAY0273`; reference input properties only. A
-  generated property whose concept declares any validation rule (declarative, named or code) reports `PLAY0268`.
+  generated property whose concept declares rules selects v20; refuted rules report
+  PLAY0688 and unproven rules warn PLAY0689. Opaque execution needs a target.
   A reaction mapping into a generated property is invalid.
 - Responses: `returns <property>` is scalar; bare `returns` opens an ordered record of `<name> [<Type>] = <property>` fields
   over direct properties of the same command (collections, read aliases, arithmetic and whole read models are not
@@ -288,7 +292,7 @@ bodies still leave their owner non-executable.
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
 | `generated` or `returns` on an older compiler | PLAY0268 | admitted from ESM v7, see above |
-| Operations or systems, `numbers exact` source mode, reaction refusals/redelivery | PLAY0268 | not admitted by any supported ESM version; one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
+| Operations or systems, `numbers exact` source mode | PLAY0268 | not admitted by any supported ESM version; one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
 | `given` or `then readmodel` missing key parts | PLAY0351 | explicit `key` marks replace inference; composite fixtures need every part but remain unadmitted |
 | When-less spec asserting events or errors | PLAY0352 | |

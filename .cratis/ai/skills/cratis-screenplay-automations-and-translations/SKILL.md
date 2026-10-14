@@ -19,6 +19,8 @@ preserves inbound for translations without a declared direction. Private-to-priv
 Automation (`produces` or `invokes`), even when a Chronicle reactor realizes it.
 Read [public events and direction](references/public-events-and-direction.md) for released
 ESM v9 forms, event-target folds, publication specifications and the Unsupported capture limit.
+One `source events` capture reads one origin (event store); split several origins.
+Requires Screenplay 4.155.0 (`screenplay --version`) for PLAY0687; older tools leave it unchecked.
 
 Work in the model first. Code appears only where it is truly needed: the external call, the
 source adapter, the trusted actor, and everything Stage cannot render (below). Session and
@@ -55,6 +57,8 @@ sends again.
 
 - A reaction cascade is not one transaction: earlier accepted facts stay when a later invoked
   command rejects (Screenplay `reactions.md`). Design each step to be retried on its own.
+- Read `references/effects-and-idempotency.md` when specifying redelivery,
+  `then no events` or refusal disposition; execution is not external deduplication.
 - Replay and recovery redelivery are different. Chronicle `[OnceOnly]` skips replays (rewind,
   redaction, revision) only, not ordinary catch-up, repeated same-source events or crash
   redelivery. Recovery runs the handler normally. It is not a per-source run limit or

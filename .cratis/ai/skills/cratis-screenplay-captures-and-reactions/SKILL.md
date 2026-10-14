@@ -50,6 +50,11 @@ Method (the four-part automation test, loops, translations versus automations):
 
 Read [ESM v9 translation](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)
 for `direction`, `source events`/`from`, and its typed Unsupported evaluation.
+One `source events` capture consumes events from exactly one origin (event store).
+Split inputs from several external systems into one capture per origin; otherwise
+PLAY0687 reports an error, matching Chronicle's one-inbox-observer boundary.
+
+Requires Screenplay 4.155.0 or later (`screenplay --version`) for PLAY0687; older compilers do not catch the runtime-invalid multi-origin capture.
 Read [v10 filters](../cratis-screenplay-toolchain/references/production-routes-and-filters.md)
 for reaction/reducer `from Source[.Stream]`; unrouted facts never match.
 
@@ -94,12 +99,12 @@ the invoked command or the implementation. A compiler that stops before ESM v6 b
 
 ## Refusals and recovery redelivery
 
-Invocation refusal selectors, `$refusal` branch values,
-`acknowledge`, `when redelivered ... to ...` and `then no events` are valid
-authoring intent but refuse binding with PLAY0268. Read
-[refusals and redelivery](references/refusals-and-redelivery.md) for first-match
-selectors, typed values, occurrence matching, diagnostics and the checked
-unbound example. Never acknowledge infrastructure or concurrency failures.
+Invocation refusal selectors, `$refusal` branch values and `acknowledge`
+bind/reference-execute as ESM v19; `when redelivered ... to ...` and `then no events`
+as ESM v17. Read [refusals and redelivery](references/refusals-and-redelivery.md)
+when choosing ordered first-match branches or specifying recovery, for typed values,
+occurrence matching, diagnostics and a complete example. Never acknowledge
+infrastructure or concurrency failures; acknowledgement is not completed work.
 
 ## Complete example (ESM v6)
 

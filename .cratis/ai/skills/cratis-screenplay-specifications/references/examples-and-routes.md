@@ -166,10 +166,11 @@ needs exactly one definitely matching candidate and **no undecided candidates**
 values, `stream` or `no stream`; do not guess an unknown value. A locator's `for`
 is optional but typed against the routed source when present.
 
-This complete syntax-only model validates; `screenplay test` reports
-PLAY0268 for redelivery, not a passing scenario:
+This complete model validates and `screenplay test <root>` exits 0 with one passed redelivery scenario.
 
-```screenplay test=unbound
+Requires Screenplay 4.157.0 or later (`screenplay --version`) for redelivery and no-event assertions (ESM v17); older compilers report PLAY0268.
+
+```screenplay
 eventsource Account
   identifier String
   stream Transactions
@@ -200,8 +201,8 @@ module Accounts
 The second given replaces the example's **entire** route, independently of `for`,
 not just its id. PLAY0548 is command-action-only, never a locator route error;
 malformed routes use PLAY0547 and resolution/key-shape errors PLAY0549. MCP labels
-locator fixtures `whenRedeliveredEvent` with route-origin rows. Route admission
-alone does not admit redelivery or `then no events`.
+locator fixtures `whenRedeliveredEvent` with route-origin rows. Delivery fires only
+the named reaction, then settles the cascade without appending the input again.
 
 ## Operation and recovery intent
 
@@ -210,15 +211,15 @@ Operation failure/request/compensation forms are authoring-only (PLAY0268):
 subset, and leaf `then compensated <Name>`. See command-surface
 `references/operations.md` for the complete checked authoring fixture.
 
-Refusal selectors, redelivery to one observer and `then no events` likewise
-remain unadmitted; they are not executed append scenarios. Forms, matching,
-acknowledgement and their whole-model refusal boundary are in
-captures-and-reactions `references/refusals-and-redelivery.md`.
+Refusal selectors bind/reference-execute as ESM v19; redelivery to one observer
+and `then no events` as v17. Forms, matching, acknowledgement and the distinction
+between domain refusals and infrastructure failures are in captures-and-reactions
+`references/refusals-and-redelivery.md`.
 
 Authority: Screenplay `Documentation/screenplay/specifications.md`.
 
 `given operation ... fails`, `then operation` and `then compensated` describe
-future external-work behavior. Reaction refusal branches, `when redelivered`
-and `then no events` (PLAY0268) are also authoring-only: compile them, but report their
-PLAY0268 binding refusal instead of an executed result. Preserve the contract; a read-model or
-query assertion states a zero-fact outcome.
+future external-work behavior. Use `then no events` to assert explicitly that the
+action and cascade produced no new facts; after append it excludes the input fact.
+It may accompany view/query/response assertions, not events, event-order assertions,
+errors or denial (PLAY0545). An omitted event list is not this explicit assertion.

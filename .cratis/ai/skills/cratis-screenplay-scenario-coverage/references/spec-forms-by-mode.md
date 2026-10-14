@@ -16,8 +16,8 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | `given readmodel` | yes | yes (complete instance with key) | only as the query-only lookup below |
 | `when append <Event>` | yes | yes | supported single-hop reaction effects/invocation only; fan-out, deeper cascades and other refused assertions retain STAGE-ESM-011 |
 | `then readmodel` / `then query` (keyed `ById`, `arguments`, `result`) | yes | yes | yes |
-| `then query` on an unfiltered list or a list narrowed by one `by` key (observable too) | yes | yes: no `arguments` for an unkeyed list, one `result` per row stating the read-model identifier, no `result` = empty list | observable lists render, a non-observable list is `STAGE-ESM-010` |
-| Collection query with caller-supplied equality `filter`, including observable | yes | yes, ESM v14: same-named scalar property/type, AND with `by`; optional omission allowed, supplied null refused; PLAY0468 checks arguments; row order does not matter | yes on supported observable collections / Stage; DateTime/filter parameter order and snapshot lists refuse -010; independent Stage executor still refuses filtered assertions (-010) |
+| `then query` on an unfiltered list or a list narrowed by one `by` key (observable too) | yes | yes: no `arguments` for an unkeyed list, one `result` per row stating the read-model identifier, no `result` = empty list | snapshot and observable lists render |
+| Collection query with caller-supplied equality `filter`, including observable | yes | yes, ESM v14: same-named scalar property/type, AND with `by`; optional omission allowed, supplied null refused; PLAY0468 checks arguments; row order does not matter | yes on supported snapshot/observable collections; DateTime/filter parameter order refuse -010; independent Stage executor still refuses filtered assertions (-010) |
 | Context `from`, single-result filters, `scoped to`, `performer` or composite `by` | yes | PLAY0268: query context, collection-only filtering, opaque scope/implementation or multipart lookup are unadmitted | no |
 | `then no readmodel <RM> for "<key>"` | yes | yes | no |
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
@@ -29,13 +29,18 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Event `stream` / `no stream`, typed `for` and stream ids | yes | ESM v8 | The CLI reaches Stage route checks (toolchain `references/renderable-subset.md`); routed read-model/query replay now renders; reserved names/unformattable fixtures remain STAGE-ESM-030 |
 | Typed examples and overrides | yes | expanded and type-checked before binding; required fields remain required | depends on expanded contract, not fixture reuse |
 | `given operation ... fails`, `then operation`, `then compensated` | yes | unadmitted PLAY0268 | gap-fill |
-| Refusal branches, `when redelivered`, `then no events` | yes | unadmitted PLAY0268 | gap-fill |
+| `then no events`, `when redelivered` | yes | ESM v17; no new facts, input not re-appended | Stage no-event/redelivery subset; fan-out/cascades/constraints/read expectations/refusal redelivery retain -011 |
+| Refusal branches, `$refusal` | yes | ESM v19; first matching branch wins | Stage supported subset; -039 for unfaithful refusal details/trigger groups, -011 for specification limits |
+| Query `then error` | yes | ESM v18; one query/one error, no result/denial | requires target v18 admission; a v19-capable renderer does not necessarily admit v18 |
 | Composite (JSON) values in specs | yes | yes | no |
 | Rules over dates or `today`, nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
 | Command handlers, `file` constraints, query `performer`s | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
 
 Requires Screenplay 4.105.0 or later (`screenplay --version`) for list-query specifications, and 4.143.0 or later for collection equality filters (ESM v14).
+
+Requires Screenplay 4.157.0 for v17, 4.160.0 for v19 and 4.161.0 for query validation/error assertions (`screenplay --version`); older compilers refuse those forms.
+Requires Stage 4.90.0 for snapshot/live lists, 4.101.0 for no-event specifications, 4.102.0 for refusal branches and 4.103.0 for rendered redelivery; older renderers refuse those shapes.
 
 ## Design mode
 Write the full intended behaviour, including scenarios the executable subset cannot run
@@ -51,12 +56,12 @@ older cratis bundle is available). Mark each such spec in the coverage matrix as
 - Run V3 (binding-ready, per `cratis-screenplay-toolchain`); binding-only codes (PLAY0273/0350/0352/0388/0389) appear only there.
 - V4 runs through `screenplay test` or MCP `run-specifications`; record expected,
   discovered/selected and passed/failed/unsupported counts. Unbound/unsupported
-  is not passed. Authoring-only refusal/redelivery/operation specs remain recorded
-  contracts; test them at the owning target after authorized gap-fill.
+  is not passed. Operation specs remain authoring-only recorded contracts; refusal/redelivery
+  reference execution is independent of the owning target's admission.
 
 ## Renderable mode
 - Specs use given events, a command `when`, and then events / readmodel / query / error /
-  denied. No `when append` or `then no readmodel`. `given readmodel` appears only in the
+  denied. Only supported single-hop `when append` or located redelivery; no `then no readmodel`. `given readmodel` appears only in the
   query-only lookup below.
 - Query-only specs (no command `when`) are admitted by Stage in exactly two cases, and
   `when query` and `then query` are the same case: Screenplay normalises `when query` to the

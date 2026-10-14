@@ -80,7 +80,9 @@ through v7 only (toolchain `references/renderable-subset.md`).
 Clock/application-trigger identities have no Stage Arc realization either.
 Use authorized gap-fill with the model as contract; returned-command Arc identity
 uses `[ExecuteCommandsAsSystem]`, never permission inferred from a model header.
-Refusal/redelivery syntax remains unadmitted even when identity itself runs.
+Redelivery/no-event assertions execute as v17 and refusal branches as v19;
+identity admission alone does not establish a target's support for either.
+Read [refusals and redelivery](refusals-and-redelivery.md) when combining them.
 
 Authority: Screenplay `reactions.md`, `ReactionIdentityParser.cs`,
 `ReactionRefusalValidator.cs`, `SemanticModelBinder.cs`; Stage `SemanticCratisAdmission.cs`.
