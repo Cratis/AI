@@ -18,18 +18,6 @@
     "reason": "Names the deprecated spellings so readers can migrate them."
   },
   {
-    "file": ".cratis/ai/skills/cratis-screenplay-discovery/SKILL.md",
-    "rule": "compliance-marker",
-    "text": "| `<Type>[]`, shapes must be declared; `@pii` and `reason` on concepts | `v4.66.0:Documentation/screenplay/events.md`, `concepts.md` |",
-    "reason": "Retains an explicitly historical v4.66.0 evidence table."
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-screenplay-discovery/SKILL.md",
-    "rule": "compliance-marker",
-    "text": "| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) at 4.66.0; current markers are in `cratis-screenplay-command-surface` | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |",
-    "reason": "Historical binder refusal at v4.66.0, with a pointer to current markers."
-  },
-  {
     "file": ".cratis/ai/skills/cratis-screenplay-legacy-extraction/references/generate-notes.md",
     "rule": "compliance-marker",
     "text": "`pii/secret`, not the deprecated `sensitive`/`@pii` vocabulary.",

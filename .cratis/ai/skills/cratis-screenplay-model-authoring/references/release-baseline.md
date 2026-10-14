@@ -3,8 +3,6 @@
 
 # Release baseline
 
-Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and its `baseline` command, and 4.152.0 or later for `storedName` (ESM v16).
-
 ## Contents
 
 - Admit in the release job
@@ -13,6 +11,8 @@ Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release ba
 - Fail closed and recover
 - Earlier shipped models
 - Verified product sources
+
+Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and its `baseline` command, and 4.152.0 or later for `storedName` (ESM v16).
 
 ## Admit in the release job
 

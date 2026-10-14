@@ -5,7 +5,7 @@
 
 ## Contents
 
-- Verified product sources
+- Product sources
 - Complete model
 
 Text `not empty` rejects null, empty text and Unicode `White_Space`-only text

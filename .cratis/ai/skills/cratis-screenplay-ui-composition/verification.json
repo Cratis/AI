@@ -7,12 +7,8 @@
     { "kind": "skill-contains", "value": "PLAY0485", "file": "references/response-continuations.md" },
     { "kind": "skill-contains", "value": "Form fields and behavior parameters\nwin", "file": "references/response-continuations.md" },
     { "kind": "skill-contains", "value": "outer successful response remains available", "file": "references/response-continuations.md" },
-    { "kind": "skill-contains", "value": "binding/navigation remains blocked on Scene #53", "file": "references/response-continuations.md" },
+    { "kind": "skill-contains", "value": "binding/navigation remains blocked in Scene", "file": "references/response-continuations.md" },
     { "kind": "play-compiles" },
-    {
-      "kind": "skill-contains",
-      "value": "main `fd18129`"
-    },
     {
       "kind": "skill-contains",
       "value": "produces event InvoiceCancelled"

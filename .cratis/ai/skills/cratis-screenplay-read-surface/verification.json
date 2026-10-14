@@ -11,7 +11,6 @@
     { "kind": "skill-contains", "value": "Supplied `null` is refused", "file": "references/equality-filters.md" },
     { "kind": "skill-contains", "value": "PLAY0468", "file": "references/equality-filters.md" },
     { "kind": "skill-contains", "value": "without regard to row order", "file": "references/equality-filters.md" },
-    { "kind": "skill-contains", "value": "main `fd18129`" },
     { "kind": "skill-contains", "value": "filter status     InvoiceStatus optional" },
     { "kind": "skill-contains", "value": "query Q => observable?" },
     { "kind": "skill-contains", "value": "information `PLAY0479`" },
@@ -22,6 +21,6 @@
     { "kind": "skill-contains", "value": "warnings, not errors" },
     { "kind": "skill-contains", "value": "the executable model binds `observable` queries" },
     { "kind": "skill-contains", "value": "A compiling query is not evidence that access control works" },
-    { "kind": "skill-contains", "value": "decision 0010 but **not in the language yet**" }
+    { "kind": "skill-contains", "value": "are planned but **not in the language yet**" }
   ]
 }

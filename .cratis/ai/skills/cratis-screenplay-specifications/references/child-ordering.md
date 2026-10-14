@@ -3,13 +3,13 @@
 
 # Child-before-parent specifications
 
-Requires Screenplay 4.149.1 or later (`screenplay --version`) for child-before-parent arrival order in the reference evaluator.
-
 ## Contents
 
-- Verified product sources
+- Product sources
 - Complete model
-- Known routing difference — decision 0007
+- Known routing difference
+
+Requires Screenplay 4.149.1 or later (`screenplay --version`) for child-before-parent arrival order in the reference evaluator.
 
 Views combining sources must tolerate any arrival order. The reference evaluator
 retains a parentless child and retries it in arrival order using its original event
@@ -106,7 +106,7 @@ each selected specification must pass. The corpus gate runs this complete fence.
 A CLI-bundled compiler that predates child deferral does not run it; a newer
 standalone result does not upgrade that bundle or prove rendered tests.
 
-## Known routing difference — decision 0007
+## Known routing difference
 
 For a flat root/child shared event type, the evaluator uses the root handler's
 resolved key, matching Chronicle's current-event fallback. It does **not**

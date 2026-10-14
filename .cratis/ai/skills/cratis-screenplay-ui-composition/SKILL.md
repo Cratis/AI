@@ -34,6 +34,17 @@ Tool versions: toolchain `SKILL.md`. UI statements come from Screenplay
 runtime sources: scaffold Scene tag, `Source/JavaScript/**`. This guidance does not verify
 UI rendering.
 
+Every construct on this page is deferred from the executable model with
+information `PLAY0269`: it never blocks binding, and it is not evidence that a
+target renders it.
+
+The screens-release surface adds component data-context bindings, exposed template
+configuration, package/icon catalogs, manual form columns, hierarchical outlets,
+routes, toolbars and dialog destinations, each with a separate support level
+(authoring accepted, executable admitted, runtime implemented). Discover the
+installed shape through MCP `syntax-schema`; details:
+`references/screen-composition-contract.md`.
+
 These constructs went unhighlighted and uncompleted by the Monaco and VS Code
 language service until every construct the parser
 dispatches on had a keyword entry. On an older language-service version they still
