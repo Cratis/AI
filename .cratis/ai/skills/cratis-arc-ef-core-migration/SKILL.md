@@ -126,6 +126,8 @@ Use the standard EF Core tooling — `dotnet ef migrations add <Name>` and
 package referenced by the project that owns the context. Arc contributes nothing
 to how a migration is created, discovered, or applied.
 
+A migration that is committed or applied to any database is append-only: never edit or delete it. Correct a mistake with a new migration. Only a migration that is both unapplied and uncommitted may be removed (`dotnet ef migrations remove`) and regenerated.
+
 What Arc **does** contribute is a set of column helpers that pick the right
 provider-specific SQL type, so one migration works across SQLite, SQL Server and
 PostgreSQL. Use them instead of a raw `table.Column<T>()` with a hard-coded type.

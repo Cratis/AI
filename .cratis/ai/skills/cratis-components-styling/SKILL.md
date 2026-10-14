@@ -177,6 +177,7 @@ dot, a traffic-light indicator.
   review — move it to a class.
 - Name classes with a prefix matching the component.
 - Import product CSS *after* the Components entries so it wins the cascade.
+- When a customer supplies brand material, keep their CSS and tokens verbatim in product-owned files, map them onto the `--cratis-*` tokens, and use the baseline theme for every decision their material does not cover.
 
 ## Step 5 — Parts: reaching inside a component
 
