@@ -1,0 +1,55 @@
+{
+  "skill_name": "cratis-screenplay-automations-and-translations",
+  "evals": [
+    {
+      "id": 1,
+      "name": "exactly-once-claim",
+      "prompt": "In our Screenplay model, completing an Enrolment appends EnrolmentCompleted. A reaction sends the certificate email and appends CertificateSent, and a todo-list read model tracks pending certificates. CertificateSent has `constraint ... unique event` on the enrolment stream. A teammate says: 'so every learner gets exactly one certificate.' Assess that claim and say what you would tell the team. Reply only; do not write files.",
+      "expected_output": "The claim is only partly right. The unique constraint proves the once-only fact (CertificateSent exists at most once), not an exactly-once external effect. The send can succeed and the append fail, and the retry sends again; only the outside system's deduplication or a reconciliation can show one email per learner.",
+      "assertions": [
+        "Distinguishes the once-only fact from idempotent handling and from an exactly-once external effect.",
+        "States that the unique constraint plus todo list plus reaction proves only that CertificateSent exists at most once.",
+        "Names the failure where the send succeeds, the append fails (crash, lost reply or constraint race) and the retry sends again.",
+        "Says that only the outside system's own deduplication or a reconciliation can show the exactly-once external effect; the model cannot."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "caller-less-invoke",
+      "prompt": "A reaction in our .play model fires on RefundRequested and `invokes ApproveSmallRefund`. That command is gated with `authorize` requiring the Finance role. No user is logged in when it runs, and a colleague suggests deleting the authorize line so the reaction works. What should we do instead? Show the reaction line and the checks to run. Reply only; do not write files.",
+      "expected_output": "Keep the gate and declare the trusted actor with reaction-level `runs as system role \"Finance\"` (ESM v10). Do not strip the gate or use `given caller` as a fictional identity. Run `--check privilege --warnaserror` (PLAY0652). A returned-command Chronicle reactor uses `[ExecuteCommandsAsSystem(\"Finance\")]`.",
+      "assertions": [
+        "Keeps the command's authorize gate instead of removing it.",
+        "Declares the actor with reaction-level `runs as system role \"Finance\"`, which needs a compiler that admits ESM v10.",
+        "States that without a declared actor the invoke has no caller, and that `given caller` does not supply a reaction identity.",
+        "Recommends `--check privilege --warnaserror` (PLAY0652) to find confused-deputy paths, where every trigger-event producer must require all declared system roles.",
+        "Mentions that a returned-command reactor in code uses `[ExecuteCommandsAsSystem]` with a matching policy, because without it Arc supplies no principal and the roles deny."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "capture-omission-not-redaction",
+      "prompt": "We capture customer records from a partner CRM into CustomerImported. The `map` block does not mention the record's `email` and `birthDate` fields, so a reviewer wrote 'redacted by omission - fine'. The event's `reference` property also holds the signed download URL the CRM sends. Review this for data protection and tell us what to change. Reply only; do not write files.",
+      "expected_output": "Omission is not redaction: an unmapped field still passes through the capture's working record. Check append mappings and every event property, record how raw or last-seen source records are stored and minimized, put bare `pii` and a purpose on personal-data concepts, never record signed URLs or tokens as facts, and never put PII on the event-source id.",
+      "assertions": [
+        "Says a field left out of `map` still passes through the capture's working record, so omission is not redaction.",
+        "Asks to check the append mappings and every resulting event property, and to record whether the target stores raw or last-seen source records and how they are minimized.",
+        "Requires bare `pii` on the concept of any personal data kept in events, with a declared purpose.",
+        "Rejects storing the signed download URL (or any bearer token or magic link) as a fact, allowing at most a keyed hash or reference.",
+        "States that PII never goes on the event-source id."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "once-only-is-not-recovery",
+      "prompt": "Our hand-written reactor sends welcome emails and a reviewer says '[OnceOnly] makes this safe against double sends'. In the Screenplay model we are asked to record the replay and recovery behavior for the matching reaction. What is true about `[OnceOnly]`, and how should retries be identified? Reply only; do not write files.",
+      "expected_output": "Chronicle `[OnceOnly]` skips replays (rewind, redaction, revision) only, not ordinary catch-up, repeated same-source events or crash redelivery. Recovery runs the handler normally, so it is not deduplication or a per-source run limit. A receipt keyed by ReactorDelivery.Id identifies the retry; the model names both replay and recovery behavior.",
+      "assertions": [
+        "States that `[OnceOnly]` skips replays such as rewind, redaction and revision.",
+        "States that it does not stop ordinary catch-up, repeated same-source events or crash redelivery.",
+        "Says recovery redelivery runs the handler normally and that `[OnceOnly]` is not a per-source run limit or deduplication.",
+        "Suggests a receipt keyed by `ReactorDelivery.Id` to identify the retry."
+      ]
+    }
+  ]
+}

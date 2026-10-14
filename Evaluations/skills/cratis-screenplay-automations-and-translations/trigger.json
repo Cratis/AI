@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-screenplay-automations-and-translations",
+  "queries": [
+    { "query": "when a student finishes a course we need to email their certificate automatically, and retry if the mail server is down. how do I model that in our .play file?", "shouldTrigger": true },
+    { "query": "our payments provider sends webhooks for settled charges. how do we turn those into our own events in the screenplay model without leaking their field names?", "shouldTrigger": true },
+    { "query": "should this 'when X happens then Y' be a reaction or can the command in the same slice just produce both facts?", "shouldTrigger": true },
+    { "query": "we have a nightly job that expires unpaid reservations. model it as an automation with a work queue so staff can see what is pending", "shouldTrigger": true },
+    { "query": "todo list read model for pending certificates - what closes an item, and does a unique constraint stop the email going out twice?", "shouldTrigger": true },
+    { "query": "legacy ERP events arrive before our customer exists. how should the translate slice correlate them and handle that", "shouldTrigger": true },
+    { "query": "who is the actor when a reaction invokes a command that needs a Finance role and nobody is logged in?", "shouldTrigger": true },
+    { "query": "reaction sends the invoice, then the append fails and the retry sends it again. what does the model actually guarantee?", "shouldTrigger": true },
+    { "query": "polling a partner REST api every 15 minutes and mapping the records into events, where do dedup and recovery ownership go?", "shouldTrigger": true },
+    { "query": "What is the exact syntax for `at 02:00 on Monday` and for `when ... where` inside a reaction block?", "shouldTrigger": false, "note": "cratis-screenplay-captures-and-reactions" },
+    { "query": "Write the capture `map` block with two `append` blocks and `children` for the CSV rows.", "shouldTrigger": false, "note": "cratis-screenplay-captures-and-reactions" },
+    { "query": "Write a C# Chronicle reactor class that emails the customer after BookingConfirmed.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Which stream should own the unique constraint so one enrolment gets one certificate, and how is concurrency handled?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Which scenarios do I still need for my automation: rejection, denial, lifecycle and external failure? Give me the coverage matrix.", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "On click of the Retry button on the screen, execute the command and then refresh the table.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" },
+    { "query": "Extract the events from our legacy order database tables and tell me what the extraction lost.", "shouldTrigger": false, "note": "cratis-screenplay-legacy-extraction" },
+    { "query": "Which screenplay tool version admits ESM v10 and what does PLAY0137 mean?", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" },
+    { "query": "Stage refuses my Automation slice with STAGE-ESM-024. How do I hand-write that part against the model?", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "Design the command that the reaction invokes: its inputs, validate and authorize lines.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" }
+  ]
+}
