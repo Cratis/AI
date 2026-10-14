@@ -1,5 +1,17 @@
 # Stop or assume: triggers, question format and the interview protocol
 
+## Contents
+
+- Interview protocol (attended and unattended)
+- Durable question notes
+- Question format (STATE.md, packets, edit requests)
+- Delivery triggers (stop that scope)
+- Not triggers
+- Calibration
+- Always stop
+- Unblocking
+- Open question, decided rejection, contradiction
+
 ## Interview protocol (attended and unattended)
 Assume visibly during modeling; delivery blocks any guess that could encode a wrong rule,
 authorization, money or time behavior. Contradictions, a third review round, a gate only the
@@ -91,3 +103,16 @@ STATE.md with its note ID, resolve the question note by evidence, and realize th
 answer in the model or decision record. Settled rationale may also go in fenced
 `documentation`. Re-blocking a blocked scope is a no-op.
 Blocked delivery scopes are reported in the packet; the main session creates any issue.
+
+## Open question, decided rejection, contradiction
+
+Three unresolved things, never conflated: an **open question** (business meaning nobody decided:
+record it as a `question` note anchored to the element, with the assumption in use;
+not just chat, STATE.md or `description` text; it closes when answered, never by deletion),
+a **decided rejection** (a known refusal: a specification, `then denied` or
+`then error`, never a note) and a **contradiction** (model, specs and an agreed fact disagree:
+stop that scope and report). Finding tiers: `references/principles.md`.
+Read [question notes](#durable-question-notes) when
+recording or answering an open question: cite decisions in `refs`, resolve with
+`by: "external-decision"`, then realize the answer. Never put secrets or personal
+data in note text.

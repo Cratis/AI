@@ -52,3 +52,8 @@ owning session records both. Parallel overwrites of one STATE.md are never allow
    goes in the packet's "Learning candidates" (`handoff-template.md`; "none" is valid) with its
    evidence; the main session decides what is kept. Story-specific details, judgment heuristics
    built from one case and text copied from evidence never become standing guidance.
+
+## End of a turn
+
+4. **End** with one closed outcome, never "neither progressed nor closed". The packet's first
+   line is `Outcome: done | partial (...) | blocked (Qn) | out-of-scope (why)`.
