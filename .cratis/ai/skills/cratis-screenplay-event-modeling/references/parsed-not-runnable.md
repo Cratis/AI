@@ -4,8 +4,8 @@ Checked: `SemanticModelBinder.cs`, `Versions.cs`,
 `Documentation/screenplay/{commands,operations,event-sources,reactions,tool,interoperability}.md`.
 The binder selects v8 for event routes, v10 for declared reaction identity, v11 for retained
 exact-lowered Double-mode literals and v12 for non-positional enum numbers.
-Compliance checked against 4.142.0 `SemanticModelBinder.Compliance.cs` and
-`SemanticModelValidator.Compliance.cs`; it selects v13 (first released).
+Compliance (`SemanticModelBinder.Compliance.cs` and
+`SemanticModelValidator.Compliance.cs`) selects v13.
 Tool versions and consumer boundaries: toolchain `SKILL.md`.
 
 ## Which ESM version a model needs
@@ -26,17 +26,17 @@ Tool versions and consumer boundaries: toolchain `SKILL.md`.
 
 ## Dispositions to keep apart
 
-| Construct | Standalone disposition (v4.125.0/v4.139.0 evidence; compliance updated) |
+| Construct | Standalone disposition |
 | --- | --- |
 | `persona`, domain/authentication metadata | Report-only; unknown named policies remain source defects |
-| Compliance concepts | Bare `pii`/`personal` and `secret`, qualifiers and scope bind as v13; enum/identity compliance and events combining personal or explicitly subject-scoped secret values with an explicit `subject` mark refuse PLAY0268 at binding only. CLI 3.57.0's 4.147.1 bundle binds markers; Stage 4.89.1 renders v13 protection, not protected identities/enums or subject lineage. Never remove protection |
+| Compliance concepts | Bare `pii`/`personal` and `secret`, qualifiers and scope bind as v13; enum/identity compliance and events combining personal or explicitly subject-scoped secret values with an explicit `subject` mark refuse PLAY0268 at binding only. A CLI bundle that admits v13 binds markers; Stage renders v13 protection, not protected identities/enums or subject lineage. Never remove protection |
 | Identity details / processing purposes / event subject | Report-only metadata; executable detail reads refuse PLAY0268, not source declaration errors |
 | Composite stream ids | v8 routing; complete named parts/canonical comparisons, PLAY0515 refuses protected keys/sources; not a legacy text split |
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
-| Generated values/responses | v7 binding/reference execution; v15 strategies/strict fixtures/freshness. Stage 4.89.1 renders supported UUID/String strategies, responses and fixtures; unsupported types/combinations remain -028/-038 |
+| Generated values/responses | v7 binding/reference execution; v15 strategies/strict fixtures/freshness. Stage renders supported UUID/String strategies, responses and fixtures; unsupported types/combinations remain -028/-038 |
 | Sources/streams and command/specification routes | v8 binding/reference execution; the CLI (toolchain `references/renderable-subset.md`) reaches Stage checks through v15 |
-| Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage 4.89.1 renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034, not a v10 version refusal |
+| Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034, not a v10 version refusal |
 | Operations/systems, `numbers exact` source mode, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
 | UI | Authoring/deferred metadata; runtime support is a separate consumer contract |
 
@@ -48,15 +48,14 @@ and captures-and-reactions `references/invocation-identity.md`.
 
 ## The Step 7 clock example
 
-The complete example in [nine-steps.md](nine-steps.md) (Step 7) had historical
-4.66.0 compile/binding evidence (re-compiled) (zero errors/warnings, executableReady true).
+The complete example in [nine-steps.md](nine-steps.md) (Step 7) compiles and binds with zero errors/warnings and `executableReady true`.
 Its invokes-only reads still record intent rather than execute the overdue
 selection. Run its admitted specifications with the current reference route
 before claiming a V4 pass; no overdue-selection proof follows from binding.
 
-## Decision 0006 and shipped generations
+## Trigger reads and event generations
 
 Trigger reads do not enforce decision consistency. Event generations and typed repairs now ship,
 but historical schemas do not supply deployed migrations.
 Check actual binder, runner and consumer admission instead of equating an
-accepted decision or parsed node with a running application.
+accepted proposal or parsed node with a running application.
