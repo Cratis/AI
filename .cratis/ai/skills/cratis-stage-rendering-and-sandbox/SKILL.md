@@ -103,7 +103,7 @@ backups). Never stage `.cratis-render/` in git; commit the manifest with the out
 - Recovery runs before planning, even when planning then fails. **`recovered: true` in the
   result means stop and reconcile**: the receipt does not describe what recovery changed.
 - An unchanged re-render writes nothing (`unchanged` equals the artifact count).
-- Use exclusive access to the destination; a receipt is a filesystem result, not a Git commit.
+- Use exclusive access to the destination; a receipt is a filesystem result, not a Git commit, and the command creates no branch, commit or PR.
 - Drift: `cratis render ... --check` is the first probe; exit `6` means pending changes.
   Otherwise compare successive manifests' `semanticRevision` for renders with the same
   `--name` and inputs. Do not compare the MCP `modelRevision` with the manifest: their
@@ -213,7 +213,7 @@ Read [references/behavior-walk.md](references/behavior-walk.md) when planning or
 ## Legacy direct-write rendering
 
 The syntax-based `IRenderer` and `Cratis.Stage.Rendering.Cratis.Scaffolding` write directly
-to disk with no managed staging; a failure can leave the target incomplete. Use `cratis render`.
+to disk with no managed staging and no safe stale-file removal; a failure can leave the target unsafe and incomplete. Use `cratis render`.
 
 ## Verify
 
