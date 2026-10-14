@@ -22,17 +22,14 @@ the query string — you choose a **return shape** that the framework can narrow
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.Core` | `22.75.0` | `QueryableQueryRenderer`, `Paging`, `Sorting`, `PagingInfo` |
-| `Cratis.Arc.MongoDB` | `22.75.0` | `Observe` helpers that page at the source |
-| `Cratis.Arc.EntityFrameworkCore` | `22.75.0` | `DbSet<T>` observe helpers that page at the source |
-| `@cratis/arc.react` | `22.75.0` | `useWithPaging`, `useSuspenseWithPaging` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.Core` | `QueryableQueryRenderer`, `Paging`, `Sorting`, `PagingInfo` |
+| `Cratis.Arc.MongoDB` | `Observe` helpers that page at the source |
+| `Cratis.Arc.EntityFrameworkCore` | `DbSet<T>` observe helpers that page at the source |
+| `@cratis/arc.react` | `useWithPaging`, `useSuspenseWithPaging` |
 
-> Rechecked at Arc v22.75.0: request parsing, paging validation and storage
-> observation contracts. Do not transfer a provider's ordering guarantee to another.
-
-Reverify before claiming support for another version. A small, bounded result
+Do not transfer a provider's ordering guarantee to another. A small, bounded result
 set does not need any of this — `IEnumerable<T>` is fine.
 
 ## The wire contract
@@ -52,9 +49,9 @@ Two consequences that surprise people:
 
 GET paging/sorting keys are matched case-insensitively. `QueryPipeline.ValidatePaging`
 runs the page validators whenever `paging.IsPaged`: negative page and zero or
-negative size fail validation. This was already true at 22.16.0. A missing sort
+negative size fail validation. This was already true. A missing sort
 direction parses as ascending, but GET sorting still needs both nonempty keys.
-Sources at Arc v22.75.0: `Arc.Core/Queries/QueryStringQueryRequestReader.cs`,
+Sources: `Arc.Core/Queries/QueryStringQueryRequestReader.cs`,
 `SortDirections.cs` and `QueryPipeline.cs` under `Source/DotNET`.
 
 ## Which return shapes page
@@ -103,7 +100,7 @@ query-shaped method on a read model is generic — a generic method is registere
 and routed but can never be invoked, because there is nothing to close its type
 parameters with.
 
-At v22.75.0, paged MongoDB observations re-read the page and total on each
+Paged MongoDB observations re-read the page and total on each
 change; unpaged observations retain incremental membership. The watch does not
 always fetch the whole collection. MongoDB observation breaks sort ties on `_id`
 and orders unsorted pages on `_id`. See the read-model skill's [versioned query-cost guidance](../cratis-chronicle-read-model/references/queries.md#cost-and-composition).
@@ -141,7 +138,7 @@ provide field-named sort helpers. For composed MongoDB/EF observations, pass
 `ignoreQueryContext: true` to auxiliary sources so only the primary consumes
 client paging/sorting and writes totals. Single-instance observations emit
 `default` when absent/deleted/outside the filter; guard `hasData`/`isReady` in React.
-Source: [Arc v22.75.0 MongoDB observations](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/mongodb/observing-collections.md).
+Source: [MongoDB observations](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/mongodb/observing-collections.md).
 
 ## Consume it from the frontend
 

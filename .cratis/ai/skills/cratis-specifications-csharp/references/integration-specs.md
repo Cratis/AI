@@ -7,7 +7,7 @@
 - Command execution overloads
 - Assertion helpers
 - Asynchronous follow-ups
-- In-process MongoDB context isolation (19.51.0)
+- In-process MongoDB context isolation
 - Rules
 
 Reserve these for the host, transport, serialization, or real-infrastructure
@@ -19,7 +19,7 @@ They live under `when_<behavior>/` **inside the behavior's own folder**, not in 
 `for_<Type>/` unit folder: there is no isolated unit, the whole slice is under
 test. Never mix unit and integration specifications in one folder.
 
-Verified against `Cratis.Chronicle.Testing` `18.3.0` (`Cratis.Chronicle.XUnit.Integration` at the same tag).
+Source: `Cratis.Chronicle.Testing` (`Cratis.Chronicle.XUnit.Integration` at the same tag).
 
 ## Structure
 
@@ -126,7 +126,9 @@ void Destroy() => _collector.Dispose();
 `IEventAppendCollection` is part of the Chronicle testing API. The timeout is a
 deadline, not a sleep — it turns a hang into a named failure.
 
-## In-process MongoDB context isolation (19.51.0)
+## In-process MongoDB context isolation
+
+Requires Chronicle 19.51.0 or later.
 
 For an **in-process MongoDB** suite using `Cratis.Chronicle.XUnit.Integration`,
 override `ChronicleFixture.UsesPerContextMongoDBHost` to return `true`. It defaults
@@ -141,7 +143,7 @@ databases in place; collection teardown drops only prefixes it issued. Starting
 one host per context costs time. This does not isolate out-of-process or remote
 kernels, which retain kernel reset.
 
-Source-verified at Chronicle `v19.51.0:Source/Clients/XUnit.Integration/ChronicleFixture.cs`,
+Source: Chronicle `Source/Clients/XUnit.Integration/ChronicleFixture.cs`,
 `ChronicleClientFixture.cs`, `MongoDBContextStorage.cs`,
 `ChronicleOrleansInProcessWebApplicationFactory.cs`, and
 `Documentation/contributing/integration-tests.md` (per-context storage isolation).

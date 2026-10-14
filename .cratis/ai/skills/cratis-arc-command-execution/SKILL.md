@@ -14,18 +14,14 @@ recovery; calling `Handle()` directly only returns their declarations.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.Core` | `22.75.0` | `Cratis.Arc.Commands.ICommandPipeline`, `CommandResult`, `ValidationResultSeverity` |
-| `Cratis.Arc.Chronicle` | `22.75.0` | analyzer `ARCCHR0006` for reactor replay |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.Core` | `Cratis.Arc.Commands.ICommandPipeline`, `CommandResult`, `ValidationResultSeverity` |
+| `Cratis.Arc.Chronicle` | analyzer `ARCCHR0006` for reactor replay |
 
-> Arc execution/severity and returned-reactor effects rechecked at v22.75.0.
-> Arc's Chronicle dependency is 19.39.1; older source-pinned transaction/operation
-> sections below remain explicitly version-qualified.
-
-Reverify before claiming support for another version. Operation execution,
-nesting restrictions, and backend recovery members below are verified at
-**Arc v22.75.0**; see `cratis-arc-command-operation` for sources and limits.
+Operation execution,
+nesting restrictions, and backend recovery members below are described in
+`cratis-arc-command-operation`, which lists sources and limits.
 
 ## When this is the wrong tool
 
@@ -46,7 +42,7 @@ it records a failed compensator. Compose operation declarations instead.
 
 > **Reactors have a declarative alternative.** With the Arc Chronicle integration a
 > reactor handler can **return** the `[Command]` or a stable collection mixing
-> commands, registered events and `EventForEventSourceId`. At v22.75.0 events
+> commands, registered events and `EventForEventSourceId`. events
 > append first; append rejection stops all commands, and the first failed command
 > stops the rest. Earlier effects stay committed, so retries need idempotency.
 > A denied or invalid result fails the partition instead of being
@@ -54,7 +50,7 @@ it records a failed compensator. Compose operation declarations instead.
 > principal for those returned commands. That attribute does **not** cover manual
 > `Execute` calls — the form below needs its own execution context. See the
 > **cratis-chronicle-reactor** skill. `[ExecuteCommandsAsSystem]` no longer leaks
-> the system actor into the caller (fixed in 22.72.0). A reactor may also return
+> the system actor into the caller (fixed). A reactor may also return
 > `CompleteStream` directly; it cannot mix completion with events in a collection.
 
 ```csharp
@@ -126,10 +122,10 @@ Neither choice makes external service writes atomic. Immediate event appends
 and explicit early commits also do not become rollbackable merely because a
 command later fails; do not use them as an undocumented batch-isolation trick.
 
-Checked against **Arc v22.49.0**
-([transactional commands](https://github.com/Cratis/Arc/blob/v22.49.0/Documentation/backend/csharp/chronicle/commands/transactional-commands.md),
-[transaction scope](https://github.com/Cratis/Arc/blob/v22.49.0/Source/DotNET/Chronicle/Commands/TransactionalCommandScope.cs),
-[ambient context](https://github.com/Cratis/Arc/blob/v22.49.0/Source/DotNET/Chronicle/Commands/CommandTransaction.cs)).
+Described in
+([transactional commands](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/commands/transactional-commands.md),
+[transaction scope](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle/Commands/TransactionalCommandScope.cs),
+[ambient context](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle/Commands/CommandTransaction.cs)).
 Specify a later child's rejection and the actual persisted events: none for an
 atomic returned batch, only completed independent items for separate commands.
 
@@ -149,7 +145,7 @@ levels are `Unknown = 0`, `Information = 1`, `Warning = 2`, `Error = 3`.
   and information/warnings are filtered off. An attributed command uses
   `[BlockOnValidationSeverity(...)]` as its inclusive blocking floor; `Unknown`
   also blocks. Caller thresholds can tighten, never loosen, that floor.
-  Source at Arc v22.75.0: `Arc.Core/Commands/CommandValidationResults.cs`.
+Source: `Arc.Core/Commands/CommandValidationResults.cs`.
 - With an `allowedSeverity`, anything **strictly greater** blocks. Passing
   `Warning` lets warnings through onto the result while errors still block.
 
@@ -188,12 +184,14 @@ command again. `ARCCHR0006` warns when a reactor handler invokes
 `ICommandPipeline.Execute` without saying what replay should do. Mark the
 handler `[OnceOnly]` so it is skipped during replay.
 
-⚠️ `[OnceOnly]` is **replay exclusion, not deduplication**. There is no ledger
+⚠️ `[OnceOnly]` is **replay exclusion, not deduplication**. There is no record
 of events a handler has already seen: recovering a failed partition re-delivers
 the event as an ordinary observation, and a `[OnceOnly]` handler runs again.
 Make the executed command idempotent regardless — and when replay exclusion is
 the wrong tool, suppress the diagnostic with a justification rather than
 mis-marking it to silence the warning.
+
+Recovery can redeliver the trigger even with `[OnceOnly]`, and a command whose own "already done" rule refuses the repeat then fails the partition. Read the [reactor slice delivery checklist](../cratis-chronicle-reactor/references/slice-delivery-checklist.md) to decide how the reactor handles that refusal.
 
 ## Common mistakes
 

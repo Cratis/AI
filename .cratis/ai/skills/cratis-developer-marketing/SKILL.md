@@ -83,7 +83,7 @@ accept as fair.
 
 ## Openings that promise something true
 
-Several studies analyzed thousands of historical Upworthy headline experiments. They found
+Several studies analyzed thousands of past Upworthy headline experiments. They found
 that wording changes clicks, that more concreteness helped vague headlines
 and hurt ones that were already very concrete, and that linguistic features predicted the
 winning variant only a little better than chance. Negative words were associated with a
@@ -241,7 +241,7 @@ not what convinced anyone. Report the actual event and its denominator.
 | Carousels reach more developers and drive adoption | Observed engagement can include slide clicks; adoption not measured |
 | Founder posts get a fixed reach multiplier | One company's observation, no effect size |
 | Everyone should post two to five times a week | Observational association, not a prescription |
-| Negative or mystery hooks win with engineers | Historical news-site CTR only; not trust or adoption |
+| Negative or mystery hooks win with engineers | Past news-site CTR only; not trust or adoption |
 | Documentation only matters after the sale | Developers report using docs to learn and onboard |
 | Stars, impressions, followers or last clicks equal adoption | Different events; report the real one |
 | Hacker News is a channel for polished promotional replies | Its rules prohibit generated comments and primarily promotional use |

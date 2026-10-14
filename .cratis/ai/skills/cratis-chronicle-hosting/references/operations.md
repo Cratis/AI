@@ -3,7 +3,7 @@
 
 # Recovery, retention and upgrades
 
-Verified at **Cratis/Chronicle v19.50.1**:
+Source: `Cratis/Chronicle`:
 `Documentation/hosting/configuration/{observers,events,clustering}.md`,
 `Documentation/hosting/production.md`,
 `Source/Kernel/Core/Configuration/Alerts.cs`, and
@@ -30,21 +30,21 @@ a new catch-up failure stops that step rather than letting other sources proceed
 Full replay is inactive until completion, then routes to catch-up/live unless
 quarantined. Partition quarantine stops that partition's automatic retries;
 observer quarantine suppresses automatic recovery for the whole observer.
-Sources at v19.50.1: `Documentation/concepts/observers.mdx`,
+Sources: `Documentation/concepts/observers.mdx`,
 `Documentation/projections/registration-lifecycle.md`, and
 `Source/Kernel/Core/Observation/Jobs/{CatchUpObserver,ReplayObserver}.cs`.
 
 ### Next-event lookup failures
 
-At **v19.50.1**, Routing keeps the saved position and defers observation when
+Routing keeps the saved position and defers observation when
 `GetNextSequenceNumberGreaterOrEqualTo` returns a storage error. A watchdog tick
 retries that deferred routing only while subscribed and not quarantined. Its
 active-observer lookup also leaves the cursor unchanged on error. Only
 `GetSequenceNumberError.NotFound` proves there is no relevant event and permits
 fast-forward. Read failures are not "nothing to handle"; preserve and investigate
 the warning. Sources: `Source/Kernel/Core/Observation/States/Routing.cs` and
-`Observer.Watchdog.cs`. This fixes #4770, not the proposed Ordered Lanes design
-or all historical delivery/completion limitations. Do not claim past omissions
+`Observer.Watchdog.cs`. This does not implement the proposed Ordered Lanes design
+or remove every delivery/completion limitation. Do not claim past omissions
 were repaired automatically.
 
 `observers.definitionEvolution` governs projection/reducer changes:

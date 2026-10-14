@@ -3,7 +3,7 @@
 
 # Additional client surfaces
 
-Verified at **Cratis/Chronicle v19.50.0**:
+Source: `Cratis/Chronicle`:
 `Source/Clients/DotNET/EventSequences/{IEventSequence,EventForEventSourceId}.cs`,
 `Events/{EventSerializer,ICanProvideAdditionalEventInformation}.cs`, `Seeding/`,
 and `Documentation/event-seeding/seeding-with-csharp.mdx`. Connection checks:
@@ -12,8 +12,10 @@ and `Documentation/event-seeding/seeding-with-csharp.mdx`. Connection checks:
 
 ## Tags and ambiguous appends
 
+Requires Chronicle 19.15.0 for named tags.
+
 `AppendWithNamedTags` / `AppendManyWithNamedTags` and
-`EventForEventSourceId.NamedTags` carry structured tags (19.15.0+). Tags are
+`EventForEventSourceId.NamedTags` carry structured tags. Tags are
 plaintext and indexed: never personal data, credentials or business payloads.
 Upgrade kernels before clients that depend on named tags. `AppendThroughEventSource`
 uses a declared source type and stream name rather than hand-built routing strings.

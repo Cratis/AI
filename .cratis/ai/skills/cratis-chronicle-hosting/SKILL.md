@@ -17,7 +17,7 @@ rotating keys, clearing quarantine or deploying to an unnamed environment.
 
 ## Verified product sources
 
-Verified at **Cratis/Chronicle v19.50.1**:
+Source: `Cratis/Chronicle`:
 
 | Source | Contract |
 | --- | --- |
@@ -26,7 +26,7 @@ Verified at **Cratis/Chronicle v19.50.1**:
 | `Documentation/hosting/configuration/health-endpoint.md` | dedicated probe port and exclusive routing |
 | `Documentation/hosting/configuration/observers.md` | retries, quarantine, definition evolution |
 | `Source/Kernel/Core/Configuration/{Events,Alerts}.cs` | causation retention and incident metrics |
-| `Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs:170-208` | persisted development application |
+| `Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs` | persisted development application |
 
 Reverify these sources before recommending another kernel version. This is the
 operator/kernel surface, not an application-profile layout rule.
@@ -63,10 +63,10 @@ ephemeral OAuth keys. Supply passwords from the approved secret mechanism,
 never commit them. Every cluster node needs the same certificate ring.
 
 The .NET client uses known development credentials when ClientCredentials has
-both username and password absent (`ChronicleClient.cs:334-345`,
-`Connections/ServiceCollectionExtensions.cs:57-68` at **v19.50.0**). The development
+both username and password absent (`ChronicleClient.cs`,
+`Connections/ServiceCollectionExtensions.cs`). The development
 kernel creates the application **directly in persistent storage**
-(`AuthenticationService.cs:170-208` at **v19.50.0**). Changing to a production
+(`AuthenticationService.cs`). Changing to a production
 image does not revoke it. Remove the application and any configuration declaration
 that recreates it before reusing that storage. See **cratis-chronicle-client-dotnet**.
 
@@ -82,10 +82,10 @@ traffic over h2c; HTTP/1.1 upstream fails. Restrict direct access. With auth ena
 use an external HTTPS `authentication.authority`: the internal authority and
 `/connect/token` are unavailable; .NET SDK ClientCredentials cannot use the
 external authority. Independently obtained bearer tokens and Workbench cookie
-login are supported. These claims are at **v19.50.0**,
+login are supported. These claims come from
 `Documentation/hosting/configuration/tls.md`, "Configuration file"/"TLS behavior".
 
-At **v19.50.0**, the same file's "Trusted reverse proxies" section specifies:
+The same file's "Trusted reverse proxies" section specifies:
 
 - `X-Forwarded-For/Proto` is trusted from loopback only by default. Add the
   **immediate proxy** IP to `forwardedHeaders.knownProxies` or a restricted

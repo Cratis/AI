@@ -1,6 +1,6 @@
 ## Lay out the slice
 
-Verified at `Cratis/Arc.TypeScript` **v0.57.2**:
+Source: `Cratis/Arc.TypeScript`:
 `Samples/Library/Features/Authors/Registration` and sample generator scripts.
 
 House convention (not a runtime requirement): one folder per behavior, one

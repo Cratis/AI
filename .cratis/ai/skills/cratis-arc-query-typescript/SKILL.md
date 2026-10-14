@@ -19,12 +19,12 @@ frontend. Project setup, the builder, and hosts are in
 
 ## Verified product sources
 
-Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release;
-server packages 0.57.2, not on npm), reading
+Source: `Cratis/Arc.TypeScript` (source preview;
+server packages not on npm), reading
 `Source/Core/queries/index.ts`, `Documentation/queries/**`,
 `Documentation/mongodb/**`, `Documentation/sql/**`,
 `Documentation/testing/queries.md` and `observable-queries.md`, and
-`Samples/Tasks` / `Samples/Library`. RxJS `^7.8.2` is an optional peer of
+`Samples/Tasks` / `Samples/Library`. RxJS is an optional peer of
 `@cratis/arc.core`, required only for RxJS sources.
 
 ## Declare a read model and its queries

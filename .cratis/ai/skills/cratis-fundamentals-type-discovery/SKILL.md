@@ -16,9 +16,9 @@ removing one becomes a single-file change.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Fundamentals` | `7.23.0` | `IInstancesOf<T>`, `IImplementationsOf<T>`, `ITypes`, convention bindings and the bundled `Cratis.Fundamentals.TypeDiscovery.Generator` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Fundamentals` | `IInstancesOf<T>`, `IImplementationsOf<T>`, `ITypes`, convention bindings and the bundled `Cratis.Fundamentals.TypeDiscovery.Generator` |
 
 Reverify against the Cratis Fundamentals repository before claiming support for
 another version.
@@ -63,7 +63,7 @@ Discovery normally uses compile-time generated providers, not a walk of
 
 The host must call `services.AddTypeDiscovery()` to register `ITypes`,
 `IInstancesOf<>`, and `IImplementationsOf<>`, plus the convention binding setup.
-Arc's `AddCratisArc` does this (verified at Arc v22.75.0); a plain host must do it.
+Arc's `AddCratisArc` does this; a plain host must do it.
 No per-implementation registration is needed when self-binding applies.
 
 The Fundamentals NuGet package carries the generator as an analyzer. A project

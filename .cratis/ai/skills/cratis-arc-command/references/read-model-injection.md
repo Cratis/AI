@@ -6,9 +6,7 @@
 - `null` is not always what absence looks like
 - Which provider owns a read model type
 
-Arc injection verified at **v22.75.0**, with Chronicle dependency 19.39.1;
-separate Chronicle absence behavior below retains its original version context.
-Source: [read models in commands](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md).
+Source: [read models in commands](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md).
 Plain models and keyed reads are advisory, not concurrency guards. For protected
 reads use [decisions and routing](decisions-and-routing.md): opt into
 `[ProtectedDecision]` before taking `DecisionRead<T>`; constructor-injected

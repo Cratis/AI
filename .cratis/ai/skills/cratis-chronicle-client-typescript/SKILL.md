@@ -28,31 +28,33 @@ HTTP and never sees this package.
 | A connection string with no credentials | Silently falls back to the development client credentials |
 | Shipping the default TLS behavior | `skipTlsValidation` defaults to `true` |
 | Constructor-injecting without an `artifactActivator` | By default the client constructs the artifact itself |
-| Side-effect reactor without `@onceOnly()` | Reactors run again on kernel replay by default since 6.9.0 |
+| Side-effect reactor without `@onceOnly()` | Reactors run again on kernel replay by default |
 | Reading `result.sequenceNumber` as a number | It is a `bigint` behind `.value` |
 | A `@globalFor` mapping targeting a property one variant lacks | `GlobalHandlerPropertyNotOnVariant` when the group is built, not a silently skipped mapping |
 | Expecting a `@globalFor`-only class to appear as a projection | It is never registered on its own; it is merged into its variants |
 
 ## Verified product sources
 
-Verified against `Cratis/Chronicle.TypeScript` tag **`v6.51.0`**, reading
+Source: `Cratis/Chronicle.TypeScript`, reading
 `Source/**` and `Documentation/getting-started.md`, `testing.md`,
-`migrate-append-routing.md` and `reactors.md`. Source paths below refer to that tag.
+`migrate-append-routing.md` and `reactors.md`.
 
-| Package | Version | Where |
-| --- | --- | --- |
-| `@cratis/chronicle` | `6.51.0` | npm; `Source/package.json` carries a `1.0.0` placeholder |
-| `@cratis/chronicle.contracts` | `19.31.10` | Client's pinned dependency, not the latest contracts package |
-| `@cratis/fundamentals` | `^7.22.4` | **peer dependency** — you install it |
+| Package | Where |
+| --- | --- |
+| `@cratis/chronicle` | npm; `Source/package.json` carries a placeholder version |
+| `@cratis/chronicle.contracts` | Client's pinned dependency, not the latest contracts package |
+| `@cratis/fundamentals` | **peer dependency** — you install it |
 
-> **Do not read the version out of the repository.** `Source/package.json` says
-> `1.0.0`; `publish-version.js` overwrites it at publish time. Take the version
+> **Do not read the version out of the repository.** `Source/package.json` carries
+> a placeholder; `publish-version.js` overwrites it at publish time. Take the version
 > from npm.
 
-**Upgrade the kernel first.** The 5.x→6.0.0 migration changes omitted append
-routes and requires compatibility checks (kernel 18.4.1+); registered event
-sources introduced in 6.49.0 require kernel 19.30+. Reactors replay by default
-since 6.9.0, so review side-effect handlers when upgrading.
+**Upgrade the kernel first.** Reactors replay by default, so review side-effect handlers when
+upgrading.
+
+Requires Chronicle kernel 18.4.1 for the contract compatibility check and for omitted append routes.
+
+Requires `@cratis/chronicle` 6.49.0, Chronicle kernel 19.30.0 and `@cratis/chronicle.contracts` 19.30.0 for registered event sources.
 
 ## Project setup
 
@@ -229,7 +231,9 @@ if (!result.isSuccess) {
   `concurrencyScope`, `concurrencyScopes`, `eventSource`, and `eventStream`.
   The reserved legacy `eventSourceId` option does not override the method's id.
 
-**Single `append()` supports routing and subject options.** Since 6.0.0 an
+Requires `@cratis/chronicle` 6.0.0 for omitted append routes.
+
+**Single `append()` supports routing and subject options.** An
 unspecified route is omitted on the wire; the kernel resolves source `Default`,
 stream type `All`, stream id `Default`. Subject precedence is the explicit option,
 then the event's `@subject()` property, then its event source id.
@@ -251,7 +255,7 @@ await unitOfWork.commit();
 ```
 
 `ITransactionalEventSequence` returns `Promise<void>`, not an `AppendResult`;
-results are on the unit of work. Since 6.51.0 transactional appends retain
+results are on the unit of work. Requires `@cratis/chronicle` 6.51.0 for transactional appends to retain
 routing, subject, occurrence, tags and concurrency scopes in enrollment order;
 conflicting scopes for one source throw `ConflictingConcurrencyScopesInUnitOfWork`
 before enrollment.
@@ -265,7 +269,7 @@ An unmatched name is simply never called. Reactors and reducers also support
 `@handles(EventType)` on a public instance method: one handler per event;
 a reactor handler cannot combine it with `@replay`.
 
-**Reactors replay by default since 6.9.0.** Use class `@onceOnly()` (not inherited)
+**Reactors replay by default.** Use class `@onceOnly()` (not inherited)
 or method `@onceOnly()` for effects that must not run on replay; `@replay(EventType)`
 provides a separate replay handler. This never prevents failed-partition
 redelivery or proves exactly-once effects.
@@ -353,10 +357,12 @@ Three consecutive credential rejections cause `RejectedChronicleCredentials`.
 A failed token request is logged and the call proceeds without a token (allowing
 an auth-less kernel); tokens come from the selected server, not the first host.
 
-Since 6.43.0 built-in spans use `cratis.chronicle.client.*` and scope
+Requires `@cratis/chronicle` 6.43.0 for the built-in spans below.
+
+Built-in spans use `cratis.chronicle.client.*` and scope
 `Cratis.Chronicle.Client`; metrics use seconds. Legacy millisecond metrics and
 `chronicle.*` attributes are retired except the retained exact-string
-`chronicle.sequence_number`. Historical constants, `ChronicleMetrics`, and
+`chronicle.sequence_number`. The old constants, `ChronicleMetrics`, and
 `telemetry.spanNames` are deprecated; migrate dashboards.
 
 ## Artifact activation
@@ -379,7 +385,7 @@ reactors or read models with `EventScenario`, `ReactorScenario`, or
 | Registered sources/streams | Root `@eventSource`, repeatable `@eventStream`, `ConcurrencyDimensions`, `store.eventSources`; append `eventSource/eventStream`. Kernel 19.30+; see `Source/eventSources/` |
 | Named tags | `namedTags` on appends; batches cannot combine them with registered event sources |
 | Personal data and retained secrets | `@pii`, `@subject`, `store.pii`; `@encrypted` with `EncryptionScope` from `./confidentiality`; release through `readModels.release*`. Never combine PII/encrypted or put either on `eventSourceId` |
-| Subject migration | Subject uses `@subject()` since 6.41.1; earlier appended events used the source id for protection keys |
+| Subject migration | Subject uses `@subject()`; events appended before it used the source id for protection keys |
 | Operational catalogs | `store.observers` (list/remove), `store.patterns`; mutations need authority |
 | Diagnostics/privacy | `ChronicleOptions.telemetry` and per-client `logger`; source ids are omitted by default, raw/HMAC recording is opt-in |
 
