@@ -153,6 +153,7 @@ case "$FIXTURE_CASE" in
     long-text) node -e 'require("node:fs").writeFileSync(process.env.DIRECT_STRUCTURED_RESULT_FILE, JSON.stringify({summary:"é".repeat(8200), gaps:["x".repeat(8200)]}))' ;;
     unicode-text) node -e 'require("node:fs").writeFileSync(process.env.DIRECT_STRUCTURED_RESULT_FILE, JSON.stringify({summary:"😀".repeat(4200)}))' ;;
     many-checks) jq -cn '{selfChecks: [range(1500) | tostring]}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
+    verbose-checks|opaque-numbers) jq -cn '{selfChecks: [range(100) | "x" * 1000]}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
     oversized-metadata) jq -cn '{gaps: [range(1000) | "x" * 100]}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
     refused) printf '{"outcome":"Refused"}' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
     malformed) printf 'not json' > "$DIRECT_STRUCTURED_RESULT_FILE" ;;
@@ -243,17 +244,35 @@ await_worker
 check_diff
 jq -e '(.diff | contains("ignored-info.txt") or contains("ignored-config.txt") | not) and (.structured.touchedFiles | index("new file.txt")) != null' "$ROOT/result.json" >/dev/null
 cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
-for label in mixed-items long-text unicode-text many-checks; do
-    run_worker "$label" claude-code
+for label in mixed-items long-text unicode-text many-checks verbose-checks oversized-metadata opaque-numbers; do
+    extras=()
+    if [[ "$label" == opaque-numbers ]]; then
+        opaque='{"opaqueId":9007199254740993,"decimal":1.50,"exponent":1e3,"9":"nine","2":"two"}'
+        extras=("DIRECT_CORRELATION=$opaque")
+    fi
+    run_worker "$label" claude-code "${extras[@]}"
     await_worker
     [[ $STATUS == 0 ]]
-    check_diff
+    [[ "$label" == opaque-numbers ]] || check_diff
     case "$label" in
         mixed-items) jq -e '.structured.gaps == ["gap", "{\"code\":7}", "42", "true", "[\"nested\"]"] and .structured.selfChecks == ["{\"check\":\"build\"}", "2", "kept"]' "$ROOT/result.json" >/dev/null ;;
         long-text) jq -e '(.structured.summary | length) == 8192 and (.structured.summary | endswith("…")) and (.structured.gaps[0] | length) == 8192 and (.structured.gaps[0] | endswith("…"))' "$ROOT/result.json" >/dev/null ;;
         unicode-text) node -e 'const s=JSON.parse(require("node:fs").readFileSync(process.argv[1])).structured.summary; if(s.length>8192 || s!=="😀".repeat(4095)+"…") process.exit(1)' "$ROOT/result.json" ;;
         many-checks) jq -e '.structured.selfChecks == [range(1000) | tostring]' "$ROOT/result.json" >/dev/null ;;
+        verbose-checks|opaque-numbers) jq -e '(.structured.selfChecks | length) < 100 and (.structured.selfChecks[-1] | test("trailing selfChecks items dropped to fit metadata"))' "$ROOT/result.json" >/dev/null ;;
+        oversized-metadata) jq -e '(.structured.gaps | length) < 1000 and (.structured.gaps[-1] | test("trailing gaps items dropped to fit metadata"))' "$ROOT/result.json" >/dev/null ;;
     esac
+    if [[ "$label" == opaque-numbers ]]; then
+        printf '%s' "$opaque" > "$ROOT/opaque.json"
+        jq -cn --slurpfile correlation "$ROOT/opaque.json" '$correlation[0]' > "$ROOT/expected-correlation.json"
+        node --input-type=module - "$ROOT/contracts/result-json.mjs" "$ROOT/result.json" "$ROOT/expected-correlation.json" <<'NODE'
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const { members, rawMember } = await import(process.argv[2]);
+const json = readFileSync(process.argv[3], 'utf8');
+assert.equal(rawMember(json, members(json), 'correlation'), readFileSync(process.argv[4], 'utf8').trim());
+NODE
+    fi
 done
 for label in empty refused malformed; do
     run_worker "$label" claude-code
@@ -309,7 +328,7 @@ paths=(legacy.txt latin1.txt 'latin[1]*.txt')
 [[ "$(uname)" != Linux ]] || paths+=($'invalid-\351.txt')
 for path in "${paths[@]}"; do cmp "$ROOT/workspace/$path" "$ROOT/applied/$path"; done
 cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
-for label in delivery-failure agent-failure invalid-diff json-corruption too-many-files oversized-metadata oversized-usage; do
+for label in delivery-failure agent-failure invalid-diff json-corruption too-many-files oversized-usage; do
     extras=()
     [[ "$label" != oversized-usage ]] || extras=("DIRECT_MODEL=$(printf '%8300s' '' | tr ' ' x)")
     run_worker "$label" claude-code "${extras[@]}"
@@ -321,7 +340,6 @@ for label in delivery-failure agent-failure invalid-diff json-corruption too-man
         invalid-diff) jq -se 'any(.[]; .detail == "Could not deliver the result: diff is not valid UTF-8")' "$ROOT/http.jsonl" >/dev/null ;;
         json-corruption) jq -se 'any(.[]; .detail == "Could not deliver the result: decoded diff checksum does not match")' "$ROOT/http.jsonl" >/dev/null ;;
         too-many-files) jq -se 'any(.[]; .detail == "Could not deliver the result: structured.touchedFiles: exceeds 10000 items")' "$ROOT/http.jsonl" >/dev/null ;;
-        oversized-metadata) jq -se 'any(.[]; .detail | strings | contains("metadata without diff"))' "$ROOT/http.jsonl" >/dev/null ;;
         oversized-usage) jq -se 'any(.[]; .detail == "Could not deliver the result: usage: raw JSON exceeds 8192 characters")' "$ROOT/http.jsonl" >/dev/null ;;
     esac
 done
