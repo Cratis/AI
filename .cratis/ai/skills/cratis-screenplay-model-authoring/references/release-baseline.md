@@ -1,7 +1,9 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Release baseline (Screenplay 4.153.0)
+# Release baseline
+
+Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and `screenplay baseline`, and 4.152.0 or later for `storedName` (ESM v16).
 
 ## Contents
 
@@ -19,7 +21,7 @@ revisions a release admitted, keyed by persisted event contract identity and
 revision, not display name/address. Its header is
 `schema: "cratis.screenplay.release-baseline"`, `schemaVersion: 1`, with
 `applicationIdentity` and `entries`. Published schema:
-[release-baseline-v1.schema.json](https://github.com/Cratis/Screenplay/blob/v4.153.0/Documentation/screenplay/release-baseline-v1.schema.json).
+[release-baseline-v1.schema.json](https://github.com/Cratis/Screenplay/blob/main/Documentation/screenplay/release-baseline-v1.schema.json).
 
 Persist `.screenplay/identities.json` through the owning MCP session first.
 Admission requires a binding model, persisted identities and no pending recovery.
@@ -116,25 +118,27 @@ installation has no write outcome to recover.
 ## Earlier shipped models
 
 `screenplay baseline admit <model-root> --release <release-label> --from-esm <shipped-esm>`
-strictly reads an earlier canonical ESM with the same application identity. At
-**4.153.0**, this route resolves the shipped type from `contract.Name`, **not**
-`contract.StoredName`, even for v16. A pinned rename can therefore refuse
-`ShippedStoredNameMismatch`; do not claim this option carries the shipped v16 pin
-or remove a correct current pin to force admission. A reviewed baseline correction
-or data migration needs the actual stored-type evidence. Ordinary admission from
-the current model does use its effective stored name. This source boundary differs
-from decision 0075's intended `--from-esm` behavior.
+strictly reads an earlier canonical ESM with the same application identity. It resolves
+each shipped event type from the shipped contract's `StoredName`, falling back to `Name`,
+and refuses `ShippedStoredNameMismatch` when that name differs from the current stored
+name. Do not remove a correct current pin to force admission. A reviewed baseline
+correction or data migration needs the actual stored-type evidence. Ordinary admission
+from the current model uses its effective stored name.
+
+Requires Screenplay 4.154.0 or later (`screenplay --version`) for `--from-esm` to read the
+shipped `storedName`; earlier tools compare the shipped `name` and can refuse a pinned
+rename with `ShippedStoredNameMismatch`.
 
 ## Verified product sources
 
-Cratis/Screenplay **v4.153.0**:
+Cratis/Screenplay:
 
-- `Documentation/screenplay/events.md:33-55,61-86,149` (stored shape, modes, rename).
-- `Documentation/screenplay/tool.md:28-64` (CLI, persistence and exits).
-- `Documentation/screenplay/mcp/reference.md:481-533` (views, paging, reports and guards).
-- `Documentation/screenplay/mcp/recovery.md:32-45,101` (unreadability, drift, journal).
-- `Documentation/screenplay/release-baseline-v1.schema.json:1-15,86-95` (sidecar).
-- `Source/DotNET/Tool/BaselineCommand.cs:14-46,67-80` (real CLI requirements/exits).
-- `Source/DotNET/Screenplay/Workspaces/ReleaseBaseline.cs:18-47,76-108` (monotonic admission, stored-name comparison and the `--from-esm` boundary).
-- `WorkspaceEventMutability.cs:19-24`, `WorkspaceRefactoring.Property.cs:95-102` and `WorkspaceRefactoring.cs:168-177` in that Workspaces folder (classification/refusal).
-- `Source/DotNET/Screenplay.Mcp/McpWorkspaces.ReleaseBaseline.cs:38-45,111-134` (read, paging and apply checks).
+- `Documentation/screenplay/events.md` (stored shape, modes, rename).
+- `Documentation/screenplay/tool.md` (CLI, persistence and exits).
+- `Documentation/screenplay/mcp/reference.md` (views, paging, reports and guards).
+- `Documentation/screenplay/mcp/recovery.md` (unreadability, drift, journal).
+- `Documentation/screenplay/release-baseline-v1.schema.json` (sidecar).
+- `Source/DotNET/Tool/BaselineCommand.cs` (real CLI requirements/exits).
+- `Source/DotNET/Screenplay/Workspaces/ReleaseBaseline.cs` (monotonic admission, stored-name comparison and the `--from-esm` boundary).
+- `WorkspaceEventMutability.cs`, `WorkspaceRefactoring.Property.cs` and `WorkspaceRefactoring.cs` in that Workspaces folder (classification/refusal).
+- `Source/DotNET/Screenplay.Mcp/McpWorkspaces.ReleaseBaseline.cs` (read, paging and apply checks).

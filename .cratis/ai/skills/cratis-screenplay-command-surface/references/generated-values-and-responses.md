@@ -104,7 +104,7 @@ Length changes affect all concept uses; uniqueness changes append-time behavior.
 Derived regex, matches/checksum repairs and rule-proof status are not shipped.
 CLI **3.57.0** / MCP **4.147.1** lacks this summary and these repairs; it still
 supports existing typed concept proposals. Full fields, mapping limits and tagged
-source evidence: [MCP generation guide](../../cratis-screenplay-model-authoring/references/mcp-tools.md#concept-generation-41490).
+source evidence: [MCP generation guide](../../cratis-screenplay-model-authoring/references/mcp-tools.md#concept-generation).
 Sources: Cratis/Screenplay `v4.149.0:Documentation/screenplay/generated-values.md:62-70`,
 `Source/DotNET/Screenplay.Mcp/McpGenerationDetails.cs:13-83`,
 `Source/DotNET/Screenplay/Workspaces/WorkspaceGenerationRepairs.cs:29-134`.

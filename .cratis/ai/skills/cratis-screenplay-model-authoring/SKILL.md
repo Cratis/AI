@@ -23,14 +23,10 @@ same model root or workspace export to all checks. Workflow:
 
 ## Verified product sources
 
-Screenplay v4.144.0: notes (`references/model-notes.md`); property planner
-v4.142.0 (`references/property-links.md`); compliance (command-surface
-`references/compliance.md`); generation MCP v4.149.0
-([sources](references/mcp-tools.md#concept-generation-41490)); other MCP v4.139.0
-`Documentation/screenplay/mcp/`. Stored names v4.152.0; baseline v4.153.0
-(`references/release-baseline.md`). Discover installed schemas; bundles differ.
-Tool versions: toolchain `SKILL.md`. Historical probes 4.66.0; registration
-compilation/execution 4.68.0. Attribution: `references/provenance.md`.
+Source: `Cratis/Screenplay`, `Documentation/screenplay/` and `Documentation/screenplay/mcp/`
+(notes, property planner, compliance, concept generation, release baseline). Discover
+installed schemas; bundles differ. Tool versions: toolchain `SKILL.md`. Attribution:
+`references/provenance.md`.
 
 Record open modeling questions as `question` notes in committed
 `.screenplay/notes.json`, not chat or `description` text. Never put secrets or
@@ -45,7 +41,7 @@ editing concept generation or `generated identifier`.
 
 ## When not to
 
-The same reference separates inputs, credentials and unreleased context/secret generation.
+The same reference separates inputs, credentials and context/secret generation that is not available.
 
 ## Locate and connect
 
@@ -82,7 +78,7 @@ The CLI entry point is:
 cratis screenplay mcp <model-folder>
 ```
 
-CLI 3.57.0 bundles MCP 4.147.1, lacking the generation summary/entropy repairs.
+The CLI-bundled MCP can be older than the standalone tool and lack newer capabilities, such as the generation summary and entropy repairs.
 Discover installed capabilities. Do not ask for a second global .NET tool, Docker
 or hand-copied managed MCP configuration. Installation/status must confirm adapter
 support and no conflicts.
@@ -100,7 +96,7 @@ can keep that entry point; use the project's supported installation channel.
    Before a property change, read [property links](references/property-links.md):
    `kind: "Property"`, `Owner.member` / `Owner.generationN.member`, direct mappings.
    `complete: false` is incomplete evidence, never a successful empty list.
-   Edit through MCP proposals, not hand-edited text; [generation](references/mcp-tools.md#concept-generation-41490).
+   Edit through MCP proposals, not hand-edited text; [generation](references/mcp-tools.md#concept-generation).
 3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
    edges, declared-dependency coverage, cycles and advisory order; the board's
    dependency-map toggle exposes this evidence visually. Unknown or ambiguous
@@ -161,9 +157,11 @@ Others send an edit request ([MCP loop](references/mcp-loop.md)).
    identity-state change through `workspace-state`. Review `orphanedNotes` on
    source proposals; reanchor or resolve affected questions before applying
    ([notes and orphan impact](references/model-notes.md#source-proposals-can-orphan-notes)).
-7. Run `run-specifications` with `proposalId` before applying on **Screenplay
-   4.145.0 and later**. Record V4 separately: PLAY0285 (impossible `then`) unbinds the whole
-   model. Paging and read-only candidate semantics: [MCP tool guide](references/mcp-tools.md#run-reference-specifications).
+7. Run `run-specifications` with `proposalId` before applying. Record V4 separately: PLAY0285
+   (impossible `then`) unbinds the whole model. Paging and read-only candidate semantics:
+   [MCP tool guide](references/mcp-tools.md#run-reference-specifications).
+
+   Requires Screenplay 4.145.0 or later (`screenplay --version`) for `proposalId`; earlier servers run only the current workspace.
 8. `apply` only the reviewed server-produced proposal within the user's requested
    change. The proposal ID and before revisions are required; stale state rejects.
    When the user already requested apply, do it after checks without asking again;
@@ -206,7 +204,7 @@ from silently changing the reviewed candidate.
   No automatic generation-evolution repair ships.
 - `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
   migrates all occurrences together. Keep the `query Q => observable?` exception.
-- Generation repairs PLAY0683/0684: [subjects, review and limits](references/mcp-tools.md#concept-generation-41490).
+- Generation repairs PLAY0683/0684: [subjects, review and limits](references/mcp-tools.md#concept-generation).
 - Compliance repairs PLAY0565/0653: [MCP tool guide](references/mcp-tools.md).
 
 `propose-number-enum-members` pins an unnumbered enum to current positions.
@@ -214,13 +212,15 @@ Opt-in MCP `checks: "enum-pinning"` / `--check enum-pinning` (PLAY0671) hints at
 stored enums, not correctness repairs. Arguments/review: `references/mcp-tools.md`.
 
 Use `propose-extract-inline-event` before adding generations (canonical consent;
-no comment loss/reverse). **4.153.0** [release baseline](references/release-baseline.md):
+no comment loss/reverse). The [release baseline](references/release-baseline.md):
 admit in the release job; no baseline requires an explicit mode;
-`eventNeverPersisted: true` cannot unfreeze admitted revisions. **4.152.0** carries
-`storedName` in ESM v16; the interim warning is retired. Pins are event-name identifiers,
-shared by all generations and unique (PLAY0472). Stage 4.92.0 / CLI 3.59.0 do not
-admit v16. Stored stream `All` (even `id "All"`) refuses PLAY0273; rename without
+`eventNeverPersisted: true` cannot unfreeze admitted revisions. Differing event pins carry
+`storedName` in ESM v16. Pins are event-name identifiers,
+shared by all generations and unique (PLAY0472). A renderer admits only the ESM versions it
+bundles, so an older Stage can refuse v16. Stored stream `All` (even `id "All"`) refuses PLAY0273; rename without
 that pin. Evidence/limits: [MCP tool guide](references/mcp-tools.md).
+
+Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and `screenplay baseline`, and 4.152.0 or later for `storedName` (ESM v16).
 
 ## Choose a readable layout
 
@@ -232,14 +232,14 @@ proposal. Layout is not application semantics.
 - Use one file per feature when nested features need separate review.
 - Use one file per slice when a large model needs isolated diffs.
 
-Compose split files with quoted imports (`import "<path or glob>"`, v4.48.0).
+Compose split files with quoted imports (`import "<path or glob>"`).
 Each level above the slices is a barrel file: `application.play` holds `domain`
 and imports `Shared/*.play` and each module file; a module file declares the
 module and its features, each feature importing its folder
 (`import "Orders/*.play"`); a slice file holds only its `slice`, because the
 import places it in its feature. When you write or reorganize files yourself,
 do not restate `module`/`feature` in a slice file, and do not leave a barrel
-that declares a scope but imports nothing. At 4.125.0 `expand-layout` writes
+that declares a scope but imports nothing. `expand-layout` writes
 import barrels and slice-only leaves, preserving sibling and interleaved member
 order. It refuses a proposal that would change that order; without an ordering
 root its review discloses the path-order fallback. When choosing file placement, read the
@@ -296,9 +296,9 @@ paths or diagnosing `PLAY0430`-`PLAY0434`; `read-workspace`/`read-proposal`
   clean run is not a bound or executable result.
 - Operations/`numbers exact` remain unadmitted; routes bind as v8, public
   boundaries v9, identity/overrides/filters v10, qualifying non-route Double
-  literals v11, enum numbers v12, compliance v13 (since 4.141.0;
-  limits: command-surface `references/compliance.md`).
-  CLI 3.57.0 bundles Screenplay 4.147.1 / Stage 4.89.1 and renders v12 enum numbers. Never drop or stub source contracts to bind.
+  literals v11, enum numbers v12, compliance v13 (limits: command-surface
+  `references/compliance.md`). The compiler and renderer bundled in the CLI can be older than the
+  standalone tool (toolchain `SKILL.md`). Never drop or stub source contracts to bind.
 - Distinguish authoring acceptance from `executableReady`; unsupported backend
   capabilities are not a reason to drop source constructs or invent stubs.
 - If execution is intended, validate with the owning downstream runtime as well.

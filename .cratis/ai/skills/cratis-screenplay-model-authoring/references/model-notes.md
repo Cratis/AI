@@ -16,20 +16,21 @@
 
 ## Verified product sources
 
-All notes claims below use **Screenplay v4.144.0** (decision 0045, PR #683), not
-Cratis CLI's older bundle. Sources in `Cratis/Screenplay` at that tag:
+Requires Screenplay 4.144.0 or later (`screenplay --version`) for model notes; the CLI-bundled MCP can be older.
 
-| Contract | Path and lines |
+Sources in `Cratis/Screenplay`:
+
+| Contract | Path |
 | --- | --- |
-| Purpose, anchors, decisions and privacy | `Documentation/screenplay/model-notes.md:6-77`; `decisions/0045-model-notes-sidecar.md:40-79` |
-| Filters, operations, review and orphan disclosure | `Documentation/screenplay/mcp/reference.md:457-520`; `Source/DotNET/Screenplay.Mcp/McpNotesSchemas.cs:10-83` |
-| Retained proposals, revision guards and notes review | `Source/DotNET/Screenplay.Mcp/McpWorkspaces.Notes.cs:12-92,111-119` |
-| Operation fields and resolution evidence | `Source/DotNET/Screenplay.Mcp/McpNotesOperations.cs:12-99` |
-| Sidecar bytes, absence and canonical revision | `Source/DotNET/Screenplay/Workspaces/ModelNotesStore.cs:22-32,56-126` |
-| Standalone question gate | `Source/DotNET/Tool/ModelOpenQuestions.cs:18-69,87-131`; `Documentation/screenplay/model-notes.md:93-121` |
+| Purpose, anchors, decisions and privacy | `Documentation/screenplay/model-notes.md` |
+| Filters, operations, review and orphan disclosure | `Documentation/screenplay/mcp/reference.md`; `Source/DotNET/Screenplay.Mcp/McpNotesSchemas.cs` |
+| Retained proposals, revision guards and notes review | `Source/DotNET/Screenplay.Mcp/McpWorkspaces.Notes.cs` |
+| Operation fields and resolution evidence | `Source/DotNET/Screenplay.Mcp/McpNotesOperations.cs` |
+| Sidecar bytes, absence and canonical revision | `Source/DotNET/Screenplay/Workspaces/ModelNotesStore.cs` |
+| Standalone question gate | `Source/DotNET/Tool/ModelOpenQuestions.cs`; `Documentation/screenplay/model-notes.md` |
 
 The source-edit and authoring guides remain useful for the ordinary proposal loop:
-`Documentation/screenplay/mcp/edit.md:201-226` and `authoring-tools.md:16-40`.
+`Documentation/screenplay/mcp/edit.md` and `authoring-tools.md`.
 The notes-specific arguments are in the reference and sources above.
 
 ## Choose the artifact

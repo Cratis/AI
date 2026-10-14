@@ -19,11 +19,8 @@
 The working loop for the session that owns the model connection: connect, orient,
 choose an edit route, propose, review, run specifications, apply, verify. Tool-by-tool arguments and
 refusals are in the [MCP tool guide](mcp-tools.md); verdict names (V1 to V5) are
-defined by `cratis-screenplay-modeling-lifecycle`. Facts here were read at
-Screenplay v4.66.0 (`Source/DotNET/Screenplay.Mcp/`, `Documentation/screenplay/mcp/`)
-and probed against the standalone 4.66.0 tool and, for the connection behavior,
-4.63.1. Cratis CLI 3.28.2 bundles Screenplay 4.66.0 (probed: 29 tools and the same views);
-Cratis CLI before 3.28.2 bundled 4.60.1, whose tool set and views differ: read `tools/list`.
+defined by `cratis-screenplay-modeling-lifecycle`. Discover the installed tool set and views with
+`tools/list`: the CLI-bundled server can differ from the standalone one.
 
 ## Connect
 
@@ -39,7 +36,7 @@ Cratis CLI before 3.28.2 bundled 4.60.1, whose tool set and views differ: read `
    `.screenplay` metadata.
 4. Read `tools/list` schemas once per connection; never hard-code counts or
    argument lists. MCP-Apps hosts also expose `visualize-model`.
-5. At 4.125.0 a startup root may switch to the same relative model folder in a
+5. A startup root may switch to the same relative model folder in a
    registered Git worktree of its repository. `open-workspace.path` accepts the
    checkout or exact model folder. Shared Git directory and registration
    back-pointer must agree physically; unrelated/malformed/unregistered roots,
@@ -49,19 +46,14 @@ Cratis CLI before 3.28.2 bundled 4.60.1, whose tool set and views differ: read `
    worktree is removed, explicitly return to the startup root; if the startup
    root is removed, start a new connection. No simultaneous named workspaces.
 
-### Roots bug and the workaround
+### Dynamic roots and the workaround
 
-Screenplay up to 4.63.1 (fixed in 4.63.2; the 4.66.0 tool is fixed) read the
-client's roots reply from the wrong member. A server started **without** a root,
-facing a client that advertises roots, answered with an error with `id: null`
-immediately after `notifications/initialized`, before any tool call. Real hosts
-treat that as fatal and drop the connection. Passing `open-workspace.path` does
-**not** avoid it, because the error is sent before `open-workspace` runs.
-
-Avoid it by fixing the root at launch (the forms in step 1). The `cratis/screenplay`
-profile registration is not affected in an installed project, and the CLI now locates the model itself, so no model directory has to exist. Cratis CLI before 3.28.2 bundled 4.60.1: for a
-dynamic root there, fix the root. Cratis CLI 3.28.2 bundles 4.66.0, which is fixed (probed:
-the server sends `roots/list` and serves `tools/list` after the reply).
+A server started **without** a root binds one from the client's roots reply. A client
+that does not answer `roots/list` leaves it without a model, and passing
+`open-workspace.path` is the only way to bind one. Avoid depending on that by fixing the
+root at launch (the forms in step 1). The `cratis/screenplay` profile registration fixes
+it in an installed project, and the CLI locates the model itself, so no model directory
+has to exist.
 
 ## Who owns the connection
 
@@ -108,15 +100,15 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    `find-modeling-smells` as questions needing a domain consequence, and compare
    generated/curated exported snapshots with `semantic-diff`.
    Before a property change, use `find-references`/`dependencies`
-   `kind: "Property"` (4.138.0+) and `Owner.member` or historical event
+   `kind: "Property"` and `Owner.member` or historical event
    `Owner.generationN.member`. Follow direct mapping counterparts one query at a
    time; inspect incomplete/ambiguous evidence and `reasons`. `complete: false`
    is not an empty successful result. Shapes/roles: [property links](property-links.md).
-   On Screenplay 4.149.0, inspect concept `generate` with `declaration-details`
+   Inspect concept `generate` with `declaration-details`
    `kind: "Concept"`, `view: "summary"`: `generation.executable.status` distinguishes
    `admitted`, `refused`, `notAssessed`; empty local error codes do not prove binding.
-   The CLI 3.57.0 / MCP 4.147.1 bundle lacks this summary and entropy repairs.
-   Fields and tagged evidence: [concept generation](mcp-tools.md#concept-generation-41490).
+   A bundle that predates this summary also lacks the entropy repairs.
+   Fields and tagged evidence: [concept generation](mcp-tools.md#concept-generation).
 3. `open-workspace` and keep `revision` and `catalogRevision`. Opening writes
    nothing. With `identityPersistence: "root-local-on-apply"` the identities file
    is written only by `apply`.
@@ -144,7 +136,7 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    diagnostics, report V3 as not binding-ready, and never drop or stub the
    construct. The server's own guidance is to apply such a proposal only when
    the user accepts a model that does not run yet.
-7. On **Screenplay 4.145.0 and later**, run `run-specifications` with the
+7. Run `run-specifications` with the
    retained `proposalId` before `apply`. This read-only V4 route runs the candidate,
    including retained identities and planned renames, without applying, refreshing
    from disk or discarding it. `read-proposal view: "semantic-diff"` is static
@@ -191,9 +183,9 @@ the server sends `roots/list` and serves `tools/list` after the reply).
    A text rename plus an `id "<old name>"` pin preserves authored stored-name intent
    but leaves the identity catalog pointing at the old declaration; the next
    `apply` can mint new identities silently. Use the identity-preserving operation.
-   Screenplay 4.152.0 carries differing event pins as `storedName` in ESM v16;
-   that does not repair a stale catalog or admit the model to Stage 4.92.0 / CLI
-   3.59.0 (still v15). Evidence and target limits: `mcp-tools.md`.
+   Differing event pins carry `storedName` in ESM v16;
+   that does not repair a stale catalog or admit the model to a renderer that stops before
+   v16. Evidence and target limits: `mcp-tools.md`.
 5. **A session without MCP** (a subagent, or a harness with no server) carries out a
    requested rename by text with `id "<Old>"` pins and an identity note when no
    `.screenplay/identities.json` exists. When it exists, it does not edit
@@ -209,7 +201,7 @@ the server sends `roots/list` and serves `tools/list` after the reply).
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
 | Parser-invalid document | no editable handles | `propose-source` `replace-document` with corrected source, or typed `propose-ast` document replacement |
 | Unadmitted constructs | systems/operations, the `numbers exact` source mode, refusal/redelivery | reviewed Authoring `propose-source` (whole documents) or `propose-ast` (typed edits); preserve intent and report PLAY0268 |
-| Admitted source/stream routing | ESM v8 at 4.125.0 | typed `propose-ast`; `propose-rename` repairs proven route references; target admission separate |
+| Admitted source/stream routing | ESM v8 | typed `propose-ast`; `propose-rename` repairs proven route references; target admission separate |
 
 PLAY0683/PLAY0684 repairs raise NanoID size or bytes count to at least 64 random
 bits using the concept subject (possibly across documents). PLAY0683 can instead
@@ -220,11 +212,11 @@ and `read-workspace view: "repairs"`, then `propose-repair` with both revisions 
 Neither action supports fix-all or pinned evidence. A concept change affects all
 uses; uniqueness changes append-time behavior. Derived regex, matches/checksum
 repairs and rule-proof status await phase 2b-2; details and source citations are in
-[concept generation](mcp-tools.md#concept-generation-41490).
+[concept generation](mcp-tools.md#concept-generation).
 
 ## Self-describing identity migration refusals
 
-At Screenplay 4.127.0, read `identityMigrationIssues` on rejected proposals
+Read `identityMigrationIssues` on rejected proposals
 (conflict `InvalidIdentityMigration`). Each entry names typed `address.kind` and
 `address.parts`, and the input `arguments` it belongs in: `semanticRenames`,
 `eventRenames`, `retiredSemanticAddresses`, `retiredEventAddresses`. Stale renames
@@ -233,7 +225,7 @@ not an instruction to retire. Include both event-contract and semantic assignmen
 and all assigned descendants. Rename/apply messages name the same offending addresses.
 Supply exactly the entries required for the intended change instead of retrying
 by trial and error. Re-read actual revisions when stale; never clear the catalog.
-Authority: v4.127.0 `mcp/reference.md`, `mcp/authoring-tools.md`.
+Authority: `mcp/reference.md`, `mcp/authoring-tools.md`.
 
 ## Identity state (`.screenplay/identities.json`)
 
@@ -253,7 +245,7 @@ Authority: v4.127.0 `mcp/reference.md`, `mcp/authoring-tools.md`.
 
 ### Root discovery conflicts
 
-At Screenplay 4.125.0 default discovery preserves `.screenplay/identities.json`
+Default discovery preserves `.screenplay/identities.json`
 or `pending.json` on the ancestor-or-self path from the offered project to the
 discovered model. Empty metadata folders/backups do not count. With several
 state roots, the nearest the offered project wins. `rootBindingConflict` in
@@ -320,10 +312,6 @@ rejects the plan.
 
 ## Provenance
 
-Proposal execution: Screenplay v4.145.0
-`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Specifications.cs:12-79` and
-`Source/DotNET/Tool/ModelTest.cs:14-108`; `Documentation/screenplay/mcp/authoring-tools.md:500-535`.
-
 The structure of this loop (ownership, edit-request shape, failure handling) is
-adapted from the project's earlier event-modeling toolkit draft and re-verified
-against the Screenplay sources named above. See [provenance](provenance.md).
+adapted from the project's earlier event-modeling toolkit draft. See [provenance](provenance.md).
+
