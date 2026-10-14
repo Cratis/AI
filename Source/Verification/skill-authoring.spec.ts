@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { alwaysOnFindings, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems } from './skill-authoring.ts';
+import { alwaysOnFindings, alwaysOnHarnessBudgets, alwaysOnHarnessBytes, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems } from './skill-authoring.ts';
 import { evaluationBaseRevision, evaluationCoverageFindings } from './evaluation-coverage.ts';
 
 const file = '.cratis/ai/skills/example/SKILL.md';
@@ -107,11 +107,29 @@ test('always-on line and byte thresholds have separate required and informationa
     assert.deepEqual(general('x\n'.repeat(201)).map(finding => finding.rule), ['always-on-lines']);
     assert.ok(!general('x'.repeat(24_000)).some(finding => finding.rule === 'always-on-bytes'));
     assert.ok(general('é'.repeat(12_001)).some(finding => finding.rule === 'always-on-bytes'));
-    assert.ok(alwaysOnFindings([{ file: 'rules/x.md', content: 'x'.repeat(60_001) }]).some(finding => finding.rule === 'unscoped-rule-bytes'));
+    const unlimited = { 'claude-code': Infinity, copilot: Infinity, pi: Infinity, 'cursor-codex-opencode': Infinity };
+    assert.ok(alwaysOnFindings([{ file: 'rules/x.md', content: 'x'.repeat(60_001) }], unlimited).some(finding => finding.rule === 'unscoped-rule-bytes'));
     assert.deepEqual(alwaysOnFindings([{ file: 'rules/x.md', content: '---\npaths:\n  - src/**\n---\n' + 'x'.repeat(60_001) }]), []);
-    assert.deepEqual(alwaysOnFindings([{ file: 'rules/x.md', content: 'x'.repeat(60_000) }]), []);
+    assert.deepEqual(alwaysOnFindings([{ file: 'rules/x.md', content: 'x'.repeat(60_000) }], unlimited), []);
     assert.ok(alwaysOnFindings([{ file: 'rules/x.md', content: '---\napplyTo: "**/*"\n---\n' + 'x'.repeat(4_000) }]).some(finding => finding.rule === 'copilot-budget'));
     assert.deepEqual(alwaysOnFindings([{ file: 'rules/x.md', content: '---\napplyTo: "src/**"\n---\n' + 'x'.repeat(4_000) }]), []);
+});
+
+test('per-harness always-on budget counts what each harness loads at session start', () => {
+    const scoped = (scope: string) => `---\n${scope}\n---\n${'x'.repeat(100)}`;
+    const entries = [
+        { file: '.cratis/ai/rules/general.md', content: 'g'.repeat(1_000) },
+        { file: '.cratis/ai/rules/none.md', content: 'n'.repeat(500) },
+        { file: '.cratis/ai/rules/everything.md', content: scoped('applyTo: "**/*"') },
+        { file: '.cratis/ai/rules/everything-paths.md', content: scoped('applyTo: "**/*"\npaths:\n  - "**/*"') },
+        { file: '.cratis/ai/rules/narrow.md', content: scoped('applyTo: "**/*.cs,**/*.csproj"\npaths:\n  - "**/*.cs"\n  - "**/*.csproj"') },
+    ];
+    const totals = alwaysOnHarnessBytes(entries);
+    assert.equal(totals['claude-code'], 1_000 + 500 + Buffer.byteLength(entries[2].content));
+    assert.equal(totals.copilot, 1_000 + Buffer.byteLength(entries[2].content) + Buffer.byteLength(entries[3].content));
+    assert.equal(totals.pi, 1_000 + 500 + Buffer.byteLength(entries[2].content) + Buffer.byteLength(entries[3].content));
+    assert.equal(totals['cursor-codex-opencode'], 1_000);
+    assert.ok(alwaysOnFindings([{ file: '.cratis/ai/rules/x.md', content: 'x'.repeat(alwaysOnHarnessBudgets.pi + 1) }]).some(finding => finding.rule === 'always-on-harness-bytes'));
 });
 
 test('evaluation coverage ratchets only shrink, require reasons, and cannot exempt a new skill', () => {
