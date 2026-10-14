@@ -102,10 +102,8 @@ An unknown `$context.` path is reported, so a typo does not silently become null
 
 Checked: `$identity.<property>` is the same caller value as
 `$context.identity.<property>`. Prefer `$identity` in new mappings; the older root
-is supported, not deprecated. Historical `cratis` CLI 3.41.0 bundled Screenplay 4.114.0, which predated both:
-its parser rejected a top-level `identity` block (`PLAY0001`), and with `--executable` it read a
-`$identity.<property>` mapping as a raw expression (`PLAY0268`). Those checks used standalone 4.127.0;
-they are not current parser claims; compiler versions are covered in toolchain `SKILL.md`. Check current renderer
+is supported, not deprecated. An older CLI-bundled compiler can reject a top-level `identity` block (`PLAY0001`) and read a
+`$identity.<property>` mapping as a raw expression (`PLAY0268`); compiler versions are covered in toolchain `SKILL.md`. Check current renderer
 admission separately before choosing caller mappings. Built-ins are `id`, `name`, `userName`,
 `isAuthenticated`, `roles`, `claims.<name>` (everything after `claims.` is opaque).
 Bare `$identity` reports PLAY0152; unknown properties report PLAY0155. Only
@@ -143,7 +141,7 @@ Declarations alone do not block executable readiness. Executable reads of
 `$identity.<detail>` report PLAY0268; `$context.identity` stays built-ins only.
 `scoped to` is an opaque scope name, not a detail reference. PLAY0633–0646 diagnose
 source/header/type/cardinality errors; there are no automatic identity repairs.
-Authority: v4.127.0 `identity.md`, `context.md`, `diagnostics.md`.
+Authority: `identity.md`, `context.md`, `diagnostics.md`.
 
 ## Production metadata is not a context expression
 

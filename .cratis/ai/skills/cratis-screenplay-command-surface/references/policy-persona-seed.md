@@ -32,7 +32,7 @@ A `persona` is authoring metadata: the binder reports it as information `PLAY027
 ## Policy negation
 
 `not <condition>` is a portable ESM v7 policy-condition
-form (decision 0027), not a named-policy operator in `authorize`. It can negate
+form, not a named-policy operator in `authorize`. It can negate
 atoms/groups, not an opaque inline/file implementation. Precedence is `not`,
 then `and`, then `or`; parentheses override grouping. Double negation restores
 a known value, not an unknown target.

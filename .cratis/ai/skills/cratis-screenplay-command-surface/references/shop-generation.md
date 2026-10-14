@@ -14,18 +14,18 @@ encodings, entropy, MCP edits, fixtures and freshness.
 
 **Context-dependent generation is not released in Screenplay.** The OrderId below
 is time-ordered TypeID, not Arc's received-time/tenant factory contract; Stage
-4.89.1 emits a wall-clock `New()`. Passed-through GenerationContext in Arc source
+emits a wall-clock `New()`. Passed-through GenerationContext in Arc source
 recovery describes that strategy shape, not equivalent clock/tenant semantics.
-Context-member/rule recovery stays in code (Screenplay#616 phase 3).
+Context-member/rule recovery stays in code .
 
 The shop's ApiKey remains a **secret**. In .NET its factory is `Bytes(32)` and its
 concept is `[NotAudited]`. It is never an identifier (event-source IDs are plaintext
 metadata); a separate `ApiKeyId` identifies the key. Executable secret generation is **not released in
-Screenplay** (phase 4). The declaration below preserves classification without
+Screenplay** . The declaration below preserves classification without
 adding `generate bytes 32` or a generated command property. No API-key issuance
 behavior is claimed; retain it as an explicit gap/owning implementation contract.
 
-This complete reference-executable model uses the pinned Screenplay **4.151.0**:
+This complete reference-executable model compiles with the standalone tool:
 
 ```screenplay
 concept CustomerId : String

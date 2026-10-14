@@ -6,13 +6,13 @@
 ## Contents
 
 - Classify the value on its concept
-- Recover classification from C# with Arc 22.70.0
+- Recover classification from C#
 - Declare the use separately
 - Identify the person, not the stream
 
-Authority: Screenplay v4.142.0 `concepts.md`, `events.md`,
+Authority: Screenplay `concepts.md`, `events.md`,
 `Semantics/SemanticModelBinder.Compliance.cs` and `SemanticModelValidator.Compliance.cs`;
-processing-purpose guidance retains v4.127.0 evidence; decisions 0041 and 0068. These declarations do not establish lawful
+processing-purpose guidance in `purposes.md`. These declarations do not establish lawful
 processing or enforce retention. Check provider support separately.
 
 ## Classify the value on its concept
@@ -61,8 +61,8 @@ new event generation.
 
 C# provider mapping: `pii` → `[PII]`; `secret` → `[Encrypted]` + `[NotAudited]`;
 `pii secret` → `[PII]` only (Chronicle refuses `[PII]` with `[Encrypted]`, CHR0053).
-Standalone Screenplay 4.142.0 binds optional concept `compliance` as ESM v13
-(first released), carrying markers, qualifiers and scopes. It applies
+Screenplay binds optional concept `compliance` as ESM v13,
+carrying markers, qualifiers and scopes. It applies
 through command, event, read-model,
 composite and response type references, including collection elements. Bare `pii`
 writes `{"personal":{}}`; `secret scope namespace` writes
@@ -71,7 +71,7 @@ wins and no secret scope is stored; reasons stay report-only PLAY0270.
 Unmarked models keep their exact executable bytes and revision. The reference
 evaluator runs marked models with unchanged outcomes but tests neither encryption
 nor erasure. Consumers must explicitly admit v13 and realize the protection;
-CLI 3.57.0 bundles Screenplay 4.147.1 / Stage 4.89.1 and admits v13. Stage
+A CLI whose compiler and Stage admit v13 render protection. Stage
 renders `[PII]` or `[Encrypted]` + `[NotAudited]` on the concept, honoring secret
 namespace/global scope; personal classification wins. Every protected command input,
 including personal data and nested/collection uses, also gets property-level
@@ -81,8 +81,7 @@ already refuses the enum/identity shapes below). Non-text `secret` concepts (Int
 refuse `STAGE-ESM-041`; `pii secret` uses PII and is exempt. No explicit subject lineage renders.
 The semantic Host now protects values at rest and releases them on read, but existing stores keep
 earlier plaintext events. Reference/specification success does not prove storage protection.
-Never remove protection to fit a tool. Sources: CLI
-`Directory.Packages.props`; Stage `v4.89.1`,
+Never remove protection to fit a tool. Sources: Stage
 `Documentation/reference/compliance-rendering.md`.
 
 Enum and identity concepts still refuse PLAY0268 at binding only (identity means
@@ -93,15 +92,17 @@ including nested composite and collection uses: subject lineage is not admitted.
 In v13 the personal-data subject is the event source. Remove a mark only when that
 source truly is the intended subject, not merely to pass binding.
 
-## Recover classification from C# with Arc 22.70.0
+## Recover classification from C#
 
 Reverse generation is not the C# provider mapping above. Source authority: Arc
 `Documentation/backend/csharp/generating-a-screenplay.md` (Operational
 secrets), `Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`
 and `Source/DotNET/Screenplay/Analysis/Types/PersonalDataMarkings.cs`.
-SP0058 to SP0060 exist from Arc.Screenplay 22.61.0 (or earlier); SP0061 to SP0063 first ship (read at
-v22.70.0 and v22.72.0), so the full set described here needs 22.70.0 or later. CLI 3.53.1 bundles an Arc.Screenplay older than that, which has
-none of SP0061 to SP0063, so the CLI shows none of them; check the generator package actually loaded.
+SP0058 to SP0060 report partial or member-specific markings; SP0061 to SP0063 report the unstated
+scope and related cases. A CLI-bundled Arc.Screenplay can predate SP0061 to SP0063, in which
+case the CLI shows none of them; check the generator package actually loaded.
+
+Requires Arc.Screenplay 22.70.0 or later for SP0061 to SP0063.
 
 - Both `[Encrypted]` and `[NotAudited]` must be on the concept to recover
   `secret`. Partial or member-specific markings report SP0058 (Information),
@@ -112,9 +113,8 @@ none of SP0061 to SP0063, so the CLI shows none of them; check the generator pac
   Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI adapter flag
   `--authoring-only-constructs`) to state `secret scope namespace` or
   `secret scope global` in the concept body. Subject stays implicit. Scope
-  was syntax-only on this generator's compiler. With standalone 4.142.0,
-  protected concepts instead select ESM v13; this does not upgrade the generator
-  or the CLI bundle.
+  is syntax-only on the generator's compiler. Protected concepts instead select ESM v13
+  in Screenplay; this does not upgrade the generator or the CLI bundle.
   `pii secret` gets no scope because the providers ignore it.
 - A property or positional constructor parameter marked `[PII]` on a non-concept
   type reports SP0062 (Information); the marking is not stated and no concept
