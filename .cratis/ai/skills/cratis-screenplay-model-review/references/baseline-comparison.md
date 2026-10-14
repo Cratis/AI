@@ -7,4 +7,3 @@ not two exports. Read model-authoring
 when comparing models: source selection, missing-path caveat, identity matching,
 revision-pinned paging and drift refusals. Use `read-proposal view=semantic-diff`
 for an unapplied proposal against disk. Neither proves behavioral equivalence.
-

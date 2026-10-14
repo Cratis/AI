@@ -18,4 +18,3 @@ About ten minutes, before the independent review.
     with note IDs in session state, never only chat or description text.
 11. Every Automation has a pending-work view or a stated reason it needs none (F8-F13).
 Any "no" is fixed or explained before P5.
-
