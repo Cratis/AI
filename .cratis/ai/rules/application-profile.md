@@ -1,5 +1,9 @@
 ---
-applyTo: "**/*"
+applyTo: "**/*.cs,**/*.tsx,**/*.play"
+paths:
+  - "**/*.cs"
+  - "**/*.tsx"
+  - "**/*.play"
 profile: application
 ---
 

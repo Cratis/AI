@@ -1,5 +1,10 @@
 ---
-applyTo: "**/*"
+applyTo: "**/*.cs,**/*.ts,**/*.tsx,**/*.play"
+paths:
+  - "**/*.cs"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.play"
 ---
 
 # Cratis Glossary

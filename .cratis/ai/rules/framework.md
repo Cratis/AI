@@ -1,5 +1,10 @@
 ---
-applyTo: "**/*"
+applyTo: "**/*.cs,**/*.csproj,**/*.ts,**/*.tsx"
+paths:
+  - "**/*.cs"
+  - "**/*.csproj"
+  - "**/*.ts"
+  - "**/*.tsx"
 profile: framework
 ---
 
