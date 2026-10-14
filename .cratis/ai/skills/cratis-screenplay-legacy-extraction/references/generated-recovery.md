@@ -20,7 +20,10 @@ compiler and Stage admit v15 strategies. A standalone compiler upgrade
 cannot add recovery to that adapter. Check the resolved generator before using
 this guidance; do not bump managed product pins to hide the difference.
 
-Requires Arc.Screenplay 22.78.0 or later for generated-value recovery.
+Each recovery below has its own gate; use the adapter that has the one you rely on:
+
+- Requires Arc.Screenplay 22.78.0 or later for `[GeneratedValue]` Handle parameters whose `New()` is a UUID v4 form, for the `generated identifier` and response they produce, and for scenario pins (`for` / `generated`). Before it none of this is recovered. From 22.78.0 until 22.86.0 any other strategy keeps its source form and reports SP0073.
+- Requires Arc.Screenplay 22.86.0 or later to recover UUIDv7, ULID, TypeID, NanoID, `Bytes` and hex strategies as concept `generate` lines (ESM v15) and a passed-through `GenerationContext`.
 
 Tagged evidence:
 
@@ -58,6 +61,8 @@ as losses, not successful recovery. Sources: Arc
 Screenplay `Documentation/screenplay/generated-values/choosing.md`.
 
 ## Recover what is proven
+
+The UUID v4 forms, pins and the identifier/response rules in this section need Arc.Screenplay 22.78.0 or later; the other strategies in the list below need 22.86.0 or later.
 
 A `[GeneratedValue]` Handle parameter becomes a generated command property only
 for a required scalar Uuid/String concept with a proven strategy and no validator,
@@ -105,7 +110,7 @@ have no pinning seam. Successful scenarios retain legacy productions or handler
 references without generated values/responses, with SP0052; explicit given sources
 also preserve this fallback. Do not rewrite source code or fake a successful pin
 to make recovery look complete. Recovery of responses has its own proof limits
-in [generate notes](generate-notes.md#arc-22760-enum-and-response-recovery).
+in [generate notes](generate-notes.md#enum-and-response-recovery).
 
 ## Incomplete recovery is a loss report
 

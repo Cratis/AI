@@ -82,6 +82,12 @@ Requires Screenplay 4.125.0 or later (`screenplay --version`) for reaction `runs
 
 Requires Arc 20.56.0 or later for `[ExecuteCommandsAsSystem]`.
 
+Requires Arc 22.72.0 or later for a reactor that returns events and commands together; before it, a mixed return is not handled. Stage still refuses a reaction that both `produces` and `invokes` (`STAGE-ESM-037`), so a mixed reaction stays authorized gap-fill whatever the Arc release.
+
+Requires Screenplay 4.105.0 or later (`screenplay --version`) for list queries (`=> Item[]`); before it a list query is refused with PLAY0268.
+
+Requires Screenplay 4.124.0 or later (`screenplay --version`) for `--check privilege` (PLAY0652).
+
 Read `SKILL.md` in `cratis-screenplay-toolchain` when selecting a tool; read the installed versions with `screenplay --version` and `cratis --version`. Reverify before claiming
 another version behaves the same.
 

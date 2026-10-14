@@ -4,7 +4,7 @@
 # Explicit enum member numbers
 
 Non-positional executable numbers bind
-as ESM v12. The model owns member identity, not the renderer.
+as ESM v12 (Requires Screenplay 4.139.0 or later; authoring of numbers needs 4.137.0 or later). The model owns member identity, not the renderer.
 
 ```screenplay
 domain EnumNumbers

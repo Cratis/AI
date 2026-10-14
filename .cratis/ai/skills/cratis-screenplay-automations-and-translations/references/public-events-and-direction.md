@@ -124,6 +124,8 @@ Stage 4.52.0 (previous CLI 3.46.1, history) audited only through v7. The CLI/Sta
 reaches construct admission through v15 but still refuses publication (STAGE-ESM-032), foreign
 events/events-source captures (STAGE-ESM-033); source admission is not rendering.
 
+Requires Screenplay 4.117.0 or later (`screenplay --version`) for public events (ESM v9).
+
 Source: Screenplay `Documentation/screenplay/fixtures/public-events.play`,
 `events.md`, `slices.md`, `captures.md`, decisions 0049–0051 and
 `Source/DotNET/Screenplay.CanonicalCorpus/PublicEventsCorpus.cs`.

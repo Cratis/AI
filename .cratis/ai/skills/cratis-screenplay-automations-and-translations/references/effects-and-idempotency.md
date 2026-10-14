@@ -34,6 +34,8 @@ or leaf `acknowledge`; `$refusal.reason`/`.message` are String details and
 `.constraint` belongs only to constraint selectors. This is **authoring-only**
 (PLAY0268), not evidence that a duplicate was safely acknowledged at runtime.
 
+Requires Screenplay 4.81.0 or later (`screenplay --version`) for `on refused` selectors and `$refusal` values.
+
 Recovery syntax `when redelivered <Event> to <Reaction>` selects exactly one
 existing given occurrence; it is not append or replay. `then no events` makes a
 no-new-facts contract explicit but remains unadmitted too. Full selectors,

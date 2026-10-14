@@ -128,6 +128,8 @@ binding changed exactly the files you expect, and `semantic-diff` (MCP:
 or `{ "workspaceJson": "<export>" }`) to compare the model before and after the
 edit.
 
+Requires cratis CLI 3.44.0 or later (`cratis --version`) for `cratis render --check`.
+
 For screens-release parity, the smoke check must assert that every authored
 screen, template, component, form, toolbar, outlet, route and package/icon use is
 represented in the generated plan or runtime diagnostics. A consumer that cannot

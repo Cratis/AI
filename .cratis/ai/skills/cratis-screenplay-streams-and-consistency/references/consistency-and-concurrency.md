@@ -42,7 +42,7 @@ Status describes how the model treats the requirement:
   compensating fact and the consequence that remains possible.
 
 `enforced` is a declaration, not a runtime test result. In Chronicle the kernel checks a
-constraint at append, but the SQL and InMemory providers do not settle unique claims
+constraint at append, but before Chronicle 19.59.6 (InMemory: 19.59.3) the SQL and InMemory providers do not settle unique claims,
 and index updates run after commit; composite values can collide when a component contains the separator; name the target's storage
 provider when you rely on a constraint, record runtime evidence separately, and never claim
 atomic index-and-append durability. Per row, cite the exact construct or description address

@@ -87,6 +87,8 @@ are authoring-only and refuse executable binding (PLAY0268), while the block alo
 does not block readiness. Claim/query sources have exactly one source and no body.
 See command-surface `references/context.md` for key/type/gate restrictions.
 
+Requires Screenplay 4.121.0 or later (`screenplay --version`) for `$identity` and the identity block syntax.
+
 `PropertySyntax.isSubject` marks an event's required unprotected scalar subject,
 omitted from structural JSON when false. It is lineage metadata (PLAY0270), not
 runtime subject propagation or generated C# `[Subject]`. Read-model marks are
@@ -106,6 +108,8 @@ accumulate each owner's declarations in file-path order; imports affect board
 order, not accumulation. Dependencies are optional authoring metadata, not runtime
 or implementation order. See `cratis-screenplay-slice-design` `references/slicing.md`
 for coverage diagnostics and MCP `dependency-graph` `declarations` evidence.
+
+Requires Screenplay 4.76.0 or later (`screenplay --version`) for `depends on` container dependencies (PLAY0554).
 
 A top-level `numbers exact` preamble opts each file into bounded decimal source
 literals without Double rounding. All files/import barrels must agree on mode

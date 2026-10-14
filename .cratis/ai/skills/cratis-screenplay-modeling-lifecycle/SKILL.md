@@ -220,7 +220,7 @@ the packet opens with `Outcome:`; STATE.md is current.
 
 ## Product sources
 Model notes: Screenplay `Documentation/screenplay/model-notes.md`; exact tool sources in model-authoring
-`references/model-notes.md`. Tool versions: `cratis-screenplay-toolchain/SKILL.md`. Read it when selecting or reverifying tool versions.
+`references/model-notes.md` (Requires Screenplay 4.144.0 or later for model notes). Tool versions: `cratis-screenplay-toolchain/SKILL.md`. Read it when selecting or reverifying tool versions.
 Other sources: Screenplay `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);

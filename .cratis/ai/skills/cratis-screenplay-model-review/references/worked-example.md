@@ -13,7 +13,7 @@ A small model with one seeded design defect, reviewed in critic mode. The model 
 `berths.play`; line numbers below refer to it. The report follows `report-template.md` and is
 shortened: it shows the flagged checks of each phase and elides the passing ones, which a real
 report lists in full. The model compiles and, on the standalone 4.139.0 tool, binds and runs one specification (the
-`ListBerths` list query binds). The report works in design mode, so it
+`ListBerths` list query binds on Screenplay 4.105.0 or later). The report works in design mode, so it
 does not run V3 or V4.
 
 ## The model under review

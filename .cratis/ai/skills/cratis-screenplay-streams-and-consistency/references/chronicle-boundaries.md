@@ -7,7 +7,7 @@ target facts; the `.play` model declares only part of them (`references/executab
 ## Target facts
 
 Chronicle has CHR0012 (nullable event properties) and CHR0034 (PII on an event-source id).
-Three runtime limits apply: the SQL and InMemory providers do not settle unique claims,
+Three runtime limits apply: on older Chronicle releases (see the Requires line below) the SQL and InMemory providers do not settle unique claims,
 constraint index updates run after commit and fail silently, and composite unique
 constraints collide when a component contains the separator. Arc has `[ProtectedDecision]`;
 Stage-rendered apps pin an Arc and Chronicle client/kernel release (see the Stage skill's
@@ -19,6 +19,8 @@ SKILL.md, ‘First append into a scope’.
 
 Requires Arc 22.39.0 or later and Chronicle 19.23.0 or later for `[ProtectedDecision]`.
 
+Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the SQL provider to settle unique-constraint claims; before it, two concurrent appends can both claim one value.
+
 ## Identity, routing and claims
 Name four things separately: the event store/namespace, the business event-source identity, any
 process streams that route work, and the scope of each invariant. Use source/stream
@@ -29,8 +31,8 @@ tenants.
 A value constraint protects a claim across sources within its configured scope; an event-type
 constraint protects one occurrence per source. List every event that claims, changes or
 releases the value, including correction and import paths. Post-commit index maintenance is not
-atomic durability; composite separators can collide; the
-SQL and InMemory providers do not settle unique claims.
+atomic durability; composite separators can collide; on older Chronicle releases the
+SQL and InMemory providers do not settle unique claims (Requires line above).
 
 ## State used for decisions
 Materialized views may lag. A passive read folds events on demand but does not protect the

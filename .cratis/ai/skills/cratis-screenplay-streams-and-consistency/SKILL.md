@@ -27,7 +27,7 @@ needs it:
 Require target evidence that the check ran: a concurrent first-append scenario against a real
 Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
 is `true` (a skipped check and a passing one look identical otherwise; a current client against
-an older kernel always reads `false`). Treat the default as unchecked until target evidence shows otherwise. The Stage scaffold pins Chronicle client/kernel and Arc releases (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`;
+an older kernel always reads `false`). Treat the default as unchecked until target evidence shows otherwise (a future major release can flip the default, so read the target's release notes). The Stage scaffold pins Chronicle client/kernel and Arc releases (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`;
 the CLI bundle's Chronicle follows the installed CLI: `cratis --version`); the APIs exist for gap-fill, not as automatically rendered enforcement.
 
 ## Product sources
@@ -175,7 +175,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
   remain valid. Rename via `propose-rename`; a pin retaining `All` cannot fix it.
   Existing `All` history reads as source-only appends, not the renamed stream.
   Source evidence and migration limits are in that reference.
-- Chronicle limits: the SQL and InMemory providers do not settle unique claims;
+- Chronicle limits: before 19.59.6 (InMemory: 19.59.3) the SQL and InMemory providers do not settle unique claims (see the Requires line below);
   index updates run after commit and may fail silently; composite values can
   collide on the separator. A declared constraint is a declaration, not a runtime test.
 - `[ProtectedDecision]` ships in Arc and Stage's rendered package set. It is not emitted protection: gap-fill must enroll an admitted
@@ -184,9 +184,9 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
 
 Requires Screenplay 4.150.0 or later (`screenplay --version`) for the `All` stored-stream refusal, 4.152.0 or later for `storedName` (ESM v16) and 4.153.0 or later for the release baseline.
 
-Requires Chronicle 19.40.0 or later for `ConcurrencyOptions.CheckFirstAppendIntoAScope`.
-
 Requires Arc 22.39.0 or later and Chronicle 19.23.0 or later for `[ProtectedDecision]`.
+
+Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the SQL provider to settle unique-constraint claims; before it, two concurrent appends can both claim one value.
 
 **Modeling defaults** (deviate with a recorded reason)
 - One business identity per stream; cross-stream references are payload properties.

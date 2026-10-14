@@ -45,7 +45,7 @@ Outcomes:
 - A projection that adds an item `from <OpeningFact>` and removes it with
   `remove with <ClosingFact>`. Several facts may open or close; they need not match one to one.
 - A keyed query (`…ById => Item optional` + `by itemId`) for specs and executable scope; a
-  list query for the visible queue (`=> Item[]` binds; a snapshot list is refused by Stage, `STAGE-ESM-010`).
+  list query for the visible queue (`=> Item[]` binds on Screenplay 4.105.0 or later; a snapshot list is refused by Stage, `STAGE-ESM-010`).
 - A reaction `when <OpeningFact>` that invokes the command producing the closing fact.
   The trigger may `reads` the item view to document its input; that is not protection.
 - A retry sweep on a clock reads the whole view (no `by` on clock reads). Iterating its items

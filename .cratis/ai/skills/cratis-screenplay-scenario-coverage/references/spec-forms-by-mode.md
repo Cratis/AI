@@ -35,6 +35,8 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
 | Command handlers, `file` constraints, query `performer`s | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
 
+Requires Screenplay 4.105.0 or later (`screenplay --version`) for list-query specifications, and 4.143.0 or later for collection equality filters (ESM v14).
+
 ## Design mode
 Write the full intended behaviour, including scenarios the executable subset cannot run
 (filtered, scoped and performer-backed views; clock, trigger and capture scenarios when only a

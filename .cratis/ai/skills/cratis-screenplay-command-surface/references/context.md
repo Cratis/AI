@@ -110,6 +110,8 @@ Bare `$identity` reports PLAY0152; unknown properties report PLAY0155. Only
 `$identity.id`/`.name`/`.userName` bind in portable `produces` mappings, exactly
 like the older forms; roles, authentication status and claims still report PLAY0268.
 
+Requires Screenplay 4.121.0 or later (`screenplay --version`) for `$identity`; before it use `$context.identity`.
+
 A top-level `identity` block declares additional typed caller details:
 
 ```screenplay

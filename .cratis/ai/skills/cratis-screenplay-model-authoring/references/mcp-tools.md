@@ -249,6 +249,8 @@ tags and identities survive; canonical ESM must stay byte-identical and every
 comment must survive exactly once. Extract before adding `generation`, not after
 making the document parser-invalid. This is a refactoring, not a diagnostic repair.
 
+Requires Screenplay 4.153.0 or later (`screenplay --version`) for `propose-rename` to consult release-baseline mutability; before it, `propose-rename` pins the previous effective name without a baseline.
+
 `propose-rename` consults release-baseline mutability: without a
 baseline it conservatively pins the previous effective name; an unadmitted event
 gets no new pin, while any admitted revision requires preserving its stored name.
@@ -257,6 +259,8 @@ storage-history knowledge, not merely an identity catalog. It skips a new pin, r
 pin, but retains a pin for a different earlier name. Contradictory generation pins
 refuse the rename. Do not promise a generation-2 payload-removal repair or a
 `PLAY0470` repair: neither is available.
+
+Requires Screenplay 4.152.0 or later (`screenplay --version`) for `storedName` (ESM v16).
 
 Differing event pins carry `storedName` on the current
 contract and select **ESM v16**. All generations share the effective stored name;
@@ -276,6 +280,8 @@ then choose edits from evidence. Workflow, flags, guards and recovery:
 [release baseline](release-baseline.md). Target evidence: toolchain
 `references/diagnostics.md` (Reserved stored names and event pins).
 
+Requires Screenplay 4.150.0 or later (`screenplay --version`) for the stored stream name `All` refusal.
+
 A stream whose stored name is exactly `All`, from its name or `id "All"`,
 refuses executable binding/readiness with PLAY0273. Use discovered `propose-rename`
 to change that stored stream name; pinning it back to `All` is not a repair.
@@ -292,6 +298,8 @@ uncertain Apply outcomes are never retried. Restricted Mode cannot launch it.
 Monaco has no production-repair host bridge. See `vscode.md`.
 
 ### Number enum members
+
+Requires Screenplay 4.137.0 or later (`screenplay --version`) for `propose-number-enum-members`, and 4.139.0 or later for non-positional numbers (ESM v12).
 
 Find the unnumbered enum's `ConceptSyntax` handle with `read-ast`; pass it as
 `subject` to `propose-number-enum-members` with `expectedRevision`,

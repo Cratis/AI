@@ -67,6 +67,8 @@ file`, `global config`, `--no-llm`, `none`) to stderr before it sends any eviden
 and unattended runs; the JSON result carries an `llm` object. That notice informs the user; it
 does not replace the approval.
 
+Requires cratis CLI 3.37.1 or later (`cratis --version`) for `cratis prologue interpret --no-llm`.
+
 Unattended default: pass `--no-llm` unless the brief records the approved disclosure.
 
 Preflight (read-only):

@@ -68,9 +68,9 @@ must move focus into itself.
   `@cratis/components`) above every Cratis component — it carries the locale,
   the Components-owned labels. Enable `toaster` (or mount one `<Toaster />`)
   for notifications; without it even `toastCommandResult` displays nothing.
-  Mount exactly one toaster, not both. The `cratis` template already mounts
+  Mount exactly one toaster, not both. The `cratis` template mounts
   `<CratisComponentsProvider toaster>` **inside** `<Arc>`
-  (`Templates/Cratis/.frontend/main.tsx`); an application scaffolded from an older template can lack it,
+  (`Templates/Cratis/.frontend/main.tsx`; Requires Templates 1.7.3 or later, earlier ones mount it outside `<Arc>` without a toaster),
   so check its entry point rather than adding a second toaster.
 - The app must import the stylesheets explicitly; components do not import
   their own CSS:

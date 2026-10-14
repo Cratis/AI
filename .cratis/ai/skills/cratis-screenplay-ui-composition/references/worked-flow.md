@@ -1,7 +1,7 @@
 # Worked flow: marina berth bookings
 
 Complete document. It compiles and binds (screens, forms and descriptions are informational
-PLAY0269/0270; the `ListBerths` list query binds, and Stage would render only
+PLAY0269/0270; the `ListBerths` list query binds (Screenplay 4.105.0 or later), and Stage would render only
 an `observable` list). Used by `SKILL.md`, *Compose in this order*. Opening an input screen is a
 click (`section ... on click navigate to`); the input screen's `action` carries the destination
 **after success**.

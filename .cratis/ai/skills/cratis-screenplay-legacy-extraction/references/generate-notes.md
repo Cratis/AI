@@ -19,6 +19,8 @@ Flags verified with `cratis screenplay generate --help` on the installed CLI (`c
 Screenplay.CritterStack (the versions the CLI bundles). Later releases can add capabilities (for example preserved compiler warnings, enum concepts, command-to-event production links and the `MixedSliceKindsSplit` and `ProductionLinkOmitted` diagnostics); do not claim them for `cratis screenplay generate` until a cli bundles them. Version-specific capability facts belong in cratis-screenplay-toolchain
 `SKILL.md`.
 
+Requires Screenplay.Generation 0.18.1 or later for preserved compiler warnings (including on successful generation), and Screenplay.CritterStack 0.26.0 or later for enum concepts, command-to-event production links and the `MixedSliceKindsSplit` and `ProductionLinkOmitted` diagnostics; check the bundled generator before relying on them.
+
 For the current standalone compiler and CLI bundle, use the toolchain's
 [Tool versions and the contract](../../cratis-screenplay-toolchain/SKILL.md).
 The compliance and self-check sections below follow Arc
@@ -74,9 +76,11 @@ cratis screenplay generate <solution|project|folder> \
 ## Coverage (what a provider reads)
 | Provider | Reads | Does not read |
 |---|---|---|
-| Arc | commands, events, concepts, read models, projections, reducers, reactors, constraints, declarative FluentValidation rules, authorization policies, `produces` from constants and input paths, Chronicle integration specs as given/when/then, `.tsx` beside a slice as `screen` + `data via query` | handler bodies, rules written in code, computed messages (`SP0016`), screen bodies, captures, personas, seeds, `secret`. A rule held to `When`/`Unless` is written down as if unconditional and `SP0016` names the condition: read the diagnostic, do not trust the declaration |
+| Arc | commands, events, concepts, read models, projections, reducers, reactors, constraints, declarative FluentValidation rules, authorization policies, `produces` from constants and input paths, Chronicle integration specs as given/when/then, `.tsx` beside a slice as `screen`: `file`, `data … via query`, `title`, `table`/`column`, `action` and `toolbar actions`, read from Cratis Components only | handler bodies, rules written in code, computed messages (`SP0016`), screen `section`, `summary`, `navigate to` and `layout` (unread properties are `SP0028`; same-screen details, `useDialog` and enablement are `SP0077`), captures, personas, seeds, `secret`. A rule held to `When`/`Unless` is written down as if unconditional and `SP0016` names the condition: read the diagnostic, do not trust the declaration |
 | Marten / Critter Stack (preview; an independent optional adapter built on the neutral Screenplay.Generation SDK, not affiliated with JasperFx: review every `GEN`/`MARTEN`/`WOLVERINE` diagnostic by hand) | aggregates, snapshots, HTTP and message handlers, document operations, queries, outgoing and delayed messages, saga facts | saga lifecycle, policies, middleware bodies, runtime tenancy, upcasting; unbounded extension code is reported by presence only |
 | any non-.NET stack | nothing | use Prologue and targeted reads |
+
+Requires Arc.Screenplay 22.94.0 or later for cross-slice screen actions, toolbar items and `data … via query`, qualified with the shortest unique module/feature/slice scope; before it, those cross-slice bindings were omitted with `SP0028`.
 
 ## Diagnostics are the loss list
 - Families: `SP####` (Arc), `MARTEN####`, `WOLVERINE####`, `VOG####`, `GEN####`,
@@ -108,7 +112,8 @@ The expanded Arc recovery surface includes:
 - Event scenarios as `when append`, and event-source-faithful `for` fixtures.
   Scenarios whose sources cannot be stated faithfully are omitted with SP0039;
   record the omission as a loss, never fabricate identities to retain a scenario.
-- Supported generated values and scalar/record responses by default, without
+- Supported generated values (Arc.Screenplay 22.78.0 or later; non-UUID-v4 strategies 22.86.0 or later) and scalar/record
+  responses (22.76.0 or later) by default, without
   the authoring-only flag. The older bundled adapter retains legacy representation
   for commands with successful scenarios. Arc recovers generated Handle
   parameters with concrete pins, but local `New()` values still have no pin seam;
@@ -156,7 +161,9 @@ never infer a response contract from a post-execution mutation.
 
 ## Compliance recovery
 
-Requires Arc.Screenplay 22.70.0 or later for compliance recovery.
+Requires Arc.Screenplay 22.61.0 or later for `secret` recovery and the SP0058 and SP0059 diagnostics; before it, an operational secret concept is not recovered as `secret`.
+
+Requires Arc.Screenplay 22.70.0 or later for scope handling (SP0061), member `[PII]` recovery and the SP0062 and SP0063 diagnostics.
 
 A concept with both `[Encrypted]` and `[NotAudited]` becomes `secret`.
 Encryption or audit suppression alone, or only on a member, does not establish

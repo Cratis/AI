@@ -48,6 +48,7 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
 Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`.
 Model notes use Screenplay `Documentation/screenplay/model-notes.md`;
 tool sources: model-authoring `references/model-notes.md`.
+Requires Screenplay 4.144.0 or later (`screenplay --version`) for model notes.
 
 | Fact used here | Source |
 | --- | --- |

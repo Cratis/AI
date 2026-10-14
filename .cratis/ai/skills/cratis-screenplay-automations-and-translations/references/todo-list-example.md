@@ -192,6 +192,8 @@ visible queue) and a retry sweep that reads the whole view. The list query binds
 reference does not run, and durable per-item fan-out is outside the language. Say so
 in the verdict.
 
+Requires Screenplay 4.105.0 or later (`screenplay --version`) for the list query; before it the list query is refused with PLAY0268.
+
 ```screenplay excerpt parent=assets/pending-certificates.play
 // Parent: the complete document above, slice StateView CertificatesToSend.
 query PendingCertificates => PendingCertificate[]

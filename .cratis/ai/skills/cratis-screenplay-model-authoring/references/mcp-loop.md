@@ -36,7 +36,7 @@ defined by `cratis-screenplay-modeling-lifecycle`. Discover the installed tool s
    `.screenplay` metadata.
 4. Read `tools/list` schemas once per connection; never hard-code counts or
    argument lists. MCP-Apps hosts also expose `visualize-model`.
-5. A startup root may switch to the same relative model folder in a
+5. (Requires Screenplay 4.81.0 or later.) A startup root may switch to the same relative model folder in a
    registered Git worktree of its repository. `open-workspace.path` accepts the
    checkout or exact model folder. Shared Git directory and registration
    back-pointer must agree physically; unrelated/malformed/unregistered roots,
@@ -48,12 +48,18 @@ defined by `cratis-screenplay-modeling-lifecycle`. Discover the installed tool s
 
 ### Dynamic roots and the workaround
 
-A server started **without** a root binds one from the client's roots reply. A client
-that does not answer `roots/list` leaves it without a model, and passing
-`open-workspace.path` is the only way to bind one. Avoid depending on that by fixing the
-root at launch (the forms in step 1). The `cratis/screenplay` profile registration fixes
-it in an installed project, and the CLI locates the model itself, so no model directory
-has to exist.
+A server started **without** a root binds one on first use: `open-workspace.path`, then the
+client's `roots/list` root, then a working-directory or fallback model folder. Avoid depending on
+that by fixing the root at launch (the forms in step 1). The `cratis/screenplay` profile
+registration fixes it in an installed project, and the CLI locates the model itself, so no model
+directory has to exist.
+
+Requires Screenplay 4.63.2 or later (standalone, or a Cratis CLI 3.28.2 or later that bundles it)
+for a server without a root facing a client that advertises roots. Before it, the server read the
+roots reply from the wrong member and answered with an error with `id: null` immediately after
+`notifications/initialized`, before any tool call; real hosts treat that as fatal and drop the
+connection. Passing `open-workspace.path` does **not** avoid it, because the error is sent before
+`open-workspace` runs. On such a tool, fix the root at launch.
 
 ## Who owns the connection
 
@@ -226,6 +232,8 @@ and all assigned descendants. Rename/apply messages name the same offending addr
 Supply exactly the entries required for the intended change instead of retrying
 by trial and error. Re-read actual revisions when stale; never clear the catalog.
 Authority: `mcp/reference.md`, `mcp/authoring-tools.md`.
+
+Requires Screenplay 4.89.0 or later (`screenplay --version`) for `identityMigrationIssues`.
 
 ## Identity state (`.screenplay/identities.json`)
 

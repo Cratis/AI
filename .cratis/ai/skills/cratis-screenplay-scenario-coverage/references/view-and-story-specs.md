@@ -59,7 +59,7 @@ candidate for a family. Walk one row through three states (`OpenInvoices`: empty
 `InvoiceIssued`, empty again after `PaymentReceived`) as three independent specs, each with its
 own full givens. The excerpt is copied from `invoicing-dues-example.md`; the last spec asserts
 both that the stored row is gone and that the keyed query returns nothing. The whole-list query
-(no key) is executable too: `invoicing-dues-example.md` adds
+(no key) is executable too (Requires Screenplay 4.105.0 or later): `invoicing-dues-example.md` adds
 `ListOpenInvoices => OpenInvoice[]` with one spec that expects one `result` row and one that
 expects the empty list after `PaymentReceived`. Only `filter`, `scoped to` and `performer` queries stay design-mode.
 The source document also asserts the other terminal outcomes (`InvoiceVoided`, `InvoiceSettled`) the same way; they are not copied here.
