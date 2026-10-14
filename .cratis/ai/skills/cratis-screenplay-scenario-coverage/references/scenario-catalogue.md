@@ -88,7 +88,7 @@ name them as unfinished.
   `result`, then `then denied`; or `when query` + `then denied`). See `RefusingASkipper`.
   An empty `given caller` block is the anonymous caller.
 - Use `given caller as <Persona>` for one authenticated witness synthesized from
-  that persona's policies (4.127.0). Inspect the leftmost buildable `or` choice;
+  that persona's policies. Inspect the leftmost buildable `or` choice;
   it does not represent every possible caller. Use explicit roles/claims for
   anonymous or ownership fixtures, missing conjuncts, or refused synthesis.
   One denial per persona that can reach the screen but may not act. Derive
@@ -97,7 +97,7 @@ name them as unfinished.
   spec, not `then denied`); denial only when the whole gate is false.
 - Ownership policies (`claim ... matches subject|<property>`): the denial gives the right role
   and a claim with another value (`claim "ownerId" = "<other id>"`); the success spec gives the
-  matching value. Both are needed. Ownership checks on text, Uuid, Date and DateTime subjects render at Stage 4.73.1;
+  matching value. Both are needed. Ownership checks on text, Uuid, Date and DateTime subjects render;
   other subjects are STAGE-ESM-015: note it.
 - Traps: `then error` for a denial; a denial spec whose inputs also break a rule (it still
   denies, but reads ambiguously); trusting a `cratis run` sandbox answer (the default engine's enforcement is unverified here;
@@ -165,7 +165,7 @@ name them as unfinished.
   read-model or query assertion, and an action with no outcome at all does not bind. A command spec with no `then` events but with a
   view or query assertion is still executable as a zero-fact check: the runner compares the
   command's facts with the (empty) expected list by exact count, so any fact produced fails it
-  (Screenplay v4.66.0). Write it that way, name it for the zero-fact outcome, and keep the view
+. Write it that way, name it for the zero-fact outcome, and keep the view
   assertion for the visible state. Record the obligation as unasserted only where the runner is
   not available.
 

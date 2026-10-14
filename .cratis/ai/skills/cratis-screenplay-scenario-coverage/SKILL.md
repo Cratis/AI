@@ -25,7 +25,7 @@ language cannot express today are recorded, not faked. Grammar and outcome compa
 
 ## Verified product sources
 Screenplay v4.66.0 (`c89198b`) and v4.68.0 (`79801bf`, ESM v7 fixtures and `then returns`) were the
-original sources; released behavior was re-read at v4.139.0 (`Documentation/screenplay/specifications.md`,
+original sources; released behavior was re-read (`Documentation/screenplay/specifications.md`,
 `queries.md`, the standalone compiler). Reading the installed tool and bundle versions is covered in
 `cratis-screenplay-toolchain` `SKILL.md`. At Screenplay v4.127.0,
 MCP `find-specification-obligations` derives SPEC001–SPEC008 from declarations;
@@ -197,7 +197,7 @@ see toolchain `references/production-routes-and-filters.md`.
 ## Version skew: reaction cascades and false PLAY0285
 (History: the 3.53.1 bundle carries Screenplay 4.137.0, so this skew no longer applies to it.)
 Under ESM v6 a command spec's `then` lists the events reactions cascade from it. The compiler
-bundled in `cratis` before 3.28.2 (Screenplay 4.60.1) reported a **false PLAY0285** for such
+bundled in `cratis` before 3.28.2 reported a **false PLAY0285** for such
 a spec (cli#242); the standalone `screenplay` 4.66.0 and `cratis` 3.28.2 accept it (probed).
 Neither checks that a cascade event is *missing*.
 - Screenplay 4.61 or later (standalone, or `cratis` 3.28.2 or later): write the v6-correct spec

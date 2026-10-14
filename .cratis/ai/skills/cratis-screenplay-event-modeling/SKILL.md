@@ -134,7 +134,7 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
 - `persona` declarations are report-only and never block; bare `pii` and `secret`
-  concepts bind as ESM v13 on standalone 4.142.0 (since 4.141.0), and the pinned CLI; Stage renders admitted v13 protection.
+  concepts bind as ESM v13 on standalone 4.142.0, and the pinned CLI; Stage renders admitted v13 protection.
   Enum/identity compliance and protected events with explicit subject marks remain
   refused (PLAY0268); see command-surface `references/compliance.md`. Keep protection.
 - Generated values/responses bind and reference-execute as v7; sources, streams
@@ -235,7 +235,7 @@ compile or will not be safe. Both are deliberate.
 - **A command may read state.** The generic method forbids `ReadModel -> Command`
   edges. Screenplay ships `reads <ReadModel> [as <alias>] [by <property>]` so the
   model shows what a state-dependent decision consulted. **It is not a protected
-  at Screenplay 4.139.0 (Screenplay#129 open):** nothing checks at append time that the state is still current,
+  (Screenplay#129 open):** nothing checks at append time that the state is still current,
   the executable model rejects `reads` and `concurrency` (`PLAY0271`), and adding
   `concurrency` does not make the decision safe (decision 0003, Screenplay #129).
   Write a state-dependent rule as `reads <View>` plus `require <expr> message "..."`

@@ -18,7 +18,7 @@
 This reference is the authoring checklist for the screens-release UI surface. It
 records the contract an agent must look for in the installed Screenplay tool and
 in peer runtime/render contracts; it is not a second language definition. The syntax
-below was re-read at Screenplay v4.139.0 (`screens.md`, `forms.md`, `templates.md`,
+below was re-read (`screens.md`, `forms.md`, `templates.md`,
 `contributions.md`, `ui-profile.md` and `fixtures/screen-release-ui.play`); the shapes are released, not proposed. When a
 syntax form below is not present in `syntax-schema` or does not compile with the
 project's selected Screenplay version, report the support level instead of
@@ -61,7 +61,7 @@ refusal for a guard Stage cannot evaluate, which is never emulated. Studio produ
 proof is a separate vector (Cratis/Screenplay#173). Refusing an unresolvable UI
 profile and recovering a rendered application shipped in Cratis/cli#301. (History: on Stage 4.24.2 or
 cratis 3.28.x renderers authored screens were reported as omitted/default composition; Stage 4.73.1
-(CLI 3.53.1) renders navigation contributions and toolbars, and `CLI-RENDER-015`, which refused them, is retired.)
+ renders navigation contributions and toolbars, and `CLI-RENDER-015`, which refused them, is retired.)
 
 On CLI 3.53.1 (`cratis/stage:4.73.1`, corpus 4.137.0+) the browser run also passes a module-level navigation contribution, an unlisted
 screen reached through the hierarchy, and a toolbar item that opens a dialog with its `presentation` (icon-only, hint)

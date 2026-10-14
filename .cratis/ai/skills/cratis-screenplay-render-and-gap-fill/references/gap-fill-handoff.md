@@ -86,7 +86,7 @@ not bind a modeled reaction or capture. Case C (no generated application): there
 `Program.cs` or partial hook, so the registration follows the hand-written application's own
 composition conventions (`rules/vertical-slices.md`, `cratis-chronicle-reactor`).
 Declare the trusted actor with reaction `runs as system role "<Role>"`
-(standalone 4.125.0, ESM v10); `given caller` is not an invocation actor.
+; `given caller` is not an invocation actor.
 Historical CLI 3.41.0's older compiler rejected the syntax. The CLI/Stage pair
 (`cratis-screenplay-toolchain/references/renderable-subset.md`) renders role/authenticated reaction identity; claim-reading/opaque system gates still
 refuse STAGE-ESM-034. Gap-fill retains the declared role and uses Arc

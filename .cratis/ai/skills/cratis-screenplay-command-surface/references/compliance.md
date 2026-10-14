@@ -62,7 +62,7 @@ new event generation.
 C# provider mapping: `pii` → `[PII]`; `secret` → `[Encrypted]` + `[NotAudited]`;
 `pii secret` → `[PII]` only (Chronicle refuses `[PII]` with `[Encrypted]`, CHR0053).
 Standalone Screenplay 4.142.0 binds optional concept `compliance` as ESM v13
-(first released in 4.141.0), carrying markers, qualifiers and scopes. It applies
+(first released), carrying markers, qualifiers and scopes. It applies
 through command, event, read-model,
 composite and response type references, including collection elements. Bare `pii`
 writes `{"personal":{}}`; `secret scope namespace` writes
@@ -82,8 +82,8 @@ refuse `STAGE-ESM-041`; `pii secret` uses PII and is exempt. No explicit subject
 The semantic Host now protects values at rest and releases them on read, but existing stores keep
 earlier plaintext events. Reference/specification success does not prove storage protection.
 Never remove protection to fit a tool. Sources: CLI
-`v3.57.0:Directory.Packages.props:8-10`; Stage `v4.89.1`,
-`Documentation/reference/compliance-rendering.md:16-70`.
+`Directory.Packages.props`; Stage `v4.89.1`,
+`Documentation/reference/compliance-rendering.md`.
 
 Enum and identity concepts still refuse PLAY0268 at binding only (identity means
 event-source/stream identity); source validation alone cannot report this binder diagnostic.
@@ -96,10 +96,10 @@ source truly is the intended subject, not merely to pass binding.
 ## Recover classification from C# with Arc 22.70.0
 
 Reverse generation is not the C# provider mapping above. Source authority: Arc
-`v22.70.0:Documentation/backend/csharp/generating-a-screenplay.md` (Operational
+`Documentation/backend/csharp/generating-a-screenplay.md` (Operational
 secrets), `Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`
 and `Source/DotNET/Screenplay/Analysis/Types/PersonalDataMarkings.cs`.
-SP0058 to SP0060 exist from Arc.Screenplay 22.61.0 (or earlier); SP0061 to SP0063 first ship in 22.70.0 (read at
+SP0058 to SP0060 exist from Arc.Screenplay 22.61.0 (or earlier); SP0061 to SP0063 first ship (read at
 v22.70.0 and v22.72.0), so the full set described here needs 22.70.0 or later. CLI 3.53.1 bundles an Arc.Screenplay older than that, which has
 none of SP0061 to SP0063, so the CLI shows none of them; check the generator package actually loaded.
 

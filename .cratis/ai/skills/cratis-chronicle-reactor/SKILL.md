@@ -136,7 +136,7 @@ synchronous returns. Custom `IReactorSideEffectHandler` implementations can
 claim synchronous types through `CanHandleReturnType(Type)`; they are not
 restricted to `Task<T>`. An unclaimed return value **fails the partition** with
 `UnhandledReactorReturnValue`, naming its type. CHR0054 flags an unsupported
-return type at build time. Source at v19.50.0: `Reactors/EventHandlerMethods.cs`,
+return type at build time. Source: `Reactors/EventHandlerMethods.cs`,
 `Reactors/SideEffects/IReactorSideEffectHandler.cs`, `Reactors/UnhandledReactorReturnValue.cs`.
 
 ### Returning events instead of injecting `IEventLog`
@@ -235,7 +235,7 @@ public sealed class ReactorAttribute(string id = "", string? eventSequence = def
 **There is no `isActive` argument** — that belongs to `[Reducer]`. Without an
 explicit `id`, the reactor's identity is its full type name.
 
-Give side-effecting reactors a **stable explicit id**. Since 19.47.0 discovery
+Give side-effecting reactors a **stable explicit id**. Discovery
 warns on likely renames/moves: a new id catches up from the start and repeats
 side effects; `[OnceOnly]` does not prevent that. `ArtifactIdentityDrift = Fail`
 rejects Warning-level reactor/event-type findings with

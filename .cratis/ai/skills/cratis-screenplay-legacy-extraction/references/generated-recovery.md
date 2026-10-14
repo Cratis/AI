@@ -22,12 +22,12 @@ this guidance; do not bump managed product pins to hide the difference.
 
 Tagged evidence:
 
-- Arc `v22.87.1:Documentation/backend/csharp/generating-a-screenplay.md:244-290`.
-- Arc `v22.87.1:Source/DotNET/Screenplay/Analysis/Commands/GenerationStrategyReader.cs:23-55,64-96,103-133`;
-  `GenerationCallReader.cs:16-38,69-92,100-150`;
-  `GeneratedParameterReader.cs:138-150`.
-- Arc `v22.87.1:Source/DotNET/Screenplay/Analysis/Specifications/GeneratedValuePins.cs:138-175`.
-- cli `v3.57.0:Directory.Packages.props:5-14`.
+- Arc `Documentation/backend/csharp/generating-a-screenplay.md`.
+- Arc `Source/DotNET/Screenplay/Analysis/Commands/GenerationStrategyReader.cs`;
+  `GenerationCallReader.cs`;
+  `GeneratedParameterReader.cs`.
+- Arc `Source/DotNET/Screenplay/Analysis/Specifications/GeneratedValuePins.cs`.
+- cli `Directory.Packages.props`.
 
 ## Choosing a strategy
 
@@ -53,8 +53,8 @@ invoice numbers, or turn an observed secret into a random String. Preserve
 protection and unrecovered code; rule/context-member bodies are not executable
 strategies. Report missing pins, withheld productions/scenarios and version caps
 as losses, not successful recovery. Sources: Arc
-`v22.87.1:Documentation/backend/csharp/generating-a-screenplay.md:244-290`;
-Screenplay `v4.151.0:Documentation/screenplay/generated-values/choosing.md:8-29`.
+`Documentation/backend/csharp/generating-a-screenplay.md`;
+Screenplay `Documentation/screenplay/generated-values/choosing.md`.
 
 ## Recover what is proven
 

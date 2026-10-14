@@ -27,7 +27,7 @@ key; write a reconciliation case.
 
 ## Refusal disposition and redelivery
 
-At Screenplay 4.125.0 an invocation can state ordered `on refused` selectors for
+An invocation can state ordered `on refused` selectors for
 validation, constraint (optionally named) or explicit authorization denial.
 Bare refusal does not include authorization. A matching branch declares a fact
 or leaf `acknowledge`; `$refusal.reason`/`.message` are String details and

@@ -73,7 +73,7 @@ must move focus into itself.
   for notifications; without it even `toastCommandResult` displays nothing.
   Mount exactly one toaster, not both. The `cratis` template already mounts
   `<CratisComponentsProvider toaster>` **inside** `<Arc>` at Templates `v1.7.4`
-  (`Templates/Cratis/.frontend/main.tsx:12–19`); the missing-toaster/outside-Arc
+  (`Templates/Cratis/.frontend/main.tsx–19`); the missing-toaster/outside-Arc
   workaround for `v1.7.2` no longer applies to that template version. Check an
   older application's entry point rather than adding a second toaster.
 - The app must import the stylesheets explicitly; components do not import

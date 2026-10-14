@@ -94,7 +94,7 @@ report and slice `documentation`, and continue.
    `$context.occurred` or caller identity. No event-source id in the payload (it is the `for`);
    references to other instances are payload. No nullable property by default (a required value
    or a separate event). No PII on the identifier; one data subject per stream. Add a field only
-   when something downstream needs it. At 4.127.0 personal values use bare `pii`,
+   when something downstream needs it. Personal values use bare `pii`,
    operational secrets `secret`; declare processing use/basis/retention in `purpose`,
    not a reason. An event-property `subject` may identify a different person from
    the stream but is report-only, not runtime propagation. See command-surface
@@ -160,7 +160,7 @@ report and slice `documentation`, and continue.
 - At most one builder (projection or reducer) per read model (`PLAY0191`).
 - A query's `by` goes on its own body line. Optional keyed and collection queries
   bind, including observable delivery. Caller-supplied equality filters on collections
-  bind as ESM v14 since 4.143.0; `by` ANDs with supplied filters. `from`, single-result
+  bind as ESM v14; `by` ANDs with supplied filters. `from`, single-result
   filters, scope, performer and composite `by` remain PLAY0268 for their respective
   context/cardinality/opaque/multipart gaps. Read read-surface
   [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
@@ -203,7 +203,7 @@ Mark view identity with trailing `key`. Use a composite key for independent view
 coordinates (resource + period), a natural single id for one entity's state.
 Supply every named part in single-instance queries and command/trigger reads;
 see read-surface `references/named-keys.md`. Composite view keys remain
-unadmitted at 4.135.0 (PLAY0268, #599), unlike admitted composite stream routes.
+unadmitted (PLAY0268, #599), unlike admitted composite stream routes.
 Keep the true identity and report the gap rather than inventing a concatenated id.
 
 ## Identity-affecting edits on an existing model

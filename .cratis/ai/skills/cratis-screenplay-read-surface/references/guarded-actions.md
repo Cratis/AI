@@ -81,5 +81,5 @@ cannot establish usable controls. Since Stage 4.65 a guard comparing `item.<fiel
 rendered and evaluated at runtime (public CLI 3.53.1 with `cratis/stage:4.73.1`, Cratis/Screenplay#671);
 STAGE-SCENE-ACTION-001 remains for a guard Stage cannot evaluate.
 
-Authority: Screenplay `v4.125.0:Documentation/screenplay/screens.md`;
-CLI `v3.41.0:Documentation/reference/screenplay.md` for renderer disposition.
+Authority: Screenplay `Documentation/screenplay/screens.md`;
+CLI `Documentation/reference/screenplay.md` for renderer disposition.

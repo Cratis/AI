@@ -3,7 +3,7 @@
 
 # Explicit enum member numbers
 
-Authoring shipped in Screenplay 4.137.0; non-positional executable numbers shipped
+Authoring shipped; non-positional executable numbers shipped
 in 4.139.0 as ESM v12 (decision 0065). The model owns member identity, not the renderer.
 
 ```screenplay
@@ -80,14 +80,14 @@ names; numbers are neither alternative fixture values nor flags.
 Consumers must **explicitly admit v12**. CLI 3.57.0 (Screenplay 4.147.1 / Stage
 4.89.1) admits through v15 and renders explicit numbers as `Member = N` (sparse
 and negative, `-0` as 0; unnumbered enums keep declaration order). Stage first
-admitted v12 in 4.76.0. Do not remove enum pins to fit an older consumer;
+admitted v12. Do not remove enum pins to fit an older consumer;
 report its admission gap. See toolchain `references/renderable-subset.md`.
 
 Sources checked at `v4.139.0`: `Documentation/screenplay/concepts.md`,
 `interoperability.md`, `diagnostics.md`, `mcp/authoring-tools.md`, decision 0065,
 `Semantics/Versions.cs`, `SemanticModelValidator.EnumMemberNumbers.cs` and the
 source-backed `EnumMemberNumbersCorpus.V12` (under `Source/DotNET/`). Consumer
-pins: CLI `v3.57.0:Directory.Packages.props:8-10` and
-`Source/Cli/Commands/Render/RenderedSemanticVersions.cs:34`; Stage `v4.89.1`,
-`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:100`,
-`SemanticEnumMembers.cs:15-26`, `SemanticCommonArtifactRenderer.cs:56-65`.
+pins: CLI `Directory.Packages.props` and
+`Source/Cli/Commands/Render/RenderedSemanticVersions.cs`; Stage `v4.89.1`,
+`Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs`,
+`SemanticEnumMembers.cs`, `SemanticCommonArtifactRenderer.cs`.

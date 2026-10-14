@@ -144,21 +144,21 @@ Stage admits only pure reducer bodies for the same reason (`cratis-screenplay-pr
 
 | The person... | Design-mode query | Executable/renderable scope |
 |---|---|---|
-| opens one thing | `XById => RM optional` + `by xId XId` | binds at 4.135.0 with caller-supplied `by`; check target renderer |
-| scans a list | `ListX => RM[]` (optionally `observable`, `filter`) | collection/observable delivery bind; caller-supplied equality filters bind since 4.143.0 as ESM v14; check target renderer |
+| opens one thing | `XById => RM optional` + `by xId XId` | binds with caller-supplied `by`; check target renderer |
+| scans a list | `ListX => RM[]` (optionally `observable`, `filter`) | collection/observable delivery bind; caller-supplied equality filters bind as ESM v14; check target renderer |
 | sees their own rows | list with scope/`from` on the caller | scope and context-derived `by`/`filter` remain PLAY0268 because portable scope/query context is unadmitted; caller-supplied filters are not access control |
 | sees a site-wide figure | singleton read model, `from <Event> key literal "global"` on every `from` (a projection-level `key` routes nothing, PLAY0381; example in Screenplay `projections/keys.md`, "Literal keys") | check the binding (V3, `cratis-screenplay-toolchain`) |
 
 - `observable` when people are expected to see others' or automation's changes while looking
   (worklists, status awaiting an outside answer); one-shot otherwise. Observable delivery
-  binds at 4.135.0; renderer support is separate. If access can be revoked mid-session,
+  binds; renderer support is separate. If access can be revoked mid-session,
   record that the target re-checks per emission.
 - Never model paging or page size (no syntax, Screenplay#140). State the order in the query
   `description` ("oldest first"; queries do not accept `documentation`); an unbounded list is a review question.
 - A gated keyed query needs its own denial spec.
 
 Never drop a business-required list query to satisfy an old compiler or renderer;
-record any actual capability gap. At 4.135.0, explicit trailing `key` takes precedence
+record any actual capability gap. Explicit trailing `key` takes precedence
 for read-model identity. Otherwise single-instance queries in the owning slice must
 agree on one `by` property declared on the read model. Only with no single-instance
 identifier and an admitted collection/list query does conventional `*Id` inference

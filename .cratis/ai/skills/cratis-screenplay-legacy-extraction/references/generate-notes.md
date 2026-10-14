@@ -13,7 +13,7 @@
 - Reading the output cheaply
 
 Flags verified with `cratis screenplay generate --help` on the installed CLI (`cratis --version`); behaviour from the cratis CLI
-(`v3.28.2:Source/Cli/Commands/Screenplay/`; the generate files are unchanged since `v3.27.1`), Arc `v22.50.5`
+(`Source/Cli/Commands/Screenplay/`; the generate files are unchanged since `v3.27.1`), Arc `v22.50.5`
 (`Documentation/backend/csharp/generating-a-screenplay.md`,
 `Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`), Screenplay.Generation `v0.18.0` and
 Screenplay.CritterStack `v0.24.0` (the versions cli 3.53.1 bundles). Later releases exist (Generation 0.18.1 preserves compiler warnings, including on successful generation; CritterStack 0.26.0 adds enum concepts, command-to-event production links and the `MixedSliceKindsSplit` and `ProductionLinkOmitted` diagnostics); do not claim them for `cratis screenplay generate` until a cli bundles them. Version-specific capability facts belong in cratis-screenplay-toolchain
@@ -29,7 +29,7 @@ and `Verification/ExpectedBindingDiagnostics.cs` under `Source/DotNET/Screenplay
 They require that generator release, not an older bundled adapter;
 a standalone compiler upgrade does not upgrade the generator.
 
-Option/admission evidence checked at CLI 3.41.0: released
+Option/admission evidence checked: released
 `GenerateScreenplaySettings.cs`, `ArcScreenplayGeneration.cs`, v7 planning specs
 and `Documentation/reference/screenplay.md`; older diagnostic probes below keep
 their original labels. Arc#3054 and CLI#270 describe the recovered-source expansion.
@@ -126,7 +126,7 @@ a package upgrade; read diagnostics and reconcile each recovered scenario.
 
 ## Arc 22.76.0 enum and response recovery
 
-Source-verified at Arc `v22.76.0:Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`,
+Source-verified at Arc `Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`,
 `Analysis/Types/{ConceptRegistry,FlagsEnumUses}.cs`, `Analysis/EnumConstants.cs`,
 `Analysis/Specifications/SpecificationReturnValues.cs`, and
 `Documentation/backend/csharp/generating-a-screenplay.md`. Arc 22.76.0 takes
@@ -143,7 +143,9 @@ used by scenario constant resolution is kept. SP0067 reports `[Flags]` enums wit
 unnamed combinations and names the property uses; named members still emit, but
 unnamed combinations cannot become scenario values. Read every warning as a loss.
 
-Since 22.75.2, `result!` and `in` arguments remain reads for recovered `then returns`.
+`result!` and `in` arguments remain reads for recovered `then returns`.
+
+Requires Arc.Screenplay 22.75.2 or later for the read-versus-write classification of `result!`, `in` arguments and aliases of the result.
 Writes through any member/element of the executed result (assignment, increment,
 decrement, `ref`/`out`, including null-conditional chains) or aliases of the result
 or non-string reference values reached through it withhold the response assertion.
@@ -166,7 +168,7 @@ without adding `secret`; an existing `pii` classification remains.
   the same way. Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI
   adapter option `--authoring-only-constructs`) to emit `secret scope namespace`
   or `secret scope global` in the concept body. This was syntax-only on that
-  compiler; standalone 4.142.0 admits concept compliance as ESM v13 (since 4.141.0).
+  compiler; standalone 4.142.0 admits concept compliance as ESM v13.
   That upgrade does not change the older generator or CLI bundle.
 - A concept also marked `[PII]` becomes `pii secret`, with no emitted scope:
   the C# providers render only `[PII]`; Chronicle rejects `[PII]` combined with

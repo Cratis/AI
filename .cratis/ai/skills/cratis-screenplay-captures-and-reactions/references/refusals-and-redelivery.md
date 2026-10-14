@@ -12,7 +12,7 @@
 
 ## Select a refusal
 
-At Screenplay 4.125.0 these forms are authoring-only: binding refuses the whole
+These forms are authoring-only: binding refuses the whole
 model with PLAY0268, even when the source is valid. Do not execute them as append
 scenarios or silently drop branches. Sources: released `reactions.md`,
 `specifications.md`, decision 0030.

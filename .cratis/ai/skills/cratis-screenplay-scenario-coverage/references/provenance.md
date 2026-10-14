@@ -1,7 +1,7 @@
 # Provenance
 
 Lineage of `cratis-screenplay-scenario-coverage`. The method was first drafted for the Cratis
-corpus from Screenplay specification semantics (verified at tag v4.66.0) and refined against two
+corpus from Screenplay specification semantics and refined against two
 external event-modeling skill sets.
 
 ## Adapted closely (MIT)

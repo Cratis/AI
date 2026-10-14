@@ -35,7 +35,7 @@ source is the single flow model.
 
 The update follows `types.md`, `queries.md` and `vscode.md` at that main commit
 (after v4.52.0). Compilation does not establish query execution. Current equality-filter evidence:
-Screenplay v4.145.0 (admitted in 4.143.0, decision 0069); read
+Screenplay v4.145.0 (admitted, decision 0069); read
 [the verified sources and compiled example](references/equality-filters.md).
 
 Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
@@ -66,7 +66,7 @@ and an admitted list query does the binder infer an unambiguous `*Id`; queryless
 read models need an explicit `key`. See named keys below for collection-key exclusions.
 One explicit key binds byte-identically to equivalent inference. Several marks
 form a composite key, supplied by name in query/read
-`by` blocks. At Screenplay 4.135.0 composite keys and block queries remain
+`by` blocks. Composite keys and block queries remain
 **authoring-only** (PLAY0268, #599); the scalar optional snapshot shape binds.
 Read [named keys](references/named-keys.md) for complete examples, trigger/command
 reads, all-parts fixtures, PLAY0660–0662 and command-read-only PLAY0661 repair.
@@ -87,7 +87,7 @@ query ListInvoices => InvoiceListReadModel[]
 ```
 
 **Name the compiler and renderer.** Optional keyed queries and collection queries
-bind, including `observable`. Since Screenplay 4.143.0, caller-supplied equality
+bind, including `observable`. Caller-supplied equality
 filters on collections bind as ESM v14; `from`, single-result filters, `scoped to`,
 `performer` and composite `by` remain PLAY0268, each with its reason. Read
 [equality filters](references/equality-filters.md) for the admitted shape, a complete
@@ -138,7 +138,7 @@ down, rather than the one you get by forgetting."*
 language documents, but the grammar accepts any name — what scopes exist follows
 the identity model of whatever runs the document. A query declares at most one.
 
-At Screenplay 4.127.0, `scoped to` remains an opaque name, **not** a reference
+`scoped to` remains an opaque name, **not** a reference
 to a declared identity detail. An `identity` query source must be keyed and return
 one result (possibly optional), with a type compatible with the detail; its key
 uses only caller built-ins/claims/literals and its effective gate cannot depend
@@ -171,7 +171,7 @@ Screenplay never runs it.
 
 A read model a performer composes needs no projection, and no event builds it.
 Specify it from state with `given readmodel`, then `when query <Query>` with the
-arguments and `then result` (v4.48.0) - see `cratis-screenplay-specifications`.
+arguments and `then result` - see `cratis-screenplay-specifications`.
 
 A query's key goes on its own `by` line in the body. `query X => RM optional by id Type`
 on the header line is a declaration error, not a shorthand.
@@ -300,7 +300,7 @@ binding failures are errors.
 
 ## Verify
 
-- [ ] Standalone `screenplay <model> --warnaserror` (4.68.0) reports zero errors and zero
+- [ ] Standalone `screenplay <model> --warnaserror` reports zero errors and zero
       warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
       (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
       or lower). Name which tool produced the result.

@@ -10,7 +10,7 @@
   error. Decide this before fixing event shapes; purpose/basis/retention belong in
   processing-purpose declarations, not a reason. An event subject defaults to the
   source unless supplied; the trailing event-property `subject` mark is report-only
-  at 4.127.0, not runtime lineage. See command-surface `references/compliance.md`.
+ , not runtime lineage. See command-surface `references/compliance.md`.
 - **Events are past tense and self-describing** - `InvoiceRegistered`, never
   `Created`. One purpose per event; an event needing an optional property to cover
   two situations is two events.

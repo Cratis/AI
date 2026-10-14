@@ -10,18 +10,18 @@
 - Responses and pre-generation boundaries
 - What CLI 3.57.0 / Stage 4.89.1 realizes
 
-`generated` properties and `returns` bind/reference-execute since 4.68.0 (ESM v7).
+`generated` properties and `returns` bind/reference-execute (ESM v7).
 Concept generation strategies and whole-source freshness shipped in Screenplay
 4.147.0 (ESM v15); standalone pin **4.153.0** includes them. CLI **3.57.0** bundles
 Screenplay **4.147.1** / Stage **4.89.1**, rendering the supported strategies,
 scalar/named responses, fixtures and `then returns`. Binding is not rendering.
 Historical CLI 3.41.0 STAGE-ESM-028/029 probes do not describe this bundle.
 
-Sources: Cratis/Screenplay `v4.148.0:Documentation/screenplay/generated-values.md:6-60`,
-`generated-values/strategies.md:6-111`,
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Generation.cs:14-88`;
-Cratis/cli `v3.57.0:Directory.Packages.props:8-10`; Cratis/Stage
-`v4.89.1:Documentation/reference/generated-values-rendering.md:6-146`.
+Sources: Cratis/Screenplay `Documentation/screenplay/generated-values.md`,
+`generated-values/strategies.md`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Generation.cs`;
+Cratis/cli `Directory.Packages.props`; Cratis/Stage
+`Documentation/reference/generated-values-rendering.md`.
 Decision 0054 describes later phases too; only its shipped phase 2b-1 is taught here.
 
 ## Choosing a strategy
@@ -105,9 +105,9 @@ Derived regex, matches/checksum repairs and rule-proof status are not shipped.
 CLI **3.57.0** / MCP **4.147.1** lacks this summary and these repairs; it still
 supports existing typed concept proposals. Full fields, mapping limits and tagged
 source evidence: [MCP generation guide](../../cratis-screenplay-model-authoring/references/mcp-tools.md#concept-generation).
-Sources: Cratis/Screenplay `v4.149.0:Documentation/screenplay/generated-values.md:62-70`,
-`Source/DotNET/Screenplay.Mcp/McpGenerationDetails.cs:13-83`,
-`Source/DotNET/Screenplay/Workspaces/WorkspaceGenerationRepairs.cs:29-134`.
+Sources: Cratis/Screenplay `Documentation/screenplay/generated-values.md`,
+`Source/DotNET/Screenplay.Mcp/McpGenerationDetails.cs`,
+`Source/DotNET/Screenplay/Workspaces/WorkspaceGenerationRepairs.cs`.
 
 ## Version and freshness
 

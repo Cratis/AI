@@ -38,7 +38,7 @@ The update follows `commands.md`, `events.md` and `mcp/authoring-tools.md` at
 that main commit (after v4.52.0); no PDL example changes in this update.
 
 Originally checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`; the
-projection grammar was re-read at v4.139.0 for headers and dynamic keys):
+projection grammar was re-read for headers and dynamic keys):
 `Documentation/screenplay/projections/` (including `semantic-model.md`, `keys.md`
 and `variants.md`), `readmodels.md`, `diagnostics.md` and decisions 0001 and 0002.
 Every example below compiles with that version's compiler. Reverify before
@@ -334,7 +334,7 @@ What the executable model does with it (ESM v3):
 - The body is an opaque attachment identified by a content hash, never compiled
   or run by Screenplay. The reference runner cannot compute reducer state, so a
   specification that reads a reducer-built read model reports unsupported and
-  never passes. A target must supply the transition. Stage (4.73.1) admits only pure reducer bodies
+  never passes. A target must supply the transition. Stage admits only pure reducer bodies
 (Roslyn allowlist, `STAGE-ESM-019`/`-022`); an impure body is gap-fill code, and the model stays the contract.
 
 **Prefer a projection where one will do.** A reducer is code, and code is the part
@@ -344,7 +344,7 @@ Read [pdl-grammar.md](references/pdl-grammar.md) when checking exact syntax, int
 
 ## Verify
 
-- [ ] Standalone `screenplay <model> --warnaserror` (4.68.0) reports zero errors and zero
+- [ ] Standalone `screenplay <model> --warnaserror` reports zero errors and zero
       warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
       (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
       or lower). Name which tool produced the result. If it reports diagnostics, correct the model and rerun the same command; report unresolved diagnostics as blockers rather than a passing verification.

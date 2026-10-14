@@ -219,13 +219,13 @@ address and assumption; every decided rejection is a specification; no protectio
 the packet opens with `Outcome:`; STATE.md is current.
 
 ## Verified product sources
-Model notes: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`,
-`decisions/0045-model-notes-sidecar.md:40-79`; exact tool sources in model-authoring
+Model notes: Screenplay `Documentation/screenplay/model-notes.md`,
+`decisions/0045-model-notes-sidecar.md`; exact tool sources in model-authoring
 `references/model-notes.md`. Tool versions: `cratis-screenplay-toolchain/SKILL.md`. Read `cratis-screenplay-toolchain/SKILL.md` when selecting or reverifying tool versions. Older source reads used here: Screenplay
 `v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
-cratis CLI `v3.28.3` (`cratis screenplay validate --warnings-as-errors`; bundled Screenplay 4.66.0 then, 4.137.0 in 3.53.1);
+cratis CLI `v3.28.3` (`cratis screenplay validate --warnings-as-errors`; bundled Screenplay 4.66.0 then, 4.137.0);
 opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.3`
 `Documentation/reference/screenplay-mcp.md`. The 4.66.0 and 3.28.3 reads are historical, not current pins. The worked example compiles with the standalone tool.
 ## Verify

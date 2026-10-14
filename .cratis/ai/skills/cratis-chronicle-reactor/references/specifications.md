@@ -97,7 +97,7 @@ their supplied offset; the positional constructor does not default `Occurred`.
 For deterministic time-dependent plain-call specs, supply a fixed occurrence
 time rather than asserting an exact current instant.
 
-Reverified against **Chronicle tag `v19.50.0`** (the guards began in 19.46.0):
+Reverified against **Chronicle tag `v19.50.0`** (the guards began):
 
 - `Source/Clients/Testing/Reactors/ReactorSourceGivenBuilder.cs` and
   `ReactorScenarioGivenBuilder.cs`: seeding, absence and builder signatures.

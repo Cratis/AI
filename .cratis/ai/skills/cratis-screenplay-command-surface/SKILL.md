@@ -246,7 +246,7 @@ choosing or omitting `for` on a production, or fixing `PLAY0469`-`PLAY0478`.
   Conditions over command properties and constants bind; each is evaluated
   independently, and when all are false the command is accepted with no events.
   Compare an enumeration with a member bare (`status == sent`) or quoted
-  (`status == "sent"`); the bare form binds from v4.48.0, so quote it when a model
+  (`status == "sent"`); the bare form binds, so quote it when a model
   must bind on an older version.
   Excerpt:
 

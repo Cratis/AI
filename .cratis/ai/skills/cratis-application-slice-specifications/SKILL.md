@@ -28,7 +28,7 @@ This skill decides **when to add a scenario** and **what to cover**. The C# mech
 | `Cratis.Chronicle.Testing` | `18.3.0` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
 | `Cratis.Specifications.XUnit` | `4.x` | The `Specification` base and the `ShouldXxx` assertions |
 
-> Arc command/query/decision scenario surface rechecked at v22.75.0. Arc depends
+> Arc command/query/decision scenario surface rechecked. Arc depends
 > on Chronicle 19.39.1; later Chronicle reactor setup below has its own minimum
 > version and is not downgraded by this Arc verification.
 
@@ -336,7 +336,7 @@ ideas recorded in `references/provenance.md`. Read `references/provenance.md` wh
 - **Injected-validator branches flip with test ordering.** This was observed in
   the 22.16-era harness. Arc 22.23.2 stopped replacing the process-wide provider;
   later releases isolated stores and event-source services per scenario. Reproduce
-  at 22.75.0 before applying the old direct-validator/small `[Collection]`
+  before applying the old direct-validator/small `[Collection]`
   workaround; no current reproduction was verified here.
 
 ## How it is proven

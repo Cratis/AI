@@ -27,7 +27,7 @@ Markdown in project documentation; `.play` is the single flow model.
 
 ## Verified product sources
 
-Tool versions: toolchain `SKILL.md`; UI statements were re-read at Screenplay v4.139.0
+Tool versions: toolchain `SKILL.md`; UI statements were re-read
 (`screens.md`, `contributions.md`, `forms.md`, `templates.md`, `ui-profile.md`, `fixtures/screen-release-ui.play`). Older provenance:
 `4.31.0` (original parser evidence), main `fd18129` (cancellation routing, `optional`), `4.66.0` (`c89198b`: `PLAY0269`).
 
@@ -282,7 +282,7 @@ module Invoicing
 ```
 
 The inline event targets `invoiceId`; the projection gets it from event context.
-Scalar/named `returns` bind and reference-execute since Screenplay 4.68.0 (ESM v7).
+Scalar/named `returns` bind and reference-execute (ESM v7).
 Renderer generation/response limits: command-surface `references/generated-values-and-responses.md`.
 Screenplay 4.148.0 resolves response names in form submit and execute success;
 own failure use is PLAY0685. No ESM change; Scene runtime binding remains downstream.

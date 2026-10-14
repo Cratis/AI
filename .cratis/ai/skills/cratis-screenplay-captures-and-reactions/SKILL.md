@@ -28,11 +28,11 @@ parser/binder probes and refusal/redelivery evidence. Tool versions are covered 
 ⚠️ **Which tool admits them depends on its Screenplay version.** The ESM level
 decides, not the slice type:
 
-- **Standalone `screenplay` 4.61.0 or later (ESM v6 from 4.61.0, v7 from 4.68.0; probed on 4.66.0, examples recompiled on 4.68.0):** `Automation` and
+- **Standalone `screenplay` 4.61.0 or later (ESM v6, v7; probed on 4.66.0, examples recompiled on 4.68.0):** `Automation` and
   `Translate` slices, reactions, declared triggers and captures bind, and the
   reference runner executes them. Probed: the complete example below is
   `executableReady` over `screenplay mcp`.
-- **History:** the CLI 3.28.2 bundle (Screenplay 4.66.0) bound v6; the earlier 4.60.1 bundles
+- **History:** the CLI 3.28.2 bundle bound v6; the earlier 4.60.1 bundles
   refused it and falsely reported PLAY0285 (toolchain `references/diagnostics.md`).
 - **CLI 3.57.0 / Stage 4.89.1** render supported event-triggered Automation, not
   Translate/captures, non-event triggers or opaque bodies (`-024`). Role/authenticated `runs as`
@@ -91,7 +91,7 @@ bound at all (`PLAY0268`); `cratis` 3.28.2 binds it like the standalone tool.
 
 ## Refusals and recovery redelivery
 
-At 4.125.0, invocation refusal selectors, `$refusal` branch values,
+Invocation refusal selectors, `$refusal` branch values,
 `acknowledge`, `when redelivered ... to ...` and `then no events` are valid
 authoring intent but refuse binding with PLAY0268. Read
 [refusals and redelivery](references/refusals-and-redelivery.md) for first-match

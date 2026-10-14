@@ -88,10 +88,10 @@ sequence allocation and secret generation stay explicit upstream gaps.
 
 ## Tagged evidence
 
-Screenplay `v4.151.0:Documentation/screenplay/generated-values/choosing.md:8-51`,
-`Documentation/screenplay/generated-values.md:60-72`,
-`Documentation/screenplay/concepts.md:60-86` (header secret classification),
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Generation.cs:14-80`.
-Stage `v4.89.1:Documentation/reference/generated-values-rendering.md:62-83,138-146`.
-Arc `v22.87.1:Documentation/backend/csharp/generating-a-screenplay.md:260-284`.
+Screenplay `Documentation/screenplay/generated-values/choosing.md`,
+`Documentation/screenplay/generated-values.md`,
+`Documentation/screenplay/concepts.md` (header secret classification),
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Generation.cs`.
+Stage `Documentation/reference/generated-values-rendering.md`.
+Arc `Documentation/backend/csharp/generating-a-screenplay.md`.
 Sources for the released .NET context/secret helpers are in the linked shop reference.

@@ -51,14 +51,14 @@ time: `CommandAs<T>()`, `ArgumentsAs<T>()`, `ArtifactAs<T>()`, `ValueAs<T>()`, a
 `StateAs<T>()`/`EventAs<T>()` on the reducer context. A payload of another type
 throws `ContextPayloadTypeMismatch`.
 
-At Screenplay 4.125.0, typed contexts before generation (`CommandValidation`,
+Typed contexts before generation (`CommandValidation`,
 `ConceptValidation`, `RulePredicate`, `PolicyPredicate`) expose **input properties
 only**. Generated values exist only after authorization/validation, so they are
 absent from those shapes. A generated identifier's policy subject is `unavailable`,
 not the eventual id; never authorize against it. The handler CommandContext retains
 the full command shape, including generated properties. Sidecars belong to the same
 compilation/revision as their requirements, not a shape borrowed from another model.
-Source: `v4.125.0:Documentation/screenplay/context.md`.
+Source: `Documentation/screenplay/context.md`.
 
 ## The values they carry
 
@@ -100,7 +100,7 @@ An unknown `$context.` path is reported, so a typo does not silently become null
 
 ## Caller paths and identity details
 
-Checked at Screenplay 4.127.0: `$identity.<property>` is the same caller value as
+Checked: `$identity.<property>` is the same caller value as
 `$context.identity.<property>`. Prefer `$identity` in new mappings; the older root
 is supported, not deprecated. Historical `cratis` CLI 3.41.0 bundled Screenplay 4.114.0, which predated both:
 its parser rejected a top-level `identity` block (`PLAY0001`), and with `--executable` it read a

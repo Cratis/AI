@@ -146,7 +146,7 @@ constraint or projection).
 
 ## Question notes
 
-On Screenplay 4.144.0, inspect `list-model-notes` with scope and `state: "all"`,
+Inspect `list-model-notes` with scope and `state: "all"`,
 including `view: "findings"`. `model-note.open-question` is an info MCP/CLI-only
 finding, no PLAY code and no V1 failure. List orphaned questions explicitly;
 review `orphanedNotes` on source proposals, and treat null/unreadable as unknown.
@@ -164,10 +164,12 @@ it. Verify the answer became a specification, a description or a project-owned
 decision record; a resolved note is not behavioral proof. Ask the owner to reanchor
 or resolve affected notes before source apply; resolution alone leaves an orphan.
 
-The optional `--open-questions fail` gate is in standalone Screenplay 4.144.0,
-not Cratis CLI 3.53.1. Report it separately from V1–V5. Evidence: Screenplay
-`v4.144.0:Documentation/screenplay/model-notes.md:12-77,93-121`,
-`Documentation/screenplay/mcp/reference.md:457-520`; source lines in the linked guide.
+The optional `--open-questions fail` gate is a standalone `screenplay` option; the
+CLI-bundled compiler can lack it. Report it separately from V1–V5. Evidence: Screenplay
+`Documentation/screenplay/model-notes.md`,
+`Documentation/screenplay/mcp/reference.md`; source lines in the linked guide.
+
+Requires Screenplay 4.144.0 or later (`screenplay --version`) for `--open-questions`.
 
 ## Verdict rules
 - **FAIL**: any critical finding, or a verdict line the mode requires fails.

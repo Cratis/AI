@@ -3,7 +3,7 @@
 ## Contents
 
 - Classify the change
-- Stored event names (ESM v16, 4.152.0)
+- Stored event names
 - Enum identities are stored contracts
 - Compatibility scenarios (write before editing)
 - Identity rules
@@ -16,7 +16,7 @@ lifecycles and events that record what the business decided (not table rows) cha
 
 ## Classify the change
 
-**Screenplay 4.153.0 release baseline:** commit `.screenplay/release-baseline.json`,
+**Release baseline:** commit `.screenplay/release-baseline.json`,
 written by explicit `screenplay baseline admit <root> --release <label>` in the release
 job; gate later edits with `screenplay baseline check <root>`. Without a baseline,
 current-property edits still require exactly one of `newGeneration` or
@@ -44,10 +44,10 @@ compatibility scenarios below first; the identity owner then applies the change 
 | split one event into two / merge two | depends | new events from now on; never rewrite history; projections read both old and new | identity-affecting |
 | rename a constraint | n/a | starts an empty index: values claimed before are unprotected. Ask first | identity-affecting |
 
-## Stored event names (ESM v16, 4.152.0)
+## Stored event names
 
 A rename that keeps the same business fact and must read old stored events pins
-its old stored name: `event NewName` with `id "OldName"`. Screenplay **4.152.0**
+its old stored name: `event NewName` with `id "OldName"`. Screenplay
 carries a differing pin as `storedName` on the current event contract and selects
 ESM v16. All generations share that effective stored name (pin, otherwise name);
 it does not replace or rehash the catalog's portable `EventContractId`.
@@ -57,23 +57,25 @@ characters, nonempty and without surrounding whitespace. Invalid pins, different
 effective names across generations and duplicate stored names across the application
 refuse binding with **PLAY0472**. An equal-name pin is a no-op: no `storedName`, no
 v16 selection; PLAY0471 removal preserves ESM bytes. Models without differing pins
-retain earlier versions, bytes and revisions. **The interim event-pin warning is retired**; MCP's
+retain earlier versions, bytes and revisions. MCP's
 compatibility `eventPinWarnings` array is empty.
 
 Consumers must explicitly admit v16 and preserve `storedName`, or refuse it.
-Released Stage **4.92.0** and CLI **3.59.0** do not: Stage admits through v15 and
-emits argument-free `[EventType]`; CLI still bundles Screenplay 4.147.1. Do not
+A renderer that stops before v16 does not: it emits argument-free `[EventType]`, and a CLI
+bundle can carry an older compiler. Do not
 promise rendered storage compatibility or remove the pin to make rendering pass.
 A passing reference specification is not a stored-history test: reference facts
 still use contract/display names. If an older renderer already stored events under
 the new name, switching the stored type needs a reviewed baseline correction or
-data migration, not a silent re-render. Release-baseline tooling ships in 4.153.0;
-its `--from-esm` stored-name limitation is in the release-baseline reference.
+data migration, not a silent re-render. The `--from-esm` stored-name behavior is in the
+release-baseline reference.
 
-Sources: Cratis/Screenplay `v4.152.0`, `Documentation/screenplay/events.md:116-124`,
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs:15-35`,
-`SemanticModelBinder.Structure.cs:16-17,215` in the same folder, and
-`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs:82`.
+Requires Screenplay 4.152.0 or later (`screenplay --version`) for `storedName` (ESM v16) and 4.153.0 or later for the release baseline.
+
+Sources: Cratis/Screenplay `Documentation/screenplay/events.md`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs`,
+`SemanticModelBinder.Structure.cs` in the same folder, and
+`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs`.
 Target evidence: toolchain `references/diagnostics.md` (Reserved stored names and event pins).
 Source/stream stored names already travel in ESM v8; stream `All` remains reserved
 regardless of a pin (toolchain `sources-and-streams.md`).
@@ -91,9 +93,9 @@ when those positions match storage. Never renumber or reuse a published member's
 number. Removing a member still needs replay and mixed-reader compatibility decisions.
 
 Numbered members may have sparse or negative unique int32 values, all or none per
-enum. Source authoring shipped in 4.137.0; non-positional numbers bind as ESM v12
-in 4.139.0. Positional pins retain older executable bytes/version. CLI 3.57.0 bundles Screenplay 4.147.1 /
-Stage 4.89.1, admitting v12 and rendering explicit member numbers; keep the pins.
+enum. Source authoring shipped; non-positional numbers bind as ESM v12
+Positional pins retain older executable bytes/version. A renderer that admits v12 renders
+explicit member numbers; keep the pins.
 Short-lived input/view-only enums may remain positional. Use opt-in
 `--check enum-pinning` (PLAY0671) to find unnumbered enums used by event properties.
 Syntax/example and source evidence: command-surface [enum numbers](../../cratis-screenplay-command-surface/references/enum-numbers.md).
@@ -133,7 +135,7 @@ Procedure and ownership: the identity procedure in `cratis-screenplay-modeling-l
 owning session, or a brief that asks for the rename, applies it; a subagent without MCP returns
 the catalog-changing request to the owner; never leave a requested change silently unapplied).
 - Several generations select ESM v4; that binds executably on both tools (compiled
-  with `evolution-example.md`). Stage (still, at 4.73.1) admits v4 but refuses any evolved event and its
+  with `evolution-example.md`). Stage (still) admits v4 but refuses any evolved event and its
   dependent scope with `STAGE-ESM-026` (it cannot render event-type migrations yet, Stage#204,
   which depends on Screenplay#71), and its runtime still refuses evolved events: the evolved
   events are gap-fill, with migrations hand-written per `cratis-chronicle-event-type-migration`.

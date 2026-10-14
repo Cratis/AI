@@ -5,7 +5,7 @@ The decision rule is in `SKILL.md` ("Decide the level first"). This file holds t
 ## Why an empty directory or an MCP entry is not opt-in
 Up to cratis CLI `v3.27.1`, `cratis ai install`/`update` created an empty `.cratis/screenplay`
 model directory for the `cratis/screenplay` profile (and composed profiles such as Stage) and
-registered a Screenplay MCP entry for it. From `v3.28.x` (read at `v3.28.2`) install no longer
+registered a Screenplay MCP entry for it. From `v3.28.x` install no longer
 creates a model directory by default: `AiMcpDescriptor.Root(configuration)` returns only an
 explicitly configured `mcpServers.screenplay.root` (null otherwise; there is no `DefaultRoot`), and
 `AiMcpPlan` creates a directory only for a configured root. The MCP entry is still registered,

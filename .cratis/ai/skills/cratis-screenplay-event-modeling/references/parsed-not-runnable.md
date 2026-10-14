@@ -1,11 +1,11 @@
 # Parsed is not runnable: ESM versions and dispositions
 
-Checked at Screenplay v4.139.0: `SemanticModelBinder.cs`, `Versions.cs`,
+Checked: `SemanticModelBinder.cs`, `Versions.cs`,
 `Documentation/screenplay/{commands,operations,event-sources,reactions,tool,interoperability}.md`.
 The binder selects v8 for event routes, v10 for declared reaction identity, v11 for retained
 exact-lowered Double-mode literals and v12 for non-positional enum numbers.
 Compliance checked against 4.142.0 `SemanticModelBinder.Compliance.cs` and
-`SemanticModelValidator.Compliance.cs`; it selects v13 (first released in 4.141.0).
+`SemanticModelValidator.Compliance.cs`; it selects v13 (first released).
 Tool versions and consumer boundaries: toolchain `SKILL.md`.
 
 ## Which ESM version a model needs
@@ -26,15 +26,15 @@ Tool versions and consumer boundaries: toolchain `SKILL.md`.
 
 ## Dispositions to keep apart
 
-| Construct | Standalone disposition (v4.125.0/v4.139.0 evidence; compliance updated at v4.141.0) |
+| Construct | Standalone disposition (v4.125.0/v4.139.0 evidence; compliance updated) |
 | --- | --- |
 | `persona`, domain/authentication metadata | Report-only; unknown named policies remain source defects |
-| Compliance concepts | Bare `pii`/`personal` and `secret`, qualifiers and scope bind as v13 (4.142.0 checked); enum/identity compliance and events combining personal or explicitly subject-scoped secret values with an explicit `subject` mark refuse PLAY0268 at binding only. CLI 3.57.0's 4.147.1 bundle binds markers; Stage 4.89.1 renders v13 protection, not protected identities/enums or subject lineage. Never remove protection |
-| Identity details / processing purposes / event subject | Report-only metadata (4.127.0); executable detail reads refuse PLAY0268, not source declaration errors |
+| Compliance concepts | Bare `pii`/`personal` and `secret`, qualifiers and scope bind as v13; enum/identity compliance and events combining personal or explicitly subject-scoped secret values with an explicit `subject` mark refuse PLAY0268 at binding only. CLI 3.57.0's 4.147.1 bundle binds markers; Stage 4.89.1 renders v13 protection, not protected identities/enums or subject lineage. Never remove protection |
+| Identity details / processing purposes / event subject | Report-only metadata; executable detail reads refuse PLAY0268, not source declaration errors |
 | Composite stream ids | v8 routing; complete named parts/canonical comparisons, PLAY0515 refuses protected keys/sources; not a legacy text split |
 | Command reads/concurrency | Legacy unprotected decisions, PLAY0271 |
 | Invokes-only trigger reads | Report-only, not protected state; direct production with reads refuses |
-| Generated values/responses | v7 binding/reference execution; v15 strategies/strict fixtures/freshness since Screenplay 4.147.0. Stage 4.89.1 renders supported UUID/String strategies, responses and fixtures; unsupported types/combinations remain -028/-038 |
+| Generated values/responses | v7 binding/reference execution; v15 strategies/strict fixtures/freshness. Stage 4.89.1 renders supported UUID/String strategies, responses and fixtures; unsupported types/combinations remain -028/-038 |
 | Sources/streams and command/specification routes | v8 binding/reference execution; the CLI (toolchain `references/renderable-subset.md`) reaches Stage checks through v15 |
 | Declared reaction invocation actor | v10 binding/reference execution; older CLI parser PLAY0137; Stage 4.89.1 renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034, not a v10 version refusal |
 | Operations/systems, `numbers exact` source mode, refusal/redelivery | Source accepted; whole binding refuses PLAY0268 |
@@ -49,7 +49,7 @@ and captures-and-reactions `references/invocation-identity.md`.
 ## The Step 7 clock example
 
 The complete example in [nine-steps.md](nine-steps.md) (Step 7) had historical
-4.66.0 compile/binding evidence (re-compiled at 4.139.0) (zero errors/warnings, executableReady true).
+4.66.0 compile/binding evidence (re-compiled) (zero errors/warnings, executableReady true).
 Its invokes-only reads still record intent rather than execute the overdue
 selection. Run its admitted specifications with the current reference route
 before claiming a V4 pass; no overdue-selection proof follows from binding.

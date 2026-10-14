@@ -123,4 +123,4 @@ the form a closing review uses; every item must hold, and the one that does not 
 - [ ] Every contracted specification maps to an executed specification or specification family
 - [ ] No business rule, default, filter or constraint exists in code that the contract (its documentation or specifications) does not state
 - [ ] No field name was assumed or guessed: a name that is not in the contract is not in the code
-- [ ] Where the contract has a specification family for the lifecycle of one view or one command, each step maps to a specification (no storyline syntax at Screenplay 4.139.0)
+- [ ] Where the contract has a specification family for the lifecycle of one view or one command, each step maps to a specification (no storyline syntax)

@@ -1,7 +1,7 @@
 # Worked flow: marina berth bookings
 
 Complete document. It compiles and binds (screens, forms and descriptions are informational
-PLAY0269/0270; the `ListBerths` list query binds since Screenplay 4.105.0, and Stage 4.73.1 would render only
+PLAY0269/0270; the `ListBerths` list query binds, and Stage 4.73.1 would render only
 an `observable` list). Used by `SKILL.md`, *Compose in this order*. Opening an input screen is a
 click (`section ... on click navigate to`); the input screen's `action` carries the destination
 **after success**.
@@ -71,4 +71,4 @@ payload field the event never declares, so the event payload line matters.
   opens `BookBerthScreen` before the command runs; the action's `navigate to` is where the user
   lands after success, never a route to the command's own input screen (Screenplay `screens.md`).
 - Compiled with `screenplay` 4.139.0 `--warnaserror`; `cratis screenplay validate --executable` 3.53.1
-  reports it valid (bundled 4.137.0).
+  reports it valid.

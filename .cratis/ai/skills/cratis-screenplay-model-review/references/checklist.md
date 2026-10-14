@@ -139,7 +139,7 @@ execution or prove a business deadlock. An ordering root is required; without
 one the folder check is skipped. A real F6 defect needs a named domain
 consequence, not just the diagram's cycle. Suggested graph order and safe
 PLAY0516 moves preserve executable bytes/identities. Source: Screenplay
-`v4.125.0:Documentation/screenplay/imports.md`, `diagnostics.md`.
+`Documentation/screenplay/imports.md`, `diagnostics.md`.
 
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
@@ -174,13 +174,13 @@ Nebulit (`provenance.md`).
 | G5 | Row scoping (whose data) is part of the view, not a filter the caller supplies | queries | D |
 | G6 | Every persona Cannot line resolves to an executable gate (`authorize` policy, or ownership `claim "x" matches subject\|<command property>`) and a `then denied` spec whose caller is synthesized with `given caller as <Persona>` or explicitly carries the effective-gate roles/claims; otherwise recorded as a gap. Persona text is intent only | personas, policies, specs | D |
 | G7 | Every command and query under an inherited module/feature `authorize` has its own `then denied` spec; authorization shared by a feature is declared at feature/module level so new paths inherit it | policies, specs | D |
-| G8 | Ownership/claim targets are a supported scalar (text, Uuid, Date or DateTime render; a numeric or Boolean target is always denied; other shapes and a command without exactly one identifier are STAGE-ESM-015 at Stage 4.73.1): noted | policies | C (renderable mode) |
+| G8 | Ownership/claim targets are a supported scalar (text, Uuid, Date or DateTime render; a numeric or Boolean target is always denied; other shapes and a command without exactly one identifier are STAGE-ESM-015): noted | policies | C (renderable mode) |
 
 ## Phase 10. Views, queries and screens (4 checks, H1-H4)
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
 | H1 | Query shape follows the business view (list where people scan; lookup where they open one) | queries, screens | D |
-| H2 | Executable scope: a keyed `=> RM optional` query with `by` named like a read-model property, or a collection (`=> RM[]`, observable too) with caller-supplied `by` and/or equality filters (ESM v14 since 4.143.0). `from`, single-result filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268. The projection routes by the same identity (a `from` key or an event property, or `$eventSourceId`; `$eventSourceId` is not mandated). Filtered models: CLI 3.57.0 / Stage 4.89.1 admit through v15, including supported v14 equality filters. Renderable scope only: Stage-specific identity/filter limits (Stage 4.89.1 renders a keyed optional snapshot lookup and observable collection queries; any other query is `STAGE-ESM-010`) | queries, projections | C (executable); C (render admission, renderable only) |
+| H2 | Executable scope: a keyed `=> RM optional` query with `by` named like a read-model property, or a collection (`=> RM[]`, observable too) with caller-supplied `by` and/or equality filters. `from`, single-result filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268. The projection routes by the same identity (a `from` key or an event property, or `$eventSourceId`; `$eventSourceId` is not mandated). Filtered models: CLI 3.57.0 / Stage 4.89.1 admit through v15, including supported v14 equality filters. Renderable scope only: Stage-specific identity/filter limits (Stage 4.89.1 renders a keyed optional snapshot lookup and observable collection queries; any other query is `STAGE-ESM-010`) | queries, projections | C (executable); C (render admission, renderable only) |
 | H3 | One builder per read model; projection `key` only on `from` | projections | C |
 | H4 | Screens show one actor's point of view; a form submits one command | screens, forms | D |
 

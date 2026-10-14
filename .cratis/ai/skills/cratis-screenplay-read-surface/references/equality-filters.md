@@ -204,10 +204,10 @@ never erase filters to obtain a render.
 - Screenplay **v4.145.0**: accepted/implemented decision
   `decisions/0069-admit-equality-query-filters-as-esm-v14.md`;
   `Documentation/screenplay/queries.md` (Executable equality filters),
-  `specifications.md:145,307-319,409-428`; admission shipped in v4.143.0.
-- Stage **v4.89.1**: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs:105`
-  uses `EsmSchemaV15Support`; `SemanticCratisAdmission.StateView.cs:139-178`
-  checks filters/order; `Documentation/docker/index.md:143-153`, `docker/spec-runner.md:35-43`
+  `specifications.md`; admission shipped.
+- Stage **v4.89.1**: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs`
+  uses `EsmSchemaV15Support`; `SemanticCratisAdmission.StateView.cs`
+  checks filters/order; `Documentation/docker/index.md`, `docker/spec-runner.md`
   distinguish Host and independent executor.
-- CLI **v3.57.0**: `Directory.Packages.props:8-10` pins Screenplay 4.147.1 / Stage
-  4.89.1; `Source/Cli/Commands/Render/RenderedSemanticVersions.cs:34-47` admits v1-v15.
+- CLI **v3.57.0**: `Directory.Packages.props` pins Screenplay 4.147.1 / Stage
+  4.89.1; `Source/Cli/Commands/Render/RenderedSemanticVersions.cs` admits v1-v15.

@@ -129,7 +129,7 @@ For `worked-example.md`:
 
 ### Declare container dependencies
 
-At Screenplay 4.125.0, modules and features may declare `depends on <Name>`, one
+Modules and features may declare `depends on <Name>`, one
 target per line. Use a bare sibling name or a qualified module/feature address.
 Bare names resolve inside out: siblings, ancestor siblings, then root modules;
 qualified names match an unambiguous trailing address. Ambiguity is `PLAY0198`.
@@ -165,7 +165,7 @@ module Timesheets
   feature Approval
 ```
 
-Source: Screenplay `v4.125.0:Documentation/screenplay/slices.md` and `folders.md`.
+Source: Screenplay `Documentation/screenplay/slices.md` and `folders.md`.
 
 ## State-transition table (per entity)
 

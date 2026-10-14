@@ -38,9 +38,9 @@ Returned values still cannot supply another command's generated input
 Monaco/VS Code complete returned names after `from` and form `by`; hover shows
 the field type. Editor resolution is not runtime execution.
 
-Sources: Cratis/Screenplay `v4.148.0:Documentation/screenplay/interactions.md:162-170`,
-`Source/DotNET/Screenplay/Parsing/SpecificationResponseValidator.cs:174-258`,
-`Source/DotNET/Screenplay/for_ScreenplayCompiler/when_validating_response_continuations.cs:12-47`.
+Sources: Cratis/Screenplay `Documentation/screenplay/interactions.md`,
+`Source/DotNET/Screenplay/Parsing/SpecificationResponseValidator.cs`,
+`Source/DotNET/Screenplay/for_ScreenplayCompiler/when_validating_response_continuations.cs`.
 
 ## Renderer boundary
 
@@ -52,8 +52,8 @@ continuation support from successful source validation, an unchanged ESM, a
 response proxy, or an existing `on success`. Stage #206 remains a renderer
 follow-up, not a capability this compiler release supplies.
 
-Sources: Cratis/cli `v3.57.0:Directory.Packages.props:8-10`; Cratis/Stage
-`v4.89.1:Documentation/reference/generated-values-rendering.md:85-95,115-121`.
+Sources: Cratis/cli `Directory.Packages.props`; Cratis/Stage
+`Documentation/reference/generated-values-rendering.md`.
 
 ## Compiled example
 

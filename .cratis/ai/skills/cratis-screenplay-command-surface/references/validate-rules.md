@@ -14,7 +14,7 @@
 | `all > <v>` / `all >= <v>` | `lines.quantity all > 0` |
 | `rule <Name>` | `orgNumber rule BeAValidOrganizationNumber` |
 
-## `not empty` means non-blank text (4.151.0)
+## `not empty` means non-blank text
 
 On text, `not empty` rejects null, empty text and whitespace-only text; at least
 one non-whitespace character is required. Concept and command property rules
@@ -39,9 +39,9 @@ this correction. Complete exercised model:
 [whitespace rule specifications](../../cratis-screenplay-specifications/references/whitespace-rules.md).
 
 Sources: Cratis/Screenplay `v4.151.0`,
-`Source/DotNET/Screenplay/Semantics/Execution/SemanticEvaluator.cs:102-110`,
-`Documentation/screenplay/commands.md:404-407`, `concepts.md:190` in the same
-folder, and `decisions/0071-whitespace-only-text-does-not-satisfy-not-empty.md:37-41,79`.
+`Source/DotNET/Screenplay/Semantics/Execution/SemanticEvaluator.cs`,
+`Documentation/screenplay/commands.md`, `concepts.md` in the same
+folder, and `decisions/0071-whitespace-only-text-does-not-satisfy-not-empty.md`.
 
 ## Rules whose logic is code
 

@@ -48,6 +48,6 @@ Source: https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits, by Martin Dilg
   the boundary rows of `anti-patterns.md`.
 - Draft lineage of the first draft of this skill: the field-copy signal, the element sweep
   and the entity walk are Cratis additions, grounded in Cratis/Screenplay#393 (advisory report
-  of information-level modeling smells, open at v4.66.0).
+  of information-level modeling smells, open).
 - Rejected anti-patterns (`checklist.md` R): Cratis/Screenplay strategy decisions and the
   closure comments of the Screenplay issues that rejected them.
