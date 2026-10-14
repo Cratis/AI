@@ -70,12 +70,12 @@ ambiguous addresses; contracts are never inferred from names.
 A rule that exists only in a description, or a state-dependent rule the model marks as not
 enforced, is unenforced in generated scope. List it in the fallback record as a target requirement. In
 hand-written code it needs an atomic enforcement point: a protected read or a concurrency scope
-(Stage 4.73.1 rendered apps scaffold the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`: protected-read APIs
+(Stage-rendered apps scaffold the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`: protected-read APIs
 are available to gap-fill, with projection/key admission and active enrollment), or a Chronicle constraint. A stale view or
 a caller-supplied status is not enforcement.
 
 ## Automation and Translate scope
-Stage 4.89.1 renders supported event-triggered Automation as Chronicle reactors.
+Stage renders supported event-triggered Automation as Chronicle reactors.
 Translate/captures and refused reactions are gap-fill against the slice and its specifications;
 see Stage's `references/admission.md` for precise limits. The realization follows the actual construct and
 trigger, not the slice label: a capture is an ingestion adapter, an event reaction (including a
@@ -87,7 +87,7 @@ not bind a modeled reaction or capture. Case C (no generated application): there
 composition conventions (`rules/vertical-slices.md`, `cratis-chronicle-reactor`).
 Declare the trusted actor with reaction `runs as system role "<Role>"`
 ; `given caller` is not an invocation actor.
-Historical CLI 3.41.0's older compiler rejected the syntax. The CLI/Stage pair
+An older compiler rejects the syntax. The CLI/Stage pair
 (`cratis-screenplay-toolchain/references/renderable-subset.md`) renders role/authenticated reaction identity; claim-reading/opaque system gates still
 refuse STAGE-ESM-034. Gap-fill retains the declared role and uses Arc
 `[ExecuteCommandsAsSystem]` for returned commands. Checked model and diagnostics:
@@ -95,11 +95,11 @@ captures-and-reactions `references/invocation-identity.md`.
 
 A reaction that both produces events and invokes commands keeps its single modeled form
 (`STAGE-ESM-037` is Stage's refusal, not a model defect). Hand-write one reactor returning the events
-and the commands: on Arc 22.72.0 or later (the Stage 4.89.1 scaffold includes the handler, but mixed reactions remain refused because redelivery can duplicate events) the runtime appends the events first as one batch, then
+and the commands: in Arc (the Stage scaffold includes the handler, but mixed reactions remain refused because redelivery can duplicate events) the runtime appends the events first as one batch, then
 runs the commands in order, with no transaction across the two effects; a failing command stops the
 later ones but keeps the committed events, and a retry can append the events again, so make the
 handler idempotent independently of `[OnceOnly]`, which excludes replay only, not recovery
-or crash redelivery (Chronicle v19.50.1 `Documentation/code-analysis/CHR0022.mdx`;
+or crash redelivery (Chronicle `Documentation/code-analysis/CHR0022.mdx`;
 see `cratis-chronicle-reactor`). Return a
 stable array or list. The Stage scaffold pins an older Arc, so raise the version through
 `Customizations/Dependencies.props` only after a restore and build proves it. Never split the

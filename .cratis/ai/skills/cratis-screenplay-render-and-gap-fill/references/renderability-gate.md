@@ -7,8 +7,7 @@ The admitted subset itself (what Stage renders, member by member) is owned by
 probe reports and choosing what to do. Do not copy the code table here.
 
 ## Pipeline that produces the codes
-1. The CLI compiles and binds the **whole** model with its **bundled** Screenplay (4.147.1 in
-   cratis 3.57.0, ESM up to v15 for rendering; older bundles bound less). Binding is never scoped:
+1. The CLI compiles and binds the **whole** model with its **bundled** Screenplay (the ESM level it renders is bounded by the bundle; older bundles bound less). Binding is never scoped:
    any binding error blocks even a `--scope` render. Binding errors are `PLAY0268` (outside the admitted vertical), `PLAY0269`
    (deferred), `PLAY0270` (report-only information), `PLAY0271` (legacy semantics) and `PLAY0273`
    (a specification shape).
@@ -31,7 +30,7 @@ ESM). Only the probe answers renderability. `PLAY0270` entries are information, 
 | --- | --- | --- | --- |
 | **Model fix (in mode)** | the model is in, or the user chose, renderable mode and breaks its own subset in a way that has a renderable equivalent with the same meaning | a `produces` whose `for` is not the command identifier; one `StateChange` slice with two commands (`STAGE-ESM-004`); two projections for one read model (`-007`); a policy Stage cannot express portably (`-015`; role-only and opaque pure policies render) | edit request to the modeler session with address, change and rationale |
 | **Capability gap** | the intended meaning needs a construct Stage does not render yet | a snapshot list query (`-010`; observable lists and keyed or unkeyed lists bind and observable lists render), DateTime equality filters and required parameters after optional filters (`-010`); context/single-result filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268; Translate, clocks, captures, non-event triggers and opaque reaction bodies (`-024`); claim-reading/opaque `runs as` gates (`-034`), legacy `from` (`-035`), mixed effects in one handler (`-037`, retries can duplicate events; keep it whole), unsupported reaction mappings (`-039`); unsupported generated types/result combinations (`-028`/`-038`); `then no readmodel` (`-027`); evolved events (`STAGE-ESM-026`); conditional `produces when` (`-006`); `reads` (`PLAY0271`); code validation (`-005`); protected identities/enums (`-040`), non-text secrets (`-041`) or unadmitted explicit subject lineage (`PLAY0268`); a command `handler` (`PLAY0268`) | keep the model; fallback record entry; options a to c in `SKILL.md`; link the Stage issue |
-| **Tool skew** | the bundled compiler disagrees with documented semantics | the false `PLAY0285` on reaction cascades from a cratis before 3.28.2 bundle (cli#242); codes the standalone compiler does not raise | record in the session state and the fallback record; never "fix" a correct model |
+| **Tool skew** | the bundled compiler disagrees with documented semantics | the false `PLAY0285` on reaction cascades from an older bundle; codes the standalone compiler does not raise | record in the session state and the fallback record; never "fix" a correct model |
 | **Environment** | not the model | restore failures, missing SDK, a destination that is not writable | fix the environment or report blocked |
 
 ## Triage rules
@@ -58,5 +57,5 @@ it, and cite only numbers you have just read. A closed issue is a trigger to pro
 
 ## Reference outcomes
 - The complete marina model of `cratis-stage-rendering-and-sandbox` `references/render-example.md`:
-  admission ok, 30 artifacts, Debug build ok, 7 tests passed (cratis 3.28.2; on 3.53.1 admission and publication gave 56 artifacts, build and tests not re-run).
+  admission ok, Debug build ok and its tests passed on the public CLI.
 - The model in `worked-example.md`: admission refused with 2 blocking `PLAY0268` diagnostics, nothing published.
