@@ -142,8 +142,16 @@ hop before editing:
    An explicit mapping to a renamed-away target fails binding (V3, PLAY0273); a property AutoMap
    used to fill and no longer matches is **not reported** - the field silently stays empty.
 
+Before an add, check the element one hop further upstream than the stated source. If it already
+carries the value, the requested chain stops too early: extend it to where the value really
+starts (an input, a context value, a generated identifier, a view calculation).
+
 Skip a hop and log why when the field already exists there (add) or is not found on that
-element (rename); never skip silently. Report the walk hop by hop: element, field, `updated`
+element (rename); never skip silently. Skipping a hop is also safe when the value already
+arrives there under its old name and an explicit mapping bridges it (hop 3 below). When a hop
+that must carry the value cannot be applied (a persisted event, an accepted slice), do not apply
+the rest as if it had been: stop and route the whole chain to the identity owner. The chain is
+one logical edit. Report the walk hop by hop: element, field, `updated`
 or `skipped` with the reason (already present; not on this element); name the chain from
 the consuming element back to the source. Run V1 after the chain edit; if a hop cannot be applied, stop
 and report that hop. Rename only through the identity-aware path when any hop is persisted
