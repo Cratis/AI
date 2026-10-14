@@ -9,6 +9,7 @@
 - Recover classification from C#
 - Declare the use separately
 - Identify the person, not the stream
+- Event data subject
 
 Authority: Screenplay `concepts.md`, `events.md`,
 `Semantics/SemanticModelBinder.Compliance.cs` and `SemanticModelValidator.Compliance.cs`;
@@ -225,3 +226,11 @@ event summaries' `subject.source` (`eventSource` or `property`).
 The event data subject, `secret scope subject` (encryption scope), and policy
 `matches subject` (the thing acted on, not the caller) are three different roles.
 For actual Chronicle erasure and attributes, use `cratis-chronicle-compliance`.
+
+## Event data subject
+
+One event property may carry trailing `subject`; it identifies the person whose
+data the event holds, not the stream identity. Only unprotected required scalar
+String/Uuid or String/Uuid/Int-backed concepts are allowed. The mark is report-only
+(PLAY0270), changes no ESM bytes and emits no C# `[Subject]` yet; read models are
+not supported. See [subject lineage](#identify-the-person-not-the-stream).
