@@ -24,8 +24,8 @@ an unproven pass.
    A behavior is a **contract** only when an accepted (committed) model under the root covers it.
    A direct user request to model a scope is consent for that scope. Run `scripts/model-first-status.mjs` from the repository with Node.js and Git:
    `node <skill-directory>/scripts/model-first-status.mjs [--root <repository-relative-dir>] [--json]`.
-   It reads `.cratis/ai.json` and Git without changing either. Root selection is `--root`, then the configured root, then an existing legacy `.cratis/screenplay/` model, then the common folder of project models (excluding other hidden, build, documentation, sample and scratch folders), else `Source/`, `src/`, or `Screenplay/`.
-   The output names the root, reason, examined-file counts, drafts and model changes in progress; exits are **0 opted in**, **1 not opted in**, **2 could not run** (Git/configuration/arguments). Treat 2 as blocked, not code-first.
+   Read-only roots: `--root`, configuration, then discovery from HEAD project paths (drafts only if none). Discovery prefers legacy `.cratis/screenplay/`, else the common folder, else `Source/`, `src/`, `Screenplay/`. It excludes hidden/build/docs/samples/examples/scratch/test fixtures from discovery and acceptance, including at `.`; explicit roots include everything beneath them.
+   Output: root, reason, file counts, drafts and model changes. Exits: **0 opted in**, **1 not opted in**, **2 could not run** (Git/configuration/arguments). Treat 2 as blocked, not code-first.
    Run `scripts/model-first-status.mjs --self-test` to plant and check verdict fixtures; it executes `scripts/model-first-self-test.mjs` and prints the checked count on success.
    Read `references/opt-in.md` when checking the project configuration mechanism.
 2. **Not opted in:** continue code-first; never force a model (framework, brownfield,

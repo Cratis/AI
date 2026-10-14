@@ -227,7 +227,7 @@ The MCP catalog has no install-hints field and does not install the executable.
 
 ### Event modeling with Screenplay
 
-**Model first.** Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` for the opt-in decision, model root and drafts. An accepted model under the root covering the scope is the contract and the source
+**Model first.** Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` for the decision, model root and drafts. An accepted model under the root covering the scope is the contract and the source
 of truth for behavior. Change the model, verify and independently review it, then render
 or gap-fill from its contract; never edit Stage-managed output or weaken protection.
 Otherwise stay code-first; only the entry-point session may propose a model, at most once

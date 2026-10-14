@@ -10,7 +10,7 @@ Build the page from the generated Arc proxies and the Cratis Components
 wrappers. Do not hand-roll a table, a dialog, or a fetch.
 
 - An accepted `.play` model under the model root covers the behavior, or the
-  repository is opted in (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs`): change the model first with
+  repository is opted in (per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs`): change the model first with
   `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
   say so and do not author `.play` from memory.
   Read the model's `screen` and `form` with

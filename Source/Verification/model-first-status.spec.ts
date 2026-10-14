@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test, { type TestContext } from 'node:test';
@@ -115,6 +115,93 @@ for (const folder of ['Source', 'src', 'Screenplay']) {
     });
 }
 
+for (const path of [
+    'Source/X.Specs/Projections/for_model/Cases/fixture.play',
+    'Source/X.Tests/fixture.play', 'Source/Specs/fixture.play', 'src/Tests/fixture.play',
+    'Source/for_model/fixture.play', 'src/fixtures/fixture.play', 'Source/Cases/fixture.play',
+    'src/test-assets/fixture.play', 'Source/test_assets/fixture.play',
+    'Source/examples/example.play', 'Source/docs/example.play', 'Source/samples/example.play',
+    'src/examples/example.play', 'src/docs/example.play', 'src/samples/example.play',
+]) {
+    test(`discovery never accepts a committed non-project model: ${path}`, t => {
+        const { write, accept, run } = fixture(t);
+        write(path);
+        accept(path);
+        const { status, report } = run();
+        assert.equal(status, 1);
+        assert.equal(report.filesExamined, 1);
+        assert.equal(report.modelFilesExamined, 0);
+        assert.deepEqual(report.committed, []);
+    });
+}
+
+for (const staged of [false, true]) {
+    test(`a ${staged ? 'staged' : 'untracked'} legacy draft cannot displace a committed project root`, t => {
+        const { write, accept, git, run } = fixture(t);
+        write('Source/model.play');
+        accept('Source/model.play');
+        write('.cratis/screenplay/draft.play');
+        if (staged) git('add', '.cratis/screenplay/draft.play');
+        const { status, report } = run();
+        assert.equal(status, 0);
+        assert.equal(report.modelRoot, 'Source');
+        assert.deepEqual(report.committed, ['Source/model.play']);
+        assert.equal(report.filesExamined, 2);
+        assert.equal(report.modelFilesExamined, 1);
+    });
+}
+
+for (const root of ['Source', 'src', '.']) {
+    test(`discovered root ${root} excludes nested non-project models from acceptance`, t => {
+        const { write, accept, run } = fixture(t);
+        const prefix = root === '.' ? '' : `${root}/`;
+        write(`${prefix}one/model.play`);
+        write(`${prefix}two/model.play`);
+        write(`${prefix}docs/example.play`);
+        write(`${prefix}samples/example.play`);
+        write(`${prefix}X.Specs/Cases/fixture.play`);
+        accept('.');
+        const { status, report } = run();
+        assert.equal(status, 0);
+        assert.equal(report.modelRoot, root);
+        assert.equal(report.filesExamined, 5);
+        assert.equal(report.modelFilesExamined, 2);
+        assert.deepEqual(report.committed, [`${prefix}one/model.play`, `${prefix}two/model.play`]);
+    });
+}
+
+for (const root of ['Source', '.']) {
+    test(`a deliberately configured root ${root} includes even fixture and example models`, t => {
+        const { write, accept, run } = fixture(t);
+        write('.cratis/ai.json', JSON.stringify({ mcpServers: { screenplay: { root } } }));
+        write('Source/X.Specs/Cases/fixture.play');
+        write('Source/examples/example.play');
+        accept('Source');
+        const { status, report } = run();
+        assert.equal(status, 0);
+        assert.equal(report.modelRoot, root);
+        assert.equal(report.modelFilesExamined, 2);
+        assert.equal(report.committed.length, 2);
+    });
+}
+
+for (const optedIn of [false, true]) {
+    test(`execution through a symlinked skills directory prints the ${optedIn ? 'opted-in' : 'not-opted-in'} verdict`, t => {
+        const { repository, write, accept } = fixture(t);
+        if (optedIn) {
+            write('Source/model.play');
+            accept('Source/model.play');
+        }
+        mkdirSync(join(repository, '.pi'));
+        symlinkSync(resolve(dirname(script), '../..'), join(repository, '.pi/skills'), 'dir');
+        const alias = join(repository, '.pi/skills/cratis-screenplay-modeling-lifecycle/scripts/model-first-status.mjs');
+        const result = spawnSync(process.execPath, [alias, '--json'], { cwd: repository, encoding: 'utf8', timeout: 20000 });
+        assert.equal(result.error, undefined);
+        assert.equal(result.status, optedIn ? 0 : 1, result.stderr);
+        assert.equal(JSON.parse(result.stdout).optedIn, optedIn);
+    });
+}
+
 test('discovery keeps an existing committed legacy model readable', t => {
     const { write, accept, run } = fixture(t);
     write('.cratis/screenplay/model.play');
@@ -175,5 +262,5 @@ test('invalid root arguments return 2', t => {
 test('the shipped self-test plants all verdicts and reports its count', () => {
     const result = spawnSync(process.execPath, [script, '--self-test'], { encoding: 'utf8', timeout: 30000 });
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /checked 10 fixtures\/verdicts; passed/);
+    assert.match(result.stdout, /checked 19 fixtures\/verdicts; passed/);
 });

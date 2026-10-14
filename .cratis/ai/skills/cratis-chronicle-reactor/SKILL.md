@@ -20,7 +20,7 @@ effects. If the answer is "populate a queryable model", it is not a reactor.
 | both a model and an effect | one projection *and* one reactor |
 
 > **Model first.** If an accepted model under the model root covers this scope, or
-> the repository is opted in (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs`), the automation is
+> the repository is opted in (per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs`), the automation is
 > a modeled slice: find it (`Automation` or `Translate`), treat its `produces` /
 > `invokes`, conditions and fields as the contract, and write the reactor only as
 > gap-fill for what the model leaves to code (Stage renders supported event-triggered Automation;

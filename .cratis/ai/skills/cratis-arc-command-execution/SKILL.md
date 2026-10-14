@@ -234,7 +234,7 @@ Recovery can redeliver the trigger even with `[OnceOnly]`, and a command whose o
 - Adding or changing a rule: the Arc command validation guidance.
 - Designing what a reactor should observe: the Chronicle reactor guidance.
 - An accepted `.play` model under the model root covers the behavior, or the
-  repository is opted in (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs`): change the model first with
+  repository is opted in (per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs`): change the model first with
   `cratis-screenplay-event-modeling`. If the Screenplay skills are not installed,
   say so and do not author `.play` from memory.
   Edit code here only for infrastructure, clients, adapters, Screenplay code

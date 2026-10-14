@@ -14,7 +14,7 @@ A vertical slice owns a single behavior: the command or query, the events it pro
 
 This file is the reference for *what* goes in each part of a slice. Layout, slice types, workflow, and quality gates are in [general.md](./general.md).
 
-**Model-first check.** Before changing a slice, look for it in the accepted `.play` model under the model root (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` for the decision, root and drafts). If an accepted model covers it, change the model and render or gap-fill from it; never edit Stage-managed files. See Phase 0 in [application-profile.md](./application-profile.md).
+**Model-first check.** Before changing a slice, look for it in the accepted `.play` model under the model root (opted in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` for the decision, root and drafts). If an accepted model covers it, change the model and render or gap-fill from it; never edit Stage-managed files. See Phase 0 in [application-profile.md](./application-profile.md).
 
 ## Technical stack
 

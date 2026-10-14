@@ -52,7 +52,7 @@ Confirm that the TypeScript proxies exist in the slice folder before writing any
 
 ## Model-first check
 
-Before writing slice UI, decide the level. The model is the source of truth when an accepted `.play` model covers the slice, or when the repository has opted in (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` for the decision, model root and drafts). The page is then the model's implementation:
+Before writing slice UI, decide the level. The model is the source of truth when an accepted `.play` model covers the slice, or when the repository has opted in (per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` for the decision, model root and drafts). The page is then the model's implementation:
 
 - Read the slice's `screen` and `form` declarations first, and follow `cratis-arc-react-page` `references/from-screenplay.md` for the declaration-to-component mapping. Use `cratis-screenplay-modeling-lifecycle` for the model-first decision rule.
 - Where the model and the request disagree, fix the model first (through the modeler, or ask) and report it. Never change the model to match existing code, and never add data or actions in the page that the model lacks.

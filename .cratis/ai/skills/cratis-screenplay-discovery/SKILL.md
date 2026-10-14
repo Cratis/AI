@@ -28,7 +28,7 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
   existing code or a database as the source (`cratis-screenplay-legacy-extraction`).
 - Small change to an existing model (one or two events): enter at step 5.
 - Model-first: work in `.play` where an accepted model under the model root covers the scope or
-  the repository is opted in (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs`). Otherwise stay code-first; only the
+  the repository is opted in (per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs`). Otherwise stay code-first; only the
   entry-point session proposes a model, at most once per session; the master definition is in
   `cratis-screenplay-modeling-lifecycle`. A direct request to model this scope is itself consent.
 

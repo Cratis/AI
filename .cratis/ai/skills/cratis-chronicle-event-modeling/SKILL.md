@@ -7,7 +7,7 @@ license: MIT
 # Chronicle event modeling
 
 > **Model-first check.** If an accepted model under the model root covers this scope, or the
-> repository is opted in (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs`), the model is the source of truth: use
+> repository is opted in (per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs`), the model is the source of truth: use
 > `cratis-screenplay-event-modeling` (and the lifecycle in
 > `cratis-screenplay-modeling-lifecycle`, which holds the master definition)
 > instead of this skill. This skill is for

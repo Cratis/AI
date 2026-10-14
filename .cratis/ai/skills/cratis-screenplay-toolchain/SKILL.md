@@ -17,7 +17,7 @@ skill answers "does it compile, bind, render, and which compiler said so". The m
 
 ## Locate the model
 
-Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` to locate the model root. A folder of `.play`
+Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` to locate the model root. A folder of `.play`
 files is one application: always check the folder, never one file of it.
 
 ## Tool versions and the contract

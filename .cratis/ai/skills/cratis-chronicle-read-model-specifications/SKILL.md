@@ -49,7 +49,7 @@ version.
   readmodel` rows are the contract). Decide this with the decision rule in
   `cratis-screenplay-modeling-lifecycle`: model-first only when an accepted
   model under the model root covers this scope, or the repository is opted in
-  (run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs`); framework, infrastructure, client, adapter and not-opted-in
+  (opted in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs`); framework, infrastructure, client, adapter and not-opted-in
   brownfield work stays code-first. Opted in but no model for this scope: model
   it first (`cratis-screenplay-discovery`, then `cratis-screenplay-slice-design`)
   before writing specifications. If those Screenplay skills are not installed,

@@ -1,7 +1,9 @@
 # Contract, precedence and conflicting evidence
 
 ## Which contract
-Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` for the opt-in decision, model root and drafts. Otherwise stay code-first.
+Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` for the decision, model root and drafts. SKILL.md step 1 suffices when the Screenplay skills are not installed.
+Staged or untracked `.play` files are drafts, not the contract; a `.play` outside the model root is not a contract.
+For a committed model with working-tree edits, HEAD remains the contract until the change is committed.
 
 | Situation | Contract | Code's role |
 | --- | --- | --- |

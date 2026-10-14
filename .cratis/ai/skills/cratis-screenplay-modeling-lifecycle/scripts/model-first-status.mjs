@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { spawnSync } from 'node:child_process';
-import { readFileSync, statSync } from 'node:fs';
+import { readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,7 +17,9 @@ function git(repository, args, allowed = [0]) {
 const names = result => result.stdout.split('\0').filter(Boolean);
 const play = path => path.toLowerCase().endsWith('.play');
 const under = (path, root) => root === '.' || path.startsWith(`${root}/`);
-const ignored = /(^|\/)(\.[^/]+|node_modules|bin|obj|artifacts|dist|out|packages|documentation|docs|samples?|examples?|scratch)(\/|$)/i;
+const ignored = /(^|\/)(\.[^/]+|node_modules|bin|obj|build|artifacts|dist|out|packages|documentation|docs|samples?|examples?|scratch|[^/]+\.(?:Specs|Tests)|Specs|Tests|for_[^/]+|fixtures|Cases|test[-_]?assets)(\/|$)/i;
+// The legacy model location is a project root, not arbitrary hidden-folder content.
+const projectModel = path => !ignored.test(path.startsWith('.cratis/screenplay/') ? path.slice('.cratis/screenplay/'.length) : path);
 
 function configuredRoot(repository) {
     let text;
@@ -50,7 +52,7 @@ function normalizeRoot(repository, root) {
 
 function locateRoot(repository, paths) {
     if (paths.some(path => path.startsWith('.cratis/screenplay/'))) return '.cratis/screenplay';
-    const directories = paths.filter(path => !ignored.test(path)).map(path => dirname(path));
+    const directories = paths.map(path => dirname(path));
     if (directories.length) {
         let common = directories[0].split('/');
         for (const directory of directories.slice(1)) {
@@ -80,10 +82,13 @@ export function modelFirstStatus(cwd = process.cwd(), rootOverride) {
     const indexed = names(git(repository, ['ls-files', '-z', '--cached'])).filter(play);
     const untracked = names(git(repository, ['ls-files', '-z', '--others', '--exclude-standard'])).filter(play);
     const paths = [...new Set([...committed, ...indexed, ...untracked])].sort();
-    const root = normalizeRoot(repository, rootOverride ?? configured ?? locateRoot(repository, paths));
-    const accepted = committed.filter(path => under(path, root)).sort();
-    const staged = indexed.filter(path => under(path, root) && !committed.includes(path)).sort();
-    const drafts = { untracked: untracked.filter(path => under(path, root)).sort(), staged };
+    const projectCommitted = committed.filter(projectModel);
+    const discoveryPaths = projectCommitted.length ? projectCommitted : paths.filter(projectModel);
+    const root = normalizeRoot(repository, rootOverride ?? configured ?? locateRoot(repository, discoveryPaths));
+    const inModel = path => under(path, root) && (rootOverride !== undefined || configured !== undefined || projectModel(path));
+    const accepted = committed.filter(inModel).sort();
+    const staged = indexed.filter(path => inModel(path) && !committed.includes(path)).sort();
+    const drafts = { untracked: untracked.filter(inModel).sort(), staged };
     const modified = head.status === 0
         ? names(git(repository, ['diff', '--name-only', '-z', 'HEAD', '--'])).filter(path => accepted.includes(path)).sort() : [];
     const optedIn = configured !== undefined || accepted.length > 0;
@@ -92,7 +97,7 @@ export function modelFirstStatus(cwd = process.cwd(), rootOverride) {
         reason: configured !== undefined ? 'configured-root' : accepted.length ? 'committed-model' : 'no-accepted-model',
         repository, modelRoot: root,
         rootSource: rootOverride !== undefined ? 'argument' : configured !== undefined ? 'configuration' : 'discovery',
-        filesExamined: paths.length, modelFilesExamined: paths.filter(path => under(path, root)).length,
+        filesExamined: paths.length, modelFilesExamined: paths.filter(inModel).length,
         committed: accepted, drafts, modelChangesInProgress: modified,
         contract: accepted.length ? 'HEAD' : null,
     };
@@ -133,4 +138,4 @@ async function main() {
     }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) await main();

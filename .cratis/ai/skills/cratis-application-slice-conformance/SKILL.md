@@ -52,7 +52,9 @@ This skill is a method: it names no API of its own. When the Screenplay skills a
 Find the contract before touching code; say which one you are using. These steps are enough on
 their own when the Screenplay skills are not installed; the master decision rule, when they
 are, is `cratis-screenplay-modeling-lifecycle` ("Decide the level first").
-Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` for the opt-in decision, model root and drafts.
+Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` for the decision, model root and drafts.
+Staged or untracked `.play` files are drafts, not the contract; a `.play` outside the model root is not a contract.
+For a committed model with working-tree edits, HEAD remains the contract until the change is committed.
 1. An accepted `.play` model under the model root covers the slice (search
    `**/*.play` for the slice, command, event and read-model names): the `.play` slice and its
    specifications are the contract.

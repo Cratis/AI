@@ -29,7 +29,7 @@ into the work that acts on them. Flag a real trade-off to the user instead of re
 
 **1. Decide the level (short form; master copy in `cratis-screenplay-modeling-lifecycle`).**
 Check first that the method skills are installed; installing them never opts a
-repository in. Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` for the opt-in decision, model root and drafts.
+repository in. Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` for the decision, model root and drafts.
 Otherwise stay code-first. Only the entry-point session proposes a model (at most once
 per session, never for trivial, bug-fix, infrastructure, client, framework or
 brownfield-maintenance work; unattended: record the recommendation in the final report).

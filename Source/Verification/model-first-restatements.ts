@@ -28,7 +28,7 @@ export function modelFirstRestatements(files: InstructionFile[]): { problems: st
                 || (/(?:only when|means|counts as|opts|opted in if)/i.test(text)
                     && /(?:explicitly|project).{0,40}(?:set|configured).{0,40}mcpServers\.screenplay\.root/i.test(text)));
             if (treeTest || proseTest) {
-                problems.push(`${file.path}:${line} restates the model-first opt-in test; point to cratis-screenplay-modeling-lifecycle's scripts/model-first-status.mjs instead.`);
+                problems.push(`${file.path}:${line} restates the model-first opt-in test; point to general.md "Model first" and, where installed, cratis-screenplay-modeling-lifecycle's scripts/model-first-status.mjs instead.`);
             }
             line += block.split('\n').length - 1;
         }

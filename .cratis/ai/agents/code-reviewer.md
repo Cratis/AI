@@ -31,7 +31,7 @@ Select only diff-relevant, profile-applicable canonical rules in `.cratis/ai/rul
 
 ## Model-first check
 
-Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` once per review for the opt-in decision, model root and drafts. Otherwise skip this section, and do not demand a model from framework, brownfield or not-opted-in work. If the Screenplay skills are missing, say so in the report rather than reviewing model content from memory.
+Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` once per review for the decision, model root and drafts. Otherwise skip this section, and do not demand a model from framework, brownfield or not-opted-in work. If the Screenplay skills are missing, say so in the report rather than reviewing model content from memory.
 
 In an opted-in repository:
 
