@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-engineering-csharp-conventions",
+  "queries": [
+    { "query": "review this C# class for our house style: it has #region blocks, an AuthorServiceImpl name and == null checks", "shouldTrigger": true },
+    { "query": "what should I name the exception thrown when an author isn't found? AuthorNotFoundException ok?", "shouldTrigger": true },
+    { "query": "can i just throw an InvalidOperationException here or do we define our own", "shouldTrigger": true },
+    { "query": "my singleton cache takes a scoped dependency and returns empty results for every tenant. how should it be registered?", "shouldTrigger": true },
+    { "query": "I need all implementations of IValidationRule. Inject IEnumerable<IValidationRule> and register each one?", "shouldTrigger": true },
+    { "query": "how do we format C# files here: where does the blank line go before braces, and do usings go inside the namespace?", "shouldTrigger": true },
+    { "query": "what does a private field look like and do interfaces really need the I prefix in our repos", "shouldTrigger": true },
+    { "query": "What's the logging convention for a service that handles orders? Structured logging with message templates or string interpolation?", "shouldTrigger": true },
+    { "query": "Do we use primary constructors and records for DTOs, or classes with properties? Also what XML docs do public methods need?", "shouldTrigger": true },
+    { "query": "Our host doesn't validate scopes. How do I turn on ValidateScopes and ValidateOnBuild without breaking production on an existing codebase?", "shouldTrigger": true },
+    { "query": "Write the specification for the BookBoat command using the Establish/Because/should_ pattern in a when_ folder.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "What does the Chronicle IEventLog.Append method return and how does it handle concurrency?", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Write the C# for a new RegisterBoat command that returns the id and appends BoatRegistered.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "How should I style this React component and name the hook in TypeScript?", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Do a security review of this C# controller for injection and authorization gaps.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Review this C# pull request for performance: allocations in hot paths and LINQ in loops.", "shouldTrigger": false, "note": "cratis-performance-review" },
+    { "query": "Wrap this HTTP call so it has retries and tell me where the effect boundary should sit.", "shouldTrigger": false, "note": "cratis-engineering-effect-boundaries" },
+    { "query": "Write the instrumentation for our service with ActivitySource and metrics.", "shouldTrigger": false, "note": "cratis-fundamentals-telemetry" },
+    { "query": "Record the decision to ban regions repository-wide as a decision record.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" }
+  ]
+}

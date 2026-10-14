@@ -1,0 +1,54 @@
+{
+  "skill_name": "cratis-content-length",
+  "evals": [
+    {
+      "id": 1,
+      "name": "engagement-study-padding",
+      "prompt": "Our social lead says: \"A study shows LinkedIn posts of 1,301-2,500 characters get 27% more engagement, so every Cratis personal-profile post should be stretched to at least 1,300 characters.\" Today's post makes one point: the difference between two commands. Advise on length in your reply; do not write files.",
+      "expected_output": "Reject padding to a number. The study is an association on personal profiles, not causal; one distinction with one example is a short post. Start from the reader's job and the evidence available.",
+      "assertions": [
+        "Says the 27% figure is an association on personal profiles and does not show that length caused the engagement.",
+        "Recommends keeping a one-distinction post short (the pilot band for one point is 500-1,300 characters) rather than stretching it.",
+        "Advises against padding with scene-setting, a closing summary or a second example that shows the same thing.",
+        "Frames the decision as starting from the reader's job rather than from a character count."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "tutorial-over-soft-trigger",
+      "prompt": "Our end-to-end tutorial for setting up an event store, running a first command and checking the result is 3,800 words. It has setup, the run, how to tell it worked, what to do if it failed, and cleanup. The editor wants it under 2,500 words by cutting steps and posting the rest as a thread. What do you recommend? Reply only.",
+      "expected_output": "3,500 words is a soft trigger to review navigation and completeness, not a hard limit; do not cut required steps. Keep the canonical tutorial together if the task justifies it, split only where the reader's jobs divide, and give channels native entry points instead of a thread.",
+      "assertions": [
+        "States that the 3,500-word tutorial ceiling is a soft trigger for review, not a platform limit.",
+        "Refuses to cut a required step such as setup, the run, the success check, failure handling or cleanup.",
+        "Says a split belongs where the reader's jobs divide, not at the midpoint of the word count.",
+        "Rejects a thread whose installments do not each stand alone and suggests one canonical piece with native entry points for channels."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "batch-uniform-lengths",
+      "prompt": "Here are the lengths in characters of our last 10 LinkedIn posts: 1180, 1210, 1250, 1190, 1230, 1260, 1200, 1240, 1220, 1270. The queue has a one-line tip, a worked example with a benchmark method, and a migration with four required steps. Say what is wrong with the batch and how to fix it. Reply only.",
+      "expected_output": "The batch sits in one narrow band so it reads as a template. Fix by running the length procedure per subject: the tip is short, the worked example or method runs long, the migration needs a tutorial-like vehicle. The mix targets are editorial hypotheses, and lengths should not be randomized or padded.",
+      "assertions": [
+        "Identifies that nearly all ten posts fall within one narrow band, so the batch reads as a template.",
+        "Fixes the spread by deciding length per subject, not by choosing lengths at random.",
+        "Mentions the pilot mix of at least two short posts under about 600 characters and at least two longer posts over about 1,500 characters in 10.",
+        "Notes that these mix targets are editorial hypotheses, not proven optima.",
+        "Says the four-step migration may need another vehicle such as a tutorial rather than a short post."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "hacker-news-boundary",
+      "prompt": "Draft a Hacker News title and submission text for our new sample, and tell me the right length for the text. Reply only.",
+      "expected_output": "Decline to draft HN titles, text or comments; a person writes them. An agent may only gather facts and links. No HN length is set.",
+      "assertions": [
+        "Declines to write the Hacker News title or text.",
+        "States that a person writes everything Cratis posts on Hacker News, including titles, text and comments.",
+        "Offers only to gather facts and links for the person to check.",
+        "Does not invent a length band for Hacker News."
+      ]
+    }
+  ]
+}

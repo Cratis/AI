@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-documentation-writing",
+  "evals": [
+    {
+      "id": 1,
+      "name": "mixed-quadrant-page",
+      "prompt": "A draft page 'Getting started with Reactors' opens with 'A reactor is an abstraction over event observers.', walks a newcomer through building a first reactor, then pastes a 40-row table of every attribute and option in the middle of the lesson. Review it and say how to fix it. Reply only; do not write files.",
+      "expected_output": "Classify the page as a tutorial. Open with the reader's problem and payoff, not an abstract definition. Move the exhaustive option table to a linked reference page; keep the lesson threaded with visible results and let the first success come before theory.",
+      "assertions": [
+        "Classifies the page as a tutorial, with learning as its primary purpose.",
+        "Says the opening should state the reader's problem and payoff rather than an abstract product definition.",
+        "Recommends moving the exhaustive attribute table to a linked reference page instead of burying it in the lesson.",
+        "Says each tutorial step should have a visible result and that deeper theory links to an explanation rather than interrupting the lesson."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "unsafe-first-path",
+      "prompt": "Our tutorial's first snippet configures the server with a hardcoded admin password, binds it to 0.0.0.0, and explains four alternative hosting options before the reader sees a result. Critique this against our documentation rules. Reply only.",
+      "expected_output": "The first path must be the smallest safe configuration that runs: bind to loopback, label development credentials as such, and move host and configuration alternatives into linked how-to guides. The reader reaches a first success before options.",
+      "assertions": [
+        "Says local services bind to loopback in the first path rather than 0.0.0.0.",
+        "Says development credentials must be labeled as development credentials.",
+        "Moves hosting and configuration alternatives to linked how-to guides rather than showing them in the tutorial.",
+        "Says the first working path should be safe to run on a developer machine as written and need no up-front choice among alternatives."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "reader-feedback-repair",
+      "prompt": "Prompter logs show readers repeatedly asking 'how do I replay a reducer after changing it?', and an FAQ entry was proposed. The answer exists on a reference page. What do you recommend, and what do you do about issues? Reply only.",
+      "expected_output": "Treat the repeated question as a signal: investigate the page, its entry route or the product behavior behind it. Repair the entry link, wording or example rather than only adding an FAQ. Make an in-scope fix when evidence supports it; otherwise report the gap and suggest an issue, opening one only when asked.",
+      "assertions": [
+        "Treats the repeated question as a signal about the page, its entry route or the product behavior rather than only adding an FAQ entry.",
+        "Suggests reducing the report to the page and the sentence-level change the reader expected.",
+        "Says to make an in-scope fix when evidence supports it, and otherwise to report the gap.",
+        "Says to suggest an issue but open one only when asked."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "multi-backend-limits",
+      "prompt": "We are adding a Kotlin backend to a series of 6 pages that currently teach C# only. Two features are unsupported on Kotlin and tracked in issues. How do we handle the limitation text, and what else must we check outside the product's own docs? Reply only.",
+      "expected_output": "Put backend differences once in a 'how the backends differ' table near the start (series index), including unsupported features with their tracking issue, and link it rather than repeating on each page. Search cross-product and site-level pages for single-language claims and series indexes that no longer hold.",
+      "assertions": [
+        "Recommends one backend-differences table on the series index, linked from pages, instead of repeating the limitation on every page.",
+        "Includes unsupported features together with their tracking issue in that table.",
+        "Says to search pages the product's own checks do not scan, such as cross-product and site-level pages, for single-language claims.",
+        "Says to check series indexes whose description, reading order or production claims may no longer hold."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "ai-drafted-narrative",
+      "prompt": "I generated a tutorial narrative with a model and want to ship it. What must happen before it ships, and where do I tell the reviewer it was AI-drafted? Reply only.",
+      "expected_output": "It is a first draft. Revise against source evidence and the voice skill; technical correctness is not established by a style pass. Tell the reviewer in the review request, a PR comment or the commit message, never the PR description, which is published as release notes.",
+      "assertions": [
+        "Treats the AI-drafted narrative as a first draft to be revised against source evidence.",
+        "Says a style pass cannot establish technical correctness.",
+        "Says to tell the reviewer in the review request, a PR comment or the commit message.",
+        "Says not to put the AI-drafted note in the PR description because it is published as the release note."
+      ]
+    }
+  ]
+}
