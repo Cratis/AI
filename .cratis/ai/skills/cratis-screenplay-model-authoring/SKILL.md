@@ -25,8 +25,7 @@ same model root or workspace export to all checks. Workflow:
 
 Source: `Cratis/Screenplay`, `Documentation/screenplay/` and `Documentation/screenplay/mcp/`
 (notes, property planner, compliance, concept generation, release baseline). Discover
-installed schemas; bundles differ. Tool versions: toolchain `SKILL.md`. Attribution:
-`references/provenance.md`.
+installed schemas; bundles differ. Tool versions: toolchain `SKILL.md`.
 
 Record open modeling questions as `question` notes in committed
 `.screenplay/notes.json`, not chat or `description` text. Never put secrets or
@@ -220,7 +219,7 @@ shared by all generations and unique (PLAY0472). A renderer admits only the ESM 
 bundles, so an older Stage can refuse v16. Stored stream `All` (even `id "All"`) refuses PLAY0273; rename without
 that pin. Evidence/limits: [MCP tool guide](references/mcp-tools.md).
 
-Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and `screenplay baseline`, and 4.152.0 or later for `storedName` (ESM v16).
+Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and its `baseline` command, and 4.152.0 or later for `storedName` (ESM v16).
 
 ## Choose a readable layout
 
@@ -332,7 +331,3 @@ Never invent commands, parameters, syntax nodes or downstream capabilities.
 | Lifecycle, verdicts V1 to V5 and the model-first decision | `cratis-screenplay-modeling-lifecycle` |
 | Compiler, CLI and MCP versions, diagnostics, capability tables | `cratis-screenplay-toolchain` |
 | Event-model diagrams rather than .play source | `cratis-event-model-diagram` |
-
-## Lineage
-
-Read `references/provenance.md` when checking the sources or attribution of the connection and edit-route guidance: [provenance](references/provenance.md).

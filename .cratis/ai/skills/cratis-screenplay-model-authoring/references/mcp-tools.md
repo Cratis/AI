@@ -25,6 +25,8 @@
 - Formatting and recovery limits
 - Code attachments
 
+The standalone MCP server lists 43 tools (including the MCP-Apps visualization tool); `tools/list` is the authority for the installed server.
+
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
 alone inside a project, where the CLI locates the model (the project's `.play` files, else
 `Source/` or `src/`, else a new `Screenplay/` folder). The standalone form is `screenplay mcp <model-folder>`. A

@@ -3,7 +3,7 @@
 
 # Release baseline
 
-Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and `screenplay baseline`, and 4.152.0 or later for `storedName` (ESM v16).
+Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and its `baseline` command, and 4.152.0 or later for `storedName` (ESM v16).
 
 ## Contents
 
@@ -125,7 +125,7 @@ name. Do not remove a correct current pin to force admission. A reviewed baselin
 correction or data migration needs the actual stored-type evidence. Ordinary admission
 from the current model uses its effective stored name.
 
-Requires Screenplay 4.154.0 or later (`screenplay --version`) for `--from-esm` to read the
+Requires Screenplay 4.154.0 or later (`screenplay --version`) for `baseline admit --from-esm <shipped-esm>` to read the
 shipped `storedName`; earlier tools compare the shipped `name` and can refuse a pinned
 rename with `ShippedStoredNameMismatch`.
 

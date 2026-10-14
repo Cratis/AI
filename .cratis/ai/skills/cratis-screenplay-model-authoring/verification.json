@@ -13,15 +13,15 @@
     { "kind": "skill-contains", "value": "Never hand-edit the sidecar", "file": "references/release-baseline.md" },
     { "kind": "skill-contains", "value": "**reviewed correction**", "file": "references/release-baseline.md" },
     { "kind": "skill-contains", "value": "ShippedStoredNameMismatch", "file": "references/release-baseline.md" },
-    { "kind": "skill-contains", "value": "the interim warning is retired" },
+    { "kind": "skill-contains", "value": "Differing event pins carry" },
     { "kind": "skill-contains", "value": "`eventPinWarnings` array in proposals is empty", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "shared by all generations and unique (PLAY0472)" },
     { "kind": "skill-contains", "value": "ESM v16", "file": "references/mcp-tools.md" },
-    { "kind": "skill-contains", "value": "Stage 4.92.0 / CLI 3.59.0 still stop at v15", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "A renderer admits only the ESM versions it bundles", "file": "references/mcp-tools.md", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "Existing `All` history reads as", "file": "references/mcp-tools.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "Edit through MCP proposals, not hand-edited text" },
-    { "kind": "skill-contains", "value": "CLI 3.57.0 bundles MCP 4.147.1" },
+    { "kind": "skill-contains", "value": "The CLI-bundled MCP can be older than the standalone tool" },
     { "kind": "skill-contains", "value": "`previewArguments`", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "`entropyUnknownReason`", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "`valuesAtOnePercentCollision`", "file": "references/mcp-tools.md" },
@@ -69,7 +69,8 @@
     { "kind": "skill-contains", "value": "property.generations", "file": "references/property-links.md" },
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.144.0"
+      "value": "Requires Screenplay 4.144.0 or later",
+      "file": "references/model-notes.md"
     },
     {
       "kind": "skill-contains",

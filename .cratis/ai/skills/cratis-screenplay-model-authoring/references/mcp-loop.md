@@ -313,5 +313,5 @@ rejects the plan.
 ## Provenance
 
 The structure of this loop (ownership, edit-request shape, failure handling) is
-adapted from the project's earlier event-modeling toolkit draft. See [provenance](provenance.md).
+adapted from the project's earlier event-modeling toolkit draft.
 
