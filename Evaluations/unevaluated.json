@@ -1,7 +1,4 @@
 {
-  "cratis-application-react-specifications": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-application-slice-conformance": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-application-slice-specifications": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-arc-command-execution": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-arc-command-operation": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-arc-command-typescript": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
@@ -51,9 +48,6 @@
   "cratis-release-notes": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-security-review": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-social-feed-post": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-specification-by-example": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-specifications-csharp": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
-  "cratis-specifications-typescript": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-studio-mcp-safety-guidance": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-technical-examples": "Existing skill without evaluation inputs; remove when trigger and output cases are added.",
   "cratis-writing-voice-and-cadence": "Existing skill without evaluation inputs; remove when trigger and output cases are added."

@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-specification-by-example",
+  "queries": [
+    { "query": "how should I name and organize specs: for_, when_ and and_?", "shouldTrigger": true },
+    { "query": "my spec file is called with_a_registered_migration_when_appending_a_generation_1_event. is that ok?", "shouldTrigger": true },
+    { "query": "should I write a spec for the getter on my class?", "shouldTrigger": true },
+    { "query": "should the action sit in the given context or in the specification?", "shouldTrigger": true },
+    { "query": "can a given context contain should methods or a Because?", "shouldTrigger": true },
+    { "query": "is it ok to sleep for a second before asserting so the handler can finish?", "shouldTrigger": true },
+    { "query": "should a spec assert the exact error message text?", "shouldTrigger": true },
+    { "query": "one big spec class per class under test or split it up?", "shouldTrigger": true },
+    { "query": "what does CRSPEC0003 mean in my build output?", "shouldTrigger": true },
+    { "query": "i want my spec folder tree to read like documentation, how do I structure it?", "shouldTrigger": true },
+    { "query": "Show the Establish and Because mechanics with NSubstitute in C#.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "How does the given() helper and Sinon stubbing work in TypeScript specs?", "shouldTrigger": false, "note": "cratis-specifications-typescript" },
+    { "query": "Which scenario class do I use for the command pipeline in an application slice?", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "Write a vitest view model spec for the React page.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "Write the specification block in the .play model for this command.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Which scenarios does the model need: rules, denials and retries?", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "Decide what this projection should do when a booking is cancelled.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Write a ReadModelScenario spec for my reducer.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "Check hand-written code against its contract and report done, partial or blocked.", "shouldTrigger": false, "note": "cratis-application-slice-conformance" }
+  ]
+}

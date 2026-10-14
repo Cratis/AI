@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-specifications-typescript",
+  "queries": [
+    { "query": "create a given() context class for specs in a Cratis TypeScript package", "shouldTrigger": true },
+    { "query": "where do I import given from? I cannot find it as a published package", "shouldTrigger": true },
+    { "query": "folder layout for TypeScript specs: for_ClassName, when_, with_ and without_?", "shouldTrigger": true },
+    { "query": ".should is undefined in my vitest spec, what setup am I missing?", "shouldTrigger": true },
+    { "query": "can I use expect(x).to.equal in these specs?", "shouldTrigger": true },
+    { "query": "does given() reset the context for every it()?", "shouldTrigger": true },
+    { "query": "should it() descriptions use underscores or spaces?", "shouldTrigger": true },
+    { "query": "a sinon stub changed in one it() makes the sibling it() fail", "shouldTrigger": true },
+    { "query": "one spec file validates both add-delta and remove-delta. should I split it?", "shouldTrigger": true },
+    { "query": "do I need a context class when there is no shared setup?", "shouldTrigger": true },
+    { "query": "Write a C# spec with Establish and Because.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "Spec the view model of our application's React page with vitest.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "How should I name and scope specs in any language?", "shouldTrigger": false, "note": "cratis-specification-by-example" },
+    { "query": "Which scenarios must I cover for a backend State Change slice?", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "Write CommandScenario specs for our Arc for TypeScript Node server.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Write specs for the Chronicle TypeScript client append call.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Write Kotlin scenario tests for the Spring app.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" },
+    { "query": "Write the .play specification for this command.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Write ExUnit specs for the Chronicle Elixir client append call.", "shouldTrigger": false, "note": "cratis-chronicle-client-elixir" }
+  ]
+}

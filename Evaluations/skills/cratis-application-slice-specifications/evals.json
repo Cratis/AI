@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-application-slice-specifications",
+  "evals": [
+    {
+      "id": 1,
+      "name": "command-scenario-spec",
+      "prompt": "Write the specification for a `RegisterProject(ProjectId Id, string Name)` command that succeeds and appends `ProjectRegistered`, in an application slice. Say where it goes. Give the code in your reply; do not write files.",
+      "expected_output": "Place it in the slice folder as `<Feature>/<Slice>/when_registering/and_name_is_unique.cs`, wrapped in `#if DEBUG`. Use `CommandScenario<RegisterProject>`, `Execute`, `ShouldBeSuccessful()` and an `async Task` fact using `ShouldHaveAppendedEvent<RegisterProject, ProjectRegistered>(id, predicate)`.",
+      "assertions": [
+        "Places the file in the slice folder under `when_<verb_phrase>/and_<condition>.cs` and wraps it in `#if DEBUG`.",
+        "Uses `CommandScenario<RegisterProject>` with `Execute` in `Because` and `ShouldBeSuccessful()`.",
+        "Asserts the appended event with `ShouldHaveAppendedEvent<RegisterProject, ProjectRegistered>` taking the event source id and a `Func<TEvent, bool>` predicate, in an `async Task` fact.",
+        "Names the facts `should_*` and uses a per-specification identifier such as `ProjectId.New()`."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "isolated-rejection",
+      "prompt": "Our rejection spec for 'name is required' builds a command with an empty name and an end date before its start date, and asserts only `ShouldNotBeSuccessful()`. After deleting the name rule the spec is still green. Explain and fix it. Reply only; do not write files.",
+      "expected_output": "Each rejection spec violates only the rule it is named after: build the command valid in every other respect so a neighbouring rule cannot make it pass. Assert twice: `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()` (or `ShouldHaveValidationErrorBecauseOf(reason)`). Do not assert a message string by default, and run the red check by removing the rule. An unauthorized result is `ShouldNotBeAuthorized()`.",
+      "assertions": [
+        "Explains the spec stays green because the command is invalid in a second way, so another rule produces the error.",
+        "Builds the command valid in every other respect and violates only the named rule.",
+        "Asserts both `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()` (or `ShouldHaveValidationErrorBecauseOf(reason)`), since the first alone cannot tell validation from an exception.",
+        "Says not to assert on a message string by default, and to confirm the spec goes red when the rule is removed."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "plain-call-first",
+      "prompt": "A command's `Handle()` just computes a price from its input with no read models or pipeline pieces. A teammate wants a CommandScenario for it, and also wants to cover a unique-name constraint in the same CommandScenario. What do you recommend? Reply only; do not write files.",
+      "expected_output": "Start a pure decision with a plain method call on the `Specification` base; a direct `Handle()` call does not run validation, authorization, `Provide()` or operations, so keep a scenario for that wiring and appended events. A constraint is enforced at the append, not by the command, so write it with `EventScenario`.",
+      "assertions": [
+        "Recommends a plain method call with the `Specification` base as the default for a pure decision.",
+        "Says a direct `Handle()` call does not run validation, authorization, `Provide()` or operations, which is when a CommandScenario earns its place.",
+        "Says a constraint violation is written with `EventScenario` because it is enforced at the append and not by the command.",
+        "Says the scenario family runs in-process with no HTTP, fixture or server."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "seed-prior-state",
+      "prompt": "A command's `Handle()` rejects when an injected read model shows the cart already has 3 items. Our spec for the rejection is green but the read model was never seeded. How should we seed state and what is the danger? Reply only; do not write files.",
+      "expected_output": "Seed events with `_scenario.Given.ForEventSource(id).Events(...)` so the real projection builds the read model; pin a read model with `.ReadModel(instance)` only when events would be noise. Unseeded, the handler sees a default or null instance and the DCB rejection is green for the wrong reason; confirm the spec fails when seeding is removed. For protected or stream decisions call `UseDecisionReads()` before seeding. `Given` requires `Cratis.Arc.Chronicle.Testing`.",
+      "assertions": [
+        "Prefers seeding events with `Given.ForEventSource(id).Events(...)` so the production projection builds the read model.",
+        "Says pinning a read model with `.ReadModel(...)` is only for when events would be noise.",
+        "Warns that without seeding the handler sees a default or null instance and the spec is green for the wrong reason, so confirm it fails without the seeding.",
+        "Says for protected or stream decisions `UseDecisionReads()` is called before seeding, and that `Given` needs `Cratis.Arc.Chronicle.Testing`."
+      ]
+    }
+  ]
+}
