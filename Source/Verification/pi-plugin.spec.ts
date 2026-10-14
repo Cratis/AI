@@ -159,8 +159,12 @@ test('managed and packaged Pi filter exact Cratis rule profiles without changing
             assert.equal(names.includes('framework.md'), entry.framework, JSON.stringify(entry));
             const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
             assert.equal(result.systemPrompt.includes('# CodeScene Code Health policy'), entry.codescene, JSON.stringify(entry));
-            assert.equal(result.systemPrompt.includes('## Project Layout (Cratis Application convention)'), entry.application, JSON.stringify(entry));
-            assert.equal(result.systemPrompt.includes('# Framework Profile — Contributing to Cratis Itself'), entry.framework, JSON.stringify(entry));
+            // Profile rules are scoped to source files, so path guidance (not the system prompt) delivers them.
+            assert.ok(!result.systemPrompt.includes('## Project Layout (Cratis Application convention)'), JSON.stringify(entry));
+            assert.ok(!result.systemPrompt.includes('# Framework Profile — Contributing to Cratis Itself'), JSON.stringify(entry));
+            const delivered = rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name);
+            assert.equal(delivered.includes('application-profile.md'), entry.application, JSON.stringify(entry));
+            assert.equal(delivered.includes('framework.md'), entry.framework, JSON.stringify(entry));
             assert.equal(result.systemPrompt, `base\n\n${universalRules(project).map(rule => rule.content).join('\n\n')}`);
         }
         rmSync(join(project, '.cratis', 'ai.json'));
@@ -250,7 +254,8 @@ test('the Pi package filters rules for framework CSharp documentation repositori
         }));
         const handlers = pluginHandlers();
         const result = handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
-        assert.match(result.systemPrompt, /# Framework Profile/);
+        assert.doesNotMatch(result.systemPrompt, /# Framework Profile/);
+        assert.ok(rulesForPath(project, 'Source/Thing.cs').some(rule => /# Framework Profile/.test(rule.content)), 'the framework profile is delivered when a C# file is touched');
         assert.doesNotMatch(result.systemPrompt, /# Vertical Slice Architecture/);
         assert.doesNotMatch(result.systemPrompt, /# TypeScript Conventions/);
         // Path-scoped rules are delivered by the packaged cratis-path-guidance extension, not the system prompt.
@@ -259,8 +264,8 @@ test('the Pi package filters rules for framework CSharp documentation repositori
         // The same selection applies to the rules path guidance delivers: csharp and documentation are selected...
         assert.ok(rulesForPath(project, 'Source/Thing.cs').some(rule => /# C# Conventions/.test(rule.content)));
         assert.ok(rulesForPath(project, 'Documentation/page.md').some(rule => /# How to write documentation/.test(rule.content)));
-        // ...typescript is not, so no TypeScript rule reaches a .ts file.
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), []);
+        // ...typescript is not, so only rules shared with C# (framework, code quality, glossary) reach a .ts file.
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md']);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
@@ -274,12 +279,12 @@ test('path-scoped rules from the packaged corpus follow the selected languages a
 
         configure({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] });
         assert.ok(rulesForPath(project, 'Source/Thing.cs').length > 0, 'csharp is selected');
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), [], 'no TypeScript rules for a csharp-only repository');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md'], 'only rules shared with C# reach a TypeScript file in a csharp-only repository');
         assert.deepEqual(rulesForPath(project, 'Documentation/page.md').map(rule => rule.name), [], 'no documentation rules without cratis/documentation');
 
         configure({ profiles: ['cratis/engineering/typescript', 'cratis/documentation'], languages: ['typescript'] });
         assert.ok(rulesForPath(project, 'Source/Thing.ts').length > 0, 'typescript is selected');
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), [], 'no C# rules for a typescript-only repository');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md'], 'only rules shared with TypeScript reach a C# file in a typescript-only repository');
         assert.ok(rulesForPath(project, 'Documentation/page.md').length > 0, 'cratis/documentation is selected');
 
         rmSync(join(project, '.cratis', 'ai.json'));
