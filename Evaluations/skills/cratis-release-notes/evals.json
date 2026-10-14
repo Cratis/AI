@@ -1,0 +1,64 @@
+{
+  "skill_name": "cratis-release-notes",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pr-body-contract",
+      "prompt": "Review this pull request description that will be published verbatim as the release notes of a Cratis repository released with cratis/release-action, and fix it. Reply only; do not write files.\n\n## Overview\nRefactors the replay engine and adds specs.\n\n## Test plan\n- ran all specs\n\nCloses #412\nSee [the guide](../docs/replay.md)\n<!-- Fixes #413 -->",
+      "expected_output": "The body is published as the note, so drop development headings (Overview, Test plan) to a PR comment; use Added/Changed/Fixed/Removed/Security/Deprecated sections; write (#n) at the end of the delivering bullet or (part of #n) for open issues, never Closes/Fixes/Refs; no issue reference inside an HTML comment; absolute https links only; do not list internal refactors or specs.",
+      "assertions": [
+        "Moves the Overview and Test plan headings and verification notes out of the PR description into a PR comment.",
+        "Replaces 'Closes #412' with (#412) at the end of the bullet that delivers it, or (part of #412) when it stays open.",
+        "Says an issue reference inside an HTML comment is removed by release-action before publishing, so the issue is silently not closed.",
+        "Replaces the relative link with an absolute https:// link.",
+        "Says internal refactors and specs that change nothing users observe are not listed."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "migration-guide-shape",
+      "prompt": "Version 19 changes the default serialization of event timestamps. Applications reading stored events from version 18 with a custom reader may break; applications using the default reader are not affected. Describe how the migration guidance should be structured. Reply only.",
+      "expected_output": "A compact old behavior, new behavior, required action table per affected upgrade path, followed by source-verified before/after code or commands. Distinguish required migration from optional cleanup, name sequencing for data changes, explain escape hatches with cost or expiry, state who needs no action, and state the table's scope and exclusions.",
+      "assertions": [
+        "Uses an old behavior to new behavior to required action table for each affected upgrade path.",
+        "Follows the table with source-verified before/after code or commands.",
+        "States that the default reader path needs no action and why, rather than implying action for everyone.",
+        "States the table's scope and known exclusions, and does not infer compatibility for APIs that were not assessed."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "verified-facts-only",
+      "prompt": "I'm writing a release note item for a fix that stops a failure at startup. I believe about 'a lot of' deployments hit it and I haven't tested it against the newest kernel. Can I write 'affects roughly 30% of deployments' and 'not verified against kernel 19.30' in the published note? Reply only.",
+      "expected_output": "No on both. Never estimate a number to add weight; give a number only when a measurement drove the change. The published note states only verified facts and never says 'not verified'; what was not verified goes to the requester or a PR comment.",
+      "assertions": [
+        "Refuses to write an estimated percentage, since a number is given only when a measurement drove the change.",
+        "Says the published note states only verified facts and never says 'not verified'.",
+        "Says the unverified combinations are reported to the requester or in a PR comment."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "repair-published-release",
+      "prompt": "The published v14.2.0 release body has a 'Verification' heading and says 'Fixes #77'. Issue #77 is fully delivered by this release. I've been asked to fix the release and close any issues it delivered. Walk through what you do. Reply only.",
+      "expected_output": "Read the published body and merged PR; keep facts, remove headings, verification lines and closing keywords, make links https; publish with gh release edit --notes-file only because the request authorizes it; read back and compare. Editing does not re-run release-action, so close #77 by hand with a comment naming the release since the request covers closing and the release delivered it.",
+      "assertions": [
+        "Reads the published body with gh release view and keeps the facts while removing the Verification heading and the Fixes keyword without inventing changes.",
+        "Publishes the corrected text with gh release edit using a notes file only because the request authorizes editing the release.",
+        "Reads back the body and compares it with the corrected text, correcting again or reporting the blocker if it differs.",
+        "Explains that editing a release does not re-run release-action, so issue #77 stays open unless closed by hand with a comment naming the release."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "announcement-not-changelog",
+      "prompt": "Draft the outline of a blog announcement for the new reducer feature. The founder is named as author, and I'd like to open with 'I spent weeks wrestling with this problem myself.' Reply only.",
+      "expected_output": "An announcement explains motivation, shows a small realistic success, and links to the exact-version note and migration guide; it is not a second changelog. Do not claim personal experience for a named author without their review.",
+      "assertions": [
+        "Outlines motivation and a small realistic success rather than a list of every change.",
+        "Links to the exact-version release note and the migration guide instead of duplicating them as a second changelog.",
+        "Declines to put the 'wrestling with this problem myself' experience in the founder's mouth without their review."
+      ]
+    }
+  ]
+}

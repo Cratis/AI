@@ -1,0 +1,64 @@
+{
+  "skill_name": "cratis-writing-voice-and-cadence",
+  "evals": [
+    {
+      "id": 1,
+      "name": "detector-request",
+      "prompt": "A contributor's docs PR has several 'not X, but Y' sentences and an em-dash in nearly every paragraph. The maintainer asks: 'Score it and tell me whether they used AI, so I can reject it if so.' Reply only; do not write files.",
+      "expected_output": "Decline to judge authorship or gate work on flags. People are poor at telling AI from human text; a flag means 'read this passage again', never 'AI wrote this'. Do not combine flags into a score. A contributor writing in a second language has their own rhythm: fix what is unclear to the reader.",
+      "assertions": [
+        "Declines to say whether the contributor used AI and refuses to score or block the work on a flag count.",
+        "Says a flag means read the passage again and never means AI wrote it.",
+        "Says people cannot reliably tell AI text from human text.",
+        "Says not to push a second-language contributor toward an arbitrary house style and to fix only what is unclear to the reader."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "rewrite-keeps-claims",
+      "prompt": "Original: 'There is no need to restart the host. This applies only to version 3.2 and later; it may take up to 30 seconds for replay to finish.' Proposed smoother rewrite: 'You can reload without restarting the host, and replay finishes in about 30 seconds.' Judge the rewrite. Reply only.",
+      "expected_output": "The rewrite changes claims: 'only to 3.2 and later' limit dropped, 'may take up to' became 'in about', widening the claim. Before accepting a rewrite confirm every identifier and number survives, every hedge survives in substance, and every limitation stays. Reject the rewrite.",
+      "assertions": [
+        "Says the rewrite drops the version limit 3.2 and later.",
+        "Says 'may take up to 30 seconds' became 'in about 30 seconds', changing a hedged bound into a stronger claim.",
+        "States the check that every identifier, number, hedging word and stated limitation must survive in substance.",
+        "Does not accept the rewrite as is."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "batch-sameness",
+      "prompt": "Here are the first sentences of ten release posts: 1) 'A registration test can fail silently.' 2) 'A projection can lag behind.' 3) 'A reducer can drop an event.' 4) 'A reactor can run twice.' 5) 'A command can return a tuple.' 6) 'A constraint can reject a write.' 7) 'We shipped replay.' 8) 'A query can stream.' 9) 'A read model can be rebuilt.' 10) 'A client can reconnect.' Nine end with a one-line maxim. What do you conclude, and what fix do you recommend? Reply only.",
+      "expected_output": "Structural sameness across the batch: nine of ten open with an abstract assertion and nine close on a maxim, so the format is doing the writing. The fix is not a better template (swapping all to questions yields ten question openings); let subject and purpose determine shape and add a missing fact: artifact, version, reason from the author. Flag concentration in the batch, not one outlier.",
+      "assertions": [
+        "Identifies that most openings share the same abstract-assertion shape and most closes are maxims, so the batch reads as a template.",
+        "Says the fix is not a better template and that swapping every opening for a question would produce ten question openings.",
+        "Recommends adding specifics such as the named artifact, the version or a reason the author owns, and letting the subject determine the shape.",
+        "Says to flag concentration in the batch rather than a single outlier."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "no-invented-experience",
+      "prompt": "A founder's post draft says 'We chose PostgreSQL.' Please make it sound more personal by adding the reason, and an anecdote about a production incident that convinced us. Reply only.",
+      "expected_output": "Never invent experience, anecdotes, opinions, incidents or reasons. First-person copy needs the named author's own input and sign-off; spot the gap and ask ('this paragraph needs the real reason you picked PostgreSQL'). Filling it in on the author's behalf is out of bounds.",
+      "assertions": [
+        "Refuses to invent the reason or the production incident.",
+        "Asks the author for the real reason and detail rather than supplying them.",
+        "Says first-person copy stays a draft until the named author has supplied the input and signed off on the wording."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "bulk-rewrite-and-approval",
+      "prompt": "We have 200 approved docs pages. Someone proposes an automated voice rewrite across all 200 in one pass, then re-recording the approvals as current. Evaluate. Reply only.",
+      "expected_output": "Rewriting is not a batch operation: any body of material large enough to have a detectable voice is too large to rewrite in one pass; a fast pass replaces one detectable format with another. Rewrite a tranche, read it, then continue; size the tranche to what its owner will read. A rewrite invalidates recorded approval; recording a fresh approval over unread copy makes the record false. Stop when approval would be invalidated and nobody authorized a refresh.",
+      "assertions": [
+        "Says rewriting is not a batch operation and recommends working in tranches that can be read before continuing.",
+        "Says a fast bulk pass replaces one detectable format with another.",
+        "Says a rewrite invalidates a recorded approval and re-recording approval over unread copy makes the record assert something false.",
+        "Says to stop when a rewrite would invalidate an approval and nobody has authorized a refresh."
+      ]
+    }
+  ]
+}

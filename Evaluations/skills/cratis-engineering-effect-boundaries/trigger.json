@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-effect-boundaries",
+  "queries": [
+    { "query": "my release script catches the 422 from the nuget push and carries on with the next package. is that fine?", "shouldTrigger": true },
+    { "query": "we fan out a change to 36 repositories and log failures per repo. the job exits 0 even if 7 fail. how should it report?", "shouldTrigger": true },
+    { "query": "the generator wrote fewer typescript proxies than there are commands but exited zero, how do i make it fail loudly", "shouldTrigger": true },
+    { "query": "review this try/catch around the publish step: catch (Exception) { log.Warn(...); } then it reports success", "shouldTrigger": true },
+    { "query": "our container host shows Running but the service inside threw during startup. readiness still says ready. what's wrong?", "shouldTrigger": true },
+    { "query": "the in-memory event store accepts duplicate keys that the real store rejects, so our specs pass. what should it do?", "shouldTrigger": true },
+    { "query": "a call returns an unexpected status code, a null, or a timeout. should the handler treat unknown as ok so the pipeline continues?", "shouldTrigger": true },
+    { "query": "how do I prove my error handling at a write boundary works? I've never actually seen the failure path run", "shouldTrigger": true },
+    { "query": "wrapper script runs the child tool in a pipeline and always exits 0 because the wrapper finished. is that a problem?", "shouldTrigger": true },
+    { "query": "Is it acceptable to have an optional cache warm that silently skips when it fails after we write the rows?", "shouldTrigger": true },
+    { "query": "Does this C# class follow our naming and formatting style, including exception suffixes and regions?", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" },
+    { "query": "Write the specification for the failing publish path using Establish/Because/should_.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "Which semantic-version label should this pull request carry and does it need a canary before promotion?", "shouldTrigger": false, "note": "cratis-governed-release-methodology" },
+    { "query": "Write release notes explaining the fix for the silent failure in the release action.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Record the decision that all publishers must fail on partial success, with options considered.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Do a security review of the publish workflow's token permissions.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Define a unique constraint on the registration number so the event store rejects duplicates at append time.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Write a recursive-descent parser that returns a partial syntax tree for an IDE caller that inspects errors.", "shouldTrigger": false, "note": "pure computation, no effect boundary" }
+  ]
+}
