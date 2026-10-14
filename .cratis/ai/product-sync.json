@@ -63,9 +63,9 @@
         }
       ],
       "synced": {
-        "version": "22.76.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "22.97.0",
+        "date": "2026-10-14",
+        "by": "Cratis/AI#695"
       },
       "covers": {
         "skills": [
@@ -96,7 +96,7 @@
           "vertical-slices.md"
         ]
       },
-      "notes": "Synced to v22.76.0 source in Cratis/AI#620 (v22.75.0 family pass plus the v22.75.1-v22.76.0 delta); historical runtime probes retain their original versions."
+      "notes": "Release-tag delta through 22.97.0: scoped completion and routing validation, generated-target freshness, observable scenarios, asynchronous execution scopes, read-model diagnostics and ordered reactor refusal handling. Existing context generation/self-reduction guidance retained; Screenplay extraction deltas handed to its owning lane. No new runtime probe."
     },
     {
       "id": "ai",
@@ -279,9 +279,9 @@
         }
       ],
       "synced": {
-        "version": "19.51.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "19.65.0",
+        "date": "2026-10-14",
+        "by": "Cratis/AI#695"
       },
       "covers": {
         "skills": [
@@ -316,7 +316,7 @@
         ],
         "rules": []
       },
-      "notes": "Synced to v19.51.0 source in Cratis/AI#620 (v19.50.1 family pass plus the v19.51.0 delta); older behavior probes remain historical evidence, not current runtime verification."
+      "notes": "Release-tag delta through 19.65.0: explicit artifacts, collection observation, redelivery scenarios, webhook generation pins, enrollment contributors, seed ownership, reconnect readiness and hosting/storage fixes. Existing self-reduction guidance retained; publication eligibility corrected and forwarded-tag boundary recorded. No new kernel/transport probe."
     },
     {
       "id": "arc-go",
