@@ -23,11 +23,10 @@ language cannot express today are recorded, not faked. Grammar and outcome compa
   (`cratis-screenplay-automations-and-translations`); C# specs (`cratis-specifications-csharp`,
   `cratis-specification-by-example`); a full audit (`cratis-screenplay-model-review`).
 
-## Verified product sources
-Screenplay v4.66.0 (`c89198b`) and v4.68.0 (`79801bf`, ESM v7 fixtures and `then returns`) were the
-original sources; released behavior was re-read (`Documentation/screenplay/specifications.md`,
-`queries.md`, the standalone compiler). Reading the installed tool and bundle versions is covered in
-`cratis-screenplay-toolchain` `SKILL.md`. At Screenplay v4.127.0,
+## Product sources
+Screenplay `Documentation/screenplay/specifications.md` and `queries.md` and the standalone compiler
+describe the released behavior (including ESM v7 fixtures and `then returns`). Reading the installed tool and bundle versions is covered in
+`cratis-screenplay-toolchain` `SKILL.md`.
 MCP `find-specification-obligations` derives SPEC001–SPEC008 from declarations;
 met means matching authored presence, not full coverage or passing execution.
 Use it to seed, never replace, the matrix. Multi-step storylines remain unavailable;
@@ -84,7 +83,7 @@ question is not four approvals.
    `cratis-screenplay-specifications` `references/persona-callers-and-cases.md`.
 8. **Separate view pass**: population, each update, accumulation, removal (with a surviving
    row), absence, ordering. Mark lifecycle branches. Views combining sources must
-   tolerate any arrival order. Since **4.149.1**, pin a child before its parent:
+   tolerate any arrival order. Pin a child before its parent (Requires Screenplay 4.149.1 or later):
    given child, then parent, then read model; "parent never arrives" leaves the
    child absent. Evidence/example: `references/view-and-story-specs.md`.
 9. **State-dependent rules**: `reads <View>` + `require <expr> message "..."` as stated intent,
@@ -149,7 +148,7 @@ target requirements.
 - Format rules belong on a `concept`: give each concept rule representative acceptance,
   rejection and boundary specs once (through one command that carries it), not on every use;
   never `n/a` automatically. Include a whitespace-only rejection for text `not empty`:
-  **4.151.0** changes outcomes in every ESM version. Unicode/identity boundaries
+  this changes outcomes in every ESM version (Requires Screenplay 4.151.0 or later). Unicode/identity boundaries
   and evidence: command-surface `references/validate-rules.md`.
   A business rule gets one rejection spec if an expert could recognize it from its message;
   binder-enforced shape is no scenario (catalogue §2).
@@ -195,15 +194,14 @@ production route failure, matching/wrong source/stream and unrouted facts;
 see toolchain `references/production-routes-and-filters.md`.
 
 ## Version skew: reaction cascades and false PLAY0285
-(History: the 3.53.1 bundle carries Screenplay 4.137.0, so this skew no longer applies to it.)
-Under ESM v6 a command spec's `then` lists the events reactions cascade from it. The compiler
-bundled in `cratis` before 3.28.2 reported a **false PLAY0285** for such
-a spec (cli#242); the standalone `screenplay` 4.66.0 and `cratis` 3.28.2 accept it (probed).
+Under ESM v6 a command spec's `then` lists the events reactions cascade from it. A compiler
+bundled in an older `cratis` reports a **false PLAY0285** for such
+a spec; the standalone `screenplay` and a `cratis` whose compiler admits v6 accept it.
 Neither checks that a cascade event is *missing*.
-- Screenplay 4.61 or later (standalone, or `cratis` 3.28.2 or later): write the v6-correct spec
+- A compiler that admits v6 (standalone, or a current `cratis`): write the v6-correct spec
   (own productions plus cascade); validate with `screenplay <folder> --warnaserror --no-color`
   or `cratis screenplay validate <folder> --warnings-as-errors`.
-- Only a `cratis` before 3.28.2 bundle and no standalone tool: keep the command spec to its own productions, specify the reaction in its
+- Only an older `cratis` bundle and no standalone tool: keep the command spec to its own productions, specify the reaction in its
   Automation slice (`when append <Trigger>` -> `then <Produced>`), record the pending cascade
   expectation in `STATE.md` as known-incomplete. Never delete the reaction.
 
@@ -220,8 +218,8 @@ scope is reported as explicitly incomplete); V1 passes with the tool named in
 - V1 passes (standalone `screenplay` required when cascades are specified); report tool and
   version.
 - Run V4 through standalone `screenplay test` or MCP `run-specifications`;
-  on **Screenplay 4.145.0 and later**, propose → review → run with `proposalId` →
-  apply. PLAY0285 (impossible `then`) unbinds
+  propose → review → run with `proposalId` →
+  apply (Requires Screenplay 4.145.0 or later). PLAY0285 (impossible `then`) unbinds
   the whole model; no spec runs.
   if not executed, report the actual host/input reason, not a blanket no-route
   claim. Stage's runner is target-engine evidence, never V4; V1/V3 do not prove pass. V5 is "not run" unless rendering was attempted; report admission, publication, build and

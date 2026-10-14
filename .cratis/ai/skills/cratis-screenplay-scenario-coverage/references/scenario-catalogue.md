@@ -161,7 +161,7 @@ name them as unfinished.
   all conditions are false the unconditional productions still occur. See
   `RecordingACleanDeparture` (only `BoatDeparted`) and `RecordingADepartureWithDamage` (both).
 - Zero new facts: a command whose productions are all conditional may be accepted with no
-  facts. `then no events` parses but binding refuses it with PLAY0268 (#433): state the zero-fact outcome through a
+  facts. `then no events` parses but binding refuses it with PLAY0268: state the zero-fact outcome through a
   read-model or query assertion, and an action with no outcome at all does not bind. A command spec with no `then` events but with a
   view or query assertion is still executable as a zero-fact check: the runner compares the
   command's facts with the (empty) expected list by exact count, so any fact produced fails it
