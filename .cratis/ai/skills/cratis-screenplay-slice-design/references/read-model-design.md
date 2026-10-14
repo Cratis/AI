@@ -16,6 +16,10 @@
 - Building it
 - Omissions are decisions
 - Checks before handing off
+- Query binding
+- Executable identity of a read model
+- Identifier and key contract
+- Mappings to undeclared or unmapped properties
 
 ## Start from the consumer
 
@@ -317,3 +321,35 @@ module Berths
   no single-instance identifier. Queryless views need explicit `key`. The identifier
   equals the projection's key (table above); check target renderer admission separately.
 - Each design-only shape (one the renderer does not admit) is listed with the V3 diagnostic code it causes.
+
+## Query binding
+
+- A query's `by` goes on its own body line. Optional keyed and collection queries
+  bind, including observable delivery. Caller-supplied equality filters on collections
+  bind as ESM v14; `by` ANDs with supplied filters. `from`, single-result
+  filters, scope, performer and composite `by` remain PLAY0268 for their respective
+  context/cardinality/opaque/multipart gaps. Read read-surface
+  [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
+
+## Executable identity of a read model
+
+   read model needs one unambiguous identity: explicit trailing `key` first, else
+   single-instance queries agreeing on `by xId XId`, else conventional `*Id` inference
+   only with an admitted list query and no single-instance identifier. Queryless views
+   need explicit `key`; read-surface `references/named-keys.md` gives the exact fallback.
+   The identifier equals the projection's effective key (decision table in
+   `references/read-model-design.md`; Stage rule in `references/admission.md` of
+   `cratis-stage-rendering-and-sandbox`). Collections and observable delivery bind;
+   check renderer admission separately.
+
+## Identifier and key contract
+
+- At most one `identifier` per command; never on an event property; never on a read-model
+  property (use `key`; otherwise identity comes from single-instance `by`, or
+  conventional `*Id` only with an admitted list query and no single-instance identifier).
+  Queryless read models need explicit `key`.
+- At most one builder (projection or reducer) per read model (`PLAY0191`).
+
+## Mappings to undeclared or unmapped properties
+
+- A mapping to an undeclared target fails only at binding (V3, PLAY0273); a declared property that nothing maps (for example after a one-sided rename that AutoMap relied on) is reported by `field-origins` only where coverage is known: trace by hand too.

@@ -10,6 +10,8 @@
 - Rule coverage
 - Slice audit
 - The next slice
+- Handoff line per element
+- Rule coverage
 
 ## Slices are the authoring unit
 
@@ -269,3 +271,18 @@ at a time. In a modeling session, act: write
 the slice, note the assumption that chose it, and ask for correction afterwards. A wrong guess
 costs one edit; an empty turn costs a round-trip. Record why the slice was chosen in the
 handoff.
+
+## Handoff line per element
+
+    `references/verdicts.md`). Hand off with the model root and source revision, the slices
+    touched, and **one line per element** (command with origin classified [USER] or [AUTO]
+    and refusals, screen with `data`, read model with consumers, slice with events consumed),
+    not only problems; a new slice adds why it was chosen. Decided refusals go to
+    `cratis-screenplay-scenario-coverage`, never to open questions.
+
+## Rule coverage
+
+- Rule coverage: for each value carrying a rule, list every path that sets it
+  (`references/slicing.md`). A constraint on a claim covers every event setting that claim;
+  value invariants live in the concept so they travel; command-level conditions are reviewed
+  per path, not copied blindly.
