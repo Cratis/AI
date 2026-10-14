@@ -76,7 +76,7 @@ export function instructionAuthoringFindings(file: string, content: string): Aut
 }
 
 /** Warn-mode ceilings, set just above today's totals, for the rule bytes each harness loads at session start. */
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 104_000, copilot: 82_000, pi: 106_000, cursor: 23_000, 'codex-opencode': 23_000 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 113_000, copilot: 91_000, pi: 115_000, cursor: 23_000, 'codex-opencode': 23_000 };
 
 const universalGlobs = new Set(['**', '**/*', '*']);
 
@@ -143,7 +143,7 @@ export function alwaysOnFindings(entries: Array<{ file: string; content: string 
     for (const [harness, budget] of Object.entries(budgets)) {
         if (totals[harness] > budget) findings.push({ file: '.cratis/ai/rules', line: 1, rule: 'always-on-harness-bytes', matchedText: `${harness} loads ${totals[harness]} rule bytes at session start; budget ${budget}.` });
     }
-    if (unscopedBytes > 60_000) findings.push({ file: '.cratis/ai/rules', line: 1, rule: 'unscoped-rule-bytes', matchedText: `${unscopedBytes} bytes; budget 60,000.` });
+    if (unscopedBytes > 91_000) findings.push({ file: '.cratis/ai/rules', line: 1, rule: 'unscoped-rule-bytes', matchedText: `${unscopedBytes} bytes; budget 91,000.` });
     return findings;
 }
 
