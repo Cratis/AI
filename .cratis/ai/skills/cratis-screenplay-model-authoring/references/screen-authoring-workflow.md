@@ -64,19 +64,31 @@ For a new canonical application this usually creates or changes:
 - localized `$strings` keys referenced by labels.
 
 Use `referencePolicy: "Safe"` unless unresolved debt is explicitly part of the
-accepted model. Structural edits use `CanonicalizeTouchedDocuments`; literal or
-mapping-only changes may use `PreserveTrivia`.
+accepted model. Structural AST edits use `CanonicalizeTouchedDocuments`; literal
+or mapping-only AST changes may use `PreserveTrivia`. For hand-written whole
+source documents, use `propose-source` with `PreserveExactSource` so structural
+edits keep supplied comments and layout (including line endings and BOM policy).
+Choose canonical printing only when that output is wanted.
+
+Requires Screenplay 4.158.0 or later (`screenplay --version`) for exact structural source edits; older servers refuse them.
 
 ## 3. Review and apply with revision checks
 
 Before applying:
 
 - `read-proposal view=changes` and document before/after views;
-- check introduced diagnostics and `droppedCommentCount`;
+- report the proposal's `summary`, not an invented count-based recap;
+- inspect `authoringDiagnosticSeverities.errors` and `codes`, not merely a nonzero
+  `authoringDiagnosticCount`: PLAY0288 alone reports canonical printing even
+  without comment loss. Proposal checks and `after.readiness` source diagnostics
+  are different counts; page `read-proposal view=diagnostics`;
+- keep checking `introducedExecutableErrors` and `droppedCommentCount`;
 - compare every screen/form/toolbar binding against field lineage;
 - reject proposals that silently drop a requested screen directive or package
   setting;
 - apply only with the before revisions returned by `open-workspace` / proposal.
+
+Requires Screenplay 4.156.0 or later (`screenplay --version`) for proposal summaries and severity counts; older servers lack these fields.
 
 After `apply`, discard old handles and revisions. Reopen/read the workspace and
 verify the source and identity state changed as expected.
