@@ -20,7 +20,7 @@ Source: `Cratis/Chronicle`.
 
 | Package | Purpose |
 | --- | --- |
-| `Cratis.Chronicle` | `ChronicleClient`, `IEventStore`, `[EventType]`, observers |
+| `Cratis.Chronicle` | `ChronicleClient`, `IEventStore`, `[EventType]`, existing observers; reducer discovery and nomination (`DefaultClientArtifactsProvider.cs`, `Reducers/{SelfReducerMethods,RegisteredReducerReadModel,ReducerCatalog}.cs`, `Registrations/ExplicitArtifacts.Types.cs`) |
 | `Cratis.Chronicle.Connections` | `ChronicleConnectionString`, connection lifecycle |
 | `Cratis.Chronicle.AspNetCore` | ASP.NET Core wiring, header/subdomain namespace resolvers |
 | `Cratis.Chronicle.Testing` | in-process scenarios |
@@ -320,46 +320,28 @@ results live on the unit of work.
 | Artifact | Shape | Source |
 | --- | --- | --- |
 | Reactor | marker `IReactor` (empty interface), `[Reactor]` optional | `Reactors/IReactor.cs`, `Reactors/ReactorAttribute.cs` |
-| Reducer | `IReducerFor<TReadModel>` | `Reducers/IReducerFor.cs` |
+| Self model (.NET reducer default) | public static `Reduce(event, model? current[, EventContext])`, returns model or `Task<model>` (nullable results allowed); no marker | `Reducers/SelfReducerMethods.cs` |
+| Separate reducer | `IReducerFor<TReadModel>` for DI, replay instance behavior or separation | `Reducers/IReducerFor.cs` |
+| Plain reducer | instance handlers infer one model; nomination required | `Reducers/RegisteredReducerReadModel.cs` |
 | Projection | `IProjectionFor<TReadModel>` with `Define(IProjectionBuilderFor<TReadModel>)` | `Projections/IProjectionFor.cs` |
 | Model-bound projection | attributes on the read model | `Projections/ModelBound/` |
 | Read model reactor | marker `IReadModelReactor`, methods `Added`/`Modified`/`Removed` | `ReadModels/IReadModelReactor.cs` |
 
-**A reactor handler is found by its first parameter's type**, and further
-parameters are resolved as dependencies — `EventContext`, a read model, a service
-(`Source/Clients/DotNET/Reactors/EventHandlerMethods.cs`). The
-return may be `Task`, `void`, or a side-effect event type.
-
-```csharp
-using Cratis.Chronicle.Events;
-using Cratis.Chronicle.Reactors;
-
-public class <ReactorName>(<IDependency> <dependency>) : IReactor
-{
-    public async Task <AnyMethodName>(<EventName> @event, EventContext context)
-    {
-        await <dependency>.<DoSomething>(context.EventSourceId, @event.<Property>);
-    }
-}
-```
-
-> **There is no `[Observer]` attribute and no `IObserver` client artifact.**
-> "Observer" is the kernel's umbrella term for a projection, reducer, or reactor;
-> it is not something you write. `Source/Clients/DotNET/Observation/` holds
-> `ObserverId`, `ObserverRunningState`, and failed-partition types only.
-
-Read models are queried through `eventStore.ReadModels`
-(`Source/Clients/DotNET/ReadModels/IReadModels.cs`):
-`GetInstanceById<TReadModel>(ReadModelKey, ReadModelSessionId?)`,
-`GetInstances<TReadModel>(EventCount?)`,
-`GetSnapshotsById<TReadModel>`,
-`IObservable<ReadModelChangeset<TReadModel>> Watch<TReadModel>()`.
+Read [observer handlers and reads](references/discovery.md#observer-handlers-and-reads)
+for reactor dispatch, an instance-handler example and `eventStore.ReadModels` APIs.
+There is no `[Observer]` attribute or `IObserver` client artifact.
 
 ## Discovery
 
-Artifacts are found by assembly scanning, with no registration call and no DI container required.
+Default scanning finds marked/interface artifacts and complete self shapes.
+Plain instance reducers require nomination before store creation. Self models
+need no activation or fold-time DI. See the [read-model ladder](../cratis-chronicle-read-model/SKILL.md#step-3--choose-a-projection-or-a-reducer)
+and [reducer contract](../cratis-chronicle-reducer/SKILL.md) for placement,
+upgrades, warnings and conflicts. Self reduction is
+.NET-only, not an other-client or Stage contract.
 
-Read [references/discovery.md](references/discovery.md) when an event type, reactor, reducer or projection is not being found, or when you need explicit registration with `AutoDiscoverAndRegister = false`.
+Read [discovery and nomination](references/discovery.md) for missing artifacts,
+plain-class registration or `AutoDiscoverAndRegister = false`.
 
 ## Common pitfalls
 
