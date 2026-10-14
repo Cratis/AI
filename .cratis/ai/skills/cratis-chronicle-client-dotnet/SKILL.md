@@ -30,30 +30,7 @@ Take the version from nuget.org, not the placeholder version in the source.
 
 ## Lifecycle
 
-- **Registration is wired to the connection, not called by you.**
-  `EventStore.RegisterAll` subscribes to `Connection.Lifecycle.OnConnected`
-  when `autoDiscoverAndRegister` is on; reconnect re-registers artifacts.
-- `DiscoverAll()` does event types first, then constraints, reactors, reducers,
-  projections and seeding in parallel; registration is single-flighted with
-  jittered backoff/background retry (`EventStore.cs`).
-- **Wait with `WaitForRegistration`, not by polling `IsConnected`.**
-  `RegistrationWaitExtensions.WaitForRegistration(this IEventStore, TimeSpan? timeout = default)`
-  returns `RegistrationOutcome`, including failed runs; its default 5-second
-  timeout is for a run that never finished. Inspect `IsSuccess`, `Failure`,
-  `Failures` and `IdentityDrift`. It reports projection registrations, not
-  reactor/reducer subscription readiness (use `WaitTillSubscribed` / `WaitTillActive`).
-  Successful active projection registration includes observer subscription, not
-  read-your-writes: inspect the append's `WaitForCompletion` result or read a
-  passive model. Source: `Registrations/RegistrationOutcome.cs`.
-- **Keepalive is a bidirectional stream plus a watchdog.** The watchdog monitors
-  every `MonitorIntervalMilliseconds = 1000`
-  (`Source/Clients/Connections/ConnectionWatchdog.cs`) and a keepalive that
-  falls more than 5 seconds behind is treated as a lost connection, with
-  reconnect backoff capped at 30 seconds. **The failure mode is silence, not an
-  exception** — appends keep working while observers go quiet.
-- `Dispose()` disposes read model reactors for created stores, cancels the owned
-  connection, and disposes the connection
-  (`Source/Clients/DotNET/ChronicleClient.cs`, `Dispose`).
+Read [references/lifecycle.md](references/lifecycle.md) when waiting for registration (`WaitForRegistration`, not polling `IsConnected`), diagnosing quiet observers (keepalive loss fails silently, not with an exception), or disposing the client.
 
 ## What a standalone app owns that a host would have supplied
 
@@ -115,63 +92,9 @@ client snippets compile in product CI. Prefer them to untested prose examples.
 instead of retaining sample defaults. Read [client construction](references/client-construction.md)
 when choosing the constructor or passing a real container/logger.
 
-### Options
+### Options and connection strings
 
-`ChronicleOptions` — `Source/Clients/DotNET/ChronicleOptions.cs`. Statics:
-`FromConnectionString(string)`, `FromConnectionString(ChronicleConnectionString)`,
-`FromDevelopmentConnectionString()`. The parameterless constructor uses the
-development connection string.
-
-Options worth knowing: `AutoDiscoverAndRegister` (default `true`),
-`ConnectTimeout` (5 seconds), `SkipKeepAlive` (short-lived clients),
-`DefaultSinkTypeId` (`WellKnownSinkTypes.MongoDB`), `Tls`, `Authentication`,
-`RegistrationRetry`, `SkipCompatibilityCheck`, `ArtifactIdentityDrift` (`Warn`),
-`UnitOfWorkLifecyclePolicy` (`Compatibility`; `Strict` opts in to completion
-checks), `EventGenerationDelivery`, `ExplicitArtifacts`, `ConcurrencyOptions`,
-`ClaimsBasedNamespaceResolverClaimType` (`tenant_id`), and
-`MaxReceiveMessageSize` / `MaxSendMessageSize` (100 MB each).
-`EnableEventTypeGenerationValidation` opts into strict migration-chain checking
-on development kernels; production always enforces it.
-
-### Connection strings, not URLs
-
-**There is no `ChronicleUrl` type and no microservice id.** The identity of a
-connection is a connection string plus an event store name and optionally a
-namespace. `ChronicleConnectionString` lives in `Cratis.Chronicle.Connections`
-(`Source/Clients/Connections/ChronicleConnectionString.cs`):
-
-```
-chronicle://host[:port]/?opts
-chronicle://user:pass@host[:port]/?opts
-chronicle+srv://host/?opts
-```
-
-Default port `35000`. `Default` is `chronicle://localhost:35000`;
-`Development` adds the `chronicle-dev-client` / `chronicle-dev-secret`
-credentials. Query options: `apiKey`, `auth`, `skipTlsValidation`,
-`skipCompatibilityCheck`, `loadBalancer`, `srvNameServer`, `certificatePath`,
-`certificatePassword` (`ChronicleConnectionStringBuilder.cs`). There is an
-implicit conversion from `string` and a `Redacted` form for logging.
-
-With ClientCredentials auth and **both** username and password absent, the .NET
-client also falls back to these development credentials, including through
-`AddCratisChronicleConnection`. Only a `DEVELOPMENT`-compiled kernel creates the
-application, directly in persistent storage. Switching that storage to a
-production image does not remove it: remove the development application and any
-configuration declaration that would recreate it. Do not infer other clients'
-authentication behavior from this one. Source:
-`Source/Clients/DotNET/ChronicleClient.cs`,
-`Source/Clients/Connections/ServiceCollectionExtensions.cs`, and
-`Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs`.
-Read [host wiring](references/hosting.md) for the deployment distinction.
-
-> **Certificate validation is skipped by default, and that is deliberate.** The
-> development Chronicle images (`latest-development` and `latest-development-slim`)
-> generate a self-signed certificate on every start, so a development pair
-> connects with no setup. The production image does not: it refuses to start with
-> TLS enabled (the default) and no configured certificate. **A production connection string must set
-> `skipTlsValidation=false`** (or `Tls.SkipCertificateValidation = false`)
-> against a server whose certificate is actually verifiable.
+Read [references/connection-options.md](references/connection-options.md) when setting `ChronicleOptions`, writing a connection string or choosing credentials. A production connection string must set `skipTlsValidation=false`; there is no `ChronicleUrl` type.
 
 ### In a host
 
