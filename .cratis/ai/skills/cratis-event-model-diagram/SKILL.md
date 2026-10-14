@@ -153,7 +153,12 @@ language. Include commands that emit no event.
    every behavior appears, classified by the type the authority gives it. A clean
    render proves valid Mermaid, not completeness — close the gaps against the
    authority, never from memory. List model/code drift in the report instead of
-   resolving it in the diagram.
+   resolving it in the diagram. When the code is the authority, also find what changed since
+   the diagram was last updated: the last commit touching the diagram file is the baseline; list
+   the behavior commits in the module's folders since then
+   (`git log --reverse <baseline>..HEAD -- <module folders>`), oldest first, and check each against
+   the diagram. When an accepted model is the authority, report code that disagrees with it through
+   `cratis-screenplay-render-and-gap-fill` (hand-written changes), not in the diagram.
 
 ## Common mistakes
 
