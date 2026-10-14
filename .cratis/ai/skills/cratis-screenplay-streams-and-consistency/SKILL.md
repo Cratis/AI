@@ -99,6 +99,7 @@ Ask only what is missing: (1) instance - what real-world thing the stream is abo
    interface and processor inventory, one real interaction walked across each boundary, coupling
    check. Keep team, module, stream and deployment boundaries distinct; inbound facts via
    Translate; unresolved decisions stay visible.
+   Read [references/multi-service-models.md](references/multi-service-models.md) when the system spans several services, each with its own event store and model folder.
 7. **Record and gate.** Durable rationale in feature and slice `documentation`; open consistency
    decisions and capability gaps in `STATE.md`. Then the gate below.
 
