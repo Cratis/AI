@@ -50,18 +50,7 @@ Model notes use Screenplay `Documentation/screenplay/model-notes.md`;
 tool sources: model-authoring `references/model-notes.md`.
 Requires Screenplay 4.144.0 or later (`screenplay --version`) for model notes.
 
-| Fact used here | Source |
-| --- | --- |
-| Persona syntax, report-only, policies must be declared | Screenplay `Documentation/screenplay/personas.md` |
-| Description order; authored/import board order and order-preserving MCP layouts | Screenplay `Documentation/screenplay/grammar.md`, `folders.md`, `imports.md` |
-| Single-line and fenced `description` (`FencedText`) | `Documentation/screenplay/slices.md#descriptions`, `grammar.md` |
-| `<Type>[]`, shapes must be declared; `pii` and `reason` on concepts | `Documentation/screenplay/events.md`, `concepts.md` |
-| `then denied`, `given caller`, `then error` | `Documentation/screenplay/specifications.md` |
-| PII on an event-source id is rejected by Chronicle (CHR0034); nullable event properties warn (CHR0012) | Chronicle `Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs` |
-| Bare `pii` and `secret` on a concept bind as ESM v13; legacy `@`-prefixed markers are deprecated (PLAY0565); enum/identity compliance fails binding (PLAY0268); current markers are in `cratis-screenplay-command-surface` | `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs` |
-
-Every complete `screenplay` fence in this skill compiles with the standalone compiler
-(`--warnaserror`).
+Read [references/product-sources.md](references/product-sources.md) when checking a discovery fact against the Screenplay, Chronicle or compiler sources.
 
 ## Interview phase
 
@@ -75,17 +64,7 @@ feed plotting and the handoff. Full menu with follow-up triggers: `references/in
 
 Critical questions:
 
-1. **How complete is the input?** (written spec / documented rules / rough list / word of
-   mouth / running system). Thin input means a heavier step 4. Follow up: for a rough list or
-   word of mouth, probe for missing scenarios and ask the rules to be stated.
-2. **Who has the final word on business meaning?** Follow up: only engineers present means
-   every meaning is an assumption to confirm; recommend inviting the domain expert.
-3. **Where is it complex, disputed or fragile today?** (the hotspots). Follow up, per hotspot:
-   what goes wrong there, what happened the last time.
-4. **Which rules must always or never hold?** Follow up, per rule: what does the person see
-   when refused, and must the business remember the breach (a fact only if so)?
-5. **Who takes part, and what may each role not do?** Follow up: for each Cannot, is it an
-   authority limit or a rule for everyone?
+1. **How complete is the input?** Then: who has the final word on business meaning; where it is complex, disputed or fragile; which rules must always or never hold; who takes part and what each role may not do. Read [references/interview-questions.md](references/interview-questions.md) ("Critical questions") for each question's follow-ups.
 
 With no input at all, open with: "Describe the starting situation, then the steps people take
 to reach the intended result." With a brief, restate domain and goal in two sentences and confirm.
@@ -155,11 +134,8 @@ Never put secrets or personal data in note text; `.screenplay/notes.json` is com
 - A `persona` names declared policies only (unknown policy = error); `description` appears
   at most once, anywhere in its body.
 - Declare each event once in the whole application; other slices refer to it by name.
-- Boards keep authored declaration and import order: imports expand depth-first, glob
-  matches alphabetically. Unimported folder files remain visible after ranked siblings.
-  MCP `expand-layout` preserves this order with import barrels; an import-less
-  `PlayFileWriter.Expand` layout falls back to path order. Order is presentation, not
-  execution or identity. Keep causes and branches in the feature `documentation` and STATE.md.
+- Boards keep authored declaration and import order (order is presentation, not execution or identity); `references/plotting-and-handoff.md` ("Board order") has the import-expansion, glob and MCP `expand-layout` rules. Keep causes and branches in the feature `documentation` and STATE.md.
+
 - A misspelt keyword inside a slice is only warning PLAY0029 and the block disappears: always
   validate with warnings as errors.
 
@@ -224,16 +200,7 @@ and the report says which verdicts were not run (V2 to V5 are not run in discove
 
 ## Route near misses
 
-- Commands, inputs, read models, screens, lineage: `cratis-screenplay-slice-design`.
-- Streams, constraints, protected decisions: `cratis-screenplay-streams-and-consistency`.
-- Clocks, reactions, outside data: `cratis-screenplay-automations-and-translations`.
-- Specs for Cannot, competition, duplicates: `cratis-screenplay-scenario-coverage`.
-- Grammar for event, persona and concept: `cratis-screenplay-command-surface`; the nine-step
-  facilitation questions: `cratis-screenplay-event-modeling`.
-- Audit of a finished model: `cratis-screenplay-model-review`.
-- Existing code or database as the source: `cratis-screenplay-legacy-extraction`.
-- Diagram of the result: `cratis-event-model-diagram`.
-- Syntax, diagnostics and tools: `cratis-screenplay-toolchain`.
+Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when the work is commands, streams, reactions, specifications, grammar, review, extraction, diagrams or tooling rather than discovery.
 
 ## References (load on demand)
 
