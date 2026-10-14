@@ -3,7 +3,7 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-Verified at **Arc v22.75.0**. Use the plain `Specification` base for pure decisions;
+Use the plain `Specification` base for pure decisions;
 these helpers add proof of framework composition, not HTTP transport.
 
 ## Query pipeline
@@ -16,10 +16,12 @@ conversion, validation, authorization and rendering. Use `QueryArguments` from
 under test with `ICurrentPrincipalAccessor` in `Services`. Scheme-selected queries
 fail closed in-process: HTTP authentication needs a hosted integration spec.
 
-At Arc 22.75.1+, both query and command scenarios preserve
+Both query and command scenarios preserve
 explicit `ICurrentPrincipalAccessor`, `ICurrentPrincipalOverride` and
 `IAuthorizationPolicyRuntime` registrations rather than replacing them with defaults.
 Configure them before first execution and specify both authorized and denied callers.
+
+Requires Arc 22.75.1 or later for query and command scenarios to preserve explicit principal and authorization services.
 Source: `Source/DotNET/Testing/ScenarioServices.cs`, `Queries/QueryScenario.cs`,
 `Commands/CommandScenario.cs`.
 
@@ -67,7 +69,7 @@ boundaries explicit in either mode; decision mode is not a MongoDB substitute.
 
 ## Sources
 
-- [Query scenarios](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/testing/query-scenario.md)
-- [Stream decisions and routed specs](https://github.com/Cratis/Arc/blob/v22.75.0/Documentation/backend/csharp/chronicle/commands/stream-decisions.md)
-- [Decision-mode extension](https://github.com/Cratis/Arc/blob/v22.75.0/Source/DotNET/Chronicle.Testing/Commands/CommandScenarioChronicleExtensions.cs)
-- [Admission assertion](https://github.com/Cratis/Arc/blob/v22.75.0/Source/DotNET/Chronicle.Testing/Commands/DecisionReadAdmissions.cs)
+- [Query scenarios](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/testing/query-scenario.md)
+- [Stream decisions and routed specs](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/commands/stream-decisions.md)
+- [Decision-mode extension](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle.Testing/Commands/CommandScenarioChronicleExtensions.cs)
+- [Admission assertion](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle.Testing/Commands/DecisionReadAdmissions.cs)

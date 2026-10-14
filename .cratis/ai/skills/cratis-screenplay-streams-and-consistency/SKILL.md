@@ -149,7 +149,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
   directly on the event (PLAY0391); never mix event and property rules under one name (PLAY0135);
   `ignore casing` is not allowed on `unique event` (PLAY0393).
 - Generations are declared in full, numbered 1..N without gaps, in the same slice
-  (PLAY0446-0448). Referencing a removed property is PLAY0273; a `given` needing a historical
+  (PLAY0446-0448). Referencing a removed property is PLAY0273; a `given` needing a previous-generation
   shape is PLAY0449. An `id` pin equal to the event's current name is PLAY0471 (information).
   Differing pins carry `storedName` in ESM v16;
   equal-name pins are no-ops. Pins are event-name identifiers, shared by all

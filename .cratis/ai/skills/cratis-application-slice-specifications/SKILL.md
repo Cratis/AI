@@ -19,22 +19,19 @@ This skill decides **when to add a scenario** and **what to cover**. The C# mech
 (`Establish`/`Because`, substitutes, contexts) live in
 `cratis-specifications-csharp`.
 
-## Verified product sources
+## Product packages
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.Testing` | `22.75.0` | `CommandScenario<TCommand>` and the `CommandResult` assertions |
-| `Cratis.Arc.Chronicle.Testing` | `22.75.0` | `Given`, `EventLog`, `AppendedEvents` and the appended-event assertions on a command scenario |
-| `Cratis.Chronicle.Testing` | `18.3.0` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
-| `Cratis.Specifications.XUnit` | `4.x` | The `Specification` base and the `ShouldXxx` assertions |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.Testing` | `CommandScenario<TCommand>` and the `CommandResult` assertions |
+| `Cratis.Arc.Chronicle.Testing` | `Given`, `EventLog`, `AppendedEvents` and the appended-event assertions on a command scenario |
+| `Cratis.Chronicle.Testing` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
+| `Cratis.Specifications.XUnit` | The `Specification` base and the `ShouldXxx` assertions |
 
-> Arc command/query/decision scenario surface rechecked. Arc depends
-> on Chronicle 19.39.1; later Chronicle reactor setup below has its own minimum
-> version and is not downgraded by this Arc verification.
+Reactor read-model setup and the `EventContext.From` UTC default below need a newer Chronicle than
+the Arc scenario surface itself; see `cratis-chronicle-reactor/references/specifications.md` for sources.
 
-Reactor read-model setup and the `EventContext.From` UTC default below are
-verified separately at **Chronicle 19.46.0**, the minimum version for that
-guidance; see `cratis-chronicle-reactor/references/specifications.md` for sources.
+Requires Chronicle 19.46.0 or later for class-based reactor read-model seeding and the `EventContext.From` UTC default.
 
 `Cratis.Testing` is the meta-package that brings `Cratis.Arc.Testing` and
 `Cratis.Arc.Chronicle.Testing` together. Reverify against the owning product
@@ -146,7 +143,7 @@ keep a scenario for that wiring and for appended-event behavior.
 | Automation or Translation — a reactor | `ReactorScenario<TReactor>` | `cratis-specifications-csharp` |
 | A host, transport, or real-infrastructure boundary | Out-of-process integration | `cratis-specifications-csharp` |
 
-For a class-based reactor scenario on **Chronicle 19.46.0+**, explicitly seed
+For a class-based reactor scenario, explicitly seed
 handler read-model parameters with `Given.ForEventSourceId(id).ReadModel(instance)`
 or declare intentional absence with `.NoReadModel<T>()`. An unseeded model throws
 `ReadModelNotSeededForReactorScenario` even if nullable; `Given` events do not
@@ -333,11 +330,10 @@ ideas recorded in `references/provenance.md`. Read `references/provenance.md` wh
 - **The command scenario reports success but nothing was appended.** The
   assertion is on `CommandResult` only; add a
   `ShouldHaveAppendedEvent<TCommand, TEvent>` fact.
-- **Injected-validator branches flip with test ordering.** This was observed in
-  the 22.16-era harness. Arc 22.23.2 stopped replacing the process-wide provider;
-  later releases isolated stores and event-source services per scenario. Reproduce
+- **Injected-validator branches flip with test ordering.** An older harness replaced the process-wide provider; current
+  releases isolate stores and event-source services per scenario. Reproduce
   before applying the old direct-validator/small `[Collection]`
-  workaround; no current reproduction was verified here.
+  workaround.
 
 ## How it is proven
 
