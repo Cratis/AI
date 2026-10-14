@@ -54,7 +54,7 @@ public record AllocateApiKey
 }
 ```
 
-Requires Arc 22.87.1 for `IGeneratableInContext<TSelf>`: it maps captured
+Requires Arc 22.83.0 for `IGeneratableInContext<TSelf>`: it maps captured
 `CommandContext.ReceivedAt` to `Now` and `ITenantIdAccessor.Current` to `Tenant`.
 NotSet/Default tenants become the zero-GUID default; named tenants retain their
 identifier. TypeID uses time only; the context carries the tenant but the built-in

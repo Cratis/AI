@@ -63,8 +63,6 @@ are `[PII]` for personal data and `[Encrypted]` for retained operational secrets
 there is no `[Redact]`, `[Erase]`, `[Anonymize]`, or `[Encrypt]` annotation.
 Redaction is an API call. `[NotAudited]` belongs to Arc, not Chronicle.
 
-Requires Chronicle 19.32.0 for `[Encrypted]`.
-
 `[Encrypted]` (`Cratis.Chronicle.ProtectedValues`) is a
 security marker, not a compliance category: it encrypts an operational secret
 (API key, token, a company's bank account number) at rest with no data subject

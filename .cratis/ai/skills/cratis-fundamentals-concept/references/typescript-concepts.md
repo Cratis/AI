@@ -15,8 +15,6 @@ Source: `@cratis/fundamentals`: `ConceptAs.ts`,
 
 ## Declare a concept
 
-Requires `@cratis/fundamentals` 7.19.6 or later for the patterns on this page.
-
 The convenient union pattern accepts either a concept instance or its
 underlying primitive. Supply the runtime class, not the union type, to `@field`:
 

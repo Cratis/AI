@@ -238,7 +238,9 @@ the outcome.
 
 Read [references/append-api.md](references/append-api.md) when you need an append variant, a read-back function, or an append option such as `:event_stream_type`, `:concurrency_scope` or `:tags`.
 
-Failed appends return `{:error, reason}`; a rejection is never reported as `:ok`. Reasons include `{:constraint_violations, violations}`,
+Requires `cratis_chronicle` 3.2.0 for rejected appends to return `{:error, reason}`; an older client could report a rejection as `:ok`.
+
+Failed appends return `{:error, reason}`. Reasons include `{:constraint_violations, violations}`,
 `{:concurrency_violations, violations}`, `{:append_errors, errors}`,
 `:not_connected`, and `{:incompatible_server, response}` from the first append's
 compatibility preflight per channel. Pair the kernel and installed contracts;
@@ -248,7 +250,7 @@ do not blindly retry a timed-out write.
 a constraint violation, which is a fine choice in a script and the wrong one in a
 GenServer.
 
-Read [references/event-sources.md](references/event-sources.md) when declaring named event sources/streams, deriving concurrency scopes or routing mixed-source batches; definitions require Chronicle kernel 19.30.0 or later.
+Read [references/event-sources.md](references/event-sources.md) when declaring named event sources/streams, deriving concurrency scopes or routing mixed-source batches; definitions have client and kernel requirements stated there.
 
 A unit of work is a process: `Chronicle.begin_unit_of_work/1` starts an `Agent`,
 and while one is current for the calling process `append`/`append_many` buffer
@@ -401,7 +403,7 @@ Read [references/pitfalls.md](references/pitfalls.md) when troubleshooting disco
 ## Verify
 
 - Elixir 1.18+ and `mix deps.get` resolve the intended published client; contracts
-  and kernel are compatible (event source definitions need Chronicle kernel 19.30.0 or later).
+  and kernel are compatible (event source definitions have their own client and kernel requirements; see the event sources reference).
 - Local development uses `ConnectionString.development()` or explicit credentials.
 - `Chronicle.Client` is in the supervision tree with an explicit `:otp_app`, and
   the tree starts clean.

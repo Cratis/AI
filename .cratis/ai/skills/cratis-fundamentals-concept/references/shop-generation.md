@@ -21,7 +21,7 @@ An invitation reference here is not by itself permission to join the shop; if
 possession is the authorization mechanism, treat it as a protected credential too.
 
 This complete concept excerpt requires `Cratis.Fundamentals` 7.24.0 or later and,
-for the ApiKey audit attribute, `Cratis.Arc.Chronicle` 22.87.1 or later. These are
+for the ApiKey audit attribute, `Cratis.Arc.Chronicle`. These are
 non-stream references; use `EventSourceId<string>` instead only if a concept
 actually identifies a Chronicle event source.
 

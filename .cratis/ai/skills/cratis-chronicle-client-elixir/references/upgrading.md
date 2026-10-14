@@ -11,9 +11,7 @@ The wire contracts target the current Chronicle kernel generations, with renamed
 
 - Use the `~>` requirement for the published release you intend (`{:cratis_chronicle, "~> 3.10"}` style) and the Elixir version `mix.exs` declares.
 - grpc 1.x and Mint are direct dependencies; do not carry a mandatory `GRPC.Client.Supervisor` child forward from an older grpc setup.
-- Contracts resolve from the lockfile. Pair the kernel with the installed contracts descriptor; named event source definitions need a kernel that supports them.
-
-Requires Chronicle kernel 19.30.0 for named event source definitions.
+- Contracts resolve from the lockfile. Pair the kernel with the installed contracts descriptor; named event source definitions need a kernel that supports them (see below).
 - The first append on each channel runs a compatibility check, shared until reconnect. `{:error, {:incompatible_server, response}}` is a version/descriptor problem, not a transient append rejection. Update kernel and contracts as a compatible pair; do not bypass the preflight. Failed transport calls return `{:error, %GRPC.RPCError{}}`.
 
 ## Behavior to review in an older application
@@ -32,3 +30,5 @@ An application written against an older client may have relied on behavior that 
 Rejected appends (including concurrency/constraint failures) return `{:error, reason}`, never `:ok`; batch append metadata survives the rich append RPC. Handle errors on single, batch and transactional paths.
 
 Declared `unique(..., message: ...)` violation messages are preserved on single, batch and transactional appends. Retain the constraint name and diagnostics when handling violations rather than assuming every message came from the kernel.
+
+Requires `cratis_chronicle` 3.10.0 and Chronicle kernel 19.30.0 for named event source definitions.

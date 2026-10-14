@@ -182,7 +182,7 @@ factories are covered in the shop reference below.
 Use the [threaded shop example](references/shop-generation.md): CustomerId
 (`cus_` + ULID), context-aware TypeID OrderId, NanoID InviteCode and secret
 `Bytes(32)` ApiKey. Context factories receive captured
-received time/tenant (Requires Arc 22.87.1); Clock/Tenant scenario setup
+received time/tenant (Requires Arc 22.83.0); Clock/Tenant scenario setup
 is shown there.
 
 ## When not to generate

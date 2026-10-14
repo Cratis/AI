@@ -42,8 +42,8 @@ The starter selects a unique `ReadModelNamingPolicy` bean. With none or an
 ambiguous set, it retains identifier-based naming. A rejected connection at
 startup propagates `ChronicleConnectionFailed` and fails the application;
 an unreachable kernel only logs after `registration-timeout` and keeps retrying.
-Requires kotlinx-coroutines 1.10.2 or later; remove an older
-`kotlin-coroutines.version` override.
+Requires Chronicle.Kotlin 6.5.0 for the starter to run on the kotlinx-coroutines version Spring Boot manages; remove a
+`kotlin-coroutines.version` override added for an older client.
 
 `NamespaceResolution.Strategy` is `FIXED`, `HTTP_HEADER`, `SUBDOMAIN`,
 `AUTHENTICATION` (`ChronicleProperties.kt`).

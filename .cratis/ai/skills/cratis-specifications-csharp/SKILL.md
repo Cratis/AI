@@ -38,7 +38,7 @@ Per-context in-process MongoDB host isolation is in
 `ChronicleClientFixture.cs`, `MongoDBContextStorage.cs`); it is opt-in and does
 not isolate out-of-process/remote kernels. See [integration-specs.md](references/integration-specs.md).
 
-Requires `Cratis.Arc.Testing` 22.75.0 for generated-value scenario pinning.
+Requires `Cratis.Arc.Testing` 22.67.0 for generated-value scenario pinning.
 
 Check the owning product repository before claiming support for
 another version. Never translate an assertion or helper name from memory.
@@ -106,7 +106,7 @@ Specification projects are named `<Source>.Specs`. Add a `PackageReference` to
 namespace stays `Cratis.Specifications`. The house runner is xUnit **2.x**
 not xUnit v3. Supported targets are net8.0/net9.0/net10.0;
 net48 was dropped (retain 3.x for that target).
-Requires `Cratis.Specifications.NUnit` 4.0.0. It is an alternative with the same base pattern,
+`Cratis.Specifications.NUnit` is an alternative with the same base pattern,
 `[Test]` instead of `[Fact]`, and **public** test methods.
 
 ### Pin server-generated Handle values
@@ -291,8 +291,10 @@ between collaborators. That is where defects hide.
 
 ## Verify
 
+Requires `Cratis.Specifications` 4.0.0 for the analyzers.
+
 CRSPEC0001–CRSPEC0007 ship as **warnings** in `Cratis.Specifications`, `.XUnit`,
-and `.NUnit` (Requires 4.0.0). A warnings-as-errors build enforces them: `should_` names,
+and `.NUnit`. A warnings-as-errors build enforces them: `should_` names,
 one specification per file (given contexts exempt), no facts on given contexts,
 test attributes on `should_` methods, no explicit base lifecycle calls, public
 specification classes, and no `Because` on given contexts. See

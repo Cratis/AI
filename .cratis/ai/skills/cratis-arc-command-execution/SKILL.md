@@ -191,7 +191,7 @@ Make the executed command idempotent regardless — and when replay exclusion is
 the wrong tool, suppress the diagnostic with a justification rather than
 mis-marking it to silence the warning.
 
-Recovery can redeliver the trigger even with `[OnceOnly]`, and a command whose own "already done" rule refuses the repeat then fails the partition. Read [redelivery against a refusing command](../cratis-chronicle-reactor/references/slice-delivery-checklist.md#redelivery-against-a-refusing-command) to decide how the reactor handles that refusal.
+Recovery can redeliver the trigger even with `[OnceOnly]`, and a command whose own "already done" rule refuses the repeat then fails the partition. Read the [reactor slice delivery checklist](../cratis-chronicle-reactor/references/slice-delivery-checklist.md) to decide how the reactor handles that refusal.
 
 ## Common mistakes
 
