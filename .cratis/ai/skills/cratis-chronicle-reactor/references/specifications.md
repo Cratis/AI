@@ -3,9 +3,9 @@
 ## Contents
 
 - Specifications
-- Routing and produced events — Chronicle 19.50.0 verification
-- Read-model setup — Chronicle 19.46.0+
-- Exceptions and occurrence time — Chronicle 19.46.0+
+- Routing and produced events
+- Read-model setup
+- Exceptions and occurrence time
 - Contract coverage
 
 ## Specifications
@@ -19,7 +19,7 @@ non-event side effects; for handlers that return events, assert the resulting
 appends through the scenario's event store. Cover the replay path separately
 when the reactor has `[OnceOnly]` or `[Replay]` handlers.
 
-## Routing and produced events — Chronicle 19.50.0 verification
+## Routing and produced events
 
 Scenarios implement `IDisposable`; dispose in `Destroy()`.
 `Given.ForEventSource(id).OnStream(eventSourceType, eventStreamType, eventStreamId).Events(...)`
@@ -35,9 +35,11 @@ is part of the contract. Per-run `Defaults(clientArtifactsProvider, serviceProvi
 options)` supports `InMemoryClientArtifactsProvider` and `ExplicitArtifacts`;
 non-generic `ReactorScenario(reactorId, defaults)` exercises a runtime/fluent reactor.
 Sources: `Source/Clients/Testing/Reactors/` and `Source/Clients/Testing/Defaults.cs`
-at **v19.50.0**.
 
-## Read-model setup — Chronicle 19.46.0+
+
+## Read-model setup
+
+Requires Chronicle 19.46.0 or later for class-based reactor read-model seeding, scenario exception unwrapping and the UTC `EventContext.From` default.
 
 Class-based `ReactorScenario<TReactor>` does not build read models from `Given`
 events, **including passive models**. Seed a pre-built instance in `Establish()`:
@@ -82,7 +84,7 @@ guard applies only when the scenario uses `EventStoreForTesting` (including an
 explicit instance); an explicitly supplied store of another type and production
 read-model resolution are unchanged.
 
-## Exceptions and occurrence time — Chronicle 19.46.0+
+## Exceptions and occurrence time
 
 `Events(...)` rethrows a synchronously throwing handler's **own exception**,
 unwrapping the `TargetInvocationException` previously surfaced by reflection,
@@ -97,7 +99,7 @@ their supplied offset; the positional constructor does not default `Occurred`.
 For deterministic time-dependent plain-call specs, supply a fixed occurrence
 time rather than asserting an exact current instant.
 
-Reverified against **Chronicle tag `v19.50.0`** (the guards began):
+Sources:
 
 - `Source/Clients/Testing/Reactors/ReactorSourceGivenBuilder.cs` and
   `ReactorScenarioGivenBuilder.cs`: seeding, absence and builder signatures.
