@@ -3,7 +3,7 @@
 
 # Explicit Go query adapters
 
-Verified at Arc.Go **v0.1.1**, `queries/registration.go`, `queries/example_test.go`
+Source: Arc.Go, `queries/registration.go`, `queries/example_test.go`
 and `queries/paging.go`. This complete package builds and executes a snapshot
 pipeline; it does not start an HTTP host:
 
@@ -75,6 +75,6 @@ demonstrates parameter binding and paged results.
 For observables, `queries.RegisterObservable` records the emission type separately
 from `observable.Source` ownership and rendered client data. Preserve authorization
 and validation guards on every emission, cancellation, terminal errors and cleanup.
-Read the [source and examples](https://github.com/Cratis/Arc.Go/tree/v0.1.1/queries)
+Read the [source and examples](https://github.com/Cratis/Arc.Go/tree/main/queries)
 for the exact source/renderer profile instead of assuming channels, providers or
 unpublished generators share one registration contract.

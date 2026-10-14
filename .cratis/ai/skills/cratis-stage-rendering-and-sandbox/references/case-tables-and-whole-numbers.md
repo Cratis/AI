@@ -1,31 +1,24 @@
-<!-- Copyright (c) Cratis. All rights reserved. -->
-<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
-
-# Case tables and whole numbers: check the Stage version
+# Case tables and whole numbers
 
 ## Contents
 
-- CLI default versus Stage release
-- One specification per case (Stage 4.59.0+)
-- Whole numbers as long (Stage 4.61.0+)
-- Released source evidence
+- Renderer and sandbox image
+- One specification per case
+- Whole numbers as long
 
-## CLI default versus Stage release
+## Renderer and sandbox image
 
-Current CLI/compiler/Stage pins: `cratis-screenplay-toolchain/references/versions.md`.
-The pinned default renderer applies case-table support introduced in Stage 4.59.0 and the whole-number rule
-introduced in 4.61.0: v8+ whole numbers use `long`, earlier versions keep `int`.
-CLI and Stage admit through v10 to construct checks; newer versions receive
-CLI-RENDER-004 before planning (direct Stage: STAGE-ESM-016).
-Previous CLI 3.46.1 bundled Screenplay 4.130.0/Stage 4.52.0, applied neither rule,
-and refused above v7. A standalone compiler does not upgrade the bundled renderer.
+The CLI's bundled renderer expands case tables into one specification per case and
+renders whole numbers as `long` from ESM v8 (earlier versions keep `int`). Models above
+the newest admitted ESM version receive `CLI-RENDER-004` before planning (direct Stage:
+`STAGE-ESM-016`). A standalone compiler does not upgrade the bundled renderer.
 
-`cratis run ./model --tag 4.63.2` selects a newer **sandbox image**; it does not
+`cratis run ./model --tag <stage-version>` selects a different **sandbox image**; it does not
 change `cratis render`. The renderer is statically bundled and has no Stage
-package/image override. A newer renderer needs a CLI release that pins it.
+package/image override. A newer renderer needs a CLI release that bundles it.
 Sandbox execution is not generated-application verification.
 
-## One specification per case (Stage 4.59.0+)
+## One specification per case
 
 Case tables expand before rendering. The effective specification names are
 `<Specification>_<Case>`; Stage emits one Debug specification class per case,
@@ -69,7 +62,7 @@ fixtures: …`. Read the failure details and each case outcome; SpecRunner exit 
 alone is not a pass. Map generated Debug test classes back to effective cases,
 not just to the authored table or a total count.
 
-## Whole numbers as long (Stage 4.61.0+)
+## Whole numbers as long
 
 The **model's ESM version**, not the Stage package version alone, selects the
 C# whole-number type: v8 and later use `long`; v1–v7 retain `int` for stored-schema
@@ -79,7 +72,7 @@ frontend types separately; this C# admission rule does not establish their mappi
 Screenplay's Double-mode whole-number range is
 ±(2^53−1), not the entire C# `long` range; `numbers exact` remains unadmitted.
 
-This routed model selects ESM v8. On Stage 4.61.0+, `Quantity` wraps `long` and
+This routed model selects ESM v8. `Quantity` wraps `long` and
 the fixture renders as `2147483648L`:
 
 ```screenplay
@@ -109,21 +102,8 @@ module Inventory
 ```
 
 Without the `eventsource` declaration and command `stream` clause, the model is
-below v8. On Stage 4.61.0+, that out-of-`int` fixture is refused with
+below v8. That out-of-`int` fixture is refused with
 `STAGE-ESM-031`; literals within −2147483648…2147483647 still render as `int`.
 Do not remove the fixture, narrow its value or patch generated C# to pass.
 Widening an already persisted event property from `int` to `long` requires a new
 Chronicle event generation; changing model version is not a safe schema migration.
-
-## Released source evidence
-
-- Stage `v4.59.0`: `Source/Rendering.Cratis/for_CratisArtifactRenderPlanner/given/a_specification_case_table.cs`,
-  `when_executing_generated_case_table_specifications.cs`, `when_refusing_colliding_case_names.cs`,
-  `CratisArtifactRenderPlanner.cs`; `Source/Specifications/SemanticSpecificationExecutor.cs`
-  and `Source/SpecRunner/for_Program/when_running_semantic_case_tables.cs`.
-- Stage `v4.61.0`: `Source/Rendering.Cratis/Semantics/SemanticTypeSystem.cs`,
-  `SemanticCratisAdmission.WholeNumbers.cs` and
-  `Source/Rendering.Cratis/Semantics/for_SemanticCratisAdmission/when_admitting_whole_number_literals/with_a_pre_v8_model.cs`.
-- CLI `v3.50.0` (previous bundle `v3.46.1`): `Directory.Packages.props`,
-  `Source/Cli/Commands/Render/{RenderSettings,CratisRenderTarget,RenderedSemanticVersions}.cs`,
-  `Source/Cli/Commands/Run/{RunSettings,StageContainer}.cs`.

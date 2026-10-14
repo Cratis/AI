@@ -1,5 +1,11 @@
 ---
-applyTo: "**/*"
+applyTo: "**/*.sh,**/*.ps1,**/scripts/**,**/.github/workflows/**,**/.cratis/ai/hooks/**"
+paths:
+  - "**/*.sh"
+  - "**/*.ps1"
+  - "**/scripts/**"
+  - "**/.github/workflows/**"
+  - "**/.cratis/ai/hooks/**"
 ---
 
 # Guards, scans and fuses

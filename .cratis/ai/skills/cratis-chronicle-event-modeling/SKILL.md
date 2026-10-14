@@ -42,7 +42,7 @@ Verified against **Cratis/Chronicle v19.50.1**:
 `ProtectedValues/EncryptedAttribute.cs`, `EventSources/`, `Events/PublicAttribute.cs`,
 `Sinks/PublishToAttribute.cs`, and `Events/Constraints/ClosesStreamAttribute.cs`
 (paths under `Source/Clients/DotNET/` unless otherwise stated).
-Current version pins: `cratis-screenplay-toolchain` `references/versions.md`.
+Tool versions: `cratis-screenplay-toolchain` `SKILL.md`.
 
 | Package | Purpose |
 | --- | --- |
@@ -72,9 +72,20 @@ these are the `Automation` and `Translate` slice types.
 
 - **Behavior name and type** for each step in the flow.
 - **Commands** — their inputs and the authorization that gates them. Commands
-  are imperative intents.
+  are imperative intents. For each rejection condition, name the values it reads
+  as input, read state or context (time, caller, tenant). Context comes from the
+  command pipeline or an injected time source, never from the wall clock inside
+  the decision, so a specification can fix it.
+- **Who issues each command**: a named role or an automation, never a generic
+  user. Each role's "cannot" becomes authorization plus a denial specification.
+- **Story order**: the flow from its first trigger to every ending, with
+  branches and terminal facts named.
+- **Refused transitions**: per state, which commands are refused and by which
+  rule (a state-by-command table).
 - **Events** — past-tense, one-purpose facts. Names must be self-describing:
-  `<Entity><PastTenseVerb>`, never a bare `Created`.
+  `<Entity><PastTenseVerb>`, never a bare `Created`. Name them for one real
+  flow with real values. On a generic platform, model a case it handles
+  (`HullDamageReported`), not its machinery (`FormSubmitted` with `content`).
 - **The event-source id for every event.** Events never carry their own
   event-source id as a payload property; it lives in the event context. Deciding
   the id *is* deciding the stream boundary.
@@ -105,9 +116,10 @@ manual scope completion, reopening and its crash/reindex limits. Closing refuses
 new appends; it does not erase history or stop projection replay. Specify a
 late append refusal and an unrelated scope remaining open.
 
-`[Public]` permits an event type to leave the event log; `[PublishTo("sequence")]`
-selects publication for projection/reducer output. Private types cannot go to
-outbox, and the event log is not a publication target. Translate inbox facts
+`[Public]` grants publication eligibility; `[PublishTo("sequence")]` selects the
+projection/reducer event-output destination (outbox by default), not eligibility.
+Owning-store membership can also grant eligibility, so private registration
+visibility alone does not forbid publication. The event log is not a publication target. Translate inbox facts
 into local facts at the boundary rather than treating external contracts as
 local commands. Named tags are plaintext, indexed metadata: never personal data.
 
@@ -132,7 +144,9 @@ If a field can only be filled by reaching into another behavior's read model to
 *learn a fact the events should have carried*, you have found a missing event or
 a wrong stream boundary. Fix the model. A read-only cross-slice read through
 Chronicle is allowed where the rule needs it (an injected read model read by
-explicit key, or a `[Passive]` projection for a command-side decision); see
+explicit key, or a `[Passive]` projection for a current read; a rule that must hold under
+concurrency needs a decision read or constraint, see
+[choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md)); see
 Cross-slice patterns in `rules/vertical-slices.md`. Make such a read deliberate
 and name it in the brief, with the consistency it needs: a rule that must hold
 under concurrency needs enrolled guarded reads, not plain injection or a stale
@@ -216,6 +230,9 @@ remain separately authorized; a ready model authorizes none of them.
   missing event.
 - Personal data has a decided subject, and the subject is person-level or the
   trade-off is surfaced.
+- No data-loading command (`LoadOrders`), UI event (`ButtonClicked`), technical
+  event (`ApiCalled`) or recomputed event.
+- Every state has its refusals listed.
 - The specification outline names the failures, not only the happy path.
 
 ## Route near misses
@@ -226,3 +243,4 @@ remain separately authorized; a ready model authorizes none of them.
   same; the artifact is a file that compiles, and the four behavior types above
   map onto its `StateChange`, `StateView`, `Automation` and `Translate` slices.
 - Drawing a decided model as a diagram: `cratis-event-model-diagram`.
+- A flow that crosses services, each owning its own event store: `cratis-multi-service-architecture`.

@@ -21,19 +21,15 @@ rejection on it.)
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.Core` | `22.75.0` | `CommandValidator<T>`, `ConceptValidator<T>`, `ValidationResult`, `CommandResult`, the command pipeline, `ARC0004`–`ARC0013` |
-| `Cratis.Fundamentals` | `7.23.0` | `Cratis.Monads.Result<TResult, TError>` |
-| `Cratis.Chronicle` | `18.3.0` | Read-model resolution for command-side injection |
-| `FluentValidation` | `12.1.1` | `RuleFor(...)`, `.WithMessage(...)` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.Core` | `CommandValidator<T>`, `ConceptValidator<T>`, `ValidationResult`, `CommandResult`, the command pipeline, `ARC0004`–`ARC0013` |
+| `Cratis.Fundamentals` | `Cratis.Monads.Result<TResult, TError>` |
+| `Cratis.Chronicle` | Read-model resolution for command-side injection |
+| `FluentValidation` | `RuleFor(...)`, `.WithMessage(...)` |
 
-> Arc validation and decision boundaries rechecked at v22.75.0. Arc depends on
-> Chronicle 19.39.1 / Fundamentals 7.23.0; separate product claims retain their
-> version-qualified verification.
-
-Fundamentals rechecked at v7.23.0 in
-[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
+Fundamentals'
+[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/main/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
 success is first, error second, with implicit conversions from both types.
 
 Reverify against the owning product repository before claiming support for
@@ -63,6 +59,11 @@ another version.
 
 ## Step 1 — Choose the mechanism by what the decision *is*
 
+Which mechanism makes a rule hold under concurrent writers (constraint, protected
+decision, stream decision, aggregate, scope, reactor repair) is routed in
+[choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
+A validator is never that mechanism.
+
 | The rule is… | Put it in |
 | --- | --- |
 | A reusable value invariant — length, format, range | `ConceptValidator<T>` on the concept type |
@@ -75,6 +76,11 @@ another version.
 The pipeline runs **authorization → validation → `Provide()` → `Handle()`**.
 Authorization filters are explicitly ordered ahead of validation filters, so a
 caller who may not act never learns whether their input was valid.
+
+Requires Arc 22.87.2 for the frontend `notEmpty` text rule to match the backend's
+Unicode whitespace set (including U+0085 and excluding U+FEFF). Check the
+`@cratis/arc` package version with `yarn why @cratis/arc`; older client validation
+can disagree. Server validation remains authoritative.
 
 ## Step 2 — Value invariants: `ConceptValidator<T>`
 
@@ -116,7 +122,11 @@ public class TransferFundsValidator : CommandValidator<TransferFunds>
 - The validator is discovered by type — no registration.
 - Constructor dependencies (read models, services) are injected. A read model
   injected here resolves the same way as one injected into `Handle()`; see
-  Step 5 for what "the same way" actually means.
+  Step 5 for what "the same way" actually means. A validator that reads state is
+  **advisory only**: it shows the state at validation time and guards nothing, so
+  use it for a friendly early message, never as the rule. A `[ProtectedDecision]`
+  command refuses a discoverable validator unless it has exactly one public
+  parameterless constructor (otherwise HTTP 500), so keep state rules out of it.
 - **Omit the validator entirely when there are no rules.** An empty subclass is
   noise the reader has to check.
 - Single-property intrinsic rules belong on `ConceptValidator<T>` instead, so
@@ -154,7 +164,7 @@ public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readMo
 
 Plain read-model injection or `IReadModels.GetInstanceById` is **advisory**, even
 inside `Handle()` returning `Result<,>`: it enrolls no guard against a competing
-append. Choose the first boundary that fits at Arc v22.75.0:
+append. Choose the first boundary that fits:
 
 1. One routed stream: `Provide(IStreamReads reads) => reads.ForCommand()` returns
    `Task<StreamDecision>`; `Handle(StreamDecision decision)` returns
@@ -162,13 +172,18 @@ append. Choose the first boundary that fits at Arc v22.75.0:
 2. Projected state: mark the command `[ProtectedDecision]` and take
    `DecisionRead<T>` (`.Exists`/`.Instance`) or command-aware `IDecisionReads`.
    Only Chronicle-admitted, direct event-source-keyed projections with known
-   event types qualify; reducers, joins, children and passive shapes are refused.
+   event types qualify; reducers (including self-reducing models), joins, children and open-ended event
+   types are refused. The model needs an `Id` property.
    Only parameterless validators constructed/certified by Arc run. Constructor
    dependencies are refused; static/service-locator decision state is still your
    responsibility. Command-level `[Unprotected]` opts out, not into safety.
 3. Stream-level automatic scopes: `concurrency: true` on routing attributes
-   (`EventStreamId`, `EventStreamType`, `EventSourceType`). Exact returned scopes
-   take precedence; do not combine automatic capture with exact scopes.
+   (`EventStreamId`, `EventStreamType`, `EventSourceType`). It is **not** a guard
+   for the decision: like the default check it reads the tail after `Handle`.
+   Exact returned scopes take precedence; do not combine automatic capture with
+   exact scopes. A guard detects every matching event after its boundary, whoever
+   wrote it, but it protects only guarded decisions, so every writer that decides
+   on the rule needs one, or the rule must be a constraint.
 
 `ARCCHR0011/0012` flag unprotected reads and immediate append bypasses. Return
 events, never append them directly. Read

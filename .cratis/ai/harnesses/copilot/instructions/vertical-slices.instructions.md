@@ -249,7 +249,7 @@ public record AuthorRegistered(AuthorName Name);
 
 ## Read Models and Queries
 
-**[contract]** `[ReadModel]` records expose queries as `public static` methods; dependencies are plain method parameters (no `[FromServices]`). Default to model-bound projection shape; drop to fluent only when needed. For step-by-step creation, invoke the **cratis-chronicle-read-model** skill.
+**[contract]** `[ReadModel]` records expose queries as `public static` methods; dependencies are plain method parameters (no `[FromServices]`). For application code, start with model-bound mappings, use fluent when the definition needs structure, and choose reducer code when transitions read better as code. For step-by-step creation, invoke the **cratis-chronicle-read-model** skill.
 
 Use `[ReadModel(RequireQueryAttribute = true)]` with `[Query]` on intended
 endpoints when public folds/helpers exist (ARC0026/ARCCHR0019). `[Query]` alone
@@ -325,8 +325,11 @@ evaluate reconstruction frequency, history length, consistency, and security.
 Projections build read models from **events** (never from other read models). Use the ladder — for adding one to an existing model, invoke the **cratis-chronicle-projection** skill:
 
 1. **Model-bound attributes** on the `[ReadModel]`: `[FromEvent<T>]`, `[SetFrom<T>]`, `[SetFromContext<T>]`, `[ChildrenFrom<T>]`, `[RemovedWith<T>]`, `[Nested]`, `[ClearWith<T>]`, counters, `[FromAll]`.
-2. **Fluent `IProjectionFor<T>`** for joins, composite/constant keys, parent-key extraction, context mapping, `.NotRewindable()`, or supported conditional setters. Declarative metadata only — no DI side effects, no imperative `Define()` body, builder lambdas are member access only.
-3. **Reducer `IReducerFor<T>`** when the model is "current state + event → next state" — branching on prior state, loops, calculations. A valid style, **not** a failure mode; carry an inline justification comment naming the limitation that ruled out a projection.
+2. **Fluent `IProjectionFor<T>`** when mappings need structure or the contract should stay attribute-free: joins, composite/constant keys, parent-key extraction, context mapping, `.NotRewindable()`, or supported conditional setters. Declarative metadata only — no DI side effects, no imperative `Define()` body, builder lambdas are member access only.
+3. **Reducer code** for clearer "current state + event → next state" logic — prior-state branches, calculations and guards. A normal choice, not a last resort. Default new .NET reducers to **self-reducing models** with public static `Reduce(event, model? current[, EventContext])`, returning model or `Task<model>` (including nullable results), without a marker. Use separate `IReducerFor<T>` for fold-time DI, replay instance behavior or separation.
+4. **Nominated plain instance class** only when its assembly cannot reference Chronicle; nominate through `ChronicleOptions.ExplicitArtifacts` before creating stores. Use **PDL** for definitions authored outside application code, not as the code-first default.
+
+For self models, keep `[ReadModel]`, static `Reduce` methods and queries on one record. Before Arc 22.90.0, use `[ReadModel(RequireQueryAttribute = true)]` and `[Query]`; from Arc 22.90.0, Arc excludes methods taking the model itself from query discovery and Arc.Chronicle claims self models for command injection. Complete marker-free shapes become reducers on upgrade; a competing builder fails with `AmbiguousReadModelBuilder`. Preserve admission/ordering guards when converting and remove the previous builder. See **cratis-chronicle-reducer** for exact signatures, hooks and limits. `[Passive]` belongs on the model; it gives fresh reads, not a concurrency guard — decision reads refuse reducers. Self reduction is .NET-only (Cratis/Chronicle#4851); this does not claim Stage renders it.
 
 - **[contract] AutoMap is on by default — never call `.AutoMap()`.** Match property names so AutoMap wires them; diverge with `[SetFrom<T>]` / `.Set().To()` only for genuine name differences. Re-enable `.AutoMap()` only inside a scope disabled with `.NoAutoMap()`.
   - ⚠️ **AutoMap runs per *event* across every event the projection references — it does not defer to your explicit setters.** A property sourced with `[SetFrom<A>]` can still be silently overwritten when some *other* referenced event `B` happens to carry an identically named property (AutoMap wires `B`'s value on top). Fence the property with property-level **`[NoAutoMap]`** (which pairs with the `[SetFrom]`, not replaces it) so only your explicit setter writes it. `[SetFrom]` does **not** imply this — leaving AutoMap on is what allows the common create-then-rename pattern (a later event updating a property by name-match). No colliding event property name means no `[NoAutoMap]` needed. (An event subscribed only via an aggregate like `[Count]` doesn't auto-map its other properties, so it can't collide.) The analyzer **`CHR0025`** surfaces this collision as an *informational* heads-up (not a warning, because either resolution — add `[NoAutoMap]`, or accept the update — can be correct).
@@ -391,7 +394,7 @@ Redaction is a system-event request that removes payload availability from the e
 
 ## Cross-slice patterns **[convention]**
 
-Cross-slice access is **read-only and goes through Chronicle** — inject another slice's read model (validator/`Provide()`/`Handle()`), read by explicit key with `IReadModels.GetInstanceById`, mark a `[Passive]` projection for command-side decisions, or react to its events. **Never** instantiate or DI another slice's command/handler/service.
+Cross-slice access is **read-only and goes through Chronicle** — inject another slice's read model (validator/`Provide()`/`Handle()`), read by explicit key with `IReadModels.GetInstanceById`, mark a `[Passive]` projection for a current read (a rule that must hold under concurrency needs a decision read or constraint, see the `cratis-chronicle-decision-reads` skill's `references/choosing-how-a-rule-holds.md`), or react to its events. **Never** instantiate or DI another slice's command/handler/service.
 
 **DCB (Dynamic Consistency Boundary):** the boundary is the event state explicitly
 enrolled in guarded decisions, not every model a command reads. Use stream

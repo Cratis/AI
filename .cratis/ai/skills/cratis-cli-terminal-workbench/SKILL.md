@@ -20,15 +20,15 @@ does not have.
 
 ## Verified product sources
 
-This skill is verified against this exact source:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Cli` | `3.53.1` | `cratis chronicle workbench`, its views, keys, and actions |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Cli` | `cratis chronicle workbench`, its views, keys, and actions |
 
-> Re-verified at `Cratis/cli` **v3.53.1**: fifteen views remain; keys are in [WorkbenchKeyDispatcher.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/Workbench/windows/WorkbenchKeyDispatcher.cs) and output validation is in [WorkbenchCommand.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/Workbench/WorkbenchCommand.cs).
+The workbench has fifteen views; keys are in [WorkbenchKeyDispatcher.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Workbench/windows/WorkbenchKeyDispatcher.cs) and output validation is in [WorkbenchCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Workbench/WorkbenchCommand.cs).
 
-Reverify before claiming a view, key binding, or action for another version.
+Check the installed CLI before claiming a view, key binding, or action.
 `cratis chronicle workbench --help` and `cratis llm-context` are the authority
 for the installed version.
 

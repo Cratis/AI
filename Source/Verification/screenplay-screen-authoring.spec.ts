@@ -9,6 +9,21 @@ import test from 'node:test';
 const repositoryRoot = resolve(import.meta.dirname, '../..');
 const corpus = join(repositoryRoot, '.cratis/ai');
 const skill = (name: string) => readFileSync(join(corpus, 'skills', name, 'SKILL.md'), 'utf8');
+/** A skill's guidance includes the references its SKILL.md points to; depth moves there to keep the body within budget. */
+const skillWithReferences = (name: string) => {
+    const references = join(corpus, 'skills', name, 'references');
+    const files = existsSync(references) ? readdirSync(references).filter(file => file.endsWith('.md')).sort() : [];
+    return [skill(name), ...files.map(file => readFileSync(join(references, file), 'utf8'))].join('\n');
+};
+const compatibility = () => readFileSync(join(repositoryRoot, 'Documentation', 'compatibility.md'), 'utf8');
+const screensVector = () => {
+    const content = compatibility();
+    const start = content.indexOf('## Screens release vector');
+    assert.ok(start >= 0, 'Documentation/compatibility.md has no Screens release vector section');
+    const rest = content.slice(start + 1);
+    const next = rest.search(/\n## /);
+    return next < 0 ? content.slice(start) : content.slice(start, start + 1 + next);
+};
 const referenceExists = (skillName: string, reference: string) => existsSync(join(corpus, 'skills', skillName, 'references', reference));
 
 const allProfiles = () => {
@@ -120,10 +135,9 @@ test('MCP transcript harness sends real protocol requests instead of returning a
     assert.ok(!content.includes('blocked-missing-mcp'));
 });
 
-test('stage, render and toolchain guidance carry the verified screens-release vector', () => {
+test('stage and render guidance carry the verified screens-release vector', () => {
     const stage = skill('cratis-stage-rendering-and-sandbox');
-    const render = skill('cratis-screenplay-render-and-gap-fill');
-    const toolchain = skill('cratis-screenplay-toolchain');
+    const render = skillWithReferences('cratis-screenplay-render-and-gap-fill');
     const workflow = readFileSync(
         join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'),
         'utf8',
@@ -134,24 +148,26 @@ test('stage, render and toolchain guidance carry the verified screens-release ve
     );
 
     const failClosed = ['STAGE-SCENE-ACTION-001', 'STAGE-SCENE-INTERACTION-001'];
-    for (const required of ['3.43.0', 'cratis/stage:4.52.0', '4.127.0', '51\nbrowser assertions', 'Cratis/cli#301', 'test-account decision', ...failClosed]) {
+    for (const required of failClosed) {
         assert.ok(stage.includes(required), `stage guidance is missing ${required}`);
     }
-    for (const required of ['3.43.0', 'published successfully', 'MCP-edited copy', 'screenplay-mcp-transcript.ts', 'Cratis/cli#301', ...failClosed]) {
+    for (const required of ['published successfully', 'MCP-edited copy', 'screenplay-mcp-transcript.ts', ...failClosed]) {
         assert.ok(render.includes(required), `render guidance is missing ${required}`);
     }
-    for (const required of ['3.40.7', '4.51.1', '4.114.0', '4.122.0', 'executableReady true', '37 tools']) {
-        assert.ok(toolchain.includes(required), `toolchain guidance is missing ${required}`);
-    }
-    for (const required of ['3.43.0', '9 requests and 9 responses', 'StaleRevision', 'cratis/stage:4.52.0', '--check', 'bySource', 'semantic-diff', ...failClosed]) {
+    for (const required of ['StaleRevision', '--check', 'bySource', 'semantic-diff', ...failClosed]) {
         assert.ok(workflow.includes(required), `authoring workflow is missing ${required}`);
     }
     assert.ok(
         workflow.includes('ScreenComposition/v1/source/folder'),
         'the authoring workflow must link the canonical screen corpus v1 folder',
     );
-    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'cratis/stage:4.52.0', 'Scene 4.15.0', 'Scene 4.17.0', 'core:outlet', 'SettingsPage', 'WebViewPackageHost', ...failClosed]) {
+    for (const required of ['Authoring accepted', 'Executable admitted', 'Runtime implemented', 'core:outlet', 'SettingsPage', 'WebViewPackageHost', ...failClosed]) {
         assert.ok(composition.includes(required), `composition contract is missing ${required}`);
+    }
+
+    const vector = screensVector();
+    for (const required of ['3.43.0', 'Cratis/cli#301', 'cratis/stage:4.52.0', 'Scene 4.15.0', 'Scene 4.17.0', '9 requests and 9 responses']) {
+        assert.ok(vector.includes(required), `the screens release vector in Documentation/compatibility.md is missing ${required}`);
     }
 });
 
@@ -189,9 +205,10 @@ test('the edited-application browser check edits through MCP, runs the edited mo
     for (const required of ["spawn('cratis', ['run', model", "getByRole('columnheader', { name: /^Work item id$/ })", 'process.exit(2)', 'process.exitCode = passed ? 0 : 1', 'mounts.includes(model)']) {
         assert.ok(browser.includes(required), `the browser check is missing ${required}`);
     }
-    for (const required of ['screenplay-edited-app-browser.ts', '--edit work-item-id-column', 'scene.json', 'all five browser checks passed']) {
+    for (const required of ['screenplay-edited-app-browser.ts', '--edit work-item-id-column', 'scene.json']) {
         assert.ok(workflow.includes(required), `the authoring workflow is missing ${required}`);
     }
+    assert.ok(screensVector().includes('all five browser checks passed'), 'the screens release vector must record the edited-application check result');
 });
 
 interface TriggerQuery { query: string; shouldTrigger: boolean; note?: string }
@@ -233,7 +250,9 @@ test('the screens smoke replays the pinned public vector from the published corp
     const workflow = readFileSync(join(repositoryRoot, '.github', 'workflows', 'publish.yml'), 'utf8');
     const authoring = readFileSync(join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'), 'utf8');
 
-    assert.ok(authoring.includes(`CLI ${pins.cli}`), `the smoke pins CLI ${pins.cli}, which is not the verified vector in the authoring workflow`);
+    const smokeRow = screensVector().split('\n').find(line => line.startsWith('| Smoke CLI |'));
+    assert.ok(smokeRow, 'the Screens release vector has no Smoke CLI row');
+    assert.match(smokeRow, new RegExp(`^\\| Smoke CLI \\| CLI ${pins.cli.replaceAll('.', '\\.')}\\b`), `the smoke pins CLI ${pins.cli}, which is not the Smoke CLI row in Documentation/compatibility.md`);
     assert.match(pins.corpusPackage, /^\d+\.\d+\.\d+$/);
     for (const required of ['--edit work-item-id-column', 'cratis render', 'materialize-corpus.cs', 'Cratis.Cli', 'executableReady']) {
         assert.ok(script.includes(required), `the smoke script is missing ${required}`);

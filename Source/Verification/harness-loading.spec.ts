@@ -12,6 +12,7 @@ import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import { checkCopilotInstructions, copilotInstructionsDirectory, copilotMarker, rewriteCopilotLinks } from '../Harness.Setup/copilot-instructions.ts';
 import { frontmatter, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
+import { lineCount } from './skill-structure.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const corpusRoot = join(repositoryRoot, '.cratis', 'ai');
@@ -43,7 +44,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
         // skills are the managed resources under test, so an operator's personal skills must not move the count.
         const repositoryRealPath = realpathSync(repositoryRoot);
         const repositorySkills = loader.getSkills().skills.filter(skill => realpathSync(skill.filePath).startsWith(repositoryRealPath));
-        assert.equal(repositorySkills.length, 103);
+        assert.equal(repositorySkills.length, 105);
         assert.equal(loader.getPrompts().prompts.length, 18);
         // A worktree nested under another checkout can also load that checkout's AGENTS.md.
         // Assert this repository's context is present exactly once, regardless of its ancestors.
@@ -63,8 +64,64 @@ test('Pi SDK discovers the complete managed repository resources without a model
 
 test('every supported harness resolves the canonical skill corpus', () => {
     for (const path of ['.claude/skills', '.agents/skills', '.github/skills', '.cursor/skills', '.opencode/skills', '.pi/skills']) {
-        assert.equal(skillCount(join(repositoryRoot, path)), 103, path);
+        assert.equal(skillCount(join(repositoryRoot, path)), 105, path);
         assert.equal(realpathSync(join(repositoryRoot, path)), realpathSync(join(corpusRoot, 'skills')), path);
+    }
+});
+
+test('Codex OpenCode and Cursor discover the authoring rule through the root policy', () => {
+    const policy = join(corpusRoot, 'rules/general.md');
+    const row = '| Authoring or reviewing skills, rules, agents or prompts | `authoring-skills.md` |';
+    for (const harness of ['Codex', 'OpenCode']) {
+        const entry = join(repositoryRoot, 'AGENTS.md');
+        assert.equal(realpathSync(entry), realpathSync(policy), harness);
+        assert.ok(readFileSync(entry, 'utf8').includes(row), harness);
+    }
+    const cursor = readFileSync(join(repositoryRoot, '.cursor/rules/cratis.mdc'), 'utf8');
+    assert.match(cursor, /alwaysApply: true/);
+    assert.match(cursor, /@\.cratis\/ai\/rules\/general\.md/);
+    const general = readFileSync(policy, 'utf8');
+    assert.ok(general.includes(row), 'Cursor follows the root policy to the authoring rule');
+    assert.ok(lineCount(general) <= 200, 'authoring discovery must stay within the always-on budget');
+    assert.ok(readFileSync(join(dirname(policy), 'authoring-skills.md'), 'utf8').includes('## 10. Review checklist'));
+});
+
+test('every path-scoped rule stays reachable in each harness', () => {
+    const general = readFileSync(join(corpusRoot, 'rules/general.md'), 'utf8');
+    const universal = new Set(['**', '**/*', '*']);
+    const cursor = readFileSync(join(repositoryRoot, '.cursor/rules/cratis.mdc'), 'utf8');
+    const scoped = readdirSync(join(corpusRoot, 'rules')).filter(name => name.endsWith('.md') && name !== 'general.md')
+        .filter(name => {
+            const fields = frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8'));
+            return [...(fields.get('paths') ?? []), ...(fields.get('applyTo') ?? [])].some(glob => !universal.has(glob));
+        });
+    assert.ok(scoped.length > 30, 'the sweep must inspect the scoped rules');
+    for (const name of scoped) {
+        const canonical = readFileSync(join(corpusRoot, 'rules', name), 'utf8');
+        const fields = frontmatter(canonical);
+        // Claude Code: .claude/rules is the canonical directory and `paths` scopes the rule.
+        assert.equal(readFileSync(join(repositoryRoot, '.claude/rules', name), 'utf8'), canonical, `${name}: Claude Code`);
+        assert.ok(fields.has('paths'), `${name}: Claude Code needs paths`);
+        // Copilot: a generated adapter carries the same scope.
+        const adapter = readFileSync(join(repositoryRoot, '.github/instructions', name.replace(/\.md$/, '.instructions.md')), 'utf8');
+        assert.ok(fields.has('applyTo') && /^applyTo:/m.test(adapter), `${name}: Copilot needs applyTo`);
+        // Codex, OpenCode (AGENTS.md), Cursor (alwaysApply -> general.md) and Pi's static context have no scoped loading:
+        // the root policy must name the rule so it can be read when the work needs it.
+        assert.ok(general.includes(`\`${name}\``) || general.includes(`](./${name})`), `${name}: general.md must route to it`);
+    }
+    assert.match(cursor, /alwaysApply: true/);
+});
+
+test('rules a flow needs before any file is touched stay always-on in every harness', () => {
+    // Committing, opening a pull request, writing a plan and the universal code principles edit no scoped file,
+    // so no path scope can guarantee they load; they stay unscoped and general.md routes to them.
+    const general = readFileSync(join(corpusRoot, 'rules/general.md'), 'utf8');
+    for (const name of ['git-commits.md', 'pull-requests.md', 'local-work-artifacts.md', 'code-quality.md', 'glossary.md']) {
+        const fields = frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8'));
+        assert.ok(!fields.has('paths'), `${name}: Claude Code loads it at launch only without paths`);
+        assert.deepEqual(fields.get('applyTo'), ['**/*'], `${name}: Copilot applies it to every file`);
+        assert.ok(general.includes(`\`${name}\``) || general.includes(`](./${name})`), `${name}: general.md routes to it`);
+        assert.match(readFileSync(join(repositoryRoot, '.github/instructions', name.replace(/\.md$/, '.instructions.md')), 'utf8'), /^applyTo: "\*\*\/\*"/m);
     }
 });
 

@@ -6,10 +6,6 @@
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
-      "value": "main `fd18129`"
-    },
-    {
-      "kind": "skill-contains",
       "value": "Inline events remain slice-owned contracts",
       "file": "references/naming-primitives.md"
     },

@@ -3,7 +3,38 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": ".screenplay/release-baseline.json", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "screenplay baseline admit", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "screenplay baseline check", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "screenplay_list_release_baseline", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "read-proposal view=release-baseline", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "BaselinedRevisionImmutable", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "StaleReleaseBaseline", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "Never hand-edit the sidecar", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "**reviewed correction**", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "ShippedStoredNameMismatch", "file": "references/release-baseline.md" },
+    { "kind": "skill-contains", "value": "Differing event pins carry" },
+    { "kind": "skill-contains", "value": "`eventPinWarnings` array in proposals is empty", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "shared by all generations and unique (PLAY0472)" },
+    { "kind": "skill-contains", "value": "ESM v16", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "A renderer admits only the ESM versions it bundles", "file": "references/mcp-tools.md", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "Existing `All` history reads as", "file": "references/mcp-tools.md" },
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "Edit through MCP proposals, not hand-edited text" },
+    { "kind": "skill-contains", "value": "The CLI-bundled MCP can be older than the standalone tool" },
+    { "kind": "skill-contains", "value": "`previewArguments`", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "`entropyUnknownReason`", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "`valuesAtOnePercentCollision`", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "`notAssessed`", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "omit/null it to remove", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "screenplay_propose_repair", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "Subject is the **concept**", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "Subject is the **command property**", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "PLAY0688 repair replaces a refuted generated-concept rule", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "authoringDiagnosticSeverities", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "`formatting: \"PreserveExactSource\"`", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "Report the returned `summary`", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "never hand-edit `generate` text", "file": "references/mcp-loop.md" },
     { "kind": "skill-contains", "value": "Record open modeling questions as `question` notes" },
     { "kind": "skill-contains", "value": "list-model-notes", "file": "references/model-notes.md" },
     { "kind": "skill-contains", "value": "`anchor`", "file": "references/model-notes.md" },
@@ -41,7 +72,8 @@
     { "kind": "skill-contains", "value": "property.generations", "file": "references/property-links.md" },
     {
       "kind": "skill-contains",
-      "value": "Screenplay v4.144.0"
+      "value": "Requires Screenplay 4.144.0 or later",
+      "file": "references/model-notes.md"
     },
     {
       "kind": "skill-contains",
@@ -113,7 +145,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Only `apply` and `recover-workspace` write"
+      "value": "Only `apply` / `recover-workspace` write source/catalog"
     },
     {
       "kind": "skill-contains",

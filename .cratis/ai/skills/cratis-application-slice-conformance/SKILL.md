@@ -35,17 +35,16 @@ other infrastructure. Change behaviour in the model first, never in managed outp
   the intended event store and event sequence, and that a trigger event delivered there reaches
   it. Report this apart from the in-process specifications.
 
-## Verified product sources
+## Product facts
 
-This skill is a method: it names no API of its own. Product facts it relies on are pinned
-to these tags; when the Screenplay skills are installed their `references/versions.md`
-(in `cratis-screenplay-toolchain`) holds the full table.
+This skill is a method: it names no API of its own. When the Screenplay skills are installed their `SKILL.md`
+(in `cratis-screenplay-toolchain`) explains how to read the installed tool versions.
 
 | Fact used here | Source |
 | --- | --- |
-| Where each rule lives (validator, `Provide()`, handler result, constraint, exception) | `rules/vertical-slices.md` "The decision matrix" (Arc `v22.50.5` behaviour verified there) |
-| A customization never makes a rejected model renderable; managed output is never hand-edited | Stage `v4.24.0` (`Customizations/` is the unmanaged seam; managed output is regenerated) |
-| A command `handler` never binds (PLAY0268), so that slice is gap-fill with the model as contract | Screenplay `v4.66.0` (diagnostic PLAY0268) |
+| Where each rule lives (validator, `Provide()`, handler result, constraint, exception) | `rules/vertical-slices.md` "The decision matrix"  |
+| A customization never makes a rejected model renderable; managed output is never hand-edited | Stage (`Customizations/` is the unmanaged seam; managed output is regenerated) |
+| A command `handler` never binds (PLAY0268), so that slice is gap-fill with the model as contract | Screenplay (diagnostic PLAY0268) |
 
 ## Procedure
 
@@ -116,9 +115,11 @@ Change the code, or return an edit request. Do not touch test files outside the 
 told to.
 
 Where the model is a `.play` and the code is Arc, Marten or Critter Stack, `cratis screenplay
-conform <model-root> --project <path>` (CLI 3.42.0 or later; exit 0/1/2) adds structural drift
+conform <model-root> --project <path>` (exit 0/1/2) adds structural drift
 evidence: exact-address comparison of recovered declarations, never behavior or equivalence. It
 runs MSBuild on the project (trusted clone only). It supplements, and never replaces, steps 2 to 4.
+
+Requires cratis CLI 3.42.0 or later (`cratis --version`) for `cratis screenplay conform`.
 
 ### 5. Delta delivery
 After a model or outline change, the work list is every element and specification that

@@ -20,8 +20,8 @@ generator copies into generated proxies. Setup is in
 
 ## Verified product sources
 
-Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release;
-server packages 0.57.2, not on npm), reading `Source/Core/validation/**` (including
+Source: `Cratis/Arc.TypeScript` (source preview;
+server packages not on npm), reading `Source/Core/validation/**` (including
 `index.ts`, `ValidationResult.ts`, `Severity.ts`, `RuleBuilder.ts`),
 `Source/Core/commands/Outcome.ts`, `Documentation/commands/command-validation.md`,
 `validation-severity-filtering.md`, `command-outcomes.md`,
@@ -228,8 +228,8 @@ return rejected(validation('Unusually long title', ['title'], 'rule', Severity.W
 return denied('Only the owner can rename a task');
 ```
 
-- `ValidationResult.information/warning/error(message, options?)` (Arc for
-  TypeScript 0.34.0 and later) build a result at that severity; `options` sets
+- `ValidationResult.information/warning/error(message, options?)` (Requires Arc for
+  TypeScript 0.34.0) build a result at that severity; `options` sets
   `members`, `state` (must be JSON-serializable), `reason` (default `rule`) and
   `reasonDetail`. `members` defaults to `[]` and `reason` to `rule`; omitted
   `state` and `reasonDetail` are left out of the result.

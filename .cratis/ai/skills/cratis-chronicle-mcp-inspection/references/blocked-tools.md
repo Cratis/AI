@@ -3,15 +3,15 @@
 
 # Effectful and unknown Chronicle MCP tools
 
-Hand-maintained classification at **Cratis/Chronicle.Mcp v2.0.0**. These three
+Hand-maintained classification for `Cratis/Chronicle.Mcp`. These three
 tools are effectful, never `passive-allowed`; unknown subjects are
 `evidence-blocked`. All three are closed-world and declared idempotent.
 
-| Tool | Effect | Source at v2.0.0 |
+| Tool | Effect | Source |
 | --- | --- | --- |
-| `stop_job` | mutating, non-destructive; stops a job, retains state | [JobTools.cs:160–181](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/Source/Tools/Jobs/JobTools.cs#L160-L181) |
-| `resume_job` | mutating, non-destructive; resumes a Stopped job's remaining steps | [JobTools.cs:190–211](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/Source/Tools/Jobs/JobTools.cs#L190-L211) |
-| `delete_job` | mutating, destructive; removes the job and progress irreversibly | [JobTools.cs:220–241](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/Source/Tools/Jobs/JobTools.cs#L220-L241) |
+| `stop_job` | mutating, non-destructive; stops a job, retains state | [JobTools.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Tools/Jobs/JobTools.cs) |
+| `resume_job` | mutating, non-destructive; resumes a Stopped job's remaining steps | [JobTools.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Tools/Jobs/JobTools.cs) |
+| `delete_job` | mutating, destructive; removes the job and progress irreversibly | [JobTools.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Tools/Jobs/JobTools.cs) |
 
 Only the `Mutation` deployment profile registers these tools, and every call
 needs a current matching grant. A matching grant is not user confirmation:

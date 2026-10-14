@@ -1,21 +1,85 @@
 {
   "skill": "cratis-chronicle-decision-reads",
   "queries": [
-    { "query": "Use IDecisionReads to guard the balance facts used before a Chronicle append.", "shouldTrigger": true },
-    { "query": "What is the difference between Get and GetDetached on Chronicle decision reads?", "shouldTrigger": true },
-    { "query": "Admit returns Hierarchy for my projection. Can I use its sink instead?", "shouldTrigger": true },
-    { "query": "Protect a decision based on one monthly stream instead of the entire source.", "shouldTrigger": true },
-    { "query": "Explain DecisionReadConflictsWithConcurrencyScope in a standalone Chronicle client.", "shouldTrigger": true },
-    { "query": "Our batch needs incompatible guards for one event source. How should we handle it?", "shouldTrigger": true },
-    { "query": "Who may complete or roll back a protected Chronicle unit of work?", "shouldTrigger": true },
-    { "query": "Does a checked empty append validate its decision scope without writing?", "shouldTrigger": true },
-    { "query": "Define an Arc ProtectedDecision command and its handler parameters.", "shouldTrigger": false, "note": "cratis-arc-command / cratis-arc-command-validation" },
-    { "query": "Expose a snapshot query for the existing read model.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
-    { "query": "Make a user's email unique using UniqueAttribute.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
-    { "query": "Close an accounting period stream and refuse later appends.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
-    { "query": "Configure MongoDB clustering and TLS for the kernel.", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
-    { "query": "Specify a declarative projection with ReadModelScenario.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
-    { "query": "Implement a reducer with nullable current state.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
-    { "query": "Design the domain event vocabulary and stream boundaries before code.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+    {
+      "query": "Use IDecisionReads to guard the balance facts used before a Chronicle append.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What is the difference between Get and GetDetached on Chronicle decision reads?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Admit returns Hierarchy for my projection. Can I use its sink instead?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Protect a decision based on one monthly stream instead of the entire source.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Explain DecisionReadConflictsWithConcurrencyScope in a standalone Chronicle client.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our batch needs incompatible guards for one event source. How should we handle it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Who may complete or roll back a protected Chronicle unit of work?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Does a checked empty append validate its decision scope without writing?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Define an Arc ProtectedDecision command and its handler parameters.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-command / cratis-arc-command-validation"
+    },
+    {
+      "query": "Expose a snapshot query for the existing read model.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-read-model"
+    },
+    {
+      "query": "Make a user's email unique using UniqueAttribute.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-event-constraints"
+    },
+    {
+      "query": "Close an accounting period stream and refuse later appends.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-event-constraints"
+    },
+    {
+      "query": "Configure MongoDB clustering and TLS for the kernel.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-hosting"
+    },
+    {
+      "query": "Specify a declarative projection with ReadModelScenario.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-read-model-specifications"
+    },
+    {
+      "query": "Implement a reducer with nullable current state.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-reducer"
+    },
+    {
+      "query": "Design the domain event vocabulary and stream boundaries before code.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-event-modeling"
+    },
+    {
+      "query": "Which mechanism makes a capacity rule hold when two requests race: constraint, decision read or aggregate?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The guarded write landed first but another command without a guard still broke the rule. Why?",
+      "shouldTrigger": true
+    }
   ]
 }

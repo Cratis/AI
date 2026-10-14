@@ -1,6 +1,6 @@
 ## Generate metadata and proxies
 
-Verified at `Cratis/Arc.TypeScript` **v0.57.2** (source preview):
+Source: `Cratis/Arc.TypeScript` (source preview):
 `Source/Tools/ProxyGenerator/parseSourceOptions.ts`,
 `Documentation/proxy-generation/getting-started.md`, and sample generator scripts.
 
@@ -36,8 +36,8 @@ process.exitCode = result.status ?? 1;
   (`--api-prefix`, `--segments-to-skip`, `--root-namespace`) to the server's
   `generatedApis` options, or proxies call URLs the server does not serve.
 - Generated proxies import the **published** `@cratis/arc` and
-  `@cratis/arc.react` (docs/sample pins **22.45.0**) plus `@cratis/fundamentals`;
-  the UI samples pin `@cratis/components` 4.23.0. Compile in strict `Bundler`
+`@cratis/arc.react` plus `@cratis/fundamentals`;
+  the UI samples use `@cratis/components`. Compile in strict `Bundler`
   resolution with `skipLibCheck: false`, `experimentalDecorators: true`, and
   import `reflect-metadata` once in the frontend entry. These published client
   declarations do not support NodeNext consumer compilation. Consuming proxies

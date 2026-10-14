@@ -13,16 +13,26 @@ already be stale by the time the append lands; a constraint cannot be.
 
 Constraints are discovered automatically. There is no registration call.
 
+A constraint binds **every** writer, whichever client or service appends, so it is
+the mechanism for uniqueness and create-once. It cannot count, sum or test a
+predicate: capacity and stock rules need a decision read, a stream decision or an
+aggregate. Read [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md)
+when it is unclear which one a rule needs. Limits: the claim is settled after the
+durable append, so a failed index update can let a later duplicate
+through until a reindex; constraints apply per event store namespace and event
+sequence, so tenants in different namespaces can claim the same value; and a
+constraint is not re-run when the kernel retries a duplicate sequence number.
+
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` (client) | `19.50.1` | uniqueness, stream closing, constraint builders and append results |
-| `Cratis.Chronicle` code analysis | `19.50.1` | `CHR0017`, `CHR0018`, `CHR0020` |
-| `Cratis.Chronicle.Testing` | `19.50.1` | `EventScenario` and the `IAppendResult` `Should*` assertions |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` (client) | uniqueness, stream closing, constraint builders and append results |
+| `Cratis.Chronicle` code analysis | `CHR0017`, `CHR0018`, `CHR0020` |
+| `Cratis.Chronicle.Testing` | `EventScenario` and the `IAppendResult` `Should*` assertions |
 
 Sources: `Source/Clients/DotNET/Events/Constraints/`,
-`EventSequences/IEventSequence.cs` and `Source/Clients/Testing/` at v19.50.0.
+`EventSequences/IEventSequence.cs` and `Source/Clients/Testing/`.
 
 Reverify against the Chronicle repository before claiming support for another
 version. Never translate an attribute argument order or an assertion name from
@@ -32,9 +42,10 @@ memory.
 
 - The rule rejects **command input** — a range, a format, a cross-field
   condition: use `cratis-arc-command-validation`.
-- The rule is state-dependent and needs concurrency protection: use enrolled
-  stream/projection decision reads with `cratis-arc-command-validation`.
-  Plain injected models and `Result<,>` alone remain advisory.
+- The rule is state-dependent (a count, a capacity, a status) and needs
+  concurrency protection: use enrolled stream/projection decision reads with
+  `cratis-arc-command-validation` and `cratis-chronicle-decision-reads`. Plain
+  injected models, validators and `Result<,>` alone remain advisory.
 - You are creating or changing a read model that the rule reads: use
   `cratis-chronicle-read-model`.
 - You are writing the specification and want the `EventScenario` mechanics in
@@ -183,6 +194,10 @@ content to recompute the hashes, and skips subjects whose key has been erased so
 they do not all collide on the hash of an empty value. The index therefore holds
 plaintext-derived hashes, not the personal value itself.
 
+Read references/storage-uniqueness.md when upgrading SQL/in-memory constraints
+or reindexing duplicates: Requires Chronicle 19.59.7 for SQL atomic claim indexes,
+19.59.3 for in-memory claim preservation and 19.59.1 for duplicate-tolerant reindex.
+
 ## Step 6 — Specify the violation
 
 Specify the constraint with `EventScenario`: seed the conflicting state through
@@ -261,7 +276,9 @@ removing a manual closure. Closing does not erase history or prevent replay.
 - **The constraint never fires.** You used class-level `[Unique]` for a value
   that has to be unique across event sources, or property-level `[Unique]` for
   a "one per event source" rule. Re-read Step 1 — the kind is the switch.
-- **`[RemoveConstraint]` releases nothing.** The string does not match the
+- **`[RemoveConstraint]` releases nothing.** It releases attribute constraints
+  (`[Unique]` on a property or on the event type); on a fluent `IConstraint` it
+  compiles and does nothing, so use `.RemovedWith<T>()` there. Otherwise the string does not match the
   `[Unique]` name. When `[Unique]` had no explicit name the real name is the
   member or type name, which is easy to get wrong; name it explicitly.
 - **`PropertyDoesNotExistOnEventType` at startup.** A non-member-access lambda

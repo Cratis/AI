@@ -4,11 +4,12 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "a whitespace-only rejection" },
+    { "kind": "skill-contains", "value": "parent never arrives" },
     { "kind": "skill-contains", "value": "Coverage matrix before any spec" },
     { "kind": "skill-contains", "value": "Once, idempotent, exactly once are different claims" },
     { "kind": "skill-contains", "value": "Unauthorized is never `then error`" },
     { "kind": "skill-contains", "value": "find-specification-obligations" },
-    { "kind": "skill-contains", "value": "v4.68.0" },
     { "kind": "skill-contains", "value": "false PLAY0285" },
     { "kind": "skill-contains", "value": "One behaviour per spec" },
     { "kind": "skill-contains", "value": "No command has only two specs" },

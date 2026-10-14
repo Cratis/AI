@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { createHash } from 'node:crypto';
-import { constants } from 'node:fs';
+import { constants, existsSync } from 'node:fs';
 import { access, readFile, readdir, realpath, stat } from 'node:fs/promises';
-import { basename, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { checkCopilotInstructions } from '../Harness.Setup/copilot-instructions.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
@@ -18,7 +18,11 @@ import { verifySkillEvaluations } from './skill-evaluations.ts';
 import { bundlePins, bundleTable, pinRestatements, pinSummary, scaffoldPins, scaffoldTable, type PinException } from './pin-restatements.ts';
 import { danglingSkillReferences } from './skill-references.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
-import { referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
+import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems } from './skill-authoring.ts';
+import type { AuthoringFinding } from './AuthoringFinding.ts';
+import { evaluationCoverageBaseline, evaluationCoverageFindings } from './evaluation-coverage.ts';
+import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
+import { brokenRelativeLinkProblems, referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
 
 interface Profile {
     id: string;
@@ -36,6 +40,11 @@ const root = resolve(process.argv[2] ?? '../..');
 const corpus = join(root, '.cratis', 'ai');
 const failures: string[] = [];
 const scenarioResults: Array<{ scenario: string; skill: string; digest: string }> = [];
+// Skill bodies are timeless: hygiene findings fail verification. SKILL_HYGIENE_MODE=warn reports them without failing.
+const skillHygieneMode = process.env.SKILL_HYGIENE_MODE ?? 'fail';
+const hygieneFindings: ReturnType<typeof skillHygieneFindings> = [];
+const skillAuthoringMode = process.env.SKILL_AUTHORING_MODE ?? 'warn';
+const authoringFindings: AuthoringFinding[] = [];
 
 async function exists(path: string): Promise<boolean> {
     try {
@@ -153,6 +162,18 @@ console.log(productSyncSummary(productReport));
 const skillDirectories = (await readdir(join(corpus, 'skills'), { withFileTypes: true })).filter(entry => entry.isDirectory());
 const skillEvaluations = await verifySkillEvaluations(root, skillDirectories.map(entry => entry.name));
 failures.push(...skillEvaluations.problems);
+const evaluatedSkills = (await readdir(join(root, 'Evaluations', 'skills'), { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name);
+try {
+    const baseline = evaluationCoverageBaseline(root);
+    if (baseline === undefined) console.log('Evaluation coverage base comparison: skipped (no resolvable Git base); static coverage checks still run.');
+    authoringFindings.push(...evaluationCoverageFindings(
+        skillDirectories.map(entry => entry.name), evaluatedSkills,
+        JSON.parse(await readFile(join(root, 'Evaluations', 'unevaluated.json'), 'utf8')),
+        baseline));
+} catch (error) {
+    console.error(`Evaluation coverage could not run: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(2);
+}
 for (const name of unprofiledSkills(skillDirectories.map(entry => entry.name), profiles)) {
     failures.push(`Skill '${name}' is not reachable from any profile.`);
 }
@@ -162,6 +183,13 @@ const referencingFiles = await Promise.all(['rules', 'prompts', 'agents'].map(as
     return Promise.all(names.map(async name => ({ path: `${directory}/${name}`, content: await readFile(join(corpus, directory, name), 'utf8') })));
 }));
 failures.push(...danglingSkillReferences(referencingFiles.flat(), skillDirectories.map(entry => entry.name)));
+for (const entry of referencingFiles.flat()) authoringFindings.push(...instructionAuthoringFindings(`.cratis/ai/${entry.path}`, entry.content));
+const copilotAdapterNames = (await readdir(join(corpus, 'harnesses', 'copilot', 'instructions'))).filter(name => name.endsWith('.md'));
+const loadedArtifacts = {
+    copilotAdapters: await Promise.all(copilotAdapterNames.map(async name => ({ file: name, content: await readFile(join(corpus, 'harnesses', 'copilot', 'instructions', name), 'utf8') }))),
+    cursorRule: await readFile(join(corpus, 'harnesses', 'cursor', 'rules', 'cratis.mdc'), 'utf8'),
+};
+authoringFindings.push(...alwaysOnFindings(referencingFiles[0].map(entry => ({ file: `.cratis/ai/${entry.path}`, content: entry.content })), undefined, loadedArtifacts));
 for (const directory of skillDirectories) {
     const skillFile = join(corpus, 'skills', directory.name, 'SKILL.md');
     if (!await exists(skillFile)) {
@@ -169,18 +197,42 @@ for (const directory of skillDirectories) {
         continue;
     }
     const skillContent = await readFile(skillFile, 'utf8');
+    hygieneFindings.push(...skillHygieneFindings(relative(root, skillFile), skillContent));
+    authoringFindings.push(...skillAuthoringFindings(relative(root, skillFile), skillContent));
     const metadata = frontmatter(skillContent);
     if (!metadata?.name || !metadata.description) failures.push(`${relative(root, skillFile)} must declare name and description.`);
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
     failures.push(...skillFrontmatterProblems(relative(root, skillFile), skillContent));
     failures.push(...skillStructureProblems(relative(root, skillFile), skillContent));
+    failures.push(...brokenRelativeLinkProblems(relative(root, skillFile), skillContent, target => existsSync(join(dirname(skillFile), target))));
     const skillDirectory = join(corpus, 'skills', directory.name);
-    const referenceFiles = (await files(skillDirectory)).filter(path => path.endsWith('.md') && path !== skillFile);
+    const skillFiles = (await files(skillDirectory)).filter(path => path !== skillFile);
+    authoringFindings.push(...assetReachabilityFindings(relative(root, skillFile), skillBody(skillContent), skillFiles.map(path => relative(skillDirectory, path).replaceAll('\\', '/'))));
+    const referenceFiles = skillFiles.filter(path => path.endsWith('.md'));
     failures.push(...skillReferenceProblems(relative(root, skillFile), skillBody(skillContent), referenceFiles.map(path => relative(skillDirectory, path).replaceAll('\\', '/'))));
     for (const referenceFile of referenceFiles) {
-        failures.push(...referenceContentsProblems(relative(root, referenceFile), await readFile(referenceFile, 'utf8')));
+        const referenceContent = await readFile(referenceFile, 'utf8');
+        authoringFindings.push(...skillAuthoringFindings(relative(root, referenceFile), referenceContent));
+        failures.push(...referenceContentsProblems(relative(root, referenceFile), referenceContent));
+        failures.push(...brokenRelativeLinkProblems(relative(root, referenceFile), referenceContent, target => existsSync(join(dirname(referenceFile), target))));
+        if (relative(skillDirectory, referenceFile).replaceAll('\\', '/').startsWith('references/')) {
+            hygieneFindings.push(...skillHygieneFindings(relative(root, referenceFile), referenceContent));
+        }
     }
 }
+for (const exception of assetExceptions) {
+    if (!skillDirectories.some(entry => exception.file.startsWith(`.cratis/ai/skills/${entry.name}/`))) {
+        authoringFindings.push({ file: exception.file, line: 1, rule: 'asset-reachability', matchedText: 'Remove the exception for an absent skill.' });
+    }
+}
+const authoringReport = skillHygieneReport(authoringFindings);
+failures.push(...skillAuthoringProblems(authoringFindings, skillAuthoringMode));
+console.log(`Skill authoring (${skillAuthoringMode}): checked ${skillDirectories.length} skills and ${referencingFiles.flat().length} instructions; ${authoringReport.total} findings in ${authoringReport.perFile.length} files.`);
+console.log(JSON.stringify({ skillAuthoring: { mode: skillAuthoringMode, ...authoringReport } }, null, 2));
+const hygieneReport = skillHygieneReport(hygieneFindings);
+failures.push(...skillHygieneProblems(hygieneFindings, skillHygieneMode));
+console.log(`Skill hygiene (${skillHygieneMode}): ${hygieneReport.total} findings in ${hygieneReport.perFile.length} files.`);
+console.log(JSON.stringify({ skillHygiene: { mode: skillHygieneMode, ...hygieneReport } }, null, 2));
 
 for (const prompt of (await readdir(join(corpus, 'prompts'))).filter(name => name.endsWith('.md'))) {
     const path = join(corpus, 'prompts', prompt);

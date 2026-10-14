@@ -119,7 +119,8 @@ test('fresh Go sessions attach canonical source and module rules independently o
         writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/language/go'], languages: ['go'] }));
         assert.doesNotMatch(textOf(session(project, []).read('main.go')), /# Go framework parity/);
         writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] }));
-        for (const path of ['main.go', 'go.mod', 'go.sum']) assert.equal(session(project, []).read(path), undefined, 'non-Go selection');
+        // A Go file in a repository that did not select Go receives no Go-specific rule.
+        for (const path of ['main.go', 'go.mod', 'go.sum']) assert.doesNotMatch(textOf(session(project, []).read(path)), /# Go conventions|# Go framework parity/, 'non-Go selection');
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
@@ -1078,11 +1079,14 @@ test('verify.ts rejects a skill with a bad paths entry and accepts the corpus wi
             cpSync(join(repositoryRoot, entry), join(workspace, entry), { recursive: true });
         }
         cpSync(join(repositoryRoot, '.agents', 'plugins'), join(workspace, '.agents', 'plugins'), { recursive: true });
+        mkdirSync(join(workspace, 'Documentation'), { recursive: true });
+        cpSync(join(repositoryRoot, 'Documentation', 'compatibility.md'), join(workspace, 'Documentation', 'compatibility.md'));
         mkdirSync(join(workspace, 'Source', 'Pi.Plugin'), { recursive: true });
         cpSync(join(repositoryRoot, 'Source', 'Pi.Plugin', 'package.json'), join(workspace, 'Source', 'Pi.Plugin', 'package.json'));
         mkdirSync(join(workspace, 'Source', 'Verification', 'play'), { recursive: true });
         cpSync(join(repositoryRoot, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'), join(workspace, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'));
-        const verify = () => spawnSync(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), workspace], { encoding: 'utf8', cwd: join(repositoryRoot, 'Source', 'Verification') });
+        const env = { ...process.env, CI: '', GITHUB_ACTIONS: '', GITHUB_EVENT_PATH: '', GITHUB_EVENT_NAME: '' };
+        const verify = (overrides: NodeJS.ProcessEnv = {}) => spawnSync(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), workspace], { encoding: 'utf8', cwd: join(repositoryRoot, 'Source', 'Verification'), env: { ...env, ...overrides } });
 
         const skillFile = join(workspace, '.cratis', 'ai', 'skills', 'cratis-specifications-csharp', 'SKILL.md');
         const original = readFileSync(skillFile, 'utf8');
@@ -1090,6 +1094,11 @@ test('verify.ts rejects a skill with a bad paths entry and accepts the corpus wi
         assert.doesNotMatch(original, /\npaths:/, "the plain 'paths' key is Claude Code's conditional activation");
         const baseline = verify();
         assert.equal(baseline.status, 0, `${baseline.stdout}${baseline.stderr}`);
+        assert.match(baseline.stdout, /Evaluation coverage base comparison: skipped.*static coverage checks still run/);
+        const ciWithoutBase = verify({ GITHUB_ACTIONS: 'true' });
+        assert.equal(ciWithoutBase.status, 2, `${ciWithoutBase.stdout}${ciWithoutBase.stderr}`);
+        assert.match(ciWithoutBase.stderr, /Evaluation coverage base could not resolve in CI/);
+        assert.doesNotMatch(ciWithoutBase.stdout, /base comparison: skipped/);
 
         writeFileSync(skillFile, original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"'));
         const rejected = verify();

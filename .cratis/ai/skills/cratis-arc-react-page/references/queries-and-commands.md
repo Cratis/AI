@@ -226,7 +226,7 @@ or `exceptionDisplayComponent` (`ExceptionDisplayProps`); `showErrors={false}`
 hides built-in display. Dynamic accessors need `fieldName`; custom field validation
 failures block submit. `useIdentity(type)` deserializes typed details.
 Sources: `Source/JavaScript/Arc.React/Arc.tsx` and
-`commands/CommandForm/CommandForm.tsx` at v22.75.0.
+`commands/CommandForm/CommandForm.tsx`.
 
 ## `<Arc>` configuration
 

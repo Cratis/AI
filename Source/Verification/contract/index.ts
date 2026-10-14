@@ -15,7 +15,7 @@ async function markdown(directory: string): Promise<string[]> {
 
 export async function verifyContract(root: string, override?: string) {
     const references = join(root, referenceDirectory);
-    const pin = pinnedVersion(await readFile(join(references, 'versions.md'), 'utf8'));
+    const pin = pinnedVersion(await readFile(join(root, 'Documentation/compatibility.md'), 'utf8'));
     const version = (await readFile(join(references, 'screenplay-contract.version'), 'utf8')).trim();
     const pinned = parseContract(JSON.parse(await readFile(join(references, 'screenplay-contract.json'), 'utf8')) as unknown);
     const contract = override ? parseContract(JSON.parse(await readFile(resolve(root, override), 'utf8')) as unknown) : pinned;

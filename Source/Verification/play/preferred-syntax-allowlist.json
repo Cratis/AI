@@ -18,18 +18,6 @@
     "reason": "Names the deprecated spellings so readers can migrate them."
   },
   {
-    "file": ".cratis/ai/skills/cratis-screenplay-discovery/SKILL.md",
-    "rule": "compliance-marker",
-    "text": "| `<Type>[]`, shapes must be declared; `@pii` and `reason` on concepts | `v4.66.0:Documentation/screenplay/events.md`, `concepts.md` |",
-    "reason": "Retains an explicitly historical v4.66.0 evidence table."
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-screenplay-discovery/SKILL.md",
-    "rule": "compliance-marker",
-    "text": "| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) at 4.66.0; current markers are in `cratis-screenplay-command-surface` | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |",
-    "reason": "Historical binder refusal at v4.66.0, with a pointer to current markers."
-  },
-  {
     "file": ".cratis/ai/skills/cratis-screenplay-legacy-extraction/references/generate-notes.md",
     "rule": "compliance-marker",
     "text": "`pii/secret`, not the deprecated `sensitive`/`@pii` vocabulary.",
@@ -64,18 +52,6 @@
     "rule": "compliance-marker",
     "text": "| PLAY0565 | I | Deprecated `@pii`, `sensitive`, `@sensitive`; repair to bare `pii`/`secret`, preserving notes/trivia |",
     "reason": "Diagnostic reference must name the spellings being deprecated and repaired."
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/doc-contradictions.md",
-    "rule": "compliance-marker",
-    "text": "page's legacy `@pii` mentions do not change bare `pii`/`secret` canonical syntax;",
-    "reason": "Explains why historical upstream documentation is not current syntax authority."
-  },
-  {
-    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/doc-contradictions.md",
-    "rule": "compliance-marker",
-    "text": "| 17 | `@pii` | `D/concepts.md:3,33` \"Chronicle applies `@pii` and `@sensitive` rules automatically\" | the historical binder rejected any compliance attribute (PLAY0268); standalone 4.142.0 admits concept compliance as v13 (since 4.141.0) with narrower enum/identity/subject-lineage refusals (command-surface `references/compliance.md`). Keep protection; the historical pre-v13 CLI reported V3 blocked. `@sensitive` means an operational secret (`[Encrypted]` + `[NotAudited]`; Screenplay decision 0034); the historically probed tools (standalone 4.68.0, bundle 4.66.0) do **not** report `PLAY0515` (`@pii` from 4.69.1, `@sensitive` from 4.84.1): there only Chronicle catches either attribute on an event-source identifier, at build time of the generated code (CHR0034 for `@pii`, CHR0052 for `@sensitive`) |",
-    "reason": "Preserves a historical documentation contradiction and version-specific protection evidence."
   },
   {
     "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/preferred-syntax.md",

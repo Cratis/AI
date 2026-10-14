@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-multi-service-architecture",
+  "queries": [
+    { "query": "We are splitting our Cratis app into Ordering and Billing services. Should each get its own Chronicle event store or should we use namespaces?", "shouldTrigger": true },
+    { "query": "How does Billing receive OrderAccepted from the Ordering service's event store?", "shouldTrigger": true },
+    { "query": "Should our producer publish its public contract with a projection or a reactor that appends to the outbox?", "shouldTrigger": true },
+    { "query": "Our consumer reactor sometimes handles the same cross-service event twice. How do we make it idempotent?", "shouldTrigger": true },
+    { "query": "Tenant acme's events from Ordering never show up in Billing's inbox. Both services resolve tenants differently.", "shouldTrigger": true },
+    { "query": "Can each microservice run its own Chronicle kernel and still subscribe to the others' events?", "shouldTrigger": true },
+    { "query": "How should we version a public event that three other services consume?", "shouldTrigger": true },
+    { "query": "Our Kotlin service needs events from a .NET service's store. Implicit [EventStore] routing or explicit subscriptions?", "shouldTrigger": true },
+    { "query": "Can one Arc service call another Arc service's command from its backend?", "shouldTrigger": true },
+    { "query": "Write the Aspire AppHost that runs Ordering, Billing and one Chronicle kernel.", "shouldTrigger": false, "note": "cratis-multi-service-local-orchestration" },
+    { "query": "Add a second tenant to our single-service Chronicle app.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Model Ordering and Billing as two Screenplay applications with public events.", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Configure TLS certificates and clustering for our production Chronicle kernel.", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
+    { "query": "Write a reactor that emails the customer when an order ships.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Retry a quarantined subscription observer on our running Chronicle server.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Add a generation to an event type whose stored events need a new required property.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Decide the event vocabulary and stream boundaries for our new booking feature.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "Erase a customer's personal data with IPIIManager.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" }
+  ]
+}

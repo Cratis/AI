@@ -28,13 +28,25 @@
       "id": 3,
       "name": "keyed-read-and-bounded-shape",
       "prompt": "We need a new BookingSummary for a details page and a separately growing attempt timeline. Sketch the creation sequence and backend access: can IReadModels provide an IQueryable predicate for arbitrary status filters, and should we add default field values until the projection is wired? Explain how to prove the derived state works. Reply only.",
-      "expected_output": "Events, record, model-bound projection before fluent/reducer, then optional query. IReadModels has keyed rather than predicate reads; status filters use the sink. No masking defaults. Bounded summary plus paged history; drive contributing events into specs.",
+      "expected_output": "Events, record, attributes for clear mappings, fluent for structure, reducer code for clearer transitions (self-reducing model by default in new .NET code), then optional query. IReadModels has keyed rather than predicate reads; status filters use the sink. No masking defaults. Bounded summary plus paged history; drive contributing events into specs.",
       "assertions": [
         "States that IReadModels has no predicate or IQueryable surface and directs filtered reads through the sink.",
         "Rejects property defaults that could mask an unwired projection.",
-        "Orders projection choices as model-bound attributes, then fluent builder, then reducer only when neither expresses the transition.",
+        "Orders application-code choices as model-bound attributes for clear mappings, fluent builder for structure, then reducer when prior-state branches, calculations or guards read better as code; new .NET reducers default to self-reducing models, with IReducerFor for DI/replay instance behavior/separation and plain-class nomination only when its assembly cannot reference Chronicle.",
         "Keeps the summary and embedded children bounded and places growing attempts in a separately paged timeline.",
         "Verifies materialized state by driving contributing events through read-model specifications, with separate event-source setup for each contributing stream."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "passive-read-is-not-a-guard",
+      "prompt": "We marked the StockLevel read model [Passive] so the handler always sees fresh stock, then append OrderPlaced if stock > 0. Is the rule now safe under concurrent orders?",
+      "expected_output": "No: passive is fresh but unguarded; use a decision read over a flat event-source-keyed projection with an Id, not a reducer or self-reducing model.",
+      "assertions": [
+        "States passive is fresher, not safer: a passive read captures no position and enrolls no guard, so two concurrent orders can both pass.",
+        "Offers a decision read over a flat, event-source-keyed projection with an Id property (or a constraint/aggregate where it fits) for the rule.",
+        "Notes reducers and self-reducing models are refused by decision reads (19.58.0 for self-reducing).",
+        "Does not call a materialized read model a guard either; it may lag the log."
       ]
     }
   ]

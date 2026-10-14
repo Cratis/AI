@@ -225,3 +225,34 @@ export function skillContainsAssertionProblems(subject: string, assertion: { kin
     return assertion.kind === 'skill-contains' && typeof assertion.value === 'string' && content?.includes(assertion.value)
         ? [] : [`${subject} assertion failed: ${JSON.stringify(assertion)}.`];
 }
+
+/** Markdown link targets outside code, without their anchors; schemes and same-file anchors are left out. */
+function proseLinkTargets(content: string): string[] {
+    const prose = content.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '').replace(/(`+)[^`\n]*?\1/g, '');
+    return [...prose.matchAll(/\]\(<?([^)\s>]+)>?(?:\s+"[^"]*")?\)/g)]
+        .map(match => match[1].split('#')[0])
+        .filter(target => target !== '' && !/^[a-z][a-z0-9+.-]*:/i.test(target));
+}
+
+/** Relative Markdown link targets outside code; site-absolute paths, schemes and same-file anchors are not files. */
+export function relativeLinkTargets(content: string): string[] {
+    return proseLinkTargets(content).filter(target => !target.startsWith('/'));
+}
+
+/** Site-absolute link targets such as `/arc/backend/`; they resolve only on a documentation site, never from disk. */
+export function siteAbsoluteLinkTargets(content: string): string[] {
+    return proseLinkTargets(content).filter(target => target.startsWith('/'));
+}
+
+/**
+ * A link moved into references/ without rewriting resolves against the wrong directory and sends the agent nowhere,
+ * and a site-absolute path sends an agent reading the skill from disk nowhere at all.
+ */
+export function brokenRelativeLinkProblems(subject: string, content: string, exists: (target: string) => boolean): string[] {
+    return [
+        ...siteAbsoluteLinkTargets(content)
+            .map(target => `${subject} links to the site path '${target}'; use the absolute documentation URL (https://www.cratis.io${target}).`),
+        ...relativeLinkTargets(content).filter(target => !exists(target))
+            .map(target => `${subject} links to '${target}', which does not exist relative to the file.`),
+    ];
+}
