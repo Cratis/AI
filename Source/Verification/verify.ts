@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { createHash } from 'node:crypto';
-import { constants } from 'node:fs';
+import { constants, existsSync } from 'node:fs';
 import { access, readFile, readdir, realpath, stat } from 'node:fs/promises';
-import { basename, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { checkCopilotInstructions } from '../Harness.Setup/copilot-instructions.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
@@ -22,7 +22,7 @@ import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructi
 import type { AuthoringFinding } from './AuthoringFinding.ts';
 import { evaluationCoverageBaseline, evaluationCoverageFindings } from './evaluation-coverage.ts';
 import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
-import { referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
+import { brokenRelativeLinkProblems, referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
 
 interface Profile {
     id: string;
@@ -204,6 +204,7 @@ for (const directory of skillDirectories) {
     if (metadata?.name && metadata.name !== directory.name) failures.push(`${relative(root, skillFile)} name must match its directory.`);
     failures.push(...skillFrontmatterProblems(relative(root, skillFile), skillContent));
     failures.push(...skillStructureProblems(relative(root, skillFile), skillContent));
+    failures.push(...brokenRelativeLinkProblems(relative(root, skillFile), skillContent, target => existsSync(join(dirname(skillFile), target))));
     const skillDirectory = join(corpus, 'skills', directory.name);
     const skillFiles = (await files(skillDirectory)).filter(path => path !== skillFile);
     authoringFindings.push(...assetReachabilityFindings(relative(root, skillFile), skillBody(skillContent), skillFiles.map(path => relative(skillDirectory, path).replaceAll('\\', '/'))));
@@ -213,6 +214,7 @@ for (const directory of skillDirectories) {
         const referenceContent = await readFile(referenceFile, 'utf8');
         authoringFindings.push(...skillAuthoringFindings(relative(root, referenceFile), referenceContent));
         failures.push(...referenceContentsProblems(relative(root, referenceFile), referenceContent));
+        failures.push(...brokenRelativeLinkProblems(relative(root, referenceFile), referenceContent, target => existsSync(join(dirname(referenceFile), target))));
         if (relative(skillDirectory, referenceFile).replaceAll('\\', '/').startsWith('references/')) {
             hygieneFindings.push(...skillHygieneFindings(relative(root, referenceFile), referenceContent));
         }

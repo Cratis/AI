@@ -225,3 +225,17 @@ export function skillContainsAssertionProblems(subject: string, assertion: { kin
     return assertion.kind === 'skill-contains' && typeof assertion.value === 'string' && content?.includes(assertion.value)
         ? [] : [`${subject} assertion failed: ${JSON.stringify(assertion)}.`];
 }
+
+/** Relative Markdown link targets outside code; site-absolute paths, schemes and same-file anchors are not files. */
+export function relativeLinkTargets(content: string): string[] {
+    const prose = content.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '').replace(/(`+)[^`\n]*?\1/g, '');
+    return [...prose.matchAll(/\]\(<?([^)\s>]+)>?(?:\s+"[^"]*")?\)/g)]
+        .map(match => match[1].split('#')[0])
+        .filter(target => target !== '' && !target.startsWith('/') && !/^[a-z][a-z0-9+.-]*:/i.test(target));
+}
+
+/** A link moved into references/ without rewriting resolves against the wrong directory and sends the agent nowhere. */
+export function brokenRelativeLinkProblems(subject: string, content: string, exists: (target: string) => boolean): string[] {
+    return relativeLinkTargets(content).filter(target => !exists(target))
+        .map(target => `${subject} links to '${target}', which does not exist relative to the file.`);
+}
