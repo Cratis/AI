@@ -101,6 +101,12 @@ over one connection:
 Use the per-query route for debugging. The demultiplexer is what a browser
 client uses, and driving it by hand means managing subscription state yourself.
 
+Requires Arc 22.87.2 for invalid observable arguments to emit a structured
+invalid `QueryResult` with `validationResults` then end the SSE/WebSocket
+subscription, in direct and hub mode. Check `dotnet list package`; older servers
+can return a bare error or fail the connection. Controller-based direct
+WebSocket queries are outside this guarantee.
+
 ## Long polling
 
 ```bash

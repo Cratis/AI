@@ -77,6 +77,11 @@ The pipeline runs **authorization → validation → `Provide()` → `Handle()`*
 Authorization filters are explicitly ordered ahead of validation filters, so a
 caller who may not act never learns whether their input was valid.
 
+Requires Arc 22.87.2 for the frontend `notEmpty` text rule to match the backend's
+Unicode whitespace set (including U+0085 and excluding U+FEFF). Check the
+`@cratis/arc` package version with `yarn why @cratis/arc`; older client validation
+can disagree. Server validation remains authoritative.
+
 ## Step 2 — Value invariants: `ConceptValidator<T>`
 
 ```csharp

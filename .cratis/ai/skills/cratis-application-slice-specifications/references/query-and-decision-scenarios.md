@@ -35,8 +35,14 @@ change streams; the harness does not emulate it.
 The discovered `IQueryScenarioExtender` supports additional context/services.
 With `Cratis.Arc.Chronicle.Testing` and its Queries namespace, use
 `Given.ForEventSource(id).ReadModel(instance)` or `.Events(...)` before performing.
-The query must read that source via injected `IReadModels`; seeding does not
-replace arbitrary stores or produce later observable emissions after appends.
+The query must read through injected `IReadModels`; seeding does not replace
+arbitrary stores.
+
+Requires Arc 22.87.0 and Chronicle 19.54.0 for scenario `IReadModels.Observe<T>(filter)` snapshots from given events or pinned models,
+including new emissions after scenario command appends. Pins need a readable key
+or throw `PinnedReadModelCannotBeObserved`.
+Requires Arc 22.91.1 and Chronicle 19.59.1 for default-mode children, joins and reducers to observe through scenario-owned storage (the initial Arc package was not published); older default mode cannot
+observe children, so use decision mode. Check both package versions.
 
 For a query with `by`, `filter` or `scoped to`, seed instances for two keys, two filter values
 or two tenants with distinct callers, as applicable, and assert that each call returns only its
@@ -57,7 +63,12 @@ Queue interference using `AppendConcurrently(id, route, event)` and assert a
 nonempty decision is rejected on the intended boundary. An empty identical-retry
 append deliberately returns no scope and cannot prove the conflict guard.
 
-`ShouldHaveCompletedStream(type, id)` proves successful completion.
+Requires Arc 22.92.0 for `AppendConcurrently` without decision reads; older Arc
+needs decision mode. Its early interference does not make a plain read guarded;
+assert the actual scope/outcome, not merely that the competing append ran.
+
+`ShouldHaveCompletedStream(type, id)` proves successful completion;
+`ShouldHaveCompletedStream(ClosedStreamScope)` asserts the exact source and route.
 `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` checks projection
 admission in assembly-wide specs. These APIs are in
 `Cratis.Arc.Chronicle.Testing.Commands`. Routed seeding is refused in legacy mode.

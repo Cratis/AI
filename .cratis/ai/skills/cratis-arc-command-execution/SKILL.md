@@ -45,7 +45,7 @@ it records a failed compensator. Compose operation declarations instead.
 > commands, registered events and `EventForEventSourceId`. events
 > append first; append rejection stops all commands, and the first failed command
 > stops the rest. Earlier effects stay committed, so retries need idempotency.
-> A denied or invalid result fails the partition instead of being
+> An unhandled denied or invalid result fails the partition instead of being
 > discarded, and `[ExecuteCommandsAsSystem]` on the reactor class supplies a
 > principal for those returned commands. That attribute does **not** cover manual
 > `Execute` calls — the form below needs its own execution context. See the
@@ -65,6 +65,17 @@ public class <Name>Reactor(ICommandPipeline pipeline) : IReactor
 `Execute(command)` is the scopeless overload: the pipeline creates its own DI
 scope for the call. This is the normal case. **A DI scope is not an independent
 transaction boundary**; see the nested-command contract below.
+
+Read references/command-refusals.md when a returned reactor command has an
+expected business refusal: Requires Arc 22.88.0 for ordered `Invoke.Command`
+branches, acknowledgment and `CommandResult.GetRefusal()`.
+
+Requires Arc 22.92.0 for `IAsyncCommandExecutionScope.BeginAsync(context)`.
+All synchronous `Begin` calls run first, then asynchronous initialization runs
+sequentially before filters and validators. Establish ambient `AsyncLocal` state
+in synchronous `Begin`, honor `context.CancellationToken`, and retain the ordinary
+completion cleanup on failure. `Validate` skips execution scopes entirely.
+Check the Arc package version; older scopes only support synchronous initialization.
 
 ## The overloads
 
