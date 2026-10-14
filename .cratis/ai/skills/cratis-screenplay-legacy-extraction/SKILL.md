@@ -128,7 +128,7 @@ meaning (tests, generic engines, reference data, order, callers) and the read pa
 `references/signal-to-intent.md`.
 
 **Traceability checkpoint.** Every repository-backed code or schema claim resolves through its
-evidence id to an inspected `path:start-end` (file name exactly as given, `CheckinService.cs:40-54`)
+evidence id to an inspected `path:start-end` (file name exactly as given, `CheckinService.cs`)
 at the recorded source identity; a route, table name or generated declaration alone is not
 enough. Unresolved claims stay `unknown`; never manufacture references to meet a count. Walk the
 chain per slice before handoff (`references/evidence-table-template.md`, "Traceability reconciliation").

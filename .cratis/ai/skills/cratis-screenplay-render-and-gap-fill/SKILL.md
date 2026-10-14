@@ -25,21 +25,20 @@ rule is in `cratis-screenplay-modeling-lifecycle` ("Decide the level first"); it
 Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it before
 selecting the compiler and renderer for delivery: the CLI bundles its own Screenplay and Stage;
 its compiler version differs from the standalone pin. Render options (`--scope`,
-`--check`, `--package-set`) and exit codes were read at cli `v3.53.1` `Documentation/reference/screenplay.md`
-and `cratis render --help`; admission at Stage `v4.89.1` (`SemanticVersionFeatures.cs:105`,
-`SemanticVersionFeatureAdmission.cs:25-46`, `SemanticCratisAdmission.Automation.cs:15-123`). Stage's scaffold pins Arc and
-Chronicle releases, which are not the latest (`cratis-stage-rendering-and-sandbox`
+`--check`, `--package-set`) and exit codes: cli `Documentation/reference/screenplay.md`
+and `cratis render --help`; admission: Stage `SemanticVersionFeatures.cs`,
+`SemanticVersionFeatureAdmission.cs`, `SemanticCratisAdmission.Automation.cs`. Stage's scaffold pins Arc and
+Chronicle releases, which are not necessarily the latest (`cratis-stage-rendering-and-sandbox`
 `references/rendered-application.md`). Source reading is not a new render run.
 
-Runs: the worked example (`references/worked-example.md`) was probed with cratis 3.53.1 (observed; the
-3.28.2/3.28.3 runs are history). With public CLI 3.43.0 (Stage 4.52.0) the canonical `ScreenComposition`
-corpus was rendered and published successfully, and an MCP-edited copy was rendered, run and checked in
-the browser; the CLI 3.40.7 browser acceptance run passed 51 assertions (Cratis/Screenplay#605). The AI
+The worked example (`references/worked-example.md`) was probed with the public CLI (observed). The
+canonical `ScreenComposition` corpus was rendered and published successfully, and an MCP-edited copy
+was rendered, run and checked in the browser. The AI
 repository's `screenplay-mcp-transcript.ts` harness proves the real stdio proposal/apply path against the
-packaged CLI. Guarded Close actions and double-click interactions were refused (`STAGE-SCENE-ACTION-001`,
-`STAGE-SCENE-INTERACTION-001`) on that vector; since Stage 4.65 they render and run, and the codes
-remain for a guard Stage cannot evaluate, which is never emulated (Cratis/Screenplay#671). UI-profile
-rejection (`CLI-RENDER-007` to `-010`) and render-then-recover shipped in 3.41.0 (Cratis/cli#301). The
+packaged CLI. Guarded Close actions and double-click interactions are refused by an older Stage
+(`STAGE-SCENE-ACTION-001`, `STAGE-SCENE-INTERACTION-001`); a current Stage renders and runs them, and the codes
+remain for a guard Stage cannot evaluate, which is never emulated. UI-profile
+rejection (`CLI-RENDER-007` to `-010`) and render-then-recover are CLI behavior. The
 renderer facts are owned by `cratis-stage-rendering-and-sandbox`; this skill links them and never
 restates the admission table.
 
@@ -71,10 +70,10 @@ assume an answer to 4, and record it as `blocked` for the user.
 | **B. Generated base plus authorized gap-fill** | an admitted render (whole, or a `--scope` of the admitted slices) exists and the user separately authorized hand-written scope, or a seam the model names needs an adapter | the generated output stays managed and untouched; hand-written code lives in `Customizations/` or a separate project (seam adapters by this skill, business gap-fill by `slice-implementer`), serves named model elements only, never claims render admission, and V5 is reported for the generated base **with its scope stated** |
 | **C. Fully hand-written delivery** | the scope cannot render and no generated base is wanted | `slice-implementer` delivers it with the model as the contract (`references/gap-fill-handoff.md`); V5 is `not run: no render` |
 
-Evolved events are gap-fill too: Stage still refuses (4.89.1) any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract.
+Evolved events are gap-fill too: Stage still refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract.
 
 Supported UUID/String generation strategies, v15 freshness and scalar/named `returns`
-responses, fixtures and `then returns` render with CLI 3.57.0 / Stage 4.89.1. Unsupported generated
+responses, fixtures and `then returns` render with the CLI and Stage. Unsupported generated
 types (`STAGE-ESM-028`) and result combinations (`-038`) still require case A or C:
 preserve the model and its specifications. See Stage's `references/admission.md`.
 Supported event-triggered Automation slices also render as managed Chronicle reactors;
@@ -90,13 +89,13 @@ never infer target support from binding. Read Stage's `references/admission.md` 
 toolchain `references/sources-and-streams.md`.
 
 **Mixed reaction effects.** A reaction that both `produces` events and `invokes` commands is refused by
-Stage (`STAGE-ESM-037`, Stage#207) although Arc 22.72.0 and later run one reactor returning events
+Stage (`STAGE-ESM-037`) although Arc runs one reactor returning events
 and commands (events appended first as one batch, then commands in order, no cross-effect
 transaction; a retry can repeat the events). The scaffold now includes the mixed-result handler,
 but Stage still refuses it because redelivery can duplicate events. `[OnceOnly]` excludes replay,
 not retries. Keep the modeled reaction whole; gap-fill needs a proven retry-safe realization,
 not splitting or dropping effects to get a render. Source: Stage
-`v4.89.1:Documentation/reference/reaction-rendering.md:53-98`.
+`Documentation/reference/reaction-rendering.md`.
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and
 a whole-application V5 is never claimed from a subset. `--scope` renders an admitted part (the whole
@@ -109,8 +108,8 @@ model still compiles and binds) and its V5 states the scope.
    `references/verdicts-and-modes.md` "Source identity"), the model root, `--name`,
    `--project-name`, `--root-namespace` and target `cratis`. Take V1 and V3 from
    `cratis-screenplay-toolchain`; report each with tool and version. V3 from a different
-   compiler version does not prove the cratis-bundled binder admits the model (the bundle is
-   4.147.1, the standalone tool 4.153.0). `cratis screenplay validate --executable <root>` binds with
+   compiler version does not prove the cratis-bundled binder admits the model (the bundle
+   can be older than the standalone tool). `cratis screenplay validate --executable <root>` binds with
    the bundled compiler and writes nothing: use it as the bundled-binder check (toolchain `references/verdicts.md`).
 2. **Probe.** `cratis render <model-root> --name <App> --destination <probe-dir> -o json`
    (exit 0 published, 5 refused with nothing published, 1 missing input); add `--check` to plan
@@ -158,7 +157,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   (`cratis-application-slice-conformance` `references/build-prompts.md`).
 - One scope per `slice-implementer` brief; the brief carries addresses and paths, not contents.
 - Model-enforced rules realized in code (state-dependent rules) need a protected read or
-  concurrency scope; never claim them from prose. Stage 4.89.1 rendered apps scaffold
+  concurrency scope; never claim them from prose. Stage-rendered apps scaffold
   the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`; API availability alone is not verified enforcement.
 - Adapters that call outside systems follow `cratis-engineering-effect-boundaries`; slice
   specifications follow `cratis-application-slice-specifications`.

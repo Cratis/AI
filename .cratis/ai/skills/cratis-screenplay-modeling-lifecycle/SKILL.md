@@ -43,7 +43,7 @@ an unproven pass.
 | An accepted model covers the scope | **Model** | Change the `.play`, verify V1-V3, review, then render or gap-fill |
 | Opted in, but this scope has no model yet | **Model** | New behavior starts in discovery, then slice design |
 | A computed rule inside a modeled slice | **Model + code attachment** | `csharp`/`file` block; it binds only as the construct allows (`cratis-screenplay-model-authoring`) |
-| Scope Stage cannot render yet (Stage 4.89.1 renders supported event-triggered Automation; Translate/captures and refused reactions remain gap-fill. Mixed effects stay one reaction, `STAGE-ESM-037`; a hand-written realization must prove retry safety) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
+| Scope Stage cannot render yet (Stage renders supported event-triggered Automation; Translate/captures and refused reactions remain gap-fill. Mixed effects stay one reaction, `STAGE-ESM-037`; a hand-written realization must prove retry safety) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
 | Outside call, transport or credentials | **Adapter code** | `Customizations/` or the host, applying `cratis-engineering-effect-boundaries` |
 | Infrastructure, clients, framework-profile repositories, brownfield not opted in | **Code** | Arc, Chronicle, spec and React skills; trivial changes keep the proportional-delegation policy |
 
@@ -150,8 +150,8 @@ not name or that widens its scope.
 Procedure and edit-request template: `references/identity-and-edits.md`.
 
 **Document mappings count too.** With `identities.json` present, creating, deleting, renaming or
-moving a mapped `.play` file changes no catalog address but still breaks reopening: at Screenplay
-v4.66.0 `McpState.Open` throws `IdentityMappingConflict` ("mapped .play files are missing,
+moving a mapped `.play` file changes no catalog address but still breaks reopening:
+`McpState.Open` throws `IdentityMappingConflict` ("mapped .play files are missing,
 renamed, or accompanied by unmapped files ... use an MCP proposal to move/add/delete documents
 explicitly"). Do these through MCP document operations (the `screenplay` server's `propose-ast` tool), never a file move or rename
 in the shell or editor.
@@ -218,16 +218,15 @@ Done when: the mode's "done when" holds with fresh verdict lines; every open que
 address and assumption; every decided rejection is a specification; no protection was removed;
 the packet opens with `Outcome:`; STATE.md is current.
 
-## Verified product sources
-Model notes: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`,
-`decisions/0045-model-notes-sidecar.md:40-79`; exact tool sources in model-authoring
-`references/model-notes.md`. Tool versions: `cratis-screenplay-toolchain/SKILL.md`. Read `cratis-screenplay-toolchain/SKILL.md` when selecting or reverifying tool versions. Older source reads used here: Screenplay
-`v4.66.0` (`c89198b`): `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs:209-216` (personas are report-only),
+## Product sources
+Model notes: Screenplay `Documentation/screenplay/model-notes.md`; exact tool sources in model-authoring
+`references/model-notes.md` (Requires Screenplay 4.144.0 or later for model notes). Tool versions: `cratis-screenplay-toolchain/SKILL.md`. Read it when selecting or reverifying tool versions.
+Other sources: Screenplay `Source/DotNET/Tool/Program.cs` (`--warnaserror`, folder mode),
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.cs` (personas are report-only),
 `Documentation/screenplay/{constraints,specifications}.md`, `mcp/reference.md` (`modelRevision`);
-cratis CLI `v3.28.3` (`cratis screenplay validate --warnings-as-errors`; bundled Screenplay 4.66.0 then, 4.137.0 in 3.53.1);
-opt-in key `mcpServers.screenplay.root` in cratis CLI `v3.28.3`
-`Documentation/reference/screenplay-mcp.md`. The 4.66.0 and 3.28.3 reads are historical, not current pins. The worked example compiles with the standalone tool.
+cratis CLI `cratis screenplay validate --warnings-as-errors` and the opt-in key `mcpServers.screenplay.root`
+(`Documentation/reference/screenplay-mcp.md`). The worked example compiles with the standalone tool.
+
 ## Verify
 ```shell
 screenplay <model-folder> --warnaserror --no-color

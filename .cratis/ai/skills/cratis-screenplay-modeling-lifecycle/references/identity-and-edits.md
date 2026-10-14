@@ -22,7 +22,7 @@ changes. The Screenplay Reviewer and Renderer never edit `.play`; they always re
 
 ## Classify by catalog address
 Classify an edit by whether it changes the **catalog addresses**, not by artifact category.
-At Screenplay v4.66.0 `SemanticAddress` assigns identities to modules, features, slices,
+`SemanticAddress` assigns identities to modules, features, slices,
 concepts, composite types, properties, commands, event contracts, read models, projections,
 queries, query arguments, specifications, triggers, reactions and captures;
 `ScreenplayWorkspace` materializes new assignments when it is created from source; and

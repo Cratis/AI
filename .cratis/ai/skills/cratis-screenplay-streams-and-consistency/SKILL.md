@@ -12,7 +12,7 @@ which it only records, and what a retry, a race or a replay does. Grammar lives 
 skills; this skill owns the decisions. The `.play` model is the source of truth: a rule that
 lives only in code, or only in a description, is a finding, not a solution.
 
-**First append into a scope (Chronicle v19.50.0, version-qualified).** The default optimistic
+**First append into a scope.** The default optimistic
 strategy compares the scope's tail sequence number. When nothing matches the scope yet (the
 first event on a new event source, or the first event of a new source type, stream type or
 stream id), there is no tail and the append is **not checked**: two writers opening the same
@@ -27,21 +27,17 @@ needs it:
 Require target evidence that the check ran: a concurrent first-append scenario against a real
 Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
 is `true` (a skipped check and a passing one look identical otherwise; a current client against
-an older kernel always reads `false`). This was source- and documentation-inspected, not
-concurrency-tested here. The Stage scaffold pins Chronicle client/kernel and Arc releases (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`;
+an older kernel always reads `false`). Treat the default as unchecked until target evidence shows otherwise (a future major release can flip the default, so read the target's release notes). The Stage scaffold pins Chronicle client/kernel and Arc releases (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`;
 the CLI bundle's Chronicle follows the installed CLI: `cratis --version`); the APIs exist for gap-fill, not as automatically rendered enforcement.
 
-## Verified product sources
+## Product sources
 
-| Product | Pin | Used for |
-| --- | --- | --- |
-| Screenplay | v4.68.0 (`79801bf`) | ESM v7 generated values (`generated identifier`, decision 0026) and decision 0025's numbering; the diagnostics below were read at v4.66.0 (`c89198b`): `identifier`, `for`, constraints, generations, `id` pins, diagnostics PLAY0019/0135/0268/0271/0273/0391-0393/0446-0449/0469/0471 |
-| Chronicle | v19.50.0 (read; first read at v19.32.0 `f17a2ff`) | CHR0012, CHR0034; open defects #3744, #4123, #4131 (still open) |
-| Arc | v22.72.0 | `[ProtectedDecision]` and `DecisionRead<T>` (since v22.39.0) |
-| Stage | v4.89.1 | rendered apps pin the Arc and Chronicle client/kernel listed in the Stage skill's `references/rendered-application.md`; protected-read APIs available to gap-fill. Historical 4.24.2 admission probe: ESM v4, evolved events refused with `STAGE-ESM-026` |
-
-Tool versions: `cratis-screenplay-toolchain` `SKILL.md`. Re-check the three
-Chronicle issues before relying on a constraint in a later release.
+Screenplay (`identifier`, `for`, constraints, generations, `id` pins and their diagnostics),
+Chronicle (CHR0012, CHR0034 and the constraint and concurrency behavior below), Arc
+(`[ProtectedDecision]`, `DecisionRead<T>`) and Stage (rendered apps pin the Arc and
+Chronicle client/kernel listed in the Stage skill's `references/rendered-application.md`;
+protected-read APIs are available to gap-fill). Tool versions: `cratis-screenplay-toolchain`
+`SKILL.md`. Re-check the Chronicle limits below before relying on a constraint in a new release.
 
 ## When / when not
 - Use: choosing `identifier` and `for`; adding or naming a `constraint`; a rule that depends on
@@ -87,10 +83,10 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    invariant consequences, not names or length. For Chronicle keep event-source identity,
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
-   command/specification routes bind and reference-execute as ESM v8 on 4.125.0.
+   command/specification routes bind and reference-execute as ESM v8.
    The CLI (toolchain `references/renderable-subset.md`) reaches Stage construct checks through v15; keep the routing
    contract when target admission requires gap-fill. Forms/boundaries:
-   toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7, standalone 4.68.0 and later; Stage 4.89.1 renders supported UUID/String strategies and v15 freshness; unsupported types/results still refuse -028/-038) is
+   toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7; Stage renders supported UUID/String strategies and v15 freshness; unsupported types/results still refuse -028/-038) is
    generated fresh on every acceptance: it is not a retry identity, and generated values give no
    idempotency, retry or deduplication guarantee. When a retry must find the same stream, the caller
    supplies the identifier before the first attempt.
@@ -129,7 +125,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    `references/compliance.md` for allowed types and the policy/encryption distinction.
 5. **Plan evolution** with `references/evolution.md`: classify each event change (additive,
    meaning change, rename, removal, split or merge) and write its compatibility scenarios before
-   editing. Admit the **4.153.0 release baseline** in the release job; admitted
+   editing. Admit the **release baseline** in the release job; admitted
    revisions need `newGeneration`. Modes/CLI/MCP: `references/evolution.md`.
    Pin persisted/public enum member numbers before reordering or removing
    members; never renumber or reuse a published number. Positional pins preserve
@@ -144,7 +140,7 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
    decisions and capability gaps in `STATE.md`. Then the gate below.
 
 ## Rules
-**Compiler contracts** (diagnostics at Screenplay v4.66.0 and v4.68.0; capability per tool in the toolchain `references/executable-subset.md`)
+**Compiler contracts** (diagnostics; capability per tool in the toolchain `references/executable-subset.md`)
 - `identifier` on an event property is PLAY0019; the source id is never payload by declaration.
   Copying it as a payload value is PLAY0469 (information, warning for inline events).
 - In the executable model a production's `for` must resolve to the command's scalar identifier:
@@ -153,40 +149,44 @@ option, mark it `ASSUMED` in the slice or module `documentation` and in the sess
   directly on the event (PLAY0391); never mix event and property rules under one name (PLAY0135);
   `ignore casing` is not allowed on `unique event` (PLAY0393).
 - Generations are declared in full, numbered 1..N without gaps, in the same slice
-  (PLAY0446-0448). Referencing a removed property is PLAY0273; a `given` needing a historical
+  (PLAY0446-0448). Referencing a removed property is PLAY0273; a `given` needing a previous-generation
   shape is PLAY0449. An `id` pin equal to the event's current name is PLAY0471 (information).
-  Since Screenplay **4.152.0**, differing pins carry `storedName` in ESM v16;
+  Differing pins carry `storedName` in ESM v16;
   equal-name pins are no-ops. Pins are event-name identifiers, shared by all
   generations and unique application-wide (PLAY0472). Consumers must admit v16;
-  released Stage 4.92.0 / CLI 3.59.0 do not. See `references/evolution.md`.
+  a renderer that stops before v16 does not. See `references/evolution.md`.
 - `reads` is PLAY0271 and `require` over read-model paths is PLAY0268 at binding. A `concurrency`
   block compiles but is PLAY0271 at binding. Keep both when they state real intent; they are not
   protection. `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
-- `pii` and `secret` bind as ESM v13 on standalone 4.142.0 (since 4.141.0) and the pinned CLI;
+- `pii` and `secret` bind as ESM v13;
   enum/identity compliance and protected events with explicit subject marks still
   refuse PLAY0268 (command-surface `references/compliance.md`). Legacy markers are
   deprecated (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
   scalar/composite stream-id types and route mapping sources, including nested paths.
-- At 4.127.0 stream-id literals must be nonempty, well-formed NFC text (refused,
+- Stream-id literals must be nonempty, well-formed NFC text (refused,
   not normalized); integer ids in Double mode stay within ±(2^53−1). Exact mode
   has no such bound but is unadmitted. PLAY0504 is an error for route/destination
   nominal type mismatch. Composite ids use at least two named scalar parts,
   complete named mappings and canonical comparison, not guessed legacy splits.
   Stored key-schema changes require a new stream identity or migration; see
-  toolchain `references/sources-and-streams.md`. Since Screenplay **4.150.0**,
-  a stored stream name exactly `All` (name or `id "All"`) refuses binding with
+  toolchain `references/sources-and-streams.md`. A stored stream name exactly `All` (name or `id "All"`) refuses binding with
   PLAY0273, parallel to source `Default`. Streams `all`, `ALL` and `Default`
   remain valid. Rename via `propose-rename`; a pin retaining `All` cannot fix it.
   Existing `All` history reads as source-only appends, not the renamed stream.
   Source evidence and migration limits are in that reference.
-- Chronicle (open at v19.50.0): the SQL and InMemory providers do not settle unique claims
-  (#3744); index updates run after commit and may fail silently (#4123); composite values can
-  collide on the separator (#4131). A declared constraint is a declaration, not a runtime test.
-- `[ProtectedDecision]` is available in Arc v22.39.0 or later, including Stage 4.73.1's
-  rendered package set. It is not emitted protection: gap-fill must enroll an admitted
+- Chronicle limits: before 19.59.6 (InMemory: 19.59.3) the SQL and InMemory providers do not settle unique claims (see the Requires line below);
+  index updates run after commit and may fail silently; composite values can
+  collide on the separator. A declared constraint is a declaration, not a runtime test.
+- `[ProtectedDecision]` ships in Arc and Stage's rendered package set. It is not emitted protection: gap-fill must enroll an admitted
   decision read, or redesign the stream/identity when the shape is refused
   (`references/consistency-and-concurrency.md`, section 3).
+
+Requires Screenplay 4.150.0 or later (`screenplay --version`) for the `All` stored-stream refusal, 4.152.0 or later for `storedName` (ESM v16) and 4.153.0 or later for the release baseline.
+
+Requires Arc 22.39.0 or later and Chronicle 19.23.0 or later for `[ProtectedDecision]`.
+
+Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the SQL provider to settle unique-constraint claims; before it, two concurrent appends can both claim one value.
 
 **Modeling defaults** (deviate with a recorded reason)
 - One business identity per stream; cross-stream references are payload properties.

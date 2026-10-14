@@ -13,7 +13,7 @@
 Compact examples for each scenario category, in one invoicing domain so the shapes compare
 easily. Every excerpt below is copied verbatim from the complete document in
 `invoicing-dues-example.md`, which compiles with warnings as errors and whose 23 specifications
-pass in the reference evaluator (standalone 4.139.0); it also holds the declarations the excerpts depend on. The two
+pass in the reference evaluator; it also holds the declarations the excerpts depend on. The two
 compensation excerpts in section 4 come from `invoicing-dues-design.md` instead: that document
 holds the stored-state rules (`reads` + `require`), compiles but does not bind (PLAY0271,
 PLAY0268), so its specifications are design mode and do not run. A second
@@ -150,7 +150,7 @@ A reversal needs a paid history, the reversal action and the exact consequence. 
 lists the declared consequence (`RefundRequested`); the reaction is also specified on its own.
 `RefundRequested` is a recorded request, not proof that money moved, and there is no
 `then <Command>` form. What the target must do to deliver the refund is a requirement, not a spec.
-From `invoicing-dues-design.md` (design mode; the specs do not run at 4.66.0):
+From `invoicing-dues-design.md` (design mode; the specs do not run):
 ```screenplay excerpt parent=references/invoicing-dues-design.md#1 expect PLAY0516 test=unbound
 specification ReversingAReceivedPayment
   given caller
@@ -210,7 +210,7 @@ A list query asserts one `result` block per expected row: count is exact, but ro
 match by read model and key regardless of order. The
 empty-list intent is a separate claim from a keyed row being absent (`view-and-story-specs.md`
 "Removal is a positive obligation"). The backing example proves the keyed forms only; whole-list
-queries are executable too (`ListOpenInvoices` in the backing example); caller-supplied equality filters on collections bind as ESM v14 since 4.143.0.
+queries are executable too (`ListOpenInvoices` in the backing example); caller-supplied equality filters on collections bind as ESM v14.
 Pass `by` and filters in query arguments; PLAY0468 reports unknown, repeated or
 missing required arguments. Optional filters may be omitted, supplied null is refused.
 Context-sourced/single-result filters, opaque `scoped to`/`performer`, and composite

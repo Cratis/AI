@@ -14,18 +14,18 @@ encodings, entropy, MCP edits, fixtures and freshness.
 
 **Context-dependent generation is not released in Screenplay.** The OrderId below
 is time-ordered TypeID, not Arc's received-time/tenant factory contract; Stage
-4.89.1 emits a wall-clock `New()`. Passed-through GenerationContext in Arc source
+emits a wall-clock `New()`. Passed-through GenerationContext in Arc source
 recovery describes that strategy shape, not equivalent clock/tenant semantics.
-Context-member/rule recovery stays in code (Screenplay#616 phase 3).
+Context-member/rule recovery stays in code.
 
 The shop's ApiKey remains a **secret**. In .NET its factory is `Bytes(32)` and its
 concept is `[NotAudited]`. It is never an identifier (event-source IDs are plaintext
 metadata); a separate `ApiKeyId` identifies the key. Executable secret generation is **not released in
-Screenplay** (phase 4). The declaration below preserves classification without
+Screenplay**. The declaration below preserves classification without
 adding `generate bytes 32` or a generated command property. No API-key issuance
 behavior is claimed; retain it as an explicit gap/owning implementation contract.
 
-This complete reference-executable model uses the pinned Screenplay **4.151.0**:
+This complete reference-executable model compiles with the standalone tool:
 
 ```screenplay
 concept CustomerId : String
@@ -88,10 +88,10 @@ sequence allocation and secret generation stay explicit upstream gaps.
 
 ## Tagged evidence
 
-Screenplay `v4.151.0:Documentation/screenplay/generated-values/choosing.md:8-51`,
-`Documentation/screenplay/generated-values.md:60-72`,
-`Documentation/screenplay/concepts.md:60-86` (header secret classification),
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Generation.cs:14-80`.
-Stage `v4.89.1:Documentation/reference/generated-values-rendering.md:62-83,138-146`.
-Arc `v22.87.1:Documentation/backend/csharp/generating-a-screenplay.md:260-284`.
+Screenplay `Documentation/screenplay/generated-values/choosing.md`,
+`Documentation/screenplay/generated-values.md`,
+`Documentation/screenplay/concepts.md` (header secret classification),
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Generation.cs`.
+Stage `Documentation/reference/generated-values-rendering.md`.
+Arc `Documentation/backend/csharp/generating-a-screenplay.md`.
 Sources for the released .NET context/secret helpers are in the linked shop reference.

@@ -25,26 +25,21 @@ effects. If the answer is "populate a queryable model", it is not a reactor.
 > `.cratis/ai.json`; master definition in `cratis-screenplay-modeling-lifecycle`), the automation is
 > a modeled slice: find it (`Automation` or `Translate`), treat its `produces` /
 > `invokes`, conditions and fields as the contract, and write the reactor only as
-> gap-fill for what the model leaves to code (Stage 4.89.1 renders supported event-triggered Automation;
+> gap-fill for what the model leaves to code (Stage renders supported event-triggered Automation;
 > Translate/captures and refused reactions remain gap-fill; Stage skill `references/admission.md`). Use `cratis-screenplay-automations-and-translations` to
 > change the model; never change the model to fit the reactor, and never leave a
 > modeled rule living only in the reactor. If the repository is not opted in
 > (an empty directory, install output, a `.play` file outside the root or an untracked or uncommitted draft is not consent), stay code-first here
 > (`cratis-chronicle-event-modeling` for a new, unsettled flow); if the Screenplay skills are not installed, say so and do not author `.play` from memory.
 
-## Verified product sources
+## Product sources
 
-This skill is verified against these exact sources:
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `Cratis.Chronicle.Reactors`, `Cratis.Chronicle.Reactors.SideEffects`, `Cratis.Chronicle.EventSequences`, `Cratis.Chronicle.Events` |
+| `Cratis.Chronicle.CodeAnalysis` | handler, side-effect and filter diagnostics, including CHR0054–CHR0056 |
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `19.50.1` | `Cratis.Chronicle.Reactors`, `Cratis.Chronicle.Reactors.SideEffects`, `Cratis.Chronicle.EventSequences`, `Cratis.Chronicle.Events` |
-| `Cratis.Chronicle.CodeAnalysis` | `19.50.1` | handler, side-effect and filter diagnostics, including CHR0054–CHR0056 |
-
-Scenario guards began in **19.46.0**, reverified at **19.50.0**;
-see [specifications](references/specifications.md).
-
-Reverify product sources before claiming support for another version.
+Scenario guards: see [specifications](references/specifications.md).
 
 > **There is no `ReactorSideEffect` type.** Use the supported return types below;
 > `EventForEventSourceId` supplies per-event metadata.
@@ -136,7 +131,7 @@ synchronous returns. Custom `IReactorSideEffectHandler` implementations can
 claim synchronous types through `CanHandleReturnType(Type)`; they are not
 restricted to `Task<T>`. An unclaimed return value **fails the partition** with
 `UnhandledReactorReturnValue`, naming its type. CHR0054 flags an unsupported
-return type at build time. Source at v19.50.0: `Reactors/EventHandlerMethods.cs`,
+return type at build time. Source: `Reactors/EventHandlerMethods.cs`,
 `Reactors/SideEffects/IReactorSideEffectHandler.cs`, `Reactors/UnhandledReactorReturnValue.cs`.
 
 ### Returning events instead of injecting `IEventLog`
@@ -160,8 +155,7 @@ public Task<IEnumerable<object>> <MethodName>(<EventName> @event, EventContext c
 causation)` is the cross-stream wrapper. Its init members include `Subject`,
 `Occurred`, `Tags`, `EventSource` (`Type?`) and `EventStream` (`string?`). Routing
 defaults are `EventStreamType.All`, `EventStreamId.Default` and
-`EventSourceType.Default`. Source: `EventSequences/EventForEventSourceId.cs`
-at v19.50.0.
+`EventSourceType.Default`. Source: `EventSequences/EventForEventSourceId.cs`.
 
 ```csharp
 public Task<IEnumerable<EventForEventSourceId>> <MethodName>(<EventName> @event, EventContext context) =>
@@ -200,7 +194,7 @@ a method** and means **replay exclusion**:
   starts;
 - on a method, that handler is skipped while the delivery is a replay.
 
-**`[OnceOnly]` is not per-event-source deduplication.** There is no ledger of
+**`[OnceOnly]` is not per-event-source deduplication.** There is no record of
 which events a handler has already seen. Recovering a failed partition
 re-delivers the event as an ordinary observation, and a `[OnceOnly]` handler runs
 again. Catch-up and crash redelivery are not replay either; every ordinary
@@ -235,12 +229,14 @@ public sealed class ReactorAttribute(string id = "", string? eventSequence = def
 **There is no `isActive` argument** — that belongs to `[Reducer]`. Without an
 explicit `id`, the reactor's identity is its full type name.
 
-Give side-effecting reactors a **stable explicit id**. Since 19.47.0 discovery
+Give side-effecting reactors a **stable explicit id**. Discovery
 warns on likely renames/moves: a new id catches up from the start and repeats
 side effects; `[OnceOnly]` does not prevent that. `ArtifactIdentityDrift = Fail`
 rejects Warning-level reactor/event-type findings with
 `ArtifactIdentityDriftDetected`; projection/reducer drift is Information.
-Inspect `RegistrationOutcome.IdentityDrift`. After stopping all subscriptions,
+Inspect `RegistrationOutcome.IdentityDrift`.
+
+Requires Chronicle 19.47.0 or later for identity-drift warnings and `ArtifactIdentityDrift`. After stopping all subscriptions,
 `IEventStore.Observers.Remove` can remove an orphaned observer; it refuses while
 running or subscribed anywhere. This is an authorized operator action, not a
 rename cleanup to perform automatically.
@@ -320,7 +316,7 @@ application observer that is when the client connects again, for example after a
 redeploy; Kernel-owned reactors subscribe again at startup; automatic event-store
 subscription reconciliation does not end quarantine. Read
 [recovery](../cratis-chronicle-hosting/references/operations.md) for the
-v19.50.1 fail-closed lookup and observer-kind-specific quarantine rules.
+fail-closed lookup and observer-kind-specific quarantine rules.
 
 Do not throw to reject a malformed inbound event. A reactor is not a data-quality
 gate; invalid payloads belong at the command or append site. When a malformed

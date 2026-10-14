@@ -40,7 +40,7 @@ templates, table and column names, and path:line, not values.
 |---|---|
 | `id` | `E<n>`, stable; never renumber |
 | `source` | static (generate) / dynamic (Prologue) / code / test / UI / runtime (Chronicle) / doc / expert |
-| `locator` | Repository-backed code, test and schema claims: the inspected repository-relative `path:start-end`, with the file name exactly as given (`CheckinService.cs:40-54`, never shortened; for a test, the test method's range), bound to the source identity. A locator that cannot be found is recorded as `not found` and the claim stays `unknown`; it is never rewritten as "to build". Runtime (Chronicle): target, event store, namespace, schema identity + generation or bounded event range, observation time. Other sources: capture file + record, redacted UI route + observation id, document section/version, generated declaration address + diagnostic, or person + date. Never substitute one source type's locator for another's |
+| `locator` | Repository-backed code, test and schema claims: the inspected repository-relative `path:start-end`, with the file name exactly as given (`CheckinService.cs`, never shortened; for a test, the test method's range), bound to the source identity. A locator that cannot be found is recorded as `not found` and the claim stays `unknown`; it is never rewritten as "to build". Runtime (Chronicle): target, event store, namespace, schema identity + generation or bounded event range, observation time. Other sources: capture file + record, redacted UI route + observation id, document section/version, generated declaration address + diagnostic, or person + date. Never substitute one source type's locator for another's |
 | `observed fact` | what was seen, in neutral words ("POST /checkins inserts Checkins and updates Hooks") |
 | `technical shape` | method + route, tables (op, columns), status-code mix, frequency, span names |
 | `strength` | Exact / Configured / Conventional / Heuristic (generator ladder), Observed (capture), Read (code), Stated (person) |
@@ -57,7 +57,7 @@ Example rows:
 | id | source | locator | observed fact | technical shape | strength | classification | gen. disposition | candidate | decision | decided by | verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | E1 | dynamic | capture 0007, `POST /api/checkins` | taking in a coat writes two tables | insert `Checkins`; update `Hooks(occupied)`; 201 x41, 409 x3 | Observed | intent (take in) + consequence (hook) | n/a | `TakeInCoat` -> `CoatTakenIn`; occupancy via projection | change | proposed | not asked |
-| E2 | code | `CheckinService.cs:88-94` | 409 when the hook is already free, message "That coat is not on a hook" | throws `ConflictException` | Read | intent (rule) | n/a | `reads CoatStatus` + `require`, NOT enforced today (target: protected decision or Chronicle `concurrency` scope); no executable error spec, recorded in LOSS.md | keep | proposed | not asked |
+| E2 | code | `CheckinService.cs` | 409 when the hook is already free, message "That coat is not on a hook" | throws `ConflictException` | Read | intent (rule) | n/a | `reads CoatStatus` + `require`, NOT enforced today (target: protected decision or Chronicle `concurrency` scope); no executable error spec, recorded in LOSS.md | keep | proposed | not asked |
 | E3 | static | `static.play`, SP0016 at `CheckinValidator` | validation rule held to a condition is emitted unconditionally; the condition is lost | `When(x => x.IsVip)` | Exact (loss) | unknown | Lowered without its condition (semantic mismatch, reported by SP0016) | none yet | undecided | - | question Q4: when does the rule really apply? read `CheckinValidator` and ask an expert |
 | E4 | dynamic | uncorrelated txn, `Hooks` nightly 02:00 | hook flags reset without a command | update `Hooks(*)` daily | Observed | unexplained | n/a | none | undecided | - | question Q5 |
 
@@ -75,7 +75,7 @@ Before handoff, for every candidate slice and rule:
 3. Keep inferred business meaning and target decisions apart from the observed behavior.
 4. Mark unsupported claims `unknown` and add the question that would settle them.
 
-Put an exact `file:line` locator for every evidence-backed claim (`CheckinService.cs:88-94`)
+Put an exact `file:line` locator for every evidence-backed claim (`CheckinService.cs`)
 inline in the final report itself, with the file name exactly as given; a pointer to this table
 or another file is not enough, and opaque ids alone do not count. List unresolved gaps. Do not manufacture references to meet
 a count. A UI-only or document-only extraction may have no code locators; say so and limit
@@ -87,7 +87,7 @@ source changed or rows disagree; note why.
 
 | when | file:lines or capture | resolves | result row(s) |
 |---|---|---|---|
-| L3 | `Jobs/HookReset.cs:12-40` | E4 | E9 (maintenance job, clears stale flags) |
+| L3 | `Jobs/HookReset.cs` | E4 | E9 (maintenance job, clears stale flags) |
 
 ## 4. Unknowns and questions
 List rows still `unknown` or `undecided` with the question that would settle them, who can

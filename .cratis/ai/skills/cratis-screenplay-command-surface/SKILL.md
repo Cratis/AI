@@ -20,16 +20,15 @@ root. Never put a model under `.cratis/` or hand-copy it between repositories.
 `cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
 Markdown in project documentation; `.play` is the single flow model.
 
-## Verified product sources
+## Product sources
 
 Tool versions: toolchain `SKILL.md`; sources below. Compilation is not execution.
 
-- `4.31.0`: original examples and executable boundaries; main `fd18129`: inline events, repairs, canonical `optional`.
-- `4.66.0` (`c89198b`): `handler`, code attachments, `persona` and compliance binding (`Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs`).
-- `4.68.0` (`79801bf`): generated-value/response rule probes (ESM v7).
-- `4.127.0`: identity and compliance syntax (`identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`).
-- `4.141.0`: v13 compliance admission; rechecked at `4.142.0`: `references/compliance.md`.
-- `4.148.0`: v15 generation strategies/strict fixtures/freshness; Stage `4.89.1` realization: `references/generated-values-and-responses.md`; shop: `references/shop-generation.md`.
+- Examples and executable boundaries; inline events, repairs, canonical `optional`.
+- `handler`, code attachments, `persona` and compliance binding (`Semantics/SemanticModelBinder*.cs`, `Diagnostics/DiagnosticCodes.cs`).
+- Generated-value and response rules (ESM v7).
+- Identity and compliance syntax (`identity.md`, `context.md`, `concepts.md`, `purposes.md`, `events.md`, `diagnostics.md`); v13 compliance admission: `references/compliance.md`.
+- v15 generation strategies, strict fixtures and freshness; Stage realization: `references/generated-values-and-responses.md`; shop: `references/shop-generation.md`.
 
 "Parses" and "runs" are different claims. The executable profile, and what
 each construct binds to, is in the `cratis-screenplay-model-authoring` language
@@ -154,9 +153,9 @@ view name when that view is read once.
 arrow of the event model; nothing checks at append time that the state is still
 current. The executable model rejects every `reads` and `concurrency` with
 `PLAY0271`, and `require` over a read-model path with `PLAY0268`, until
-decision-consistent reads exist (Screenplay #129, decision 0003). Adding a
-`concurrency` block does not fix this: its scope is not the read's watermark, and
-decision 0003 plans to make the combination an error once protected reads ship.
+decision-consistent reads exist. Adding a
+`concurrency` block does not fix this: its scope is not the read's watermark, and the
+combination is planned to become an error once protected reads ship.
 When a rule depends on state:
 
 - if it is uniqueness, declare a `unique` constraint (below);
@@ -164,7 +163,7 @@ When a rule depends on state:
   must enforce it consistently. Do not claim the model guarantees it.
 
 Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block is
-`PLAY0268` (#599; read-surface `references/named-keys.md`).
+`PLAY0268` (read-surface `references/named-keys.md`).
 
 ## `validate`
 
@@ -209,7 +208,7 @@ A continuation line extends the clause.
 `A and B`. Write the operator explicitly so the reader does not have to know this.
 
 - Several `authorize` lines on one command or query combine with AND, in authored
-  order. (Before v4.29.0 all but the last were silently dropped.)
+  order.
 - `authorize` on an enclosing `module` or `feature` is ANDed with the command's
   own gate; an `or` inside one gate never bypasses another gate.
 - Evaluation short-circuits left to right, module → feature → command. If it
@@ -246,7 +245,7 @@ choosing or omitting `for` on a production, or fixing `PLAY0469`-`PLAY0478`.
   Conditions over command properties and constants bind; each is evaluated
   independently, and when all are false the command is accepted with no events.
   Compare an enumeration with a member bare (`status == sent`) or quoted
-  (`status == "sent"`); the bare form binds from v4.48.0, so quote it when a model
+  (`status == "sent"`); the bare form binds, so quote it when a model
   must bind on an older version.
   Excerpt:
 
@@ -261,7 +260,7 @@ produces when isProForma == true
 Routes bind as ESM v8; production `stream Source.Stream` overrides
 select v10. Read toolchain [routes](../cratis-screenplay-toolchain/references/production-routes-and-filters.md)
 and [source/stream declarations](../cratis-screenplay-toolchain/references/sources-and-streams.md).
-Since **4.150.0**, stored stream `All` / `id "All"` refuses PLAY0273;
+A stored stream `All` / `id "All"` refuses PLAY0273;
 rename and history-migration guidance is in that reference.
 `public event X` is a local export; `event X from "store"` is a locally declared,
 unverified foreign shape. Commands never produce public events. Read
@@ -298,9 +297,11 @@ to the routed scope. This does not make command `reads` protected.
 UUID generation/responses bind as v7; serialized concept `generate` selects v15:
 UUIDv7/ULID/TypeID/NanoID/bytes, strict fixtures and whole-source freshness.
 Reuse rejects Concurrency, no append/retry. Generated rules/secrets and pattern/random/rule
-remain refused. Historical CLI 3.41.0 refusals: STAGE-ESM-028/029.
+remain refused.
 Read [references/generated-values-and-responses.md](references/generated-values-and-responses.md)
 for `generated`, `generate`, `returns`, strict fixtures/freshness and renderer limits.
+
+Requires Screenplay 4.147.0 or later (`screenplay --version`) for concept generation strategies (ESM v15), 4.150.0 or later for the stored stream `All` refusal, 4.141.0 or later for compliance (ESM v13) and 4.139.0 or later for non-positional enum numbers (ESM v12).
 Complete example: `cratis-screenplay-toolchain/references/generated-responses-example.md`.
 Routes and realization: `cratis-screenplay-toolchain/references/sources-and-streams.md`.
 

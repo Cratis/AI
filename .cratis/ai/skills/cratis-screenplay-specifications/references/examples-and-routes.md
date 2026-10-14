@@ -22,7 +22,7 @@ Examples share the type namespace and use the current event generation. They
 cannot inherit from examples or serve as query results/returns/trigger/capture
 fixtures. They are specification data, not operational `seed` events.
 
-This complete example compiled and its two reference scenarios passed on 4.125.0:
+This complete example compiles and its two reference scenarios pass:
 
 ```screenplay
 concept ProjectId : Uuid
@@ -54,8 +54,7 @@ module Projects
 
 An example's type may be an event, command or read model declared in another
 document of the same compilation, by simple name when unambiguous or by qualified
-name (`Billing.Facts.Recording.Recorded`). Checked against Screenplay v4.139.0
-(Screenplay#648, released in 4.135.1) and the standalone 4.139.0 compiler:
+name (`Billing.Facts.Recording.Recorded`). Checked against the standalone compiler:
 
 ```text
 // declarations.play: module Billing > feature Facts > slice StateChange Recording
@@ -93,7 +92,7 @@ example Fact : Recorded
   name. A named `import X.Y.Z` of a declaration the application already has warns
   `PLAY0290` (no effect), and binding still refuses any named import with
   `PLAY0268`, as for inline givens; public `from "<store>"` imports are refused
-  the same way (#481).
+  the same way.
 - The example is resolved in its own declaration scope, so shared example data may
   live beside the declarations it types, in any document.
 
@@ -124,7 +123,7 @@ cannot reconstruct source origins.
 
 Event occurrences in `given`, `when append` and `then` accept `stream Source.Stream`
 with nested scalar `streamId = <literal>` or a complete composite part block.
-These select ESM v8 and reference-execute at 4.125.0; the complete checked model
+These select ESM v8 and reference-execute; the complete checked model
 is in toolchain `references/sources-and-streams.md`. Command actions take their
 route from the command declaration, never the fixture.
 
@@ -134,16 +133,16 @@ it. `then ... no stream` expects no route; no route in a then is a wildcard.
 steps replace the entire route, independently of `for`; an inherited route
 cannot be changed back to a wildcard. Literal compatibility/route contradiction
 checks use resolved source/stream types, not guessed text (PLAY0547–PLAY0551).
-At Screenplay 4.127.0, route literals must be nonempty, well-formed NFC text
+Route literals must be nonempty, well-formed NFC text
 (refused, not normalized); Double integer ids are within ±(2^53−1), while Exact
 has no such bound but the `numbers exact` source mode remains unadmitted (PLAY0268; exact lowering of
 qualifying Double literals is the separate, admitted v11). Invalid specification routes report
 PLAY0549. Contradictions compare canonical scalar ids and every composite part,
 so UUID casing is immaterial. Composite mappings supply each named part once,
 using literals only; encoding escapes `%`/`|` and preserves declaration order.
-Source: v4.127.0 `event-sources.md`, `specifications.md`, `diagnostics.md`.
+Source: `event-sources.md`, `specifications.md`, `diagnostics.md`.
 
-Previous CLI 3.46.1 refused above v7; the CLI/Stage pair
+A renderer that stops at v7 refuses a model above it; the CLI/Stage pair
 (`cratis-screenplay-toolchain/references/renderable-subset.md`) reaches route checks through v10. Routed read-model/query replay can still refuse
 STAGE-ESM-030. Source/reference success never establishes target parity.
 
@@ -167,7 +166,7 @@ needs exactly one definitely matching candidate and **no undecided candidates**
 values, `stream` or `no stream`; do not guess an unknown value. A locator's `for`
 is optional but typed against the routed source when present.
 
-This complete syntax-only model validates on 4.127.0; `screenplay test` reports
+This complete syntax-only model validates; `screenplay test` reports
 PLAY0268 for redelivery, not a passing scenario:
 
 ```screenplay test=unbound
@@ -216,4 +215,4 @@ remain unadmitted; they are not executed append scenarios. Forms, matching,
 acknowledgement and their whole-model refusal boundary are in
 captures-and-reactions `references/refusals-and-redelivery.md`.
 
-Authority: Screenplay `v4.127.0:Documentation/screenplay/specifications.md`.
+Authority: Screenplay `Documentation/screenplay/specifications.md`.

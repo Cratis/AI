@@ -1,13 +1,15 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Child-before-parent specifications (4.149.1 and later)
+# Child-before-parent specifications
 
 ## Contents
 
-- Verified product sources
+- Product sources
 - Complete model
-- Known routing difference — decision 0007
+- Known routing difference
+
+Requires Screenplay 4.149.1 or later (`screenplay --version`) for child-before-parent arrival order in the reference evaluator.
 
 Views combining sources must tolerate any arrival order. The reference evaluator
 retains a parentless child and retries it in arrival order using its original event
@@ -16,16 +18,16 @@ pending grandchild in the same pass. Pending children survive given/when and
 accepted command commits. A parent that never arrives leaves the child absent;
 an ambiguous parent still fails closed.
 
-## Verified product sources
+## Product sources
 
-Cratis/Screenplay **v4.149.1**:
-- `Source/DotNET/Screenplay/Semantics/Execution/SemanticScopedProjection.Deferred.cs:11-96`
-  retains and resolves child occurrences; `:98-138` applies original mappings.
-- `Source/DotNET/Screenplay/Semantics/Execution/for_SemanticEvaluator/when_projecting_scoped_projections/with_deferral_across_given_and_when.cs:8-60`
+Cratis/Screenplay:
+- `Source/DotNET/Screenplay/Semantics/Execution/SemanticScopedProjection.Deferred.cs`
+  retains and resolves child occurrences; it applies original mappings.
+- `Source/DotNET/Screenplay/Semantics/Execution/for_SemanticEvaluator/when_projecting_scoped_projections/with_deferral_across_given_and_when.cs`
   is the compiling, passing source for the model below. The extra specifications
   cover both given orders and a child whose parent never arrives.
-- `Documentation/screenplay/projections/semantic-model.md:77-81` and
-  `decisions/0007-affected-read-model-instances.md:46` retain the routing boundary.
+- `Documentation/screenplay/projections/semantic-model.md` and
+  `decisions/0007-affected-read-model-instances.md` retain the routing boundary.
 
 ## Complete model
 
@@ -101,10 +103,10 @@ module Orders
 With the fenced model saved as `child-ordering.play`, run
 `screenplay test child-ordering.play --format json` on the standalone pin;
 each selected specification must pass. The corpus gate runs this complete fence.
-The CLI 3.57.0 bundle's Screenplay 4.147.1 predates child deferral; a newer
+A CLI-bundled compiler that predates child deferral does not run it; a newer
 standalone result does not upgrade that bundle or prove rendered tests.
 
-## Known routing difference — decision 0007
+## Known routing difference
 
 For a flat root/child shared event type, the evaluator uses the root handler's
 resolved key, matching Chronicle's current-event fallback. It does **not**

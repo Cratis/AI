@@ -116,18 +116,19 @@ Before re-rendering an edited model over an earlier render, preview it:
 cratis render <model-folder> --name <ApplicationName> --destination <render-dir> --check -o json
 ```
 
-`--check` (CLI 3.44.0) plans exactly like a render and reports per path what a real
+`--check` plans exactly like a render and reports per path what a real
 render would write, delete, leave unchanged or refuse, without writing anything. It
 exits `0` when the destination is current, `6` (`changes_pending`) when a render
-would change it and `5` when planning is refused. Since CLI 3.45.0 the receipt lists
+would change it and `5` when planning is refused. The receipt lists
 for every path the semantic declarations it realizes (`sources`: id, kind and a
 `Module/Feature/Slice/Name` address) and a `bySource` view mapping each declaration
 to its files. After an MCP edit, use `bySource` to confirm the edited screen or
-binding changed exactly the files you expect, and `semantic-diff` (MCP, Screenplay
-4.131.0: `before` and `after` as `{ "workspace": "active" }`, `{ "path": "<folder>" }`
+binding changed exactly the files you expect, and `semantic-diff` (MCP:
+`before` and `after` as `{ "workspace": "active" }`, `{ "path": "<folder>" }`
 or `{ "workspaceJson": "<export>" }`) to compare the model before and after the
-edit. These are newer than the verified vector: report them as published, not as
-executed there.
+edit.
+
+Requires cratis CLI 3.44.0 or later (`cratis --version`) for `cratis render --check`.
 
 For screens-release parity, the smoke check must assert that every authored
 screen, template, component, form, toolbar, outlet, route and package/icon use is
@@ -142,15 +143,8 @@ not to the AI corpus. Link to the fixture path and run its published checks; do 
 copy those `.play` files into `.cratis/ai/` or into a skill reference as a
 maintained duplicate.
 
-Historical verified public vector and executable checks:
+Executable checks against the corpus:
 
-- executed toolchain: public CLI 3.43.0 (`23e5a24`), whose default runtime was
-  `cratis/stage:4.52.0` and which bundled Screenplay 4.127.0. Published since,
-  and not verified by this vector: Scene 4.17.0, Screenplay 4.133.1, Stage 4.64.0,
-  previous CLI 3.46.1 (bundling Screenplay 4.130.0, then-default Stage 4.52.0) and
-  Studio 0.152.2. Tool versions: `cratis-screenplay-toolchain/SKILL.md`.
-  Compiler claims from this `cratis` probe are 4.127.0 claims, not current
-  bundled-compiler claims;
 - fixture root: `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/ScreenComposition/v1/source/folder`
   in the Screenplay repository;
 - Screenplay repo tool (available checkout): `dotnet run --project Source/DotNET/Tool
@@ -163,25 +157,21 @@ Historical verified public vector and executable checks:
   `apply`, real `apply` and `open-workspace` again. It uses a scratch copy,
   changes `application.play` with a comment-preservation probe, fails closed on a
   stale revision, applies with the matching revision and verifies the comment
-  remains on disk. On CLI 3.43.0: 9 requests and 9 responses, 37 tools,
-  `executableReady true`, stale apply `StaleRevision`, comment preserved;
+  remains on disk. A passing run shows `executableReady true`, stale apply `StaleRevision` and the comment preserved;
 - render (`cratis render <corpus-folder> --name ScreenComposition --destination
-  <dir> -o json`) with CLI 3.43.0 publishes the corpus; the browser acceptance
-  run on CLI 3.40.7 passed 51 assertions (Cratis/Screenplay#605);
-- guarded Close and double-click: refused with `STAGE-SCENE-ACTION-001` and
-  `STAGE-SCENE-INTERACTION-001` on this historical vector, rendered and run since
-  Stage 4.65 (live browser run on CLI 3.53.1 with `cratis/stage:4.73.1`,
-  Cratis/Screenplay#671); the codes remain for a guard Stage cannot evaluate. Studio
-  production Play proof is a separate vector (Cratis/Screenplay#173). UI-profile
-  rejection and render-then-recover shipped in Cratis/cli#301.
+  <dir> -o json`) publishes the corpus;
+- guarded Close and double-click: Stage renders and runs them; the codes
+  `STAGE-SCENE-ACTION-001` and `STAGE-SCENE-INTERACTION-001` remain for a guard Stage
+  cannot evaluate. Studio production Play proof is a separate vector. UI-profile
+  rejection and render-then-recover are covered by the CLI.
 
 ## Replay the workflow in CI without a Screenplay checkout
 
 `screens-smoke.sh <work-folder>` in the AI repository's `screens-smoke` verification folder installs the pinned public `cratis` CLI,
 materializes the published `Cratis.Screenplay.CanonicalCorpus` folder source (so the corpus stays Screenplay-owned and
 is never copied), replays the MCP transcript with the revision-checked column edit, renders the edited folder and
-requires the column in the generated `scene.json`. The pins live in `screens-smoke.json` and follow the verified
-vector above; the corpus package is the one that records that vector. The corpus verification job runs it on every
+requires the column in the generated `scene.json`. The pins live in `screens-smoke.json`; the corpus package records the
+expected results. The corpus verification job runs it on every
 change. With `SCREENS_SMOKE_BROWSER=1` (the CI job sets it) it also runs the edited folder with `cratis run`
 and checks the edited column and a created row in Chromium with the pinned Playwright, so the browser step below runs in
 corpus CI too; locally it needs Docker.
@@ -205,11 +195,6 @@ reaches a running application, end to end, on the installed public CLI:
    `Work item id` column header and the new item's id in the table. It needs
    Docker and a resolvable `playwright` (`SCREENPLAY_PLAYWRIGHT_NODE_PATH`); exit
    `0` verified, `1` edit not visible, `2` could not run.
-
-Executed on public CLI 3.43.0 (`23e5a24`, Stage 4.52.0, bundled Screenplay
-4.127.0): 9/9 MCP requests with the column on disk, render `published` with the
-column in `scene.json`, and all five browser checks passed against
-`cratis/stage:4.52.0` (also passed earlier on CLI 3.41.0 / `cratis/stage:4.51.3`).
 
 Report a corpus the released compiler, MCP server or renderer refuses as a
 capability/version-pairing gap with the exact diagnostics; never soften it to a

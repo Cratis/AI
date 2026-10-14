@@ -108,7 +108,7 @@ is the fallback, and neither names the other's verdict. Versions and commands:
 - [ ] Personal data is classified on the `concept`, with a reason.
 - [ ] Specifications name the rejections, not only the happy path.
 - [ ] Bind with the runtime's compiler; tool versions: toolchain `SKILL.md`.
-      CLI 3.57.0 / Stage 4.89.1 admit through v15, including supported event Automation,
+      A CLI and Stage that admit v15 also admit supported event Automation,
       generation strategies/responses, equality filters, enum numbers and compliance. Translate/captures
       and refused reactions remain gaps (Stage `references/admission.md`).
       Mixed effects remain `STAGE-ESM-037`: retries can duplicate events. Keep the reaction
@@ -128,13 +128,13 @@ The independent verdicts V1 to V5 that report them are in
 What binds depends on **which tool** you ask, so name the tool and its version:
 
 - `Automation` and `Translate` slices, reactions, captures and triggers bind (ESM v6) on the
-  standalone tool and the CLI bundle. (Historical: the cratis 3.27.1 bundle, Screenplay 4.60.1,
-  reported *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage 4.89.1 renders supported event-triggered Automation, not Translate/captures or non-event triggers.
+  standalone tool and a CLI bundle that admits v6. (An older bundle
+  reports *Slice '<name>' of type '<type>' is not admitted by ESM v1.*) Stage renders supported event-triggered Automation, not Translate/captures or non-event triggers.
 - `reads` and `concurrency` on a command do not bind (`PLAY0271`), so no decision is
   protected against stale state. A reaction trigger's `reads` that only `invokes` is
   report-only intent (`PLAY0270`); one that `produces` directly fails binding (`PLAY0268`).
 - `persona` declarations are report-only and never block; bare `pii` and `secret`
-  concepts bind as ESM v13 on standalone 4.142.0 (since 4.141.0), and the pinned CLI; Stage renders admitted v13 protection.
+  concepts bind as ESM v13 (Requires Screenplay 4.141.0 or later); Stage renders admitted v13 protection.
   Enum/identity compliance and protected events with explicit subject marks remain
   refused (PLAY0268); see command-surface `references/compliance.md`. Keep protection.
 - Generated values/responses bind and reference-execute as v7; sources, streams
@@ -142,10 +142,10 @@ What binds depends on **which tool** you ask, so name the tool and its version:
   qualifying Double literals lower exactly as v11 and non-positional enum numbers
   as v12. Use `screenplay test` or MCP `run-specifications` for V4.
   Operations/systems, the `numbers exact` **source mode** (PLAY0268) and
-  refusal/redelivery remain unadmitted. CLI 3.57.0 / Stage 4.89.1 render supported generation strategies and v15 freshness,
+  refusal/redelivery remain unadmitted. The CLI and Stage render supported generation strategies and v15 freshness,
   scalar/named responses, enum numbers, compliance and supported event reactions.
-  The pair reaches construct checks through v15, not blanket rendering; supported v14 filters
-  now render. Current boundaries and source evidence:
+  The pair reaches construct checks through the ESM version it bundles, not blanket rendering; supported v14 filters
+  render. Current boundaries and source evidence:
   `cratis-screenplay-toolchain/references/renderable-subset.md`.
   Source/binding admission and target realization are separate gates.
 
@@ -174,15 +174,11 @@ source is the single flow model.
 
 Which tool reports what, and how to read installed versions, live only in `cratis-screenplay-toolchain`
 `SKILL.md`; read it before choosing a tool or reporting a version-dependent verdict.
-The nine-step examples compile with the standalone compiler 4.139.0 and their specifications run
+The nine-step examples compile with the standalone compiler and their specifications run
 in the reference runner (compilation does not establish reference execution).
 
-Historical provenance (not current pins): the original baseline was read at Screenplay tag
-`v4.31.0` (commit `355dffb`: `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md`,
-`projections/keys.md`, decisions 0001 to 0014); the inline-contract and event-context changes
-follow `commands.md`, `events.md` and decision 0023 at main `fd18129` (after v4.52.0); persona,
-operation and stream dispositions were read at `v4.66.0` (`c89198b`) and generated values and
-responses at `v4.68.0`.
+Sources: Screenplay `Documentation/screenplay/{slices,commands,folders,printing,interactions,specifications}.md` and
+`projections/keys.md`; the inline-contract and event-context changes follow `commands.md` and `events.md`.
 
 Read [references/slice-type-rules.md](references/slice-type-rules.md) when deciding if a behavior is an Automation or a Translate slice.
 
@@ -225,7 +221,7 @@ Every behavior is exactly one. An unknown slice type is a compile error:
 | Event -> decision -> Command/Event | `Automation` | `reaction` |
 | External data -> Event | `Translate` | `capture` |
 
-Read [references/parsed-not-runnable.md](references/parsed-not-runnable.md) (section "Decision 0006 and shipped generations") when deciding whether a decided construct (trigger `reads`, event generations) is implemented. An accepted decision is not necessarily implemented.
+Read [references/parsed-not-runnable.md](references/parsed-not-runnable.md) (section "Trigger reads and event generations") when deciding whether a decided construct (trigger `reads`, event generations) is implemented. An accepted decision is not necessarily implemented.
 
 ## Where Cratis diverges from the generic method
 
@@ -235,9 +231,9 @@ compile or will not be safe. Both are deliberate.
 - **A command may read state.** The generic method forbids `ReadModel -> Command`
   edges. Screenplay ships `reads <ReadModel> [as <alias>] [by <property>]` so the
   model shows what a state-dependent decision consulted. **It is not a protected
-  at Screenplay 4.139.0 (Screenplay#129 open):** nothing checks at append time that the state is still current,
+  (open limitation):** nothing checks at append time that the state is still current,
   the executable model rejects `reads` and `concurrency` (`PLAY0271`), and adding
-  `concurrency` does not make the decision safe (decision 0003, Screenplay #129).
+  `concurrency` does not make the decision safe .
   Write a state-dependent rule as `reads <View>` plus `require <expr> message "..."`
   and mark it in the slice `description` as **not enforced in the model today**,
   naming the target that must enforce it (Arc `[ProtectedDecision]` with

@@ -1,7 +1,7 @@
 # Provenance
 
 Lineage of `cratis-screenplay-scenario-coverage`. The method was first drafted for the Cratis
-corpus from Screenplay specification semantics (verified at tag v4.66.0) and refined against two
+corpus from Screenplay specification semantics and refined against two
 external event-modeling skill sets.
 
 ## Adapted closely (MIT)
@@ -23,7 +23,7 @@ by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with the explicit c
 | Source file | Used in | How |
 |---|---|---|
 | `.claude/skills/eventmodeling-elaborating-scenarios/SKILL.md`: Interview Phase, Workshop Facilitation Guide, Multi-Role Review, Common Workshop Mistakes, Tips for Rapid Creation | `SKILL.md` "Interview phase", `references/scenario-workshop.md` | Text shared with TrogonStack's version (rows above, MIT; rationale, "what if" capture and multi-role review passages are not Nebulit-only); the Nebulit file is recorded here for completeness. Time-boxes and the three-to-five quota are kept only as optional pacing (`scenario-workshop.md` "Optional pacing"), subordinate to the coverage matrix |
-| same file: GWT vs. Storyline decision rule, Workflow 0 (decide per read model before drafting any payload; one reused schema may indicate a skipped judgment), todo lists as the prime storyline candidate, repeated event type as a driver | `SKILL.md` Procedure 5, `references/view-and-story-specs.md` "Worked family: a todo list" | Restored from #493 and adapted closely; storylines become lifecycle families of independent specs because Screenplay has no multi-step specification (Screenplay#394); storyline JSON, beats and layout dropped (board transport) |
+| same file: GWT vs. Storyline decision rule, Workflow 0 (decide per read model before drafting any payload; one reused schema may indicate a skipped judgment), todo lists as the prime storyline candidate, repeated event type as a driver | `SKILL.md` Procedure 5, `references/view-and-story-specs.md` "Worked family: a todo list" | Adapted closely; storylines become lifecycle families of independent specs because Screenplay has no multi-step specification; storyline JSON, beats and layout dropped (board transport) |
 | same file: Scenario Types (seven questions, "not a good/bad pair", skip only for a domain reason) | `references/scenario-catalogue.md` | Idea; our own, broader catalogue kept |
 | same file: Quality Checklist (no command has only two scenarios; read models a separate, equally mandatory pass; why behind rules documented) | `SKILL.md` "Quality checklist" | Adapted closely; board posting and `expectEmptyList` items dropped |
 | same file: Gherkin Best Practices (good and bad givens, outcomes, rejections), Key Principles | `references/scenario-examples.md` "Good and bad forms" | Shared with TrogonStack's version (row above); adapted closely, mapped to `.play` specification style |
@@ -49,11 +49,9 @@ Chronicle verification obligations, version skew for reaction cascades, spec for
 the berth reservations example.
 
 ## Product facts checked
-- Screenplay v4.66.0 (`c89198b`): `Documentation/screenplay/specifications.md` (actions, outcomes,
+- Screenplay `Documentation/screenplay/specifications.md` (actions, outcomes,
   `then denied`, `then no readmodel`, `then query`, `then events in any order`, PLAY0352,
   PLAY0389) and the capability notes in `cratis-screenplay-toolchain`
   `references/executable-subset.md`.
-- Screenplay#390 (specification obligations in MCP) and #394 (multi-step specifications) were
-  open when written: cited as not available.
-- Stage v4.24.0: `STAGE-ESM-015` and `STAGE-ESM-011` admission diagnostics for policies and
+- Stage `STAGE-ESM-015` and `STAGE-ESM-011` admission diagnostics for policies and
   fixtures (`Documentation/guides/build-renderer-target.md`).

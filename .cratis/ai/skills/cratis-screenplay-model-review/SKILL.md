@@ -67,7 +67,7 @@ model's behalf.
    and wide-flow questions, never compiler defects or a substitute for the sweep. Each `NONE` and each form name is its own finding naming that element. A repeated
    payload or generic verb is a signal to investigate: report it only when the name or payload
    hides the business reason or a consequence is shown (distinct facts that share a shape and
-   historical generations are not findings). A description, comment or spec name never excuses a flagged line.
+   earlier generations are not findings). A description, comment or spec name never excuses a flagged line.
 4. **Entity walk** (phase 2). Per kind of event source write the first fact, the allowed and the
    refused state changes, the final states; then walk cancel, fail, correct and expire paths. Each
    refused change needs a `then error` spec; each command missing from the table is investigated.

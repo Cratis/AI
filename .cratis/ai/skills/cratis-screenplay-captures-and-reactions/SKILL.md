@@ -19,22 +19,23 @@ root. Never put a model under `.cratis/` or hand-copy it between repositories.
 `cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
 Markdown in project documentation; `.play` is the single flow model.
 
-## Verified product sources
+## Product sources
 
-Read [product sources](references/product-sources.md) for retained historical
-parser/binder probes and refusal/redelivery evidence. Tool versions are covered in toolchain
-`SKILL.md`; historical examples are not current execution evidence.
+Language claims follow Screenplay `reactions.md`, `triggers.md`, `captures.md` and
+`specifications.md` under `Documentation/screenplay/`; renderer claims follow Stage
+`Documentation/reference/reaction-rendering.md`. Tool versions are covered in toolchain
+`SKILL.md`; run the examples at the pinned standalone tool before relying on them.
 
 ⚠️ **Which tool admits them depends on its Screenplay version.** The ESM level
 decides, not the slice type:
 
-- **Standalone `screenplay` 4.61.0 or later (ESM v6 from 4.61.0, v7 from 4.68.0; probed on 4.66.0, examples recompiled on 4.68.0):** `Automation` and
+- **A compiler that admits ESM v6 and v7:** `Automation` and
   `Translate` slices, reactions, declared triggers and captures bind, and the
-  reference runner executes them. Probed: the complete example below is
+  reference runner executes them. The complete example below is
   `executableReady` over `screenplay mcp`.
-- **History:** the CLI 3.28.2 bundle (Screenplay 4.66.0) bound v6; the earlier 4.60.1 bundles
-  refused it and falsely reported PLAY0285 (toolchain `references/diagnostics.md`).
-- **CLI 3.57.0 / Stage 4.89.1** render supported event-triggered Automation, not
+- **A compiler that stops before ESM v6** refuses them and falsely reports PLAY0285
+  (toolchain `references/diagnostics.md`).
+- **The CLI and Stage** render supported event-triggered Automation, not
   Translate/captures, non-event triggers or opaque bodies (`-024`). Role/authenticated `runs as`
   and semantic `from` render; claim/opaque gates, mixed effects and unsupported mappings remain refused;
   cascade specs remain `-011`. Keep refused scope as gap-fill. Full boundary and source
@@ -63,15 +64,17 @@ Read [references/specifying-triggers-and-clock.md](references/specifying-trigger
 ## Caller-less invokes and unprotected reads
 
 **Who is the caller of an `invokes`?** Without a declared actor, nobody.
-Screenplay 4.125.0 supports reaction-level `runs as system role "<Role>"`
+Reactions support reaction-level `runs as system role "<Role>"`
 (optional roles, joined with `and role`). It selects ESM v10 and supplies the
 reference invocation's authenticated system principal with exactly those roles;
 `given caller` does not supply it. Keep gates and declare the least-privilege actor.
 Read [invocation identity](references/invocation-identity.md) for the checked
 scenario, claim/unknown semantics and PLAY0647–0652/0557 diagnostics.
 
-Historical CLI 3.41.0's 4.114.0 compiler rejected this source with PLAY0137.
-Previous CLI 3.46.1 refused v10 (CLI-RENDER-004); the CLI/Stage pair (toolchain
+Requires Screenplay 4.125.0 or later (`screenplay --version`) for reaction `runs as system role` (ESM v10).
+
+A compiler that stops before v10 rejects this source with PLAY0137, and a renderer that stops
+before v10 refuses it (CLI-RENDER-004); the CLI/Stage pair (toolchain
 `references/renderable-subset.md`) renders supported identity, refusing claim-reading/opaque gates (STAGE-ESM-034).
 Stage emits Arc `[ExecuteCommandsAsSystem]`; refused scope uses authorized gap-fill. The attribute is for returned commands. Without that attribute
 Arc supplies no principal and `[Authorize]`/`[Roles]` deny. Each invoked command
@@ -82,16 +85,16 @@ ESM v6 the binder refuses to treat it as one: a trigger with `reads` that **prod
 directly**, or whose effect is an opaque body (`file` or an inline block), fails
 binding, because its decision dependency cannot be protected. A reaction that only
 `invokes` a command binds, and the decision, and any protection, belong to that
-command's own reads. Command `reads` give none yet either (`PLAY0271`, #129).
-Decision 0006 leaves `where` over read paths out of scope, and `where` needs
+command's own reads. Command `reads` give none yet either (`PLAY0271`).
+`where` over read paths out of scope, and `where` needs
 every operand to resolve from the trigger's declared scalar occurrence shape (listed in
 the input selection or not; nested paths and read aliases fail binding): keep the logic that uses the state in
-the invoked command or the implementation. Under `cratis` before 3.28.2 none of this
-bound at all (`PLAY0268`); `cratis` 3.28.2 binds it like the standalone tool.
+the invoked command or the implementation. A compiler that stops before ESM v6 binds none of this
+(`PLAY0268`).
 
 ## Refusals and recovery redelivery
 
-At 4.125.0, invocation refusal selectors, `$refusal` branch values,
+Invocation refusal selectors, `$refusal` branch values,
 `acknowledge`, `when redelivered ... to ...` and `then no events` are valid
 authoring intent but refuse binding with PLAY0268. Read
 [refusals and redelivery](references/refusals-and-redelivery.md) for first-match
@@ -334,11 +337,10 @@ something is reported. `Startup` and `Shutdown` are registered the second way.
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
-      (standalone 4.68.0, or `cratis` 3.28.2 or later). Under `cratis` before 3.28.2 expect
+      (standalone, or a `cratis` whose compiler admits ESM v6). Under an older compiler expect
       `PLAY0268` at binding and a false `PLAY0285` on cascade specifications, and report them
       as tool skew.
-- [ ] The tool that bound the model is named (Screenplay 4.61 or later, so standalone or
-      `cratis` 3.28.2 or later, for ESM v6 constructs); reference scenarios use
+- [ ] The tool that bound the model is named (standalone, or a `cratis` whose compiler admits ESM v6, for ESM v6 constructs); reference scenarios use
       `screenplay test`/MCP. Unadmitted refusal/redelivery is not executed evidence.
 - [ ] Each automation has all four components — occurrence, state consulted,
       conditional logic, resulting command or event. If it always fires

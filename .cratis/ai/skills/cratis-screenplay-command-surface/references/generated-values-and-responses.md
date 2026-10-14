@@ -8,21 +8,21 @@
 - Inspect and edit generation through MCP
 - Version and freshness
 - Responses and pre-generation boundaries
-- What CLI 3.57.0 / Stage 4.89.1 realizes
+- What the CLI and Stage realize
 
-`generated` properties and `returns` bind/reference-execute since 4.68.0 (ESM v7).
-Concept generation strategies and whole-source freshness shipped in Screenplay
-4.147.0 (ESM v15); standalone pin **4.153.0** includes them. CLI **3.57.0** bundles
-Screenplay **4.147.1** / Stage **4.89.1**, rendering the supported strategies,
-scalar/named responses, fixtures and `then returns`. Binding is not rendering.
-Historical CLI 3.41.0 STAGE-ESM-028/029 probes do not describe this bundle.
+`generated` properties and `returns` bind/reference-execute (ESM v7).
+Concept generation strategies and whole-source freshness bind as ESM v15. The CLI and Stage
+render the supported strategies, scalar/named responses, fixtures and `then returns` when their
+bundled compiler and renderer admit v15. Binding is not rendering.
 
-Sources: Cratis/Screenplay `v4.148.0:Documentation/screenplay/generated-values.md:6-60`,
-`generated-values/strategies.md:6-111`,
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Generation.cs:14-88`;
-Cratis/cli `v3.57.0:Directory.Packages.props:8-10`; Cratis/Stage
-`v4.89.1:Documentation/reference/generated-values-rendering.md:6-146`.
-Decision 0054 describes later phases too; only its shipped phase 2b-1 is taught here.
+Requires Screenplay 4.147.0 or later (`screenplay --version`) for concept generation strategies and whole-source freshness (ESM v15).
+
+Sources: Cratis/Screenplay `Documentation/screenplay/generated-values.md`,
+`generated-values/strategies.md`,
+`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Generation.cs`;
+Cratis/Stage
+`Documentation/reference/generated-values-rendering.md`.
+Only the released generation phase is taught here.
 
 ## Choosing a strategy
 
@@ -77,7 +77,7 @@ remove classification or pretend a random String is a credential contract.
 
 ## Inspect and edit generation through MCP
 
-Screenplay **4.149.0** adds a concept `generation` summary and entropy repairs.
+A concept `generation` summary and entropy repairs are available.
 Use `screenplay_declaration_details` with `kind: "Concept"`, `view: "summary"`:
 only authored `generate` gets a block, with strategy, set modifiers,
 preview-only arguments, `entropyBits`, `entropyUnknownReason` when null,
@@ -102,12 +102,14 @@ exactly one production maps it to exactly one event property. Both require
 individual review and `CanonicalizeTouchedDocuments`, with no pinned evidence.
 Length changes affect all concept uses; uniqueness changes append-time behavior.
 Derived regex, matches/checksum repairs and rule-proof status are not shipped.
-CLI **3.57.0** / MCP **4.147.1** lacks this summary and these repairs; it still
-supports existing typed concept proposals. Full fields, mapping limits and tagged
-source evidence: [MCP generation guide](../../cratis-screenplay-model-authoring/references/mcp-tools.md#concept-generation-41490).
-Sources: Cratis/Screenplay `v4.149.0:Documentation/screenplay/generated-values.md:62-70`,
-`Source/DotNET/Screenplay.Mcp/McpGenerationDetails.cs:13-83`,
-`Source/DotNET/Screenplay/Workspaces/WorkspaceGenerationRepairs.cs:29-134`.
+A CLI-bundled MCP can lack this summary and these repairs; it still
+supports existing typed concept proposals.
+
+Requires Screenplay 4.149.0 or later (`screenplay --version`) for the concept `generation` summary and entropy repairs. Full fields, mapping limits and tagged
+source evidence: [MCP generation guide](../../cratis-screenplay-model-authoring/references/mcp-tools.md#concept-generation).
+Sources: Cratis/Screenplay `Documentation/screenplay/generated-values.md`,
+`Source/DotNET/Screenplay.Mcp/McpGenerationDetails.cs`,
+`Source/DotNET/Screenplay/Workspaces/WorkspaceGenerationRepairs.cs`.
 
 ## Version and freshness
 
@@ -151,20 +153,20 @@ and [generation strategies](../../cratis-screenplay-toolchain/references/generat
 - A generated identifier is the implicit inline production destination; a plain
   destination-less `produces` retains a separate allocation channel. A fixture
   never satisfies that channel.
-- Screenplay **4.148.0** resolves response names in form submit and execute-success
-  continuations without changing ESM. The CLI's **4.147.1** compiler lacks that
-  resolution, and Stage **4.89.1** does not provide Scene runtime continuation
-  binding. See UI composition [response continuations](../../cratis-screenplay-ui-composition/references/response-continuations.md).
+- Screenplay resolves response names in form submit and execute-success
+  continuations without changing ESM. An older CLI compiler lacks that
+  resolution, and Stage does not provide Scene runtime continuation
+  binding. Requires Screenplay 4.148.0 or later (`screenplay --version`) for the resolution. See UI composition [response continuations](../../cratis-screenplay-ui-composition/references/response-continuations.md).
 
-## What CLI 3.57.0 / Stage 4.89.1 realizes
+## What the CLI and Stage realize
 
 Stage emits strategy-specific `IGeneratable<T>.New()` factories over Fundamentals
-7.24.0 (via the Arc scaffold pin in Stage's `references/rendered-application.md`). v15 generated destinations use explicit
+7.24.0 or later (via the Arc scaffold pin in Stage's `references/rendered-application.md`). v15 generated destinations use explicit
 `EventsWithConcurrencyScopes` with `BeforeFirst` whole-source scopes; Chronicle
 checks atomically at append: a batch's scopes are checked once against the state before
 the batch, all or nothing, and a storage retry that renumbers the append checks them again. Generated rejection specs assert
 `ValidationResultReason.ConcurrencyViolation`, not Arc's message text. This is
-Stage's explicit realization, not a claim that Arc #3129 is delivered.
+Stage's explicit realization, not a claim that Arc delivers the same guard.
 Time-based factories use wall clock, not command-receipt timestamps.
 
 | Refusal | Still unsupported |

@@ -43,26 +43,25 @@ syntax and tool commands in `cratis-screenplay-toolchain`.
   `references/document-intake.md` (facts file, certainty marks, exact figures, contradictions, a
   coverage pass, the blueprint summary).
 
-## Verified product sources
+## Product sources
 
-Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`. The
-statements below were checked at these older tags (Screenplay v4.66.0 `c89198b`, cratis CLI v3.28.3,
-Stage v4.24.2, Arc v22.50.5, Chronicle v19.32.0), kept as provenance, not as current pins.
-Model notes use Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`
-and decision 0045:40-79; tool sources: model-authoring `references/model-notes.md`.
+Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`.
+Model notes use Screenplay `Documentation/screenplay/model-notes.md`;
+tool sources: model-authoring `references/model-notes.md`.
+Requires Screenplay 4.144.0 or later (`screenplay --version`) for model notes.
 
 | Fact used here | Source |
 | --- | --- |
-| Persona syntax, report-only, policies must be declared | Screenplay `v4.66.0:Documentation/screenplay/personas.md` |
-| Description order; authored/import board order and order-preserving MCP layouts | Screenplay `v4.125.0:Documentation/screenplay/grammar.md`, `folders.md`, `imports.md` |
-| Single-line and fenced `description` (`FencedText`) | `v4.66.0:Documentation/screenplay/slices.md#descriptions`, `grammar.md:1084-1088` |
-| `<Type>[]`, shapes must be declared; `@pii` and `reason` on concepts | `v4.66.0:Documentation/screenplay/events.md`, `concepts.md` |
-| `then denied`, `given caller`, `then error` | `v4.66.0:Documentation/screenplay/specifications.md` |
-| PII on an event-source id is rejected by Chronicle (CHR0034); nullable event properties warn (CHR0012) | Chronicle `v19.32.0:Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs` |
-| Any `@pii` or `@sensitive` on a concept fails binding (PLAY0268) at 4.66.0; current markers are in `cratis-screenplay-command-surface` | `v4.66.0:Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs:21-24` |
+| Persona syntax, report-only, policies must be declared | Screenplay `Documentation/screenplay/personas.md` |
+| Description order; authored/import board order and order-preserving MCP layouts | Screenplay `Documentation/screenplay/grammar.md`, `folders.md`, `imports.md` |
+| Single-line and fenced `description` (`FencedText`) | `Documentation/screenplay/slices.md#descriptions`, `grammar.md` |
+| `<Type>[]`, shapes must be declared; `pii` and `reason` on concepts | `Documentation/screenplay/events.md`, `concepts.md` |
+| `then denied`, `given caller`, `then error` | `Documentation/screenplay/specifications.md` |
+| PII on an event-source id is rejected by Chronicle (CHR0034); nullable event properties warn (CHR0012) | Chronicle `Source/Clients/DotNET.CodeAnalysis/DiagnosticIds.cs` |
+| Bare `pii` and `secret` on a concept bind as ESM v13; legacy `@`-prefixed markers are deprecated (PLAY0565); enum/identity compliance fails binding (PLAY0268); current markers are in `cratis-screenplay-command-surface` | `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.Concepts.cs` |
 
 Every complete `screenplay` fence in this skill compiles with the standalone compiler
-4.139.0 (`--warnaserror`).
+(`--warnaserror`).
 
 ## Interview phase
 
@@ -132,7 +131,7 @@ Never put secrets or personal data in note text; `.screenplay/notes.json` is com
    two business facts that make it meaningful. A simple state transition may carry no payload
    beyond its identity: do not pad events with fields just to reach a count. Domain names; `<Type>[]` for collections (declare the `type`); a
    `concept` for a value with its own meaning; classify personal data on the concept with
-   bare `pii` and a reason now; operational secrets use `secret` (4.127.0).
+   bare `pii` and a reason now; operational secrets use `secret`.
    Either blocks binding (PLAY0268); record the gap, never drop protection.
    Ask what use, lawful basis, retention, recipient/transfer and erasure needs the
    data serves; declare those in a `purpose`, not a concept reason. Special/criminal

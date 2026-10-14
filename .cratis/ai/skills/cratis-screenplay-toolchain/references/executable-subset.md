@@ -132,6 +132,8 @@ read-surface [equality filters](../../cratis-screenplay-read-surface/references/
 
 Requires Screenplay 4.143.0 or later (`screenplay --version`) for equality filters; earlier compilers refuse them.
 
+Requires Screenplay 4.105.0 or later (`screenplay --version`) for list queries (unfiltered, or narrowed by one `by` key); earlier compilers refuse them with PLAY0268.
+
 ## Time, reactions and captures (ESM v6)
 
 - `slice Automation` with `reaction`: `when <Event>` (with values) then `produces` (no

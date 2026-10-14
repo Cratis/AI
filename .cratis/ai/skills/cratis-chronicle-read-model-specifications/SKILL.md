@@ -19,15 +19,15 @@ event dispatch, filtering, metadata or read-model wiring contribute proof.
 For a read-model scenario specification the **`Given` *is* the act**. There
 is no separate `When`: seeding the events is what makes the projection run.
 
-## Verified product sources
+## Product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle.Testing` | `19.59.4` | `Source/Clients/Testing/ReadModels/ReadModelScenario.cs` at tag `v19.59.4`: scenario selection, self and nominated reducers |
-| `Cratis.Chronicle` | `19.59.4` | `Source/Clients/DotNET/Reducers/{SelfReducerMethods,RegisteredReducerReadModel}.cs`, `ReadModels/ReadModelBuilderOwnership.cs` at tag `v19.59.4`: supported forms and ownership |
-| `Cratis.Specifications.XUnit` | `4.x` | The `Specification` base and the `ShouldXxx` assertions |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle.Testing` | `Source/Clients/Testing/ReadModels/ReadModelScenario.cs`: scenario selection, self and nominated reducers |
+| `Cratis.Chronicle` | `Source/Clients/DotNET/Reducers/{SelfReducerMethods,RegisteredReducerReadModel}.cs`, `ReadModels/ReadModelBuilderOwnership.cs`: supported forms and ownership |
+| `Cratis.Specifications.XUnit` | The `Specification` base and the `ShouldXxx` assertions |
 
-Source: `Source/Clients/Testing/ReadModels/` at **Cratis/Chronicle v19.59.4**.
+Source: `Source/Clients/Testing/ReadModels/` in `Cratis/Chronicle`.
 
 ```bash
 dotnet add package Cratis.Chronicle.Testing

@@ -103,8 +103,10 @@ The most-used props:
 | `pt` | `DialogParts` — per-part attributes (`backdrop`, `positioner`, `root`, `header`, `title`, `close`, `content`, `footer`, `confirm`, `cancel`); `ptOptions`/`unstyled` are accepted no-ops |
 
 Dialog presentation props, including `subtitle`, `placement` and `closeIcon`,
-are forwarded to the dialog (4.14.1+), not the form. `children` may also be a
-render function receiving the command form context (4.25.1+).
+are forwarded to the dialog, not the form. `children` may also be a
+render function receiving the command form context.
+
+Requires Cratis Components 4.14.1 or later for dialog presentation props forwarded to the dialog, and 4.25.1 or later for a `children` render function.
 
 `CommandDialog.Column` exists for multi-column layouts:
 

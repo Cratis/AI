@@ -10,8 +10,7 @@
 
 A marina model with one renderable command and one snapshot list view. The model compiles and binds;
 `cratis render` refuses it, so nothing is published. The example shows how to classify, decide and
-report. Probed with the standalone compiler 4.139.0 and cratis 3.53.1 (scratch model, observed); the
-earlier 3.28.2 outcome (two `PLAY0268` binding errors) is history.
+report. Probed with the standalone compiler and the public CLI (scratch model, observed).
 
 ## The model
 
@@ -64,7 +63,7 @@ module Berths
 
 ## The probe
 
-Source identity recorded first (`<commit>+<digest>`), tools named: `screenplay 4.139.0`, `cratis 3.53.1`.
+Source identity recorded first (`<commit>+<digest>`), tools named with their versions (`screenplay --version`, `cratis --version`).
 V1 passed; the specification passes in `screenplay test`. Then:
 
 ```text

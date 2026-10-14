@@ -22,19 +22,16 @@ wrappers. Do not hand-roll a table, a dialog, or a fetch.
   scope (`cratis-screenplay-render-and-gap-fill`); never edit Stage-managed
   output.
 
-## Verified product sources
+## Product sources
 
-This skill is verified against these exact package contracts:
+This skill follows the `@cratis/components` package manifest (`exports`, peers), `Source/DataPage/*`,
+`Source/DataTables/*`, `Source/Dialogs/*`, `Source/CommandDialog/*` and `Source/MIGRATION.md`.
+Peers declared by `@cratis/components`: `@cratis/arc` and `@cratis/arc.react` and `react`.
 
-| Package | Version | Verified from |
-| --- | --- | --- |
-| `@cratis/components` | `4.26.4` | its package manifest (`exports`, peers), `Source/DataPage/*`, `Source/DataTables/*`, `Source/Dialogs/*`, `Source/CommandDialog/*`, `Source/MIGRATION.md` |
-| `@cratis/arc` | `>=20.3.1 <23` | peer range declared by `@cratis/components@4.26.4` |
-| `@cratis/arc.react` | `>=20.3.1 <23` | peer range declared by `@cratis/components@4.26.4` |
-| `react` | `^19.0.0` | peer of `@cratis/components@4.26.4` |
+Requires `@cratis/arc` and `@cratis/arc.react` 20.3.1 or later (below 23) and `react` 19 or later, as `@cratis/components` declares them peers.
 
 `@cratis/arc.react.mvvm` ships with `@cratis/arc.react` and is an explicit
-application dependency. Reverify before claiming another version.
+application dependency.
 
 ## Import from subpaths, never the root barrel
 
@@ -71,11 +68,10 @@ must move focus into itself.
   `@cratis/components`) above every Cratis component — it carries the locale,
   the Components-owned labels. Enable `toaster` (or mount one `<Toaster />`)
   for notifications; without it even `toastCommandResult` displays nothing.
-  Mount exactly one toaster, not both. The `cratis` template already mounts
-  `<CratisComponentsProvider toaster>` **inside** `<Arc>` at Templates `v1.7.4`
-  (`Templates/Cratis/.frontend/main.tsx:12–19`); the missing-toaster/outside-Arc
-  workaround for `v1.7.2` no longer applies to that template version. Check an
-  older application's entry point rather than adding a second toaster.
+  Mount exactly one toaster, not both. The `cratis` template mounts
+  `<CratisComponentsProvider toaster>` **inside** `<Arc>`
+  (`Templates/Cratis/.frontend/main.tsx`; Requires Templates 1.7.3 or later, earlier ones mount it outside `<Arc>` without a toaster),
+  so check its entry point rather than adding a second toaster.
 - The app must import the stylesheets explicitly; components do not import
   their own CSS:
 

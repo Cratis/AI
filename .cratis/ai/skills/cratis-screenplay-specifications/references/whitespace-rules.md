@@ -1,16 +1,16 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Whitespace-only rule rejection (4.151.0)
+# Whitespace-only rule rejection
 
 ## Contents
 
-- Verified product sources
+- Product sources
 - Complete model
 
 Text `not empty` rejects null, empty text and Unicode `White_Space`-only text
-for concept and command property rules. Screenplay **4.151.0** corrects reference
-outcomes for **every ESM version**, without changing canonical bytes. Existing
+for concept and command property rules. The reference execution rejects them for
+**every ESM version**, without changing canonical bytes. Existing
 specifications expecting whitespace acceptance now fail. Keep the rule and
 correct its expected outcome, not its input to hide the rejection.
 
@@ -21,15 +21,15 @@ text (event-source and stream-id parts) still treats whitespace as a value.
 Null command/event fixture values are not admitted in source specifications;
 the null check has evaluator-source evidence, not a fabricated passing fixture.
 
-## Verified product sources
+## Product sources
 
-Cratis/Screenplay **v4.151.0**:
-- `Source/DotNET/Screenplay/Semantics/Execution/SemanticEvaluator.cs:102-110`.
-- `Documentation/screenplay/commands.md:404-407`, `concepts.md:190` in the same folder.
-- `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/NotEmptyWhitespace/source.play:1-66`
+Cratis/Screenplay:
+- `Source/DotNET/Screenplay/Semantics/Execution/SemanticEvaluator.cs`.
+- `Documentation/screenplay/commands.md`, `concepts.md` in the same folder.
+- `Source/DotNET/Screenplay.CanonicalCorpus/Corpus/NotEmptyWhitespace/source.play`
   supplies the complete model below; only the explanatory Unicode comments are added.
-- `Source/DotNET/Screenplay/Semantics/Execution/for_SemanticEvaluator/when_validating_not_empty/with_empty_text.cs:8-36`,
-  `with_non_whitespace_text.cs:8-25` and `with_a_collection.cs:8-26` in the same folder
+- `Source/DotNET/Screenplay/Semantics/Execution/for_SemanticEvaluator/when_validating_not_empty/with_empty_text.cs`,
+  `with_non_whitespace_text.cs` and `with_a_collection.cs` in the same folder
   check concept/property rejection, U+FEFF acceptance and collection boundaries
   across versions. Decision 0071 documents unchanged identity text (`:37-41,79`).
 
@@ -114,6 +114,8 @@ module Names
 Save the fenced model as `whitespace-rules.play`, then run
 `screenplay test whitespace-rules.play --format json` with the standalone pin.
 All seven specifications must pass; the corpus gate executes the complete fence.
-A passing reference result does not prove that CLI 3.57.0's older compiler or
+A passing reference result does not prove that an older CLI-bundled compiler or
 Stage/Arc targets have adopted the Unicode correction. Their own specifications
-must establish parity; decision 0071's consumer follow-ups remain separate.
+must establish parity.
+
+Requires Screenplay 4.151.0 or later (`screenplay --version`) for the Unicode `not empty` correction.

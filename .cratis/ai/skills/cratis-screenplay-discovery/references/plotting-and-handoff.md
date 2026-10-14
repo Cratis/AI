@@ -97,8 +97,8 @@ recording. For project decisions, cite `refs: [{ "id": "D123" }]`; resolve with
 Turn the answer into a specification, a description or a project-owned decision
 record. A resolution alone implements nothing; carry behavioral answers to slice
 design/scenario coverage. Reopen if the decision stops answering the question.
-Evidence: Screenplay `v4.144.0:Documentation/screenplay/model-notes.md:12-77`,
-`decisions/0045-model-notes-sidecar.md:40-79`; tool-source lines in the linked guide.
+Evidence: Screenplay `Documentation/screenplay/model-notes.md`,
+`decisions/0045-model-notes-sidecar.md`; tool-source lines in the linked guide.
 
 ## 4. Plot output format
 

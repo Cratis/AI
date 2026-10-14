@@ -1,6 +1,6 @@
 # Provenance
 
-Lineage of the #493 additions to `cratis-application-slice-specifications`. No TrogonStack material was adapted. Nebulit material is credited below.
+Lineage of the additions to `cratis-application-slice-specifications`. No TrogonStack material was adapted. Nebulit material is credited below.
 
 ## Adapted closely (Martin Dilger and Nebulit GmbH)
 
