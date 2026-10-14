@@ -9,9 +9,7 @@
 - Startup-crash trap
 - Best practices
 
-Verified against `Cratis.Chronicle` `19.1.0` (first version carrying this
-feature; the skill's own baseline in `SKILL.md` is `18.3.0` — variants need at
-least `19.1.0`).
+Requires `Cratis.Chronicle` 19.1.0 or later.
 
 Reach for variants when a single logical entity has genuinely different shapes
 across its lifecycle — a work item that is a backlog entry, then a pull

@@ -11,11 +11,11 @@
 - Reactors that return commands
 - Specify it without a kernel
 
-Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release): `Documentation/chronicle/**`,
+Source: `Cratis/Arc.TypeScript` (source preview): `Documentation/chronicle/**`,
 `Documentation/testing/chronicle.md`, `Source/Chronicle/index.ts`, and
 `Samples/Library`. `@cratis/arc.chronicle` is **experimental** and, like every
 package in the repository, not published to npm. `@cratis/chronicle` (the SDK)
-is published; the integration peers `^6.29.0` and is built against 6.35.0.
+is published; the integration peers it and needs SDK 6.29.0 or later.
 
 ## Register the integration
 
@@ -91,7 +91,7 @@ sample's `UniqueAuthorName` does).
 
 Appending and projecting are separate: immediate queries may be stale. Prefer
 observable reads. `completionTimeoutMs` waits for observers, but Chronicle waits
-for **every** observer on the log (Cratis/Chronicle#4132); an observer that does
+for **every** observer on the log; an observer that does
 not handle the event can make every command time out with 500.
 
 - A constraint or concurrency rejection answers 400 with a validation result
@@ -118,7 +118,7 @@ A Chronicle reactor (from `@cratis/chronicle/reactors`) may return an Arc
 `@command()` instance, or a non-empty array of only commands; Arc runs each
 through the full command pipeline. Handlers are matched by camelCase event-class
 method name, receive parsed JSON content (not a class instance), and run on
-replay by default since SDK 6.9.0 — mark effects `@onceOnly()`, and keep returned
+replay by default — mark effects `@onceOnly()`, and keep returned
 commands safe to repeat after a failed-partition re-delivery. Reactor authoring
 itself is `cratis-chronicle-client-typescript`.
 
@@ -130,7 +130,7 @@ Preview `withChronicle({ ..., activateArtifactsInScopes: true })` on an Arc-owne
 client resolves reactors/reducers through Arc DI, one scope per delivered batch,
 with the Chronicle namespace as tenant and no principal. Existing registrations
 win; otherwise discovered reactors/reducers are registered scoped. The SDK
-activator API arrived in 6.17.0; this integration requires its 6.29.0 peer minimum.
+activator API is required for this; the integration requires the SDK 6.29.0 peer minimum.
 For a caller-owned client, supply `chronicleArtifactActivator(...)` as
 `artifactActivator` and `reactorCommandResultHandler(...)` as
 `reactorResultHandler`, then opt in to `activateArtifactsInScopes`. Build Arc
@@ -160,8 +160,8 @@ await scenario.dispose();
 - Pass the command, its event types, validators and read-model types to
   `for(...)`; the in-memory log refuses an unregistered event type.
 - `givenReadModel(Type, id, instance, tenant?)` pins state;
-  `scenario.given.forEventSource(id, tenant?).events(...)` seeds reducer history
-  (SDK >=6.14.0) and projections (>=6.19.0) through SDK `ReadModelScenario`.
+`scenario.given.forEventSource(id, tenant?).events(...)` seeds reducer history
+  (SDK 6.14.0 or later) and projections (6.19.0 or later) through SDK `ReadModelScenario`.
   `.readModel(instance)` pins state on the same given builder.
 - `shouldHaveAppendedEvent` does not check count or order — assert
   `appendedEvents` when either matters.

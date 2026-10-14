@@ -17,8 +17,8 @@ Arc supplies the route, body binding, validation, authorization, and the
   `@cratis/arc.express`, `@cratis/arc.fastify`, `@cratis/arc.hono`,
   `@cratis/arc.testing`, `@cratis/arc.mongodb`, `@cratis/arc.drizzle`,
   `@cratis/arc.chronicle`, `@cratis/cratis`, `@cratis/arc.proxygenerator` and
-  `@cratis/eslint-plugin-arc-core` are an unpublished source preview (0.x
-  manifests; GitHub pre-releases v0.1.0–v0.57.2). The API may still change. `npm install @cratis/arc.core` fails.
+`@cratis/eslint-plugin-arc-core` are an unpublished source preview (0.x
+  manifests, GitHub pre-releases). The API may still change. `npm install @cratis/arc.core` fails.
 - **`@cratis/arc` is a different package.** `@cratis/arc`, `@cratis/arc.react` and
   `@cratis/arc.react.mvvm` are the published **client** runtime, built from
   `Cratis/Arc`. Generated proxies import them in the frontend. The server packages
@@ -29,11 +29,12 @@ Arc supplies the route, body binding, validation, authorization, and the
 
 ## Verified product sources
 
-Verified against `Cratis/Arc.TypeScript` tag **v0.57.2** (GitHub pre-release;
-server manifests 0.57.2), reading package exports, `Documentation/**`, and
-`Samples/Tasks` / `Samples/Library`. Unreleased main/0.58.0 behavior is excluded.
-Chronicle SDK: peer `^6.29.0`, built against/sample pin `6.35.0`;
-Fundamentals peer `^7.19.6`, Library pin `7.22.0`. The Chronicle integration
+Source: `Cratis/Arc.TypeScript` (source preview), reading package exports, `Documentation/**`, and
+`Samples/Tasks` / `Samples/Library`. Behavior on the development branch is excluded.
+
+Requires the Chronicle SDK peer `^6.29.0`, Fundamentals peer `^7.19.6`, `@opentelemetry/api` `^1.9.0` and (optional, for RxJS observable queries) `rxjs` `^7.8.2`.
+
+The Chronicle integration
 needs Node 22.19+, `zod ^4.1`, `rxjs ^7.8.2`, and an optional
 `@cratis/arc.testing` peer for scenarios.
 
@@ -68,11 +69,11 @@ version ranges; npm does not, and the tarball then fails to install. A
 - Node.js 22.19 or later (the core runs on 22; the workspace build needs 22.19;
   24 LTS is recommended).
 - ES modules only: `"type": "module"` in `package.json`.
-- Peer dependencies of `@cratis/arc.core`: `@cratis/fundamentals` `^7.19.6`,
-  `@opentelemetry/api` `^1.9.0`; `rxjs` `^7.8.2` is an optional peer, needed for
+- Peer dependencies of `@cratis/arc.core`: `@cratis/fundamentals`,
+  `@opentelemetry/api`; `rxjs` is an optional peer, needed for
   RxJS observable queries.
 - TypeScript: the repository and proxy generator use TypeScript 6
-  (`typescript@npm:@typescript/typescript6@^6.0.2`, command `tsc6`).
+  (`typescript@npm:@typescript/typescript6`, command `tsc6`).
 
 ```json
 {
@@ -138,7 +139,9 @@ await app.run({ port: Number(process.env.PORT ?? 3000) });
 `discover()` refuses a folder containing the entry point; use `Features/`.
 `Cratis:Arc:Development: true` is local-only.
 
-### Secure discovery defaults (0.56.0+)
+### Secure discovery defaults
+
+Requires Arc for TypeScript 0.56.0 for these defaults.
 
 Outside **Development**, catalogs, identity discovery and `/openapi.json` require
 authentication; without it they are unmapped with a warning. Explicitly requiring

@@ -172,21 +172,26 @@ switch their Copilot integration to `harnesses/copilot/instructions/`.
 
 Skills follow the [Agent Skills specification](https://agentskills.io/specification) and
 Anthropic's [skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
-Every skill is read by Claude Code, Codex, Copilot, Cursor, OpenCode and Pi, so keep to the portable
-frontmatter fields: `name`, `description`, `license`, `compatibility`, `metadata` and `allowed-tools`.
+Every skill is read by Claude Code, Codex, Copilot, Cursor, OpenCode and Pi. Follow the path-scoped
+[authoring rule](.cratis/ai/rules/authoring-skills.md) for routing, timeless guidance, progressive
+disclosure, evaluations and the review checklist. Keep to the portable frontmatter fields:
+`name`, `description`, `license`, `compatibility`, `metadata` and `allowed-tools`.
 
 The verification enforces the structural rules:
 
 - `name` is 1-64 lowercase letters, digits and single hyphens, matches its directory, and does not
   contain `anthropic` or `claude`.
-- `description` is 1-1024 characters, says what the skill does and when to use it, and contains no
-  tag-like text. Write `IProjectionFor`, not `IProjectionFor<T>`: the Skills API rejects angle brackets.
+- `description` is 1-1024 characters and contains no tag-like text. The authoring check requires an
+  explicit `Use when` (or equivalent) clause and rejects first/second person; negative routing is a
+  warning during rollout. Write `IProjectionFor`, not `IProjectionFor<T>`: the Skills API rejects angle brackets.
 - The `SKILL.md` body stays within 500 lines and 20,000 characters (the specification's "under 5,000
   tokens"). It loads in full whenever the skill triggers and stays in context, so it holds the decision
-  rules, the core workflow, the traps, the version pins and the pointers. Detail that only some tasks
+  rules, the core workflow, the traps and the pointers. Target 400 lines / 16,000 characters; a
+  headroom warning starts at 18,000 characters. Detail that only some tasks
   need goes into `references/`.
-- Every other file is linked directly from `SKILL.md`. Agents may only preview a file that is reached
-  through another reference file.
+- Every supporting file is linked directly from `SKILL.md`, except `LICENSE`, `NOTICE`,
+  `verification.json` and reasoned existing asset exceptions (which fail when stale). Agents may
+  only preview a file that is reached through another reference file.
 - A reference file longer than 100 lines opens with a `## Contents` list of its `##` headings, so a
   partial read still shows everything the file covers. Generate it rather than writing it by hand:
   `yarn workspace @cratis/ai-verification run contents` (add `--check` to verify). A file that is one
@@ -195,24 +200,35 @@ The verification enforces the structural rules:
 The guidance that cannot be checked mechanically:
 
 - Put the key use case first in the description and keep it short: listings truncate long
-  descriptions and drop rarely used ones. Change a description only with the trigger evaluation
-  before and after, and when a request goes to a neighbor, name that request in the right skill's
-  description rather than adding keywords.
+  descriptions and drop rarely used ones. When authorized to spend model usage, run trigger
+  evaluations before and after a description change; otherwise report routing as unverified.
+  When a request goes to a neighbor, name that request in the right skill's description rather
+  than adding keywords.
 - Link a reference with the situation that calls for it: "Read `references/x.md` when ...", not
   "see `references/x.md`".
 - Keep the traps an agent must know before it acts in `SKILL.md`, near the top. Claude Code keeps only
   the first 5,000 tokens of a skill after compaction.
 - Give a default and say when to use the alternative, rather than a list of equal options.
-- State capability limits against the version the skill pins ("on Screenplay 4.66.0"), never as
-  "today", "yet" or "currently".
-- Name the MCP server with the tool: the `screenplay` server's `apply` tool.
+- Describe behavior without release history, evidence citations or relative-time claims. Keep a
+  code-breaking prerequisite in one `Requires` line with the version check and fallback; pins belong
+  in `product-sync.json` and compatibility documentation, not skill prose.
+- Name the MCP server once, then its protocol tool; resolve harness-native invocation names from
+  the connected client's tool listing. Resolve user-configured server aliases rather than assuming a prefix.
 - Use one term per concept throughout a skill.
 - Explain why a rule exists instead of raising its volume.
+
+`SKILL_AUTHORING_MODE=warn|fail` defaults to warnings for new content checks. Description trigger
+and voice, asset reachability, the evaluation-coverage ratchet and the 200-line `general.md` limit
+always fail on defects. `SKILL_HYGIENE_MODE` continues to control the existing skill-body lint.
 
 ### Evaluate skills
 
 Behavior evaluations live in `Evaluations/skills/<name>/trigger.json` and `evals.json`, outside the
-shipped corpus. CI checks their shape and runs runner specs; it never spends model usage. Locally,
+shipped corpus. New skills require both files. `Evaluations/unevaluated.json` records the existing
+coverage gap with reasons; comparison against the Git base allows that list only to shrink. CI
+checks shape and coverage and runs runner specs; it never spends model usage. Each set has 16–20
+unique trigger queries (8–10 positive and 8–10 negative) and 3–5 output tasks with 3–5 nonempty
+assertions each. Near-miss quality and sibling-naming notes are review guidance. Locally,
 use an installed, logged-in `pi` or `claude` (default models: `openai-codex/gpt-6.1-sol` with medium
 thinking, or `sonnet`). These commands make paid model calls:
 

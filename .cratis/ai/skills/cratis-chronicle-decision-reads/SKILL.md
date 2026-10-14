@@ -23,14 +23,15 @@ use, and the traps. A plain read, a validator read, `Result<,>` and
 
 ## Verified product sources
 
-| Product | Version | Sources |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `19.50.1` | `Source/Clients/DotNET/ReadModels/{IDecisionReads,DecisionReads,DecisionRead,DecisionReadRefusalReason}.cs` |
-| `Cratis.Chronicle` transactions | `19.50.1` | `Source/Clients/DotNET/Transactions/{IUnitOfWork,UnitOfWork,DecisionReadCommitOwner,UnitOfWorkLifecyclePolicy}.cs` |
-| `Cratis.Chronicle` scope resolution | `19.50.1` | `Source/Clients/DotNET/EventSequences/Concurrency/DefinitionConcurrencyScopeResolver.cs` |
+| Product | Sources |
+| --- | --- |
+| `Cratis.Chronicle` | `Source/Clients/DotNET/ReadModels/{IDecisionReads,DecisionReads,DecisionRead,DecisionReadRefusalReason}.cs` |
+| `Cratis.Chronicle` transactions | `Source/Clients/DotNET/Transactions/{IUnitOfWork,UnitOfWork,DecisionReadCommitOwner,UnitOfWorkLifecyclePolicy}.cs` |
+| `Cratis.Chronicle` scope resolution | `Source/Clients/DotNET/EventSequences/Concurrency/DefinitionConcurrencyScopeResolver.cs` |
 
-The client surface began in 19.9.0; stream-scoped reads require the newer kernel
-surface added in 19.39.0. Reverify a client/kernel pair rather than disabling
+Requires Chronicle 19.9.0 for decision reads, and a Chronicle 19.39.0 kernel for stream-scoped reads.
+
+Reverify a client/kernel pair rather than disabling
 compatibility checking to force a read through.
 
 ## Route the work
@@ -56,7 +57,7 @@ compatibility checking to force a read through.
 `Admit<T>()` / `AdmitForStream<T>()` check shape **without I/O**, returning
 `DecisionReadAdmission(IsAdmitted, Reason)`. The model needs an `Id` property
 (string, or a Guid in lowercase hyphenated form) and an event-source-keyed flat
-projection. Reducers, including self-reducing models (19.58.0), are refused with
+projection. Reducers, including self-reducing models, are refused with
 `Reducer`; a missing `Id` or an unconvertible key refuses with `KeyConversion`. A successful shape check is not
 runtime read success: definitions, key conversion and fold completion are also
 checked while reading.
@@ -94,7 +95,7 @@ Enroll the read **before** staging its decision's events through
 `IsSuccess`, append errors/constraint violations/concurrency violations and
 `GetDecisionConflicts()`; the latter reports decision conflicts without exposing
 sequence numbers. On a kernel whose append validators accept an empty batch
-(Chronicle v19.59.1 does when a scope carries an actual boundary or expects no matching event), a checked empty
+(a kernel that does so when a scope carries an actual boundary or expects no matching event), a checked empty
 append validates its scope and writes nothing; a kernel that rejects it surfaces
 `DecisionReadValidateOnlyNotSupported`, which fails closed. Do not mistake "no
 event" for "no consistency check", and assert validate-only in an integration

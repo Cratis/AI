@@ -12,10 +12,10 @@ an MCP server.
 
 ## Verified product sources
 
-| Source | Version | Purpose |
-| --- | --- | --- |
-| Studio public product announcement | `v0.73.0` | Organization-scoped, credential-gated MCP availability, not tool-effect admission |
-| `Cratis/Studio` | `v0.157.5` | Private repository; implementation evidence is **not admitted** |
+| Source | Purpose |
+| --- | --- |
+| Studio public product announcement | Organization-scoped, credential-gated MCP availability, not tool-effect admission |
+| `Cratis/Studio` | Private repository; implementation evidence is **not admitted** |
 
 Studio has an organization-scoped, credential-gated MCP endpoint. Availability
 and credentials do not establish that an operation is observational. The private

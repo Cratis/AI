@@ -1,12 +1,17 @@
 [
   {
-    "file": ".cratis/ai/skills/cratis-performance-review/SKILL.md",
-    "text": "| `@cratis/components` | `4.26.2` |",
-    "reason": "Verified-product-sources row: the version at which the DataTable paging surface was verified"
+    "file": ".cratis/ai/skills/cratis-components-styling/SKILL.md",
+    "text": "Requires Components 4.22.1",
+    "reason": "Components release that introduced the dark-error mapping, a real version gate and not a restatement of the numerically identical Scene scaffold pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
   },
   {
-    "file": ".cratis/ai/skills/cratis-components-styling/SKILL.md",
-    "text": "Components 4.22.1+",
-    "reason": "Components release that introduced the dark-error mapping, not a restatement of the numerically identical Scene scaffold pin. Remove when that collision or the historical capability claim disappears; the unused-entry check enforces this."
+    "file": ".cratis/ai/skills/cratis-arc-command/SKILL.md",
+    "text": "(Requires Arc 22.83.0)",
+    "reason": "Arc release that introduced context-aware generation, a real version gate and not a restatement of the numerically identical Stage scaffold Arc pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-arc-command/references/shop-generation.md",
+    "text": "Requires Arc 22.83.0",
+    "reason": "Arc release that introduced context-aware generation, a real version gate and not a restatement of the numerically identical Stage scaffold Arc pin. Remove when that collision or the gate disappears; the unused-entry check enforces this."
   }
 ]

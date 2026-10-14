@@ -21,19 +21,15 @@ rejection on it.)
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.Core` | `22.75.0` | `CommandValidator<T>`, `ConceptValidator<T>`, `ValidationResult`, `CommandResult`, the command pipeline, `ARC0004`–`ARC0013` |
-| `Cratis.Fundamentals` | `7.23.0` | `Cratis.Monads.Result<TResult, TError>` |
-| `Cratis.Chronicle` | `18.3.0` | Read-model resolution for command-side injection |
-| `FluentValidation` | `12.1.1` | `RuleFor(...)`, `.WithMessage(...)` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.Core` | `CommandValidator<T>`, `ConceptValidator<T>`, `ValidationResult`, `CommandResult`, the command pipeline, `ARC0004`–`ARC0013` |
+| `Cratis.Fundamentals` | `Cratis.Monads.Result<TResult, TError>` |
+| `Cratis.Chronicle` | Read-model resolution for command-side injection |
+| `FluentValidation` | `RuleFor(...)`, `.WithMessage(...)` |
 
-> Arc validation and decision boundaries rechecked at v22.75.0. Arc depends on
-> Chronicle 19.39.1 / Fundamentals 7.23.0; separate product claims retain their
-> version-qualified verification.
-
-Fundamentals rechecked at v7.23.0 in
-[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/v7.23.0/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
+Fundamentals'
+[`Result<TResult, TError>`](https://github.com/Cratis/Fundamentals/blob/main/Source/DotNET/Fundamentals/Monads/Result%7BTResult,TError%7D.cs):
 success is first, error second, with implicit conversions from both types.
 
 Reverify against the owning product repository before claiming support for
@@ -163,7 +159,7 @@ public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readMo
 
 Plain read-model injection or `IReadModels.GetInstanceById` is **advisory**, even
 inside `Handle()` returning `Result<,>`: it enrolls no guard against a competing
-append. Choose the first boundary that fits at Arc v22.75.0:
+append. Choose the first boundary that fits:
 
 1. One routed stream: `Provide(IStreamReads reads) => reads.ForCommand()` returns
    `Task<StreamDecision>`; `Handle(StreamDecision decision)` returns

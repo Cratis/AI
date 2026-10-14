@@ -19,14 +19,13 @@ all.
 
 ## Verified product sources
 
-This skill is verified against these exact sources:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | Existing event, key and read-model APIs |
-| `Cratis.Chronicle` | `19.59.4` | Style/discovery: `Source/Clients/DotNET/Reducers/{SelfReducerMethods,RegisteredReducerReadModel}.cs`, `ReadModels/ReadModelBuilderOwnership.cs`, `DefaultClientArtifactsProvider.cs` at tag `v19.59.4` |
-| `Cratis.Arc.Core` | `22.75.0` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute` and `PathAttribute` |
-| `Cratis.Arc.MongoDB` | `22.75.0` | the `Observe` family of `IMongoCollection<T>` extensions |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `Cratis.Chronicle.Events`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.ReadModels`; style and discovery (`Source/Clients/DotNET/Reducers/{SelfReducerMethods,RegisteredReducerReadModel}.cs`, `ReadModels/ReadModelBuilderOwnership.cs`, `DefaultClientArtifactsProvider.cs`) |
+| `Cratis.Arc.Core` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute` and `PathAttribute` |
+| `Cratis.Arc.MongoDB` | the `Observe` family of `IMongoCollection<T>` extensions |
 
 Reverify product sources before claiming support for another version. Confirm
 the exact Arc package version in the consuming project before citing one.
@@ -82,7 +81,7 @@ public record <ReadModelName>(
 
 Prefer a slim, purpose-built projection over assembling a screen by repeatedly
 joining broad collections at query time. A summary needs summary fields, not
-every detail and historical entry. This is a design convention, **not a
+every detail and past entry. This is a design convention, **not a
 one-collection framework requirement**: bounded query composition remains valid,
 including when separate security or compliance boundaries must be preserved.
 
@@ -114,8 +113,10 @@ For application code, work down this ladder:
 
 **PDL** is for definitions authored outside application code (Workbench,
 Screenplay, ad-hoc queries), not the code-first default. This ladder does not
-claim Stage renders static self reducers. The self form is .NET-only
-(Cratis/Chronicle#4851); other SDKs keep their own reducer contracts.
+claim Stage renders static self reducers. The self form is .NET-only;
+other SDKs keep their own reducer contracts.
+
+Requires Chronicle 19.58.0 for self-reducing read models.
 
 Default discovery finds projections, interface reducers and complete self shapes.
 Explicit registration remains available, and plain instance reducers require
@@ -135,9 +136,9 @@ are source-keyed, have no native joins and are refused by decision reads.
 Queries are **static** methods on the read-model record, discovered by Arc.
 Marking the record with `[ReadModel]` from `Cratis.Arc.Queries.ModelBound` is
 what gives it that surface. For a self-reducing model, put its `Reduce` methods
-and queries on this same record. Before Arc 22.90.0, use
+and queries on this same record. On an Arc older than 22.90.0, use
 `[ReadModel(RequireQueryAttribute = true)]` plus `[Query]` on intended queries to
-avoid exposing folds. From Arc 22.90.0, Arc excludes methods taking the
+avoid exposing folds. Requires Arc 22.90.0 for the automatic behavior: Arc excludes methods taking the
 model itself from query discovery, and Arc.Chronicle claims self models for
 command injection. See the existing
 [explicit query-discovery guidance](references/queries.md#discovery-rules).
@@ -226,9 +227,9 @@ history length, invocation frequency, and the consistency/security requirement;
 repeated reconstruction of large histories on a hot path is the concern.
 Passivity does not itself authorize access or encrypt secrets.
 
-This access distinction was checked against Chronicle **v19.31.2**
-([passive projections](https://github.com/Cratis/Chronicle/blob/v19.31.2/Documentation/projections/declarative/passive.mdx),
-[passive reducers](https://github.com/Cratis/Chronicle/blob/v19.31.2/Documentation/reducers/passive-reducers.mdx)).
+This access distinction is described in
+([passive projections](https://github.com/Cratis/Chronicle/blob/main/Documentation/projections/declarative/passive.mdx),
+[passive reducers](https://github.com/Cratis/Chronicle/blob/main/Documentation/reducers/passive-reducers.mdx)).
 
 `[Passive]` on its own does **not** make a read model a projection. It is
 deliberately excluded from the annotations that do; it changes how an existing

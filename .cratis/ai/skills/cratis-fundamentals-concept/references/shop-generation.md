@@ -7,11 +7,11 @@
 
 - Choosing a strategy
 - When not to generate
-- Verified released sources
+- Sources
 
 ## Choosing a strategy
 
-At **Fundamentals 7.24.0**, a shop can use CustomerId (`cus_` + ULID) for
+A shop can use CustomerId (`cus_` + ULID) for
 recognizable time-ordered customer references, OrderId (TypeID) for typed order
 references, InviteCode (NanoID) for opaque invitation references, and ApiKey
 (`Bytes(32)`) for a 256-bit credential. UUID remains the ordinary identity choice;
@@ -20,8 +20,8 @@ UUIDv7/ULID/TypeID reveal time and are not monotonic within a millisecond.
 An invitation reference here is not by itself permission to join the shop; if
 possession is the authorization mechanism, treat it as a protected credential too.
 
-This complete concept excerpt requires `Cratis.Fundamentals` **7.24.0** and,
-for the ApiKey audit attribute, `Cratis.Arc.Chronicle` **22.87.1**. These are
+This complete concept excerpt requires `Cratis.Fundamentals` 7.24.0 or later and,
+for the ApiKey audit attribute, `Cratis.Arc.Chronicle`. These are
 non-stream references; use `EventSourceId<string>` instead only if a concept
 actually identifies a Chronicle event source.
 
@@ -98,13 +98,13 @@ before the Unix epoch. A fixed context fixes the timestamp, not random suffixes.
 - Never log generated values/captures or seed production randomness. Use known
   values in specs; test shape/time separately when randomness is the behavior.
 
-## Verified released sources
+## Sources
 
-Fundamentals `v7.24.0:Source/DotNET/Fundamentals/Concepts/GenerationContext.cs:6-17`,
-`IGeneratableInContext.cs:13-21`, `GenerateValue.TimeOrderedStrings.cs:15-57`,
-`GenerateValue.RandomStrings.cs:10-64`; `Documentation/csharp/generating-values.md`.
-Arc `v22.87.1:Source/DotNET/Chronicle/Commands/NotAuditedAttribute.cs`,
-`CommandCausationValues.cs:94-102` (command/type/property exclusion only, never
+Fundamentals `Source/DotNET/Fundamentals/Concepts/GenerationContext.cs`,
+`IGeneratableInContext.cs`, `GenerateValue.TimeOrderedStrings.cs`,
+`GenerateValue.RandomStrings.cs`; `Documentation/csharp/generating-values.md`.
+Arc `Source/DotNET/Chronicle/Commands/NotAuditedAttribute.cs`,
+`CommandCausationValues.cs` (command/type/property exclusion only, never
 payload encryption or log protection);
 `Documentation/backend/csharp/commands/generated-values.md`.
 The latter attribute belongs to the host integration, not Fundamentals.

@@ -3,11 +3,11 @@
 
 # Chronicle MCP deployment and denials
 
-Verified at **Cratis/Chronicle.Mcp v2.0.0**:
-[configuration](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/Documentation/configuration.md),
-[deployment profiles](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/Documentation/deployment-profiles.md),
-[ToolCatalog.cs](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/Source/Authorization/ToolCatalog.cs#L23-L43)
-and [Program.cs](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/Source/Program.cs).
+Source: `Cratis/Chronicle.Mcp`:
+[configuration](https://github.com/Cratis/Chronicle.Mcp/blob/main/Documentation/configuration.md),
+[deployment profiles](https://github.com/Cratis/Chronicle.Mcp/blob/main/Documentation/deployment-profiles.md),
+[ToolCatalog.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Authorization/ToolCatalog.cs)
+and [Program.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Program.cs).
 
 ## Registration and target
 
@@ -15,12 +15,11 @@ The product documents Docker/stdio launch using `docker run -i --rm`, passing
 `Cratis__Chronicle__Mcp__ConnectionString` into the container. Use a verified
 image/version and your harness's stdio registration shape, only when setup is
 requested. The registry identity is `io.github.Cratis/chronicle-mcp`, but
-`server.json` at this tag still names version/image **1.4.0**; do not treat that
-manifest as a v2.0.0 image pin. The [tagged README](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/README.md)
+the checked-in `server.json` can lag the release; do not treat its version/image as an image pin. The [README](https://github.com/Cratis/Chronicle.Mcp/blob/main/README.md)
 documents transport setup.
 
-`cratis ai` v3.53.1 only writes the Screenplay descriptor, not Chronicle or
-Studio ([AiMcpHarnesses.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Ai/AiMcpHarnesses.cs)).
+`cratis ai` only writes the Screenplay descriptor, not Chronicle or
+Studio ([AiMcpHarnesses.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Ai/AiMcpHarnesses.cs)).
 Do not add an unsupported descriptor to the corpus catalog.
 
 For unset connection values: explicit options → `CHRONICLE_CONNECTION_STRING`
@@ -73,5 +72,5 @@ text block, for example:
 Mutation checks run in table order through `not_authorized`, first failure wins;
 `chronicle_denied` occurs only after reaching Chronicle. The envelope/log omits
 scope, target, principal, credentials and exception text. These codes are
-verified in [DenialCodes.cs](https://github.com/Cratis/Chronicle.Mcp/blob/v2.0.0/Source/Authorization/DenialCodes.cs).
+verified in [DenialCodes.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Authorization/DenialCodes.cs).
 Never turn a denial into success or widen policy automatically.

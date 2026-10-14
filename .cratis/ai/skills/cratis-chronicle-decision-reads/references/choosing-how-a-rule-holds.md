@@ -20,8 +20,7 @@ question: **which mechanism makes this rule hold while other writers append at t
 same time**, and which look correct but do not. Read it before writing a command,
 validator, endpoint or handler that reads state and then appends.
 
-Verified against Chronicle source at v19.59.1 (decision-read refusals of
-self-reducing models since 19.58.0) and Arc main `0986d097a`. Published guides, which
+Checked against the Chronicle and Arc sources. Published guides, which
 this agrees with:
 [Chronicle: choosing how a rule holds](/chronicle/dynamic-consistency-boundary/choosing/),
 [decision reads](/chronicle/read-models/decision-reads/),
@@ -80,7 +79,7 @@ Whatever the backing, a plain read captures no position and enrolls no guard.
 | Materialized projection or reducer (default) | may lag the log | none |
 | `[Passive]` projection | fresh at read time | none |
 | `[Passive]` reducer | fresh at read time | none |
-| Self-reducing model (19.58.0) | as its `[Passive]` setting | none |
+| Self-reducing model | as its `[Passive]` setting | none |
 
 Passive is fresher, not safer. Capturing the tail yourself before a materialized
 read does not fix it: the read may be older than the position you captured, and
@@ -95,10 +94,10 @@ A constraint binds every writer, whichever client or service appends, per namesp
 and per event sequence. It cannot count, sum or test a predicate; it expresses
 uniqueness (with release on a removal event), create-once and closed streams.
 
-- The claim is settled after the durable append (decision 0005, accepted, not yet
+- The claim is settled after the durable append (not yet
   implemented in every store). A failed index update is logged and a later duplicate
   may pass until a reindex. SQL and InMemory stores do not yet settle claims
-  (#3744 and the decision's gap list). A constraint is the right mechanism, not an
+  A constraint is the right mechanism, not an
   unconditional proof.
 - Tenants in different namespaces can claim the same value.
 - `[RemoveConstraint]` releases attribute constraints (`[Unique]` on a property
@@ -138,7 +137,7 @@ stored tail filtered by key, types and route). See the skill's
   bypass the kernel's serialized append path (duplicate grain activations, direct
   storage writes) are outside the guard.
 - **Empty protected commit.** A unit that enrolled a decision read and staged no
-  events appends an empty batch with the guard scopes. At Chronicle v19.59.1 the kernel
+  events appends an empty batch with the guard scopes. The kernel
   validators (`AppendManyValidator`, `AppendManyForEventSourcesValidator`) accept an
   empty batch when a scope carries an actual boundary or expects no matching event, and the integration
   spec `for_ReadModels/when_reading_for_a_decision` shows `AppendMany([], guardedBy:)`

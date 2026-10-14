@@ -2,7 +2,7 @@
 name: cratis-fundamentals-concept-go
 description: Define named Go domain values with Fundamentals.Go concepts, explicit UUID text and JSON codecs, and scalar recognition. Use when an identity or scalar must not be interchangeable with its primitive. Do not use for C# ConceptAs types, event migration or dependency-injection setup.
 license: MIT
-compatibility: Go 1.26 or later for Fundamentals.Go v0.3.2.
+compatibility: Go 1.26 or later.
 ---
 
 <!-- Copyright (c) Cratis. All rights reserved. -->
@@ -10,8 +10,8 @@ compatibility: Go 1.26 or later for Fundamentals.Go v0.3.2.
 
 # Typed domain values in Go
 
-> **Experimental v0:** Fundamentals.Go **v0.3.2**. Companion product guidance
-> targets Chronicle.Go **v0.9.1** and Arc.Go **v0.1.1**; minor releases may break APIs.
+> **Experimental v0:** minor releases may break APIs; pin the module version you test against.
+> Companion guidance: Chronicle.Go and Arc.Go.
 
 Use a defined type for each domain value, not a type alias that remains
 interchangeable with every UUID/string. Plain constructors are enough; adopting
@@ -19,17 +19,17 @@ concepts does not require a dependency-injection container.
 
 ## Verified product sources
 
-| Product | Tag | Source checked |
-| --- | --- | --- |
-| Fundamentals.Go (`github.com/cratis/fundamentals.go`) | `v0.3.2` | `concepts/concept.go`, `concepts/uuid.go`, `concepts/uuid_dotnet.go`, `concepts/underlying.go`, `concepts/check_json.go`, `documentation_examples_test.go` |
+| Product | Source checked |
+| --- | --- |
+| Fundamentals.Go (`github.com/cratis/fundamentals.go`) | `concepts/concept.go`, `concepts/uuid.go`, `concepts/uuid_dotnet.go`, `concepts/underlying.go`, `concepts/check_json.go`, `documentation_examples_test.go` |
 
-[Source at v0.3.2](https://github.com/Cratis/Fundamentals.Go/tree/v0.3.2)
-is authoritative, not the getting-started page's older v0.3.0 installation pin.
+[Source](https://github.com/Cratis/Fundamentals.Go)
+is authoritative, not an older installation pin on a getting-started page.
 The root module is standard-library-only and requires Go 1.26.
 
 ## Define and encode an identity
 
-Install `github.com/cratis/fundamentals.go@v0.3.2` into a consumer module.
+Install `github.com/cratis/fundamentals.go` at your chosen release into a consumer module.
 This complete package defines an author identity and its codecs:
 
 ```go
@@ -108,5 +108,4 @@ it only when importing that compatibility contract, not for canonical admission.
 - Compile and round-trip the named value against the pinned module without local replacements.
 - Verify canonical wire bytes, zero/null policy and failure-atomic decoders.
 - Check domain invariants separately from scalar recognition.
-- Chronicle.Go v0.9.1 and Arc.Go v0.1.1 each require Fundamentals.Go v0.1.0;
-  this standalone v0.3.2 example is not a demand to upgrade their dependencies.
+- Chronicle.Go and Arc.Go each declare the Fundamentals.Go they require; this standalone example is not a demand to upgrade their dependencies.

@@ -18,16 +18,14 @@ storage and replay cost that never goes away.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | Observers, projections, reducers, reactors, replay |
-| `Cratis.Arc.Core` | `22.75.0` | Query return shapes and server-side paging |
-| `@cratis/components` | `4.26.2` | `DataTable` paging surface |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | Observers, projections, reducers, reactors, replay |
+| `Cratis.Arc.Core` | Query return shapes and server-side paging |
+| `@cratis/components` | `DataTable` paging surface |
 
-> Arc query/paging surface rechecked at v22.75.0; Arc depends on Chronicle
-> 19.39.1. Separate Chronicle verification remains version-qualified. Paged
-> MongoDB observations now re-read page and total on each change; see the
-> read-model query reference for the distinction from unpaged retained sets.
+Paged MongoDB observations re-read page and total on each change; see the
+read-model query reference for the distinction from unpaged retained sets.
 
 Reverify against the owning product repository before asserting a framework
 behavior this file does not already state.
@@ -52,7 +50,7 @@ behavior this file does not already state.
   received already carries what it needs. (Reactor dispatch is by the handler's
   first parameter type — the method name is free, so look for the event-typed
   parameter, not for a method called `On`.)
-- **A new projection can replay all historical events without failing.** Ask it
+- **A new projection can replay all earlier events without failing.** Ask it
   explicitly: at production volume, does this projection complete a full replay?
 - **Events are small.** No large blob and no base64 payload embedded in an
   event; put the content elsewhere and carry a reference.

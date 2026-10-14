@@ -1,17 +1,17 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Chronicle CLI effects at v3.53.1
+# Chronicle CLI effects
 
-Derived from `cratis llm-context` printed by **Cratis.Cli 3.53.1**. Use the
-installed version's catalog, not this snapshot, for later releases. The tag's
-[effect/confirmation contract](https://github.com/Cratis/cli/blob/v3.53.1/Documentation/reference/llm-context.md)
+Derived from `cratis llm-context`. Use the
+installed version's catalog, not this snapshot, when they differ. The
+[effect/confirmation contract](https://github.com/Cratis/cli/blob/main/Documentation/reference/llm-context.md)
 defines `read-only`, `local`, `mutating`, `destructive`; every other or unknown
 effect is a state change. `requiresConfirmation=true` fails non-interactively
 without `--yes`, independently of effect. Confirmation is not authorization.
 
 All paths below start with `cratis chronicle`. This table exhausts its
-non-read-only commands at that version.
+non-read-only commands.
 
 | Path | Effect | requiresConfirmation |
 | --- | --- | --- |
@@ -42,14 +42,14 @@ catalog; server version is included in diagnostic output.
 
 Critical effect implementations at the tag:
 
-- [RemoveObserverCommand.cs:18–52](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/Observers/RemoveObserverCommand.cs#L18-L52):
+- [RemoveObserverCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Observers/RemoveObserverCommand.cs):
   deletes observer records across all namespaces, leaves read model data,
   refuses running/subscribed observers.
-- [ClearPartitionQuarantineCommand.cs:20–53](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/Observers/ClearPartitionQuarantineCommand.cs#L20-L53):
-  Chronicle 19.29.0+, resets retry budget, retries unless `--no-retry`.
-- [ChronicleCommand.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/ChronicleCommand.cs):
+- [ClearPartitionQuarantineCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Observers/ClearPartitionQuarantineCommand.cs):
+Chronicle 19.29.0 or later, resets retry budget, retries unless `--no-retry`.
+- [ChronicleCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/ChronicleCommand.cs):
   confirmation handling shared by prompted commands.
-- [WorkbenchCommand.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Chronicle/Workbench/WorkbenchCommand.cs):
+- [WorkbenchCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Workbench/WorkbenchCommand.cs):
   destructive interactive surface, table output only.
 
 The guard covers `chronicle` only. `direct login|logout|status|use` declares

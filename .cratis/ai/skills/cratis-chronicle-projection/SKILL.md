@@ -17,12 +17,11 @@ class. See [reducers](../cratis-chronicle-reducer/SKILL.md) for that contract.
 
 ## Verified product sources
 
-This skill is verified against this exact source:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `19.50.1` | Existing projections, model-bound attributes, keys and event-sequence APIs |
-| `Cratis.Chronicle` | `19.59.4` | Self-model builder conflicts: `Source/Clients/DotNET/ReadModels/ReadModelBuilderOwnership.cs`, `Reducers/SelfReducerMethods.cs` at tag `v19.59.4` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `Cratis.Chronicle.Projections`, `Cratis.Chronicle.Projections.ModelBound`, `Cratis.Chronicle.Keys`, `Cratis.Chronicle.EventSequences`; self-model builder conflicts (`Source/Clients/DotNET/ReadModels/ReadModelBuilderOwnership.cs`, `Reducers/SelfReducerMethods.cs`) |
 
 Reverify product sources before claiming support for another version.
 
@@ -105,7 +104,7 @@ They live on the per-event builder that `From<TEvent>` hands to your callback.
 ## Choose a bounded projection shape
 
 Project the fields a consumer needs, rather than building a universal entity
-with every detail and historical entry. Children are useful for bounded related
+with every detail and past entry. Children are useful for bounded related
 state, not an invitation to embed an unbounded timeline. Give growing histories
 their own paged read model. A slim summary may combine event facts without
 query-time joins, but there is no framework requirement that a query read only
@@ -153,7 +152,7 @@ variants only when the shapes genuinely diverge; a single read model with a
 `Status` flag is still right when every stage shares almost all its
 properties.
 
-> Variants require `Cratis.Chronicle` `19.1.0` or later; verified at `19.50.0`.
+Requires `Cratis.Chronicle` 19.1.0 or later for variants.
 
 Both approaches use the identity type only to anchor the group — it does not
 need to be a read model itself, and does not need a common CLR base type with
@@ -249,9 +248,9 @@ or a reactor rather than annotating the projection.
   event types are excluded). It is for audit/log models; pair it with
   `[NotRewindable]`. It targets a **property only**, not a positional parameter.
   Fluent `.FromAll()` can count into dictionaries using a per-event context key.
-- `[FromEvery]` captures across events the model **already** consumes, including
+- `[FromEvery]` (Requires Chronicle 19.49.0 for child-only events) captures across events the model **already** consumes, including
   events handled **only by child or nested-child collections**, updating the
-  owning parent (19.49.0+). It subscribes to nothing new. Model-bound always
+  owning parent. It subscribes to nothing new. Model-bound always
   includes children; fluent `IFromEveryBuilder.ExcludeChildProjections()` opts
   out (PDL: `exclude children`).
 
@@ -260,24 +259,24 @@ property)]` and `[FromEvery(property, contextProperty)]`. Name them.
 
 ## Definition changes replay
 
-At v19.50.0 (`Documentation/hosting/configuration/observers.md`), the kernel
+Per `Documentation/hosting/configuration/observers.md`, the kernel
 classifies a changed definition as no action, partial replay, or full replay.
 `observers.definitionEvolution` defaults to `Automatic`; `PartialOnly` applies
 partial/no-action plans but recommends full replay; `Manual` recommends both
 replay kinds. Mapping, key, filter, join and child changes require full replay
 when independence cannot be proved. Counters and joins are repaired by replay,
-not by deploying corrected mappings: historical double-counts remain until rebuilt.
-The 19.7.2 `FromAll` subscription change redefines existing projections.
+not by deploying corrected mappings: earlier double-counts remain until rebuilt.
+A `FromAll` subscription change redefines existing projections.
 
 Projection replay and catch-up each walk the sequence in **one globally ordered
 job step**, not parallel per-source steps. A new failure during catch-up stops
 that ordered step even if other sources are healthy. Full replay keeps the
 observer inactive; completion routes to catch-up/live unless quarantined.
-At 19.50.1, a next-event storage error leaves the cursor unchanged and waits for
+A next-event storage error leaves the cursor unchanged and waits for
 retry; only `NotFound` proves absence. It does not certify previously skipped
 history. Sources: `Documentation/projections/registration-lifecycle.md`,
 `Documentation/concepts/observers.mdx`, `Observation/Jobs/{CatchUpObserver,ReplayObserver}.cs`
-and `Observation/States/Routing.cs` (under `Source/Kernel/Core/`) at **v19.50.1**.
+and `Observation/States/Routing.cs` (under `Source/Kernel/Core/`).
 
 Closing a stream does not erase its events or prevent a projection replay.
 Keep the closing fact as history; see **cratis-chronicle-event-constraints**.

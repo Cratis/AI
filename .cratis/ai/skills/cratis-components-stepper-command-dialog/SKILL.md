@@ -12,10 +12,10 @@ field across every step is valid.
 
 ## Verified product sources
 
-| Package | Version | Verified from |
-| --- | --- | --- |
-| `@cratis/components` | `4.26.4` | its package manifest, `Source/CommandDialog/*` (`StepperCommandDialog`, `CommandStepper`, `StepperPanel`), `Documentation/StepperCommandDialog/*`, `Documentation/CommandStepper/*` |
-| `@cratis/arc.react` | `>=20.3.1 <23` | peer range declared by `@cratis/components@4.26.4` |
+| Package | Verified from |
+| --- | --- |
+| `@cratis/components` | its package manifest, `Source/CommandDialog/*` (`StepperCommandDialog`, `CommandStepper`, `StepperPanel`), `Documentation/StepperCommandDialog/*`, `Documentation/CommandStepper/*` |
+| `@cratis/arc.react` | peer range declared by `@cratis/components` |
 
 ## Choose it over `CommandDialog` when
 
@@ -161,8 +161,8 @@ Stepper-level props (inherited from the stepper customization surface):
 
 Command-form props (`initialValues`, `currentValues`, `validateOn`,
 `validateOnInit`, `onSuccess`, `onValidationFailure`, `onFailed`,
-`autoServerValidate`, …) all apply as well. Horizontal steppers show names below
-numbers and wrap (4.26.3+). Panels are named by their headers through
+`autoServerValidate`, …) all apply as well. Horizontal steppers (Requires Components 4.26.3) show names below
+numbers and wrap. Panels are named by their headers through
 `aria-labelledby`; custom header ids are preserved.
 
 While `confirmBeforeExecute` is pending, fields are disabled; changed command

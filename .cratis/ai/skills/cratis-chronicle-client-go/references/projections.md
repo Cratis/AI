@@ -3,9 +3,9 @@
 
 # Model-bound Go projections
 
-Verified at Chronicle.Go **v0.9.1** in `registry_readmodels.go`,
+Source: Chronicle.Go `registry_readmodels.go`,
 `registry_projections.go`, `projections/declaration.go` and the
-[tagged projection example](https://github.com/Cratis/Chronicle.Go/blob/v0.9.1/examples/projections/main.go).
+[projection example](https://github.com/Cratis/Chronicle.Go/blob/main/examples/projections/main.go).
 This complete package declares a projection; it does not connect or append:
 
 ```go
