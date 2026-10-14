@@ -1,5 +1,16 @@
 # From technical signal to candidate meaning
 
+## Contents
+
+- Core question per write
+- Rules
+- Tests
+- Targeted read paths
+- Generator facts (static evidence)
+- Prologue facts (dynamic evidence)
+- Read models
+- Realization convention
+
 Every rule here is a **modeling default** or a **review question**, not a law. A signal
 proposes a reading; the evidence row records the reading as `proposed` until an expert or a
 code read confirms it.
@@ -26,6 +37,9 @@ who decided it?* If nobody can answer, classify the row `unknown` and ask.
 | Table read but never written by this system | reference data owned elsewhere | an invented event that "loads" it | ask where it comes from and who maintains it; a Translate candidate or a `seed`, never a made-up event |
 | Generic engine (template- or schema-driven records, EAV tables, configurable workflow definitions) | infrastructure that serves several real cases | modeling the engine (`Entity`, `Attribute`, `Value`) | model the real cases it is configured for as named events with real properties; configuration rows are evidence (`doc` or config locator) |
 | Sequence between steps | code rarely shows order | an order guessed from file or method order | take it from the UI click path, a document or an expert; record the source in the feature `description` story line; an unconfirmed order is an assumption with a question |
+| Who calls an entry point (a role or claim check, the page that posts it, the job that runs it) | the persona or non-human cause behind the command | inferring a generic `User` | candidate `persona` (Does, Reads, Cannot) or cause in `STATE.md`; the role check is evidence for `authorize` |
+| Code comment stating a rule ("orders over 10 000 need approval") | a rule at `Read` strength, possibly stale | modeled as fact | an evidence row with the comment's locator; confirm against the code path or an expert before writing a specification |
+| Visible label on a form or list | the business word | the code identifier kept as the name | a Terms row (`evidence-table-template.md` section 9) with the UI label as the business term |
 | Health, simulation, test or admin routes | infrastructure or tooling | become domain modules | exclude, list in the loss report |
 | Custom span or handler named for an operation (`TakeInCoat`) | the best available intent signal | ignored in favour of route names | prefer it for command names |
 | Concrete ids or codes in paths (`/coats/T-551/handback`) | identifiers leaked into names | `T551` module or slice | normalise to route templates; allowlist `http.route` |
@@ -50,6 +64,21 @@ Arrange, act and assert is a hint, not the shape of a scenario. Repository seedi
 calls are never `given` events; derive `given` from the prior facts the rule depends on
 (`cratis-screenplay-scenario-coverage`). Reading tests is allowed; running them stays
 approval-gated.
+
+## Targeted read paths
+When a Pass 1 or Pass 2 feature needs code reads, follow one path end to end and read only the
+files on it. Each hop has a typical yield:
+
+| Path | Hops | What to take from it |
+|---|---|---|
+| Write | entry point (route, handler, form action), input model and validation, service, entity, repository, schema or migration, response and error mapping | the command name and inputs; `validate` rules with their exact messages; state-dependent checks (`reads` plus `require`, NOT enforced); unique indexes; the error mapping gives the `then error` text and the legacy HTTP code for the slice `documentation` |
+| Read | entry point, query or repository, response model, paging and filter conventions | the read-model shape and query arguments (`by`, `filter`); which caller may narrow what |
+| Background | listeners, after-commit hooks, message consumers, schedulers, outbox relays | reaction or translation candidates; say "none found" when there is none |
+
+Tests for the feature are read last, as hypotheses (above). To learn the realization convention
+before any feature is mapped, trace one recently changed, ordinary feature
+(`git -C <repo> log --stat -20`, read-only), not the oldest or the most special one: an old feature
+shows how the code used to be written.
 
 ## Generator facts (static evidence)
 - Exact or Configured evidence (bound symbols, attributes, registrations) is strong for

@@ -50,3 +50,7 @@ Confirmed by <who> on <date> (rows), or "no capture run".
 
 Wording: "candidate", "recovered structure", "unverified". Never "lossless", "complete",
 "automatic" or "equivalent".
+
+MCP `semantic-diff` compares canonical exports of the same application. It does not guess
+renames, run specifications or prove recovered behavior, so a structural match is never an
+execution-equivalence claim. Inspect its incomplete sections before quoting it in the loss report.
