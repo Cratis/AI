@@ -7,21 +7,21 @@
 - Coverage (what a provider reads)
 - Diagnostics are the loss list
 - Arc recovery and authoring-only options
-- Arc 22.76.0 enum and response recovery
-- Arc 22.70.0 compliance recovery
+- Enum and response recovery
+- Compliance recovery
 - Generated-document self-check on compiler upgrades
 - Reading the output cheaply
 
 Flags verified with `cratis screenplay generate --help` on the installed CLI (`cratis --version`); behaviour from the cratis CLI
-(`Source/Cli/Commands/Screenplay/`; the generate files are unchanged since `v3.27.1`), Arc `v22.50.5`
+(`Source/Cli/Commands/Screenplay/`), Arc
 (`Documentation/backend/csharp/generating-a-screenplay.md`,
-`Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`), Screenplay.Generation `v0.18.0` and
-Screenplay.CritterStack `v0.24.0` (the versions cli 3.53.1 bundles). Later releases exist (Generation 0.18.1 preserves compiler warnings, including on successful generation; CritterStack 0.26.0 adds enum concepts, command-to-event production links and the `MixedSliceKindsSplit` and `ProductionLinkOmitted` diagnostics); do not claim them for `cratis screenplay generate` until a cli bundles them. Version-specific capability facts belong in cratis-screenplay-toolchain
+`Source/DotNET/Screenplay/ScreenplayDiagnosticCodes.cs`), Screenplay.Generation and
+Screenplay.CritterStack (the versions the CLI bundles). Later releases can add capabilities (for example preserved compiler warnings, enum concepts, command-to-event production links and the `MixedSliceKindsSplit` and `ProductionLinkOmitted` diagnostics); do not claim them for `cratis screenplay generate` until a cli bundles them. Version-specific capability facts belong in cratis-screenplay-toolchain
 `SKILL.md`.
 
 For the current standalone compiler and CLI bundle, use the toolchain's
 [Tool versions and the contract](../../cratis-screenplay-toolchain/SKILL.md).
-The compliance and self-check sections below are source-checked at Arc 22.70.0
+The compliance and self-check sections below follow Arc
 (`Documentation/backend/csharp/generating-a-screenplay.md`,
 `Analysis/Types/{ConceptRegistry,PersonalDataMarkings,TypesTheDocumentCannotName}.cs`,
 `Emission/Concepts/ConceptSyntaxBuilder.cs`, `Emission/ProtectedIdentityAnnotations.cs`
@@ -110,13 +110,12 @@ The expanded Arc recovery surface includes:
   record the omission as a loss, never fabricate identities to retain a scenario.
 - Supported generated values and scalar/record responses by default, without
   the authoring-only flag. The older bundled adapter retains legacy representation
-  for commands with successful scenarios. Arc 22.87.1 recovers generated Handle
+  for commands with successful scenarios. Arc recovers generated Handle
   parameters with concrete pins, but local `New()` values still have no pin seam;
   [recovery forms, version gate and loss inventory](generated-recovery.md).
   Unsupported shapes/pre-generation protection remain code with SP0052.
 
-Generated values/responses select ESM v7. The historical CLI 3.41.0 check
-admitted v7 to planning, but Stage 4.51.3 refused those members with STAGE-ESM-028/029. CLI#261 is closed; do not say
+Generated values/responses select ESM v7. An older renderer refused those members with STAGE-ESM-028/029; do not say
 the compiler or CLI version gate universally refuses v7. Above v7 remains
 CLI-RENDER-004. A generated source model is evidence, not guaranteed render output.
 
@@ -124,13 +123,14 @@ Handler/reaction bodies, unresolved conditions and unproven origins still need
 source review. Do not infer generation/evolution/absence-assertion coverage from
 a package upgrade; read diagnostics and reconcile each recovered scenario.
 
-## Arc 22.76.0 enum and response recovery
+## Enum and response recovery
+
+Requires Arc.Screenplay 22.76.0 or later for enum and response recovery.
 
 Source-verified at Arc `Source/DotNET/Screenplay/Emission/Concepts/ConceptSyntaxBuilder.cs`,
 `Analysis/Types/{ConceptRegistry,FlagsEnumUses}.cs`, `Analysis/EnumConstants.cs`,
 `Analysis/Specifications/SpecificationReturnValues.cs`, and
-`Documentation/backend/csharp/generating-a-screenplay.md`. Arc 22.76.0 takes
-Screenplay 4.139.0, not 4.141.0. The CLI bundles an older generator; see the
+`Documentation/backend/csharp/generating-a-screenplay.md`. The CLI bundles an older generator; see the
 toolchain `SKILL.md` (installed versions) rather than assuming parity.
 
 Every enum member now emits its stored integer, including positional members.
@@ -154,7 +154,9 @@ returned/yielded/lambda values and conditional/coalescing/tuple/collection flows
 Mutation through ordinary method calls is not analyzed. Inspect reported scenarios;
 never infer a response contract from a post-execution mutation.
 
-## Arc 22.70.0 compliance recovery
+## Compliance recovery
+
+Requires Arc.Screenplay 22.70.0 or later for compliance recovery.
 
 A concept with both `[Encrypted]` and `[NotAudited]` becomes `secret`.
 Encryption or audit suppression alone, or only on a member, does not establish
@@ -167,9 +169,9 @@ without adding `secret`; an existing `pii` classification remains.
   `namespace` scope: the document instead implies Subject scope. Global behaves
   the same way. Set `ScreenplayOptions.AuthoringOnlyConstructs = true` (CLI
   adapter option `--authoring-only-constructs`) to emit `secret scope namespace`
-  or `secret scope global` in the concept body. This was syntax-only on that
-  compiler; standalone 4.142.0 admits concept compliance as ESM v13.
-  That upgrade does not change the older generator or CLI bundle.
+  or `secret scope global` in the concept body. This is syntax-only on that
+  compiler; Screenplay admits concept compliance as ESM v13, and that
+  does not change an older generator or CLI bundle.
 - A concept also marked `[PII]` becomes `pii secret`, with no emitted scope:
   the C# providers render only `[PII]`; Chronicle rejects `[PII]` combined with
   `[Encrypted]`. Do not add a scope the provider ignores.

@@ -8,8 +8,8 @@
 - 4. Cleanup DDL to propose (run by the DBA after the Extractor is stopped)
 - 5. Capture verification before interpreting
 
-Sources: Prologue `v2.0.0` (the version CLI 3.53.1 bundles; Extractor, Configuration,
-Interpretation) and cratis CLI `v3.53.1` (`Source/Cli/Commands/Prologue/*`,
+Sources: Prologue (the version the CLI bundles; Extractor, Configuration,
+Interpretation) and the cratis CLI (`Source/Cli/Commands/Prologue/*`,
 `LlmOptionsResolver.cs`, `Documentation/reference/prologue.md`). Tool versions: `cratis-screenplay-toolchain`
 `SKILL.md`.
 Everything here that touches a target system is
@@ -31,8 +31,7 @@ with explicit approval).
 An explicit user request naming the effect and target counts as approval; ask again only when
 the target or consequence expands.
 
-Nothing in Prologue removes what the Extractor created. Cleanup is manual; Cratis/Prologue#37
-(open) tracks the missing cleanup, so write the cleanup before capture starts.
+Nothing in Prologue removes what the Extractor created. Cleanup is manual, so write the cleanup before capture starts.
 
 ## 2. Configuration and privacy
 - `start` is interactive only; for a reviewable plan, hand-write `cratis-prologue.json` in
@@ -56,8 +55,7 @@ Nothing in Prologue removes what the Extractor created. Cleanup is manual; Crati
 when its brief records this preflight and the user's approval, otherwise it proposes)
 `cratis prologue interpret --no-llm` forces heuristics-only interpretation: it never creates a
 chat client and sends no capture evidence to a model, whatever the local or global configuration
-says (CLI 3.37.1 or later; confirm with `cratis prologue interpret --help`). Cratis/cli#241 is
-closed. Without `--no-llm` the effective provider resolves in this order
+says (confirm with `cratis prologue interpret --help`). Without `--no-llm` the effective provider resolves in this order
 (`LlmOptionsResolver.ResolveWithSource`):
 1. an explicit local `llm.enabled` in `cratis-prologue.json`: `true` -> that provider, `false`
    -> disabled, with no fallback to the global configuration;
@@ -75,7 +73,7 @@ Preflight (read-only):
 - `cratis llm show -o json` (the key is masked) and the `llm` section of the
   `cratis-prologue.json` that interpret will find (PATH, then the current directory).
 - Report the effective provider, model and endpoint. If it is hosted, the whole payload sent
-  is (`RefinementPrompt.Evidence`, `EvidenceFormatter.cs` at `v2.0.0`):
+  is (`RefinementPrompt.Evidence`, `EvidenceFormatter.cs`):
   - the provisional model outline and the list of every provisional name in it, **uncapped**
     (inferred command, event and property names from all captures);
   - observed behaviour, each list capped at 50 distinct entries: `METHOD path` lines (concrete
