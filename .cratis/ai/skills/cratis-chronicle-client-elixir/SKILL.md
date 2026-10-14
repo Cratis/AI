@@ -19,12 +19,7 @@ Source: `Cratis/Chronicle.Elixir` (Hex package `cratis_chronicle`). Source paths
 
 Read [references/upgrading.md](references/upgrading.md) when moving an application from an older client; wire compatibility and corrected behavior both matter.
 
-| Fact | Value | Source |
-| --- | --- | --- |
-| OTP app / Hex package | `:cratis_chronicle` | `Source/chronicle/mix.exs` |
-| Published versions | Select the intended release from hex.pm; not every git tag is published to Hex | hex.pm |
-| Elixir requirement | `~> 1.18` | `Source/chronicle/mix.exs` |
-| Contracts dependency | `cratis_chronicle_contracts` as resolved in `mix.lock`; pair it with a compatible kernel | `Source/chronicle/mix.lock` |
+Requires Elixir `~> 1.18`. Read [references/product-sources.md](references/product-sources.md) for the package and contracts dependency facts.
 
 > **A git tag is not a Hex release.** `mix deps.get` fetches only published versions. The `Chronicle.Concept` macro
 > (`use Chronicle.Concept, type: :string`, a single-value concept that carries its
@@ -80,45 +75,9 @@ defmodule MyApp.Application do
 end
 ```
 
-### Options
+### Options, supervision and multiple clients
 
-Pass **child-spec keyword options**. The client reads no application env;
-your app must read its own configuration and pass it in (`lib/chronicle/client.ex`).
-
-| Option | Default |
-| --- | --- |
-| `:name` | `Chronicle.Client` |
-| `:connection_string` | `ConnectionString.default/0` |
-| `:event_store` | `"default"` |
-| `:namespace` | `"Default"` — capital D |
-| `:discover` | `true` |
-| `:otp_app` | none; falls back to scanning loaded modules |
-| `:event_types`, `:event_sources`, `:migrations`, `:reactors`, `:reducers`, `:read_models`, `:projections`, `:seeders`, `:webhooks`, `:event_store_subscriptions`, `:global_handlers` | `[]`, merged with discovered |
-| `:default_sink_type_id` | `:mongodb`; accepts `:mongodb`, `:sql`, `:in_memory`, `:none` or a raw string |
-| `:server_address` | alternative `"host:port"` address (connection option) |
-| `:skip_tls_validation`, `:load_balancer`, `:grpc_options`, `:reconnect_base_delay`, `:reconnect_max_delay` | forwarded to the connection | — |
-| `:retry_attempts` | accepted for compatibility, **ignored** |
-
-> The moduledoc in `client.ex` says the namespace defaults to `"default"`.
-> The code uses `"Default"`. **Trust the code.**
-
-**Set `:otp_app`.** With it, discovery is scoped to your application's modules;
-without it the client falls back to scanning every loaded module.
-
-Configuration is stashed in `:persistent_term` and read back with
-`Chronicle.Client.config/1` (`client.ex`). Its subset includes `event_sources`,
-but not `read_models`, `projections`, or `migrations`.
-
-### The supervision tree
-
-`Supervisor.init(children, strategy: :rest_for_one)` — `client.ex`.
-The lifecycle hub is the root dependency; restarting it restarts its subscribers.
-The connection, session and registration precede observers.
-
-### Multiple clients
-
-Pass `name:` to `Chronicle.Client` and `client:` to every API call. Every public
-function takes a `:client` option.
+Read [references/client-options.md](references/client-options.md) when setting `Chronicle.Client` options (set `:otp_app`), its supervision tree, or multiple clients.
 
 ## Connecting is asynchronous — wait for the lifecycle
 
@@ -263,21 +222,7 @@ failure. Source/stream options apply to buffered appends too.
 
 ### Reactors
 
-```elixir
-defmodule MyApp.Reactors.DepositLogger do
-  use Chronicle.Reactors.Reactor
-  require Logger
-
-  alias MyApp.Events.FundsDeposited
-  @handles FundsDeposited
-
-  @impl true
-  def handle(%FundsDeposited{}, %{sequence_number: number}) do
-    Logger.info("Deposit observed", sequence_number: number)
-    :ok
-  end
-end
-```
+Read [references/reactor-example.md](references/reactor-example.md) when you need a worked reactor module.
 
 This follows `Documentation/client-snippets/get-started/common/reactor.md`.
 
@@ -304,17 +249,7 @@ but **it is not in the map**. Reducer context differs: `event_source_id`,
 
 ### Read models and projections
 
-```elixir
-defmodule MyApp.ReadModels.AccountBalance do
-  use Chronicle.ReadModels.ReadModel
-  defstruct id: "", balance: 0
-
-  from(MyApp.Events.FundsDeposited,
-    set: [id: :event_source_id],
-    add: [balance: :amount]
-  )
-end
-```
+Read [references/reactor-example.md](references/reactor-example.md#read-model-example) for a worked model-bound read model.
 
 This is the model-bound shape; use typed defaults for its registered schema.
 
@@ -364,37 +299,9 @@ registered definitions.
 `{:chronicle_read_model_changed, module, %Changeset{}}` and
 `{:chronicle_read_model_watch_error, module, reason}` to the calling process. The receiving process needs a `handle_info` for both.
 
-## Operational inspection
+## Idioms and operational inspection
 
-`Chronicle.Observers.get_all/1` lists namespace observers; `remove/2` removes an
-orphaned observer across the store, refuses running/subscribed observers in any
-namespace, and leaves read model data intact (`observers.ex`). Obtain
-explicit authority before removal and inspect `RemovalResult.outcome` —
-`{:ok, result}` alone does not mean removed. `Chronicle.FailedPartitions` and
-`Chronicle.Jobs` provide failure/job inspection; `Jobs.get/2` lists then finds
-client-side. Observer types include `:reactor`, `:projection`, `:reducer`,
-`:external`; states include `:active`, `:suspended`, `:replaying`, `:disconnected`,
-`:quarantined` and `:unknown`.
-
-## Idioms worth knowing
-
-- **Process-scoped context.** Correlation id, identity, and causation are held per
-  process: `Chronicle.current_correlation_id/0`, `set_correlation_id/1`,
-  `clear_correlation_id/0`; `current_identity/0`, `set_identity/1`,
-  `clear_identity/0`; `Chronicle.Auditing.CausationManager`. They are picked up
-  automatically on append. **A `Task` is a different process** and does not
-  inherit them.
-- **Discovery is compile-time reflection.** The `use` macros generate
-  `__chronicle_*__/1` functions via `__before_compile__`, and discovery is
-  `function_exported?/3` over the application's modules — not runtime scanning.
-- **No client-owned telemetry events.** `telemetry` is a direct dependency;
-  transport failure detection subscribes to grpc events. Logging is `Logger`.
-- **No formatter export.** `.formatter.exs` declares no `locals_without_parens`
-  for `from`, `join`, `removed_with`, `from_every`, `pii`, `subject`, `unique`, or
-  `unique_event_type`, and there is no `import_deps: [:cratis_chronicle]` to
-  inherit. `mix format` will add parentheses to the DSL.
-- **`ReadModels.watch/2` is unsupervised.** It uses `Task.start/1` and `unwatch/1`
-  is a raw `Process.exit(pid, :shutdown)`. Supervise it yourself if it matters.
+Read [references/idioms-and-inspection.md](references/idioms-and-inspection.md) when carrying correlation or identity across a `Task`, formatting the DSL, supervising `ReadModels.watch/2`, or removing observers (obtain explicit authority first).
 
 ## Common pitfalls
 
