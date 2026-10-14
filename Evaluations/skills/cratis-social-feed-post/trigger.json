@@ -18,6 +18,6 @@
     { "query": "Is the code on this code card verified against the real API and linked to the compiled source?", "shouldTrigger": false, "note": "cratis-technical-examples" },
     { "query": "Write the documentation page for the feature with a tutorial structure.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
     { "query": "Write a blog article with Markdown headings and code fences explaining replay.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
-    { "query": "Write the Hacker News title and first comment for our Show HN.", "shouldTrigger": false, "note": "AI does not write HN text; a person writes it" }
+    { "query": "Plan which channels the Arc launch goes to over the next month and how we measure it.", "shouldTrigger": false, "note": "cratis-developer-marketing" }
   ]
 }

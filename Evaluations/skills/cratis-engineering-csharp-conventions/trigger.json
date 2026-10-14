@@ -14,7 +14,7 @@
     { "query": "Write the specification for the BookBoat command using the Establish/Because/should_ pattern in a when_ folder.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
     { "query": "What does the Chronicle IEventLog.Append method return and how does it handle concurrency?", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
     { "query": "Write the C# for a new RegisterBoat command that returns the id and appends BoatRegistered.", "shouldTrigger": false, "note": "cratis-arc-command" },
-    { "query": "How should I style this React component and name the hook in TypeScript?", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "How should I style this React component and name the hook in TypeScript?", "shouldTrigger": false, "note": "cratis-components-styling for the styling; hook naming follows the TypeScript rule, not a skill" },
     { "query": "Do a security review of this C# controller for injection and authorization gaps.", "shouldTrigger": false, "note": "cratis-security-review" },
     { "query": "Review this C# pull request for performance: allocations in hot paths and LINQ in loops.", "shouldTrigger": false, "note": "cratis-performance-review" },
     { "query": "Wrap this HTTP call so it has retries and tell me where the effect boundary should sit.", "shouldTrigger": false, "note": "cratis-engineering-effect-boundaries" },

@@ -18,6 +18,6 @@
     { "query": "Write the reducer that builds the BookingsOverview read model from events.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
     { "query": "Make sure two events can't use the same registration number with a unique constraint.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
     { "query": "Pin event generations so my reactor gets the generation it handles, and migrate old events.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
-    { "query": "Write a scenario spec that appends events and asserts the projection result.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" }
+    { "query": "Write a scenario spec that appends events and asserts the projection result.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" }
   ]
 }

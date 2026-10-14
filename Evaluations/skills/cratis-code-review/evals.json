@@ -29,7 +29,7 @@
     {
       "id": 3,
       "name": "singleton-scoped-dependency",
-      "prompt": "In review: `[Singleton] public class BoatCatalog(IEventStore eventStore, IMongoCollection<Boat> boats)`; the event store call is used in a handler. Also this changed line moves an old unchanged file's `== null` check. What do you report and how severe is each? Reply only.",
+      "prompt": "In review: `[Singleton] public class BoatCatalog(IEventStore eventStore, IMongoCollection<Boat> boats)`; the event store call is used in a handler. Also an untouched line elsewhere in the same file still uses `== null`. What do you report and how severe is each? Reply only.",
       "expected_output": "A [Singleton] must not take a scoped dependency such as the event store or a MongoDB collection/database/client; make the type transient or scoped (IServiceScopeFactory only for a service the host resolves once). A pre-existing violation in a line the change did not touch is a note, never a blocker.",
       "assertions": [
         "Flags the singleton taking the event store and a MongoDB collection as a blocking finding.",

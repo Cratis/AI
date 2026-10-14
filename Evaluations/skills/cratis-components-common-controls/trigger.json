@@ -12,7 +12,7 @@
     { "query": "my combobox shows an empty list when the load is denied, how do I show a failure message instead of no options?", "shouldTrigger": true },
     { "query": "breadcrumbs on a page that also has a sidebar trail, how do I name them so screen readers can tell them apart?", "shouldTrigger": true },
     { "query": "Bind a command property to a text input inside a CommandForm for the RenameAccount command.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
-    { "query": "Show a sortable table of accounts with paginator and global search backed by an Arc query.", "shouldTrigger": false, "note": "cratis-components-data-surfaces" },
+    { "query": "Show a sortable table of accounts with paginator and global search backed by an Arc query.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
     { "query": "Dropdown aria-label and the trigger part: how do I test it with the accessible name?", "shouldTrigger": false, "note": "cratis-components-accessibility" },
     { "query": "Make a vertical icon toolbar with a drawer for my drawing canvas palette.", "shouldTrigger": false, "note": "cratis-components-toolbar" },
     { "query": "Override --cratis-accent in dark mode and import the three stylesheet entries.", "shouldTrigger": false, "note": "cratis-components-styling" },

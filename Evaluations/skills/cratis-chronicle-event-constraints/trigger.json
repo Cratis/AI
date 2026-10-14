@@ -13,7 +13,7 @@
     { "query": "Make the command reject an end date before the start date.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
     { "query": "A boat can only hold 10 bookings. Enforce capacity under concurrent requests.", "shouldTrigger": false, "note": "cratis-chronicle-decision-reads" },
     { "query": "Create a read model of active bookings and a projection for it.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
-    { "query": "General EventScenario mechanics: Given, When and projection assertions.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" },
+    { "query": "General EventScenario mechanics: seeding with Given, appending with When and asserting the append result.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" },
     { "query": "Evolve an event type with a new required property.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
     { "query": "Send an email after BoatRegistered.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
     { "query": "Unique index on a column in our EF Core table.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },

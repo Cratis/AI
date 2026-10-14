@@ -17,7 +17,7 @@
     { "query": "From my React form I call the generated ArchiveInvoice proxy with execute(). How do I show the validation results?", "shouldTrigger": false, "note": "cratis-arc-react-page" },
     { "query": "In our Node Arc for TypeScript server, how do I run a command from a scheduled task?", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
     { "query": "I need to append an event to another customer's stream from inside my Handle. Should I inject IEventLog?", "shouldTrigger": false, "note": "cratis-arc-command" },
-    { "query": "Write a spec that runs BookBoat through CommandScenario and asserts the appended event.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Write a spec that runs BookBoat through CommandScenario and asserts the appended event.", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
     { "query": "Which Arc auth attribute should protect the ApproveBudget command so only finance staff can call it?", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" }
   ]
 }

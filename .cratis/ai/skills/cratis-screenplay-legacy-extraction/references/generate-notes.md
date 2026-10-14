@@ -97,7 +97,7 @@ Requires Arc.Screenplay 22.96.0 or later for navigation from route tables; older
 
 ### Denial specifications
 
-An unconditional `result.ShouldNotBeAuthorized()` on a scenario's command result becomes `then denied` only when the command has an emitted `authorize` gate with exactly recovered roles or policies, the scenario has an exactly recovered `given caller`, the generator's reference-runner probe denies that caller, and no other outcome is asserted (`ShouldNotBeSuccessful()` may accompany it). No `then no events` is written beside it. Otherwise the scenario is withheld and `SP0039` names why: caller or policy not recovered exactly, the caller satisfies the authorization, the denial cannot be decided from the caller, denial combined with another outcome, no stated policy explains it, or the command's own code can return a denial.
+An unconditional `result.ShouldNotBeAuthorized()` on a scenario's command result becomes `then denied` only when the command has an emitted `authorize` gate with exactly recovered roles or policies (or the standard authentication-only gate), the scenario has an exactly recovered `given caller`, the generator's reference-runner probe denies that caller, and no other outcome is asserted (`ShouldNotBeSuccessful()` may accompany it). No `then no events` is written beside it. Otherwise the scenario is withheld and `SP0039` names why: caller or policy not recovered exactly, the caller satisfies the authorization, the denial cannot be decided from the caller, denial combined with another outcome, no stated policy explains it, or the command's own code can return a denial.
 
 Requires Arc.Screenplay 22.98.0 or later for `then denied`; older releases withhold every denial specification with `SP0039`.
 

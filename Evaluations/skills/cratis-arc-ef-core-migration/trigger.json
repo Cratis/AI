@@ -16,7 +16,7 @@
     { "query": "Our Spring Data JPA repository needs a new column for the vessel table.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
     { "query": "Evolve the CustomerRegistered event type with a new required PhoneNumber field.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
     { "query": "Use curl to watch the live bookings query as server-sent events.", "shouldTrigger": false, "note": "cratis-arc-observable-query-http" },
-    { "query": "Make the Postgres container and connection string available to the Aspire app host for local dev.", "shouldTrigger": false, "note": "cratis-arc-hosting" },
+    { "query": "Make the Postgres container and connection string available to the Aspire app host for local dev.", "shouldTrigger": false, "note": "cratis-multi-service-local-orchestration" },
     { "query": "Write the Drizzle query that serves tasks from our Node Arc server.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" }
   ]
 }

@@ -17,6 +17,6 @@
     { "query": "Write the reactor that sends the receipt email for BookingConfirmed.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
     { "query": "Implement the RegisterBoat command; the events are already defined.", "shouldTrigger": false, "note": "cratis-arc-command" },
     { "query": "Enforce unique registration numbers at append time.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
-    { "query": "Write a projection for the existing BookingsOverview read model.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" }
+    { "query": "Write a projection for the existing BookingsOverview read model.", "shouldTrigger": false, "note": "cratis-chronicle-projection" }
   ]
 }
