@@ -105,7 +105,9 @@ Pick one route per source store:
 | **Explicit**: `eventStore.Subscriptions.Subscribe(id, "Ordering", b => b.WithEventType<OrderAccepted>())` and observe `[EventSequence(EventSequenceId.InboxPrefix + "Ordering")]` | Kotlin, TypeScript and Elixir consumers, contract types without `[EventStore]`, or a consumer that must choose types at run time |
 | **Operator**: `cratis chronicle subscriptions add <id> <source-store> <type-ids> -e <target-store>` | Wiring stores that run no consumer code yet, or repairing a subscription by hand |
 
-`[EventStore]` routing and `[Public]` exist only in the .NET client. Every handled
+Implicit `[EventStore]` routing exists only in the .NET client. A producer marks a type public with
+`[Public]` in .NET, or `use Chronicle.Events.EventType, public: true` in Elixir (Requires
+Chronicle.Elixir 3.11.0). Every handled
 type of one observer must come from one store (`CHR0008`), and an observer-level
 `[EventStore]` cannot be combined with an explicit event sequence (`CHR0013`).
 `cratis-chronicle-reactor` owns the routing order and those analyzers.

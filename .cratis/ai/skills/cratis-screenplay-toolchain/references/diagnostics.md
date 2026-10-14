@@ -218,7 +218,7 @@ migration. Preview every repair; legal notes never move automatically.
 
 Descriptions/documentation are report-only PLAY0270, not executable conditions.
 Case tables and persona callers expand before binding without a new ESM version.
-Routes do not make redelivery executable: it still reports PLAY0268.
+Routes do not by themselves select v17: redelivery executes as v17 (Requires Screenplay 4.157.0), and older compilers report PLAY0268 for it.
 
 ## Guarded interaction diagnostics
 
