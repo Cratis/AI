@@ -78,8 +78,8 @@ language tabs. Never hand-edit a generated proxy or a synchronized docs copy.
 ## Version constraints belong in the page; the test log does not
 
 A reader needs the versions that change what they install or write. Published
-prose can say that a feature needs a minimum release ("Variants need Chronicle
-19.1.0 or later"), pin packages and images in the commands a reader runs, and
+prose can say that a feature needs a minimum release ("This needs Chronicle
+<version> or later"), pin packages and images in the commands a reader runs, and
 name the one release where behavior changed.
 
 Keep the author's verification record out of the page. Exact SDK builds, image
