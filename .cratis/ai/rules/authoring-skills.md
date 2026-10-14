@@ -31,7 +31,7 @@ An explicit trigger clause (`Use when`, `Load when`, `Read when` or an equivalen
 
 ## 3. Budget and progressive disclosure
 
-Target at most 400 body lines and 16,000 characters; the hard limits remain 500 lines and 20,000 characters. A warning starts at 18,000 characters to leave editing and compaction headroom; characters only approximate tokens.
+Target at most 400 body lines and 16,000 characters; the hard limits remain 500 lines and 20,000 characters. A warning starts above the 16,000-character target, so a body that outgrows it is split before it nears the hard limit; characters only approximate tokens.
 
 Keep decision rules, the core workflow and pre-action traps in `SKILL.md`. Move conditional detail to `references/`, with a direct `Read references/x.md when…` pointer for every file, including assets and scripts. `LICENSE`, `NOTICE` and `verification.json` are exempt as licensing/verifier metadata; existing reasoned asset exceptions fail when stale. Direct pointers prevent partial nested reads from hiding required context. References over 100 lines open with generated `## Contents`; a single fenced example with an early introduction is exempt because it has no sections to navigate. Use forward-slash paths for portability.
 

@@ -57,10 +57,10 @@ test('description-meta extends description-version detection without using body 
     assert.ok(!rules(skill(undefined, '1.2.3')).includes('description-meta'));
 });
 
-test('body headroom counts only the body, warning at the exact 18000 threshold', () => {
-    assert.ok(!rules(skill(undefined, 'x'.repeat(17_999))).includes('body-headroom'));
-    assert.ok(rules(skill(undefined, 'x'.repeat(18_000))).includes('body-headroom'));
-    assert.ok(!rules(skill('Use when ' + 'x'.repeat(18_000) + '. Not for queries.')).includes('body-headroom'));
+test('body headroom counts only the body, warning only above the 16000 target', () => {
+    assert.ok(!rules(skill(undefined, 'x'.repeat(16_000))).includes('body-headroom'));
+    assert.ok(rules(skill(undefined, 'x'.repeat(16_001))).includes('body-headroom'));
+    assert.ok(!rules(skill('Use when ' + 'x'.repeat(16_001) + '. Not for queries.')).includes('body-headroom'));
 });
 
 test('time words are bounded, skip Requires and fences, and retain physical locations in references', () => {
