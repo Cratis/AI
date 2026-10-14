@@ -22,12 +22,34 @@ who decided it?* If nobody can answer, classify the row `unknown` and ask.
 | Status/enum column changes | a lifecycle; each transition is a candidate event | one `StatusChanged` event | one event per meaningful transition |
 | Write with no user command | job, trigger, stored procedure, integration, manual fix | assumed to be an automation | classify: maintenance / correction / integration / scheduled business process (trigger evidenced) / unexplained |
 | Inbound integration write (feed, webhook, file import) | an outside fact entering the system | modeled as our own decision | Translate candidate with correlation and dedup (cratis-screenplay-automations-and-translations) |
-| Outbound call after a write (mail, payment, partner API) | a side effect of a decision | an event per call | reaction candidate; note what "once" must mean |
+| Outbound call after a write (mail, payment, partner API) | a side effect of a decision | an event per call, or the outcome never recorded | reaction candidate; note what "once" must mean. When the business must know the result (sent, failed, refused), that outcome is a fact recorded by the command the reaction invokes (cratis-screenplay-automations-and-translations) |
+| Table read but never written by this system | reference data owned elsewhere | an invented event that "loads" it | ask where it comes from and who maintains it; a Translate candidate or a `seed`, never a made-up event |
+| Generic engine (template- or schema-driven records, EAV tables, configurable workflow definitions) | infrastructure that serves several real cases | modeling the engine (`Entity`, `Attribute`, `Value`) | model the real cases it is configured for as named events with real properties; configuration rows are evidence (`doc` or config locator) |
+| Sequence between steps | code rarely shows order | an order guessed from file or method order | take it from the UI click path, a document or an expert; record the source in the feature `description` story line; an unconfirmed order is an assumption with a question |
 | Health, simulation, test or admin routes | infrastructure or tooling | become domain modules | exclude, list in the loss report |
 | Custom span or handler named for an operation (`TakeInCoat`) | the best available intent signal | ignored in favour of route names | prefer it for command names |
 | Concrete ids or codes in paths (`/coats/T-551/handback`) | identifiers leaked into names | `T551` module or slice | normalise to route templates; allowlist `http.route` |
 | Computed value stored (price, score, total) | a calculation | dropped as "derived" | keep as a fact when it matters historically (a quoted price); otherwise a projection |
 | Soft delete flag | cancellation, archiving, or GDPR erasure | `XDeleted` | name the business reason; erasure is a PII question |
+
+## Tests
+Tests are often the densest statement of rules and messages in a legacy code base, and the
+likeliest to encode accidental behavior. They are hypotheses at `Read` strength, with
+classification kept separate and the expert verdict still required.
+
+| Signal in a test | Default reading | Do this |
+|---|---|---|
+| Test or fixture names | business vocabulary | candidate event and command names, still `proposed` |
+| Failing-path test with an asserted message | a rule with its exact message | `validate` or `require` plus `then error` with that message |
+| Role or permission test | an authorization gate | `authorize` plus a `then denied` specification |
+| Fixture data | realistic example shapes | shapes for specification values; invent values when fixtures hold personal data |
+| Assert-only trivial input check (format, required) | a value rule | a concept `validate`, not one specification per case |
+| Test of removed behavior, or a test with no production caller | unclear | an `unknown` row and a question; never modeled |
+
+Arrange, act and assert is a hint, not the shape of a scenario. Repository seeding, mocks and setup
+calls are never `given` events; derive `given` from the prior facts the rule depends on
+(`cratis-screenplay-scenario-coverage`). Reading tests is allowed; running them stays
+approval-gated.
 
 ## Generator facts (static evidence)
 - Exact or Configured evidence (bound symbols, attributes, registrations) is strong for
@@ -55,3 +77,8 @@ who decided it?* If nobody can answer, classify the row `unknown` and ask.
 ## Read models
 Source read models from screens, exports and real query usage (code, UI walk), not from table
 mirrors (`All{Table}s`). Prologue never sees reads.
+
+## Realization convention
+Once a few features are evidenced, record how this system realizes each kind of behavior
+(`evidence-table-template.md` section 10) and check later passes against it; deviations are
+questions.

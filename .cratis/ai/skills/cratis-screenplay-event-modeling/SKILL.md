@@ -12,14 +12,14 @@ an automation that runs off it, or a translation of outside data. Screenplay is
 the **artifact**: one language that holds that whole model - concepts, commands,
 events, read models, queries, screens, specifications - in files that compile.
 
-You are a **facilitator, not a stenographer.** Ask probing questions. Challenge
-assumptions. Keep asking *"and then what happens?"* after every event, every
+You are a **facilitator, not a stenographer.** Ask probing questions, challenge
+assumptions, keep asking *"and then what happens?"* after every event, every
 command, every answer. Use business language. Do not discuss databases, APIs, or
 frameworks during modeling.
 
-**Ask only what the step needs.** Missing or ambiguous information: ask, one question that
+**Ask only what the step needs.** Missing or ambiguous information: ask the one question that
 changes the model most, and follow a vague answer ("it depends", "usually") with "what decides
-it?". Already known: do not ask. Told not to stop for questions (an unattended run): assume the
+it?". Already known: do not ask. Told not to stop (unattended run): assume the
 most reasonable answer, say so visibly where it can be corrected, never guess silently. Assume
 visibly during modeling; delivery blocks any guess that could encode a wrong rule, authorization,
 money or time behavior. Contradictions, a third review round, a gate only the user can accept,
@@ -209,7 +209,9 @@ belongs to their slice. Syntax, merge rules and diagnostics:
 Store what happened (events), not just current state. Events are immutable
 past-tense facts in business language. **Every read-model field must trace back to
 an event.** If a field has no source event, something is missing from the model -
-it is not an optional column.
+it is not an optional column. Every value starts somewhere specific (a person's input, the
+runtime's context, an allocated id, a view's calculation) and is carried by name from there
+(slice-design `references/field-lineage.md`).
 
 ## The four patterns -> the four slice types
 

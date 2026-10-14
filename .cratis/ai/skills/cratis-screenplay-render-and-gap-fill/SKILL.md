@@ -121,9 +121,9 @@ model still compiles and binds) and its V5 states the scope.
 3. **When admission fails** (case A) present the options, the user decides:
    (a) keep design mode and record the gaps; (b) narrow to renderable mode, where the modeler
    changes the model for business reasons and **without** removing protection (`pii`,
-   authorization, rules); (c) deliver the non-renderable scope by hand (case C), with a ledger
-   entry (`references/drift-and-ledger.md`); (d) render the admitted part with `--scope` and gap-fill the rest
-   (case B).
+   authorization, rules); (c) deliver the non-renderable scope by hand (case C), with a fallback
+   record entry (`references/drift-and-fallback-record.md`); (d) render the admitted part with
+   `--scope` and gap-fill the rest (case B).
 4. **Publish.** The probe destination by default. Another destination needs the user's intent;
    `--force` needs approval naming its effect and destination (a request that already names them
    counts). Read the receipt: written, unchanged, removed, `recovered`. `recovered: true` means
@@ -143,8 +143,9 @@ model still compiles and binds) and its V5 states the scope.
    default composition is a failure (Stage 4.24 rendered the default composition only).
 8. **Drift:** `cratis render ... --check` (exit 6 pending); also compare the manifest's `semanticRevision`
    with a fresh render under the same inputs. For hand-written scope, `cratis screenplay conform` gives
-   structural code-vs-model evidence (`references/drift-and-ledger.md`).
-9. **Hand off** the packet: verdict lines, spec mapping, edit requests for the modeler, ledger
+   structural code-vs-model evidence (`references/drift-and-fallback-record.md`). For changes since verification,
+   follow that reference's "Hand-written code changed since it was last verified" procedure.
+9. **Hand off** the packet: verdict lines, spec mapping, edit requests for the modeler, fallback record
    entries, UI omissions, learning candidates (at most 3).
 
 ## Hand-written parts
@@ -155,7 +156,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 
 - Hand-written scope is `done` only when no specification lacks an executable equivalent
   (`cratis-application-slice-conformance` `references/build-prompts.md`).
-- One ledger scope per `slice-implementer` brief; the brief carries addresses and paths, not contents.
+- One scope per `slice-implementer` brief; the brief carries addresses and paths, not contents.
 - Model-enforced rules realized in code (state-dependent rules) need a protected read or
   concurrency scope; never claim them from prose. Stage 4.89.1 rendered apps scaffold
   the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`; API availability alone is not verified enforcement.
@@ -173,7 +174,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 - Code reading is bounded: `Customizations/*`, the file and line a build or test error names,
   and the declared hooks. Never browse managed output, `bin/` or `obj/`.
 - `description` and `documentation` reach rendered code only as XML documentation comments (Stage#178),
-  never as behavior. A rule stated only in prose is unenforced: ledger entry or target requirement,
+  never as behavior. A rule stated only in prose is unenforced: fallback record entry or target requirement,
   never "delivered".
 - The `cratis run` sandbox enforces neither validation nor authorization on its default engine; it
   is no evidence for denial behaviour.
@@ -190,13 +191,13 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 Before reporting done:
 - Source identity, tool versions, `--name` and destination are recorded.
 - V5 is four lines: admission, publication, build (Debug), tests (Debug), each a result or `not run: <reason>`.
-- Every diagnostic is classified; every non-renderable scope has a ledger entry or the user's decision to stay in design mode.
+- Every diagnostic is classified; every non-renderable scope has a fallback record entry or the user's decision to stay in design mode.
 - No managed file was edited; no `--force` without approval naming it.
 
 ## Verify
 
 - Expected specifications versus generated classes versus passed, listed; a count is not a mapping.
-- Fallback delivery: the ledger entry maps specifications to tests, records the field inventory
+- Fallback delivery: the fallback record entry maps specifications to tests, records the field inventory
   and divergences, and `cratis-application-slice-conformance` returned a status.
 - A passing test does not claim runtime guarantees (namespace, subject, constraint scope, guarded
   reads, migrations, replay) or omitted UI were delivered.
@@ -217,8 +218,8 @@ Before reporting done:
 
 - `references/renderability-gate.md` - classify the probe's codes, estimate the blast radius.
 - `references/delivery-protocol.md` - inputs, commands, reading results, `Customizations/`.
-- `references/gap-fill-handoff.md` - the brief for `slice-implementer`, ledger flow.
-- `references/drift-and-ledger.md` - drift, publication refusals, the fallback ledger.
+- `references/gap-fill-handoff.md` - the brief for `slice-implementer`, fallback record flow.
+- `references/drift-and-fallback-record.md` - drift, publication refusals, the fallback record, code changed since verification.
 - Read `references/worked-example.md` when preparing the classification and report for a refused render; it contains a complete model.
 - Read `references/provenance.md` when checking sources and attribution for the render workflow or gap-fill brief.
 

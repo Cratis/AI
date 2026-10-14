@@ -1,4 +1,12 @@
-# Drift, publication refusals and the fallback ledger
+# Drift, publication refusals and the fallback record
+
+## Contents
+
+- 1. Drift: the model changed, the output was not re-rendered
+- 2. Publication refusals (code changed under the model)
+- 3. Build breaks in `Customizations/` after a re-render
+- Hand-written code changed since it was last verified
+- 4. Fallback record
 
 ## 1. Drift: the model changed, the output was not re-rendered
 The ownership manifest `.cratis-render.json` at the destination records `semanticRevision`
@@ -59,10 +67,40 @@ Re-render checklist: `cratis-stage-rendering-and-sandbox` `references/rendered-a
 A generated contract changed. Read the error line and the generated type it names, fix the
 adapter, rebuild. Never edit the generated file.
 
-## 4. Fallback ledger
-One file per model: `.ai-work/screenplay/<model-slug>/fallback-ledger.md`, untracked. A durable
-record belongs in repository documentation or an issue, not in the ledger file. One entry per
-non-renderable scope:
+## Hand-written code changed since it was last verified
+
+Use the fallback record's `last verified` code source identity, or the extraction's analysis
+history, as the baseline. If it is missing, unreachable or includes uncommitted changes, ask for
+an agreed starting commit; do not replace that question with a whole-repository comparison.
+
+1. List commits oldest first over the recorded files, shared seams and `Customizations/`, then
+   inspect each commit's changes per file. Include current uncommitted changes separately; a net
+   diff can hide a hand edit followed by another delivery.
+2. Separate behavior changes from dependency, CI, formatting and documentation noise. Ignore
+   work records and corpus configuration; Stage-managed output belongs to the manifest refusal
+   procedure above. Do not dismiss a changed rule merely because its commit also contains noise.
+3. Locate affected slices through the record's element map, field inventory and specification
+   mapping, then structural addresses from `cratis screenplay conform`, then names as a last
+   resort. Read only the contracts and changed code those mappings identify.
+4. Report each difference once, at the declaration where it begins: fields, rules/specifications,
+   screens, wiring (`produces`, `reads`, reaction or capture triggers), declarations or a whole
+   slice. Model-only work is planned delivery, not a code-change finding. A change restoring
+   conformance or an approved, recorded divergence is not a new finding.
+5. With an accepted model, restore the code to its contract by re-delivery, or return an explicit
+   model edit request through the modeler, review and acceptance, naming identity effects.
+   Accidental edits favor restoration; never silently revise the model to fit code. For an
+   extraction with no accepted model, propose updating the candidate from the new evidence,
+   retaining expert confirmation rather than treating the code as an accepted decision.
+
+Advance `last verified` only after every finding has a decided resolution and the resulting
+code has been checked. An unanswered finding keeps the baseline unchanged. This investigation
+and `conform` are not behavioral equivalence verdicts; passing specifications remain necessary.
+
+## 4. Fallback record
+One file per model: `.ai-work/screenplay/<model-slug>/fallback-record.md`, untracked. A durable
+record belongs in repository documentation or an issue, not in this work record. Use the same
+fields for a hand-written slice's result packet; add probe-specific fields only where applicable.
+One entry per assigned scope, with realization rows per slice:
 
 | Field | Content |
 | --- | --- |
@@ -72,13 +110,22 @@ non-renderable scope:
 | class | capability gap / tool skew / model fix pending |
 | decision | stay design / renderable-mode change (user, date) / implementer |
 | fallback location | project and folder of the hand-written code |
+| delivered at | delivery code source identity, using the lifecycle's source-identity definition; name the accepted model identity separately |
+| element map | one row per qualified command, event, read model, query, screen, reaction or capture declaration: code symbol and repository-relative file location, or `no counterpart, because …` |
+| files | created and modified paths, distinguished |
+| seams touched outside the slice folder | each shared path, symbol and reason (registration, route, migration or adapter hook), or `none`; retain these for removal or re-delivery |
+| assumptions | each declaration address, non-behavioral choice and consequence if wrong, or `none`; the delivery block list wins |
+| checks run | exact iteration and completion commands, each with result or `not run: <reason>` |
 | spec mapping | `.play` specification to test name, one line each; missing tests listed |
 | field inventory | `n/n` command, event and read-model properties mapped; extras: none, or listed with reason |
 | realization requirements applied | explicit realization notes from slice `description` or `documentation` applied, one line each; other description prose used as a hint is listed separately |
 | spec delta | at re-delivery: specifications added, changed or removed since `last verified`, each with test status |
 | divergences | where the code deliberately differs from the model, with reason and approver |
 | revisit trigger | issue and condition (for example "Stage#58 ships list queries") |
-| last verified | source identity and date the mapping was checked |
+| last verified | accepted model identity, code source identity and date the whole mapping and check results were reconciled |
+
+Keep one row per element, field and specification, with no code excerpts. These mappings help a
+reviewer navigate; they are not proof of behavior without the checks they name.
 
 When a revisit trigger fires, probe again; if the scope now renders, plan the migration from
 hand-written code to managed output with the user.

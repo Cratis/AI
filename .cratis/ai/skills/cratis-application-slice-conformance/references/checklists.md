@@ -67,6 +67,10 @@ the renderer no right to browse managed output or implement rejected semantics.
 ## Automation and Translation
 - Each field of the produced command or event maps from the trigger event, an injected read
   model or a contract mapping, and from nothing else.
+- If the reaction consumes a pending-work read model, its successful effect's recorded event
+  (directly or through the invoked command) removes that item; the view has a specification
+  seeding the trigger then completion and asserting absence. Otherwise the next occurrence or
+  redelivery can select completed work again.
 - No filter condition the contract does not state.
 - The repeated-delivery behaviour in the contract has a specification: what happens when the
   trigger arrives twice.

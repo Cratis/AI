@@ -16,11 +16,11 @@ reconciliation, specification mapping, delta delivery and the final status are o
 comes back.
 
 ## One scope per brief
-One ledger entry (`drift-and-ledger.md`), one scope, one implementer. The brief is a set of
-paths and addresses, not pasted contents:
+One fallback record entry (`drift-and-fallback-record.md`), one scope, one implementer. The brief
+is a set of paths and addresses, not pasted contents:
 - model root, source identity, the qualified slice addresses (`Module/Feature/Slice`) in scope,
   their specifications and the referenced contract locations;
-- the blocking codes from the probe and the ledger entry id;
+- the blocking codes from the probe and the fallback record entry id;
 - target project, owned paths, and the repository's conventions (Arc and Chronicle hand-written
   slices; `rules/vertical-slices.md`);
 - the skill per slice kind: State Change `cratis-screenplay-command-surface`; State View
@@ -45,9 +45,9 @@ The brief also carries, from the slice build prompts (`cratis-application-slice-
 `done` only if every scenario in the contract is implemented and no specification lacks an
 executable equivalent; a re-delivery can be only added specifications; touch only the slice's
 own paths; do not change existing specification files unless an approved contract revision says so (`build-prompts.md` section 1); when the
-requirements are genuinely ambiguous or contradictory, do not guess and do not build anyway,
-return an edit request and report `blocked`. Ownership is assigned per brief, one implementer
-per scope; a ledger or `STATE.md` line records it and is not a lock, and atomic claiming is used
+requirements hit the delivery block list, return an edit request and report `blocked`; non-behavioral
+assumptions follow `build-prompts.md` section 3 and remain visible. Ownership is assigned per brief,
+one implementer per scope; a fallback record or `STATE.md` line records it and is not a lock, and atomic claiming is used
 only where a tracker provides a verified operation. Git effects follow the brief's separate
 authorization.
 
@@ -57,8 +57,9 @@ ambiguous addresses; contracts are never inferred from names.
 
 ## What comes back
 - Status `done | partial | blocked` from `cratis-application-slice-conformance`.
-- The specification mapping (specification, test, result), the field inventory, divergences
-  with who approved them, and the check results, recorded in the ledger entry.
+- The realization fields from `drift-and-fallback-record.md`, "Fallback record", in the slice's
+  result packet: element and specification mappings, files, shared seams, assumptions, identities
+  and check results, with no second schema.
 - Edit requests for the modeler session: address, change, rationale. Walkthrough-derived cases
   belong in accepted `.play` specifications first, never as a second behavioural contract in
   code-only tests. Integration tests may check wiring and persistence without inventing rules.
@@ -67,7 +68,7 @@ ambiguous addresses; contracts are never inferred from names.
 
 ## Rules the model states only in prose
 A rule that exists only in a description, or a state-dependent rule the model marks as not
-enforced, is unenforced in generated scope. List it in the ledger as a target requirement. In
+enforced, is unenforced in generated scope. List it in the fallback record as a target requirement. In
 hand-written code it needs an atomic enforcement point: a protected read or a concurrency scope
 (Stage 4.73.1 rendered apps scaffold the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`: protected-read APIs
 are available to gap-fill, with projection/key admission and active enrollment), or a Chronicle constraint. A stale view or
@@ -105,8 +106,8 @@ stable array or list. The Stage scaffold pins an older Arc, so raise the version
 reaction or drop an effect to dodge rendering.
 
 ## Re-delivery
-The work list is the full in-scope contract delta since the ledger's last verified source
+The work list is the full in-scope contract delta since the fallback record's last verified source
 identity (specifications, rules, mappings, realization notes), then the whole contract is
-reconciled again and the field inventory redone. The specification delta is one ledger field.
+reconciled again and the field inventory redone. The specification delta is one fallback record field.
 When the scope later renders (a revisit trigger fires), plan the migration to managed output
 with the user: the hand-written files collide with planned paths and must move first.
