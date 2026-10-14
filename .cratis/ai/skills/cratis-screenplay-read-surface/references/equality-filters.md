@@ -9,10 +9,9 @@
 - Specifications that run
 - Argument diagnostics
 - Rendering is a different verdict
-- Verified product sources
+- Product sources
 
-Screenplay **4.143.0 and later**, including the standalone **4.153.0** pin,
-binds `filter <name> <Type> [optional]` on a collection query when:
+Screenplay binds `filter <name> <Type> [optional]` on a collection query when:
 
 - there is no `from` source;
 - the read model has a same-named non-collection primitive, concept or enum property;
@@ -189,9 +188,8 @@ module FilteringExamples
 
 ## Rendering is a different verdict
 
-**CLI 3.57.0** bundles **Screenplay 4.147.1 / Stage 4.89.1**, admitting through
-**ESM v15**. Equality filters render on observable collections, with or without
-`by`, combined by AND. Optional omission is preserved. Snapshot lists, DateTime
+A CLI whose bundled Screenplay and Stage admit **ESM v14** or later renders equality filters on observable collections, with or without
+`by`, combined by AND.`by`, combined by AND. Optional omission is preserved. Snapshot lists, DateTime
 filters and required filter parameters after optional ones refuse `STAGE-ESM-010`;
 parameter name collisions refuse `-012`. Generated query specifications pass named
 arguments and check result counts. The semantic Host executes filters, but the
@@ -199,15 +197,13 @@ independent specification executor refuses filtered assertions with `-010`
 (and retains the GivenReadModel gap). V3/V4 is still not a render/build/test result;
 never erase filters to obtain a render.
 
-## Verified product sources
+## Product sources
 
-- Screenplay **v4.145.0**: accepted/implemented decision
-  `decisions/0069-admit-equality-query-filters-as-esm-v14.md`;
-  `Documentation/screenplay/queries.md` (Executable equality filters),
-  `specifications.md`; admission shipped.
-- Stage **v4.89.1**: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs`
-  uses `EsmSchemaV15Support`; `SemanticCratisAdmission.StateView.cs`
-  checks filters/order; `Documentation/docker/index.md`, `docker/spec-runner.md`
-  distinguish Host and independent executor.
-- CLI **v3.57.0**: `Directory.Packages.props` pins Screenplay 4.147.1 / Stage
-  4.89.1; `Source/Cli/Commands/Render/RenderedSemanticVersions.cs` admits v1-v15.
+- Screenplay: `Documentation/screenplay/queries.md` (Executable equality filters) and
+  `specifications.md`.
+- Stage: `Source/Rendering.Cratis/Semantics/SemanticVersionFeatures.cs` and
+  `SemanticCratisAdmission.StateView.cs` check filters/order; `Documentation/docker/index.md`,
+  `docker/spec-runner.md` distinguish Host and independent executor.
+- CLI: `Source/Cli/Commands/Render/RenderedSemanticVersions.cs` lists the admitted ESM versions.
+
+Requires Screenplay 4.143.0 or later (`screenplay --version`) for caller-supplied equality filters (ESM v14).

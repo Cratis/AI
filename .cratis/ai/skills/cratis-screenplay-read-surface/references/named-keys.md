@@ -116,7 +116,7 @@ model and projection/query shape, not just the key modifier.
   shortcut around an identity-preserving refusal.
 
 Source: Screenplay `Documentation/screenplay/{readmodels,queries,commands,reactions,specifications}.md`,
-`fixtures/named-read-model-keys.play`, decision 0060, and
+`fixtures/named-read-model-keys.play`, and
 `Source/DotNET/Screenplay/Semantics/SemanticModelBinder.ReadModels.cs` (identity inference).
-Its authoring delivery shipped
-in 4.129.0; that release did not deliver #599's executable composite-key contract.
+Its authoring delivery does not include
+an executable composite-key contract.

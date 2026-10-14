@@ -25,23 +25,12 @@ hand-copy Screenplay source between repositories. Keep Markdown that explains,
 questions or navigates the model in the repository's documentation; the `.play`
 source is the single flow model.
 
-## Verified product sources
+## Product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Original parser, validator and binder evidence |
-| `Cratis.Screenplay` | main `fd18129` | Canonical optionality; changed examples compiled |
-| `Cratis.Screenplay` | `4.66.0` (`c89198b`) | Which query shapes bind and render (`Semantics/`, `Documentation/screenplay/queries.md`) |
-
-The update follows `types.md`, `queries.md` and `vscode.md` at that main commit
-(after v4.52.0). Compilation does not establish query execution. Current equality-filter evidence:
-Screenplay v4.145.0 (admitted, decision 0069); read
-[the verified sources and compiled example](references/equality-filters.md).
-
-Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
-`Documentation/screenplay/{queries,readmodels,screens,policies,specifications,interactions}.md`
-and decision 0010 established the original baseline. Changed examples use the
-newer main commit above; do not attribute their verification to the old tag.
+Screenplay `Documentation/screenplay/{queries,readmodels,screens,policies,specifications,interactions,types,vscode}.md`
+describe the parser, validator and binder behavior, including which query shapes bind and render
+(`Semantics/`). Compilation does not establish query execution. Equality-filter evidence: read
+[the sources and compiled example](references/equality-filters.md).
 
 ## `readmodel` — shape only
 
@@ -67,7 +56,7 @@ read models need an explicit `key`. See named keys below for collection-key excl
 One explicit key binds byte-identically to equivalent inference. Several marks
 form a composite key, supplied by name in query/read
 `by` blocks. Composite keys and block queries remain
-**authoring-only** (PLAY0268, #599); the scalar optional snapshot shape binds.
+**authoring-only** (PLAY0268); the scalar optional snapshot shape binds.
 Read [named keys](references/named-keys.md) for complete examples, trigger/command
 reads, all-parts fixtures, PLAY0660–0662 and command-read-only PLAY0661 repair.
 A `=>` target resolving to an event is an event-target builder, not a read model;
@@ -157,8 +146,7 @@ to a live query exactly as it binds to a one-shot one. The delivery itself is th
 target runtime's: the executable model binds `observable` queries (delivery `live`) that
 have no opaque scope/performer and, when filtered, only admitted caller-supplied equality filters (ESM v14).
 
-Paging, sorting and change-set delivery for queries are accepted as Screenplay
-decision 0010 but **not in the language yet**. Do not invent syntax for them.
+Paging, sorting and change-set delivery for queries are are planned but **not in the language yet**. Do not invent syntax for them.
 
 ### `performer`
 
@@ -178,14 +166,14 @@ on the header line is a declaration error, not a shorthand.
 
 ### What runs
 
-These bind on standalone 4.153.0: keyed `=> RM optional`, unfiltered collections,
+These bind: keyed `=> RM optional`, unfiltered collections,
 collections narrowed by caller-supplied `by`, and their `observable` forms.
-Caller-supplied equality filters on collections select ESM v14: same-named scalar
+Caller-supplied equality filters on collections select ESM v14 (Requires Screenplay 4.143.0 or later): same-named scalar
 primitive/concept/enum properties, same nominal type ignoring optionality, no
 `from`, distinct names not repeating `by`. `by` and supplied filters AND together;
 optional filters may be omitted, but supplied null is refused. PLAY0268 still
 rejects context sources, single-result filters, opaque scope/performer and
-composite `by` (#599); a single non-optional result remains unadmitted too.
+composite `by`; a single non-optional result remains unadmitted too.
 Authorization runs before lookup, ANDed with module/feature gates; policies see
 only `by`, never filters. Pin denial with `given caller` and `then denied`.
 Specs pass `by` and filters by name (PLAY0468 for unknown, repeated or missing
@@ -302,8 +290,7 @@ binding failures are errors.
 
 - [ ] Standalone `screenplay <model> --warnaserror` reports zero errors and zero
       warnings; or `cratis screenplay validate --warnings-as-errors` on the model folder
-      (3.28.2 bundles the same Screenplay 4.66.0; before 3.28.2 bundled 4.60.1, ESM v5
-      or lower). Name which tool produced the result.
+      (an older bundled compiler can stop at a lower ESM version). Name which tool produced the result.
 - [ ] Every value the caller must not choose is a `from` parameter, not a `filter`.
 - [ ] Every `scoped to global` is deliberate and defensible.
 - [ ] `observable` is present exactly where the caller should see changes without
