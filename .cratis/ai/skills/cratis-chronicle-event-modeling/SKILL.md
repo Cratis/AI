@@ -242,3 +242,4 @@ remain separately authorized; a ready model authorizes none of them.
   same; the artifact is a file that compiles, and the four behavior types above
   map onto its `StateChange`, `StateView`, `Automation` and `Translate` slices.
 - Drawing a decided model as a diagram: `cratis-event-model-diagram`.
+- A flow that crosses services, each owning its own event store: `cratis-multi-service-architecture`.

@@ -120,6 +120,7 @@ Read [recovery and upgrades](references/operations.md) when changing observer
 retry/quarantine settings, definition evolution, retention, alerts, or restoring
 and upgrading a cluster. See **cratis-chronicle-web-workbench** for browser
 exposure and **cratis-chronicle-cli-operations** for authorized live operations.
+Several services share one kernel with one event store each: see **cratis-multi-service-architecture**, and **cratis-multi-service-local-orchestration** for an AppHost or compose file.
 
 ## Verify
 
