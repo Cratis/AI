@@ -111,11 +111,7 @@ phase, a decision important enough that a later reader could misread the model (
 - **Carry-forward**: the accepted **source identity** (`verdicts-and-modes.md`).
 - **Commit at P6**: the accepted `.play` files and `.screenplay/identities.json` when present.
   The user commits, or explicitly authorizes the owning session to commit; the modeler never
-  commits on its own. Committing a model under the model root is the team's act of acceptance
-  and opts the repository in (`git ls-tree -r --name-only HEAD -- <root>` lists the `.play`
-  file). Staged or untracked files under the root are drafts, not contracts for code agents.
-  A committed file with working-tree edits is a model change in progress; its HEAD version is
-  the contract until the change is committed.
+  commits on its own. Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` to check acceptance, drafts and model changes in progress.
 - **Gate**: explicit acceptance and the model commit before P7-P9. After committing, recompute
   the source identity. Its digest must equal the digest reviewed at P5; only the commit part may
   differ. If the digest differs, return to P4/P5 for the changed scope. Record the post-commit

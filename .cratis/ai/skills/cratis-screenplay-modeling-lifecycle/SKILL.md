@@ -18,16 +18,16 @@ an unproven pass.
 
 ## Decide the level first (master copy; run once per request, from any entry point)
 
-1. **Opted in?** Only when (a) the model root (the folder holding the project's `.play` files, or the project's
-   configured root) holds a `.play` file **in the committed tree** (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or (b)
-   the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json` (an empty configured
-   root counts). **Not opt-in:** an empty model folder or the MCP entry that `cratis ai
-   install`/`update` creates; an installed profile or skill; a `.play` file outside the root; a
-   staged or untracked `.play` file under the root (a draft). Committing a model under the root
-   is the team's act of acceptance and opts the repository in.
-   A committed file with uncommitted working-tree edits is a model change in progress: its HEAD version is the contract until the change is committed.
+1. **Opted in?** A committed `.play` file under the model root or an explicitly configured
+   `mcpServers.screenplay.root` in `.cratis/ai.json` opts in (even an empty configured root).
+   The invariant is in `general.md` ("Model first").
    A behavior is a **contract** only when an accepted (committed) model under the root covers it.
-   A direct user request to model a scope is consent for that scope. Evidence: `references/opt-in.md`. Read `references/opt-in.md` when checking opt-in evidence or model-root edge cases.
+   A direct user request to model a scope is consent for that scope. Run `scripts/model-first-status.mjs` from the repository with Node.js and Git:
+   `node <skill-directory>/scripts/model-first-status.mjs [--root <repository-relative-dir>] [--json]`.
+   Read-only roots: `--root`, configuration, then discovery from HEAD project paths (drafts only if none). Discovery prefers legacy `.cratis/screenplay/`, else the common folder, else `Source/`, `src/`, `Screenplay/`. It excludes hidden/build/docs/samples/examples/scratch/test fixtures from discovery and acceptance, including at `.`; explicit roots include everything beneath them.
+   Output: root, reason, file counts, drafts and model changes. Exits: **0 opted in**, **1 not opted in**, **2 could not run** (Git/configuration/arguments). Treat 2 as blocked, not code-first.
+   Run `scripts/model-first-status.mjs --self-test` to plant and check verdict fixtures; it executes `scripts/model-first-self-test.mjs` and prints the checked count on success.
+   Read `references/opt-in.md` when checking the project configuration mechanism.
 2. **Not opted in:** continue code-first; never force a model (framework, brownfield,
    infrastructure, client and adapter work stays code-first). Only the entry-point agent or session
    may **propose a model**: at most once per session, never for trivial, bug-fix, infrastructure,

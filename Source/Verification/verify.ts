@@ -17,6 +17,7 @@ import { unprofiledSkills } from './profiled-skills.ts';
 import { verifySkillEvaluations } from './skill-evaluations.ts';
 import { bundlePins, bundleTable, pinRestatements, pinSummary, scaffoldPins, scaffoldTable, type PinException } from './pin-restatements.ts';
 import { danglingSkillReferences } from './skill-references.ts';
+import { modelFirstRestatements } from './model-first-restatements.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
 import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems } from './skill-authoring.ts';
 import type { AuthoringFinding } from './AuthoringFinding.ts';
@@ -79,6 +80,10 @@ function requireValues(actual: string[], required: string[], subject: string): v
 
 if (!await exists(corpus)) failures.push('Canonical corpus .cratis/ai is missing.');
 const corpusTextPaths = (await files(corpus)).filter(path => ['.json', '.md', '.sh', '.ts'].some(extension => path.endsWith(extension)));
+const modelFirstReport = modelFirstRestatements(await Promise.all(corpusTextPaths.filter(path => path.endsWith('.md'))
+    .map(async path => ({ path: relative(root, path), content: await readFile(path, 'utf8') }))));
+failures.push(...modelFirstReport.problems);
+console.log(`Model-first restatements: ${modelFirstReport.scanned} instructions scanned, ${modelFirstReport.problems.length} problems.`);
 const repositoryOnlyReferences = ['Source/Harness.Setup', 'Source/Verification', 'In this repository specifically', 'verify-ai-corpus.yml'];
 for (const corpusPath of corpusTextPaths) {
     const content = await readFile(corpusPath, 'utf8');

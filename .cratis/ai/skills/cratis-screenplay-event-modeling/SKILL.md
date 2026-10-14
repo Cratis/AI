@@ -29,13 +29,7 @@ into the work that acts on them. Flag a real trade-off to the user instead of re
 
 **1. Decide the level (short form; master copy in `cratis-screenplay-modeling-lifecycle`).**
 Check first that the method skills are installed; installing them never opts a
-repository in. The work is **model-first** only in an opted-in repository: the model
-root (the folder holding the project's `.play` files) holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project explicitly set
-`mcpServers.screenplay.root` in `.cratis/ai.json`. An empty directory, install output,
-an installed skill, a `.play` file outside the root or an untracked or uncommitted draft is not
-opt-in; staged or untracked files under the root are drafts. A committed file with uncommitted
-working-tree edits is a model change in progress; its HEAD version is the contract until the
-change is committed. A behavior is a contract only when an accepted model under the root covers it.
+repository in. Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` for the decision, model root and drafts.
 Otherwise stay code-first. Only the entry-point session proposes a model (at most once
 per session, never for trivial, bug-fix, infrastructure, client, framework or
 brownfield-maintenance work; unattended: record the recommendation in the final report).
