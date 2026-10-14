@@ -45,3 +45,19 @@ The Scene family pin applies to six scaffold dependencies: `@cratis/scene.bluepr
 `@cratis/scene.components`, `@cratis/scene.engine`, `@cratis/scene.model`,
 `@cratis/scene.primereact` and `@cratis/scene.react`. The newest Components release the
 corpus has verified does not change the scaffold's Components pin.
+
+## Screens release vector
+
+The public vector the screens guidance was executed against. The skills state the behavior;
+this section is the maintainer record of what was run.
+`Source/Verification/screenplay-screen-authoring.spec.ts` asserts these values, and compares
+the smoke pin in `Source/Verification/screens-smoke/screens-smoke.json` with the **Smoke CLI**
+row so the smoke and the recorded vector cannot drift apart.
+
+| Item | Value |
+| --- | --- |
+| Smoke CLI | CLI 3.53.1 (live browser run with `cratis/stage:4.73.1`; guarded Close and double click run since Stage 4.65) |
+| Executed vector | CLI 3.43.0 (`23e5a24`), default runtime `cratis/stage:4.52.0`, bundled Screenplay 4.127.0, Scene 4.15.0 (Scene 4.17.0 was the earlier verified scaffold tag) |
+| Render-then-recover and rejection codes | `CLI-RENDER-007` to `-010`, shipped in CLI 3.41.0 (Cratis/cli#301) |
+| MCP edit transcript | 9 requests and 9 responses, column on disk, render `published` with the column in `scene.json` |
+| Edited-application browser check | all five browser checks passed against `cratis/stage:4.52.0` |
