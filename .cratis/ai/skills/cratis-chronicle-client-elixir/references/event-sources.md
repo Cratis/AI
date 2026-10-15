@@ -63,4 +63,4 @@ Without an explicit `:concurrency_scope`, the client reads the tail narrowed by 
 
 The wire carries one scope per event source id. Guarded entries of that id must agree on dimensions and selected source type, stream type and stream id. Unguarded entries never suppress a later guarded entry. Incompatible derived guards fail before any tail read or append; use separate batches, or deliberately supply one explicit scope on an entry for that id.
 
-Reactor and reducer contexts expose `:event_source` as the registered name, or `nil` for events appended without a definition. Their other context keys differ; do not assume the reactor context shape for a reducer.
+Reactor and reducer contexts expose `:event_source` as the registered name, or `nil` for events appended without a definition. Only reactor contexts carry `:delivery_id`.

@@ -25,8 +25,8 @@ client-side. Observer types include `:reactor`, `:projection`, `:reducer`,
 - **Discovery is compile-time reflection.** The `use` macros generate
   `__chronicle_*__/1` functions via `__before_compile__`, and discovery is
   `function_exported?/3` over the application's modules — not runtime scanning.
-- **No client-owned telemetry events.** `telemetry` is a direct dependency;
-  transport failure detection subscribes to grpc events. Logging is `Logger`.
+- **Telemetry is built in.** The client emits OpenTelemetry spans and `:telemetry`
+  events; read [observability.md](observability.md). Logging is `Logger`.
 - **No formatter export.** `.formatter.exs` declares no `locals_without_parens`
   for `from`, `join`, `removed_with`, `from_every`, `pii`, `subject`, `unique`, or
   `unique_event_type`, and there is no `import_deps: [:cratis_chronicle]` to
