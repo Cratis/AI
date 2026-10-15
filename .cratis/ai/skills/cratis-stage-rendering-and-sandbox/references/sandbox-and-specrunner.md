@@ -71,11 +71,17 @@ refuses it with a validation result naming the property, and appends nothing, if
   `not empty`, `matches "<regex>"`, `length == <n>`, `min <n>` or `max <n>` on text, or
   `>`, `>=`, `<`, `<=` on a number.
 
+Some rules are checked with the wrong meaning:
+
+- `min` and `max` on a number are checked as the length of the number's text, so
+  `quantity min 1` accepts `0` and `quantity min 2` refuses `9`;
+- `not empty` on a nested property (`address.name`) refuses every payload, including a
+  valid one, because the dotted path is looked up as a top-level key; other rules on
+  nested properties are skipped.
+
 Everything else passes unchecked:
 
-- `min` and `max` on a number (they are checked as the length of the number's text, so
-  `quantity min 1` accepts `0`), `all >` and `all >=` over element paths, and rules on
-  nested properties;
+- `all >` and `all >=` over element paths;
 - `==` and `!=`, `matches email`, `rule <Name>`, and any rule whose operand is another
   property or a value resolved at run time, such as `today`;
 - concept rules, `require` over read models, and uniqueness constraints;
@@ -83,8 +89,8 @@ Everything else passes unchecked:
 - every check on a command without `produces`, and the `/validate` route, which runs none
   of these checks.
 
-A refusal from the default engine is therefore real, but an accepted command proves no
-rule beyond the list above. Use the semantic engine, or Debug tests of a render, for
+A refusal or an acceptance from the default engine therefore proves nothing beyond the
+lists above. Use the semantic engine, or Debug tests of a render, for
 evidence about the rest.
 
 ## Refusals shared by both engines
