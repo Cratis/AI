@@ -45,7 +45,7 @@ The client uses grpc 1.x and Mint 1.11+, owns its transport, and needs no `GRPC.
 
 ## Credential-safe logging is still necessary
 
-Chronicle's own process status redacts credentials, but dependency crash reports can expose gRPC headers, bearer tokens, API keys and Mint HPACK tables. Before starting the client, install the primary Logger filter from the [client crash-report guide](https://github.com/Cratis/Chronicle.Elixir/blob/main/Documentation/connections/crash-reports.md). It matches `Elixir.GRPC.Client`, `Elixir.GRPC.Channel`, and `Elixir.Mint.` report content and replaces reports with a notice.
+Chronicle's own process status redacts credentials, but dependency crash reports can expose gRPC headers, bearer tokens, API keys and Mint HPACK tables. The client itself installs a primary Logger filter (`Chronicle.Connections.ResponseCrashRedaction`) when a connection starts, replacing the Mint response-process termination report, the one shape it can intercept generically, with a one-line notice (requires `cratis_chronicle` 3.13.0). The `ConnectionProcess` and `GRPC.Client.Connection` state can still print credentials, so before starting the client, install the primary Logger filter from the [client crash-report guide](https://github.com/Cratis/Chronicle.Elixir/blob/main/Documentation/connections/crash-reports.md). It matches `Elixir.GRPC.Client`, `Elixir.GRPC.Channel`, and `Elixir.Mint.` report content and replaces reports with a notice.
 
 Keep `handle_sasl_reports: false`. This is a safety net, not a guarantee: plain warning strings carrying exit reasons are not covered, and filters do not survive a Logger restart. Restrict production log access and rotate any credential already exposed. Never log connection strings.
 

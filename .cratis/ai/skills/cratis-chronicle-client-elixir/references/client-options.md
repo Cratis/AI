@@ -16,6 +16,12 @@ your app must read its own configuration and pass it in (`lib/chronicle/client.e
 | `:discover` | `true` |
 | `:otp_app` | none; falls back to scanning loaded modules |
 | `:event_types`, `:event_sources`, `:migrations`, `:reactors`, `:reducers`, `:read_models`, `:projections`, `:seeders`, `:webhooks`, `:event_store_subscriptions`, `:global_handlers` | `[]`, merged with discovered |
+| `:constraints`, `:captures`, `:read_model_reactors` | `[]`, merged with discovered where discoverable |
+| `:drift_policy` | `:warn`; `:ignore` or `:fail`. See [discovery-and-generations.md](discovery-and-generations.md) |
+| `:strict_validation` | `false`; `true` raises on event type and migration mistakes instead of logging |
+| `:warn_defaulted_ids` | `true` |
+| `:event_generation_delivery` | `:compatibility`; `:pinned` delivers events at their appended generation |
+| `:concurrency` | none; `[default: :optimistic, check_first_append: bool]`. See [decision-reads.md](decision-reads.md) |
 | `:default_sink_type_id` | `:mongodb`; accepts `:mongodb`, `:sql`, `:in_memory`, `:none` or a raw string |
 | `:server_address` | alternative `"host:port"` address (connection option) |
 | `:skip_tls_validation`, `:load_balancer`, `:grpc_options`, `:reconnect_base_delay`, `:reconnect_max_delay` | forwarded to the connection | — |

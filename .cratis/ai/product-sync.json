@@ -579,17 +579,19 @@
         }
       ],
       "synced": {
-        "version": "3.10.2",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "3.13.0",
+        "date": "2026-10-15",
+        "by": "Cratis/AI#719"
       },
       "covers": {
         "skills": [
           "cratis-chronicle-client-elixir"
         ],
-        "rules": []
+        "rules": [
+          "elixir.md"
+        ]
       },
-      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Synced to the v3.13.0 tag: decision reads, Chronicle.Testing, captures, discovery drift, standalone constraints, children collections, concurrency scopes and observability."
     },
     {
       "id": "authproxy",
