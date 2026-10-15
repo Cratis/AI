@@ -175,8 +175,7 @@ file/tagged fence with Now/Tenant context and unknown entropy. These are ESM v21
 (Requires Screenplay 4.172.0, `screenplay --version`; older compilers report
 PLAY0268). Sequence and generated secrets remain refused.
 
-Generated-concept rules select v20 (Requires Screenplay 4.164.0; older compilers
-refuse PLAY0268): Proven silent, Refuted PLAY0688 plus witness, Unproven PLAY0689
+Generated-concept rules select v20 (older compilers refuse them with PLAY0268): Proven silent, Refuted PLAY0688 plus witness, Unproven PLAY0689
 plus reason. Finite support exhaustion is PLAY0691, empty support on a scanned
 date PLAY0692, not a proof warning. MCP rules[]/derivedPattern support typed
 matches/PLAY0688 repair proposals (Requires Screenplay 4.173.0; older servers omit

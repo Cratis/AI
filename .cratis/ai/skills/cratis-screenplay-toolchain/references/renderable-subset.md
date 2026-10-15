@@ -21,8 +21,8 @@ and concept compliance (v13) render.
 
 ## Current admission
 
-Stage admits exact ESM v1–v17 and v19 pairs, not v18 or v20; v19 does not imply v18
-admission. The CLI's bundled Stage can be older: read installed versions and the
+Stage admits exact ESM v1–v20 pairs and refuses v21 (Requires Stage 4.106.0 for v18 and
+4.109.0 for v20; older Stage refuses them with `STAGE-ESM-016`). The CLI's bundled Stage can be older: read installed versions and the
 pins in `product-sync.json`, not the standalone compiler's version. Each construct
 it does not render refuses with its own code before any artifact is planned.
 

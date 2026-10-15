@@ -1,5 +1,10 @@
 # Example: a capture and its follow-up Automation
 
+## Contents
+
+- Model
+- Notes for the reader
+
 A complete model: a webhook record from an outside proctoring service is captured, kept as an
 external fact in the provider's vocabulary, then followed by a separate Automation that records our result. It
 binds as ESM v6 (`executableReady: true`), standalone and through `cratis screenplay mcp`; a
@@ -9,6 +14,8 @@ compiler that stops before v6 compiles it (V1) but rejects the Translate slice a
 Read the slice `description`: it is the per-field disposition (map, translate, ignore) and it
 states what this example does not do. Examples never show the whole integration contract; use
 `references/integration-contracts.md` and `references/worked-integration.md` for the rest.
+
+## Model
 
 ```screenplay
 // Translate slice. Correlation is created on OUR side: BookExam allocates the attempt id and the
@@ -119,7 +126,7 @@ module Exams
         then error "Constraint 'OneResultPerAttempt' is violated: the event source already has the constrained event."
 ```
 
-Notes for the reader:
+## Notes for the reader
 
 - Keep the capture and its appended event in Translate; put reactions to that local
   event in a separate Automation. Co-location in a directionless Translate warns

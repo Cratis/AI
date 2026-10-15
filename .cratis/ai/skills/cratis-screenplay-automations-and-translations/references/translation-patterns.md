@@ -1,5 +1,15 @@
 # Translation patterns
 
+## Contents
+
+- 1. Where outside facts may enter
+- 2. Correlation first
+- 3. Two vocabularies
+- 4. Per-field disposition
+- 5. Dedup and ordering
+- 6. Corrections from outside
+- 7. Specifying translations
+
 Complete compiled example: `translate-example.md` (binds as ESM v6; a compiler that stops before v6
 compiles it but rejects the slice at binding).
 
