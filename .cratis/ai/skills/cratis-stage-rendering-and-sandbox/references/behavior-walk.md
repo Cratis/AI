@@ -13,8 +13,8 @@ V5 evidence.
 - Docker, and the `cratis/stage` image at the tag `cratis run` would use (by default the
   Stage version the CLI renders with).
 - The **semantic engine**. `cratis run` has no `--engine` option and passes no environment
-  to the container, so it starts the default EventModel engine, which enforces no
-  validation or authorization and refuses routed models. Start the same image directly:
+  to the container, so it starts the default EventModel engine, which enforces only
+  simple literal validation rules, no authorization, and refuses routed models. Start the same image directly:
 
 ```bash
 docker run --rm -p 127.0.0.1:9090:9090 -p 127.0.0.1:35000:35000 \

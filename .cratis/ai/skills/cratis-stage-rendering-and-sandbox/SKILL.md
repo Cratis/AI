@@ -185,9 +185,10 @@ Silent fallback to a default screen is a failure, not a partial render.
 `cratis run [PATH]` (Docker required) starts `cratis/stage` on the folder or file: Stage
 API on `9090`, Chronicle Workbench on `https://localhost:35000`. It is a **partial,
 disposable runtime**, not a generated application. The default engine appends modeled
-`produces` facts and echoes the payload but enforces no modeled validation or
-authorization and no query authorization; `Stage__Runtime__Engine=semantic` opts in to
-an engine that does, and refuses what it cannot execute (HTTP 501). The default engine
+`produces` facts and echoes the payload. It refuses missing required properties and
+simple literal `validate` rules on top-level properties, but enforces no other rule, no
+constraint and no command or query authorization; `Stage__Runtime__Engine=semantic` opts
+in to an engine that does, and refuses what it cannot execute (HTTP 501). The default engine
 also refuses routed models (`STAGE-ESM-030`). Callers are built from unsigned headers, so
 authorization there is not a security boundary.
 
@@ -229,8 +230,8 @@ to disk with no managed staging and no safe stale-file removal; a failure can le
   managed output and never a weakened model.
 - No file under `.cratis-render/` is staged; managed files carry no local edits.
 - Stage's plan is deterministic (same bytes and hashes); that is not a review, and Stage never reviews, stages or approves anything.
-- Sandbox expectations account for unenforced validation, authorization and query
-  authorization on the default engine.
+- Sandbox expectations account for the rules, constraints, authorization and query
+  authorization the default engine does not enforce.
 - Runtime screen smoke coverage uses the same model root or workspace export as
   `cratis render`, names package/image versions, and fails on dropped authored UI
   or silent default composition.
