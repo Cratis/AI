@@ -241,8 +241,11 @@ One `concurrency` block per command; it is not bound (`PLAY0271`) and does not p
 
 UUID generation/responses bind as v7; serialized concept `generate` selects v15:
 UUIDv7/ULID/TypeID/NanoID/bytes, strict fixtures and whole-source freshness.
-Reuse rejects Concurrency, no append/retry. Generated rules/secrets and pattern/random/rule
-remain refused.
+Reuse rejects Concurrency, no append/retry. Rules select v20 (Requires Screenplay
+4.164.0, `screenplay --version`); pattern/checksum, Int random and attached rules
+select v21 (Requires 4.172.0). Older compilers refuse PLAY0268. Secrets and sequences
+remain refused. Patterns are readable references, not gapless allocators or secrets;
+check digits catch typos, not forgery. Keep uniqueness/freshness enforcement.
 Read [references/generated-values-and-responses.md](references/generated-values-and-responses.md)
 for `generated`, `generate`, `returns`, strict fixtures/freshness and renderer limits.
 

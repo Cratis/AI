@@ -66,7 +66,7 @@ printed), `1` is a missing input. Add `-o json` for the counts and the publicati
 
 Facts that surprise:
 
-- **Binding uses the CLI's bundled Screenplay compiler**, which differs from a standalone one. A model that binds is not necessarily renderable: Stage admits exact ESM v1–v17 and v19 pairs (not v18/v20), then checks constructs; CLI admission can stop at v16. A newer model reports `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`). Supported generation strategies, freshness scopes, responses, equality filters, enum numbers and concept compliance render.
+- **Binding uses the CLI's bundled compiler**, not the standalone one. Stage admits exact ESM v1–v17, v19/v20 pairs, not v18/v21, then checks constructs. CLI admission may stop at v16: newer pairs report `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`). Requires Stage 4.109.0 for v20; older renderers refuse it. Rule-bearing generation needs pins even when Proven; read `references/admission.md` for -011/-038. Keep v21 models for gap-fill.
 - **Render never builds, tests or runs** the output. A published render is admission and
   publication only; build and tests are separate results (see "Verify"). Admission can be
   green while a rendered Debug test fails (for example a query assertion on the key).

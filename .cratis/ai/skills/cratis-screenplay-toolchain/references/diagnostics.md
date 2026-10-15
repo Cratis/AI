@@ -336,9 +336,21 @@ or V4 execution. Run the CLI or MCP for those verdicts.
 | PLAY0683/0684 | PLAY0683: generated non-identifier below 64 random bits warns (a single-property unique constraint suppresses it); PLAY0684: generated identifier below 64 random bits is an error |
 | PLAY0687 | capture `source events` spans multiple origins; split into one capture per origin (event store) |
 | PLAY0688 | generated strategy refutes a concept rule; read its violating example, align the rule/strategy or review the derived-`matches` repair |
-| PLAY0689 (W) | generated-concept rule proof is undecided; reason names regex fragment/budget/opaque limits. Never treat a warning as proof |
+| PLAY0689 (W) | generated-concept rule proof is undecided; reason names regex fragment/budget/opaque limits or ambiguity. Only deterministic matches patterns prove containment; passing samples prove nothing |
+| PLAY0691 | finite pattern support cannot be counted within the generation budget; simplify the strategy, never treat it as an Unproven rule warning or redraw |
+| PLAY0692 | pattern support is empty for some valid UTC date in the compiler's next-100-year horizon; repair the pattern/checksum contract, never sample around it |
 | PLAY0685 | own response name used under execute failure; outer successful responses remain available. UI composition `references/response-continuations.md` |
 | PLAY0289 | (binding) no documents: empty root |
+
+Requires Screenplay 4.164.0 (`screenplay --version`) for PLAY0688/0689 (ESM v20),
+4.172.0 for finite generation PLAY0691/0692 and checksum validation (v21); older
+compilers refuse those constructs with PLAY0268. A refuted rule's PLAY0688 repair
+uses the strategy-derived matches pattern (and declared checksum validation if
+absent). Inspect MCP `rules[]` for status/witness/reason and only use a repair
+when diagnosticCode/repair is reported. Pattern/random/rule no longer refuse
+PLAY0268; generated secrets still do. Stage 4.109.0 admits v20 but not v21.
+Rule-bearing rendered specs need valid pins (-011); unpinned or non-error-severity
+generated-concept rules refuse -038, even when the compiler proves them.
 
 Fix order: E at V1 -> W at V1 -> silent-gap check -> V2 codes (if the mode needs V3).
 Report each as `code file:line one-line meaning`; never paste more than about 30 lines.
@@ -358,7 +370,7 @@ Publication STAGE-ESM-032, foreign facts/event captures 033, claim-reading/opaqu
 | STAGE-ESM-004 / 006 / 013 | a `StateChange` without commands; `produces` that cannot render (expression/enum conditions, literal or computed mappings, duplicate tags); event-context value other than `$context.occurred` (reactions: `$context.causedBy.*`, `$context.eventSourceId`) |
 | STAGE-ESM-005 / 015 | code rule or code validation bodies; authorization Stage cannot render exactly (role-claim URIs, nested or unresolved opaque policies, opaque-policy subjects that are not text, Uuid, Date or DateTime). Role-only, authenticated, opaque pure policies and Uuid/Date/DateTime/text claim targets render |
 | STAGE-ESM-007 / 009 / 010 / 017 | projection shape (one projection or reducer per read model, affected-instance key, unsupported query shapes, keys, unsupported `all` mappings, event-context values) |
-| STAGE-ESM-011 | specification shape not rendered (`when append` outside the single-hop reaction subset, command specifications that cascade into reactions, composite values, an unauthenticated caller carrying roles or claims, v15 fixtures that do not match their strategy). Command scenarios and single-hop reaction appends render |
+| STAGE-ESM-011 | specification shape not rendered (`when append` outside the single-hop reaction subset, command specifications that cascade into reactions, composite values, an unauthenticated caller carrying roles or claims, generated fixtures that do not match their strategy shape or concept rules). Command scenarios and single-hop reaction appends render |
 | STAGE-ESM-014 | constraint shape (multi-claim in one command, optional or composite targets) |
 | STAGE-ESM-019/022 | reducer or opaque pure policy body outside the pure allowlist |
 | STAGE-ESM-024 | interval, schedule, application, startup and shutdown triggers, opaque reaction bodies, captures, Translate, clock/trigger/capture specifications |

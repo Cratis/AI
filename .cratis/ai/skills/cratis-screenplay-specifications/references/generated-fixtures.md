@@ -1,29 +1,39 @@
-## Generated fixtures and return expectations (ESM v7 and v15)
+# Generated fixtures and return expectations
 
-### Choosing a strategy
+## Contents
+
+- Choosing a strategy
+- When not to
+- Fixtures and outcomes
+
+## Choosing a strategy
 
 Use the [shop example](../../cratis-screenplay-command-surface/references/shop-generation.md):
 pin CustomerId (`cus_` + ULID), OrderId (TypeID) and InviteCode (NanoID) as
 whole values. ApiKey stays secret with no executable generation; do not write a
 passing issuance spec that invents its .NET Bytes(32) factory in Screenplay.
-OrderId pins do not realize Arc's received-time/tenant context either.
+Pin InvoiceNumber's whole date/checksum reference and TicketNumber's integral
+pickup-ticket value too; do not use numeric text for Int fixtures.
 
 Choose the concept's strategy for the job, then pin a whole value matching it:
 `for` for its generated identifier, named `generated` fixtures for other values.
 Use the shared [strategy reference](../../cratis-screenplay-command-surface/references/generated-values-and-responses.md)
-for UUID, time-ordered, typed/opaque text and byte-budget choices and exact shapes.
-`given clock` supplies `$context.occurred`, not a generated time-ordered ID;
+for UUID, time-ordered, typed/opaque text, byte budgets, finite patterns and Int
+range choices and exact shapes.
+`given clock` supplies `$context.occurred` and pattern UTC date segments, not a generated time-ordered ID;
 a seed is not a portable fixture.
 
-### When not to
+## When not to
 
 Pins do not prove randomness, authorization, idempotency, storage freshness or
 secret safety. Client-minted IDs stay inputs; gapless invoice numbering needs an
-allocator, not a random fixture. Pattern/random/rule and secret generation remain
-unadmitted. Source: Screenplay
+allocator, not a random fixture or pattern. Check digits catch typos, not forgery;
+short payload codes need uniqueness enforcement separate from source freshness.
+Pattern/random/rule and checksum validation bind as v21, but Stage does not render
+them. Generated secrets remain refused. Source: Screenplay
 `Documentation/screenplay/generated-values/choosing.md`.
 
-### Fixtures and outcomes
+## Fixtures and outcomes
 
 A compiler that admits ESM v7 binds and runs these; Stage renders supported UUID/String generation strategies,
 scalar/named responses, fixtures and `then returns`. Unsupported types/result combinations
@@ -62,17 +72,32 @@ specification RegistersWithPinnedValues
   own destinations. For commands without a generated identifier `when ... for` keeps the destination assertion.
   UUID fixtures require canonical lowercase hyphenated form. From v15, pins must also match
   exact strategy size, case, UUID version/variant and zero trailing encoding bits; invalid pins are
-  Contract rejections. Earlier models check canonical UUID type, not its version.
+  Contract rejections. A generated concept with rules selects v20 and checks pins
+  against both shape and rules, including implicit UUID. Rule failures are
+  `Rejected(Contract)` with `Generated fixture '<property>' fails concept '<Concept>' rules`,
+  never client validation failures or redraws. Earlier rule-free implicit-UUID
+  models check canonical UUID type, not its version.
 - A serialized concept generation strategy selects v15 and Guarded whole-source freshness for all
   generated destinations, including implicit UUIDs. Reusing a generated source with existing facts
-  rejects the entire command with Concurrency, without append, response or silent retry. Below v15
-  fixtures retain legacy reuse. See the complete [strategy example](../../cratis-screenplay-toolchain/references/generation-strategies-example.md)
+  rejects the entire command with Concurrency, without append, response or silent retry.
+  Models without a serialized strategy retain legacy reuse even when rules select v20. See the complete [strategy example](../../cratis-screenplay-toolchain/references/generation-strategies-example.md)
   and command-surface `references/generated-values-and-responses.md` for tagged sources.
-- `given clock` supplies `$context.occurred`; it does not synthesize UUIDv7, ULID or
-  TypeID from that instant. Pin the whole identifier, never a seed. Stage's
-  time-ordered factories use wall clock, not command-receipt time, and its clock
-  specifications remain unsupported. Sources: Screenplay
+- `given clock` supplies `$context.occurred` and requires all pattern date segments
+  to match the same UTC instant, including offset rollover and leap days. Without
+  a clock the reference runner checks digit widths, never today's wall clock.
+  Checksum pins check arithmetic only with an authored `validate checksum` rule;
+  a generation modifier alone checks suffix shape. It does not synthesize UUIDv7,
+  ULID or TypeID: pin the whole identifier, never a seed. Stage time-ordered
+  factories use receipt time; admitted command clock specs render. Sources: Screenplay
   `Documentation/screenplay/generated-values/choosing.md`; Stage
   `Documentation/reference/generated-values-rendering.md`.
+- Attached generation bodies are not run: pin the resulting String;
+  an opaque validator still yields Unsupported. Stage admits v20 with
+  pins for every rule-bearing generated property, even Proven ones, and refuses
+  invalid pins with STAGE-ESM-011; v21 remains refused. Do not confuse the
+  renderer proof API's allowance for capable targets with Stage support.
 - A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)` (no fixture channel); a
   response-only command runs and its response is discarded.
+
+Requires Screenplay 4.164.0 (`screenplay --version`) for v20 rule-bearing generated pins, 4.172.0 for v21 finite/rule strategies; older compilers refuse PLAY0268.
+Requires Stage 4.95.0 for command clock specs and 4.109.0 for v20 rule-bearing pins; older renderers refuse those shapes.

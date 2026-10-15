@@ -13,6 +13,13 @@
 | `matches "<regex>"` | ECMAScript; matches **any substring** unless anchored with `^…$`; an invalid pattern is `PLAY0367` |
 | `all > <v>` / `all >= <v>` | `lines.quantity all > 0` |
 | `rule <Name>` | `orgNumber rule BeAValidOrganizationNumber` |
+| `checksum luhn|mod11|mod97` | String concept `validate checksum luhn`; validates supplied/stored values too |
+
+Requires Screenplay 4.172.0 or later (`screenplay --version`) for checksum rules
+(ESM v21); older compilers refuse them with PLAY0268. A pattern's `checksum`
+modifier generates check digits but does not add validation. Check digits catch
+typos, not forgery. For generated-concept proof statuses, deterministic regex
+limits and PLAY0688 repairs, read [generated rules](generated-values-and-responses.md#generated-concept-rules-esm-v20).
 
 ## `not empty` means non-blank text
 

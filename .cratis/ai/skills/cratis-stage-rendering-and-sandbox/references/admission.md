@@ -11,12 +11,17 @@
 - Specification rules (`STAGE-ESM-011`)
 - Refusals seen while drafting a model
 
-Stage admits exact ESM v1–v17 and v19 language/semantic pairs to construct planning,
-not v18 or v20; unknown pairs report `STAGE-ESM-016`. The CLI's bundled renderer
+Stage admits exact ESM v1–v17, v19 and v20 language/semantic pairs to construct planning,
+not v18 or v21; unknown pairs report `STAGE-ESM-016`. The CLI's bundled renderer
 may stop at v16 and refuse newer models with `CLI-RENDER-004`.
 
 Requires Stage 4.96.0 for v16, 4.101.0 for v17, 4.102.0 for v19, and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
 Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering.
+Requires Stage 4.109.0 for v20 generated-concept rules; older renderers refuse v20.
+It renders New() plus ConceptValidator, requires pins for every rule-bearing
+generated property even when Proven, refuses invalid pins with STAGE-ESM-011,
+and warning/info-severity generated-concept rules with STAGE-ESM-038. ESM v21
+pattern/random/rule/checksum constructs are not rendered; preserve the model.
 
 Binding with the CLI's bundled compiler is a separate
 prerequisite. The exhaustive construct table is `references/renderable-subset.md` in
@@ -121,7 +126,7 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-013` | An event-context value other than `$context.occurred` mapped in `produces` | Map a command property when that preserves the meaning; otherwise gap-fill |
 | `STAGE-ESM-014` | A constraint Chronicle cannot reproduce (kind, scope, message; multi-claim in one command; optional or composite targets) | A different constraint is a requirement change for the model owner; otherwise gap-fill |
 | `STAGE-ESM-015` | Authorization Stage cannot render exactly: a role-claim URI, an opaque policy nested inside a condition, an unresolved or non-portable policy, no single identifier, an opaque-policy subject that is not text, Uuid, Date or DateTime (a restriction on opaque-policy subjects, separate from declarative claim targets), an unsupported claim artifact. Role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false) and `not`/and/or render; roles are read through the identity's `RoleClaimType` | Reshape the policy to a portable condition; otherwise gap-fill |
-| `STAGE-ESM-016` | Model language/semantic pair is not an audited ESM v1–v17 or v19 pair; v18 and v20 remain refused. A CLI bundle stopping at v16 reports `CLI-RENDER-004` above v16 first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
+| `STAGE-ESM-016` | Model language/semantic pair is not an audited ESM v1–v17, v19 or v20 pair; v18 and v21 remain refused. A CLI bundle stopping at v16 reports `CLI-RENDER-004` above v16 first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
 | `STAGE-ESM-017` | Read model or projection cannot render (property names that collide with Chronicle paths or expression syntax, mappings that overwrite the key or child identity, composite keys, unsupported `all` mappings, the refused scope shapes below) | Reshape the projection without changing what it records, or record the gap |
 | `STAGE-ESM-018` | `$strings.` key missing in the default locale or containing formatting characters | Fix the strings |
 | `STAGE-ESM-019` | Reducer structure or body not admitted (outside a `StateView`, impure, does not compile) | An equivalent pure body, or gap-fill |
@@ -132,7 +137,7 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-024` | Interval, schedule, application, startup and shutdown triggers, opaque reaction bodies, captures, Translate (including directed Translate), and clock/trigger/capture specifications. Event-triggered Automation slices render as Chronicle reactors, subject to `-013` and `-034` to `-040` below | Keep refused scope as gap-fill; do not confuse semantic Host settlement with live reactor delivery |
 | `STAGE-ESM-027` | A specification asserting a read model is absent (`then no readmodel`) is not rendered (the semantic specification engine executes keyed absence) | Keep the specification; verify absence another way and record the gap |
 | `STAGE-ESM-028`, `-029` | Generated values or responses Stage cannot render. Supported scalar UUID/String-concept strategies, v15 freshness, generation fixtures, scalar/named responses and `then returns` render; unsupported generated types report `-028` | Probe the supported form; preserve refused combinations as gap-fill |
-| `STAGE-ESM-038` | Generated/response results combined with routes, generated-property/concept rules, legacy allocation, non-scalar/non-command response sources or generated-name collisions | Keep the model; gap-fill that command |
+| `STAGE-ESM-038` | Generated/response results combined with routes, generated-property rules or non-error-severity generated-concept rules, legacy allocation, non-scalar/non-command response sources or generated-name collisions | Keep the model; gap-fill that command |
 | `STAGE-ESM-039`, `-040` | Reaction conditions, destinations or mappings outside the faithful target subset; protected identity uses (including reaction destinations) and protected enum concepts | See the event-reaction boundary above; never declassify protected values |
 | `STAGE-ESM-030` | Named event-source or stream definition with a reserved stored name; unformattable routed fixtures or command replay routes. The default sandbox engine also reports it for every routed model | Rename the reserved name; render the model with `cratis render`, not `cratis run` |
 | `STAGE-ESM-031` | Whole-number literal outside the C# `int` range below ESM v8 (v8 and later render `long`) | Raise the model to v8 constructs or gap-fill |
@@ -247,6 +252,10 @@ same slice, a required Guid or text identifier and a matching keyed query. Code 
   query whose fixtures use streams other than the queried key.
 - A when-less specification is admitted only as `then denied` on an authorized keyed
   query, or `given readmodel` plus `then query` on an unprotected query.
+- Generated pins must satisfy shape and concept rules; failing pins refuse -011,
+  not an input-validation or exception assertion. Unpinned rule-bearing generation
+  refuses -038. All-Proven status from Screenplay's renderer proof API does not
+  waive Stage's pin requirement.
 - Descriptions and event documentation render only as XML doc comments; comments are never rendered, and neither is behavior.
 
 ## Refusals seen while drafting a model

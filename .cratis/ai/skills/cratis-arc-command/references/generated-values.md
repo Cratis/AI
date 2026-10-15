@@ -24,7 +24,10 @@ For the current threaded example, read [shop commands](shop-generation.md) and
 [shop concepts](../../cratis-fundamentals-concept/references/shop-generation.md).
 Those declarations show:
 CustomerId (`cus_` + ULID), context-aware TypeID OrderId, NanoID InviteCode and
-secret bytes ApiKey. They allocate responses, not events or persisted entities.
+secret bytes ApiKey, readable InvoiceNumber (pattern/checksum) and Int64 pickup
+TicketNumber (`Integer`). The latter helpers require Fundamentals 7.25.0; inspect
+`dotnet list package --include-transitive` before use and retain existing factories
+on older packages. They allocate responses, not events or persisted entities.
 For a real Chronicle stream identity use `EventSourceId<T>`; return `(id, event)`
 to append and return the stream ID, or use an explicit event-source wrapper.
 
@@ -32,7 +35,11 @@ Keep existing/client-chosen identifiers and references on command properties.
 Services and read models remain ordinary dependencies, not generated values.
 UUID generation does not establish authorization, secrecy, idempotency, storage
 freshness, or gapless/sequential numbering. Use the domain's authoritative
-allocation mechanism for invoice numbers, not a random UUID strategy.
+allocation mechanism for gapless/sequential invoice numbers, not a random strategy.
+A pattern supplies a readable reference, not an allocator or secret; check digits
+catch typos, not forgery. The concept validator can call
+`GenerateValue.HasValidChecksum(value, Checksum.Luhn)` alongside shape checks;
+pinning bypasses generation, never validation. Keep short-code uniqueness separate.
 
 ## Resolution, validation and captures
 
@@ -126,7 +133,8 @@ Source: `Source/DotNET/Arc.Core/Commands/ModelBound/GeneratedValueAttribute.cs`,
 `Source/DotNET/Testing/Commands/CommandScenarioGeneratedValueExtensions.cs`.
 
 Contextual generation (received time and tenant) and Fundamentals' additional strategies need a newer Arc; [sources and Clock/Tenant
-setup](shop-generation.md). Arc does not supply a native freshness/collision
-allocator or a pattern contract. Screenplay separately admits concept `generate`
+setup](shop-generation.md). Generated parameter resolution is not a gapless or
+short-code collision allocator. Fundamentals owns pattern/checksum factories;
+this does not imply released ESM v21 recovery or rendering. Screenplay separately admits concept `generate`
 strategies and freshness; see `cratis-screenplay-command-surface/references/generated-values-and-responses.md`
 for that language contract and Stage's explicit scopes, not native Arc freshness support.

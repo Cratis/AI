@@ -40,7 +40,9 @@ editing concept generation or `generated identifier`.
 
 ## When not to
 
-The same reference separates inputs, credentials and context/secret generation that is not available.
+For generation proofs/PLAY0688 repairs, read [generation details](references/mcp-tools.md#concept-generation):
+use `rules[]`, not parsed diagnostics (Requires Screenplay 4.173.0,
+`screenplay --version`; older servers omit proofs).
 
 ## Locate and connect
 
@@ -77,10 +79,9 @@ The CLI entry point is:
 cratis screenplay mcp <model-folder>
 ```
 
-The CLI-bundled MCP can be older than the standalone tool and lack newer capabilities, such as the generation summary and entropy repairs.
-Discover installed capabilities. Do not ask for a second global .NET tool, Docker
-or hand-copied managed MCP configuration. Installation/status must confirm adapter
-support and no conflicts.
+The CLI-bundled MCP can be older than the standalone tool and lack generation
+summaries/repairs: discover schemas. Avoid a second global tool, Docker or copied
+managed configuration; confirm adapter support and no conflicts.
 
 If the MCP is unavailable, report that gap. Do not claim compiler-validated AST
 editing while falling back to regex. Existing standalone `screenplay mcp` users

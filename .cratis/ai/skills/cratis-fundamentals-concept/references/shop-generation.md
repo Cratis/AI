@@ -15,12 +15,14 @@ A shop can use CustomerId (`cus_` + ULID) for
 recognizable time-ordered customer references, OrderId (TypeID) for typed order
 references, InviteCode (NanoID) for opaque invitation references, and ApiKey
 (`Bytes(32)`) for a 256-bit credential. UUID remains the ordinary identity choice;
-encoded bytes make an exact entropy budget explicit. Prefixes add no entropy.
+encoded bytes make an exact entropy budget explicit. InvoiceNumber uses a readable
+pattern with Luhn check digit; TicketNumber uses an inclusive random Int64 range
+for pickup tickets. Prefixes, dates and checksums add no entropy.
 UUIDv7/ULID/TypeID reveal time and are not monotonic within a millisecond.
 An invitation reference here is not by itself permission to join the shop; if
 possession is the authorization mechanism, treat it as a protected credential too.
 
-This complete concept excerpt requires `Cratis.Fundamentals` 7.24.0 or later and,
+This complete concept excerpt requires `Cratis.Fundamentals` 7.25.0 or later and,
 for the ApiKey audit attribute, `Cratis.Arc.Chronicle`. These are
 non-stream references; use `EventSourceId<string>` instead only if a concept
 actually identifies a Chronicle event source.
@@ -47,6 +49,17 @@ public record OrderId(string Value) : ConceptAs<string>(Value), IGeneratableInCo
 public record InviteCode(string Value) : ConceptAs<string>(Value), IGeneratable<InviteCode>
 {
     public static InviteCode New() => new(GenerateValue.NanoId());
+}
+
+public record InvoiceNumber(string Value) : ConceptAs<string>(Value), IGeneratableInContext<InvoiceNumber>
+{
+    public static InvoiceNumber New(GenerationContext context) =>
+        new(GenerateValue.Pattern("INV-{yyyy}{MM}-#{7}", context, Checksum.Luhn));
+}
+
+public record TicketNumber(long Value) : ConceptAs<long>(Value), IGeneratable<TicketNumber>
+{
+    public static TicketNumber New() => new(GenerateValue.Integer(100000, 999999));
 }
 
 [NotAudited]
@@ -80,13 +93,39 @@ Do not present a tenant-prefixed custom string as standard TypeID.
 
 Use the context form only for time/tenant-dependent generation. If both interfaces
 are implemented, callers choose context; the interfaces themselves do not dispatch.
-Built-in context overloads reject default Now (`MissingGenerationTime`) and time
-before the Unix epoch. A fixed context fixes the timestamp, not random suffixes.
+Time-ordered built-in context overloads reject default Now (`MissingGenerationTime`)
+and time before the Unix epoch. A fixed context fixes the timestamp, not random suffixes.
+
+Requires Cratis.Fundamentals 7.25.0 for `Pattern`, `Integer`, `Checksum` and
+`HasValidChecksum` (`dotnet list package --include-transitive`); older packages
+lack these helpers. Upgrade deliberately or retain the existing factory.
+
+`GenerateValue.Pattern(string pattern, Checksum checksum = Checksum.None)` is the
+date-free overload; `Pattern(string pattern, GenerationContext context,
+Checksum checksum = Checksum.None)` uses `context.Now` in UTC for date segments.
+A date pattern without context throws `PatternRequiresGenerationContext`;
+default Now on the context overload throws `MissingGenerationTime`.
+Use `#` for digits, `?` for uppercase letters, `*` for letters/digits, positive
+ASCII classes and repeats up to 64. UTC segments are `{yyyy}`, `{yy}`, `{MM}`, `{dd}`.
+The appended checksum uses every preceding ASCII digit, including date digits:
+`Checksum.Luhn` and `Mod11` append one digit, `Mod97` two; Mod11 excludes payloads
+that would need digit 10. Output including suffix is limited to 256 characters.
+
+Generation does not add a validator. Use
+`GenerateValue.HasValidChecksum(value, Checksum.Luhn)` in the concept's validator
+when supplied/stored values must obey the arithmetic too; combine it with shape
+validation. `Integer(long minimum, long maximum)` returns `long`, includes both
+endpoints and supports the full Int64 range with unbiased secure randomness.
+Enforce unique short payload codes at append: randomness alone does not reserve
+one, and event-source freshness does not protect a different payload value.
 
 ## When not to generate
 
 - Client-minted customer/order IDs stay inputs. Do not replace them on retry.
-- Random values supply neither idempotency nor gapless invoice allocation.
+- Random values and readable patterns supply neither idempotency nor gapless/sequential
+  invoice allocation. A legally gapless invoice number needs an allocator.
+- Check digits detect transcription mistakes, not forgery or authorization; patterns
+  are not secrets. Low-entropy codes need explicit collision/uniqueness handling.
 - An ID is not an authentication token or authorization policy.
 - ApiKey is a **secret**, not an event-source ID: event-source IDs are plaintext metadata
   and cannot be encrypted. Use a separate `ApiKeyId` as the identity and keep ApiKey a
@@ -102,7 +141,8 @@ before the Unix epoch. A fixed context fixes the timestamp, not random suffixes.
 
 Fundamentals `Source/DotNET/Fundamentals/Concepts/GenerationContext.cs`,
 `IGeneratableInContext.cs`, `GenerateValue.TimeOrderedStrings.cs`,
-`GenerateValue.RandomStrings.cs`; `Documentation/csharp/generating-values.md`.
+`GenerateValue.RandomStrings.cs`, `GenerateValue.Patterns.cs`,
+`GenerateValue.Numbers.cs`, `Checksum.cs`; `Documentation/csharp/generating-values.md`.
 Arc `Source/DotNET/Chronicle/Commands/NotAuditedAttribute.cs`,
 `CommandCausationValues.cs` (command/type/property exclusion only, never
 payload encryption or log protection);

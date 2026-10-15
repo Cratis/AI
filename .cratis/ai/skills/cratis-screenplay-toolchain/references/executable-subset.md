@@ -24,7 +24,8 @@ non-route Double literals (exact lowering of Double-mode literals) as v11, non-p
 numbers as v12, concept compliance as v13, caller-supplied collection equality filters as v14,
 concept generation strategies and freshness as v15, stored event names as v16,
 no-event assertions/redelivery as v17, query-error specifications as v18,
-invocation refusal branches as v19 and generated-concept rules as v20. Always name
+invocation refusal branches as v19, generated-concept rules as v20, and finite
+pattern/random/rule generation plus checksum validation as v21. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass. Use the actual binder before promoting an older
@@ -168,11 +169,14 @@ fixtures and `then returns`. Unsupported generated types (`-028`) and result com
 `references/generated-values-and-responses.md`.
 Complete examples: `generated-responses-example.md`, `generation-strategies-example.md`.
 
-- A generated property is command-only, required, scalar and a generatable concept backed by Uuid or String;
-  bare primitives, optional and collection types are invalid. Uuid has implicit `uuid`; String needs a strategy.
+- A generated property is command-only, required, scalar and a generatable concept backed by Uuid/String,
+  or Int with `random` (v21). Bare primitives, optional and collection types are invalid.
+  Uuid has implicit `uuid`; String needs a strategy. Generated identifiers remain Uuid/String only.
   Explicit serialized generation selects v15, with strict fixture encoding and whole-source freshness for all
-  generated destinations. `pattern`, `random`, `rule`, `sequence` and generated secrets remain unadmitted;
-  generated-concept rules bind as v20 with proof diagnostics PLAY0688/0689.
+  generated destinations. Sequence and generated secrets remain refused.
+  Generated-concept rules bind as v20 with proof diagnostics PLAY0688/0689;
+  pattern/random/rule and checksum validation bind as v21. PLAY0691 is uncountable
+  support within budget; PLAY0692 is empty support on a scanned UTC date.
   See command-surface `references/generated-values-and-responses.md` and `generation-strategies-example.md`. Modifier order is `Type optional generated identifier`.
 - Generated values are not request inputs, form fields, invocation arguments or ordinary `when` values. Generation
   runs after authorization and validation and before productions, so a denial or a validation failure never
@@ -180,7 +184,10 @@ Complete examples: `generated-responses-example.md`, `generation-strategies-exam
 - A policy (including inherited or composed ones and the implicit `subject` of a generated identifier), a property
   rule or a requirement that references a generated value reports `PLAY0273`; reference input properties only. A
   generated property whose concept declares rules selects v20; refuted rules report
-  PLAY0688 and unproven rules warn PLAY0689. Opaque execution needs a target.
+  PLAY0688 with a witness and Unproven rules warn PLAY0689 with a reason. Proven
+  rules bind silently; matches containment requires deterministic patterns, not
+  passing samples. Opaque validation needs a target. Opaque generation rules use
+  pinned String results without executing their bodies.
   A reaction mapping into a generated property is invalid.
 - Responses: `returns <property>` is scalar; bare `returns` opens an ordered record of `<name> [<Type>] = <property>` fields
   over direct properties of the same command (collections, read aliases, arithmetic and whole read models are not
@@ -198,7 +205,15 @@ Complete examples: `generated-responses-example.md`, `generation-strategies-exam
 - A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)`; response-only commands run
   and discard the response. Generated values give no idempotency, retry or deduplication guarantee.
 
-Requires Screenplay 4.68.0 or later (`screenplay --version`) for generated values and responses (ESM v7), and 4.147.0 or later for concept generation strategies and freshness (ESM v15); older compilers refuse them with PLAY0268.
+Requires Screenplay 4.68.0 or later (`screenplay --version`) for generated values and responses (ESM v7), 4.147.0 for strategies/freshness (v15), 4.164.0 for generated-concept rules (v20), and 4.172.0 for pattern/random/rule/checksum (v21); older compilers refuse the respective constructs with PLAY0268.
+
+Pins satisfy both strategy shape and concept rules; failure is Rejected(Contract),
+not an input error or redraw. Pin date segments with `given clock`; without it the
+runner checks digit widths only. Generation checksum does not add validation:
+author `validate checksum` for arithmetic. Stage 4.109.0 admits v20 but requires
+rule-bearing pins even when Proven, refuses bad pins with STAGE-ESM-011 and
+warning/info-severity rules with -038. Stage does not render v21; do not remove
+rules or classification to lower the version.
 
 ## Released public boundaries and observer routes
 

@@ -10,6 +10,7 @@
 - `$context.` paths (command `produces`)
 - `$eventContext.` (projections)
 - PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
+- Generated values and proofs
 - Specification forms
 
 Released boundary forms: `public event X`, `event X from "store"`, Translate
@@ -152,6 +153,31 @@ collections (path below them: PLAY0297 E). Unknown member: PLAY0295/0296 W.
 - Keys: only on `from` (a projection-level `key` routes nothing: PLAY0381 W).
 - One `every`/`all` block per level for the executable model (else PLAY0268).
 - Templates (`` `${a}` ``) and `$causedBy` parse but do not bind (PLAY0268).
+
+## Generated values and proofs
+
+Choose readable invoice/order references with `generate pattern "INV-{yyyy}{MM}-#{7}" checksum luhn`
+on a String concept and author `validate checksum luhn` separately. `#`, `?`, `*`
+mean digit, uppercase letter, letter-or-digit; ASCII classes and repeats up to
+64 are finite. UTC segments are `{yyyy}`, `{yy}`, `{MM}`, `{dd}`. Int
+`generate random 100000..999999` is inclusive; `generate rule Name` attaches one
+file/tagged fence with Now/Tenant context and unknown entropy. These are ESM v21
+(Requires Screenplay 4.172.0, `screenplay --version`; older compilers report
+PLAY0268). Sequence and generated secrets remain refused.
+
+Generated-concept rules select v20 (Requires Screenplay 4.164.0; older compilers
+refuse PLAY0268): Proven silent, Refuted PLAY0688 plus witness, Unproven PLAY0689
+plus reason. Finite support exhaustion is PLAY0691, empty support on a scanned
+date PLAY0692, not a proof warning. MCP rules[]/derivedPattern support typed
+matches/PLAY0688 repair proposals (Requires Screenplay 4.173.0; older servers omit
+those fields). See [generation example](generation-strategies-example.md).
+
+Pin whole identifiers with `for`, other values with named `generated`; pins obey
+shape and rules. `given clock` fixes all UTC pattern date segments, not randomness;
+without it only digit widths are checked. Patterns are not gapless sequences or
+secrets; check digits catch typos, not forgery. Short payload codes need uniqueness,
+generated source destinations need freshness. Stage 4.109.0 admits v20 with valid
+rule-bearing pins, never v21. Reference binding is not rendering.
 
 ## Specification forms
 Full list with semantics: `Documentation/screenplay/specifications.md`. Compiled in the

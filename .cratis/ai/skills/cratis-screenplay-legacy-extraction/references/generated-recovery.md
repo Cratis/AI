@@ -24,6 +24,11 @@ Each recovery below has its own gate; use the adapter that has the one you rely 
 
 - Requires Arc.Screenplay 22.78.0 or later for `[GeneratedValue]` Handle parameters whose `New()` is a UUID v4 form, for the `generated identifier` and response they produce, and for scenario pins (`for` / `generated`). Before it none of this is recovered. From 22.78.0 until 22.86.0 any other strategy keeps its source form and reports SP0073.
 - Requires Arc.Screenplay 22.86.0 or later to recover UUIDv7, ULID, TypeID, NanoID, `Bytes` and hex strategies as concept `generate` lines (ESM v15) and a passed-through `GenerationContext`.
+- Requires Arc.Screenplay 22.101.0 for generated-concept validator recovery (ESM
+  v20); check `dotnet list package --include-transitive`. Older adapters withhold
+  generation on rule-bearing concepts. Proven rules emit, Unproven rules remain
+  with SP0078, Refuted rules withhold generation with SP0073 and a counterexample;
+  below a v20 cap generation is withheld while rules stay.
 
 Tagged evidence:
 
@@ -40,22 +45,27 @@ CustomerId (`cus_` + ULID), OrderId (TypeID), InviteCode (NanoID), ApiKey (secre
 Bytes(32) with .NET `[NotAudited]`). Do not claim exact recovery of every factory:
 the custom `cus_` interpolation is not a recognized single factory call;
 TypeID can recover a passed-through context's strategy, not equivalent receipt-time/
-tenant behavior. Context-member bodies and generated secrets remain unreleased
-Screenplay scope. Preserve ApiKey's protection and source code, not an unprotected
+tenant behavior. Context-member factory recovery and generated secrets stay in code. Screenplay
+can author a String generation rule attachment with Now/Tenant, but that does
+not prove recovery of a factory or reference execution of its body. Preserve ApiKey's protection and source code, not an unprotected
 replacement String. The intentional candidate can author the released customer
 prefix strategy with an explicit target decision, separate from as-is proof.
 
 Recover the strategy the source proves; do not choose a replacement because a
 factory is named `New()`. Use the existing [strategy reference](../../cratis-screenplay-command-surface/references/generated-values-and-responses.md)
-for meaning and shapes, then the forms below for parameter factories, literal pins
+for meaning and shapes (including readable InvoiceNumber patterns and random Int
+TicketNumber values), then the forms below for parameter factories, literal pins
 and retained source pointers.
 
 ## When not to
 
 Do not infer generation for client-supplied IDs, deduplication keys or gapless
 invoice numbers, or turn an observed secret into a random String. Preserve
-protection and unrecovered code; rule/context-member bodies are not executable
-strategies. Report missing pins, withheld productions/scenarios and version caps
+protection and unrecovered code. A pattern is not a gapless/sequential allocator
+or secret; check digits detect typos, not forgery. Low-entropy payload codes need
+uniqueness separate from source freshness. Pattern/random/rule bind as ESM v21 in
+Screenplay, but the released Arc generator does not recover those factories and
+Stage does not render them. Report missing pins, withheld productions/scenarios and version caps
 as losses, not successful recovery. Sources: Arc
 `Documentation/backend/csharp/generating-a-screenplay.md`;
 Screenplay `Documentation/screenplay/generated-values/choosing.md`.
@@ -65,8 +75,8 @@ Screenplay `Documentation/screenplay/generated-values/choosing.md`.
 The UUID v4 forms, pins and the identifier/response rules in this section need Arc.Screenplay 22.78.0 or later; the other strategies in the list below need 22.86.0 or later.
 
 A `[GeneratedValue]` Handle parameter becomes a generated command property only
-for a required scalar Uuid/String concept with a proven strategy and no validator,
-validation rules or compliance markers. Its explicit attribute name, otherwise
+for a required scalar Uuid/String concept with a proven strategy and no compliance
+markers. Validator rules recover under the v20 gate above, not by deleting them. Its explicit attribute name, otherwise
 parameter name, becomes the property name. A directly returned event-source
 identity (alone or beside an event) adds `generated identifier` and a response;
 a direct `EventForEventSourceId(parameter, event)` target adds the identifier
@@ -87,7 +97,7 @@ Constructors/conversions must forward the primitive unchanged. Recoverable calls
 
 A passed-through `GenerationContext` parameter is readable for UUIDv7/ULID/TypeID;
 reading `context.Now` or `context.Tenant` is not. Helper calls, multi-statement
-bodies, computed/invalid arguments and rule/pattern/random execution stay in code
+bodies, computed/invalid arguments and rule/pattern/random factory recovery stay in code
 with SP0073. Never invent a rule body or implementation-file reference.
 The concept owns `generate`; each command property only marks generation.
 Use the shared [strategy reference](../../cratis-screenplay-command-surface/references/generated-values-and-responses.md)
@@ -119,7 +129,8 @@ resolved adapter version, diagnostic, retained/withheld form and open question:
 
 | Diagnostic | Loss to reconcile |
 | --- | --- |
-| SP0073 | Unproven strategy/body/arguments, or non-default strategy above the ESM cap; no replacement strategy inferred. |
+| SP0073 | Unproven strategy/body/arguments, refuted generated-concept rule with witness, or generation above the ESM cap; no replacement strategy inferred. |
+| SP0078 | Generated-concept rule proof is Unproven; preserve the rule and reason, not a claim of Proven generation. |
 | SP0052 | Unadmitted generated value, dependent response or pre-generation protection stays in code; local-generation fallback is not parameter recovery. |
 | SP0012 | A required payload mapping or condition needs an unavailable value/read: withhold the whole production, never prune it into an incomplete fact. An optional blocked mapping can be omitted alone. |
 | SP0039 | Missing/unreadable pins, unrecoverable source identities or outcomes withhold the whole scenario. Name what was lost. |

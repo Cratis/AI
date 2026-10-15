@@ -380,9 +380,9 @@
         }
       ],
       "synced": {
-        "version": "7.23.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "7.25.0",
+        "date": "2026-10-15",
+        "by": "Cratis/AI#576"
       },
       "covers": {
         "skills": [
@@ -398,7 +398,7 @@
           "concepts.md"
         ]
       },
-      "notes": "Floor uses direct source verification, not a peer-dependency minimum. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Source-checked v7.25.0: IGeneratable/IGeneratableInContext, GenerationContext, UUID/ULID/TypeID/NanoID/bytes and finite GenerateValue.Pattern overloads with optional Checksum, inclusive Int64 Integer, and HasValidChecksum. Pattern date segments use captured UTC time; check digits add no entropy or authorization and do not automatically add validation. No Stage version uplift or generated-secret admission is implied."
     },
     {
       "id": "components",

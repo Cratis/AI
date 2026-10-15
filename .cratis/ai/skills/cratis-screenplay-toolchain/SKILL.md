@@ -127,10 +127,10 @@ changes with the root folder name.
 - **Concept strategies (v15):** concept strategies and Guarded freshness; strict fixture shapes,
   no silent retry. Read [references/generation-strategies-example.md](references/generation-strategies-example.md)
   and command-surface `references/generated-values-and-responses.md` for supported strategies/refusals.
-- **v17–v20:** recovery/no-event assertions (v17), query Validation errors (v18),
-  invocation refusal branches (v19), generated-concept rules (v20). Read
-  `references/executable-subset.md` when choosing a version; specifications and
-  command-surface references own examples. Newer binding is not render admission.
+- **v17–v21:** recovery/no-events (v17), query Validation errors (v18), refusal
+  branches (v19), generated-concept proofs (v20), pattern/random/rule/checksum (v21).
+  Read `references/executable-subset.md` for version prerequisites and
+  `references/diagnostics.md` for proof/support failures. Binding is not rendering.
 - **Caller/compliance metadata:** `$identity` aliases caller built-ins;
   additional identity details are metadata and executable reads still refuse.
   Bare `pii`/`secret` replace legacy spellings; `pii personal` repeats one marker
