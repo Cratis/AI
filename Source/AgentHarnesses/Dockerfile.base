@@ -296,6 +296,7 @@ RUN useradd --uid 1655 --create-home --shell /bin/bash agent \
     && chown agent:agent /workspace
 
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY contracts/ /usr/local/bin/contracts/
 
 USER agent
 WORKDIR /workspace

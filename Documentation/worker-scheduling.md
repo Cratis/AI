@@ -148,6 +148,37 @@ The result POST carries this shape:
 }
 ```
 
+### Result contract
+
+The [JSON Schema](https://github.com/Cratis/AI/blob/main/Source/AgentHarnesses/contracts/agent-worker-result.schema.json)
+and [sample](https://github.com/Cratis/AI/blob/main/Source/AgentHarnesses/contracts/agent-worker-result.sample.json)
+publish the Studio-compatible result contract. Run
+`node Source/AgentHarnesses/contracts/check-result.mjs result.json` to check a
+payload: exit 0 means valid, 1 prints the failing clause, and 2 means the check
+could not run. The checker also bounds raw usage JSON and metadata without the
+diff, conservatively accounting for Studio's Web-default Unicode/HTML escaping.
+Studio owns the configured diff-byte limit, checksum and patch validation.
+
+Before posting, jq drops null gap/self-check items, turns other non-strings into
+compact JSON text, and caps each list at 1000 items. Summary and list items are capped at 8192 UTF-16 units (Studio's
+character measure), with a trailing `…` inside the limit and no split surrogate
+pair. If the metadata is still too large, the worker drops trailing gap/self-check
+items and appends a final marker to each affected list naming its dropped count.
+It can shorten the summary further to make room. Git's touched-file list is never
+truncated: more than 10000 files or oversized harness-owned metadata fails delivery
+with the clause instead of posting. Only the three advisory fields are rewritten;
+usage and correlation retain their original JSON bytes. The checker is read-only,
+rejects case-variant aliases of known result/structured properties, and distinguishes
+contract failures (exit 1) from internal errors (exit 2).
+
+Standalone checks require four correlation GUIDs. The harness passes
+`--correlation launch.json`: if the launch supplied valid `job`, `session`,
+`application` and `feature` GUIDs, the checker requires those same values.
+Otherwise it checks only that correlation is an object, preserving the existing
+opaque/missing-correlation behavior. Such results are **not Studio-ready**;
+Studio callers must supply all four request IDs. Schema consumers should use the
+strict schema and sample for Studio, not relax Studio's correlation validation.
+
 The worker snapshots committed, uncommitted, and untracked non-ignored changes
 through a temporary git directory and index, leaving the agent's index unchanged
 even when it holds a stale lock. It captures one `git diff --binary` against the

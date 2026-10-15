@@ -1,0 +1,28 @@
+{
+  "diff": "",
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "structured": {
+    "outcome": "NoChanges",
+    "touchedFiles": [],
+    "gaps": [],
+    "summary": "The baseline already implements the requested behavior.",
+    "selfChecks": ["Inspected the requested feature."]
+  },
+  "usage": {
+    "inputTokens": 1234,
+    "outputTokens": 56,
+    "costUsd": 0.02,
+    "durationMs": 5000,
+    "cpuSeconds": 1,
+    "memoryBytes": 104857600,
+    "model": "claude-sonnet",
+    "provider": "anthropic",
+    "harness": "claude-code"
+  },
+  "correlation": {
+    "job": "3bcde650-f813-3f86-2e5f-b9c378d54cad",
+    "session": "293f2084-f860-4d5a-bd6b-89b5b7894281",
+    "application": "e18550e6-8b14-4e5d-8920-579f48dc224a",
+    "feature": "4e35ffae-f0ac-4b53-a9d9-34f81c31b0ed"
+  }
+}

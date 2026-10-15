@@ -1173,13 +1173,39 @@ deliver_bundle_result() {
         --arg provider "$provider" --arg harness "$BUNDLE_HARNESS" --argjson input "$input" \
         --argjson output "$output" --argjson cost "$cost" --argjson duration "$duration" \
         --argjson cpu "$cpu" --argjson memory "$memory" \
-        '{diff: $diff, sha256: $sha256, structured: {outcome: $outcome,
+        'def bounded_text:
+            explode as $codes |
+            ($codes | map(if . > 65535 then 2 else 1 end) | add // 0) as $units |
+            if $units <= 8192 then . else
+                (reduce $codes[] as $code ({units: 0, count: 0};
+                    if .units + (if $code > 65535 then 2 else 1 end) <= 8191
+                    then .units += (if $code > 65535 then 2 else 1 end) | .count += 1
+                    else .units = 8192 end)) as $cut |
+                .[0:$cut.count] + "…"
+            end;
+         def normalized_list:
+            map(select(. != null))[0:1000] |
+            map((if type == "string" then . else tojson end) | bounded_text);
+         {diff: $diff, sha256: $sha256, structured: {outcome: $outcome,
             touchedFiles: ($names | split("\u0000") | map(select(length > 0))),
-            gaps: ($structured[0].gaps // []), summary: ($structured[0].summary // $summary),
-            selfChecks: ($structured[0].selfChecks // [])},
+            gaps: (($structured[0].gaps // []) | normalized_list),
+            summary: (($structured[0].summary // $summary) | bounded_text),
+            selfChecks: (($structured[0].selfChecks // []) | normalized_list)},
           usage: {inputTokens: $input, outputTokens: $output, costUsd: $cost, durationMs: $duration,
             cpuSeconds: $cpu, memoryBytes: $memory, model: $model, provider: $provider, harness: $harness},
           correlation: $correlation[0]}' > "$BUNDLE_OUTPUT/result.json" || return 1
+    local contract_error
+    local contracts
+    contracts="$(dirname "${BASH_SOURCE[0]}")/contracts"
+    if ! contract_error=$(node "$contracts/fit-result.mjs" "$BUNDLE_OUTPUT/result.json" 2>&1); then
+        BUNDLE_DELIVERY_ERROR="Could not deliver the result: $contract_error"
+        return 1
+    fi
+    if ! contract_error=$(node "$contracts/check-result.mjs" \
+        --correlation "$BUNDLE_OUTPUT/correlation.json" "$BUNDLE_OUTPUT/result.json" 2>&1); then
+        BUNDLE_DELIVERY_ERROR="Could not deliver the result: $contract_error"
+        return 1
+    fi
     jq -j '.diff' "$BUNDLE_OUTPUT/result.json" > "$BUNDLE_OUTPUT/decoded.diff" || return 1
     if [[ "$(bundle_sha256 "$BUNDLE_OUTPUT/decoded.diff")" != "$hash" ]]; then
         BUNDLE_DELIVERY_ERROR="Could not deliver the result: decoded diff checksum does not match"
