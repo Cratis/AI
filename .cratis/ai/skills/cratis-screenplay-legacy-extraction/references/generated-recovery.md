@@ -26,9 +26,13 @@ Each recovery below has its own gate; use the adapter that has the one you rely 
 - Requires Arc.Screenplay 22.86.0 or later to recover UUIDv7, ULID, TypeID, NanoID, `Bytes` and hex strategies as concept `generate` lines (ESM v15) and a passed-through `GenerationContext`.
 - Requires Arc.Screenplay 22.101.0 for generated-concept validator recovery (ESM
   v20); check `dotnet list package --include-transitive`. Older adapters withhold
-  generation on rule-bearing concepts. Proven rules emit, Unproven rules remain
-  with SP0078, Refuted rules withhold generation with SP0073 and a counterexample;
-  below a v20 cap generation is withheld while rules stay.
+  generation on rule-bearing concepts. Recovery covers only a fully recovered,
+  non-opaque default validator: Proven rules emit, Unproven rules remain with
+  SP0078, Refuted rules withhold generation with SP0073 and a counterexample.
+  Generation is also withheld with SP0073 (rules kept) when the validator is
+  unreadable, conditional or names a predicate (`rule <Name>`), when a UUID
+  concept has any validator, when the concept carries `pii` or `secret`, and
+  below a v20 cap.
 
 Tagged evidence:
 
