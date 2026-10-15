@@ -295,6 +295,12 @@ RUN useradd --uid 1655 --create-home --shell /bin/bash agent \
     && mkdir -p /workspace \
     && chown agent:agent /workspace
 
+# MSBuild worker nodes and the build server outlive `dotnet build` and keep redirected stdout/stderr
+# open, so an agent or the harness that reads build output to end of file hangs once a generated app
+# has more than one project. Every build in the worker runs without them.
+ENV MSBUILDDISABLENODEREUSE=1 \
+    DOTNET_CLI_USE_MSBUILD_SERVER=0
+
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY contracts/ /usr/local/bin/contracts/
 
