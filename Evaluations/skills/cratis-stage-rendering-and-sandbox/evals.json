@@ -21,7 +21,7 @@
       "expected_output": "An optional walk after V3 on the sandbox's semantic engine, started with docker run and Stage__Runtime__Engine=semantic because cratis run has no engine option. Per persona, act then compare queries before and after; record findings such as an action that changes nothing visible, an empty screen nothing feeds, a to-do view that never empties, or an expected refusal the model lacks. Findings go to the model owner as edit requests or review findings; no code or Stage-managed edits, and it is not V4 or V5 evidence.",
       "assertions": [
         "Treats the walk as optional after V3 and requires the model to admit and render, with Docker available.",
-        "Selects the semantic engine through Stage__Runtime__Engine=semantic on the container, noting that cratis run has no engine option and that the default engine enforces no validation or authorization.",
+        "Selects the semantic engine through Stage__Runtime__Engine=semantic on the container, noting that cratis run has no engine option and that the default engine enforces no authorization and only simple literal validation rules.",
         "Walks each persona by acting and then comparing what changed, recording evidence such as persona, steps, outcome and the model declaration involved.",
         "Names finding kinds such as an action with no visible change, a screen nothing feeds, a to-do view that never empties and a missing expected refusal.",
         "Routes findings to the model owner as edit requests or review findings, rejects code fixes or edits of managed output, and does not report the walk as V4 or V5 evidence."

@@ -47,6 +47,17 @@ not a command-side alternative to returned guarded events. Check the client
 package version; older custom units throw
 `UnitOfWorkEnrollmentContributorsNotSupported` when attached.
 
+Requires Arc 22.100.0 or later with Chronicle client 19.65.2 or later for Arc's
+generated-identifier guard on direct unit-of-work and transactional writes,
+including nested commands. Check `dotnet list package --include-transitive`;
+older Arc needs returned events or an explicit whole-source `BeforeFirst` scope
+for direct writes. A conflict against an enrolled generated guard is reported as
+Arc's `ConflictingConcurrencyScopes`, without identifier or scope values, rather
+than Chronicle's `ConflictingEnrollmentScope`; unrelated enrollment conflicts keep
+the Chronicle failure. Read
+[generated-target freshness](../cratis-arc-command/references/fresh-identifiers.md)
+for the covered APIs, scope lifetime, rollback and immediate-append boundary.
+
 ## Route the work
 
 - For Arc `[ProtectedDecision]`, Arc command/handler shapes and Arc `IStreamReads`,

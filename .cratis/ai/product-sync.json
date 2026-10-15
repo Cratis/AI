@@ -63,9 +63,9 @@
         }
       ],
       "synced": {
-        "version": "22.97.0",
-        "date": "2026-10-14",
-        "by": "Cratis/AI#695"
+        "version": "22.100.0",
+        "date": "2026-10-15",
+        "by": "Cratis/AI#710"
       },
       "covers": {
         "skills": [
@@ -98,7 +98,7 @@
           "vertical-slices.md"
         ]
       },
-      "notes": "Release-tag delta through 22.97.0: scoped completion and routing validation, generated-target freshness, observable scenarios, asynchronous execution scopes, read-model diagnostics and ordered reactor refusal handling. Existing context generation/self-reduction guidance retained; Screenplay extraction deltas handed to its owning lane. No new runtime probe."
+      "notes": "Release-tag delta through 22.100.0: scoped completion and routing validation, generated-target freshness (including direct unit-of-work writes and nested commands), observable scenarios, asynchronous execution scopes, read-model diagnostics, ordered reactor refusal handling and ICommandExceptionMapper. Existing context generation/self-reduction guidance retained; Screenplay extraction deltas handed to its owning lane. No new runtime probe."
     },
     {
       "id": "ai",

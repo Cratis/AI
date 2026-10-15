@@ -246,7 +246,7 @@ whatever renders it:
 
 Read [references/client-contract.md](references/client-contract.md) for the generated proxy members.
 
-Read `references/command-result.md` when branching on a command result or matching validation failures to fields. Branch on the specific flag, not only on `isSuccess`. The exact `CommandResult`
+Read `references/command-result.md` when branching on a command result, matching validation failures to fields, or mapping integration exceptions. Branch on the specific flag, not only on `isSuccess`. The exact `CommandResult`
 and `ValidationResult` shapes are in
 [command result](references/command-result.md) — in particular, a validation
 failure carries `members: string[]` (camelCased) and a numeric `severity`, not a
