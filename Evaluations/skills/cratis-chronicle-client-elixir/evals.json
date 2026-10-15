@@ -47,6 +47,19 @@
         "States that skip_tls_validation defaults to true and production must set skipTlsValidation=false.",
         "States Chronicle.Concept requires cratis_chronicle 3.0.0."
       ]
+    },
+    {
+      "id": 5,
+      "name": "decision-read-guard",
+      "prompt": "An Elixir app on cratis_chronicle must let a seat be booked only once, even when two requests race. Write the booking function with a decision read on the `MyApp.ReadModels.Seat` projection and say what the caller does when the guard trips, and whether the same guard works on a read model that uses `join/2`. Give the code in your reply; do not write files.",
+      "expected_output": "Chronicle.decide/2 with DecisionReads.get/2 inside the function and an append of SeatBooked to the same event source when read.instance is nil; {:error, %DecisionConflict{}} means re-read and decide again; a join/2 (or children, from_every) read model is refused with DecisionReadRefused.",
+      "assertions": [
+        "Wraps the booking in Chronicle.decide/2 and calls Chronicle.ReadModels.DecisionReads.get/2 inside the function, because get/2 outside a unit of work returns {:error, :requires_unit_of_work} and guards nothing.",
+        "Appends the SeatBooked event only when read.instance is nil, to the same event source id that was read.",
+        "Matches {:error, %Chronicle.ReadModels.DecisionConflict{}} as a lost race that is retried by re-reading and deciding again, not as a failure of the write.",
+        "States that a read model with join/2, removed_with_join/2, children/2 or from_every/1 is refused with Chronicle.ReadModels.DecisionReadRefused (admit/2 checks the shape without I/O).",
+        "Does not use a plain Chronicle.read_model/3 followed by append/3 as the guard, because that can act on stale state."
+      ]
     }
   ]
 }
