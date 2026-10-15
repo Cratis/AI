@@ -50,6 +50,19 @@
         "Says recovery redelivery runs the handler normally and that `[OnceOnly]` is not a per-source run limit or deduplication.",
         "Suggests a receipt keyed by `ReactorDelivery.Id` to identify the retry."
       ]
+    },
+    {
+      "id": 5,
+      "name": "split-directionless-translate-own-capture",
+      "prompt": "A directionless Translate ImportResults contains a webhook capture that appends ResultReceived (also from a children scope), plus an unrouted reaction on ResultReceived that produces ExamPassed. Screenplay reports PLAY0694 and --warnaserror fails. A teammate proposes adding direction inbound or asking the editor for fix-all. Explain the diagnostic and show the proper slice split, including who owns events and specs. Would a from-routed reaction or another slice's capture trigger this warning? Reply only; do not write files.",
+      "expected_output": "PLAY0694 warns on an unrouted reaction to a same-slice capture append in a directionless Translate, including child/nested appends. Keep capture and its fact in Translate, move local follow-up reaction/result and its specs to Automation. No automatic repair; explicit inbound consumes local facts illegally (PLAY0616).",
+      "assertions": [
+        "Treats PLAY0694 as a warning that fails --warnaserror, not an ESM binding error or a silent pass.",
+        "Keeps capture and ResultReceived in Translate, moves the reaction and ExamPassed to a separate Automation, and places capture/follow-up specs with their owning behaviors.",
+        "Explains that adding direction inbound is not the repair because local-event consumption is refused by PLAY0616.",
+        "Says no automatic repair/fix-all exists because slice naming, placement and specifications require a deliberate split.",
+        "Includes child/nested appends in the check, excludes reactions with a from route and captures from other slices, and identifies Screenplay 4.176.0 as the prerequisite."
+      ]
     }
   ]
 }

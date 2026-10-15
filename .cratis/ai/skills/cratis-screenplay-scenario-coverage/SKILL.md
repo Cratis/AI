@@ -116,7 +116,8 @@ target requirements.
   or query spec needs `given caller` or `given caller as <Persona>` (module and feature gates count); an authorized scenario
   gets no inferred fixture (PLAY0389). Unauthorized is never `then error`.
 - Duplicate and competing specs use `when <Command>`; `when append` is for projection and
-  automation triggers, and for a constraint the command's own validation would reject first.
+  automation triggers, consumed public events driving captures, and for a
+  constraint the command's own validation would reject first.
 - `null` only for optional read-model properties; constraint messages are copied verbatim.
 - Executable-only binding checks (PLAY0350/0352/0388/0389/0273) do not show in V1: run V3.
 
@@ -126,6 +127,8 @@ target requirements.
   (denial), `<View>LifecycleN<State>` for families.
 - `for` on every given, appended and expected event (plain `produces <Name>` too; inline `produces event` omits it), and on the `when` command where the
   destination matters. A competing-claim given needs a *different* `for`.
+  Foreign event fixtures feeding a capture may omit `for`; supplied `for` is
+  opaque source text, not the capture's content key.
 - Format rules belong on a `concept`: give each concept rule representative acceptance,
   rejection and boundary specs once (through one command that carries it), not on every use;
   never `n/a` automatically. Include a whitespace-only rejection for text `not empty`:
@@ -149,7 +152,16 @@ Read [references/review-questions.md](references/review-questions.md) for the ra
 
 ## Public-event coverage (ESM v9)
 
-Outbound publication needs `when append <private>` and `then <PublicEvent>`. Read [references/public-event-coverage.md](references/public-event-coverage.md) when specifying public events or routed producers and observers.
+Outbound publication needs `when append <private>` and `then <PublicEvent>`.
+Captures over public events use `given <FromEvent>` / `when append <FromEvent>`,
+not capture records (PLAY0701). Read [references/public-event-coverage.md](references/public-event-coverage.md)
+when specifying public events or routed producers and observers.
+
+Record captures distinguish first sight from updates: first root/child/nested
+records are added only, so field guards need `given capture` for the same key.
+Use a separate `when added` append when initial observations should produce a fact.
+Read captures-and-reactions `references/record-capture-specifications.md` for the
+prerequisite and runnable cases. Include first, changed and unchanged rows in the matrix.
 
 ## Version skew: reaction cascades and false PLAY0285
 Under ESM v6 a command spec's `then` lists the events reactions cascade from it; an older `cratis` bundle reports a **false PLAY0285** for it. Never delete the reaction. Read [references/version-skew.md](references/version-skew.md) when a spec with cascade events reports PLAY0285 or the bundled compiler is older than the standalone tool.

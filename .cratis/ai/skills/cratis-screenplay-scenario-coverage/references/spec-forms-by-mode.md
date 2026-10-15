@@ -21,7 +21,8 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Context `from`, single-result filters, `scoped to`, `performer` or composite `by` | yes | PLAY0268: query context, collection-only filtering, opaque scope/implementation or multipart lookup are unadmitted | no |
 | `then no readmodel <RM> for "<key>"` | yes | yes | no |
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
-| `given clock` / `when clock`, `when trigger`, `given`/`when capture` | yes | yes (standalone and any cratis whose compiler admits v6; an older bundle does not, see toolchain `references/executable-subset.md`) | no |
+| `given clock` / `when clock`, `when trigger`, record-source `given`/`when capture` | yes | yes (standalone and any cratis whose compiler admits v6; an older bundle does not, see toolchain `references/executable-subset.md`) | no |
+| Event-source capture fixtures | `given <FromEvent>` / `when append <FromEvent>`, not capture records (PLAY0701) | admitted root capture behavior executes; see `public-event-coverage.md` for prerequisites and limits | separate target admission |
 | Command spec listing reaction cascade events | yes (v6 semantics) | false PLAY0285 on an older cratis bundle only; see SKILL.md "Version skew" | no: STAGE-ESM-011; generated CommandScenario does not settle reactions |
 | `generated <name> = <value>` under `when`, `then returns` (ESM v7) | yes | yes on a compiler that admits v7 (PLAY0268 on an older bundle) | yes on Stage for supported UUID/String strategies and v15 freshness and scalar/named responses; unsupported types/combinations remain -028/-038 |
 | v15 generation strategy fixtures and used-source rejection | yes | strict encoding/size/case/version/variant; Contract for invalid pins, Concurrency for reused source | supported strategies/freshness render; invalid pins refuse -011, unpinned unordered/projected assertions -038; source: command-surface `references/generated-values-and-responses.md` |
@@ -49,7 +50,7 @@ older cratis bundle is available). Mark each such spec in the coverage matrix as
 `gap: <reason>` for the narrower modes so the verification and render phases know what will not execute.
 
 ## Executable mode
-- Every gated spec has `given caller`; every given/expected event has `for`, and so does every plain `produces <Name>` (inline `produces event` omits it and defaults to the identifier).
+- Every gated spec has `given caller`; local given/expected events have `for`, and so does every plain `produces <Name>` (inline `produces event` omits it and defaults to the identifier). Foreign event fixtures driving captures may omit `for`; a supplied value is opaque source text, not the capture key.
 - Each read model has one key shared by its keyed `=> RM optional` queries; the identifier equals
   the projection's effective key (`cratis-screenplay-slice-design` `references/read-model-design.md`
   decision table). View specs assert through a keyed query.

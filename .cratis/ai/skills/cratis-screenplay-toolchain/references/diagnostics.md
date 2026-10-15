@@ -55,7 +55,7 @@ Legacy compliance spellings (`@pii`/`@sensitive`) do not evade PLAY0515.
 
 ## Public events and translation direction
 
-All are errors. These constructs bind as ESM v9, except public/foreign imports without local shapes (PLAY0268).
+PLAY0607–0620 are errors. These constructs bind as ESM v9, except public/foreign imports without local shapes (PLAY0268).
 
 | Code | Meaning / fix |
 | --- | --- |
@@ -79,6 +79,18 @@ without public metadata stay inbound. PLAY0027 also covers malformed, repeated
 or non-Translate direction. Repair discovery uses `repair-capabilities`, workspace
 `repairs`, then revision-checked `propose-repair`; do not guess a direction.
 See automations-and-translations `references/public-events-and-direction.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0694 | W | An unrouted reaction in a directionless Translate consumes an event its own capture appends (root, children or nested). Keep the capture here and move the reaction to a separate Automation slice with its specs. No automatic repair; `--warnaserror` fails. Other slices' captures and reactions with a `from` route do not trigger this check; explicit inbound local-event consumption is PLAY0616. |
+| PLAY0700 | E | Event-capture `key` is not required on every `from` event, or uses a `$` context key. Choose a required content property or deliberately change the source contracts; no repair. |
+| PLAY0701 | E | `given capture` / `when capture` names a capture over events. Present `given <FromEvent>` / `when append <FromEvent>`. A compiler-authored repair exists only for exactly one `from` event; several are ambiguous. Review the specification repair individually; no fix-all or pinned evidence. |
+
+Requires Screenplay 4.171.0 or later (`screenplay --version`) for PLAY0700/0701
+and event delivery to captures; older runners do not execute that delivery.
+Requires Screenplay 4.176.0 or later for PLAY0694; older compilers leave the
+legacy directionless co-location unchecked. Full capture execution and ordering:
+automations-and-translations `references/public-events-and-direction.md`.
 
 ## Explicit enum member numbers
 
