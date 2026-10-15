@@ -36,12 +36,12 @@ Two engines:
 
 | Engine | Selected by | Behaviour |
 | --- | --- | --- |
-| EventModel (default) | nothing | Commands evaluate their modeled `produces` mappings, append the facts to Chronicle and echo the payload. **Modeled validation, authorization and query authorization are not enforced.** It registers Chronicle projections. Named event sources, streams and routes are refused with `STAGE-ESM-030` (`/stage/status` reports `state: "unsupported"` and `/api/**` answers 501), so a routed model does not run here |
+| EventModel (default) | nothing | Commands evaluate their modeled `produces` mappings, append the facts to Chronicle and echo the payload. **Only part of modeled validation is enforced, and no authorization.** See [What the default engine enforces](#what-the-default-engine-enforces). It registers Chronicle projections. Named event sources, streams and routes are refused with `STAGE-ESM-030` (`/stage/status` reports `state: "unsupported"` and `/api/**` answers 501), so a routed model does not run here |
 | Semantic | `Stage__Runtime__Engine=semantic` | Evaluates validation, requirements, authorization, conditional production and constraints before accepting a command; appends one batch; denied is HTTP 403, validation or constraint failure HTTP 400, an unsupported command HTTP 501. `GET /stage/semantic/admission` lists what is admitted. Executes routes and event-triggered reactions (including `where`, `runs as`, `from`, productions, invocations and cascades), settling them with the initiating command in one batch. Refuses a model it cannot execute (`state: "unsupported"`, `/api/**` returns 501). Read models are in-process, not Chronicle projections in the Workbench; the history is unbounded, so use it for short sessions |
 
 Do not read an answering sandbox as evidence of correct authorization. Callers are
 built from unsigned `x-ms-client-principal` headers that anyone who can reach the host can
-forge, the default engine enforces nothing, and the session should stay private (loopback
+forge, the default engine enforces no authorization, and the session should stay private (loopback
 ports or an authenticated proxy). Rendered applications use the renderer's admitted Arc
 authorization instead, which is the thing to test for production behavior (Debug tests
 of a render, [render-example.md](render-example.md)).
@@ -60,6 +60,32 @@ scenarios in a child process, never the live world or log. Read every report out
 launch failure, nonzero exit or invalid report is 502. The timeout defaults to 120 seconds
 (1–600, including queue); specifications stay available after a later world-rebuild or
 registration failure if the model was admitted.
+
+### What the default engine enforces
+
+When a command that declares at least one `produces` executes, the default engine
+refuses it with a validation result naming the property, and appends nothing, if:
+
+- a property the command's schema requires is missing or `null`;
+- a top-level property breaks a declarative `validate` rule with a literal operand:
+  `not empty`, `matches "<regex>"`, `length == <n>`, `min <n>` or `max <n>` on text, or
+  `>`, `>=`, `<`, `<=` on a number.
+
+Everything else passes unchecked:
+
+- `min` and `max` on a number (they are checked as the length of the number's text, so
+  `quantity min 1` accepts `0`), `all >` and `all >=` over element paths, and rules on
+  nested properties;
+- `==` and `!=`, `matches email`, `rule <Name>`, and any rule whose operand is another
+  property or a value resolved at run time, such as `today`;
+- concept rules, `require` over read models, and uniqueness constraints;
+- command `authorize` and query `authorize`;
+- every check on a command without `produces`, and the `/validate` route, which runs none
+  of these checks.
+
+A refusal from the default engine is therefore real, but an accepted command proves no
+rule beyond the list above. Use the semantic engine, or Debug tests of a render, for
+evidence about the rest.
 
 ## Refusals shared by both engines
 

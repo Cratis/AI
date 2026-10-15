@@ -157,8 +157,8 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 - `description` and `documentation` reach rendered code only as XML documentation comments (Stage#178),
   never as behavior. A rule stated only in prose is unenforced: fallback record entry or target requirement,
   never "delivered".
-- The `cratis run` sandbox enforces neither validation nor authorization on its default engine; it
-  is no evidence for denial behaviour.
+- The `cratis run` sandbox's default engine enforces only simple literal validation rules and no
+  authorization; it is no evidence for denial behaviour or for any other rule.
 - Never remove `pii`, `secret`, authorization or rules to get a render through; report the gap.
 - Stop and ask only on a genuine contradiction between model, specs, descriptions and declared
   contracts, after reading the slice fully (`cratis-screenplay-modeling-lifecycle` `references/stop-or-assume.md`).

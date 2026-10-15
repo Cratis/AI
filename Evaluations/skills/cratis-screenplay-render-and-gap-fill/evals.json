@@ -22,7 +22,7 @@
         "Says V5 is reported as four separate lines: admission, publication, build and tests, each a result or `not run` with a reason.",
         "Says a whole-application V5 is never claimed from a `--scope` subset and the scope must be stated.",
         "Says build and test each run as their own bounded call, tests only if the build passed, and Debug only.",
-        "Says the `cratis run` sandbox's default engine enforces neither validation nor authorization, so it is not evidence for denial behavior."
+        "Says the `cratis run` sandbox's default engine enforces no authorization and only simple literal validation rules, so it is not evidence for denial behavior."
       ]
     },
     {
