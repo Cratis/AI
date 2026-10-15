@@ -14,7 +14,7 @@ probe reports and choosing what to do. Do not copy the code table here.
 2. Execution planning builds the plan and can emit `PLAN-*` diagnostics before Stage runs.
 3. Stage plans the target and admits or rejects each member: `STAGE-ESM-0xx`; profile and path
    problems `STAGE-CRATIS-0xx`. An evolved event is reported with Stage's own `STAGE-ESM-026`
-   (still refused); the CLI adds nothing. Stage admits exact ESM v1–v20 pairs and refuses v21 (v18 needs Stage 4.106.0, v20 needs 4.109.0); CLI admission remains bounded by its bundled renderer and
+   (still refused); the CLI adds nothing. Stage admits exact ESM v1–v20 pairs and refuses v21 (version minimums: toolchain `references/renderable-subset.md`); CLI admission remains bounded by its bundled renderer and
    refuses each construct it does not render with its own code (see Stage's current code table, including `-024`, `-027`, `-028`, `-030` to `-041`).
 4. Any error in the selected scope publishes nothing: the run ends with exit 5 and the diagnostics.
    Without `--scope` the scope is the whole application. With `--scope`, `PLAN-*` problems in
