@@ -104,7 +104,11 @@ in `invoicing-dues-design.md`; it is never prose and never a spec that pretends 
 ## 3. External failure: the capture, then the retry
 Two separate obligations. First, the **capture specification**: concrete external input in, our
 facts out. The provider's refusal is a fact (never a `then error`), kept in the provider's
-vocabulary and then translated.
+vocabulary; a separate Automation records the local outcome. The capture uses
+`when added` for first sight and a separate `when outcome` for updates. An update
+spec needs `given capture` with the same key's earlier record; the first record's
+fields are not modifications (root, child or nested). See captures-and-reactions
+`references/record-capture-specifications.md` for runnable first/update/repeat cases.
 ```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification TranslatingADeclinedCardResult
   when capture PaymentGatewayResults

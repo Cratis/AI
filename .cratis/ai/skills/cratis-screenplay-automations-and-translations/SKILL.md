@@ -18,7 +18,13 @@ event type. Declare `direction inbound|outbound` when public metadata is used; o
 preserves inbound for translations without a declared direction. Private-to-private follow-up is an
 Automation (`produces` or `invokes`), even when a Chronicle reactor realizes it.
 Read [public events and direction](references/public-events-and-direction.md) for released
-ESM v9 forms, event-target folds, publication specifications and the Unsupported capture limit.
+ESM v9 forms, event-target folds, publication specifications and typed event-capture scenarios.
+Keep a capture in Translate and reactions to its local appended facts in separate
+Automation slices. A directionless Translate warns PLAY0694 for an unrouted reaction
+to its own capture's appends (including children/nested); `--warnaserror` fails.
+There is no automatic split; choose the Automation name, placement and specs.
+Explicit inbound already refuses local-event consumption with PLAY0616.
+Requires Screenplay 4.176.0 or later (`screenplay --version`) for PLAY0694; older compilers leave that directionless shape unchecked.
 One `source events` capture reads one origin (event store); split several origins.
 Requires Screenplay 4.155.0 (`screenplay --version`) for PLAY0687; older tools leave it unchecked.
 
@@ -155,7 +161,8 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
 7. **Translate outside facts** (`references/translation-patterns.md`): enter only via `capture` or a
    translator reaction, in a `Translate` slice; correlate first; keep the external fact distinct from
    ours; trace source fields *and* every required target field; decide dedup, ordering and recovery
-   ownership. A worker after translation needs a distinct local decision, obligation or effect.
+   ownership. A reaction to a capture's local fact is a separate Automation, not a
+   second job inside Translate. A worker after translation needs a distinct local decision, obligation or effect.
 8. **Specify and audit.** Work through `references/cases-to-specify.md` per declaration and hand the
    named cases to `cratis-screenplay-scenario-coverage`. Produce the audit in `references/audit-format.md`.
 
@@ -167,6 +174,11 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
 - Clock triggers take no values (PLAY0450) and no `by` on reads (PLAY0443). `for each <View>` is
   reserved, not available.
 - Capture `when` cannot mix `and` and `or` (PLAY0089). A capture without `key` does not bind.
+- For `source events`, `key` is a required property on every `from` event (PLAY0700);
+  specs supply `given <Event>` / `when append <Event>`, not capture records (PLAY0701).
+- First sight is `added` only. Use `when added` separately for initial facts; seed
+  record updates with `given capture` of the same key. Read captures-and-reactions
+  `references/record-capture-specifications.md` for the prerequisite and child/nested rules.
 - Current V1 warns on undeclared capture/removal events (PLAY0166); V3 remains a
   separate binder check.
 - A trigger with `reads` that `produces` directly fails binding: decide in a command. `reads` never protects.

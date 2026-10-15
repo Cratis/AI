@@ -1,7 +1,7 @@
-# Example: a Translate slice
+# Example: a capture and its follow-up Automation
 
 A complete model: a webhook record from an outside proctoring service is captured, kept as an
-external fact in the provider's vocabulary, then translated by reactions into our facts. It
+external fact in the provider's vocabulary, then followed by a separate Automation that records our result. It
 binds as ESM v6 (`executableReady: true`), standalone and through `cratis screenplay mcp`; a
 compiler that stops before v6 compiles it (V1) but rejects the Translate slice at binding
 (PLAY0268). `cratis render` refuses it (`STAGE-ESM-016` or `STAGE-ESM-024`, by renderer).
@@ -67,30 +67,16 @@ module Exams
             "P" => passed
             "F" => failed
         append ProctorResultReceived
+          when added
+            outcome = $.outcome
+            score   = $.score
+        append ProctorResultReceived
           when outcome
             outcome = $.outcome
             score   = $.score
-      reaction PassTranslator
-        when ProctorResultReceived
-          outcome
-          score
-          produces ExamPassed
-            score = score
-        where outcome == "passed"
-      reaction FailTranslator
-        when ProctorResultReceived
-          outcome
-          produces ExamFailed
-        where outcome == "failed"
       event ProctorResultReceived
         outcome ProctorOutcome
         score   Int
-      event ExamPassed
-        score Int
-      event ExamFailed
-      constraint OneResultPerAttempt
-        unique event ExamPassed
-        unique event ExamFailed
       specification TranslatingAPass
         when capture ProctorResults
           reference = "7e9d1c2b-4a3f-4e5d-8c6b-1a2b3c4d5e06"
@@ -103,6 +89,25 @@ module Exams
         then ExamPassed
           for "7e9d1c2b-4a3f-4e5d-8c6b-1a2b3c4d5e06"
           score = 87
+    slice Automation RecordExamResult
+      reaction PassTranslator
+        when ProctorResultReceived
+          outcome
+          score
+          produces ExamPassed
+            score = score
+        where outcome == "passed"
+      reaction FailTranslator
+        when ProctorResultReceived
+          outcome
+          produces ExamFailed
+        where outcome == "failed"
+      event ExamPassed
+        score Int
+      event ExamFailed
+      constraint OneResultPerAttempt
+        unique event ExamPassed
+        unique event ExamFailed
       specification RefusingASecondResult
         given ExamPassed
           for "7e9d1c2b-4a3f-4e5d-8c6b-1a2b3c4d5e06"
@@ -116,8 +121,14 @@ module Exams
 
 Notes for the reader:
 
-- A capture, the translator reactions and the events they append stay in one `Translate`
-  slice. `then` lists every new fact, so `TranslatingAPass` names both the external fact and ours.
+- Keep the capture and its appended event in Translate; put reactions to that local
+  event in a separate Automation. Co-location in a directionless Translate warns
+  PLAY0694 and fails `--warnaserror`; explicit inbound refuses it with PLAY0616.
+  `then` lists every new fact, so `TranslatingAPass` includes the Automation result.
+- `when added` records first sight; the separate `when outcome` append handles
+  later changes. For an update spec, seed the same reference with `given capture`.
+  Requires Screenplay 4.175.0 or later (`screenplay --version`); older evaluators
+  treat a first record's fields as changed.
 - The unauthenticated-booking spec needs an explicit `given caller` (empty means no caller);
   an authorized command exercised without one is PLAY0389 at binding.
 - Authenticity of the webhook, tenant ownership and a score-correction policy are not in the

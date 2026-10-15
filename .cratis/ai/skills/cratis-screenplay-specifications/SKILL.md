@@ -157,8 +157,13 @@ Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md
 Use `when append <PrivateEvent>` then `then <PublicEvent>` for outbound publication,
 not `then readmodel`. The follow-up event list is exhaustive and ordered. Read
 [publication example and fold cases](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
-Events-source captures and reached opaque event-target reducers return typed
-Unsupported, not a pass. Composite view fixtures need every key part but remain
+For `source events` captures, supply the consumed event with `given <Event>` /
+`when append <Event>`, never `given capture` / `when capture` (PLAY0701).
+Requires Screenplay 4.171.0 or later (`screenplay --version`); older reference
+runners do not deliver these events to captures. First sight is added only;
+updates fold earlier events of the same content key, independent of optional fixture
+`for`. Read the linked capture example for PLAY0700, ordering and Unsupported limits.
+Reached opaque event-target reducers remain typed Unsupported, not a pass. Composite view fixtures need every key part but remain
 unadmitted (PLAY0268); see read-surface `references/named-keys.md`.
 
 ## Reusable fixtures, routes and recovery intent

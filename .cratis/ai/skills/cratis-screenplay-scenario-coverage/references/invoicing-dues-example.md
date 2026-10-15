@@ -205,27 +205,16 @@ module Invoicing
             "C" => captured
             "D" => declined
         append PaymentGatewayResultReceived
+          when added
+            outcome = $.outcome
+            reason  = $.reason
+        append PaymentGatewayResultReceived
           when outcome
             outcome = $.outcome
             reason  = $.reason
-      reaction ReceivedTranslator
-        when PaymentGatewayResultReceived
-          outcome
-          produces PaymentReceived
-        where outcome == "captured"
-      reaction DeclinedTranslator
-        when PaymentGatewayResultReceived
-          outcome
-          reason
-          produces PaymentDeclined
-            reason = reason
-        where outcome == "declined"
       event PaymentGatewayResultReceived
         outcome GatewayOutcome
         reason  String
-      event PaymentReceived
-      event PaymentDeclined
-        reason String
 
       specification TranslatingADeclinedCardResult
         when capture PaymentGatewayResults
@@ -239,6 +228,23 @@ module Invoicing
         then PaymentDeclined
           for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
           reason = "Card declined"
+
+    slice Automation RecordPaymentOutcome
+      reaction ReceivedTranslator
+        when PaymentGatewayResultReceived
+          outcome
+          produces PaymentReceived
+        where outcome == "captured"
+      reaction DeclinedTranslator
+        when PaymentGatewayResultReceived
+          outcome
+          reason
+          produces PaymentDeclined
+            reason = reason
+        where outcome == "declined"
+      event PaymentReceived
+      event PaymentDeclined
+        reason String
 
     slice StateView OpenInvoices
       description "Todo list: membership means 'still to collect'; there is no status flag."

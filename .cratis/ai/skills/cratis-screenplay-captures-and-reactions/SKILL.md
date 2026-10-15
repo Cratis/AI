@@ -49,7 +49,7 @@ Method (the four-part automation test, loops, translations versus automations):
 ## Public boundaries and observer selection
 
 Read [ESM v9 translation](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)
-for `direction`, `source events`/`from`, and its typed Unsupported evaluation.
+for `direction`, `source events`/`from`, typed event fixtures and per-key state folds.
 One `source events` capture consumes events from exactly one origin (event store).
 Split inputs from several external systems into one capture per origin; otherwise
 PLAY0687 reports an error, matching Chronicle's one-inbox-observer boundary.
@@ -60,9 +60,19 @@ for reaction/reducer `from Source[.Stream]`; unrouted facts never match.
 
 ## Specify what sets them off
 
-A specification names what sets the automation off: `when clock`, `when trigger`
-or `when capture`. Execute admitted scenarios through `screenplay test` or MCP
-`run-specifications`; source compilation alone is only authored evidence.
+A specification names its input: `when clock` or `when trigger` for an automation,
+`when capture` for a record source, and `when append <ForeignEvent>` for a capture
+with `source events`. Seed the latter with `given <ForeignEvent>`, never `given capture`
+or `when capture` (PLAY0701). Its key must be a required property of every `from`
+event, never `$eventSourceId` or another context key (PLAY0700).
+
+Requires Screenplay 4.171.0 or later (`screenplay --version`) for reference execution of captures over events and PLAY0700/0701; older tools leave event delivery unexecuted.
+
+First sight is `added` only, not a field change. Read
+[record capture specifications](references/record-capture-specifications.md) when
+specifying first sight, updates, child/nested additions or unchanged records.
+Execute admitted scenarios through `screenplay test` or MCP `run-specifications`;
+source compilation alone is only authored evidence.
 
 Read [references/specifying-triggers-and-clock.md](references/specifying-triggers-and-clock.md) when writing a specification for a reaction, trigger or capture, or when the clock, occurrence or limit rules matter.
 
@@ -123,7 +133,7 @@ The full capture excerpt (`source`, `key`, `map` with `translate`, two `append` 
 
 Read [references/capture-map-and-example.md](references/capture-map-and-example.md) when writing a capture's `map` block, or when you need the excerpt of a capture with `append` and `children`.
 
-**`source <kind>`** takes free-form settings, so a typo is not caught; **`key <property>`** is required to bind (`PLAY0268`); **`append <Event>`** takes one `when` clause, and `or` and `and` cannot be mixed in one clause (split into two `append` blocks). Read [references/capture-map-and-example.md](references/capture-map-and-example.md) for source kinds, `key` and specification behavior, the `when` forms table, `children` and `nested`.
+**`source <kind>`** takes free-form settings, so a typo is not caught; **`key <property>`** is required to bind (`PLAY0268`); **`append <Event>`** takes at most one `when` clause, and `or` and `and` cannot be mixed in one clause (split into two `append` blocks). Read [references/capture-map-and-example.md](references/capture-map-and-example.md) for source kinds, `key` and specification behavior, the `when` forms table, `children` and `nested`.
 
 ## `reaction`
 
@@ -237,11 +247,15 @@ Read [references/trigger-reads-example.md](references/trigger-reads-example.md) 
 
 A `trigger` declares that a name exists and what an occurrence hands the reaction, never what makes it occur. Built-ins are `Startup` and `Shutdown`. An unknown name warns `PLAY0248`; **An application trigger is not a UI event** (`PLAY0326`); under a reaction trigger, values named `description`, `file`, `produces`, `invokes` or `reads` are written with `@`. Read [references/trigger-declaration.md](references/trigger-declaration.md) when declaring or registering a trigger or resolving a trigger name.
 
-## Guidance, verbatim
+## Slice boundaries
 
-> - Reactions that only translate events into other events belong in `Translate`
->   slices when driven by external data (captures); event-to-event automation stays
->   in `Automation` slices.
+Requires Screenplay 4.176.0 or later (`screenplay --version`) for PLAY0694; older compilers leave directionless capture-follow-up co-location unchecked.
+
+> - A capture belongs in `Translate`; a reaction to the local event it appends
+>   belongs in a separate `Automation` slice. A directionless Translate containing
+>   both warns PLAY0694 (fails `--warnaserror`); explicit inbound refuses it with
+>   PLAY0616. A reaction translating a foreign public event can belong in inbound
+>   Translate.
 > - Keep reaction logic small; anything substantial belongs in a `file` reference
 >   where it can be tested on its own.
 > - Describe the reaction before you implement it — a document full of `file` lines

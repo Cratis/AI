@@ -218,9 +218,10 @@ rules or classification to lower the version.
 ## Released public boundaries and observer routes
 
 Public/origin events, explicit Translate direction, event-target builders and
-`source events` captures bind as ESM v9. Publication folds execute;
-source-event captures and reached opaque event-target reducers return typed
-Unsupported. Public/foreign imports still lack a local shape and refuse PLAY0268.
+`source events` captures bind as ESM v9. Publication folds execute, and so do
+captures over events (Requires Screenplay 4.171.0; a specification presents the
+consumed event with `given <Event>` / `when append <Event>`); reached opaque
+event-target reducers return typed Unsupported. Public/foreign imports still lack a local shape and refuse PLAY0268.
 See automations-and-translations `references/public-events-and-direction.md`.
 Production overrides and reaction/reducer filters bind and select v10;
 filters match routed source/stream names only. Read

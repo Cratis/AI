@@ -147,7 +147,7 @@ PLAY0516 moves preserve executable bytes/identities. Source: Screenplay
 | F2 | No impossible sequence (a fact that requires one that can never precede it) | constraints, specs | D |
 | F3 | Cancellation, failure and correction paths exist where the business has them | slices | Q |
 | F4 | Automations: trigger, todo/work item if work can be pending, a closing fact, retry and once-only story | reactions, views | D (`cratis-screenplay-automations-and-translations`) |
-| F5 | External facts enter through `Translate`; in-app follow-ups through `Automation` | slice kinds | C semantics |
+| F5 | External facts enter through `Translate`; in-app follow-ups through separate `Automation` slices. Keep a capture in Translate, move reactions to its local appends out (PLAY0694 for directionless/unrouted co-location, including child/nested appends; PLAY0616 for explicit inbound). PLAY0694 is a warning that fails `--warnaserror`, with no automatic split | slice kinds, capture appends and reaction triggers | C semantics |
 | F6 | No cycle where fact A's reaction needs fact B and B's needs A, or two features each wait on the other | reactions, MCP `dependencies` | D (redesign the boundary) |
 | F7 | Each slice's consumed events and their producing slices are known; a slice calls another's command only through `invokes` | reactions, `reads` | Q |
 | F8 | Every Automation has a pending-work view (a todo list: membership is the pending work), or a written reason a direct effect needs none (immediate, internal, cannot fail). A "simple relay" is not exempt from the question | reactions, `reads`, views | D |

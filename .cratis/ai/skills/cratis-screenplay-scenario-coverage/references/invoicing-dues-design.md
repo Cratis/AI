@@ -17,7 +17,7 @@ The excerpt's Stage API-availability comment describes the historical Stage 4.24
 scaffold. Stage 4.73.1's scaffold pins an Arc/Chronicle set (see the Stage skill's `references/rendered-application.md`): protected-read APIs are
 available to gap-fill (the "not in a Stage-rendered application" comment in the source is
 superseded), not emitted protection or `.play` rule admission. The
-original compiled source is retained unchanged.
+capture uses separate first-sight/update appends, with its local-event follow-up in Automation.
 
 ```screenplay expect PLAY0516 test=unbound
 // Scenario coverage design-mode example: stored-state rules of invoicing club dues (complete document).
@@ -90,17 +90,23 @@ module Invoicing
             "C" => captured
             "D" => declined
         append PaymentGatewayResultReceived
+          when added
+            outcome = $.outcome
+            reason  = $.reason
+        append PaymentGatewayResultReceived
           when outcome
             outcome = $.outcome
             reason  = $.reason
+      event PaymentGatewayResultReceived
+        outcome GatewayOutcome
+        reason  String
+
+    slice Automation RecordPaymentOutcome
       reaction ReceivedTranslator
         when PaymentGatewayResultReceived
           outcome
           produces PaymentReceived
         where outcome == "captured"
-      event PaymentGatewayResultReceived
-        outcome GatewayOutcome
-        reason  String
       event PaymentReceived
 
     slice StateChange SettleOrVoidInvoice

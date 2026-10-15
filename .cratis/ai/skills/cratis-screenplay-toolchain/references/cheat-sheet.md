@@ -15,7 +15,17 @@
 
 Released boundary forms: `public event X`, `event X from "store"`, Translate
 `direction inbound|outbound`, event-target `projection/reducer P => PublicEvent`,
-and capture `source events` with `from ForeignEvent` select v9. Read
+and capture `source events` with `from ForeignEvent` select v9.
+For event captures, present `given <FromEvent>` / `when append <FromEvent>`, not
+capture records (PLAY0701). The key must be required on every `from` event, never
+a context key (PLAY0700). PLAY0701 repairs only an unambiguous single-`from` capture;
+PLAY0700 has no automatic repair.
+Requires Screenplay 4.171.0 or later (`screenplay --version`); older runners do not
+deliver these events to captures.
+A directionless Translate reacting without a `from` route to its own capture's
+append warns PLAY0694 (fails `--warnaserror`): move the reaction to Automation,
+keeping the capture in Translate. No automatic split. Requires Screenplay 4.176.0
+or later; older compilers leave that shape unchecked. Read
 [public contracts](../../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
 View properties use trailing `key`; multipart `by` query/read blocks remain
 PLAY0268, not v10. Read [named keys](../../cratis-screenplay-read-surface/references/named-keys.md).
