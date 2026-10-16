@@ -18,10 +18,10 @@
       "id": 2,
       "name": "query-shape",
       "prompt": "Review: `public IEnumerable<Booking> AllBookings() => collection.AsQueryable().ToList().Where(b => b.Active).Skip(page*50).Take(50);` and `var total = (await ListAllBookings()).Count();`. Say what is wrong, how risky, and at what scale; and how paging should be fixed. Reply only.",
-      "expected_output": "ToList before Where materializes the whole collection; growable list should return IQueryable<T> so Arc applies server-side paging and sorting; slicing in memory reads the whole collection each request; hydrating to count is the same finding; filter on indexed fields. Don't invent alternative paging mechanism—cratis-arc-query-paging is authoritative.",
+      "expected_output": "ToList before Where materializes the whole collection; growable list should return a shape Arc pages (collection.Observe for MongoDB, IQueryable<T> for LINQ-native providers) so Arc applies server-side paging and sorting; slicing in memory reads the whole collection each request; hydrating to count is the same finding; filter on indexed fields. Don't invent alternative paging mechanism—cratis-arc-query-paging is authoritative.",
       "assertions": [
         "Flags ToList() before Where() and in-memory slicing as reading the whole collection on every request.",
-        "Recommends returning IQueryable<T> so Arc applies server-side paging and sorting.",
+        "Recommends returning a shape Arc pages, such as collection.Observe for MongoDB, so Arc applies server-side paging and sorting instead of in-memory Skip/Take.",
         "Flags hydrating the collection to count it as the same finding as an unpaged list.",
         "Defers the paging mechanism to the paging skill rather than inventing an alternative.",
         "Classifies risk with High, Medium or Low and states the scale at which it bites."

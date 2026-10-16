@@ -143,6 +143,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Diagnosing a misbehaving slice | read model stale or startup crash: **cratis-chronicle-projection** (*Startup-crash traps*); reactor paused or quarantined: **cratis-chronicle-reactor** (*Failure behavior*); proxy missing: **cratis-arc-command** (*Generate the TypeScript proxy*) |
 | Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **cratis-chronicle-cli-operations** and **cratis-cli-terminal-workbench** skills |
 | EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |
+| MongoDB queries — native driver API over LINQ; paging and sorting belong to Arc | `mongodb.md` |
 | Before writing a commit message, committing, pushing or opening/editing a PR: read both | `git-commits.md`, `pull-requests.md` |
 | Reading, citing and superseding a decision record | the **cratis-engineering-decision-record** skill |
 | Whether you are allowed to do the thing you are able to do | `capability-is-not-authority.md` |
