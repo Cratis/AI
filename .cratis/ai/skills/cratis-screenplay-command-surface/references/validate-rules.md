@@ -10,7 +10,9 @@
 | `== <v>` / `!= <v>` | `currency == "NOK"`, `status != draft` |
 | `length == <n>` | `currency length == 3` |
 | `matches email` | the only named pattern; any other name is `PLAY0366` |
-| `matches "<regex>"` | ECMAScript; matches **any substring** unless anchored with `^…$`; an invalid pattern is `PLAY0367` |
+| `matches "<regex>"` | Portable linear dialect; any substring unless anchored `^…$`; invalid syntax PLAY0367, refused constructs PLAY0699 |
+| `contains "<text>"` / `not contains "<text>"` | Ordinal substring presence/absence on scalar non-enum text |
+| `starts with "<text>"` / `ends with "<text>"` | Ordinal prefix/suffix; quoted literal operands, not conditions |
 | `all > <v>` / `all >= <v>` | `lines.quantity all > 0` |
 | `rule <Name>` | `orgNumber rule BeAValidOrganizationNumber` |
 | `checksum luhn|mod11|mod97` | String concept `validate checksum luhn`; validates supplied/stored values too |
@@ -67,9 +69,10 @@ validate
 
 A bodied rule or fenced block on a validation, rule or policy binds as opaque code
 (ESM v3): the reference runner reports it unsupported, and a target must supply the
-implementation. Two exceptions never bind: the command `handler`, and a `file`
-constraint (the binder records the requirement, then rejects it with `PLAY0268`;
-only `unique` constraints bind).
+implementation. Attached command handlers and `file` constraints remain PLAY0268
+(only `unique` constraints bind). Pending command handlers beside unconditional
+`produces` instead bind as described commands; see [described handlers](described-handlers.md).
+Literal text rules, portable patterns and Studio desugaring: [text and match rules](text-and-match-rules.md).
 Stage renders pure reducer transitions and opaque policy bodies, but refuses command and
 concept code validations and rule predicates (STAGE-ESM-005): those are gap-fill code. Prefer a
 declarative rule when one can say it. What binds and what the executable model rejects (Date and

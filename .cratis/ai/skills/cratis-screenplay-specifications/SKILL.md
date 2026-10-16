@@ -76,6 +76,27 @@ Unsupported is not passed. Report it as "needs a target", not as green. "Specifi
 and "bound" are never "passing": run the reference CLI/MCP route or the owning
 target tests, and name the engine, version and expected/discovered selection.
 
+## Batches, described bodies, protected reads and text rules
+
+- With `reaction batches atomic`, assert no facts from a failed direct-production or
+  selected refusal-branch batch and unchanged views through evaluator world assertions,
+  not only `then error`. `then no events` is acceptance and cannot accompany an error. Earlier
+  accepted batches/invoked commands remain; legacy absence retains per-fact appends.
+  Read [atomic boundaries](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md).
+- A described handler binds v23, but reaching its body returns Unsupported
+  ImplementationBody, naming command/RequirementId and emitting no events. Denial and
+  validation cases still run; an all-Unsupported run is never green. Read
+  [described handlers](../cratis-screenplay-command-surface/references/described-handlers.md).
+- Protected command reads opt into v25. Test present/absent state and rule refusal;
+  matching decide/commit changes are Conflict / DecisionStateChanged, not validation
+  refusal. Race vectors are not new specification syntax. Read
+  [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md).
+- Literal text rules use ordinal UTF-16 comparison (v24); matches uses a portable
+  linear matcher, not platform regex. Old invalid/refused patterns plan as
+  UnsupportedValidation, not a successful check. Read
+  [text and match rules](../cratis-screenplay-command-surface/references/text-and-match-rules.md)
+  for boundary values and PLAY0699/0787. Reference success is not Stage admission.
+
 ## Descriptions, persona callers and case tables
 
 Use one `description "<rule or behavior>"` (or a fenced `text` description) to

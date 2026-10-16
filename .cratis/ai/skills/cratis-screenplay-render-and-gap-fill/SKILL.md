@@ -32,6 +32,12 @@ Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it b
   (the user); Stage internals and the sandbox (`cratis-stage-rendering-and-sandbox`); judging
   hand-written code against its slice (`cratis-application-slice-conformance`).
 
+## Language modes that block target delivery
+
+Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
+for v22–v25: Stage refuses atomic batches, described bodies (even Stub mode) and
+protected reads. Preserve contracts; reference success is not target realization.
+
 ## Interview phase
 **Skip if** the request names the model root, the application name, the destination and the
 decision on non-renderable scope. Otherwise ask only what is missing:

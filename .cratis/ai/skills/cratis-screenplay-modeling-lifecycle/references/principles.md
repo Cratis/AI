@@ -11,7 +11,7 @@ instruction for the work, not background reading. Skills that restate one cite i
 6. **Keep semantic identity independent of names, paths, layout and generated symbols.** Commit the identity catalog with the model.
 7. **Keep unsupported intent visible.** Return a precise gap and its owning issue; never weaken the model so rendering passes.
 8. **Write specifications with intent, including rejection and denial.** Never report an unexecuted or unsupported scenario as passed.
-9. **Treat state reads as a correctness boundary.** Do not claim protection until the opted-in contract and the target support exist.
+9. **Treat state reads as a correctness boundary.** Eligible command reads opt into `command reads protected` (v25); legacy/trigger reads remain unprotected. Stage refuses v25: reference absence/conflict guarantees and verified target realization are different claims.
 10. **Separate event-source identity from event payload and choose destinations explicitly.**
 11. **Persisted event shape changes are evolution, never cleanup.** Keep historical generations.
 12. **Model external work as business intent.** Provider interfaces and transport mechanics stay out of the language.

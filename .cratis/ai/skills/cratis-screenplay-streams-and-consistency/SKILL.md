@@ -108,15 +108,19 @@ Ask only what is missing: (1) instance - what real-world thing the stream is abo
 - `identifier` on an event property is PLAY0019; the source id is never payload by declaration.
   Copying it as a payload value is PLAY0469 (information, warning for inline events).
 - In the executable model a production's `for` must resolve to the command's scalar identifier:
-  one command writes one stream declaratively (a handler is never admitted).
+  one command writes one stream declaratively; described handlers bind v23 but
+  their payload-only contract does not grant arbitrary destinations.
 - Constraint names are application-wide identities (PLAY0392); properties must be declared
   directly on the event (PLAY0391); never mix event and property rules under one name (PLAY0135);
   `ignore casing` is not allowed on `unique event` (PLAY0393).
 - Generations are declared in full, numbered 1..N without gaps, in the same slice (PLAY0446-0448); `id` pins are shared by all generations and unique application-wide (PLAY0472); `storedName` needs ESM v16. See `references/evolution.md` ("Generations, pins and storedName diagnostics").
 
-- `reads` is PLAY0271 and `require` over read-model paths is PLAY0268 at binding. A `concurrency`
-  block compiles but is PLAY0271 at binding. Keep both when they state real intent; they are not
-  protection. `description` text never reaches rendered code: a rule that lives only in prose is
+- Application-root `command reads protected` admits eligible reads and single-level
+  requirement/mapping paths (v25). Absence rejects, matching decide/commit changes
+  conflict. Legacy reads remain PLAY0271/PLAY0268; `concurrency` remains unbound and
+  combining it with protected reads is PLAY0783. Read
+  [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
+  for admission and Stage's STAGE-ESM-016 refusal. `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
 - `pii` and `secret` bind as ESM v13;
   enum/identity compliance and protected events with explicit subject marks still
@@ -144,6 +148,12 @@ Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the 
 - Give each invariant an authoritative atomic decision point and inspect every path that could
   violate it. A constraint violation rejects that command's whole append set; a reaction cascade
   is not one transaction. Declared semantics are not a passed concurrency test.
+- New models declare `reaction batches atomic`: direct productions per trigger
+  occurrence and each selected refusal branch are separate batches; invoked commands
+  stay independent. Legacy absence retains per-fact appends. Stage refuses v22/v25
+  with STAGE-ESM-016 and atomic mode in admitted v23/v24 with STAGE-ESM-043. Read
+  [atomic boundaries](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
+  when defining failure rollback; batching is not redelivery deduplication.
 - Match duplicate protection to scope. A property constraint lets a source re-claim its own
   value; use `unique event` for a fact that is genuinely once-only in its lifecycle, without
   blocking legitimate repeated operations just to make retries safe.

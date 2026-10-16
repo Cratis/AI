@@ -77,10 +77,12 @@ Ask only what is missing: depth, known rules and edge cases (one allowed and the
    tolerate any arrival order. Pin a child before its parent (Requires Screenplay 4.149.1 or later):
    given child, then parent, then read model; "parent never arrives" leaves the
    child absent. Evidence/example: `references/view-and-story-specs.md`.
-9. **State-dependent rules**: `reads <View>` + `require <expr> message "..."` as stated intent,
-   marked **NOT enforced in the model today** in the slice `description` (binding reports
-   PLAY0268/0271: expected in design mode; Screenplay#129), target named (Arc
-   `[ProtectedDecision]` + `DecisionRead<T>`, Chronicle DCB, or a constraint). Forbidden:
+9. **State-dependent rules**: use `reads` plus `require` over authoritative state;
+   eligible views opt into `command reads protected` (v25). Cover present/absent reads,
+   refusal and denial; matching decide/commit changes are conflicts, not refusals.
+   Read [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
+   for admission and Stage refusal; legacy/refused shapes remain marked unenforced
+   with a named target mechanism. Forbidden:
    caller-supplied copies of state in `require`, boolean attestation inputs (`confirmsX ==
    true`) and rules hidden in `handler`/hint prose. Never drop an unresolved given or assertion
    to make a spec compile: record the blocked case and continue.

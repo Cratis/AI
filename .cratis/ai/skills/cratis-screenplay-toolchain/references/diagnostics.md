@@ -14,6 +14,7 @@
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
+- Batches, described handlers, text rules and protected reads
 - Binding (V2 and V3) - see `executable-subset.md` for the full table
 - Frequent errors
 - Render admission (V5): `STAGE-*`, `CLI-RENDER-*`, `STAGE-CRATIS-*`
@@ -302,12 +303,41 @@ or V4 execution. Run the CLI or MCP for those verdicts.
 | PLAY0287 | producer/capture/spec assigns a field the event lacks |
 | PLAY0291-0294 | bad single-line JSON / unknown key / wrong shape / duplicate key |
 
+## Batches, described handlers, text rules and protected reads
+
+Use code and typed subjects from [diagnostic arguments](diagnostic-arguments.md), not
+message parsing, for codes that declare arguments. Other messages still explain
+refusal reasons. Read [language admission](language-admission.md) before changing modes.
+
+| Code | Meaning / fix |
+| --- | --- |
+| PLAY0693 | Duplicate/conflicting/invalid atomic batch declaration; keep one application-root declaration, do not remove intended atomicity |
+| PLAY0695 (I) | Described handler admitted; a target must supply its payload body |
+| PLAY0696 | Pending handler without productions, including response-only; declare unconditional productions |
+| PLAY0697 | Conditional productions under pending intent; result v1 needs unconditional events |
+| PLAY0698 | Pending intent plus another handler; retain one |
+| PLAY0699 | Pattern outside portable dialect or over 1,000 UTF-16 units / 3,000 expanded nodes; rewrite the refused construct |
+| PLAY0780 | Invalid placement/repetition of `command reads protected`; declare once at root |
+| PLAY0781 | Protected read shape/key refused; inspect the closed reason, never downgrade to an unguarded read |
+| PLAY0782 | Omitted `by` without command identifier; declare the lookup input |
+| PLAY0783 | Command combines reads and concurrency; choose the intended boundary |
+| PLAY0784 | Unknown read/property path; reference a declared read or alias |
+| PLAY0785 | Ambiguous view path; use distinct aliases on repeated reads |
+| PLAY0786 (I) | Eligible legacy model; preview typed preamble repair, individually review absence/conflict semantics |
+| PLAY0787 (W) | Exact deprecated Studio text-rule pattern; repair to literal rule or equality, preserving message/severity |
+| STAGE-ESM-043 | Atomic mode not realized, even in admitted v23/v24; retain declaration and gap-fill |
+| STAGE-IMPL-002 | Described handler body not realized by Stage, even Stub mode; no stubs emitted |
+
+Invalid match syntax remains PLAY0367. Property/concept text rules bind v24;
+`contains`/`starts with` in conditions only still fail PLAY0268. Stage rejects
+v22/v25 with STAGE-ESM-016; admission of v23/v24 does not implement bodies or batches.
+
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
 | Code | Meaning | Fix |
 |---|---|---|
-| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists the common ones: handler, list or observable query, `pii`, `produces when` over read models, v6 constructs on an older bundled compiler) | stay in design mode, or change the construct if the domain allows; never strip `pii`/authorization |
+| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists attached handlers, unsupported query shapes, protected enum/identity concepts, read paths without opt-in or in conditions, and older bundled-compiler limits) | stay in design mode, or change the construct if the domain allows; never strip `pii`/authorization |
 | PLAY0269 / 0270 | UI deferred / authoring metadata (I) | none |
-| PLAY0271 | legacy `reads` or a `concurrency` block keeps its legacy meaning and cannot bind (error) | design gap; a constraint for uniqueness; protected decisions are a target requirement |
+| PLAY0271 | legacy `reads` or a `concurrency` block keeps its legacy meaning and cannot bind (error) | opt eligible command reads into v25 with reviewed preamble repair; `concurrency` remains unbound; uniqueness uses a constraint, target realization stays separate |
 | PLAY0273 | incoherent: ambiguous `for`, property not on event revision, operand type mismatch, derived `$eventContext` path | fix the reference |
 | PLAY0350 | `null` in command/event value | Chronicle semantics (nullable event properties are CHR0012; an optional fact is a separate event), not only a binder limitation: specs cannot state an absent command/event value. Omit the value or record a capability gap; whether the optional detail is really a separate fact is a review question, not this code's fix |
 | PLAY0351 | given/then readmodel lacks the key property | add the keyed query's `by` property |

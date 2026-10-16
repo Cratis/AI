@@ -57,8 +57,8 @@ observed legacy check from verified atomic protection.
 | several command properties / constants | `require` | runs after property rules, before production |
 | a value across all sources | `unique <prop> on <Event>` | value owned by one source; same source may re-claim |
 | a fact at most once per source; mutually exclusive facts | `unique event` (+ `released by`) | covers simple lifecycle transitions |
-| state-dependent rule not reducible to the supported uniqueness/release semantics (a balance, capacity, "only if approved") | no protected decision read in `.play` today | state it as `reads` + `require … message`, mark NOT enforced, name the target enforcement (below) |
-| a view (read model) | an unguarded materialized read is not protection | views lag; `reads` is PLAY0271, `require` over views PLAY0268 at binding (expected in design mode) |
+| state-dependent rule (balance, capacity, "only if approved") | eligible `reads` + `require` under `command reads protected` (v25) | required absence rejects; matching intervening facts conflict. Payload-key fan-in, joins, reducers and other refused shapes remain target gaps |
+| a view (read model) | unguarded materialized reads are not protection | legacy command and trigger reads remain unprotected; Stage refuses v25, so reference protection is not target realization |
 
 ## 3. Record each state-dependent rule that the model cannot enforce
 Never accept the caller's copy of the state: `currentStatus Status` on the command with
@@ -67,7 +67,13 @@ input (`confirmsX == true`) standing in for the rule. Never move the rule into `
 `implementation hint` prose; a description renders only as an XML doc comment (Stage#178), so prose alone leaves
 the rule unenforced in rendered scope.
 
-Right: write the rule as stated intent and mark it unenforced.
+First inspect [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md):
+opt eligible command reads into v25, retain absence/conflict specifications and verify
+target consistency separately. Stage refuses v25 (STAGE-ESM-016). A payload-keyed
+fan-in such as the course-capacity example remains refused; the preamble is not a
+blanket admission of arbitrary projections.
+
+For legacy models without opt-in or refused shapes, write stated intent and mark it unenforced.
 - `reads <View> as x by …` plus `require <expr over x> message "…"` on the command (the
   `StateChange` slice in `streams-example.md`). Binding reports PLAY0271 / PLAY0268; that is
   expected in design mode, so keep the lines. Do not remove them to pass a tool.

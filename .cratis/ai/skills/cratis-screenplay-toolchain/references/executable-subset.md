@@ -39,6 +39,10 @@ never bind (`verdicts.md`).
 Complete examples that bind live in `executable-example.md`, `pdl-example.md` (projections),
 `automation-translate-example.md` (ESM v6) and `generated-responses-example.md` (ESM v7).
 
+For atomic batches (v22), described handlers (v23), ordinal text rules (v24) and
+protected reads (v25), read [language admission](language-admission.md). A later
+version alone does not enable either application opt-in.
+
 ## Caller and compliance boundary
 
 `$identity.id`/`.name`/`.userName` are aliases of the admitted
@@ -249,9 +253,15 @@ Requires Screenplay 4.117.0 or later (`screenplay --version`) for ESM v9, 4.129.
 
 ## Code attachments (what binds, what never does)
 
+Pending `handler implementation` beside unconditional `produces` binds as a described
+command (v23). Its payload-only body returns Unsupported ImplementationBody when reached;
+denial/validation specs still run. Read [language admission](language-admission.md) for
+v22–v25 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
+for the result contract. Attached handlers remain unbound.
+
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
 code to an owner. Three kinds block binding (PLAY0268, V3 blocked, no specification runs):
-the command `handler`, the `file` constraint (see below) and a query `performer`
+the attached command `handler`, the `file` constraint (see below) and a query `performer`
 ("uses delivery, filtering, scope, or implementation behavior outside the first ESM v1
 vertical"). Everything else binds as an **opaque requirement** that needs a target to
 execute: reducer transitions, rule predicates, command and concept code validation, policy
@@ -264,22 +274,22 @@ bodies still leave their owner non-executable.
   can only declare uniqueness: declare it with `unique ...`, and put other rules in command
   validation or a `require` condition.
 
-- A command `handler` **never binds**: PLAY0268 "Command '<n>' handler requires a
-  constrained implementation attachment." This holds with a `file`, with a fence, and with
-  `implementation` or `hint` (including a pending intent with no payload). On a handler,
-  `implementation` and `hint` are authoring intent: no execution, lock or confirmation.
+- A file/fenced command `handler` remains PLAY0268, wrapped or direct. A pending
+  intent instead selects v23 with unconditional productions (PLAY0695 information).
+  Missing productions use PLAY0696, conditional ones PLAY0697, duplicate handlers PLAY0698.
+  Hints are not executable code, locks or confirmation.
 - A command property named rule also accepts an `implementation` block (ordered
   `hint` lines, at most one `file` or tagged fence). With a source attached it binds like a
   direct source; hints-only or empty is pending intent: valid source, PLAY0268 at binding.
   The block is rejected on concept rules, built-in property rules and whole-command
   `require`/`validate` bodies.
-- A handler therefore makes the slice non-executable and non-renderable: it is gap-fill
-  with the model as the contract.
+- A reached described body is Unsupported, not a passing specification; Stage refuses
+  it with STAGE-IMPL-002, even in Stub mode. Deliver its body as authorized gap-fill.
 - Stage admits only pure reducer bodies (Roslyn allowlist, STAGE-ESM-019 and 022);
   code validation is refused (STAGE-ESM-005). Opaque pure policies render.
 - The reference runner returns Unsupported for the opaque bodies that do bind (rule and
   policy predicates, code validation, reducer transitions); a specification that needs one
-  never passes. Handlers, file constraints and query performers (and reaction effects on a trigger with
+  never passes. Attached handlers, file constraints and query performers (and reaction effects on a trigger with
   `reads`) are different: they leave the whole model unbound, so no specification runs at
   all.
 
@@ -292,13 +302,13 @@ bodies still leave their owner non-executable.
 | `pii` or `secret` on a concept | PLAY0268 | Older compilers refuse it outright. Current compilers admit v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
 | `query` with a composite `by` block, or `by ... from` context-derived arguments | PLAY0268 | composite `by` blocks remain unadmitted. An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too |
 | Context `from`, single-result filters, `scoped to`, `performer` queries | PLAY0268 | Typed query context, filtering of single results, opaque scope and query implementation remain unadmitted; each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
-| `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
+| `contains` or `starts with` in conditions only | PLAY0268 | `require`/`produces when` conditions admit equality and numeric ordering only; property/concept text rules bind as v24 |
 | Date or DateTime comparison, `today` | PLAY0268 | no runtime date value |
 | Rule on a nested path (`lines.qty all > 0`) | PLAY0268 | put the rule on the nested value's concept |
-| `require` or `produces when` over a read-model path | PLAY0268 | needs decision-consistent reads |
-| `reads <View> ...` on a command | PLAY0271 (error) | legacy, cannot imply decision consistency |
+| Read paths without protected opt-in, or in `produces when` | PLAY0268 | v25 admits single-level paths only in `require` and produced-event mappings |
+| Legacy `reads <View> ...` on a command | PLAY0271 (error) | `command reads protected` opts eligible views into v25; see command-surface protected reads |
 | `concurrency` block on a command | PLAY0271 (error) | "concurrency metadata keeps its legacy meaning and cannot bind to ESM v1" |
-| `handler` (see above) | PLAY0268 | gap-fill |
+| File/inline `handler` (see above) | PLAY0268 | pending described handlers instead bind v23; body execution and rendering remain gaps |
 | `$context.tenant`, roles, claims, causation | PLAY0268 | no portable scalar counterpart |
 | Arithmetic or raw expression in a `produces` mapping | PLAY0268 | |
 | Template `` `${x}` `` or `$causedBy` in a projection | PLAY0268 | |

@@ -76,6 +76,15 @@ source compilation alone is only authored evidence.
 
 Read [references/specifying-triggers-and-clock.md](references/specifying-triggers-and-clock.md) when writing a specification for a reaction, trigger or capture, or when the clock, occurrence or limit rules matter.
 
+## Atomic batches and event-source mappings
+
+Start new models with application-root `reaction batches atomic`. One trigger's direct
+productions, or one selected refusal branch, append all-or-none; invoked commands stay
+separate. Legacy models without opt-in retain per-fact appends even at newer versions.
+Read [atomic batches and source mappings](references/atomic-batches-and-source-mappings.md)
+for batch failure assertions, PLAY0693, Stage STAGE-ESM-016/043 refusals and
+`invokes` mappings from `$eventSourceId` / `$eventContext.eventSourceId`.
+
 ## Caller-less invokes and unprotected reads
 
 **Who is the caller of an `invokes`?** Without a declared actor, nobody.
@@ -100,7 +109,10 @@ ESM v6 the binder refuses to treat it as one: a trigger with `reads` that **prod
 directly**, or whose effect is an opaque body (`file` or an inline block), fails
 binding, because its decision dependency cannot be protected. A reaction that only
 `invokes` a command binds, and the decision, and any protection, belong to that
-command's own reads. Command `reads` give none yet either (`PLAY0271`).
+command's own reads. Eligible command reads protect under application-root
+`command reads protected` (ESM v25); legacy reads retain PLAY0271. Read command-surface
+[protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
+for admission and absence/conflict behavior. Stage refuses v25 with STAGE-ESM-016.
 `where` over read paths out of scope, and `where` needs
 every operand to resolve from the trigger's declared scalar occurrence shape (listed in
 the input selection or not; nested paths and read aliases fail binding): keep the logic that uses the state in
@@ -281,8 +293,8 @@ Requires Screenplay 4.176.0 or later (`screenplay --version`) for PLAY0694; olde
 - [ ] Every name a reaction takes is carried by the event or trigger.
 - [ ] Each trigger `reads` the views its automation decides from; `by` names a
       value the trigger takes, and clock triggers read without `by`.
-- [ ] Nobody reports trigger or command `reads` as protected; UI clicks are
-      interactions, not triggers.
+- [ ] Trigger reads are not protection; protected command reads require opt-in,
+      admission and separate target realization. UI clicks are interactions.
 - [ ] Every gated invocation declares its trusted actor with reaction `runs as`
       (ESM v10) or records the target gap explicitly; `given caller` is not that actor.
 

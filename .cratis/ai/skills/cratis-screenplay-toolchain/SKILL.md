@@ -101,8 +101,11 @@ changes with the root folder name.
   lists and lists narrowed by one `by` key (observable too) bind; caller-supplied equality
   filters on collections bind as ESM v14. Context `from`, single-result
   filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268. Read
-  read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md). No handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
-  `concurrency` do not bind (PLAY0271); concept compliance binds as v13 (precise refusals: command-surface `references/compliance.md`);
+  read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
+  Pending handlers beside unconditional productions bind as described commands (v23),
+  but reached bodies are Unsupported; attached handlers remain PLAY0268.
+  Eligible protected reads opt into v25; legacy reads and `concurrency` retain PLAY0271.
+  Concept compliance binds as v13 (precise refusals: command-surface `references/compliance.md`);
   generated values and `returns` responses bind (ESM v7, `references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
 - **Renderable** (V5): `references/renderable-subset.md` has the admission table. The CLI admits through
   its newest known ESM version to construct checks; supported UUID/String
@@ -133,6 +136,10 @@ changes with the root folder name.
   `references/diagnostics.md` for proof/support failures. Binding is not rendering.
   Tool/renderer authors: read [references/generation-checks.md](references/generation-checks.md)
   when discovering strategy options, checking one concept or value, or consuming rule proofs.
+- **v22–v25:** read [language admission](references/language-admission.md) for atomic
+  batches, described handlers, text rules, protected reads and Stage refusals.
+  Read [diagnostic arguments](references/diagnostic-arguments.md) for MCP/JSON subjects:
+  code and typed arguments, never message parsing.
 - **Caller/compliance metadata:** `$identity` aliases caller built-ins;
   additional identity details are metadata and executable reads still refuse.
   Bare `pii`/`secret` replace legacy spellings; `pii personal` repeats one marker
@@ -188,7 +195,7 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
 11. Declare an event once, in its producing slice.
 12. Quoted `import "glob"` is your own files; unquoted `import Ctx.Event` is a foreign
     contract and does not bind.
-13. A handler never binds; `numbers exact` never binds; descriptions render only as XML doc comments, never as behavior.
+13. Pending described handlers bind but do not execute their bodies; attached handlers and `numbers exact` do not bind. Descriptions render as XML doc comments, not behavior.
 
 ## Gate
 
