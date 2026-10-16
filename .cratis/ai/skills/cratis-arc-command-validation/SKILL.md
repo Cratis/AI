@@ -134,8 +134,7 @@ public class TransferFundsValidator : CommandValidator<TransferFunds>
   `X-Allowed-Severity` (`allowedSeverity`). Under `Off` and `Measure`, a caller
   sending `3` (Error) removes Error results from validators, command filters and
   `Provide()`, so `Handle()` runs and a validator's state rule can be skipped
-  (a `ValidationResult` that `Handle()` itself returns is not filtered) unless the
-  command declares
+  unless the command declares
   `[BlockOnValidationSeverity(ValidationResultSeverity.Error)]`
   (`Cratis.Arc.Commands.ModelBound`). Requires Arc 22.108.0 for the `On` floor: a
   command declared `On` blocks `Error` and `Unknown` whatever the caller sends; the

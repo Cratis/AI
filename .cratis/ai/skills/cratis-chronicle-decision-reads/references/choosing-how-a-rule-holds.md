@@ -144,8 +144,7 @@ Under `On`:
 
 Caller severity: model-bound commands accept `X-Allowed-Severity` (`allowedSeverity`).
 Under `Off` and `Measure` a caller sending `Error` removes Error results from validators,
-command filters and `Provide()`, so `Handle()` runs (a `ValidationResult` that `Handle()`
-returns is not filtered), unless the command declares
+command filters and `Provide()`, so `Handle()` runs, unless the command declares
 `[BlockOnValidationSeverity(ValidationResultSeverity.Error)]`. Requires Arc 22.108.0:
 a command declared `On` gets an `Error` floor (`Error` and `Unknown` always block; the
 caller can relax only `Warning` and `Information`). Lowering
