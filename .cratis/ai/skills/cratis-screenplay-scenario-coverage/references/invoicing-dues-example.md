@@ -13,8 +13,10 @@ destination-type information; a reaction can also consume events from a capture 
 
 **Scope.** This document is the runnable demonstration only. It deliberately holds no rule that
 depends on stored state (the invoice must exist, only an open invoice may be voided, a reversal
-needs a received payment, `reads` + `require`): those rules cannot bind or run at Screenplay
-4.66.0 (PLAY0271, PLAY0268) and are stated in the design-mode document `invoicing-dues-design.md`,
+needs a received payment, `reads` + `require`): the legacy design control lacks
+`command reads protected` and retains PLAY0271/PLAY0268. Eligible reads can opt into
+v25; see command-surface protected-read admission and Stage refusal. The rules stay
+in the design-mode document `invoicing-dues-design.md`,
 never in prose here. It shows the category shapes; for a coverage example see `berth-reservations.md`.
 
 ```screenplay

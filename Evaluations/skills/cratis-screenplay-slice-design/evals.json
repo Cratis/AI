@@ -16,13 +16,14 @@
     {
       "id": 2,
       "name": "stored-state-rule",
-      "prompt": "Rule: a member may have at most 3 active loans. The draft BorrowBook command takes an input `activeLoanCount` from the UI and `require activeLoanCount < 3`, plus an input `confirmsEligible == true`. Review it and show the correct modeling. Give the code or outline in your reply; do not write files.",
-      "expected_output": "A rule over stored state is `reads <View>` + `require ... message \"...\"` and the slice `description` marks it **NOT enforced in the model today** with its target named (Arc `[ProtectedDecision]` with `DecisionRead<T>`, Chronicle DCB, or a constraint). Never copy state into the command as an input and never use a boolean attestation input or hide the rule in handler or hint prose.",
+      "prompt": "On Screenplay 4.198.0, rule: a member may have at most 3 active loans. MemberLoans is a finite event-log projection keyed directly by the member event source with removal handling; memberId is a required String concept input. Stage is 4.126.0. The draft BorrowBook command takes an input `activeLoanCount` from the UI and `require activeLoanCount < 3`, plus an input `confirmsEligible == true`. Review it and show the correct modeling. Give the code or outline in your reply; do not write files.",
+      "expected_output": "Reject caller-supplied state and attestation inputs. Declare application-root command reads protected, reads MemberLoans as loans by memberId and require loans.activeCount < 3 with indented message. This selects v25; absent required state rejects Validation before requirements, matching intervening facts return Conflict/DecisionStateChanged with no facts. Do not add concurrency (PLAY0783); legacy reads without opt-in remain PLAY0271. Stage refuses v25 STAGE-ESM-016, so separately verify target consistency. Never claim payload-key fan-in or arbitrary projections qualify.",
       "assertions": [
         "Rejects the caller-supplied `activeLoanCount` input because state must not be copied into the command.",
         "Rejects the boolean attestation input `confirmsEligible == true` standing in for a rule.",
-        "Writes the rule as `reads <View>` plus `require ... message \"...\"`.",
-        "Marks it **NOT enforced in the model today** in the slice `description` and names a target such as Arc `[ProtectedDecision]` with `DecisionRead<T>`, Chronicle DCB, or a constraint."
+        "Writes application-root command reads protected, aliased keyed read and require over stored count with an indented message, selecting v25.",
+        "Explains absence Validation and matching intervening fact Conflict/DecisionStateChanged without facts; does not combine reads/concurrency or admit payload-key fan-in.",
+        "Names Stage STAGE-ESM-016 for v25 and separates reference protection from target realization instead of claiming reads are always unprotected."
       ]
     },
     {

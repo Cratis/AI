@@ -1,6 +1,13 @@
 # Invoicing and dues: design-mode document for the stored-state rules
 
-**Design mode, not binding-ready by design.** This document states the stored-state rules of the
+**Legacy control without `command reads protected`, not binding-ready by design.**
+Read [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md)
+for the opt-in alternative. Do not insert the preamble blindly: every read must meet
+finite event-source-keyed admission with removals. A v25 reference pass still cannot
+render in Stage (STAGE-ESM-016). The comments and unenforced markers below describe
+this legacy control, not a general limit on command reads.
+
+**Design mode.** This document states the stored-state rules of the
 invoicing example as the skill requires (`reads <View>` + `require ... message`, marked NOT
 enforced in the slice `description`, target named). It compiles (V1, warnings as errors) but
 does not bind, and the only blockers are `reads` (PLAY0271) and `require` over

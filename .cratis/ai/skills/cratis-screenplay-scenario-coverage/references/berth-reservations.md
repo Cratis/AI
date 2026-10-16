@@ -1,5 +1,11 @@
 # Berth reservations: worked example
 
+This is a legacy control without `command reads protected`; the unprotected-read
+markers below describe that control, not all command reads. Eligible views can opt
+into v25; the date-rule blocker still remains. Read
+[protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md)
+for admission and Stage's v25 refusal.
+
 Complete, compiled design-mode model (marina guest berths) showing a coverage matrix turned into specifications: happy path, one rejection per rule, authorization denial, duplicate and retry, competing claim, state violation, alternative branches, compensation and a view lifecycle family. The matrix for it is in `coverage-matrix.md`; the catalogue (`scenario-catalogue.md`) names its specifications.
 
 ```screenplay test=unbound

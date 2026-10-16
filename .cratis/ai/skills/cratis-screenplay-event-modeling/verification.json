@@ -45,7 +45,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "It is not a protected"
+      "value": "command reads protected"
     },
     {
       "kind": "skill-contains",

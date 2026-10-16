@@ -100,7 +100,9 @@ Composite read-model keys, query `by` blocks and fixtures
 over those views remain authoring-only: binding reports PLAY0268 citing
 Screenplay#599 (still open). They do not reference-execute or render. This is not
 ESM v10 admission; v10 covers reaction identity, production routes and observer
-filters. Command reads independently remain unprotected/unadmitted (PLAY0271).
+filters. Eligible command reads separately opt into v25 with `command reads protected`;
+legacy reads remain PLAY0271, and composite keys are still refused (PLAY0781 ByParts).
+See command-surface [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md).
 A single explicit key does bind; Stage admission still depends on the complete
 model and projection/query shape, not just the key modifier.
 

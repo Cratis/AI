@@ -15,8 +15,10 @@ easily. Every excerpt below is copied verbatim from the complete document in
 `invoicing-dues-example.md`, which compiles with warnings as errors and whose 23 specifications
 pass in the reference evaluator; it also holds the declarations the excerpts depend on. The two
 compensation excerpts in section 4 come from `invoicing-dues-design.md` instead: that document
-holds the stored-state rules (`reads` + `require`), compiles but does not bind (PLAY0271,
-PLAY0268), so its specifications are design mode and do not run. A second
+holds stored-state rules as a legacy control without `command reads protected`, so
+it compiles but does not bind (PLAY0271/PLAY0268) and its design specs do not run.
+Eligible reads can instead opt into v25; inspect admission and keep Stage refusal
+separate (command-surface [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md)). A second
 complete example, with competing claims and denial fixtures, is `berth-reservations.md`. The category structure and the good/bad contrast follow the worked
 examples in `eventmodeling-elaborating-scenarios` by TrogonStack and by Martin Dilger and Nebulit GmbH (`provenance.md`), translated to
 Screenplay specifications.
