@@ -232,6 +232,3 @@ a composite lookup there is still refused (PLAY0781 ByParts). See command-surfac
 - Read-model property rename remains unsupported until its mapping chain can be
   preserved. Use the model-authoring proposal/preview/apply contract, not a text
   shortcut around an identity-preserving refusal.
-
-Source: Screenplay `Documentation/screenplay/{readmodels,queries,commands,reactions,specifications}.md`
-and `fixtures/named-read-model-keys.play`.

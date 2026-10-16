@@ -34,12 +34,12 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Refusal branches, `$refusal` | yes | ESM v19; first matching branch wins | Stage supported subset; -039 for unfaithful refusal details/trigger groups, -011 for specification limits |
 | Query `then error` | yes | ESM v18; one query/one error, no result/denial | requires target v18 admission; a v19-capable renderer does not necessarily admit v18 |
 | Composite (JSON) values in specs | yes | yes | no |
-| Same-primitive `Date`/`DateTime` comparisons in `require`, `produces when` and command or property validation rules (v26; Requires Screenplay 4.199.0; see [date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)) | spec them | binds and executes; a `DateTime` input without an offset is a Validation rejection | v26 STAGE-ESM-016: gap-fill |
+| Same-primitive `Date`/`DateTime` comparisons in `require`, `produces when` and command or property validation rules (v26; Requires Screenplay 4.199.0; see [date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)) | spec them | binds and executes; a `DateTime` input without an offset is a Validation rejection | Host/executor run it (Requires Stage 4.135.0); renderer STAGE-ESM-046: gap-fill |
 | Date rules using `today`, `$context`, mixed `Date`/`DateTime`, concept or reaction-`where` positions; nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
 | Pending described command handlers (v23) | specify intent | binds; denial/validation execute, body-reaching specs Unsupported ImplementationBody; all-Unsupported is not green | STAGE-IMPL-002 even Stub mode |
 | Attached command handlers, `file` constraints, query `performer`s | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
-| Atomic reaction mode (v22) | declare for new models | failed batch adds no facts or view changes; earlier batches/commands remain; `then error` alone is insufficient | v22 STAGE-ESM-016; mode in admitted v23–v25 STAGE-ESM-043 |
+| Atomic reaction mode (v22) | declare for new models | failed batch adds no facts or view changes; earlier batches/commands remain; `then error` alone is insufficient | v22 STAGE-ESM-016; mode in admitted v23–v26 STAGE-ESM-043 |
 | Protected command reads (v25) | declare opt-in for eligible reads | absence Validation; matching intervening facts Conflict; race vectors are not a new spec construct | Cratis C# rendering STAGE-ESM-044; semantic Host/executor execute admitted reads, non-Error protected requirements STAGE-ESM-045; v25 pair admitted |
 
 Requires Screenplay 4.105.0 or later (`screenplay --version`) for list-query specifications, and 4.143.0 or later for collection equality filters (ESM v14).

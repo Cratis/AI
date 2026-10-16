@@ -80,7 +80,7 @@ query ListInvoices => InvoiceListReadModel[]
 **Name the compiler and renderer.** Optional keyed queries and collection queries
 bind, including `observable`. Caller-supplied equality
 filters on collections bind as ESM v14; `from`, single-result filters, `scoped to`,
-`performer` and composite `by` remain PLAY0268, each with its reason. Read
+`performer` and a `by` block on a list query (or on a non-optional single result) remain PLAY0268, each with its reason. Read
 [equality filters](references/equality-filters.md) for the admitted shape, a complete
 compiled specification model and the Stage/CLI ceilings. Keep a list the domain needs.
 
@@ -179,7 +179,7 @@ primitive/concept/enum properties, same nominal type ignoring optionality, no
 `from`, distinct names not repeating `by`. `by` and supplied filters AND together;
 optional filters may be omitted, but supplied null is refused. PLAY0268 still
 rejects context sources, single-result filters, opaque scope/performer and
-composite `by`; a single non-optional result remains unadmitted too.
+a `by` block on a list query (or on a non-optional single result).
 Authorization runs before lookup, ANDed with module/feature gates; policies see
 only `by`, never filters. Pin denial with `given caller` and `then denied`.
 Specs pass `by` and filters by name (PLAY0468 for unknown, repeated or missing

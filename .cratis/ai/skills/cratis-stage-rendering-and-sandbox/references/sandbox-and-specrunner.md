@@ -139,6 +139,12 @@ with Validation after authorization and before any rule. `then` stays ordinal. T
 renderer, legacy engines and default sandbox engine refuse these comparisons with
 `STAGE-ESM-046`, naming the property; no date validators or artifacts are emitted.
 
+One ordering differs from the reference: the reference checks authorization, then
+offsets, then opaque C# validation, so an offset-less DateTime beside opaque
+validation is a Validation rejection there. The specification executor refuses opaque
+validation at run admission and the Host refuses it before authorization, so both Stage
+paths report `Unsupported`, which never counts as a pass.
+
 ## Refusals shared by both engines
 
 Both engines refuse public events (`STAGE-ESM-032`), foreign or source-event captures

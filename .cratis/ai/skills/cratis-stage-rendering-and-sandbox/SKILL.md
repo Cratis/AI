@@ -133,9 +133,9 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
   The Cratis C# renderer refuses protected reads with `STAGE-ESM-044`, described handlers `STAGE-IMPL-002`
   (even Stub mode), and atomic mode in admitted pairs `STAGE-ESM-043`.
 - **Binding refusals (`PLAY0268`/`PLAY0271`):** legacy reads, `concurrency`, attached
-  handlers, context/single-result filters, opaque scope/performer, composite `by`,
+  handlers, context/single-result filters, opaque scope/performer, a list-query `by` block,
   enum/identity compliance and subject lineage. Eligible protected reads bind v25;
-  pending handlers with unconditional productions bind v23, but neither renders.
+  pending handlers with unconditional productions bind v23, but neither renders. A read model with several key parts (v27) refuses `STAGE-ESM-016`.
   Never drop protection.
 
 A refusal is not a licence to weaken the model: drop no specification, event generation or

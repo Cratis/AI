@@ -206,7 +206,7 @@ parts all match, and a later `from` recreates it.
 | --- | --- |
 | `from` or `remove with` with no key, `key <expr>`, an inline `from A key x`, or `parent` | PLAY0661 |
 | A part missing from the block | PLAY0661 |
-| An unknown, repeated or ill-typed part, or a non-simple expression | PLAY0662 |
+| An unknown, repeated or ill-typed part, a non-simple expression, or a typed key block on a composite-keyed read model | PLAY0662 |
 | `join`, `children`, `remove via join`, `every`, `all`, `nested`, `clear with`, `variant`, or a reducer on the read model | PLAY0268 |
 
 The complete executable example, with queries and specifications, is in read-surface

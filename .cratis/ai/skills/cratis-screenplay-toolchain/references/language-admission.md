@@ -9,7 +9,7 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 
 | ESM | Selecting construct | Binding/reference behavior | Stage boundary |
 | --- | --- | --- | --- |
-| v22 | Application-root `reaction batches atomic` | Direct productions per trigger occurrence and each selected refusal branch are separate atomic batches; commands remain independent | v22 refused STAGE-ESM-016; mode in admitted v23–v25 refused STAGE-ESM-043 |
+| v22 | Application-root `reaction batches atomic` | Direct productions per trigger occurrence and each selected refusal branch are separate atomic batches; commands remain independent | v22 refused STAGE-ESM-016; mode in admitted v23–v26 refused STAGE-ESM-043 |
 | v23 | Pending `handler implementation` beside unconditional `produces` | Payload-only body; PLAY0695 information; reaching body gives Unsupported ImplementationBody | v23 admitted, body refused STAGE-IMPL-002 in renderer/Host/executor, even Stub mode |
 | v24 | `contains`, `not contains`, `starts with`, `ends with` property/concept rules | Ordinal UTF-16, absent optional passes; not text-condition operators | v24 admitted; semantic Host/executor and generated ordinal comparisons preserve rules |
 | v25 | Application-root `command reads protected` | Admitted reads in requirements/mappings, absence Validation, matching decide/commit changes Conflict | v25 admitted; Cratis C# renderer refuses STAGE-ESM-044; semantic Host/executor execute reads, non-Error protected requirements refuse STAGE-ESM-045 |
