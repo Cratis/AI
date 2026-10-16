@@ -111,7 +111,9 @@ invoked commands independent. Stage refuses v22 (STAGE-ESM-016) and atomic mode
 in admitted v23–v25 (STAGE-ESM-043); the declaration is not external-effect deduplication.
 For described handlers, hand off only payload computation under the v23 result
 contract; Stage STAGE-IMPL-002 means no stubs, even Stub mode. Protected v25 reads
-refuse STAGE-ESM-044 despite version admission and need target admission/enrollment tests; ordinary injection never supplies protection.
+refuse Cratis C# rendering with STAGE-ESM-044 despite version admission and need
+generated-app admission/enrollment tests; ordinary injection never supplies protection.
+Semantic Host/executor support is a separate result, not generated-app enforcement.
 
 ## Re-delivery
 The work list is the full in-scope contract delta since the fallback record's last verified source

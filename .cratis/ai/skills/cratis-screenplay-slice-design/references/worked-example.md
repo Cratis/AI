@@ -5,7 +5,7 @@ One complete legacy design-mode control for `cratis-screenplay-slice-design`, wi
 specification runs here. List queries and clock fixtures bind on an admitting compiler;
 they are not the remaining blocker. Personas and screens are informational.
 Eligible command reads can opt into v25; inspect every projection/key/removal before
-migration and retain Stage's separate refusal (STAGE-ESM-044; the v25 pair itself is admitted). Read
+migration and retain the Cratis C# renderer's separate refusal (STAGE-ESM-044; the v25 pair itself is admitted). Read
 [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md).
 The unenforced descriptions below refer to this legacy control, not all command reads.
 The specifications still seed every read-model source (`LockerInstalled`, `LockerRequested`,

@@ -60,12 +60,14 @@ This table is a reading of the renderer's admission, not a render result: run th
 | Evolved events | initial revisions only (migrations are not rendered) | `STAGE-ESM-026` |
 | Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
-Stage refuses protected command reads with STAGE-ESM-044, described handlers
+The Cratis C# renderer refuses protected command reads with STAGE-ESM-044, described handlers
 with STAGE-IMPL-002 (even Stub mode), and atomic mode in admitted pairs with
 STAGE-ESM-043. Literal
 text rules execute/render ordinal UTF-16 comparisons. Read [language admission](language-admission.md).
 A CLI's older bundled compiler may fail first: legacy reads/concurrency PLAY0271,
-attached handlers PLAY0268. Protected reads bind standalone v25, not a Stage render.
+attached handlers PLAY0268. Protected reads bind v25, not a Stage render. Requires Stage 4.129.0 for semantic
+Host/executor protected reads; older engines refuse -044. Non-Error protected requirements
+refuse STAGE-ESM-045, including reaction invocations; this is not a rendering result.
 Response-name authoring scopes are not rendered and Scene runtime does not supply them.
 
 Compliance mapping in the generated C#: personal data to `[PII]`, operational secrets to

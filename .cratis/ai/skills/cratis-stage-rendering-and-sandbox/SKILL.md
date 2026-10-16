@@ -21,7 +21,8 @@ Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 mode
 
 Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
 for v22–v25: text rules render, atomic batches/protected reads/described bodies do
-not. Stub mode emits no described-body stubs. Keep protection and report refusal.
+not. The semantic Host and specification runner execute admitted protected reads;
+that is not rendering. Stub mode emits no described-body stubs. Keep protection and report refusal.
 
 ## When to use
 
@@ -128,7 +129,7 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
   (`-032`/`-033`), claim-reading/opaque `runs as` gates (`-034`), legacy filters (`-035`), production
   overrides (`-036`), code validation (`-005`), DateTime filters (`-010`),
   unsupported conditional productions, composite projection keys and unsupported `all` shapes.
-  Protected reads refuse `STAGE-ESM-044`, described handlers `STAGE-IMPL-002`
+  The Cratis C# renderer refuses protected reads with `STAGE-ESM-044`, described handlers `STAGE-IMPL-002`
   (even Stub mode), and atomic mode in admitted pairs `STAGE-ESM-043`.
 - **Binding refusals (`PLAY0268`/`PLAY0271`):** legacy reads, `concurrency`, attached
   handlers, context/single-result filters, opaque scope/performer, composite `by`,
@@ -159,7 +160,8 @@ files, a policy registration and generated policies, `Common/<Concept>.cs`, one
 the `[EventType]` event, the validator and the `[ReadModel]` with its query, `scene.json`,
 and a React/Vite frontend scaffold (`.frontend/`, `package.json`, `tsconfig.json`,
 `.gitignore`). Per-file detail, the scaffold's dependency set and the `Customizations/`
-contract: [references/rendered-application.md](references/rendered-application.md). Scene
+contract, including the opt-in self-reducing layout for confirmed new Cratis C# applications:
+[references/rendered-application.md](references/rendered-application.md). Scene
 package ids, host capabilities and the boundary from hand-built Components pages:
 [references/scene-runtime.md](references/scene-runtime.md). A complete renderable model:
 [references/render-example.md](references/render-example.md).
@@ -190,7 +192,13 @@ disposable runtime**, not a generated application. The default engine appends mo
 simple literal `validate` rules on top-level properties, but enforces no other rule, no
 constraint and no command or query authorization; `Stage__Runtime__Engine=semantic` opts
 in to an engine that does, and refuses what it cannot execute (HTTP 501). The default engine
-also refuses routed models (`STAGE-ESM-030`). Callers are built from unsigned headers, so
+also refuses routed models (`STAGE-ESM-030`) and protected reads (`STAGE-ESM-044`).
+Requires Stage 4.129.0 for semantic Host/runner protected reads; older engines refuse
+`STAGE-ESM-044`. Required absence rejects before requirements/generation, read properties
+feed requirements and productions, and non-Error protected requirements refuse
+`STAGE-ESM-045`, including reaction invocations. The Host faults on any outside append,
+even unrelated facts; this is stricter than reference dependency-scoped conflicts.
+Callers are built from unsigned headers, so
 authorization there is not a security boundary.
 
 `cratis/stage-specrunner` checks modeled specifications and writes a results file. The

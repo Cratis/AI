@@ -114,7 +114,7 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
   conflict. Legacy reads remain PLAY0271/PLAY0268; `concurrency` remains unbound and
   combining it with protected reads is PLAY0783. Read
   [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
-  for admission and Stage's STAGE-ESM-044 protected-read refusal (the v25 pair itself is admitted). `description` text never reaches rendered code: a rule that lives only in prose is
+  for admission and the Cratis C# renderer's STAGE-ESM-044 protected-read refusal (the v25 pair itself is admitted). `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
 - `pii` and `secret` bind as ESM v13;
   enum/identity compliance and protected events with explicit subject marks still

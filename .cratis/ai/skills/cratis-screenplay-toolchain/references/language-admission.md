@@ -12,7 +12,7 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 | v22 | Application-root `reaction batches atomic` | Direct productions per trigger occurrence and each selected refusal branch are separate atomic batches; commands remain independent | v22 refused STAGE-ESM-016; mode in admitted v23–v25 refused STAGE-ESM-043 |
 | v23 | Pending `handler implementation` beside unconditional `produces` | Payload-only body; PLAY0695 information; reaching body gives Unsupported ImplementationBody | v23 admitted, body refused STAGE-IMPL-002 in renderer/Host/executor, even Stub mode |
 | v24 | `contains`, `not contains`, `starts with`, `ends with` property/concept rules | Ordinal UTF-16, absent optional passes; not text-condition operators | v24 admitted; semantic Host/executor and generated ordinal comparisons preserve rules |
-| v25 | Application-root `command reads protected` | Admitted reads in requirements/mappings, absence Validation, matching decide/commit changes Conflict | v25 admitted; protected reads refused STAGE-ESM-044 in renderer/Host/executor |
+| v25 | Application-root `command reads protected` | Admitted reads in requirements/mappings, absence Validation, matching decide/commit changes Conflict | v25 admitted; Cratis C# renderer refuses STAGE-ESM-044; semantic Host/executor execute reads, non-Error protected requirements refuse STAGE-ESM-045 |
 | v26 | Chronological command Date/DateTime comparisons | Same-primitive `==`, `!=`, `>`, `>=`, `<`, `<=`; DateTime UTC ticks and pre-rule offset validation | v26 refused STAGE-ESM-016 |
 
 Requires Screenplay 4.181.0 or later (`screenplay --version`) for atomic batches; older compilers cannot admit the preamble.
@@ -27,7 +27,9 @@ Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`) for date compariso
 
 Requires Stage 4.124.0 for v24 text-rule admission (`cratis --version` identifies the CLI bundle); older renderers refuse v24 with STAGE-ESM-016. V23 admission alone does not implement described bodies.
 
-Requires Stage 4.127.0 for v25 version admission; older renderers refuse v25 with STAGE-ESM-016. Protected reads still refuse STAGE-ESM-044, including on legacy paths; no artifacts are emitted.
+Requires Stage 4.127.0 for v25 version admission; older renderers refuse v25 with STAGE-ESM-016. The Cratis C# renderer still refuses protected reads with STAGE-ESM-044; no artifacts are emitted.
+
+Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines refuse STAGE-ESM-044. Absence rejects before requirements/generation; read properties feed requirements and productions. Non-Error protected requirements refuse STAGE-ESM-045, including reaction invocations. Legacy Host/structural runner retain -044. The Host faults on any outside append, stricter than reference dependency-scoped conflicts; see [sandbox boundaries](../../cratis-stage-rendering-and-sandbox/references/sandbox-and-specrunner.md#protected-command-reads).
 
 Read [atomic batches and event-source invocation mappings](../../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
 for atomic boundaries and the source-identity mapping prerequisite. Start new models
@@ -56,6 +58,6 @@ for the complete interval example and input/target boundaries.
 
 Stage's semantic engines admit exact v1–v21 and v23–v25 pairs. V22/v26 and mixed
 pairs refuse STAGE-ESM-016. Admission of v23–v25 is not admission of described bodies,
-atomic mode or protected reads. A CLI may bundle an older compiler/Stage pair: run no-write render
+atomic mode or rendered protected reads. A CLI may bundle an older compiler/Stage pair: run no-write render
 admission rather than transferring a standalone verdict. Pattern diagnostics arise
 in Screenplay before rendering; diagnostic arguments add no ESM version or new tool.

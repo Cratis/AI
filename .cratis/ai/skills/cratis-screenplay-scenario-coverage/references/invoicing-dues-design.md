@@ -4,7 +4,7 @@
 Read [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md)
 for the opt-in alternative. Do not insert the preamble blindly: every read must meet
 finite event-source-keyed admission with removals. A v25 reference pass still does not
-render protected reads: Stage admits v25 but refuses them with STAGE-ESM-044. The comments and unenforced markers below describe
+render protected reads: Stage admits v25 but the Cratis C# renderer refuses them with STAGE-ESM-044. The comments and unenforced markers below describe
 this legacy control, not a general limit on command reads.
 
 **Design mode.** This document states the stored-state rules of the
