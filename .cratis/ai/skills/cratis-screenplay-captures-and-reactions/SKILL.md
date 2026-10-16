@@ -104,7 +104,9 @@ binding, because its decision dependency cannot be protected. A reaction that on
 command's own reads. Eligible command reads protect under application-root
 `command reads protected` (ESM v25); legacy reads retain PLAY0271. Read command-surface
 [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
-for admission and absence/conflict behavior. Stage admits v25 but refuses protected reads with STAGE-ESM-044.
+for admission and absence/conflict behavior. Stage admits v25; the Cratis C# renderer refuses protected reads with STAGE-ESM-044.
+Semantic Host/executor support is separate; non-Error protected requirements refuse -045,
+including reaction-invoked commands.
 `where` over read paths out of scope, and `where` needs
 every operand to resolve from the trigger's declared scalar occurrence shape (listed in
 the input selection or not; nested paths and read aliases fail binding): keep the logic that uses the state in

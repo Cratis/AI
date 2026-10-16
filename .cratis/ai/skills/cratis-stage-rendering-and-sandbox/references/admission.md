@@ -29,10 +29,11 @@ Requires Stage 4.119.0 for pattern/random rendering, Host generation and indepen
 opaque/unsupported rules refuse -005 before pin evaluation. Independent execution
 always needs pins.
 Requires Stage 4.124.0 for v24 text-rule admission (`cratis --version` identifies the CLI bundle); older renderers refuse v24 with STAGE-ESM-016.
-Requires Stage 4.127.0 for v25 version admission; older renderers refuse v25 with STAGE-ESM-016. Protected reads still refuse STAGE-ESM-044.
+Requires Stage 4.127.0 for v25 version admission; older renderers refuse v25 with STAGE-ESM-016. The Cratis C# renderer still refuses protected reads with STAGE-ESM-044.
+Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines refuse STAGE-ESM-044. Required absence rejects before requirements or generation; read-backed requirements and produced-event mappings execute. Non-Error protected requirements refuse STAGE-ESM-045, including reaction invocations. See [sandbox boundaries](sandbox-and-specrunner.md#protected-command-reads) for ordering and the Host's stricter outside-append fault boundary.
 Described handlers refuse STAGE-IMPL-002, even Stub mode; atomic mode in an
 admitted pair refuses STAGE-ESM-043. Version admission never implements a body,
-batch or protected decision. Chronological Date/DateTime command comparisons
+batch or rendered protected decision. Chronological Date/DateTime command comparisons
 select v26 in Screenplay but still refuse STAGE-ESM-016 here; standalone reference
 success is not rendering or Host/executor admission. Keep the date rule and use
 authorized gap-fill rather than downgrading to ordinal text or millisecond precision.
@@ -162,7 +163,8 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-041` | Older renderers refuse non-text secrets; supported renderers keep their original types | Keep classification; upgrade the renderer, never declassify |
 | `STAGE-ESM-042` | Unknown validation rule kinds; checksum on the legacy syntax path (semantic checksum renders) | Keep the rule; use an admitting semantic renderer or gap-fill |
 | `STAGE-ESM-043` | `reaction batches atomic` in an admitted version pair | Keep the batch boundary; gap-fill without splitting it |
-| `STAGE-ESM-044` | Protected-read preamble, command reads or read-backed conditions/mappings in renderer, Host or specification executor | Keep protection; gap-fill with independently verified target enforcement |
+| `STAGE-ESM-044` | Protected-read preamble, command reads or read-backed conditions/mappings in the Cratis C# renderer; legacy Host/structural runner also refuse the preamble | Keep protection; semantic Host/executor support is separate from generated-app enforcement |
+| `STAGE-ESM-045` | Non-Error requirement on a protected command, including reaction-invoked commands; semantic admission refuses before reads, requirements or facts | Keep the severity contract; record the execution gap, never silently promote or drop the requirement |
 | `STAGE-IMPL-002` | Described command handler, naming command and RequirementId; also refused in Stub mode | Supply authorized implementation outside rendering; no generated stub is emitted |
 | `STAGE-ESM-037` | Events and commands from one handler, even across separate triggers on the same event in one reaction. The scaffold's Arc supports mixed results, but appends events before commands; a refused command causes redelivery and duplicate events | **Do not split the modeled reaction or drop an effect.** Gap-fill only with a proven retry-safe implementation; `[OnceOnly]` excludes replay, not retry |
 | `STAGE-ESM-023` | Information: transition bodies analysed | none |

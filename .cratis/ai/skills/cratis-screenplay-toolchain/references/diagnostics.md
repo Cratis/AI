@@ -326,13 +326,16 @@ refusal reasons. Read [language admission](language-admission.md) before changin
 | PLAY0786 (I) | Eligible legacy model; preview typed preamble repair, individually review absence/conflict semantics |
 | PLAY0787 (W) | Exact deprecated Studio text-rule pattern; repair to literal rule or equality, preserving message/severity |
 | STAGE-ESM-043 | Atomic mode not realized, even in admitted v23–v25; retain declaration and gap-fill |
-| STAGE-ESM-044 | Protected reads not realized despite v25 version admission; keep protection and gap-fill |
+| STAGE-ESM-044 | Cratis C# renderer refuses protected reads despite v25 admission; semantic Host/executor support is separate; keep protection and gap-fill generated-app scope |
+| STAGE-ESM-045 | Non-Error protected requirement; semantic Host/executor refuse before execution, including reaction-invoked commands; keep severity and report Unsupported |
 | STAGE-IMPL-002 | Described handler body not realized by Stage, even Stub mode; no stubs emitted |
 
 Invalid match syntax remains PLAY0367. Property/concept text rules bind v24;
 `contains`/`starts with` in conditions only still fail PLAY0268. Stage rejects
 v22/v26 and mixed pairs with STAGE-ESM-016; v23–v25 admission does not implement
-bodies, batches or protected reads (STAGE-ESM-044).
+bodies, batches or rendered protected reads (STAGE-ESM-044). Requires Stage 4.129.0
+for semantic Host/executor protected reads; older engines refuse -044. Read
+[language admission](language-admission.md) for the stricter Host outside-append guard.
 
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
 | Code | Meaning | Fix |

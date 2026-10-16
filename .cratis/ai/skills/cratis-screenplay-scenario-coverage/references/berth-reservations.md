@@ -4,7 +4,7 @@ This is a legacy control without `command reads protected`; the unprotected-read
 markers below describe that control, not all command reads. Eligible views can opt
 into v25; the date-rule blocker still remains. Read
 [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md)
-for admission and Stage's protected-read refusal (STAGE-ESM-044).
+for admission and the Cratis C# renderer's protected-read refusal (STAGE-ESM-044).
 
 Complete, compiled design-mode model (marina guest berths) showing a coverage matrix turned into specifications: happy path, one rejection per rule, authorization denial, duplicate and retry, competing claim, state violation, alternative branches, compensation and a view lifecycle family. The matrix for it is in `coverage-matrix.md`; the catalogue (`scenario-catalogue.md`) names its specifications.
 

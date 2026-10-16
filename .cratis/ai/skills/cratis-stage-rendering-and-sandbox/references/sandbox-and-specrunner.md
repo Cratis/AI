@@ -3,6 +3,7 @@
 ## Contents
 
 - The sandbox: a partial, disposable runtime
+- Protected command reads
 - Refusals shared by both engines
 - The specification runner
 - Choosing between them
@@ -101,6 +102,32 @@ A refusal or an acceptance from the default engine therefore proves nothing beyo
 lists above. Use the semantic engine, or Debug tests of a render, for
 evidence about the rest.
 
+## Protected command reads
+
+Requires Stage 4.129.0 for semantic Host and specification-executor protected reads;
+older engines refuse them with `STAGE-ESM-044`. The default EventModel Host and
+structural runner still refuse the preamble with `STAGE-ESM-044`; the structural
+runner exits `1` without a report. The Cratis C# renderer also retains `-044`:
+executing a model here does not make it renderable.
+
+After authorization and property/concept rules, each declared read must exist at
+its key. Missing state rejects with `<View> '<key>' does not exist.` before any
+requirement or generation, even a command-only requirement. `/validate` reports
+absence too. Present read properties feed `require` and produced-event mappings.
+The executor projects prior facts through Chronicle's in-memory read-model scenario,
+preserving event-source-keyed removal and recreation. Join removals, parent keys,
+children and nested scopes remain refused.
+
+A protected command with any non-Error requirement refuses `STAGE-ESM-045` before
+execution. This includes reaction-invoked commands, even a specification expecting
+rejection: the outcome is `Unsupported`, before seeding facts, not a passing refusal.
+Do not change modeled severity to get an executable result.
+
+The semantic Host faults the session on **any outside append** to its event log,
+even an unrelated one, before committing an accepted command. This interim guard
+is stricter than the reference's dependency-scoped decide/commit conflicts; do not
+claim full reference conflict parity or generated-application protection.
+
 ## Refusals shared by both engines
 
 Both engines refuse public events (`STAGE-ESM-032`), foreign or source-event captures
@@ -141,7 +168,7 @@ invalid semantic option.
 - **Semantic**: creates a fresh in-memory Chronicle log per specification and dispatches
   admitted commands through Arc's in-memory pipeline; supports explicit-source and routed
   given events, unconditional production, event assertions, caller and authorization,
-  command rules, unique constraints, flat and event-source-keyed scoped projections, and
+  command rules, protected command reads (including reaction invocations), unique constraints, flat and event-source-keyed scoped projections, and
   optional snapshot queries, including protected ones: portable authorization is evaluated
   with the fixture caller, query arguments and key, and an expected denial matches only
   `then denied`. Report schema `stage-spec-run/1` with outcomes
@@ -149,6 +176,10 @@ invalid semantic option.
   `Cancelled`. Not supported: given read models, conditional production, implicit identity
   allocation, external effects, composite values, queries other than optional snapshots, and
   a reached opaque authorization policy (reported as `Unsupported`). Unsupported is never a pass. Do not feed the file to a legacy reader.
+
+The runner and generated-fixture checks use Screenplay's public
+`SemanticValidationRules.Check`. This shared rule check does not execute opaque
+generation or validation bodies.
 
 How the runner relates to the verdicts: a structural pass is not a behavioral result. The
 semantic engine is Stage's own executor running through Arc's in-memory pipeline. It is
