@@ -1,7 +1,7 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Language admission: batches, described bodies, text and reads
+# Language admission: batches, described bodies, text, reads and dates
 
 Select the highest version required by constructs in the model. A newer version
 alone never opts into either application mode. Consumers must explicitly admit
@@ -13,6 +13,7 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 | v23 | Pending `handler implementation` beside unconditional `produces` | Payload-only body; PLAY0695 information; reaching body gives Unsupported ImplementationBody | v23 admitted, body refused STAGE-IMPL-002 in renderer/Host/executor, even Stub mode |
 | v24 | `contains`, `not contains`, `starts with`, `ends with` property/concept rules | Ordinal UTF-16, absent optional passes; not text-condition operators | v24 admitted; semantic Host/executor and generated ordinal comparisons preserve rules |
 | v25 | Application-root `command reads protected` | Admitted reads in requirements/mappings, absence Validation, matching decide/commit changes Conflict | v25 admitted; protected reads refused STAGE-ESM-044 in renderer/Host/executor |
+| v26 | Chronological command Date/DateTime comparisons | Same-primitive `==`, `!=`, `>`, `>=`, `<`, `<=`; DateTime UTC ticks and pre-rule offset validation | v26 refused STAGE-ESM-016 |
 
 Requires Screenplay 4.181.0 or later (`screenplay --version`) for atomic batches; older compilers cannot admit the preamble.
 
@@ -21,6 +22,8 @@ Requires Screenplay 4.182.0 or later (`screenplay --version`) for described hand
 Requires Screenplay 4.184.0 or later (`screenplay --version`) for literal text rules; older binders do not admit those rules.
 
 Requires Screenplay 4.193.0 or later (`screenplay --version`) for protected reads; older binders retain PLAY0271/PLAY0268.
+
+Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`) for date comparisons; older binders report PLAY0268.
 
 Requires Stage 4.124.0 for v24 text-rule admission (`cratis --version` identifies the CLI bundle); older renderers refuse v24 with STAGE-ESM-016. V23 admission alone does not implement described bodies.
 
@@ -38,6 +41,18 @@ Text comparisons and matching are in [text and match rules](../../cratis-screenp
 `matches` uses the portable linear dialect without selecting a new ESM version;
 PLAY0699 refuses nonportable constructs, PLAY0367 invalid syntax, PLAY0787 warns
 on exact Studio text-rule patterns and offers a literal-rule repair.
+
+For v26, `require`/`produces when` compare a required scalar command property to
+a required same-primitive property or literal. Command/property validation rules
+compare only to literals. Date is a calendar date; DateTime is a UTC instant at
+seven-fractional-digit tick precision. Participating DateTime inputs without an
+offset or `Z` reject with Validation before any rule, even if a comparison is skipped.
+`then` matching, keys, constraints and freshness remain ordinal. PLAY0268 retains
+mixed Date/DateTime, optional condition operands, `$context` (including occurred),
+`today`, protected read paths, concept date rules and reaction `where`. In admitted
+positions, invalid date literals or offset-less DateTime literals use PLAY0273.
+Read [date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)
+for the complete interval example and input/target boundaries.
 
 Stage's semantic engines admit exact v1–v21 and v23–v25 pairs. V22/v26 and mixed
 pairs refuse STAGE-ESM-016. Admission of v23–v25 is not admission of described bodies,

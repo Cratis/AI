@@ -87,6 +87,16 @@ when these inputs are unsettled; skip answered questions.
 ## Scenario types (decide each per command; detail in `references/scenario-catalogue.md`)
 Decide each of these per command: happy path; rule rejection (one spec per rule, exact pinned `then error`); denial (`given caller` without the policy, `then denied`, one per gated command and query); state violation; duplicate or retry; competing claim; alternative path; ordering; external failure; compensation; evolution; and the view pass. Read [references/scenario-catalogue.md](references/scenario-catalogue.md) ("Scenario types at a glance") for each type's question and usual shape.
 
+For command Date/DateTime ordering, cover increasing and inverted intervals,
+equality across offsets, a one-tick boundary and **each participating DateTime
+input without an offset or Z**. That last case rejects with Validation before rules,
+even if a condition short-circuits or a production is skipped. `then` stays ordinal;
+never replace payload text with an equivalent instant. Read the complete
+[retention-window specifications](../cratis-screenplay-command-surface/references/date-comparisons.md)
+for the compiler prerequisite, admitted positions, refused `today` and Stage's v26
+refusal. Missing-offset runtime coverage needs an evaluator-request or target input
+test: a typed `.play` fixture rejects that value at binding with PLAY0273, before runtime.
+
 For recovery, `when redelivered <Event> to <Reaction>` must select one definitely
 matching effective given and no undecided candidate. It delivers only to the named
 reaction without re-appending the input; `then no events` explicitly checks no
@@ -126,7 +136,8 @@ proved and keep other guarantees as target requirements; recovery cases are in
   opaque source text, not the capture's content key.
 - Format rules belong on a `concept`: give each concept rule representative acceptance,
   rejection and boundary specs once (through one command that carries it), not on every use;
-  never `n/a` automatically. Include a whitespace-only rejection for text `not empty`:
+  never `n/a` automatically. Date/DateTime comparisons are command-only, not concept rules.
+  Include a whitespace-only rejection for text `not empty`:
   this changes outcomes in every ESM version (Requires Screenplay 4.151.0 or later). Unicode/identity boundaries
   and evidence: command-surface `references/validate-rules.md`.
   A business rule gets one rejection spec if an expert could recognize it from its message;

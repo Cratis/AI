@@ -135,8 +135,10 @@ changes with the root folder name.
   `references/diagnostics.md` for proof/support failures. Binding is not rendering.
   Tool/renderer authors: read [references/generation-checks.md](references/generation-checks.md)
   when discovering strategy options, checking one concept or value, or consuming rule proofs.
-- **v22–v25:** read [language admission](references/language-admission.md) for atomic
-  batches, described handlers, text rules, protected reads and Stage refusals.
+- **v22–v26:** read [language admission](references/language-admission.md) for atomic
+  batches, described handlers, text rules, protected reads, chronological command
+  Date/DateTime comparisons (Requires Screenplay 4.199.0; `screenplay --version`;
+  older binders refuse PLAY0268) and Stage refusals.
   Read [diagnostic arguments](references/diagnostic-arguments.md) for MCP/JSON subjects:
   code and typed arguments, never message parsing.
 - **Caller/compliance metadata:** `$identity` aliases caller built-ins;

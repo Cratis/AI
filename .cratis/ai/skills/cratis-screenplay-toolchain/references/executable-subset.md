@@ -10,6 +10,7 @@
 - Time, reactions and captures (ESM v6)
 - Generated values and responses (ESM v7)
 - Released public boundaries and observer routes
+- Chronological command date comparisons (ESM v26)
 - Code attachments (what binds, what never does)
 - Refused (code, reason): fix, or record as a mode gap
 - Not refused, but do not rely on it
@@ -40,7 +41,8 @@ Complete examples that bind live in `executable-example.md`, `pdl-example.md` (p
 `automation-translate-example.md` (ESM v6) and `generated-responses-example.md` (ESM v7).
 
 For atomic batches (v22), described handlers (v23), ordinal text rules (v24) and
-protected reads (v25), read [language admission](language-admission.md). A later
+protected reads (v25) and chronological command dates (v26), read
+[language admission](language-admission.md). A later
 version alone does not enable either application opt-in.
 
 ## Caller and compliance boundary
@@ -251,12 +253,26 @@ Stage renders v13 concept protection; protected identities/enums still refuse
 
 Requires Screenplay 4.117.0 or later (`screenplay --version`) for ESM v9, 4.129.0 or later for production overrides and observer filters (v10), 4.135.0 or later for v11 and 4.139.0 or later for enum numbers (v12).
 
+## Chronological command date comparisons (ESM v26)
+
+Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`); older binders refuse
+with PLAY0268. `==`, `!=`, `>`, `>=`, `<`, `<=` bind for Date/Date or DateTime/DateTime.
+`require`/`produces when` compare required scalar command properties to properties
+or literals; command/property validation rules accept literal right operands only.
+DateTime compares UTC instants at tick precision, not text. Every participating
+DateTime input needs an offset or `Z`, else Validation rejects before rules, even
+for skipped comparisons. `then` matching stays ordinal. Invalid date literals or
+offset-less DateTime literals in admitted comparisons report PLAY0273. Read
+[date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)
+for the complete window model and retained PLAY0268 refusals. Stage refuses v26
+with STAGE-ESM-016, independently of standalone binding/reference execution.
+
 ## Code attachments (what binds, what never does)
 
 Pending `handler implementation` beside unconditional `produces` binds as a described
 command (v23). Its payload-only body returns Unsupported ImplementationBody when reached;
 denial/validation specs still run. Read [language admission](language-admission.md) for
-v22–v25 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
+v22–v26 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
 for the result contract. Attached handlers remain unbound.
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
@@ -302,8 +318,8 @@ bodies still leave their owner non-executable.
 | `pii` or `secret` on a concept | PLAY0268 | Older compilers refuse it outright. Current compilers admit v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
 | `query` with a composite `by` block, or `by ... from` context-derived arguments | PLAY0268 | composite `by` blocks remain unadmitted. An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too |
 | Context `from`, single-result filters, `scoped to`, `performer` queries | PLAY0268 | Typed query context, filtering of single results, opaque scope and query implementation remain unadmitted; each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
-| `contains` or `starts with` in conditions only | PLAY0268 | `require`/`produces when` conditions admit equality and numeric ordering only; property/concept text rules bind as v24 |
-| Date or DateTime comparison, `today` | PLAY0268 | no runtime date value |
+| `contains` or `starts with` in conditions only | PLAY0268 | conditions admit scalar equality and numeric ordering, plus same-primitive command date comparisons from v26; property/concept text rules bind as v24 |
+| Date comparisons with mixed primitives, `$context` (including occurred), `today`, protected read paths, optional condition operands, concept rules or reaction `where` | PLAY0268 | v26 admits only command conditions and command/property literal validation rules |
 | Rule on a nested path (`lines.qty all > 0`) | PLAY0268 | put the rule on the nested value's concept |
 | Read paths without protected opt-in, or in `produces when` | PLAY0268 | v25 admits single-level paths only in `require` and produced-event mappings |
 | Legacy `reads <View> ...` on a command | PLAY0271 (error) | `command reads protected` opts eligible views into v25; see command-surface protected reads |

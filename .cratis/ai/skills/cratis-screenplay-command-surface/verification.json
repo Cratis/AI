@@ -4,6 +4,9 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "require to >= from", "file": "references/date-comparisons.md" },
+    { "kind": "skill-contains", "value": "RejectingAMissingOffset", "file": "references/date-comparisons.md" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-016", "file": "references/date-comparisons.md" },
     { "kind": "skill-contains", "value": "Unsupported (`ImplementationBody`)", "file": "references/described-handlers.md" },
     { "kind": "skill-contains", "value": "including Stub mode", "file": "references/described-handlers.md" },
     { "kind": "skill-contains", "value": "DecisionStateChanged", "file": "references/protected-reads.md" },
