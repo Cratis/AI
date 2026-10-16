@@ -107,9 +107,11 @@ another event source) in `Provide()`/`Handle()` and returning a validation resul
 at commit is reported as a concurrency violation. Equivalently a Chronicle decision-consistency
 read with a `concurrency` scope on the event source or stream. A passive read is fresh
 computation, not an atomic read-and-append; a plain materialized view and a validator are
-advisory. Protection covers only a single projection keyed directly by the event source id (routing key
-empty or `$eventSourceId`). Reducers, joins, children, nested sources and **event-property
-routing** (fan-in from many streams by a payload reference) are refused, and a concurrency scope
+advisory under Arc read protection `Off` (the default); under `On` (Arc 22.106.0 or later) the read
+model parameters of `Handle()` and of a validator constructor are guarded. Protection covers a single
+projection keyed directly by the event source id (routing key empty or `$eventSourceId`) and an
+unfiltered reducer without constructor dependencies. Filtered reducers, reducers with dependencies,
+joins, children, nested sources and **event-property routing** (fan-in from many streams by a payload reference) are refused, and a concurrency scope
 on the referenced source does not see appends made on other sources. A rule over such a view, for
 example a course capacity computed from enrolment streams, needs option a or b: write the
 deciding fact on the source that owns the state, or give each scarce item its own identity. Sources: Arc `Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md` (limits unchanged);

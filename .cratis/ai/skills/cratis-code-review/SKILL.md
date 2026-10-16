@@ -81,10 +81,13 @@ there is nothing to review under a red build.
 - Logging lives in a `*Logging.cs` partial with `[LoggerMessage]`, not inline in
   domain code.
 - No shared mutable state between commands.
-- Plain injected models are advisory, not a concurrency guard. Review guarded
-  stream/projection reads and actual conflict specs (`UseDecisionReads()`).
+- Read protection is `Off` by default; new code sets `<CratisReadProtection>On</CratisReadProtection>`.
+  Under `Off` an injected model or validator read is advisory, not a concurrency guard.
+  Under `On`, review that state rules sit in validators or handlers with the model as
+  a parameter, `[Unprotected("why")]` carries a real reason, and a conflict spec
+  (`AppendConcurrently` plus `ConcurrencyViolation`) exists.
 - Use `Cratis.Arc.Core.CodeAnalysis` and `Cratis.Arc.Chronicle.CodeAnalysis`.
-  ARCCHR0011/0012 (Info) flag unprotected reads/immediate
+  ARCCHR0011 (Info, `Off` only) and 0012 flag unprotected reads/immediate
   bypasses; 0013 (Info) recommends definitions; 0014 checks declared observer
   streams; 0015 warns on nullable events; 0016 flags ignored concurrency flags;
   0017/0018 check stream-id templates; 0019 warns on folds exposed as queries.
