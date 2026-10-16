@@ -137,9 +137,11 @@ Target evidence: a renderer must admit ESM v16 and preserve `storedName`, or ref
 | PLAY0665 | E | Invalid/duplicate/child-bearing/unresolved source/stream filter or filtered reaction with a non-event trigger |
 | PLAY0666 | W | Filter excludes all statically known effective producer routes; C# only, handlers/foreign origins suppress it |
 
-Queries and trigger reads have no PLAY0661 repair. Composite view keys, query
-blocks and their fixtures remain PLAY0268, while one explicit key binds
-byte-identically to inference. Fixtures missing any part report PLAY0351.
+Queries and trigger reads have no PLAY0661 repair. Flat composite view keys bind as v27;
+projection or removal key blocks missing a part report PLAY0661 and bad parts PLAY0662.
+One explicit key binds byte-identically to inference. Fixtures missing any part
+report PLAY0351. Joins, children, `every`, `all`, `nested`, `variant`, reducers and
+list-query `by` blocks over a composite-keyed view are PLAY0268.
 Overrides/filters select released ESM v10; malformed routes also use PLAY0504.
 Read read-surface `references/named-keys.md` and
 [production routes and filters](production-routes-and-filters.md).
@@ -346,15 +348,16 @@ refusal reasons. Read [language admission](language-admission.md) before changin
 | PLAY0785 | Ambiguous view path; use distinct aliases on repeated reads |
 | PLAY0786 (I) | Eligible legacy model; preview typed preamble repair, individually review absence/conflict semantics |
 | PLAY0787 (W) | Exact deprecated Studio text-rule pattern; repair to literal rule or equality, preserving message/severity |
-| STAGE-ESM-043 | Atomic mode not realized, even in admitted v23–v25; retain declaration and gap-fill |
+| STAGE-ESM-043 | Atomic mode not realized, even in admitted v23–v26; retain declaration and gap-fill |
 | STAGE-ESM-044 | Cratis C# renderer refuses protected reads despite v25 admission; semantic Host/executor support is separate; keep protection and gap-fill generated-app scope |
 | STAGE-ESM-045 | Non-Error protected requirement; semantic Host/executor refuse before execution, including reaction-invoked commands; keep severity and report Unsupported |
 | STAGE-IMPL-002 | Described handler body not realized by Stage, even Stub mode; no stubs emitted |
 
 Invalid match syntax remains PLAY0367. Property/concept text rules bind v24;
 `contains`/`starts with` in conditions only still fail PLAY0268. Stage rejects
-v22/v26 and mixed pairs with STAGE-ESM-016; v23–v25 admission does not implement
-bodies, batches or rendered protected reads (STAGE-ESM-044). Requires Stage 4.129.0
+v22/v27 and mixed pairs with STAGE-ESM-016; v23–v26 admission does not implement
+bodies, batches or rendered protected reads (STAGE-ESM-044), and the renderer refuses
+v26 date comparisons with STAGE-ESM-046. Requires Stage 4.129.0
 for semantic Host/executor protected reads; older engines refuse -044. Read
 [language admission](language-admission.md) for the stricter Host outside-append guard.
 

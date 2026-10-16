@@ -54,11 +54,13 @@ identity (all such queries must agree). Only with no single-instance identifier
 and an admitted list query does the binder infer an unambiguous `*Id`; queryless
 read models need an explicit `key`. See named keys below for collection-key exclusions.
 One explicit key binds byte-identically to equivalent inference. Several marks
-form a composite key, supplied by name in query/read
-`by` blocks. Composite keys and block queries remain
-**authoring-only** (PLAY0268); the scalar optional snapshot shape binds.
-Read [named keys](references/named-keys.md) for complete examples, trigger/command
-reads, all-parts fixtures, PLAY0660–0662 and command-read-only PLAY0661 repair.
+form a flat composite key: an optional single-instance query names every part in a
+`by` block, a list query narrows with equality filters, and fixtures state every part.
+Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`); older binders refuse
+several key marks with PLAY0268. A list query over such a read model cannot use a
+`by` block (PLAY0268).
+Read [named keys](references/named-keys.md) for one complete executable example,
+trigger/command reads, all-parts fixtures, PLAY0660–0662 and command-read-only PLAY0661 repair.
 A `=>` target resolving to an event is an event-target builder, not a read model;
 keep event and read-model names distinct (see projections' public-event targets).
 
@@ -78,7 +80,7 @@ query ListInvoices => InvoiceListReadModel[]
 **Name the compiler and renderer.** Optional keyed queries and collection queries
 bind, including `observable`. Caller-supplied equality
 filters on collections bind as ESM v14; `from`, single-result filters, `scoped to`,
-`performer` and composite `by` remain PLAY0268, each with its reason. Read
+`performer` and a `by` block on a list query (or on a non-optional single result) remain PLAY0268, each with its reason. Read
 [equality filters](references/equality-filters.md) for the admitted shape, a complete
 compiled specification model and the Stage/CLI ceilings. Keep a list the domain needs.
 
@@ -177,7 +179,7 @@ primitive/concept/enum properties, same nominal type ignoring optionality, no
 `from`, distinct names not repeating `by`. `by` and supplied filters AND together;
 optional filters may be omitted, but supplied null is refused. PLAY0268 still
 rejects context sources, single-result filters, opaque scope/performer and
-composite `by`; a single non-optional result remains unadmitted too.
+a `by` block on a list query (or on a non-optional single result).
 Authorization runs before lookup, ANDed with module/feature gates; policies see
 only `by`, never filters. Pin denial with `given caller` and `then denied`.
 Specs pass `by` and filters by name (PLAY0468 for unknown, repeated or missing

@@ -11,8 +11,8 @@
 - Specification rules (`STAGE-ESM-011`)
 - Refusals seen while drafting a model
 
-Stage admits exact ESM v1–v21 and v23–v25 language/semantic pairs, then checks
-constructs. V22, v26 and mixed or unknown pairs report `STAGE-ESM-016`. The CLI's bundled renderer
+Stage admits exact ESM v1–v21 and v23–v26 language/semantic pairs, then checks
+constructs. V22, v27 and mixed or unknown pairs report `STAGE-ESM-016`. The CLI's bundled renderer
 may stop at v16 and refuse newer models with `CLI-RENDER-004`.
 
 Requires Stage 4.96.0 for v16, 4.101.0 for v17, 4.102.0 for v19, 4.106.0 for v18, and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
@@ -34,9 +34,13 @@ Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines
 Described handlers refuse STAGE-IMPL-002, even Stub mode; atomic mode in an
 admitted pair refuses STAGE-ESM-043. Version admission never implements a body,
 batch or rendered protected decision. Chronological Date/DateTime command comparisons
-select v26 in Screenplay but still refuse STAGE-ESM-016 here; standalone reference
-success is not rendering or Host/executor admission. Keep the date rule and use
-authorized gap-fill rather than downgrading to ordinal text or millisecond precision.
+select v26. The semantic Host and specification executor run them; the renderer,
+legacy engines and default sandbox engine refuse them with STAGE-ESM-046, naming the
+property, and emit no artifacts. Standalone reference success is not rendering. Keep
+the date rule and use authorized gap-fill rather than downgrading to ordinal text or
+millisecond precision.
+
+Requires Stage 4.135.0 for v26 admission; older Stage refuses v26 with STAGE-ESM-016.
 
 Binding with the CLI's bundled compiler is a separate
 prerequisite. The exhaustive construct table is `references/renderable-subset.md` in
@@ -135,13 +139,13 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-005` | Code validation or rule predicate bodies; or a command beyond the first capability (optional event property, event revision other than the first, validation or requirement that cannot be rendered, neither `produces` nor a response) | Use declarative validation; non-initial event generations are not rendered |
 | `STAGE-ESM-006` | `produces` that cannot render without changing its destination or mappings (expression/enum conditions, literal or computed mappings, `for` not a command identifier, mappings not one-to-one with event properties, duplicate tags) | Map properties one to one; supported conditional productions render as guarded events, not separate commands |
 | `STAGE-ESM-007`, `-008`, `-009` | Projection count per read model (exactly one projection or reducer each); unresolvable properties or no single read-model transition (**flat** projections only); affected instance not one, not keyed by an event property, or not the event-source identity (flat projections only) | One projection per read model; see "Projections" below |
-| `STAGE-ESM-010` | A query is neither an optional snapshot lookup by the read-model identifier nor a supported snapshot/observable collection query; each query is checked on its own. Both collection modes render. Concept-typed keys and filters retain Arc validation, including composite members and collection elements; nullable concept keys or optional concept filters with `not empty` cannot preserve null semantics | Keyed `XById => X optional` queries or snapshot/observable lists. Equality filters render on both collections; DateTime filters, required filters after optional ones and unsupported null-validation shapes refuse 010. Filter-name collisions refuse 012. Context/single-result filters, opaque scope/performer and composite `by` remain PLAY0268 |
+| `STAGE-ESM-010` | A query is neither an optional snapshot lookup by the read-model identifier nor a supported snapshot/observable collection query; each query is checked on its own. Both collection modes render. Concept-typed keys and filters retain Arc validation, including composite members and collection elements; nullable concept keys or optional concept filters with `not empty` cannot preserve null semantics | Keyed `XById => X optional` queries or snapshot/observable lists. Equality filters render on both collections; DateTime filters, required filters after optional ones and unsupported null-validation shapes refuse 010. Filter-name collisions refuse 012. Context/single-result filters, opaque scope/performer and a list-query `by` block remain PLAY0268; a read model with several key parts (v27) refuses `STAGE-ESM-016` |
 | `STAGE-ESM-011` | A specification cannot render (see the rules below) | Reshape it only if the assertion keeps its meaning; otherwise keep the specification, record the gap, and gap-fill with the specification as the oracle. Never weaken or delete it to get a render |
 | `STAGE-ESM-012` | Generated C# names collide (properties, types, namespaces, constraints) | Rename |
 | `STAGE-ESM-013` | An event-context value other than `$context.occurred` mapped in `produces` | Map a command property when that preserves the meaning; otherwise gap-fill |
 | `STAGE-ESM-014` | A constraint Chronicle cannot reproduce (kind, scope, message; multi-claim in one command; optional or composite targets) | A different constraint is a requirement change for the model owner; otherwise gap-fill |
 | `STAGE-ESM-015` | Authorization Stage cannot render exactly: a role-claim URI, an opaque policy nested inside a condition, an unresolved or non-portable policy, no single identifier, an opaque-policy subject that is not text, Uuid, Date or DateTime (a restriction on opaque-policy subjects, separate from declarative claim targets), an unsupported claim artifact. Role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false) and `not`/and/or render; roles are read through the identity's `RoleClaimType` | Reshape the policy to a portable condition; otherwise gap-fill |
-| `STAGE-ESM-016` | Model language/semantic pair is not admitted by the installed Stage; exact v1–v21 and v23–v25 pairs are admitted, v22/v26 and mixed pairs refused; older Stage also refuses the versions listed in the minimums above. A CLI bundle stopping at v16 reports `CLI-RENDER-004` above v16 first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
+| `STAGE-ESM-016` | Model language/semantic pair is not admitted by the installed Stage; exact v1–v21 and v23–v26 pairs are admitted, v22/v27 and mixed pairs refused; older Stage also refuses the versions listed in the minimums above. A CLI bundle stopping at v16 reports `CLI-RENDER-004` above v16 first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
 | `STAGE-ESM-017` | Read model or projection cannot render (property names that collide with Chronicle paths or expression syntax, mappings that overwrite the key or child identity, composite keys, unsupported `all` mappings, the refused scope shapes below) | Reshape the projection without changing what it records, or record the gap |
 | `STAGE-ESM-018` | `$strings.` key missing in the default locale or containing formatting characters | Fix the strings |
 | `STAGE-ESM-019` | Reducer structure or body not admitted (outside a `StateView`, impure, does not compile) | An equivalent pure body, or gap-fill |
@@ -164,6 +168,7 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-042` | Unknown validation rule kinds; checksum on the legacy syntax path (semantic checksum renders) | Keep the rule; use an admitting semantic renderer or gap-fill |
 | `STAGE-ESM-043` | `reaction batches atomic` in an admitted version pair | Keep the batch boundary; gap-fill without splitting it |
 | `STAGE-ESM-044` | Protected-read preamble, command reads or read-backed conditions/mappings in the Cratis C# renderer; legacy Host/structural runner also refuse the preamble | Keep protection; semantic Host/executor support is separate from generated-app enforcement |
+| `STAGE-ESM-046` | Date/DateTime comparison in `require`, `produces when` or a validation rule (including through concepts) in the renderer, legacy engines or default sandbox engine; names the property | Keep the date rule; the semantic Host/executor run it; deliver rendering through gap-fill that compares exact calendar dates and UTC ticks |
 | `STAGE-ESM-045` | Non-Error requirement on a protected command, including reaction-invoked commands; semantic admission refuses before reads, requirements or facts | Keep the severity contract; record the execution gap, never silently promote or drop the requirement |
 | `STAGE-IMPL-002` | Described command handler, naming command and RequirementId; also refused in Stub mode | Supply authorized implementation outside rendering; no generated stub is emitted |
 | `STAGE-ESM-037` | Events and commands from one handler, even across separate triggers on the same event in one reaction. The scaffold's Arc supports mixed results, but appends events before commands; a refused command causes redelivery and duplicate events | **Do not split the modeled reaction or drop an effect.** Gap-fill only with a proven retry-safe implementation; `[OnceOnly]` excludes replay, not retry |

@@ -74,8 +74,9 @@ printed), `1` is a missing input. Add `-o json` for the counts and the publicati
 Facts that surprise:
 
 - **Binding uses the CLI's bundled compiler**, not the standalone one. Version admission
-  does not imply construct support: exact ESM v1–v21 and v23–v25 pairs are admitted,
-  while v22/v26 and mixed pairs refuse `STAGE-ESM-016`. Pattern/random generation and checksum validation
+  does not imply construct support: exact ESM v1–v21 and v23–v26 pairs are admitted,
+  while v22/v27 and mixed pairs refuse `STAGE-ESM-016`. Date/DateTime command comparisons (v26)
+  execute in the semantic Host and executor but refuse `STAGE-ESM-046` in the renderer. Pattern/random generation and checksum validation
   render with an admitting renderer; `generate rule` still refuses `STAGE-ESM-028`.
   Read [references/admission.md](references/admission.md) for the introducing-release
   prerequisites, all-Proven unpinned specifications and construct/pin checks (-011/-038).
@@ -132,9 +133,9 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
   The Cratis C# renderer refuses protected reads with `STAGE-ESM-044`, described handlers `STAGE-IMPL-002`
   (even Stub mode), and atomic mode in admitted pairs `STAGE-ESM-043`.
 - **Binding refusals (`PLAY0268`/`PLAY0271`):** legacy reads, `concurrency`, attached
-  handlers, context/single-result filters, opaque scope/performer, composite `by`,
+  handlers, context/single-result filters, opaque scope/performer, a list-query `by` block,
   enum/identity compliance and subject lineage. Eligible protected reads bind v25;
-  pending handlers with unconditional productions bind v23, but neither renders.
+  pending handlers with unconditional productions bind v23, but neither renders. A read model with several key parts (v27) refuses `STAGE-ESM-016`.
   Never drop protection.
 
 A refusal is not a licence to weaken the model: drop no specification, event generation or

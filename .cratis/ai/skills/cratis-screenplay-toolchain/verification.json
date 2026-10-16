@@ -12,7 +12,7 @@
     { "kind": "skill-contains", "value": "PLAY0666", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "bind/reference-execute as v11", "file": "references/executable-subset.md" },
     { "kind": "skill-contains", "value": "A consumer admitting v10 must include all three", "file": "references/production-routes-and-filters.md" },
-    { "kind": "skill-contains", "value": "Composite view keys remain authoring-only (PLAY0268)" },
+    { "kind": "skill-contains", "value": "Flat composite read-model keys select v27" },
     { "kind": "skill-contains", "value": "the **whole source, stream and stream id**", "file": "references/production-routes-and-filters.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "Requires Screenplay 4.144.0", "file": "references/verdicts.md" },

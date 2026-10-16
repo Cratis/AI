@@ -21,9 +21,9 @@ and concept compliance (v13) render.
 
 ## Current admission
 
-Stage admits exact ESM v1–v21 and v23–v25 pairs; v22/v26 and mixed pairs
+Stage admits exact ESM v1–v21 and v23–v26 pairs; v22/v27 and mixed pairs
 refuse STAGE-ESM-016. Chronological command Date/DateTime comparisons select v26:
-standalone binding/reference execution does not make them renderable. Keep the
+the Host and executor run them, but the renderer refuses STAGE-ESM-046, so they are not renderable. Keep the
 rule and use authorized gap-fill. Version admission is separate from construct support.
 Requires Stage 4.106.0 for v18 admission; older Stage refuses it with `STAGE-ESM-016`.
 For generated-concept v20/v21 admission and construct prerequisites, read
@@ -46,7 +46,7 @@ This table is a reading of the renderer's admission, not a render result: run th
 | Area | Renders | Refused (code) |
 | --- | --- | --- |
 | Slice kinds | `StateChange`, `StateView`, supported event-triggered `Automation` with Chronicle reactors | Translate, captures, non-event triggers, opaque bodies, clock/trigger/capture specs (`-024`); claim-reading/opaque `runs as` gates (`-034`), mixed effects from one handler (`-037`, redelivery can duplicate events), unsupported conditions/destinations/mappings (`-039`). Keep refused reactions whole |
-| Queries | optional keyed snapshot lookups; snapshot or observable collections, keyed or unkeyed, with v14 equality filters | context/single-result filters, opaque `scoped to`/`performer` and composite `by`: PLAY0268. DateTime filters and required parameters after optional filters refuse `-010`; filter-name collisions refuse `-012`; concept arguments retain Arc validation, including nested members/elements; nullable keys or optional concept filters with `not empty` refuse `-010` rather than changing null behavior |
+| Queries | optional keyed snapshot lookups; snapshot or observable collections, keyed or unkeyed, with v14 equality filters | context/single-result filters, opaque `scoped to`/`performer` and a list-query `by` block: PLAY0268; v27 composite keys: STAGE-ESM-016. DateTime filters and required parameters after optional filters refuse `-010`; filter-name collisions refuse `-012`; concept arguments retain Arc validation, including nested members/elements; nullable keys or optional concept filters with `not empty` refuse `-010` rather than changing null behavior |
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, including routed read-model/query companion replay | reserved stored names, unformattable routed fixtures (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |

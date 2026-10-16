@@ -138,6 +138,8 @@ Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the 
 
 **Modeling defaults** (deviate with a recorded reason)
 - One business identity per stream; cross-stream references are payload properties.
+- A read model's key is not a stream identity. Read [references/read-model-keys.md](references/read-model-keys.md)
+  when choosing one id, flat composite key parts (v27) or a composite-typed key.
 - Copy the source id into the payload only when a consumer needs it as a value.
 - Give each invariant an authoritative atomic decision point and inspect every path that could
   violate it. A constraint violation rejects that command's whole append set; a reaction cascade
@@ -145,7 +147,7 @@ Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the 
 - New models declare `reaction batches atomic`: direct productions per trigger
   occurrence and each selected refusal branch are separate batches; invoked commands
   stay independent. Legacy absence retains per-fact appends. Stage refuses v22
-  with STAGE-ESM-016 and atomic mode in admitted v23–v25 with STAGE-ESM-043. Read
+  with STAGE-ESM-016 and atomic mode in admitted v23–v26 with STAGE-ESM-043. Read
   [atomic boundaries](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
   when defining failure rollback; batching is not redelivery deduplication.
 - Match duplicate protection to scope. A property constraint lets a source re-claim its own

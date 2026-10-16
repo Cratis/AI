@@ -155,8 +155,9 @@ reads/concurrency cannot combine (PLAY0783). The Cratis C# renderer refuses prot
 semantic Host/executor support is separate.
 Uniqueness still uses a constraint; reference success is not target realization.
 
-Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block is
-`PLAY0268` (read-surface `references/named-keys.md`).
+Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block in a
+command read is `PLAY0271`, or `PLAY0781` ByParts under `command reads protected`
+(read-surface `references/named-keys.md`).
 
 ## `validate`
 
@@ -182,7 +183,7 @@ Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`) for Date/DateTime
 comparisons; older binders report PLAY0268. Read [date comparisons](references/date-comparisons.md)
 when ordering a retention window with `require to >= from`, comparing instants
 across offsets, or rejecting offset-less inputs before rules. It covers admitted
-positions, PLAY0268/0273, ordinal `then` matching and Stage's v26 refusal.
+positions, PLAY0268/0273, ordinal `then` matching and Stage's STAGE-ESM-046 renderer refusal.
 
 **Rules whose logic is code.** A bare `rule <Name>` has no portable meaning (`PLAY0268`) and a bodied rule binds only as
 opaque code. Read [references/validate-rules.md](references/validate-rules.md) when a rule's logic must live in a `file`

@@ -11,6 +11,7 @@
 - Generated values and responses (ESM v7)
 - Released public boundaries and observer routes
 - Chronological command date comparisons (ESM v26)
+- Flat composite read-model keys (ESM v27)
 - Code attachments (what binds, what never does)
 - Refused (code, reason): fix, or record as a mode gap
 - Not refused, but do not rely on it
@@ -41,7 +42,7 @@ Complete examples that bind live in `executable-example.md`, `pdl-example.md` (p
 `automation-translate-example.md` (ESM v6) and `generated-responses-example.md` (ESM v7).
 
 For atomic batches (v22), described handlers (v23), ordinal text rules (v24) and
-protected reads (v25) and chronological command dates (v26), read
+protected reads (v25), chronological command dates (v26) and composite keys (v27), read
 [language admission](language-admission.md). A later
 version alone does not enable either application opt-in.
 
@@ -86,10 +87,10 @@ Requires Screenplay 4.141.0 or later (`screenplay --version`) to bind concept co
   none supplies identity and an admitted list query exists does conventional
   `*Id` inference run (collection-key exclusions: read-surface `references/named-keys.md`).
   Queryless read models need an explicit `key`. Explicit single keys preserve
-  equivalent inferred ESM bytes. Composite read-model keys, query `by` blocks and
-  their fixtures remain PLAY0268. Collections and observable delivery bind.
+  equivalent inferred ESM bytes. Flat composite read-model keys bind as v27
+  (see below). Collections and observable delivery bind.
   Caller-supplied equality filters on collections also bind as ESM v14; context
-  sources, single-result filters, scope, performer and composite `by` remain blocked.
+  sources, single-result filters, scope, performer and a list-query `by` block remain blocked.
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
   `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
   `subtract`, `set`, `clear`, variants, and the identifier mapped from the projection's key (`xId = $eventSourceId` only for an event-source key).
@@ -264,15 +265,36 @@ DateTime input needs an offset or `Z`, else Validation rejects before rules, eve
 for skipped comparisons. `then` matching stays ordinal. Invalid date literals or
 offset-less DateTime literals in admitted comparisons report PLAY0273. Read
 [date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)
-for the complete window model and retained PLAY0268 refusals. Stage refuses v26
-with STAGE-ESM-016, independently of standalone binding/reference execution.
+for the complete window model and retained PLAY0268 refusals. The Stage renderer refuses
+v26 date comparisons with STAGE-ESM-046, independently of standalone binding/reference execution.
+
+## Flat composite read-model keys (ESM v27)
+
+Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`); older binders refuse a
+read model with two or more `key` marks with PLAY0268. Binding admits a model with
+several flat scalar key parts when:
+
+- root `from` and `remove with` blocks name every part in an untyped `key` block;
+- a list query narrows with equality filters, and an optional single-instance query
+  names every part in a `by` block;
+- fixtures state every part (`given readmodel`, `then readmodel`, `then no readmodel`).
+
+Models with one `key` mark keep their earlier version and bytes. Refused with PLAY0268:
+joins, `children`, `remove via join`, `every`, `all`, `nested`, `clear with`, `variant`
+and reducers on the composite-keyed read model, a list query with a `by` block, a
+non-optional single-instance return, and command reads (PLAY0271, or PLAY0781
+ByParts under `command reads protected`) or trigger reads that produce directly.
+Stage refuses v27 with STAGE-ESM-016, independently of standalone binding and
+reference execution. Read read-surface
+[named keys](../../cratis-screenplay-read-surface/references/named-keys.md) for the
+complete example.
 
 ## Code attachments (what binds, what never does)
 
 Pending `handler implementation` beside unconditional `produces` binds as a described
 command (v23). Its payload-only body returns Unsupported ImplementationBody when reached;
 denial/validation specs still run. Read [language admission](language-admission.md) for
-v22–v26 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
+v22–v27 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
 for the result contract. Attached handlers remain unbound.
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
@@ -316,7 +338,7 @@ bodies still leave their owner non-executable.
 | `Automation` or `Translate` slice, `reaction`, `capture`, `trigger`; `given clock`, `when clock`, `when trigger`, `when capture` | PLAY0268 | **older bundled compilers only**; current compilers bind them (ESM v6) |
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
 | `pii` or `secret` on a concept | PLAY0268 | Older compilers refuse it outright. Current compilers admit v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
-| `query` with a composite `by` block, or `by ... from` context-derived arguments | PLAY0268 | composite `by` blocks remain unadmitted. An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too |
+| `query` with a `by` block over a list, or `by ... from` context-derived arguments | PLAY0268 | a `by` block binds only on an optional single-instance query (v27). An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too |
 | Context `from`, single-result filters, `scoped to`, `performer` queries | PLAY0268 | Typed query context, filtering of single results, opaque scope and query implementation remain unadmitted; each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions only | PLAY0268 | conditions admit scalar equality and numeric ordering, plus same-primitive command date comparisons from v26; property/concept text rules bind as v24 |
 | Date comparisons with mixed primitives, `$context` (including occurred), `today`, protected read paths, optional condition operands, concept rules or reaction `where` | PLAY0268 | v26 admits only command conditions and command/property literal validation rules |
@@ -338,7 +360,7 @@ bodies still leave their owner non-executable.
 | `generated` or `returns` on an older compiler | PLAY0268 | admitted from ESM v7, see above |
 | Operations or systems, `numbers exact` source mode | PLAY0268 | not admitted by any supported ESM version; one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
-| `given` or `then readmodel` missing key parts | PLAY0351 | explicit `key` marks replace inference; composite fixtures need every part but remain unadmitted |
+| `given` or `then readmodel` missing key parts | PLAY0351 | explicit `key` marks replace inference; composite fixtures need every part (v27) |
 | When-less spec asserting events or errors | PLAY0352 | |
 | `null` in command or event values | PLAY0350 | Chronicle semantics, not only a binder limit: an optional fact is a separate event (nullable event properties are CHR0012) |
 | `for` with no unambiguous destination type | PLAY0273 | |
