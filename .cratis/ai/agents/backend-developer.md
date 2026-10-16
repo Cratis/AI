@@ -30,6 +30,7 @@ Select from these canonical rules in `.cratis/ai/rules/` only after applying the
 - `csharp.md` — C# conventions
 - `concepts.md` — `ConceptAs<T>` / `EventSourceId<T>`
 - `efcore.md` — EF Core read models (only if the project uses EF Core)
+- `mongodb.md` — MongoDB queries: native driver API, never LINQ; Arc owns paging and sorting (only if the project uses MongoDB)
 - `general.md` — the operating manual
 
 Load **cratis-application-slice-conformance** when it is installed; read the skill for the slice type (`cratis-arc-command`, `cratis-chronicle-read-model`, `cratis-chronicle-projection`, `cratis-chronicle-reactor`) before writing the artifact it covers.

@@ -98,7 +98,7 @@ A typed proxy class is generated per query. Pick the hook:
 | `<Query>.use(args?, sorting?)` | standard — returns `[result, perform, setSorting]`, re-renders on change |
 | `<Query>.useSuspense(...)` | suspense-aware — throws while loading; wrap in `<QueryBoundary>` |
 | `<Query>.when(condition).use(args)` | conditional — only fires when `condition` is true (don't wrap a hook in `if`) |
-| `<Query>.useWithPaging(pageSize, args?, sorting?)` | server-side paging (backend returns `IQueryable<T>`) |
+| `<Query>.useWithPaging(pageSize, args?, sorting?)` | server-side paging (backend returns `IQueryable<T>` or, for MongoDB, `ISubject<IEnumerable<T>>` from `Observe`) |
 | `<Query>.useSuspenseWithPaging(pageSize, ...)` | suspense + paging |
 | `<ObservableQuery>.use(...)` | live observable (`ISubject<T>` backend) pushed over SSE/WebSocket |
 | `<ObservableQuery>.useChangeStream(args?, getKey?, ...)` | item-level add/replace/remove deltas |
@@ -114,7 +114,7 @@ A typed proxy class is generated per query. Pick the hook:
 | `<ObservableQuery>.use(...)` | `[result, setSorting]` for an enumerable query; `[result]` for a single-instance one — **no `perform`** |
 | `<ObservableQuery>.useChangeStream(args?, getKey?, sorting?)` | `ChangeSet<T> { added, replaced, removed }` |
 
-`result.paging` = `{ page, size, totalItems, totalPages }` (zero-based `page`). Read models returning `IQueryable<TReadModel>` get automatic server-side paging/sorting — use it whenever a list can grow.
+`result.paging` = `{ page, size, totalItems, totalPages }` (zero-based `page`). Read models returning `IQueryable<TReadModel>`, or `ISubject<IEnumerable<TReadModel>>` from MongoDB `Observe`, get automatic server-side paging/sorting — use one whenever a list can grow, and never page or sort in the query itself.
 
 - **`useChangeStream` `getKey`:** without `getKey`, removed items can't be identified — everything shows up as `added`. `getKey` enables `replaced` detection. Change streams exist only on observable queries returning `IEnumerable<T>`.
 - **Conditional:** `<Query>.when(!!id).use({ id: id ?? '' })` — when `condition` is false no request/subscription is made and the hook returns `QueryResultWithState.empty()` (`hasData: false`, empty `data`); guard with `result.hasData`. `.when()` works with paging, suspense, and observable variants too.

@@ -7,6 +7,7 @@
     { "query": "Does sortDirection descending work, and what happens with an unknown direction?", "shouldTrigger": true },
     { "query": "Explain the useWithPaging tuple difference for plain and observable queries.", "shouldTrigger": true },
     { "query": "Our query loads every row then returns AsQueryable. Does paging bound the DB cost?", "shouldTrigger": true },
+    { "query": "A paged MongoDB query fails with Expression not supported on Skip Take Cast. How should it page and sort?", "shouldTrigger": true },
     { "query": "How do we keep MongoDB observable pages stable on duplicate sort values?", "shouldTrigger": true },
     { "query": "A composed observable query has auxiliary collections. Who owns client paging and totalItems?", "shouldTrigger": true },
     { "query": "Create a Chronicle read model and its first query.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
