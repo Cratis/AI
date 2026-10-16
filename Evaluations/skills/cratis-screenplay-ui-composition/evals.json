@@ -34,6 +34,31 @@
         "Declares page size as exposed template configuration that the Orders screen sets.",
         "Ties the table's data to a typed query binding rather than an untyped value."
       ]
+    },
+    {
+      "id": 4,
+      "name": "module-navigation-modes-and-slice-buttons",
+      "prompt": "Our Screenplay application has an AppShell layout with a sidebar listing Sales and Support. The Sales module should keep those items and add Customers; the Support module should show only its own Tickets item; Reports should look like the application. On the OrderList screen add a New order button that starts the PlaceOrder State Change slice as the primary action, and a Refresh button for the OrderList State View slice. Show the .play changes and tell me whether everything validates; do not write files.",
+      "expected_output": "Sales declares `navigation sidebar extends` with its own Customers item, Support declares `navigation sidebar overrides` with only Tickets, Reports declares nothing (inherits), and the toolbar has a `button` that names PlaceOrder with `emphasis primary`; the Refresh button is refused as a State View slice (PLAY0762).",
+      "assertions": [
+        "Sales uses `navigation sidebar extends` and lists only its own Customers item; Support uses `navigation sidebar overrides` with only its own Tickets item; Reports declares no region and does not copy the application's items.",
+        "Every item a module declares targets that module or one of its features, never another module.",
+        "Does not use `contribute to Navigation` for the new entries.",
+        "Declares the New order button with `slice` naming the PlaceOrder State Change slice and `emphasis primary`.",
+        "Says a button invokes State Change slices only and names PLAY0762 for the State View slice instead of writing it, and puts the toolbar inside a slot body when the screen uses a template."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "blueprint-template-and-sample-data",
+      "prompt": "Our Sales module should use the Crm blueprint's Workspace template at version ^1.4, and the Customers list should preview with a Nordic demo dataset of two customers. Show the .play changes in your reply; do not write files.",
+      "expected_output": "A `template blueprint Crm Workspace version \"^1.4\"` assignment with Crm listed in a ui profile's packages, a `sample data NordicDemo` pack with rows per shape, and the pack selected once with `active` in the ui profile, with the note that sample data is design and preview only.",
+      "assertions": [
+        "Writes `template blueprint Crm Workspace version \"^1.4\"` and lists Crm under a ui profile's `packages`.",
+        "Declares the sample data as a top-level `sample data` pack with `row` entries whose fields are properties of the read model.",
+        "Selects the active pack once in the `ui profile`, not on the screen or component.",
+        "States that sample data is design and preview only and never reaches the executable model or production."
+      ]
     }
   ]
 }

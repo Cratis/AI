@@ -205,9 +205,18 @@ module Invoicing
             "C" => captured
             "D" => declined
         append PaymentGatewayResultReceived
-          when outcome
+          when added
             outcome = $.outcome
             reason  = $.reason
+      event PaymentGatewayResultReceived
+        outcome GatewayOutcome
+        reason  String
+      event PaymentReceived
+      event PaymentDeclined
+        reason String
+
+    slice Automation TranslatePaymentGatewayResults
+      description "Our facts from the provider's: the translators react to the external fact the Translate slice records"
       reaction ReceivedTranslator
         when PaymentGatewayResultReceived
           outcome
@@ -220,12 +229,6 @@ module Invoicing
           produces PaymentDeclined
             reason = reason
         where outcome == "declined"
-      event PaymentGatewayResultReceived
-        outcome GatewayOutcome
-        reason  String
-      event PaymentReceived
-      event PaymentDeclined
-        reason String
 
       specification TranslatingADeclinedCardResult
         when capture PaymentGatewayResults

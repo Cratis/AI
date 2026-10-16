@@ -19,9 +19,9 @@ function checker(): PreferredSyntax {
 }
 
 describe('when selecting preferred syntax diagnostics', () => {
-    it('should select exactly the nine non-error style diagnostics from the pinned contract', async () => {
+    it('should select exactly the ten non-error style diagnostics from the pinned contract', async () => {
         const contract = JSON.parse(await readFile('../../.cratis/ai/skills/cratis-screenplay-toolchain/references/screenplay-contract.json', 'utf8'));
-        assert.deepEqual(styleCodes(contract.diagnostics), ['PLAY0290', 'PLAY0397', 'PLAY0445', 'PLAY0471', 'PLAY0479', 'PLAY0507', 'PLAY0564', 'PLAY0565', 'PLAY0664']);
+        assert.deepEqual(styleCodes(contract.diagnostics), ['PLAY0290', 'PLAY0397', 'PLAY0445', 'PLAY0471', 'PLAY0479', 'PLAY0507', 'PLAY0564', 'PLAY0565', 'PLAY0664', 'PLAY0787']);
     });
     it('should exclude error-capable, reserved and retired diagnostics', () => {
         assert.deepEqual(styleCodes([{ ...diagnostic, severities: ['information', 'error'] }, { ...diagnostic, reserved: true }, { ...diagnostic, retired: true }]), []);

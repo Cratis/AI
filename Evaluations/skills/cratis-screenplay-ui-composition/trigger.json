@@ -6,7 +6,7 @@
       "shouldTrigger": true
     },
     {
-      "query": "add a toolbar button to the WorkItems screen in our .play model that opens RenameWorkItem as a dialog",
+      "query": "add a toolbar button to the WorkItems screen in our .play model that opens RenameWorkItem as a dialog, and a New order button that starts the PlaceOrder slice",
       "shouldTrigger": true
     },
     {
@@ -31,14 +31,6 @@
     },
     {
       "query": "Set up a ui profile and a theme for our Screenplay application, with localized $strings for the button labels.",
-      "shouldTrigger": true
-    },
-    {
-      "query": "A package's Generate fields action filled in our CreateInvoice form. How should those generated fields end up in the .play model so the next generation does not overwrite my edits?",
-      "shouldTrigger": true
-    },
-    {
-      "query": "Build, edit and run a business application: a work item list with a selection-bound details panel, a multi-column create form and a toolbar dialog, authored in Screenplay.",
       "shouldTrigger": true
     },
     {
@@ -85,6 +77,14 @@
       "query": "Review our whole .play model for missing specifications and wrong stream boundaries before we accept it.",
       "shouldTrigger": false,
       "note": "cratis-screenplay-model-review"
+    },
+    {
+      "query": "In our Screenplay application the Support module should have its own sidebar instead of the application's. How do I declare navigation regions that inherit, extend or override?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I pin a Crm blueprint template with a version range and choose the active sample data pack in the ui profile in Screenplay?",
+      "shouldTrigger": true
     }
   ]
 }
