@@ -76,8 +76,19 @@ public static async Task<IEnumerable<<ReadModelName>>> All<PluralName>(
 public static async Task<<ReadModelName>?> <SingularName>ById(
     <IdType> id,
     IMongoCollection<<ReadModelName>> collection) =>
-    await collection.Find(model => model.Id == id).FirstOrDefaultAsync();
+    await collection.Find(Builders<<ReadModelName>>.Filter.Eq(model => model.Id, id)).FirstOrDefaultAsync();
 ```
+
+Query MongoDB with the native driver API (`Find`, `Builders<T>` filter, sort and
+projection definitions, `Aggregate` pipelines), not `collection.AsQueryable()`.
+LINQ is translated at execution time and an expression the driver cannot
+translate fails the request with `Expression not supported`; the native API has
+no such step. See the MongoDB rule.
+
+A `Find(...).ToListAsync()` result is **not** paged. Use it for a bounded set. A
+list that can grow is returned with `collection.Observe(<FilterDefinition>)`,
+which Arc pages and sorts for the client without the query writing `Skip`,
+`Take` or `OrderBy`; see the **cratis-arc-query-paging** skill.
 
 Name the method for what it returns — the name is the query's identity on the
 generated client surface.
