@@ -92,6 +92,8 @@ profile includes neither Screenplay nor Stage.
 | `cratis/engineering/typescript` | TypeScript engineering conventions | `cratis/engineering/core` |
 | `cratis/engineering/react` | React engineering conventions | `cratis/engineering/core` |
 
+The `cratis/engineering` profile also carries [issue-assignment.md](../../../rules/issue-assignment.md): when an agent starts work on a numbered issue in a known repository and nobody is assigned, it assigns the current `gh` user.
+
 ### Language Profiles
 
 | Profile ID | Description |
