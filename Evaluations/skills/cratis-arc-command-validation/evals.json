@@ -58,7 +58,7 @@
         "Describes Measure first (<CratisReadProtection>Measure</CratisReadProtection>), which keeps results and status codes unchanged, then On per project; reads the cratis.arc.read_protection.events counter or read-protection.plan span event, and says Measure is best effort.",
         "Explains a join or children model is refused with ReadCannotBeProtected (HTTP 500, a code error that retrying does not fix): split it into source-keyed models, or mark a deliberate advisory read [Unprotected(\"why\")].",
         "Explains a 400 with reason concurrencyViolation and detail ReadChanged or ReadIncomplete is retryable, that nothing was written, and that the client reads fresh state and submits again.",
-        "Mentions the runtime cap ReadProtection:MaximumMode can only lower the mode, and that with it set the guarantees of On do not hold."
+        "Mentions the runtime cap ReadProtection:MaximumMode can only lower the mode, and that with it set, what On guards is no longer in effect."
       ]
     }
   ]

@@ -297,8 +297,10 @@ read-protection mode and dependencies (for example under `On`); do not call
 `UseDecisionReads()` (it is hidden and unnecessary). An `Off` command with no
 protected dependency stays in legacy mode with pinned read models, which cannot
 prove a race. Seed with
-`scenario.Given.ForEventSource(id).Events(...)`, `.OnRoute(route)` or
-`.ReadModel<T>(m)`, then queue a competing event with
+`scenario.Given.ForEventSource(id).Events(...)` (for a routed stream
+`.OnRoute(route).Events(...)`). Guarded state needs events: protected reads fold the
+event log and ignore a pinned model, and `DecisionRead<T>` parameters reject one.
+`.ReadModel(m)` only pins an advisory (plain) read. Then queue a competing event with
 `scenario.AppendConcurrently(id, events...)` and execute:
 
 ```csharp

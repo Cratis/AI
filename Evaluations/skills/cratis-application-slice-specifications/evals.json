@@ -44,7 +44,7 @@
       "expected_output": "Seed events with `_scenario.Given.ForEventSource(id).Events(...)` so the real projection builds the read model; pin a read model with `.ReadModel(instance)` only when events would be noise. Unseeded, the handler sees a default or null instance and the DCB rejection is green for the wrong reason; confirm the spec fails when seeding is removed. A guarded command selects the in-process decision mode itself; do not call `UseDecisionReads()`. `Given` requires `Cratis.Arc.Chronicle.Testing`.",
       "assertions": [
         "Prefers seeding events with `Given.ForEventSource(id).Events(...)` so the production projection builds the read model.",
-        "Says pinning a read model with `.ReadModel(...)` is only for when events would be noise.",
+        "Says pinning a read model with `.ReadModel(...)` is only for an advisory (plain) read; guarded state needs events.",
         "Warns that without seeding the handler sees a default or null instance and the spec is green for the wrong reason, so confirm it fails without the seeding.",
         "Says a guarded command (read protection On, a per-stream model or [ProtectedDecision]) selects the decision mode itself so UseDecisionReads() is not called, and that `Given` needs `Cratis.Arc.Chronicle.Testing`."
       ]

@@ -59,8 +59,9 @@ mode from the command's read-protection mode and dependencies (for example under
 `On`, or with a per-stream read model); do not call `UseDecisionReads()`, which is
 hidden and unnecessary. This mode shares **one real in-process event log** among
 given events, guarded reads, constraints and returned appends. Seed actual events
-(`Given.ForEventSource(id).Events(...)`) or a model with `.ReadModel<T>(m)`, not
-pinned models. Assert a lost race with
+(`Given.ForEventSource(id).Events(...)`, or `.OnRoute(route).Events(...)`); protected
+reads fold the log and ignore a pinned `.ReadModel(m)`, which only pins an advisory
+(plain) read. Assert a lost race with
 `result.ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation)`
 after `scenario.AppendConcurrently(id, events...)`. There is no
 `scenario.AppendConditions`. An `Off` command with no protected dependency stays in

@@ -20,11 +20,11 @@ when the question is which mechanism to use, or before writing code that reads
 state and then appends. It carries the routing by rule shape, the matrix with what
 not to use, the refusals, rollout with Measure, testing and the traps.
 
-In an Arc application the default is read protection `On`
-(`<CratisReadProtection>On</CratisReadProtection>`): the read model is a parameter
-of `Handle()` or of the `CommandValidator<T>` constructor, and the read guards the
-append. `Off` is the default when nothing is set; under `Off` and `Measure` a
-validator over a plain read is a hint that guards nothing. A plain read under
+In an Arc application new code sets read protection `On`
+(`<CratisReadProtection>On</CratisReadProtection>`); `Off` is the default when
+nothing is set. Under `On` the read model is a parameter of `Handle()` or of the
+`CommandValidator<T>` constructor, and the read guards the append; under `Off` and
+`Measure` a validator over a plain read is a hint that guards nothing. A plain read under
 `Off`, `Result<,>` and `concurrency: true` are never the guard.
 `[ProtectedDecision]` with `DecisionRead<T>` is the older per-command opt-in; it
 still works and is not obsolete.

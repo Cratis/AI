@@ -17,7 +17,7 @@
       "id": 2,
       "name": "refused-hierarchy-and-stream-scope",
       "prompt": "Our OrderSummary has children. Admit reports Hierarchy. Can we silently read the materialized sink instead? Also explain requirements for a stream-keyed projection decision on one monthly stream at Chronicle 19.50.0.",
-      "expected_output": "Refusal blocks protected use, redesign only with authority, stream-specific overload with admitted projection and one concrete stream type/id, one concrete stream type/id, not All, no reducer in a stream-scoped read.",
+      "expected_output": "Refusal blocks protected use, redesign only with authority, stream-specific overload with admitted projection and one concrete stream type/id, not All, no reducer in a stream-scoped read.",
       "assertions": [
         "Explains Hierarchy refuses children/nested projections and does not fall back to an unguarded sink read.",
         "Uses AdmitForStream and stream-scoped Get/GetDetached with event source id, stream type and stream id rather than inventing Arc API.",

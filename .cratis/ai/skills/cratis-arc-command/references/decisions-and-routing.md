@@ -169,10 +169,10 @@ read-protection mode and dependencies (under `On`, with a per-stream model or
 `[ProtectedDecision]`); `UseDecisionReads()` is hidden and unnecessary. An `Off`
 command with no protected dependency stays in the legacy mode with pinned read
 models, which cannot prove a race. Seed with `Given.ForEventSource(id).Events(...)`,
-`.OnRoute(route)` or `.ReadModel<T>(m)`, queue a competing append with
+`.OnRoute(route).Events(...)`, queue a competing append with
 `AppendConcurrently(id, events...)` (or `AppendConcurrently(id, route, ...)`) and
 assert `result.ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation)`.
-There is no `scenario.AppendConditions`. Pinned models cannot supply guards. Assert a
+There is no `scenario.AppendConditions`. Guarded state needs seeded events: protected reads ignore a pinned `.ReadModel(m)` (which only pins an advisory plain read) and `DecisionRead<T>` rejects it. Assert a
 real nonempty decision conflicts on the intended route, and that an independent
 route is not over-guarded. `ShouldHaveCompletedStream(type, id)` asserts completion;
 `ShouldHaveCompletedStream(ClosedStreamScope)` asserts the exact owner and route;
