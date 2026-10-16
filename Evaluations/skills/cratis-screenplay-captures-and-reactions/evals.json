@@ -41,13 +41,27 @@
     {
       "id": 4,
       "name": "produces-versus-invokes",
-      "prompt": "A reaction on InvitationAccepted should record WorkspaceProvisioned and ask for the SendWelcomeMail command. A colleague wants `produces` for both because 'they are both consequences'. Which keyword goes where, why, and who is the caller of the invoked command? Reply only; do not write files.",
-      "expected_output": "`produces` requests a fact append subject to append-time constraints; `invokes` asks for a command, which also runs authorization, validation and requirements and may reject. Using one word for both blurs that. An `invokes` has no caller unless `runs as system role` declares the actor; `given caller` does not supply it.",
+      "prompt": "On Screenplay 4.198.0 a reaction on InvitationAccepted should record WorkspaceProvisioned and ask for SendWelcomeMail. The event has no workspaceId payload; its event source is the workspace. Show how the invokes maps its required scalar workspaceId without adding an event payload property. A colleague wants `produces` for both because 'they are both consequences'. Which keyword goes where, why, and who is the caller of the invoked command? Reply only; do not write files.",
+      "expected_output": "`produces` requests a fact append subject to append-time constraints; `invokes` asks for a command, which also runs authorization, validation and requirements and may reject. Using one word for both blurs that. Map workspaceId = $eventSourceId (or $eventContext.eventSourceId), admitted from 4.197.1 using the existing v6 mapping contract, not a new version. The target is required scalar, validated without conversion; clock/application triggers have no event source. This identity is not the caller. An `invokes` has no caller unless `runs as system role` declares the actor; `given caller` does not supply it.",
       "assertions": [
         "Uses `produces WorkspaceProvisioned` for the fact and `invokes SendWelcomeMail` for the command.",
         "Explains that `invokes` runs the command's authorization, validation and requirements and may reject, while `produces` is subject to append-time constraints.",
-        "States that an `invokes` has no caller unless the reaction declares `runs as system role`.",
+        "Maps workspaceId = $eventSourceId or $eventContext.eventSourceId without duplicating event payload; names 4.197.1 and existing v6 contract, required scalar/type checking and no event source for clock triggers.",
+        "States that source identity is not caller identity and an invokes has no caller unless runs as system role declares it.",
         "Says each invoked command is atomic but the cascade is not, so earlier accepted facts remain after a later refusal."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "public-event-capture-specification",
+      "prompt": "An inbound Translate capture ShipmentTracking has source events from ShipmentDispatched and ShipmentDelivered, both from shipping and carrying required orderId. It uses key $eventSourceId. Our spec says when capture ShipmentTracking with orderId and status, and expects a field-change append on the first event. Repair the model and show first-sight, update and unchanged-input spec shapes. Explain whether for is required and whether children and $context.subject work. Reply only; do not write files.",
+      "expected_output": "Use key orderId (PLAY0700), typed given source events and when append ShipmentDispatched/ShipmentDelivered (PLAY0701). First sight needs when added; updates fold earlier events of the key and unchanged overlays append nothing. Foreign for is optional, not the key. Children/nested and context beyond occurred are not supported.",
+      "assertions": [
+        "Uses key orderId, a required property of every from event, and diagnoses the context key as PLAY0700.",
+        "Uses typed given <FromEvent> and when append <FromEvent>, rejects capture-record fixtures with PLAY0701 and notes that two from events preclude an automatic repair.",
+        "Distinguishes first added from modifications, seeds the update with an earlier event for the same key, and expects no new events on an unchanged overlay.",
+        "States that foreign fixture for is optional opaque text and not the content key, while prior events overlay properties per typed key.",
+        "Keeps children/nested over events and context other than occurred unsupported, and does not claim reference execution proves observer order or redelivery deduplication."
       ]
     }
   ]

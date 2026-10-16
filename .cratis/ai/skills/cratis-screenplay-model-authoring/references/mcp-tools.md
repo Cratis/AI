@@ -166,8 +166,12 @@ exists only for authored `generate`; an implicit UUID default has no block.
 | --- | --- |
 | `strategy` | Authored strategy name |
 | `modifiers` | Only set `prefix`, `case`, `size`, `alphabet`, `count`, `encoding`; omitted defaults are not filled in |
-| `previewArguments` | Present only for authored `pattern`, `checksum`, `range`, `rule`; each is `{value, executable: false}` |
-| `entropyBits` | Exact random bits, or null for unknown strategy/invalid entropy inputs |
+| `arguments` | Authored `pattern`, `checksum`, `rule` strings and `range: {text, minimum, maximum}` with exact Int64 endpoints; malformed range retains text only. Replaces `previewArguments`. |
+| `supportCount` | Exact JSON integer for assessed pattern/random distinct support; preserve large numbers without floating-point rounding. Dates use minimum conditioned support over the compiler's 100-year UTC horizon. |
+| `entropyBits` | Built-in random bits; pattern/random use log2(supportCount). Null for opaque rule implementations or invalid/unsupported inputs. |
+| `derivedPattern` | Anchored strategy-derived regex, or null; pattern expressions are deterministic and bounded, but date/checksum digit runs describe shape, not arithmetic containment. |
+| `derivedPatternUnknownReason` | Reason when derivedPattern is null; never invent a regex from it. |
+| `rules` | Authored-order entries: rule kind, line/column, status proven/refuted/unproven; witness for refuted, reason for unproven. diagnosticCode only for reported PLAY0688/0689; repair PLAY0688 only for a reported refuted declarative rule. |
 | `entropyUnknownReason` | Present only when entropy is unknown |
 | `valuesAtOnePercentCollision` | JSON number estimating the 1% birthday collision count, or null; scientific notation can exceed client floating-point range |
 | `executable` | `status`, `diagnosticCodes`, and `reason` only for `notAssessed` |
@@ -178,7 +182,10 @@ and no such error exists; otherwise `notAssessed`, with a reason that whole-mode
 binding failed. `diagnosticCodes` contains only errors at these declaration locations.
 An empty list is not admission; low-entropy property diagnostics require workspace
 inspection. Invalid alphabets/non-positive sizes or counts yield null estimates
-with `entropyUnknownReason`, preserving compiler diagnostics. Time, prefixes,
+with `entropyUnknownReason`, preserving compiler diagnostics. Pattern support
+budget exhaustion (PLAY0691) or empty support on a scanned date (PLAY0692) also
+leaves estimates null with the compiler's reason; an opaque `rule` has unknown,
+not zero, entropy. Time, prefixes,
 case and encoding add no randomness; the compiler, details and repairs share
 `GenerationEntropy`, not an agent's parallel estimate.
 
@@ -191,8 +198,9 @@ source document under the same revision/review contract. Canonical printing
 retains `generate`. Review `read-proposal` changes and `view: "executable-diagnostics"`,
 run candidate specifications where executable, then explicitly `apply`.
 Authoring acceptance does not imply executable readiness: `sequence` reports
-PLAY0682; `pattern`/`random`/`rule` and generated-concept validation rules report
-PLAY0268. Do not retype a refused proposal to bypass those diagnostics.
+PLAY0682; generated secrets still report PLAY0268, rule proofs PLAY0688/0689,
+and finite-support failures PLAY0691/0692. Pattern/random/rule and checksum
+validation bind as ESM v21. Do not retype a refused proposal to bypass diagnostics.
 
 `screenplay_repair_capabilities` advertises PLAY0683/PLAY0684. Discover concrete
 verified actions with `read-workspace view: "repairs"` at the diagnostic revision:
@@ -211,10 +219,40 @@ concept; uniqueness changes append-time behavior. Review every changed document
 before applying; discovery/proposal write nothing. The saved-file VS Code repair
 picker does not expose these entropy actions.
 
-PLAY0688 repair replaces a refuted generated-concept rule with the strategy-derived
-`matches` pattern. Review it as a validation change for input/stored values too.
-PLAY0689 is an unproven warning, not proof; checksum repairs remain unadmitted.
-MCP does not generate values.
+Read `generation.rules[]` instead of parsing diagnostic prose: `refuted` names
+the violating `witness`; `unproven` explains its `reason`; `proven` needs no diagnostic.
+A refuted result without `diagnosticCode` means the compiler did not check that
+rule (for example, a UUID concept unused by generated command properties), so
+there is no reported repair. Proof status is not executable admission, and
+passing samples do not prove containment.
+
+To add a rule the strategy satisfies, put `derivedPattern` into a typed `matches`
+proposal preserving other concept members. If null, read
+`derivedPatternUnknownReason` and keep the intended invariant; do not fabricate
+an expression. PLAY0688 repair replaces a refuted generated-concept rule with
+the strategy-derived matches pattern. Discover its subject through
+`read-workspace view: "repairs"`, then `propose-repair` with both revisions and
+canonical formatting. Review input/stored-value effects, not just generation.
+For a checksum pattern the same proposal explicitly adds the declared checksum
+validation if absent. Ambiguous/unbounded derived regexes have no repair.
+PLAY0689 is an Unproven warning, not proof; MCP never generates values.
+For an opaque generation rule, inspect `read-workspace view:
+"implementation-requirements"` for its ValueGeneration requirement; the reference
+runner consumes a pinned String and never executes its attached body.
+Requires Screenplay 4.181.1 (`screenplay --version`) for the language-neutral
+version-1 ValueGeneration context contract (Now instant, Tenant portable ID,
+String result); older Cratis C# bindings cannot compile all context-aware bodies.
+The provider selects the binding, not the fence tag: Cratis C# uses Fundamentals'
+`Cratis.Concepts.GenerationContext`; BCL-only C# hosts can use Screenplay's record.
+Portable bodies use Now, tenant interpolation/string assignment and BCL types.
+Passing context to `GenerateValue.*`, constructing/naming the context type or
+reading `Tenant.Value` is target-bound, not a shared language contract. See
+[context reference](https://github.com/Cratis/Screenplay/blob/main/Documentation/screenplay/context.md).
+
+Requires Screenplay 4.173.0 or later (`screenplay --version`) for `arguments`,
+exact support, derived patterns and `rules[]`; older servers can expose
+`previewArguments` and omit proofs. Discover schemas and diagnostics instead of
+assuming these fields. Reference: [generation details](https://github.com/Cratis/Screenplay/blob/main/Documentation/screenplay/mcp/reference.md#generated-values-and-responses).
 
 Requires Screenplay 4.164.0 or later (`screenplay --version`) for generated-rule proofs and PLAY0688 repair; older servers lack this action. The CLI-bundled MCP can lack
 this generation summary and the entropy repairs. Existing typed concept proposals predate the
@@ -453,6 +491,11 @@ inspect authored links, not code execution or a transitive runtime graph.
 
 ## Dependencies and intent inventories
 
+Diagnostic subjects use code plus typed `arguments`, not parsed messages. This applies
+to `diagnostics`, executable diagnostics and proposal introducedExecutableErrors.
+Read [diagnostic arguments](../../cratis-screenplay-toolchain/references/diagnostic-arguments.md)
+for optional subjects, declaration paths and PLAY0524 step indices.
+
 `dependency-graph` edges point consumer → producer. Views: `edges`, `cycles`,
 `order`, `unresolved`, `declarations`; `from`/`to` select slice/feature/module
 aggregation (`to` also accepts context). `scope`, `direction`, `kinds` and
@@ -479,7 +522,12 @@ Workspace views `named-rule-intents`/`named-rule-intent-details` cover CommandNa
 only, including pending hints without a requirement ID. Details select either
 `subject` or attached `requirementId`, not both. `handler-intents` and
 `handler-intent-details` cover CommandHandler only; handler details select
-`requirementId`. All page ordered hints, not implementation correctness. Continue
+`requirementId`. A handler entry's `executableReady` means successful v23 binding
+with a matching Pending requirement, not a supplied body; `admission` is described,
+refused or authoring-only. `implementation-requirements` exposes ordered hints and
+provisional/ambiguous flags. Edit HandlerSyntax/ImplementationSyntax/ImplementationHintSyntax
+through `propose-ast` with Authoring validation, preview then apply; unwrapping
+pending metadata is refused. All page ordered hints, not implementation correctness. Continue
 with `expectedRevision` and `expectedCatalogRevision`; provisional owner IDs are
 not authoritative. Edit hints through reviewed `propose-ast`.
 

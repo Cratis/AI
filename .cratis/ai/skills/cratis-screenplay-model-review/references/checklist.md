@@ -123,7 +123,7 @@ the format in `worked-example.md`.
 |---|---|---|---|
 | E1 | Value formats on `concept`s; input rules on the command; uniqueness as `constraint`; access as `authorize` | declarations | D |
 | E2 | Every refusal has a message a person understands; constraint messages copied verbatim in specs | `message`, specs | D |
-| E3 | A state-dependent rule is `reads <View>` + `require <expr> message "..."` as stated intent, and the slice `description` marks it NOT enforced in the model today (PLAY0268/0271 at binding expected in design mode) with its target named (`[ProtectedDecision]` + `DecisionRead<T>`, Chronicle DCB / `concurrency` scope, or a constraint). Not: caller-supplied copies of state, attestation booleans (`confirmsX == true`), rules in `handler` / `implementation hint` prose, or `reads` treated as protection | slice `description`, `require`, `handler` | D (faking or hiding = major) |
+| E3 | A state-dependent rule uses `reads` + `require` over authoritative state: eligible reads opt into `command reads protected` (v25), with required absence and decide/commit conflict cases. Legacy/refused reads are marked unenforced with a named target. Stage refuses protected reads (STAGE-ESM-044); reference protection is not target realization. Not: caller-supplied copies of state, attestation booleans (`confirmsX == true`), rules in `handler` / `implementation hint` prose, or `reads` treated as protection | slice `description`, `require`, `handler` | D (faking or hiding = major) |
 | E4 | `severity warning` is not used as "soft" validation (it still rejects) | validate lines | C semantics |
 | E5 | Preconditions are explicit; nothing relies on "obviously you can't" | descriptions, specs | Q |
 | E6 | Each invariant has an atomic enforcement point (name the storage provider where constraint admission matters); the race loser's outcome is specified | constraints, specs | D |
@@ -147,7 +147,7 @@ PLAY0516 moves preserve executable bytes/identities. Source: Screenplay
 | F2 | No impossible sequence (a fact that requires one that can never precede it) | constraints, specs | D |
 | F3 | Cancellation, failure and correction paths exist where the business has them | slices | Q |
 | F4 | Automations: trigger, todo/work item if work can be pending, a closing fact, retry and once-only story | reactions, views | D (`cratis-screenplay-automations-and-translations`) |
-| F5 | External facts enter through `Translate`; in-app follow-ups through `Automation` | slice kinds | C semantics |
+| F5 | External facts enter through `Translate`; in-app follow-ups through separate `Automation` slices. Keep a capture in Translate, move reactions to its local appends out (PLAY0694 for directionless/unrouted co-location, including child/nested appends; PLAY0616 for explicit inbound). PLAY0694 is a warning that fails `--warnaserror`, with no automatic split | slice kinds, capture appends and reaction triggers | C semantics |
 | F6 | No cycle where fact A's reaction needs fact B and B's needs A, or two features each wait on the other | reactions, MCP `dependencies` | D (redesign the boundary) |
 | F7 | Each slice's consumed events and their producing slices are known; a slice calls another's command only through `invokes` | reactions, `reads` | Q |
 | F8 | Every Automation has a pending-work view (a todo list: membership is the pending work), or a written reason a direct effect needs none (immediate, internal, cannot fail). A "simple relay" is not exempt from the question | reactions, `reads`, views | D |

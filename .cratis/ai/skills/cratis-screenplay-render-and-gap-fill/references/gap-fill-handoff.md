@@ -105,6 +105,14 @@ stable array or list. The Stage scaffold pins an older Arc, so raise the version
 `Customizations/Dependencies.props` only after a restore and build proves it. Never split the
 reaction or drop an effect to dodge rendering.
 
+Preserve declared `reaction batches atomic` boundaries: each trigger occurrence's
+direct productions and each selected refusal branch are separate batches, with
+invoked commands independent. Stage refuses v22 (STAGE-ESM-016) and atomic mode
+in admitted v23–v25 (STAGE-ESM-043); the declaration is not external-effect deduplication.
+For described handlers, hand off only payload computation under the v23 result
+contract; Stage STAGE-IMPL-002 means no stubs, even Stub mode. Protected v25 reads
+refuse STAGE-ESM-044 despite version admission and need target admission/enrollment tests; ordinary injection never supplies protection.
+
 ## Re-delivery
 The work list is the full in-scope contract delta since the fallback record's last verified source
 identity (specifications, rules, mappings, realization notes), then the whole contract is

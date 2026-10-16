@@ -263,9 +263,8 @@ choosing a whole action list rather than one labeled command, use block-form
 **Inside out:** the slice, then the enclosing feature, then the module, then the
 document. The innermost match wins.
 
-That rule exists because a generated document cannot make every name unique — one
-real application declares 76 queries under 37 distinct names, with `All` appearing
-21 times. Two sibling slices can each declare `All`, and each screen gets its own.
+Sibling slices may each declare `All`; each screen resolves its own query.
+Read `references/named-keys.md` when query scope affects identity inference.
 
 Reach across slices by qualifying with **any trailing part** of the scope.
 Excerpt: `Queue` and `Deviations` are sibling slices that each declare `All`.

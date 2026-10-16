@@ -1,5 +1,12 @@
 # Example: streams, constraints and a recorded rule
 
+Legacy control: no `command reads protected` preamble is declared. The course-capacity
+payload-key fan-in remains refused even with opt-in; eligible active-enrolment reads
+can protect under v25, but reads plus concurrency cannot combine (PLAY0783). Read
+[protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md)
+for admission and Stage's protected-read refusal (STAGE-ESM-044). The legacy diagnostics below describe this
+control, not a blanket refusal of command reads.
+
 A complete design-mode model for course enrolment. It shows one business identity per stream,
 cross-stream references as payload, three kinds of uniqueness constraint, a state-dependent
 rule recorded as **NOT enforced in the model today**, a declared `concurrency` scope, and an

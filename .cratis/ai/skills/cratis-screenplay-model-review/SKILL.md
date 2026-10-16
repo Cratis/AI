@@ -127,11 +127,8 @@ rejected state and its evidence.
 Optional, on request, all read-only and yielding edit requests: a subject's information journey (`references/model-inventory-report.md`), a resilience pass (`references/stressor-analysis.md`) and a slice-by-slice walkthrough (`references/walkthrough.md`).
 
 ## Quick self-check (modeler, P4; about ten minutes)
-Eleven yes/no checks the modeler runs on its own work before P5 (V1 clean, no dropped constructs,
-every event production has `for`, every field has an origin, every command a reachable authorized
-origin, NOT-enforced rules marked, coverage matrix filled, personas with their denials, rationale in
-`documentation`, open questions as anchored notes, every Automation with pending work). Any "no" is
-fixed or explained before P5. The list: [quick self-check](references/quick-self-check.md).
+Read [quick self-check](references/quick-self-check.md) before P5 for the eleven
+modeler checks. Fix or explain every "no"; this is not the independent review.
 
 ## Business-question pass (explain brief)
 Be a sharp business analyst seeing the domain fresh: walk each persona's journey and ask only what a domain person must decide, in plain language with no engineering words (could a non-technical product owner read it and immediately understand what is being asked?), anchored to a place in the model, at most 12 questions (zero is valid). Method, element prompts and the model-word translation table: `references/business-questions.md`. A behavior walk in the Stage sandbox (`cratis-stage-rendering-and-sandbox`) is a separate, optional check; its findings arrive here as review findings.

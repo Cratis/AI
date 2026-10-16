@@ -17,6 +17,12 @@ whether it is admitted; reading the admission rules is not a render result.
 
 Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
 
+## Batches, described handlers, text rules and protected reads
+
+Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
+for v22–v25: text rules render, atomic batches/protected reads/described bodies do
+not. Stub mode emits no described-body stubs. Keep protection and report refusal.
+
 ## When to use
 
 - Deciding whether a model can be rendered, or reading a blocked render.
@@ -66,7 +72,14 @@ printed), `1` is a missing input. Add `-o json` for the counts and the publicati
 
 Facts that surprise:
 
-- **Binding uses the CLI's bundled Screenplay compiler**, which differs from a standalone one. A model that binds is not necessarily renderable: Stage admits exact ESM v1–v17 and v19 pairs (not v18/v20), then checks constructs; CLI admission can stop at v16. A newer model reports `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`). Supported generation strategies, freshness scopes, responses, equality filters, enum numbers and concept compliance render.
+- **Binding uses the CLI's bundled compiler**, not the standalone one. Version admission
+  does not imply construct support: exact ESM v1–v21 and v23–v25 pairs are admitted,
+  while v22/v26 and mixed pairs refuse `STAGE-ESM-016`. Pattern/random generation and checksum validation
+  render with an admitting renderer; `generate rule` still refuses `STAGE-ESM-028`.
+  Read [references/admission.md](references/admission.md) for the introducing-release
+  prerequisites, all-Proven unpinned specifications and construct/pin checks (-011/-038).
+  An older CLI bundle can refuse `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`);
+  keep refused models for gap-fill.
 - **Render never builds, tests or runs** the output. A published render is admission and
   publication only; build and tests are separate results (see "Verify"). Admission can be
   green while a rendered Debug test fails (for example a query assertion on the key).
@@ -81,7 +94,7 @@ Facts that surprise:
 
 `--scope` renders an admitted part while other slices wait for hand-written code or
 renderer support. The whole model must still compile and bind, so a `PLAY0268`, protected
-identity/enum, handler or newer-than-v15 problem anywhere blocks even a scoped render.
+identity/enum, attached handler or unsupported ESM version anywhere blocks even a scoped render.
 `PLAN-*` problems in unselected slices become warnings and `STAGE-ESM-*` refusals in
 unselected slices do not block. A scoped plan has no application scaffold or default Scene
 (with no manifest in the destination the plain scaffold is added). A dependency in another
@@ -91,27 +104,11 @@ first). Unselected managed files are preserved. A scoped result is evidence for 
 
 ## Publication and recovery
 
-Ownership is the destination's **`.cratis-render.json`** manifest (semantic revision,
-identity, path and SHA-256 per artifact); there are no in-file markers. Interrupted
-commits are journaled in the **`.cratis-render/`** control directory (journal, staging,
-backups). Never stage `.cratis-render/` in git; commit the manifest with the output.
-
-- An unmanaged file at a planned path is refused, even with `--force`.
-- A user-modified managed file is refused unless it is still active **and** `--force` is
-  given; `--force` replaces it. It never overwrites unmanaged files and never deletes a
-  modified stale file. A stale managed file is removed only if its bytes still match.
-- Recovery runs before planning, even when planning then fails. **`recovered: true` in the
-  result means stop and reconcile**: the receipt does not describe what recovery changed.
-- An unchanged re-render writes nothing (`unchanged` equals the artifact count).
-- Use exclusive access to the destination; a receipt is a filesystem result, not a Git commit, and the command creates no branch, commit or PR.
-- Drift: `cratis render ... --check` is the first probe; exit `6` means pending changes.
-  Otherwise compare successive manifests' `semanticRevision` for renders with the same
-  `--name` and inputs. Do not compare the MCP `modelRevision` with the manifest: their
-  application identities can differ.
-
-A modified managed file reports `Managed artifact 'Program.cs' was modified by the user; pass --force to replace it.`
-Find out why it was edited, move the intent into the model or `Customizations/`, then
-re-render; use `--force` only to discard the edit on purpose.
+Read [publication and recovery](references/publication-and-recovery.md) before
+publishing or using `--force`. Commit `.cratis-render.json`, never the
+`.cratis-render/` control directory. Force never overwrites unmanaged files or
+modified stale artifacts. Recovery runs before planning:
+`recovered: true` means stop and reconcile. Use `--check` for drift, not MCP-to-manifest revision comparisons.
 
 ## Admission
 
@@ -126,14 +123,18 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
   single-hop reaction append specifications, Debug specifications and authored UI through Scene.
 - **Refused:** Translate/captures, non-event triggers, opaque bodies and clock specs (`STAGE-ESM-024`);
   mixed effects (`STAGE-ESM-037`, redelivery duplicates events); unsupported reaction mappings (`-039`),
-  protected identities/enums (`-040`), non-text secrets (`-041`); generated types/results (`-028`/`-038`);
+  protected identities/enums (`-040`); unsupported generated types/results (`-028`/`-038`);
   appends beyond single-hop/cascade specs (`-011`), absence (`-027`), evolution (`STAGE-ESM-026`), public/foreign events
   (`-032`/`-033`), claim-reading/opaque `runs as` gates (`-034`), legacy filters (`-035`), production
-  overrides (`-036`), code validation (`-005`), snapshot lists/DateTime filters (`-010`), conditional
-  productions, composite projection keys and `all`. Through v15 is construct admission.
-- **Binding refusals (`PLAY0268`/`PLAY0271`):** `reads`, `concurrency`, handlers,
-  context/single-result filters, opaque scope/performer, composite `by`, enum/identity
-  compliance and subject lineage. Never drop protection.
+  overrides (`-036`), code validation (`-005`), DateTime filters (`-010`),
+  unsupported conditional productions, composite projection keys and unsupported `all` shapes.
+  Protected reads refuse `STAGE-ESM-044`, described handlers `STAGE-IMPL-002`
+  (even Stub mode), and atomic mode in admitted pairs `STAGE-ESM-043`.
+- **Binding refusals (`PLAY0268`/`PLAY0271`):** legacy reads, `concurrency`, attached
+  handlers, context/single-result filters, opaque scope/performer, composite `by`,
+  enum/identity compliance and subject lineage. Eligible protected reads bind v25;
+  pending handlers with unconditional productions bind v23, but neither renders.
+  Never drop protection.
 
 A refusal is not a licence to weaken the model: drop no specification, event generation or
 protection to get a render; keep the model, record the capability gap and gap-fill.

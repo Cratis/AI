@@ -1,3 +1,6 @@
+<!-- Copyright (c) Cratis. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
+
 # The specification vocabulary
 
 This reference holds the given/when/then construct table and the enumeration and DateTime literal rules.
@@ -17,7 +20,7 @@ This reference holds the given/when/then construct table and the enumeration and
 | `given clock "<instant>"` | the ISO 8601 instant the scenario happens at |
 | `when clock "<instant>"` | the clock reaches an instant; scheduled reactions that are due run |
 | `when trigger <Trigger>` | an application trigger fires with the values beneath it |
-| `given capture` / `when capture <Capture>` | an earlier and the current record of a capture's source |
+| `given capture` / `when capture <Capture>` | earlier/current records for non-event sources; for `source events` use typed `given <Event>` / `when append <Event>` (PLAY0701) |
 | `generated <name> = <value>` | beneath `when <Command>`: the fixture for a generated property other than the identifier (ESM v7); `for` beneath the `when` supplies the generated identifier |
 | `then returns [<value>]` | the command's response (ESM v7): `then returns "<uuid>"` for a scalar, `then returns` with named `field = value` lines for a subset of a record |
 | `then <EventType>` | an expected new event |
@@ -31,6 +34,16 @@ This reference holds the given/when/then construct table and the enumeration and
 | `then denied` | an authorization denial (`Unauthorized`) |
 | `for <value>` | the event source of a `given`/`then` event, or of the `when` command or appended event |
 | `<property> = <value>` | a literal, `null`, or a one-line JSON-shaped object or list: `lines = [{"sku":"A-1","quantity":2}]` |
+
+## Parse and binding diagnostics
+
+PLAY0358 is a syntax error; PLAY0388 also occurs at parse time for extra text
+after `then denied`. PLAY0350, PLAY0352, PLAY0388 for mixed outcomes, PLAY0389 and
+the one-rejection rule PLAY0273 occur only at binding. Source validation alone
+will not report them: check executable diagnostics as well. Clock instants need
+an ISO 8601 offset or `Z`, for example `"2026-10-05T08:00:00Z"` (PLAY0461).
+
+## Literal spellings
 
 An enumeration value binds whether it is written bare
 (`status = sent`), qualified (`status = InvoiceStatus.sent`) or quoted, and a

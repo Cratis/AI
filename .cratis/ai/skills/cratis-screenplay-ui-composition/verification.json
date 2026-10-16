@@ -33,15 +33,18 @@
     },
     {
       "kind": "skill-contains",
-      "value": "produces event InvoiceCancelled"
+      "value": "produces event InvoiceCancelled",
+      "file": "references/interaction-example.md"
     },
     {
       "kind": "skill-contains",
-      "value": "invoiceId = $eventSourceId"
+      "value": "invoiceId = $eventSourceId",
+      "file": "references/interaction-example.md"
     },
     {
       "kind": "skill-contains",
-      "value": "InvoiceStatusView optional"
+      "value": "InvoiceStatusView optional",
+      "file": "references/interaction-example.md"
     },
     {
       "kind": "skill-contains",

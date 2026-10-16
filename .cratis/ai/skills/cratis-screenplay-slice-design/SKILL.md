@@ -157,7 +157,9 @@ When `.screenplay/identities.json` exists, adding, removing or renaming an addre
 Slice design is done when these hold; otherwise report what is open.
 
 - [ ] Every command: origin reachable and authorized; every input traced; rules placed by
-      layer; stored-state rules recorded NOT enforced with a named target; no form-verb name.
+      layer; stored-state rules use admitted protected reads, or name the refused shape
+      and target gap; no form-verb name. Read [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
+      for opt-in and Stage refusal; reference protection is not target realization.
 - [ ] Every command has a refusal inventory (success, each refusal with layer and message,
       denied persona); every gated command and query has a `then denied` row.
 - [ ] Every event is past tense, a specific change, and consumed or justified.

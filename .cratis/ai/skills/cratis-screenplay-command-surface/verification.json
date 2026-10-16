@@ -4,6 +4,11 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "Unsupported (`ImplementationBody`)", "file": "references/described-handlers.md" },
+    { "kind": "skill-contains", "value": "including Stub mode", "file": "references/described-handlers.md" },
+    { "kind": "skill-contains", "value": "DecisionStateChanged", "file": "references/protected-reads.md" },
+    { "kind": "skill-contains", "value": "checkPortableMatchPattern", "file": "references/text-and-match-rules.md" },
+    { "kind": "skill-contains", "value": "U+00A0", "file": "references/text-and-match-rules.md" },
     { "kind": "skill-contains", "value": "screenplay_declaration_details", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "do not hand-edit the text", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "A CLI-bundled MCP can lack this summary", "file": "references/generated-values-and-responses.md" },
@@ -42,7 +47,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`produces` and `handler` are mutually exclusive"
+      "value": "A file/code `handler` cannot coexist with `produces`"
     },
     {
       "kind": "skill-contains",
@@ -54,11 +59,11 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`reads` is not a protected read"
+      "value": "command reads protected"
     },
     {
       "kind": "skill-contains",
-      "value": "Adding a\n`concurrency` block does not fix this"
+      "value": "reads/concurrency cannot combine (PLAY0783)"
     },
     {
       "kind": "skill-contains",
@@ -93,6 +98,8 @@
       "value": "Generated identifiers need Uuid or String backing and at least 64 random bits.", "file": "references/generated-values-and-responses.md"
     },
     { "kind": "skill-contains", "value": "Generated values and responses (ESM v7 and v15)" },
+    { "kind": "skill-contains", "value": "names that can match together report PLAY0367", "file": "references/text-and-match-rules.md" },
+    { "kind": "skill-contains", "value": "or reaction `where` remain PLAY0268", "file": "references/text-and-match-rules.md" },
     { "kind": "skill-contains", "value": "Generated values are not request inputs", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "Generated-concept validation rules select ESM v20", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "PLAY0688 and a violating example", "file": "references/generated-values-and-responses.md" },

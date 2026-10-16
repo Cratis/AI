@@ -48,6 +48,18 @@
         "Distinguishes fixed timestamp from random suffix and rejects strict within-millisecond ordering or arbitrary tenant prefixes.",
         "Treats Bytes(32) ApiKey as a 256-bit secret with audit/delivery/hash-storage safeguards, not a UUID credential or automatic encryption claim."
       ]
+    },
+    {
+      "id": 5,
+      "name": "readable-invoice-pattern-and-pickup-ticket",
+      "prompt": "Our shop resolves Fundamentals 7.25.0. Write InvoiceNumber as a readable INV-year-month-seven-random-digits reference with a Luhn check digit, and TicketNumber as a six-digit Int64 pickup ticket. Show the static factories, how to validate a supplied invoice checksum and which time the date uses. Can we use this as a legally gapless invoice sequence or an ApiKey? Reply only.",
+      "expected_output": "InvoiceNumber implements IGeneratableInContext<InvoiceNumber>, New(context) wraps GenerateValue.Pattern(\"INV-{yyyy}{MM}-#{7}\", context, Checksum.Luhn). TicketNumber wraps long and implements IGeneratable<TicketNumber> with GenerateValue.Integer(100000, 999999), inclusive. HasValidChecksum(value, Checksum.Luhn) belongs in concept validation alongside shape checks, not hand-written arithmetic. The date uses captured Now in UTC, not Tenant or a new clock read; date-free Pattern(pattern, checksum) also exists. Check digits and dates add no entropy; enforce uniqueness/collision policy. Not gapless/sequential allocation, secret protection, idempotency or authorization.",
+      "assertions": [
+        "Uses the exact Pattern(pattern, context, Checksum.Luhn) factory and IGeneratableInContext contract; states UTC captured Now supplies the date and missing time fails.",
+        "Uses GenerateValue.Integer(100000, 999999) with long-backed TicketNumber and inclusive endpoints, not System.Random or a nonexistent random helper.",
+        "Uses GenerateValue.HasValidChecksum(value, Checksum.Luhn) with separate shape validation and explains generation does not automatically validate stored or supplied values.",
+        "Rejects pattern as gapless/sequential numbering or ApiKey, says checksums catch typos not forgery, and requires collision/uniqueness handling for short codes."
+      ]
     }
   ]
 }

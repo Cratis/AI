@@ -36,6 +36,18 @@
         "Requires located per-element loss rows with adapter/cap and retained handler rather than a claim of equivalent recovery.",
         "Separates compilation from PLAY0268 handler binding refusal and states that a version cap describes less behavior."
       ]
+    },
+    {
+      "id": 4,
+      "name": "recover-generated-rule-proofs-without-v21-promises",
+      "prompt": "The shop uses Arc.Screenplay 22.101.0. Three built-in generated concepts have validators: Proven, Unproven and Refuted. A fourth factory calls Fundamentals 7.25.0 GenerateValue.Pattern with a checksum; another calls Integer. Which generation contracts and rules recover at ESM cap v20, and what changes below v20? Compare Arc.Screenplay 22.107.0 at a v21 cap for Pattern/Integer, HasValidChecksum and a self-contained String factory interpolating context.Tenant with GenerateValue.Ulid(context). Does Stage render every recovered contract? Can we delete a refuted rule or infer a gapless invoice allocator? Reply only.",
+      "expected_output": "22.101.0 recovers generated-concept rules with built-in strategies at v20: Proven emits, Unproven remains with SP0078, Refuted withholds generation with SP0073 and witness. Below v20 the rules stay while generation is withheld. Pattern/Integer/rule factory recovery is not released in that adapter; do not infer recovery from Fundamentals API existence or standalone Screenplay v21 admission. Preserve source/loss rows, payloads and protection, not a replacement strategy or removed rule. Arc.Screenplay 22.107.0 recovers literal Pattern/Integer calls, checksum validation and self-contained String rules at v21. The Cratis C# rule body binds Fundamentals GenerationContext, has unknown entropy and cannot supply an identifier. External helpers/ambient reads stay SP0073, invalid pins SP0039. Below v21 generation/dependents are withheld and checksum validation stays attached, never pruned. Stage renders checksum from 4.118.0 and pattern/random from 4.119.0; generate rule stays STAGE-ESM-028. Pattern is not gapless and check digits are not forgery protection.",
+      "assertions": [
+        "Gates generated-validator recovery on Arc.Screenplay 22.101.0 and differentiates Proven emit, Unproven SP0078 retain and Refuted SP0073 with witness withholding generation.",
+        "Keeps validator rules under a below-v20 cap while reporting withheld generation and dependent losses, never removes rules to force recovery.",
+        "Gates pattern/random/checksum and self-contained String-rule recovery on Arc.Screenplay 22.107.0, preserves cap/dependency losses and separates recovery from Stage's pattern/random/checksum rendering and rule refusal.",
+        "Preserves located losses and rejects pattern as gapless allocation, checksum as forgery protection, or deletion of intended invariants."
+      ]
     }
   ]
 }

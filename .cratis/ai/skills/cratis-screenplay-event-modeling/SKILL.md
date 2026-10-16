@@ -108,7 +108,7 @@ The independent verdicts V1 to V5 that report them are in
 `cratis-screenplay-modeling-lifecycle`.
 
 What binds depends on **which tool** you ask, so name the tool and its version:
-Read [references/parsed-not-runnable.md](references/parsed-not-runnable.md) (section "What binds depends on which tool") when stating what a tool binds or renders (`reads`/`concurrency` fail with `PLAY0271`; `persona` declarations are report-only; an older bundle reports *Slice '<name>' of type '<type>' is not admitted by ESM v1.*).
+Read [references/parsed-not-runnable.md](references/parsed-not-runnable.md) (section "What binds depends on which tool") when stating what a tool binds or renders (legacy reads and `concurrency` fail with `PLAY0271`; protected command reads opt into v25; `persona` declarations are report-only; an older bundle reports *Slice '<name>' of type '<type>' is not admitted by ESM v1.*).
 
 The ESM versions, the full disposition table and the Step 7 clock example's binding
 result are in [references/parsed-not-runnable.md](references/parsed-not-runnable.md)
@@ -169,19 +169,19 @@ compile or will not be safe. Both are deliberate.
 
 - **A command may read state.** The generic method forbids `ReadModel -> Command`
   edges. Screenplay ships `reads <ReadModel> [as <alias>] [by <property>]` so the
-  model shows what a state-dependent decision consulted. **It is not a protected
-  (open limitation):** nothing checks at append time that the state is still current,
-  the executable model rejects `reads` and `concurrency` (`PLAY0271`), and adding
-  `concurrency` does not make the decision safe .
-  Write a state-dependent rule as `reads <View>` plus `require <expr> message "..."`
-  and mark it in the slice `description` as **not enforced in the model today**,
-  naming the target that must enforce it (Arc `[ProtectedDecision]` with
-  `DecisionRead<T>`, Chronicle's dynamic consistency boundary, or a constraint where
-  one fits). Model uniqueness as a `unique` constraint. Never copy state into a
+  model shows what a state-dependent decision consulted. Application-root
+  `command reads protected` admits eligible command reads as v25: absent state
+  rejects and matching decide/commit changes conflict. Read
+  [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
+  for the strict shape and paths. Legacy reads remain PLAY0271; `concurrency` is
+  not protection and cannot combine with protected reads. Stage refuses protected reads
+  (STAGE-ESM-044), not v25 itself: name target enforcement separately rather than claiming a render.
+  Write state-dependent rules as `reads` plus `require` with an indented message;
+  mark refused shapes as unenforced and name the intended target mechanism. Model uniqueness as a `unique` constraint. Never copy state into a
   command input, add an attestation flag, or hide the rule in `handler` prose. Do not
   use `reads` to fetch data the command could carry as input. A reaction trigger
-  declares the views an automation decides from with the same `reads`, and the same
-  caveat applies.
+  declares consulted views with `reads`, but trigger reads remain unprotected;
+  decide in an invoked command instead.
 - **Some validation *does* belong in the model.** The generic method routes format
   rules to the type system. Screenplay's type system *is* the `concept`, and a
   concept carries its own `validate` block - so a format rule lives on the concept

@@ -8,12 +8,9 @@ license: MIT
 
 Read [preferred syntax](references/preferred-syntax.md) when writing or reviewing `.play`.
 
-Which tool to run, what its result means, and what each tool can and cannot admit. This
-skill answers "does it compile, bind, render, and which compiler said so". The method
-(what to model, in which order, with which gates) lives in
-`cratis-screenplay-modeling-lifecycle`; construct syntax lives in the construct skills
-(`cratis-screenplay-command-surface`, `-projections`, `-read-surface`,
-`-captures-and-reactions`, `-specifications`, `-ui-composition`).
+This skill owns tool selection, verdict meaning and admission. Modeling method
+lives in `cratis-screenplay-modeling-lifecycle`; construct syntax lives in command,
+projection, read-surface, capture/reaction, specification and UI skills.
 
 ## Locate the model
 
@@ -28,7 +25,11 @@ bundled in the CLI are different releases, and the bundled one can be older; a c
 standalone tool binds may be refused or unrendered through the CLI. Capabilities that need a
 minimum release carry a one-line `Requires ...` note in the reference that teaches them.
 
-For exact diagnostic codes, MCP names/parameters and standalone CLI options, search the large published [references/screenplay-contract.json](references/screenplay-contract.json), named by [references/screenplay-contract.version](references/screenplay-contract.version), rather than loading it in full. Locate a diagnostic by its exact `code` (for example `"code": "PLAY0029"`), a tool by its exact `name` (for example `"name": "read-workspace"`), or a command in `cliCommands`; read the matched object for retirement, parameters or options. [references/screenplay-contract-exceptions.json](references/screenplay-contract-exceptions.json) records reasoned exceptions for superseded statements; it does not change the current contract.
+Search [screenplay-contract.json](references/screenplay-contract.json), not its
+whole contents, for exact diagnostic `code`, tool `name` or `cliCommands` options.
+Its version is [screenplay-contract.version](references/screenplay-contract.version).
+Read [contract exceptions](references/screenplay-contract-exceptions.json) when a
+superseded statement needs context; exceptions do not change the contract.
 
 ## Ground rules
 
@@ -101,8 +102,11 @@ changes with the root folder name.
   lists and lists narrowed by one `by` key (observable too) bind; caller-supplied equality
   filters on collections bind as ESM v14. Context `from`, single-result
   filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268. Read
-  read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md). No handler (PLAY0268, with or without `implementation`/`hint`); `reads` and
-  `concurrency` do not bind (PLAY0271); concept compliance binds as v13 (precise refusals: command-surface `references/compliance.md`);
+  read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
+  Pending handlers beside unconditional productions bind as described commands (v23),
+  but reached bodies are Unsupported; attached handlers remain PLAY0268.
+  Eligible protected reads opt into v25; legacy reads and `concurrency` retain PLAY0271.
+  Concept compliance binds as v13 (precise refusals: command-surface `references/compliance.md`);
   generated values and `returns` responses bind (ESM v7, `references/generated-responses-example.md`). Read [references/executable-example.md](references/executable-example.md) when you need a small StateChange and StateView model that binds executable, [references/pdl-example.md](references/pdl-example.md) when writing projection forms that bind and run, and [references/automation-translate-example.md](references/automation-translate-example.md) when writing Automation and Translate slices (ESM v6).
 - **Renderable** (V5): `references/renderable-subset.md` has the admission table. The CLI admits through
   its newest known ESM version to construct checks; supported UUID/String
@@ -119,18 +123,22 @@ changes with the root folder name.
   Composite view keys remain authoring-only (PLAY0268), while one explicit
   `key` binds. Read `references/production-routes-and-filters.md` and read-surface
   `references/named-keys.md`.
-- **Enum numbers (v12):** non-positional enum numbers bind; canonical
-  `numbers` parallels `values`. Positional pins preserve earlier executable
-  bytes/version. Specifications still use names. Stage admits v12 and emits `Member = N`. Syntax:
-  command-surface `references/enum-numbers.md`; errors PLAY0667–0670 and opt-in
-  `enum-pinning` hint PLAY0671: `references/diagnostics.md`.
-- **Concept strategies (v15):** concept strategies and Guarded freshness; strict fixture shapes,
-  no silent retry. Read [references/generation-strategies-example.md](references/generation-strategies-example.md)
-  and command-surface `references/generated-values-and-responses.md` for supported strategies/refusals.
-- **v17–v20:** recovery/no-event assertions (v17), query Validation errors (v18),
-  invocation refusal branches (v19), generated-concept rules (v20). Read
-  `references/executable-subset.md` when choosing a version; specifications and
-  command-surface references own examples. Newer binding is not render admission.
+- **Enum numbers (v12):** read command-surface `references/enum-numbers.md` for
+  pins, stored numbers and Stage output; `references/diagnostics.md` owns PLAY0667–0671.
+- **Concept strategies (v15):** read
+  [generation strategies](references/generation-strategies-example.md) for Guarded
+  freshness and strict fixtures, and command-surface
+  `references/generated-values-and-responses.md` for strategy/refusal depth.
+- **v17–v21:** recovery/no-events (v17), query Validation errors (v18), refusal
+  branches (v19), generated-concept proofs (v20), pattern/random/rule/checksum (v21).
+  Read `references/executable-subset.md` for version prerequisites and
+  `references/diagnostics.md` for proof/support failures. Binding is not rendering.
+  Tool/renderer authors: read [references/generation-checks.md](references/generation-checks.md)
+  when discovering strategy options, checking one concept or value, or consuming rule proofs.
+- **v22–v25:** read [language admission](references/language-admission.md) for atomic
+  batches, described handlers, text rules, protected reads and Stage refusals.
+  Read [diagnostic arguments](references/diagnostic-arguments.md) for MCP/JSON subjects:
+  code and typed arguments, never message parsing.
 - **Caller/compliance metadata:** `$identity` aliases caller built-ins;
   additional identity details are metadata and executable reads still refuse.
   Bare `pii`/`secret` replace legacy spellings; `pii personal` repeats one marker
@@ -186,7 +194,7 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
 11. Declare an event once, in its producing slice.
 12. Quoted `import "glob"` is your own files; unquoted `import Ctx.Event` is a foreign
     contract and does not bind.
-13. A handler never binds; `numbers exact` never binds; descriptions render only as XML doc comments, never as behavior.
+13. Pending described handlers bind but do not execute their bodies; attached handlers and `numbers exact` do not bind. Descriptions render as XML doc comments, not behavior.
 
 ## Gate
 

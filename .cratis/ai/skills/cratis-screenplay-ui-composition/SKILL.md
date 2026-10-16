@@ -230,66 +230,23 @@ and the review checklist. `contribute to Navigation` stays the flat contribution
 
 ## Interactions — what a click does
 
-A screen can say what it shows; an interaction says what happens when someone
-acts. Three words carry it:
-
-| Word | What it is |
-| --- | --- |
-| **Interaction trigger** | the `on <thing>` clause: `click`, `double click`, `select`, `submit`, `change`, `load`/`unload`, `enter`/`leave`, `event <Event>`, `interval <n> <unit>`, or a declared application trigger |
-| **Action** | a closed set: `execute`, `navigate to`/`navigate back`, `open dialog`/`close dialog`, `refresh`, `set … to`, `notify`, `confirm`, `raise` |
-| **Behavior** | a bundle of trigger-to-action bindings; inline (`on …`) or named (`behavior` + `uses`) |
+An interaction wires an `on <thing>` trigger to actions, inline or through named
+`behavior` + `uses`. This is closed UI wiring, not scripting; validation stays on
+the command. Trigger/action syntax is in [interaction example](references/interaction-example.md)
+and [guarded interactions](references/guarded-interactions.md).
 
 Guarded alternatives and `where` deprecation:
 [guarded interactions](references/guarded-interactions.md).
 
-Complete named/inline behavior example:
-
-```screenplay
-concept InvoiceId : Uuid
-
-behavior ConfirmThenExecute
-  parameter command
-  parameter message
-  on click
-    confirm message
-      on success
-        execute command
-
-module Invoicing
-  feature InvoiceManagement
-    slice StateChange CancelInvoice
-      command CancelInvoice
-        invoiceId InvoiceId identifier
-        produces event InvoiceCancelled
-      screen CancelInvoiceScreen
-        data InvoiceStatusView via query InvoiceStatusById by invoiceId
-        uses ConfirmThenExecute
-          command CancelInvoice
-          message "Cancel this invoice?"
-        on enter
-          refresh InvoiceStatusById
-            on failure
-              notify error "The invoice could not be loaded"
-    slice StateView InvoiceStatus
-      readmodel InvoiceStatusView
-        invoiceId InvoiceId
-        cancelled Bool
-      projection InvoiceStatuses => InvoiceStatusView
-        from InvoiceCancelled
-          invoiceId = $eventSourceId
-          cancelled = true
-      query InvoiceStatusById => InvoiceStatusView optional
-        by invoiceId InvoiceId
-```
-
-The inline event targets `invoiceId`; the projection gets it from event context.
+Read [interaction example](references/interaction-example.md) when wiring a
+named confirmation behavior and an inline refresh to the same screen.
 Scalar/named `returns` bind and reference-execute (ESM v7).
 Renderer generation/response limits: command-surface `references/generated-values-and-responses.md`.
 Screenplay resolves response names in form submit and execute success (Requires Screenplay 4.148.0 or later);
 own failure use is PLAY0685. No ESM change; Scene runtime binding remains downstream.
 An existing success continuation does not imply a response contract.
-Read [response continuations](references/response-continuations.md) for precedence,
-nested/failure scopes, PLAY0485, examples and tagged evidence.
+Read [response continuations](references/response-continuations.md) for scope,
+precedence, PLAY0485 and examples.
 
 - Write the one-off case inline; name it with `behavior` when several places need
   the same wiring. A `uses` site must supply exactly the declared parameters
@@ -307,8 +264,6 @@ nested/failure scopes, PLAY0485, examples and tagged evidence.
 - **A declared `trigger` is not a UI event.** Use `on click`, not `trigger`, for a
   button. `on <Trigger>` observes an application trigger and `raise <Trigger>`
   fires one; that is where the two meet.
-- Interactions are a closed vocabulary, not a scripting language. Validation stays
-  on the command; the UI surfaces it.
 
 ## `ui profile` and `theme`
 

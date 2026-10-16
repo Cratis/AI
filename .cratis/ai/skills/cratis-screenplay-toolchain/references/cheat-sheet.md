@@ -10,11 +10,23 @@
 - `$context.` paths (command `produces`)
 - `$eventContext.` (projections)
 - PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
+- Generated values and proofs
 - Specification forms
 
 Released boundary forms: `public event X`, `event X from "store"`, Translate
 `direction inbound|outbound`, event-target `projection/reducer P => PublicEvent`,
-and capture `source events` with `from ForeignEvent` select v9. Read
+and capture `source events` with `from ForeignEvent` select v9.
+For event captures, present `given <FromEvent>` / `when append <FromEvent>`, not
+capture records (PLAY0701). The key must be required on every `from` event, never
+a context key (PLAY0700). PLAY0701 repairs only an unambiguous single-`from` capture;
+PLAY0700 has no automatic repair.
+Requires Screenplay 4.171.0 or later (`screenplay --version`); older runners do not
+deliver these events to captures.
+A directionless Translate reacting without a `from` route to its own capture's
+append warns PLAY0694 (fails `--warnaserror`): move the reaction to Automation,
+keeping the capture in Translate. No automatic split.
+Requires Screenplay 4.176.0 or later; older compilers leave that shape unchecked.
+Read
 [public contracts](../../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
 View properties use trailing `key`; multipart `by` query/read blocks remain
 PLAY0268, not v10. Read [named keys](../../cratis-screenplay-read-surface/references/named-keys.md).
@@ -71,9 +83,14 @@ remain unadmitted. Compile and test each relevant fixture with the chosen tool.
   require that position. Source preambles precede declarations.
 - Strings: `"..."`, escapes `\" \\ \n \r \t`; other backslashes kept (regex `"^INV-\d{6}$"` works).
 - Structured values: single-line JSON, quoted keys (`[{"sku": "A-1", "quantity": 2}]`).
+- Literal property/concept text rules use `contains`, `not contains`, `starts with`,
+  `ends with` with quoted operands (v24, ordinal UTF-16). Portable `matches` refuses
+  nonportable constructs with PLAY0699; exact Studio patterns warn PLAY0787.
+  Read command-surface [text and match rules](../../cratis-screenplay-command-surface/references/text-and-match-rules.md).
 - One condition grammar (policy `require`, `produces when`, `require`, reaction `where`): `and`
   binds tighter than `or`; operators `== != > >= < <= contains`, `starts with`; claims use
-  `claim "x" matches "v"` (not `==`: PLAY0120).
+  `claim "x" matches "v"` (not `==`: PLAY0120). Text operators here are condition-only
+  authoring syntax (PLAY0268 at binding), not the admitted property text rules.
 - Keyword escape `@name` for properties named `tag`, `authorize`, `produces`, `reads`, `file`,
   `validate` (enum value), `sequence`, `occurred`, `causedBy`, `namespace`, `correlation`,
   `causation`, and projection `key`/`parent`/`with`.
@@ -152,6 +169,34 @@ collections (path below them: PLAY0297 E). Unknown member: PLAY0295/0296 W.
 - Keys: only on `from` (a projection-level `key` routes nothing: PLAY0381 W).
 - One `every`/`all` block per level for the executable model (else PLAY0268).
 - Templates (`` `${a}` ``) and `$causedBy` parse but do not bind (PLAY0268).
+
+## Generated values and proofs
+
+Choose readable invoice/order references with `generate pattern "INV-{yyyy}{MM}-#{7}" checksum luhn`
+on a String concept and author `validate checksum luhn` separately. `#`, `?`, `*`
+mean digit, uppercase letter, letter-or-digit; ASCII classes and repeats up to
+64 are finite. UTC segments are `{yyyy}`, `{yy}`, `{MM}`, `{dd}`. Int
+`generate random 100000..999999` is inclusive; `generate rule Name` attaches one
+file/tagged fence with Now/Tenant context and unknown entropy. These are ESM v21.
+Requires Screenplay 4.172.0 (`screenplay --version`) for these constructs; older compilers report PLAY0268.
+Sequence and generated secrets remain refused.
+
+Generated-concept rules select v20 (older compilers refuse them with PLAY0268): Proven silent, Refuted PLAY0688 plus witness, Unproven PLAY0689
+plus reason. Finite support exhaustion is PLAY0691, empty support on a scanned
+date PLAY0692, not a proof warning. MCP rules[]/derivedPattern support typed
+matches/PLAY0688 repair proposals.
+Requires Screenplay 4.173.0 for those MCP fields; older servers omit them.
+See [generation example](generation-strategies-example.md).
+
+Pin whole identifiers with `for`, other values with named `generated`; pins obey
+shape and rules. `given clock` fixes all UTC pattern date segments, not randomness;
+without it only digit widths are checked. Patterns are not gapless sequences or
+secrets; check digits catch typos, not forgery. Short payload codes need uniqueness,
+generated source destinations need freshness. Read
+[Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md)
+for v21 admission, all-Proven unpinned specs and the separate prerequisites for
+warning/info rules, checksum validation and pattern/random rendering.
+`generate rule` remains STAGE-ESM-028. Reference binding is not rendering.
 
 ## Specification forms
 Full list with semantics: `Documentation/screenplay/specifications.md`. Compiled in the

@@ -24,7 +24,8 @@ non-route Double literals (exact lowering of Double-mode literals) as v11, non-p
 numbers as v12, concept compliance as v13, caller-supplied collection equality filters as v14,
 concept generation strategies and freshness as v15, stored event names as v16,
 no-event assertions/redelivery as v17, query-error specifications as v18,
-invocation refusal branches as v19 and generated-concept rules as v20. Always name
+invocation refusal branches as v19, generated-concept rules as v20, and finite
+pattern/random/rule generation plus checksum validation as v21. Always name
 the tool with a V2 or V3 result. When tool and documentation disagree, the tool decides
 current capability; the documentation and the domain decide intended correctness. Record
 the gap, never strip the model to pass. Use the actual binder before promoting an older
@@ -37,6 +38,10 @@ never bind (`verdicts.md`).
 
 Complete examples that bind live in `executable-example.md`, `pdl-example.md` (projections),
 `automation-translate-example.md` (ESM v6) and `generated-responses-example.md` (ESM v7).
+
+For atomic batches (v22), described handlers (v23), ordinal text rules (v24) and
+protected reads (v25), read [language admission](language-admission.md). A later
+version alone does not enable either application opt-in.
 
 ## Caller and compliance boundary
 
@@ -168,11 +173,14 @@ fixtures and `then returns`. Unsupported generated types (`-028`) and result com
 `references/generated-values-and-responses.md`.
 Complete examples: `generated-responses-example.md`, `generation-strategies-example.md`.
 
-- A generated property is command-only, required, scalar and a generatable concept backed by Uuid or String;
-  bare primitives, optional and collection types are invalid. Uuid has implicit `uuid`; String needs a strategy.
+- A generated property is command-only, required, scalar and a generatable concept backed by Uuid/String,
+  or Int with `random` (v21). Bare primitives, optional and collection types are invalid.
+  Uuid has implicit `uuid`; String needs a strategy. Generated identifiers remain Uuid/String only.
   Explicit serialized generation selects v15, with strict fixture encoding and whole-source freshness for all
-  generated destinations. `pattern`, `random`, `rule`, `sequence` and generated secrets remain unadmitted;
-  generated-concept rules bind as v20 with proof diagnostics PLAY0688/0689.
+  generated destinations. Sequence and generated secrets remain refused.
+  Generated-concept rules bind as v20 with proof diagnostics PLAY0688/0689;
+  pattern/random/rule and checksum validation bind as v21. PLAY0691 is uncountable
+  support within budget; PLAY0692 is empty support on a scanned UTC date.
   See command-surface `references/generated-values-and-responses.md` and `generation-strategies-example.md`. Modifier order is `Type optional generated identifier`.
 - Generated values are not request inputs, form fields, invocation arguments or ordinary `when` values. Generation
   runs after authorization and validation and before productions, so a denial or a validation failure never
@@ -180,7 +188,10 @@ Complete examples: `generated-responses-example.md`, `generation-strategies-exam
 - A policy (including inherited or composed ones and the implicit `subject` of a generated identifier), a property
   rule or a requirement that references a generated value reports `PLAY0273`; reference input properties only. A
   generated property whose concept declares rules selects v20; refuted rules report
-  PLAY0688 and unproven rules warn PLAY0689. Opaque execution needs a target.
+  PLAY0688 with a witness and Unproven rules warn PLAY0689 with a reason. Proven
+  rules bind silently; matches containment requires deterministic patterns, not
+  passing samples. Opaque validation needs a target. Opaque generation rules use
+  pinned String results without executing their bodies.
   A reaction mapping into a generated property is invalid.
 - Responses: `returns <property>` is scalar; bare `returns` opens an ordered record of `<name> [<Type>] = <property>` fields
   over direct properties of the same command (collections, read aliases, arithmetic and whole read models are not
@@ -198,14 +209,25 @@ Complete examples: `generated-responses-example.md`, `generation-strategies-exam
 - A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)`; response-only commands run
   and discard the response. Generated values give no idempotency, retry or deduplication guarantee.
 
-Requires Screenplay 4.68.0 or later (`screenplay --version`) for generated values and responses (ESM v7), and 4.147.0 or later for concept generation strategies and freshness (ESM v15); older compilers refuse them with PLAY0268.
+Requires Screenplay 4.68.0 or later (`screenplay --version`) for generated values and responses (ESM v7), 4.147.0 for strategies/freshness (v15), 4.164.0 for generated-concept rules (v20), and 4.172.0 for pattern/random/rule/checksum (v21); older compilers refuse the respective constructs with PLAY0268.
+
+Pins satisfy both strategy shape and concept rules; failure is Rejected(Contract),
+not an input error or redraw. Pin date segments with `given clock`; without it the
+runner checks digit widths only. Generation checksum does not add validation:
+author `validate checksum` for arithmetic. Requires Stage 4.109.0 for v20,
+4.115.0 for v21 admission/all-Proven unpinned specs, 4.117.0 for warning/info rules,
+4.118.0 for checksum validation and 4.119.0 for pattern/random rendering; older
+renderers refuse those constructs or require rule-bearing pins even when Proven.
+Unproven/Refuted rules still need pins (-038), bad pins fail -011, and
+`generate rule` remains -028. Do not remove rules or classification to render.
 
 ## Released public boundaries and observer routes
 
 Public/origin events, explicit Translate direction, event-target builders and
-`source events` captures bind as ESM v9. Publication folds execute;
-source-event captures and reached opaque event-target reducers return typed
-Unsupported. Public/foreign imports still lack a local shape and refuse PLAY0268.
+`source events` captures bind as ESM v9. Publication folds execute, and so do
+captures over events (Requires Screenplay 4.171.0; a specification presents the
+consumed event with `given <Event>` / `when append <Event>`); reached opaque
+event-target reducers return typed Unsupported. Public/foreign imports still lack a local shape and refuse PLAY0268.
 See automations-and-translations `references/public-events-and-direction.md`.
 Production overrides and reaction/reducer filters bind and select v10;
 filters match routed source/stream names only. Read
@@ -231,9 +253,15 @@ Requires Screenplay 4.117.0 or later (`screenplay --version`) for ESM v9, 4.129.
 
 ## Code attachments (what binds, what never does)
 
+Pending `handler implementation` beside unconditional `produces` binds as a described
+command (v23). Its payload-only body returns Unsupported ImplementationBody when reached;
+denial/validation specs still run. Read [language admission](language-admission.md) for
+v22–v25 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
+for the result contract. Attached handlers remain unbound.
+
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
 code to an owner. Three kinds block binding (PLAY0268, V3 blocked, no specification runs):
-the command `handler`, the `file` constraint (see below) and a query `performer`
+the attached command `handler`, the `file` constraint (see below) and a query `performer`
 ("uses delivery, filtering, scope, or implementation behavior outside the first ESM v1
 vertical"). Everything else binds as an **opaque requirement** that needs a target to
 execute: reducer transitions, rule predicates, command and concept code validation, policy
@@ -246,22 +274,22 @@ bodies still leave their owner non-executable.
   can only declare uniqueness: declare it with `unique ...`, and put other rules in command
   validation or a `require` condition.
 
-- A command `handler` **never binds**: PLAY0268 "Command '<n>' handler requires a
-  constrained implementation attachment." This holds with a `file`, with a fence, and with
-  `implementation` or `hint` (including a pending intent with no payload). On a handler,
-  `implementation` and `hint` are authoring intent: no execution, lock or confirmation.
+- A file/fenced command `handler` remains PLAY0268, wrapped or direct. A pending
+  intent instead selects v23 with unconditional productions (PLAY0695 information).
+  Missing productions use PLAY0696, conditional ones PLAY0697, duplicate handlers PLAY0698.
+  Hints are not executable code, locks or confirmation.
 - A command property named rule also accepts an `implementation` block (ordered
   `hint` lines, at most one `file` or tagged fence). With a source attached it binds like a
   direct source; hints-only or empty is pending intent: valid source, PLAY0268 at binding.
   The block is rejected on concept rules, built-in property rules and whole-command
   `require`/`validate` bodies.
-- A handler therefore makes the slice non-executable and non-renderable: it is gap-fill
-  with the model as the contract.
+- A reached described body is Unsupported, not a passing specification; Stage refuses
+  it with STAGE-IMPL-002, even in Stub mode. Deliver its body as authorized gap-fill.
 - Stage admits only pure reducer bodies (Roslyn allowlist, STAGE-ESM-019 and 022);
   code validation is refused (STAGE-ESM-005). Opaque pure policies render.
 - The reference runner returns Unsupported for the opaque bodies that do bind (rule and
   policy predicates, code validation, reducer transitions); a specification that needs one
-  never passes. Handlers, file constraints and query performers (and reaction effects on a trigger with
+  never passes. Attached handlers, file constraints and query performers (and reaction effects on a trigger with
   `reads`) are different: they leave the whole model unbound, so no specification runs at
   all.
 
@@ -274,13 +302,13 @@ bodies still leave their owner non-executable.
 | `pii` or `secret` on a concept | PLAY0268 | Older compilers refuse it outright. Current compilers admit v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
 | `query` with a composite `by` block, or `by ... from` context-derived arguments | PLAY0268 | composite `by` blocks remain unadmitted. An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too |
 | Context `from`, single-result filters, `scoped to`, `performer` queries | PLAY0268 | Typed query context, filtering of single results, opaque scope and query implementation remain unadmitted; each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
-| `contains` or `starts with` in conditions | PLAY0268 | equality and numeric ordering only |
+| `contains` or `starts with` in conditions only | PLAY0268 | `require`/`produces when` conditions admit equality and numeric ordering only; property/concept text rules bind as v24 |
 | Date or DateTime comparison, `today` | PLAY0268 | no runtime date value |
 | Rule on a nested path (`lines.qty all > 0`) | PLAY0268 | put the rule on the nested value's concept |
-| `require` or `produces when` over a read-model path | PLAY0268 | needs decision-consistent reads |
-| `reads <View> ...` on a command | PLAY0271 (error) | legacy, cannot imply decision consistency |
+| Read paths without protected opt-in, or in `produces when` | PLAY0268 | v25 admits single-level paths only in `require` and produced-event mappings |
+| Legacy `reads <View> ...` on a command | PLAY0271 (error) | `command reads protected` opts eligible views into v25; see command-surface protected reads |
 | `concurrency` block on a command | PLAY0271 (error) | "concurrency metadata keeps its legacy meaning and cannot bind to ESM v1" |
-| `handler` (see above) | PLAY0268 | gap-fill |
+| File/inline `handler` (see above) | PLAY0268 | pending described handlers instead bind v23; body execution and rendering remain gaps |
 | `$context.tenant`, roles, claims, causation | PLAY0268 | no portable scalar counterpart |
 | Arithmetic or raw expression in a `produces` mapping | PLAY0268 | |
 | Template `` `${x}` `` or `$causedBy` in a projection | PLAY0268 | |

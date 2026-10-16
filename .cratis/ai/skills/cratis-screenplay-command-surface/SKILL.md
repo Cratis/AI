@@ -50,9 +50,8 @@ concept InvoiceStatus : Enum
   paid
 ```
 
-The seven primitives are `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date` and
-`DateTime`. `Enum` is **not** one of them — it is a separate concept kind, which
-is why the compiler says *expected … or Enum* rather than listing it among them.
+Primitives: `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date`, `DateTime`.
+`Enum` is a separate concept kind; details: `references/enum-numbers.md`.
 Use bare `pii` (`personal` alias) and `secret` on concepts; **Compliance is inherited**.
 Keep protection even when a compiler or renderer refuses it. Read
 [compliance and purposes](references/compliance.md) for ESM v13, binder-only refusals,
@@ -106,12 +105,12 @@ fix to migrate. `--warnaserror` does not reject information diagnostics.
 properties, `reads`, `authorize`, `validate`, `produces`/`handler`, `concurrency`.
 Keep to it.
 
-⚠️ **`produces` and `handler` are mutually exclusive** — declaring both is an
-error. Everything else may repeat except `description` (one) and `concurrency`
-(one). A `handler` parses but **never binds**, with or without an `implementation`
-or `hint`: the binder reports `PLAY0268` ("handler requires a constrained
-implementation attachment"), and a `handler` is not one of the opaque bodies below.
-Prefer `produces` when the model must run or render.
+A file/code `handler` cannot coexist with `produces` and still fails binding
+with PLAY0268. A pending `handler implementation` beside unconditional `produces`
+is a described command (ESM v23): the body owns payload values only. Prefer plain
+`produces` for declarative logic. Read [described handlers](references/described-handlers.md)
+when logic needs prose, for the result contract, PLAY0695–0698, Unsupported
+ImplementationBody and Stage's STAGE-IMPL-002 refusal (no stubs, even in Stub mode).
 
 ## `identifier` — the stream boundary decision
 
@@ -149,18 +148,11 @@ alias on **every** read (`PLAY0410`), aliases are unique (`PLAY0411`) and must n
 match a command property (`PLAY0412`). A `require` path uses the alias, or the
 view name when that view is read once.
 
-⚠️ **`reads` is not a protected read.** It documents the read-model-to-command
-arrow of the event model; nothing checks at append time that the state is still
-current. The executable model rejects every `reads` and `concurrency` with
-`PLAY0271`, and `require` over a read-model path with `PLAY0268`, until
-decision-consistent reads exist. Adding a
-`concurrency` block does not fix this: its scope is not the read's watermark, and the
-combination is planned to become an error once protected reads ship.
-When a rule depends on state:
-
-- if it is uniqueness, declare a `unique` constraint (below);
-- otherwise state the rule, and say in review that the target implementation
-  must enforce it consistently. Do not claim the model guarantees it.
+Opt eligible state reads into application-root `command reads protected` (v25).
+Absence rejects; matching intervening facts conflict. Read [protected reads](references/protected-reads.md)
+for strict admission, paths and PLAY0780–0786. Legacy reads stay unprotected;
+reads/concurrency cannot combine (PLAY0783). Stage refuses protected reads (STAGE-ESM-044), not v25 itself.
+Uniqueness still uses a constraint; reference success is not target realization.
 
 Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block is
 `PLAY0268` (read-surface `references/named-keys.md`).
@@ -170,8 +162,11 @@ Do not use `reads` to fetch data the caller could supply. A composite-key view's
 Each rule takes an optional `severity information|warning|error` and then an
 optional `message "<text>"` (or `$strings.<key>`). The default severity is `error`.
 
-The rule vocabulary (`not empty`, `min`/`max`, comparisons, `length`, `matches`, `all`, `rule <Name>`) is in
+The rule vocabulary (`not empty`, `min`/`max`, comparisons, `length`, literal text rules, `matches`, `all`, `rule <Name>`) is in
 [references/validate-rules.md](references/validate-rules.md): read it when choosing or writing a rule form.
+Read [text and match rules](references/text-and-match-rules.md) for ordinal `contains`,
+`not contains`, `starts with`, `ends with` (v24), the portable linear match dialect,
+PLAY0699/0787, Studio repairs and public pattern checks. Text rules are not conditions.
 
 ⚠️ **Validation severity is not compiler severity.** Every failed rule and
 `require` rejects the command, at `information` and `warning` too; severity only
@@ -241,8 +236,11 @@ One `concurrency` block per command; it is not bound (`PLAY0271`) and does not p
 
 UUID generation/responses bind as v7; serialized concept `generate` selects v15:
 UUIDv7/ULID/TypeID/NanoID/bytes, strict fixtures and whole-source freshness.
-Reuse rejects Concurrency, no append/retry. Generated rules/secrets and pattern/random/rule
-remain refused.
+Reuse rejects Concurrency, no append/retry. Rules select v20 (Requires Screenplay
+4.164.0, `screenplay --version`); pattern/checksum, Int random and attached rules
+select v21 (Requires 4.172.0). Older compilers refuse PLAY0268. Secrets and sequences
+remain refused. Patterns are readable references, not gapless allocators or secrets;
+check digits catch typos, not forgery. Keep uniqueness/freshness enforcement.
 Read [references/generated-values-and-responses.md](references/generated-values-and-responses.md)
 for `generated`, `generate`, `returns`, strict fixtures/freshness and renderer limits.
 
@@ -285,15 +283,15 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
 - [ ] At most one command property carries `identifier`, and no event property does.
 - [ ] Format rules live on the `concept`; state-dependent rules are specifications.
 - [ ] Every `authorize` combining policies writes `and`/`or` explicitly.
-- [ ] No `reads` or `concurrency` is described as protecting a decision; the gap
-      is stated.
+- [ ] Protected reads opt in, meet admission and distinguish reference protection
+      from target realization; legacy reads and `concurrency` imply no protection.
 - [ ] Constraints are `unique` forms; no `file` constraint stands in for another rule.
 - [ ] Each policy has one `require` or one implementation, not both.
 - [ ] Personal data is `pii` on the concept; operational secrets are `secret`;
       no identifier or subject concept carries either. Reasons explain the value,
       while purposes declare basis/retention; run `--check purposes` separately.
-- [ ] No `handler` where the model must bind, and no bodied construct described as
-      runnable or renderable without saying which tool admits it.
+- [ ] Described handlers distinguish binding from Unsupported body execution and
+      Stage refusal; attached handlers remain unbound. Name the admitting tool.
 - [ ] No event carries an optional property covering two situations.
 
 Compiler versions and admission: `cratis-screenplay-toolchain/SKILL.md`.
