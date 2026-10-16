@@ -4,6 +4,7 @@ This reference holds identity-state, journal and recovery rules and the readines
 
 ## Preserve state and recover explicitly
 
+`.screenplay/` is tool-owned; the only authored file beside it is `screenplay.json`, the validation gate, which no MCP operation writes.
 Commit `.screenplay/identities.json` with the model. Only `apply` writes it;
 `open-workspace` never creates it; text-only models have none. Never delete or
 overwrite conflicting identity state, silently mint IDs on restart, or text-rename

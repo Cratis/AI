@@ -109,7 +109,7 @@ phase, a decision important enough that a later reader could misread the model (
 ## P6 Accept (the user)
 - **Input**: the reviewed source identity.
 - **Carry-forward**: the accepted **source identity** (`verdicts-and-modes.md`).
-- **Commit at P6**: the accepted `.play` files and `.screenplay/identities.json` when present.
+- **Commit at P6**: the accepted `.play` files, `screenplay.json` (the authored validation gate) when the repository has one, and `.screenplay/identities.json` when present.
   The user commits, or explicitly authorizes the owning session to commit; the modeler never
   commits on its own. Run `cratis-screenplay-modeling-lifecycle`'s `scripts/model-first-status.mjs` to check acceptance, drafts and model changes in progress.
 - **Gate**: explicit acceptance and the model commit before P7-P9. After committing, recompute

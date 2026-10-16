@@ -39,6 +39,9 @@ superseded statement needs context; exceptions do not change the contract.
 2. **Check the folder, warnings as errors.** `screenplay <folder> --warnaserror` or
    `cratis screenplay validate <folder> --warnings-as-errors`. Warnings hide defects:
    PLAY0029 (a misspelt keyword or a `type` inside a slice) drops a construct silently.
+   A committed `screenplay.json` at the model root declares the repository's gate (checks, warnings
+   as errors, scope, open questions): run without repeating those flags, read it with
+   `--print-gate`, and treat a refused file as "could not run" (`references/verdicts.md`).
 3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for
    language checks and reference specifications; `cratis` for rendering
    and generation. Report both tool and version, rather than transferring a verdict across
@@ -63,6 +66,7 @@ superseded statement needs context; exceptions do not change the contract.
 | --- | --- | --- |
 | Check root | `screenplay <root> --warnaserror --no-color` | `cratis screenplay validate <root> --warnings-as-errors -o json-compact` |
 | Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform` |
+| Declared gate | `screenplay <root> --print-gate`, `--format json`, `--no-gate-file` | `validate <root> --print-gate`, `--no-gate-file`; the same `screenplay.json` |
 | Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
 | MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
 | Render boundary | Binder admission is not Stage admission | The CLI renders only ESM versions it knows; a newer bound model gets `CLI-RENDER-004` |
