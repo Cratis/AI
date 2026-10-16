@@ -33,6 +33,11 @@ Each recovery below has its own gate; use the adapter that has the one you rely 
   unreadable, conditional or names a predicate (`rule <Name>`), when a UUID
   concept has any validator, when the concept carries `pii` or `secret`, and
   below a v20 cap.
+- Requires Arc.Screenplay 22.107.0 for pattern/random, checksum validation and
+  self-contained String generation-rule recovery (ESM v21); older adapters leave
+  those factories in code with SP0073. A v20-or-lower cap withholds generation
+  and dependent values/mappings/responses/destinations/scenarios, preserving
+  checksum validation as a source attachment rather than dropping it.
 
 Tagged evidence:
 
@@ -47,11 +52,11 @@ Tagged evidence:
 Use the [same shop vocabulary](../../cratis-screenplay-command-surface/references/shop-generation.md):
 CustomerId (`cus_` + ULID), OrderId (TypeID), InviteCode (NanoID), ApiKey (secret
 Bytes(32) with .NET `[NotAudited]`). Do not claim exact recovery of every factory:
-the custom `cus_` interpolation is not a recognized single factory call;
-TypeID can recover a passed-through context's strategy, not equivalent receipt-time/
-tenant behavior. Context-member factory recovery and generated secrets stay in code. Screenplay
-can author a String generation rule attachment with Now/Tenant, but that does
-not prove recovery of a factory or reference execution of its body. Preserve ApiKey's protection and source code, not an unprotected
+a custom `cus_` interpolation may recover as a self-contained String rule, not as
+an inferred built-in prefix strategy. TypeID recovers a passed-through context's
+strategy, not proof of equivalent receipt-time/tenant behavior. Context-member
+String bodies can recover under the v21 gate; generated secrets stay in code.
+Recovered rule fixtures supply a String result without reference execution of the body. Preserve ApiKey's protection and source code, not an unprotected
 replacement String. The intentional candidate can author the released customer
 prefix strategy with an explicit target decision, separate from as-is proof.
 
@@ -67,9 +72,10 @@ Do not infer generation for client-supplied IDs, deduplication keys or gapless
 invoice numbers, or turn an observed secret into a random String. Preserve
 protection and unrecovered code. A pattern is not a gapless/sequential allocator
 or secret; check digits detect typos, not forgery. Low-entropy payload codes need
-uniqueness separate from source freshness. Pattern/random/rule bind as ESM v21 in
-Screenplay, but the released Arc generator does not recover those factories and
-Stage does not render them. Report missing pins, withheld productions/scenarios and version caps
+uniqueness separate from source freshness. Arc recovery does not imply rendering:
+Requires Stage 4.118.0 for checksum validation and 4.119.0 for pattern/random;
+older renderers refuse them. `generate rule` still refuses STAGE-ESM-028.
+Report missing pins, withheld productions/scenarios and version caps
 as losses, not successful recovery. Sources: Arc
 `Documentation/backend/csharp/generating-a-screenplay.md`;
 Screenplay `Documentation/screenplay/generated-values/choosing.md`.
@@ -79,7 +85,7 @@ Screenplay `Documentation/screenplay/generated-values/choosing.md`.
 The UUID v4 forms, pins and the identifier/response rules in this section need Arc.Screenplay 22.78.0 or later; the other strategies in the list below need 22.86.0 or later.
 
 A `[GeneratedValue]` Handle parameter becomes a generated command property only
-for a required scalar Uuid/String concept with a proven strategy and no compliance
+for a required scalar Uuid/String or signed Int32/Int64 random concept with a proven strategy and no compliance
 markers. Validator rules recover under the v20 gate above, not by deleting them. Its explicit attribute name, otherwise
 parameter name, becomes the property name. A directly returned event-source
 identity (alone or beside an event) adds `generated identifier` and a response;
@@ -99,10 +105,26 @@ Constructors/conversions must forward the primitive unchanged. Recoverable calls
 - `RandomNumberGenerator.GetHexString(...)` → hex bytes only with an even literal
   character count; preserve its requested casing.
 
-A passed-through `GenerationContext` parameter is readable for UUIDv7/ULID/TypeID;
-reading `context.Now` or `context.Tenant` is not. Helper calls, multi-statement
-bodies, computed/invalid arguments and rule/pattern/random factory recovery stay in code
-with SP0073. Never invent a rule body or implementation-file reference.
+Under the v21 recovery gate, literal `GenerateValue.Pattern(pattern[, checksum])`
+and its passed-through context overload recover `generate pattern`; dated patterns
+require that context overload. `GenerateValue.Integer(min, max)` recovers inclusive
+signed Int64 `random`; an Int32 concept needs exactly one `(int)` cast with both
+bounds inside Int32. Invalid/computed arguments, unsigned backing and extra casts
+stay in code with SP0073. Screenplay checks pattern support, proofs and entropy.
+
+An unconditional default validator's `Must(v => GenerateValue.HasValidChecksum(v,
+Checksum.Luhn))` recovers `validate checksum luhn` (also Mod11/Mod97). None,
+conditional predicates and arbitrary helper predicates are not checksum rules.
+
+A self-contained String factory can instead recover `generate rule <Concept>New`
+with an inline `csharp` body, stripping only proven forwarding constructions.
+Literal/primitive locals, `context.Now`, `context.Tenant`, string, Math, Convert,
+Guid, RandomNumberGenerator and GenerateValue are allowlisted; multi-statement
+bodies can qualify. Compound time-based calls must pass the captured context.
+Private helpers, fields, DI, aliases/static imports, ambient time, raw Default
+comparisons and external dependencies remain SP0073; no file fallback is invented.
+This is the Cratis C# binding to Fundamentals' GenerationContext, not a universal
+runtime type. Opaque entropy is unknown, so a rule cannot supply an identifier.
 The concept owns `generate`; each command property only marks generation.
 Use the shared [strategy reference](../../cratis-screenplay-command-surface/references/generated-values-and-responses.md)
 for exact encodings, ranges, entropy and admission, rather than duplicating them.

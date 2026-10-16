@@ -29,13 +29,14 @@ Pins do not prove randomness, authorization, idempotency, storage freshness or
 secret safety. Client-minted IDs stay inputs; gapless invoice numbering needs an
 allocator, not a random fixture or pattern. Check digits catch typos, not forgery;
 short payload codes need uniqueness enforcement separate from source freshness.
-Pattern/random/rule and checksum validation bind as v21, but Stage does not render
-them. Generated secrets remain refused. Source: Screenplay
+Pattern/random/rule and checksum validation bind as v21. Stage renders
+pattern/random/checksum under the version gates below; `generate rule` remains
+STAGE-ESM-028. Generated secrets remain refused. Source: Screenplay
 `Documentation/screenplay/generated-values/choosing.md`.
 
 ## Fixtures and outcomes
 
-A compiler that admits ESM v7 binds and runs these; Stage renders supported UUID/String generation strategies,
+A compiler that admits ESM v7 binds and runs these; Stage renders supported UUID/String and Int random generation strategies,
 scalar/named responses, fixtures and `then returns`. Unsupported types/result combinations
 remain `STAGE-ESM-028`/`-038`; preserve refused specifications as gap-fill contracts. The model and rules are in `cratis-screenplay-command-surface`; the
 complete threaded model is the linked shop example. The excerpt below belongs
@@ -92,12 +93,17 @@ specification RegistersWithPinnedValues
   `Documentation/screenplay/generated-values/choosing.md`; Stage
   `Documentation/reference/generated-values-rendering.md`.
 - Attached generation bodies are not run: pin the resulting String;
-  an opaque validator still yields Unsupported. Stage admits v20 with
-  pins for every rule-bearing generated property, even Proven ones, and refuses
-  invalid pins with STAGE-ESM-011; v21 remains refused. Do not confuse the
-  renderer proof API's allowance for capable targets with Stage support.
+  an opaque validator still yields Unsupported. Stage allows unpinned rendered
+  generation only when every concept rule is Proven and the expectations support
+  relational captures. Unproven/Refuted rules need pins (-038); invalid pins fail
+  STAGE-ESM-011. Opaque/unsupported rules refuse -005 before pin evaluation.
+  Screenplay's reference runner and Stage's independent executor always need pins.
 - A reaction-invoked command that reaches generation is `Unsupported(IdentityAllocation)` (no fixture channel); a
   response-only command runs and its response is discarded.
 
 Requires Screenplay 4.164.0 (`screenplay --version`) for v20 rule-bearing generated pins, 4.172.0 for v21 finite/rule strategies; older compilers refuse PLAY0268.
 Requires Stage 4.95.0 for command clock specs and 4.109.0 for v20 rule-bearing pins; older renderers refuse those shapes.
+Requires Stage 4.115.0 for v21 admission/all-Proven unpinned rendering, 4.117.0
+for warning/info generated-concept rules, 4.118.0 for checksum validation and
+4.119.0 for pattern/random. Older renderers require rule-bearing pins or refuse
+the respective rules/strategies with -038/-042/-028. `generate rule` remains -028.

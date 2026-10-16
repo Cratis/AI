@@ -21,13 +21,22 @@ and concept compliance (v13) render.
 
 ## Current admission
 
-Stage admits exact ESM v1–v20 pairs and refuses v21 (Requires Stage 4.106.0 for v18 and
-4.109.0 for v20; older Stage refuses them with `STAGE-ESM-016`). The CLI's bundled Stage can be older: read installed versions and the
-pins in `product-sync.json`, not the standalone compiler's version. Each construct
-it does not render refuses with its own code before any artifact is planned.
+Stage admits the exact ESM v21 pair alongside the earlier supported pairs.
+Requires Stage 4.106.0 for v18 admission; older Stage refuses it with `STAGE-ESM-016`.
+For generated-concept v20/v21 admission and construct prerequisites, read
+[Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md).
+The CLI's bundled Stage can be older: read installed versions and the pins in
+`product-sync.json`, not the standalone compiler's version. Each construct it
+does not render refuses with its own code before any artifact is planned.
 
 Requires Stage 4.96.0 for stored event names (v16), 4.101.0 for no-event assertions (v17), 4.102.0 for refusal branches (v19), and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
 Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering; a bundle that stops at v16 refuses newer models with CLI-RENDER-004.
+
+With an admitting renderer, all-Proven generated-concept rules allow unpinned
+rendered specs; warning/info rules and semantic checksum validation are enforced,
+and pattern/random strategies render. `generate rule` remains STAGE-ESM-028.
+The independent executor still needs deterministic pins. Dated patterns use
+receipt-time UTC; random ranges use `long` with inclusive endpoints.
 
 This table is a reading of the renderer's admission, not a render result: run the bundled renderer before asserting renderability.
 
@@ -38,7 +47,7 @@ This table is a reading of the renderer's admission, not a render result: run th
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, including routed read-model/query companion replay | reserved stored names, unformattable routed fixtures (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
-| Generated values and responses (v7/v15) | required scalar UUID/String strategies, Guarded v15 freshness, scalar/named responses, generation fixtures and `then returns` | unsupported generated types (`-028`); routed/generated-rule/legacy-allocation/name-collision or unsupported response combinations, unpinned unordered/projected expectations (`-038`); no blanket `-029` refusal |
+| Generated values and responses (v7/v15/v20/v21) | required scalar UUID/String strategies and Int random, pattern/checksum, concept validators at all severities, all-Proven unpinned relational specs, Guarded v15 freshness, scalar/named responses and fixtures | `generate rule`, unknown strategies and unsupported generated types (`-028`); unsupported response combinations, generated-property validation, name collisions, unpinned Unproven/Refuted rules or unordered/projected/collision-sensitive expectations (`-038`); invalid pins (`-011`); opaque concept rules (`-005`); unknown rule kinds and legacy checksum (`-042`) |
 | Enum numbers / compliance | explicit enum numbers (v12); concept `[PII]` or scoped `[Encrypted]` + `[NotAudited]` (v13), property-level `[NotAudited]` for protected command inputs | protected identities/enums (`-040`); explicit subject lineage remains unadmitted |
 | Specifications | command scenarios and supported single-hop reaction appends; Stage's `admission.md` | appends outside the single-hop subset and commands cascading into reactions (`-011`); `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims (`-011`); command `given clock` renders only whole milliseconds at or after 1970 |
 | v9 and v10 | reaction/reducer `from` filters; role/authenticated `runs as` | public events and event-target projections (`-032`); foreign origins and event-source captures (`-033`); directed Translate (`-024`); claim-reading/opaque `runs as` gates (`-034`); legacy `from` (`-035`); per-production route overrides (`-036`) |

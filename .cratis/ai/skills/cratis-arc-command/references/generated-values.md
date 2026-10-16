@@ -45,8 +45,9 @@ pinning bypasses generation, never validation. Keep short-code uniqueness separa
 
 `GeneratedValueAttribute` targets parameters only. Use it on a command's public
 instance `Handle()`, not a property, constructor or `Provide()` parameter.
-The type must be non-nullable and implement `IGeneratable<TSelf>` for itself;
-a raw `Guid`, nullable concept or by-reference parameter is invalid. Use domain
+The type must be non-nullable and implement `IGeneratable<TSelf>` or
+`IGeneratableInContext<TSelf>` for itself; a raw `Guid`, nullable concept or
+by-reference parameter is invalid. Use domain
 concepts; the runtime's type check is the self-generatable interface contract.
 
 `[GeneratedValue]` uses the parameter name. `[GeneratedValue("customerId")]` keeps the
@@ -59,10 +60,11 @@ invoking `Handle()`. Neither a provided value nor a DI registration overrides a
 generated parameter. Unmarked parameters retain their normal resolution.
 
 Discoverable concept validators run with the command's scoped provider and
-cancellation token. Errors produce `GeneratedValueRejected`, an exception
+cancellation token. A failed rule produces `GeneratedValueRejected`, an exception
 outcome in `CommandResult`: a server-generation defect, not a request-validation
-400. Warnings/information allow execution. Fix the strategy or invariant; do not
-turn the defect into a user rejection or disable validation to make it pass.
+400. Requires Arc 22.104.0 for rejection at every severity, including Warning and
+Information; older runtimes let those severities execute. Fix the strategy or
+invariant; do not turn the defect into a user rejection or disable validation.
 
 Validated values enter `CommandContext.GeneratedValues` in parameter-resolution
 order. Each capture has zero-based `Order`, `Name`, declared `Type` and `Value`;
@@ -80,7 +82,7 @@ handler-construction checks remain for declarations compiled without analyzers.
 
 | Diagnostic | Severity | Fix |
 | --- | --- | --- |
-| ARC0022 | Error | Use a non-nullable type implementing `IGeneratable<TSelf>` for itself; no raw `Guid` or by-reference parameter. |
+| ARC0022 | Error | Use a non-nullable type implementing `IGeneratable<TSelf>` or `IGeneratableInContext<TSelf>` for itself; no raw `Guid` or by-reference parameter. |
 | ARC0023 | Error | Move the attribute to a non-static command `Handle()` parameter, not `Provide()`, a read model or controller. |
 | ARC0024 | Error | Give each generated parameter a non-empty unique name; comparison is case-sensitive. |
 | ARC0025 | Warning | Remove a redundant provided value of the generated type, or remove the attribute if `Provide()` should supply it. An unmarked parameter can still consume that provided type. |
@@ -135,6 +137,11 @@ Source: `Source/DotNET/Arc.Core/Commands/ModelBound/GeneratedValueAttribute.cs`,
 Contextual generation (received time and tenant) and Fundamentals' additional strategies need a newer Arc; [sources and Clock/Tenant
 setup](shop-generation.md). Generated parameter resolution is not a gapless or
 short-code collision allocator. Fundamentals owns pattern/checksum factories;
-this does not imply released ESM v21 recovery or rendering. Screenplay separately admits concept `generate`
-strategies and freshness; see `cratis-screenplay-command-surface/references/generated-values-and-responses.md`
-for that language contract and Stage's explicit scopes, not native Arc freshness support.
+Arc resolves these through the concept's generation interface, not strategy-specific
+`[GeneratedValue]` options. Requires Arc.Screenplay 22.107.0 for pattern/random,
+checksum and self-contained String-rule recovery; older adapters keep them in code.
+Requires Stage 4.118.0 for checksum validation and 4.119.0 for pattern/random
+rendering; older renderers refuse them. `generate rule` remains STAGE-ESM-028.
+Screenplay separately admits concept `generate` strategies and freshness; see `cratis-screenplay-command-surface/references/generated-values-and-responses.md`
+for that language contract and Stage's explicit scopes. Native Arc freshness is a
+separate policy; a factory alone is not a storage guard.

@@ -14,8 +14,11 @@
 ## Choosing a strategy
 
 Requires Screenplay 4.172.0 or later (`screenplay --version`) for pattern/random
-and checksum validation; older compilers refuse PLAY0268. Stage does not render
-v21. The reference runner uses whole-value fixtures, never random seeds.
+and checksum validation; older compilers refuse PLAY0268.
+Requires Stage 4.118.0 for checksum validation and 4.119.0 for pattern/random
+rendering; older renderers refuse them with STAGE-ESM-042/-028. The attached rule
+below still refuses STAGE-ESM-028. The reference runner uses whole-value fixtures,
+never random seeds.
 
 OrderId stays the high-entropy source identity. InvoiceNumber is a readable
 reference, not a gapless/sequential invoice allocator or secret; its check digit

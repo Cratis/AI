@@ -46,7 +46,7 @@
         ],
         "rules": []
       },
-      "notes": "Source-checked Stage v4.103.0: exact ESM v1-v17 and v19, not v18 or v20 (v18 admitted from 4.106.0 and v20 from 4.109.0, taught with Requires lines; 4.104-4.108 not otherwise reviewed). Snapshot/live collection queries, identity-mapping all projections, stored event names, event-id publication checks, release-baseline warnings, command clock/receipt-time generation, conditional and multi-command slices, generated text constraints, no-event and bounded redelivery specs, refusal branches. Query concept validation still uses primitive workaround; Stage#370 released in 4.106.0. CLI v3.62.0 bundles Stage 4.99.0, not 4.103.0. No new render/browser/Docker probe."
+      "notes": "Source-checked Stage v4.103.0: exact ESM v1-v17 and v19, not v18 or v20 (v18 admitted from 4.106.0 and v20 from 4.109.0, taught with Requires lines; 4.104-4.108 not otherwise reviewed). Snapshot/live collection queries, identity-mapping all projections, stored event names, event-id publication checks, release-baseline warnings, command clock/receipt-time generation, conditional and multi-command slices, generated text constraints, no-event and bounded redelivery specs, refusal branches. Query concept validation still uses primitive workaround; Stage#370 released in 4.106.0. CLI v3.62.0 bundles Stage 4.99.0, not 4.103.0. Generated-values-only delta checked at v4.127.0: v21/all-Proven unpinned specs from 4.115.0, warning/info generated rules 4.117.0, checksum validation 4.118.0, pattern/random factories/Host/executor 4.119.0; generate rule still STAGE-ESM-028. Other deltas not reviewed; synced unchanged. No new render/browser/Docker probe."
     },
     {
       "id": "arc",
@@ -98,7 +98,7 @@
           "vertical-slices.md"
         ]
       },
-      "notes": "Release-tag delta through 22.100.0: scoped completion and routing validation, generated-target freshness (including direct unit-of-work writes and nested commands), observable scenarios, asynchronous execution scopes, read-model diagnostics, ordered reactor refusal handling and ICommandExceptionMapper. Existing context generation/self-reduction guidance retained; Screenplay extraction deltas handed to its owning lane. No new runtime probe."
+      "notes": "Release-tag delta through 22.100.0: scoped completion and routing validation, generated-target freshness (including direct unit-of-work writes and nested commands), observable scenarios, asynchronous execution scopes, read-model diagnostics, ordered reactor refusal handling and ICommandExceptionMapper. Existing context generation/self-reduction guidance retained. Generated-values-only delta checked at v22.107.1: 22.104.0 enforces every concept-rule severity and carries Fundamentals 7.25.0; 22.107.0 recovers pattern/random/checksum and self-contained String generation rules, with v21 caps and fixture validation. Other extraction/product deltas not reviewed; synced unchanged. No new runtime probe."
     },
     {
       "id": "ai",

@@ -14,10 +14,9 @@
 Use the [same shop concepts](../../cratis-fundamentals-concept/references/shop-generation.md):
 CustomerId is `cus_` + ULID; OrderId is context-aware TypeID; InviteCode is NanoID;
 ApiKey is secret `Bytes(32)` with `[NotAudited]`. InvoiceNumber is a date/checksum
-pattern and TicketNumber an inclusive random Int64 pickup ticket (Requires
-Fundamentals 7.25.0; check `dotnet list package --include-transitive`, upgrade or
-retain existing factories on older versions). The concept owns the factory,
-not a command property or a per-call random implementation.
+pattern and TicketNumber an inclusive random Int64 pickup ticket. The concept owns
+the factory, not a command property or a per-call random implementation.
+Requires Fundamentals 7.25.0 for Pattern/Integer factories; check `dotnet list package --include-transitive`, upgrade or retain existing factories on older versions.
 
 The following complete command declarations depend on those Shop concepts and
 `Cratis.Arc.Core` / `Cratis.Arc.Chronicle`. They allocate response values only, not persisted entities or events;
@@ -104,7 +103,11 @@ and captured-time semantics, never one exact random suffix.
 - Screenplay admits attached generation rules with Now/Tenant context, but its
   reference evaluator only consumes pinned results. Generated secrets remain
   refused. A compiled Arc factory does not imply that it can recover or render
-  as `.play`: pattern/random/rule ESM v21 strategies are not rendered by Stage.
+  as `.play`. Read [generated-value recovery](../../cratis-screenplay-legacy-extraction/references/generated-recovery.md)
+  for Arc.Screenplay prerequisites and refusal boundaries, and
+  [Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md)
+  for checksum and pattern/random rendering prerequisites. `generate rule`
+  remains STAGE-ESM-028.
 
 ## Sources
 

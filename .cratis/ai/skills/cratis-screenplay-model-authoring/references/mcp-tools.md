@@ -239,6 +239,15 @@ PLAY0689 is an Unproven warning, not proof; MCP never generates values.
 For an opaque generation rule, inspect `read-workspace view:
 "implementation-requirements"` for its ValueGeneration requirement; the reference
 runner consumes a pinned String and never executes its attached body.
+Requires Screenplay 4.181.1 (`screenplay --version`) for the language-neutral
+version-1 ValueGeneration context contract (Now instant, Tenant portable ID,
+String result); older Cratis C# bindings cannot compile all context-aware bodies.
+The provider selects the binding, not the fence tag: Cratis C# uses Fundamentals'
+`Cratis.Concepts.GenerationContext`; BCL-only C# hosts can use Screenplay's record.
+Portable bodies use Now, tenant interpolation/string assignment and BCL types.
+Passing context to `GenerateValue.*`, constructing/naming the context type or
+reading `Tenant.Value` is target-bound, not a shared language contract. See
+[context reference](https://github.com/Cratis/Screenplay/blob/main/Documentation/screenplay/context.md).
 
 Requires Screenplay 4.173.0 or later (`screenplay --version`) for `arguments`,
 exact support, derived patterns and `rules[]`; older servers can expose

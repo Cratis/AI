@@ -360,9 +360,13 @@ compilers refuse those constructs with PLAY0268. A refuted rule's PLAY0688 repai
 uses the strategy-derived matches pattern (and declared checksum validation if
 absent). Inspect MCP `rules[]` for status/witness/reason and only use a repair
 when diagnosticCode/repair is reported. Pattern/random/rule no longer refuse
-PLAY0268; generated secrets still do. Stage 4.109.0 admits v20 but not v21.
-Rule-bearing rendered specs need valid pins (-011); unpinned or non-error-severity
-generated-concept rules refuse -038, even when the compiler proves them.
+PLAY0268; generated secrets still do. Requires Stage 4.109.0 for v20, 4.115.0
+for v21 admission/all-Proven unpinned specs, 4.117.0 for warning/info rules,
+4.118.0 for checksum validation and 4.119.0 for pattern/random. Older renderers
+refuse those constructs or require pins even for Proven rules. Bad pins fail
+STAGE-ESM-011; unpinned Unproven/Refuted rules fail -038; opaque rules fail -005
+before pin evaluation. `generate rule` remains -028; checksum remains -042 only
+on legacy syntax paths. Tool-author checks: [generation checks](generation-checks.md).
 
 Fix order: E at V1 -> W at V1 -> silent-gap check -> V2 codes (if the mode needs V3).
 Report each as `code file:line one-line meaning`; never paste more than about 30 lines.

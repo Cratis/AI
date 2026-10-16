@@ -210,10 +210,12 @@ Requires Screenplay 4.68.0 or later (`screenplay --version`) for generated value
 Pins satisfy both strategy shape and concept rules; failure is Rejected(Contract),
 not an input error or redraw. Pin date segments with `given clock`; without it the
 runner checks digit widths only. Generation checksum does not add validation:
-author `validate checksum` for arithmetic. Stage 4.109.0 admits v20 but requires
-rule-bearing pins even when Proven, refuses bad pins with STAGE-ESM-011 and
-warning/info-severity rules with -038. Stage does not render v21; do not remove
-rules or classification to lower the version.
+author `validate checksum` for arithmetic. Requires Stage 4.109.0 for v20,
+4.115.0 for v21 admission/all-Proven unpinned specs, 4.117.0 for warning/info rules,
+4.118.0 for checksum validation and 4.119.0 for pattern/random rendering; older
+renderers refuse those constructs or require rule-bearing pins even when Proven.
+Unproven/Refuted rules still need pins (-038), bad pins fail -011, and
+`generate rule` remains -028. Do not remove rules or classification to render.
 
 ## Released public boundaries and observer routes
 

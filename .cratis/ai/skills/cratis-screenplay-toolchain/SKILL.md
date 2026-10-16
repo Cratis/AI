@@ -131,6 +131,8 @@ changes with the root folder name.
   branches (v19), generated-concept proofs (v20), pattern/random/rule/checksum (v21).
   Read `references/executable-subset.md` for version prerequisites and
   `references/diagnostics.md` for proof/support failures. Binding is not rendering.
+  Tool/renderer authors: read [references/generation-checks.md](references/generation-checks.md)
+  when discovering strategy options, checking one concept or value, or consuming rule proofs.
 - **Caller/compliance metadata:** `$identity` aliases caller built-ins;
   additional identity details are metadata and executable reads still refuse.
   Bare `pii`/`secret` replace legacy spellings; `pii personal` repeats one marker

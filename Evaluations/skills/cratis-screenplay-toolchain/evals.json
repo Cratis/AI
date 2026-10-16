@@ -48,6 +48,18 @@
         "Says a text edit must never be used to get around an MCP refusal.",
         "Says a session without MCP returns the request to the owning session."
       ]
+    },
+    {
+      "id": 5,
+      "name": "check-one-generated-concept-without-a-whole-application",
+      "prompt": "Our editor uses Screenplay 4.198.0. Before an application exists, we want to list strategy options and assess an InviteCode ConceptSyntax with nanoid size 8 alphabet ab, including findings, proofs, exact support and minimum ESM. Separately we need to validate a concrete semantic value. Which APIs should we use? Does a successful concept check prove an identifier is safe or an attached generation rule ran? Explain the generation rule context across targets. Reply only.",
+      "expected_output": "Use GenerationStrategyCatalog.All/Find and SemanticConceptCheck.Check(concept, utcAssessmentYear: 2026), introduced in 4.191.0. Count is BigInteger 256 and MeetsIdentifierMinimum False; findings identify generation/options/rule indices, proofs and RequiredVersion describe only the concept. Full binding still checks property use, uniqueness and implementation linkage. Use SemanticValidationRules.Check for concrete values (4.185.0); NotEvaluable is not a pass. RuleConsistency.Check proves strategy-rule consistency, not samples or execution. Generation context v1 is language-neutral Now/Tenant with String result; Cratis C# binds Fundamentals GenerationContext, and passing it to GenerateValue is target-bound. No check invokes opaque bodies or proves runtime readiness.",
+      "assertions": [
+        "Uses GenerationStrategyCatalog and SemanticConceptCheck.Check with an explicit UTC assessment year, not a second option matrix or a fabricated application.",
+        "Preserves exact BigInteger support 256, nullable minimum/entropy semantics, construct-targeted findings, rule proofs and concept-only RequiredVersion; full application binding remains necessary.",
+        "Uses SemanticValidationRules.Check for values and distinguishes Satisfied, Failed and NotEvaluable without treating unknown as success.",
+        "Distinguishes proof/declaration/value checks from generation or opaque-body execution and explains the language-neutral Now/Tenant/String contract versus the Cratis C# binding."
+      ]
     }
   ]
 }

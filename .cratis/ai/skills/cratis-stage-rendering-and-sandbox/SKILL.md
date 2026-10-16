@@ -66,7 +66,13 @@ printed), `1` is a missing input. Add `-o json` for the counts and the publicati
 
 Facts that surprise:
 
-- **Binding uses the CLI's bundled compiler**, not the standalone one. Stage admits exact ESM v1–v20 pairs, not v21, then checks constructs. CLI admission may stop at v16: newer pairs report `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`). Requires Stage 4.109.0 for v20; older renderers refuse it. Rule-bearing generation needs pins even when Proven; read `references/admission.md` for -011/-038. Keep v21 models for gap-fill.
+- **Binding uses the CLI's bundled compiler**, not the standalone one. Version admission
+  does not imply construct support. Pattern/random generation and checksum validation
+  render with an admitting renderer; `generate rule` still refuses `STAGE-ESM-028`.
+  Read [references/admission.md](references/admission.md) for the introducing-release
+  prerequisites, all-Proven unpinned specifications and construct/pin checks (-011/-038).
+  An older CLI bundle can refuse `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`);
+  keep refused models for gap-fill.
 - **Render never builds, tests or runs** the output. A published render is admission and
   publication only; build and tests are separate results (see "Verify"). Admission can be
   green while a rendered Debug test fails (for example a query assertion on the key).

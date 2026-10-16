@@ -62,7 +62,7 @@ Generated identifiers need Uuid or String backing and at least 64 random bits.
 | `bytes <count> base64url` / `hex` / `base32` | String | Count 1–512; 8 × count random bits; RFC 4648 without padding; hex lowercase, base32 uppercase; unused trailing bits zero |
 | `pattern "INV-{yyyy}{MM}-#{7}" checksum luhn` | String | Finite readable reference; UTC dates and check digits add no entropy |
 | `random 100000..999999` | Int | Inclusive signed Int64 interval; numeric value, not an identifier |
-| `rule Name` | String | Exactly one file or tagged fence; opaque ValueGeneration implementation with Now/Tenant context and unknown entropy |
+| `rule Name` | String | Exactly one file or tagged fence; opaque ValueGeneration implementation with language-neutral Now/Tenant context, String result and unknown entropy |
 
 Modifiers occur once each, in any authored order. `prefix "text"` is printable
 ASCII, at most 32 characters, on uuid/uuidv7/ulid/nanoid/bytes; UUID prefixes need
@@ -164,16 +164,10 @@ Generated-concept validation rules select ESM v20 even on implicit UUID generati
 No proof status is serialized;
 strategy changes do not silently change rules on stored/input values.
 
-Requires Screenplay 4.174.0 or later (`screenplay --version`) for the renderer-facing
-`RuleConsistency.Check(SemanticConcept concept, int? utcAssessmentYear = null)` in
-`Cratis.Screenplay.Semantics.Generation`; older consumers must not infer proofs
-from absent serialized status. Results parallel `concept.Validations` in authored
-order, including implicit UUID on concepts used by generated properties. A target
-that supports unpinned generation may allow it when all rules are Proven; any
-Unproven rule requires pins. The reference evaluator still always requires pins.
-Supply the UTC assessment year to reproduce a proof; do not serialize stale status.
-See Cratis/Screenplay `Documentation/screenplay/generated-values/strategies.md`,
-“Proof status for renderers.”
+Tool and renderer authors: read the toolchain's
+[generation checks](../../cratis-screenplay-toolchain/references/generation-checks.md)
+for declaration checks, value checks, strategy discovery and rule proofs.
+Proof status is not serialized; the reference evaluator always requires pins.
 
 ## Version and freshness
 
@@ -231,7 +225,7 @@ and [generation strategies](../../cratis-screenplay-toolchain/references/generat
 ## What the CLI and Stage realize
 
 Stage emits strategy-specific `IGeneratable<T>.New()` factories over Fundamentals
-7.24.0 or later (via the Arc scaffold pin in Stage's `references/rendered-application.md`). v15 generated destinations use explicit
+7.25.0 or later for pattern/random/checksum (via the Arc scaffold pin in Stage's `references/rendered-application.md`). v15 generated destinations use explicit
 `EventsWithConcurrencyScopes` with `BeforeFirst` whole-source scopes; Chronicle
 checks atomically at append: a batch's scopes are checked once against the state before
 the batch, all or nothing, and a storage retry that renumbers the append checks them again. Generated rejection specs assert
@@ -244,10 +238,12 @@ Requires Stage 4.94.0 or later for receipt-time generation; older factories use 
 
 | Refusal | Still unsupported |
 | --- | --- |
-| STAGE-ESM-028 | Unknown strategies, non-concepts, optional/collection generation; every explicit strategy on the legacy syntax engine |
+| STAGE-ESM-028 | `generate rule`, unknown strategies, non-concepts, optional/collection generation; every explicit strategy on the legacy syntax engine |
 | STAGE-ESM-011 | A fixture that does not match its strategy shape or concept rules |
-| STAGE-ESM-038 | Routing combined with generation/responses; generated-property rules/requirements or non-error-severity concept rules; occurrence parameter/response/factory name collisions; unsupported response sources/composites/collections; generated identifier plus destination-less plain production |
-| STAGE-ESM-038 | Unpinned generation with unordered event, read-model or query expectations |
+| STAGE-ESM-038 | Routing combined with generation/responses; generated-property rules/requirements; occurrence parameter/response/factory name collisions; unsupported response sources/composites/collections; generated identifier plus destination-less plain production |
+| STAGE-ESM-038 | Unpinned generation with any Unproven/Refuted concept rule, production-condition reads, unordered event/read-model/query expectations or collision-sensitive generated constraints |
+| STAGE-ESM-042 | Unsupported concept-rule kinds; checksum remains refused only on the legacy syntax path |
+| STAGE-ESM-005 | Opaque/unsupported generated-concept rules, before pin evaluation |
 | STAGE-ESM-004 / -006 | StateChange slices without commands / expression or enum production conditions |
 
 Sequence generation is refused at binding (PLAY0682) and never reaches Stage;
@@ -258,13 +254,20 @@ Requires Stage 4.95.0 for command clock fixtures, 4.98.0 for multiple commands a
 conditional productions, and 4.100.0 for generated text unique constraints; older
 renderers refuse those shapes.
 
-Requires Stage 4.109.0 for ESM v20 factories plus `ConceptValidator`, rule-valid
-pins and rejection of warning/info-severity generated-concept rules (-038);
-older renderers refuse v20. Every rule-bearing generated property in a rendered
-specification needs a pin, even with Proven rules: Stage does not yet use the
-renderer proof API for unpinned generation. ESM v21 strategies are not rendered
-by Stage; Arc's released Screenplay generator does not recover them either.
-Keep the model and report the target gap, not a fallback secret or deleted rule.
+Requires Stage 4.109.0 for ESM v20 factories plus `ConceptValidator`; older renderers refuse v20.
+Requires Stage 4.115.0 for ESM v21 admission and all-Proven unpinned generation;
+older renderers require pins even for Proven rules. Unproven/Refuted rules still
+require pins (-038), and invalid pins fail -011.
+Requires Stage 4.117.0 for warning/info-severity generated-concept rules; older
+renderers refuse them with -038. Every severity is enforced as a generation defect.
+Requires Stage 4.118.0 for semantic checksum validation and 4.119.0 for
+pattern/random factories, Host sampling and executor fixture checks; older
+renderers refuse those constructs with -042/-028. Dated patterns use receipt-time
+context; Int ranges render as `long`. `generate rule` still refuses -028.
+Requires Arc.Screenplay 22.107.0 for pattern/random/checksum and self-contained
+String-rule recovery; older adapters leave these factories in code. Recovery is
+not Stage rendering: keep refused rule contracts for gap-fill, never delete rules
+or secret classification.
 
 Missing pins in generated Debug specs use `AllowGeneration()` with relational
 assertions against captured values; v15 captures also check strategy shape.

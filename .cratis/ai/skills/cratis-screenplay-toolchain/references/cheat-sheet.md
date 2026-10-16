@@ -24,8 +24,9 @@ Requires Screenplay 4.171.0 or later (`screenplay --version`); older runners do 
 deliver these events to captures.
 A directionless Translate reacting without a `from` route to its own capture's
 append warns PLAY0694 (fails `--warnaserror`): move the reaction to Automation,
-keeping the capture in Translate. No automatic split. Requires Screenplay 4.176.0
-or later; older compilers leave that shape unchecked. Read
+keeping the capture in Translate. No automatic split.
+Requires Screenplay 4.176.0 or later; older compilers leave that shape unchecked.
+Read
 [public contracts](../../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
 View properties use trailing `key`; multipart `by` query/read blocks remain
 PLAY0268, not v10. Read [named keys](../../cratis-screenplay-read-surface/references/named-keys.md).
@@ -171,22 +172,26 @@ on a String concept and author `validate checksum luhn` separately. `#`, `?`, `*
 mean digit, uppercase letter, letter-or-digit; ASCII classes and repeats up to
 64 are finite. UTC segments are `{yyyy}`, `{yy}`, `{MM}`, `{dd}`. Int
 `generate random 100000..999999` is inclusive; `generate rule Name` attaches one
-file/tagged fence with Now/Tenant context and unknown entropy. These are ESM v21
-(Requires Screenplay 4.172.0, `screenplay --version`; older compilers report
-PLAY0268). Sequence and generated secrets remain refused.
+file/tagged fence with Now/Tenant context and unknown entropy. These are ESM v21.
+Requires Screenplay 4.172.0 (`screenplay --version`) for these constructs; older compilers report PLAY0268.
+Sequence and generated secrets remain refused.
 
 Generated-concept rules select v20 (older compilers refuse them with PLAY0268): Proven silent, Refuted PLAY0688 plus witness, Unproven PLAY0689
 plus reason. Finite support exhaustion is PLAY0691, empty support on a scanned
 date PLAY0692, not a proof warning. MCP rules[]/derivedPattern support typed
-matches/PLAY0688 repair proposals (Requires Screenplay 4.173.0; older servers omit
-those fields). See [generation example](generation-strategies-example.md).
+matches/PLAY0688 repair proposals.
+Requires Screenplay 4.173.0 for those MCP fields; older servers omit them.
+See [generation example](generation-strategies-example.md).
 
 Pin whole identifiers with `for`, other values with named `generated`; pins obey
 shape and rules. `given clock` fixes all UTC pattern date segments, not randomness;
 without it only digit widths are checked. Patterns are not gapless sequences or
 secrets; check digits catch typos, not forgery. Short payload codes need uniqueness,
-generated source destinations need freshness. Stage 4.109.0 admits v20 with valid
-rule-bearing pins, never v21. Reference binding is not rendering.
+generated source destinations need freshness. Read
+[Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md)
+for v21 admission, all-Proven unpinned specs and the separate prerequisites for
+warning/info rules, checksum validation and pattern/random rendering.
+`generate rule` remains STAGE-ESM-028. Reference binding is not rendering.
 
 ## Specification forms
 Full list with semantics: `Documentation/screenplay/specifications.md`. Compiled in the
