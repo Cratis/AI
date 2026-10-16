@@ -136,8 +136,9 @@ degradations a reviewer can see without measuring:
 - A new projection that could not replay all earlier events; events carrying
   large blobs.
 - A query that does not filter on an indexed field; a growable list that does
-  not return `IQueryable<T>` for server-side paging; hydrating a collection only
-  to count it.
+  not return a shape Arc pages (`IQueryable<T>`, or MongoDB `Observe`); a query
+  that pages or sorts itself or uses MongoDB `AsQueryable()`; hydrating a
+  collection only to count it.
 - An N+1 pattern; a response payload with fields no client reads.
 - React: a growable list rendering every row; an inline object or array literal
   passed as a prop, changing identity every render; wrong `useEffect`

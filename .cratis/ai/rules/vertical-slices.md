@@ -262,7 +262,8 @@ observations emit `default` on absence/deletion/filter exit: guard `hasData` and
 
 Stay within analyzer-supported shapes: the read model, `T?`, a collection/array/`IQueryable<T>` of it, `Task<...>` of those, `IAsyncEnumerable<T>`, or `ISubject<...>` of read model/collection.
 
-- **`IQueryable<TReadModel>`** → automatic server-side paging/sorting (frontend `useWithPaging` — see the **cratis-arc-query-paging** skill). Use it whenever a list can grow.
+- **`IQueryable<TReadModel>`** → Arc pages and sorts it through LINQ. Right for a LINQ-native provider such as Entity Framework Core.
+- **`ISubject<IEnumerable<TReadModel>>` from `collection.Observe(...)`** → the MongoDB way to a paged, sorted list, built on a native `Find` with no LINQ (frontend `useWithPaging` — see the **cratis-arc-query-paging** skill). **[contract]** A query never writes `Skip`/`Take`/`OrderBy` for the client's paging or sorting; Arc applies them. Use one of these two shapes whenever a list can grow.
 - **`ISubject<...>`** → live/observable queries. Return it directly — **never** `Task<ISubject<...>>`.
 - **[contract] Custom paths use `[Path("...")]`** (`PathAttribute`), not ASP.NET `[Route]`. Reserve `[Route]` for controller endpoints (which this convention avoids).
 
@@ -271,7 +272,7 @@ Stay within analyzer-supported shapes: the read model, `T?`, a collection/array/
 [FromEvent<AuthorRegistered>]
 public record Author(AuthorId Id, AuthorName Name)
 {
-    public static IQueryable<Author> AllAuthors(IMongoCollection<Author> collection) => collection.AsQueryable();
+    public static ISubject<IEnumerable<Author>> AllAuthors(IMongoCollection<Author> collection) => collection.Observe();
     public static Task<Author?> AuthorById(IReadModels readModels, AuthorId id) =>
         readModels.GetInstanceById<Author>((EventSourceId)id);
 }

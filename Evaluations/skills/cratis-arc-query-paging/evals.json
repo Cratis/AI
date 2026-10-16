@@ -37,6 +37,19 @@
         "Uses ignoreQueryContext true on auxiliary observations so paging/sorting/totals belong to the primary.",
         "Treats single-instance default emissions as absence without completion and guards result.hasData/isReady before dereferencing."
       ]
+    },
+    {
+      "id": 4,
+      "name": "mongodb-paging-without-linq",
+      "prompt": "A paged MongoDB list query is `collection.AsQueryable().OrderBy(p => p.Order).ThenBy(p => p.Id)` where Order and Id are concept types. GET page=0&pageSize=30 returns HTTP 500 with 'Expression not supported ... Skip(0).Take(30).Cast()'. How should the query be written and who applies paging and sorting? Reply only.",
+      "expected_output": "Do not use AsQueryable for MongoDB; return collection.Observe(filterDefinition) as ISubject<IEnumerable<T>>, built on a native Find with no LINQ. Arc applies the client's sort, Skip and Limit; the query writes no OrderBy, Skip or Take. Sorting resolves the BSON element name from the class map, ties break on _id, and a default order is a frontend initial sorting.",
+      "assertions": [
+        "Recommends the native MongoDB driver approach, collection.Observe with a FilterDefinition, instead of AsQueryable LINQ.",
+        "States the query must not write OrderBy, ThenBy, Skip, Take or Limit for the client's paging or sorting; Arc applies them.",
+        "Explains Observe applies the client's sort by BSON element name and breaks ties on _id, so no server default order is needed.",
+        "Says a meaningful initial order is passed from the frontend as the initial sorting argument rather than a server OrderBy.",
+        "Notes Arc before 22.50.6 failed every paged IQueryable on MongoDB because of a Cast the driver cannot translate, and does not claim the concept-typed members were the cause."
+      ]
     }
   ]
 }
