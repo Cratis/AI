@@ -186,6 +186,10 @@ Specs pass `by` and filters by name (PLAY0468 for unknown, repeated or missing
 required arguments); collection results match by read model/key regardless of
 row order. Details and renderer limits: [equality filters](references/equality-filters.md).
 
+A reducer-built view is keyed by event-source id, so a single-instance `by` of another
+nominal type warns `PLAY0690`. Rebuild it as a projection keyed on each `from`: projections
+[reducer identity](../cratis-screenplay-projections/references/reducer-identity.md).
+
 ## `screen` — three levels
 
 The examples below are excerpts: each screen sits in a slice, and the queries,
@@ -303,6 +307,7 @@ binding failures are errors.
 - [ ] Every authorized query has a specification with `given caller`, including a
       `then denied` case.
 - [ ] Each read model has exactly one builder and every field traces to an event.
+- [ ] A reducer-built view's `by` type matches its events' event-source identity (`PLAY0690`).
 - [ ] No screen reference is left ambiguous or unresolved.
 - [ ] Every UI binding that consumes screen data (component context, toolbar
       parameter, dialog input, outlet route) has a source in the screen contract

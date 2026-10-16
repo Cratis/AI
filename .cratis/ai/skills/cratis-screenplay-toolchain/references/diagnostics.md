@@ -8,6 +8,7 @@
 - Explicit enum member numbers
 - Reserved stored names and event pins
 - Named keys, production routes and observer filters
+- Reducer instance identity (PLAY0690)
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
 - Guarded interaction diagnostics
@@ -145,6 +146,16 @@ list-query `by` blocks over a composite-keyed view are PLAY0268.
 Overrides/filters select released ESM v10; malformed routes also use PLAY0504.
 Read read-surface `references/named-keys.md` and
 [production routes and filters](production-routes-and-filters.md).
+
+## Reducer instance identity (PLAY0690)
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0690 | W | A reducer instance is keyed by the event-source id, so a reducer-backed scalar query `by` another nominal type, or a reducer whose complete producers use several identity types, warns. Reducers cannot be re-keyed: use a projection with a property key on each `from`, or a join for existing instances |
+
+Fails `--warnaserror`. Compares declared nominal types only where producers are known (command `for`, implicit or generated identifiers, reaction `for`); plain `produces` without `for`, reactions without `for`, captures, seeds and code are not compared. Native C# only: a clean editor proves nothing. Example and limits: projections [reducer identity](../../cratis-screenplay-projections/references/reducer-identity.md).
+
+Requires Screenplay 4.170.0 or later (`screenplay --version`); an older compiler does not report it, and `cratis screenplay validate` reports it only when its bundled compiler is that new.
 
 ## Caller identity, compliance and routes
 
@@ -309,8 +320,8 @@ identity details (0633–0646), compliance/subject checks, reaction identity
 A shared catalog code is not proof that a check is implemented in both compilers.
 
 C# CLI/MCP owns whole-application scoped diagnostics, opt-in completeness
-(including PLAY0530–0537, PLAY0602–0606 and PLAY0652), bound reaction gate
-checks PLAY0650/0651, semantic binding and PLAY0546 (a negated claim targets optional,
+(including PLAY0530–0537, PLAY0602–0606 and PLAY0652), reducer identity
+PLAY0690, bound reaction gate checks PLAY0650/0651, semantic binding and PLAY0546 (a negated claim targets optional,
 unavailable-subject or non-text data). The VS Code repair bridge is not a general
 C# validator. A clean editor is not V1 for the complete application, V3 binding
 or V4 execution. Run the CLI or MCP for those verdicts.

@@ -38,8 +38,7 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
 ## Procedure
 
 1. **Fix the mode** for the scope (`cratis-screenplay-modeling-lifecycle`): design, executable
-   or renderable. It decides which shapes you may use (steps 6, 9). Read the existing model
-   before adding to it.
+   or renderable. It decides which shapes you may use (steps 6, 9). Read the existing model first.
 2. **Find each event's origin.** For every event ask who or what makes it happen and through
    which path: a persona's screen `action` or form, a reaction's `invokes`, a capture. The
    origin must be **reachable** (some screen, form, reaction or integration leads to the
@@ -54,8 +53,7 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
    separate reasons change these values, then split (`references/slicing.md` *Generic edits*).
    One input per thing the caller decides or supplies; `identifier` on the property naming the
    instance (omit only for allocation); inline `produces event <Name>` (no `for`) when the command owns the event; plain `produces <Name>` needs `for <identifier>`. Trace each input
-   (`references/field-lineage.md`) and list the values each rule reads: input, state or context
-   (`references/command-inventory.md`). A conditional input is a granularity question: two
+   (`references/field-lineage.md`) and list the values each rule reads: input, state or context. A conditional input is a granularity question: two
    decisions are two commands; one decision with a dependent rule is an implication
    (`require a == false or b > c`). Never a boolean attestation input (`confirmsX == true`)
    standing in for a rule. Place each rule in its layer (`references/rule-layers.md`). A rule
@@ -89,7 +87,7 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
 6. **Design the read side** (`references/read-model-design.md`). Enumerate every screen and
    automation first: one read model per screen component or automation need; the typical
    slice is `read model -> screen -> command -> event`. Pick the builder (declarative projection first, reducer when
-   guards cannot be expressed). The query follows the business view: a list where people scan a
+   guards cannot be expressed; a lookup `by` another identity type warns `PLAY0690`). The query follows the business view: a list where people scan a
    list, a keyed lookup where they open one thing. For **executable or renderable scope**, every
    read model needs one unambiguous identity: explicit trailing `key` first. Read `references/read-model-design.md` ("Executable identity of a read model") for the fallback order, the key decision table and the Stage rule.
 
