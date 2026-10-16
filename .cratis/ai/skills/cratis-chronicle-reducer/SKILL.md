@@ -214,9 +214,12 @@ model type** and makes it passive as a whole: no sink, nothing materialized, and
 the instance is computed on demand when it is read. Reach for it when a
 command-side read needs the model current at the moment it is read. Passive is
 fresher, not safer: a passive reducer read captures no position and guards nothing,
-and a reducer (or a self-reducing model) is refused by
-decision reads. For a rule that must hold under concurrent writers use a flat
-projection with a decision read; see
+and a plain read of a reducer guards nothing. An unfiltered reducer without
+constructor dependencies (other than `ILogger<T>`; self-reducing models are exempt)
+is admitted by decision reads and by Arc read protection `On` (Chronicle 19.68.0);
+a filtered reducer or one with dependencies is refused, and no reducer is admitted in
+a stream-scoped read. For a rule that must hold under concurrent writers read an
+admitted model under `On`; see
 [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
 
 ## Discovery, upgrades and ownership

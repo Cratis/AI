@@ -10,12 +10,13 @@ and `UnitOfWorkLifecyclePolicy.cs`.
 
 ## Why a shape is refused
 
-Admission requires exactly one supported projection on the event log. It is not
+Admission requires exactly one supported projection, or an unfiltered dependency-free reducer, on the event log. It is not
 an adapter for arbitrary read-model storage:
 
 | Reason | Shape to inspect |
 | --- | --- |
-| Reducer / AmbiguousProjection / NotEventLog | reduced model, several projections, or another sequence |
+| Reducer / AmbiguousProjection / NotEventLog | a model with no admitted definition, several projections, or another sequence |
+| ReducerFilters / ReducerDependencies / ReducerGeneration | a reducer with an event filter, constructor dependencies other than `ILogger<T>` (self-reducing models are exempt), or an event type at two generations |
 | Join / Hierarchy | joins, children or nested projections |
 | OpenEndedEventTypes / Derivatives / FromEventProperty | all-events, FromEvery, or event-property routing |
 | NotEventSourceKeyed / KeyConversion | keys not convertible to the admitted raw source key |

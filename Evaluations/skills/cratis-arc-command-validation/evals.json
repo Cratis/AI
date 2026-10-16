@@ -3,25 +3,26 @@
   "evals": [
     {
       "id": 1,
-      "name": "validator-reading-state-is-not-the-rule",
-      "prompt": "Our Arc command RegisterForCourse has a CommandValidator that injects IReadModels and rejects when the course is full. Two requests still both succeed. Fix it and make the command [ProtectedDecision].",
-      "expected_output": "A validator that reads is advisory; move the rule to a DecisionRead<T> in Handle; a protected command refuses validators that are not exactly one public parameterless constructor (HTTP 500).",
+      "name": "validator-state-rule-under-on",
+      "prompt": "Our Arc command BorrowBook has a CommandValidator that takes the BookStock read model and rejects when no copy is left. Two members still borrow the last copy at the same time. The project has no read protection setting. Fix it for a new project, and say what the same validator does without your change.",
+      "expected_output": "Set <CratisReadProtection>On</CratisReadProtection>; keep the state rule in the validator with BookStock as a constructor parameter and Handle() returning the event. Under Off (the default) the validator over a plain read is only a hint; the second request gets HTTP 400 concurrencyViolation (ReadChanged) under On.",
       "assertions": [
-        "States a validator that reads state is advisory and guards nothing, keeping at most shape rules in it.",
-        "Moves the capacity rule into a DecisionRead<T> on a [ProtectedDecision] command returning Result<TEvent, ValidationResult>.",
-        "Notes a protected command refuses a discoverable validator unless it has exactly one public parameterless constructor, otherwise HTTP 500.",
-        "Requires the decision model to be a flat event-source-keyed projection with an Id property and notes there is no automatic retry on conflict."
+        "Sets read protection On (MSBuild <CratisReadProtection>On</CratisReadProtection> or an assembly/command ReadProtection attribute) and keeps the state rule in the CommandValidator with the read model as a constructor parameter, Handle() returning the event.",
+        "Says the validator over a plain read under Off (the default when nothing is set) or Measure is a hint that guards nothing, as the negative case.",
+        "Says the lost race is a 400 validation result with reason concurrencyViolation and detail ReadChanged, that nothing was written, and that Arc and Chronicle do not re-run the command.",
+        "Does not add [ProtectedDecision] or DecisionRead<T> as the default fix, and does not call On redundant with them where they exist.",
+        "Says a caller sending X-Allowed-Severity: 3 (Error) can remove validator Error results under Off and Measure unless the command declares [BlockOnValidationSeverity(ValidationResultSeverity.Error)], and that from Arc 22.108.0 a command declared On gets an Error floor (Error and Unknown always block; lowering ReadProtection:MaximumMode does not remove it; an explicit attribute wins)."
       ]
     },
     {
       "id": 2,
       "name": "concurrency-true-is-not-the-guard",
-      "prompt": "We added concurrency: true to the EventSourceId attribute on our Arc command so the stock check is protected. Is that enough?",
-      "expected_output": "No: concurrency: true reads the tail after Handle like the default check; it is not a guard for the decision.",
+      "prompt": "We added concurrency: true to the EventSourceId attribute on our Arc command so the stock check is protected. Separately, a client edits a record from a revision it loaded earlier and must not overwrite newer changes. Is concurrency: true enough for either?",
+      "expected_output": "No: concurrency: true reads the tail after Handle like the default check. Stock rule: read protection On with the read model parameter. Editing conflict: an explicit scope from the revision the client sent.",
       "assertions": [
         "States concurrency: true and the default check read the tail after Handle and do not guard the facts the handler decided on.",
-        "Recommends [ProtectedDecision] + DecisionRead<T>, IStreamReads/StreamDecision, or explicit returned scopes depending on the rule shape.",
-        "Notes ARCCHR0011 still flags a command that reads IReadModels and that exact returned scopes replace automatic capture (ARCCHR0016).",
+        "Recommends read protection On with the read model as a parameter for the stock rule, or a stream decision or constraint depending on the rule shape.",
+        "For the editing conflict recommends an explicit concurrency scope built from the revision the client supplied, returned as EventsWithConcurrencyScopes, and says exact scopes replace the automatic capture (ARCCHR0016).",
         "States the rule holds only when every writer that decides on it is guarded, or when it is a constraint."
       ]
     },
@@ -35,6 +36,30 @@
         "Explains the claim is settled after the durable append and a violation is a result mapped to a validation failure.",
         "Explains two key-candidate properties raise ARCCHR0002 and the command should implement ICanProvideEventSourceId because [Key] does not silence it.",
         "Does not present a plain read-model injection as race-safe."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "two-entities-and-lookupby",
+      "prompt": "A member may hold at most 3 loans and a book cannot be borrowed when no copy is left. BorrowBook(Isbn Isbn, MemberId Member) appends to the book. Design the command under read protection On so both rules hold, including how the validator finds the member's loans.",
+      "expected_output": "Two read-model parameters (BookStock by the Isbn event source id, MemberLoans by the member id via [LookUpBy(nameof(BorrowBook.Member))] on the parameter), rules in a validator, Handle() returns IEnumerable<EventForEventSourceId> with BookBorrowed on the book and LoanTaken on the member, one atomic append.",
+      "assertions": [
+        "Takes BookStock and MemberLoans as constructor parameters of the CommandValidator and puts the limit and last-copy rules there.",
+        "Uses [LookUpBy(nameof(BorrowBook.Member))] on the MemberLoans parameter (a parameter attribute) or the single property of the model's Id type, and names AmbiguousReadModelLookup (HTTP 500) when several properties match.",
+        "Returns one event per entity (EventForEventSourceId) with distinct event types, in one atomic append.",
+        "Notes a projection keyed through an event property (UsingKey) is refused with ReadCannotBeProtected, so a fact must be appended to the member's own event source."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "adopt-with-measure-and-read-refusals",
+      "prompt": "We have a large Arc application on the default read protection setting and want read protection On. After switching one project, BorrowBook returns HTTP 500 with ReadCannotBeProtected for a model that joins members and loans. How do we roll out safely, and how do we handle that failure and a 400 ReadChanged from the browser?",
+      "expected_output": "Roll out Off to Measure to On per project, read the Measure report, fix refusals or annotate [Unprotected(\"why\")]; 500 means change the code, 400 ReadChanged means the client resubmits.",
+      "assertions": [
+        "Describes Measure first (<CratisReadProtection>Measure</CratisReadProtection>), which keeps results and status codes unchanged, then On per project; reads the cratis.arc.read_protection.events counter or read-protection.plan span event, and says Measure is best effort.",
+        "Explains a join or children model is refused with ReadCannotBeProtected (HTTP 500, a code error that retrying does not fix): split it into source-keyed models, or mark a deliberate advisory read [Unprotected(\"why\")].",
+        "Explains a 400 with reason concurrencyViolation and detail ReadChanged or ReadIncomplete is retryable, that nothing was written, and that the client reads fresh state and submits again.",
+        "Mentions the runtime cap ReadProtection:MaximumMode can only lower the mode, and that with it set, what On guards is no longer in effect."
       ]
     }
   ]
