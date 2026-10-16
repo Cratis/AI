@@ -74,9 +74,10 @@ has 74 random bits and the TypeID `order_` prefix. Default NanoID is 21 symbols
 with 126 bits; bytes use unpadded base64url (43 symbols for 32 bytes).
 
 `IGeneratableInContext<TSelf>` requires `static abstract TSelf New(GenerationContext)`.
-`GenerationContext` holds one captured `DateTimeOffset Now` and a portable String
-`Tenant`; `DefaultTenant` is the zero-GUID string, never a display name or empty
-string. The shop passes time and tenant together, for example:
+Fundamentals' `Cratis.Concepts.GenerationContext` is a readonly record struct with
+one captured `DateTimeOffset Now` and a String `Tenant`; `DefaultTenant` is the
+zero-GUID string, never a display name or empty string. The shop passes time and
+tenant together, for example:
 
 ```csharp excerpt
 var context = new GenerationContext(
@@ -90,6 +91,18 @@ provide isolation; retain tenant scope independently in the host/storage.
 A domain factory can read Tenant, but arbitrary tenant IDs cannot be inserted
 into a TypeID prefix (only lowercase letters/underscores, letter endpoints).
 Do not present a tenant-prefixed custom string as standard TypeID.
+
+For Screenplay `generate rule`, this Fundamentals type is the **Cratis C# target's**
+binding of the language-neutral Now/Tenant descriptor, not the universal runtime
+type. `Cratis.Screenplay.Contexts.GenerationContext` remains a BCL-only record with
+portable `TenantId Tenant`, not a Fundamentals alias. The selected provider, not
+`csharp` or a file reference, chooses the binding. Portable C# uses `context.Now`,
+BCL operations and tenant text (for example `$"{context.Tenant}"`, compared ordinally).
+Passing the whole context to `GenerateValue.*`, naming/constructing GenerationContext,
+using `DefaultTenant` or reading `Tenant.Value` is target-bound. Never add a bridge
+or claim Stage renders a rule merely because its Cratis binding is defined; read
+[generation context binding](../../cratis-screenplay-command-surface/references/generated-values-and-responses.md#generation-context-binding)
+for the compiler prerequisite and renderer refusal.
 
 Use the context form only for time/tenant-dependent generation. If both interfaces
 are implemented, callers choose context; the interfaces themselves do not dispatch.

@@ -123,8 +123,20 @@ Guid, RandomNumberGenerator and GenerateValue are allowlisted; multi-statement
 bodies can qualify. Compound time-based calls must pass the captured context.
 Private helpers, fields, DI, aliases/static imports, ambient time, raw Default
 comparisons and external dependencies remain SP0073; no file fallback is invented.
-This is the Cratis C# binding to Fundamentals' GenerationContext, not a universal
-runtime type. Opaque entropy is unknown, so a rule cannot supply an identifier.
+For example, a proven forwarding factory returning
+`new($"{context.Tenant}:{context.Now:yyyyMMdd}:{GenerateValue.Ulid(context)}")`
+recovers `generate rule <Concept>New` with inline body
+`return $"{context.Tenant}:{context.Now:yyyyMMdd}:{GenerateValue.Ulid(context)}";`.
+The compound call remains a rule, not an inferred built-in ULID strategy.
+
+This uses the Cratis C# binding to Fundamentals' `Cratis.Concepts.GenerationContext`,
+not Screenplay's BCL-only record. Passing `context` to `GenerateValue.*` makes the
+body target-bound; a `csharp` tag alone does not select that binding. `Now` and the
+tenant formatted as text are the portable subset; other providers must admit the
+body against their own native type. Read the command-surface [binding guide](../../cratis-screenplay-command-surface/references/generated-values-and-responses.md#generation-context-binding)
+when deciding whether to retain target-bound code. Recovery preserves the body but
+neither executes it nor proves another target can compile it. Opaque entropy is
+unknown, so a rule cannot supply an identifier.
 The concept owns `generate`; each command property only marks generation.
 Use the shared [strategy reference](../../cratis-screenplay-command-surface/references/generated-values-and-responses.md)
 for exact encodings, ranges, entropy and admission, rather than duplicating them.

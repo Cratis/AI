@@ -48,6 +48,19 @@
         "Gates pattern/random/checksum and self-contained String-rule recovery on Arc.Screenplay 22.107.0, preserves cap/dependency losses and separates recovery from Stage's pattern/random/checksum rendering and rule refusal.",
         "Preserves located losses and rejects pattern as gapless allocation, checksum as forgery protection, or deletion of intended invariants."
       ]
+    },
+    {
+      "id": 5,
+      "name": "recover-compound-context-body-with-target-binding",
+      "prompt": "Arc.Screenplay 22.109.0 sees a self-contained String concept factory with a proven primitive-forwarding constructor returning new($\"{context.Tenant}:{context.Now:yyyyMMdd}:{GenerateValue.Ulid(context)}\"). At ESM cap v21, does this stay SP0073 or recover as a built-in ULID or an inline generate rule? Compare an ambient-clock Ulid() call and a private helper. Which context type is used, what is portable, and do recovery and a csharp fence prove Stage or another target runs it? Reply only.",
+      "expected_output": "The released Arc adapter (recovery from 22.107.0) can preserve the compound body as inline generate rule <Concept>New, stripping only the proven forwarding construction. It is not a built-in ULID strategy. Now and tenant text are portable; GenerateValue.Ulid(context) uses the target-bound Fundamentals Cratis.Concepts.GenerationContext. Screenplay's record remains BCL-only with TenantId, and the provider rather than the csharp tag selects the binding. Ambient-clock Ulid() and private helpers remain SP0073 with loss rows; no file fallback or source rewrite. Recovery executes nothing, rules need String pins and cannot supply identifiers, and Stage still refuses rule rendering with STAGE-ESM-028.",
+      "assertions": [
+        "Recovers the compound body unchanged except for proven primitive forwarding as an inline generate rule under the released Arc adapter/v21 gate, not a built-in ULID strategy or blanket SP0073.",
+        "Names Fundamentals Cratis.Concepts.GenerationContext as the Cratis C# binding, keeps Screenplay's TenantId record BCL-only, and lets the provider rather than the fence select the binding.",
+        "Distinguishes portable Now/tenant text from target-bound GenerateValue calls, context naming/construction/DefaultTenant and Tenant.Value, without inventing a bridge.",
+        "Retains SP0073 and located losses for ambient-clock calls and private helpers with no fabricated file fallback, strategy or source edit.",
+        "Separates recovery from execution/rendering and portability; requires String pins, rejects opaque-rule identifiers and retains Stage STAGE-ESM-028."
+      ]
     }
   ]
 }
