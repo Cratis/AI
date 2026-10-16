@@ -24,6 +24,14 @@ defined by `cratis-screenplay-modeling-lifecycle`. Discover the installed tool s
 
 ## Connect
 
+Never ask which folder to use before trying `open-workspace` with no arguments.
+Without a fixed root, it binds the client's single workspace root, else a launch
+directory holding `.play` files. Only after a no-root or multiple-roots response,
+pass `path`: the folder holding the project's models, otherwise the folder the
+user names. Without a project the server uses `Documents/Screenplay` in the user's
+home; do not invent a location. A fixed root can switch only to the same model
+folder in a registered Git worktree of the same repository.
+
 1. Launch with a **fixed root**: `screenplay mcp <model-folder>`, or
    `cratis screenplay mcp <model-folder>`, or `cratis screenplay mcp` inside a
    project, where the CLI locates the model (the project's `.play` files, else `Source/`

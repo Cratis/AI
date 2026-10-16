@@ -174,8 +174,8 @@ compile or will not be safe. Both are deliberate.
   rejects and matching decide/commit changes conflict. Read
   [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
   for the strict shape and paths. Legacy reads remain PLAY0271; `concurrency` is
-  not protection and cannot combine with protected reads. Stage refuses v25
-  (STAGE-ESM-016): name target enforcement separately rather than claiming a render.
+  not protection and cannot combine with protected reads. Stage refuses protected reads
+  (STAGE-ESM-044), not v25 itself: name target enforcement separately rather than claiming a render.
   Write state-dependent rules as `reads` plus `require` with an indented message;
   mark refused shapes as unenforced and name the intended target mechanism. Model uniqueness as a `unique` constraint. Never copy state into a
   command input, add an attestation flag, or hide the rule in `handler` prose. Do not

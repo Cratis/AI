@@ -35,6 +35,8 @@ This is not condition grammar: `contains`/`starts with` in `require`, `produces 
 or reaction `where` remain PLAY0268. Those conditions admit scalar equality and
 numeric ordering, not the property text rules.
 
+Requires Stage 4.124.0 for v24 text-rule admission (`cratis --version` identifies the CLI bundle); older renderers refuse v24 with STAGE-ESM-016.
+
 Stage admits v24 and executes these four rules on its Host and specification
 executor, rendering ordinal UTF-16 comparisons without regex or a Screenplay
 runtime dependency. The legacy EventModel syntax engine drops these rules; use
@@ -52,7 +54,7 @@ settings. Syntax remains `matches "^INV-[0-9]{6}$"` or `matches email`.
 | Admitted | Meaning |
 | --- | --- |
 | Literals, `.`, `^`, `$`, alternation | `$` is strict end of input, not before a final newline |
-| `(…)`, `(?:…)`, `(?<name>…)` | ASCII names `[A-Za-z_][A-Za-z0-9_]*`; duplicate names only in disjoint alternatives |
+| `(…)`, `(?:…)`, `(?<name>…)` | ASCII names `[A-Za-z_][A-Za-z0-9_]*`; duplicate names only in disjoint alternatives; names that can match together report PLAY0367 |
 | Classes, negation, single-character ranges | Unions/complements use set semantics |
 | `\d \D \w \W \s \S` | `\d` is ASCII digits, `\w` ASCII letters/digits/underscore |
 | `\t \n \r \f \v`, `\0` not before a digit, `\xHH`, `\uHHHH` | UTF-16 code-unit escapes |

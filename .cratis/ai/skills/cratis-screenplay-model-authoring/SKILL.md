@@ -48,19 +48,10 @@ use `rules[]`, not parsed diagnostics (Requires Screenplay 4.173.0,
 
 Use the declared `screenplay` MCP server (for example `open-workspace`).
 
-Never ask the user which folder to use before trying. Call `open-workspace` with no
-arguments first: a server started without a fixed root binds the folder the host or
-launch directory offers (the client's single workspace root, else the working
-directory when it holds `.play` files). Only when it answers that no root was given,
-or that several roots are offered, pass `path`: the folder holding the project's `.play` files, otherwise the
-folder the user names. Without a project, the server works in `Documents/Screenplay`
-in the user's home folder, so do not invent a location. A root fixed at launch
-can switch only to the same model folder in a registered Git worktree of the
-same repository; rules and refusals are in [MCP loop](references/mcp-loop.md).
-
-Prefer a fixed root (dynamic-roots history: [MCP loop](references/mcp-loop.md)). Send `initialize` and
-`notifications/initialized` before any tool call, then discover `tools/list`
-schemas rather than relying on a remembered count.
+Never ask the user which folder to use before trying `open-workspace` without
+arguments; do not invent a root. Read [MCP loop](references/mcp-loop.md) when connecting or switching roots;
+it owns fallback discovery, fixed-root limits and the initialization protocol.
+Discover `tools/list` schemas rather than relying on a remembered count.
 
 
 Look first for the project's existing `.play` files: their folder is the model.
@@ -73,19 +64,12 @@ explanatory Markdown belongs in repository documentation.
 `mcp-servers.json` declares the Screenplay server; supported client registration
 is owned by the Cratis CLI, which preserves other servers and user configuration.
 
-The CLI entry point is:
+The CLI-bundled MCP can be older than the standalone tool: discover schemas.
+Read [MCP loop](references/mcp-loop.md) for launch options. Use the supported
+channel, not another global tool, Docker or copied managed configuration.
 
-```shell
-cratis screenplay mcp <model-folder>
-```
-
-The CLI-bundled MCP can be older than the standalone tool and lack generation
-summaries/repairs: discover schemas. Avoid a second global tool, Docker or copied
-managed configuration; confirm adapter support and no conflicts.
-
-If the MCP is unavailable, report that gap. Do not claim compiler-validated AST
-editing while falling back to regex. Existing standalone `screenplay mcp` users
-can keep that entry point; use the project's supported installation channel.
+If MCP is unavailable, report it; regex edits are not compiler-validated AST
+editing. Existing standalone `screenplay mcp` users may retain that entry point.
 
 ## Understand before editing
 

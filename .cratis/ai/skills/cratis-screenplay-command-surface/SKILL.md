@@ -50,9 +50,8 @@ concept InvoiceStatus : Enum
   paid
 ```
 
-The seven primitives are `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date` and
-`DateTime`. `Enum` is **not** one of them — it is a separate concept kind, which
-is why the compiler says *expected … or Enum* rather than listing it among them.
+Primitives: `Uuid`, `String`, `Int`, `Decimal`, `Bool`, `Date`, `DateTime`.
+`Enum` is a separate concept kind; details: `references/enum-numbers.md`.
 Use bare `pii` (`personal` alias) and `secret` on concepts; **Compliance is inherited**.
 Keep protection even when a compiler or renderer refuses it. Read
 [compliance and purposes](references/compliance.md) for ESM v13, binder-only refusals,
@@ -152,7 +151,7 @@ view name when that view is read once.
 Opt eligible state reads into application-root `command reads protected` (v25).
 Absence rejects; matching intervening facts conflict. Read [protected reads](references/protected-reads.md)
 for strict admission, paths and PLAY0780–0786. Legacy reads stay unprotected;
-reads/concurrency cannot combine (PLAY0783). Stage refuses v25 (STAGE-ESM-016).
+reads/concurrency cannot combine (PLAY0783). Stage refuses protected reads (STAGE-ESM-044), not v25 itself.
 Uniqueness still uses a constraint; reference success is not target realization.
 
 Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block is

@@ -26,17 +26,15 @@ Read [references/product-sources.md](references/product-sources.md) when checkin
 - Not for: projection and query syntax, reactions and captures, writing the specifications
   themselves (`cratis-screenplay-scenario-coverage`), Chronicle C# mechanics
   (`cratis-chronicle-event-modeling`). See Route near misses.
-- Model-first applies: when an accepted model covers the scope, change the model and its
-  specifications, not code. Do not weaken authorization, `pii` or rules to make a model compile.
+- Apply model-first per `cratis-screenplay-modeling-lifecycle`; never weaken
+  authorization, `pii` or rules to compile.
 
 ## Interview phase
-**Skip if** the user or the model already states the stream identities, who owns each module, how
-much autonomy each side has, the external systems, and rough growth. Otherwise ask only what is
-missing, one question at a time, with options. **Unattended:** assume the most conservative
-option, mark it `ASSUMED` in the slice or module `documentation` and in the session `STATE.md`
-(`.ai-work/screenplay/<model-slug>/STATE.md`), and continue.
-
-Ask only what is missing: (1) instance - what real-world thing the stream is about; (2) competition - what must never happen when two people act at once; (3) retry - what a repeated request should see; (4) ownership; (5) growth; (6) change - whether the event was ever stored in a running system. Read [references/interview-batch.md](references/interview-batch.md) for each question's follow-up; ownership options are in `references/boundaries.md`.
+Read [interview prompts](references/interview-batch.md) when identity, competition,
+retry, ownership, growth or stored-event history is unsettled. Ask only missing
+questions, one at a time; ownership options are in `references/boundaries.md`.
+Unattended work takes the conservative option and marks it `ASSUMED` in model
+`documentation` and `.ai-work/screenplay/<model-slug>/STATE.md`.
 
 ## Procedure
 1. **Establish identity and membership.** For every `concept XId` used as an `identifier`, write
@@ -87,14 +85,10 @@ Ask only what is missing: (1) instance - what real-world thing the stream is abo
    (PLAY0270), not runtime propagation or generated C# `[Subject]`. Without a
    supplied subject, the runtime defaults to the event source; see command-surface
    `references/compliance.md` for allowed types and the policy/encryption distinction.
-5. **Plan evolution** with `references/evolution.md`: classify each event change (additive,
-   meaning change, rename, removal, split or merge) and write its compatibility scenarios before
-   editing. Admit the **release baseline** in the release job; admitted
-   revisions need `newGeneration`. Modes/CLI/MCP: `references/evolution.md`.
-   Pin persisted/public enum member numbers before reordering or removing members (`references/evolution.md`, "Enum member numbers").
-
-   Renames and other identity-affecting edits are made by the identity owner (the
-   identity procedure in `cratis-screenplay-modeling-lifecycle`).
+5. **Plan evolution**: read `references/evolution.md` before editing stored contracts
+   for change classification, compatibility scenarios and enum-number safety.
+   After release-baseline admission, revisions need `newGeneration`. Identity-affecting edits belong to the
+   identity owner (`cratis-screenplay-modeling-lifecycle`).
 6. **Test ownership and interfaces** with `references/boundaries.md`: ownership interview,
    interface and processor inventory, one real interaction walked across each boundary, coupling
    check. Keep team, module, stream and deployment boundaries distinct; inbound facts via
@@ -150,8 +144,8 @@ Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the 
   is not one transaction. Declared semantics are not a passed concurrency test.
 - New models declare `reaction batches atomic`: direct productions per trigger
   occurrence and each selected refusal branch are separate batches; invoked commands
-  stay independent. Legacy absence retains per-fact appends. Stage refuses v22/v25
-  with STAGE-ESM-016 and atomic mode in admitted v23/v24 with STAGE-ESM-043. Read
+  stay independent. Legacy absence retains per-fact appends. Stage refuses v22
+  with STAGE-ESM-016 and atomic mode in admitted v23–v25 with STAGE-ESM-043. Read
   [atomic boundaries](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
   when defining failure rollback; batching is not redelivery deduplication.
 - Match duplicate protection to scope. A property constraint lets a source re-claim its own

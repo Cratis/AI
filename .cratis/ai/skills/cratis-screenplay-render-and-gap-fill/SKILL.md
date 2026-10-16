@@ -149,9 +149,8 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`; API availability alone is not verified enforcement.
 - Adapters that call outside systems follow `cratis-engineering-effect-boundaries`; slice
   specifications follow `cratis-application-slice-specifications`.
-- Realization notes are the explicit realization requirements stated in a slice `description` or `documentation`
-  (definition: `cratis-application-slice-conformance`, `references/contract-and-precedence.md`).
-  Executable parts (specifications, mappings, constraints) win over prose, and a contradicting description is a model defect to report.
+- Read conformance's `references/contract-and-precedence.md` for realization-note
+  authority. Executable contract wins over prose; report contradictions.
 
 ## Rules
 

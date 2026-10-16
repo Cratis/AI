@@ -36,7 +36,7 @@ batch and unchanged read models with evaluator world/read-model assertions; earl
 accepted work can remain. `then no events` means accepted zero outcomes and cannot
 accompany `then error`. Do not invent a mixed success/error specification form.
 
-Stage refuses ESM v22/v25 with STAGE-ESM-016. Even an admitted v23/v24 model carrying
+Stage refuses ESM v22 with STAGE-ESM-016. Even an admitted v23–v25 model carrying
 atomic mode is refused with STAGE-ESM-043 by renderer, Host and specification executor.
 Keep the declaration and report authorized gap-fill; do not promise a render date or
 strip atomicity to lower the version.

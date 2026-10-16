@@ -58,7 +58,7 @@ observed legacy check from verified atomic protection.
 | a value across all sources | `unique <prop> on <Event>` | value owned by one source; same source may re-claim |
 | a fact at most once per source; mutually exclusive facts | `unique event` (+ `released by`) | covers simple lifecycle transitions |
 | state-dependent rule (balance, capacity, "only if approved") | eligible `reads` + `require` under `command reads protected` (v25) | required absence rejects; matching intervening facts conflict. Payload-key fan-in, joins, reducers and other refused shapes remain target gaps |
-| a view (read model) | unguarded materialized reads are not protection | legacy command and trigger reads remain unprotected; Stage refuses v25, so reference protection is not target realization |
+| a view (read model) | unguarded materialized reads are not protection | legacy command and trigger reads remain unprotected; Stage refuses protected reads (STAGE-ESM-044), so reference protection is not target realization |
 
 ## 3. Record each state-dependent rule that the model cannot enforce
 Never accept the caller's copy of the state: `currentStatus Status` on the command with
@@ -69,7 +69,7 @@ the rule unenforced in rendered scope.
 
 First inspect [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md):
 opt eligible command reads into v25, retain absence/conflict specifications and verify
-target consistency separately. Stage refuses v25 (STAGE-ESM-016). A payload-keyed
+target consistency separately. Stage admits v25 but refuses protected reads (STAGE-ESM-044). A payload-keyed
 fan-in such as the course-capacity example remains refused; the preamble is not a
 blanket admission of arbitrary projections.
 

@@ -105,7 +105,8 @@ explicit `apply`. The repair inserts into the domain document or sole document,
 refuses ambiguous roots and requires individual review, never fix-all. It changes
 absence/conflict behavior, not merely formatting.
 
-Stage refuses ESM v25 with STAGE-ESM-016; a reference pass is not Stage or Arc
+Stage admits ESM v25 but refuses protected reads with STAGE-ESM-044 in rendering,
+Host serving and specification execution; a reference pass is not Stage or Arc
 realization. Preserve the model's protection and deliver authorized hand-written
 consistency enforcement through the render-and-gap-fill workflow. Never remove
 the preamble to get a render. `screenplay <root> --warnaserror` must exit zero;

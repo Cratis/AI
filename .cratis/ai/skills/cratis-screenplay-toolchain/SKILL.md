@@ -8,12 +8,9 @@ license: MIT
 
 Read [preferred syntax](references/preferred-syntax.md) when writing or reviewing `.play`.
 
-Which tool to run, what its result means, and what each tool can and cannot admit. This
-skill answers "does it compile, bind, render, and which compiler said so". The method
-(what to model, in which order, with which gates) lives in
-`cratis-screenplay-modeling-lifecycle`; construct syntax lives in the construct skills
-(`cratis-screenplay-command-surface`, `-projections`, `-read-surface`,
-`-captures-and-reactions`, `-specifications`, `-ui-composition`).
+This skill owns tool selection, verdict meaning and admission. Modeling method
+lives in `cratis-screenplay-modeling-lifecycle`; construct syntax lives in command,
+projection, read-surface, capture/reaction, specification and UI skills.
 
 ## Locate the model
 
@@ -28,7 +25,11 @@ bundled in the CLI are different releases, and the bundled one can be older; a c
 standalone tool binds may be refused or unrendered through the CLI. Capabilities that need a
 minimum release carry a one-line `Requires ...` note in the reference that teaches them.
 
-For exact diagnostic codes, MCP names/parameters and standalone CLI options, search the large published [references/screenplay-contract.json](references/screenplay-contract.json), named by [references/screenplay-contract.version](references/screenplay-contract.version), rather than loading it in full. Locate a diagnostic by its exact `code` (for example `"code": "PLAY0029"`), a tool by its exact `name` (for example `"name": "read-workspace"`), or a command in `cliCommands`; read the matched object for retirement, parameters or options. [references/screenplay-contract-exceptions.json](references/screenplay-contract-exceptions.json) records reasoned exceptions for superseded statements; it does not change the current contract.
+Search [screenplay-contract.json](references/screenplay-contract.json), not its
+whole contents, for exact diagnostic `code`, tool `name` or `cliCommands` options.
+Its version is [screenplay-contract.version](references/screenplay-contract.version).
+Read [contract exceptions](references/screenplay-contract-exceptions.json) when a
+superseded statement needs context; exceptions do not change the contract.
 
 ## Ground rules
 
@@ -122,14 +123,12 @@ changes with the root folder name.
   Composite view keys remain authoring-only (PLAY0268), while one explicit
   `key` binds. Read `references/production-routes-and-filters.md` and read-surface
   `references/named-keys.md`.
-- **Enum numbers (v12):** non-positional enum numbers bind; canonical
-  `numbers` parallels `values`. Positional pins preserve earlier executable
-  bytes/version. Specifications still use names. Stage admits v12 and emits `Member = N`. Syntax:
-  command-surface `references/enum-numbers.md`; errors PLAY0667–0670 and opt-in
-  `enum-pinning` hint PLAY0671: `references/diagnostics.md`.
-- **Concept strategies (v15):** concept strategies and Guarded freshness; strict fixture shapes,
-  no silent retry. Read [references/generation-strategies-example.md](references/generation-strategies-example.md)
-  and command-surface `references/generated-values-and-responses.md` for supported strategies/refusals.
+- **Enum numbers (v12):** read command-surface `references/enum-numbers.md` for
+  pins, stored numbers and Stage output; `references/diagnostics.md` owns PLAY0667–0671.
+- **Concept strategies (v15):** read
+  [generation strategies](references/generation-strategies-example.md) for Guarded
+  freshness and strict fixtures, and command-surface
+  `references/generated-values-and-responses.md` for strategy/refusal depth.
 - **v17–v21:** recovery/no-events (v17), query Validation errors (v18), refusal
   branches (v19), generated-concept proofs (v20), pattern/random/rule/checksum (v21).
   Read `references/executable-subset.md` for version prerequisites and

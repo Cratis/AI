@@ -271,7 +271,7 @@ See read-surface `references/named-keys.md` for the collection-key exclusion alg
 | Atomic reaction batches (ESM v22) | Root `reaction batches atomic`; direct productions per occurrence and selected refusal branches are separate batches, commands independent; Stage refuses v22 and atomic mode |
 | Described handlers (ESM v23) | Pending implementation beside unconditional produces; payload-only contract, reached body Unsupported ImplementationBody; Stage STAGE-IMPL-002 even Stub mode |
 | Ordinal text rules (ESM v24) | contains/not contains/starts with/ends with on scalar non-enum text properties; quoted literals, not conditions; Stage semantic engines execute/render |
-| Protected command reads (ESM v25) | Root `command reads protected`; eligible read paths in requirements and production mappings, absence Validation, concurrent matching facts Conflict; Stage STAGE-ESM-016 |
+| Protected command reads (ESM v25) | Root `command reads protected`; eligible read paths in requirements and production mappings, absence Validation, concurrent matching facts Conflict; Stage admits v25 but refuses protected reads STAGE-ESM-044 |
 | Current routing and actor admission | Sources/streams and command/specification routes bind and reference-execute as v8; reaction `runs as system role` supplies the invocation actor as v10. Whole-workspace binding determines executable availability; CLI/Stage realization remains separate |
 | Blocks binding (`PLAY0268`) | enum/identity compliance and events combining personal or explicitly subject-scoped secret values with explicit subject marks; a compiler that stops before v13 refuses all `pii`/`secret` concepts ("compliance attributes require portable data-subject semantics"), while v13 binds them and Stage renders protection; attached command `handler` (PLAY0035 beside productions; pending described intent instead binds v23), bare `rule <Name>`, read paths without protected opt-in or in unsupported positions such as `produces when`, dates and `today` in comparisons, `$context.tenant`/claims/roles/causation in `produces`, `$env` conditions, `file` constraints, unquoted `import` of an external contract, a read model with neither explicit `key` nor unambiguous query-based identity as described above (composite keys remain unadmitted), queries with context `from` sources (typed query context is unadmitted), single-result filters (collections only), `scoped to` (opaque scope), `performer` (opaque implementation) or composite `by` blocks; optional keyed and collection queries, including caller-supplied equality filters and observable delivery, bind, `$causedBy` and templates in projections |
 | Blocks binding (`PLAY0271`, legacy meaning) | Command reads without protected opt-in and `concurrency`; combined protected reads/concurrency is PLAY0783 |
@@ -306,8 +306,9 @@ and routes bind and reference-execute as v8; reaction identity as v10.
 Use standalone `screenplay test` or MCP `run-specifications` for a reference
 verdict, and independently check CLI/Stage admission. Never drop a contract to bind.
 Generated values and `returns` are not in this group: they bind as ESM v7.
-Protected reads and `derive`/`provide` (not admitted by any supported ESM version) have no documented
-syntax: do not teach or invent one. Affected-instance declarations and query paging/sorting/change-set delivery
+Protected command reads have documented v25 opt-in; see command-surface
+`references/protected-reads.md`. `derive`/`provide` remain undocumented and
+unadmitted: do not invent syntax. Affected-instance declarations and query paging/sorting/change-set delivery
 remain unavailable here. Event `subject` is report-only authoring metadata;
 public events/origin are admitted as ESM v9 (not provider realization).
 Purpose declarations, references and processing records are authoring metadata,

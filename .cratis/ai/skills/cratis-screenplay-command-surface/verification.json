@@ -98,6 +98,8 @@
       "value": "Generated identifiers need Uuid or String backing and at least 64 random bits.", "file": "references/generated-values-and-responses.md"
     },
     { "kind": "skill-contains", "value": "Generated values and responses (ESM v7 and v15)" },
+    { "kind": "skill-contains", "value": "names that can match together report PLAY0367", "file": "references/text-and-match-rules.md" },
+    { "kind": "skill-contains", "value": "or reaction `where` remain PLAY0268", "file": "references/text-and-match-rules.md" },
     { "kind": "skill-contains", "value": "Generated values are not request inputs", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "Generated-concept validation rules select ESM v20", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "PLAY0688 and a violating example", "file": "references/generated-values-and-responses.md" },

@@ -21,7 +21,8 @@ and concept compliance (v13) render.
 
 ## Current admission
 
-Stage admits the exact ESM v21 pair alongside the earlier supported pairs.
+Stage admits exact ESM v1–v21 and v23–v25 pairs; v22/v26 and mixed pairs
+refuse STAGE-ESM-016. Version admission is separate from construct support.
 Requires Stage 4.106.0 for v18 admission; older Stage refuses it with `STAGE-ESM-016`.
 For generated-concept v20/v21 admission and construct prerequisites, read
 [Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md).
@@ -43,7 +44,7 @@ This table is a reading of the renderer's admission, not a render result: run th
 | Area | Renders | Refused (code) |
 | --- | --- | --- |
 | Slice kinds | `StateChange`, `StateView`, supported event-triggered `Automation` with Chronicle reactors | Translate, captures, non-event triggers, opaque bodies, clock/trigger/capture specs (`-024`); claim-reading/opaque `runs as` gates (`-034`), mixed effects from one handler (`-037`, redelivery can duplicate events), unsupported conditions/destinations/mappings (`-039`). Keep refused reactions whole |
-| Queries | optional keyed snapshot lookups; snapshot or observable collections, keyed or unkeyed, with v14 equality filters | context/single-result filters, opaque `scoped to`/`performer` and composite `by`: PLAY0268. DateTime filters and required parameters after optional filters refuse `-010`; filter-name collisions refuse `-012`; validated scalar keys render as primitives and convert inside the query (an out-of-rule key finds no instance), nested validated keys still refuse `-010` |
+| Queries | optional keyed snapshot lookups; snapshot or observable collections, keyed or unkeyed, with v14 equality filters | context/single-result filters, opaque `scoped to`/`performer` and composite `by`: PLAY0268. DateTime filters and required parameters after optional filters refuse `-010`; filter-name collisions refuse `-012`; concept arguments retain Arc validation, including nested members/elements; nullable keys or optional concept filters with `not empty` refuse `-010` rather than changing null behavior |
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, including routed read-model/query companion replay | reserved stored names, unformattable routed fixtures (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
@@ -57,9 +58,9 @@ This table is a reading of the renderer's admission, not a render result: run th
 | Evolved events | initial revisions only (migrations are not rendered) | `STAGE-ESM-026` |
 | Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
-Language admission beyond the earlier pairs is separate: Stage admits v23/v24,
-refuses v22/v25 with STAGE-ESM-016, described handlers with STAGE-IMPL-002
-(even Stub mode), and atomic mode in admitted pairs with STAGE-ESM-043. Literal
+Stage refuses protected command reads with STAGE-ESM-044, described handlers
+with STAGE-IMPL-002 (even Stub mode), and atomic mode in admitted pairs with
+STAGE-ESM-043. Literal
 text rules execute/render ordinal UTF-16 comparisons. Read [language admission](language-admission.md).
 A CLI's older bundled compiler may fail first: legacy reads/concurrency PLAY0271,
 attached handlers PLAY0268. Protected reads bind standalone v25, not a Stage render.

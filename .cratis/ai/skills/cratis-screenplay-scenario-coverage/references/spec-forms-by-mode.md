@@ -39,7 +39,7 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Pending described command handlers (v23) | specify intent | binds; denial/validation execute, body-reaching specs Unsupported ImplementationBody; all-Unsupported is not green | STAGE-IMPL-002 even Stub mode |
 | Attached command handlers, `file` constraints, query `performer`s | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
 | Atomic reaction mode (v22) | declare for new models | failed batch adds no facts or view changes; earlier batches/commands remain; `then error` alone is insufficient | v22 STAGE-ESM-016; mode in v23/v24 STAGE-ESM-043 |
-| Protected command reads (v25) | declare opt-in for eligible reads | absence Validation; matching intervening facts Conflict; race vectors are not a new spec construct | STAGE-ESM-016 |
+| Protected command reads (v25) | declare opt-in for eligible reads | absence Validation; matching intervening facts Conflict; race vectors are not a new spec construct | protected reads STAGE-ESM-044; v25 pair admitted |
 
 Requires Screenplay 4.105.0 or later (`screenplay --version`) for list-query specifications, and 4.143.0 or later for collection equality filters (ESM v14).
 

@@ -40,41 +40,25 @@ Screenplay's reference runner executes specifications against an immutable
 in-memory world: no Arc, no Chronicle, no database, no network. Every downstream
 target has one normalized behavior to match.
 
-- It runs the capabilities the execution plan admits: declarative validation
-  and `require` over command properties, conditional production, literal tags,
-  declarative policies, `unique` constraints, and projections as Chronicle
-  lowers them. The `cratis-screenplay-model-authoring` language reference lists
-  what binds and what the plan admits.
-- Binding is not admission. These projection constructs bind, but the plan
-  refuses them: a projection-level `remove via join`; `all` beside removals,
-  `children` or `nested`; a `join`, `children` or `remove via join` inside
-  `nested`; and any `$eventContext.<path>` other than `eventSourceId`, such as
-  `$eventContext.occurred`. The limits apply at every ESM version.
-- A specification that needs **opaque code** — a bodied reducer, a rule with a
-  body, a fenced `validate` block, a code policy, or (ESM v6) a reached reaction
-  body — returns **unsupported** and
-  never passes. Authorization is evaluated first, so a `then denied` case still
-  runs when a portable policy decides it. Other specifications in the model run
-  normally.
-- Unsupported reachable declarative constructs block the whole execution plan
-  rather than running partially: no specification in the model runs, including
-  the ones that never touch the refused construct.
-- Reactions: before ESM v6 they never run, not even after `when append`. From ESM
-  v6 they run after every action, as in "Reactions and
-  cascades" ([references/reactions-and-cascades.md](references/reactions-and-cascades.md)). A compiler that stops before ESM v6 fails `when clock`, `when trigger`
-  and `when capture` binding with `PLAY0268`, and so reactions and captures.
-- Children defer until their parent exists; an ambiguous parent still fails closed.
-  [Child ordering](references/child-ordering.md): specs and routing caveat.
+Binding is not plan admission. Read model-authoring's
+[language reference](../cratis-screenplay-model-authoring/references/language-reference.md)
+when distinguishing executable declarations, refused projection shapes and opaque
+code. Reached opaque code is **unsupported**, never passed; portable denial may
+still execute before it. Unsupported declarative constructs block the whole plan,
+not just the specifications that touch them.
 
-  Requires Screenplay 4.149.1 or later (`screenplay --version`) for child deferral.
-- A rejected individual command or append leaves the world unchanged; an accepted
-  one commits once, then the read models and queries are compared. There is no
-  scenario-wide transaction in v6: when a later effect of a cascade or capture
-  rejects, the earlier accepted facts and their projections remain.
+Read [reactions and cascades](references/reactions-and-cascades.md) when testing
+ESM v6 actions; older compilers fail reaction/capture binding with PLAY0268.
+Read [child ordering](references/child-ordering.md) for deferral;
+an ambiguous parent still fails closed.
+Requires Screenplay 4.149.1 or later (`screenplay --version`) for child deferral; older runners do not defer.
 
-Unsupported is not passed. Report it as "needs a target", not as green. "Specified"
-and "bound" are never "passing": run the reference CLI/MCP route or the owning
-target tests, and name the engine, version and expected/discovered selection.
+A rejected command/append leaves the world unchanged; an accepted one commits
+before comparing views. V6 has no scenario-wide transaction: later cascade
+failure does not roll back earlier accepted facts. Atomic mode boundaries are below.
+
+Unsupported is not passed. Name a target. Run CLI/MCP reference execution
+or target tests; name engine, version and expected/discovered selection.
 
 ## Batches, described bodies, protected reads and text rules
 
@@ -123,8 +107,7 @@ Rules the binder enforces:
 - **`then result` and `then no result` need `when query`**, and `when query`
   needs one of them, `then denied` or a sole validation `then error` (`PLAY0465`). Each argument is a `by` or
   `filter` parameter of the query (`PLAY0468`).
-- **A clock instant is ISO 8601 with an offset or `Z`**, such as
-  `"2026-10-05T08:00:00Z"` (`PLAY0461`); `given clock` appears at most once.
+- **A clock instant is ISO 8601 with an offset or `Z`** (PLAY0461); one `given clock` maximum.
 - **`then` contains either events or an error — never both.** A rejection
   specification has exactly one rejection and no success outcome.
 - **`then denied` stands alone**: not with events, errors or state assertions
@@ -135,10 +118,8 @@ Rules the binder enforces:
 - **`null` only in optional read-model values.** A `null` in a command or event
   value is `PLAY0350`: an optional fact is a separate event.
 
-`PLAY0358` is a syntax error (`PLAY0388` also at parse time for extra text after `then denied`). `PLAY0350`, `PLAY0352`, `PLAY0388` (mixed with another outcome), `PLAY0389` and
-the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
-`screenplay --warnaserror` does not show them. Check executable diagnostics
-(the MCP authoring tools) as well.
+V1 does not report binding-only outcome errors; read `references/vocabulary.md`
+for parse-versus-bind diagnostics and check executable diagnostics too.
 
 ## How outcomes are compared
 
@@ -175,17 +156,12 @@ Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md
 
 ## Published-event specifications (released ESM v9)
 
-Use `when append <PrivateEvent>` then `then <PublicEvent>` for outbound publication,
-not `then readmodel`. The follow-up event list is exhaustive and ordered. Read
-[publication example and fold cases](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
-For `source events` captures, supply the consumed event with `given <Event>` /
-`when append <Event>`, never `given capture` / `when capture` (PLAY0701).
-Requires Screenplay 4.171.0 or later (`screenplay --version`); older reference
-runners do not deliver these events to captures. First sight is added only;
-updates fold earlier events of the same content key, independent of optional fixture
-`for`. Read the linked capture example for PLAY0700, ordering and Unsupported limits.
-Reached opaque event-target reducers remain typed Unsupported, not a pass. Composite view fixtures need every key part but remain
-unadmitted (PLAY0268); see read-surface `references/named-keys.md`.
+Use `when append <PrivateEvent>` then `then <PublicEvent>`, not `then readmodel`;
+follow-up events are exhaustive and ordered. Read
+[publication and fold cases](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)
+when specifying outbound facts or event-source captures: it owns the minimum
+compiler, PLAY0700/0701, key folding and Unsupported boundaries. Composite view
+fixtures remain unadmitted; see read-surface `references/named-keys.md`.
 
 ## Reusable fixtures, routes and recovery intent
 

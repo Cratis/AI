@@ -325,12 +325,14 @@ refusal reasons. Read [language admission](language-admission.md) before changin
 | PLAY0785 | Ambiguous view path; use distinct aliases on repeated reads |
 | PLAY0786 (I) | Eligible legacy model; preview typed preamble repair, individually review absence/conflict semantics |
 | PLAY0787 (W) | Exact deprecated Studio text-rule pattern; repair to literal rule or equality, preserving message/severity |
-| STAGE-ESM-043 | Atomic mode not realized, even in admitted v23/v24; retain declaration and gap-fill |
+| STAGE-ESM-043 | Atomic mode not realized, even in admitted v23–v25; retain declaration and gap-fill |
+| STAGE-ESM-044 | Protected reads not realized despite v25 version admission; keep protection and gap-fill |
 | STAGE-IMPL-002 | Described handler body not realized by Stage, even Stub mode; no stubs emitted |
 
 Invalid match syntax remains PLAY0367. Property/concept text rules bind v24;
 `contains`/`starts with` in conditions only still fail PLAY0268. Stage rejects
-v22/v25 with STAGE-ESM-016; admission of v23/v24 does not implement bodies or batches.
+v22/v26 and mixed pairs with STAGE-ESM-016; v23–v25 admission does not implement
+bodies, batches or protected reads (STAGE-ESM-044).
 
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
 | Code | Meaning | Fix |

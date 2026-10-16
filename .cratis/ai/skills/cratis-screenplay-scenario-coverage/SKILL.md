@@ -7,11 +7,10 @@ license: MIT
 # Screenplay scenario coverage
 
 ## Purpose
-Turn designed slices into specifications that pin behaviour a business person would argue
-about. Decide **which** situations need a specification before writing any (coverage matrix),
-then write them with consistent example data in the form the chosen mode admits. Situations the
-language cannot express today are recorded, not faked. Grammar and outcome comparison live in
-`cratis-screenplay-specifications`; this skill owns coverage and method.
+Decide **which** situations need specifications in a coverage matrix, then use
+consistent example data and mode-admitted forms. Record inexpressible cases; never
+fake them. This skill owns coverage; `cratis-screenplay-specifications` owns grammar
+and outcome comparison.
 
 ## When / when not
 - Use: the scenario phase of `cratis-screenplay-modeling-lifecycle`; adding or changing a
@@ -33,11 +32,9 @@ Use it to seed, never replace, the matrix. Multi-step storylines remain unavaila
 lifecycle families emulate them.
 
 ## Interview phase
-**Skip if** the brief already states the coverage depth (rules, denials, state violations,
-retries, races), the critical rules with an allowed and a refused example each, how the specs
-will be used (reference only, executable, rendered and tested) and who validates them.
-Critical questions, one at a time, with follow-ups:
-Ask only what is missing: depth, known rules and edge cases (one allowed and the nearest refused request per rule), intended use (decides admitted forms), and who validates. Read [references/interview-batch.md](references/interview-batch.md) for the four questions and follow-ups.
+Ask only what is missing: coverage depth, allowed/refused rule examples, intended
+execution mode and who validates. Read [interview prompts](references/interview-batch.md)
+when these inputs are unsettled; skip answered questions.
 
 **Unattended:** assume visibly, never invent a rule, and record who actually answered; an agent asking itself four kinds of question is not four approvals.
 
@@ -64,14 +61,11 @@ Ask only what is missing: depth, known rules and edge cases (one allowed and the
    existing intentional fixtures (`references/scenario-catalogue.md` "Example data"). Shared
    fixtures may live as typed `example`s in another document beside the declarations they type
    (`cratis-screenplay-specifications` `references/examples-and-routes.md`).
-7. **Draft commands**: happy path, each rule, denial, duplicates and retries, competing claims,
-   state violations, alternative branches, compensation, external failure, evolution. In each
-   rejection vary only the value under test. Use typed `parameter`/named `case`
-   tables for a shared validation matrix, not for unrelated behaviors; rows are
-   cases, not typed fixture `example`s. `given caller as <Persona>` supplies one
-   authenticated policy witness for success/denial; use explicit callers for
-   anonymous/ownership or unsynthesizable personas. Syntax and complete model:
-   `cratis-screenplay-specifications` `references/persona-callers-and-cases.md`.
+7. **Draft commands** for each applicable scenario type below. Vary only the value
+   under test in a rejection. Read specifications'
+   [persona callers and cases](../cratis-screenplay-specifications/references/persona-callers-and-cases.md)
+   when sharing a validation matrix or choosing synthesized versus explicit callers;
+   cases are not fixture examples and do not group unrelated behaviors.
 8. **Separate view pass**: population, each update, accumulation, removal (with a surviving
    row), absence, ordering. Mark lifecycle branches. Views combining sources must
    tolerate any arrival order. Pin a child before its parent (Requires Screenplay 4.149.1 or later):
@@ -103,11 +97,10 @@ when specifying malformed keys/filters versus valid absence (ESM v18).
 Requires Screenplay 4.157.0 (`screenplay --version`) for v17, 4.161.0 for query
 validation/error assertions; older tools do not execute these contracts.
 
-**Once, idempotent, exactly once are different claims.** A `unique event` constraint proves the
-*fact* occurs once per event source; it does not make *command handling* idempotent (a retry is
-rejected, not answered with success), and nothing in the model proves an *external effect* (an
-email, a payment) happens exactly once. Say which of the three a spec proves; record the rest as
-target requirements.
+**Once, idempotent, exactly once are different claims.** `unique event` proves a once-only fact,
+not successful retry handling or an exactly-once external effect. Name the claim
+proved and keep other guarantees as target requirements; recovery cases are in
+`references/scenario-catalogue.md`.
 
 ## Rules
 ### Compiler contracts
