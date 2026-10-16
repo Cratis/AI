@@ -319,17 +319,17 @@ privileged.
 
 ## Protected decisions and validators
 
-A `[ProtectedDecision]` command (`Cratis.Arc.Chronicle.ReadModels`) runs only
-certified, parameterless validators and **refuses** a validator whose constructor
-takes dependencies (a read model, `DecisionRead<T>`, `IDecisionReads`, any
-service). So an authorization or ownership rule put in such a validator — or in an
-`[Unprotected]` command's validator — is **not decision-safe**. Put
-state-dependent permission and ownership rules in `Provide()` or `Handle()` using
-`DecisionRead<T>` or `IDecisionReads`, and route to the validation and Chronicle
-guidance. Arc constructs/certifies discoverable parameterless validators;
-factory-supplied or altered rules fail closed. Keep static/service-locator state
-out of them too: certification is not proof of input purity. Validators that
-read decision state are a known limitation.
+Under read protection `On`, the read models in a convention-registered
+`CommandValidator<T>` constructor are read fresh and guard the command's append, so
+a state-dependent permission or ownership rule written there is decision-safe. Under
+`Off` (the default) and `Measure` the same validator reads a plain model: a hint. In
+an `[Unprotected]` command (or a model or method marked `[Unprotected("why")]`) the
+read is advisory, so the rule is **not decision-safe**. A `[ProtectedDecision]`
+command without `On` runs only certified, parameterless validators and refuses a
+validator whose constructor takes dependencies; put such a rule in `Provide()` or
+`Handle()` using `DecisionRead<T>` or `IDecisionReads`. Hand-registered scoped,
+singleton, factory or instance validators are refused under `On`. Keep
+static/service-locator state out of validators: a guard covers reads Arc can see.
 Source: [protected validator boundary](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md).
 
 ## Analyzer diagnostics
