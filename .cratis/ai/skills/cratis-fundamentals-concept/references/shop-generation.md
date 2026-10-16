@@ -142,7 +142,10 @@ one, and event-source freshness does not protect a different payload value.
 Fundamentals `Source/DotNET/Fundamentals/Concepts/GenerationContext.cs`,
 `IGeneratableInContext.cs`, `GenerateValue.TimeOrderedStrings.cs`,
 `GenerateValue.RandomStrings.cs`, `GenerateValue.Patterns.cs`,
-`GenerateValue.Numbers.cs`, `Checksum.cs`; `Documentation/csharp/generating-values.md`.
+`GenerateValue.Numbers.cs`, `Checksum.cs`; at Fundamentals v7.25.0,
+`Documentation/csharp/generating-values/patterns.md`,
+`Documentation/csharp/generating-values/reference.md` and
+`Documentation/csharp/generating-values/context.md`.
 Arc `Source/DotNET/Chronicle/Commands/NotAuditedAttribute.cs`,
 `CommandCausationValues.cs` (command/type/property exclusion only, never
 payload encryption or log protection);

@@ -16,18 +16,19 @@
     },
     {
       "id": 2,
-      "name": "rename-command-input-without-renaming-payload",
-      "prompt": "Through Screenplay MCP 4.142.0, rename only RegisterProject.title to displayName. ProjectRegistered.title and ProjectSummary.title must keep their names. Explain the chain lookup, proposal arguments, review, and how to handle StaleRevision at apply. Do not execute calls or edit files.",
-      "expected_output": "Read Property references/dependencies with pinned sourceRevision, inspect incomplete and ambiguous rows, and obtain original property handles. propose-property action rename with target, expectedName title, newName displayName and workspace/catalog revision guards, without alsoRename for unselected fields. Mappings/fixtures are repaired, event payload names remain unchanged, broken AutoMap gets an explicit mapping. Review needsDecision, chainCandidates, notChanged, bytes and semantic diff. StaleRevision requires reopening, inspecting drift and re-proposing, never retrying unchanged or text-editing.",
+      "name": "compare-baseline-and-rename-command-input-without-renaming-payload",
+      "prompt": "Through Screenplay MCP 4.142.0, first explain what changed in the active /work/repo/Screenplay model compared with main, whose baseline model is in a registered worktree at /work/repo-main/Screenplay. Give the comparison call, paging if either side changes, whether this writes anything, and the tool for an unapplied proposal. Do not export both models. Then rename only RegisterProject.title to displayName. ProjectRegistered.title and ProjectSummary.title must keep their names. Explain the chain lookup, proposal arguments, review, and how to handle StaleRevision at apply. Do not execute calls or edit files.",
+      "expected_output": "Call semantic-diff with before: { path: '/work/repo-main/Screenplay' } and after: { workspace: 'active' }, using the corresponding model folder after verifying the baseline checkout. No exports or Git-ref resolution are needed. It reads without writing and refuses pending interrupted writes. Repeat the selections and echo sourceRevision as expectedSourceRevision on continuation; both sides reload and changed revisions refuse as StaleRevision, requiring a fresh comparison. Use read-proposal view=semantic-diff for a retained proposal against disk. Neither is behavioral execution evidence. Read Property references/dependencies with pinned sourceRevision, inspect incomplete and ambiguous rows, and obtain original property handles. propose-property action rename with target, expectedName title, newName displayName and workspace/catalog revision guards, without alsoRename for unselected fields. Mappings/fixtures are repaired, event payload names remain unchanged, broken AutoMap gets an explicit mapping. Review needsDecision, chainCandidates, notChanged, bytes and semantic diff. StaleRevision requires reopening, inspecting drift and re-proposing, never retrying unchanged or text-editing.",
       "assertions": [
         "Inspects kind Property evidence and direct counterparts, pages with expectedSourceRevision and does not assume incomplete means no references.",
         "Uses propose-property action rename with target, expectedName, newName and both revisions, not a hand-composed AST batch.",
         "Leaves unselected event/read-model properties unchanged, explains mapping and fixture repair and AutoMap preservation, and treats chainCandidates as unselected evidence.",
-        "Reviews the retained proposal and semantic diff before apply, and reopens/re-proposes after StaleRevision rather than forcing the old proposal or editing text."
+        "Reviews the retained proposal through read-proposal view=semantic-diff against disk before apply, distinguishes structural comparison from execution evidence, and reopens/re-proposes after StaleRevision rather than forcing the old proposal or editing text.",
+        "Uses semantic-diff with before path /work/repo-main/Screenplay and after workspace active, not two exports or a Git ref; verifies the baseline checkout, states the comparison is read-only and pending interrupted writes refuse, echoes the pair-bound sourceRevision as expectedSourceRevision with the same selections on continuation, and restarts after StaleRevision because both sides reload."
       ]
     },
     {
-      "id": 3,
+      "id": 5,
       "name": "read-generation-support-and-rule-proofs",
       "prompt": "Screenplay MCP 4.173.0 has Shop open. InvoiceNumber uses a date pattern with checksum; another concept uses an Int64 random range; a third has generate rule TenantOrder. declaration-details returns generation.arguments, exact supportCount beyond JavaScript safe integer, entropyBits, derivedPattern and rules[]. One rule is refuted with witness and repair PLAY0688; an unused uuid concept is refuted without diagnosticCode; another rule is unproven. Explain inspection, adding a matches rule and replacing the refuted rule, without executing edits. Is empty executable.diagnosticCodes admission?",
       "expected_output": "Read kind Concept/view summary generation.arguments (not previewArguments): pattern/checksum/rule strings or range text with exact Int64 endpoints; preserve raw supportCount, entropyBits log2 support, dates use minimum conditioned support and checksums add no entropy. Opaque rule entropy is unknown; inspect ValueGeneration implementation-requirements, never run the body. Read authored-order rules status/witness/reason, not diagnostic prose. Add a rule through typed ConceptSyntax proposal using derivedPattern, preserve other members and review input/stored-value changes. Replace refuted rules only through discovered PLAY0688 subject/propose-repair with both revisions and canonical formatting; checksum pattern repair may also add missing checksum validation. Refuted without diagnosticCode means compiler did not check it, so no repair is reported. Null derivedPattern needs its reason, not fabrication; Unproven isn't proof. Review, run candidate specs, then apply. Admission requires whole-model executable.status admitted, not empty local codes.",
@@ -40,15 +41,15 @@
       ]
     },
     {
-      "id": 4,
-      "name": "compare-active-model-with-main-worktree",
-      "prompt": "What changed in my model compared with main? Screenplay MCP 4.131.0 already has /work/repo/Screenplay open. A registered worktree checked out at main has the baseline in /work/repo-main/Screenplay. Give the comparison call and explain paging if either model changes, whether this writes anything, and which tool to use instead for an unapplied proposal. Do not export both models or change files.",
-      "expected_output": "Call semantic-diff with before: { path: '/work/repo-main/Screenplay' } and after: { workspace: 'active' }, using the corresponding model folder after verifying the baseline checkout. No exports or Git-ref resolution are needed. It reads without writing and refuses pending interrupted writes. Repeat the selections and echo sourceRevision as expectedSourceRevision on continuation; both sides reload and changed revisions refuse as StaleRevision, requiring a fresh comparison. Use read-proposal view=semantic-diff for a retained proposal against disk. Neither is behavioral execution evidence.",
+      "id": 3,
+      "name": "remove-property-with-reader-and-assertion-review",
+      "prompt": "Remove ProjectSummary.legacyLabel through Screenplay MCP 4.142.0. The chain has possible readers and an example inherited by several specifications. Explain your calls and how to interpret PropertyReadersExist, needsDecision, chainCandidates and weakensAssertion. Do not execute calls or write files.",
+      "expected_output": "Inspect the revision-pinned property chain and original handle, then propose-property action remove with target, expectedName and both revisions, selecting only intended alsoRemove fields. PropertyReadersExist blocks removal while readers remain; inspect needsDecision's candidates rather than guessing. chainCandidates are not implicit removals. Removing expected values reports weakensAssertion true; ambiguous inherited assertions refuse AmbiguousPropertyReference. Review CanonicalizeTouchedDocuments, dropped comments, exact bytes, identities and semantic diff before apply; preserve original files on refusal.",
       "assertions": [
-        "Uses semantic-diff with a before path source for /work/repo-main/Screenplay and an after workspace active source, not two exports or a Git ref.",
-        "Verifies the worktree baseline and states the comparison is read-only, with pending interrupted writes refused.",
-        "Echoes the pair-bound sourceRevision as expectedSourceRevision on continuation with the same source selections, and restarts after StaleRevision because both sides reload.",
-        "Uses read-proposal view=semantic-diff for an unapplied proposal against disk and distinguishes structural comparison from execution evidence."
+        "Looks up readers and outgoing counterparts with complete revision-pinned evidence before proposing removal.",
+        "Uses propose-property action remove and exact target/expectedName with both revisions; selects no extra same-named fields automatically.",
+        "Treats PropertyReadersExist and ambiguous inherited assertion evidence as refusals, reads needsDecision candidates and never treats chainCandidates as implicit removals.",
+        "Discloses weakensAssertion true for removed expected values and reviews formatting, dropped comments, identities and semantic diff before applying."
       ]
     },
     {
