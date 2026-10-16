@@ -50,6 +50,18 @@ identity, effect and pending-work contract at that point; do not postpone it to 
   `references/renderable-subset.md`) renders role/authenticated reaction identity; claim-reading/opaque gates retain STAGE-ESM-034. Checked model/diagnostics: captures-and-reactions
   `references/invocation-identity.md`.
 
+## Atomic production boundaries and source identity
+
+Start new models with application-root `reaction batches atomic` (ESM v22 or later).
+Each trigger occurrence's direct productions and each selected refusal branch are
+separate all-or-none batches; invoked commands remain independent. Absence retains
+legacy per-fact behavior even at later versions. Assert no failed-batch facts and
+unchanged views, not only `then error`. Stage refuses v22/v25 (STAGE-ESM-016) and
+atomic mode in admitted v23/v24 models (STAGE-ESM-043); keep the semantics as gap-fill.
+Read [atomic batches and source mappings](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
+when choosing these boundaries or mapping an invoked identifier from `$eventSourceId`
+(or `$eventContext.eventSourceId`) instead of copying it into event payload.
+
 ## Effect guarantees and recovery traps
 | Guarantee | What it promises | What can show it |
 |---|---|---|
@@ -181,7 +193,9 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
   `references/record-capture-specifications.md` for the prerequisite and child/nested rules.
 - Current V1 warns on undeclared capture/removal events (PLAY0166); V3 remains a
   separate binder check.
-- A trigger with `reads` that `produces` directly fails binding: decide in a command. `reads` never protects.
+- A trigger with `reads` that `produces` directly fails binding: decide in a command.
+  Command reads can protect with `command reads protected` and admitted shapes (v25);
+  trigger reads cannot. Stage refuses v25; target protection remains a separate check.
 - An authorized command exercised in a spec without `given caller` is PLAY0389 at binding.
 - A list query (`=> Item[]`) binds (a snapshot list is not rendered, `STAGE-ESM-010`);
   a clock sweep that iterates items needs a code body the reference does not run

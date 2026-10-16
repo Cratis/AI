@@ -17,6 +17,12 @@ whether it is admitted; reading the admission rules is not a render result.
 
 Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
 
+## Batches, described handlers, text rules and protected reads
+
+Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
+for v22–v25: text rules render, atomic batches/protected reads/described bodies do
+not. Stub mode emits no described-body stubs. Keep protection and report refusal.
+
 ## When to use
 
 - Deciding whether a model can be rendered, or reading a blocked render.

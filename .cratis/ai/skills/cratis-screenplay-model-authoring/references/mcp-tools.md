@@ -482,6 +482,11 @@ inspect authored links, not code execution or a transitive runtime graph.
 
 ## Dependencies and intent inventories
 
+Diagnostic subjects use code plus typed `arguments`, not parsed messages. This applies
+to `diagnostics`, executable diagnostics and proposal introducedExecutableErrors.
+Read [diagnostic arguments](../../cratis-screenplay-toolchain/references/diagnostic-arguments.md)
+for optional subjects, declaration paths and PLAY0524 step indices.
+
 `dependency-graph` edges point consumer → producer. Views: `edges`, `cycles`,
 `order`, `unresolved`, `declarations`; `from`/`to` select slice/feature/module
 aggregation (`to` also accepts context). `scope`, `direction`, `kinds` and
@@ -508,7 +513,12 @@ Workspace views `named-rule-intents`/`named-rule-intent-details` cover CommandNa
 only, including pending hints without a requirement ID. Details select either
 `subject` or attached `requirementId`, not both. `handler-intents` and
 `handler-intent-details` cover CommandHandler only; handler details select
-`requirementId`. All page ordered hints, not implementation correctness. Continue
+`requirementId`. A handler entry's `executableReady` means successful v23 binding
+with a matching Pending requirement, not a supplied body; `admission` is described,
+refused or authoring-only. `implementation-requirements` exposes ordered hints and
+provisional/ambiguous flags. Edit HandlerSyntax/ImplementationSyntax/ImplementationHintSyntax
+through `propose-ast` with Authoring validation, preview then apply; unwrapping
+pending metadata is refused. All page ordered hints, not implementation correctness. Continue
 with `expectedRevision` and `expectedCatalogRevision`; provisional owner IDs are
 not authoritative. Edit hints through reviewed `propose-ast`.
 

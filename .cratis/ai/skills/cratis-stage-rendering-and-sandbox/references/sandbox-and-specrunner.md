@@ -61,6 +61,14 @@ launch failure, nonzero exit or invalid report is 502. The timeout defaults to 1
 (1–600, including queue); specifications stay available after a later world-rebuild or
 registration failure if the model was admitted.
 
+### Semantic text rules versus the default syntax engine
+
+The semantic Host/specification executor admits v24 literal `contains`, `not contains`,
+`starts with` and `ends with` rules as ordinal UTF-16 comparisons; absence passes.
+Empty operands pass contains/starts/ends and fail not-contains for present text.
+The legacy EventModel default engine drops these rules: its list below is not evidence
+of semantic support. Generated applications render these comparisons without regex.
+
 ### What the default engine enforces
 
 When a command that declares at least one `produces` executes, the default engine

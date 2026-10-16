@@ -48,6 +48,19 @@
         "Says a text edit must never be used to get around an MCP refusal.",
         "Says a session without MCP returns the request to the owning session."
       ]
+    },
+    {
+      "id": 5,
+      "name": "literal-text-and-portable-match-admission",
+      "prompt": "On Screenplay 4.198.0 our invoice reference must start with INV-, contain a hyphen, end with -NOK and contain no spaces. A teammate uses lookaround matches rules and calls every regex ECMAScript-compatible. Give the literal concept rules, explain PLAY0699 versus PLAY0787, the pattern check API names and ESM/Stage boundary. Is starts with admitted in require? Does email allow a no-break space? Reply only; no tools or edits.",
+      "expected_output": "Use concept validate starts with INV-, contains hyphen, ends with -NOK and not contains space (quoted operands). Rules are ordinal UTF-16 with absent optional passing; v24, introduced 4.184.0, Stage semantic engines render/execute. Conditions remain PLAY0268. Matches uses a flagless portable linear dialect with 1,000 UTF-16 units and 3,000 expanded nodes; invalid syntax PLAY0367, refused constructs PLAY0699, only exact escaped Studio shapes desugar with PLAY0787 and reviewed repair. C# PortableMatchPattern.Check and TS checkPortableMatchPattern from @cratis/screenplay-compiler. Whitespace includes U+00A0 so email rejects it; browser matching advisory.",
+      "assertions": [
+        "Uses all four first-class quoted-literal rules rather than inventing a regex or putting text operators in require.",
+        "States ordinal UTF-16/no normalization, absent optional passes, v24 reference/Stage semantic support, separate from condition refusal.",
+        "Distinguishes PLAY0367 invalid syntax, PLAY0699 portable dialect refusal and PLAY0787 exact Studio replacement, never general lookaround support.",
+        "Names PortableMatchPattern.Check and checkPortableMatchPattern accurately, includes pattern size budgets and treats browser checks as advisory.",
+        "States that U+00A0 is whitespace for matches and therefore fails email validation."
+      ]
     }
   ]
 }

@@ -82,9 +82,14 @@ remain unadmitted. Compile and test each relevant fixture with the chosen tool.
   require that position. Source preambles precede declarations.
 - Strings: `"..."`, escapes `\" \\ \n \r \t`; other backslashes kept (regex `"^INV-\d{6}$"` works).
 - Structured values: single-line JSON, quoted keys (`[{"sku": "A-1", "quantity": 2}]`).
+- Literal property/concept text rules use `contains`, `not contains`, `starts with`,
+  `ends with` with quoted operands (v24, ordinal UTF-16). Portable `matches` refuses
+  nonportable constructs with PLAY0699; exact Studio patterns warn PLAY0787.
+  Read command-surface [text and match rules](../../cratis-screenplay-command-surface/references/text-and-match-rules.md).
 - One condition grammar (policy `require`, `produces when`, `require`, reaction `where`): `and`
   binds tighter than `or`; operators `== != > >= < <= contains`, `starts with`; claims use
-  `claim "x" matches "v"` (not `==`: PLAY0120).
+  `claim "x" matches "v"` (not `==`: PLAY0120). Text operators here are condition-only
+  authoring syntax (PLAY0268 at binding), not the admitted property text rules.
 - Keyword escape `@name` for properties named `tag`, `authorize`, `produces`, `reads`, `file`,
   `validate` (enum value), `sequence`, `occurred`, `causedBy`, `namespace`, `correlation`,
   `causation`, and projection `key`/`parent`/`with`.

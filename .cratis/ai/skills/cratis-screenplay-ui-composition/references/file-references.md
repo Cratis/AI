@@ -6,8 +6,8 @@ This reference holds the three meanings of `file` and the rules for paths and lo
 
 Three meanings, one word:
 
-- **Backend implementation attachment.** On a command `handler` (which never
-  binds, `PLAY0268`), a validation
+- **Backend implementation attachment.** On an attached command `handler` (still
+  PLAY0268; pending described handlers instead bind v23 without a file), a validation
   rule predicate, a query `performer`, a reducer rule, a reaction trigger, a
   `constraint` and a `policy`, `file` stands in for the inline body: the
   implementation lives there. These are the files a host inventories.

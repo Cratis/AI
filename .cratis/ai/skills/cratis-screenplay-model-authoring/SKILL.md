@@ -97,7 +97,9 @@ can keep that entry point; use the project's supported installation channel.
    `kind: "Property"`, `Owner.member` / `Owner.generationN.member`, direct mappings.
    `complete: false` is incomplete evidence, never a successful empty list.
    Edit through MCP proposals, not hand-edited text; [generation](references/mcp-tools.md#concept-generation).
-3. Read diagnostics and coverage limitations. Use `dependency-graph` for container
+3. Read diagnostics and coverage limitations. Identify subjects by code and typed
+   `arguments`, never by parsing message text. Read [diagnostic arguments](../cratis-screenplay-toolchain/references/diagnostic-arguments.md)
+   for kinds, PLAY0524 step paths/indices, unknown fields and older responses. Use `dependency-graph` for container
    edges, declared-dependency coverage, cycles and advisory order; the board's
    dependency-map toggle exposes this evidence visually. Unknown or ambiguous
    bindings are not an empty, successful dependency graph.
@@ -114,6 +116,13 @@ can keep that entry point; use the project's supported installation channel.
 Keep reads scoped to the relevant module, feature, slice or document. Do not
 request a whole merged AST when a bounded declaration/property query answers the
 question. Size-limit refusals require narrower reads, not truncation.
+
+## Application modes and described handler intent
+
+Start new models with `reaction batches atomic`; preserve it through proposals.
+Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
+for atomic/protected modes and Stage refusals. Read [intent inventories](references/mcp-tools.md#dependencies-and-intent-inventories)
+for handler views: `executableReady` means binding, not an implemented body.
 
 ## Compare models
 

@@ -48,8 +48,12 @@ This table is a reading of the renderer's admission, not a render result: run th
 | Evolved events | initial revisions only (migrations are not rendered) | `STAGE-ESM-026` |
 | Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
-The CLI's bundled compiler still refuses `reads` and `concurrency` (PLAY0271) and command
-`handler`s (PLAY0268) at binding, before Stage admission. Supported filters and strategies render.
+Language admission beyond the earlier pairs is separate: Stage admits v23/v24,
+refuses v22/v25 with STAGE-ESM-016, described handlers with STAGE-IMPL-002
+(even Stub mode), and atomic mode in admitted pairs with STAGE-ESM-043. Literal
+text rules execute/render ordinal UTF-16 comparisons. Read [language admission](language-admission.md).
+A CLI's older bundled compiler may fail first: legacy reads/concurrency PLAY0271,
+attached handlers PLAY0268. Protected reads bind standalone v25, not a Stage render.
 Response-name authoring scopes are not rendered and Scene runtime does not supply them.
 
 Compliance mapping in the generated C#: personal data to `[PII]`, operational secrets to
@@ -76,8 +80,9 @@ ids into routing to fit a renderer (PLAY0515).
   older renderers refuse snapshot lists with STAGE-ESM-010.
   context/single-result filters, opaque `scoped to` and `performer` block binding. Keep a list the domain needs and report
   the capability gap; marking it `observable` or keying it is a modeling decision for the user.
-- A `handler` (with or without `implementation` or `hint`) never binds; the slice is
-  gap-fill, never "customized into" rendering.
+- Attached handlers remain PLAY0268. Pending handlers beside unconditional
+  productions bind v23 but Stage refuses their bodies (STAGE-IMPL-002), even Stub mode;
+  deliver as authorized gap-fill, never as implemented generated stubs.
 - Descriptions and documentation render only as XML doc comments, never as
   behavior: a rule that exists only in prose is unenforced in rendered code.
 
