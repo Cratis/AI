@@ -201,9 +201,10 @@ produces. Pin an instance only when the events would be noise.
 Both builder methods return `void`; there is nothing to await.
 
 That is **legacy** read-model mode: seeded events populate an in-memory model,
-not the append log. For protected or stream decisions call `UseDecisionReads()`
-before seeding; actual events and decisions then share one in-process log.
-Pinned models cannot supply decision guards. Read
+not the append log. A command under read protection `On`, with a per-stream model or
+with `[ProtectedDecision]` selects the decision mode itself (no `UseDecisionReads()`
+call); actual events and decisions then share one in-process log. Pinned models
+cannot supply decision guards. Read
 [query and decision scenarios](references/query-and-decision-scenarios.md) when
 specifying query pipelines, routed conflicts, projection admission or completion.
 
