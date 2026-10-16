@@ -57,6 +57,7 @@ row so the smoke and the recorded vector cannot drift apart.
 | Item | Value |
 | --- | --- |
 | Smoke CLI | CLI 3.53.1 (live browser run with `cratis/stage:4.73.1`; guarded Close and double click run since Stage 4.65) |
+| Shell CLI | CLI 3.67.0 (bundles `cratis/stage:4.119.1`, Screenplay 4.180.1): the smoke renders `screens-smoke/shell/application.play` - regions that inherit, extend and override, a toolbar button that starts a State Change slice, a sample data pack - and requires the navigation targets and the toolbar slice in `scene.json` and no sample data in the generated application (the fixture is the CLI's own `Integration/Cli/Shell`, Cratis/cli#374) |
 | Executed vector | CLI 3.43.0 (`23e5a24`), default runtime `cratis/stage:4.52.0`, bundled Screenplay 4.127.0, Scene 4.15.0 (Scene 4.17.0 was the earlier verified scaffold tag) |
 | Render-then-recover and rejection codes | `CLI-RENDER-007` to `-010`, shipped in CLI 3.41.0 (Cratis/cli#301) |
 | MCP edit transcript | 9 requests and 9 responses, column on disk, render `published` with the column in `scene.json` |

@@ -1,0 +1,190 @@
+concept OrderId : Uuid
+concept TicketId : Uuid
+concept ArticleId : Uuid
+concept CustomerId : Uuid
+
+layout AppShell
+  category application
+  topbar
+  navigation contributes Navigation
+  content
+  side
+
+  arrangement flow
+    column
+      topbar height 56
+      row gap 16
+        navigation width 240
+        content grow
+        side width 320
+
+  navigation topbar
+    logo image "" title "Acme"
+    item home title "Home" target Home
+    item sales title "Sales" target Sales
+    item support title "Support" target Support
+
+  navigation sidebar
+    item overview title "Overview" target Home
+
+ui profile Desktop
+  target platform web
+  target size expanded
+  layout AppShell
+  packages
+    core
+    Cratis.Components
+
+  sample data
+    active Demo
+
+sample data Demo
+  title "Acme demo"
+  locale en-GB
+  shape OrderRow
+    row
+      orderId = "11111111-1111-4111-8111-111111111111"
+      customer = "Sample customer that must never ship"
+      quantity = 4
+
+module Home
+  feature Welcome
+    slice StateView WelcomeList
+      readmodel WelcomeRow
+        welcomeId CustomerId
+        text String
+      query AllWelcomes => observable WelcomeRow[]
+      projection WelcomeList => WelcomeRow
+        from CustomerGreeted
+          welcomeId = $eventSourceId
+          text = text
+      screen Welcome
+        title "Welcome"
+        data WelcomeRow[] via query AllWelcomes
+        table WelcomeRow
+          column text label "Text"
+    slice StateChange GreetCustomer
+      command GreetCustomer
+        id CustomerId identifier
+        text String
+        produces CustomerGreeted
+          for id
+          text = text
+      event CustomerGreeted
+        text String
+
+module Sales
+  navigation sidebar overrides
+    item orders title "Orders" target Sales.Orders
+    item customers title "Customers" target Sales.Customers
+
+  feature Orders
+    slice StateChange PlaceOrder
+      command PlaceOrder
+        orderId OrderId identifier
+        customer String
+        quantity Int
+        produces OrderPlaced
+          for orderId
+          customer = customer
+          quantity = quantity
+      event OrderPlaced
+        customer String
+        quantity Int
+    slice StateView OrderList
+      readmodel OrderRow
+        orderId OrderId
+        customer String
+        quantity Int
+      query AllOrders => observable OrderRow[]
+      projection OrderList => OrderRow
+        from OrderPlaced
+          orderId = $eventSourceId
+          customer = customer
+          quantity = quantity
+      screen OrderScreen
+        title "Orders"
+        toolbar actions
+          button new title "New order" slice Sales.Orders.PlaceOrder emphasis primary icon plus
+        data OrderRow[] via query AllOrders
+        table OrderRow
+          column customer label "Customer"
+          column quantity label "Quantity"
+  feature Customers
+    slice StateView CustomerList
+      readmodel CustomerRow
+        customerId CustomerId
+        name String
+      query AllCustomers => observable CustomerRow[]
+      projection CustomerList => CustomerRow
+        from CustomerRegistered
+          customerId = $eventSourceId
+          name = name
+      screen CustomerScreen
+        title "Customers"
+        data CustomerRow[] via query AllCustomers
+        table CustomerRow
+          column name label "Name"
+    slice StateChange RegisterCustomer
+      command RegisterCustomer
+        id CustomerId identifier
+        name String
+        produces CustomerRegistered
+          for id
+          name = name
+      event CustomerRegistered
+        name String
+
+module Support
+  navigation sidebar extends
+    item tickets title "Tickets" target Support.Tickets
+    item kb title "Knowledge base" target Support.KnowledgeBase slot side
+
+  feature Tickets
+    slice StateView TicketList
+      readmodel TicketRow
+        ticketId TicketId
+        subject String
+      query AllTickets => observable TicketRow[]
+      projection TicketList => TicketRow
+        from TicketOpened
+          ticketId = $eventSourceId
+          subject = subject
+      screen TicketScreen
+        title "Tickets"
+        data TicketRow[] via query AllTickets
+        table TicketRow
+          column subject label "Subject"
+    slice StateChange OpenTicket
+      command OpenTicket
+        id TicketId identifier
+        subject String
+        produces TicketOpened
+          for id
+          subject = subject
+      event TicketOpened
+        subject String
+  feature KnowledgeBase
+    slice StateView ArticleList
+      readmodel ArticleRow
+        articleId ArticleId
+        title String
+      query AllArticles => observable ArticleRow[]
+      projection ArticleList => ArticleRow
+        from ArticlePublished
+          articleId = $eventSourceId
+          title = title
+      screen ArticleScreen
+        title "Knowledge base"
+        data ArticleRow[] via query AllArticles
+        table ArticleRow
+          column title label "Title"
+    slice StateChange PublishArticle
+      command PublishArticle
+        id ArticleId identifier
+        title String
+        produces ArticlePublished
+          for id
+          title = title
+      event ArticlePublished
+        title String
