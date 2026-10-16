@@ -138,6 +138,8 @@ Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the 
 
 **Modeling defaults** (deviate with a recorded reason)
 - One business identity per stream; cross-stream references are payload properties.
+- A read model's key is not a stream identity. Read [references/read-model-keys.md](references/read-model-keys.md)
+  when choosing one id, flat composite key parts (v27) or a composite-typed key.
 - Copy the source id into the payload only when a consumer needs it as a value.
 - Give each invariant an authoritative atomic decision point and inspect every path that could
   violate it. A constraint violation rejects that command's whole append set; a reaction cascade

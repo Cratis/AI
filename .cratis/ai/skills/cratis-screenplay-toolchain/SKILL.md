@@ -101,7 +101,7 @@ changes with the root folder name.
 - **Executable** (binds, V3): `references/executable-subset.md`. Optional keyed lookups, unfiltered
   lists and lists narrowed by one `by` key (observable too) bind; caller-supplied equality
   filters on collections bind as ESM v14. Context `from`, single-result
-  filters, opaque `scoped to`/`performer` and composite `by` remain PLAY0268. Read
+  filters, opaque `scoped to`/`performer` and a `by` block on a list query remain PLAY0268. Read
   read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
   Pending handlers beside unconditional productions bind as described commands (v23),
   but reached bodies are Unsupported; attached handlers remain PLAY0268.
@@ -120,9 +120,10 @@ changes with the root folder name.
 - **Public contracts and routes (v9/v10/v11):** public contracts and direction select v9;
   reaction identity, production overrides and observer filters select v10;
   qualifying retained non-route Double literals select v11.
-  Composite view keys remain authoring-only (PLAY0268), while one explicit
-  `key` binds. Read `references/production-routes-and-filters.md` and read-surface
-  `references/named-keys.md`.
+  Flat composite read-model keys select v27 (Requires Screenplay 4.204.0; older binders
+  report PLAY0268); one explicit `key` keeps its earlier version. Read
+  `references/production-routes-and-filters.md`, [language admission](references/language-admission.md)
+  and read-surface `references/named-keys.md`.
 - **Enum numbers (v12):** read command-surface `references/enum-numbers.md` for
   pins, stored numbers and Stage output; `references/diagnostics.md` owns PLAY0667–0671.
 - **Concept strategies (v15):** read
@@ -189,7 +190,7 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
 7. Mark read-model identity with trailing `key`, not `identifier`. Otherwise single-instance
    queries must agree on `by`; only with none and an admitted list query can `*Id`
    inference run. Queryless views need `key` (read-surface `references/named-keys.md`).
-   Align projection keys. Multipart keys remain PLAY0268.
+   Align projection keys; several parts need an untyped `key` block (v27).
 8. Projection `key` routes only on `from`; joins never create; `all` is per source.
 9. `null` only for optional read-model properties in specifications.
 10. `then` events are exhaustive and ordered; after `when append` they list only what followed.

@@ -35,6 +35,23 @@ This reference holds the given/when/then construct table and the enumeration and
 | `for <value>` | the event source of a `given`/`then` event, or of the `when` command or appended event |
 | `<property> = <value>` | a literal, `null`, or a one-line JSON-shaped object or list: `lines = [{"sku":"A-1","quantity":2}]` |
 
+## Composite-keyed read models
+
+Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`); older binders refuse a
+read model with two or more `key` marks, and every specification over it, with PLAY0268.
+
+- `given readmodel` and `then readmodel` state every key part (missing part PLAY0351,
+  repeated part PLAY0519).
+- `then no readmodel <Type> for {"part":"value",...}` names every part (missing PLAY0661,
+  unknown PLAY0662, repeated member PLAY0294).
+- `when query` or `then query … arguments` supplies every `by` part of a single-instance
+  query, or the equality filters of a list query (missing, unknown or repeated PLAY0468).
+- A single-instance `then result` may omit parts the arguments supply; list rows state
+  every part. A stated part that disagrees with the argument fails to match at run time.
+- Parts match one by one in any order; Uuid parts compare as ordinal text.
+
+The complete model with these specifications is in read-surface `references/named-keys.md`.
+
 ## Parse and binding diagnostics
 
 PLAY0358 is a syntax error; PLAY0388 also occurs at parse time for extra text

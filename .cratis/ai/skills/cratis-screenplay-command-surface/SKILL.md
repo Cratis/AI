@@ -155,8 +155,9 @@ reads/concurrency cannot combine (PLAY0783). The Cratis C# renderer refuses prot
 semantic Host/executor support is separate.
 Uniqueness still uses a constraint; reference success is not target realization.
 
-Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block is
-`PLAY0268` (read-surface `references/named-keys.md`).
+Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block in a
+command read is `PLAY0271`, or `PLAY0781` ByParts under `command reads protected`
+(read-surface `references/named-keys.md`).
 
 ## `validate`
 

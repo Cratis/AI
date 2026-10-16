@@ -54,11 +54,13 @@ identity (all such queries must agree). Only with no single-instance identifier
 and an admitted list query does the binder infer an unambiguous `*Id`; queryless
 read models need an explicit `key`. See named keys below for collection-key exclusions.
 One explicit key binds byte-identically to equivalent inference. Several marks
-form a composite key, supplied by name in query/read
-`by` blocks. Composite keys and block queries remain
-**authoring-only** (PLAY0268); the scalar optional snapshot shape binds.
-Read [named keys](references/named-keys.md) for complete examples, trigger/command
-reads, all-parts fixtures, PLAY0660–0662 and command-read-only PLAY0661 repair.
+form a flat composite key: an optional single-instance query names every part in a
+`by` block, a list query narrows with equality filters, and fixtures state every part.
+Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`); older binders refuse
+several key marks with PLAY0268. A list query over such a read model cannot use a
+`by` block (PLAY0268).
+Read [named keys](references/named-keys.md) for one complete executable example,
+trigger/command reads, all-parts fixtures, PLAY0660–0662 and command-read-only PLAY0661 repair.
 A `=>` target resolving to an event is an event-target builder, not a read model;
 keep event and read-model names distinct (see projections' public-event targets).
 

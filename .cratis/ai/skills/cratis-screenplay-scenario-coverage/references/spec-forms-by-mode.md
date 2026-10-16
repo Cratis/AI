@@ -18,7 +18,7 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | `then readmodel` / `then query` (keyed `ById`, `arguments`, `result`) | yes | yes | yes |
 | `then query` on an unfiltered list or a list narrowed by one `by` key (observable too) | yes | yes: no `arguments` for an unkeyed list, one `result` per row stating the read-model identifier, no `result` = empty list | snapshot and observable lists render |
 | Collection query with caller-supplied equality `filter`, including observable | yes | yes, ESM v14: same-named scalar property/type, AND with `by`; optional omission allowed, supplied null refused; PLAY0468 checks arguments; row order does not matter | yes on supported snapshot/observable collections; DateTime/filter parameter order refuse -010; independent Stage executor still refuses filtered assertions (-010) |
-| Context `from`, single-result filters, `scoped to`, `performer` or composite `by` | yes | PLAY0268: query context, collection-only filtering, opaque scope/implementation or multipart lookup are unadmitted | no |
+| Context `from`, single-result filters, `scoped to`, `performer` or a list-query `by` block | yes | PLAY0268: query context, collection-only filtering, opaque scope/implementation or a multipart list lookup are unadmitted | no |
 | `then no readmodel <RM> for "<key>"` | yes | yes | no |
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
 | `given clock` / `when clock`, `when trigger`, record-source `given`/`when capture` | yes | yes (standalone and any cratis whose compiler admits v6; an older bundle does not, see toolchain `references/executable-subset.md`) | no |

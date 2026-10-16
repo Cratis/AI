@@ -122,7 +122,7 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
 
 - At most one `identifier` per command; never on an event property or read-model property (use `key`). At most one builder per read model (`PLAY0191`). Read `references/read-model-design.md` ("Identifier and key contract") for the exact rules.
 
-- A query's `by` goes on its own body line; `from`, single-result filters, scope, performer and composite `by` remain `PLAY0268`; equality filters on collections bind as ESM v14. Read `references/read-model-design.md` ("Query binding") for the binding rules.
+- A query's `by` goes on its own body line; `from`, single-result filters, scope, performer and a list-query `by` block remain `PLAY0268`; equality filters on collections bind as ESM v14. Read `references/read-model-design.md` ("Query binding") for the binding rules.
 
 - A `unique` constraint names a property the event declares directly; the constraint name is
   its identity (renaming starts an empty index).
@@ -146,7 +146,7 @@ collections, invariants, who sees which rows); report a finding only with a doma
 
 ## Public boundaries and view identity
 
-Translate crosses an application boundary (inbound consumes foreign public events; outbound folds private facts into exactly one local public event type); commands never publish public events. Mark view identity with trailing `key`; composite view keys remain unadmitted (`PLAY0268`) - keep the true identity and report the gap. Read [references/public-boundaries-and-keys.md](references/public-boundaries-and-keys.md) when a slice crosses an application boundary or a view needs a composite identity.
+Translate crosses an application boundary (inbound consumes foreign public events; outbound folds private facts into exactly one local public event type); commands never publish public events. Mark view identity with trailing `key`; flat composite view keys bind as ESM v27 (Requires Screenplay 4.204.0) - keep the true identity. Read [references/public-boundaries-and-keys.md](references/public-boundaries-and-keys.md) when a slice crosses an application boundary or a view needs a composite identity.
 
 ## Identity-affecting edits on an existing model
 

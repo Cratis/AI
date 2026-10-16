@@ -1,7 +1,7 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Language admission: batches, described bodies, text, reads and dates
+# Language admission: batches, described bodies, text, reads, dates and composite keys
 
 Select the highest version required by constructs in the model. A newer version
 alone never opts into either application mode. Consumers must explicitly admit
@@ -14,6 +14,7 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 | v24 | `contains`, `not contains`, `starts with`, `ends with` property/concept rules | Ordinal UTF-16, absent optional passes; not text-condition operators | v24 admitted; semantic Host/executor and generated ordinal comparisons preserve rules |
 | v25 | Application-root `command reads protected` | Admitted reads in requirements/mappings, absence Validation, matching decide/commit changes Conflict | v25 admitted; Cratis C# renderer refuses STAGE-ESM-044; semantic Host/executor execute reads, non-Error protected requirements refuse STAGE-ESM-045 |
 | v26 | Chronological command Date/DateTime comparisons | Same-primitive `==`, `!=`, `>`, `>=`, `<`, `<=`; DateTime UTC ticks and pre-rule offset validation | v26 refused STAGE-ESM-016 |
+| v27 | A read model with two or more `key` marks | Untyped projection `key` blocks, equality-filter lists, single-instance `by` blocks, per-part fixtures | v27 refused STAGE-ESM-016 |
 
 Requires Screenplay 4.181.0 or later (`screenplay --version`) for atomic batches; older compilers cannot admit the preamble.
 
@@ -24,6 +25,8 @@ Requires Screenplay 4.184.0 or later (`screenplay --version`) for literal text r
 Requires Screenplay 4.193.0 or later (`screenplay --version`) for protected reads; older binders retain PLAY0271/PLAY0268.
 
 Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`) for date comparisons; older binders report PLAY0268.
+
+Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`) for composite read-model keys; older binders report PLAY0268.
 
 Requires Stage 4.124.0 for v24 text-rule admission (`cratis --version` identifies the CLI bundle); older renderers refuse v24 with STAGE-ESM-016. V23 admission alone does not implement described bodies.
 
@@ -56,7 +59,13 @@ positions, invalid date literals or offset-less DateTime literals use PLAY0273.
 Read [date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)
 for the complete interval example and input/target boundaries.
 
-Stage's semantic engines admit exact v1–v21 and v23–v25 pairs. V22/v26 and mixed
+For v27, read read-surface [named keys](../../cratis-screenplay-read-surface/references/named-keys.md)
+for the one complete example and every refusal. Only a model with a read model of two or
+more key parts selects v27; one `key` mark keeps its earlier version and bytes. To see the
+selected version, open the model with the `screenplay` MCP server and call `read-workspace`
+with `view` `executable-model`: `languageVersion` reads `27.0`.
+
+Stage's semantic engines admit exact v1–v21 and v23–v25 pairs. V22/v26/v27 and mixed
 pairs refuse STAGE-ESM-016. Admission of v23–v25 is not admission of described bodies,
 atomic mode or rendered protected reads. A CLI may bundle an older compiler/Stage pair: run no-write render
 admission rather than transferring a standalone verdict. Pattern diagnostics arise

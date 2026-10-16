@@ -137,9 +137,11 @@ Target evidence: a renderer must admit ESM v16 and preserve `storedName`, or ref
 | PLAY0665 | E | Invalid/duplicate/child-bearing/unresolved source/stream filter or filtered reaction with a non-event trigger |
 | PLAY0666 | W | Filter excludes all statically known effective producer routes; C# only, handlers/foreign origins suppress it |
 
-Queries and trigger reads have no PLAY0661 repair. Composite view keys, query
-blocks and their fixtures remain PLAY0268, while one explicit key binds
-byte-identically to inference. Fixtures missing any part report PLAY0351.
+Queries and trigger reads have no PLAY0661 repair. Flat composite view keys bind as v27;
+projection or removal key blocks missing a part report PLAY0661 and bad parts PLAY0662.
+One explicit key binds byte-identically to inference. Fixtures missing any part
+report PLAY0351. Joins, children, `every`, `all`, `nested`, `variant`, reducers and
+list-query `by` blocks over a composite-keyed view are PLAY0268.
 Overrides/filters select released ESM v10; malformed routes also use PLAY0504.
 Read read-surface `references/named-keys.md` and
 [production routes and filters](production-routes-and-filters.md).

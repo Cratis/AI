@@ -175,8 +175,9 @@ Use `when append <PrivateEvent>` then `then <PublicEvent>`, not `then readmodel`
 follow-up events are exhaustive and ordered. Read
 [publication and fold cases](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)
 when specifying outbound facts or event-source captures: it owns the minimum
-compiler, PLAY0700/0701, key folding and Unsupported boundaries. Composite view
-fixtures remain unadmitted; see read-surface `references/named-keys.md`.
+compiler, PLAY0700/0701, key folding and Unsupported boundaries. Composite-keyed
+view fixtures state every key part (Requires Screenplay 4.204.0, ESM v27); see
+`references/vocabulary.md` and read-surface `references/named-keys.md`.
 
 ## Reusable fixtures, routes and recovery intent
 

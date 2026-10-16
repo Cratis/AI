@@ -28,8 +28,8 @@ keeping the capture in Translate. No automatic split.
 Requires Screenplay 4.176.0 or later; older compilers leave that shape unchecked.
 Read
 [public contracts](../../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md).
-View properties use trailing `key`; multipart `by` query/read blocks remain
-PLAY0268, not v10. Read [named keys](../../cratis-screenplay-read-surface/references/named-keys.md).
+View properties use trailing `key`; several parts select v27 (not v10), with a `by` block on
+an optional single-instance query and equality filters on lists. Read [named keys](../../cratis-screenplay-read-surface/references/named-keys.md).
 Production `stream Source.Stream` overrides and reaction/reducer `from Source[.Stream]`
 select released v10: [routes and filters](production-routes-and-filters.md).
 Qualifying non-route Double literals select v11;

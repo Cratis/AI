@@ -6,6 +6,7 @@
 - Parser regexes
 - Diagnostics
 - Syntax that parses but means something else
+- Flat composite read-model keys
 - Worked examples
 
 Checked against `Documentation/screenplay/projections/{grammar,semantic-model,keys,variants}.md`
@@ -69,11 +70,11 @@ NestedBlock     = "nested", Ident, NL,
 ClearWithBlock  = "clear", "with", TypeRef, NL ;
 
 RemoveWithBlock = "remove", "with", TypeRef, [ "key", Expr ], NL,
-                  [ INDENT, [ ParentDecl ], DEDENT ] ;
+                  [ INDENT, [ CompositeKeyDecl ], [ ParentDecl ], DEDENT ] ;
 RemoveWithJoinBlock = "remove", "via", "join", "on", TypeRef, [ "key", Expr ], NL ;
 
 KeyDecl         = "key", Expr, NL ;
-CompositeKeyDecl= "key", TypeRef, [ "{" ], NL,
+CompositeKeyDecl= "key", [ TypeRef ], [ "{" ], NL,
                   INDENT, KeyPart, { NL, KeyPart }, DEDENT, [ "}", NL ] ;
 KeyPart         = Ident, "=", Expr ;
 
@@ -171,6 +172,45 @@ LiteralKeyword  = "literal", " ", Literal ;   (* parsed at the Expr level *)
 | `remove via join` on a projection's own level | Chronicle's engine wires it as a child removal; binds, but the reference execution plan refuses it |
 | `all` beside removals, `children` or `nested` | Binds, but the reference execution plan refuses it |
 | `join`, `children` or `remove via join` inside `nested` | Not wired by Chronicle's engine; binds, but the reference execution plan refuses it |
+
+## Flat composite read-model keys
+
+Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`); older binders refuse a
+read model with two or more `key` marks with PLAY0268.
+
+A read model with several flat `key` properties takes an **untyped** `key` block (no
+type name) in each root `from` and `remove with`, naming every key part once as
+`<property> = <expr>`. It differs from the typed composite key above, which fills one
+single property of composite type.
+
+```screenplay excerpt
+projection PaymentTotals => PaymentTotals
+  no automap
+  from PaymentReceived
+    key
+      invoiceId = invoice
+      method = method
+    total = amount
+  remove with PaymentRemoved
+    key
+      invoiceId = invoice
+      method = method
+```
+
+The block applies to every event the `from` names. Part order does not matter; creating
+an instance writes each part to its property even with `no automap`, and a mapping that
+contradicts a part fails the projection. `remove with` deletes only the instance whose
+parts all match, and a later `from` recreates it.
+
+| Written | Code |
+| --- | --- |
+| `from` or `remove with` with no key, `key <expr>`, an inline `from A key x`, or `parent` | PLAY0661 |
+| A part missing from the block | PLAY0661 |
+| An unknown, repeated or ill-typed part, or a non-simple expression | PLAY0662 |
+| `join`, `children`, `remove via join`, `every`, `all`, `nested`, `clear with`, `variant`, or a reducer on the read model | PLAY0268 |
+
+The complete executable example, with queries and specifications, is in read-surface
+`references/named-keys.md`.
 
 ## Worked examples
 

@@ -219,6 +219,6 @@ empty-list intent is a separate claim from a keyed row being absent (`view-and-s
 queries are executable too (`ListOpenInvoices` in the backing example); caller-supplied equality filters on collections bind as ESM v14.
 Pass `by` and filters in query arguments; PLAY0468 reports unknown, repeated or
 missing required arguments. Optional filters may be omitted, supplied null is refused.
-Context-sourced/single-result filters, opaque `scoped to`/`performer`, and composite
-`by` remain PLAY0268. Compiled coverage and renderer ceilings:
+Context-sourced/single-result filters, opaque `scoped to`/`performer`, and a list-query
+`by` block remain PLAY0268. Compiled coverage and renderer ceilings:
 read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
