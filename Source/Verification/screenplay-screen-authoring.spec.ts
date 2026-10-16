@@ -245,7 +245,7 @@ test('the screens skills route authoring, MCP editing and rendering requests to 
 
 test('the screens smoke replays the pinned public vector from the published corpus and runs in CI', () => {
     const smokeDirectory = join(repositoryRoot, 'Source', 'Verification', 'screens-smoke');
-    const pins = JSON.parse(readFileSync(join(smokeDirectory, 'screens-smoke.json'), 'utf8')) as { cli: string; corpusPackage: string; editedColumn: string; playwright: string };
+    const pins = JSON.parse(readFileSync(join(smokeDirectory, 'screens-smoke.json'), 'utf8')) as { cli: string; corpusPackage: string; editedColumn: string; playwright: string; shellCli: string };
     const script = readFileSync(join(smokeDirectory, 'screens-smoke.sh'), 'utf8');
     const workflow = readFileSync(join(repositoryRoot, '.github', 'workflows', 'publish.yml'), 'utf8');
     const authoring = readFileSync(join(corpus, 'skills', 'cratis-screenplay-model-authoring', 'references', 'screen-authoring-workflow.md'), 'utf8');
@@ -258,6 +258,12 @@ test('the screens smoke replays the pinned public vector from the published corp
         assert.ok(script.includes(required), `the smoke script is missing ${required}`);
     }
     assert.ok(workflow.includes('screens-smoke/screens-smoke.sh'), 'the verify job must run the screens smoke');
+    assert.match(pins.shellCli, /^\d+\.\d+\.\d+$/);
+    const shellRow = screensVector().split('\n').find(line => line.startsWith('| Shell CLI |'));
+    assert.ok(shellRow?.includes(`CLI ${pins.shellCli}`), `the smoke renders the application shell with CLI ${pins.shellCli}, which is not the Shell CLI row in Documentation/compatibility.md`);
+    for (const required of ['shell/application.play', 'PlaceOrder', 'Sample customer that must never ship']) {
+        assert.ok(script.includes(required) || readFileSync(join(smokeDirectory, 'shell', 'application.play'), 'utf8').includes(required), `the shell step of the smoke is missing ${required}`);
+    }
     assert.match(pins.playwright, /^\d+\.\d+\.\d+$/);
     assert.ok(workflow.includes("SCREENS_SMOKE_BROWSER: '1'"), 'the verify job must run the browser step of the screens smoke');
     for (const required of ['SCREENS_SMOKE_BROWSER', 'screenplay-edited-app-browser.ts', 'playwright@']) {
