@@ -59,7 +59,7 @@
         "Distinguishes server-generated identifiers from domain-authoritative business-number allocation.",
         "Explains that GeneratedValue does not guarantee storage freshness, idempotency or gapless numbering.",
         "Locates concurrency and failure/recovery guarantees in the authoritative allocation boundary rather than inventing a released Arc generation strategy.",
-        "Distinguishes advisory plain injection/Result from IStreamReads/StreamDecision.Append exact scopes and proves a nonempty routed conflict with UseDecisionReads, actual events and AppendConcurrently, not pinned state or an empty identical retry."
+        "Distinguishes advisory plain injection/Result under Off from IStreamReads/StreamDecision.Append exact scopes and proves a nonempty routed conflict with actual seeded events and AppendConcurrently on a plain CommandScenario (no UseDecisionReads), not pinned state or an empty identical retry."
       ]
     }
   ]

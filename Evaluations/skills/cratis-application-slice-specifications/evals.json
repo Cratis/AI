@@ -41,12 +41,24 @@
       "id": 4,
       "name": "seed-prior-state",
       "prompt": "A command's `Handle()` rejects when an injected read model shows the cart already has 3 items. Our spec for the rejection is green but the read model was never seeded. How should we seed state and what is the danger? Reply only; do not write files.",
-      "expected_output": "Seed events with `_scenario.Given.ForEventSource(id).Events(...)` so the real projection builds the read model; pin a read model with `.ReadModel(instance)` only when events would be noise. Unseeded, the handler sees a default or null instance and the DCB rejection is green for the wrong reason; confirm the spec fails when seeding is removed. For protected or stream decisions call `UseDecisionReads()` before seeding. `Given` requires `Cratis.Arc.Chronicle.Testing`.",
+      "expected_output": "Seed events with `_scenario.Given.ForEventSource(id).Events(...)` so the real projection builds the read model; pin a read model with `.ReadModel(instance)` only when events would be noise. Unseeded, the handler sees a default or null instance and the DCB rejection is green for the wrong reason; confirm the spec fails when seeding is removed. A guarded command selects the in-process decision mode itself; do not call `UseDecisionReads()`. `Given` requires `Cratis.Arc.Chronicle.Testing`.",
       "assertions": [
         "Prefers seeding events with `Given.ForEventSource(id).Events(...)` so the production projection builds the read model.",
         "Says pinning a read model with `.ReadModel(...)` is only for when events would be noise.",
         "Warns that without seeding the handler sees a default or null instance and the spec is green for the wrong reason, so confirm it fails without the seeding.",
-        "Says for protected or stream decisions `UseDecisionReads()` is called before seeding, and that `Given` needs `Cratis.Arc.Chronicle.Testing`."
+        "Says a guarded command (read protection On, a per-stream model or [ProtectedDecision]) selects the decision mode itself so UseDecisionReads() is not called, and that `Given` needs `Cratis.Arc.Chronicle.Testing`."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "test-the-race",
+      "prompt": "Write the specification that proves two members cannot both borrow the last copy of a book under Arc read protection On. Reply only; do not write files.",
+      "expected_output": "new CommandScenario<BorrowBook>(), seed BookAdded with Given.ForEventSource(isbn).Events, AppendConcurrently(isbn, BookBorrowed), Execute, assert ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation).",
+      "assertions": [
+        "Uses new CommandScenario<BorrowBook>() without calling UseDecisionReads().",
+        "Seeds real events with Given.ForEventSource(id).Events(...), not a pinned read model, and queues a competing event with scenario.AppendConcurrently(id, ...).",
+        "Asserts result.ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation).",
+        "Does not use scenario.AppendConditions, which does not exist; a Chronicle-direct test uses unitOfWork.GetAppendConditions()."
       ]
     }
   ]

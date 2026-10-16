@@ -17,11 +17,11 @@
       "id": 2,
       "name": "refused-hierarchy-and-stream-scope",
       "prompt": "Our OrderSummary has children. Admit reports Hierarchy. Can we silently read the materialized sink instead? Also explain requirements for a stream-keyed projection decision on one monthly stream at Chronicle 19.50.0.",
-      "expected_output": "Refusal blocks protected use, redesign only with authority, stream-specific overload with admitted projection and one concrete stream type/id, not reducer or All.",
+      "expected_output": "Refusal blocks protected use, redesign only with authority, stream-specific overload with admitted projection and one concrete stream type/id, one concrete stream type/id, not All, no reducer in a stream-scoped read.",
       "assertions": [
         "Explains Hierarchy refuses children/nested projections and does not fall back to an unguarded sink read.",
         "Uses AdmitForStream and stream-scoped Get/GetDetached with event source id, stream type and stream id rather than inventing Arc API.",
-        "Requires projections only (not reducers or self-reducing models), one stream type not All, an Id property, and an explicit stream id for stream-keyed models.",
+        "Requires an admitted projection (or an unfiltered reducer without constructor dependencies for a whole-source read; a reducer is not admitted in a stream-scoped read), one stream type not All, an Id property, and an explicit stream id for stream-keyed models.",
         "Separates no-I/O shape admission from runtime definition, key and fold checks."
       ]
     },
@@ -51,14 +51,15 @@
     },
     {
       "id": 5,
-      "name": "route-uniqueness-hint-and-hot-key",
-      "prompt": "We need (a) unique usernames, (b) a 'seats left' badge on the course page and (c) a decision on a key with 200,000 events that is written constantly. Which mechanism does each use, and where would a decision read be the wrong tool?",
-      "expected_output": "Constraint for (a), plain read for (b), decision read not as the default for (c) because of full-fold cost, with alternatives.",
+      "name": "route-rule-shapes",
+      "prompt": "In an Arc application with read protection On, choose the mechanism for each: (a) usernames must be unique, (b) at most 5000 may be withdrawn per bank account per month where each month is a stream of the account, (c) an order with many rules over add lines, pay, ship and cancel, (d) a 'seats left' badge on the course page. Say what you would not use for each.",
+      "expected_output": "(a) constraint; (b) per-stream read model on a routed command; (c) aggregate root; (d) plain query read.",
       "assertions": [
-        "Routes uniqueness to a Chronicle constraint that binds every writer and states a decision read guards one key's history, not a value across keys.",
-        "Routes the badge to a plain read (advisory, may lag) and says it is not enforcement.",
-        "Explains a decision read refolds the key's whole history on every read, costs several calls per attempt and is not retried, so a hot long-history key needs shorter histories or accepting an advisory read with reactor repair.",
-        "Names what no guard covers: external state, revise/redact and other event sequences."
+        "Routes (a) to a Chronicle constraint (a [Unique] property) that binds every writer, and says a read model or decision read guards one key's history, not a value across keys.",
+        "Routes (b) to a per-stream read model ([ReadModel, EventStream<TSource>(\"Transactions\")]) on a command routed with [EventSource<TSource>(\"Transactions\")] and [EventStreamId(\"{Month}\")], naming ReadModelStreamNotOnCommandRoute when the route is missing; a stream decision or whole-source model is the alternative.",
+        "Routes (c) to an aggregate root that returns Commit() last, and says an aggregate plus a protected read of the same source is refused (ReadAndAggregateOnSameSource).",
+        "Routes (d) to a plain read as a hint, not enforcement; does not guard it.",
+        "Does not present a validator over a plain read under Off, Result<,> or concurrency: true as the guard."
       ]
     }
   ]
