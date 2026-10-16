@@ -99,7 +99,7 @@ module Berths
           boatLength    = 31
         then error "Guest berths take boats up to 24 metres"
 
-      // Declarative past-date rule; binding is blocked for date comparisons (see header).
+      // Declarative past-date rule; binding is blocked for the `today` operand (see header).
       specification RejectingANightInThePast
         given caller
           authenticated
