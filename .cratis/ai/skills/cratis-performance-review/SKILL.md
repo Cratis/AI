@@ -63,8 +63,11 @@ behavior this file does not already state.
 
 - Queries filter on indexed fields. An unintentional full-collection scan is the
   most common finding here.
-- **A list that can grow returns `IQueryable<T>`**, so Arc applies server-side
-  paging and sorting. Materializing and then slicing in memory reads the whole
+- **A list that can grow returns a shape Arc pages** — `IQueryable<T>` for a
+  LINQ-native provider, `collection.Observe(...)` for MongoDB — so Arc applies
+  server-side paging and sorting. A query that writes its own `Skip`/`Take` or
+  `OrderBy` for the client's page or sort is a finding, as is MongoDB
+  `AsQueryable()` (translation failures at request time). Materializing and then slicing in memory reads the whole
   collection every request.
 - No N+1: one query returns what the caller needs.
 - A count is a count. Hydrating the collection to measure its length is the

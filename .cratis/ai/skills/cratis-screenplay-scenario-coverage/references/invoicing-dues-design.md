@@ -102,6 +102,7 @@ module Invoicing
         reason  String
 
     slice Automation RecordPaymentOutcome
+      description "Gives PaymentReceived its producer: the translator reacts to the provider's external fact"
       reaction ReceivedTranslator
         when PaymentGatewayResultReceived
           outcome

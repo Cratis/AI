@@ -64,7 +64,7 @@ module Exams
         then denied
 
     slice Translate ImportProctorResults
-      description "Per external field: reference -> correlation key (our attempt id, echoed); outcome -> translated to our enum; score -> kept; examinerNote -> ignored (free text, may hold personal data, no consumer). Repeated delivery: this example compares outcome only. An unchanged outcome appends nothing, even if the score changed, so it does not implement score corrections. OneResultPerAttempt refuses a second local result. Changed outcomes and score-only corrections need an explicit correction policy (open decision, recorded in STATE.md, not an overwrite) before this is a complete integration."
+      description "Per external field: reference -> correlation key (our attempt id, echoed); outcome -> translated to our enum; score -> kept; examinerNote -> ignored (free text, may hold personal data, no consumer). Repeated delivery: the first record of a key appends once (`when added`, Chronicle's first-observation rule); a later delivery of the same key appends nothing, even if the outcome or score changed, so it does not implement corrections. OneResultPerAttempt refuses a second local result. Changed outcomes and score-only corrections need an explicit correction policy (open decision, recorded in STATE.md, not an overwrite) before this is a complete integration."
       capture ProctorResults
         source webhook
           path /webhooks/proctoring/results

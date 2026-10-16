@@ -11,6 +11,7 @@
 - 3. Review and apply with revision checks
 - 4. Validate authoring and executable readiness
 - 5. Run/render using the same configuration
+- Edit the application shell
 - 6. Use Screenplay-owned fixtures
 - Replay the workflow in CI without a Screenplay checkout
 - Edit, render, run and see it in the browser
@@ -147,6 +148,30 @@ screen, template, component, form, toolbar, outlet, route and package/icon use i
 represented in the generated plan or runtime diagnostics. A consumer that cannot
 implement one reports a blocking diagnostic. Silent fallback to the default screen
 composition is a failure.
+
+## Edit the application shell
+
+Navigation regions, toolbar buttons, blueprint template references and sample data are typed nodes and follow the same
+open, read, propose, review, apply, reopen loop; the syntax and rules are in
+`cratis-screenplay-ui-composition` (`references/application-shell.md`). The vectors to replay against are the
+`screen-shell-navigation-positive` source case and its rejection vectors in `Cratis.Screenplay.CanonicalCorpus`.
+
+1. `read-ast` with `kind` `NavigationRegionSyntax`, `NavigationItemSyntax`, `ToolbarButtonSyntax`,
+   `TemplateAssignmentSyntax`, `ScreenTemplateReferenceSyntax` or `SampleDataPackSyntax`, `includeContent: true`.
+   Select the occurrence by its parent: a region belongs to the `LayoutSyntax` or a `ModuleSyntax`, and the same item id
+   can appear in several regions.
+2. `propose-ast` with `replace` (copy the returned node, change `mode`, `items`, `slice`, `version` or a row value),
+   `add` to a member the node kind declares (`navigation`, `items`, `children`, `buttons`) or `remove`. A member that
+   holds nothing is not in the node JSON; `add` still accepts it.
+3. Read the proposal's diagnostics before applying. A refusal such as `PLAY0750` (a module item targeting another
+   module), `PLAY0762` (a button on a State View slice), `PLAY0722` (a blueprint no profile lists) or `PLAY0714` (an
+   unknown active pack) is the answer; change the proposal, not the rule.
+4. `apply` with both revisions. A `StaleRevision` means the model moved: reopen, re-read the nodes and propose again.
+5. Switching a module from inherit to override copies the application's items; retarget each copy to the module's own
+   features first or the proposal is refused.
+
+Requires Screenplay 4.188.0 or later (`screenplay --version`) to `add` the first region, button or sub-item to a member
+the node JSON omits while empty; an older MCP server answers "Unknown typed syntax member".
 
 ## 6. Use Screenplay-owned fixtures
 

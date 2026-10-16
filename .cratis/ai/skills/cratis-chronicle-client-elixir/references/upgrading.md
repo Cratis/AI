@@ -32,3 +32,21 @@ Rejected appends (including concurrency/constraint failures) return `{:error, re
 Declared `unique(..., message: ...)` violation messages are preserved on single, batch and transactional appends. Retain the constraint name and diagnostics when handling violations rather than assuming every message came from the kernel.
 
 Requires `cratis_chronicle` 3.10.0 and Chronicle kernel 19.30.0 for named event source definitions.
+
+## Behavior changes to review when raising the requirement
+
+Requires `cratis_chronicle` 3.13.0 for the behaviors below; each is a difference an older application can observe.
+
+| Behavior | Review |
+| --- | --- |
+| Reactor and reducer `context` is a `Chronicle.Events.EventContext` struct | Pattern matches on a bare map keep working; `correlation_id`, `caused_by`, `causation`, `tags`, `subject`, `appended_generation` and `replaying?` are now present |
+| `drift_policy` defaults to `:warn` | Start-up makes extra kernel calls and logs findings; set `:ignore` to skip them, `:fail` to block on a drift warning |
+| Discovery warns once per module for a reactor, reducer or projection with no pinned `:id` | Pin ids before renaming or moving modules; see [discovery-and-generations.md](discovery-and-generations.md) |
+| Appending a struct that is not an event type returns `{:error, {:unknown_event_type, module}}` | Handle it as an ordinary append error |
+| Spans and `:telemetry` events are always emitted | No action without an SDK; see [observability.md](observability.md) |
+| The client installs a Logger filter for Mint response crash reports | Keep your own production filter for the remaining crash shapes |
+| `children/2,3` and projection mistakes are rejected at compile time | Fix declarations that assigned one target twice or named a missing field |
+
+Requires `cratis_chronicle` 3.11.0 for the context struct; it was a bare map before.
+
+Capabilities covered by these references: decision reads ([decision-reads.md](decision-reads.md)), `Chronicle.Testing` ([testing.md](testing.md)), captures ([captures.md](captures.md)), standalone constraints ([constraints.md](constraints.md)), `Chronicle.Patterns` ([patterns.md](patterns.md)) and read model subscriptions ([read-models.md](read-models.md)). A git tag is not a Hex release: confirm the version is on hex.pm before depending on it.
