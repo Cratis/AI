@@ -62,6 +62,16 @@ The scaffold's Scene runtime provides:
   imports and network assets; an explicit importer map is not arbitrary module
   loading. Diagnostics block mismatched or unavailable bundles.
 
+Requires Stage 4.130.0 for Stage shell selection from `ui profile` root template,
+options and appearance; older hosts do not apply that complete shell contract.
+The Host and render plan use Scene's shell resolution: root, legacy layout,
+default blueprint layout, then bare shell. Unknown/unavailable/version-mismatched
+roots and roots lacking a `content` outlet produce planning findings or an explicit
+Host startup message, never silent fallback. Shell options such as `navigationMode`,
+`menuTheme` and `showFooter` are applied or reported unsupported. Light/dark/system
+color scheme and accent reach the shell; runtime Scene carries root, appearance
+and defaults but no sample data. Browser evidence is still needed for UI parity.
+
 Keep authoring acceptance, executable admission and runtime behavior separate.
 Require Stage's plan/diagnostics for emission and a browser run for UI parity;
 source verification alone proves neither. For authoring details read

@@ -5,6 +5,7 @@
 - Choosing a strategy
 - When not to
 - The concept declares how; the property declares that
+- Generation context binding
 - Inspect and edit generation through MCP
 - Generated-concept rules (ESM v20)
 - Version and freshness
@@ -93,6 +94,35 @@ for arithmetic validation of supplied/stored values and fixtures; generation alo
 checks only suffix shape on fixtures. `generate sequence` stays reserved (PLAY0682),
 and compliance markers on generated concepts, including secrets, remain refused.
 Never remove classification to make a model bind.
+
+## Generation context binding
+
+Requires Screenplay 4.181.1 or later (`screenplay --version`) for per-target context
+binding and tenant value formatting; older context documentation does not establish
+that binding. The version-1 ValueGeneration descriptor is language-neutral: `Now`
+(an instant), portable `TenantId` `Tenant`, and a String result. The selected provider,
+not a `csharp` fence or file attachment, chooses the native context type.
+
+The Cratis C# target (Arc and Stage's Cratis target contract) binds it to Fundamentals'
+`Cratis.Concepts.GenerationContext` (`DateTimeOffset Now`, `string Tenant`). BCL-only
+hosts can use `Cratis.Screenplay.Contexts.GenerationContext` (`Now`, `TenantId Tenant`);
+that package stays BCL-only. The types are name-compatible, not type-identical.
+
+For portable C# bodies, use `context.Now`, BCL operations and the tenant as text:
+`$"{context.Tenant}:{context.Now:yyyyMMdd}"`. `TenantId` formats as its value;
+compare that formatted string ordinally when a tenant comparison is needed.
+Passing `context` to `GenerateValue.*`, naming `GenerationContext` or
+`GenerationContext.DefaultTenant`, constructing a context, or reading
+`context.Tenant.Value` is target-bound.
+
+For example, `generate rule TenantReceiptNew` can own the inline `csharp` body
+`return $"{context.Tenant}:{GenerateValue.Ulid(context)}";` on the Cratis C# binding.
+Do not insert a bridge to Screenplay's record or promise another provider accepts it.
+Arc can recover such self-contained compound bodies under the adapter gate in
+[generated recovery](../../cratis-screenplay-legacy-extraction/references/generated-recovery.md).
+Recovery does not run the body; reference execution consumes a String pin, opaque
+entropy cannot supply an identifier, and Stage rendering still refuses `generate rule`
+with STAGE-ESM-028. A target binding contract is not released renderer support.
 
 ## Inspect and edit generation through MCP
 

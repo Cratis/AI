@@ -105,9 +105,19 @@ explicit `apply`. The repair inserts into the domain document or sole document,
 refuses ambiguous roots and requires individual review, never fix-all. It changes
 absence/conflict behavior, not merely formatting.
 
-Stage admits ESM v25 but refuses protected reads with STAGE-ESM-044 in rendering,
-Host serving and specification execution; a reference pass is not Stage or Arc
-realization. Preserve the model's protection and deliver authorized hand-written
-consistency enforcement through the render-and-gap-fill workflow. Never remove
-the preamble to get a render. `screenplay <root> --warnaserror` must exit zero;
+Stage admits ESM v25, but the Cratis C# renderer refuses protected reads with
+STAGE-ESM-044: no artifacts are emitted. Preserve protection and deliver authorized
+hand-written enforcement through render-and-gap-fill; never remove the preamble.
+
+Requires Stage 4.129.0 for semantic Host/specification-executor protected reads;
+older engines refuse STAGE-ESM-044. They require presence before requirements or
+generation and use stored read properties in requirements and produced mappings,
+including reaction-invoked commands. Any non-Error requirement on a protected
+command refuses STAGE-ESM-045 before execution, even when a rejection is expected.
+Legacy Host and structural runner still refuse the preamble with STAGE-ESM-044.
+The semantic Host faults on any outside append, even an unrelated one, before
+committing an accepted command: stricter than dependency-scoped reference conflicts,
+not proof of full conflict parity. Read Stage's [sandbox boundaries](../../cratis-stage-rendering-and-sandbox/references/sandbox-and-specrunner.md#protected-command-reads).
+A semantic-engine pass is separate from reference behavior and from generated Arc
+protection. `screenplay <root> --warnaserror` must exit zero;
 `screenplay test <root>` separately establishes reference behavior, not target support.

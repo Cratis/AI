@@ -35,8 +35,9 @@ Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it b
 ## Language modes that block target delivery
 
 Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
-for v22–v25: Stage refuses atomic batches, described bodies (even Stub mode) and
-protected reads. Preserve contracts; reference success is not target realization.
+for v22–v25: Stage rendering refuses atomic batches, described bodies (even Stub mode)
+and protected reads. Semantic Host/executor support is not generated-app protection.
+Preserve contracts; reference success is not target realization.
 
 ## Interview phase
 **Skip if** the request names the model root, the application name, the destination and the
