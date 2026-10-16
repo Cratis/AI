@@ -8,7 +8,7 @@ Requires Screenplay 4.170.0 or later (`screenplay --version`) for PLAY0690; an o
 
 A warning (it fails `--warnaserror`) in two cases:
 
-- A reducer-backed query returns one instance `by` a scalar whose nominal type differs from the identity type of every event the reducer observes, for example `by month Month` while the events live on `ResourceId` streams.
+- A reducer-backed query returns one instance `by` a scalar whose nominal type differs from the identity type of an observed event whose producers are all known, for example `by month Month` while the events live on `ResourceId` streams.
 - The producers of one reducer's events use several different nominal identity types, so no single identity can key the instances. One reducer warning replaces the repeated query warnings.
 
 This example reports PLAY0690 on `ByMonth`: the instances follow `ResourceId`, not `Month`.

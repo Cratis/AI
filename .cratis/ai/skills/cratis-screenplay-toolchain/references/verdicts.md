@@ -53,7 +53,8 @@ render, V1 and V5 from the CLIs. Read installed versions with `screenplay --vers
   warnings are the defects this verdict exists to catch.
 - Syntax and consistency checks (PLAY0282 to PLAY0294) run; binding does not.
 - A `screenplay.json` at the model root supplies checks, warnings-as-errors, scope and open-questions
-  mode to both commands above, so they may carry no flags. Read the effective gate before
+  mode to both commands above, so they need not repeat those flags; drop `--warnaserror` only when
+  `--print-gate` shows `warningsAsErrors: true`. Read the effective gate before
   reporting (next section).
 - Report: `V1 pass (screenplay <version>, 3 files)`, `V1 fail: PLAY0029 in a.play, line 12`.
 
@@ -90,7 +91,7 @@ beside the tool-owned `.screenplay/`. Prefer it to repeating `--check`, `--warna
 
 | Need | Standalone | `cratis screenplay validate` |
 | --- | --- | --- |
-| Effective gate and the source of each value, no compile (exit 0) | `screenplay <root> --print-gate` (text) | `--print-gate` (JSON by default) |
+| Effective gate and the source of each value, no compile (exit 0 unless the file is refused) | `screenplay <root> --print-gate` (text) | `--print-gate` (text, or the gate object under `-o json`) |
 | Machine-readable verdict | `--format json`: one document with `diagnostics`, `openQuestions`, `refusal`, `exitCode`, `gate` | `-o json-compact`: the summary carries `gate` |
 | Ignore the file | `--no-gate-file` | `--no-gate-file` |
 
@@ -240,7 +241,7 @@ What Stage admits: `renderable-subset.md`.
 | Layer | Route | Result |
 | --- | --- | --- |
 | Source validation | `screenplay <root> --warnaserror --no-color` | 0 clean; 1 reported defects; 2 could not run or invalid arguments or input, including a refused `screenplay.json`. `--scope` limits the reported set, not compilation |
-| Declared gate | `screenplay <root> --print-gate`; `--format json`; `--no-gate-file` | Reads `screenplay.json`; `--print-gate` exits 0 without compiling; a gate-promoted warning or an open question in `fail` mode exits 1 |
+| Declared gate | `screenplay <root> --print-gate`; `--format json`; `--no-gate-file` | Reads `screenplay.json`; `--print-gate` exits 0 without compiling unless the file is refused; a gate-promoted warning or an open question in `fail` mode exits 1 |
 | Completeness | add `--check <name>[,<name>]` (repeatable) or `--check all` | Opt-in warnings; whole-source errors skip checks, not pass them |
 | CLI source validation | `cratis screenplay validate <root> --warnings-as-errors -o json-compact` | Read the producer exit and the JSON errors, warnings and file count; 5 validation error (including gate-promoted warnings), 1 invalid input (including a refused `screenplay.json`) |
 | Binding | MCP workspace readiness and `executable-diagnostics` | V2 reads diagnostics; V3 requires binding with no blocking diagnostics |

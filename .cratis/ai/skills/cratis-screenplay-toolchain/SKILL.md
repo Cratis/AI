@@ -40,7 +40,8 @@ superseded statement needs context; exceptions do not change the contract.
    `cratis screenplay validate <folder> --warnings-as-errors`. Warnings hide defects:
    PLAY0029 (a misspelt keyword or a `type` inside a slice) drops a construct silently.
    A committed `screenplay.json` at the model root declares the repository's gate (checks, warnings
-   as errors, scope, open questions): run without repeating those flags, read it with
+   as errors, scope, open questions): run without repeating those flags (confirm with
+   `--print-gate` before dropping `--warnaserror`), read it with
    `--print-gate`, and treat a refused file as "could not run" (`references/verdicts.md`).
 3. **Pick the compiler deliberately and name it.** Standalone `screenplay` for
    language checks and reference specifications; `cratis` for rendering
