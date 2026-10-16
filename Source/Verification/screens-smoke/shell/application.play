@@ -30,7 +30,7 @@ layout AppShell
 ui profile Desktop
   target platform web
   target size expanded
-  root template AppShell
+  layout AppShell
   packages
     core
     Cratis.Components
