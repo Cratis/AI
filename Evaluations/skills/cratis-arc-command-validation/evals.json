@@ -10,7 +10,8 @@
         "Sets read protection On (MSBuild <CratisReadProtection>On</CratisReadProtection> or an assembly/command ReadProtection attribute) and keeps the state rule in the CommandValidator with the read model as a constructor parameter, Handle() returning the event.",
         "Says the validator over a plain read under Off (the default when nothing is set) or Measure is a hint that guards nothing, as the negative case.",
         "Says the lost race is a 400 validation result with reason concurrencyViolation and detail ReadChanged, that nothing was written, and that Arc and Chronicle do not re-run the command.",
-        "Does not add [ProtectedDecision] or DecisionRead<T> as the default fix, and does not call On redundant with them where they exist."
+        "Does not add [ProtectedDecision] or DecisionRead<T> as the default fix, and does not call On redundant with them where they exist.",
+        "Says a caller sending X-Allowed-Severity: 3 (Error) can remove validator Error results under Off and Measure unless the command declares [BlockOnValidationSeverity(ValidationResultSeverity.Error)], and that from Arc 22.108.0 a command declared On gets an Error floor (Error and Unknown always block; lowering ReadProtection:MaximumMode does not remove it; an explicit attribute wins)."
       ]
     },
     {

@@ -130,6 +130,16 @@ public class TransferFundsValidator : CommandValidator<TransferFunds>
   instance validators are refused. Under `[ProtectedDecision]` without `On`, a
   discoverable validator needs exactly one public parameterless constructor
   (otherwise HTTP 500).
+- **The caller can lower the severity threshold.** Model-bound commands accept
+  `X-Allowed-Severity` (`allowedSeverity`). Under `Off` and `Measure`, a caller
+  sending `3` (Error) removes validator, `Provide()` and `Handle()` Error results,
+  so a state rule can be skipped unless the command declares
+  `[BlockOnValidationSeverity(ValidationResultSeverity.Error)]`
+  (`Cratis.Arc.Commands.ModelBound`). Requires Arc 22.108.0 for the `On` floor: a
+  command declared `On` blocks `Error` and `Unknown` whatever the caller sends; the
+  caller can relax only `Warning` and `Information`. Lowering
+  `ReadProtection:MaximumMode` at runtime does not remove the floor, and an explicit
+  attribute wins. Severity is not authorization.
 - **Omit the validator entirely when there are no rules.** An empty subclass is
   noise the reader has to check.
 - Single-property intrinsic rules belong on `ConceptValidator<T>` instead, so

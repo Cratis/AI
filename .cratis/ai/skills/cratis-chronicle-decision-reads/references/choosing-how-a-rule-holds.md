@@ -142,6 +142,16 @@ Under `On`:
   validators are refused.
 - Under `[ProtectedDecision]` without `On`, only a parameterless validator runs.
 
+Caller severity: model-bound commands accept `X-Allowed-Severity` (`allowedSeverity`).
+Under `Off` and `Measure` a caller sending `Error` removes validator, `Provide()` and
+`Handle()` Error results unless the command declares
+`[BlockOnValidationSeverity(ValidationResultSeverity.Error)]`. Requires Arc 22.108.0:
+a command declared `On` gets an `Error` floor (`Error` and `Unknown` always block; the
+caller can relax only `Warning` and `Information`). Lowering
+`ReadProtection:MaximumMode` at runtime does not remove it, and an explicit attribute
+wins. Before that version a validator's state rule can be skipped by the caller even
+under `On`.
+
 ## Constraints
 
 A constraint binds every writer, whichever client or service appends, per namespace
