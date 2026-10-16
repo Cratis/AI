@@ -23,6 +23,16 @@ modifier generates check digits but does not add validation. Check digits catch
 typos, not forgery. For generated-concept proof statuses, deterministic regex
 limits and PLAY0688 repairs, read [generated rules](generated-values-and-responses.md#generated-concept-rules-esm-v20).
 
+## Date and DateTime comparisons
+
+Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`); older binders refuse
+with PLAY0268. Command/property rules admit `==`, `!=`, `>`, `>=`, `<`, `<=` against
+a same-primitive date literal only, for example `to >= "2026-01-01T00:00:00Z"` on
+DateTime. Property-to-property comparisons instead use `require to >= from`.
+Date rules on concepts remain refused; an absent optional value passes rules
+except `not empty`. Read [date comparisons](date-comparisons.md) for UTC ticks,
+input offsets, refused positions and the complete retention-window specifications.
+
 ## `not empty` means non-blank text
 
 On text, `not empty` rejects null, empty text and whitespace-only text; at least
@@ -75,5 +85,5 @@ implementation. Attached command handlers and `file` constraints remain PLAY0268
 Literal text rules, portable patterns and Studio desugaring: [text and match rules](text-and-match-rules.md).
 Stage renders pure reducer transitions and opaque policy bodies, but refuses command and
 concept code validations and rule predicates (STAGE-ESM-005): those are gap-fill code. Prefer a
-declarative rule when one can say it. What binds and what the executable model rejects (Date and
-DateTime comparisons, nested-path rules): `cratis-screenplay-toolchain` `references/executable-subset.md`.
+declarative rule when one can say it. What binds and what the executable model rejects
+(date comparisons outside command positions, nested-path rules): `cratis-screenplay-toolchain` `references/executable-subset.md`.

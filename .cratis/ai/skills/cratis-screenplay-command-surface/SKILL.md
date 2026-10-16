@@ -177,11 +177,18 @@ optional `severity`, sharing the condition grammar with `produces … when`:
 `and` binds tighter than `or`, parentheses group. A conditional rule is an
 implication: `require isExtension == false or newEndDate > endDate`.
 
+Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`) for Date/DateTime
+comparisons; older binders report PLAY0268. Read [date comparisons](references/date-comparisons.md)
+when ordering a retention window with `require to >= from`, comparing instants
+across offsets, or rejecting offset-less inputs before rules. It covers admitted
+positions, PLAY0268/0273, ordinal `then` matching and Stage's v26 refusal.
+
 **Rules whose logic is code.** A bare `rule <Name>` has no portable meaning (`PLAY0268`) and a bodied rule binds only as
 opaque code. Read [references/validate-rules.md](references/validate-rules.md) when a rule's logic must live in a `file`
 or fenced code body.
 
-**Put format rules on the `concept`, not the command.** A concept carries its own
+**Put format rules on the `concept`, not the command** (except date comparisons,
+which bind only on command properties, not as concept rules). A concept carries its own
 `validate` block and every use inherits it — that is Screenplay's type system, and
 a rule that travels is worth more than one that is repeated.
 
@@ -281,7 +288,9 @@ Four contexts, and **what each omits is load-bearing** — when writing a code b
       bundle compatibility and execution are separate checks.
 - [ ] No unintended `PLAY0478` or `PLAY0479` information remains.
 - [ ] At most one command property carries `identifier`, and no event property does.
-- [ ] Format rules live on the `concept`; state-dependent rules are specifications.
+- [ ] Format rules live on the `concept` except command-only date comparisons;
+      state-dependent rules are specifications. DateTime comparisons preserve UTC
+      ticks; specs include missing-offset Validation rejection.
 - [ ] Every `authorize` combining policies writes `and`/`or` explicitly.
 - [ ] Protected reads opt in, meet admission and distinguish reference protection
       from target realization; legacy reads and `concurrency` imply no protection.

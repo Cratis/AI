@@ -32,7 +32,10 @@ Requires Stage 4.124.0 for v24 text-rule admission (`cratis --version` identifie
 Requires Stage 4.127.0 for v25 version admission; older renderers refuse v25 with STAGE-ESM-016. Protected reads still refuse STAGE-ESM-044.
 Described handlers refuse STAGE-IMPL-002, even Stub mode; atomic mode in an
 admitted pair refuses STAGE-ESM-043. Version admission never implements a body,
-batch or protected decision.
+batch or protected decision. Chronological Date/DateTime command comparisons
+select v26 in Screenplay but still refuse STAGE-ESM-016 here; standalone reference
+success is not rendering or Host/executor admission. Keep the date rule and use
+authorized gap-fill rather than downgrading to ordinal text or millisecond precision.
 
 Binding with the CLI's bundled compiler is a separate
 prerequisite. The exhaustive construct table is `references/renderable-subset.md` in

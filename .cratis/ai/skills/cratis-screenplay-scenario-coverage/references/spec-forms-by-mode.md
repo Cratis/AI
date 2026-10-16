@@ -34,7 +34,8 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Refusal branches, `$refusal` | yes | ESM v19; first matching branch wins | Stage supported subset; -039 for unfaithful refusal details/trigger groups, -011 for specification limits |
 | Query `then error` | yes | ESM v18; one query/one error, no result/denial | requires target v18 admission; a v19-capable renderer does not necessarily admit v18 |
 | Composite (JSON) values in specs | yes | yes | no |
-| Rules over dates or `today`, nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
+| Same-primitive `Date`/`DateTime` comparisons in `require`, `produces when` and command or property validation rules (v26; Requires Screenplay 4.199.0; see [date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)) | spec them | binds and executes; a `DateTime` input without an offset is a Validation rejection | v26 STAGE-ESM-016: gap-fill |
+| Date rules using `today`, `$context`, mixed `Date`/`DateTime`, concept or reaction-`where` positions; nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
 | Pending described command handlers (v23) | specify intent | binds; denial/validation execute, body-reaching specs Unsupported ImplementationBody; all-Unsupported is not green | STAGE-IMPL-002 even Stub mode |
 | Attached command handlers, `file` constraints, query `performer`s | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |

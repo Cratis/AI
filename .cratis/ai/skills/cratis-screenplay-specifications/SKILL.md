@@ -81,6 +81,21 @@ or target tests; name engine, version and expected/discovered selection.
   [text and match rules](../cratis-screenplay-command-surface/references/text-and-match-rules.md)
   for boundary values and PLAY0699/0787. Reference success is not Stage admission.
 
+## Chronological command date comparisons
+
+Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`); older binders refuse
+these comparisons with PLAY0268. DateTime conditions compare UTC instants at tick
+precision: cover equal instants with different offsets, increasing endpoints,
+an inverted interval and a one-tick boundary. Every participating DateTime input
+without an offset or `Z` rejects with Validation before rules, even when its
+comparison is skipped; add a missing-offset rejection, not a clock fixture workaround.
+`then` matching stays ordinal: expected event values keep the exact produced text,
+not an equivalent offset. Read the complete [retention-window specifications](../cratis-screenplay-command-surface/references/date-comparisons.md)
+for `require to >= from`, PLAY0268/0273 and Stage's v26 refusal. The missing-offset
+runtime case needs an evaluator-request or target input test: putting the invalid
+value in a typed `.play` fixture instead fails binding with PLAY0273; `then error`
+does not exercise runtime validation.
+
 ## Descriptions, persona callers and case tables
 
 Use one `description "<rule or behavior>"` (or a fenced `text` description) to
@@ -196,6 +211,9 @@ Whitespace-acceptance specs fail. This applies to every ESM version.
 
 Requires Screenplay 4.151.0 or later (`screenplay --version`) for the Unicode `not empty` correction.
 
+Date/DateTime comparisons are the command-only exception: do not move them onto
+concept rules to follow the general format-rule convention.
+
 ## Application-boundary coverage
 
 Every slice should carry at least one specification whose action is what a real
@@ -223,6 +241,8 @@ For command specifications:
 - [ ] Error cases test business rules; each concept rule has one rejection
       specification through one command, not one per use.
 - [ ] A localized rejection is pinned by its quoted `$strings` key.
+- [ ] DateTime comparisons cover offset-less input rejection before rules, equal
+      instants across offsets and tick boundaries; `then` keeps ordinal payload values.
 
 For view specifications:
 
