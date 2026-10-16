@@ -244,7 +244,7 @@ Never invent commands, parameters, syntax nodes or downstream capabilities.
 | Commands, events, validation and concurrency | `cratis-screenplay-command-surface` |
 | Projections and reducers | `cratis-screenplay-projections` |
 | Read models, queries and screens | `cratis-screenplay-read-surface` |
-| Layouts, forms, contributions, component bindings, toolbars, outlets, themes and localization | `cratis-screenplay-ui-composition` |
+| Layouts, forms, contributions, navigation regions, slice buttons, template references, sample data, component bindings, toolbars, outlets, themes and localization | `cratis-screenplay-ui-composition` |
 | Captures, reactions and triggers | `cratis-screenplay-captures-and-reactions` |
 | Behavioral examples and assertions | `cratis-screenplay-specifications` |
 | Rendering/running an admitted model | `cratis-stage-rendering-and-sandbox` |

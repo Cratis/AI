@@ -93,15 +93,18 @@ module Invoicing
           when outcome
             outcome = $.outcome
             reason  = $.reason
+      event PaymentGatewayResultReceived
+        outcome GatewayOutcome
+        reason  String
+      event PaymentReceived
+
+    slice Automation TranslatePaymentGatewayResults
+      description "Gives PaymentReceived its producer: the translator reacts to the provider's external fact"
       reaction ReceivedTranslator
         when PaymentGatewayResultReceived
           outcome
           produces PaymentReceived
         where outcome == "captured"
-      event PaymentGatewayResultReceived
-        outcome GatewayOutcome
-        reason  String
-      event PaymentReceived
 
     slice StateChange SettleOrVoidInvoice
       description "An invoice ends either settled or voided, never both (SettleOrVoid, enforced at append). NOT enforced in the model today: that the invoice exists and is still open (settling) and that only an open, unpaid invoice may be voided. Stated as `reads OpenInvoice` + `require` (PLAY0271/PLAY0268 at binding; Screenplay#129). Target: Arc [ProtectedDecision] with DecisionRead, or a Chronicle DCB. Requirements to test in the target: settling an unknown invoice is rejected; voiding a paid invoice is rejected; voiding an open invoice succeeds."

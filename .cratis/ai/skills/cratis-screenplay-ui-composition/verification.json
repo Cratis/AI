@@ -3,12 +3,34 @@
   "input": "Declare the application shell, a screen template and a command form.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "PLAY0685", "file": "references/response-continuations.md" },
-    { "kind": "skill-contains", "value": "PLAY0485", "file": "references/response-continuations.md" },
-    { "kind": "skill-contains", "value": "Form fields and behavior parameters\nwin", "file": "references/response-continuations.md" },
-    { "kind": "skill-contains", "value": "outer successful response remains available", "file": "references/response-continuations.md" },
-    { "kind": "skill-contains", "value": "binding/navigation remains blocked in Scene", "file": "references/response-continuations.md" },
-    { "kind": "play-compiles" },
+    {
+      "kind": "skill-contains",
+      "value": "PLAY0685",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "PLAY0485",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Form fields and behavior parameters\nwin",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "outer successful response remains available",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "binding/navigation remains blocked in Scene",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "play-compiles"
+    },
     {
       "kind": "skill-contains",
       "value": "produces event InvoiceCancelled"
@@ -104,6 +126,87 @@
     {
       "kind": "skill-contains",
       "value": "authoring acceptance, executable admission and runtime\n      implementation separately"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "application navigation regions (topbar/sidebar, module inherit/extend/override)"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "toolbar slice buttons"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## The application shell: regions, slice buttons, blueprint references, sample data"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A module's own items may only target that module",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`navigation <region> extends`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`navigation <region> overrides`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Hierarchy is sidebar only",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "retargeted to\n  the module's own features",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A State View, Automation or Translate slice is `PLAY0762`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Stage refuses a screen that\nmixes a top-level `template` directive with other top-level directives",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`\"latest\"`) is `PLAY0721`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**The active pack is chosen once, in the `ui profile`**",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Sample data is **design and preview only**",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Never put sample values in a component or a screen",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`StaleRevision`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "screen-shell-navigation-positive",
+      "file": "references/application-shell.md"
     }
   ]
 }

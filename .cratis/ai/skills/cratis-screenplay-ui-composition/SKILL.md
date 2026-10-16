@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-ui-composition
-description: Compose the user interface of a Cratis Screenplay `.play` model — `layout` and responsive `arrangement`, screen/dialog templates, component data-context bindings, exposed template configuration, command forms and columns, navigation contributions, hierarchical outlets/routes, toolbar dialogs, package/icon selection, interaction `behavior`/`on`/`uses` wiring, `ui profile`, `theme`, localized `$strings`, and `file` references. Use when declaring the application shell, reusable screen shapes, component/package configuration, command forms, navigation/toolbars, click or submit behavior, or theming. Do not use for a screen's own data and actions.
+description: Compose the user interface of a Cratis Screenplay `.play` model — `layout` and responsive `arrangement`, screen/dialog templates, component data-context bindings, exposed template configuration, command forms and columns, navigation contributions, application navigation regions (topbar/sidebar, module inherit/extend/override), toolbar slice buttons, blueprint template references, sample data packs, hierarchical outlets/routes, toolbar dialogs, package/icon selection, interaction `behavior`/`on`/`uses` wiring, `ui profile`, `theme`, localized `$strings`, and `file` references. Use when declaring the application shell, reusable screen shapes, component/package configuration, command forms, navigation/toolbars, click or submit behavior, or theming. Do not use for a screen's own data and actions.
 license: MIT
 ---
 
@@ -28,7 +28,7 @@ Markdown in project documentation; `.play` is the single flow model.
 ## Product sources
 
 Tool versions: toolchain `SKILL.md`. UI statements come from Screenplay
-`screens.md`, `contributions.md`, `forms.md`, `templates.md`, `ui-profile.md`,
+`screens.md`, `contributions.md`, `navigation.md`, `sample-data.md`, `forms.md`, `templates.md`, `ui-profile.md`,
 `fixtures/screen-release-ui.play`, `layout-arrangement.md`, `interactions.md`, `theme.md`,
 `internationalization.md` and `file-references.md` under `Documentation/screenplay/`. Scene
 runtime sources: scaffold Scene tag, `Source/JavaScript/**`. This guidance does not verify
@@ -86,6 +86,7 @@ A complete example:
 
 ```screenplay
 layout AppShell
+  category application
   topbar
   navigation contributes Navigation
   content
@@ -196,6 +197,36 @@ not in the language. The screens-release vector
 (canonical `ScreenComposition` corpus v1) adds typed screen composition; a
 renderer that admits it renders it and passes the browser run. Report a refused form as a
 capability gap, never a flat-list fallback; Studio production proof is separate.
+
+## The application shell: regions, slice buttons, blueprint references, sample data
+
+The shell's navigation is declared in the `layout` (`navigation topbar` / `navigation sidebar`, with `logo` and nested
+`item` lines) and each `module` states how it relates to a region: **inherit** (the default), **extend** (the
+application's items plus its own) or **override** (its own only). Toolbars gain `button <id> title "<text>" slice
+<Module>.<Feature>.<Slice>`, which opens a **State Change** slice as a dialog (a State View or Automation slice is
+`PLAY0762`). A screen takes a template from a blueprint with `template blueprint <Blueprint> <Name> version "<range>"`,
+and the `ui profile` selects the one active sample data pack (design and preview only, never in production).
+
+```screenplay
+layout AppShell
+  category application
+  content
+
+  navigation sidebar
+    item sales title "Sales" target Sales
+      item orders title "Orders" target Sales.Orders
+
+module Sales
+  navigation sidebar extends
+    item customers title "Customers" target Sales.Customers
+
+  feature Orders
+  feature Customers
+```
+
+Read [references/application-shell.md](references/application-shell.md) before writing any of it: the inherit/extend/override
+choice, item target and slot, the module-only target rule (`PLAY0750`), buttons, blueprint ranges, sample data, MCP editing
+and the review checklist. `contribute to Navigation` stays the flat contribution; a new application uses regions.
 
 ## Interactions — what a click does
 
@@ -310,6 +341,7 @@ Localized text lives in companion `.strings` files and is referenced unquoted as
 - [ ] No `file` reference is doing work the declaration should be doing.
 - [ ] Every click, submit and screen entry that does something has an `on` or
       `uses`; continuations sit only on actions that can fail.
+- [ ] Navigation regions, slice buttons, blueprint references and sample data follow `references/application-shell.md`: each module's mode is deliberate, no module item targets another module, every button names a State Change slice, every template has a `category`, and the active sample data pack is chosen once in the `ui profile`.
 - [ ] Component bindings, exposed template values, manual form columns, toolbar items, outlets and routes all trace to typed data; no runtime fallback counts as delivery. Report authoring acceptance, executable admission and runtime
       implementation separately.
 
