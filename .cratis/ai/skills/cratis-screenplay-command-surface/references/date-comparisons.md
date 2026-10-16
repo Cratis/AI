@@ -3,6 +3,11 @@
 
 # Chronological command date comparisons
 
+## Contents
+
+- Retention window and rejection specifications
+- Missing-offset input rejection
+
 Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`); older binders refuse date comparisons with PLAY0268. Upgrade the compiler without weakening the rule.
 
 Use `==`, `!=`, `>`, `>=`, `<` or `<=` with matching primitives: Date/Date or
@@ -27,13 +32,19 @@ Targets must enforce this before deserialization attaches a local offset, and
 preserve tick precision or refuse the comparison; JavaScript `Date` alone truncates
 precision. Client validators omit date ordering rules. Optional absent values still
 pass validation rules other than `not empty`; optional condition operands refuse.
+A .NET host that executes commands itself can reuse the reference evaluator's date semantics (Requires Screenplay 4.203.0): see [date comparison checks](https://github.com/Cratis/Screenplay/blob/main/Documentation/screenplay/date-comparison-checks.md) for `SemanticDateComparisons` and `SemanticConditionEvaluator`.
 
 PLAY0268 still refuses mixed Date/DateTime, `$context` operands (including
 `$context.occurred`), `today`, protected read paths, date rules on concepts and
 reaction `where`. A refused whole comparison reports only PLAY0268, without
 validating its literals. A `given clock` does not admit `today` or now.
-Stage refuses v26 with STAGE-ESM-016; standalone binding/reference execution is
-not rendering. Preserve the rule and route delivery to authorized gap-fill.
+Requires Stage 4.135.0 for v26 admission; older Stage refuses v26 with STAGE-ESM-016.
+The semantic Host and specification executor run the comparisons, including through
+concepts, and reject an offset-less DateTime input after authorization and before any
+rule. The renderer, legacy engines and default sandbox engine refuse them with
+STAGE-ESM-046, naming the property, and emit no artifacts or date validators. Standalone
+binding/reference execution is not rendering: preserve the rule and route delivery to
+authorized gap-fill.
 
 ## Retention window and rejection specifications
 

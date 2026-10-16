@@ -4,6 +4,7 @@
 
 - The sandbox: a partial, disposable runtime
 - Protected command reads
+- Date comparisons (v26)
 - Refusals shared by both engines
 - The specification runner
 - Choosing between them
@@ -127,6 +128,16 @@ The semantic Host faults the session on **any outside append** to its event log,
 even an unrelated one, before committing an accepted command. This interim guard
 is stricter than the reference's dependency-scoped decide/commit conflicts; do not
 claim full reference conflict parity or generated-application protection.
+
+## Date comparisons (v26)
+
+Requires Stage 4.135.0 for v26 admission; older Stage refuses v26 with `STAGE-ESM-016`.
+The semantic Host and specification executor compare `Date` as calendar days and
+`DateTime` as UTC ticks in `require`, `produces when` and validation rules, including
+through concepts. A participating `DateTime` input without an offset or `Z` rejects
+with Validation after authorization and before any rule. `then` stays ordinal. The
+renderer, legacy engines and default sandbox engine refuse these comparisons with
+`STAGE-ESM-046`, naming the property; no date validators or artifacts are emitted.
 
 ## Refusals shared by both engines
 

@@ -183,7 +183,7 @@ Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`) for Date/DateTime
 comparisons; older binders report PLAY0268. Read [date comparisons](references/date-comparisons.md)
 when ordering a retention window with `require to >= from`, comparing instants
 across offsets, or rejecting offset-less inputs before rules. It covers admitted
-positions, PLAY0268/0273, ordinal `then` matching and Stage's v26 refusal.
+positions, PLAY0268/0273, ordinal `then` matching and Stage's STAGE-ESM-046 renderer refusal.
 
 **Rules whose logic is code.** A bare `rule <Name>` has no portable meaning (`PLAY0268`) and a bodied rule binds only as
 opaque code. Read [references/validate-rules.md](references/validate-rules.md) when a rule's logic must live in a `file`

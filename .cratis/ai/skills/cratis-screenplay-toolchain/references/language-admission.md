@@ -13,7 +13,7 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 | v23 | Pending `handler implementation` beside unconditional `produces` | Payload-only body; PLAY0695 information; reaching body gives Unsupported ImplementationBody | v23 admitted, body refused STAGE-IMPL-002 in renderer/Host/executor, even Stub mode |
 | v24 | `contains`, `not contains`, `starts with`, `ends with` property/concept rules | Ordinal UTF-16, absent optional passes; not text-condition operators | v24 admitted; semantic Host/executor and generated ordinal comparisons preserve rules |
 | v25 | Application-root `command reads protected` | Admitted reads in requirements/mappings, absence Validation, matching decide/commit changes Conflict | v25 admitted; Cratis C# renderer refuses STAGE-ESM-044; semantic Host/executor execute reads, non-Error protected requirements refuse STAGE-ESM-045 |
-| v26 | Chronological command Date/DateTime comparisons | Same-primitive `==`, `!=`, `>`, `>=`, `<`, `<=`; DateTime UTC ticks and pre-rule offset validation | v26 refused STAGE-ESM-016 |
+| v26 | Chronological command Date/DateTime comparisons | Same-primitive `==`, `!=`, `>`, `>=`, `<`, `<=`; DateTime UTC ticks and pre-rule offset validation | v26 admitted; Host/executor run it, renderer and legacy engines refuse STAGE-ESM-046 |
 | v27 | A read model with two or more `key` marks | Untyped projection `key` blocks, equality-filter lists, single-instance `by` blocks, per-part fixtures | v27 refused STAGE-ESM-016 |
 
 Requires Screenplay 4.181.0 or later (`screenplay --version`) for atomic batches; older compilers cannot admit the preamble.
@@ -65,8 +65,9 @@ more key parts selects v27; one `key` mark keeps its earlier version and bytes. 
 selected version, open the model with the `screenplay` MCP server and call `read-workspace`
 with `view` `executable-model`: `languageVersion` reads `27.0`.
 
-Stage's semantic engines admit exact v1–v21 and v23–v25 pairs. V22/v26/v27 and mixed
-pairs refuse STAGE-ESM-016. Admission of v23–v25 is not admission of described bodies,
+Stage's semantic engines admit exact v1–v21 and v23–v26 pairs. V22/v27 and mixed
+pairs refuse STAGE-ESM-016. Requires Stage 4.135.0 for v26 admission; older Stage
+refuses v26 with STAGE-ESM-016. Admission of v23–v26 is not admission of described bodies,
 atomic mode or rendered protected reads. A CLI may bundle an older compiler/Stage pair: run no-write render
 admission rather than transferring a standalone verdict. Pattern diagnostics arise
 in Screenplay before rendering; diagnostic arguments add no ESM version or new tool.

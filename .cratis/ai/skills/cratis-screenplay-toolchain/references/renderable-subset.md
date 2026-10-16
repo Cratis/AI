@@ -21,9 +21,9 @@ and concept compliance (v13) render.
 
 ## Current admission
 
-Stage admits exact ESM v1–v21 and v23–v25 pairs; v22/v26 and mixed pairs
+Stage admits exact ESM v1–v21 and v23–v26 pairs; v22/v27 and mixed pairs
 refuse STAGE-ESM-016. Chronological command Date/DateTime comparisons select v26:
-standalone binding/reference execution does not make them renderable. Keep the
+the Host and executor run them, but the renderer refuses STAGE-ESM-046, so they are not renderable. Keep the
 rule and use authorized gap-fill. Version admission is separate from construct support.
 Requires Stage 4.106.0 for v18 admission; older Stage refuses it with `STAGE-ESM-016`.
 For generated-concept v20/v21 admission and construct prerequisites, read
