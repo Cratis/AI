@@ -79,6 +79,7 @@
     "count",
     "criminal",
     "csharp",
+    "dark",
     "data",
     "day",
     "days",
@@ -184,6 +185,7 @@
     "legalObligation",
     "legitimateInterests",
     "length",
+    "light",
     "literal",
     "load",
     "locale",
@@ -26071,6 +26073,10 @@
           "diagnostic": "PLAY0269",
           "diagnostics": [
             {
+              "code": "PLAY0791",
+              "severity": "warning"
+            },
+            {
               "code": "PLAY0720",
               "severity": "warning"
             },
@@ -34239,6 +34245,260 @@
       "retired": false
     },
     {
+      "code": "PLAY0790",
+      "name": "UnknownRootTemplate",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A ui profile\u0027s root template, or its new screens use template default, names an own template the document does not declare.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile that names the template."
+        },
+        {
+          "name": "template",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The template name that nothing declares, or the blueprint does not ship."
+        },
+        {
+          "name": "blueprint",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The blueprint a template was expected from."
+        }
+      ]
+    },
+    {
+      "code": "PLAY0791",
+      "name": "LegacyProfileLayout",
+      "severity": "warning",
+      "severities": [
+        "warning"
+      ],
+      "title": "A ui profile selects its shell with the legacy layout line instead of root template.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile that uses the legacy \u0060layout\u0060 line."
+        },
+        {
+          "name": "template",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The layout name the line selects."
+        }
+      ]
+    },
+    {
+      "code": "PLAY0792",
+      "name": "UnknownRootBlueprint",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A ui profile\u0027s root template, or its new screens use template default, comes from a blueprint the profile does not list in its packages, or one the host\u0027s installed catalog does not contain.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile that names the blueprint."
+        },
+        {
+          "name": "template",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The template that was taken from the blueprint."
+        },
+        {
+          "name": "blueprint",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The blueprint the profile does not list or the host has not installed."
+        }
+      ]
+    },
+    {
+      "code": "PLAY0793",
+      "name": "RootTemplateVersionNotSatisfied",
+      "severity": "warning",
+      "severities": [
+        "warning"
+      ],
+      "title": "A ui profile\u0027s root template pins a blueprint version range the installed blueprint does not satisfy.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile that names the root template."
+        },
+        {
+          "name": "template",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The root template."
+        },
+        {
+          "name": "blueprint",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The blueprint whose installed version does not satisfy the pin."
+        },
+        {
+          "name": "version",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The version range that is pinned, or the default \u0060^\u0060 pin of the installed version."
+        }
+      ]
+    },
+    {
+      "code": "PLAY0794",
+      "name": "RootTemplateNotApplicable",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A ui profile\u0027s root template cannot be the application\u0027s shell: it is not a layout or an application-scope root screen template.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile that names the root template."
+        },
+        {
+          "name": "template",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The template that cannot be the application\u0027s shell."
+        },
+        {
+          "name": "blueprint",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The blueprint the template comes from."
+        }
+      ]
+    },
+    {
+      "code": "PLAY0795",
+      "name": "RootTemplateWithoutContentOutlet",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A ui profile\u0027s root template has no outlet for the screens\u0027 content.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile that names the root template."
+        },
+        {
+          "name": "template",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The root template that has no content outlet."
+        },
+        {
+          "name": "blueprint",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The blueprint the template comes from."
+        },
+        {
+          "name": "outlet",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The outlet the screens\u0027 content is placed in."
+        }
+      ]
+    },
+    {
+      "code": "PLAY0796",
+      "name": "UnknownShellOption",
+      "severity": "warning",
+      "severities": [
+        "warning"
+      ],
+      "title": "A ui profile sets a shell option the root template does not expose.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile that sets the option."
+        },
+        {
+          "name": "template",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The root template that does not expose the option."
+        },
+        {
+          "name": "blueprint",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The blueprint the template comes from."
+        },
+        {
+          "name": "option",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The option name."
+        }
+      ]
+    },
+    {
+      "code": "PLAY0797",
+      "name": "InvalidAppearanceValue",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A ui profile appearance block has a color scheme that is not light, dark or system, or an accent that is not a hex colour.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile whose appearance is invalid."
+        },
+        {
+          "name": "value",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The color scheme or accent as authored."
+        }
+      ]
+    },
+    {
       "code": "PLAY0798",
       "name": "DuplicateProfileRootTemplate",
       "severity": "error",
@@ -34248,6 +34508,37 @@
       "title": "A ui profile declares more than one root template.",
       "reserved": false,
       "retired": false
+    },
+    {
+      "code": "PLAY0799",
+      "name": "NewScreenTemplateNotApplicable",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A ui profile\u0027s new screens use template default names a template that cannot start a screen in a feature.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "profile",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The ui profile that names the template."
+        },
+        {
+          "name": "template",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The template that cannot start a screen in a feature."
+        },
+        {
+          "name": "blueprint",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The blueprint the template comes from."
+        }
+      ]
     }
   ],
   "mcpTools": [
@@ -40013,6 +40304,23 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 200
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "ui-profiles",
+      "requiredParameters": [],
+      "optionalParameters": [
+        "name"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
           }
         },
         "required": [],

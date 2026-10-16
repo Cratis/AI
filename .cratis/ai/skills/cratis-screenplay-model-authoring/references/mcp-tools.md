@@ -25,7 +25,7 @@
 - Formatting and recovery limits
 - Code attachments
 
-The standalone MCP server lists 43 tools (including the MCP-Apps visualization tool); `tools/list` is the authority for the installed server.
+The standalone MCP server lists 44 tools (including the MCP-Apps visualization tool); `tools/list` is the authority for the installed server.
 
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
 alone inside a project, where the CLI locates the model (the project's `.play` files, else
@@ -51,7 +51,7 @@ the [MCP loop](mcp-loop.md).
 | --- | --- | --- |
 | Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details` | Navigate logical hierarchy and inspect bounded details |
 | References and examples | `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `find-specification-obligations`, `find-modeling-smells`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
-| Source and validation | `diagnostics`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
+| Source and validation | `diagnostics`, `ui-profiles`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
 | Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-move`, `propose-repair`, `propose-property`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |

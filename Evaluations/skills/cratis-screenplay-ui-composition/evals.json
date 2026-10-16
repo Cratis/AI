@@ -51,13 +51,14 @@
     {
       "id": 5,
       "name": "blueprint-template-and-sample-data",
-      "prompt": "Our Sales module should use the Crm blueprint's Workspace template at version ^1.4, and the Customers list should preview with a Nordic demo dataset of two customers. There is no model file to open, so write the declarations from scratch. Show the .play changes in your reply; do not write files.",
-      "expected_output": "A `template blueprint Crm Workspace version \"^1.4\"` assignment with Crm listed in a ui profile's packages, a `sample data NordicDemo` pack with rows per shape, and the pack selected once with `active` in the ui profile, with the note that sample data is design and preview only.",
+      "prompt": "Our Sales module should use the Crm blueprint's Workspace template at version ^1.4, and the Customers list should preview with a Nordic demo dataset of two customers. The Desktop ui profile currently says `layout AppShell`; make the shell dark with the accent #4F46E5 as well. There is no model file to open, so write the declarations from scratch. Show the .play changes in your reply; do not write files.",
+      "expected_output": "A `template blueprint Crm Workspace version \"^1.4\"` assignment with Crm listed in a ui profile's packages, a `sample data NordicDemo` pack with rows per shape, and the pack selected once with `active` in the ui profile, with the note that sample data is design and preview only, and the Desktop profile naming its shell with `root template AppShell` (the legacy `layout` line warns PLAY0791) beside an `appearance` block with `color scheme dark` and `accent \"#4F46E5\"`.",
       "assertions": [
         "Writes `template blueprint Crm Workspace version \"^1.4\"` and lists Crm under a ui profile's `packages`.",
         "Declares the sample data as a top-level `sample data` pack with `row` entries whose fields are properties of the read model.",
         "Selects the active pack once in the `ui profile`, not on the screen or component.",
-        "States that sample data is design and preview only and never reaches the executable model or production."
+        "States that sample data is design and preview only and never reaches the executable model or production.",
+        "Names the shell with `root template AppShell` instead of the legacy `layout` line (PLAY0791) and writes an `appearance` block with `color scheme dark` and a quoted `accent \"#4F46E5\"`."
       ]
     }
   ]
