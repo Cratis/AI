@@ -2,5 +2,6 @@
   "cli": "3.53.1",
   "corpusPackage": "4.145.0",
   "editedColumn": "\"label\":\"Work item id\",\"property\":\"workItemId\"",
-  "playwright": "1.63.0"
+  "playwright": "1.63.0",
+  "shellCli": "3.67.0"
 }
