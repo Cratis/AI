@@ -200,7 +200,7 @@ field.
 ```screenplay excerpt
 ui profile Desktop
   target platform web
-  layout AppShell
+  root template AppShell
   packages
     Product.DesignSystem
     Cratis.Components

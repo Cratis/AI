@@ -49,6 +49,13 @@ a separate `case` names an expansion. Argument order is immaterial.
 | PLAY0524 | `specification` (declaration), `step` (keyword), `stepIndex` (index), `property`, `type`, `example?`, `case?`, `parameter?` |
 | PLAY0525, PLAY0526 | `example` |
 | PLAY0583 | `case?`, `parameter?`, `type?`, `text?` |
+| PLAY0790, PLAY0794, PLAY0799 | `profile`, `template`, `blueprint?` |
+| PLAY0791 | `profile`, `template` (the layout name) |
+| PLAY0792 | `profile`, `template`, `blueprint` |
+| PLAY0793 | `profile`, `template`, `blueprint`, `version` |
+| PLAY0795 | `profile`, `template`, `blueprint?`, `outlet` |
+| PLAY0796 | `profile`, `template`, `blueprint?`, `option` |
+| PLAY0797 | `profile`, `value` |
 
 For PLAY0524, `step` is given, given readmodel, when, when append or then.
 `stepIndex` counts every authored given/when/then clause once across all forms,

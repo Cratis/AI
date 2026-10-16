@@ -11,6 +11,7 @@
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
 - Guarded interaction diagnostics
+- UI profile shell: root template, options, appearance
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -247,6 +248,26 @@ PLAY0563/0564 repairs need individual review and canonical formatting, refuse
 comment loss and do not support pinned evidence. TypeScript diagnoses but does
 not offer these repairs. Preview through MCP `propose-repair`, never text-patch
 around a refusal. Condition/subject errors also use guarded-action PLAY0341–0348.
+
+## UI profile shell: root template, options, appearance
+
+Requires Screenplay 4.200.0 or later (`screenplay --version`); 4.197.0 reads the syntax without the checks. The fix for each is in
+`../../cratis-screenplay-ui-composition/references/ui-profile-and-theme.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0788 | E | A `root template` / `new screens use template` line is malformed, or pins a version on an own template. |
+| PLAY0789 | E | A malformed or repeated `appearance` line, or a second `appearance` block. |
+| PLAY0790 | E | The template is not declared (or the blueprint does not ship it). Declare it or take it from a blueprint. |
+| PLAY0791 | W | The profile selects its shell with the legacy `layout <Name>`. Write `root template <Name>`; the quick fix rewrites it (or removes the ignored line beside a `root template`). |
+| PLAY0792 | E | The blueprint is not in the profile's `packages` (or not installed). |
+| PLAY0793 | W | The pinned `version` range is not satisfied by the installed blueprint (catalog hosts only). |
+| PLAY0794 | E | The root template cannot be the shell (not a layout or application-scope template, fits a slot, `scopes` without `application`). |
+| PLAY0795 | E | The root template has no `content` slot. |
+| PLAY0796 | W | An `option` the shell does not expose. |
+| PLAY0797 | E | Color scheme is not `light`, `dark` or `system`, or the accent is not a hex colour. |
+| PLAY0798 | E | More than one `root template` in a profile. |
+| PLAY0799 | E | `new screens use template` cannot start a screen in a feature. |
 
 ## Structural completeness and timeline checks
 
