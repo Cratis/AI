@@ -30,6 +30,8 @@ Use portable fields: `name`, `description`, `license`, `compatibility`, `metadat
 
 An explicit trigger clause (`Use when`, `Load when`, `Read when` or an equivalent) and neutral voice are required even with `SKILL_AUTHORING_MODE=warn`. Negative routing and meta-language findings follow that switch; the 700-character target is guidance, not a gate.
 
+The overlap lint warns when positive trigger token sets have Jaccard similarity (intersection / union) **>= 0.4**, compared before rounding. It lowercases ASCII word tokens, deduplicates them and removes routing boilerplate and common function words. Only the explicit `Use when` (or equivalent) clause counts, stopping at negative routing; empty triggers never match. The warning stays advisory even in strict mode: shared vocabulary is a review signal, not proof of competing scope. Sharpen the trigger and add a sibling pointer rather than padding it with unrelated words.
+
 ## 3. Budget and progressive disclosure
 
 Target at most 400 body lines and 16,000 characters; the hard limits remain 500 lines and 20,000 characters. A warning starts above the 16,000-character target, so a body that outgrows it is split before it nears the hard limit; characters only approximate tokens.

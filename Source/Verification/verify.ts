@@ -200,6 +200,7 @@ const overlapFindings = skillOverlapFindings(await Promise.all(corpusTextPaths.f
     file: relative(root, path), content: await readFile(path, 'utf8'),
 }))));
 console.log(`Skill trigger overlap: ${skillDirectories.length} skills scanned, ${overlapFindings.length} warnings.`);
+for (const finding of overlapFindings) console.warn(`${finding.file}:${finding.line} [${finding.rule}] ${finding.matchedText}`);
 authoringFindings.push(...overlapFindings);
 for (const directory of skillDirectories) {
     const skillFile = join(corpus, 'skills', directory.name, 'SKILL.md');
