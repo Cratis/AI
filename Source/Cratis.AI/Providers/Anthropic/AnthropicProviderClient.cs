@@ -127,9 +127,15 @@ public class AnthropicProviderClient(
     /// </summary>
     /// <param name="model">The model.</param>
     /// <returns><see langword="true"/> when a thinking budget would be rejected.</returns>
-    internal static bool UsesAdaptiveThinking(ModelName model) =>
-        System.Text.RegularExpressions.Regex.Match(model.Value, @"^claude-(?:haiku|sonnet|opus|fable)-(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)) is { Success: true } match
-        && int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture) >= 5;
+    internal static bool UsesAdaptiveThinking(ModelName model)
+    {
+        var parts = model.Value.Split('-');
+        return parts.Length > 2 &&
+            parts[0].Equals("claude", StringComparison.OrdinalIgnoreCase) &&
+            parts[1].Length > 0 && !char.IsDigit(parts[1][0]) &&
+            int.TryParse(parts[2], System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var generation) &&
+            generation >= 5;
+    }
 
     /// <summary>
     /// Maps an <see cref="Effort"/> tier to an extended-thinking token budget and the accompanying
