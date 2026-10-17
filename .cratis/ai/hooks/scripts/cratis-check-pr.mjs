@@ -81,18 +81,21 @@ function originRepository(cwd) {
 
 function targetCallers(repository, cwd, warn) {
     if (cwd && repository?.toLowerCase() === originRepository(cwd)?.toLowerCase()) return callers(cwd);
-    let files;
-    try { files = JSON.parse(gh(['api', `repos/${repository}/contents/.github/workflows`])); }
-    catch (error) {
-        if (/HTTP 404/.test(error.message)) return [];
+    let listed = false;
+    try {
+        const files = JSON.parse(gh(['api', `repos/${repository}/contents/.github/workflows`]));
+        listed = true;
+        return files.filter(file => file.type === 'file' && /\.ya?ml$/.test(file.name)).flatMap(file =>
+            workflowCallers(gh(['api', '-H', 'Accept: application/vnd.github.raw', `repos/${repository}/contents/${file.path}`])));
+    } catch (error) {
+        // Only a missing workflows directory means no opt-in; a failed file fetch is an unknown.
+        if (!listed && /HTTP 404/.test(error.message)) return [];
         if (/^Cratis\/[^/]+$/i.test(repository)) {
             warn(`Could not determine release-workflow opt-in for ${repository} (${error.message}); checking against bundled reviewed rules`);
             return [{ name: 'verify-release-notes', ref: reviewedRulesRef }];
         }
         throw new Error(`Could not determine release-workflow opt-in for ${repository}: ${error.message}`);
     }
-    return files.filter(file => file.type === 'file' && /\.ya?ml$/.test(file.name)).flatMap(file =>
-        workflowCallers(gh(['api', '-H', 'Accept: application/vnd.github.raw', `repos/${repository}/contents/${file.path}`])));
 }
 
 function optedIn(cwd) {

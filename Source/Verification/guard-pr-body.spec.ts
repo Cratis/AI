@@ -82,6 +82,11 @@ else if (args[0] === 'api') {
         console.error('HTTP ' + process.env.TEST_WORKFLOWS_STATUS);
         process.exit(1);
     }
+    if (process.env.TEST_WORKFLOW_FILE_STATUS) {
+        // The workflows listing succeeds; fetching the workflow file itself fails.
+        if (endpoint.endsWith('/contents/.github/workflows')) { console.log(JSON.stringify([{ name: 'release.yml', path: '.github/workflows/release.yml', type: 'file' }])); process.exit(0); }
+        if (endpoint.endsWith('/contents/.github/workflows/release.yml')) { console.error('HTTP ' + process.env.TEST_WORKFLOW_FILE_STATUS); process.exit(1); }
+    }
     if (process.env.TEST_OFFLINE === '1') process.exit(1);
     if (endpoint.endsWith('/contents/.github/workflows')) console.log(JSON.stringify(process.env.TEST_REMOTE_CALLERS === '0' ? [] : [{ name: 'release.yml', path: '.github/workflows/release.yml', type: 'file' }]));
     else if (endpoint.endsWith('/contents/.github/workflows/release.yml')) console.log('jobs:\\n  verify:\\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@main');
@@ -720,6 +725,25 @@ test('failed opt-in authentication warns but still checks bundled rules for a Cr
         assert.equal(invalid.status, 2, invalid.stderr);
         assert.match(invalid.stderr, /Heading not allowed/);
         assert.match(invalid.stderr, /failed cratis-check-pr/);
+    } finally { f.cleanup(); }
+});
+
+test('a failed workflow file fetch is an unknown, never a skip, for a Cratis target', () => {
+    const f = fixture();
+    try {
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', '/local/mirror/Example.git']).status, 0);
+        const command = `gh pr create -R Cratis/Other -F '${f.body}' -lpatch`;
+        for (const status of ['401', '404']) {
+            const environment = { TEST_WORKFLOW_FILE_STATUS: status, TEST_OFFLINE: '1' };
+            writeFileSync(f.body, '## Fixed\n\n- A product fix.\n');
+            const valid = f.hook(command, environment);
+            assert.equal(valid.status, 0, valid.stderr);
+            assert.match(valid.stderr, new RegExp(`could not determine release-workflow opt-in for Cratis/Other.*HTTP ${status}`, 'i'));
+            writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+            const invalid = f.hook(command, environment);
+            assert.equal(invalid.status, 2, invalid.stderr);
+            assert.match(invalid.stderr, /Heading not allowed/);
+        }
     } finally { f.cleanup(); }
 });
 
