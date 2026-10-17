@@ -79,12 +79,16 @@ function originRepository(cwd) {
     return repositoryName(git(['remote', 'get-url', 'origin'], cwd));
 }
 
-function targetCallers(repository, cwd) {
+function targetCallers(repository, cwd, warn) {
     if (cwd && repository?.toLowerCase() === originRepository(cwd)?.toLowerCase()) return callers(cwd);
     let files;
     try { files = JSON.parse(gh(['api', `repos/${repository}/contents/.github/workflows`])); }
     catch (error) {
         if (/HTTP 404/.test(error.message)) return [];
+        if (/^Cratis\/[^/]+$/i.test(repository)) {
+            warn(`Could not determine release-workflow opt-in for ${repository} (${error.message}); checking against bundled reviewed rules`);
+            return [{ name: 'verify-release-notes', ref: reviewedRulesRef }];
+        }
         throw new Error(`Could not determine release-workflow opt-in for ${repository}: ${error.message}`);
     }
     return files.filter(file => file.type === 'file' && /\.ya?ml$/.test(file.name)).flatMap(file =>
@@ -126,7 +130,7 @@ function rules(warn, repositoryCallers) {
         renameSync(temporary, file);
         return file;
     } catch (error) {
-        if (floating) {
+        if (floating || ref === reviewedRulesRef) {
             const bundled = fileURLToPath(new URL('./cratis-release-notes-reviewed.cjs', import.meta.url));
             new Script(readFileSync(bundled, 'utf8'));
             warn(`Could not fetch release-note rules at ${ref}; using bundled reviewed ${reviewedRulesRef}. ${error.message}`);
@@ -193,7 +197,7 @@ function check(argv, repositoryCallers, lookupOptions) {
     // The release-intent check above still applies to bot-authored pull requests.
     if (author === 'dependabot[bot]') return 0;
     const base = values.base || pull?.baseRefName || defaultBranch;
-    const file = rules(warn, repositoryCallers || targetCallers(repository, process.cwd()));
+    const file = rules(warn, repositoryCallers || targetCallers(repository, process.cwd(), warn));
     if (!file) return 3;
     const env = { PATH: process.env.PATH, HOME: homedir(), LANG: 'C.UTF-8',
         PR_BODY: body, PR_LABELS: JSON.stringify([...labels]),
@@ -369,7 +373,7 @@ function hook() {
             throw new Error('Use a literal directory before gh pr create/edit.');
         }
         if (!/^Cratis\/[^/]+$/i.test(repository)) continue;
-        const repositoryCallers = targetCallers(repository, knownDirectory ? cwd : undefined);
+        const repositoryCallers = targetCallers(repository, knownDirectory ? cwd : undefined, message => warning(`Warning: ${message}`));
         if (!repositoryCallers.length) continue;
         if (!knownDirectory) throw new Error('Use a literal directory before gh pr create/edit.');
         const args = [];
