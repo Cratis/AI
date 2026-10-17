@@ -62,7 +62,9 @@ public class Decisions(
         var type = connection.Type;
         var client = clients.FirstOrDefault(_ => _.Type == type) ?? throw new NoClientForDecisionEngine(type);
 
-        using var activity = telemetry.Start(requests.Sum(_ => _.Choices.Count), requests[0].Context);
+        Activity? span = null;
+        ObserveTelemetry(() => span = telemetry.Start(requests.Sum(_ => _.Choices.Count), requests[0].Context), type);
+        using var activity = span;
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(options.Value.Timeout);
 
@@ -86,7 +88,7 @@ public class Decisions(
                 results.Add(ResultFor(requests[index], answers.Distributions[index], answers, type, elapsed));
             }
 
-            telemetry.Decided(activity, type, results[0]);
+            ObserveTelemetry(() => telemetry.Decided(activity, type, results[0]), type);
             await usage.Record(requests, connection, answers, elapsed);
 
             return results;
@@ -94,13 +96,26 @@ public class Decisions(
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             logger.RequestTimedOut(type, options.Value.Timeout);
-            telemetry.Failed(activity, type, connection.Model, Stopwatch.GetElapsedTime(started), "timed out");
+            ObserveTelemetry(() => telemetry.Failed(activity, type, connection.Model, Stopwatch.GetElapsedTime(started), "timed out"), type);
             throw;
         }
         catch (Exception ex)
         {
-            telemetry.Failed(activity, type, connection.Model, Stopwatch.GetElapsedTime(started), ex.Message);
+            ObserveTelemetry(() => telemetry.Failed(activity, type, connection.Model, Stopwatch.GetElapsedTime(started), ex.Message), type);
             throw;
+        }
+    }
+
+    void ObserveTelemetry(Action record, DecisionEngineType type)
+    {
+        try
+        {
+            record();
+        }
+        catch (Exception exception)
+        {
+            // Instrumentation must not change the outcome of a decision.
+            logger.TelemetryFailed(exception, type);
         }
     }
 
