@@ -12,7 +12,7 @@ CI installs and which must match `references/screenplay-contract.version` in the
 
 | Item | Value |
 | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.205.0** |
+| Screenplay language, standalone tool and MCP | **4.211.1** |
 
 The published `screenplay-contract.json` beside the toolchain skill's references is byte-identical to
 this release's contract, and `screenplay-contract.version` names the same version.

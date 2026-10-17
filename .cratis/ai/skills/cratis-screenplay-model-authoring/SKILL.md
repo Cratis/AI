@@ -21,12 +21,6 @@ same model root or workspace export to all checks. Workflow:
 `references/screen-authoring-workflow.md`; syntax/support:
 `cratis-screenplay-ui-composition`.
 
-## Verified product sources
-
-Source: `Cratis/Screenplay`, `Documentation/screenplay/` and `Documentation/screenplay/mcp/`
-(notes, property planner, compliance, concept generation, release baseline). Discover
-installed schemas; bundles differ. Tool versions: toolchain `SKILL.md`.
-
 Record open modeling questions as `question` notes in committed
 `.screenplay/notes.json`, not chat or `description` text. Never put secrets or
 personal data in notes. Read [model notes](references/model-notes.md) when
@@ -147,7 +141,10 @@ Others send an edit request ([MCP loop](references/mcp-loop.md)).
    `screenplay --version`); read `references/mcp-loop.md` when choosing formatting.
 5. Keep reference policy `Safe`. Use `Draft` only for deliberately requested
    unresolved model debt and report that debt; it does not waive structural,
-   identity or binding-protection checks.
+   identity or binding-protection checks. Batch independent reference removals/additions;
+   unmatched same-text pairs refuse as ambiguous. Preserve moves with `propose-move`
+   or semantic migrations. String `conflicts[].document`/`path` locate refusals:
+   [reference continuity and version gate](references/mcp-loop.md#reference-continuity-and-located-conflicts).
 6. Report `summary`, inspect severity errors/codes rather than counts
    (Requires Screenplay 4.156.0, `screenplay --version`); read `references/mcp-loop.md`
    when reviewing PLAY0288, comment loss or introduced executable errors. Inspect `read-proposal` before/after bytes and diagnostics, including the

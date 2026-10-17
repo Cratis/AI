@@ -69,7 +69,7 @@ with STAGE-IMPL-002 (even Stub mode), and atomic mode in admitted pairs with
 STAGE-ESM-043. Literal
 text rules execute/render ordinal UTF-16 comparisons. Read [language admission](language-admission.md).
 A CLI's older bundled compiler may fail first: legacy reads/concurrency PLAY0271,
-attached handlers PLAY0268. Protected reads bind v25. Non-Error protected requirements
+attached handlers PLAY0800 (PLAY0268 before Screenplay 4.210.0). Protected reads bind v25. Non-Error protected requirements
 refuse STAGE-ESM-045, including reaction invocations; this is not a rendering result.
 Requires Stage 4.129.0 for semantic Host/executor protected reads (older engines refuse -044) and Stage 4.138.0 for the Cratis renderer to render them.
 Response-name authoring scopes are not rendered and Scene runtime does not supply them.
@@ -98,7 +98,10 @@ ids into routing to fit a renderer (PLAY0515).
   older renderers refuse snapshot lists with STAGE-ESM-010.
   context/single-result filters, opaque `scoped to` and `performer` block binding. Keep a list the domain needs and report
   the capability gap; marking it `observable` or keying it is a modeling decision for the user.
-- Attached handlers remain PLAY0268. Pending handlers beside unconditional
+- Attached file/inline handlers refuse PLAY0800 and require constrained implementation
+  attachments: gap-fill in code, not by waiting for ESM admission.
+  Requires Screenplay 4.210.0 (`screenplay --version`); older binders use PLAY0268.
+  Pending handlers beside unconditional
   productions bind v23 but Stage refuses their bodies (STAGE-IMPL-002), even Stub mode;
   deliver as authorized gap-fill, never as implemented generated stubs.
 - Descriptions and documentation render only as XML doc comments, never as

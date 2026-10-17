@@ -9,6 +9,7 @@
 - Who owns the connection
 - The loop
 - One edit strategy
+- Reference continuity and located conflicts
 - Self-describing identity migration refusals
 - Identity state (`.screenplay/identities.json`)
 - Read-only views worth knowing
@@ -235,6 +236,33 @@ Neither action supports fix-all or pinned evidence. A concept change affects all
 uses; uniqueness changes append-time behavior. Derived regex, matches/checksum
 repairs and rule-proof status await phase 2b-2; details and source citations are in
 [concept generation](mcp-tools.md#concept-generation).
+
+## Reference continuity and located conflicts
+
+Requires Screenplay 4.211.0 (`screenplay --version`) for independent reference-edit batches and string document/path fields; older servers can refuse independent remove/add batches and emit object-shaped fields. Upgrade before relying on this contract.
+
+Batch independent reference removals and additions with different text in one
+proposal, just as in sequential proposals. For example, removing a constraint's
+`OrderRecalled` reference and adding a specification's `OrderLost` reference is
+accepted when the remaining checks pass. Occurrence identity follows exact
+correspondence, verified relocation pairing or trusted `propose-move` lineage;
+unmatched references are removals/additions, not inferred moves.
+
+Unmatched removed and added references with exactly the same text refuse as
+ambiguous, even across owners/documents and under `Draft`. Comparison is ordinal:
+qualification and case are not normalized; equal tail names alone are not identity.
+Preserve a moved reference with `propose-move` or explicit semantic migrations.
+`Safe` still refuses new unresolved references; matched references cannot lose a
+resolved target, silently rebind unchanged text or capture existing debt.
+
+On refusal, read `conflicts[].document` (document identity), `path` and `otherPath`
+as plain strings when present, not objects with nested values. A conflict without
+a document reports null. The message locates the reference text, member/role,
+portable document path and line:column; ambiguous batches list disappeared and
+introduced occurrences, capped at ten with a remaining count. Use these locations
+instead of bisecting the batch. `candidates` stays empty for reference-validator
+refusals; it is reserved for property-planner evidence. `propose-move` report
+document fields are strings too.
 
 ## Self-describing identity migration refusals
 

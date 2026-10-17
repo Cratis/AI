@@ -60,10 +60,13 @@ a separate `case` names an expansion. Argument order is immaterial.
 | PLAY0795 | `profile`, `template`, `blueprint?`, `outlet` |
 | PLAY0796 | `profile`, `template`, `blueprint?`, `option` |
 | PLAY0797 | `profile`, `value` |
+| PLAY0800 | `subject` (required declaration: command) |
 
 PLAY0781–PLAY0785 need Screenplay 4.207.0; earlier compilers omit these arguments. `read` is the alias when the
 command gives one, else the read model name. The PLAY0781 `reason` keywords are listed in command-surface
 [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md); each refused read gets its own PLAY0781.
+
+Requires Screenplay 4.210.0 (`screenplay --version`) for PLAY0800 (`CommandHandlerRequiresAttachment`) and its `subject`; older binders report attached command handlers as PLAY0268. `arguments.subject.kind` is `command` and `path` names the command. Treat the refusal as permanent: deliver a constrained implementation attachment by code gap-fill, not by waiting for ESM admission. Switch on the code and navigate the subject, never match message text.
 
 For PLAY0524, `step` is given, given readmodel, when, when append or then.
 `stepIndex` counts every authored given/when/then clause once across all forms,

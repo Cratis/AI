@@ -32472,7 +32472,21 @@
       ],
       "title": "Source syntax carries portable behavior that ESM v1 cannot represent.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "subject",
+          "kind": "declaration",
+          "optional": true,
+          "meaning": "The innermost declaration that contains the refused construct; absent for document-level refusals."
+        },
+        {
+          "name": "issue",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The tracking issue named by the refusal, such as Cratis/Screenplay#600, when it cites one."
+        }
+      ]
     },
     {
       "code": "PLAY0269",
@@ -33465,7 +33479,33 @@
       ],
       "title": "A quoted match pattern is not a valid ECMAScript regular expression.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "subject",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command or concept that owns the match rule."
+        },
+        {
+          "name": "property",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The constrained command property; absent for a concept\u0027s own value."
+        },
+        {
+          "name": "pattern",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The decoded match pattern."
+        },
+        {
+          "name": "offset",
+          "kind": "index",
+          "optional": false,
+          "meaning": "The zero-based UTF-16 offset in the pattern where the problem starts."
+        }
+      ]
     },
     {
       "code": "PLAY0368",
@@ -36804,7 +36844,33 @@
       ],
       "title": "A match pattern uses a construct outside the portable linear dialect.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "subject",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command or concept that owns the match rule."
+        },
+        {
+          "name": "property",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The constrained command property; absent for a concept\u0027s own value."
+        },
+        {
+          "name": "pattern",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The decoded match pattern."
+        },
+        {
+          "name": "offset",
+          "kind": "index",
+          "optional": false,
+          "meaning": "The zero-based UTF-16 offset in the pattern where the problem starts."
+        }
+      ]
     },
     {
       "code": "PLAY0700",
@@ -37244,7 +37310,49 @@
       ],
       "title": "A command decision read cannot be protected, with a closed refusal reason describing its shape or key.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "command",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command declaring the read."
+        },
+        {
+          "name": "read",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The read model name or alias as the command reads it."
+        },
+        {
+          "name": "readModel",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The read model declaration that cannot be protected."
+        },
+        {
+          "name": "reason",
+          "kind": "keyword",
+          "optional": false,
+          "meaning": "The closed refusal reason, the name of the decision-read refusal.",
+          "values": [
+            "reducer",
+            "join",
+            "children",
+            "open-subscription",
+            "payload-key",
+            "by-parts",
+            "no-removal",
+            "empty-handled-set",
+            "named-source-or-stream",
+            "singleton",
+            "key-type",
+            "generated-key",
+            "optional-key",
+            "collection-key"
+          ]
+        }
+      ]
     },
     {
       "code": "PLAY0782",
@@ -37255,7 +37363,21 @@
       ],
       "title": "A protected command read omits its lookup property and the command has no declared identifier.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "command",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command declaring the read."
+        },
+        {
+          "name": "read",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The read model name or alias as the command reads it."
+        }
+      ]
     },
     {
       "code": "PLAY0783",
@@ -37266,7 +37388,15 @@
       ],
       "title": "A command declares both protected reads and concurrency, making its consistency boundary ambiguous.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "command",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command declaring both reads and concurrency."
+        }
+      ]
     },
     {
       "code": "PLAY0784",
@@ -37277,7 +37407,27 @@
       ],
       "title": "A read path does not name a declared command read or alias.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "path",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The authored read path that resolves to no declared read and view property."
+        },
+        {
+          "name": "read",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The first path segment, the read name or alias that resolves to no declared read."
+        },
+        {
+          "name": "command",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command whose read path is unknown."
+        }
+      ]
     },
     {
       "code": "PLAY0785",
@@ -37288,7 +37438,27 @@
       ],
       "title": "A read path names a view read more than once instead of a distinguishing alias.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "path",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The authored read path that names a repeated read model."
+        },
+        {
+          "name": "read",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The read model name read more than once."
+        },
+        {
+          "name": "command",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command whose read path is ambiguous."
+        }
+      ]
     },
     {
       "code": "PLAY0786",
@@ -37310,7 +37480,27 @@
       ],
       "title": "A Studio text-rule pattern has an equivalent first-class ordinal rule.",
       "reserved": false,
-      "retired": false
+      "retired": false,
+      "arguments": [
+        {
+          "name": "subject",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command or concept that owns the match rule."
+        },
+        {
+          "name": "property",
+          "kind": "text",
+          "optional": true,
+          "meaning": "The constrained command property; absent for a concept\u0027s own value."
+        },
+        {
+          "name": "pattern",
+          "kind": "text",
+          "optional": false,
+          "meaning": "The decoded match pattern."
+        }
+      ]
     },
     {
       "code": "PLAY0788",
@@ -37627,6 +37817,25 @@
           "kind": "text",
           "optional": true,
           "meaning": "The blueprint the template comes from."
+        }
+      ]
+    },
+    {
+      "code": "PLAY0800",
+      "name": "CommandHandlerRequiresAttachment",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A command handler requires a constrained implementation attachment.",
+      "reserved": false,
+      "retired": false,
+      "arguments": [
+        {
+          "name": "subject",
+          "kind": "declaration",
+          "optional": false,
+          "meaning": "The command whose handler requires a constrained implementation attachment."
         }
       ]
     }

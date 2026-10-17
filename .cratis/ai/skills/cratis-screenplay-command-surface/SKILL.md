@@ -105,8 +105,11 @@ fix to migrate. `--warnaserror` does not reject information diagnostics.
 properties, `reads`, `authorize`, `validate`, `produces`/`handler`, `concurrency`.
 Keep to it.
 
-A file/code `handler` cannot coexist with `produces` and still fails binding
-with PLAY0268. A pending `handler implementation` beside unconditional `produces`
+A file/code `handler` cannot coexist with `produces` and fails binding
+with PLAY0800 (`CommandHandlerRequiresAttachment`): gap-fill the slice in code
+with a constrained implementation attachment, not by waiting for a new ESM version.
+Read the required typed `subject` argument for the command, never parse the message.
+Requires Screenplay 4.210.0 (`screenplay --version`) for PLAY0800; older binders use PLAY0268 for this refusal. A pending `handler implementation` beside unconditional `produces`
 is a described command (ESM v23): the body owns payload values only. Prefer plain
 `produces` for declarative logic. Read [described handlers](references/described-handlers.md)
 when logic needs prose, for the result contract, PLAY0695–0698, Unsupported
