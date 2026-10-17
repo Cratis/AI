@@ -32,7 +32,7 @@ port `35000` (a plain `http://` request gets no reply; the certificate is self-s
 The entrypoint takes a model file or folder, default `/eventmodel`. Deployment settings
 come from `cratis-stage.json` (path override `STAGE_CONFIG`), not `appsettings.json`.
 Implementation `file` references stay symbolic: the sandbox never opens them.
-Requires Cratis CLI 3.64.0 for `--engine`; from CLI 3.73.0 `cratis run` runs the `semantic` engine by default and always passes `Stage__Runtime__Engine`, while older CLIs default to `eventmodel`. The EventModel engine is legacy, refuses newer constructs (for example v27 composite keys); do not rely on it. Running the image directly, the environment setting below selects the engine.
+Requires Cratis CLI 3.64.0 for `--engine`; from CLI 3.73.0 `cratis run` runs the `semantic` engine by default and always passes `Stage__Runtime__Engine`, while older CLIs default to `eventmodel`. The EventModel engine is legacy and refuses newer constructs (for example v27 composite keys); do not rely on it. Running the image directly, the environment setting below selects the engine.
 
 Two engines:
 
