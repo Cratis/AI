@@ -11,10 +11,10 @@ using Cratis.AI.Providers.Pools.Listing;
 namespace Cratis.AI.Providers.for_ProviderAwareLanguageModel.when_completing;
 
 /// <summary>
-/// A rejected request is not a member's fault to fail over from - no other member can make a bad
-/// request valid, so the pool stops rather than spending the rest of it (issue #1060).
+/// A rejection - a bad key, a retired model, an account with no credit - says as much about the provider
+/// as about the request, so the pool fails over to its next member instead of failing the completion.
 /// </summary>
-public class and_a_pool_member_fails_permanently : given.all_dependencies
+public class and_a_pool_member_rejects_the_request_and_the_next_serves_it : given.all_dependencies
 {
     static readonly AIProviderPoolId _pool = AIProviderPoolId.New();
     static readonly AIProviderId _first = AIProviderId.New();
@@ -35,11 +35,6 @@ public class and_a_pool_member_fails_permanently : given.all_dependencies
 
     async Task Because() => _result = await _model.Complete("prompt", (LanguageModelPurpose)Purpose);
 
-    [Fact] void should_not_succeed() => _result.Succeeded.ShouldBeFalse();
-    [Fact] void should_carry_the_failing_members_own_reason() => _result.FailureReason.ShouldEqual("The language model API returned 400");
-    [Fact] void should_stamp_the_failing_member_on_the_result() => _result.ProviderId.ShouldEqual(_first);
-
-    [Fact]
-    void should_never_have_tried_the_other_member() =>
-        _openAIClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+    [Fact] void should_succeed_from_the_next_member() => _result.Text.ShouldEqual("from-openai");
+    [Fact] void should_remember_the_failure_against_the_rejecting_provider() => _recentProviderFailures.Received(1).Record(_first);
 }
