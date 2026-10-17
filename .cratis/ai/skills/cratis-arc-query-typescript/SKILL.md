@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-query-typescript
-description: Add a query to a Cratis Arc read model in a Node.js TypeScript server with Arc for TypeScript — the @readModel() class and its static @query() methods, argument/service/queryOptions binding with generated metadata or explicit descriptors, return shapes and absence, GET and the HTTP QUERY method, paging and sorting with queryPage, observable queries backed by RxJS BehaviorSubject/Subject/Observable over SSE and WebSocket, storage-backed queries through MongoDB, Drizzle or ChronicleReadModels, query authorization, and QueryScenario/ObservableQueryScenario specs. Use when exposing read-model data from an Arc for TypeScript server. Do not use for the .NET or Kotlin/Java Arc query shapes, for command definition, for consuming generated query proxies in React, or for how Chronicle events populate the read model.
+description: Expose Arc for TypeScript server reads with argument binding, queryPage paging, storage adapters, authorization and query scenarios. Use when declaring Node.js @readModel()/@query() methods or RxJS observable endpoints over SSE/WebSocket. Do not use for JVM companion/static methods (use cratis-arc-query-kotlin), C# read models (use cratis-chronicle-read-model), server commands (use cratis-arc-command-typescript), React proxy consumption (use cratis-arc-react-page), or event materialization (use cratis-chronicle-client-typescript).
 license: MIT
 ---
 
