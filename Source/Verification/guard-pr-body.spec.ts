@@ -77,8 +77,17 @@ const args = process.argv.slice(2);
 fs.appendFileSync(process.env.TEST_CALLS, JSON.stringify(args) + '\\n');
 if (args[0] === 'api' && args.includes('user')) { console.log('woksin'); }
 else if (args[0] === 'api') {
-    if (process.env.TEST_OFFLINE === '1') process.exit(1);
     const endpoint = args.at(-1);
+    if (endpoint.endsWith('/contents/.github/workflows') && process.env.TEST_WORKFLOWS_STATUS) {
+        console.error('HTTP ' + process.env.TEST_WORKFLOWS_STATUS);
+        process.exit(1);
+    }
+    if (process.env.TEST_WORKFLOW_FILE_STATUS) {
+        // The workflows listing succeeds; fetching the workflow file itself fails.
+        if (endpoint.endsWith('/contents/.github/workflows')) { console.log(JSON.stringify([{ name: 'release.yml', path: '.github/workflows/release.yml', type: 'file' }])); process.exit(0); }
+        if (endpoint.endsWith('/contents/.github/workflows/release.yml')) { console.error('HTTP ' + process.env.TEST_WORKFLOW_FILE_STATUS); process.exit(1); }
+    }
+    if (process.env.TEST_OFFLINE === '1') process.exit(1);
     if (endpoint.endsWith('/contents/.github/workflows')) console.log(JSON.stringify(process.env.TEST_REMOTE_CALLERS === '0' ? [] : [{ name: 'release.yml', path: '.github/workflows/release.yml', type: 'file' }]));
     else if (endpoint.endsWith('/contents/.github/workflows/release.yml')) console.log('jobs:\\n  verify:\\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@main');
     else console.log(fs.readFileSync(process.env.TEST_WORKFLOW, 'utf8').trimEnd());
@@ -192,12 +201,15 @@ test('drift and skipped comparisons warn normally but fail in strict mode', () =
     } finally { f.cleanup(); }
 });
 
-test('offline rules use the latest complete cache, report unchecked with no cache, and never hide strict warnings', () => {
+test('offline rules at another pin use the latest complete cache, report unchecked with no cache, and never hide strict warnings', () => {
     const f = fixture();
     try {
+        const otherRef = 'a'.repeat(40);
+        const rulesCache = join(f.cache, 'cratis/release-notes', otherRef);
+        writeFileSync(join(f.callers, 'release.yml'), `jobs:\n  verify:\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@${otherRef}\n`);
         assert.equal(f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' }).status, 3);
         assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 0);
-        writeFileSync(join(f.rulesCache, `${'f'.repeat(40)}.cjs`), 'truncated');
+        writeFileSync(join(rulesCache, `${'f'.repeat(40)}.cjs`), 'truncated');
         const cached = f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' });
         assert.equal(cached.status, 0);
         assert.match(cached.stderr, /using cached/);
@@ -431,17 +443,20 @@ test('dynamic directories only block executable PR mutations, not quoted example
     } finally { f.cleanup(); }
 });
 
-test('the Bash hook warns and passes through offline without cached rules', () => {
+test('the Bash hook checks bundled reviewed rules offline and surfaces warnings to Pi and Claude', () => {
     const f = fixture();
     try {
         const result = f.hook(`gh pr create -F '${f.body}' --label patch`, { TEST_OFFLINE: '1' });
         assert.equal(result.status, 0);
-        assert.match(result.stderr, /unchecked/);
+        assert.match(result.stderr, /using bundled reviewed/);
+        assert.doesNotMatch(result.stderr, /unchecked/);
         const claude = f.hook(`gh pr create -F '${f.body}' --label patch`, { TEST_OFFLINE: '1' }, true);
         assert.equal(claude.status, 0);
-        assert.match(JSON.parse(claude.stdout).systemMessage, /unchecked/);
-        assert.match(JSON.parse(claude.stdout).hookSpecificOutput.additionalContext, /unchecked/);
+        assert.match(JSON.parse(claude.stdout).systemMessage, /using bundled reviewed/);
+        assert.match(JSON.parse(claude.stdout).hookSpecificOutput.additionalContext, /using bundled reviewed/);
         assert.equal(claude.stderr, '');
+        writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+        assert.equal(f.hook(`gh pr create -F '${f.body}' --label patch`, { TEST_OFFLINE: '1' }).status, 2);
     } finally { f.cleanup(); }
 });
 
@@ -684,6 +699,82 @@ test('line continuations are guarded for both create and edit', () => {
                 assert.equal(f.hook(`gh pr ${separator}${operation} -F '${f.body}' -lpatch`).status, 0);
             }
         }
+    } finally { f.cleanup(); }
+});
+
+test('failed opt-in authentication warns but still checks bundled rules for a Cratis target', () => {
+    const f = fixture();
+    try {
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', '/local/mirror/Example.git']).status, 0);
+        const command = `gh pr create -R Cratis/Other -F '${f.body}' -lpatch`;
+        const environment = { TEST_WORKFLOWS_STATUS: '401', TEST_OFFLINE: '1' };
+        for (const claude of [false, true]) {
+            const valid = f.hook(command, environment, claude);
+            assert.equal(valid.status, 0, valid.stderr);
+            const warnings = claude ? JSON.parse(valid.stdout).systemMessage : valid.stderr;
+            assert.match(warnings, /could not determine release-workflow opt-in for Cratis\/Other.*HTTP 401.*checking against bundled reviewed rules/i);
+            assert.match(warnings, /using bundled reviewed/);
+            assert.doesNotMatch(warnings, /unchecked/);
+            if (claude) {
+                assert.equal(valid.stderr, '');
+                assert.equal(JSON.parse(valid.stdout).hookSpecificOutput.additionalContext, warnings);
+            }
+        }
+        writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+        const invalid = f.hook(command, environment);
+        assert.equal(invalid.status, 2, invalid.stderr);
+        assert.match(invalid.stderr, /Heading not allowed/);
+        assert.match(invalid.stderr, /failed cratis-check-pr/);
+    } finally { f.cleanup(); }
+});
+
+test('a failed workflow file fetch is an unknown, never a skip, for a Cratis target', () => {
+    const f = fixture();
+    try {
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', '/local/mirror/Example.git']).status, 0);
+        const command = `gh pr create -R Cratis/Other -F '${f.body}' -lpatch`;
+        for (const status of ['401', '404']) {
+            const environment = { TEST_WORKFLOW_FILE_STATUS: status, TEST_OFFLINE: '1' };
+            writeFileSync(f.body, '## Fixed\n\n- A product fix.\n');
+            const valid = f.hook(command, environment);
+            assert.equal(valid.status, 0, valid.stderr);
+            assert.match(valid.stderr, new RegExp(`could not determine release-workflow opt-in for Cratis/Other.*HTTP ${status}`, 'i'));
+            writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+            const invalid = f.hook(command, environment);
+            assert.equal(invalid.status, 2, invalid.stderr);
+            assert.match(invalid.stderr, /Heading not allowed/);
+        }
+    } finally { f.cleanup(); }
+});
+
+test('a workflows 404 still skips opt-in and non-Cratis lookup failures do not gain bundled enforcement', () => {
+    const f = fixture();
+    try {
+        const absent = f.hook('gh pr create -R Cratis/Other --body inline', { TEST_WORKFLOWS_STATUS: '404' });
+        assert.equal(absent.status, 0, absent.stderr);
+        assert.equal(absent.stderr, '');
+        const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+        assert.deepEqual(calls, [['api', 'repos/Cratis/Other/contents/.github/workflows']]);
+        const personal = f.run(['--repo', 'Someone/Personal', '--body-file', f.body, '--label', 'patch'], { TEST_WORKFLOWS_STATUS: '401' });
+        assert.equal(personal.status, 1);
+        assert.match(personal.stderr, /Could not determine release-workflow opt-in.*HTTP 401/);
+        assert.doesNotMatch(personal.stderr, /bundled reviewed/);
+    } finally { f.cleanup(); }
+});
+
+test('offline rules at the reviewed pin use the bundle before any cache', () => {
+    const f = fixture();
+    try {
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 0);
+        assert.equal(readdirSync(f.rulesCache).length, 1);
+        // The cached protocol probe accepts this body; the reviewed bundle must reject it.
+        writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+        const invalid = f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' });
+        assert.equal(invalid.status, 1, invalid.stdout + invalid.stderr);
+        assert.match(invalid.stderr, /using bundled reviewed/);
+        assert.doesNotMatch(invalid.stderr, /using cached|unchecked/);
+        writeFileSync(f.body, '## Fixed\n\n- A product fix.\n');
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch', '--strict'], { TEST_OFFLINE: '1' }).status, 1);
     } finally { f.cleanup(); }
 });
 
