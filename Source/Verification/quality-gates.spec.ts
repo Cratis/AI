@@ -25,7 +25,7 @@ function plan(
     committed: Record<string, string>,
     changed: Record<string, string>,
     links: Record<string, string> = {},
-    options: { dryrun?: boolean; expectedStatus?: number; beforeChanges?: (root: string) => void; onPlan?: (elapsedMs: number) => void } = {},
+    options: { dryrun?: boolean; expectedStatus?: number; configPath?: string; beforeChanges?: (root: string) => void; onPlan?: (elapsedMs: number) => void } = {},
 ): string {
     const root = mkdtempSync(join(tmpdir(), 'cratis-shipped-gates-'));
     try {
@@ -53,7 +53,7 @@ function plan(
             env: {
                 ...process.env,
                 CLAUDE_PROJECT_DIR: root,
-                CRATIS_HOOKS_GATES: join(scripts, 'quality-gates.json'),
+                CRATIS_HOOKS_GATES: options.configPath ?? join(scripts, 'quality-gates.json'),
                 CRATIS_HOOKS_GATE_DRYRUN: options.dryrun === false ? '0' : '1',
                 CRATIS_HOOKS_SKIP_GATE: '',
             },
@@ -65,6 +65,14 @@ function plan(
         rmSync(root, { recursive: true, force: true });
     }
 }
+
+test('a missing configuration names the shipped defaults, project overrides, and replacement variable', () => {
+    const output = plan({}, { 'change.txt': 'x' }, {}, { configPath: join(scripts, 'nonexistent-gates.json') });
+    assert.match(output, /configuration not found: .*nonexistent-gates\.json — no gates ran/);
+    assert.match(output, /Shipped defaults: \.cratis\/ai\/hooks\/scripts\/quality-gates\.json/);
+    assert.match(output, /project overrides: \.cratis\/ai\/quality-gates\.project\.json \(merged by gate id\)/);
+    assert.match(output, /CRATIS_HOOKS_GATES replaces the defaults/);
+});
 
 // (?![\w-]) rather than \b: a gate id must not match a longer id that extends it with a hyphen.
 const ran = (output: string, id: string) => new RegExp(`RUN\\s+${id}(?![\\w-])`).test(output);
@@ -443,6 +451,68 @@ test('large monorepo plans stay comfortably within the Pi planning deadline', co
         assert.match(output, new RegExp(`dry run complete — 7 gate\\(s\\) would run across ${rootWorkspace ? 1 : 16} project directory\\(s\\) \\(${rootWorkspace ? 7 : 112} run\\(s\\)\\)`));
     }
 });
+
+test('a per-gate timeout names the gate, log output, and narrower command without claiming a pass', () => {
+    const output = plan(
+        { [overrideFile]: JSON.stringify({ gates: [{
+            id: 'backend-specs', workingDirectory: '.', requires: {}, timeoutSeconds: 1,
+            timeoutHint: 'dotnet test App.Specs.csproj --configuration Debug --no-build',
+            command: ['/bin/sh', '-c', 'printf "distinctive-output\\n"; exec sleep 600'],
+        }] }) },
+        { 'Source/example.cs': 'class Example {}' },
+        {},
+        { dryrun: false, expectedStatus: 2 },
+    );
+    assert.match(output, /QUALITY GATE TIMED OUT: backend-specs after 1s \(cwd: \.\) — NOT VERIFIED/);
+    assert.match(output, /Run a narrower command instead: dotnet test App\.Specs\.csproj --configuration Debug --no-build/);
+    assert.match(output, /Configure command\/workingDirectory\/timeoutSeconds in \.cratis\/ai\/quality-gates\.project\.json/);
+    assert.match(output, /distinctive-output/);
+});
+
+for (const exit of [0, 17, 124]) {
+    test(`a configured deadline preserves a command's actual exit ${exit} before the deadline`, () => {
+        const output = plan(
+            { [overrideFile]: JSON.stringify({ gates: [{
+                id: 'backend-specs', workingDirectory: '.', requires: {}, timeoutSeconds: 10,
+                command: ['/bin/sh', '-c', `exit ${exit}`],
+            }] }) },
+            { 'Source/example.cs': 'class Example {}' },
+            {},
+            { dryrun: false, expectedStatus: exit === 0 ? 0 : 2 },
+        );
+        assert.doesNotMatch(output, /TIMED OUT/);
+        if (exit !== 0) assert.match(output, new RegExp(`QUALITY GATE FAILED: backend-specs \\(exit ${exit}\\)`));
+    });
+}
+
+test('a timeout remains a failure when failFast is false and later directories still run', () => {
+    const output = plan(
+        {
+            'a/package.json': '{}', 'b/package.json': '{}',
+            [overrideFile]: JSON.stringify({ failFast: false, gates: [{
+                id: 'backend-specs', workingDirectoryFrom: ['**/package.json'], requires: {}, timeoutSeconds: 1,
+                command: ['/bin/sh', '-c', 'case "$PWD" in */a) exec sleep 600 ;; *) exit 17 ;; esac'],
+            }] }),
+        },
+        { 'a/change.cs': 'class A {}', 'b/change.cs': 'class B {}' },
+        {}, { dryrun: false, expectedStatus: 2 },
+    );
+    assert.match(output, /TIMED OUT: backend-specs after 1s \(cwd: a\)/);
+    assert.match(output, /QUALITY GATE FAILED: backend-specs \(exit 17\)/);
+    assert.match(output, /cwd: b/);
+});
+
+for (const timeoutSeconds of [0, -1, 1.5, '', 'soon', false]) {
+    test(`an invalid per-gate deadline (${timeoutSeconds}) is unverified rather than silently unbounded`, () => {
+        const output = plan(
+            { [overrideFile]: JSON.stringify({ gates: [{
+                id: 'backend-specs', workingDirectory: '.', requires: {}, timeoutSeconds, command: ['/bin/true'],
+            }] }) },
+            { 'Source/example.cs': 'class Example {}' }, {}, { expectedStatus: 2 },
+        );
+        assert.match(output, /UNVERIFIED backend-specs — timeoutSeconds must be an integer/);
+    });
+}
 
 test('an override that replaces only the command still runs when the repository lacks the managed script', () => {
     const output = plan(
