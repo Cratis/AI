@@ -91,6 +91,11 @@ does not retry it. Instead:
 
 - The provider is parked exactly like a rate limit, until the stated reset, the capacity's
   `AvailableAgainAt`, or `RateLimitCooldown`, so later calls skip it without spending a request.
+  `ProviderAwareLanguageModel` and `PooledChatClient` park it. The standalone
+  `IAIProviderPoolDispatcher` does not: it is a singleton with no tenant, so it cannot record a
+  rate limit against a tenant's provider. It fails over to the next member and skips members whose
+  own quota headers already reported them exhausted, or that already have a rate limit recorded.
+  Dispatch through `ProviderAwareLanguageModel` when an exhausted provider must stay parked.
 - A pool sends the same request on to the next member. For a completion that is the same prompt; for
   a conversation it is the same messages and chat options.
 - When every member is out of quota, the call fails with a reason that says the pool is exhausted
