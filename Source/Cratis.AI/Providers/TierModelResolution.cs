@@ -42,7 +42,7 @@ public static class TierModelResolution
 
     /// <summary>
     /// Explains the effective model without replacing an explicit mapping the catalog contradicts.
-    /// A non-empty catalog is the last successful discovery, even if a later refresh failed.
+    /// A recorded successful discovery is authoritative even when its catalog is empty or a later refresh failed.
     /// </summary>
     /// <param name="provider">The configured provider.</param>
     /// <param name="tier">The tier being asked for.</param>
@@ -53,7 +53,8 @@ public static class TierModelResolution
         var mapped = provider.TierModels.For(tier);
         if (!mapped.Equals(ModelName.NotSet))
         {
-            return catalog.Length > 0 && !catalog.Contains(mapped)
+            var hasSuccessfulDiscovery = provider.ModelsDiscoveredAt != default || catalog.Length > 0;
+            return hasSuccessfulDiscovery && !catalog.Contains(mapped)
                 ? new(
                     tier,
                     ModelName.NotSet,
@@ -68,7 +69,7 @@ public static class TierModelResolution
             return derived;
         }
 
-        var alias = catalog.Length == 0 && provider.Type == AIProviderType.Anthropic && AnthropicCredential.IsOAuthToken(provider.ApiKey)
+        var alias = provider.Type == AIProviderType.Anthropic && AnthropicCredential.IsOAuthToken(provider.ApiKey)
             ? ClaudeCodeModels.For(tier)
             : ModelName.NotSet;
 
