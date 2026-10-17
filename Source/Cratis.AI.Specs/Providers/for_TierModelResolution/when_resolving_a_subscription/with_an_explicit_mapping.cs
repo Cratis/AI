@@ -11,7 +11,7 @@ public class with_an_explicit_mapping : Specification
         new(AIProviderId.New(), AIProviderType.Anthropic, "sk-ant-oat-test")
         {
             TierModels = new(ModelName.NotSet, "claude-configured", ModelName.NotSet, ModelName.NotSet),
-            AvailableModels = [(ModelName)"claude-discovered"]
+            AvailableModels = [(ModelName)"claude-configured", (ModelName)"claude-discovered"]
         },
         ModelTier.Balanced);
 

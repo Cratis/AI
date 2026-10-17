@@ -106,6 +106,38 @@ does not retry it. Instead:
 A Claude Code conversation that has already attempted a tool call still does not fail over, quota or
 not, because replaying the turn elsewhere could repeat the tool's effects.
 
+## Inspect tier resolution
+
+A provider can have capacity but still be unable to serve an agent's tier. Use the generated
+`ResolveTiersFor` query in `@cratis/ai` (`ProviderTierResolution.ResolveTiersFor` on the backend)
+to read all four effective tiers before changing a mapping or rolling out a provider configuration.
+Each row includes the model, its `Source`, a `Reason` for a refusal or borrowed rung, the last
+successful discovery time, and the latest discovery failure.
+
+- `Configured`: a stored mapping, whether set by an operator or derived and saved automatically at
+  the provider's first successful discovery. A successfully read catalog, even an empty one, must
+  contain the exact model identifier; otherwise the tier is `Unsatisfied`. Before any successful
+  discovery the mapping is trusted but unverified.
+- `Derived`: for a tier left unmapped, the best conversational model on its own catalog rung.
+- `Borrowed`: for a tier left unmapped, the existing derivation order picked another rung; the reason
+  names it. This does not replace a stored mapping.
+- `SubscriptionAlias`: an official Claude Code alias for an unmapped subscription tier whose catalog
+  yields no conversational model, including an empty catalog.
+- `Unsatisfied`: no usable model. The completion or conversation fails with the provider, tier,
+  and reason; a pool skips that member before making a vendor call, without recording a rate limit.
+
+A refused mapping is never silently replaced or downgraded. When a vendor retires a model, a stored
+mapping that names it stays refused until you change or clear it, even if the mapping was derived
+automatically. Set a model the provider lists, or clear the tier's mapping to let it derive at
+resolution time. Clearing the entire mapping also lets `RefreshAvailableModels` derive and save a
+new one. Saving a mapping does not validate it against the catalog; resolution does. A failed
+refresh does not invalidate the last successful catalog.
+
+Discovery is not an entitlement probe. In particular, a subscription catalog read with a separate
+usage key describes the organization's model list, not what the subscription token may use, and a
+CLI alias promises no entitlement either. This query reads recorded discovery; it makes no live
+vendor call and does not preview an uncommitted tier change.
+
 ## Options
 
 Bound from `Cratis:AI:Providers` (`AIProviderOptions`):

@@ -49,24 +49,56 @@ public static class TierModelAssignment
     /// <returns>The mapping, or <see cref="TierModels.NotSet"/> when the catalog names nothing usable.</returns>
     public static TierModels From(IEnumerable<ModelName>? models)
     {
-        var ranked = (models ?? [])
-            .Where(model => AIModelCapabilities.For(model).Contains(AIModelCapability.Conversational))
-            .Select((model, order) => new Candidate(model, RankOf(model), VersionOf(model), order))
-            .ToArray();
-
-        if (ranked.Length == 0)
-        {
-            return TierModels.NotSet;
-        }
+        var ranked = CandidatesFor(models);
 
         return new(
-            Pick(ranked, Rung.Modest),
-            Pick(ranked, Rung.Everyday),
-            Pick(ranked, Rung.Foremost),
-            Pick(ranked, Rung.Frontier));
+            Pick(ranked, Rung.Modest)?.Model ?? ModelName.NotSet,
+            Pick(ranked, Rung.Everyday)?.Model ?? ModelName.NotSet,
+            Pick(ranked, Rung.Foremost)?.Model ?? ModelName.NotSet,
+            Pick(ranked, Rung.Frontier)?.Model ?? ModelName.NotSet);
     }
 
-    static ModelName Pick(IReadOnlyList<Candidate> ranked, int rung)
+    /// <summary>
+    /// Explains which catalog rung supplied the requested tier without changing the borrowing order.
+    /// </summary>
+    /// <param name="models">The models the provider published.</param>
+    /// <param name="tier">The tier being asked for.</param>
+    /// <returns>The selected model and whether it came from the tier's own rung or a borrowed one.</returns>
+    internal static TierModelResolved Explain(IEnumerable<ModelName>? models, ModelTier tier)
+    {
+        var rung = tier switch
+        {
+            ModelTier.Fast => Rung.Modest,
+            ModelTier.Balanced => Rung.Everyday,
+            ModelTier.Powerful => Rung.Foremost,
+            ModelTier.Premier => Rung.Frontier,
+            _ => -1
+        };
+        var picked = rung < 0 ? null : Pick(CandidatesFor(models), rung);
+        if (picked is null)
+        {
+            return new(tier, ModelName.NotSet, TierModelSource.Unsatisfied, $"No catalog model satisfies {tier}.");
+        }
+
+        return picked.Rung == rung
+            ? new(tier, picked.Model, TierModelSource.Derived, string.Empty)
+            : new(tier, picked.Model, TierModelSource.Borrowed, $"{tier} borrows {picked.Model} from the {NameOfRung(picked.Rung)} rung because its {NameOfRung(rung)} rung has no conversational model.");
+    }
+
+    static Candidate[] CandidatesFor(IEnumerable<ModelName>? models) => (models ?? [])
+        .Where(model => AIModelCapabilities.For(model).Contains(AIModelCapability.Conversational))
+        .Select((model, order) => new Candidate(model, RankOf(model), VersionOf(model), order))
+        .ToArray();
+
+    static string NameOfRung(int rung) => rung switch
+    {
+        Rung.Modest => "Modest",
+        Rung.Everyday => "Everyday",
+        Rung.Foremost => "Foremost",
+        _ => "Frontier"
+    };
+
+    static Candidate? Pick(IReadOnlyList<Candidate> ranked, int rung)
     {
         foreach (var preferred in PreferenceFor(rung))
         {
@@ -78,11 +110,11 @@ public static class TierModelAssignment
 
             if (best is not null)
             {
-                return best.Model;
+                return best;
             }
         }
 
-        return ModelName.NotSet;
+        return null;
     }
 
     // A rung with nothing on it borrows from the neighbour that says the least about capability in

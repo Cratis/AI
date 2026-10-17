@@ -317,8 +317,15 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} cannot serve the {purpose.Value} agent");
         }
 
-        var model = TierModelResolution.Resolve(provider, tier);
-        if (model.Equals(ModelName.NotSet) || !chatClientFactory.CanServe(provider, model))
+        var resolution = TierModelResolution.Explain(provider, tier);
+        if (resolution.Source == TierModelSource.Unsatisfied)
+        {
+            logger.NoModelResolvedForTier(providerId, provider.Type, tier, resolution.Reason);
+            return PoolAttempt<(T, AIProviderId)>.Skipped(resolution.Reason);
+        }
+
+        var model = resolution.Model;
+        if (!chatClientFactory.CanServe(provider, model))
         {
             logger.ChatProviderCannotServe(providerId, provider.Type, purpose);
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} has no usable model for the {purpose.Value} agent");

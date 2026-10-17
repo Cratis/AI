@@ -11,12 +11,21 @@ public class and_the_provider_published_a_catalog : Specification
 {
     static readonly IEnumerable<ModelName> _catalog =
     [
+        new ModelName("configured-balanced"),
         new ModelName("claude-opus-4-5-20251101"),
         new ModelName("claude-sonnet-4-5-20250929"),
         new ModelName("claude-haiku-4-5-20251001"),
     ];
 
     static readonly TierModels _configured = TierModels.NotSet with { Balanced = new ModelName("configured-balanced") };
+
+    [Fact] void should_report_a_derived_source_for_the_unmapped_tier() => TierModelResolution.Explain(
+        new(AIProviderId.New(), AIProviderType.Anthropic, "test-key")
+        {
+            TierModels = _configured,
+            AvailableModels = _catalog
+        },
+        ModelTier.Powerful).Source.ShouldEqual(TierModelSource.Derived);
 
     [Fact]
     void should_resolve_the_mapped_tier_to_the_mapping() =>
