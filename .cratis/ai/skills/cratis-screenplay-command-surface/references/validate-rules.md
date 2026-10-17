@@ -79,8 +79,10 @@ validate
 
 A bodied rule or fenced block on a validation, rule or policy binds as opaque code
 (ESM v3): the reference runner reports it unsupported, and a target must supply the
-implementation. Attached command handlers and `file` constraints remain PLAY0268
-(only `unique` constraints bind). Pending command handlers beside unconditional
+implementation. Attached command handlers refuse PLAY0800 and require constrained
+implementation attachments; `file` constraints retain PLAY0268 (only `unique`
+constraints bind). Requires Screenplay 4.210.0 (`screenplay --version`) for the
+handler's PLAY0800; older binders use PLAY0268. Pending command handlers beside unconditional
 `produces` instead bind as described commands; see [described handlers](described-handlers.md).
 Literal text rules, portable patterns and Studio desugaring: [text and match rules](text-and-match-rules.md).
 Stage renders pure reducer transitions and opaque policy bodies, but refuses command and

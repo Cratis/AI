@@ -376,9 +376,13 @@ keys (STAGE-ESM-048/-047). Read
 Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines refuse -044.
 
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
+
+Requires Screenplay 4.210.0 (`screenplay --version`) for PLAY0800 and its required typed `subject`; older binders attribute attached command handlers to PLAY0268. Other PLAY0268 refusal families are unchanged.
+
 | Code | Meaning | Fix |
 |---|---|---|
-| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists attached handlers, unsupported query shapes, protected enum/identity concepts, read paths without opt-in or in `produces when`, Uuid ordering, different Uuid concepts and Uuid rules, and older bundled-compiler limits) | stay in design mode, or change the construct if the domain allows; never strip `pii`/authorization |
+| PLAY0268 | construct not representable in a supported ESM version yet (`executable-subset.md` lists unsupported query shapes, protected enum/identity concepts, read paths without opt-in or in `produces when`, Uuid ordering, different Uuid concepts and Uuid rules, and older bundled-compiler limits) | stay in design mode, or change the construct if the domain allows; never strip `pii`/authorization |
+| PLAY0800 | error `CommandHandlerRequiresAttachment`: a file/inline command handler requires a constrained implementation attachment; required typed `subject` identifies the command | permanent limitation: gap-fill the slice in code, not by waiting for ESM admission; hosts switch on the code and read `arguments.subject`, never match the message |
 | PLAY0269 / 0270 | UI deferred / authoring metadata (I) | none |
 | PLAY0271 | legacy `reads` or a `concurrency` block keeps its legacy meaning and cannot bind (error) | opt eligible command reads into v25 with reviewed preamble repair; `concurrency` remains unbound; uniqueness uses a constraint, target realization stays separate |
 | PLAY0273 | incoherent: ambiguous `for`, property not on event revision, operand type mismatch, derived `$eventContext` path, unparsable date literal or offset-less DateTime literal in an admitted v26 comparison, or a Uuid comparison literal that is not lowercase hyphenated (v28) | fix the reference or literal; DateTime needs offset/Z; Uuid literals are lowercase hyphenated |

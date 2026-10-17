@@ -1,5 +1,11 @@
 # Specification forms by mode
 
+## Contents
+
+- Design mode
+- Executable mode
+- Renderable mode
+
 The subsets themselves (what binds, what renders) are owned by `cratis-screenplay-toolchain`
 (its executable and renderable subset references); installed versions by its `SKILL.md`. This file
 says what that means for writing specs. A form outside the chosen mode is never deleted from a
@@ -38,9 +44,12 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Date rules using `today`, `$context`, mixed `Date`/`DateTime`, concept or reaction-`where` positions; nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
 | Pending described command handlers (v23) | specify intent | binds; denial/validation execute, body-reaching specs Unsupported ImplementationBody; all-Unsupported is not green | STAGE-IMPL-002 even Stub mode |
-| Attached command handlers, `file` constraints, query `performer`s | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
+| Attached command handlers | spec them in design | blocked: PLAY0800, no spec runs (V3 blocked); permanent constrained-attachment requirement, gap-fill in code | no |
+| `file` constraints, query `performer`s | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
 | Atomic reaction mode (v22) | declare for new models | failed batch adds no facts or view changes; earlier batches/commands remain; `then error` alone is insufficient | v22 STAGE-ESM-016; mode in admitted v23–v27 STAGE-ESM-043 |
 | Protected command reads (v25) | declare opt-in for eligible reads | absence Validation; matching intervening facts Conflict; race vectors are not a new spec construct | Cratis C# rendering in a new enough bundle (STAGE-ESM-044 before, or for unpreservable shapes); semantic Host/executor execute admitted reads, non-Error protected requirements STAGE-ESM-045; v25 pair admitted |
+
+Requires Screenplay 4.210.0 (`screenplay --version`) for attached handlers to report PLAY0800; older binders use PLAY0268. Other PLAY0268 families are unchanged.
 
 Requires Screenplay 4.105.0 or later (`screenplay --version`) for list-query specifications, and 4.143.0 or later for collection equality filters (ESM v14).
 

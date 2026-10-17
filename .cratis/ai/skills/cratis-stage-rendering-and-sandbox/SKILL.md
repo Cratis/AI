@@ -134,8 +134,13 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
   unsupported conditional productions, composite read-model keys (`STAGE-ESM-048`, and `-047` for a single-instance query by parts) and unsupported `all` shapes.
   Protected reads render as Arc read protection in a new enough bundle; shapes it cannot preserve, and every protected read in an older bundle, refuse `STAGE-ESM-044` (see admission.md). The renderer refuses described handlers `STAGE-IMPL-002`
   (even Stub mode), and atomic mode in admitted pairs `STAGE-ESM-043`.
-- **Binding refusals (`PLAY0268`/`PLAY0271`):** legacy reads, `concurrency`, attached
-  handlers, context/single-result filters, opaque scope/performer, a list-query `by` block,
+- **Attached command handlers (`PLAY0800`):** file/inline handlers permanently require
+  constrained implementation attachments: gap-fill the slice in code, not by waiting
+  for ESM admission. Read the required typed `arguments.subject` for the command,
+  never match message text. Requires Screenplay 4.210.0 (`screenplay --version`);
+  older bundled binders use PLAY0268 for these handlers.
+- **Binding refusals (`PLAY0268`/`PLAY0271`):** legacy reads, `concurrency`,
+  context/single-result filters, opaque scope/performer, a list-query `by` block,
   enum/identity compliance and subject lineage. Eligible protected reads bind v25;
   pending handlers with unconditional productions bind v23, but neither renders. A read model with several key parts (v27) is admitted but refuses rendering (`STAGE-ESM-048`).
   Never drop protection.

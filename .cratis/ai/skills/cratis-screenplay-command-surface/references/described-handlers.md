@@ -33,8 +33,12 @@ module Invoices
 A pending `implementation` has no `file` or fence. Bare `implementation` is valid;
 optional `hint` lines are ordered, nonblank quoted strings, decoded without trimming.
 One wrapper and at most one payload are permitted. Attaching a file or fence stops
-being a described command: attached handlers still fail binding with PLAY0268 and
-cannot coexist with `produces`.
+being a described command: attached handlers fail binding with PLAY0800
+(`CommandHandlerRequiresAttachment`) and cannot coexist with `produces`.
+This permanent limitation requires a constrained implementation attachment:
+gap-fill the slice in code, not by waiting for a supported ESM version.
+
+Requires Screenplay 4.210.0 (`screenplay --version`) for PLAY0800 and its required typed `subject` declaration argument naming the command; older binders use PLAY0268. Hosts switch on the code and read `arguments.subject`, never parse the message.
 
 ## Result contract v1
 
@@ -57,6 +61,7 @@ explicitly admit this version, never silently drop the body.
 
 | Diagnostic | Meaning and action |
 | --- | --- |
+| PLAY0800 (error) | File/inline handler requires a constrained implementation attachment; `subject` identifies the command to gap-fill |
 | PLAY0695 (information) | Described command admitted; command and RequirementId name the missing body |
 | PLAY0696 (error) | No productions, including response-only; add unconditional productions |
 | PLAY0697 (error) | Conditional productions; result v1 needs unconditional events |

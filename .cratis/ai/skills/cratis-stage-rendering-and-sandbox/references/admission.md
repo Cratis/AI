@@ -264,7 +264,11 @@ pure expressions, and no generated type shadowing a referenced one. Anything els
 `STAGE-ESM-019`, `-021` or `-022`. A reducer needs a `StateView` slice, its read model in the
 same slice, a required Guid or text identifier and a matching keyed query. Code validation
 (`STAGE-ESM-005`) is refused outright (opaque pure policies render). Attached
-command handlers remain `PLAY0268`; a pending handler beside unconditional
+command handlers refuse `PLAY0800` and permanently require constrained implementation
+attachments: gap-fill in code, not by waiting for ESM admission. Requires Screenplay
+4.210.0 (`screenplay --version`); older bundled binders use PLAY0268 for these handlers.
+Read the required typed `arguments.subject` for the command rather than the message.
+A pending handler beside unconditional
 productions binds as a described v23 command, but Stage refuses it with
 `STAGE-IMPL-002`, even in Stub mode.
 
