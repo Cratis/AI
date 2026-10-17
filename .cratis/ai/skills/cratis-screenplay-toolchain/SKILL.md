@@ -74,7 +74,7 @@ superseded statement needs context; exceptions do not change the contract.
 
 Read `references/verdicts.md` for exact commands, exit codes, the MCP roots caveat and the model notes gate.
 
-Requires Cratis CLI 3.57.0 or later (`cratis --version`) to render models that use equality filters or concept generation strategies (ESM v14 and v15); an older CLI answers `CLI-RENDER-004`. Requires Cratis CLI 3.74.0 for ESM v21–v26 (it bundles Screenplay 4.201.0 and Stage 4.135.0); ESM v27 and later, including v28 Uuid equality, answer `CLI-RENDER-004` on every CLI.
+Requires Cratis CLI 3.57.0 or later (`cratis --version`) to render models that use equality filters or concept generation strategies (ESM v14 and v15); an older CLI answers `CLI-RENDER-004`. Requires Cratis CLI 3.74.0 for ESM v21–v26; above the CLI's ceiling, a bundled compiler that binds the construct answers `CLI-RENDER-004`, and one that predates it reports the binder's PLAY0268 (Uuid equality before Screenplay 4.205.0). Either way keep the rule and gap-fill.
 
 MCP calls below use the `screenplay` server declared in `.cratis/ai/mcp-servers.json`, for example `screenplay` → `read-workspace`.
 

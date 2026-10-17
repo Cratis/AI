@@ -17,7 +17,7 @@ whether it is admitted; reading the admission rules is not a render result.
 
 Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
 
-Requires Cratis CLI 3.74.0 to render ESM v21–v26 models (bundles Stage 4.135.0); CLI 3.66.0–3.73.0 refuse v21 and later with `CLI-RENDER-004`, and every CLI refuses v27 and later.
+Requires Cratis CLI 3.74.0 to render ESM v21–v26 models; CLI 3.66.0–3.73.0 refuse v21 and later with `CLI-RENDER-004`. Above the ceiling, a construct the bundled compiler cannot bind reports PLAY0268 before `CLI-RENDER-004` is reached.
 
 ## Batches, described handlers, text rules and protected reads
 

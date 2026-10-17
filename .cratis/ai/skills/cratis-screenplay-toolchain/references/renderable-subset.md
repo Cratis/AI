@@ -33,7 +33,7 @@ The CLI's bundled Stage can be older: read installed versions and the pins in
 does not render refuses with its own code before any artifact is planned.
 
 Requires Stage 4.96.0 for stored event names (v16), 4.101.0 for no-event assertions (v17), 4.102.0 for refusal branches (v19), and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
-Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering and 3.74.0 for v21–v26; a bundle below the model's version refuses it with CLI-RENDER-004, and v27 and later always refuse.
+Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering and 3.74.0 for v21–v26; a bundle below the model's version refuses it with CLI-RENDER-004, or with PLAY0268 when its bundled compiler predates the construct.
 
 With an admitting renderer, all-Proven generated-concept rules allow unpinned
 rendered specs; warning/info rules and semantic checksum validation are enforced,

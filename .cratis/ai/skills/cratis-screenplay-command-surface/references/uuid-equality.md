@@ -123,10 +123,12 @@ module Library
 
 PLAY0268 still refuses ordering (`<`, `>`), optional operands, Uuid validation rules on
 a command property (`caller == "…"` under `validate`), Uuid rules on a concept, read paths
-in `produces when`, and text, `$context` or reaction `where` operands. Compare the Uuid
+in `produces when`, collection operands, and text property, `$context` or reaction `where` operands; a
+text literal such as `"x"` reports PLAY0273. Compare the Uuid
 in a `require` instead of a property rule.
 
-Stage refuses v28 with STAGE-ESM-016; the standalone compiler and `screenplay test` are
-unaffected. Keep the condition and hand-write its enforcement through render-and-gap-fill.
+A renderer or CLI that does not admit v28 refuses it (Stage with STAGE-ESM-016, a CLI
+with CLI-RENDER-004, or PLAY0268 when its bundled compiler predates Uuid equality); the
+standalone compiler and `screenplay test` are unaffected. Keep the condition and hand-write its enforcement through render-and-gap-fill.
 Specify the accepting and refusing caller, as the model does. `screenplay <root> --warnaserror`
 must exit zero and `screenplay test <root>` must pass.

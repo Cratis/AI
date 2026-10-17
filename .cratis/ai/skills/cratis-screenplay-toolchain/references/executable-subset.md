@@ -43,7 +43,7 @@ Complete examples that bind live in `executable-example.md`, `pdl-example.md` (p
 `automation-translate-example.md` (ESM v6) and `generated-responses-example.md` (ESM v7).
 
 For atomic batches (v22), described handlers (v23), ordinal text rules (v24) and
-protected reads (v25), chronological command dates (v26) composite keys (v27) and Uuid equality (v28), read
+protected reads (v25), chronological command dates (v26), composite keys (v27) and Uuid equality (v28), read
 [language admission](language-admission.md). A later
 version alone does not enable either application opt-in.
 

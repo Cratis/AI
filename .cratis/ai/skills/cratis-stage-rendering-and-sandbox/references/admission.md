@@ -15,10 +15,11 @@ Stage admits exact ESM v1–v21 and v23–v26 language/semantic pairs, then chec
 constructs. V22, v27, v28 and mixed or unknown pairs report `STAGE-ESM-016`. `cratis render` admits
 ESM v1–v26: Stage plans each model and refuses the constructs it cannot render with typed `STAGE-ESM-*`
 codes (a v22 model reports `STAGE-ESM-016`; v26 date comparisons report `STAGE-ESM-046`). The CLI refuses
-v27 and later with `CLI-RENDER-004` before planning.
+a bound model above v26 with `CLI-RENDER-004` before planning; a construct its bundled compiler cannot bind
+reports PLAY0268 instead.
 
-Requires Cratis CLI 3.74.0 (`cratis --version`) for v21–v26 rendering, which bundles Stage 4.135.0 and starts
-`cratis/stage:4.135.0` in `cratis run`; CLI 3.66.0–3.73.0 stop at v20 and refuse v21 and later with `CLI-RENDER-004`.
+Requires Cratis CLI 3.74.0 (`cratis --version`) for v21–v26 rendering; CLI 3.66.0–3.73.0 stop at v20 and refuse v21 and
+later with `CLI-RENDER-004`. A construct newer than the CLI's bundled compiler reports that binder's PLAY0268 first.
 Requires Cratis CLI 3.63.0 for v17 and v19 and 3.65.0 for v18; older CLIs refuse those versions with `CLI-RENDER-004`.
 
 Requires Stage 4.96.0 for v16, 4.101.0 for v17, 4.102.0 for v19, 4.106.0 for v18, and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
@@ -182,7 +183,7 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-CRATIS-001` to `-005` | Profile or `scene.json` not the package-owned shape; unrecognized or missing scaffold input; artifact path collision (`-004`, for example case names that normalize to one path); a modeled module or feature that would render into the reserved `Customizations/` (`-005`) | Rename the module, feature or case |
 | `STAGE-AUTH-001` | Authorization cannot be rendered faithfully | As `STAGE-ESM-015` |
 | `CLI-RENDER-001`, `-002` | Unknown target; invalid rendering name | Fix the option, or the model |
-| `CLI-RENDER-004` | The bound model is above the CLI bundle's admitted ceiling (v26 for CLI 3.74.0; v20 for CLI 3.66.0–3.73.0) | Not fixable by editing: keep the model, gap-fill |
+| `CLI-RENDER-004` | The bound model is above the CLI bundle's admitted ceiling (`cratis --version` and the Requires lines above give it); a construct the bundled compiler cannot bind reports PLAY0268 instead | Not fixable by editing: keep the model, gap-fill |
 | `CLI-RENDER-005`, `-006` | Authored metadata with characters invalid in XML blocks rendering of XML doc comments; a document set that cannot be read as a workspace renders without comments (warning) | Remove the invalid characters |
 | `CLI-RENDER-007` to `-010` | `ui profile` refusals (package set, profile shape) | See `--package-set` |
 | `CLI-RENDER-011` to `-014` | `--scope`: unknown address; ambiguous feature and slice name; aggregate or unrecognized policy layout (render the whole application once); a dependency not in the manifest or the scope | Fix the address or add the owning scope |
