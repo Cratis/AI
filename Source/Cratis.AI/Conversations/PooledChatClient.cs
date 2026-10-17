@@ -184,9 +184,10 @@ public sealed class PooledChatClient(
         {
             return exception.GetRawResponse()?.Content.ToString() ?? string.Empty;
         }
-        catch (InvalidOperationException)
+        catch (Exception)
         {
-            // The response was never buffered, so there is no body to read - the status and message stand alone.
+            // Classifying a failure must not become a second failure: an unbuffered, disposed or otherwise
+            // unreadable response has no body to read, so the status and message stand alone.
             return string.Empty;
         }
     }

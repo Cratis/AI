@@ -30,6 +30,9 @@ internal sealed record VendorRedaction(IReadOnlyList<string> Secrets, IReadOnlyL
         {
             secrets.Add(apiKey.Value);
             secrets.Add(apiKey.Value.Trim());
+
+            // A vendor may echo the key URL-encoded, where '%' would also split it below the patterns' reach.
+            secrets.Add(Uri.EscapeDataString(apiKey.Value.Trim()));
         }
 
         // A credential is never exempt, even if it is also what the model or provider id says.

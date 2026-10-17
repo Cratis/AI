@@ -110,16 +110,9 @@ internal static partial class VendorErrorBody
         // pattern could split or miss it.
         var scrubbed = redaction.Secrets.Aggregate(text, (current, secret) => current.Replace(secret, "[redacted]", StringComparison.Ordinal));
 
-        // The request's own ids are parked behind a marker no pattern can match, then restored, so the
-        // exemption is the exact string and the patterns are not narrowed.
-        scrubbed = redaction.Preserved
-            .Select((value, index) => (value, marker: $"~keep{index}~"))
-            .Aggregate(scrubbed, (current, entry) => current.Replace(entry.value, entry.marker, StringComparison.Ordinal));
-        scrubbed = Credentials().Replace(scrubbed, "[redacted]");
-
-        return redaction.Preserved
-            .Select((value, index) => (value, marker: $"~keep{index}~"))
-            .Aggregate(scrubbed, (current, entry) => current.Replace(entry.marker, entry.value, StringComparison.Ordinal));
+        // The request's own ids are exempt only when a credential match is exactly one of them, so an
+        // id that happens to sit inside a longer token never splits that token below the pattern's reach.
+        return Credentials().Replace(scrubbed, match => redaction.Preserved.Contains(match.Value, StringComparer.Ordinal) ? match.Value : "[redacted]");
     }
 
     [GeneratedRegex(@"""(?:\\.|[^""\\])*""", RegexOptions.CultureInvariant, 100)]
