@@ -11,9 +11,8 @@ ships a **renderer** (a .NET library, driven from a terminal by `cratis render`)
 disposable **sandbox** container (`cratis/stage`, started by `cratis run`) and a
 **specification runner** container (`cratis/stage-specrunner`).
 
-The admitted model shape is deliberately small. A model Stage cannot render exactly
-produces **no artifacts at all**, never thinner ones. Render the model to find out
-whether it is admitted; reading the admission rules is not a render result.
+A model Stage cannot render exactly produces **no artifacts**, never thinner ones.
+Probe the model; admission rules are not a render result.
 
 Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
 
@@ -22,9 +21,9 @@ Requires Cratis CLI 3.74.0 to render ESM v21–v26 models and 3.75.0 for v27; CL
 ## Batches, described handlers, text rules and protected reads
 
 Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
-for v22–v25: text rules render, atomic batches/protected reads/described bodies do
-not. The semantic Host and specification runner execute admitted protected reads;
-that is not rendering. Stub mode emits no described-body stubs. Keep protection and report refusal.
+for v22–v25: text rules and admitted protected reads render; atomic batches and
+described bodies do not. Semantic execution is separate from rendering. Stub mode
+emits no described-body stubs. Keep protection and report refusal.
 
 ## When to use
 
@@ -73,12 +72,15 @@ Order: recover any interrupted publication, compile, bind, build the plan, plan 
 Exit `0` is a published render, `5` is a refusal with nothing published (diagnostics are
 printed), `1` is a missing input. Add `-o json` for the counts and the publication receipt.
 
-Facts that surprise:
+Key facts:
 
 - **Binding uses the CLI's bundled compiler**, not the standalone one. Version admission
-  does not imply construct support: exact ESM v1–v21 and v23–v27 pairs are admitted,
-  while v22/v28 and mixed pairs refuse `STAGE-ESM-016`. Date/DateTime command comparisons (v26)
-  execute in the semantic Host and executor but refuse `STAGE-ESM-046` in the renderer. Pattern/random generation and checksum validation
+  does not imply construct support: exact ESM v1–v27 pairs are admitted;
+  v28 and mixed pairs refuse `STAGE-ESM-016`. Requires Stage 4.139.0 for v22 admission;
+  older Stage refuses v22 with `-016`, while atomic mode still refuses `-043`.
+  Requires Stage 4.141.0 to render v26 Date/DateTime command comparisons; older
+  renderers refuse `-046`. Read [references/date-comparisons.md](references/date-comparisons.md)
+  when rendering dates for the remaining refusals and input-binding differences. Pattern/random generation and checksum validation
   render with an admitting renderer; `generate rule` renders in a new enough bundle (the Host and legacy syntax engine still refuse it with `STAGE-ESM-028`).
   Read [references/admission.md](references/admission.md) for the introducing-release
   prerequisites, all-Proven unpinned specifications and construct/pin checks (-011/-038).
@@ -116,7 +118,10 @@ modified stale artifacts. Recovery runs before planning:
 
 ## Admission
 
-One blocker publishes nothing. Codes, limits and fixes: [references/admission.md](references/admission.md).
+One blocker publishes nothing. Requires Stage 4.146.0 to collect independent admission
+refusals in one plan; older renderers stop at earlier batches of checks. Target-profile
+and unaudited-version refusals still stop first. Codes, limits and fixes:
+[references/admission.md](references/admission.md).
 
 - **Renders:** concepts/types/collections/optionals; portable StateChange and StateView slices,
   flat/scoped projections, pure reducers and reducer `from` filters; keyed optional snapshots,
@@ -139,11 +144,9 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
   for ESM admission. Read the required typed `arguments.subject` for the command,
   never match message text. Requires Screenplay 4.210.0 (`screenplay --version`);
   older bundled binders use PLAY0268 for these handlers.
-- **Binding refusals (`PLAY0268`/`PLAY0271`):** legacy reads, `concurrency`,
-  context/single-result filters, opaque scope/performer, a list-query `by` block,
-  enum/identity compliance and subject lineage. Eligible protected reads bind v25;
-  pending handlers with unconditional productions bind v23, but neither renders. A read model with several key parts (v27) is admitted but refuses rendering (`STAGE-ESM-048`).
-  Never drop protection.
+- **Binding refusals:** read toolchain `references/executable-subset.md` for
+  `PLAY0268`/`PLAY0271` families; binding is not rendering. V27 keys are admitted
+  but refuse rendering (`STAGE-ESM-048`). Never drop protection.
 
 A refusal is not a licence to weaken the model: drop no specification, event generation or
 protection to get a render; keep the model, record the capability gap and gap-fill.
@@ -156,19 +159,15 @@ prose is not enforced. A documentation edit changes managed-file hashes (a `--ch
 Generated identities: read [shop strategy choices](references/choosing-generation.md) before
 rendering a model with generated values. Case tables and whole numbers:
 [case tables and whole numbers](references/case-tables-and-whole-numbers.md).
-`[ProtectedDecision]` and `DecisionRead<T>` are available to gap-fill code, not
-automatically emitted or protected by Stage; admission and unit-of-work enrollment still matter.
+Gap-fill `[ProtectedDecision]`/`DecisionRead<T>` use still needs admission and
+unit-of-work enrollment.
 
 ## What it emits
 
-At application scope the plan holds the scaffold plus the modeled artifacts: a `.csproj`
-and `.slnx`, `Program.cs`, `appsettings.json`, `docker-compose.yml`, the Directory props
-files, a policy registration and generated policies, `Common/<Concept>.cs`, one
-`<Module>/<Feature>/<Slice>/` folder per slice with the `[Command]` record and `Handle()`,
-the `[EventType]` event, the validator and the `[ReadModel]` with its query, `scene.json`,
-and a React/Vite frontend scaffold (`.frontend/`, `package.json`, `tsconfig.json`,
-`.gitignore`). Per-file detail, the scaffold's dependency set and the `Customizations/`
-contract, including the opt-in self-reducing layout for confirmed new Cratis C# applications:
+Application plans hold the backend scaffold, concepts, commands/events/validators,
+read models/queries and policies, plus Scene and React/Vite frontend artifacts.
+Read the per-file scaffold, dependency and `Customizations/` contract, including
+the opt-in self-reducing layout for confirmed new Cratis C# applications:
 [references/rendered-application.md](references/rendered-application.md). Scene
 package ids, host capabilities and the boundary from hand-built Components pages:
 [references/scene-runtime.md](references/scene-runtime.md). A complete renderable model:
@@ -193,36 +192,19 @@ Silent fallback to a default screen is a failure, not a partial render.
 
 ## Sandbox and specification runner
 
-`cratis run [PATH]` (Docker required) starts `cratis/stage` on the folder or file: Stage
-API on `9090`, Chronicle Workbench on `https://localhost:35000`. It is a **partial,
-disposable runtime**, not a generated application. `cratis run` runs the `semantic` engine
-(Requires Cratis CLI 3.73.0); Stage's semantic engine is the only engine going forward. The legacy
-EventModel engine (older CLIs, or the image without `Stage__Runtime__Engine=semantic`) is legacy; do not rely on it.
-It appends modeled
-`produces` facts and echoes the payload. It refuses missing required properties and
-simple literal `validate` rules on top-level properties, but enforces no other rule, no
-constraint and no command or query authorization; the semantic engine enforces them and
-refuses what it cannot execute (HTTP 501). The legacy engine
-also refuses routed models (`STAGE-ESM-030`), composite read-model keys (v27) and protected reads (`STAGE-ESM-044`); the semantic engine runs composite keys.
-Requires Cratis CLI 3.75.0 for `cratis run` to run v27 composite keys.
-Requires Stage 4.129.0 for semantic Host/runner protected reads; older engines refuse
-`STAGE-ESM-044`. Required absence rejects before requirements/generation, read properties
-feed requirements and productions, and non-Error protected requirements refuse
-`STAGE-ESM-045`, including reaction invocations. The Host faults on any outside append,
-even unrelated facts; this is stricter than reference dependency-scoped conflicts.
-Callers are built from unsigned headers, so
-authorization there is not a security boundary.
+`cratis run [PATH]` (Docker required) starts the disposable `cratis/stage`, not a
+generated application: API on `9090`, Workbench on `https://localhost:35000`.
+Requires Cratis CLI 3.73.0 for the semantic engine by default, 3.75.0 for v27 keys;
+older CLIs use the legacy EventModel engine, which does not enforce authorization.
+Unsigned caller headers make sandbox authorization no security boundary.
+Read [references/sandbox-and-specrunner.md](references/sandbox-and-specrunner.md)
+before running either image: engine selection, protected reads, outside-append
+conflicts/retries, reached bodies, authored occurrence and generated-spec limits live there.
 
-`cratis/stage-specrunner` checks modeled specifications and writes a results file. The
-default `structural` engine is deprecated and model-level only; `--engine semantic`
-executes admitted specs through Arc's in-memory pipeline and reports `Passed`, `Failed`,
-`Unsupported` or `Cancelled`. A green result is Stage semantic-engine evidence: not V4 and
-not a rendered Debug test run. Commands, the report schema and limits:
-[references/sandbox-and-specrunner.md](references/sandbox-and-specrunner.md).
-
-Specification runner exit codes: `0` means the run completed and the results file was
-written **even when a specification failed**, so read the outcomes; `1` is a missing or
-uncompilable input; `2` a missing required argument or an invalid semantic option.
+`cratis/stage-specrunner --engine semantic` reports `Passed`, `Failed`, `Unsupported`
+or `Cancelled`; deprecated structural mode is model-level only. Neither proves V4
+or rendered Debug tests. Exit `0` means the report was written **even on failed specs**:
+read outcomes. Exit `1` means missing/uncompilable input; `2` invalid arguments.
 
 ## Behavior walk (optional, after V3)
 

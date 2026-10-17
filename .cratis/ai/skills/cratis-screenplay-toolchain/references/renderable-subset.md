@@ -23,10 +23,13 @@ and concept compliance (v13) render.
 
 The language is frozen at ESM v1–v28 ([the freeze decision](https://github.com/Cratis/Screenplay/blob/main/decisions/0092-the-language-is-frozen-at-esm-v28.md)): no new versions, constructs, keywords or grammar, except a construct for a real model that is blocked with no model-side alternative, accepted in its own record. Model with what v1–v28 offers; when Stage, `cratis render` or Studio does not support a construct yet, treat the typed refusal as a platform gap to report, since consumers are catching up to v28, not a reason to wait for new language.
 
-Stage admits exact ESM v1–v21 and v23–v27 pairs; v22/v28 and mixed pairs
-refuse STAGE-ESM-016. Chronological command Date/DateTime comparisons select v26:
-the Host and executor run them, but the renderer refuses STAGE-ESM-046, so they are not renderable. Keep the
-rule and use authorized gap-fill. Version admission is separate from construct support.
+Stage admits exact ESM v1–v27 pairs; v28 and mixed pairs refuse STAGE-ESM-016.
+Requires Stage 4.139.0 for v22 admission; older Stage refuses v22 with -016,
+while atomic mode remains -043. Chronological command dates select v26.
+Requires Stage 4.141.0 to render Date/DateTime comparisons; older renderers refuse -046.
+Read [rendered dates](../../cratis-stage-rendering-and-sandbox/references/date-comparisons.md)
+when checking remaining -046 shapes and input-binding differences. Version admission
+is separate from construct support.
 Requires Stage 4.106.0 for v18 admission; older Stage refuses it with `STAGE-ESM-016`.
 For generated-concept v20/v21 admission and construct prerequisites, read
 [Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md).

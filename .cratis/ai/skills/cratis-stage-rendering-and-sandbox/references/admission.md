@@ -11,10 +11,10 @@
 - Specification rules (`STAGE-ESM-011`)
 - Refusals seen while drafting a model
 
-Stage admits exact ESM v1–v21 and v23–v27 language/semantic pairs, then checks
-constructs. V22, v28 and mixed or unknown pairs report `STAGE-ESM-016`. `cratis render` admits
-ESM v1–v27: Stage plans each model and refuses the constructs it cannot render with typed `STAGE-ESM-*`
-codes (a v22 model reports `STAGE-ESM-016`; v26 date comparisons report `STAGE-ESM-046`; v27 composite
+Stage admits exact ESM v1–v27 language/semantic pairs, then checks
+constructs. V28 and mixed or unknown pairs report `STAGE-ESM-016`. `cratis render` admits
+ESM v1–v27: Stage plans each model and refuses the constructs it cannot render with typed `STAGE-*`
+codes (atomic batches report `STAGE-ESM-043`; unsupported v26 date shapes `STAGE-ESM-046`; v27 composite
 read-model keys report `STAGE-ESM-048`/`-047`). The CLI refuses
 a bound model above v27 with `CLI-RENDER-004` before planning; a construct its bundled compiler cannot bind
 reports PLAY0268 instead.
@@ -38,15 +38,16 @@ opaque/unsupported rules refuse -005 before pin evaluation. Independent executio
 always needs pins.
 Requires Stage 4.124.0 for v24 text-rule admission (`cratis --version` identifies the CLI bundle); older renderers refuse v24 with STAGE-ESM-016.
 Requires Stage 4.127.0 for v25 version admission; older renderers refuse v25 with STAGE-ESM-016. Requires Stage 4.138.0 for the Cratis renderer to render protected reads as Arc read protection (`[ReadProtection(On)]`, a nullable read-model `Handle` parameter per read with `[LookUpBy]`, the `<View> '<key>' does not exist.` rejection, requirements evaluated in `Handle` after the reads; generated specifications run in decision mode); `cratis render` gets it from the first CLI that bundles Stage 4.138.0, and earlier bundles (CLI 3.75.0 bundles 4.137.0) refuse every protected read with STAGE-ESM-044. Reads it cannot preserve faithfully stay STAGE-ESM-044 and name the reason: constrained events, read paths in `produces when`, mappings to optional, collection, composite or mistyped event properties, generated-value freshness scopes. See [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md).
-Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines refuse STAGE-ESM-044. Required absence rejects before requirements or generation; read-backed requirements and produced-event mappings execute. Non-Error protected requirements refuse STAGE-ESM-045, including reaction invocations. See [sandbox boundaries](sandbox-and-specrunner.md#protected-command-reads) for ordering and the Host's stricter outside-append fault boundary.
+Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines refuse STAGE-ESM-044. Required absence rejects before requirements or generation; read-backed requirements and produced-event mappings execute. Non-Error protected requirements refuse STAGE-ESM-045, including reaction invocations. See [sandbox boundaries](sandbox-and-specrunner.md#protected-command-reads) for ordering and outside-append commit boundaries.
 Described handlers refuse STAGE-IMPL-002, even Stub mode; atomic mode in an
 admitted pair refuses STAGE-ESM-043. Version admission never implements a body,
 batch or composite-key rendering. Chronological Date/DateTime command comparisons
-select v26. The semantic Host and specification executor run them; the renderer,
-legacy engines and default sandbox engine refuse them with STAGE-ESM-046, naming the
-property, and emit no artifacts. Standalone reference success is not rendering. Keep
-the date rule and use authorized gap-fill rather than downgrading to ordinal text or
-millisecond precision.
+select v26. The semantic Host and specification executor run them.
+Requires Stage 4.139.0 for v22 admission; older Stage refuses v22 with -016.
+Requires Stage 4.141.0 for rendered date comparisons; older renderers and legacy
+engines refuse -046. Read [date comparisons](date-comparisons.md) when rendering
+v26 for the remaining -046 shapes and input-binding differences. Keep refused date
+rules; never downgrade to ordinal text or millisecond precision.
 
 Requires Stage 4.135.0 for v26 admission; older Stage refuses v26 with STAGE-ESM-016.
 
@@ -60,6 +61,13 @@ prerequisite. The exhaustive construct table is `references/renderable-subset.md
 
 One blocking diagnostic fails the **whole** plan and nothing is published (exit 5).
 Informational diagnostics (`PLAY0270` authoring metadata, `PLAY0469`, `STAGE-ESM-023`) do not.
+
+Requires Stage 4.146.0 for one plan collecting all independent version-feature,
+implementation-envelope, typed-context, event-lineage, slice, specification and Scene
+admission refusals; older renderers return earlier batches first. Duplicate refusals
+are listed once; refusals already collected survive an unexpected model shape.
+A target-profile mismatch or unaudited ESM version still stops before these checks.
+Classify the complete plan before editing; another probe is still required after fixes.
 
 A refusal can come from four layers, and the code tells you which: compilation and binding
 (`PLAY*`, from the CLI's bundled Screenplay), execution planning (`PLAN-*`), Stage
@@ -149,13 +157,13 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-005` | Code validation or rule predicate bodies; or a command beyond the first capability (optional event property, event revision other than the first, validation or requirement that cannot be rendered, neither `produces` nor a response) | Use declarative validation; non-initial event generations are not rendered |
 | `STAGE-ESM-006` | `produces` that cannot render without changing its destination or mappings (expression/enum conditions, literal or computed mappings, `for` not a command identifier, mappings not one-to-one with event properties, duplicate tags) | Map properties one to one; supported conditional productions render as guarded events, not separate commands |
 | `STAGE-ESM-007`, `-008`, `-009` | Projection count per read model (exactly one projection or reducer each); unresolvable properties or no single read-model transition (**flat** projections only); affected instance not one, not keyed by an event property, or not the event-source identity (flat projections only) | One projection per read model; see "Projections" below |
-| `STAGE-ESM-010` | A query is neither an optional snapshot lookup by the read-model identifier nor a supported snapshot/observable collection query; each query is checked on its own. Both collection modes render. Concept-typed keys and filters retain Arc validation, including composite members and collection elements; nullable concept keys or optional concept filters with `not empty` cannot preserve null semantics | Keyed `XById => X optional` queries or snapshot/observable lists. Equality filters render on both collections; DateTime filters, required filters after optional ones and unsupported null-validation shapes refuse 010. Filter-name collisions refuse 012. Context/single-result filters, opaque scope/performer and a list-query `by` block remain PLAY0268; a read model with several key parts (v27) refuses `STAGE-ESM-016` |
+| `STAGE-ESM-010` | A query is neither an optional snapshot lookup by the read-model identifier nor a supported snapshot/observable collection query; each query is checked on its own. Both collection modes render. Concept-typed keys and filters retain Arc validation, including composite members and collection elements; nullable concept keys or optional concept filters with `not empty` cannot preserve null semantics | Keyed `XById => X optional` queries or snapshot/observable lists. Equality filters render on both collections; DateTime filters, required filters after optional ones and unsupported null-validation shapes refuse 010. Filter-name collisions refuse 012. Context/single-result filters, opaque scope/performer and a list-query `by` block remain PLAY0268; a read model with several key parts (v27) refuses `STAGE-ESM-048` |
 | `STAGE-ESM-011` | A specification cannot render (see the rules below) | Reshape it only if the assertion keeps its meaning; otherwise keep the specification, record the gap, and gap-fill with the specification as the oracle. Never weaken or delete it to get a render |
 | `STAGE-ESM-012` | Generated C# names collide (properties, types, namespaces, constraints) | Rename |
 | `STAGE-ESM-013` | An event-context value other than `$context.occurred` mapped in `produces` | Map a command property when that preserves the meaning; otherwise gap-fill |
 | `STAGE-ESM-014` | A constraint Chronicle cannot reproduce (kind, scope, message; multi-claim in one command; optional or composite targets) | A different constraint is a requirement change for the model owner; otherwise gap-fill |
 | `STAGE-ESM-015` | Authorization Stage cannot render exactly: a role-claim URI, an opaque policy nested inside a condition, an unresolved or non-portable policy, no single identifier, an opaque-policy subject that is not text, Uuid, Date or DateTime (a restriction on opaque-policy subjects, separate from declarative claim targets), an unsupported claim artifact. Role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false) and `not`/and/or render; roles are read through the identity's `RoleClaimType` | Reshape the policy to a portable condition; otherwise gap-fill |
-| `STAGE-ESM-016` | Model language/semantic pair is not admitted by the installed Stage; exact v1–v21 and v23–v27 pairs are admitted, v22/v28 and mixed pairs refused; older Stage also refuses the versions listed in the minimums above. A CLI bundle reports `CLI-RENDER-004` above its ceiling (v27 for CLI 3.75.0) first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
+| `STAGE-ESM-016` | Model language/semantic pair is not admitted by the installed Stage; exact v1–v27 pairs are admitted, v28 and mixed pairs refused; older Stage also refuses the versions listed in the minimums above. A CLI bundle reports `CLI-RENDER-004` above its ceiling (v27 for CLI 3.75.0) first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
 | `STAGE-ESM-017` | Read model or projection cannot render (property names that collide with Chronicle paths or expression syntax, mappings that overwrite the key or child identity, composite keys, unsupported `all` mappings, the refused scope shapes below) | Reshape the projection without changing what it records, or record the gap |
 | `STAGE-ESM-018` | `$strings.` key missing in the default locale or containing formatting characters | Fix the strings |
 | `STAGE-ESM-019` | Reducer structure or body not admitted (outside a `StateView`, impure, does not compile), or a `generate rule` body that does not compile or produces a compiler warning | An equivalent pure body, or gap-fill |
@@ -179,9 +187,11 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-043` | `reaction batches atomic` in an admitted version pair | Keep the batch boundary; gap-fill without splitting it |
 | `STAGE-ESM-044` | A protected read the Cratis renderer cannot preserve faithfully, naming the reason (every protected read before Stage 4.138.0); the legacy Host/structural runner refuse the preamble | Keep protection; gap-fill the refused command; semantic Host/executor support is separate from generated-app enforcement |
 | `STAGE-ESM-047`, `-048` | ESM v27 composite read-model keys: `-048` read model with several key parts or projection keyed by parts (also the legacy syntax engine); `-047` single-instance query by parts | Keep the model; gap-fill the composite-keyed scope |
-| `STAGE-ESM-046` | Date/DateTime comparison in `require`, `produces when` or a validation rule (including through concepts) in the renderer, legacy engines or default sandbox engine; names the property | Keep the date rule; the semantic Host/executor run it; deliver rendering through gap-fill that compares exact calendar dates and UTC ticks |
+| `STAGE-ESM-046` | Compared DateTime concept with compliance or optionality, or a non-camel-case compared DateTime property; older renderers and legacy engines refuse all date comparisons | Keep the date rule and protection; see [date comparisons](date-comparisons.md) |
 | `STAGE-ESM-045` | Non-Error requirement on a protected command, including reaction-invoked commands; semantic admission refuses before reads, requirements or facts | Keep the severity contract; record the execution gap, never silently promote or drop the requirement |
 | `STAGE-IMPL-002` | Described command handler, naming command and RequirementId; also refused in Stub mode | Supply authorized implementation outside rendering; no generated stub is emitted |
+| `STAGE-IMPL-003` | Semantic Host/executor reaches a reducer or command/concept validation body; names owner and RequirementId (Requires Stage 4.145.0; older engines refuse unrelated behavior too) | Keep the body; run unaffected scope separately and gap-fill reached behavior. Renderer admission is unchanged |
+| `STAGE-PROFILE-001` to `-006` | Profile input cannot be honored: unknown package, missing layout, incompatible packages, missing theme, invalid root template or unresolved blueprint template | Fix the named input without substituting a different shell. Requires Stage 4.143.0 for shared `CratisRendering.ResolveProfileInputs(scene, approvedPackages)` findings; older consumers may have CLI-only checks |
 | `STAGE-ESM-037` | Events and commands from one handler, even across separate triggers on the same event in one reaction. The scaffold's Arc supports mixed results, but appends events before commands; a refused command causes redelivery and duplicate events | **Do not split the modeled reaction or drop an effect.** Gap-fill only with a proven retry-safe implementation; `[OnceOnly]` excludes replay, not retry |
 | `STAGE-ESM-023` | Information: transition bodies analysed | none |
 | `STAGE-CRATIS-001` to `-005` | Profile or `scene.json` not the package-owned shape; unrecognized or missing scaffold input; artifact path collision (`-004`, for example case names that normalize to one path); a modeled module or feature that would render into the reserved `Customizations/` (`-005`) | Rename the module, feature or case |
