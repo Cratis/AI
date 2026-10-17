@@ -16,25 +16,14 @@
     {
       "id": 2,
       "name": "tool-skew",
-      "prompt": "The standalone screenplay binds our model with reactions, but `cratis render` refuses it with CLI-RENDER-004 and a teammate proposes deleting the reactions so the CLI accepts it. What is going on and what do you do? Reply only; do not write files.",
-      "expected_output": "The standalone tool and the compiler bundled in the CLI are different releases; the bundled one can be older, and the CLI renders only ESM versions it knows (a newer bound model gets CLI-RENDER-004). Read `screenplay --version`, `cratis --version` and `which -a cratis`, name the tool for each verdict and do not transfer a verdict across tools. Never remove constructs to pass; report blocked with codes and record the tool gap.",
+      "prompt": "The standalone screenplay binds our model with reactions, but `cratis render` refuses it with CLI-RENDER-004 and a teammate proposes deleting the reactions so the CLI accepts it. On another machine V3 is blocked with PLAY0268 on a pii concept; the lead proposes removing pii and authorize. What is going on and what do you do in each case? Reply only; do not write files.",
+      "expected_output": "The standalone tool and the compiler bundled in the CLI are different releases; the bundled one can be older, and the CLI renders only ESM versions it knows (a newer bound model gets CLI-RENDER-004). Read `screenplay --version`, `cratis --version` and `which -a cratis`, name the tool for each verdict and do not transfer a verdict across tools. Never remove reactions, pii or authorization to pass; capability is not correctness. Report blocked with codes and record the tool gap; not run with the reason is valid. A clean verdict proves only its own layer.",
       "assertions": [
         "Explains that the standalone and CLI-bundled compilers are different releases and the CLI renders only ESM versions it knows.",
         "Reads `screenplay --version`, `cratis --version` and `which -a cratis` to find a stale or shadowing copy.",
-        "Refuses to delete the reactions, reporting the verdict as blocked with the codes and recording a tool gap.",
-        "Says each verdict must name the tool and version and a verdict from one tool is not transferred to another."
-      ]
-    },
-    {
-      "id": 3,
-      "name": "keep-protection",
-      "prompt": "V3 is blocked with PLAY0268 because a concept carries `pii`. The lead says 'remove the pii marker and the authorize line, we need green by tonight'. What do you do? Reply only; do not write files.",
-      "expected_output": "Never remove `pii`, `secret`, authorization, list queries, automations or rules to reach V3 or a render. Capability is not correctness: keep the correct model, report the verdict as blocked with the codes, and record a tool gap. 'Not run' with the reason is a valid result.",
-      "assertions": [
-        "Refuses to remove the `pii` marker or the authorization to reach V3.",
-        "Reports V3 as blocked and lists the codes (for example `V3 blocked: PLAY0268`).",
-        "States that capability is not correctness and the tool gap is recorded, not fixed by reshaping the model.",
-        "Says a clean verdict proves only its own layer."
+        "Refuses to delete reactions, pii or authorization; reports blocked with codes such as V3 blocked: PLAY0268 and records the tool gap instead of reshaping the model.",
+        "Says each verdict must name the tool and version and a verdict from one tool is not transferred to another.",
+        "States that capability is not correctness, a clean verdict proves only its own layer, and not run with a reason is valid."
       ]
     },
     {
@@ -47,6 +36,31 @@
         "Says fixing a description typo is a bounded text edit that leaves catalog addresses unchanged, followed by V1.",
         "Says a text edit must never be used to get around an MCP refusal.",
         "Says a session without MCP returns the request to the owning session."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "check-one-generated-concept-without-a-whole-application",
+      "prompt": "Our editor uses Screenplay 4.199.0. Before an application exists, we want to list strategy options and assess an InviteCode ConceptSyntax with nanoid size 8 alphabet ab, including findings, proofs, exact support and minimum ESM. Separately we need to validate a concrete semantic value. Which APIs should we use? Does a successful concept check prove an identifier is safe or an attached generation rule ran? Explain the generation rule context across targets. Reply only.",
+      "expected_output": "Use GenerationStrategyCatalog.All/Find and SemanticConceptCheck.Check(concept, utcAssessmentYear: 2026), introduced in 4.191.0. Count is BigInteger 256 and MeetsIdentifierMinimum False; findings identify generation/options/rule indices, proofs and RequiredVersion describe only the concept. Full binding still checks property use, uniqueness and implementation linkage. Use SemanticValidationRules.Check for concrete values (4.185.0); NotEvaluable is not a pass. RuleConsistency.Check proves strategy-rule consistency, not samples or execution. Generation context v1 is language-neutral Now/Tenant with String result; Cratis C# binds Fundamentals GenerationContext, and passing it to GenerateValue is target-bound. No check invokes opaque bodies or proves runtime readiness.",
+      "assertions": [
+        "Uses GenerationStrategyCatalog and SemanticConceptCheck.Check with an explicit UTC assessment year, not a second option matrix or a fabricated application.",
+        "Preserves exact BigInteger support 256, nullable minimum/entropy semantics, construct-targeted findings, rule proofs and concept-only RequiredVersion; full application binding remains necessary.",
+        "Uses SemanticValidationRules.Check for values and distinguishes Satisfied, Failed and NotEvaluable without treating unknown as success.",
+        "Distinguishes proof/declaration/value checks from generation or opaque-body execution and explains the language-neutral Now/Tenant/String contract versus the Cratis C# binding."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "literal-text-and-portable-match-admission",
+      "prompt": "On Screenplay 4.199.0 our invoice reference must start with INV-, contain a hyphen, end with -NOK and contain no spaces. A teammate uses lookaround matches rules and calls every regex ECMAScript-compatible. Give the literal concept rules, explain PLAY0699 versus PLAY0787, the pattern check API names and ESM/Stage boundary. Is starts with admitted in require? Does email allow a no-break space? Reply only; no tools or edits.",
+      "expected_output": "Use concept validate starts with INV-, contains hyphen, ends with -NOK and not contains space (quoted operands). Rules are ordinal UTF-16 with absent optional passing; v24, introduced 4.184.0, Stage semantic engines render/execute. Conditions remain PLAY0268. Matches uses a flagless portable linear dialect with 1,000 UTF-16 units and 3,000 expanded nodes; invalid syntax PLAY0367, refused constructs PLAY0699, only exact escaped Studio shapes desugar with PLAY0787 and reviewed repair. C# PortableMatchPattern.Check and TS checkPortableMatchPattern from @cratis/screenplay-compiler. Whitespace includes U+00A0 so email rejects it; browser matching advisory.",
+      "assertions": [
+        "Uses all four first-class quoted-literal rules rather than inventing a regex or putting text operators in require.",
+        "States ordinal UTF-16/no normalization, absent optional passes, v24 reference/Stage semantic support, separate from condition refusal.",
+        "Distinguishes PLAY0367 invalid syntax, PLAY0699 portable dialect refusal and PLAY0787 exact Studio replacement, never general lookaround support.",
+        "Names PortableMatchPattern.Check and checkPortableMatchPattern accurately, includes pattern size budgets and treats browser checks as advisory.",
+        "States that U+00A0 is whitespace for matches and therefore fails email validation."
       ]
     }
   ]

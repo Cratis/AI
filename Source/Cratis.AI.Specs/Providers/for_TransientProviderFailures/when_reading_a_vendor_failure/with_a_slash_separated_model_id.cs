@@ -13,6 +13,6 @@ public class with_a_slash_separated_model_id : given.a_vendor_response
     [Fact] void should_preserve_the_configured_model() => _failure.Model.ShouldEqual(Model);
     [Fact] void should_record_the_configured_model() => _failure.Result.Model!.Value.ShouldEqual(Model);
     [Fact] void should_name_the_configured_model_in_the_reason() => _failure.Result.FailureReason.ShouldContain(Model);
-    [Fact] void should_preserve_the_slash_separated_model_in_the_vendor_body() => _failure.Body.ShouldContain(VendorModel);
+    [Fact] void should_withhold_a_long_slash_separated_id_that_is_not_the_request_model() => _failure.Body.ShouldNotContain(VendorModel);
     [Fact] void should_not_redact_a_key_prefix_in_the_middle_of_a_word() => _failure.Body.ShouldContain("risk-mitigation");
 }

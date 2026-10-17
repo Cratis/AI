@@ -137,8 +137,8 @@ chain per slice before handoff (`references/evidence-table-template.md`, "Tracea
    - one StateChange per decision a person or system makes; events are facts experts recognise;
      consequences (counters, denormalised copies) become projections; an automation only when
      evidence shows a separate decision; no generic names (`Update/Edit/Save<Noun>`, `<Noun>Updated`): split by intent;
-   - refusals, state-dependent rules (`reads` + `require`, marked **NOT enforced in the model
-     today** with the target named), unique indexes and preserved `pii` / `secret` protection:
+   - refusals, state-dependent rules (`reads` + `require` with eligible protected-read
+     opt-in; legacy/refused shapes marked unenforced and target realization named), unique indexes and preserved `pii` / `secret` protection:
      `references/rule-modeling.md`. Every role gate has `authorize` plus a `then denied` spec,
      else a recorded gap; rules you cannot express truthfully are recorded one by one, never
      fabricated.

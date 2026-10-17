@@ -32,6 +32,13 @@ Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it b
   (the user); Stage internals and the sandbox (`cratis-stage-rendering-and-sandbox`); judging
   hand-written code against its slice (`cratis-application-slice-conformance`).
 
+## Language modes that block target delivery
+
+Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
+for v22–v25: Stage rendering refuses atomic batches, described bodies (even Stub mode)
+and protected reads. Semantic Host/executor support is not generated-app protection.
+Preserve contracts; reference success is not target realization.
+
 ## Interview phase
 **Skip if** the request names the model root, the application name, the destination and the
 decision on non-renderable scope. Otherwise ask only what is missing:
@@ -60,7 +67,7 @@ refused reactions, captures and Translate slices remain gap-fill.
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on the standalone
 tool, so report V3 and V4 from that tool. The CLI/Stage pair
 (`cratis-screenplay-toolchain/references/renderable-subset.md`) reaches v8 route checks
-and construct admission through v16. Public/foreign events and production overrides
+and construct admission through v26 (Requires Cratis CLI 3.74.0; older bundles stop earlier). Public/foreign events and production overrides
 still refuse; semantic reaction/reducer filters and role/authenticated `runs as` render.
 Claim-reading/opaque system gates, legacy actor/filter paths and mixed effects still refuse. Keep refused scope as case A/C,
 never infer target support from binding. Read Stage's `references/admission.md` and
@@ -143,9 +150,8 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   the Arc/Chronicle set in `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`; API availability alone is not verified enforcement.
 - Adapters that call outside systems follow `cratis-engineering-effect-boundaries`; slice
   specifications follow `cratis-application-slice-specifications`.
-- Realization notes are the explicit realization requirements stated in a slice `description` or `documentation`
-  (definition: `cratis-application-slice-conformance`, `references/contract-and-precedence.md`).
-  Executable parts (specifications, mappings, constraints) win over prose, and a contradicting description is a model defect to report.
+- Read conformance's `references/contract-and-precedence.md` for realization-note
+  authority. Executable contract wins over prose; report contradictions.
 
 ## Rules
 

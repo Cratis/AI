@@ -129,7 +129,8 @@ builder when switching and verify storage/replay separately from output equality
 Read [projection behavior](../cratis-chronicle-projection/SKILL.md) for mappings
 and [reducers](../cratis-chronicle-reducer/SKILL.md) for complete signatures,
 null deletion, replay hooks and preserving admission/ordering guards. Reducers
-are source-keyed, have no native joins and are refused by decision reads.
+are source-keyed and have no native joins; decision reads and Arc read protection `On`
+admit only unfiltered reducers without constructor dependencies.
 
 ## Step 4 — Add a query surface, if the model is read from outside
 

@@ -16,6 +16,7 @@
     { "kind": "skill-contains", "value": "**routes nothing** (`PLAY0381`)" },
     { "kind": "skill-contains", "value": "The key is **always the event source id**" },
     { "kind": "skill-contains", "value": "**A join never creates an" },
-    { "kind": "skill-contains", "value": "Inline code uses a tagged fence" }
+    { "kind": "skill-contains", "value": "Inline code uses a tagged fence" },
+    { "kind": "skill-contains", "value": "PLAY0690", "file": "references/reducer-identity.md" }
   ]
 }

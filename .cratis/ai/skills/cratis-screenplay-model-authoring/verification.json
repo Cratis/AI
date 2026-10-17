@@ -137,7 +137,8 @@
     },
     {
       "kind": "skill-contains",
-      "value": "cratis screenplay mcp <model-folder>"
+      "value": "cratis screenplay mcp <model-folder>",
+      "file": "references/mcp-loop.md"
     },
     {
       "kind": "skill-contains",
@@ -174,7 +175,8 @@
     },
     {
       "kind": "skill-contains",
-      "value": "registered Git worktree"
+      "value": "registered Git worktree",
+      "file": "references/mcp-loop.md"
     },
     {
       "kind": "skill-contains",

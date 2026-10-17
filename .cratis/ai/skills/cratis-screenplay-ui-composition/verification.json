@@ -33,15 +33,18 @@
     },
     {
       "kind": "skill-contains",
-      "value": "produces event InvoiceCancelled"
+      "value": "produces event InvoiceCancelled",
+      "file": "references/interaction-example.md"
     },
     {
       "kind": "skill-contains",
-      "value": "invoiceId = $eventSourceId"
+      "value": "invoiceId = $eventSourceId",
+      "file": "references/interaction-example.md"
     },
     {
       "kind": "skill-contains",
-      "value": "InvoiceStatusView optional"
+      "value": "InvoiceStatusView optional",
+      "file": "references/interaction-example.md"
     },
     {
       "kind": "skill-contains",
@@ -142,6 +145,31 @@
     {
       "kind": "skill-contains",
       "value": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`ui profile` is the only place that selects the shell",
+      "file": "references/ui-profile-and-theme.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "| `PLAY0791` | Warning |",
+      "file": "references/ui-profile-and-theme.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "| `PLAY0799` | Error |",
+      "file": "references/ui-profile-and-theme.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`layout <Name>` inside a profile still reads",
+      "file": "references/ui-profile-and-theme.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`root template` (an own layout or application-scope screen template",
+      "file": "SKILL.md"
     },
     {
       "kind": "skill-contains",

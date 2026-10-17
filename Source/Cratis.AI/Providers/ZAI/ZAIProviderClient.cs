@@ -82,7 +82,7 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
 
             if (!response.IsSuccessStatusCode)
             {
-                var failure = await TransientProviderFailures.FromResponse(response, Type, model.Value, provider.Id, cancellationToken);
+                var failure = await TransientProviderFailures.FromResponse(response, Type, model.Value, provider.Id, provider.ApiKey, cancellationToken);
                 logger.UnexpectedStatusCode(provider.Id, Type, failure.Model, (int)response.StatusCode, failure.ErrorType, failure.ErrorCode, failure.RetryAfter, failure.Result.RetryAfter, failure.Body);
                 return failure.Result;
             }

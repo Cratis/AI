@@ -100,6 +100,7 @@ the executable model routes any event by it, and it is not a default for the
 | From-level block | indented `key invoiceId` inside the `from` |
 | Per event, several events | `from A key idA, B key idB, C` |
 | Composite | `key OrderKey` with indented `<property> = <expr>` parts |
+| Flat composite parts | untyped `key` block naming every key part (Requires 4.204.0; ESM v27) |
 | Literal (constant) | `key literal "site-stats"` — every event updates the **same** instance |
 | Children identity | `children lines identified by lineNumber` |
 | **Default** | **the event source id** — `from X` ≡ `from X key $eventSourceId` |
@@ -119,6 +120,10 @@ declared by `produces event` is still a named slice-owned contract: projections
 subscribe to it exactly like a standalone event. Verified extraction preserves
 canonical ESM and identities, so it changes no projection contract. Removing a
 payload property is different and requires consumer/persistence review.
+
+A read model with several flat `key` parts needs that block in every root `from` and
+`remove with` (`PLAY0661`/`PLAY0662`); other blocks and reducers there are `PLAY0268`
+(`references/pdl-grammar.md`).
 
 A second key on one `from` is error `PLAY0060`. A template expression in a
 composite key is error `PLAY0073`; an empty composite key is `PLAY0074`.
@@ -256,7 +261,9 @@ What the executable model does with it (ESM v3):
   rules is `PLAY0398`; two rules for one event is `PLAY0399`; a reducer with no
   bodies is rejected with a hint to write a projection.
 - The key is **always the event source id** — a reducer cannot route by an event
-  property. State starts at null; returning null deletes the instance.
+  property. State starts at null; returning null deletes the instance. A query
+  `by` another identity type warns `PLAY0690`; use a projection keyed on each `from`
+  or a join ([reducer identity](references/reducer-identity.md)).
 - The body is an opaque attachment identified by a content hash, never compiled
   or run by Screenplay. The reference runner cannot compute reducer state, so a
   specification that reads a reducer-built read model reports unsupported and

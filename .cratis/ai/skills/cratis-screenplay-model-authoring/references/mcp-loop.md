@@ -24,6 +24,14 @@ defined by `cratis-screenplay-modeling-lifecycle`. Discover the installed tool s
 
 ## Connect
 
+Never ask which folder to use before trying `open-workspace` with no arguments.
+Without a fixed root, it binds the client's single workspace root, else a launch
+directory holding `.play` files. Only after a no-root or multiple-roots response,
+pass `path`: the folder holding the project's models, otherwise the folder the
+user names. Without a project the server uses `Documents/Screenplay` in the user's
+home; do not invent a location. A fixed root can switch only to the same model
+folder in a registered Git worktree of the same repository.
+
 1. Launch with a **fixed root**: `screenplay mcp <model-folder>`, or
    `cratis screenplay mcp <model-folder>`, or `cratis screenplay mcp` inside a
    project, where the CLI locates the model (the project's `.play` files, else `Source/`
@@ -210,7 +218,7 @@ connection. Passing `open-workspace.path` does **not** avoid it, because the err
 | --- | --- | --- |
 | Address-preserving | descriptions; bodies of rules and expressions; mappings between members that already exist; any edit that adds, removes or renames no addressed element. Also every edit in a model with no `.screenplay/identities.json` except persisted names | bounded text edit of the `.play` file, then compile the folder; or `propose-ast` |
 | Catalog-changing (identity file present) | add, remove or rename a declaration (slice, command, event, read model, projection, ...), a property of a command, event, read model, composite type or trigger, a query, a query argument or a specification; create, delete, rename or move a mapped `.play` document (McpState refuses reopening with `IdentityMappingConflict`; use document operations in `propose-ast`); rename, remove or move an event, command, read model, constraint, module, feature or slice; move declarations between files (slices and features across logical parents: `propose-move`); contract evolution of a persisted event (new generation, property added, removed or retyped) | `propose-rename` or a reviewed `propose-ast`; never a blind text rename. Renaming a constraint resets its uniqueness index: ask first unless the request names it, then report the reset. A persisted event rename needs `id "OldName"` (added by default) |
-| Concept `generate` | set/change/remove strategy and modifiers | `propose-ast` replaces `ConceptSyntax.generation` (`GenerationSyntax`; omit/null to remove), or reviewed `propose-source`; never hand-edit `generate` text. Preserve other concept members and inspect executable diagnostics: sequence PLAY0682, preview strategies PLAY0268, generated-rule proofs PLAY0688/0689. |
+| Concept `generate` | set/change/remove strategy and modifiers | `propose-ast` replaces `ConceptSyntax.generation` (`GenerationSyntax`; omit/null to remove), or reviewed `propose-source`; never hand-edit `generate` text. Preserve other concept members and inspect executable diagnostics: sequence PLAY0682, generated secrets PLAY0268, generated-rule proofs PLAY0688/0689, finite-support failures PLAY0691/0692. Pattern/random/rule and checksum validation bind as ESM v21 (Requires Screenplay 4.172.0, `screenplay --version`; older compilers refuse PLAY0268). Read `mcp-tools.md#concept-generation` for `arguments`, exact support and `rules[]`, not parsed diagnostic prose. |
 | Repair | `PLAY0166`, `0478`, `0469`, `0471`, `0479`, `0516`, `0563`, `0564`, `0565`, `0614`, `0653`, `0683`, `0684` (and recipe-only `0397`) | `propose-repair` with `formatting`; PLAY0166/0478 may pin attachment evidence (`pinRepairEvidence` and `expectedRepairEvidenceRevision`), never fix-all PLAY0478 |
 | Inline event extraction | `produces event ...` to a declared event | `propose-extract-inline-event` |
 | Parser-invalid document | no editable handles | `propose-source` `replace-document` with corrected source, or typed `propose-ast` document replacement |

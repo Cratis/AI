@@ -167,6 +167,31 @@ public sealed class PooledChatClient(
         _ => ProviderRateLimit.IsIndicatedBy(exception.Message)
     };
 
+    // A spent quota is read from the exception's HTTP status and the vendor's own error code where it
+    // carries them (402, insufficient_quota, enforced_spend_limit_reached), not only from the words
+    // of its message - a gateway's 402 may say nothing a message match would recognize.
+    static bool IsQuotaExhausted(Exception exception) => exception switch
+    {
+        ClaudeCodeConversationFailed { FunctionInvocationAttempted: true } => false,
+        ClientResultException clientResult => QuotaExhaustion.IsIndicatedBy(clientResult.Status, null, $"{clientResult.Message} {ResponseBodyOf(clientResult)}"),
+        HttpRequestException { StatusCode: { } status } http => QuotaExhaustion.IsIndicatedBy((int)status, null, http.Message),
+        _ => QuotaExhaustion.IsIndicatedBy(exception.Message)
+    };
+
+    static string ResponseBodyOf(ClientResultException exception)
+    {
+        try
+        {
+            return exception.GetRawResponse()?.Content.ToString() ?? string.Empty;
+        }
+        catch (Exception)
+        {
+            // Classifying a failure must not become a second failure: an unbuffered, disposed or otherwise
+            // unreadable response has no body to read, so the status and message stand alone.
+            return string.Empty;
+        }
+    }
+
     static bool IsTransientStatus(int status) => status is 0 or (int)HttpStatusCode.TooManyRequests or >= 500;
 
     static ChatOptions WithModel(ChatOptions? options, ModelName model)
@@ -346,8 +371,7 @@ public sealed class PooledChatClient(
             // A spent quota moves the same messages and options on to the next member and parks this
             // provider until it resets - unless a Claude Code turn may already have run a tool, where
             // replaying the turn elsewhere could repeat its effects.
-            if (exception is not ClaudeCodeConversationFailed { FunctionInvocationAttempted: true } &&
-                QuotaExhaustion.IsIndicatedBy(exception.Message))
+            if (IsQuotaExhausted(exception))
             {
                 await rateLimitRecorder.Record(providerId, exception.Message);
                 return PoolAttempt<(T, AIProviderId)>.QuotaExhausted(exception.Message);
