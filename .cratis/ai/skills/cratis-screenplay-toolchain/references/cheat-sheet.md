@@ -2,6 +2,7 @@
 
 ## Contents
 
+- Validation commands and the gate file
 - Samples and preview fixtures
 - Lexical and structural rules
 - Exact numeric source mode
@@ -56,6 +57,20 @@ by `for_Documentation/when_comparing_the_grammar_against_the_parsers.cs`),
 `projections/grammar.md`, `captures/grammar.md`. Documentation examples compile in
 Screenplay CI (`when_compiling_every_example.cs`) against repository main: the standalone
 compiler; the compiler bundled in `cratis` can be older and lack the newest ESM versions.
+
+## Validation commands and the gate file
+
+```shell
+screenplay <root> --warnaserror --no-color      # V1; also reads <root>/screenplay.json
+screenplay <root> --print-gate                  # effective gate and each value's source, no compile
+screenplay <root> --format json                 # one JSON report: diagnostics, gate, exitCode
+screenplay <root> --no-gate-file --check all    # bypass the file for one run
+screenplay test <root>                          # V4
+```
+
+`screenplay.json` (authored, beside `.screenplay/`) holds `validation.checks`, `warningsAsErrors`, `scope`
+and `openQuestions`; unknown keys or check names are refused (exit 2), never ignored. Details and
+precedence: [verdicts](verdicts.md).
 
 ## Samples and preview fixtures
 

@@ -261,7 +261,9 @@ What the executable model does with it (ESM v3):
   rules is `PLAY0398`; two rules for one event is `PLAY0399`; a reducer with no
   bodies is rejected with a hint to write a projection.
 - The key is **always the event source id** — a reducer cannot route by an event
-  property. State starts at null; returning null deletes the instance.
+  property. State starts at null; returning null deletes the instance. A query
+  `by` another identity type warns `PLAY0690`; use a projection keyed on each `from`
+  or a join ([reducer identity](references/reducer-identity.md)).
 - The body is an opaque attachment identified by a content hash, never compiled
   or run by Screenplay. The reference runner cannot compute reducer state, so a
   specification that reads a reducer-built read model reports unsupported and
