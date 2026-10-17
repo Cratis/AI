@@ -47,7 +47,7 @@
     { "kind": "skill-contains", "value": "XML doc comments" },
     { "kind": "skill-contains", "value": "cratis screenplay validate" },
     { "kind": "skill-contains", "value": "validating one file with `cratis screenplay validate file.play`", "file": "references/traps.md" },
-    { "kind": "skill-contains", "value": "`notifications/initialized`" },
+    { "kind": "skill-contains", "value": "`notifications/initialized`", "file": "references/verdicts.md" },
     { "kind": "skill-contains", "value": "Pending described handlers bind but do not execute their bodies" },
     { "kind": "skill-contains", "value": "STAGE-ESM-043", "file": "references/language-admission.md" },
     { "kind": "skill-contains", "value": "v25", "file": "references/language-admission.md" },
@@ -64,6 +64,13 @@
     { "kind": "skill-contains", "value": "RejectsAUsedGeneratedSource", "file": "references/generation-strategies-example.md" },
     { "kind": "skill-contains", "value": "bind as ESM v8" },
     { "kind": "skill-contains", "value": "PLAY0530/0531", "file": "references/diagnostics.md" },
-    { "kind": "skill-contains", "value": "Editor versus C# verdicts", "file": "references/diagnostics.md" }
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.212.1", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "Identity\ninference uses only single-result keyed queries", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "Editor versus C# verdicts", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "PLAY0801 | E | `DuplicateEventInProjectionScope`", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.212.3", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "`clear with` share one set of event names", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "`join` events have their own set", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "Each children, nested and variant\nblock starts fresh sets", "file": "references/diagnostics.md" }
   ]
 }

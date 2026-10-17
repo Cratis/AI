@@ -36,24 +36,21 @@ Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it b
 
 Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
 for v22–v25: Stage rendering refuses atomic batches, described bodies (even Stub mode)
-and protected reads. Semantic Host/executor support is not generated-app protection.
+but renders admitted protected reads in a supporting bundle. Semantic Host/executor
+support is not generated-app protection.
 Preserve contracts; reference success is not target realization.
 
-File/inline command handlers refuse PLAY0800 (`CommandHandlerRequiresAttachment`):
-a permanent requirement for a constrained implementation attachment. Gap-fill the
-slice in code rather than wait for a new ESM version. Hosts identify the command
-through the required typed `arguments.subject`, not message text. Requires
-Screenplay 4.210.0 (`screenplay --version`); older binders use PLAY0268 for these
-handlers. Other PLAY0268 families still mean not representable in a supported ESM
-version yet; triage details: [renderability gate](references/renderability-gate.md).
+File/inline command handlers permanently require constrained attachments: gap-fill
+in code, not by waiting for ESM admission. Requires Screenplay 4.210.0
+(`screenplay --version`) for PLAY0800 and required typed `arguments.subject`;
+older binders use PLAY0268. Read [renderability gate](references/renderability-gate.md)
+when classifying a handler or other binding refusal; never parse message text.
 
 ## Interview phase
-**Skip if** the request names the model root, the application name, the destination and the
-decision on non-renderable scope. Otherwise ask only what is missing:
-Ask only what is missing: the model and accepted version, the application name for `--name` (identical on every re-render), the destination, the decision if admission fails (the three cases below), and the seams (`Customizations/`). Read [references/delivery-protocol.md](references/delivery-protocol.md) ("Interview batch for render delivery") for the defaults.
-
-Unattended: assume visibly (probe destination, default name from the model root folder), never
-assume an answer to 4, and record it as `blocked` for the user.
+Ask only for missing inputs: accepted model/root, stable `--name`, destination,
+non-renderable-scope decision and seams. Read [references/delivery-protocol.md](references/delivery-protocol.md)
+when selecting defaults. Unattended, state probe-name/destination assumptions;
+never assume the non-renderable-scope decision: record it as blocked.
 
 ## The three cases (decide first, say which one applies)
 
@@ -63,36 +60,33 @@ assume an answer to 4, and record it as `blocked` for the user.
 | **B. Generated base plus authorized gap-fill** | an admitted render (whole, or a `--scope` of the admitted slices) exists and the user separately authorized hand-written scope, or a seam the model names needs an adapter | the generated output stays managed and untouched; hand-written code lives in `Customizations/` or a separate project (seam adapters by this skill, business gap-fill by `slice-implementer`), serves named model elements only, never claims render admission, and V5 is reported for the generated base **with its scope stated** |
 | **C. Fully hand-written delivery** | the scope cannot render and no generated base is wanted | `slice-implementer` delivers it with the model as the contract (`references/gap-fill-handoff.md`); V5 is `not run: no render` |
 
-Evolved events are gap-fill too: Stage still refuses any evolved event and its dependent scope with `STAGE-ESM-026`, because it cannot render Chronicle event-type migrations yet (Stage#204). Events at their initial revision still render. Hand-write the evolved events and their migrations per `cratis-chronicle-event-type-migration`, with the model as the contract.
+Evolved events and dependent scope refuse `STAGE-ESM-026`; initial revisions render.
+Gap-fill migrations per `cratis-chronicle-event-type-migration`, preserving the model contract.
 
-Supported UUID/String generation strategies, v15 freshness and scalar/named `returns`
-responses, fixtures and `then returns` render with the CLI and Stage. Unsupported generated
+Supported UUID/String generation, v15 freshness, responses, fixtures and
+`then returns` render. Unsupported generated
 types (`STAGE-ESM-028`) and result combinations (`-038`) still require case A or C:
 preserve the model and its specifications. See Stage's `references/admission.md`.
 Supported event-triggered Automation slices also render as managed Chronicle reactors;
-refused reactions, captures and Translate slices remain gap-fill.
+refused reactions, captures and Translate slices remain gap-fill. A `given clock` fixture
+in the semantic executor is not support for rendering clock triggers.
+Requires Stage 4.141.0 to render v26 Date/DateTime command comparisons; older renderers
+refuse `STAGE-ESM-046`. Read [rendered date comparisons](../cratis-stage-rendering-and-sandbox/references/date-comparisons.md)
+when delivering dates for remaining refusals and input-binding differences.
 
-Models with event sources, streams or command routes bind and reference-execute as ESM v8 on the standalone
-tool, so report V3 and V4 from that tool. The CLI/Stage pair
-(`cratis-screenplay-toolchain/references/renderable-subset.md`) reaches v8 route checks
-and construct admission through v27 (Requires Cratis CLI 3.75.0; older bundles stop earlier, v28 is `CLI-RENDER-004`). Public/foreign events and production overrides
-still refuse; semantic reaction/reducer filters and role/authenticated `runs as` render.
-Claim-reading/opaque system gates, legacy actor/filter paths and mixed effects still refuse. Keep refused scope as case A/C,
-never infer target support from binding. Read Stage's `references/admission.md` and
-toolchain `references/sources-and-streams.md`.
+Source/stream routes bind and reference-execute as v8; target admission is separate.
+Requires Cratis CLI 3.75.0 for v27 admission; older bundles stop earlier, v28 is
+`CLI-RENDER-004`. Read toolchain `references/renderable-subset.md` and
+`references/sources-and-streams.md` when delivering routes, actor gates or filters.
+Preserve refused public/foreign events, production overrides and opaque gates as A/C.
 
-**Mixed reaction effects.** A reaction that both `produces` events and `invokes` commands is refused by
-Stage (`STAGE-ESM-037`) although Arc runs one reactor returning events
-and commands (events appended first as one batch, then commands in order, no cross-effect
-transaction; a retry can repeat the events). The scaffold now includes the mixed-result handler,
-but Stage still refuses it because redelivery can duplicate events. `[OnceOnly]` excludes replay,
-not retries. Keep the modeled reaction whole; gap-fill needs a proven retry-safe realization,
-not splitting or dropping effects to get a render. Source: Stage
-`Documentation/reference/reaction-rendering.md`.
+**Mixed effects (`STAGE-ESM-037`).** Keep the reaction whole: returned events append
+before commands and redelivery can duplicate them. `[OnceOnly]` excludes replay,
+not retries. Read Stage's [admission](../cratis-stage-rendering-and-sandbox/references/admission.md)
+when gap-filling a mixed reaction; prove retry safety, never split or drop effects.
 
-Read Stage's `references/admission.md` when checking v17/v19 or query validation:
-primitive query arguments still answer absence, not Screenplay's Validation.
-Query errors need v18 admission; do not delete rules or claim parity.
+Read Stage's `references/admission.md` when checking v17/v19 or query validation;
+query errors need v18 admission. Preserve rules and test rejection separately from absence.
 
 Two rules hold in every case: a customization never makes a rejected model renderable, and
 a whole-application V5 is never claimed from a subset. `--scope` renders an admitted part (the whole
@@ -114,6 +108,9 @@ model still compiles and binds) and its V5 states the scope.
    (repeatable) to render an admitted part. Classify every
    diagnostic with `references/renderability-gate.md`: model fix in the chosen mode,
    capability gap, permanent implementation-attachment requirement, tool skew or environment. Group by code and count; do not paste the list.
+   Requires Stage 4.146.0 for collecting independent admission refusals in one plan;
+   earlier renderers reveal later batches after earlier fixes. Profile/version failures
+   still stop first. Classify all returned refusals before the next probe.
 3. **When admission fails** (case A) present the options, the user decides:
    (a) keep design mode and record the gaps; (b) narrow to renderable mode, where the modeler
    changes the model for business reasons and **without** removing protection (`pii`,

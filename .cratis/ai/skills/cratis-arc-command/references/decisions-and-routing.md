@@ -61,6 +61,17 @@ Requires Arc 22.106.0 for read protection. Older Arc has only the per-command
   `[Unprotected("why")]` (`Cratis.Arc.Chronicle.ReadModels`; on a method it covers
   the body, not injected parameters), or repair with a reactor.
 
+Requires Arc 22.113.0 with Chronicle 19.76.0 for `ReadChanged` validation state
+to include the conflicting event type/id and sequence number when the kernel
+reports them. Older kernels can leave those details absent. Outside-decision
+read-model injection (for example a custom command filter) is refused under
+`On`; explicitly unprotected models stay advisory. Check `dotnet list package`
+before asserting conflict detail fields.
+
+Requires Arc 22.116.2 for aggregate application, rehydration and append to resolve
+events from registrations, including explicitly registered types without an
+`[EventType]` attribute. Unregistered events still fail; do not omit registration.
+
 Under `On`, `IReadModels`, `IMongoCollection`, detached reads and immediate appends
 through an injected `IEventLog` are refused; take the model as a parameter and
 return the events. Admitted models: event-source-keyed model-bound or declarative

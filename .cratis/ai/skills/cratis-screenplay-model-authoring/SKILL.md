@@ -26,6 +26,9 @@ Record open modeling questions as `question` notes in committed
 personal data in notes. Read [model notes](references/model-notes.md) when
 listing, recording or resolving questions: `list-model-notes`,
 `propose-model-notes`, `read-proposal view=notes`, refs and orphan review.
+Prefer dotted split-model targets; inspect `substitutions`, also for reanchor,
+and disclose broader owners. The reference covers typed `parts` targets from
+`open-workspace.applicationIdentity`.
 
 ## Choosing a strategy
 
@@ -45,8 +48,7 @@ Use the declared `screenplay` MCP server (for example `open-workspace`).
 Never ask the user which folder to use before trying `open-workspace` without
 arguments; do not invent a root. Read [MCP loop](references/mcp-loop.md) when connecting or switching roots;
 it owns fallback discovery, fixed-root limits and the initialization protocol.
-Discover `tools/list` schemas rather than relying on a remembered count.
-
+Discover `tools/list` schemas.
 
 Look first for the project's existing `.play` files: their folder is the model.
 New models go in `Source/` or `src/`, else root `Screenplay/`, never `.cratis/`
@@ -104,9 +106,8 @@ for handler views: `executableReady` means binding, not an implemented body.
 
 ## Compare models
 
-For a `main` comparison, pass a worktree `path` to `semantic-diff`, not two
-exports. Read [comparison sources](references/mcp-tools.md#semantic-revision-comparison)
-for paging and proposal review.
+Compare with `main` through `semantic-diff` worktree `path`, not two exports.
+Read [comparison sources](references/mcp-tools.md#semantic-revision-comparison) for paging.
 
 ## Make one coherent proposal
 
@@ -191,11 +192,10 @@ Commit `.screenplay/identities.json` with the model; only `apply` writes it. Nev
 
 ## Code attachments
 
-Code bodies and `file` constraints are opaque attachments. Screenplay never compiles or runs them.
-A screen's `file` realizes UI, not an attachment. Read
-[MCP code attachments](references/mcp-tools.md#code-attachments) when resolving
-paths or diagnosing `PLAY0430`-`PLAY0434`; `read-workspace`/`read-proposal`
-`view: "implementation-requirements"` hashes/maps are not behavioral evidence.
+Screenplay never compiles/runs opaque code attachments or `file` constraints;
+a screen's `file` realizes UI instead. Read [MCP code attachments](references/mcp-tools.md#code-attachments)
+for paths, PLAY0430–PLAY0434 and implementation-requirements views; hashes/maps
+are not behavioral evidence.
 
 ## Verify and report honestly
 
@@ -225,7 +225,7 @@ Record screen MCP transcripts in `.ai-work/`; render/runtime checks must use the
 same source, never an app that silently drops authored UI. Use the Screenplay-owned canonical
 corpus fixture path instead of copying available `.play` fixtures here.
 
-Never invent commands, parameters, syntax nodes or downstream capabilities.
+Never invent syntax or capabilities.
 
 ## Route near misses
 

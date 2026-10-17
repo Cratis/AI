@@ -5,6 +5,8 @@
 - Grammar
 - Parser regexes
 - Diagnostics
+- Event scope
+- Projection-level directives
 - Syntax that parses but means something else
 - Flat composite read-model keys
 - Worked examples
@@ -152,6 +154,35 @@ LiteralKeyword  = "literal", " ", Literal ;   (* parsed at the Expr level *)
 | `PLAY0382`–`PLAY0385` | Variant errors: no `enters on`, shared mapping missing on a variant, duplicate variant name, entering event claimed twice |
 | `PLAY0397` | Inline code uses a language line instead of a tagged fence |
 | `PLAY0398` / `PLAY0399` | A reducer mixes bodied and body-less rules / observes one event twice |
+
+## Event scope
+
+Requires Screenplay 4.212.3 (`screenplay --version`) for the ordinary compilation
+error `PLAY0801` (`DuplicateEventInProjectionScope`) in both compilers; older
+executable binding rejected duplicate uses later with `PLAY0273`.
+
+A level is the projection root, one `children` block, one `nested` block or one
+variant. Within that level, `from` (including each event in `from A, B` lists),
+`remove with`, `remove via join` and `clear with` share one set of event names.
+All `join` events at that level share a separate set: an event may occur once in
+`from` and once in a join, but not twice in either set. Each children, nested and
+variant block starts fresh sets; separate projections are independent.
+
+The check compares authored event names ordinally, without resolving
+qualifications or generations. It reports the second and each later reference;
+identical or different keys do not change the rule. One event cannot update two
+rows of the same level through two `from` blocks with different keys. Combine
+mappings for the same row into one block. Only a genuinely second domain fact
+warrants another event; never invent events only to satisfy the read side.
+These scope checks do not establish executable or renderer admission.
+
+## Projection-level directives
+
+`description "..."` (or a fenced text block) on the projection header (report-only `PLAY0270`; variants
+and nested blocks take none), `no automap`, `sequence <name>`, `file <path>`. `sequence` is a realization
+concern and does not bind to the executable model. A mapping target may end in a dynamic dictionary
+key, `count eventCountByType.$eventContext.eventType.id` (one entry per distinct value); only
+`$eventContext` resolves there, any other `$` text is a literal key with warning `PLAY0299`.
 
 ## Syntax that parses but means something else
 
