@@ -215,8 +215,8 @@ current rather than eventually consistent.
 **Passive is fresher, not safer.** A materialized read may lag the log; a passive
 read is current when read. Neither captures a position or enrolls a guard, so
 neither makes a rule hold when two requests race. To guard a decision use a decision
-read over a flat, event-source-keyed projection with an `Id` property (reducers and
-self-reducing models are refused), a constraint for uniqueness, or an aggregate;
+read over an admitted projection or unfiltered dependency-free reducer, a
+constraint for uniqueness, or an aggregate;
 see [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
 
 **`IMongoCollection<T>` reads only the sink.** It cannot compute passive state:
@@ -226,6 +226,13 @@ read-model parameter injection) when you need its computed state. Do not remove
 `[Passive]` merely to make a sink query work when the model contains secrets.
 Keep secret-bearing state on the protected access path; project only safe
 metadata into a separate list/search model.
+
+Requires Chronicle 19.77.3 for strongly consistent per-key projections to fold
+from the start on every read: passive, stream-scoped, wildcard-key and session
+reads immediately reflect revisions, redactions and joined-subject erasure.
+Earlier warm reads can retain old content. Each read costs O(key history), not
+an incremental suffix; prefer materialization for frequent long-history reads.
+Check the deployed kernel tag before relying on this freshness.
 
 The number of passive types is not itself a performance smell. Review event
 history length, invocation frequency, and the consistency/security requirement;

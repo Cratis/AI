@@ -80,7 +80,10 @@ behavior this file does not already state.
 - Preserve reducer admission and ordering guards when proposing a projection
   conversion; an unconditional setter may resurrect or prematurely create state.
 - Count passive models as inventory, not a smell. Assess history length and read
-  frequency against consistency/security needs. `IMongoCollection<T>` cannot
+  frequency against consistency/security needs. Requires Chronicle 19.77.3 for
+  per-key strongly consistent projection reads to fold from the start each time;
+  repeated reads are O(key history), not incremental cache hits. Prefer a
+  materialized projection for frequent long-history reads when freshness permits. `IMongoCollection<T>` cannot
   read passive computed state; never materialize secrets to make that query work.
 - Distinguish retained `Observe` state and in-memory emissions from explicit
   recompute queries. Narrow source filters and inspect page-refill/membership

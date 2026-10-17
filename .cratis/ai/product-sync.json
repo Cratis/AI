@@ -63,9 +63,9 @@
         }
       ],
       "synced": {
-        "version": "22.100.0",
-        "date": "2026-10-15",
-        "by": "Cratis/AI#710"
+        "version": "22.117.0",
+        "date": "2026-10-17",
+        "by": "Cratis/AI#773"
       },
       "covers": {
         "skills": [
@@ -99,7 +99,7 @@
           "vertical-slices.md"
         ]
       },
-      "notes": "Whole-product floor unchanged at 22.100.0. Focused read-protection coverage, Arc 22.106.0-22.108.0: ReadProtectionMode Off, Measure and On (MSBuild property, assembly and command attributes, runtime MaximumMode cap), read-model parameters of Handle and validator constructors guarded under On, [LookUpBy], [Unprotected(\"why\")], per-stream read models on routed commands, Measure report, ReadChanged and ReadIncomplete refusals, and CommandScenario selecting decision mode automatically. the caller severity threshold (X-Allowed-Severity, [BlockOnValidationSeverity]) and the Error floor for commands declared On (22.108.0). [ProtectedDecision] and DecisionRead<T> retained as the per-command opt-in. The other 22.101.0-22.108.0 changes were not reviewed. Prior notes: scoped completion and routing validation, generated-target freshness, observable scenarios, asynchronous execution scopes, read-model diagnostics, ordered reactor refusal handling and ICommandExceptionMapper. Generated-values-only delta checked at v22.107.1: 22.104.0 enforces every concept-rule severity and carries Fundamentals 7.25.0; 22.107.0 recovers pattern/random/checksum and self-contained String generation rules, with v21 caps and fixture validation. No new runtime probe."
+      "notes": "Reviewed releases 22.100.1-22.117.0 at tags: occurrence command receipts and retry classification, tenant/purpose storage resolution, explicit-offset binding and authorization of malformed bodies, camelCase validation members, conflict event details, hub fallback authorization and snapshot guards, and React query-key isolation/resubscription. Existing read-protection and generated-value guidance retained. Query discovery includes internal statics; public-only discovery in Arc#3368 is unreleased. Screenplay-generator deltas classified for the owning lane, not changed here. No new runtime probe."
     },
     {
       "id": "ai",
@@ -284,9 +284,9 @@
         }
       ],
       "synced": {
-        "version": "19.65.0",
-        "date": "2026-10-14",
-        "by": "Cratis/AI#695"
+        "version": "19.81.1",
+        "date": "2026-10-17",
+        "by": "Cratis/AI#773"
       },
       "covers": {
         "skills": [
@@ -323,7 +323,7 @@
         ],
         "rules": []
       },
-      "notes": "Whole-product floor unchanged at 19.65.0. Focused read-protection coverage, Chronicle 19.68.0-19.71.x: admitted reducers (unfiltered, no constructor dependencies, 19.68.0), per-stream read models with [EventStream<TSource>], IUnitOfWork.EnforceReadProtection, AllowReads and GetAppendConditions, CHR0062-CHR0064. The other 19.66.0-19.71.x changes were not reviewed. Prior notes: explicit artifacts, collection observation, redelivery scenarios, webhook generation pins, enrollment contributors, seed ownership, reconnect readiness and hosting/storage fixes. No new kernel/transport probe."
+      "notes": "Reviewed releases 19.65.1-19.81.1 at tags: subscription generation pins, StartAtTail, namespace removal/reconnect, storage connection resolution (deploy 19.74.2+), definition refusal recovery, conflict event fields, .NET occurrences/lifecycle/receipts and testing identities, full-history per-key reads, child all-event mapping repair, projection SoftwareVersion, bounded job acceptance/recovery, immediate-append refusal ownership and namespace subscription reconciliation. Existing protected-read guidance retained. Chronicle#5028 definition round-trip/restart-replay fix is unreleased and not taught as fixed. No new kernel/transport probe."
     },
     {
       "id": "arc-go",
