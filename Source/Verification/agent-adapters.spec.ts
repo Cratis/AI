@@ -3,6 +3,8 @@
 
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync, readlinkSync, realpathSync } from 'node:fs';
+import { parseFrontmatter } from '@earendil-works/pi-coding-agent';
+import { checkPiAgents, generatePiAgent, piAgentsDirectory } from '../Harness.Setup/pi-agents.ts';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { canonicalToolNames, checkOpenCodeAgents, generateOpenCodeAgent, openCodeAgentsDirectory, parseCanonicalAgent, readCanonicalAgents } from '../Harness.Setup/opencode-agents.ts';
@@ -55,6 +57,34 @@ test('Pi receives exactly the canonical allowlist, translated, for every agent',
     }
 });
 
+test('the generated Screenplay Modeler exposes exactly the Pi built-in names without loader mapping', () => {
+    const canonical = canonicalAgents.find(agent => agent.file === 'screenplay-modeler.md')!;
+    const text = readFileSync(join(repositoryRoot, '.pi/agents/screenplay-modeler.md'), 'utf8');
+    assert.equal(text, generatePiAgent(canonical).content);
+    const { frontmatter } = parseFrontmatter<{ tools: string }>(text);
+    // External Agent loaders split the CSV as written, without Claude-to-Pi normalization.
+    assert.equal(typeof frontmatter.tools, 'string');
+    assert.deepEqual(frontmatter.tools.split(',').map(tool => tool.trim()), ['read', 'grep', 'find', 'bash', 'edit', 'write']);
+    for (const agent of canonicalAgents) {
+        const generated = generatePiAgent(agent);
+        assert.ok(generated.content.endsWith(agent.body), `${agent.file} preserves its body`);
+        const original = parseFrontmatter<Record<string, unknown>>(`---\n${agent.frontmatter.join('\n')}\n---\n${agent.body}`).frontmatter;
+        const adapted = parseFrontmatter<Record<string, unknown>>(generated.content).frontmatter;
+        assert.deepEqual(adapted, { ...original, tools: normalizeTools(agent.tools)!.join(', ') }, `${agent.file} preserves other metadata`);
+    }
+    assert.deepEqual(checkPiAgents(corpusRoot), []);
+    assert.deepEqual(readdirSync(join(corpusRoot, piAgentsDirectory)).sort(), canonicalAgents.map(agent => agent.file));
+});
+
+test('Pi generation refuses every unresolved name, even alongside a resolvable tool', () => {
+    const agent = parseCanonicalAgent('unknown.md', '---\nname: Unknown\ndescription: x\ntools: [Read, githubRepo]\n---\nbody\n');
+    assert.throws(() => generatePiAgent(agent), /unknown\.md declares unresolved Pi tools: githubRepo/);
+    assert.throws(() => generatePiAgent({ ...agent, tools: ['Read', 'constructor'] }), /unresolved Pi tools: constructor/);
+    assert.throws(() => generatePiAgent({ ...agent, tools: ['Agent'] }), /no Pi-resolvable tools/);
+    const known = generatePiAgent({ ...agent, tools: ['Read', 'MultiEdit', 'LS', 'Agent', 'Task', 'Skill', 'TodoWrite', 'WebFetch', 'WebSearch', 'Glob', 'find'] });
+    assert.match(known.content, /tools: read, edit, ls, find\n/);
+});
+
 test('a tools list that resolves to no Pi tool is a launch error naming the entries, never an unrestricted launch', () => {
     const legacyCopilotNames = ['githubRepo', 'codeSearch', 'usages', 'rename', 'terminalLastCommand'];
     assert.deepEqual(normalizeToolsDetailed(legacyCopilotNames), { tools: undefined, unresolved: legacyCopilotNames });
@@ -99,9 +129,10 @@ test('the generator refuses a canonical agent it cannot express faithfully', () 
 
 test('every harness that receives agents resolves them to the intended source', () => {
     const canonical = realpathSync(join(corpusRoot, 'agents'));
-    for (const path of ['.claude/agents', '.cursor/agents', '.pi/agents']) {
+    for (const path of ['.claude/agents', '.cursor/agents']) {
         assert.equal(realpathSync(join(repositoryRoot, path)), canonical, path);
     }
+    assert.equal(realpathSync(join(repositoryRoot, '.pi', 'agents')), realpathSync(join(corpusRoot, piAgentsDirectory)));
     assert.equal(realpathSync(join(repositoryRoot, '.opencode', 'agents')), realpathSync(join(corpusRoot, openCodeAgentsDirectory)));
     for (const agent of canonicalAgents) {
         const copilot = join(repositoryRoot, '.github', 'agents', agent.file.replace(/\.md$/, '.agent.md'));

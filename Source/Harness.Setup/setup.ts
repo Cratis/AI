@@ -3,7 +3,8 @@
 
 import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, readdirSync, rmSync, rmdirSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { checkOpenCodeAgents, generateOpenCodeAgents, generatedAgentMarkerPrefix, openCodeAgentsDirectory } from './opencode-agents.ts';
+import { checkOpenCodeAgents, generateOpenCodeAgents, generatedAgentMarkerPrefix, openCodeAgentsDirectory, type GeneratedAgent } from './opencode-agents.ts';
+import { checkPiAgents, generatePiAgents, piAgentMarkerPrefix, piAgentsDirectory } from './pi-agents.ts';
 import { checkCopilotInstructions, copilotInstructions, copilotInstructionsDirectory, copilotMarker } from './copilot-instructions.ts';
 
 type Link = { path: string; target: string; type: 'file' | 'dir' };
@@ -15,23 +16,27 @@ const root = resolve(rootArgument ?? join(import.meta.dirname, '..', '..'));
 const corpus = join(root, '.cratis', 'ai');
 if (!existsSync(corpus)) throw new Error(`No canonical corpus exists at ${corpus}.`);
 
-// Preflight all managed paths before writing anything. OpenCode requires generated content rather
-// than canonical symlinks; its marker identifies stale outputs that setup can safely regenerate.
-const directory = join(corpus, openCodeAgentsDirectory);
-requireRealParents(directory, corpus);
-const generated = generateOpenCodeAgents(corpus);
-const expected = new Set(generated.map(file => file.path.split('/').pop()));
-const adapterPaths = generated.map(file => join(corpus, file.path));
-const directoryState = state(directory);
-const adapterDirectoryConflict = directoryState && (!directoryState.isDirectory() || directoryState.isSymbolicLink());
-if (directoryState?.isDirectory() && !directoryState.isSymbolicLink()) {
-    adapterPaths.push(...readdirSync(directory).filter(name => !expected.has(name)).map(name => join(directory, name)));
+// Preflight every generated adapter before writing anything; markers identify owned stale output.
+function planAgents(name: string, relativeDirectory: string, files: GeneratedAgent[], marker: string, drift: () => string[]) {
+    const directory = join(corpus, relativeDirectory);
+    requireRealParents(directory, corpus);
+    const expected = new Set(files.map(file => file.path.split('/').pop()));
+    const paths = files.map(file => join(corpus, file.path));
+    const current = state(directory);
+    const conflict = current && (!current.isDirectory() || current.isSymbolicLink());
+    if (current?.isDirectory() && !current.isSymbolicLink()) {
+        paths.push(...readdirSync(directory).filter(name => !expected.has(name)).map(name => join(directory, name)));
+    }
+    if (check || (!force && (conflict || paths.some(path => state(path) && !isGeneratedAgent(path, marker))))) {
+        const stale = drift();
+        if (stale.length > 0) throw new Error(`${name} agent adapters are out of date:\n${stale.join('\n')}`);
+    }
+    return { directory, expected, paths, conflict, files };
 }
-const adapterConflict = adapterDirectoryConflict || adapterPaths.some(path => state(path) && !isGeneratedAgent(path));
-if (check || (adapterConflict && !force)) {
-    const stale = checkOpenCodeAgents(corpus);
-    if (stale.length > 0) throw new Error(`OpenCode agent adapters are out of date:\n${stale.join('\n')}`);
-}
+const agentPlans = [
+    planAgents('OpenCode', openCodeAgentsDirectory, generateOpenCodeAgents(corpus), generatedAgentMarkerPrefix, () => checkOpenCodeAgents(corpus)),
+    planAgents('Pi', piAgentsDirectory, generatePiAgents(corpus), piAgentMarkerPrefix, () => checkPiAgents(corpus)),
+];
 
 function state(path: string): ReturnType<typeof lstatSync> | undefined {
     try {
@@ -67,9 +72,9 @@ function remove(path: string): void {
     else unlinkSync(path);
 }
 
-function isGeneratedAgent(path: string): boolean {
+function isGeneratedAgent(path: string, marker: string): boolean {
     try {
-        return !!state(path)?.isFile() && readFileSync(path, 'utf8').includes(`\n${generatedAgentMarkerPrefix}`);
+        return !!state(path)?.isFile() && readFileSync(path, 'utf8').includes(`\n${marker}`);
     } catch {
         return false;
     }
@@ -122,7 +127,7 @@ add('.github/instructions', `../.cratis/ai/${copilotInstructionsDirectory}`, 'di
 add('.github/prompts', '../.cratis/ai/prompts', 'dir');
 add('.github/skills', '../.cratis/ai/skills', 'dir');
 agents('.github/agents', '.agent.md');
-add('.pi/agents', '../.cratis/ai/agents', 'dir');
+add('.pi/agents', `../.cratis/ai/${piAgentsDirectory}`, 'dir');
 add('.pi/extensions', '../.cratis/ai/harnesses/pi/extensions', 'dir');
 add('.pi/skills', '../.cratis/ai/skills', 'dir');
 commands('.pi/prompts');
@@ -173,16 +178,18 @@ if (!check) {
         remove(path);
         writeFileSync(path, file.content);
     }
-    if (adapterDirectoryConflict) remove(directory);
-    mkdirSync(directory, { recursive: true });
-    for (const path of adapterPaths) {
-        if (!expected.has(path.split('/').pop())) remove(path);
-    }
-    for (const file of generated) {
-        const path = join(corpus, file.path);
-        // Unlink before writing so --force cannot write through an occupied symlink.
-        remove(path);
-        writeFileSync(path, file.content);
+    for (const plan of agentPlans) {
+        if (plan.conflict) remove(plan.directory);
+        mkdirSync(plan.directory, { recursive: true });
+        for (const path of plan.paths) {
+            if (!plan.expected.has(path.split('/').pop())) remove(path);
+        }
+        for (const file of plan.files) {
+            const path = join(corpus, file.path);
+            // Unlink before writing so --force cannot write through an occupied symlink.
+            remove(path);
+            writeFileSync(path, file.content);
+        }
     }
     for (const link of links.values()) {
         const path = join(root, link.path);

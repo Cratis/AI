@@ -7,14 +7,15 @@
  * The canonical agents under `.cratis/ai/agents/*.md` are written in the Claude Code shape: a `tools:`
  * allowlist of Claude tool names plus Cursor's `readonly:` flag. Claude Code reads that shape natively,
  * VS Code Copilot and Cursor read `.claude/agents` and map or ignore what they need, and the Pi subagent
- * extension normalizes the tool names at load time. OpenCode is the one harness whose schema is
+ * extension normalizes the tool names at load time (Pi also receives generated native allowlists
+ * for external loaders). OpenCode's schema is
  * structurally different: it has no `tools:` allowlist (its `tools:` is a deprecated name→boolean map),
  * restriction is a `permission:` map and `mode: subagent` is required for delegation. Neither the
  * canonical agents nor the generated adapters pin a model, so they inherit the session model. A symlink
  * to the canonical file cannot express the tool restrictions, so OpenCode receives
  * generated files under `.cratis/ai/harnesses/opencode/agents/` — derived, checked, never hand-edited.
  *
- * Every other harness keeps pointing at the canonical directory. The cratis CLI already copies and links
+ * Claude, Copilot and Cursor keep pointing at the canonical directory. The cratis CLI copies and links
  * `harnesses/<harness>/` per selected harness, so this needs no new distribution mechanism.
  */
 
