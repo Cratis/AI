@@ -130,17 +130,11 @@ public class TransferFundsValidator : CommandValidator<TransferFunds>
   instance validators are refused. Under `[ProtectedDecision]` without `On`, a
   discoverable validator needs exactly one public parameterless constructor
   (otherwise HTTP 500).
-- **The caller can lower the severity threshold.** Model-bound commands accept
-  `X-Allowed-Severity` (`allowedSeverity`). Under `Off` and `Measure`, a caller
-  sending `3` (Error) removes Error results from validators, command filters and
-  `Provide()`, so `Handle()` runs and a validator's state rule can be skipped
-  unless the command declares
-  `[BlockOnValidationSeverity(ValidationResultSeverity.Error)]`
-  (`Cratis.Arc.Commands.ModelBound`). Requires Arc 22.108.0 for the `On` floor: a
-  command declared `On` blocks `Error` and `Unknown` whatever the caller sends; the
-  caller can relax only `Warning` and `Information`. Lowering
-  `ReadProtection:MaximumMode` at runtime does not remove the floor, and an explicit
-  attribute wins. Severity is not authorization.
+- **The caller can lower the severity threshold.** Under `Off`/`Measure`, pin
+  `[BlockOnValidationSeverity(ValidationResultSeverity.Error)]` when Error rules
+  must block. Requires Arc 22.108.0 for commands declared `On` to keep an Error
+  floor. Read references/validation-severity.md when choosing that threshold;
+  severity is not authorization.
 - **Omit the validator entirely when there are no rules.** An empty subclass is
   noise the reader has to check.
 - Single-property intrinsic rules belong on `ConceptValidator<T>` instead, so
@@ -258,32 +252,12 @@ public Result<ItemAddedToCart, ValidationResult> Handle(CartSummary? cart) =>
 - Keep the fetch for a *computed* key in `Provide()` with `IDecisionReads.Get`;
   under `On`, `IReadModels` there is refused.
 
-⚠️ **Two things the resolution does *not* do.** It does not key off the
-`[ReadModel]` attribute — a read model becomes injectable because a Chronicle
-projection or reducer, an EF Core `DbSet<T>`, or a MongoDB collection backs it.
-And there is **no slice or feature restriction**: registration is global by
-type, so "the read model must be in the same slice" is a convention with nothing
-enforcing it.
+Read references/read-model-resolution.md when choosing lookup keys, handling a
+missing injected model, or distinguishing registration from slice conventions.
 
-The resolution is **by the command's resolved event-source id**, not by the
-read-model type and not by "the property that looks like its key". If the
-instance you need is keyed by anything else — a referenced other entity, a
-command with more than one candidate identity, or an id generated inside
-`Handle()` — direct injection hands you the wrong instance or none. Read by
-explicit key in `Provide()` instead:
-
-```csharp
-var other = await readModels.GetInstanceById<Other>((EventSourceId)otherId);
-```
-
-A missing instance resolves to `null`, never to a default object. A nullable
-parameter receives that `null`; a non-nullable one is **rejected as a validation
-failure (400)**, not crashed. `ARC0006` warns on a non-nullable command-scoped
-read-model parameter for exactly this reason. Handle a nullable parameter by rejecting (a validator,
-`Provide()`, or `Result<TEvent, ValidationResult>`), never by returning a
-nullable event from `Handle()`. `cratis-arc-command` carries the
-full resolution and nullability reference, including the passive-projection case
-where absence is *not* `null`.
+Read references/input-binding.md when accepting date-time input or returning
+member-bound validation results: offset requirements, malformed-body
+authorization and camelCase member paths are separate contracts.
 
 ## Step 6 — Specify the rejection
 
