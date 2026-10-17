@@ -555,6 +555,15 @@ row is authored presence, not full coverage, causation or a passing specificatio
 Bare rejections cannot distinguish message-specific rules; syntax-only owners
 retain information-level readiness reasons. Never invent rules from opaque code.
 
+A query's SPEC004 denial matches either `when query <Query>` with `then denied`,
+or a read-only specification with no `when`, exactly one `then query <Query>`
+with `arguments` and no `result`, followed by `then denied`. That read-only denial
+does not meet the returned read model's SPEC006 assertion obligation; add a
+separate state, absence or query-result specification.
+Requires Screenplay 4.212.2 (`screenplay --version`) for this obligation matching;
+older servers miss the read-only denial for SPEC004 and count it for SPEC006.
+Upgrade before treating those rows as a coverage gate.
+
 `find-modeling-smells` asks information-level questions, never changes compilation
 or `--warnaserror`: SMELL001 generic event endings, SMELL002 generic command verbs,
 SMELL003 duplicate nonempty event shapes from different commands, SMELL004 event

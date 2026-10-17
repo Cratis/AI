@@ -299,6 +299,17 @@ as errors if gating. Ordinary compile success does not imply these ran:
 | purposes | PLAY0602–0606 | Personal-data coverage, special/criminal safeguards, basis and unused-purpose prompts; union of ancestor/direct references |
 | personas | PLAY0574–0576 | Unused personas, unreachable gates and ambiguous buildable policy alternatives; unsynthesizable/undecidable is unknown |
 
+For `query-keys` (PLAY0535), a collection `by` can match a same-named compatible
+read-model field or composite key part, or the identity. A single-result `by`
+still matches the identity, not an arbitrary field. Parameter optionality is
+ignored for compatibility; `optional` alone does not establish a match. Identity
+inference uses only single-result keyed queries, not collection queries, with
+structurally resolved projection keys as fallback. Performer-served views,
+tenant-context parameters and unknown identity types are skipped.
+Requires Screenplay 4.212.1 (`screenplay --version`) for this check alignment;
+older tools can warn on valid collection fields or optional parameters and infer
+identity from collection queries. Upgrade before using those warnings as a gate.
+
 Whole-source errors skip completeness checks. Unknown/opaque coverage is not
 invented: report skipped status/coverage and walk field lineage manually.
 

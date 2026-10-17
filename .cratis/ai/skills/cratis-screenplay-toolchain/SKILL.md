@@ -8,9 +8,8 @@ license: MIT
 
 Read [preferred syntax](references/preferred-syntax.md) when writing or reviewing `.play`.
 
-This skill owns tool selection, verdict meaning and admission. Modeling method
-lives in `cratis-screenplay-modeling-lifecycle`; construct syntax lives in command,
-projection, read-surface, capture/reaction, specification and UI skills.
+This skill owns tool selection, verdicts and admission. Modeling method lives in
+`cratis-screenplay-modeling-lifecycle`; syntax lives in the construct skills.
 
 ## Locate the model
 
@@ -90,14 +89,12 @@ Independent results, not a ladder. Read `references/verdicts.md` for the command
 | V4 | reference specifications run | `screenplay test` or MCP `run-specifications`; unsupported/unbound is not a pass; rendered Debug tests are V5.tests, never V4 |
 | V5 | rendered and target-verified | `cratis render`, then Debug build and tests; report admission, publication, build and tests separately |
 
-V2 and V3 need MCP (V3 alone can also be read from `cratis screenplay validate --executable <root>`, labeled as the bundled compiler): send `initialize`, then `notifications/initialized`, and start the
-server with a fixed root. A subagent without MCP reports "V2 not run: no MCP in this agent".
-
-One line per verdict, tool first, for example `V1 pass (screenplay <version>, 3 files)` and
-`V3 blocked: PLAY0268 x3 (context filter, enum compliance)`. Name the source identity (commit plus the digest from
-the source-identity helper (`cratis-screenplay-modeling-lifecycle` `references/verdicts-and-modes.md` "Source identity")) the verdict ran on; keep it apart from the MCP
-`modelRevision`, which is semantic and, without `.screenplay/identities.json`,
-changes with the root folder name.
+V2 needs MCP; V3 also supports `cratis screenplay validate --executable <root>`
+(labeled as the bundled compiler). Read [verdict commands](references/verdicts.md)
+for MCP initialization, source identity and reporting. Without MCP, report
+`V2 not run: no MCP in this agent`. Report each verdict separately with tool,
+version, source identity and any blocking codes; MCP `modelRevision` is semantic,
+not the source identity.
 
 ## Subsets (write from the one your mode needs)
 
@@ -163,25 +160,11 @@ changes with the root folder name.
 
 ## Edit strategy
 
-- **Discover the capabilities available** (tool, version, `tools/list`, model root) once,
-  then prefer typed, identity-preserving MCP operations (`propose-ast`, `propose-rename`,
-  `propose-repair`, `propose-extract-inline-event`).
-- **Bounded text edits** are for edits that leave catalog addresses unchanged (descriptions,
-  rule and expression bodies, mappings between existing members): a small `.play` diff
-  followed by V1. Without `.screenplay/identities.json`, plain text edits are fine. Never use a
-  text edit to get around an MCP refusal.
-- **Catalog-changing edits** belong to the identity owner (the session that owns MCP). When
-  `.screenplay/identities.json` exists, adding, removing or renaming an addressed element
-  (declarations, properties of commands, events, read models, composite types and triggers,
-  queries, query arguments, specifications), moving declarations, creating, deleting, renaming
-  or moving a mapped `.play` document (`IdentityMappingConflict`) and persisted event contract
-  evolution go through MCP, and `id` pins alone
-  are not enough: a session without MCP returns the request to the owning session.
-- AST JSON costs several times the text it replaces; use it where a typed operation is the
-  only identity-safe route.
-- Proposals are connection-local (at most 16); `apply` writes `.screenplay/identities.json`
-  and is not crash-atomic; never retry `apply` after `ApplyOutcomeUnknown`. Loop details:
-  `cratis-screenplay-model-authoring`.
+Read [the MCP authoring loop](../cratis-screenplay-model-authoring/references/mcp-loop.md)
+when editing: the identity owner uses typed proposals for catalog-changing edits;
+text edits never bypass a refusal. Without MCP, return identity-affecting work
+to its owner. Proposals are connection-local; apply is not crash-atomic, and an
+unknown apply outcome requires recovery, not retry.
 
 ## Top traps
 

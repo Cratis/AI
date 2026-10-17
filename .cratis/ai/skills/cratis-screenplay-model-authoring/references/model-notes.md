@@ -5,7 +5,6 @@
 
 ## Contents
 
-- Verified product sources
 - Choose the artifact
 - Anchors and independent state
 - List with bounded, pinned reads
@@ -14,24 +13,7 @@
 - Source proposals can orphan notes
 - Question gate is independent of compilation
 
-## Verified product sources
-
 Requires Screenplay 4.144.0 or later (`screenplay --version`) for model notes; the CLI-bundled MCP can be older.
-
-Sources in `Cratis/Screenplay`:
-
-| Contract | Path |
-| --- | --- |
-| Purpose, anchors, decisions and privacy | `Documentation/screenplay/model-notes.md` |
-| Filters, operations, review and orphan disclosure | `Documentation/screenplay/mcp/reference.md`; `Source/DotNET/Screenplay.Mcp/McpNotesSchemas.cs` |
-| Retained proposals, revision guards and notes review | `Source/DotNET/Screenplay.Mcp/McpWorkspaces.Notes.cs` |
-| Operation fields and resolution evidence | `Source/DotNET/Screenplay.Mcp/McpNotesOperations.cs` |
-| Sidecar bytes, absence and canonical revision | `Source/DotNET/Screenplay/Workspaces/ModelNotesStore.cs` |
-| Standalone question gate | `Source/DotNET/Tool/ModelOpenQuestions.cs`; `Documentation/screenplay/model-notes.md` |
-
-The source-edit and authoring guides remain useful for the ordinary proposal loop:
-`Documentation/screenplay/mcp/edit.md` and `authoring-tools.md`.
-The notes-specific arguments are in the reference and sources above.
 
 ## Choose the artifact
 
@@ -60,10 +42,45 @@ Notes live beside the model in committed `.screenplay/notes.json`. An anchor is
 do not derive them from names. Renames and moves keep notes without rewriting the
 sidecar. `lastAddress` is a display hint, never an anchor.
 
-For a syntax-only construct, select its current source handle or address and kind.
-The server substitutes its nearest identified slice, feature, module or application;
-inspect `substitutions` and name the particular construct in the note text.
-Document and authoring-key anchors are unsupported.
+Prefer dotted `{ address, kind }` targets for Module, Feature and Slice notes,
+including split models. Repeated Module/Feature headers at the same logical
+address merge across import placements and explicit headers; genuinely ambiguous
+leaf declarations still refuse. A folder is one application, not a separate note
+namespace per file.
+
+For a typed `{ kind, parts }` target, copy an address from `read-ast` or
+`read-workspace view=semantics`, or build it from names and the exact
+`applicationIdentity` returned by `open-workspace`. This argument template targets
+a Module (replace the Application key with that response's value):
+
+```json
+{
+  "kind": "Module",
+  "parts": [
+    { "kind": "Application", "key": "<applicationIdentity from open-workspace>" },
+    { "kind": "Module", "key": "Library" }
+  ]
+}
+```
+
+A typed address needs an existing catalog identity; it refuses when none exists.
+Use the construct's current source handle instead. A target without an identity
+lands on the nearest identified slice, feature, module or application. On an
+unbound model, even a Slice can lack an identity and fall back to Application;
+opening the workspace does not guarantee container identities.
+
+Always inspect `substitutions` for both `add` and `reanchor`, even when reanchor
+leaves the note unchanged. Each entry has the requested `target`, resolved
+`anchor`, resolved `address` and `reason`. If the note lands on a broader owner,
+say so to the user and name the intended construct in its text; reanchor once
+the intended owner has an identity. Never report the requested anchor as applied
+without checking the actual owner. Document and authoring-key anchors refuse.
+
+Requires Screenplay 4.212.0 (`screenplay --version`) for split dotted-target
+resolution, `open-workspace.applicationIdentity` and complete substitution
+reporting. Older servers can refuse split targets, omit that field or silently
+broaden the anchor; use a catalog address/current handle and inspect the notes
+review's actual anchor, or upgrade before relying on these responses.
 
 Notes do not change source, workspace/catalog/semantic revisions, executable
 model bytes or compiler verdicts. Their own `notesRevision` is `nrev1:` plus the
@@ -141,7 +158,8 @@ revisions just read and an actual declaration address before calling it.
 ```
 
 1. Retain `proposalId`, `afterNotesRevision`, server `addedNotes` IDs and inspect
-   `substitutions`. `changeCount: 0` means no source changes, not no notes change.
+   every `substitutions` entry for the actual owner, also for reanchor.
+   `changeCount: 0` means no source changes, not no notes change.
 2. Read `read-proposal` with `view: "notes"`: before/after notes revisions and
    paged `{ id, before, after }` pairs. On continuation pin **afterNotesRevision**
    as `expectedNotesRevision`, not the disk revision. Review the entire batch.
