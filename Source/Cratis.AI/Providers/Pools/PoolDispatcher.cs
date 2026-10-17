@@ -31,12 +31,20 @@ public enum PoolAttemptOutcome
     TransientFailure,
 
     /// <summary>
-    /// A real call to the member was rejected - bad credentials, a retired model, a rejected request.
-    /// Recorded against the provider and the loop moves on, because the rejection is as likely to be
-    /// about this provider as about the request. When no member serves the call, the first rejection
-    /// is the pool's answer (<see cref="PoolDispatchOutcome.Stopped"/>).
+    /// A real call to the member failed in a way no other member can fix either - a rejected request,
+    /// bad credentials. The loop stops rather than spending the rest of the pool on a mistake that is
+    /// not about which provider answered.
     /// </summary>
     PermanentFailure,
+
+    /// <summary>
+    /// A real call to the member was turned away by the provider - bad credentials, a retired model, an
+    /// account with no credit, a request it refused. That is as likely to be about this provider as about
+    /// the request, and nothing was done on the caller's behalf, so the loop records it against the
+    /// provider and moves on. When no member serves the call the first rejection is the answer
+    /// (<see cref="PoolDispatchOutcome.Stopped"/>).
+    /// </summary>
+    Rejected,
 
     /// <summary>
     /// A real call to the member failed because the provider's quota, spend limit or credit is used up
@@ -58,8 +66,8 @@ public enum PoolDispatchOutcome
     Succeeded,
 
     /// <summary>
-    /// No member served the call and at least one rejected it outright, so retrying later will not
-    /// help; the first rejection is the answer.
+    /// A member's real call failed in a way no other member could fix either, so the loop stopped
+    /// rather than trying the rest of the pool.
     /// </summary>
     Stopped,
 
@@ -107,6 +115,14 @@ public readonly record struct PoolAttempt<T>(PoolAttemptOutcome Outcome, T? Valu
     /// <param name="reason">Why the call failed.</param>
     /// <returns>The <see cref="PoolAttempt{T}"/>.</returns>
     public static PoolAttempt<T> PermanentFailure(T? value, string reason) => new(PoolAttemptOutcome.PermanentFailure, value, reason);
+
+    /// <summary>
+    /// Builds an attempt the provider turned away, which another member may well serve.
+    /// </summary>
+    /// <param name="value">What the rejected call actually produced, when there is something to hand back.</param>
+    /// <param name="reason">Why the call was rejected.</param>
+    /// <returns>The <see cref="PoolAttempt{T}"/>.</returns>
+    public static PoolAttempt<T> Rejected(T? value, string reason) => new(PoolAttemptOutcome.Rejected, value, reason);
 
     /// <summary>
     /// Builds an attempt whose real call failed because the provider's quota is used up.
@@ -221,8 +237,8 @@ public record PoolSelectionData(
 /// The one pool-selection-and-failover loop chat completions (<see cref="ProviderAwareLanguageModel"/>)
 /// and work dispatch (<c>Work.Scheduling.ActingAgentResolver</c>) both walk - previously two
 /// hand-maintained copies of the same loop (issue #1060). Walks the pool's members in
-/// <see cref="PoolMemberSelector"/>'s ranked order, trying each until one succeeds, or the pool runs out of members - a rejection moves on to the next member like any
-/// other failure.
+/// <see cref="PoolMemberSelector"/>'s ranked order, trying each until one succeeds, a permanent
+/// failure says trying the rest of the pool cannot help, or the pool runs out of members.
 /// </summary>
 /// <remarks>
 /// The seam #1061's usage-based selection is meant to land in: the <c>tryUse</c> delegate passed to
@@ -257,7 +273,7 @@ public static class PoolDispatcher
         var anyTransientFailure = false;
         var tried = new List<AIProviderId>();
         var quotaExhausted = new List<AIProviderId>();
-        PoolAttempt<T>? firstPermanent = null;
+        PoolAttempt<T>? firstRejection = null;
 
         while (remaining.Count > 0)
         {
@@ -279,12 +295,11 @@ public static class PoolDispatcher
                     return PoolDispatchResult<T>.Succeeded(attempt.Value!) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
 
                 case PoolAttemptOutcome.PermanentFailure:
-                    // A rejection says what is wrong with this provider - a bad key, a retired model,
-                    // an exhausted account - not necessarily with the request, so the next member
-                    // still gets its turn. The first rejection is what the caller is told when no
-                    // member serves the call.
+                    return PoolDispatchResult<T>.Stopped(attempt.Value, attempt.Reason) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
+
+                case PoolAttemptOutcome.Rejected:
                     failureMemory.Record(member.ProviderId);
-                    firstPermanent ??= attempt;
+                    firstRejection ??= attempt;
                     lastReason = attempt.Reason;
                     remaining.Remove(member);
                     break;
@@ -313,9 +328,9 @@ public static class PoolDispatcher
             }
         }
 
-        if (firstPermanent is { } permanent)
+        if (firstRejection is { } rejection)
         {
-            return PoolDispatchResult<T>.Stopped(permanent.Value, permanent.Reason) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
+            return PoolDispatchResult<T>.Stopped(rejection.Value, rejection.Reason) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
         }
 
         // Out of quota is the one exhaustion a caller cannot wait out in seconds, so it names every

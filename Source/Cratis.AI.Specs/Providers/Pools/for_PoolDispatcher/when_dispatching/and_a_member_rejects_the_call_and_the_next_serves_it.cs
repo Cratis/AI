@@ -20,7 +20,7 @@ public class and_a_member_rejects_the_call_and_the_next_serves_it : given.all_de
         {
             _tried.Add(member.ProviderId);
             return Task.FromResult(member.ProviderId == _first
-                ? PoolAttempt<string>.PermanentFailure("rejected", "The request was rejected")
+                ? PoolAttempt<string>.Rejected("rejected", "The request was rejected")
                 : PoolAttempt<string>.Succeeded("served-by-second"));
         });
 

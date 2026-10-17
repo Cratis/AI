@@ -18,7 +18,7 @@ public class and_every_member_rejects_the_call : given.all_dependencies
         (member, _) =>
         {
             _tried.Add(member.ProviderId);
-            return Task.FromResult(PoolAttempt<string>.PermanentFailure("rejected-" + member.ProviderId.Value, "rejected by " + member.ProviderId.Value));
+            return Task.FromResult(PoolAttempt<string>.Rejected("rejected-" + member.ProviderId.Value, "rejected by " + member.ProviderId.Value));
         });
 
     [Fact] void should_stop() => _result.Outcome.ShouldEqual(PoolDispatchOutcome.Stopped);
