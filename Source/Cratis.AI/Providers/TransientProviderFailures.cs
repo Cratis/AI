@@ -42,19 +42,21 @@ public static class TransientProviderFailures
     /// <param name="vendor">The vendor asked.</param>
     /// <param name="model">The model asked for.</param>
     /// <param name="providerId">The configured provider asked.</param>
+    /// <param name="apiKey">The credential the request was authenticated with, withheld by exact value.</param>
     /// <param name="cancellationToken">The caller's cancellation token.</param>
     /// <returns>The failure and its structured diagnostic details.</returns>
-    internal static async Task<VendorFailure> FromResponse(HttpResponseMessage response, AIProviderType vendor, string model, AIProviderId providerId, CancellationToken cancellationToken = default)
+    internal static async Task<VendorFailure> FromResponse(HttpResponseMessage response, AIProviderType vendor, string model, AIProviderId providerId, AIProviderApiKey? apiKey = null, CancellationToken cancellationToken = default)
     {
-        var body = await VendorErrorBody.Read(response, cancellationToken);
-        var (errorType, errorCode) = ErrorFrom(body);
+        var redaction = VendorRedaction.For(apiKey, model, providerId);
+        var body = await VendorErrorBody.Read(response, redaction, cancellationToken);
+        var (errorType, errorCode) = ErrorFrom(body, redaction);
 
         // A spent quota is not throttling: retrying the same provider after Retry-After cannot help
         // until the vendor's quota resets, so it is classified apart for a pool to fail over on.
         var quotaExhausted = QuotaExhaustion.IsIndicatedBy((int)response.StatusCode, errorCode, body);
         var classified = quotaExhausted ? LanguageModelResult.QuotaExhausted(string.Empty) : FromStatusCode(response);
         var retryAfter = response.Headers.TryGetValues("Retry-After", out var values)
-            ? VendorErrorBody.Redact(string.Join(", ", values))
+            ? VendorErrorBody.Redact(string.Join(", ", values), redaction)
             : null;
         var reason = $"{vendor} model {model} returned {(int)response.StatusCode}";
         if (errorType is not null)
@@ -84,7 +86,7 @@ public static class TransientProviderFailures
         return new(result, model, body, errorType, errorCode, retryAfter);
     }
 
-    static (string? Type, string? Code) ErrorFrom(string body)
+    static (string? Type, string? Code) ErrorFrom(string body, VendorRedaction redaction)
     {
         try
         {
@@ -93,11 +95,11 @@ public static class TransientProviderFailures
             var error = root.ValueKind == JsonValueKind.Object && root.TryGetProperty("error", out var nested) && nested.ValueKind == JsonValueKind.Object
                 ? nested
                 : root;
-            var type = StringFrom(error, "type");
-            var code = StringFrom(error, "code");
+            var type = StringFrom(error, "type", redaction);
+            var code = StringFrom(error, "code", redaction);
             if (error.ValueKind == JsonValueKind.Object && error.TryGetProperty("details", out var details))
             {
-                code = StringFrom(details, "error_code") ?? code;
+                code = StringFrom(details, "error_code", redaction) ?? code;
             }
 
             return (type, code);
@@ -108,9 +110,9 @@ public static class TransientProviderFailures
         }
     }
 
-    static string? StringFrom(JsonElement element, string name) =>
+    static string? StringFrom(JsonElement element, string name, VendorRedaction redaction) =>
         element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String
-            ? VendorErrorBody.Redact(value.GetString()!)
+            ? VendorErrorBody.Redact(value.GetString()!, redaction)
             : null;
 
     static LanguageModelResult Classify(HttpResponseMessage response, string reason)

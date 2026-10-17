@@ -4,9 +4,9 @@
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, renameSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, renameSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { isAbsolute, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { Script } from 'node:vm';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +16,7 @@ const commandTimeout = 15_000;
 const reviewedRulesRef = '40125b4fcae388e62ed9471edfffd0e991422f0a';
 const hookMode = process.argv[2] === '--hook';
 let claudeHook = false;
+let invocation = {};
 const hookWarnings = [];
 const warningLine = line => /^(::warning\b|::notice title=Release notes (?:drift )?not checked|Warning:)/.test(line);
 const warning = message => {
@@ -25,6 +26,23 @@ const warning = message => {
 const run = (command, args, options = {}) => spawnSync(command, args, {
     encoding: 'utf8', timeout: commandTimeout, maxBuffer: 32 * 1024 * 1024, ...options,
 });
+// A bare ENOENT cannot be told apart from a path resolved against the wrong directory, a copy of this
+// checker from another checkout, or a file that is not there yet. Naming all of those lets the next
+// occurrence be diagnosed instead of retried.
+function readBodyFile(value) {
+    const resolved = resolve(value);
+    try {
+        return readFileSync(resolved, 'utf8');
+    } catch (error) {
+        const parent = dirname(resolved);
+        const details = [`--body-file value: ${value}`, `path tried: ${resolved}`,
+            `parent directory exists: ${existsSync(parent)}`, `file exists now: ${existsSync(resolved)}`,
+            `checker working directory: ${process.cwd()}`,
+            ...Object.entries(invocation).map(([name, detail]) => `${name}: ${detail}`),
+            `checker script: ${fileURLToPath(import.meta.url)}`];
+        throw new Error(`cannot read the pull-request body file (${error.code || error.message}); ${details.join('; ')}`, { cause: error });
+    }
+}
 const gh = (args, options = {}) => {
     const result = run('gh', args, options);
     if (result.error || result.status !== 0) throw new Error(`gh ${args[0]} failed: ${result.stderr?.trim() || result.error?.message || result.status}`);
@@ -156,7 +174,7 @@ function check(argv, repositoryCallers, lookupOptions) {
     for (const label of split(values['add-label'])) labels.add(label);
     const intent = intents.filter(label => labels.has(label));
     if (intent.length !== 1) throw new Error(`Exactly one release-intent label is required (major/minor/patch/no-release); found ${intent.join(', ') || 'none'}.`);
-    const body = values['body-file'] ? readFileSync(resolve(values['body-file']), 'utf8') : pull.body || '';
+    const body = values['body-file'] ? readBodyFile(values['body-file']) : pull.body || '';
     let repository = values.repo;
     let defaultBranch = git(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD']).replace(/^origin\//, '') || 'main';
     try {
@@ -324,6 +342,7 @@ function hook() {
     if (typeof text !== 'string' || !/\bgh\s+pr\s+(create|edit)\b/.test(text.replace(/\\\r?\n/g, ''))) return 0;
     // Match each simple command, never the same text inside an echo/grep argument.
     let cwd = payload.cwd || process.cwd();
+    invocation = { 'hook payload directory': payload.cwd || '(none)' };
     let knownDirectory = true;
     let parsed;
     try { parsed = commands(text); } catch (error) { if (!optedIn(cwd)) return 0; throw error; }
@@ -386,6 +405,7 @@ function hook() {
         if (targetedRepository) lookupEnvironment.GH_REPO = targetedRepository;
         else delete lookupEnvironment.GH_REPO;
         process.chdir(cwd);
+        invocation['command directory'] = cwd;
         const code = check(args, repositoryCallers, { env: lookupEnvironment });
         if (code !== 0 && code !== 3) throw new Error('The pull-request body or release intent failed cratis-check-pr. Fix the reported violations before retrying.');
     }

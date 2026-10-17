@@ -22,7 +22,7 @@ public class with_a_bounded_failure_body : Specification
         _client = new(new FailedResponse(_stream));
     }
 
-    async Task Because() => _result = await OpenAIChatCompletionsProtocol.Complete(_client, new Uri("https://vendor.example/chat/completions"), "gpt-4", "prompt", Effort.Low, _ => { }, AIProviderType.OpenAI, AIProviderId.New(), Substitute.For<IAIProviderQuotaTracker>(), Substitute.For<ILogger>());
+    async Task Because() => _result = await OpenAIChatCompletionsProtocol.Complete(_client, new Uri("https://vendor.example/chat/completions"), "gpt-4", "prompt", Effort.Low, _ => { }, AIProviderType.OpenAI, AIProviderId.New(), AIProviderApiKey.NotSet, Substitute.For<IAIProviderQuotaTracker>(), Substitute.For<ILogger>());
 
     void Destroy() => _client.Dispose();
 

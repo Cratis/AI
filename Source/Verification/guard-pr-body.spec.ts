@@ -236,6 +236,33 @@ test('the Bash hook blocks inline bodies and violations, understands literal fla
     } finally { f.cleanup(); }
 });
 
+test('an unreadable body file is reported with the path tried, the directories and the checker copy, not a bare ENOENT', () => {
+    const f = fixture();
+    try {
+        const elsewhere = mkdtempSync(join(tmpdir(), 'cratis-pr-body-elsewhere-'));
+        try {
+            const missing = join(f.directory, '.ai-work', 'pr-body-1.md');
+            const result = spawnSync('bash', [guard], {
+                cwd: elsewhere, env: f.env, encoding: 'utf8', timeout: 15000,
+                input: JSON.stringify({ cwd: elsewhere, tool_input: { command: `cd '${f.directory}' && gh pr create --label patch --body-file '${missing}'` } }),
+            });
+            assert.equal(result.status, 2, result.stderr);
+            assert.match(result.stderr, /cannot read the pull-request body file \(ENOENT\)/);
+            assert.ok(result.stderr.includes(`path tried: ${missing}`), result.stderr);
+            assert.ok(result.stderr.includes(`--body-file value: ${missing}`), result.stderr);
+            assert.match(result.stderr, /parent directory exists: false/);
+            assert.match(result.stderr, /file exists now: false/);
+            assert.ok(result.stderr.includes(`hook payload directory: ${elsewhere}`), result.stderr);
+            assert.ok(result.stderr.includes(`command directory: ${f.directory}`), result.stderr);
+            assert.ok(result.stderr.includes(`checker script: ${checker}`), result.stderr);
+        } finally { rmSync(elsewhere, { recursive: true, force: true }); }
+        // The same command succeeds once the file exists - the report names a missing file, nothing else.
+        mkdirSync(join(f.directory, '.ai-work'));
+        writeFileSync(join(f.directory, '.ai-work', 'pr-body-1.md'), '## Fixed\n\n- A product fix.\n');
+        assert.equal(f.hook(`cd '${f.directory}' && gh pr create --label patch --body-file '${join(f.directory, '.ai-work', 'pr-body-1.md')}'`).status, 0);
+    } finally { f.cleanup(); }
+});
+
 test('current-branch edits preserve selectorless lookup for body and metadata changes', () => {
     const f = fixture();
     try {

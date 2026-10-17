@@ -499,12 +499,15 @@ fail() {
 #   billing_hard_limit_reached   - OpenAI, "Billing hard limit has been reached"
 #   credit balance is too low    - Anthropic, 400 invalid_request_error (https://docs.anthropic.com/en/api/errors)
 # plus Claude Code's own words for a subscription allowance that has run out ("You've hit your
-# weekly limit", "Claude AI usage limit reached|<epoch>") - the same phrases the C# side's
-# ProviderRateLimit already reads as the account's allowance rather than a request problem.
+# limit", "You've hit your weekly limit", "Claude AI usage limit reached|<epoch>") - the same
+# phrases the C# side's ProviderRateLimit already reads as the account's allowance rather than a
+# request problem. The "hit your ... limit" form accepts only the qualifiers that list names
+# (usage, weekly, 5-hour, session, opus, sonnet): any other word, as in "hit your rate limit" or
+# "hit your token limit", is not the subscription allowance and is not read as a spent quota.
 quota_exhaustion_code() {
     local text="${1,,}"
     local codes='(enforced_spend_limit_reached|insufficient_quota|billing_hard_limit_reached)'
-    local messages='credit balance is too low|exceeded your current quota|hit your ([a-z0-9-]+ )?limit|(usage|weekly|5-hour|session) limit reached'
+    local messages='credit balance is too low|exceeded your current quota|hit your (usage |weekly |5-hour |session |opus |sonnet )?limit|(usage|weekly|5-hour|session) limit reached'
     if [[ "$text" =~ $codes ]]; then
         printf '%s' "${BASH_REMATCH[1]}"
         return 0
@@ -2127,7 +2130,16 @@ run_copilot() {
         exit 1
     fi
 
-    if [[ ${COPILOT_EXIT} -ne 0 ]] && QUOTA_CODE=$(quota_exhaustion_code "$RESULT"); then
+    # The quota check reads only what the CLI reported as an error. RESULT is the last text of any
+    # kind, which on a failed session may be the agent's own prose about quotas rather than the
+    # error that ended it - so an error event, or an errored result event, is the only evidence.
+    COPILOT_ERROR=$(jq -rs '[.[]
+                              | select(((.type? // "") | tostring | test("error"; "i")) or (.is_error? == true))
+                              | (.data.message? // .message? // .error?.message? // .error? // .data.text? // .text? // .result?)
+                              | select(type == "string") | select(length > 0)] | last // ""' \
+        "$COPILOT_STREAM_FILE" 2>/dev/null || echo '')
+
+    if [[ ${COPILOT_EXIT} -ne 0 ]] && QUOTA_CODE=$(quota_exhaustion_code "$COPILOT_ERROR"); then
         log "Copilot session stopped because the provider's quota is used up (exit ${COPILOT_EXIT})"
         report failed "${RESULT}" 0 0 0 0 "$CPU_SECONDS" "$MEMORY_BYTES" \
             quotaExhausted "${DIRECT_PROVIDER:-github-copilot}" "${DIRECT_MODEL:-}" "$QUOTA_CODE"
