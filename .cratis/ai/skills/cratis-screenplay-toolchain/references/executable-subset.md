@@ -12,6 +12,7 @@
 - Released public boundaries and observer routes
 - Chronological command date comparisons (ESM v26)
 - Flat composite read-model keys (ESM v27)
+- Uuid equality in command conditions (ESM v28)
 - Code attachments (what binds, what never does)
 - Refused (code, reason): fix, or record as a mode gap
 - Not refused, but do not rely on it
@@ -42,7 +43,7 @@ Complete examples that bind live in `executable-example.md`, `pdl-example.md` (p
 `automation-translate-example.md` (ESM v6) and `generated-responses-example.md` (ESM v7).
 
 For atomic batches (v22), described handlers (v23), ordinal text rules (v24) and
-protected reads (v25), chronological command dates (v26) and composite keys (v27), read
+protected reads (v25), chronological command dates (v26), composite keys (v27) and Uuid equality (v28), read
 [language admission](language-admission.md). A later
 version alone does not enable either application opt-in.
 
@@ -68,7 +69,7 @@ Requires Screenplay 4.141.0 or later (`screenplay --version`) to bind concept co
 - `StateChange` and `StateView` slices.
 - A command with one `identifier`; inline `produces event <Name>` (omit `for`) for a command-owned event, or
   plain `produces <Event>` with explicit `for <identifier>` for a shared event.
-- `produces when` with `==`/`!=` on scalar text, enum, number or boolean, and ordering on
+- `produces when` with `==`/`!=` on scalar text, enum, number, boolean or Uuid (v28), and ordering on
   numbers.
 - Mappings from command properties, string and number literals, `$context.occurred`,
   `$context.identity.id`, `.name` and `.userName` (aliases `causedBy.subject`, `.name`,
@@ -289,12 +290,27 @@ reference execution. Read read-surface
 [named keys](../../cratis-screenplay-read-surface/references/named-keys.md) for the
 complete example.
 
+## Uuid equality in command conditions (ESM v28)
+
+Requires Screenplay 4.205.0 (ESM v28; `screenplay --version`); older binders refuse
+Uuid comparisons with PLAY0268. `==` and `!=` bind in `require` and `produces when`
+between required scalar Uuid command properties, Uuid concepts and identities,
+and canonical Uuid literals; protected read paths bind in `require` only. When both
+sides are concepts or identities they must be the same concept; a bare Uuid compares with
+any Uuid concept. Refused with PLAY0268: ordering, optional operands, different concepts,
+Uuid validation rules, Uuid concept rules, read paths in `produces when`, and text,
+`$context` or reaction `where` operands. A literal that is not a lowercase hyphenated
+Uuid reports PLAY0273. Stage refuses v28 with STAGE-ESM-016, independently of standalone
+binding and reference execution. Read command-surface
+[Uuid equality](../../cratis-screenplay-command-surface/references/uuid-equality.md) for the
+complete example.
+
 ## Code attachments (what binds, what never does)
 
 Pending `handler implementation` beside unconditional `produces` binds as a described
 command (v23). Its payload-only body returns Unsupported ImplementationBody when reached;
 denial/validation specs still run. Read [language admission](language-admission.md) for
-v22–v27 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
+v22–v28 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
 for the result contract. Attached handlers remain unbound.
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
@@ -340,10 +356,11 @@ bodies still leave their owner non-executable.
 | `pii` or `secret` on a concept | PLAY0268 | Older compilers refuse it outright. Current compilers admit v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
 | `query` with a `by` block over a list, or `by ... from` context-derived arguments | PLAY0268 | a `by` block binds only on an optional single-instance query (v27). An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too |
 | Context `from`, single-result filters, `scoped to`, `performer` queries | PLAY0268 | Typed query context, filtering of single results, opaque scope and query implementation remain unadmitted; each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
-| `contains` or `starts with` in conditions only | PLAY0268 | conditions admit scalar equality and numeric ordering, plus same-primitive command date comparisons from v26; property/concept text rules bind as v24 |
+| `contains` or `starts with` in conditions only | PLAY0268 | conditions admit scalar equality (Uuid from v28) and numeric ordering, plus same-primitive command date comparisons from v26; property/concept text rules bind as v24 |
 | Date comparisons with mixed primitives, `$context` (including occurred), `today`, protected read paths, optional condition operands, concept rules or reaction `where` | PLAY0268 | v26 admits only command conditions and command/property literal validation rules |
 | Rule on a nested path (`lines.qty all > 0`) | PLAY0268 | put the rule on the nested value's concept |
-| Read paths without protected opt-in, or in `produces when` | PLAY0268 | v25 admits single-level paths only in `require` and produced-event mappings |
+| Read paths without protected opt-in, or in `produces when` | PLAY0268 | v25 admits single-level paths only in `require` and produced-event mappings; a Uuid read path compared with `==`/`!=` follows the same positions |
+| Uuid comparison with `<`, `>`, different concepts, optional operands, a validation rule or a concept rule | PLAY0268 | v28 admits `==`/`!=` in command conditions only, between the same concept or a bare Uuid and a concept |
 | Legacy `reads <View> ...` on a command | PLAY0271 (error) | `command reads protected` opts eligible views into v25; see command-surface protected reads |
 | `concurrency` block on a command | PLAY0271 (error) | "concurrency metadata keeps its legacy meaning and cannot bind to ESM v1" |
 | File/inline `handler` (see above) | PLAY0268 | pending described handlers instead bind v23; body execution and rendering remain gaps |

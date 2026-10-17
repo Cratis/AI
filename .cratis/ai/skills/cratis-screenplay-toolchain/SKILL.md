@@ -74,7 +74,7 @@ superseded statement needs context; exceptions do not change the contract.
 
 Read `references/verdicts.md` for exact commands, exit codes, the MCP roots caveat and the model notes gate.
 
-Requires Cratis CLI 3.57.0 or later (`cratis --version`) to render models that use equality filters or concept generation strategies (ESM v14 and v15); an older CLI answers `CLI-RENDER-004`.
+Requires Cratis CLI 3.57.0 or later (`cratis --version`) to render models that use equality filters or concept generation strategies (ESM v14 and v15); an older CLI answers `CLI-RENDER-004`. Requires Cratis CLI 3.74.0 for ESM v21–v26; above the CLI's ceiling, a bundled compiler that binds the construct answers `CLI-RENDER-004`, and one that predates it reports the binder's PLAY0268 (Uuid equality before Screenplay 4.205.0). Either way keep the rule and gap-fill.
 
 MCP calls below use the `screenplay` server declared in `.cratis/ai/mcp-servers.json`, for example `screenplay` → `read-workspace`.
 
@@ -141,6 +141,10 @@ changes with the root folder name.
   `references/diagnostics.md` for proof/support failures. Binding is not rendering.
   Tool/renderer authors: read [references/generation-checks.md](references/generation-checks.md)
   when discovering strategy options, checking one concept or value, or consuming rule proofs.
+- **v28:** `==`/`!=` between Uuid values in `require` and `produces when` select v28
+  (Requires Screenplay 4.205.0; `screenplay --version`; older binders refuse PLAY0268).
+  Read [language admission](references/language-admission.md) and command-surface
+  `references/uuid-equality.md`.
 - **v22–v26:** read [language admission](references/language-admission.md) for atomic
   batches, described handlers, text rules, protected reads, chronological command
   Date/DateTime comparisons (Requires Screenplay 4.199.0; `screenplay --version`;
