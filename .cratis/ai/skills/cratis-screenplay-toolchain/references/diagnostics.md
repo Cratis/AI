@@ -366,7 +366,7 @@ refusal reasons. Read [language admission](language-admission.md) before changin
 
 Invalid match syntax remains PLAY0367. Property/concept text rules bind v24;
 `contains`/`starts with` in conditions only still fail PLAY0268. Stage rejects
-v22/v27 and mixed pairs with STAGE-ESM-016; v23–v26 admission does not implement
+v22/v27/v28 and mixed pairs with STAGE-ESM-016; v23–v26 admission does not implement
 bodies, batches or rendered protected reads (STAGE-ESM-044), and the renderer refuses
 v26 date comparisons with STAGE-ESM-046. Requires Stage 4.129.0
 for semantic Host/executor protected reads; older engines refuse -044. Read
@@ -375,10 +375,10 @@ for semantic Host/executor protected reads; older engines refuse -044. Read
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
 | Code | Meaning | Fix |
 |---|---|---|
-| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists attached handlers, unsupported query shapes, protected enum/identity concepts, read paths without opt-in or in conditions, and older bundled-compiler limits) | stay in design mode, or change the construct if the domain allows; never strip `pii`/authorization |
+| PLAY0268 | construct the ESM cannot represent; read the message for the construct (`executable-subset.md` lists attached handlers, unsupported query shapes, protected enum/identity concepts, read paths without opt-in or in `produces when`, Uuid ordering, different Uuid concepts and Uuid rules, and older bundled-compiler limits) | stay in design mode, or change the construct if the domain allows; never strip `pii`/authorization |
 | PLAY0269 / 0270 | UI deferred / authoring metadata (I) | none |
 | PLAY0271 | legacy `reads` or a `concurrency` block keeps its legacy meaning and cannot bind (error) | opt eligible command reads into v25 with reviewed preamble repair; `concurrency` remains unbound; uniqueness uses a constraint, target realization stays separate |
-| PLAY0273 | incoherent: ambiguous `for`, property not on event revision, operand type mismatch, derived `$eventContext` path, unparsable date literal or offset-less DateTime literal in an admitted v26 comparison | fix the reference or literal; DateTime needs offset/Z |
+| PLAY0273 | incoherent: ambiguous `for`, property not on event revision, operand type mismatch, derived `$eventContext` path, unparsable date literal or offset-less DateTime literal in an admitted v26 comparison, or a Uuid comparison literal that is not lowercase hyphenated (v28) | fix the reference or literal; DateTime needs offset/Z; Uuid literals are lowercase hyphenated |
 | PLAY0350 | `null` in command/event value | Chronicle semantics (nullable event properties are CHR0012; an optional fact is a separate event), not only a binder limitation: specs cannot state an absent command/event value. Omit the value or record a capability gap; whether the optional detail is really a separate fact is a review question, not this code's fix |
 | PLAY0351 | given/then readmodel lacks the key property | add the keyed query's `by` property |
 | PLAY0352 | when-less spec asserting an action outcome, except a sole query Validation error (v18) | add an action or assert readmodel/query |

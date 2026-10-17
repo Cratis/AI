@@ -3,6 +3,8 @@
   "input": "Declare a Screenplay command with validation, authorization, a uniqueness constraint and a state-dependent rule.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "same concept", "file": "references/uuid-equality.md" },
+    { "kind": "skill-contains", "value": "lowercase hyphenated Uuid", "file": "references/uuid-equality.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "require to >= from", "file": "references/date-comparisons.md" },
     { "kind": "skill-contains", "value": "RejectingAMissingOffset", "file": "references/date-comparisons.md" },

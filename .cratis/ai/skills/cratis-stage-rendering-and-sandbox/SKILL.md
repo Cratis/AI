@@ -17,6 +17,8 @@ whether it is admitted; reading the admission rules is not a render result.
 
 Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
 
+Requires Cratis CLI 3.74.0 to render ESM v21–v26 models (bundles Stage 4.135.0); CLI 3.66.0–3.73.0 refuse v21 and later with `CLI-RENDER-004`, and every CLI refuses v27 and later.
+
 ## Batches, described handlers, text rules and protected reads
 
 Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
@@ -75,7 +77,7 @@ Facts that surprise:
 
 - **Binding uses the CLI's bundled compiler**, not the standalone one. Version admission
   does not imply construct support: exact ESM v1–v21 and v23–v26 pairs are admitted,
-  while v22/v27 and mixed pairs refuse `STAGE-ESM-016`. Date/DateTime command comparisons (v26)
+  while v22/v27/v28 and mixed pairs refuse `STAGE-ESM-016`. Date/DateTime command comparisons (v26)
   execute in the semantic Host and executor but refuse `STAGE-ESM-046` in the renderer. Pattern/random generation and checksum validation
   render with an admitting renderer; `generate rule` still refuses `STAGE-ESM-028`.
   Read [references/admission.md](references/admission.md) for the introducing-release

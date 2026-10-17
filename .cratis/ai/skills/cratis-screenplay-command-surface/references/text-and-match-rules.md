@@ -32,7 +32,7 @@ value passes; add `not empty` to require presence. An empty operand makes `conta
 Equality and inequality remain `== "x"` and `!= "x"`.
 
 This is not condition grammar: `contains`/`starts with` in `require`, `produces when`
-or reaction `where` remain PLAY0268. Those conditions admit scalar equality and
+or reaction `where` remain PLAY0268. Those conditions admit scalar equality (including Uuid from v28) and
 numeric ordering, not the property text rules.
 
 Requires Stage 4.124.0 for v24 text-rule admission (`cratis --version` identifies the CLI bundle); older renderers refuse v24 with STAGE-ESM-016.

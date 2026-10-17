@@ -12,8 +12,14 @@
 - Refusals seen while drafting a model
 
 Stage admits exact ESM v1–v21 and v23–v26 language/semantic pairs, then checks
-constructs. V22, v27 and mixed or unknown pairs report `STAGE-ESM-016`. The CLI's bundled renderer
-may stop at v16 and refuse newer models with `CLI-RENDER-004`.
+constructs. V22, v27, v28 and mixed or unknown pairs report `STAGE-ESM-016`. `cratis render` admits
+ESM v1–v26: Stage plans each model and refuses the constructs it cannot render with typed `STAGE-ESM-*`
+codes (a v22 model reports `STAGE-ESM-016`; v26 date comparisons report `STAGE-ESM-046`). The CLI refuses
+v27 and later with `CLI-RENDER-004` before planning.
+
+Requires Cratis CLI 3.74.0 (`cratis --version`) for v21–v26 rendering, which bundles Stage 4.135.0 and starts
+`cratis/stage:4.135.0` in `cratis run`; CLI 3.66.0–3.73.0 stop at v20 and refuse v21 and later with `CLI-RENDER-004`.
+Requires Cratis CLI 3.63.0 for v17 and v19 and 3.65.0 for v18; older CLIs refuse those versions with `CLI-RENDER-004`.
 
 Requires Stage 4.96.0 for v16, 4.101.0 for v17, 4.102.0 for v19, 4.106.0 for v18, and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
 Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering.
@@ -145,7 +151,7 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-013` | An event-context value other than `$context.occurred` mapped in `produces` | Map a command property when that preserves the meaning; otherwise gap-fill |
 | `STAGE-ESM-014` | A constraint Chronicle cannot reproduce (kind, scope, message; multi-claim in one command; optional or composite targets) | A different constraint is a requirement change for the model owner; otherwise gap-fill |
 | `STAGE-ESM-015` | Authorization Stage cannot render exactly: a role-claim URI, an opaque policy nested inside a condition, an unresolved or non-portable policy, no single identifier, an opaque-policy subject that is not text, Uuid, Date or DateTime (a restriction on opaque-policy subjects, separate from declarative claim targets), an unsupported claim artifact. Role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false) and `not`/and/or render; roles are read through the identity's `RoleClaimType` | Reshape the policy to a portable condition; otherwise gap-fill |
-| `STAGE-ESM-016` | Model language/semantic pair is not admitted by the installed Stage; exact v1–v21 and v23–v26 pairs are admitted, v22/v27 and mixed pairs refused; older Stage also refuses the versions listed in the minimums above. A CLI bundle stopping at v16 reports `CLI-RENDER-004` above v16 first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
+| `STAGE-ESM-016` | Model language/semantic pair is not admitted by the installed Stage; exact v1–v21 and v23–v26 pairs are admitted, v22/v27/v28 and mixed pairs refused; older Stage also refuses the versions listed in the minimums above. A CLI bundle reports `CLI-RENDER-004` above its ceiling (v26 for CLI 3.74.0) first. v14 filters and v15 generation join v11 numbers, v12 enum numbers and v13 compliance as supported constructs, not blanket construct support | Not fixable by editing: the model needs a newer renderer. Keep the model, record the gap, gap-fill |
 | `STAGE-ESM-017` | Read model or projection cannot render (property names that collide with Chronicle paths or expression syntax, mappings that overwrite the key or child identity, composite keys, unsupported `all` mappings, the refused scope shapes below) | Reshape the projection without changing what it records, or record the gap |
 | `STAGE-ESM-018` | `$strings.` key missing in the default locale or containing formatting characters | Fix the strings |
 | `STAGE-ESM-019` | Reducer structure or body not admitted (outside a `StateView`, impure, does not compile) | An equivalent pure body, or gap-fill |
@@ -176,7 +182,7 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-CRATIS-001` to `-005` | Profile or `scene.json` not the package-owned shape; unrecognized or missing scaffold input; artifact path collision (`-004`, for example case names that normalize to one path); a modeled module or feature that would render into the reserved `Customizations/` (`-005`) | Rename the module, feature or case |
 | `STAGE-AUTH-001` | Authorization cannot be rendered faithfully | As `STAGE-ESM-015` |
 | `CLI-RENDER-001`, `-002` | Unknown target; invalid rendering name | Fix the option, or the model |
-| `CLI-RENDER-004` | The bound model is above the CLI bundle's admitted ceiling (v16 for a bundle without v17 support) | Not fixable by editing: keep the model, gap-fill |
+| `CLI-RENDER-004` | The bound model is above the CLI bundle's admitted ceiling (v26 for CLI 3.74.0; v20 for CLI 3.66.0–3.73.0) | Not fixable by editing: keep the model, gap-fill |
 | `CLI-RENDER-005`, `-006` | Authored metadata with characters invalid in XML blocks rendering of XML doc comments; a document set that cannot be read as a workspace renders without comments (warning) | Remove the invalid characters |
 | `CLI-RENDER-007` to `-010` | `ui profile` refusals (package set, profile shape) | See `--package-set` |
 | `CLI-RENDER-011` to `-014` | `--scope`: unknown address; ambiguous feature and slice name; aggregate or unrecognized policy layout (render the whole application once); a dependency not in the manifest or the scope | Fix the address or add the owning scope |

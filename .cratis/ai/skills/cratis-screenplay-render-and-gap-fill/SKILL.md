@@ -67,7 +67,7 @@ refused reactions, captures and Translate slices remain gap-fill.
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on the standalone
 tool, so report V3 and V4 from that tool. The CLI/Stage pair
 (`cratis-screenplay-toolchain/references/renderable-subset.md`) reaches v8 route checks
-and construct admission through v16. Public/foreign events and production overrides
+and construct admission through v26 (Requires Cratis CLI 3.74.0; older bundles stop earlier). Public/foreign events and production overrides
 still refuse; semantic reaction/reducer filters and role/authenticated `runs as` render.
 Claim-reading/opaque system gates, legacy actor/filter paths and mixed effects still refuse. Keep refused scope as case A/C,
 never infer target support from binding. Read Stage's `references/admission.md` and
