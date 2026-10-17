@@ -25,6 +25,7 @@ import { gateTimeoutSeconds, latestGateLog, parseGatePlan, runBounded, tailLines
 type Handler = (event: unknown, ctx: unknown) => Promise<unknown> | unknown;
 type GateTool = {
     name: string;
+    description: string;
     executionMode?: string;
     execute: (id: string, params: { timeoutSeconds?: number }, signal: AbortSignal | undefined, onUpdate: ((update: unknown) => void) | undefined, ctx: unknown) => Promise<{ content: Array<{ text: string }>; details?: { status?: string } }>;
 };
@@ -45,7 +46,7 @@ function bridge() {
 }
 
 /** A committed scratch repository and a gate configuration whose one gate runs `command` for any changed .txt file. */
-function scratch(command: string[]) {
+function scratch(command: string[], deadline: { timeoutSeconds?: number; timeoutHint?: string } = {}) {
     const workDirectory = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '.ai-work');
     mkdirSync(workDirectory, { recursive: true });
     const root = mkdtempSync(join(workDirectory, 'cratis-gate-'));
@@ -59,7 +60,7 @@ function scratch(command: string[]) {
         enabled: true,
         failFast: true,
         maxOutputLines: 20,
-        gates: [{ id: 'scratch-gate', description: 'scratch gate', changed: ['*.txt', '**/*.txt'], workingDirectory: '.', command }],
+        gates: [{ id: 'scratch-gate', description: 'scratch gate', changed: ['*.txt', '**/*.txt'], workingDirectory: '.', command, ...deadline }],
     }));
     const saved = {
         gates: process.env.CRATIS_HOOKS_GATES,
@@ -95,6 +96,58 @@ test('the Pi bridge has no automatic gate handler at any turn boundary', () => {
     const { handlers, tool } = bridge();
     assert.deepEqual([...handlers.keys()].sort(), ['session_shutdown', 'session_start', 'tool_call', 'tool_result']);
     assert.equal(tool.executionMode, 'sequential', 'the gate must not run beside an edit in the same batch');
+});
+
+test('the tool description identifies both configuration paths and how replacements merge', () => {
+    const { tool } = bridge();
+    assert.match(tool.description, /Shipped defaults: \.cratis\/ai\/hooks\/scripts\/quality-gates\.json/);
+    assert.match(tool.description, /project overrides: \.cratis\/ai\/quality-gates\.project\.json, shallow-merged by gate id/);
+    assert.match(tool.description, /command without requires drops inherited packageScripts/);
+    assert.match(tool.description, /CRATIS_HOOKS_GATES replaces the defaults; project overrides still merge over it/);
+});
+
+test('a per-gate timeout is a named tool failure and kills TERM-resistant descendants', async () => {
+    const repo = scratch(['bash', '-c', 'bash -c \'trap "" TERM; echo $$ > child.pid; while :; do sleep 1; done\' & wait'], {
+        timeoutSeconds: 1, timeoutHint: 'dotnet test Affected.Specs.csproj --configuration Debug --no-build',
+    });
+    try {
+        repo.change();
+        const { tool } = bridge();
+        await assert.rejects(() => tool.execute('call', { timeoutSeconds: 15 }, undefined, undefined, repo.ctx()), (error: Error) => {
+            assert.match(error.message, /QUALITY GATE TIMED OUT: scratch-gate after 1s/);
+            assert.match(error.message, /NOT VERIFIED/);
+            assert.match(error.message, /Run a narrower command instead: dotnet test Affected\.Specs\.csproj/);
+            return true;
+        });
+        const child = Number(readFileSync(join(repo.root, 'child.pid'), 'utf8').trim());
+        const state = spawnSync('ps', ['-p', String(child), '-o', 'stat='], { encoding: 'utf8' });
+        assert.ok(state.status !== 0 || state.stdout.trim().startsWith('Z'), `the test host survived its gate deadline: ${state.stdout.trim()}`);
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('cancellation also stops commands running with their own per-gate deadline', async () => {
+    const repo = scratch(['bash', '-c', 'echo $$ > child.pid; exec sleep 600'], { timeoutSeconds: 120 });
+    const controller = new AbortController();
+    try {
+        repo.change();
+        const { tool } = bridge();
+        const execution = tool.execute('call', { timeoutSeconds: 15 }, controller.signal, undefined, repo.ctx());
+        const cancelled = assert.rejects(execution, /cancelled.*Nothing was verified/);
+        const started = Date.now();
+        while (!existsSync(join(repo.root, 'child.pid')) && Date.now() - started < 5_000) {
+            await new Promise(resolve => setTimeout(resolve, 30));
+        }
+        assert.ok(existsSync(join(repo.root, 'child.pid')), 'the timed command must start before cancellation');
+        const child = Number(readFileSync(join(repo.root, 'child.pid'), 'utf8').trim());
+        controller.abort();
+        await cancelled;
+        assert.throws(() => process.kill(child, 0), 'the timed command must not escape Pi cancellation');
+    } finally {
+        controller.abort();
+        repo.dispose();
+    }
 });
 
 test('read-only turns and edits never request or run the full gate', async () => {
