@@ -149,7 +149,7 @@ LiteralKeyword  = "literal", " ", Literal ;   (* parsed at the Expr level *)
 | `PLAY0191` | A read model is built by more than one projection or reducer |
 | `PLAY0192` | A read model is declared more than once |
 | `PLAY0295`–`PLAY0299` | An `$eventContext` path the event-context catalog does not have; `PLAY0299` also warns when a dynamic dictionary key uses a `$` source other than `$eventContext` |
-| `PLAY0380` | Chronicle drops part of a construct: `all` below the top level, or `automap` on a joined event |
+| `PLAY0380` | Only `all` inside `children`/`nested`: loses its subscription to every event type and behaves as `every` |
 | `PLAY0381` | A projection-level `key` routes no event |
 | `PLAY0382`–`PLAY0385` | Variant errors: no `enters on`, shared mapping missing on a variant, duplicate variant name, entering event claimed twice |
 | `PLAY0397` | Inline code uses a language line instead of a tagged fence |
@@ -186,12 +186,16 @@ key, `count eventCountByType.$eventContext.eventType.id` (one entry per distinct
 
 ## Syntax that parses but means something else
 
+An `automap` / `no automap` under a joined event (`with …`) is honored for that
+event alone; without one, it follows its level's auto-map. Requires Screenplay
+4.212.4 (`screenplay --version`) for executable binding; older binders replace the
+joined event's setting with the level's. It does not report `PLAY0380`.
+
 | Syntax | What Chronicle and the executable model do |
 | --- | --- |
 | `key` on the projection | Nothing: events route by the `from` key, then the event source id (`PLAY0381`) |
 | `from X` with no key | Routes by the event source id, never by another `from`'s key |
 | `join … on …` | Updates existing instances only; never creates one; the name after `join` is discarded |
-| `automap` under a joined event | Replaced by the auto-map of the join's level (`PLAY0380`) |
 | `all` inside `children`/`nested` | Behaves as `every` (`PLAY0380`) |
 | `$causedBy.<x>` | Does not bind; use `$eventContext.causedBy.<x>` |
 | Templates in mappings or keys | Do not bind |

@@ -34,7 +34,7 @@
         "States that a join never creates an instance.",
         "Describes the shape `join <label> on <property>` followed by `with <EventType>` blocks.",
         "Says instances come from `from` blocks, so a customer without an invoice produces no InvoiceDetails row.",
-        "Mentions that automap or `no automap` under a joined event follows the level the join sits in."
+        "Mentions that `automap` or `no automap` under a joined event decides auto-mapping for that joined event alone, and that without one it follows the level the join sits in."
       ]
     },
     {
