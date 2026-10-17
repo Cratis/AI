@@ -98,6 +98,23 @@ Execution orders authorization → property rules → required reads → derive/
 message `<ReadModel> '<key>' does not exist.` before evaluating requirements or
 mappings. Property-rule rejection therefore wins over absence.
 
+A read key the event store refuses is the same outcome as missing state. Refused
+shapes: empty, whitespace-only, exactly `*`, containing `#` anywhere, or with
+leading or trailing whitespace. A composite key is refused when any part is. The
+check runs before the world is consulted, so such a key rejects with
+`<ReadModel> '<key>' does not exist.` even when an instance is stored at that key.
+Only protected reads change: a command identifier or any other use of the same
+value keeps its meaning. Model read keys as concepts with rules, or as generated
+identifiers, so refused shapes cannot reach a protected read; a specification that
+uses such a key expects the missing-state rejection.
+
+Requires Screenplay 4.209.0 (`screenplay --version`) for this outcome in
+`screenplay test`; older compilers answer missing state or, when an instance is
+stored at the key, accept the read. A rendered Arc application or Stage host that
+does not map the store's refusal answers an error response for such a key (a
+server error, or a dependency failure for an empty key) instead of the rejection,
+which is one more reason to keep refused shapes out of read keys.
+
 Decide records the unfiltered fact-log boundary, read key and handled event types.
 A matching fact after that boundary makes commit return Conflict /
 DecisionStateChanged with no command facts, including publications. Irrelevant
