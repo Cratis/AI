@@ -66,6 +66,11 @@
     { "kind": "skill-contains", "value": "PLAY0530/0531", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "Requires Screenplay 4.212.1", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "Identity\ninference uses only single-result keyed queries", "file": "references/diagnostics.md" },
-    { "kind": "skill-contains", "value": "Editor versus C# verdicts", "file": "references/diagnostics.md" }
+    { "kind": "skill-contains", "value": "Editor versus C# verdicts", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "PLAY0801 | E | `DuplicateEventInProjectionScope`", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.212.3", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "`clear with` share one set of event names", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "`join` events have their own set", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "Each children, nested and variant\nblock starts fresh sets", "file": "references/diagnostics.md" }
   ]
 }

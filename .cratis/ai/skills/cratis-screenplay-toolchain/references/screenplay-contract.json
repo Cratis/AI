@@ -37838,6 +37838,17 @@
           "meaning": "The command whose handler requires a constrained implementation attachment."
         }
       ]
+    },
+    {
+      "code": "PLAY0801",
+      "name": "DuplicateEventInProjectionScope",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "An event is used more than once in one projection level\u0027s event or join set.",
+      "reserved": false,
+      "retired": false
     }
   ],
   "mcpTools": [

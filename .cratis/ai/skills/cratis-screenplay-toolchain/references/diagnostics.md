@@ -8,6 +8,7 @@
 - Explicit enum member numbers
 - Reserved stored names and event pins
 - Named keys, production routes and observer filters
+- Projection event scope (PLAY0801)
 - Reducer instance identity (PLAY0690)
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
@@ -146,6 +147,25 @@ list-query `by` blocks over a composite-keyed view are PLAY0268.
 Overrides/filters select released ESM v10; malformed routes also use PLAY0504.
 Read read-surface `references/named-keys.md` and
 [production routes and filters](production-routes-and-filters.md).
+
+## Projection event scope (PLAY0801)
+
+Requires Screenplay 4.212.3 (`screenplay --version`) for this ordinary compilation
+check in both C# and TypeScript; older executable binding rejected these duplicate
+uses later with PLAY0273.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0801 | E | `DuplicateEventInProjectionScope`: an event name occurs more than once in one projection level's event set or separate join set. Reports the second and each later reference, even with identical or different keys. Combine same-row mappings into one block; one event cannot update two rows of that level through two `from` blocks. |
+
+A level is the root, one `children` block, one `nested` block or one variant.
+`from` (including each event in `from A, B` lists), `remove with`, `remove via join`
+and `clear with` share one set of event names. `join` events have their own set:
+once in `from` and once in a join is allowed. Each children, nested and variant
+block starts fresh sets; separate projections are independent. Names compare
+ordinally without resolving qualifications or generations. If the domain has a
+genuine second fact, model it as its own event; never invent events only to
+satisfy the read side. Full scope guidance: projections `references/pdl-grammar.md`.
 
 ## Reducer instance identity (PLAY0690)
 
