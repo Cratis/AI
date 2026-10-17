@@ -121,8 +121,8 @@ behavior this file does not already state.
 
 ## Step 6 — Report
 
-Read and use the [shared review report](../../rules/review-reports.md) when
-writing the report. Keep the performance risk label on each finding:
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Keep the performance risk label on each finding:
 
 | Risk | Shared classification |
 | --- | --- |

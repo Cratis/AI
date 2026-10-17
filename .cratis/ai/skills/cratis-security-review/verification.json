@@ -3,7 +3,7 @@
   "input": "Report security risks using the shared report and distinguish conditional exposure from a merge blocker.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "../../rules/review-reports.md" },
+    { "kind": "skill-contains", "value": ".cratis/ai/rules/review-reports.md" },
     { "kind": "skill-contains", "value": "**Critical** | Blockers:" },
     { "kind": "skill-contains", "value": "**Medium** | Suggestions:" },
     { "kind": "skill-contains", "value": "**Low** | Suggestions:" }

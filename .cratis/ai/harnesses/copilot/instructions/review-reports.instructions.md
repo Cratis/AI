@@ -1,10 +1,11 @@
 ---
-applyTo: ".cratis/ai/skills/cratis-code-review/**,.cratis/ai/skills/cratis-security-review/**,.cratis/ai/skills/cratis-performance-review/**,.cratis/ai/agents/*reviewer.md"
+applyTo: ".cratis/ai/skills/cratis-code-review/**,.cratis/ai/skills/cratis-security-review/**,.cratis/ai/skills/cratis-performance-review/**,.cratis/ai/agents/**,.cratis/ai/prompts/**"
 paths:
   - ".cratis/ai/skills/cratis-code-review/**"
   - ".cratis/ai/skills/cratis-security-review/**"
   - ".cratis/ai/skills/cratis-performance-review/**"
-  - ".cratis/ai/agents/*reviewer.md"
+  - ".cratis/ai/agents/**"
+  - ".cratis/ai/prompts/**"
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
@@ -55,6 +56,12 @@ Skipped optional axes belong on the Not examined line and do not alone prevent a
 scoped approval. Missing required evidence does. When blockers and evidence gaps
 coexist, use Changes requested and record the gaps on the Not examined line; never
 reinterpret a failed or blocked gate as passing.
+
+When combining reviews, retain one report per reviewer with the shared sections
+and scope line, then give one combined verdict. Any blocker means Changes requested;
+otherwise any Incomplete review means Incomplete; otherwise any remaining suggestion
+means Approved with suggestions; otherwise use Approved. Do not drop dismissals or
+scope limits when combining reports.
 
 When a workflow requires a typed review envelope, preserve its schema and express
 these sections, verdict meanings, and scope limits through its existing fields.

@@ -129,8 +129,8 @@ command's properties as well as grepping them.
 
 ## Step 7 — Report
 
-Read and use the [shared review report](../../rules/review-reports.md) when
-writing the report. Keep the security risk label on each finding:
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Keep the security risk label on each finding:
 
 | Risk | Shared classification |
 | --- | --- |

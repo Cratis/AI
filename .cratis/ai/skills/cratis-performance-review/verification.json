@@ -3,7 +3,7 @@
   "input": "Report performance risks from code inspection without presenting unmeasured cost as a benchmark.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "../../rules/review-reports.md" },
+    { "kind": "skill-contains", "value": ".cratis/ai/rules/review-reports.md" },
     { "kind": "skill-contains", "value": "**High** | Blockers:" },
     { "kind": "skill-contains", "value": "**Medium** | Suggestions:" },
     { "kind": "skill-contains", "value": "**Low** | Suggestions:" },

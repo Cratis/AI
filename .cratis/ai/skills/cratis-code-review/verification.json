@@ -3,7 +3,7 @@
   "input": "Report a code review with no blockers and one non-blocking maintainability suggestion.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "../../rules/review-reports.md" },
+    { "kind": "skill-contains", "value": ".cratis/ai/rules/review-reports.md" },
     { "kind": "skill-contains", "value": "Correctness regressions, broken contracts" },
     { "kind": "skill-contains", "value": "Style preferences and maintainability improvements" }
   ]

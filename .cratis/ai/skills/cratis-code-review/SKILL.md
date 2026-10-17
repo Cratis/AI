@@ -169,8 +169,7 @@ degradations a reviewer can see without measuring:
 
 ## Step 7 — Report
 
-Read and use the [shared review report](../../rules/review-reports.md) when
-writing the report.
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
 
 Correctness regressions, broken contracts, and missing specification coverage
 that leaves changed behavior unverified belong in Blockers when they require
