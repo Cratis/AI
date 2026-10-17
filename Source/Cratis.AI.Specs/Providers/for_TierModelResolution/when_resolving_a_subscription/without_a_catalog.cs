@@ -15,5 +15,6 @@ public class without_a_catalog : Specification
     [Fact] void should_use_sonnet_for_balanced() => _models[ModelTier.Balanced].Value.ShouldEqual("sonnet");
     [Fact] void should_use_opus_for_powerful() => _models[ModelTier.Powerful].Value.ShouldEqual("opus");
     [Fact] void should_use_opus_for_premier() => _models[ModelTier.Premier].Value.ShouldEqual("opus");
+    [Fact] void should_report_subscription_aliases() => Enum.GetValues<ModelTier>().Select(tier => TierModelResolution.Explain(_provider, tier).Source).ShouldEachConformTo(source => source == TierModelSource.SubscriptionAlias);
     [Fact] void should_not_fabricate_a_discovered_catalog() => _provider.AvailableModels.ShouldBeEmpty();
 }
