@@ -106,6 +106,32 @@ does not retry it. Instead:
 A Claude Code conversation that has already attempted a tool call still does not fail over, quota or
 not, because replaying the turn elsewhere could repeat the tool's effects.
 
+## Inspect tier resolution
+
+A provider can have capacity but still be unable to serve an agent's tier. Use the generated
+`ResolveTiersFor` query in `@cratis/ai` (`ProviderTierResolution.ResolveTiersFor` on the backend)
+to read all four effective tiers before changing a mapping or rolling out a provider configuration.
+Each row includes the model, its `Source`, a `Reason` for a refusal or borrowed rung, the last
+successful discovery time, and the latest discovery failure.
+
+- `Configured`: an explicit mapping. A non-empty catalog must contain the exact model identifier;
+  otherwise the tier is `Unsatisfied`. Without a catalog the mapping is trusted but unverified.
+- `Derived`: the best conversational model on the tier's own catalog rung.
+- `Borrowed`: the existing derivation order picked another rung; the reason names it. This does not
+  replace an explicit mapping.
+- `SubscriptionAlias`: an official Claude Code alias for a subscription without a catalog.
+- `Unsatisfied`: no usable model. The completion or conversation fails with the provider, tier,
+  and reason; a pool skips that member before making a vendor call, without recording a rate limit.
+
+A refused mapping is never silently replaced or downgraded. Set a model the provider lists, or clear
+that tier's mapping to let it derive from the catalog. Saving a mapping does not validate it against
+the catalog; resolution does. A failed refresh does not invalidate the last successful catalog.
+
+Discovery is not an entitlement probe. In particular, a subscription catalog read with a separate
+usage key describes the organization's model list, not what the subscription token may use, and a
+CLI alias promises no entitlement either. This query reads recorded discovery; it makes no live
+vendor call and does not preview an uncommitted tier change.
+
 ## Options
 
 Bound from `Cratis:AI:Providers` (`AIProviderOptions`):
