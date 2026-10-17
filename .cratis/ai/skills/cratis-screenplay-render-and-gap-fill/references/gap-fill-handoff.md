@@ -108,11 +108,12 @@ reaction or drop an effect to dodge rendering.
 Preserve declared `reaction batches atomic` boundaries: each trigger occurrence's
 direct productions and each selected refusal branch are separate batches, with
 invoked commands independent. Stage refuses v22 (STAGE-ESM-016) and atomic mode
-in admitted v23–v26 (STAGE-ESM-043); the declaration is not external-effect deduplication.
+in admitted v23–v27 (STAGE-ESM-043); the declaration is not external-effect deduplication.
 For described handlers, hand off only payload computation under the v23 result
 contract; Stage STAGE-IMPL-002 means no stubs, even Stub mode. Protected v25 reads
-refuse Cratis C# rendering with STAGE-ESM-044 despite version admission and need
-generated-app admission/enrollment tests; ordinary injection never supplies protection.
+render from Stage 4.138.0 (STAGE-ESM-044 from older bundles, or for shapes it cannot
+preserve) and need generated-app admission/enrollment tests wherever you hand-write them;
+ordinary injection never supplies protection.
 Semantic Host/executor support is a separate result, not generated-app enforcement.
 
 ## Re-delivery

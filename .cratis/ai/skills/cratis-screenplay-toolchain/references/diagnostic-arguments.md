@@ -49,6 +49,10 @@ a separate `case` names an expansion. Argument order is immaterial.
 | PLAY0524 | `specification` (declaration), `step` (keyword), `stepIndex` (index), `property`, `type`, `example?`, `case?`, `parameter?` |
 | PLAY0525, PLAY0526 | `example` |
 | PLAY0583 | `case?`, `parameter?`, `type?`, `text?` |
+| PLAY0781 | `command` (declaration), `read`, `readModel` (declaration), `reason` (keyword) |
+| PLAY0782 | `command` (declaration), `read` |
+| PLAY0783 | `command` (declaration) |
+| PLAY0784, PLAY0785 | `command` (declaration), `read`, `path` |
 | PLAY0790, PLAY0794, PLAY0799 | `profile`, `template`, `blueprint?` |
 | PLAY0791 | `profile`, `template` (the layout name) |
 | PLAY0792 | `profile`, `template`, `blueprint` |
@@ -56,6 +60,10 @@ a separate `case` names an expansion. Argument order is immaterial.
 | PLAY0795 | `profile`, `template`, `blueprint?`, `outlet` |
 | PLAY0796 | `profile`, `template`, `blueprint?`, `option` |
 | PLAY0797 | `profile`, `value` |
+
+PLAY0781–PLAY0785 need Screenplay 4.207.0; earlier compilers omit these arguments. `read` is the alias when the
+command gives one, else the read model name. The PLAY0781 `reason` keywords are listed in command-surface
+[protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md); each refused read gets its own PLAY0781.
 
 For PLAY0524, `step` is given, given readmodel, when, when append or then.
 `stepIndex` counts every authored given/when/then clause once across all forms,

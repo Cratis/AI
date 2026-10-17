@@ -151,12 +151,12 @@ view name when that view is read once.
 Opt eligible state reads into application-root `command reads protected` (v25).
 Absence rejects; matching intervening facts conflict. Read [protected reads](references/protected-reads.md)
 for strict admission, paths and PLAY0780–0786. Legacy reads stay unprotected;
-reads/concurrency cannot combine (PLAY0783). The Cratis C# renderer refuses protected reads (STAGE-ESM-044), not v25 itself;
-semantic Host/executor support is separate.
+reads/concurrency cannot combine (PLAY0783). Semantic Host/executor support is separate.
+Requires Stage 4.138.0 to render protected reads as Arc read protection (shapes it cannot preserve stay STAGE-ESM-044); `cratis render` gets it from the first CLI that bundles it, and CLI 3.75.0 refuses every protected read with STAGE-ESM-044.
 Uniqueness still uses a constraint; reference success is not target realization.
 
 Do not use `reads` to fetch data the caller could supply. A composite-key view's `by` block in a
-command read is `PLAY0271`, or `PLAY0781` ByParts under `command reads protected`
+command read is `PLAY0271`, or `PLAY0781` reason `by-parts` under `command reads protected`
 (read-surface `references/named-keys.md`).
 
 ## `validate`

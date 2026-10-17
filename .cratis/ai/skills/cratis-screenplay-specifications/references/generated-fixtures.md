@@ -30,8 +30,8 @@ secret safety. Client-minted IDs stay inputs; gapless invoice numbering needs an
 allocator, not a random fixture or pattern. Check digits catch typos, not forgery;
 short payload codes need uniqueness enforcement separate from source freshness.
 Pattern/random/rule and checksum validation bind as v21. Stage renders
-pattern/random/checksum under the version gates below; `generate rule` remains
-STAGE-ESM-028. Generated secrets remain refused. Source: Screenplay
+pattern/random/checksum under the version gates below; `generate rule` renders in a new
+enough bundle (the Host and legacy syntax engine refuse it with STAGE-ESM-028). Generated secrets remain refused. Source: Screenplay
 `Documentation/screenplay/generated-values/choosing.md`.
 
 ## Fixtures and outcomes
@@ -106,4 +106,4 @@ Requires Stage 4.95.0 for command clock specs and 4.109.0 for v20 rule-bearing p
 Requires Stage 4.115.0 for v21 admission/all-Proven unpinned rendering, 4.117.0
 for warning/info generated-concept rules, 4.118.0 for checksum validation and
 4.119.0 for pattern/random. Older renderers require rule-bearing pins or refuse
-the respective rules/strategies with -038/-042/-028. `generate rule` remains -028.
+the respective rules/strategies with -038/-042/-028. `generate rule` renders in a new enough bundle.

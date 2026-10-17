@@ -352,25 +352,28 @@ refusal reasons. Read [language admission](language-admission.md) before changin
 | PLAY0698 | Pending intent plus another handler; retain one |
 | PLAY0699 | Pattern outside portable dialect or over 1,000 UTF-16 units / 3,000 expanded nodes; rewrite the refused construct |
 | PLAY0780 | Invalid placement/repetition of `command reads protected`; declare once at root |
-| PLAY0781 | Protected read shape/key refused; inspect the closed reason, never downgrade to an unguarded read |
+| PLAY0781 | Protected read shape/key refused; read the typed `reason` argument (see `diagnostic-arguments.md` for the compiler prerequisite), never downgrade to an unguarded read |
 | PLAY0782 | Omitted `by` without command identifier; declare the lookup input |
 | PLAY0783 | Command combines reads and concurrency; choose the intended boundary |
 | PLAY0784 | Unknown read/property path; reference a declared read or alias |
 | PLAY0785 | Ambiguous view path; use distinct aliases on repeated reads |
 | PLAY0786 (I) | Eligible legacy model; preview typed preamble repair, individually review absence/conflict semantics |
 | PLAY0787 (W) | Exact deprecated Studio text-rule pattern; repair to literal rule or equality, preserving message/severity |
-| STAGE-ESM-043 | Atomic mode not realized, even in admitted v23–v26; retain declaration and gap-fill |
-| STAGE-ESM-044 | Cratis C# renderer refuses protected reads despite v25 admission; semantic Host/executor support is separate; keep protection and gap-fill generated-app scope |
+| STAGE-ESM-043 | Atomic mode not realized, even in admitted v23–v27; retain declaration and gap-fill |
+| STAGE-ESM-047 | Single-instance query by composite key parts (v27) in the renderer, until Chronicle can look up composite keys (Chronicle#4265); keep the query, gap-fill |
+| STAGE-ESM-048 | Read model with several key parts, or projection keyed by parts (v27), in the renderer or legacy syntax engine; keep the model, gap-fill |
+| STAGE-ESM-044 | Renderer refuses a protected read despite v25 admission: any protected read in a bundle that predates protected-read rendering, afterwards only shapes it cannot preserve (constrained events, read paths in `produces when`, optional/collection/composite/mistyped mapping targets, freshness scopes), naming the reason; the legacy Host/structural runner refuse the preamble. Semantic Host/executor support is separate; keep protection and gap-fill generated-app scope |
 | STAGE-ESM-045 | Non-Error protected requirement; semantic Host/executor refuse before execution, including reaction-invoked commands; keep severity and report Unsupported |
 | STAGE-IMPL-002 | Described handler body not realized by Stage, even Stub mode; no stubs emitted |
 
 Invalid match syntax remains PLAY0367. Property/concept text rules bind v24;
 `contains`/`starts with` in conditions only still fail PLAY0268. Stage rejects
-v22/v27/v28 and mixed pairs with STAGE-ESM-016; v23–v26 admission does not implement
-bodies, batches or rendered protected reads (STAGE-ESM-044), and the renderer refuses
-v26 date comparisons with STAGE-ESM-046. Requires Stage 4.129.0
-for semantic Host/executor protected reads; older engines refuse -044. Read
+v22/v28 and mixed pairs with STAGE-ESM-016; v23–v27 admission does not implement
+bodies or batches, the renderer refuses protected reads it cannot preserve (STAGE-ESM-044; every
+protected read in an older bundle), v26 date comparisons (STAGE-ESM-046) and composite read-model
+keys (STAGE-ESM-048/-047). Read
 [language admission](language-admission.md) for the stricter Host outside-append guard.
+Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines refuse -044.
 
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
 | Code | Meaning | Fix |
@@ -435,7 +438,7 @@ for v21 admission/all-Proven unpinned specs, 4.117.0 for warning/info rules,
 4.118.0 for checksum validation and 4.119.0 for pattern/random. Older renderers
 refuse those constructs or require pins even for Proven rules. Bad pins fail
 STAGE-ESM-011; unpinned Unproven/Refuted rules fail -038; opaque rules fail -005
-before pin evaluation. `generate rule` remains -028; checksum remains -042 only
+before pin evaluation. `generate rule` renders in a new enough bundle (bodies refuse -019/-022/-020; the Host and legacy syntax engine keep -028); checksum remains -042 only
 on legacy syntax paths. Tool-author checks: [generation checks](generation-checks.md).
 
 Fix order: E at V1 -> W at V1 -> silent-gap check -> V2 codes (if the mode needs V3).
@@ -458,9 +461,9 @@ Publication STAGE-ESM-032, foreign facts/event captures 033, claim-reading/opaqu
 | STAGE-ESM-007 / 009 / 010 / 017 | projection shape (one projection or reducer per read model, affected-instance key, unsupported query shapes, keys, unsupported `all` mappings, event-context values) |
 | STAGE-ESM-011 | specification shape not rendered (`when append` outside the single-hop reaction subset, command specifications that cascade into reactions, composite values, an unauthenticated caller carrying roles or claims, generated fixtures that do not match their strategy shape or concept rules). Command scenarios and single-hop reaction appends render |
 | STAGE-ESM-014 | constraint shape (multi-claim in one command, optional or composite targets) |
-| STAGE-ESM-019/022 | reducer or opaque pure policy body outside the pure allowlist |
+| STAGE-ESM-019/022 | reducer or opaque pure policy body outside the pure allowlist; a `generate rule` body that does not compile or warns (019) or shadows a type or namespace (022) |
 | STAGE-ESM-024 | interval, schedule, application, startup and shutdown triggers, opaque reaction bodies, captures, Translate, clock/trigger/capture specifications |
-| STAGE-ESM-020 | a body the model requires is missing or changed (content hash check); blocks publication |
+| STAGE-ESM-020 | a body the model requires, including a `generate rule` attachment, is missing or changed (content hash check); blocks publication |
 | STAGE-ESM-039 | unsupported refusal branch conditions/routes/mappings, same-event multi-trigger refusal groups, localized `$refusal.message` or ambiguous multi-constraint `$refusal.constraint` |
 | STAGE-EVENT-002 / CLI-RENDER-016 | existing destination event type ids changed or unreadable; pin stored identity, never bypass with `--force` |
 | STAGE-BASELINE-001–004 | whole-application warnings: changed/missing admitted event revision, unreadable baseline, unavailable or stale assessment; keep `baseline check` as the independent CI gate |

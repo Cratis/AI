@@ -74,7 +74,7 @@ protection and unrecovered code. A pattern is not a gapless/sequential allocator
 or secret; check digits detect typos, not forgery. Low-entropy payload codes need
 uniqueness separate from source freshness. Arc recovery does not imply rendering:
 Requires Stage 4.118.0 for checksum validation and 4.119.0 for pattern/random;
-older renderers refuse them. `generate rule` still refuses STAGE-ESM-028.
+older renderers refuse them. `generate rule` renders from Stage 4.136.0; the Host and legacy syntax engine still refuse it with STAGE-ESM-028.
 Report missing pins, withheld productions/scenarios and version caps
 as losses, not successful recovery. Sources: Arc
 `Documentation/backend/csharp/generating-a-screenplay.md`;

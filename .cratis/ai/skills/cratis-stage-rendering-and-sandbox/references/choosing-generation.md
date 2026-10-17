@@ -38,7 +38,7 @@ Do not generate client-owned inputs, idempotency keys, gapless invoice numbers o
 secrets. Generation is not authorization, projection readiness or external-effect
 success. Patterns are not gapless/sequential allocators or secrets; check digits
 catch typos, not forgery. Short codes need uniqueness separate from whole-source
-freshness. `generate rule` remains unsupported by Stage (STAGE-ESM-028), and
+freshness. `generate rule` renders only from Stage 4.136.0 (STAGE-ESM-028 before it, and in the Host), and
 sequence is refused by Screenplay. Admitted command clock specs render. Stage
 emits explicit whole-source scopes when the model serializes a strategy; models
 with only implicit UUID stay Unguarded even at v20. This is not a general freshness

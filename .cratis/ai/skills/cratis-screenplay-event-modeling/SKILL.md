@@ -115,7 +115,8 @@ result are in [references/parsed-not-runnable.md](references/parsed-not-runnable
 and `cratis-screenplay-toolchain` (`references/executable-subset.md`). Read `references/parsed-not-runnable.md` when determining the required ESM version or interpreting binding dispositions. Read `cratis-screenplay-toolchain`'s `references/executable-subset.md` when checking binder admission or reference-execution limits. Model the wider
 language freely when the `.play` file **is** the deliverable - documentation,
 review, a shared description of a system. Never read a clean `screenplay` run as
-evidence a construct works downstream.
+evidence a construct works downstream. The language is frozen at ESM v1–v28 ([the freeze decision](https://github.com/Cratis/Screenplay/blob/main/decisions/0092-the-language-is-frozen-at-esm-v28.md)): model with it, and report a typed
+Stage, `cratis render` or Studio refusal as a platform gap rather than waiting for new constructs.
 
 ## Locate the model
 
@@ -174,8 +175,7 @@ compile or will not be safe. Both are deliberate.
   rejects and matching decide/commit changes conflict. Read
   [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
   for the strict shape and paths. Legacy reads remain PLAY0271; `concurrency` is
-  not protection and cannot combine with protected reads. The Cratis C# renderer refuses protected reads
-  (STAGE-ESM-044), not v25 itself: semantic Host/executor support is not generated-app protection.
+  not protection and cannot combine with protected reads. Stage 4.138.0 renders protected reads as Arc read protection (`cratis render` gets it from the first CLI that bundles it; CLI 3.75.0 refuses them with STAGE-ESM-044); semantic Host/executor support is not generated-app protection.
   Write state-dependent rules as `reads` plus `require` with an indented message;
   mark refused shapes as unenforced and name the intended target mechanism. Model uniqueness as a `unique` constraint. Never copy state into a
   command input, add an attestation flag, or hide the rule in `handler` prose. Do not

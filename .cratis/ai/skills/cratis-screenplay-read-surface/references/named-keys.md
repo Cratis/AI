@@ -76,7 +76,7 @@ noncollection sources of compatible nominal types, not literals. Neither execute
 over a composite view in the usual way:
 
 - A command `reads … by` without the application-root `command reads protected`
-  preamble is PLAY0271. With the preamble it is PLAY0781 (reason ByParts), PLAY0782
+  preamble is PLAY0271. With the preamble it is PLAY0781 (reason `by-parts`), PLAY0782
   first when the command has no `identifier`, and PLAY0273 when the key is not an
   input property.
 - A trigger `reads … by` binds when the reaction only invokes commands (information
@@ -214,12 +214,17 @@ Projections on a composite-keyed read model admit only root `from` and `remove w
 Joins, `children`, `remove via join`, `every`, `all`, `nested`, `clear with`,
 `variant` and reducers are PLAY0268. This is not ESM v10 admission.
 
-Stage does not admit v27: it refuses the whole model with `STAGE-ESM-016`, so
-`cratis render` cannot deliver it. Verify and reference-test the model with the
+Requires Stage 4.137.0 for v27 admission (older Stage refuses the whole model with
+`STAGE-ESM-016`). The semantic Host runs composite-keyed read models and the CLI's `cratis run`
+default engine runs them (Requires Cratis CLI 3.75.0); the legacy `eventmodel` engine (being removed) and the specification
+executor refuse them. Rendering refuses a read model with several key parts or a projection keyed by
+parts (`STAGE-ESM-048`) and a single-instance query by parts (`STAGE-ESM-047`, pending Chronicle#4265),
+and publishes nothing, so `cratis render` cannot deliver it. Verify and reference-test the model with the
 standalone compiler, then hand the delivery to gap-fill
-(`cratis-screenplay-render-and-gap-fill`) with the model as the contract.
+(`cratis-screenplay-render-and-gap-fill`) with the model as the contract. Composite-keyed read models get
+no conventional `Get<ReadModel>ById` query.
 Eligible command reads separately opt into v25 with `command reads protected`;
-a composite lookup there is still refused (PLAY0781 ByParts). See command-surface
+a composite lookup there is still refused (PLAY0781 reason `by-parts`). See command-surface
 [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md).
 
 ## Repairs and evidence

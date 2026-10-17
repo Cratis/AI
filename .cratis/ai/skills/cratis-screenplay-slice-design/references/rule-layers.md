@@ -20,7 +20,7 @@ protected decisions. Gap-fill must use an admitted projection/key shape and acti
 unit-of-work enrollment; do not edit managed dependencies. Keep the `.play` rule
 target enforcement separate from reference semantics until target tests verify it.
 Read [protected command reads](../../cratis-screenplay-command-surface/references/protected-reads.md)
-for admission and the Cratis C# renderer's protected-read refusal (STAGE-ESM-044); never remove protection to obtain rendering. Forbidden: caller-supplied copies of state in `require`, boolean attestation
+for admission and protected-read rendering (Stage 4.138.0; STAGE-ESM-044 otherwise); never remove protection to obtain rendering. Forbidden: caller-supplied copies of state in `require`, boolean attestation
 inputs (`confirmsX == true`), rules in `handler` / implementation-hint prose.
 
 ## Authorization is executable

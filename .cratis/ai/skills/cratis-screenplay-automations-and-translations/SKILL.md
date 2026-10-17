@@ -171,7 +171,7 @@ or actor that nobody confirmed. Read `references/worked-integration.md` when you
   separate binder check.
 - A trigger with `reads` that `produces` directly fails binding: decide in a command.
   Command reads can protect with `command reads protected` and admitted shapes (v25);
-  trigger reads cannot. The Cratis C# renderer refuses protected reads (STAGE-ESM-044);
+  trigger reads cannot. Stage 4.138.0 renders protected reads as Arc read protection (`cratis render` gets it from the first CLI that bundles it; CLI 3.75.0 refuses them with STAGE-ESM-044);
   semantic execution is separate from generated-app protection.
 - An authorized command exercised in a spec without `given caller` is PLAY0389 at binding.
 - A list query (`=> Item[]`) binds (a snapshot list is not rendered, `STAGE-ESM-010`);

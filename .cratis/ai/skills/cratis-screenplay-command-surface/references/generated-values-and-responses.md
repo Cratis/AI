@@ -121,8 +121,7 @@ Do not insert a bridge to Screenplay's record or promise another provider accept
 Arc can recover such self-contained compound bodies under the adapter gate in
 [generated recovery](../../cratis-screenplay-legacy-extraction/references/generated-recovery.md).
 Recovery does not run the body; reference execution consumes a String pin, opaque
-entropy cannot supply an identifier, and Stage rendering still refuses `generate rule`
-with STAGE-ESM-028. A target binding contract is not released renderer support.
+entropy cannot supply an identifier. Requires Stage 4.136.0 to render `generate rule`: the attached C# body becomes the concept's `IGeneratableInContext<T>.New(GenerationContext)` factory; a body that does not compile or warns refuses STAGE-ESM-019, type or namespace shadowing STAGE-ESM-022 and a missing attachment STAGE-ESM-020. The Host and the legacy syntax engine still refuse a command that generates a `generate rule` value with STAGE-ESM-028. Rendering emits the attached body as written; it does not turn a portable body into another provider's contract.
 
 ## Inspect and edit generation through MCP
 
@@ -268,7 +267,8 @@ Requires Stage 4.94.0 or later for receipt-time generation; older factories use 
 
 | Refusal | Still unsupported |
 | --- | --- |
-| STAGE-ESM-028 | `generate rule`, unknown strategies, non-concepts, optional/collection generation; every explicit strategy on the legacy syntax engine |
+| STAGE-ESM-028 | unknown strategies, non-concepts, optional/collection generation; a command generating a `generate rule` value in the Host; every explicit strategy and `generate rule` on the legacy syntax engine |
+| STAGE-ESM-019 / -022 / -020 | `generate rule` body that does not compile or warns / type or namespace shadowing / missing attachment (Requires Stage 4.136.0) |
 | STAGE-ESM-011 | A fixture that does not match its strategy shape or concept rules |
 | STAGE-ESM-038 | Routing combined with generation/responses; generated-property rules/requirements; occurrence parameter/response/factory name collisions; unsupported response sources/composites/collections; generated identifier plus destination-less plain production |
 | STAGE-ESM-038 | Unpinned generation with any Unproven/Refuted concept rule, production-condition reads, unordered event/read-model/query expectations or collision-sensitive generated constraints |
@@ -293,7 +293,7 @@ renderers refuse them with -038. Every severity is enforced as a generation defe
 Requires Stage 4.118.0 for semantic checksum validation and 4.119.0 for
 pattern/random factories, Host sampling and executor fixture checks; older
 renderers refuse those constructs with -042/-028. Dated patterns use receipt-time
-context; Int ranges render as `long`. `generate rule` still refuses -028.
+context; Int ranges render as `long`. `generate rule` renders from Stage 4.136.0 (see above).
 Requires Arc.Screenplay 22.107.0 for pattern/random/checksum and self-contained
 String-rule recovery; older adapters leave these factories in code. Recovery is
 not Stage rendering: keep refused rule contracts for gap-fill, never delete rules

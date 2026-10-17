@@ -141,7 +141,9 @@ Arc resolves these through the concept's generation interface, not strategy-spec
 `[GeneratedValue]` options. Requires Arc.Screenplay 22.107.0 for pattern/random,
 checksum and self-contained String-rule recovery; older adapters keep them in code.
 Requires Stage 4.118.0 for checksum validation and 4.119.0 for pattern/random
-rendering; older renderers refuse them. `generate rule` remains STAGE-ESM-028.
+rendering; older renderers refuse them. Requires Stage 4.136.0 to render `generate rule` as an
+`IGeneratableInContext<T>.New(GenerationContext)` factory (body errors STAGE-ESM-019, shadowing -022, missing
+attachment -020); the Host and legacy syntax engine still refuse a command generating its value with STAGE-ESM-028.
 Screenplay separately admits concept `generate` strategies and freshness; see `cratis-screenplay-command-surface/references/generated-values-and-responses.md`
 for that language contract and Stage's explicit scopes. Native Arc freshness is a
 separate policy; a factory alone is not a storage guard.

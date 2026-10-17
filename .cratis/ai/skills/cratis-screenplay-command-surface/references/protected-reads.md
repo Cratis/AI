@@ -66,10 +66,24 @@ Every read must satisfy both boundaries:
 PLAY0781 refuses reducers, joins (including removal joins), children/nested scopes,
 `every`/`all`, payload/composite keys, missing removals, empty handled-event sets,
 named sources/streams, singleton views and unsupported/generated/optional/collection
-keys. Its closed reasons are Reducer, Join, Children, OpenSubscription, PayloadKey,
-ByParts, NoRemoval, EmptyHandledSet, NamedSourceOrStream, Singleton, KeyType,
-GeneratedKey, OptionalKey and CollectionKey. `optional`, `advisory` and `via query`
-remain refused; `via query` uses parser code PLAY0175. There is no unguarded fallback.
+keys. `optional`, `advisory` and `via query` remain refused; `via query` uses parser
+code PLAY0175. There is no unguarded fallback.
+
+Requires Screenplay 4.207.0 (`screenplay --version`) for typed diagnostic arguments;
+earlier compilers omit these arguments. Read the arguments, never the message:
+
+| Code | Arguments |
+| --- | --- |
+| PLAY0781 | `command`, `read` (the alias, else the read model name), `readModel`, `reason` |
+| PLAY0782 | `command`, `read` |
+| PLAY0783 | `command` |
+| PLAY0784, PLAY0785 | `command`, `read`, `path` |
+
+`reason` is one of `reducer`, `join`, `children`, `open-subscription`, `payload-key`,
+`by-parts`, `no-removal`, `empty-handled-set`, `named-source-or-stream`, `singleton`,
+`key-type`, `generated-key`, `optional-key` or `collection-key`. These lowercase,
+hyphenated values are published and stable; they are not C# enum names, and a tool must
+tolerate a value it does not know. Every refused read gets its own PLAY0781.
 
 Single-level `read.property` paths bind in `require` operands and produced-event
 mapping sources only. Deeper paths and read paths in `produces when`, response
@@ -105,9 +119,22 @@ explicit `apply`. The repair inserts into the domain document or sole document,
 refuses ambiguous roots and requires individual review, never fix-all. It changes
 absence/conflict behavior, not merely formatting.
 
-Stage admits ESM v25, but the Cratis C# renderer refuses protected reads with
-STAGE-ESM-044: no artifacts are emitted. Preserve protection and deliver authorized
-hand-written enforcement through render-and-gap-fill; never remove the preamble.
+Stage admits ESM v25.
+
+Requires Stage 4.138.0 for the Cratis renderer to render protected reads; `cratis render` gets it from the first CLI that bundles it, and CLI 3.75.0 (Stage 4.137.0) and older refuse every protected read with STAGE-ESM-044.
+
+Each command with `reads` becomes an Arc command with `[ReadProtection(On)]`, a
+nullable read-model `Handle` parameter per read looked up with `[LookUpBy]`, the
+`<View> '<key>' does not exist.` rejection, and every requirement evaluated in `Handle`
+after the reads. Generated specifications run protected commands in decision mode.
+Reads it cannot preserve faithfully (reads combined with constrained events, read paths
+in `produces when`, read-path mappings to optional, collection, composite or differently
+typed event properties, generated-value freshness scopes) refuse STAGE-ESM-044 naming the
+reason, and no artifacts are emitted. Where rendering refuses, preserve protection and deliver authorized
+hand-written enforcement through render-and-gap-fill; never remove the preamble. Read
+Stage's [protected reads rendering](https://github.com/Cratis/Stage/blob/main/Documentation/reference/protected-reads-rendering.md)
+for the rendered shape and where it differs from the reference (a race is an Arc
+validation failure, not `DecisionStateChanged`; only the first failing requirement is reported).
 
 Requires Stage 4.129.0 for semantic Host/specification-executor protected reads;
 older engines refuse STAGE-ESM-044. They require presence before requirements or

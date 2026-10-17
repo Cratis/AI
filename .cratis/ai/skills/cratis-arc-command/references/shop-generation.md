@@ -106,8 +106,8 @@ and captured-time semantics, never one exact random suffix.
   as `.play`. Read [generated-value recovery](../../cratis-screenplay-legacy-extraction/references/generated-recovery.md)
   for Arc.Screenplay prerequisites and refusal boundaries, and
   [Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md)
-  for checksum and pattern/random rendering prerequisites. `generate rule`
-  remains STAGE-ESM-028.
+  for checksum, pattern/random and `generate rule` rendering prerequisites (Stage 4.136.0 renders
+  `generate rule`; the Host and legacy engine still refuse it with STAGE-ESM-028).
 
 ## Sources
 

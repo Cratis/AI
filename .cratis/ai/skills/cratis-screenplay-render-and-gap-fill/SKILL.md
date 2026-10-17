@@ -67,7 +67,7 @@ refused reactions, captures and Translate slices remain gap-fill.
 Models with event sources, streams or command routes bind and reference-execute as ESM v8 on the standalone
 tool, so report V3 and V4 from that tool. The CLI/Stage pair
 (`cratis-screenplay-toolchain/references/renderable-subset.md`) reaches v8 route checks
-and construct admission through v26 (Requires Cratis CLI 3.74.0; older bundles stop earlier). Public/foreign events and production overrides
+and construct admission through v27 (Requires Cratis CLI 3.75.0; older bundles stop earlier, v28 is `CLI-RENDER-004`). Public/foreign events and production overrides
 still refuse; semantic reaction/reducer filters and role/authenticated `runs as` render.
 Claim-reading/opaque system gates, legacy actor/filter paths and mixed effects still refuse. Keep refused scope as case A/C,
 never infer target support from binding. Read Stage's `references/admission.md` and
@@ -163,7 +163,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 - `description` and `documentation` reach rendered code only as XML documentation comments (Stage#178),
   never as behavior. A rule stated only in prose is unenforced: fallback record entry or target requirement,
   never "delivered".
-- The `cratis run` sandbox's default engine enforces only simple literal validation rules and no
+- The `cratis run` sandbox's legacy EventModel engine (the only engine before CLI 3.73.0; being removed) enforces only simple literal validation rules and no
   authorization; it is no evidence for denial behaviour or for any other rule.
 - Never remove `pii`, `secret`, authorization or rules to get a render through; report the gap.
 - Stop and ask only on a genuine contradiction between model, specs, descriptions and declared

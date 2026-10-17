@@ -32,14 +32,14 @@ port `35000` (a plain `http://` request gets no reply; the certificate is self-s
 The entrypoint takes a model file or folder, default `/eventmodel`. Deployment settings
 come from `cratis-stage.json` (path override `STAGE_CONFIG`), not `appsettings.json`.
 Implementation `file` references stay symbolic: the sandbox never opens them.
-`cratis run` has no `--engine` option; engine selection is the environment setting below.
+Requires Cratis CLI 3.73.0 for `--engine`: `cratis run` runs the `semantic` engine by default and always passes `Stage__Runtime__Engine`. The EventModel engine is legacy, refuses newer constructs (for example v27 composite keys) and is being removed; older CLIs have no `--engine` and start it. Running the image directly, the environment setting below selects the engine.
 
 Two engines:
 
 | Engine | Selected by | Behaviour |
 | --- | --- | --- |
-| EventModel (default) | nothing | Commands evaluate their modeled `produces` mappings, append the facts to Chronicle and echo the payload. **Only part of modeled validation is enforced, and no authorization.** See [What the default engine enforces](#what-the-default-engine-enforces). It registers Chronicle projections. Named event sources, streams and routes are refused with `STAGE-ESM-030` (`/stage/status` reports `state: "unsupported"` and `/api/**` answers 501), so a routed model does not run here |
-| Semantic | `Stage__Runtime__Engine=semantic` | Evaluates validation, requirements, authorization, conditional production and constraints before accepting a command; appends one batch; denied is HTTP 403, validation or constraint failure HTTP 400, an unsupported command HTTP 501. `GET /stage/semantic/admission` lists what is admitted. Executes routes and event-triggered reactions (including `where`, `runs as`, `from`, productions, invocations and cascades), settling them with the initiating command in one batch. Refuses a model it cannot execute (`state: "unsupported"`, `/api/**` returns 501). Read models are in-process, not Chronicle projections in the Workbench; the history is unbounded, so use it for short sessions |
+| EventModel (legacy, being removed; the image's default) | nothing | Commands evaluate their modeled `produces` mappings, append the facts to Chronicle and echo the payload. **Only part of modeled validation is enforced, and no authorization.** See [What the default engine enforces](#what-the-default-engine-enforces). It registers Chronicle projections. Named event sources, streams and routes are refused with `STAGE-ESM-030` (`/stage/status` reports `state: "unsupported"` and `/api/**` answers 501), so a routed model does not run here |
+| Semantic (`cratis run`'s default) | `Stage__Runtime__Engine=semantic` | Evaluates validation, requirements, authorization, conditional production and constraints before accepting a command; appends one batch; denied is HTTP 403, validation or constraint failure HTTP 400, an unsupported command HTTP 501. `GET /stage/semantic/admission` lists what is admitted. Executes routes and event-triggered reactions (including `where`, `runs as`, `from`, productions, invocations and cascades), settling them with the initiating command in one batch. Refuses a model it cannot execute (`state: "unsupported"`, `/api/**` returns 501). Read models are in-process, not Chronicle projections in the Workbench; the history is unbounded, so use it for short sessions |
 
 Do not read an answering sandbox as evidence of correct authorization. Callers are
 built from unsigned `x-ms-client-principal` headers that anyone who can reach the host can
@@ -108,7 +108,7 @@ evidence about the rest.
 Requires Stage 4.129.0 for semantic Host and specification-executor protected reads;
 older engines refuse them with `STAGE-ESM-044`. The default EventModel Host and
 structural runner still refuse the preamble with `STAGE-ESM-044`; the structural
-runner exits `1` without a report. The Cratis C# renderer also retains `-044`:
+runner exits `1` without a report. The Cratis renderer renders protected reads only from Stage 4.138.0 and refuses unpreservable shapes with `-044`:
 executing a model here does not make it renderable.
 
 After authorization and property/concept rules, each declared read must exist at
