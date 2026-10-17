@@ -106,11 +106,30 @@ public class AnthropicProviderClient(
 
         if (budgetTokens is { } budget)
         {
-            payload["thinking"] = new JsonObject { ["type"] = "enabled", ["budget_tokens"] = budget };
+            if (UsesAdaptiveThinking(model))
+            {
+                // Models from generation 5 refuse a thinking budget outright ("thinking.type.enabled is not
+                // supported for this model") - they decide how much to think, steered by an effort level.
+                payload["thinking"] = new JsonObject { ["type"] = "adaptive" };
+                payload["output_config"] = new JsonObject { ["effort"] = effort == Effort.Medium ? "medium" : "high" };
+            }
+            else
+            {
+                payload["thinking"] = new JsonObject { ["type"] = "enabled", ["budget_tokens"] = budget };
+            }
         }
 
         return payload;
     }
+
+    /// <summary>
+    /// Whether the model only accepts adaptive thinking - every Claude model of generation 5 and later.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns><see langword="true"/> when a thinking budget would be rejected.</returns>
+    internal static bool UsesAdaptiveThinking(ModelName model) =>
+        System.Text.RegularExpressions.Regex.Match(model.Value, @"^claude-(?:haiku|sonnet|opus|fable)-(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)) is { Success: true } match
+        && int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture) >= 5;
 
     /// <summary>
     /// Maps an <see cref="Effort"/> tier to an extended-thinking token budget and the accompanying
