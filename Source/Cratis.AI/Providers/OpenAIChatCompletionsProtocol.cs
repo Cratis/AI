@@ -31,6 +31,7 @@ public static class OpenAIChatCompletionsProtocol
     /// <param name="configureHeaders">Sets the vendor's own authentication header(s) on the request.</param>
     /// <param name="vendor">The vendor the request is sent to - for the log entry when the call fails, and to select how <paramref name="quotaTracker"/> reads the response's rate-limit headers.</param>
     /// <param name="providerId">The configured provider the request was sent as - what <paramref name="quotaTracker"/> keys its reading by.</param>
+    /// <param name="apiKey">The credential the request is authenticated with - withheld by exact value from any failure diagnostics.</param>
     /// <param name="quotaTracker">Records what the response's rate-limit headers, if any, reported about the provider's remaining quota (Cratis/AI#337).</param>
     /// <param name="logger">The logger a failed or empty response is recorded on.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
@@ -44,6 +45,7 @@ public static class OpenAIChatCompletionsProtocol
         Action<HttpRequestHeaders> configureHeaders,
         AIProviderType vendor,
         AIProviderId providerId,
+        AIProviderApiKey apiKey,
         IAIProviderQuotaTracker quotaTracker,
         ILogger logger,
         CancellationToken cancellationToken = default)
@@ -80,7 +82,7 @@ public static class OpenAIChatCompletionsProtocol
 
             if (!response.IsSuccessStatusCode)
             {
-                var failure = await TransientProviderFailures.FromResponse(response, vendor, model, providerId, cancellationToken);
+                var failure = await TransientProviderFailures.FromResponse(response, vendor, model, providerId, apiKey, cancellationToken);
                 logger.UnexpectedStatusCode(providerId, vendor, failure.Model, (int)response.StatusCode, failure.ErrorType, failure.ErrorCode, failure.RetryAfter, failure.Result.RetryAfter, failure.Body);
                 return failure.Result;
             }

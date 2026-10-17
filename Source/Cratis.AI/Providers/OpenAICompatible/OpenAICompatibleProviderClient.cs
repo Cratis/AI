@@ -49,6 +49,7 @@ public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory
             },
             Type,
             provider.Id,
+            provider.ApiKey,
             quotaTracker,
             logger,
             cancellationToken);
