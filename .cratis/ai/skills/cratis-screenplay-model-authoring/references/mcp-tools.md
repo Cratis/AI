@@ -59,7 +59,18 @@ the [MCP loop](mcp-loop.md).
 | Reference execution | `run-specifications` | Run the workspace or a retained proposal candidate read-only; not attached code or target tests |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
 
-`propose-move` moves a slice to another feature, or a feature to another module or feature, keeping identities: copy the `target` and `newParent` `{kind, parts}` addresses from the identity inventory and pass `expectedRevision` and `expectedCatalogRevision`. It repairs qualified references and `depends on`, and refuses identity loss, capture, collisions, descendant destinations, inherited authorization or screen-interaction changes and glob imports; review `moveReport` (`identityMigrations`, `referenceRepairs`, `fragmentsMoved`). It does not rename events, change pins or move files, and declaration moves between slices are deferred. Use it for legacy re-slicing instead of retyping declarations.
+`propose-move` moves a slice to another feature, or a feature to another module or feature, keeping identities: copy the `target` and `newParent` `{kind, parts}` addresses from the identity inventory and pass `expectedRevision` and `expectedCatalogRevision`. It repairs qualified references and `depends on`, and refuses identity loss, capture, collisions, descendant destinations, inherited authorization or screen-interaction changes and glob imports; review `moveReport` (`identityMigrations`, `referenceRepairs`, `fragmentsMoved`). It does not rename events, change pins or move files, and declaration moves between slices are deferred. Use it for legacy re-slicing instead of retyping declarations. Its report document fields are plain strings, not nested identity objects.
+
+Requires Screenplay 4.211.0 (`screenplay --version`) for string conflict/move-report document fields and independent reference-edit batches; older servers can emit objects and refuse independent remove/add batches. Upgrade before relying on this contract.
+
+Independent reference removals and additions with different text may share one
+`propose-source` or `propose-ast` batch. Only unmatched same-text removals/additions
+are refused for ambiguous correspondence, including under `Draft`; other reference
+safety and identity checks still apply. Preserve genuine moves with `propose-move`
+or semantic migrations. Read the refusal's `conflicts[].document`, `path` and
+`otherPath` as strings when present and inspect its located disappeared/introduced
+occurrences instead of bisecting the batch. Details and example:
+[reference continuity](mcp-loop.md#reference-continuity-and-located-conflicts).
 
 `propose` is the executable-only whole-document interface. Prefer `propose-source`
 for whole `.play` text, `propose-ast` for focused typed edits, and `propose-rename`

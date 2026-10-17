@@ -39,6 +39,14 @@ for v22–v25: Stage rendering refuses atomic batches, described bodies (even St
 and protected reads. Semantic Host/executor support is not generated-app protection.
 Preserve contracts; reference success is not target realization.
 
+File/inline command handlers refuse PLAY0800 (`CommandHandlerRequiresAttachment`):
+a permanent requirement for a constrained implementation attachment. Gap-fill the
+slice in code rather than wait for a new ESM version. Hosts identify the command
+through the required typed `arguments.subject`, not message text. Requires
+Screenplay 4.210.0 (`screenplay --version`); older binders use PLAY0268 for these
+handlers. Other PLAY0268 families still mean not representable in a supported ESM
+version yet; triage details: [renderability gate](references/renderability-gate.md).
+
 ## Interview phase
 **Skip if** the request names the model root, the application name, the destination and the
 decision on non-renderable scope. Otherwise ask only what is missing:
@@ -105,7 +113,7 @@ model still compiles and binds) and its V5 states the scope.
    against the destination without writing (exit 6 changes pending) and `--scope <Module.Feature.Slice>`
    (repeatable) to render an admitted part. Classify every
    diagnostic with `references/renderability-gate.md`: model fix in the chosen mode,
-   capability gap, tool skew or environment. Group by code and count; do not paste the list.
+   capability gap, permanent implementation-attachment requirement, tool skew or environment. Group by code and count; do not paste the list.
 3. **When admission fails** (case A) present the options, the user decides:
    (a) keep design mode and record the gaps; (b) narrow to renderable mode, where the modeler
    changes the model for business reasons and **without** removing protection (`pii`,

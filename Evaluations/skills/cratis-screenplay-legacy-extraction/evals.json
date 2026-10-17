@@ -29,12 +29,12 @@
       "id": 3,
       "name": "report-incomplete-generated-recovery",
       "prompt": "Arc.Screenplay 22.87.1 recovered an unsupported generated String strategy above a v14 cap. Its event has a required payload from that value; no other productions remain and its successful scenario pins it. The source has a client-supplied idempotency key and an authorization rule using the generated value. A teammate wants to prune the payload, guess a UUID strategy and report equivalent recovery. Give the loss-report disposition and diagnostics; no files or tools.",
-      "expected_output": "Do not prune a required payload or invent a strategy. Record exact source locators, resolved adapter/cap, retained handler and each loss: SP0073 for non-default strategy above v14, SP0052 for unavailable generation/dependent response/protection, SP0012 for whole withheld production, SP0039 for omitted successful scenario, SP0054 for withheld route when no production remains, and SP0013 if a tuple destination is unproven. Preserve protection and client input/idempotency ownership. Handler references compile but refuse PLAY0268 binding; lowering the cap describes less behavior, not equivalence. Leave context/rule recovery and any allocator requirements open rather than claiming release support.",
+      "expected_output": "Do not prune a required payload or invent a strategy. Record exact source locators, resolved adapter/cap, retained handler and each loss: SP0073 for non-default strategy above v14, SP0052 for unavailable generation/dependent response/protection, SP0012 for whole withheld production, SP0039 for omitted successful scenario, SP0054 for withheld route when no production remains, and SP0013 if a tuple destination is unproven. Preserve protection and client input/idempotency ownership. Handler references compile but refuse binding with PLAY0800; lowering the cap describes less behavior, not equivalence. Leave context/rule recovery and any allocator requirements open rather than claiming release support.",
       "assertions": [
         "Refuses payload pruning and strategy guessing, preserving authorization and the client-owned idempotency input.",
         "Maps the cap and dependency losses to SP0073/SP0052, required production loss to SP0012, scenario loss to SP0039 and absent route to SP0054; never invents tuple identity evidence.",
         "Requires located per-element loss rows with adapter/cap and retained handler rather than a claim of equivalent recovery.",
-        "Separates compilation from PLAY0268 handler binding refusal and states that a version cap describes less behavior."
+        "Separates compilation from PLAY0800 handler binding refusal and states that a version cap describes less behavior."
       ]
     },
     {

@@ -313,8 +313,9 @@ v22–v28 and [described handlers](../../cratis-screenplay-command-surface/refer
 for the result contract. Attached handlers remain unbound.
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
-code to an owner. Three kinds block binding (PLAY0268, V3 blocked, no specification runs):
-the attached command `handler`, the `file` constraint (see below) and a query `performer`
+code to an owner. Three kinds block binding (V3 blocked, no specification runs):
+the attached command `handler` (PLAY0800), the `file` constraint (PLAY0268, see below)
+and a query `performer` (PLAY0268)
 ("uses delivery, filtering, scope, or implementation behavior outside the first ESM v1
 vertical"). Everything else binds as an **opaque requirement** that needs a target to
 execute: reducer transitions, rule predicates, command and concept code validation, policy
@@ -327,8 +328,12 @@ bodies still leave their owner non-executable.
   can only declare uniqueness: declare it with `unique ...`, and put other rules in command
   validation or a `require` condition.
 
-- A file/fenced command `handler` remains PLAY0268, wrapped or direct. A pending
-  intent instead selects v23 with unconditional productions (PLAY0695 information).
+- A file/fenced command `handler` refuses PLAY0800, wrapped or direct: a permanent
+  requirement for a constrained implementation attachment, not future ESM admission.
+  Gap-fill the slice in code; hosts read the required typed `arguments.subject` for
+  the command rather than matching message text.
+  Requires Screenplay 4.210.0 (`screenplay --version`); older binders use PLAY0268.
+  A pending intent instead selects v23 with unconditional productions (PLAY0695 information).
   Missing productions use PLAY0696, conditional ones PLAY0697, duplicate handlers PLAY0698.
   Hints are not executable code, locks or confirmation.
 - A command property named rule also accepts an `implementation` block (ordered
@@ -362,7 +367,7 @@ bodies still leave their owner non-executable.
 | Uuid comparison with `<`, `>`, different concepts, optional operands, a validation rule or a concept rule | PLAY0268 | v28 admits `==`/`!=` in command conditions only, between the same concept or a bare Uuid and a concept |
 | Legacy `reads <View> ...` on a command | PLAY0271 (error) | `command reads protected` opts eligible views into v25; see command-surface protected reads |
 | `concurrency` block on a command | PLAY0271 (error) | "concurrency metadata keeps its legacy meaning and cannot bind to ESM v1" |
-| File/inline `handler` (see above) | PLAY0268 | pending described handlers instead bind v23; body execution and rendering remain gaps |
+| File/inline `handler` (see above) | PLAY0800 | permanent attachment requirement: gap-fill in code; pending described handlers instead bind v23, with body execution/rendering separate |
 | `$context.tenant`, roles, claims, causation | PLAY0268 | no portable scalar counterpart |
 | Arithmetic or raw expression in a `produces` mapping | PLAY0268 | |
 | Template `` `${x}` `` or `$causedBy` in a projection | PLAY0268 | |
