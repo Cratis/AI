@@ -111,8 +111,9 @@ uses such a key expects the missing-state rejection.
 Requires Screenplay 4.209.0 (`screenplay --version`) for this outcome in
 `screenplay test`; older compilers answer missing state or, when an instance is
 stored at the key, accept the read. A rendered Arc application or Stage host that
-does not map the store's refusal answers a server error for such a key instead
-of the rejection, which is one more reason to keep refused shapes out of read keys.
+does not map the store's refusal answers an error response for such a key (a
+server error, or a dependency failure for an empty key) instead of the rejection,
+which is one more reason to keep refused shapes out of read keys.
 
 Decide records the unfiltered fact-log boundary, read key and handled event types.
 A matching fact after that boundary makes commit return Conflict /
