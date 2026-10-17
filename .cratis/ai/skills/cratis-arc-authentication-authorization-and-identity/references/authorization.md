@@ -217,6 +217,15 @@ MVC actions). Configure both: the evaluator for the Arc pipeline, `FallbackPolic
 for MVC. Neither protects an endpoint that is mapped explicitly anonymous (see the
 discovery endpoints in the skill).
 
+Requires Arc 22.116.0 for hub subscriptions to apply the host's endpoint fallback
+before running an unannotated query: ASP.NET Core evaluates `FallbackPolicy`,
+and Arc Core requires authentication when authentication handlers are registered.
+`IEndpointFallbackAuthorization` supplies this host check; it is separate from
+`IFallbackAuthorizationEvaluator`. `[AllowAnonymous]` and guest-policy queries
+remain exempt. Denial sends an Unauthorized frame; SSE subscribe returns 401.
+Check with `dotnet list package`; on older Arc do not rely on host fallback alone
+to secure the hub path.
+
 ## Default access by hosting model
 
 There is no `ArcOptions` switch for a default requirement. What you get depends

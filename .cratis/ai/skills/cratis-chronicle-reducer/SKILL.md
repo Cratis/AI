@@ -234,6 +234,10 @@ event means no observer subscription; assembly membership alone is not event
 membership. Types implementing `IReducer` stay classic even with a self-shaped
 static helper.
 
+Requires Chronicle 19.72.0 for CHR0065 to warn on fold-like methods that are
+misnamed (`Reducer`/`reduce`) or not static and therefore never discovered.
+Check `dotnet list package`; older analyzers can leave those methods silent.
+
 Use the existing generic or Type `RegisterReducer` API for explicit self-model
 nomination too; there is no special self API. A self model cannot share ownership
 with a separate reducer, fluent projection or genuine model-bound mappings in the

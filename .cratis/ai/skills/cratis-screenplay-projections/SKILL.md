@@ -28,11 +28,9 @@ source is the single flow model.
 
 ## Product sources
 
-Screenplay `Documentation/screenplay/projections/` (including `semantic-model.md`, `keys.md`
-and `variants.md`), `readmodels.md`, `diagnostics.md`, `commands.md`, `events.md` and
-`mcp/authoring-tools.md` describe the PDL parser, validator, diagnostics, semantic binder and
-reducer-body binding (`Semantics/`). Every example below compiles with the standalone compiler.
-Reverify before claiming another version behaves the same.
+Consult Screenplay `Documentation/screenplay/projections/` for grammar and semantics,
+`readmodels.md` for targets and `diagnostics.md` for errors. Verify examples with
+the standalone compiler before claiming another version behaves the same.
 
 **Chronicle decides what a projection means.**
 Screenplay owns the grammar; which instance an event affects, what a join may
@@ -81,11 +79,8 @@ Read [observer filters](../cratis-screenplay-toolchain/references/production-rou
 
 ## Projection-level directives
 
-`description "..."` (or a fenced text block) on the projection header (report-only `PLAY0270`; variants
-and nested blocks take none), `no automap`, `sequence <name>`, `file <path>`. `sequence` is a realization
-concern and does not bind to the executable model. A mapping target may end in a dynamic dictionary
-key, `count eventCountByType.$eventContext.eventType.id` (one entry per distinct value); only
-`$eventContext` resolves there, any other `$` text is a literal key with warning `PLAY0299`.
+Read [projection-level directives](references/pdl-grammar.md#projection-level-directives)
+when using descriptions, `sequence`, `file` or dynamic dictionary-key targets.
 
 ⚠️ **Do not write `key` on the projection.** It parses, but neither Chronicle nor
 the executable model routes any event by it, and it is not a default for the
@@ -147,6 +142,15 @@ subscribe to every event type: `all` inside `children` or `nested` behaves as
 `every` accepts `exclude children`, so child events do not bump the parent's
 `lastUpdatedAt`. The `every` block **inside** a `children` block does not accept
 it — it is already in a children context.
+
+## One event per level
+
+One event type is used once per projection level (`PLAY0801`): two `from` blocks
+cannot update two rows at that level, even with different keys. Combine mappings
+for one row; model a genuine second domain fact as its own event. Never invent
+events only to satisfy the read side. Joins use a separate set; each children,
+nested and variant block starts fresh sets. Read [event scope](references/pdl-grammar.md#event-scope)
+for grouped events, removals and compiler compatibility.
 
 ## Property mapping and AutoMap
 

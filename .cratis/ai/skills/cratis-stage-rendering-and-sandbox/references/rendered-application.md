@@ -15,6 +15,10 @@ image, Cratis Components, Scene, Fundamentals, Vite and React). The pins belong 
 renderer: read them from the rendered `.csproj`, `docker-compose.yml` and `package.json`, never
 from this skill. Moving them is a renderer change, so a re-render
 under a newer Stage is how they change; never bump a managed file.
+Requires Stage 4.144.0 for backend pins derived at build time from Stage's central
+package versions and shared frontend pins following Stage's frontend manifest;
+older renderers use separately maintained scaffold pins. Regeneration updates
+existing applications; it does not float dependencies in an already rendered app.
 
 | Item | Value |
 | --- | --- |
@@ -36,8 +40,10 @@ Consequences: `[ProtectedDecision]` (`Cratis.Arc.Chronicle.ReadModels`) and
 in the scaffold's package set, as is `[ExecuteCommandsAsSystem]`. This is API
 availability, not Stage emission or runtime protection: gap-fill must opt into
 the protected command profile and enroll an admitted projection/key read in the
-active unit of work. The Cratis C# renderer does not turn `.play` `reads`/`require` into protected decisions;
-semantic Host/executor support is separate from generated-application protection.
+active unit of work. Requires Stage 4.138.0 for Cratis C# rendering of admitted
+`.play` protected reads as Arc read protection; older renderers refuse them with
+`STAGE-ESM-044`, as do shapes the renderer cannot preserve. Semantic Host/executor
+support is separate from generated-application protection.
 Hand-written scope that needs a newer dependency can raise its version through
 `Customizations/Dependencies.props` (explicit `Version`, imported last; central management
 is off), but any override must be proven with a restore and build. The compose file binds local ports `27017` and

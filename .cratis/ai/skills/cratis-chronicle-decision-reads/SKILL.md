@@ -143,8 +143,11 @@ command protection, caching and enrollment; older Arc refuses them.
 Enroll the read **before** staging its decision's events through
 `EventLog.Transactional` and let the owning unit of work commit. Inspect
 `IsSuccess`, append errors/constraint violations/concurrency violations and
-`GetDecisionConflicts()`; the latter reports decision conflicts without exposing
-sequence numbers. On a kernel whose append validators accept an empty batch
+`GetDecisionConflicts()`. Requires Chronicle 19.76.0 for the nullable
+`ConflictingEventTypeId` and `ConflictingEventSequenceNumber` on decision conflicts
+and concurrency violations. They name the first event matching the failed guard;
+older kernels leave both null. Conflict JSON contains the read-model identifier,
+not its CLR type. Check with `dotnet list package` before asserting these fields. On a kernel whose append validators accept an empty batch
 (a kernel that does so when a scope carries an actual boundary or expects no matching event), a checked empty
 append validates its scope and writes nothing; a kernel that rejects it surfaces
 `DecisionReadValidateOnlyNotSupported`, which fails closed. Do not mistake "no

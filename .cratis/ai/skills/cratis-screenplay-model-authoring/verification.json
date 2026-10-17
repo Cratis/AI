@@ -37,6 +37,11 @@
     { "kind": "skill-contains", "value": "never hand-edit `generate` text", "file": "references/mcp-loop.md" },
     { "kind": "skill-contains", "value": "Record open modeling questions as `question` notes" },
     { "kind": "skill-contains", "value": "list-model-notes", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`applicationIdentity` returned by `open-workspace`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "Repeated Module/Feature headers", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "Always inspect `substitutions` for both `add` and `reanchor`", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "even a Slice can lack an identity", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "older servers miss the read-only denial for SPEC004 and count it for SPEC006", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "`anchor`", "file": "references/model-notes.md" },
     { "kind": "skill-contains", "value": "`scope`", "file": "references/model-notes.md" },
     { "kind": "skill-contains", "value": "`state`", "file": "references/model-notes.md" },
@@ -163,11 +168,11 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`view: \"implementation-requirements\"`"
+      "value": "implementation-requirements views"
     },
     {
       "kind": "skill-contains",
-      "value": "Screenplay never compiles or runs them"
+      "value": "Screenplay never compiles/runs opaque code attachments"
     },
     {
       "kind": "skill-contains",
@@ -180,7 +185,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "schemas rather than relying on a remembered count"
+      "value": "Discover `tools/list` schemas"
     },
     {
       "kind": "skill-contains",

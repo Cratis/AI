@@ -256,15 +256,17 @@ public record AuthorRegistered(AuthorName Name);
 
 ## Read Models and Queries
 
-**[contract]** `[ReadModel]` records expose queries as `public static` methods; dependencies are plain method parameters (no `[FromServices]`). For application code, start with model-bound mappings, use fluent when the definition needs structure, and choose reducer code when transitions read better as code. For step-by-step creation, invoke the **cratis-chronicle-read-model** skill.
+**[contract]** `[ReadModel]` records expose eligible public and internal static methods as queries; internal visibility does not hide an endpoint. Dependencies are plain method parameters (no `[FromServices]`). For application code, start with model-bound mappings, use fluent when the definition needs structure, and choose reducer code when transitions read better as code. For step-by-step creation, invoke the **cratis-chronicle-read-model** skill.
 
 Use `[ReadModel(RequireQueryAttribute = true)]` with `[Query]` on intended
-endpoints when public folds/helpers exist (ARC0026/ARCCHR0019). `[Query]` alone
-does not hide siblings; private/compiler-generated statics are never queries.
+endpoints when folds exist (ARC0026/ARCCHR0019). `[Query]` alone does not hide
+siblings. Keep helpers outside the read model regardless of visibility.
+Requires Arc 22.27.1 for private/protected/compiler-generated methods to be
+excluded; older versions can expose private statics too. Check `dotnet list package`.
 A `CancellationToken` is supplied by Arc; concept arguments come from the caller,
 not DI. Bad GET/QUERY argument conversions return 400. Single-instance MongoDB/EF
 observations emit `default` on absence/deletion/filter exit: guard `hasData` and
-`isReady` in React. Verified at Arc v22.75.0; see the read-model query reference.
+`isReady` in React; see the read-model query reference.
 
 ### Query return shapes **[contract]**
 

@@ -5,6 +5,7 @@
 - The sandbox: a partial, disposable runtime
 - Protected command reads
 - Date comparisons (v26)
+- Implementation bodies and authored occurrence
 - Refusals shared by both engines
 - The specification runner
 - Choosing between them
@@ -124,10 +125,20 @@ execution. This includes reaction-invoked commands, even a specification expecti
 rejection: the outcome is `Unsupported`, before seeding facts, not a passing refusal.
 Do not change modeled severity to get an executable result.
 
-The semantic Host faults the session on **any outside append** to its event log,
-even an unrelated one, before committing an accepted command. This interim guard
-is stricter than the reference's dependency-scoped decide/commit conflicts; do not
-claim full reference conflict parity or generated-application protection.
+Requires Stage 4.142.0 for decide/commit against outside facts; older Hosts fault
+on any outside append. The Host decides on the session world, reads the outside
+suffix and commits against the extended world. A later fact matching a protected
+read's key and event contracts causes a concurrency conflict without faulting the
+session; unrelated facts remain for commit-time constraints and projections.
+Outside facts do not fire reactions again. Refusals retain their outcome.
+
+The root/reaction batch uses one guarded write against the durable pre-batch tail,
+even for a successful empty batch. A definitive guard loss may retry the same
+decision, preserving generated values, only when settlement invoked no commands.
+An invocation or eight unsuccessful attempts returns a conflict. An unknown write
+outcome or unreadable/unsupported outside history faults the session, never retries
+as success. Legacy custom appenders without these capabilities retain conservative
+checks. These are Host guarantees, not generated-application evidence.
 
 ## Date comparisons (v26)
 
@@ -136,14 +147,54 @@ The semantic Host and specification executor compare `Date` as calendar days and
 `DateTime` as UTC ticks in `require`, `produces when` and validation rules, including
 through concepts. A participating `DateTime` input without an offset or `Z` rejects
 with Validation after authorization and before any rule. `then` stays ordinal. The
-renderer, legacy engines and default sandbox engine refuse these comparisons with
-`STAGE-ESM-046`, naming the property; no date validators or artifacts are emitted.
+Cratis renderer renders these comparisons from Stage 4.141.0; older renderers and
+legacy engines refuse `STAGE-ESM-046`. Read [date comparisons](date-comparisons.md)
+when checking remaining renderer refusals and input-binding differences.
 
 One ordering differs from the reference: the reference checks authorization, then
 offsets, then opaque C# validation, so an offset-less DateTime beside opaque
 validation is a Validation rejection there. The specification executor refuses opaque
-validation at run admission and the Host refuses it before authorization, so both Stage
-paths report `Unsupported`, which never counts as a pass.
+validation when reached at specification admission and the Host refuses a command
+that reaches it before authorization, so both Stage paths report `Unsupported`,
+which never counts as a pass.
+
+## Implementation bodies and authored occurrence
+
+Requires Stage 4.145.0 for reach-scoped reducer and validation refusals; older semantic
+engines refuse unrelated behavior when any such body exists. Neither Host nor executor
+runs these bodies. `STAGE-IMPL-003` names the reached owner and RequirementId:
+
+- command under test and commands invoked by reactions reach command validation;
+- command input and query argument types reach concept rules through composites,
+  collections and optionals;
+- given, appended or produced events reach reducer transitions; read-model assertions
+  and queries reach the corresponding reducer too;
+- potential reaction effects are included without evaluating guards, including effects
+  of an action expected to be refused.
+
+Unrelated commands, queries and specifications remain admitted. Reducer refusals use
+Projection capability; validation refusals use Command. This does not relax live-world
+history rebuilding or renderer admission, nor described-handler `STAGE-IMPL-002`.
+
+Requires Stage 4.141.1 for authored occurrence in event-reaction specifications; older
+executors refuse clocks beside reactions. Independent command, append and named-redelivery
+specifications accept `given clock` at or after the Unix epoch in whole milliseconds.
+Offset-bearing source clocks normalize to UTC; the same instant reaches direct/cascading
+productions, invocation arguments, invoked commands and refusal productions. Redelivery
+uses the scenario clock, not the given event's timestamp.
+
+No authored clock means no reaction occurrence: a reached production using
+`$context.occurred` rejects with `Reaction '<name>' uses $context, which needs the scenario's 'given clock'.`;
+an invocation argument instead rejects as unresolved in its declared root scope.
+A false `where` skips evaluation; the executor never invents wall time. The fixture
+supplies time, not audit identity: `$eventSourceId`/`$eventContext.eventSourceId` and
+`$context.causedBy.*` remain `STAGE-ESM-013`, even under `runs as system`.
+
+Clock/application/startup/shutdown triggers and `when clock`/trigger/capture actions
+remain `STAGE-ESM-024`. **A clock fixture is not a scheduler.** Generated backend
+occurrence mappings use `EventContext.Occurred`, but context-dependent generated
+reaction specs retain `-011`; generated append/redelivery clock fixtures retain `-024`.
+Rendered clock fixtures remain command-only.
 
 ## Refusals shared by both engines
 

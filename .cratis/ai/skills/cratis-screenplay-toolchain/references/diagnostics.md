@@ -8,6 +8,7 @@
 - Explicit enum member numbers
 - Reserved stored names and event pins
 - Named keys, production routes and observer filters
+- Projection event scope (PLAY0801)
 - Reducer instance identity (PLAY0690)
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
@@ -146,6 +147,25 @@ list-query `by` blocks over a composite-keyed view are PLAY0268.
 Overrides/filters select released ESM v10; malformed routes also use PLAY0504.
 Read read-surface `references/named-keys.md` and
 [production routes and filters](production-routes-and-filters.md).
+
+## Projection event scope (PLAY0801)
+
+Requires Screenplay 4.212.3 (`screenplay --version`) for this ordinary compilation
+check in both C# and TypeScript; older executable binding rejected these duplicate
+uses later with PLAY0273.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0801 | E | `DuplicateEventInProjectionScope`: an event name occurs more than once in one projection level's event set or separate join set. Reports the second and each later reference, even with identical or different keys. Combine same-row mappings into one block; one event cannot update two rows of that level through two `from` blocks. |
+
+A level is the root, one `children` block, one `nested` block or one variant.
+`from` (including each event in `from A, B` lists), `remove with`, `remove via join`
+and `clear with` share one set of event names. `join` events have their own set:
+once in `from` and once in a join is allowed. Each children, nested and variant
+block starts fresh sets; separate projections are independent. Names compare
+ordinally without resolving qualifications or generations. If the domain has a
+genuine second fact, model it as its own event; never invent events only to
+satisfy the read side. Full scope guidance: projections `references/pdl-grammar.md`.
 
 ## Reducer instance identity (PLAY0690)
 
@@ -299,6 +319,17 @@ as errors if gating. Ordinary compile success does not imply these ran:
 | purposes | PLAY0602–0606 | Personal-data coverage, special/criminal safeguards, basis and unused-purpose prompts; union of ancestor/direct references |
 | personas | PLAY0574–0576 | Unused personas, unreachable gates and ambiguous buildable policy alternatives; unsynthesizable/undecidable is unknown |
 
+For `query-keys` (PLAY0535), a collection `by` can match a same-named compatible
+read-model field or composite key part, or the identity. A single-result `by`
+still matches the identity, not an arbitrary field. Parameter optionality is
+ignored for compatibility; `optional` alone does not establish a match. Identity
+inference uses only single-result keyed queries, not collection queries, with
+structurally resolved projection keys as fallback. Performer-served views,
+tenant-context parameters and unknown identity types are skipped.
+Requires Screenplay 4.212.1 (`screenplay --version`) for this check alignment;
+older tools can warn on valid collection fields or optional parameters and infer
+identity from collection queries. Upgrade before using those warnings as a gate.
+
 Whole-source errors skip completeness checks. Unknown/opaque coverage is not
 invented: report skipped status/coverage and walk field lineage manually.
 
@@ -359,20 +390,22 @@ refusal reasons. Read [language admission](language-admission.md) before changin
 | PLAY0785 | Ambiguous view path; use distinct aliases on repeated reads |
 | PLAY0786 (I) | Eligible legacy model; preview typed preamble repair, individually review absence/conflict semantics |
 | PLAY0787 (W) | Exact deprecated Studio text-rule pattern; repair to literal rule or equality, preserving message/severity |
-| STAGE-ESM-043 | Atomic mode not realized, even in admitted v23–v27; retain declaration and gap-fill |
+| STAGE-ESM-043 | Atomic mode not realized in admitted v22–v27; retain declaration and gap-fill (v22 admission Requires Stage 4.139.0; older Stage reports -016) |
 | STAGE-ESM-047 | Single-instance query by composite key parts (v27) in the renderer, until Chronicle can look up composite keys (Chronicle#4265); keep the query, gap-fill |
 | STAGE-ESM-048 | Read model with several key parts, or projection keyed by parts (v27), in the renderer or legacy syntax engine; keep the model, gap-fill |
 | STAGE-ESM-044 | Renderer refuses a protected read despite v25 admission: any protected read in a bundle that predates protected-read rendering, afterwards only shapes it cannot preserve (constrained events, read paths in `produces when`, optional/collection/composite/mistyped mapping targets, freshness scopes), naming the reason; the legacy Host/structural runner refuse the preamble. Semantic Host/executor support is separate; keep protection and gap-fill generated-app scope |
 | STAGE-ESM-045 | Non-Error protected requirement; semantic Host/executor refuse before execution, including reaction-invoked commands; keep severity and report Unsupported |
 | STAGE-IMPL-002 | Described handler body not realized by Stage, even Stub mode; no stubs emitted |
+| STAGE-IMPL-003 | Reached reducer or command/concept validation body in semantic Host/executor; owner and RequirementId named, unrelated behavior remains admitted (Requires Stage 4.145.0; older engines refuse unrelated behavior too) |
+| STAGE-PROFILE-001 to -006 | Shared target profile-input findings: unknown package, missing layout, incompatible packages, missing theme, invalid root template, unresolved blueprint template (Requires Stage 4.143.0; older consumers may check only in the CLI) |
 
 Invalid match syntax remains PLAY0367. Property/concept text rules bind v24;
 `contains`/`starts with` in conditions only still fail PLAY0268. Stage rejects
-v22/v28 and mixed pairs with STAGE-ESM-016; v23–v27 admission does not implement
-bodies or batches, the renderer refuses protected reads it cannot preserve (STAGE-ESM-044; every
-protected read in an older bundle), v26 date comparisons (STAGE-ESM-046) and composite read-model
-keys (STAGE-ESM-048/-047). Read
-[language admission](language-admission.md) for the stricter Host outside-append guard.
+v28 and mixed pairs with STAGE-ESM-016; v1–v27 admission does not implement
+bodies or batches. The renderer refuses protected reads it cannot preserve (STAGE-ESM-044; every
+protected read in an older bundle), unsupported date-comparison shapes (STAGE-ESM-046;
+all date comparisons before Stage 4.141.0) and composite read-model keys (STAGE-ESM-048/-047).
+Read [language admission](language-admission.md) for Host outside-append commit behavior.
 Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines refuse -044.
 
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
