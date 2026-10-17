@@ -88,6 +88,31 @@ Arc can now construct Chronicle reactors and reducers through its own dependency
 
 If `verify-release-notes` fails, fix it by editing the description, not by pushing code.
 
+### No banned sections, no first-person narration
+
+A release note describes the change, not the work of producing it. Two failure modes keep recurring and are both explicitly disallowed, not just discouraged:
+
+- **No process/work-log sections, under any heading.** `## Summary` (beyond the one-paragraph exception above), `## Verification`, `## Testing`, `## Design decision(s)`, `## Implementation notes`, `## Why I did it this way`, a list of files touched, a list of specs added, build/test pass counts, or anything else that narrates *how* the change was produced rather than *what* it is. Renaming the heading does not exempt it — `## A note on my approach` is exactly as banned as `## Design decision worth flagging`. A reviewer who wants that context can read the diff and the commits; a user reading the release notes six months from now cannot use it for anything.
+- **No first person.** Never write "I added", "I chose not to", "I deliberately did X", "I'm happy to", or any other sentence with the author as its subject. Release notes describe the product in the imperative/declarative voice the template's section headings already establish ("Added", "Changed", "Fixed") — the same voice as every bullet under them. If a sentence needs a subject, the subject is the feature or the behavior, never the person or agent who wrote the code.
+
+Design rationale, rejected alternatives, and scope explicitly deferred to follow-up work are real and often worth recording — but a PR description is not where they go. Put that content in a **comment on the originating issue** (when the user's request includes that effect — see [`general.md`](./general.md) on issue-comment authority) or in a decision record when it meets that bar (see the **cratis-engineering-decision-record** skill). A PR that intentionally implements only part of a larger issue still gets a short, factual **Added**/**Changed** bullet list for what it *does* ship; it does not get a prose section explaining what it does not ship and why — that belongs on the issue.
+
+```text
+# ❌ Wrong — process narration, first person, belongs on the issue not the PR
+## Design decision worth flagging
+I deliberately did not do X because Y risked breaking Z. Instead I built W,
+which required zero changes to the existing storage layer.
+
+## Verification
+- 7,653 specs pass across four projects — zero regressions
+- dotnet build clean on every touched project
+
+# ✅ Right — states what shipped, nothing else
+## Added
+- `[Encrypted]` attribute for values that need encryption at rest without
+  being enrolled in GDPR right-to-erasure (#4095)
+```
+
 ## Commits
 
 See the full [Git Commits guide](./git-commits.md) for rules on logical grouping, message format, and staging discipline.
