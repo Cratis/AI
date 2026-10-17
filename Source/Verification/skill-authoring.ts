@@ -6,6 +6,7 @@ import type { AuthoringFinding } from './AuthoringFinding.ts';
 import { instructionHygieneFindings, proseLines, skillHygieneFindings } from './skill-hygiene.ts';
 import { lineCount, referencesPath, skillBody } from './skill-structure.ts';
 
+const warningOnlyRules = new Set(['description-overlap']);
 const requiredRules = new Set(['description-when', 'description-voice', 'eval-coverage-ratchet', 'always-on-lines', 'asset-reachability']);
 
 /** Skill assets allowed to stay unnamed in SKILL.md, each with a reason; a linked or removed asset makes its exception fail as stale. */
@@ -50,6 +51,41 @@ export function skillAuthoringFindings(file: string, content: string): Authoring
     findings.push(...hygiene.filter(finding => ['description-version', 'description-meta', 'time-words'].includes(finding.rule))
         .map(finding => finding.rule === 'description-version' ? { ...finding, rule: 'description-meta' } : finding));
     return findings;
+}
+
+/** Unique lowercase ASCII word tokens from the positive trigger, excluding routing boilerplate. */
+export function skillTriggerTokens(description: string): Set<string> {
+    const trigger = /\b(?:Use|Load|Read) (?:this )?(?:skill )?(?:when|for|to|before|whenever|if)\b([\s\S]*)/i.exec(description)?.[1] ?? '';
+    const positive = trigger.split(/\b(?:Not for|Not when|Do not use|Don't use)\b/i)[0];
+    const stopWords = new Set('a an the and or for of to in on with when where how what which that this is are be as by from use skill adding changing writing building existing must needs not it its through'.split(' '));
+    return new Set((positive.toLowerCase().match(/[a-z][a-z0-9]*/g) ?? []).filter(token => !stopWords.has(token)));
+}
+
+/** Jaccard similarity >= 0.4 warns (unrounded); empty triggers never match. No allowlist. */
+export const skillOverlapThreshold = 0.4;
+
+/** Compare canonical skill entry points once per pair; negative routing cannot inflate similarity. */
+export function skillOverlapFindings(entries: Array<{ file: string; content: string }>): AuthoringFinding[] {
+    const skills = entries.filter(entry => /(?:^|\/)SKILL\.md$/.test(entry.file.replaceAll('\\', '/')))
+        .map(entry => ({ ...entry, description: descriptionOf(entry.content) }))
+        .filter(entry => entry.description !== undefined)
+        .map(entry => ({ file: entry.file, line: entry.description!.line, tokens: skillTriggerTokens(entry.description!.value) }))
+        .sort((left, right) => left.file.localeCompare(right.file));
+    const pairs: Array<{ finding: AuthoringFinding; score: number }> = [];
+    for (let index = 0; index < skills.length; index++) {
+        const left = skills[index];
+        if (left.tokens.size === 0) continue;
+        for (const right of skills.slice(index + 1)) {
+            const shared = [...left.tokens].filter(token => right.tokens.has(token)).length;
+            const score = shared / (left.tokens.size + right.tokens.size - shared);
+            if (score >= skillOverlapThreshold) pairs.push({ score, finding: {
+                file: left.file, line: left.line, rule: 'description-overlap',
+                matchedText: `${right.file}:${right.line} trigger Jaccard=${score.toFixed(3)} (>= ${skillOverlapThreshold}); sharpen triggers and sibling routing.`,
+            } });
+        }
+    }
+    return pairs.sort((left, right) => right.score - left.score || left.finding.file.localeCompare(right.finding.file) || left.finding.matchedText.localeCompare(right.finding.matchedText))
+        .map(pair => pair.finding);
 }
 
 /** Every shipped non-Markdown asset is directly named; Markdown reachability already has a hard gate. */
@@ -153,6 +189,6 @@ export function alwaysOnFindings(entries: Array<{ file: string; content: string 
 /** Required checks fail even during warn rollout; every other check follows one switch. */
 export function skillAuthoringProblems(findings: AuthoringFinding[], mode = 'warn'): string[] {
     if (!['warn', 'fail'].includes(mode)) return ['SKILL_AUTHORING_MODE must be warn or fail.'];
-    return findings.filter(finding => mode === 'fail' || requiredRules.has(finding.rule))
+    return findings.filter(finding => !warningOnlyRules.has(finding.rule) && (mode === 'fail' || requiredRules.has(finding.rule)))
         .map(finding => `${finding.file}:${finding.line} [${finding.rule}] ${finding.matchedText}`);
 }
