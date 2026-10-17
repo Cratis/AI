@@ -310,7 +310,7 @@ public class ProviderAwareLanguageModel(
 
         return result.IsTransient
             ? PoolAttempt<LanguageModelResult>.TransientFailure(result.FailureReason)
-            : PoolAttempt<LanguageModelResult>.PermanentFailure(result, result.FailureReason);
+            : PoolAttempt<LanguageModelResult>.Rejected(result, result.FailureReason);
     }
 
     async Task<LanguageModelResult?> CompleteThroughProvider(string prompt, LanguageModelPurpose purpose, AIProviderId providerId, ModelTier tier, Effort effort, CancellationToken cancellationToken)
