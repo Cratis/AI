@@ -29,11 +29,11 @@ Language claims follow Screenplay `reactions.md`, `triggers.md`, `captures.md` a
 The compiler's ESM admission decides, not the slice type. Reactions, triggers and
 captures bind/reference-execute from v6; older compilers refuse them. Read toolchain
 `references/diagnostics.md` when diagnosing skew or false PLAY0285 cascades.
-- **The CLI and Stage** render supported event-triggered Automation, not
-  Translate/captures, non-event triggers or opaque bodies (`-024`). Role/authenticated `runs as`
-  and semantic `from` render; claim/opaque gates, mixed effects and unsupported mappings remain refused;
-  cascade specs remain `-011`. Keep refused scope as gap-fill. Full boundary and source
-  citations: `cratis-stage-rendering-and-sandbox` `references/admission.md`.
+- **Stage realization:** read `cratis-stage-rendering-and-sandbox` `references/admission.md`
+  before claiming rendering. Supported event-triggered Automation renders; captures,
+  Translate, clocks and opaque bodies remain gap-fill (`-024`).
+  Read [sandbox boundaries](../cratis-stage-rendering-and-sandbox/references/sandbox-and-specrunner.md)
+  when checking authored occurrence versus generated-spec limits; a clock fixture is not scheduling.
 
 Name the binding tool. For the automation test, loops and translation boundaries,
 read `cratis-screenplay-automations-and-translations`.
@@ -74,7 +74,7 @@ Start new models with application-root `reaction batches atomic`. One trigger's 
 productions, or one selected refusal branch, append all-or-none; invoked commands stay
 separate. Legacy models without opt-in retain per-fact appends even at newer versions.
 Read [atomic batches and source mappings](references/atomic-batches-and-source-mappings.md)
-for batch failure assertions, PLAY0693, Stage STAGE-ESM-016/043 refusals and
+for batch failure assertions, PLAY0693, Stage atomic-mode refusals and
 `invokes` mappings from `$eventSourceId` / `$eventContext.eventSourceId`.
 
 ## Caller-less invokes and unprotected reads
@@ -104,9 +104,9 @@ binding, because its decision dependency cannot be protected. A reaction that on
 command's own reads. Eligible command reads protect under application-root
 `command reads protected` (ESM v25); legacy reads retain PLAY0271. Read command-surface
 [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
-for admission and absence/conflict behavior. Stage admits v25 and, from 4.138.0, renders protected reads as Arc read protection (CLI 3.75.0 refuses them with STAGE-ESM-044).
-Semantic Host/executor support is separate; non-Error protected requirements refuse -045,
-including reaction-invoked commands.
+for admission and absence/conflict behavior. Requires Stage 4.138.0 to render
+protected reads; older bundles refuse -044. Semantic Host/executor non-Error
+protected requirements refuse -045.
 `where` over read paths out of scope, and `where` needs
 every operand to resolve from the trigger's declared scalar occurrence shape (listed in
 the input selection or not; nested paths and read aliases fail binding): keep the logic that uses the state in

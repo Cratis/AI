@@ -266,8 +266,11 @@ DateTime input needs an offset or `Z`, else Validation rejects before rules, eve
 for skipped comparisons. `then` matching stays ordinal. Invalid date literals or
 offset-less DateTime literals in admitted comparisons report PLAY0273. Read
 [date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)
-for the complete window model and retained PLAY0268 refusals. The Stage renderer refuses
-v26 date comparisons with STAGE-ESM-046, independently of standalone binding/reference execution.
+for the complete window model and retained PLAY0268 refusals. Requires Stage 4.141.0
+for rendered date comparisons; older renderers refuse STAGE-ESM-046. Read
+[rendered dates](../../cratis-stage-rendering-and-sandbox/references/date-comparisons.md)
+when checking remaining refusals and input-binding differences. Standalone binding/reference
+execution is independent of rendering.
 
 ## Flat composite read-model keys (ESM v27)
 

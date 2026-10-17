@@ -42,8 +42,8 @@ Start new models with application-root `reaction batches atomic` (ESM v22 or lat
 Each trigger occurrence's direct productions and each selected refusal branch are
 separate all-or-none batches; invoked commands remain independent. Absence retains
 legacy per-fact behavior even at later versions. Assert no failed-batch facts and
-unchanged views, not only `then error`. Stage refuses v22 (STAGE-ESM-016) and
-atomic mode in admitted v23/v24 models (STAGE-ESM-043); keep the semantics as gap-fill.
+unchanged views, not only `then error`. Requires Stage 4.139.0 for v22 admission
+(older: -016); atomic mode stays STAGE-ESM-043. Keep as gap-fill.
 Read [atomic batches and source mappings](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
 when choosing these boundaries or mapping an invoked identifier from `$eventSourceId`
 (or `$eventContext.eventSourceId`) instead of copying it into event payload.

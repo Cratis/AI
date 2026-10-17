@@ -27,9 +27,9 @@
       "repository": "Cratis/Stage",
       "packages": [],
       "synced": {
-        "version": "4.138.0",
+        "version": "4.146.0",
         "date": "2026-10-17",
-        "by": "Cratis/AI#752"
+        "by": "Cratis/AI#773"
       },
       "covers": {
         "skills": [
@@ -46,7 +46,7 @@
         ],
         "rules": []
       },
-      "notes": "Source-checked Stage v4.103.0: exact ESM v1-v17 and v19, not v18 or v20 (v18 admitted from 4.106.0 and v20 from 4.109.0, taught with Requires lines; 4.104-4.108 not otherwise reviewed). Snapshot/live collection queries, identity-mapping all projections, stored event names, event-id publication checks, release-baseline warnings, command clock/receipt-time generation, conditional and multi-command slices, generated text constraints, no-event and bounded redelivery specs, refusal branches. Query concept validation still uses primitive workaround; Stage#370 released in 4.106.0. CLI v3.62.0 bundles Stage 4.99.0, not 4.103.0. Generated-values-only delta checked at v4.127.0: v21/all-Proven unpinned specs from 4.115.0, warning/info generated rules 4.117.0, checksum validation 4.118.0, pattern/random factories/Host/executor 4.119.0; generate rule still STAGE-ESM-028. Language admission reconciled at the same v4.127.0 tag: exact v1-v21 and v23-v25 pairs; v22/v26 and mixed pairs -016, protected reads -044, atomic mode -043, described bodies STAGE-IMPL-002 even Stub mode; v24 first admitted 4.124.0 (absent 4.123.0). Reviewed v4.128.0-v4.130.0 deltas for Cratis/AI#739: v4.128.0 new-application self-reducing Cratis C# profile (CreateNewApplicationProfile, ReducerConventionInput.Read, WithReducerConvention; existing callers classic); shared SemanticValidationRules.Check confirmed (already present in v4.127.1, so no new 4.128.0 minimum claimed); v4.129.0 semantic Host/executor protected reads, presence before requirements/generation, read-backed requirements/mappings, non-Error requirements STAGE-ESM-045 including reaction invocations, Host fault on any outside append (stricter than reference scoped conflict). Renderer/legacy Host/structural runner retain STAGE-ESM-044. v4.130.0 root-template shell, options/appearance and fail-closed startup/planning findings reviewed in stage-rendering.md, RootShell.cs and stageShell.ts. Exact pairs remain v1-v21 and v23-v25; v26 refused STAGE-ESM-016 and Stage#473 still open. Earlier unreviewed deltas remain as noted above, so synced stays at the last fully reviewed release. No new render/browser/Docker probe."
+      "notes": "Cratis/AI#773: release/tag delta v4.139.0-v4.146.0 (including v4.141.1). Exact ESM v1-v27 pairs admitted; v22 from 4.139.0, atomic mode still -043. Date comparisons render from 4.141.0 with remaining -046 shapes and named-policy binding differences. 4.141.1 supplies authored occurrence in independent event-reaction specs, not clock triggers or generated append/redelivery clock fixtures. 4.142.0 Host decide/commit absorbs unrelated outside facts, with dependency conflicts, guarded batch retries only without invocations and fail-closed unknown writes. 4.143.0 shared STAGE-PROFILE-001 through -006 findings; 4.144.0 scaffold pins follow Stage package inputs. 4.145.0 reached reducer/validation bodies use STAGE-IMPL-003 without refusing unrelated behavior; described handlers retain -002. 4.146.0 collects independent render refusals, preserving profile/version early exits. Scene template verification changes classified as internal; no new render/browser/Docker probe. Prior focused checks remain; v4.104-v4.108 were not otherwise fully reviewed."
     },
     {
       "id": "arc",
