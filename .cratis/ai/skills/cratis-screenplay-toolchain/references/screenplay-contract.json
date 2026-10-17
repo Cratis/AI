@@ -33536,7 +33536,7 @@
       "severities": [
         "warning"
       ],
-      "title": "A projection construct binds, but Chronicle\u0027s projection lowering drops part of it: all inside a children or nested block loses its subscription to every event type, and an auto-map setting on a joined event is replaced by the level\u0027s.",
+      "title": "A projection construct binds, but Chronicle\u0027s projection lowering drops part of it: all inside a children or nested block loses its subscription to every event type.",
       "reserved": false,
       "retired": false
     },
