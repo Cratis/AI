@@ -158,8 +158,11 @@ for grouped events, removals and compiler compatibility.
 explicit mappings run, and explicit mappings win. Turn it off with `no automap` at
 **projection**, `every`/`all`, `join`, `children` or `nested` level — it
 **cannot** be toggled inside an individual `from` block. An `automap`/`no automap`
-under a joined event (`with …`) parses but Chronicle replaces it with the auto-map
-of the level the join sits in (`PLAY0380`).
+under a joined event (`with …`) decides auto-mapping for that event alone;
+without one, the joined event follows its level's auto-map.
+
+Requires Screenplay 4.212.4 (`screenplay --version`) for joined-event auto-map
+overrides in executable binding; older binders replace the setting with the level's.
 
 Mapping sources: a property path (`name`, `contactInfo.email`), a literal
 (`true`, `"Pending"`, `42`, `null`), `$eventSourceId`, and
