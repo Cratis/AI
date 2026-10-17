@@ -277,6 +277,9 @@ their explicit consent. Slice-only scope checks do not replace the repository's 
 
 ### Project-specific gate configuration
 
+Shipped defaults live in `.cratis/ai/hooks/scripts/quality-gates.json`, not `.cratis/ai/quality-gates.json`.
+Project overrides live in `.cratis/ai/quality-gates.project.json`. `CRATIS_HOOKS_GATES=<path>` replaces
+the defaults file; the project overrides still merge over that replacement by gate id.
 The shipped gates discover the repository's own solution and package, so most repositories need no
 configuration at all. An eligible root workspace or solution keeps repository-wide dispatch. Without
 one, discovery uses only each gate's matching, non-excluded changes and runs it once per affected
@@ -547,9 +550,30 @@ inapplicable gate remains a no-op. Pi preserves the script's diagnostics when pl
 The same shipped file therefore activates in application and framework repositories, and reports
 an empty plan without running gates in a repository that has no project at all.
 
-**Overriding it, in order of increasing force.** Set `workingDirectory` on a gate to pin one of
-several candidate projects; drop a `quality-gates.json` of your own in place of the shipped one; or
-point `CRATIS_HOOKS_GATES` at a file anywhere. None of them requires forking the script.
+**Overriding it.** Set `workingDirectory` on a gate in `.cratis/ai/quality-gates.project.json` to pin
+one of several candidate projects. For a replacement defaults file, point `CRATIS_HOOKS_GATES` at a
+file anywhere instead of editing the managed file. Neither requires forking the script.
+A missing defaults file reports both real configuration paths and runs no gates.
+
+**Per-gate deadlines.** `timeoutSeconds` is an optional integer from 1 to 86400, applied separately
+to each command/directory. Unset means no per-gate deadline; Pi's whole-tool deadline still applies
+and may expire first. The shipped `backend-specs` gate allows 120 seconds so a long solution-wide
+spec run stops with a named diagnostic rather than consuming the entire tool budget. On timeout,
+the script stops the command's process group (TERM, then KILL after one second), exits **2**, and
+reports **NOT VERIFIED**, the gate, its directory, log tail, and `timeoutHint` (advice, never executed).
+Commands that create separate sessions/process groups can escape this cleanup; this is not a sandbox.
+
+For a large solution, replace the placeholder below with the affected test project and repeat for
+its affected dependents. Override `command` with that narrower argv array (or a repository-owned
+runner covering all affected projects), rather than raising the timeout without diagnosing the delay:
+
+```json
+{ "gates": [{ "id": "backend-specs", "command": ["dotnet", "test", "<affected.Specs.csproj>", "--configuration", "Debug", "--no-build"], "timeoutSeconds": 120, "timeoutHint": "Run dotnet test for each affected Specs/Tests project separately." }] }
+```
+
+This is not automatic affected-project selection: imported/conditional MSBuild references and
+linked or shared sources require evaluation to establish coverage safely. The default retains
+solution-wide tests rather than silently missing dependents, and a timeout is never a pass.
 
 **Profile note.** The C# patterns are application-profile and scoped to `Source/**/*.cs`, which is
 the application source root [`../rules/general.md`](../rules/general.md) documents. A
