@@ -27,9 +27,9 @@
       "repository": "Cratis/Stage",
       "packages": [],
       "synced": {
-        "version": "4.103.0",
-        "date": "2026-10-14",
-        "by": "Cratis/AI#681"
+        "version": "4.138.0",
+        "date": "2026-10-17",
+        "by": "Cratis/AI#752"
       },
       "covers": {
         "skills": [
@@ -125,9 +125,9 @@
         }
       ],
       "synced": {
-        "version": "3.74.0",
+        "version": "3.75.0",
         "date": "2026-10-17",
-        "by": "Cratis/AI#746"
+        "by": "Cratis/AI#752"
       },
       "covers": {
         "skills": [
@@ -171,9 +171,9 @@
         }
       ],
       "synced": {
-        "version": "4.205.0",
+        "version": "4.207.0",
         "date": "2026-10-17",
-        "by": "Cratis/AI#746"
+        "by": "Cratis/AI#752"
       },
       "covers": {
         "skills": [

@@ -48,7 +48,10 @@ public interface IAIProviderPoolDispatcher
 /// <remarks>
 /// Registered as a singleton, so it does not consult <see cref="Capacity.IAIProviderCapacities"/>,
 /// which reads the caller's tenant; a caller that wants headroom-aware ranking dispatches through
-/// <see cref="ProviderAwareLanguageModel"/>.
+/// <see cref="ProviderAwareLanguageModel"/>. For the same reason it does not park a member that ran
+/// out of quota: recording a rate limit is tenant-scoped, so it only fails over. A caller that needs
+/// the exhausted provider skipped on later calls dispatches through
+/// <see cref="ProviderAwareLanguageModel"/>, which parks it.
 /// </remarks>
 /// <param name="clients">Every registered <see cref="IAIProviderClient"/> - one per vendor, matched by <see cref="ConfiguredAIProvider.Type"/>.</param>
 /// <param name="providerBurn">What each provider has burnt recently - the facts <see cref="PoolMemberSelector"/> orders candidates by.</param>

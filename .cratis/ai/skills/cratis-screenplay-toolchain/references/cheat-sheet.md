@@ -211,7 +211,7 @@ generated source destinations need freshness. Read
 [Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md)
 for v21 admission, all-Proven unpinned specs and the separate prerequisites for
 warning/info rules, checksum validation and pattern/random rendering.
-`generate rule` remains STAGE-ESM-028. Reference binding is not rendering.
+`generate rule` renders from Stage 4.136.0 (STAGE-ESM-028 in the Host). Reference binding is not rendering.
 
 ## Specification forms
 Full list with semantics: `Documentation/screenplay/specifications.md`. Compiled in the

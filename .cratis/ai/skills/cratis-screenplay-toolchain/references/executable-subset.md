@@ -45,7 +45,7 @@ Complete examples that bind live in `executable-example.md`, `pdl-example.md` (p
 For atomic batches (v22), described handlers (v23), ordinal text rules (v24) and
 protected reads (v25), chronological command dates (v26), composite keys (v27) and Uuid equality (v28), read
 [language admission](language-admission.md). A later
-version alone does not enable either application opt-in.
+version alone does not enable either application opt-in. The language is frozen at ESM v1–v28 ([the freeze decision](https://github.com/Cratis/Screenplay/blob/main/decisions/0092-the-language-is-frozen-at-esm-v28.md)): no new versions, constructs, keywords or grammar, except a construct for a real model that is blocked with no model-side alternative, accepted in its own record. Model with what v1–v28 offers; when Stage, `cratis render` or Studio does not support a construct yet, treat the typed refusal as a platform gap to report, since consumers are catching up to v28, not a reason to wait for new language.
 
 ## Caller and compliance boundary
 
@@ -223,7 +223,7 @@ author `validate checksum` for arithmetic. Requires Stage 4.109.0 for v20,
 4.118.0 for checksum validation and 4.119.0 for pattern/random rendering; older
 renderers refuse those constructs or require rule-bearing pins even when Proven.
 Unproven/Refuted rules still need pins (-038), bad pins fail -011, and
-`generate rule` remains -028. Do not remove rules or classification to render.
+`generate rule` renders from Stage 4.136.0 (the Host and legacy syntax engine keep -028). Do not remove rules or classification to render.
 
 ## Released public boundaries and observer routes
 
@@ -284,9 +284,8 @@ Models with one `key` mark keep their earlier version and bytes. Refused with PL
 joins, `children`, `remove via join`, `every`, `all`, `nested`, `clear with`, `variant`
 and reducers on the composite-keyed read model, a list query with a `by` block, a
 non-optional single-instance return, and command reads (PLAY0271, or PLAY0781
-ByParts under `command reads protected`) or trigger reads that produce directly.
-Stage refuses v27 with STAGE-ESM-016, independently of standalone binding and
-reference execution. Read read-surface
+reason `by-parts` under `command reads protected`) or trigger reads that produce directly.
+Requires Stage 4.137.0 for v27 admission (older Stage refuses it with STAGE-ESM-016): the semantic Host runs composite-keyed read models end to end, and the specification executor refuses specifications over them as unsupported. The Cratis renderer refuses a read model with several key parts or a projection keyed by parts with STAGE-ESM-048 and a single-instance query by parts with STAGE-ESM-047 (Chronicle#4265); composite-keyed read models get no conventional `Get<ReadModel>ById` query. This is independent of standalone binding and reference execution. Read read-surface
 [named keys](../../cratis-screenplay-read-surface/references/named-keys.md) for the
 complete example.
 

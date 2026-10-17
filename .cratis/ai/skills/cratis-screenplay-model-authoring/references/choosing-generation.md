@@ -38,5 +38,5 @@ MCP `rules[]` and `derivedPattern` for rule proofs and reviewed PLAY0688 repair;
 never delete a business invariant to silence PLAY0689. Read
 [Stage admission](../../cratis-stage-rendering-and-sandbox/references/admission.md)
 for checksum validation and pattern/random rendering prerequisites.
-`generate rule` remains STAGE-ESM-028, so model admission does not promise rendering.
+`generate rule` renders only from Stage 4.136.0 (STAGE-ESM-028 before it, and still in the Host), so model admission does not promise rendering.
 Sources: `Documentation/screenplay/generated-values/choosing.md` and `Documentation/screenplay/generated-values.md` in `Cratis/Screenplay`.

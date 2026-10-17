@@ -36,11 +36,11 @@ composite type only to carry flat parts: both hide the identity the model should
   refuse the duplicate (`references/consistency-and-concurrency.md`).
 - **Lookups.** An optional single-instance query names every part in a `by` block; a list
   uses equality filters. A command or reaction that must read the view by parts is refused
-  (PLAY0271, PLAY0781 ByParts, or PLAY0268 for a producing reaction), so decide on a stream
+  (PLAY0271, PLAY0781 reason `by-parts`, or PLAY0268 for a producing reaction), so decide on a stream
   the command owns instead, or restructure the read. Do not drop the read to bind.
 - **Limits.** Joins, `children`, `nested`, `every`, `all`, `variant` and reducers on the
-  composite-keyed view are PLAY0268. Stage refuses v27 with STAGE-ESM-016, so deliver it
-  through gap-fill with the model as the contract.
+  composite-keyed view are PLAY0268. Stage 4.137.0 admits v27 but the renderer refuses it (STAGE-ESM-048 for several key parts or a projection keyed by parts,
+  STAGE-ESM-047 for a single-instance query by parts), so deliver it through gap-fill with the model as the contract.
 
 Read read-surface `references/named-keys.md` for one complete executable example and the
 projections skill `references/pdl-grammar.md` for the key block syntax.

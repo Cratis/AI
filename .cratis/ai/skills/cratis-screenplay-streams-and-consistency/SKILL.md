@@ -114,7 +114,7 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
   conflict. Legacy reads remain PLAY0271/PLAY0268; `concurrency` remains unbound and
   combining it with protected reads is PLAY0783. Read
   [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
-  for admission and the Cratis C# renderer's STAGE-ESM-044 protected-read refusal (the v25 pair itself is admitted). `description` text never reaches rendered code: a rule that lives only in prose is
+  for admission and protected-read rendering (Stage 4.138.0; STAGE-ESM-044 otherwise; the v25 pair itself is admitted). `description` text never reaches rendered code: a rule that lives only in prose is
   unenforced there.
 - `pii` and `secret` bind as ESM v13;
   enum/identity compliance and protected events with explicit subject marks still
@@ -147,7 +147,7 @@ Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the 
 - New models declare `reaction batches atomic`: direct productions per trigger
   occurrence and each selected refusal branch are separate batches; invoked commands
   stay independent. Legacy absence retains per-fact appends. Stage refuses v22
-  with STAGE-ESM-016 and atomic mode in admitted v23–v26 with STAGE-ESM-043. Read
+  with STAGE-ESM-016 and atomic mode in admitted v23–v27 with STAGE-ESM-043. Read
   [atomic boundaries](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
   when defining failure rollback; batching is not redelivery deduplication.
 - Match duplicate protection to scope. A property constraint lets a source re-claim its own

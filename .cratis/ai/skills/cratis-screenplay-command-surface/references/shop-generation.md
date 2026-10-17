@@ -116,8 +116,8 @@ example realizes that credential behavior. Never drop ApiKey's secret marker to
 make its generation bind/render. A pattern is not gapless/sequential numbering;
 check digits catch typos, not forgery. ESM v21 binds and reference-executes with
 pins. Requires Stage 4.118.0 for checksum validation and 4.119.0 for pattern/random
-rendering; older renderers refuse those constructs. `generate rule` still refuses
-STAGE-ESM-028. Sequence allocation and secret generation stay explicit gaps.
+rendering; older renderers refuse those constructs. `generate rule` renders from Stage 4.136.0 (the Host
+and legacy syntax engine still refuse it with STAGE-ESM-028). Sequence allocation and secret generation stay explicit gaps.
 
 ## Sources
 

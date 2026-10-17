@@ -23,7 +23,7 @@ rejected model renderable, and never claim a whole-application V5 from a subset.
 with `cratis-screenplay-render-and-gap-fill`.
 
 Application-root `reaction batches atomic` also blocks Stage delivery: v22
-refuses STAGE-ESM-016; mode in admitted v23–v26 refuses STAGE-ESM-043. Preserve the
+refuses STAGE-ESM-016; mode in admitted v23–v27 refuses STAGE-ESM-043. Preserve the
 per-occurrence/selected-branch batch boundary and independent invoked commands.
 Atomic appends do not prove redelivery deduplication or external exactly-once effects.
 

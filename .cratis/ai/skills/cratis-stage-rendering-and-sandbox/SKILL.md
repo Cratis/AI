@@ -17,7 +17,7 @@ whether it is admitted; reading the admission rules is not a render result.
 
 Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
 
-Requires Cratis CLI 3.74.0 to render ESM v21–v26 models; CLI 3.66.0–3.73.0 refuse v21 and later with `CLI-RENDER-004`. Above the ceiling, a construct the bundled compiler cannot bind reports PLAY0268 before `CLI-RENDER-004` is reached.
+Requires Cratis CLI 3.74.0 to render ESM v21–v26 models and 3.75.0 for v27; CLI 3.66.0–3.73.0 refuse v21 and later with `CLI-RENDER-004`, and every CLI refuses v28 and later with it. Above the ceiling, a construct the bundled compiler cannot bind reports PLAY0268 before `CLI-RENDER-004` is reached.
 
 ## Batches, described handlers, text rules and protected reads
 
@@ -76,10 +76,10 @@ printed), `1` is a missing input. Add `-o json` for the counts and the publicati
 Facts that surprise:
 
 - **Binding uses the CLI's bundled compiler**, not the standalone one. Version admission
-  does not imply construct support: exact ESM v1–v21 and v23–v26 pairs are admitted,
-  while v22/v27/v28 and mixed pairs refuse `STAGE-ESM-016`. Date/DateTime command comparisons (v26)
+  does not imply construct support: exact ESM v1–v21 and v23–v27 pairs are admitted,
+  while v22/v28 and mixed pairs refuse `STAGE-ESM-016`. Date/DateTime command comparisons (v26)
   execute in the semantic Host and executor but refuse `STAGE-ESM-046` in the renderer. Pattern/random generation and checksum validation
-  render with an admitting renderer; `generate rule` still refuses `STAGE-ESM-028`.
+  render with an admitting renderer; `generate rule` renders in a new enough bundle (the Host and legacy syntax engine still refuse it with `STAGE-ESM-028`).
   Read [references/admission.md](references/admission.md) for the introducing-release
   prerequisites, all-Proven unpinned specifications and construct/pin checks (-011/-038).
   An older CLI bundle can refuse `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`);
@@ -131,13 +131,13 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
   appends beyond single-hop/cascade specs (`-011`), absence (`-027`), evolution (`STAGE-ESM-026`), public/foreign events
   (`-032`/`-033`), claim-reading/opaque `runs as` gates (`-034`), legacy filters (`-035`), production
   overrides (`-036`), code validation (`-005`), DateTime filters (`-010`),
-  unsupported conditional productions, composite projection keys and unsupported `all` shapes.
-  The Cratis C# renderer refuses protected reads with `STAGE-ESM-044`, described handlers `STAGE-IMPL-002`
+  unsupported conditional productions, composite read-model keys (`STAGE-ESM-048`, and `-047` for a single-instance query by parts) and unsupported `all` shapes.
+  Protected reads render as Arc read protection in a new enough bundle; shapes it cannot preserve, and every protected read in an older bundle, refuse `STAGE-ESM-044` (see admission.md). The renderer refuses described handlers `STAGE-IMPL-002`
   (even Stub mode), and atomic mode in admitted pairs `STAGE-ESM-043`.
 - **Binding refusals (`PLAY0268`/`PLAY0271`):** legacy reads, `concurrency`, attached
   handlers, context/single-result filters, opaque scope/performer, a list-query `by` block,
   enum/identity compliance and subject lineage. Eligible protected reads bind v25;
-  pending handlers with unconditional productions bind v23, but neither renders. A read model with several key parts (v27) refuses `STAGE-ESM-016`.
+  pending handlers with unconditional productions bind v23, but neither renders. A read model with several key parts (v27) is admitted but refuses rendering (`STAGE-ESM-048`).
   Never drop protection.
 
 A refusal is not a licence to weaken the model: drop no specification, event generation or
@@ -190,12 +190,16 @@ Silent fallback to a default screen is a failure, not a partial render.
 
 `cratis run [PATH]` (Docker required) starts `cratis/stage` on the folder or file: Stage
 API on `9090`, Chronicle Workbench on `https://localhost:35000`. It is a **partial,
-disposable runtime**, not a generated application. The default engine appends modeled
+disposable runtime**, not a generated application. `cratis run` runs the `semantic` engine
+(Requires Cratis CLI 3.73.0); Stage's semantic engine is the only engine going forward. The legacy
+EventModel engine (older CLIs, or the image without `Stage__Runtime__Engine=semantic`) is legacy; do not rely on it.
+It appends modeled
 `produces` facts and echoes the payload. It refuses missing required properties and
 simple literal `validate` rules on top-level properties, but enforces no other rule, no
-constraint and no command or query authorization; `Stage__Runtime__Engine=semantic` opts
-in to an engine that does, and refuses what it cannot execute (HTTP 501). The default engine
-also refuses routed models (`STAGE-ESM-030`) and protected reads (`STAGE-ESM-044`).
+constraint and no command or query authorization; the semantic engine enforces them and
+refuses what it cannot execute (HTTP 501). The legacy engine
+also refuses routed models (`STAGE-ESM-030`), composite read-model keys (v27) and protected reads (`STAGE-ESM-044`); the semantic engine runs composite keys.
+Requires Cratis CLI 3.75.0 for `cratis run` to run v27 composite keys.
 Requires Stage 4.129.0 for semantic Host/runner protected reads; older engines refuse
 `STAGE-ESM-044`. Required absence rejects before requirements/generation, read properties
 feed requirements and productions, and non-Error protected requirements refuse
@@ -243,7 +247,7 @@ to disk with no managed staging and no safe stale-file removal; a failure can le
 - No file under `.cratis-render/` is staged; managed files carry no local edits.
 - Stage's plan is deterministic (same bytes and hashes); that is not a review, and Stage never reviews, stages or approves anything.
 - Sandbox expectations account for the rules, constraints, authorization and query
-  authorization the default engine does not enforce.
+  authorization the legacy EventModel engine does not enforce.
 - Runtime screen smoke coverage uses the same model root or workspace export as
   `cratis render`, names package/image versions, and fails on dropped authored UI
   or silent default composition.

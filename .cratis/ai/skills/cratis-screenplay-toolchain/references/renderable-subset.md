@@ -21,7 +21,9 @@ and concept compliance (v13) render.
 
 ## Current admission
 
-Stage admits exact ESM v1–v21 and v23–v26 pairs; v22/v27/v28 and mixed pairs
+The language is frozen at ESM v1–v28 ([the freeze decision](https://github.com/Cratis/Screenplay/blob/main/decisions/0092-the-language-is-frozen-at-esm-v28.md)): no new versions, constructs, keywords or grammar, except a construct for a real model that is blocked with no model-side alternative, accepted in its own record. Model with what v1–v28 offers; when Stage, `cratis render` or Studio does not support a construct yet, treat the typed refusal as a platform gap to report, since consumers are catching up to v28, not a reason to wait for new language.
+
+Stage admits exact ESM v1–v21 and v23–v27 pairs; v22/v28 and mixed pairs
 refuse STAGE-ESM-016. Chronological command Date/DateTime comparisons select v26:
 the Host and executor run them, but the renderer refuses STAGE-ESM-046, so they are not renderable. Keep the
 rule and use authorized gap-fill. Version admission is separate from construct support.
@@ -33,11 +35,13 @@ The CLI's bundled Stage can be older: read installed versions and the pins in
 does not render refuses with its own code before any artifact is planned.
 
 Requires Stage 4.96.0 for stored event names (v16), 4.101.0 for no-event assertions (v17), 4.102.0 for refusal branches (v19), and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
-Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering and 3.74.0 for v21–v26; a bundle below the model's version refuses it with CLI-RENDER-004, or with PLAY0268 when its bundled compiler predates the construct.
+Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering, 3.74.0 for v21–v26 and 3.75.0 for v27 admission (v28 and later: CLI-RENDER-004); a bundle below the model's version refuses it with CLI-RENDER-004, or with PLAY0268 when its bundled compiler predates the construct.
 
 With an admitting renderer, all-Proven generated-concept rules allow unpinned
 rendered specs; warning/info rules and semantic checksum validation are enforced,
-and pattern/random strategies render. `generate rule` remains STAGE-ESM-028.
+and pattern/random strategies render. `generate rule` renders in a new enough bundle (see the Requires line below): the body
+refuses -019 when it does not compile or warns, -022 on shadowing and -020 when the attachment is missing; the Host and legacy syntax engine keep -028.
+Requires Stage 4.136.0 for `generate rule`, carried by Cratis CLI 3.75.0.
 The independent executor still needs deterministic pins. Dated patterns use
 receipt-time UTC; random ranges use `long` with inclusive endpoints.
 
@@ -46,11 +50,11 @@ This table is a reading of the renderer's admission, not a render result: run th
 | Area | Renders | Refused (code) |
 | --- | --- | --- |
 | Slice kinds | `StateChange`, `StateView`, supported event-triggered `Automation` with Chronicle reactors | Translate, captures, non-event triggers, opaque bodies, clock/trigger/capture specs (`-024`); claim-reading/opaque `runs as` gates (`-034`), mixed effects from one handler (`-037`, redelivery can duplicate events), unsupported conditions/destinations/mappings (`-039`). Keep refused reactions whole |
-| Queries | optional keyed snapshot lookups; snapshot or observable collections, keyed or unkeyed, with v14 equality filters | context/single-result filters, opaque `scoped to`/`performer` and a list-query `by` block: PLAY0268; v27 composite keys: STAGE-ESM-016. DateTime filters and required parameters after optional filters refuse `-010`; filter-name collisions refuse `-012`; concept arguments retain Arc validation, including nested members/elements; nullable keys or optional concept filters with `not empty` refuse `-010` rather than changing null behavior |
+| Queries | optional keyed snapshot lookups; snapshot or observable collections, keyed or unkeyed, with v14 equality filters | context/single-result filters, opaque `scoped to`/`performer` and a list-query `by` block: PLAY0268; v27 composite-key lookups by parts: STAGE-ESM-047, read models and projections keyed by parts: STAGE-ESM-048. DateTime filters and required parameters after optional filters refuse `-010`; filter-name collisions refuse `-012`; concept arguments retain Arc validation, including nested members/elements; nullable keys or optional concept filters with `not empty` refuse `-010` rather than changing null behavior |
 | Authorization | role-only, authenticated, opaque pure policies, claim conditions with Uuid, Date, DateTime or text targets (numeric and Boolean claim matches render as always false), `not`/and/or; roles read through the identity's `RoleClaimType` | role-claim URIs, nested opaque policies, unresolved or non-portable policies, no single identifier, opaque-policy subjects that are not text, Uuid, Date or DateTime (`STAGE-ESM-015`, a restriction separate from declarative claim targets) |
 | Event sources, streams, routes (ESM v8) | rendered, including routed read-model/query companion replay | reserved stored names, unformattable routed fixtures (`STAGE-ESM-030`) |
 | Numbers, case tables | whole numbers as `long` from ESM v8; case tables | out-of-`int` literals below v8 (`STAGE-ESM-031`) |
-| Generated values and responses (v7/v15/v20/v21) | required scalar UUID/String strategies and Int random, pattern/checksum, concept validators at all severities, all-Proven unpinned relational specs, Guarded v15 freshness, scalar/named responses and fixtures | `generate rule`, unknown strategies and unsupported generated types (`-028`); unsupported response combinations, generated-property validation, name collisions, unpinned Unproven/Refuted rules or unordered/projected/collision-sensitive expectations (`-038`); invalid pins (`-011`); opaque concept rules (`-005`); unknown rule kinds and legacy checksum (`-042`) |
+| Generated values and responses (v7/v15/v20/v21) | required scalar UUID/String strategies and Int random, pattern/checksum, concept validators at all severities, all-Proven unpinned relational specs, Guarded v15 freshness, scalar/named responses and fixtures | unknown strategies and unsupported generated types (`-028`); `generate rule` bodies that do not compile (`-019`), shadow a type (`-022`) or lack an attachment (`-020`); unsupported response combinations, generated-property validation, name collisions, unpinned Unproven/Refuted rules or unordered/projected/collision-sensitive expectations (`-038`); invalid pins (`-011`); opaque concept rules (`-005`); unknown rule kinds and legacy checksum (`-042`) |
 | Enum numbers / compliance | explicit enum numbers (v12); concept `[PII]` or scoped `[Encrypted]` + `[NotAudited]` (v13), property-level `[NotAudited]` for protected command inputs | protected identities/enums (`-040`); explicit subject lineage remains unadmitted |
 | Specifications | command scenarios and supported single-hop reaction appends; Stage's `admission.md` | appends outside the single-hop subset and commands cascading into reactions (`-011`); `then no readmodel` (`-027`); an unauthenticated caller carrying roles or claims (`-011`); command `given clock` renders only whole milliseconds at or after 1970 |
 | v9 and v10 | reaction/reducer `from` filters; role/authenticated `runs as` | public events and event-target projections (`-032`); foreign origins and event-source captures (`-033`); directed Translate (`-024`); claim-reading/opaque `runs as` gates (`-034`); legacy `from` (`-035`); per-production route overrides (`-036`) |
@@ -60,14 +64,14 @@ This table is a reading of the renderer's admission, not a render result: run th
 | Evolved events | initial revisions only (migrations are not rendered) | `STAGE-ESM-026` |
 | Descriptions, documentation | XML `<summary>`/`<remarks>` doc comments only | characters invalid in XML: `CLI-RENDER-005`; never behavior |
 
-The Cratis C# renderer refuses protected command reads with STAGE-ESM-044, described handlers
+The Cratis renderer renders protected command reads in a bundle that supports them (STAGE-ESM-044 for shapes it cannot preserve and in every earlier bundle), refuses described handlers
 with STAGE-IMPL-002 (even Stub mode), and atomic mode in admitted pairs with
 STAGE-ESM-043. Literal
 text rules execute/render ordinal UTF-16 comparisons. Read [language admission](language-admission.md).
 A CLI's older bundled compiler may fail first: legacy reads/concurrency PLAY0271,
-attached handlers PLAY0268. Protected reads bind v25, not a Stage render. Requires Stage 4.129.0 for semantic
-Host/executor protected reads; older engines refuse -044. Non-Error protected requirements
+attached handlers PLAY0268. Protected reads bind v25. Non-Error protected requirements
 refuse STAGE-ESM-045, including reaction invocations; this is not a rendering result.
+Requires Stage 4.129.0 for semantic Host/executor protected reads (older engines refuse -044) and Stage 4.138.0 for the Cratis renderer to render them.
 Response-name authoring scopes are not rendered and Scene runtime does not supply them.
 
 Compliance mapping in the generated C#: personal data to `[PII]`, operational secrets to
