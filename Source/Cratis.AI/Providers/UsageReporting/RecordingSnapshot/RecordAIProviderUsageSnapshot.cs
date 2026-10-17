@@ -16,6 +16,7 @@ namespace Cratis.AI.Providers.UsageReporting.RecordingSnapshot;
 /// <param name="Availability">Why the vendor-reported usage was or was not available for this refresh.</param>
 /// <param name="ConsumedTokens">The tokens counted as consumed - vendor-reported where <paramref name="Availability"/> is <see cref="AIUsageReportAvailability.Available"/>, Direct's own trailing-week burn otherwise.</param>
 /// <param name="UsedLocalBurnFallback">Whether <paramref name="ConsumedTokens"/> came from Direct's own trailing-week burn rather than the vendor's usage report.</param>
+[Obsolete("Provider usage snapshots are no longer appended; removed in the next major release (Cratis/AI#651)")]
 [Command]
 public record RecordAIProviderUsageSnapshot(AIProviderId Provider, AIUsageReportAvailability Availability, long ConsumedTokens, bool UsedLocalBurnFallback)
 {
@@ -33,5 +34,6 @@ public record RecordAIProviderUsageSnapshot(AIProviderId Provider, AIUsageReport
 /// <param name="Availability">Why the vendor-reported usage was or was not available for this refresh.</param>
 /// <param name="ConsumedTokens">The tokens counted as consumed - vendor-reported where <paramref name="Availability"/> is <see cref="AIUsageReportAvailability.Available"/>, Direct's own trailing-week burn otherwise.</param>
 /// <param name="UsedLocalBurnFallback">Whether <paramref name="ConsumedTokens"/> came from Direct's own trailing-week burn rather than the vendor's usage report.</param>
+[Obsolete("Provider usage snapshots are no longer appended; removed in the next major release (Cratis/AI#651)")]
 [EventType]
 public record AIProviderUsageSnapshotRecorded(AIUsageReportAvailability Availability, long ConsumedTokens, bool UsedLocalBurnFallback);

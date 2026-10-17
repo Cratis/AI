@@ -128,12 +128,25 @@ call - Jev evaluates them in parallel and bills for the state once.
 
 ## Usage
 
-Every call that produced an answer appends `DecisionUsageRecorded` through `RecordDecisionUsage`:
-engine, model, topic, how many decisions and choices, the tokens the engine reported (Jev reports
-them; the built-in engine does not) and how long it took. `DecisionUsageByDay` accumulates them per
-day, engine, model and topic; `DecisionUsageForLastThirtyDays` reads the trailing month.
+Usage readings are OpenTelemetry metrics, not domain facts. No decision usage or provider usage
+snapshot is appended to the consuming application's event log.
 
-A failed usage record is logged, never allowed to fail a decision that was already made.
+The `Cratis.AI.Decisions` meter reports each answered call with counters
+`cratis.ai.decision.input_tokens`, `cratis.ai.decision.output_tokens`, `cratis.ai.decision.calls`,
+`cratis.ai.decision.decisions`, and `cratis.ai.decision.choices`, tagged with `decision.engine`,
+`model`, and `topic`. Token counts are what the engine reports (zero when it reports none).
+The existing duration histogram remains `cratis.ai.decision.duration` (milliseconds).
+
+Provider refreshes update an in-memory cache. `AllAIProviderUsageSnapshots` remains observable,
+emitting the latest cached readings and their recorded times, limited to providers configured in
+the current namespace. Readings survive staleness but not a process restart. The
+`Cratis.AI.Providers.UsageReporting` meter exposes `cratis.ai.provider.consumed_tokens` as an
+observable gauge tagged with `provider` and `availability`. Subscribe your OpenTelemetry metrics
+pipeline to both meters to export these instruments.
+
+`DecisionUsageByDay` and its `DecisionUsageForLastThirtyDays` query are obsolete and receive no new
+data. Their projection and the legacy usage event types remain available for replay until the next
+major release. A failed usage metric is logged and never fails an already-made decision.
 
 ## Registration
 

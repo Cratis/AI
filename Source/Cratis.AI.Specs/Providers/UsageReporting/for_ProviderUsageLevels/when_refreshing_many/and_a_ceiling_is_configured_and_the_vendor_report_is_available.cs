@@ -3,7 +3,6 @@
 
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.UsageReporting;
-using Cratis.AI.Providers.UsageReporting.RecordingSnapshot;
 using PackageAIProviderId = Cratis.AI.Providers.AIProviderId;
 
 namespace Cratis.AI.Providers.UsageReporting.for_ProviderUsageLevels.when_refreshing_many;
@@ -31,8 +30,6 @@ public class and_a_ceiling_is_configured_and_the_vendor_report_is_available : gi
     [Fact] void should_not_have_used_the_local_burn_fallback() => _result[_provider].UsedLocalBurnFallback.ShouldBeFalse();
     [Fact] void should_compute_remaining_capacity_against_the_ceiling() => _result[_provider].RemainingCapacity.ShouldEqual(820L);
 
-    [Fact]
-    async Task should_have_recorded_the_snapshot() =>
-        await _commandPipeline.Received(1).Execute(Arg.Is<RecordAIProviderUsageSnapshot>(command =>
-            command.Provider == _provider && command.ConsumedTokens == 180 && !command.UsedLocalBurnFallback));
+    [Fact] void should_cache_the_level() => _recentSnapshots.Received(1).Record(_provider, _result[_provider]);
+    [Fact] void should_not_depend_on_the_command_pipeline() => typeof(ProviderUsageLevels).GetConstructors().SelectMany(_ => _.GetParameters()).Select(_ => _.ParameterType).ShouldNotContain(typeof(ICommandPipeline));
 }

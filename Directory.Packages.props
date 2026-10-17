@@ -26,7 +26,7 @@
         <PackageVersion Include="Cratis.Chronicle.Testing" Version="19.4.7" />
         <PackageVersion Include="Cratis.Chronicle.XUnit.Integration" Version="19.4.7" />
 
-        <PackageVersion Include="Cratis.Fundamentals" Version="7.19.4" />
+        <PackageVersion Include="Cratis.Fundamentals" Version="7.25.1" />
 
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
         <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.11" />
