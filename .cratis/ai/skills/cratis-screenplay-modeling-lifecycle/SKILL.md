@@ -75,7 +75,7 @@ or **critic** (P4-P5: strict, report first, fix in a separate batch).
 ## Verdicts (independent evidence, not a ladder)
 | Verdict | Meaning | Does not prove |
 |---|---|---|
-| V1 authorable | compiles, warnings as errors | meaning, binding |
+| V1 authorable | compiles, warnings as errors (declared gate) | meaning, binding |
 | V2 executable diagnostics | the executable model produces none | that specs run |
 | V3 binding-ready | the model binds | that any spec passes |
 | V4 reference specs run | engine, expected vs discovered | rendering or build health |
