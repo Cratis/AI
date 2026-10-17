@@ -216,7 +216,7 @@ Joins, `children`, `remove via join`, `every`, `all`, `nested`, `clear with`,
 
 Requires Stage 4.137.0 for v27 admission (older Stage refuses the whole model with
 `STAGE-ESM-016`). The semantic Host runs composite-keyed read models and the CLI's `cratis run`
-default engine runs them (Requires Cratis CLI 3.75.0); the legacy `eventmodel` engine (being removed) and the specification
+default engine runs them (Requires Cratis CLI 3.75.0); the legacy `eventmodel` engine and the specification
 executor refuse them. Rendering refuses a read model with several key parts or a projection keyed by
 parts (`STAGE-ESM-048`) and a single-instance query by parts (`STAGE-ESM-047`, pending Chronicle#4265),
 and publishes nothing, so `cratis render` cannot deliver it. Verify and reference-test the model with the

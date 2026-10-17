@@ -192,7 +192,7 @@ Silent fallback to a default screen is a failure, not a partial render.
 API on `9090`, Chronicle Workbench on `https://localhost:35000`. It is a **partial,
 disposable runtime**, not a generated application. `cratis run` runs the `semantic` engine
 (Requires Cratis CLI 3.73.0); Stage's semantic engine is the only engine going forward. The legacy
-EventModel engine (older CLIs, or the image without `Stage__Runtime__Engine=semantic`) is being removed.
+EventModel engine (older CLIs, or the image without `Stage__Runtime__Engine=semantic`) is legacy; do not rely on it.
 It appends modeled
 `produces` facts and echoes the payload. It refuses missing required properties and
 simple literal `validate` rules on top-level properties, but enforces no other rule, no

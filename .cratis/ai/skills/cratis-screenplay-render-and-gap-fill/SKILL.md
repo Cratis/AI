@@ -163,7 +163,7 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
 - `description` and `documentation` reach rendered code only as XML documentation comments (Stage#178),
   never as behavior. A rule stated only in prose is unenforced: fallback record entry or target requirement,
   never "delivered".
-- The `cratis run` sandbox's legacy EventModel engine (the only engine before CLI 3.73.0; being removed) enforces only simple literal validation rules and no
+- The `cratis run` sandbox's legacy EventModel engine (the default engine before CLI 3.73.0) enforces only simple literal validation rules and no
   authorization; it is no evidence for denial behaviour or for any other rule.
 - Never remove `pii`, `secret`, authorization or rules to get a render through; report the gap.
 - Stop and ask only on a genuine contradiction between model, specs, descriptions and declared

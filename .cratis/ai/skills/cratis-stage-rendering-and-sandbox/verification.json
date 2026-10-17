@@ -21,7 +21,7 @@
     { "kind": "skill-contains", "value": "`Customizations/`" },
     { "kind": "skill-contains", "value": "`Stage__Runtime__Engine=semantic`" },
     { "kind": "skill-contains", "value": "`--engine semantic`" },
-    { "kind": "skill-contains", "value": "Requires Cratis CLI 3.73.0 for `--engine`", "file": "references/sandbox-and-specrunner.md" },
+    { "kind": "skill-contains", "value": "Requires Cratis CLI 3.64.0 for `--engine`", "file": "references/sandbox-and-specrunner.md" },
     { "kind": "skill-contains", "value": "the environment setting below", "file": "references/sandbox-and-specrunner.md" },
     { "kind": "skill-contains", "value": "fresh in-memory Chronicle log per specification", "file": "references/sandbox-and-specrunner.md" },
     { "kind": "skill-contains", "value": "exact ESM v1–v21 and v23–v27 pairs" },

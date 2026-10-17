@@ -102,7 +102,7 @@ name them as unfinished.
   matching value. Both are needed. Ownership checks on text, Uuid, Date and DateTime subjects render;
   other subjects are STAGE-ESM-015: note it.
 - Traps: `then error` for a denial; a denial spec whose inputs also break a rule (it still
-  denies, but reads ambiguously); trusting a `cratis run` sandbox answer (the legacy EventModel engine, being removed, enforces no authorization;
+  denies, but reads ambiguously); trusting a `cratis run` sandbox answer (the legacy EventModel engine enforces no authorization;
   the semantic engine, `cratis run`'s default from CLI 3.73.0, enforces both but reads forgeable caller headers, so it is no security boundary); counting another command's denial.
 
 ## 4. State violation

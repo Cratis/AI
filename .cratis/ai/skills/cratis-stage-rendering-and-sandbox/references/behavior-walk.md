@@ -12,9 +12,9 @@ V5 evidence.
   as the application it describes).
 - Docker, and the `cratis/stage` image at the tag `cratis run` would use (by default the
   Stage version the CLI renders with).
-- The **semantic engine**. From CLI 3.73.0 `cratis run` runs it by default. Older CLIs start the
-  legacy EventModel engine (being removed), which enforces only
-  simple literal validation rules, no authorization, and refuses routed models; start the same image directly:
+- The **semantic engine**. From CLI 3.73.0 `cratis run` runs it by default; CLI 3.64.0 to 3.72.x need
+  `cratis run --engine semantic`. Older CLIs only start the legacy EventModel engine, which enforces only
+  simple literal validation rules, no authorization, and refuses routed models; with those, start the same image directly:
 
 ```bash
 docker run --rm -p 127.0.0.1:9090:9090 -p 127.0.0.1:35000:35000 \
