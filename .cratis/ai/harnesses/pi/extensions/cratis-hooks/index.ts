@@ -332,7 +332,10 @@ export default function (pi: ExtensionAPI) {
 		label: "Cratis quality gate",
 		description:
 			"Run the Cratis quality gate (.cratis/ai/hooks/scripts/cratis-quality-gate.sh): the build, spec and lint gates the current " +
-			"working-tree changes touch, configured in quality-gates.json. Runs in the foreground with a deadline and can be cancelled. " +
+			"working-tree changes touch. Shipped defaults: .cratis/ai/hooks/scripts/quality-gates.json; project overrides: " +
+			".cratis/ai/quality-gates.project.json, shallow-merged by gate id (command without requires drops inherited packageScripts). " +
+			"CRATIS_HOOKS_GATES replaces the defaults; project overrides still merge over it. " +
+			"Runs in the foreground with a whole-tool deadline and optional per-gate timeoutSeconds; can be cancelled. " +
 			"A failure, a timeout or a cancellation is returned as an error and means the change is NOT verified. " +
 			"Run it explicitly at a verification checkpoint, not after every prompt. It selects gates for all current " +
 			"working-tree changes, not the complete CI matrix; run CI-equivalent gates before claiming completion or pushing/opening a PR. " +
@@ -378,7 +381,7 @@ export default function (pi: ExtensionAPI) {
 				const last = latestGateLog(gateLogDirectory(sessionId), started);
 				const tail = last ? tailLines(last.file, TAIL_LINES) : "";
 				throw new Error(`The Cratis quality gate TIMED OUT after ${duration(timeoutSeconds * 1000)}${last ? ` while running '${last.gate}'${last.cwd ? ` (cwd: ${last.cwd})` : ""}` : ""}. This is not a pass: nothing was verified.` +
-					(last ? `\n\nGate log: ${last.file}` : "") +
+					(last ? `\nRun a narrower command instead: ${last.gate === "backend-specs" ? "dotnet test <affected.Specs.csproj-or-Tests.csproj> --configuration Debug --no-build (replace the placeholder; repeat for affected dependents)." : "run the affected project alone using this gate's configured command."}\nConfigure it in .cratis/ai/quality-gates.project.json.\n\nGate log: ${last.file}` : "") +
 					(tail ? `\n\n--- last ${TAIL_LINES} lines ---\n${tail}\n--- end ---` : ""));
 			};
 			const reportInterrupted = () => {
