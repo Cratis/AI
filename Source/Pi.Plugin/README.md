@@ -18,7 +18,11 @@ The `subagent` tool stands down for the session when another extension already
 provides a delegation tool named `Agent` (such as pi-subagents, which lists the
 same agents). It removes itself from the active tools at session start and
 shows one notice when Pi has a UI, so the model is not offered two delegation
-tools.
+tools. The package declares generated Pi-native agents through `pi.subagents.agents`
+for external loaders that support package resources. Their comma-separated `tools:`
+allowlists already use Pi names (`read`, `grep`, `find`, `bash`, `edit`, `write`),
+so neither loader needs to interpret Claude-style names. See
+[Agent adapters](https://github.com/Cratis/AI/blob/main/Documentation/agent-adapters.md) for regeneration and drift checks.
 
 The managed CLI path remains the choice when one repository must configure and
 synchronize several harnesses. It writes the resolved corpus to `.cratis/ai`,

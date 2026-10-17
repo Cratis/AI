@@ -10,7 +10,7 @@ This repository is two things sharing one source of truth:
 
 It also carries a separate, parallel effort - the TypeScript corpus/profile-distribution content
 under `Source/Harness.Setup`, `Source/Pi.Plugin`, `Source/Verification` and `.cratis/ai/` - which
-this documentation does not cover. See that content's own `AGENTS.md`/`CLAUDE.md` and
+is described in part by [Agent adapters](./agent-adapters.md). See that content's own `AGENTS.md`/`CLAUDE.md` and
 `AIConsolidation.md` at the repository root.
 
 ## Where to start

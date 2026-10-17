@@ -37,6 +37,9 @@
     "typebox": "*"
   },
   "pi": {
+    "subagents": {
+      "agents": ["./package/corpus/harnesses/pi/agents"]
+    },
     "extensions": [
       "./src/index.ts",
       "./package/corpus/harnesses/pi/extensions/cratis-hooks/index.ts",

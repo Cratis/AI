@@ -9,6 +9,7 @@ import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { checkOpenCodeAgents } from '../Harness.Setup/opencode-agents.ts';
 import { checkCopilotInstructions, copilotInstructionsDirectory } from '../Harness.Setup/copilot-instructions.ts';
+import { checkPiAgents, piAgentsDirectory } from '../Harness.Setup/pi-agents.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '../..');
 const setupPath = join(repositoryRoot, 'Source/Harness.Setup/setup.ts');
@@ -200,7 +201,71 @@ test('Copilot drift checks detect source changes, missing files and orphans, the
     }
 });
 
-test('Pi package preparation ships copied Copilot adapters for a consumer directory link', () => {
+test('Pi migrates canonical links and detects source, missing and orphaned adapter drift', () => {
+    const project = fixture();
+    try {
+        const corpus = join(project, '.cratis/ai');
+        const canonical = join(corpus, 'agents/screenplay-modeler.md');
+        const original = readFileSync(canonical, 'utf8');
+        mkdirSync(join(project, '.pi'));
+        symlinkSync('../.cratis/ai/agents', join(project, '.pi/agents'), 'dir');
+        assert.notEqual(setup(project, true).status, 0);
+        assert.equal(setup(project).status, 0);
+        assert.equal(readlinkSync(join(project, '.pi/agents')), `../.cratis/ai/${piAgentsDirectory}`);
+        assert.equal(readFileSync(canonical, 'utf8'), original, 'migration never writes canonical content');
+        const adapter = join(project, '.pi/agents/screenplay-modeler.md');
+        const before = readFileSync(adapter, 'utf8');
+        writeFileSync(canonical, `${original}\nUpdated agent body.\n`);
+        assert.ok(checkPiAgents(corpus).some(message => message.includes('screenplay-modeler.md is stale')));
+        const checked = setup(project, true);
+        assert.notEqual(checked.status, 0);
+        assert.match(checked.stderr, /agent adapters are out of date/);
+        assert.equal(readFileSync(adapter, 'utf8'), before, '--check is read-only');
+        assert.equal(setup(project).status, 0);
+        assert.match(readFileSync(adapter, 'utf8'), /Updated agent body/);
+        const orphan = join(corpus, piAgentsDirectory, 'orphan.md');
+        cpSync(adapter, orphan);
+        unlinkSync(adapter);
+        assert.ok(checkPiAgents(corpus).some(message => message.includes('screenplay-modeler.md is missing')));
+        assert.ok(checkPiAgents(corpus).some(message => message.includes('orphan.md has no canonical agent')));
+        assert.notEqual(setup(project, true).status, 0);
+        assert.equal(setup(project).status, 0);
+        assert.deepEqual(checkPiAgents(corpus), []);
+        writeFileSync(adapter, readFileSync(adapter, 'utf8').replace('tools: read, grep, find, bash, edit, write', 'tools: Read'));
+        assert.ok(checkPiAgents(corpus).some(message => message.includes('screenplay-modeler.md is stale')));
+        const toolsDrift = setup(project, true);
+        assert.notEqual(toolsDrift.status, 0);
+        assert.match(toolsDrift.stderr, /Pi agent adapters are out of date/);
+        assert.equal(setup(project).status, 0);
+        assert.equal(setup(project, true).status, 0);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('Pi refuses unowned agent files and symlinks without writing through them', () => {
+    const project = fixture();
+    try {
+        assert.equal(setup(project).status, 0);
+        const target = join(project, 'local-agent.md');
+        const adapter = join(project, '.cratis/ai', piAgentsDirectory, 'screenplay-modeler.md');
+        writeFileSync(target, '# Local agent\n');
+        unlinkSync(adapter);
+        symlinkSync(target, adapter);
+        assert.notEqual(setup(project).status, 0);
+        assert.equal(readFileSync(target, 'utf8'), '# Local agent\n');
+        assert.equal(setup(project, false, true).status, 0);
+        assert.equal(readFileSync(target, 'utf8'), '# Local agent\n');
+        const local = join(project, '.cratis/ai', piAgentsDirectory, 'local.md');
+        writeFileSync(local, '# Local definition\n');
+        assert.notEqual(setup(project).status, 0);
+        assert.equal(readFileSync(local, 'utf8'), '# Local definition\n');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('Pi package preparation ships native agents for external loaders and copied Copilot adapters', () => {
     const project = fixture();
     try {
         assert.equal(setup(project).status, 0);
@@ -209,6 +274,15 @@ test('Pi package preparation ships copied Copilot adapters for a consumer direct
         cpSync(join(repositoryRoot, 'Source/Pi.Plugin/prepare-package.mjs'), join(plugin, 'prepare-package.mjs'));
         const prepared = spawnSync(process.execPath, [join(plugin, 'prepare-package.mjs')], { encoding: 'utf8' });
         assert.equal(prepared.status, 0, prepared.stderr);
+        const manifest = JSON.parse(readFileSync(join(repositoryRoot, 'Source/Pi.Plugin/package.json'), 'utf8'));
+        const declared = manifest.pi.subagents.agents;
+        assert.deepEqual(declared, ['./package/corpus/harnesses/pi/agents']);
+        const modeler = join(plugin, declared[0], 'screenplay-modeler.md');
+        assert.ok(lstatSync(modeler).isFile(), 'external package loader receives real agent files');
+        assert.equal(readFileSync(modeler, 'utf8'), readFileSync(join(project, '.pi/agents/screenplay-modeler.md'), 'utf8'));
+        assert.match(readFileSync(modeler, 'utf8'), /tools: read, grep, find, bash, edit, write\n/);
+        assert.deepEqual(checkPiAgents(join(plugin, 'package/corpus')), []);
+        assert.ok(lstatSync(join(plugin, 'package/corpus/harnesses/pi/extensions/subagent/tool-names.ts')).isFile());
         const packaged = join(plugin, 'package/corpus', copilotInstructionsDirectory, 'go.instructions.md');
         assert.ok(lstatSync(packaged).isFile(), 'package contains a portable file, not a canonical symlink');
         const generated = readFileSync(join(project, '.github/instructions/go.instructions.md'), 'utf8');

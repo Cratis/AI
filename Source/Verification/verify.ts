@@ -6,6 +6,7 @@ import { constants, existsSync } from 'node:fs';
 import { access, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
+import { checkPiAgents } from '../Harness.Setup/pi-agents.ts';
 import { checkCopilotInstructions } from '../Harness.Setup/copilot-instructions.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
@@ -259,6 +260,7 @@ for (const agent of (await readdir(join(corpus, 'agents'))).filter(name => name.
     if (canonical.readonly && canonical.tools.some(tool => tool === 'Edit' || tool === 'Write')) failures.push(`${relative(root, path)} is readonly but declares Edit/Write.`);
 }
 for (const stale of checkOpenCodeAgents(corpus)) failures.push(`OpenCode agent adapters are out of date: ${stale}`);
+for (const stale of checkPiAgents(corpus)) failures.push(`Pi agent adapters are out of date: ${stale}`);
 for (const stale of checkCopilotInstructions(corpus)) failures.push(`Copilot instruction adapters are out of date: ${stale}`);
 for (const script of (await files(join(corpus, 'hooks', 'scripts'))).filter(path => path.endsWith('.sh'))) {
     const mode = (await stat(script)).mode;
