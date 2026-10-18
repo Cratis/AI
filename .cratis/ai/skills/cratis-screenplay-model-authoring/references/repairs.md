@@ -38,7 +38,7 @@ admit in the release job; no baseline requires an explicit mode;
 `eventNeverPersisted: true` cannot unfreeze admitted revisions. Differing event pins carry
 `storedName` in ESM v16. Pins are event-name identifiers,
 shared by all generations and unique (PLAY0472). A renderer admits only the ESM versions it
-bundles, so an older Stage can refuse v16. Stored stream `All` (even `id "All"`) refuses PLAY0273; rename without
+bundles, so an older Stage can refuse v16. Stored stream `All` (even `id "All"`) and stored source `Default` refuse PLAY0802; rename without
 that pin. Evidence/limits: [MCP tool guide](mcp-tools.md).
 
 Requires Screenplay 4.153.0 or later (`screenplay --version`) for the release baseline and its `baseline` command, and 4.152.0 or later for `storedName` (ESM v16).

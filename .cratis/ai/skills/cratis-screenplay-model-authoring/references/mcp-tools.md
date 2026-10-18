@@ -380,12 +380,12 @@ then choose edits from evidence. Workflow, flags, guards and recovery:
 [release baseline](release-baseline.md). Target evidence: toolchain
 `references/diagnostics.md` (Reserved stored names and event pins).
 
-Requires Screenplay 4.150.0 or later (`screenplay --version`) for the stored stream name `All` refusal.
+Requires Screenplay 4.216.0 or later (`screenplay --version`) for the authoring-time PLAY0802 refusal; earlier compilers refuse stored stream `All` only at binding (PLAY0273, 4.150.0 or later).
 
 A stream whose stored name is exactly `All`, from its name or `id "All"`,
-refuses executable binding/readiness with PLAY0273. Use discovered `propose-rename`
-to change that stored stream name; pinning it back to `All` is not a repair.
-There is no typed PLAY0273 repair for this case. Existing `All` history reads as
+reports PLAY0802 in authoring diagnostics (binding keeps PLAY0273 as a backstop). Use discovered `propose-rename`
+to change that stored stream name; pinning it back to `All` is not a repair, while a pin away from `All` is valid.
+There is no typed PLAY0802 repair for this case. Existing `All` history reads as
 source-only appends. Source/stream pins otherwise travel as ESM v8 stored names;
 event stored names require v16.
 
