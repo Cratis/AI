@@ -63,11 +63,38 @@ a Module (replace the Application key with that response's value):
 }
 ```
 
-A typed address needs an existing catalog identity; it refuses when none exists.
-Use the construct's current source handle instead. A target without an identity
-lands on the nearest identified slice, feature, module or application. On an
-unbound model, even a Slice can lack an identity and fall back to Application;
-opening the workspace does not guarantee container identities.
+Application notes anchor as `{ application: true }` before binding. Modules,
+nested Features and Slices gain deterministic catalog identities from the
+authoring hierarchy before the model binds, provided every document parses and
+places. Dotted, typed and source-handle targets anchor directly to those
+containers without substitution. Binding preserves their existing IDs and
+origins; never calculate an ID client-side.
+
+Commands, events, read models, projections, queries, specifications, reactions,
+captures and properties still need a bound model for their own identities. Until
+then, their notes land on their own slice, not the feature or module, and are
+reported in `substitutions`. Name the intended member in the text.
+
+Requires Screenplay 4.213.0 (`screenplay --version`) for pre-binding container
+identities and identity-problem reporting. Older servers can broaden container
+notes to an identified ancestor; upgrade before relying on direct anchoring.
+
+Inspect `containerIdentities` from `open-workspace` and `workspace-state` when
+identities are missing. It contains `complete`, `containers` entries with
+`address`, `reason`, `assigned`, and `documents` entries with `path`, `reason`.
+Container reasons are `ambiguous`, `idCollision` or `incomplete`; document reasons
+are `unparsed` or `unplaced`. Fix parse and import-placement errors first:
+**no new identities are assigned anywhere** until every document parses and
+places, even in otherwise valid documents. Existing assignments are retained.
+Unavailable containers and descendants refuse new note targeting with the same
+reason in every form, including semantic-ID anchors; do not bypass a refusal by
+requesting a broader owner. Repeated Module/Feature fragments count as one logical
+declaration; duplicate Slices do not.
+
+A container duplicated outside MCP keeps its identity and notes. Existing notes
+on it or its descendants stay resolved with `ambiguous: true`, not orphaned.
+Read them unfiltered or by their existing `semanticId`; new targeting on the
+ambiguous container or its descendants is refused.
 
 Always inspect `substitutions` for both `add` and `reanchor`, even when reanchor
 leaves the note unchanged. Each entry has the requested `target`, resolved
@@ -82,8 +109,12 @@ reporting. Older servers can refuse split targets, omit that field or silently
 broaden the anchor; use a catalog address/current handle and inspect the notes
 review's actual anchor, or upgrade before relying on these responses.
 
-Notes do not change source, workspace/catalog/semantic revisions, executable
-model bytes or compiler verdicts. Their own `notesRevision` is `nrev1:` plus the
+Notes do not change source, executable model bytes or compiler verdicts.
+Opening or proposing an unbound workspace can materialize container assignments
+in memory and advance its catalog revision. Opening never writes them; a
+notes-only `apply` can persist them in `.screenplay/identities.json` under the
+same journal as the sidecar. Rollback restores both the notes and exact earlier
+identity state. Notes retain an independent revision; their `notesRevision` is `nrev1:` plus the
 lowercase SHA-256 of canonical bytes; `nrev1:absent` is not an empty document.
 The file header uses `schema: "cratis.screenplay.notes"`, `schemaVersion: 1` and
 `applicationIdentity` in the catalog's representation. The server writes stable
@@ -205,11 +236,26 @@ stops being adequate.
 
 ## Source proposals can orphan notes
 
+Prefer `propose-rename` and `propose-move`: identities and notes follow containers
+on unbound models as on bound ones, including before their first binding. A
+manual `propose-ast` or `propose-source` rename needs explicit `semanticRenames`;
+removal needs `retiredSemanticAddresses`. Retirement is not a substitute for a
+rename when continuity is intended.
+
+Fix binding errors through MCP proposals. After a partial catalog is persisted,
+fixing binding outside MCP can add bound identities on reopen and require
+reconciliation; never discard state to bypass it.
+
 Review `orphanedNotes` IDs and `notes` status/reason/count on source, AST, rename,
 move and property proposals and their reviews. Retirement leaves a computed
 orphan with null current address and `orphanReason: "unknown"`; notes are never
 silently deleted. `orphanedNotes: null` with unreadable notes means unknown
 impact, not `[]`.
+
+Re-adding a retired address recreates its deterministic identity only when source
+is complete and unambiguous. Orphaned notes resolve again only for their exact
+former ID. An identity previously carried there by rename or assigned externally
+may differ; explicitly reanchor those notes.
 
 Before applying a source proposal, review each affected question: reanchor to a
 surviving element, or resolve with evidence and deliberately decide whether to

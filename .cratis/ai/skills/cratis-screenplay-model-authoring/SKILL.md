@@ -11,24 +11,23 @@ Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-synt
 Prefer the Screenplay MCP tools to text/regex edits: the compiler owns declaration,
 reference, hierarchy and source evidence for the declarative document set.
 
-Screenplay remains experimental. **Valid source is not necessarily executable.**
-It does not generate or run an application; Stage owns rendering/runtime admission.
-When selecting construct syntax or distinguishing source validity from execution, read the [language reference](references/language-reference.md) for constructs,
-the executable profile and a complete compiled model.
+**Valid source is not necessarily executable.** Stage owns rendering/runtime
+admission. Read the [language reference](references/language-reference.md) for
+construct syntax, source-versus-execution states and a complete compiled model.
 
-For screens: discover UI schemas, propose/apply with revisions, then pass the
-same model root or workspace export to all checks. Workflow:
-`references/screen-authoring-workflow.md`; syntax/support:
-`cratis-screenplay-ui-composition`.
+For screens, read `references/screen-authoring-workflow.md`; use the
+same model root or workspace export for all checks. Syntax: `cratis-screenplay-ui-composition`.
 
 Record open modeling questions as `question` notes in committed
 `.screenplay/notes.json`, not chat or `description` text. Never put secrets or
 personal data in notes. Read [model notes](references/model-notes.md) when
 listing, recording or resolving questions: `list-model-notes`,
 `propose-model-notes`, `read-proposal view=notes`, refs and orphan review.
-Prefer dotted split-model targets; inspect `substitutions`, also for reanchor,
-and disclose broader owners. The reference covers typed `parts` targets from
-`open-workspace.applicationIdentity`.
+Application, Module, Feature and Slice notes anchor before binding; members
+still need binding and otherwise substitute their own slice. Inspect
+`containerIdentities` in `open-workspace` / `workspace-state` for missing or
+ambiguous identities; fix parse/placement errors first. Read the notes reference
+for refusals, `ambiguous: true`, typed targets and every `substitutions` entry.
 
 ## Choosing a strategy
 
@@ -61,8 +60,8 @@ explanatory Markdown belongs in repository documentation.
 is owned by the Cratis CLI, which preserves other servers and user configuration.
 
 The CLI-bundled MCP can be older than the standalone tool: discover schemas.
-Read [MCP loop](references/mcp-loop.md) for launch options. Use the supported
-channel, not another global tool, Docker or copied managed configuration.
+Read [MCP loop](references/mcp-loop.md) for supported launch channels; do not
+substitute a global tool, Docker or copied managed configuration.
 
 If MCP is unavailable, report it; regex edits are not compiler-validated AST
 editing. Existing standalone `screenplay mcp` users may retain that entry point.
@@ -93,9 +92,8 @@ editing. Existing standalone `screenplay mcp` users may retain that entry point.
    outlet declarations that provide context. A component binding with no traced
    data source is not a shortcut; fix the model source.
 
-Keep reads scoped to the relevant module, feature, slice or document. Do not
-request a whole merged AST when a bounded declaration/property query answers the
-question. Size-limit refusals require narrower reads, not truncation.
+Scope reads to the relevant container/document, not the whole merged AST.
+Size-limit refusals require narrower reads, not truncation.
 
 ## Application modes and described handler intent
 
@@ -111,11 +109,10 @@ Read [comparison sources](references/mcp-tools.md#semantic-revision-comparison) 
 
 ## Make one coherent proposal
 
-**One edit strategy.** Discover what the server offers. Prefer typed,
-identity-preserving operations (`propose-rename`, `propose-repair`,
-`propose-extract-inline-event`, `propose-ast`). A bounded text edit is fine only for
-edits that leave catalog addresses unchanged (descriptions, rule and expression bodies, mappings
-between existing members), never a way around an MCP refusal. When `.screenplay/identities.json`
+**One edit strategy.** Prefer discovered identity-preserving operations
+(`propose-rename`, `propose-repair`, `propose-extract-inline-event`, `propose-ast`).
+Bounded text edits must leave catalog addresses unchanged (descriptions, rule
+bodies, existing-member mappings), never a way around an MCP refusal. When `.screenplay/identities.json`
 exists, adding, removing or renaming a declaration, command or read-model property, query,
 query argument or specification goes through MCP, and an `id` pin is not enough for a rename or move. A request naming
 a rename, move or removal is the approval: do not ask again at `apply`. Without MCP, text-rename
@@ -131,9 +128,10 @@ Others send an edit request ([MCP loop](references/mcp-loop.md)).
    identity state. `read-workspace` locates document identities.
 2. `read-ast` returns original occurrence handles and existing semantic IDs.
    Query `syntax-schema` for exact node members before constructing typed input.
-3. Prefer `propose-rename` for supported logical renames: it coordinates fragments,
-   repairs proven references and preserves assigned identities. Never substitute
-   global string replacement for an explicit refusal.
+3. Prefer `propose-rename` and `propose-move`: they carry identities and notes
+   even on unbound models. Manual `propose-ast` / `propose-source` renames need
+   `semanticRenames`; removal needs retirement and reports `orphanedNotes`.
+   Never substitute global string replacement for an explicit refusal.
 4. Prefer `propose-property` for property add/rename/remove, not hand-composed
    `propose-ast` batches. Inspect the chain and never guess past a refusal:
    [property links](references/property-links.md). Otherwise use `propose-source`
@@ -152,20 +150,17 @@ Others send an edit request ([MCP loop](references/mcp-loop.md)).
    identity-state change through `workspace-state`. Review `orphanedNotes` on
    source proposals; reanchor or resolve affected questions before applying
    ([notes and orphan impact](references/model-notes.md#source-proposals-can-orphan-notes)).
-7. Run `run-specifications` with `proposalId` before applying. Record V4 separately: PLAY0285
-   (impossible `then`) unbinds the whole model. Paging and read-only candidate semantics:
-   [MCP tool guide](references/mcp-tools.md#run-reference-specifications).
-
-   Requires Screenplay 4.145.0 or later (`screenplay --version`) for `proposalId`; earlier servers run only the current workspace.
+7. Run `run-specifications` with `proposalId` before applying; record V4 separately.
+   PLAY0285 unbinds the whole model. Read the [MCP tool guide](references/mcp-tools.md#run-reference-specifications)
+   for candidate paging and the required version.
 8. `apply` only the reviewed server-produced proposal within the user's requested
    change. The proposal ID and before revisions are required; stale state rejects.
-   When the user already requested apply, do it after checks without asking again;
-   otherwise show the proposal and ask once.
+   Apply after checks if requested; otherwise show the proposal and ask once.
 9. When the host draws views, `visualize-model` shows the board. It follows the files
    on disk while open, so after an apply do not re-request it; just say what changed.
 
-Handles are revision-bound occurrences, not durable IDs. Modules/features can
-span fragments; one header edit may not change all. After apply, fetch fresh handles/revisions.
+Handles are revision-bound, not durable IDs. Modules/features span fragments;
+after apply fetch fresh handles/revisions.
 
 On refusal, use `failureKind`, never message text ([failures/limits](references/mcp-loop.md#failures-use-failurekind-never-message-text)).
 After revision/disk/identity drift, reopen and re-propose. For `ApplyOutcomeUnknown`
@@ -188,6 +183,8 @@ Use `recommend-layout` for options and review an `expand-layout` proposal; layou
 
 ## Preserve state and recover explicitly
 
+Fix binding errors through MCP proposals, not outside MCP: reopening after an
+external fix can require reconciliation of a persisted partial catalog.
 Commit `.screenplay/identities.json` with the model; only `apply` writes it. Never delete or overwrite identity state, mint IDs on restart, or text-rename identity-affecting declarations. A pending journal blocks normal work: inspect `workspace-state` and use `recover-workspace` only for the identified interrupted operation. Only `apply` / `recover-workspace` write source/catalog. `readiness.authoringAccepted` says the source is valid Screenplay; `executableReady` is separate. Read [references/state-and-recovery.md](references/state-and-recovery.md) for root conflicts, journals and readiness.
 
 ## Code attachments
@@ -199,8 +196,8 @@ are not behavioral evidence.
 
 ## Verify and report honestly
 
-- Require zero source errors and investigate every warning.
-- Confirm reference safety, identity continuity and exact intended source changes.
+- Require zero source errors; investigate warnings, reference safety, identity
+  continuity and exact intended changes.
 - Report which of the four states you checked: **parsed**, **bound**,
   **reference-executed**, **target-executed**. When distinguishing source validity from execution, read the
   [language reference](references/language-reference.md#source-validity-is-not-execution);
@@ -209,9 +206,8 @@ are not behavioral evidence.
   clean run is not a bound or executable result.
 - Never drop or stub source contracts to bind; the bundled compiler and renderer can be older than the standalone tool. Read [references/language-reference.md](references/language-reference.md) for the ESM version at which each construct binds.
 
-- Distinguish authoring acceptance from `executableReady`; unsupported backend
-  capabilities are not a reason to drop source constructs or invent stubs.
-- If execution is intended, validate with the owning downstream runtime as well.
+- Unsupported capabilities never justify dropping constructs or inventing stubs.
+  Validate intended execution with the owning downstream runtime.
 - Model rejection cases as specifications; assertion presence is not execution.
 - Check installed `tools/list`/schemas rather than assuming a remembered tool count.
 
@@ -221,9 +217,9 @@ The ordinary CLI remains useful for whole-folder validation:
 cratis screenplay validate <model-folder> --warnings-as-errors
 ```
 
-Record screen MCP transcripts in `.ai-work/`; render/runtime checks must use the
-same source, never an app that silently drops authored UI. Use the Screenplay-owned canonical
-corpus fixture path instead of copying available `.play` fixtures here.
+Keep screen transcripts in `.ai-work/`; check the same source, never an app that
+silently drops authored UI. Use the Screenplay-owned canonical
+corpus fixture path instead of copying fixtures here.
 
 Never invent syntax or capabilities.
 
@@ -235,10 +231,10 @@ Never invent syntax or capabilities.
 | Commands, events, validation and concurrency | `cratis-screenplay-command-surface` |
 | Projections and reducers | `cratis-screenplay-projections` |
 | Read models, queries and screens | `cratis-screenplay-read-surface` |
-| Layouts, forms, contributions, navigation regions, slice buttons, template references, sample data, component bindings, toolbars, outlets, themes and localization | `cratis-screenplay-ui-composition` |
+| UI composition, bindings, navigation and themes | `cratis-screenplay-ui-composition` |
 | Captures, reactions and triggers | `cratis-screenplay-captures-and-reactions` |
 | Behavioral examples and assertions | `cratis-screenplay-specifications` |
 | Rendering/running an admitted model | `cratis-stage-rendering-and-sandbox` |
-| Lifecycle, verdicts V1 to V5 and the model-first decision | `cratis-screenplay-modeling-lifecycle` |
-| Compiler, CLI and MCP versions, diagnostics, capability tables | `cratis-screenplay-toolchain` |
+| Lifecycle and model-first decision | `cratis-screenplay-modeling-lifecycle` |
+| Compiler, CLI, MCP and diagnostics | `cratis-screenplay-toolchain` |
 | Event-model diagrams rather than .play source | `cratis-event-model-diagram` |
