@@ -20,11 +20,16 @@ wrong sources, or read exit `2` as a pass. A required check removes all three:
   the base does not contain, `cherry-pick -x` lines and reverts of reverts. The
   author does not have to declare anything, and cannot leave a source out.
 - **It fails on `1` and on `2`.** A source that cannot be resolved or compared
-  fails the check; unknown is not pass.
+  fails the check; unknown is not pass. A `cherry-pick -x` of a commit that was
+  never pushed, or exists only on a fork, stays at `2`: push the source commit
+  so the job can fetch it. No trailer clears an unresolvable source.
 - **Dispositions live in history.** An accepted rewrite or specification delta
   is a `Consolidation-Allow-Rewritten:` or `Consolidation-Allow-Spec-Delta:`
   commit trailer, which the job honors and prints as `disposition:`. Accepting a
-  loss is therefore a reviewable commit, never a bypass.
+  loss is therefore a reviewable commit, never a bypass. The job reads trailers
+  from every commit the consolidation adds, folded source commits included, so
+  a reviewer reads each `disposition:` line, not only the consolidation's own
+  commits.
 - **Merging requires it.** A red or missing required check blocks
   `gh pr merge`. With no bypass actor, `gh pr merge --admin` cannot get past it
   either.

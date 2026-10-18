@@ -52,13 +52,15 @@ MODE="verify"
 
 usage() { awk 'NR < 5 { next } /^#/ { sub(/^# ?/, ""); print; next } { exit }' "$0"; }
 die() { printf 'ERROR %s\n' "$*" >&2; exit 2; }
+# A whole number in base 10 (so '08' is eight, not an octal error), or exit 2.
+whole_number() { case "$2" in ''|*[!0-9]*) die "$1 must be a whole number, found '$2'." ;; esac; printf '%s' "$((10#$2))"; }
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --base) [ $# -ge 2 ] || die "--base needs a value"; BASE="$2"; shift 2 ;;
-        --creation-factor) [ $# -ge 2 ] || die "--creation-factor needs a value"; CREATION_FACTOR="$2"; shift 2 ;;
+        --creation-factor) [ $# -ge 2 ] || die "--creation-factor needs a value"; CREATION_FACTOR="$(whole_number --creation-factor "$2")"; shift 2 ;;
         --allow-rewritten) [ $# -ge 2 ] || die "--allow-rewritten needs a value"; ALLOWED_REWRITTEN="$ALLOWED_REWRITTEN $2"; shift 2 ;;
-        --allow-spec-delta) [ $# -ge 2 ] || die "--allow-spec-delta needs a value"; ALLOW_SPEC_DELTA="$2"; shift 2 ;;
+        --allow-spec-delta) [ $# -ge 2 ] || die "--allow-spec-delta needs a value"; ALLOW_SPEC_DELTA="$(whole_number --allow-spec-delta "$2")"; shift 2 ;;
         --spec-pattern) [ $# -ge 2 ] || die "--spec-pattern needs a value"; SPEC_PATTERN="$2"; shift 2 ;;
         --discover) MODE="discover"; shift ;;
         --self-test) MODE="self-test"; shift ;;
@@ -72,6 +74,15 @@ done
 commit_of() { git rev-parse --quiet --verify "$1^{commit}" 2>/dev/null || die "cannot resolve '$1' to a commit; fetch it first (a pull request: git fetch origin refs/pull/<n>/head:pr<n>)."; }
 blob_of() { git rev-parse --quiet --verify "$1:$2" 2>/dev/null || true; }
 is_ancestor() { git merge-base --is-ancestor "$1" "$2"; }
+# True when an allowed entry (at least 7 hex characters) is a prefix of the full commit SHA.
+is_allowed_rewrite() {
+    local allowed
+    for allowed in $ALLOWED_REWRITTEN; do
+        [ "${#allowed}" -ge 7 ] || continue
+        case "$1" in "$allowed"*) return 0 ;; esac
+    done
+    return 1
+}
 
 spec_count() {
     local count
@@ -133,7 +144,7 @@ verify() {
         ALLOWED_REWRITTEN="$ALLOWED_REWRITTEN $trailer"
     done
     for trailer in $(git log --format='%(trailers:key=Consolidation-Allow-Spec-Delta,valueonly)' "$cons_base..$consolidation"); do
-        case "$trailer" in *[!0-9]*|'') die "Consolidation-Allow-Spec-Delta must be a whole number, found '$trailer'." ;; esac
+        trailer="$(whole_number Consolidation-Allow-Spec-Delta "$trailer")"
         printf 'disposition: Consolidation-Allow-Spec-Delta %s\n' "$trailer"
         ALLOW_SPEC_DELTA=$((ALLOW_SPEC_DELTA + trailer))
     done
@@ -182,13 +193,15 @@ verify() {
                     case "$left" in "$abbrev"*) status="$(printf '%s' "$range_line" | sed -E 's/^ *([0-9]+|-+): +([0-9a-f]+|-+) +([<>=!]) .*/\3/')"; break ;; esac
                 done < <(git range-diff --no-color --creation-factor="$CREATION_FACTOR" "$fork..$to" "$cons_base..$consolidation" | grep -E '^ *([0-9]+|-+): ')
                 if [ "$status" = "!" ]; then
-                    if case " $ALLOWED_REWRITTEN " in *" ${left:0:7}"*) true ;; *) false ;; esac; then
+                    if is_allowed_rewrite "$left"; then
                         note "allowed rewrite: ${left:0:12} ($subject)"
                     else
                         fail "$source: commit ${left:0:12} ($subject) survives with a different patch. Read 'git range-diff $fork..$to $cons_base..$consolidation'; if the difference is only conflict resolution, re-run with --allow-rewritten ${left:0:12}."
                     fi
-                else
+                elif [ -z "$status" ] || [ "$status" = "<" ]; then
                     fail "$source: commit ${left:0:12} ($subject) has no counterpart in the consolidation; it was dropped."
+                else
+                    fail "$source: commit ${left:0:12} ($subject) has no patch-identical counterpart, but range-diff pairs it ('$status'). Read 'git range-diff $fork..$to $cons_base..$consolidation' and decide."
                 fi
             done
         fi
@@ -223,7 +236,9 @@ verify() {
 
     # --- Check C: specification ratchet -----------------------------------------------------------------
     local expected actual
-    expected="$(spec_count "$base_commit")"
+    # Count from where the consolidation left the base, not the base tip: specification files the base gained
+    # or lost since then are not the consolidation's to account for.
+    expected="$(spec_count "$cons_base")"
     for entry in $resolved; do
         entry="${entry#*|}"; fork="${entry%%|*}"; to="${entry#*|}"
         expected=$(( expected + $(spec_count "$to") - $(spec_count "$fork") ))
@@ -283,6 +298,14 @@ self_test() {
     git checkout -q -b clean main
     git merge -q --no-ff -m "Fold first" first; git merge -q --no-ff -m "Fold second" second
     expect "clean consolidation passes" 0 "0 finding(s)" clean first second
+
+    # The base moves on after the consolidation branched: its new specification files are not the consolidation's.
+    git checkout -q main
+    mkdir -p for_later/when_added; printf 'spec\n' > for_later/when_added/spec.cs
+    commit "Add a later spec on main"
+    expect "base gaining a spec after the branch point passes" 0 "0 finding(s)" clean first second
+    expect "non-numeric spec delta cannot run" 2 "whole number" --allow-spec-delta abc clean first second
+    expect "leading-zero spec delta is decimal" 0 "0 finding(s)" --allow-spec-delta 08 clean first second
 
     # A merge resolution that throws away a file, a modification, a deletion and a spec.
     git checkout -q -b lossy main
