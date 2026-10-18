@@ -17,6 +17,12 @@ function findings(content: string) {
 
 for (const command of [
     'npm install safe-package', 'npm --global install safe-package', 'yarn add safe-package', 'pnpm dlx safe-package',
+    'npm i safe-package', 'npm ci', 'pnpm i safe-package', 'bun add safe-package', 'bun x safe-package',
+    'python3 -m pip install safe-package', 'pip --isolated install safe-package', 'uv pip install safe-package',
+    'uv tool install safe-package', 'uvx safe-package', 'docker run example/server', 'docker container run example/server',
+    'dotnet add Example.csproj package Safe.Package',
+    '"command": "npx"', 'command = "uvx"', '"command": "docker"', 'command = ["npx", "server"]',
+    '"command": "/usr/local/bin/npx"',
     'npx install safe-package', 'bunx add safe-package', 'npx --yes safe-package', 'bunx safe-package',
     'pip install safe-package', 'pip3 install safe-package', 'dotnet tool install Safe.Tool', 'dotnet add package Safe.Package',
     'go install example.org/tool@latest', 'go get example.org/library', 'cargo install safe-tool', 'brew install safe-tool',
@@ -46,6 +52,20 @@ test('continued download/install commands report only their added physical lines
     assert.deepEqual(instructionDependencyFindings(rule, content, new Set([2])).map(finding => finding.line), [2]);
 });
 
+test('MCP JSON and TOML commands and new arguments are reviewed in context', () => {
+    for (const [file, content, commandLine, argumentLine] of [
+        ['.mcp.json', '{\n  "mcpServers": {\n    "tools": {\n      "command": "npx",\n      "args": [\n        "unscoped-server"\n      ]\n    }\n  }\n}', 4, 6],
+        ['.codex/config.toml', '[mcp_servers.tools]\ncommand = "uvx"\nargs = [\n  "unscoped-server"\n]', 2, 4],
+    ] as const) {
+        assert.equal(isInstructionFile(file), true);
+        assert.deepEqual(instructionDependencyFindings(file, content, new Set([commandLine])).map(finding => finding.line), [commandLine]);
+        assert.deepEqual(instructionDependencyFindings(file, content, new Set([argumentLine])).map(finding => finding.line), [argumentLine]);
+        assert.deepEqual(instructionDependencyFindings(file, content, new Set()), []);
+    }
+    const content = '[mcp_servers.tools]\ncommand = "uvx"\nargs = ["existing"]\n[other]\nargs = ["not-a-server"]';
+    assert.deepEqual(instructionDependencyFindings('.mcp.toml', content, new Set([5])), []);
+});
+
 test('ordinary prose, removed signals and unchanged existing lines produce no findings', () => {
     assert.deepEqual(findings('Explain validation and query design.'), []);
     assert.deepEqual(instructionDependencyFindings(rule, 'npm install existing\nAn added explanation.', new Set([2])), []);
@@ -54,7 +74,7 @@ test('ordinary prose, removed signals and unchanged existing lines produce no fi
 test('instruction scope includes tracked adapter symlinks and excludes application sources', () => {
     for (const file of [rule, '.cratis/ai/mcp-servers.json', '.claude/commands/a.md', '.pi/agents', '.agents/skills',
         '.github/instructions', '.github/instructions/a.md', '.github/copilot-instructions.md', '.cursor/rules',
-        '.opencode/commands/a.md', 'AGENTS.md', 'CLAUDE.md']) assert.equal(isInstructionFile(file), true, file);
+        '.opencode/commands/a.md', 'AGENTS.md', 'CLAUDE.md', '.mcp.json', '.mcp.toml', 'ai.json', '.cratis/ai.json', '.codex/config.toml']) assert.equal(isInstructionFile(file), true, file);
     for (const file of ['README.md', 'Source/Verification/test.ts', '.ai-work/notes.md', '.github/workflows/publish.yml', '']) {
         assert.equal(isInstructionFile(file), false, file);
     }
@@ -82,10 +102,16 @@ function initialize(root: string): void {
     commit(root, 'Base');
     git(root, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
 }
-function scan(root: string, overrides: NodeJS.ProcessEnv = {}): InstructionDependencyReport {
+function scan(root: string, overrides: NodeJS.ProcessEnv = {}, unreadable?: string): InstructionDependencyReport {
     const result = spawnSync(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', `
+        import { readFileSync } from 'node:fs';
         import { checkInstructionDependencies } from ${JSON.stringify(new URL('./instruction-dependencies.ts', import.meta.url).href)};
-        console.log(JSON.stringify(checkInstructionDependencies(${JSON.stringify(root)})));
+        const unreadable = ${JSON.stringify(unreadable) ?? 'undefined'};
+        const read = unreadable ? path => {
+            if (path === unreadable) throw new Error('EACCES: permission denied');
+            return readFileSync(path, 'utf8');
+        } : undefined;
+        console.log(JSON.stringify(checkInstructionDependencies(${JSON.stringify(root)}, read)));
     `], { cwd: import.meta.dirname, encoding: 'utf8', env: {
         ...process.env, CI: '', GITHUB_ACTIONS: '', GITHUB_EVENT_PATH: '', GITHUB_EVENT_NAME: '', ...overrides,
     } });
@@ -98,7 +124,7 @@ test('working-tree comparison ignores existing lines and includes committed, sta
     initialize(root);
     put(root, rule, 'npm install existing\nCommitted prose.\n');
     commit(root, 'Explanation');
-    assert.deepEqual(scan(root), { status: 'checked', base: git(root, 'rev-parse', 'origin/main'), files: 1, findings: [] });
+    assert.deepEqual(scan(root), { status: 'checked', base: git(root, 'rev-parse', 'origin/main'), files: 1, findings: [], skippedFiles: [] });
     put(root, rule, 'npm install existing\nCommitted prose.\nnpm install staged\n');
     git(root, 'add', rule);
     put(root, rule, 'npm install existing\nCommitted prose.\nnpm install staged\npip install unstaged\n');
@@ -125,6 +151,47 @@ test('deleted instructions and adapter symlinks are safe, and filenames with spa
     if (report.status === 'checked') assert.deepEqual(report.findings.map(finding => finding.file), ['.claude/rule with spaces.md']);
 });
 
+for (const committed of [false, true]) {
+    for (const addedCommand of [false, true]) {
+        test(`${committed ? 'committed' : 'staged'} instruction rename ${addedCommand ? 'reports only its added install line' : 'does not report unchanged commands'}`, context => {
+            const root = workspace(context);
+            initialize(root);
+            const content = 'npm install existing-package\nKeep registry unchanged.\nReview packages before use.\n';
+            put(root, rule, content);
+            commit(root, 'Existing instruction');
+            git(root, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
+            const destination = '.cratis/ai/rules/renamed packages.md';
+            git(root, 'mv', rule, destination);
+            if (addedCommand) put(root, destination, `${content}npm install newly-added-package\n`);
+            if (committed) commit(root, 'Rename instruction');
+            const report = scan(root);
+            assert.equal(report.status, 'checked');
+            if (report.status !== 'checked') return;
+            assert.deepEqual(report.skippedFiles, []);
+            assert.equal(report.files, 1);
+            assert.deepEqual(report.findings.map(finding => `${finding.file}:${finding.line}`), addedCommand ? [`${destination}:4`] : []);
+        });
+    }
+}
+
+test('an unreadable file warns individually while other instruction files are still scanned', context => {
+    const root = workspace(context);
+    initialize(root);
+    put(root, rule, 'npm install existing\npip install new-package\n');
+    const unreadable = '.pi/unreadable.md';
+    put(root, unreadable, 'npm install unreadable-package\n');
+    // Inject the read failure so this exercises EACCES even when specs run as root.
+    const report = scan(root, {}, join(root, unreadable));
+    assert.equal(report.status, 'checked');
+    if (report.status !== 'checked') return;
+    assert.deepEqual(report.findings.map(finding => `${finding.file}:${finding.line}`), [`${rule}:2`]);
+    assert.deepEqual(report.skippedFiles, [{ file: unreadable, reason: 'EACCES: permission denied' }]);
+    const messages = instructionDependencyMessages(report, true);
+    assert.match(messages[0], /1 file skips/);
+    assert.ok(messages.some(message => /^::warning file=\.pi\/unreadable.md,line=1::.*skipped for this file: EACCES/.test(message)));
+    assert.ok(instructionDependencyMessages(report, false).some(message => /^WARNING .*unreadable.md:1.*EACCES/.test(message)));
+});
+
 test('local comparison uses the merge base, not changes introduced only on the advanced base branch', context => {
     const root = workspace(context);
     initialize(root);
@@ -134,7 +201,7 @@ test('local comparison uses the merge base, not changes introduced only on the a
     commit(root, 'Advance main');
     git(root, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
     git(root, 'switch', '-c', 'feature', base);
-    assert.deepEqual(scan(root), { status: 'checked', base, files: 0, findings: [] });
+    assert.deepEqual(scan(root), { status: 'checked', base, files: 0, findings: [], skippedFiles: [] });
 });
 
 test('missing Git base explicitly skips locally and in CI, without claiming zero findings', context => {
@@ -175,7 +242,7 @@ test('warnings are advisory locally and escaped annotations in CI', () => {
     assert.match(annotation, /^::warning file=\.pi\/a%2Cb%3Ac%25%0A\.md,line=12::/);
     assert.equal(annotation.includes('\n'), false);
     assert.match(annotation, /pkg%25%0A::error::injected$/);
-    const messages = instructionDependencyMessages({ status: 'checked', base: 'base', files: 1, findings: [finding] }, true);
+    const messages = instructionDependencyMessages({ status: 'checked', base: 'base', files: 1, findings: [finding], skippedFiles: [] }, true);
     assert.match(messages[0], /1 warnings/);
     assert.match(messages[1], /^::warning /);
 });

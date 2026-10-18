@@ -187,8 +187,9 @@ The normal corpus verifier also runs an advisory instruction-dependency comparis
 It reuses evaluation coverage's Git-base selection (the immutable pull-request base
 or push-before SHA in CI; the merge base with `origin/main` locally), then compares
 the working tree against the merge base. Staged, unstaged and untracked unignored
-instruction files are included; unchanged existing lines are not reported.
-Added lines containing package-manager install/add/dlx commands, npx/bunx invocations,
+instruction files are included; unchanged existing lines, including renamed content,
+are not reported. Added lines containing package-manager install/add/dlx commands,
+npx/bunx/uvx invocations, uv installs, Docker runs, MCP launcher commands/arguments,
 `curl ... | sh`, registry/index/feed references, scoped package names, NuGet
 `PackageReference` declarations or dependency-map headers/entries produce file:line
 warnings. This includes examples in code blocks, even when only a dependency entry
@@ -201,7 +202,8 @@ emits GitHub warning annotations. Legitimate installation examples need review,
 not suppression: findings never fail the build. Missing Git history or an
 unresolvable base is explicitly reported as **skipped**, not a passing comparison.
 Shallow CI checkouts attempt a bounded history fetch; unavailable comparisons also
-remain advisory.
+remain advisory. An unreadable instruction produces a per-file skip warning without
+preventing the remaining files from being scanned.
 
 ## Author skills
 
