@@ -49,8 +49,12 @@ everything, or raise the budget with Claude Code's `skillListingBudgetFraction` 
 ## Native plugins
 
 Native plugins remain an independent single-harness choice. Claude Code, Codex,
-GitHub Copilot, and Cursor use the marketplace manifests in this repository. Pi
-uses the published package:
+GitHub Copilot, and Cursor use the marketplace manifests in this repository.
+`.cratis/ai/plugin.json` is the Copilot plugin manifest for listing the corpus as
+an external plugin (for example in github/awesome-copilot). Its `version` is a
+manifest version, not the release version: bump it together with the `version` in
+every marketplace manifest when the plugin's shape changes; verification fails
+when they differ. Pi uses the published package:
 
 ```bash
 pi install -l npm:@cratis/pi
