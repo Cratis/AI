@@ -38,3 +38,5 @@ jobs:
     with:
       runs-on: ${{ vars.RUNNER_GATE || 'ubuntu-latest' }}
       release-intent: true
+      # Vendored third-party skill references (design-*.md) match the work-record name shape.
+      extra-allowed-paths: Source/AgentHarnesses/skills/react-agent-skills/
