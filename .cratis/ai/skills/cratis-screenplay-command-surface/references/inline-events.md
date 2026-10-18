@@ -34,8 +34,9 @@ module Projects
 The omitted `for` means the command's required scalar identifier **only for
 inline productions**, when every production targets that same source. Once a
 production targets another source, every production must state `for`. Mixing
-omitted inline and plain destinations also fails (`PLAY0470`); there is no
-verified MCP repair for that diagnostic. Explicit syntax does not make cross-source
+omitted inline and plain destinations also fails (`PLAY0470`); the MCP repair needs an explicit
+author-chosen destination per production and never retargets an explicit one (see the
+model-authoring skill's `references/destination-intent-repair.md`). Explicit syntax does not make cross-source
 execution supported.
 
 Plain `produces X` references a declared event; omitting `for` does not infer

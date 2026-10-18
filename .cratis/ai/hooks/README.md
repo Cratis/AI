@@ -36,8 +36,8 @@ rather than overwriting — the rest of that file is yours — and re-copy after
 The markdown files in this folder (`agent-stop.md`, `pre-commit.md`) remain *lifecycle guidance* —
 they describe what a hook should do for tools that have no wiring yet.
 
-> Hooks are the one surface with no folder adapter: Claude Code reads `.claude/settings.json`;
-> the Pi harness bridges the same scripts to its own events through the `cratis-hooks`
+> Hooks use native wiring rather than a shared folder adapter: Claude Code reads `.claude/settings.json`;
+> Codex has a shell-only adapter described below. The Pi harness bridges the same scripts to its own events through the `cratis-hooks`
 > extension under `../harnesses/pi/extensions/` (its `bash` tool feeds the store-mutation and PR-body guards, its
 > `write` and `edit` tools the write guard); Copilot would read `.github/hooks/*.json`, and no
 > Copilot wiring ships yet.
@@ -60,6 +60,49 @@ Tracked-file stability follows Git-visible contents, not byte-exact disk content
 conversion and Git's assume-unchanged or skip-worktree settings can hide raw disk changes. If you
 use those settings, independently verify raw file contents or remove the hiding settings before
 relying on this check.
+
+## Codex shell-command adapter (partial)
+
+[`../harnesses/codex/hooks.json`](../harnesses/codex/hooks.json) registers one native
+`PreToolUse` command running `hooks.mjs` for `^Bash$`. Per the
+[Codex hook contract](https://developers.openai.com/codex/hooks/), shell calls and unified
+`exec_command` calls are normalized to `tool_name: "Bash"`, with shell text in
+`tool_input.command`. The adapter requires that canonical payload, an absolute existing
+`cwd`, a nonempty `session_id`, and `hook_event_name: "PreToolUse"`. It does not match
+raw `exec_command` or invent tool aliases. `write_stdin` input to an already-running
+session does not trigger another `PreToolUse` check.
+
+The authoring setup (`yarn workspace @cratis/harness-setup run setup`) links
+`.codex/hooks.json` to the corpus asset, repairs owned stale links, and refuses occupied
+parents or user-owned hook files, even with `--force`. It leaves other Codex configuration
+alone. **Consumer activation through `cratis ai install/update` is not delivered by this
+adapter**: the CLI's Codex installation plan needs a separate change. Authoring setup
+and isolated fixtures are not evidence of installed or end-to-end Codex runtime coverage.
+
+The bridge runs the existing store-mutation guard and then the PR-body guard through
+Bash, using the payload's working directory and inherited environment. It never executes
+the pending command. A denial is final; the later guard cannot override it. Malformed
+input, a missing managed guard, spawn failure, signal, unexpected nonzero exit, malformed
+JSON output, excessive output, or an internal deadline produces explicit denial JSON and
+exit **2**, not synthetic success. Child warnings are retained as model-visible context;
+child allow/rewrite decisions are not forwarded. Input is limited to 1 MiB and two seconds;
+each child has ten seconds plus bounded process-group termination/reaping, shorter than
+the native thirty-second hook deadline. Cleanup targets only the detached child process
+group on macOS/Linux; processes deliberately escaping that group are not contained.
+
+This is a guardrail, **not absolute enforcement**. Node, Bash and Git are required to
+launch the adapter; native callback failure, crash, timeout, or malformed-response behavior
+can fail open before a supported denial is received. Other local hook configurations and
+specialized tool paths are outside this adapter's control. The existing scripts retain
+their own deliberate allowances and limits: missing `jq` skips the store guard; PR checks
+can allow with an unchecked/offline warning; command-text parsing cannot see all indirect
+execution. Inherited `CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` and existing script configuration
+are preserved. An adapter exit **0** is not proof that every underlying check ran.
+
+**Not wired:** `apply_patch`/file-write protection (a patch is not a single-file write),
+pattern scans, an explicit quality-gate tool, Stop gates, SessionStart, SessionEnd,
+and automatic worktree cleanup. Use the repository's explicit verification and cleanup
+workflows; this slice neither provides full hook parity nor completes Codex integration.
 
 ## Cleanup of delivered work
 

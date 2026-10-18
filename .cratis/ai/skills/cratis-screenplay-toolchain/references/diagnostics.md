@@ -117,12 +117,13 @@ older executable bytes/version. Consumer admission is separate.
 
 | Code | Layer / severity | Meaning / fix |
 | --- | --- | --- |
-| PLAY0273 | Binding error | A stored source exactly `Default`, or stored stream exactly `All` (name or `id "All"` pin), is reserved. Authoring still parses/prints it. Rename the stream with discovered `propose-rename`; keeping `id "All"` cannot fix it. Comparison is ordinal: streams `all`, `ALL` and `Default` remain valid. Old `All` events read as source-only appends; moving history needs a Chronicle migration, not a language repair. |
+| PLAY0802 | Authoring error (`ReservedStoredName`) | A stored event-source name exactly `Default`, or stored event-stream name exactly `All`, is reserved; the stored name is the `id` pin when present, else the declaration name. Rename the stream with discovered `propose-rename`; keeping `id "All"` cannot fix it, while a pin away from the reserved name (`stream All` with `id "Archive"`) is valid. Comparison is ordinal: streams `all`, `ALL` and `Default` remain valid. Old `All` events read as source-only appends; moving history needs a Chronicle migration, not a language repair. Requires Screenplay 4.213.3 (`screenplay --version`); earlier compilers report these names only at binding, as PLAY0273. |
+| PLAY0273 | Binding error | Executable binding keeps refusing a stored source `Default` or stored stream `All` (name or `id "All"` pin) as a backstop to PLAY0802. |
 | PLAY0472 | Binding error | An event pin is not a valid event-name identifier, effective stored names differ across generations, or two events share a stored name. Use a valid, application-unique stored name shared by all generations; never rename stored history merely to hide the error. |
 | PLAY0686 | Retired | Differing event pins travel as `storedName` in ESM v16. MCP's compatibility `eventPinWarnings` array is empty. Renderer admission is separate: a renderer that does not admit v16 must refuse the model rather than render it under the new name. |
 
-MCP readiness exposes the binding refusal. PLAY0273 is reused, not a new ESM
-version; match its reserved-name message before choosing the rename.
+PLAY0802 appears in authoring diagnostics and MCP readiness; match its reserved-name
+message before choosing the rename. It adds no ESM version.
 Source/stream pins already travel in ESM v8; differing event pins require v16.
 Equal-name event pins are no-ops; PLAY0471 removal preserves canonical bytes.
 Target evidence: a renderer must admit ESM v16 and preserve `storedName`, or refuse it.
