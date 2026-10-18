@@ -107,8 +107,8 @@ for (const obsolete of ['tooling', 'evidence', 'evals', 'catalog', 'distribution
 }
 const workflows = (await readdir(join(root, '.github', 'workflows'))).filter(name => name.endsWith('.yml') || name.endsWith('.yaml'));
 if (!workflows.includes('publish.yml')) failures.push('The publish workflow is required.');
-// Release-note callers and the weekly product drift monitor accompany publishing.
-const allowedWorkflows = ['publish.yml', 'verify-release-notes.yml', 'verify-semver-label.yml', 'product-drift.yml'];
+// The pull-request policy caller and the weekly product drift monitor accompany publishing.
+const allowedWorkflows = ['publish.yml', 'verify-pull-request-policy.yml', 'product-drift.yml'];
 const unexpectedWorkflows = workflows.filter(name => !allowedWorkflows.includes(name));
 if (unexpectedWorkflows.length > 0) failures.push(`Only ${allowedWorkflows.join(', ')} are allowed; found ${unexpectedWorkflows.join(', ')}.`);
 for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/marketplace.json', '.agents/plugins/marketplace.json', '.github/plugin/marketplace.json']) {
