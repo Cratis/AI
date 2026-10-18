@@ -18,6 +18,51 @@ function setup(project: string, check = false, force = false) {
     return spawnSync(process.execPath, ['--import', 'tsx', setupPath, project, ...(check ? ['--check'] : []), ...(force ? ['--force'] : [])], { cwd: repositoryRoot, encoding: 'utf8' });
 }
 
+test('Codex setup links only native shell hooks, is idempotent and repairs owned links', () => {
+    const project = fixture();
+    try {
+        const path = join(project, '.codex/hooks.json');
+        const target = '../.cratis/ai/harnesses/codex/hooks.json';
+        assert.equal(setup(project).status, 0);
+        assert.equal(readlinkSync(path), target);
+        assert.deepEqual(Object.keys(JSON.parse(readFileSync(path, 'utf8')).hooks), ['PreToolUse']);
+        const before = readFileSync(path, 'utf8');
+        assert.equal(setup(project).status, 0);
+        assert.equal(setup(project, true).status, 0);
+        assert.equal(readFileSync(path, 'utf8'), before);
+        unlinkSync(path);
+        symlinkSync('../.cratis/ai/harnesses/codex/obsolete.json', path);
+        assert.notEqual(setup(project, true).status, 0);
+        assert.equal(setup(project).status, 0);
+        assert.equal(readlinkSync(path), target);
+    } finally { rmSync(project, { recursive: true, force: true }); }
+});
+
+test('Codex setup never replaces user hook config or writes through an occupied parent', () => {
+    for (const occupied of ['file', 'link', 'parent-file', 'parent-link']) {
+        const project = fixture();
+        try {
+            const local = join(project, 'local');
+            mkdirSync(local);
+            writeFileSync(join(local, 'hooks.json'), '{"user":true}\n');
+            const parent = join(project, '.codex');
+            if (occupied === 'parent-file') writeFileSync(parent, 'user parent');
+            else if (occupied === 'parent-link') symlinkSync('local', parent);
+            else {
+                mkdirSync(parent);
+                if (occupied === 'file') writeFileSync(join(parent, 'hooks.json'), '{"user":true}\n');
+                else symlinkSync('../local/hooks.json', join(parent, 'hooks.json'));
+            }
+            for (const [check, force] of [[false, false], [true, false], [false, true]]) {
+                assert.notEqual(setup(project, check, force).status, 0);
+                assert.equal(readFileSync(join(local, 'hooks.json'), 'utf8'), '{"user":true}\n');
+                if (occupied === 'file') assert.equal(readFileSync(join(parent, 'hooks.json'), 'utf8'), '{"user":true}\n');
+                if (occupied === 'parent-file') assert.equal(readFileSync(parent, 'utf8'), 'user parent');
+            }
+        } finally { rmSync(project, { recursive: true, force: true }); }
+    }
+});
+
 test('setup regenerates owned stale symlinks and generated adapters', () => {
     const project = fixture();
     try {
