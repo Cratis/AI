@@ -23,6 +23,7 @@ import { skillFrontmatterProblems } from './skill-paths.ts';
 import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems, skillOverlapFindings } from './skill-authoring.ts';
 import type { AuthoringFinding } from './AuthoringFinding.ts';
 import { evaluationCoverageBaseline, evaluationCoverageFindings } from './evaluation-coverage.ts';
+import { checkInstructionDependencies, instructionDependencyMessages } from './instruction-dependencies.ts';
 import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
 import { brokenRelativeLinkProblems, referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
 
@@ -47,6 +48,10 @@ const skillHygieneMode = process.env.SKILL_HYGIENE_MODE ?? 'fail';
 const hygieneFindings: ReturnType<typeof skillHygieneFindings> = [];
 const skillAuthoringMode = process.env.SKILL_AUTHORING_MODE ?? 'warn';
 const authoringFindings: AuthoringFinding[] = [];
+
+for (const message of instructionDependencyMessages(checkInstructionDependencies(root), process.env.GITHUB_ACTIONS === 'true')) {
+    console.warn(message);
+}
 
 async function exists(path: string): Promise<boolean> {
     try {
