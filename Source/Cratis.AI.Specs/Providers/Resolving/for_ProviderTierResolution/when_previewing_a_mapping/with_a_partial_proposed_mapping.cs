@@ -30,7 +30,7 @@ public class with_a_partial_proposed_mapping : Specification
     }
 
     async Task Because() => _rows = (await ProviderTierResolution.PreviewProviderTierModels(
-        _providerId, "claude-haiku-4-5", ModelName.NotSet, "missing-model", ModelName.NotSet, _eventStore)).ToArray();
+        _providerId, _eventStore, "claude-haiku-4-5", ModelName.NotSet, "missing-model", ModelName.NotSet)).ToArray();
 
     [Fact] void should_include_every_tier() => _rows.Select(row => row.Tier).ShouldContainOnly(Enum.GetValues<ModelTier>());
     [Fact] void should_use_the_proposed_model() => _rows.Single(row => row.Tier == ModelTier.Fast).Model.ShouldEqual((ModelName)"claude-haiku-4-5");

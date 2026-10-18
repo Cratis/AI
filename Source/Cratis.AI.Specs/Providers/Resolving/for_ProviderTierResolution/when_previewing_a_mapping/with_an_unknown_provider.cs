@@ -21,7 +21,7 @@ public class with_an_unknown_provider : Specification
     }
 
     async Task Because() => _rows = (await ProviderTierResolution.PreviewProviderTierModels(
-        _providerId, "claude-haiku-4-5", "claude-sonnet-4-5", "claude-opus-4-5", "claude-fable-5-1", _eventStore)).ToArray();
+        _providerId, _eventStore, "claude-haiku-4-5", "claude-sonnet-4-5", "claude-opus-4-5", "claude-fable-5-1")).ToArray();
 
     [Fact] void should_refuse_every_tier_despite_the_proposed_models() => _rows.ShouldEachConformTo(row => row.Source == TierModelSource.Unsatisfied);
     [Fact] void should_include_all_tiers() => _rows.Length.ShouldEqual(4);

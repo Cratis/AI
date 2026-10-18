@@ -24,7 +24,7 @@ public class with_a_subscription_without_a_catalog : Specification
     }
 
     async Task Because() => _rows = (await ProviderTierResolution.PreviewProviderTierModels(
-        _providerId, ModelName.NotSet, ModelName.NotSet, ModelName.NotSet, ModelName.NotSet, _eventStore)).ToArray();
+        _providerId, _eventStore)).ToArray();
 
     [Fact] void should_include_all_tiers() => _rows.Length.ShouldEqual(4);
     [Fact] void should_use_subscription_aliases_for_cleared_tiers() => _rows.ShouldEachConformTo(row => row.Source == TierModelSource.SubscriptionAlias);

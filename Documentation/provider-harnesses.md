@@ -43,9 +43,10 @@ with the proposed `Tier`, resolved `Model`, `Source`, `Reason`, `ModelDiscoveryF
 
 Before submitting `SetAIProviderTierModels`, call
 `ProviderTierResolution.PreviewProviderTierModels(providerId, fast, balanced, powerful, premier)`.
-The four required model arguments are scalar `ModelName` values rather than a nested mapping
-object, so clients can use Arc's generated query proxy. Pass an empty model value (`ModelName.NotSet`
-in C#) for any tier you want to clear and derive from the catalog. The query replaces the complete
+The four optional model arguments are scalar `ModelName` values rather than a nested mapping
+object, so clients can use Arc's generated query proxy. Omit a tier argument, pass `null` in C#,
+or pass an empty model value (`ModelName.NotSet` in C#) to clear that tier and derive it from the
+catalog. The query replaces the complete
 mapping **in the preview only** and returns one `ProviderTierResolution` for each of the four tiers.
 It does not merge unset entries with the old mapping. Use
 `ProviderTierResolution.ResolveTiersFor(providerId)` to inspect the current mapping instead.
