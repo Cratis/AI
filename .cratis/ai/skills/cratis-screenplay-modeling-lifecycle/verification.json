@@ -21,6 +21,12 @@
     { "kind": "skill-contains", "value": "Do not cut corners to save tokens or effort" },
     { "kind": "skill-contains", "value": "merging translation into worker behavior" },
     { "kind": "skill-contains", "value": "`references/per-turn-protocol.md`" },
-    { "kind": "skill-contains", "value": "phase summary (done, carry-forward, open questions)" }
+    { "kind": "skill-contains", "value": "phase summary (done, carry-forward, open questions)" },
+    { "kind": "skill-contains", "value": "`modelFirst.frozen`" },
+    { "kind": "skill-contains", "value": "a generic \"regenerate all\" skips it and says so" },
+    { "kind": "skill-contains", "value": "`references/project-process.md`" },
+    { "kind": "skill-contains", "value": "Model-Meaning-Accepted-By:", "file": "references/project-process.md" },
+    { "kind": "skill-contains", "value": "Model-Committed-By:", "file": "references/project-process.md" },
+    { "kind": "skill-contains", "value": "never widen", "file": "references/project-process.md" }
   ]
 }

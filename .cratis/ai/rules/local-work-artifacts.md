@@ -55,7 +55,7 @@ dumps, and similar coordination files. These are **work records, not documentati
   refusal means look, not push harder.
 - **A decision log is not a work record.** A decision — a durable choice with a
   decider and a date — is documentation: it lives in **`decisions/`** (or the
-  repository's documented decisions folder) and is reviewed like any other
+  repository's documented decisions folder, such as `.cratis/ai.json` `process.decisions.path`) and is reviewed like any other
   documentation. A handover may summarize decisions; it never holds the only
   copy. If a session produced a real decision, land the record in `decisions/`
   before the session's `.ai-work/` files are discarded.

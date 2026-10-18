@@ -55,7 +55,7 @@ revision, `propose-model-notes`, review `read-proposal view=notes`, then authori
 `apply`. If the installed bundle lacks notes, report the capability gap and carry
 an explicit note request to the owner; do not pretend a chat/description is a note.
 
-Cite the project's own decisions with `refs: [{ "id": "D123" }]`. When D123 is
+Cite the project's own decisions with `refs: [{ "id": "D123" }]`; ids follow `process.decisions.id` when the project sets it (`project-process.md`). When D123 is
 the answer, resolve with `by: "external-decision"` and required
 `ref: { "id": "D123" }`, explanatory text and a team-role author. The URL is
 optional and never fetched. Realize a resolved question as a specification for
