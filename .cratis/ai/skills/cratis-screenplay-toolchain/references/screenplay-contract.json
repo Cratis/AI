@@ -37849,6 +37849,17 @@
       "title": "An event is used more than once in one projection level\u0027s event or join set.",
       "reserved": false,
       "retired": false
+    },
+    {
+      "code": "PLAY0802",
+      "name": "ReservedStoredName",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "An event source has the reserved stored name Default, or an event stream has the reserved stored name All, including through an id pin.",
+      "reserved": false,
+      "retired": false
     }
   ],
   "mcpTools": [
@@ -42192,6 +42203,7 @@
         "subject"
       ],
       "optionalParameters": [
+        "destinationIntent",
         "expectedReleaseBaselineRevision",
         "expectedRepairEvidenceRevision",
         "includeContent",
@@ -42252,6 +42264,159 @@
           "expectedRepairEvidenceRevision": {
             "type": "string"
           },
+          "destinationIntent": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "integer",
+                "const": 1
+              },
+              "productions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "subject": {
+                      "type": "object",
+                      "properties": {
+                        "revision": {
+                          "type": "string"
+                        },
+                        "documentId": {
+                          "type": "string"
+                        },
+                        "path": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "revision",
+                        "documentId",
+                        "path"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "for": {
+                      "type": "object",
+                      "description": "Existing typed ExpressionSyntax schema from syntax-schema. Non-null; executable binding admits only supported destination expressions.",
+                      "properties": {
+                        "kind": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "additionalProperties": true
+                    },
+                    "route": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "Legacy",
+                            "Named"
+                          ]
+                        },
+                        "source": {
+                          "type": "object",
+                          "properties": {
+                            "revision": {
+                              "type": "string"
+                            },
+                            "documentId": {
+                              "type": "string"
+                            },
+                            "path": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "revision",
+                            "documentId",
+                            "path"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "stream": {
+                          "type": "object",
+                          "properties": {
+                            "revision": {
+                              "type": "string"
+                            },
+                            "documentId": {
+                              "type": "string"
+                            },
+                            "path": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "revision",
+                            "documentId",
+                            "path"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "additionalProperties": false,
+                      "oneOf": [
+                        {
+                          "properties": {
+                            "kind": {
+                              "const": "Legacy"
+                            }
+                          },
+                          "not": {
+                            "anyOf": [
+                              {
+                                "required": [
+                                  "source"
+                                ]
+                              },
+                              {
+                                "required": [
+                                  "stream"
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "properties": {
+                            "kind": {
+                              "const": "Named"
+                            }
+                          },
+                          "required": [
+                            "source",
+                            "stream"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "subject",
+                    "for",
+                    "route"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 256,
+                "minItems": 1
+              }
+            },
+            "required": [
+              "version",
+              "productions"
+            ],
+            "additionalProperties": false
+          },
           "expectedReleaseBaselineRevision": {
             "type": "string"
           }
@@ -42263,7 +42428,42 @@
           "subject",
           "formatting"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "if": {
+          "properties": {
+            "diagnosticCode": {
+              "const": "PLAY0470"
+            }
+          },
+          "required": [
+            "diagnosticCode"
+          ]
+        },
+        "then": {
+          "required": [
+            "destinationIntent"
+          ],
+          "properties": {
+            "pinRepairEvidence": {
+              "const": false
+            },
+            "formatting": {
+              "const": "CanonicalizeTouchedDocuments"
+            }
+          },
+          "not": {
+            "required": [
+              "expectedRepairEvidenceRevision"
+            ]
+          }
+        },
+        "else": {
+          "not": {
+            "required": [
+              "destinationIntent"
+            ]
+          }
+        }
       }
     },
     {
@@ -43029,7 +43229,9 @@
               "dropped-comments",
               "semantic-diff",
               "notes",
-              "release-baseline"
+              "release-baseline",
+              "production-destinations",
+              "production-destination-identities"
             ]
           },
           "documentId": {
@@ -43146,6 +43348,7 @@
               "typed-contexts",
               "source-map",
               "repairs",
+              "repair-intents",
               "executable-model"
             ],
             "description": "Source detail views return compact-header-v1, not full syntax: header metadata sizes and AST/source read pointers, then actual-parent child pages. Source pages enforce item and serialized-byte bounds; continue from nextOffset."

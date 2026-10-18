@@ -8,6 +8,9 @@
 - Review and apply
 - Refusals and failures
 
+Requires Screenplay 4.216.0 (`screenplay --version`); older servers offer no PLAY0470 repair, so
+the author edits each `for` by hand.
+
 `PLAY0470` is an error when a command targets another event source and a production omits `for`,
 or when omitted inline and plain productions have different defaults. The repair needs the author's
 explicit choice of every destination; the server never infers one. It is never in the no-input
