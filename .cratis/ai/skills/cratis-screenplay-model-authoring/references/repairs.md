@@ -23,6 +23,8 @@ from silently changing the reviewed candidate.
   No automatic generation-evolution repair ships.
 - `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
   migrates all occurrences together. Keep the `query Q => observable?` exception.
+- `PLAY0470` is repaired only from an author-supplied destination intent, never
+  from a no-input action: read [destination intent repair](destination-intent-repair.md).
 - Generation repairs PLAY0683/0684: [subjects, review and limits](mcp-tools.md#concept-generation).
 - Compliance repairs PLAY0565/0653: [MCP tool guide](mcp-tools.md).
 

@@ -355,8 +355,10 @@ gets no new pin, while any admitted revision requires preserving its stored name
 `eventNeverPersisted: true` is refused for admitted revisions; otherwise it needs
 storage-history knowledge, not merely an identity catalog. It skips a new pin, removes a redundant current-name
 pin, but retains a pin for a different earlier name. Contradictory generation pins
-refuse the rename. Do not promise a generation-2 payload-removal repair or a
-`PLAY0470` repair: neither is available.
+refuse the rename. Do not promise a generation-2 payload-removal repair. `PLAY0470` has an
+author-intent repair, never a no-input one: read
+[destination intent repair](destination-intent-repair.md) when `repair-capabilities`
+lists it under `intentActions`.
 
 Requires Screenplay 4.152.0 or later (`screenplay --version`) for `storedName` (ESM v16).
 
