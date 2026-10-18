@@ -263,16 +263,32 @@ jobs:
     outputs:
       publish: ${{ steps.release.outputs.should-publish }}
       version: ${{ steps.release.outputs.version }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Determine release
         id: release
-        uses: cratis/release-action@f5fc6db6adbb4db6e6c4548cd7addfc924426e69 # v1.2.0
+        uses: cratis/release-action@31a6d28d6aa36d46970cb29f0d0260b360e81a69 # v1.4.2
         with:
           version: ${{ github.event.inputs.version }}
           release-notes: ${{ github.event.inputs.release-notes }}
+
+      # Nothing publishes unless the GitHub release for this version exists. The action can
+      # report a publish for an explicit version on a commit that already carries another
+      # release without creating one; failing here keeps every publish job from running.
+      - name: Verify the GitHub release exists
+        if: steps.release.outputs.should-publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY"; then
+            echo "::error::GitHub release v$VERSION does not exist in $GITHUB_REPOSITORY; refusing to publish."
+            exit 1
+          fi
 
   publish-pi:
     timeout-minutes: 30
