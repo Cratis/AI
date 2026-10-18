@@ -1,0 +1,55 @@
+{
+  "skill_name": "cratis-engineering-consolidation-guard",
+  "evals": [
+    {
+      "id": 1,
+      "name": "consolidation-before-merge",
+      "prompt": "Branch consolidate/filters folds pull requests 631, 640 and 652 by true merges. Builds and specs are green. Say exactly how to prove nothing was dropped before it merges, including the git commands. Reply only; do not run anything.",
+      "expected_output": "Fetch each pull request's own head ref (refs/pull/<n>/head) and run the guard with the consolidation first and every source after it. Explain that range-diff pairs every merged commit with itself, so the per-path content check (added files exist, modified files moved off their pre-change blob, deletions stayed deleted) and the specification ratchet decide. Exit 0 with a nonzero path count is the pass; exit 2 is not a pass. Every finding needs a disposition.",
+      "assertions": [
+        "Fetches each folded pull request through refs/pull/<n>/head rather than relying on branch names.",
+        "Explains that git range-diff alone cannot see a merge resolution that reverted or deleted a file because the folded commits are ancestors of the consolidation.",
+        "Requires a per-file check: added files exist, modified files do not still hold their pre-change content, deletions were not undone.",
+        "Includes a specification-file count ratchet against the base plus each source's net addition.",
+        "States that every finding needs a disposition and that a could-not-run result is not a pass."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "reland-source",
+      "prompt": "PR 512 merged as merge commit M, was reverted by commit R on main, and is now being re-landed on branch reland/counters by running git revert R. What do I compare the re-land against, and why does passing the PR's head ref fail? Reply only.",
+      "expected_output": "A re-land is a consolidation whose source is the original change, not the revert. The original commits are ancestors of main, so merge-base(main, head) is the head itself and the comparison would be empty; use the range form M^1..M^2. The guard refuses an empty comparison with exit 2 rather than passing.",
+      "assertions": [
+        "Says a re-land is a consolidation whose source is the original change rather than the revert.",
+        "Names the range M^1..M^2 (the original merge's first parent to its second parent) as the source.",
+        "Explains that the original commits are already in the base, so a bare head ref gives an empty comparison.",
+        "Treats the empty comparison as could-not-run, not as a pass."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-history-rewrite",
+      "prompt": "The guard reports that consolidation branch lost src/Filters/ByOwner.cs from PR 631. A teammate suggests resetting the branch, re-doing the merges and force-pushing. What should happen instead? Reply only.",
+      "expected_output": "Do not reset or force-push; history is append-only. Restore the file in a new commit (git checkout pr631 -- src/Filters/ByOwner.cs, then commit) and re-run the guard. If the loss was deliberate, the consolidation still carries the source whole and the removal goes in its own pull request.",
+      "assertions": [
+        "Rejects reset and force-push because they rewrite history.",
+        "Restores the lost file in a new commit, for example with git checkout pr631 -- <path>.",
+        "Re-runs the guard after the restoration.",
+        "Says a deliberate removal belongs in its own pull request rather than being hidden in the consolidation."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "required-check",
+      "prompt": "Agents keep forgetting to run the consolidation guard. Design the CI side so it cannot be skipped. Reply only; no files.",
+      "expected_output": "A pull_request job on every PR with no workflow-level path filter, checking out the pushed head with full history, discovering sources from history (merge parents, cherry-pick -x lines, reverts of reverts), failing on exit 1 and 2, honoring dispositions only from commit trailers, running the script's self-test, and listed as a required status check with no bypass actor.",
+      "assertions": [
+        "Runs on every pull request and avoids a workflow-level path filter that would leave a required check pending.",
+        "Discovers the sources from history instead of relying on the author to declare them.",
+        "Fails the check on both findings and could-not-run.",
+        "Adds the job as a required status check without a bypass for the identity that merges.",
+        "Records accepted losses as reviewable commits (trailers) rather than through an admin bypass."
+      ]
+    }
+  ]
+}
