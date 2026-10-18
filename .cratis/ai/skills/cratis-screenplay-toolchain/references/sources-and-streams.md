@@ -54,7 +54,7 @@ stream, so existing history stored under `All` reads as source-only appends
 (or unrouted facts), not as the newly named stream. Moving that history needs
 an explicit Chronicle data migration, not a language repair or invented route.
 
-Requires Screenplay 4.216.0 or later (`screenplay --version`) for the authoring-time PLAY0802 refusal of stored stream `All` and stored source `Default`. Requires 4.150.0 or later for the binding refusal of `All`; earlier compilers accept it silently.
+Requires Screenplay 4.213.3 or later (`screenplay --version`) for the authoring-time PLAY0802 refusal of stored stream `All` and stored source `Default`. Requires 4.150.0 or later for the binding refusal of `All`; earlier compilers accept it silently.
 
 ```screenplay
 concept AccountId : Uuid

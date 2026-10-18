@@ -180,7 +180,7 @@ collections (path below them: PLAY0297 E). Unknown member: PLAY0295/0296 W.
   property; the label is decoration; joins never create instances).
 - `children prop identified by k` + `from E key k` + `remove with E key k`; `nested prop` +
   `from` + `clear with E`.
-- Removal: `remove with Event`; `remove via join on Event` is compile-only and bind-only: at projection level it makes only the specifications that reach that projection unsupported (`UnsupportedProjectionBlock`); the others run (Screenplay 4.216.0 or later; earlier compilers refuse the whole plan).
+- Removal: `remove with Event`; `remove via join on Event` is compile-only and bind-only: at projection level it makes only the specifications that reach that projection unsupported (`UnsupportedProjectionBlock`); the others run (Screenplay 4.213.2 or later; earlier compilers refuse the whole plan).
 - Keys: only on `from` (a projection-level `key` routes nothing: PLAY0381 W).
 - One `every`/`all` block per level for the executable model (else PLAY0268).
 - Templates (`` `${a}` ``) and `$causedBy` parse but do not bind (PLAY0268).

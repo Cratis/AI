@@ -394,7 +394,7 @@ bodies still leave their owner non-executable.
 - Plain `produces` without `for` binds (PLAY0478, information) but means allocation in the
   ESM and "the identifier" in rendered Arc code. Always write `for` on a plain `produces <Name>`; inline `produces event` omits it.
 - A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`): only specifications whose events reach that projection, or that supply, read, query or assert its read model, report unsupported, and the others run. Chronicle wires it as a child pull. See the unsupported-specs rows above.
-  Requires Screenplay 4.216.0 (`screenplay --version`); earlier compilers refuse the whole plan, so no specification runs.
+  Requires Screenplay 4.213.2 (`screenplay --version`); earlier compilers refuse the whole plan, so no specification runs.
 - V1 reports absent projection/children/nested targets
   with PLAY0514 and unknown removal/capture events with PLAY0166. An unmapped
   declared field can be found by opt-in `--check field-origins` (PLAY0534);
