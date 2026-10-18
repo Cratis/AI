@@ -74,7 +74,9 @@ both handles are required, and `Legacy` takes neither.
 
 ## Review and apply
 
-`propose-repair` retains a proposal and writes nothing. Before `apply`:
+`propose-repair` retains a proposal and writes nothing. Both report views page like discovery
+(`offset`, `limit` 1 to 200); read each until `page.nextOffset` is `null`, because a first page can
+hide routing rows or new identities. Before `apply`:
 
 1. `read-proposal` with `proposalId` and `view: "production-destinations"`: the `summary`
    (`changedCount`, `productionCount`, `commandRoute`, `existingIdentitiesPreserved`) and one row per
