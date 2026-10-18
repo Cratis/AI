@@ -1,0 +1,31 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+# Review routing only: requiring code-owner approval is a separate branch-protection decision.
+/.github/CODEOWNERS @Cratis/core
+
+# Canonical instructions, rules, skills, agents, hooks, prompts and MCP configuration.
+/.cratis/ai/** @Cratis/core
+
+# Native harness adapter trees and entry points.
+# Symlink targets in the canonical corpus are covered by the corpus pattern above.
+/.claude/** @Cratis/core
+/.github/instructions @Cratis/core
+/.github/instructions/** @Cratis/core
+/.github/copilot-instructions.md @Cratis/core
+/.pi/** @Cratis/core
+/.agents/** @Cratis/core
+/.cursor/** @Cratis/core
+/.opencode/** @Cratis/core
+/AGENTS.md @Cratis/core
+/CLAUDE.md @Cratis/core
+
+# Distribution manifests and release entry points from publish.yml.
+/Source/Pi.Plugin/package.json @Cratis/core
+/Source/Cratis.AI.Proxies/package.json @Cratis/core
+/Source/Cratis.AI/Cratis.AI.csproj @Cratis/core
+/.claude-plugin/marketplace.json @Cratis/core
+/.cursor-plugin/marketplace.json @Cratis/core
+/.agents/plugins/marketplace.json @Cratis/core
+/.github/plugin/marketplace.json @Cratis/core
+/.github/workflows/publish*.yml @Cratis/core
