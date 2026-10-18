@@ -8,11 +8,12 @@ import test from 'node:test';
 import { parse } from 'yaml';
 
 const workflow = parse(readFileSync(new URL('../../.github/workflows/publish.yml', import.meta.url), 'utf8'));
-const verification = workflow.jobs['verify-published'];
-const releaseCheck = verification.steps.find((step: { name: string }) => step.name === 'Verify the GitHub release exists');
+const release = workflow.jobs.release;
+const releaseCheck = release.steps.find((step: { name: string }) => step.name === 'Verify the GitHub release exists');
+const publishingJobs = Object.entries(workflow.jobs)
+    .filter(([, job]) => (job as { if?: string }).if === "needs.release.outputs.publish == 'true'");
 
 test('should pin the release action that rejects a version claimed by another commit', () => {
-    const release = workflow.jobs.release;
     const action = release.steps.find((step: { id?: string }) => step.id === 'release');
     assert.equal(action.uses, 'cratis/release-action@31a6d28d6aa36d46970cb29f0d0260b360e81a69');
     assert.equal(release.outputs.publish, '${{ steps.release.outputs.should-publish }}');
@@ -20,17 +21,17 @@ test('should pin the release action that rejects a version claimed by another co
     assert.equal(release.outputs.prerelease, '${{ steps.release.outputs.prerelease }}');
 });
 
-test('should verify the determined release with a read-only token whenever publishing was requested', () => {
-    assert.equal(verification.if, "always() && needs.release.outputs.publish == 'true'");
-    assert.ok(verification.needs.includes('release'));
-    assert.deepEqual(verification.permissions, { contents: 'read' });
+test('should confirm the GitHub release in the release job, before any publish job can start', () => {
+    const steps = release.steps as { id?: string }[];
+    assert.equal(steps.indexOf(releaseCheck), steps.findIndex(step => step.id === 'release') + 1);
+    assert.equal(releaseCheck.if, "steps.release.outputs.should-publish == 'true'");
     assert.deepEqual(releaseCheck.env, {
         GH_TOKEN: '${{ github.token }}',
-        VERSION: '${{ needs.release.outputs.version }}',
+        VERSION: '${{ steps.release.outputs.version }}',
     });
-    assert.equal(verification.steps[0], releaseCheck);
-    assert.equal(releaseCheck.if, undefined);
     assert.equal(releaseCheck['continue-on-error'], undefined);
+    assert.ok(publishingJobs.length >= 5);
+    for (const [, job] of publishingJobs) assert.equal((job as { needs: string }).needs, 'release');
 });
 
 for (const status of [0, 1, 4]) {
@@ -45,6 +46,6 @@ for (const status of [0, 1, 4]) {
         assert.equal(result.status, status === 0 ? 0 : 1, result.stderr);
         assert.ok(result.stdout.startsWith('gh argument: <release>\ngh argument: <view>\ngh argument: <v1.2.3>\ngh argument: <--repo>\ngh argument: <Cratis/AI>\n'));
         if (status === 0) assert.doesNotMatch(result.stdout, /::error::/);
-        else assert.match(result.stdout, /::error::GitHub release v1\.2\.3 could not be verified in Cratis\/AI\./);
+        else assert.match(result.stdout, /::error::GitHub release v1\.2\.3 does not exist in Cratis\/AI; refusing to publish\./);
     });
 }

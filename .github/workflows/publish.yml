@@ -271,6 +271,21 @@ jobs:
           version: ${{ github.event.inputs.version }}
           release-notes: ${{ github.event.inputs.release-notes }}
 
+      # Nothing publishes unless the GitHub release for this version exists. The action can
+      # report a publish for an explicit version on a commit that already carries another
+      # release without creating one; failing here keeps every publish job from running.
+      - name: Verify the GitHub release exists
+        if: steps.release.outputs.should-publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY"; then
+            echo "::error::GitHub release v$VERSION does not exist in $GITHUB_REPOSITORY; refusing to publish."
+            exit 1
+          fi
+
   publish-pi:
     timeout-minutes: 30
     name: Publish Pi package
@@ -515,20 +530,7 @@ jobs:
     if: always() && needs.release.outputs.publish == 'true'
     needs: [release, publish-pi, publish-dotnet-packages, publish-npm-packages, publish-agent-harnesses, publish-decision-engine]
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
-      - name: Verify the GitHub release exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.release.outputs.version }}
-        run: |
-          set -euo pipefail
-          if ! gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY"; then
-            echo "::error::GitHub release v$VERSION could not be verified in $GITHUB_REPOSITORY."
-            exit 1
-          fi
-
       # Cratis.AI (NuGet) and @cratis/ai (npm) are one artifact split across two registries (plan
       # Section 6.5) - either both publish or the release is broken, so they are held to a
       # stricter bar than publish-pi, which is unrelated to either.
