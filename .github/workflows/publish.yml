@@ -275,14 +275,24 @@ jobs:
           version: ${{ github.event.inputs.version }}
           release-notes: ${{ github.event.inputs.release-notes }}
 
-      # Nothing publishes unless the GitHub release for this version exists. The action can
-      # report a publish for an explicit version on a commit that already carries another
-      # release without creating one; failing here keeps every publish job from running.
+  # release-action creates the GitHub release in its post stage, after the release job's own
+  # steps have run, so the release can only be confirmed from a job that needs the release job.
+  # Nothing publishes unless the GitHub release for this version exists: the action can report a
+  # publish for an explicit version on a commit that already carries another release without
+  # creating one, and failing here keeps every publish job from running.
+  release-confirmed:
+    timeout-minutes: 5
+    name: Confirm the GitHub release
+    if: needs.release.outputs.publish == 'true'
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
       - name: Verify the GitHub release exists
-        if: steps.release.outputs.should-publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.release.outputs.version }}
+          VERSION: ${{ needs.release.outputs.version }}
         run: |
           set -euo pipefail
           if ! gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY"; then
@@ -294,7 +304,7 @@ jobs:
     timeout-minutes: 30
     name: Publish Pi package
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -327,7 +337,7 @@ jobs:
     timeout-minutes: 30
     name: Publish Cratis.AI (NuGet)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -364,7 +374,7 @@ jobs:
     timeout-minutes: 30
     name: Publish @cratis/ai (npm)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -422,7 +432,7 @@ jobs:
     timeout-minutes: 60
     name: Publish agent-harness images (Docker Hub)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -488,7 +498,7 @@ jobs:
     timeout-minutes: 60
     name: Publish Decision Engine image (Docker Hub)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -53,8 +53,9 @@ const git = (args, cwd = process.cwd()) => {
     return result.status === 0 ? result.stdout.trim() : '';
 };
 
+// The combined pull-request policy caller opts in, as do the legacy per-check callers it replaced.
 function workflowCallers(source) {
-    return [...source.matchAll(/^\s*uses:\s*['"]?Cratis\/Workflows\/\.github\/workflows\/(verify-(?:release-notes|semver-label|release-intent))\.yml@([^\s'"#]+)/gmi)]
+    return [...source.matchAll(/^\s*uses:\s*['"]?Cratis\/Workflows\/\.github\/workflows\/(verify-(?:pull-request-policy|release-notes|semver-label|release-intent))\.yml@([^\s'"#]+)/gmi)]
         .map(match => ({ name: match[1], ref: match[2] }));
 }
 
@@ -117,12 +118,27 @@ function programs(workflow) {
     return bundle;
 }
 
+// Workflows that carry the marked release-note programs, in order of preference. Each has its own
+// cache root so a bundle from one file is never offered for the other at the same ref.
+const ruleSources = [
+    { caller: 'verify-pull-request-policy', file: 'verify-pull-request-policy.yml', cache: 'verify-pull-request-policy' },
+    { caller: 'verify-release-notes', file: 'verify-release-notes.yml', cache: 'release-notes' },
+];
+
+function ruleSource(repositoryCallers) {
+    for (const source of ruleSources) {
+        const caller = repositoryCallers.find(candidate => candidate.name === source.caller);
+        if (caller) return { ...source, ref: caller.ref };
+    }
+    return { ...ruleSources.find(source => source.caller === 'verify-release-notes'), ref: reviewedRulesRef };
+}
+
 function rules(warn, repositoryCallers) {
-    const ref = repositoryCallers.find(caller => caller.name === 'verify-release-notes')?.ref || reviewedRulesRef;
+    const { file: workflowFile, cache: cacheName, ref } = ruleSource(repositoryCallers);
     const floating = !/^[a-f0-9]{40}$/i.test(ref);
-    const cache = join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'cratis', 'release-notes', ref);
+    const cache = join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'cratis', cacheName, ref);
     try {
-        const workflow = gh(['api', '-H', 'Accept: application/vnd.github.raw', `repos/Cratis/Workflows/contents/.github/workflows/verify-release-notes.yml?ref=${encodeURIComponent(ref)}`]);
+        const workflow = gh(['api', '-H', 'Accept: application/vnd.github.raw', `repos/Cratis/Workflows/contents/.github/workflows/${workflowFile}?ref=${encodeURIComponent(ref)}`]);
         const bundle = programs(workflow);
         const bytes = Buffer.from(workflow);
         const sha = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
@@ -136,7 +152,7 @@ function rules(warn, repositoryCallers) {
         if (floating || ref === reviewedRulesRef) {
             const bundled = fileURLToPath(new URL('./cratis-release-notes-reviewed.cjs', import.meta.url));
             new Script(readFileSync(bundled, 'utf8'));
-            warn(`Could not fetch release-note rules at ${ref}; using bundled reviewed ${reviewedRulesRef}. ${error.message}`);
+            warn(`Could not fetch release-note rules from ${workflowFile} at ${ref}; using bundled reviewed ${reviewedRulesRef}. ${error.message}`);
             return bundled;
         }
         try {
@@ -148,12 +164,12 @@ function rules(warn, repositoryCallers) {
                     const source = readFileSync(file, 'utf8');
                     if (!source.includes('// cratis:program release-notes\n') || !source.includes('// cratis:program release-notes-drift\n')) continue;
                     new Script(source);
-                    warn(`Could not fetch release-note rules; using cached ${file}. ${error.message}`);
+                    warn(`Could not fetch release-note rules from ${workflowFile}; using cached ${file}. ${error.message}`);
                     return file;
                 } catch { /* Try the next complete cache entry. */ }
             }
         } catch { /* No cache available. */ }
-        warn(`unchecked: could not fetch release-note rules and nothing is cached. ${error.message}`);
+        warn(`unchecked: could not fetch release-note rules from ${workflowFile} at ${ref} and nothing is cached. ${error.message}`);
         return undefined;
     }
 }

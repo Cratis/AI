@@ -48,6 +48,25 @@ const workflow = `jobs:
       JS
 `;
 
+// The combined policy workflow carries other marked programs next to the release-note pair; they
+// throw so a bundle that picked one up fails loudly instead of passing by accident.
+const policyWorkflow = `${workflow}  intent:
+    run: |
+      node - <<'JS'
+      "use strict";
+      // cratis:program release-intent
+      throw new Error('The release-intent program must not run locally');
+      JS
+  aggregate:
+    run: |
+      node - <<'JS'
+      "use strict";
+      // cratis:program aggregate-policy
+      throw new Error('The aggregate-policy program must not run locally');
+      JS
+`;
+const policyCaller = (ref: string) => `jobs:\n  policy:\n    uses: Cratis/Workflows/.github/workflows/verify-pull-request-policy.yml@${ref}\n    with:\n      release-intent: true\n`;
+
 function fixture() {
     const directory = mkdtempSync(join(tmpdir(), 'cratis-pr-body-'));
     const bin = join(directory, 'bin');
@@ -89,7 +108,7 @@ else if (args[0] === 'api') {
     }
     if (process.env.TEST_OFFLINE === '1') process.exit(1);
     if (endpoint.endsWith('/contents/.github/workflows')) console.log(JSON.stringify(process.env.TEST_REMOTE_CALLERS === '0' ? [] : [{ name: 'release.yml', path: '.github/workflows/release.yml', type: 'file' }]));
-    else if (endpoint.endsWith('/contents/.github/workflows/release.yml')) console.log('jobs:\\n  verify:\\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@main');
+    else if (endpoint.endsWith('/contents/.github/workflows/release.yml')) console.log('jobs:\\n  verify:\\n    uses: Cratis/Workflows/.github/workflows/' + (process.env.TEST_REMOTE_CALLER || 'verify-release-notes') + '.yml@main');
     else console.log(fs.readFileSync(process.env.TEST_WORKFLOW, 'utf8').trimEnd());
 } else if (args[0] === 'repo') console.log(JSON.stringify({ nameWithOwner: args[2] === '--json' ? 'Cratis/Example' : args[2], defaultBranchRef: { name: 'main' } }));
 else if (args[0] === 'pr') {
@@ -793,6 +812,80 @@ test('offline rules at the reviewed pin use the bundle before any cache', () => 
         assert.doesNotMatch(invalid.stderr, /using cached|unchecked/);
         writeFileSync(f.body, '## Fixed\n\n- A product fix.\n');
         assert.equal(f.run(['--body-file', f.body, '--label', 'patch', '--strict'], { TEST_OFFLINE: '1' }).status, 1);
+    } finally { f.cleanup(); }
+});
+
+test('a repository with only the combined policy caller is opted in and runs its release-note programs at the caller ref', () => {
+    const f = fixture();
+    try {
+        const policyRef = 'b'.repeat(40);
+        writeFileSync(join(f.callers, 'release.yml'), policyCaller(policyRef));
+        writeFileSync(f.downloaded, policyWorkflow);
+        assert.equal(f.hook("gh pr create --body 'inline'").status, 2);
+        assert.match(f.hook('gh pr create --body inline', { PATH: f.noNodePath }, true).stderr, /node is unavailable/);
+        const result = f.run(['--body-file', f.body, '--label', 'patch']);
+        assert.equal(result.status, 0, result.stderr);
+        assert.match(result.stdout, /Gate read proposed body for Cratis\/Example by woksin/);
+        assert.match(result.stdout, /Drift base: main/);
+        const calls = readFileSync(f.calls, 'utf8');
+        assert.ok(calls.includes(`repos/Cratis/Workflows/contents/.github/workflows/verify-pull-request-policy.yml?ref=${policyRef}`), calls);
+        assert.doesNotMatch(calls, /verify-release-notes\.yml\?ref=/);
+        const bytes = Buffer.from(policyWorkflow);
+        const sha = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+        const policyCache = join(f.cache, 'cratis/verify-pull-request-policy', policyRef);
+        assert.deepEqual(readdirSync(policyCache), [`${sha}.cjs`]);
+        const bundle = readFileSync(join(policyCache, `${sha}.cjs`), 'utf8');
+        assert.match(bundle, /\/\/ cratis:program release-notes\n/);
+        assert.match(bundle, /\/\/ cratis:program release-notes-drift\n/);
+        assert.doesNotMatch(bundle, /cratis:program (?:release-intent|aggregate-policy|read-pull-request)/);
+        assert.deepEqual(readdirSync(join(f.cache, 'cratis')), ['verify-pull-request-policy']);
+        writeFileSync(f.body, 'reject-me');
+        const rejected = f.run(['--body-file', f.body, '--label', 'patch']);
+        assert.equal(rejected.status, 1);
+        assert.match(rejected.stdout, /rejected by downloaded program/);
+        assert.equal(f.hook(`gh pr create -F '${f.body}' -lpatch`).status, 2);
+    } finally { f.cleanup(); }
+});
+
+test('a policy caller takes precedence over legacy callers, and legacy callers alone still fetch verify-release-notes', () => {
+    const f = fixture();
+    try {
+        const policyRef = 'c'.repeat(40);
+        writeFileSync(f.downloaded, policyWorkflow);
+        writeFileSync(join(f.callers, 'policy.yml'), policyCaller(policyRef));
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 0);
+        let calls = readFileSync(f.calls, 'utf8');
+        assert.ok(calls.includes(`verify-pull-request-policy.yml?ref=${policyRef}`), calls);
+        assert.doesNotMatch(calls, /verify-release-notes\.yml\?ref=/);
+        // A cache entry from one source workflow is never offered for the other at the same ref.
+        writeFileSync(join(f.callers, 'release.yml'), `jobs:\n  verify:\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@${policyRef}\n`);
+        rmSync(join(f.callers, 'policy.yml'));
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' }).status, 3);
+        writeFileSync(f.calls, '');
+        writeFileSync(join(f.callers, 'release.yml'), `jobs:\n  verify:\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@${rulesRef}\n`);
+        writeFileSync(join(f.callers, 'intent.yml'), `jobs:\n  intent:\n    uses: Cratis/Workflows/.github/workflows/verify-release-intent.yml@${rulesRef}\n`);
+        writeFileSync(f.downloaded, workflow);
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 0);
+        calls = readFileSync(f.calls, 'utf8');
+        assert.ok(calls.includes(`verify-release-notes.yml?ref=${rulesRef}`), calls);
+        assert.doesNotMatch(calls, /verify-pull-request-policy\.yml/);
+        assert.equal(readdirSync(f.rulesCache).length, 1);
+    } finally { f.cleanup(); }
+});
+
+test('a target repository with only a remote policy caller is opted in and checked against the policy workflow', () => {
+    const f = fixture();
+    try {
+        writeFileSync(f.downloaded, policyWorkflow);
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        const remote = { TEST_REMOTE_CALLER: 'verify-pull-request-policy' };
+        assert.equal(f.hook('gh pr create -R Cratis/Other --body inline', remote).status, 2);
+        const valid = f.hook(`gh pr create -R Cratis/Other -F '${f.body}' -lpatch`, remote);
+        assert.equal(valid.status, 0, valid.stderr);
+        const calls = readFileSync(f.calls, 'utf8');
+        assert.match(calls, /repos\/Cratis\/Other\/contents\/\.github\/workflows\/release\.yml/);
+        assert.match(calls, /verify-pull-request-policy\.yml\?ref=main/);
+        assert.doesNotMatch(calls, /verify-release-notes\.yml\?ref=/);
     } finally { f.cleanup(); }
 });
 
