@@ -1,0 +1,17 @@
+{
+  "description": "Cratis shell-command guards only; no patch or lifecycle hooks.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.cratis/ai/harnesses/codex/hooks.mjs\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

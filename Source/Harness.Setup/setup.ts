@@ -131,6 +131,7 @@ add('.pi/agents', `../.cratis/ai/${piAgentsDirectory}`, 'dir');
 add('.pi/extensions', '../.cratis/ai/harnesses/pi/extensions', 'dir');
 add('.pi/skills', '../.cratis/ai/skills', 'dir');
 commands('.pi/prompts');
+add('.codex/hooks.json', '../.cratis/ai/harnesses/codex/hooks.json', 'file');
 add('.cursor/agents', '../.cratis/ai/agents', 'dir');
 add('.cursor/rules', '../.cratis/ai/harnesses/cursor/rules', 'dir');
 add('.cursor/skills', '../.cratis/ai/skills', 'dir');
@@ -157,7 +158,7 @@ for (const link of links.values()) {
     requireRealParents(path, root);
     const actual = state(path)?.isSymbolicLink() ? readlinkSync(path) : undefined;
     if (actual === link.target) continue;
-    if (check || (state(path) && !ownedLink(path) && !(link.path === '.github/instructions' && migrateInstructions) && !(link.path === '.github/copilot-instructions.md' && ownedCopilot(path)) && !force)) {
+    if (check || (state(path) && !ownedLink(path) && !(link.path === '.github/instructions' && migrateInstructions) && !(link.path === '.github/copilot-instructions.md' && ownedCopilot(path)) && (!force || link.path === '.codex/hooks.json'))) {
         failures.push(`${link.path}: expected symbolic link to ${link.target}`);
     }
 }

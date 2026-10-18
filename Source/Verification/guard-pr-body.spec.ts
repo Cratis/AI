@@ -118,6 +118,24 @@ else if (args[0] === 'pr') {
     return { directory, body, cache, callers, noNodePath, rulesCache: join(cache, 'cratis/release-notes', rulesRef), downloaded, calls, prEnvironments, env, run, hook, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
 }
 
+test('Codex shell adapter reuses PR guard fixtures without executing external operations', () => {
+    const f = fixture();
+    try {
+        const bridge = join(root, '.cratis/ai/harnesses/codex/hooks.mjs');
+        for (const command of ["gh pr create --body 'inline'", "gh pr edit 7 -b 'inline'", `gh pr create --body-file '${f.body}' --label patch --label minor`]) {
+            const result = spawnSync(process.execPath, [bridge], {
+                cwd: f.directory, env: f.env, encoding: 'utf8', timeout: 25000,
+                input: JSON.stringify({ cwd: f.directory, session_id: 'codex-fixture', hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command } }),
+            });
+            assert.equal(result.status, 2, result.stderr);
+            assert.equal(JSON.parse(result.stdout).hookSpecificOutput.permissionDecision, 'deny');
+        }
+        assert.ok(!readFileSync(f.calls, 'utf8').split('\n').some(line => /"pr","(create|edit)"/.test(line)));
+    } finally {
+        f.cleanup();
+    }
+});
+
 test('the checker extracts both marked programs, caches by blob SHA, and preserves no-release intent', () => {
     const f = fixture();
     try {
