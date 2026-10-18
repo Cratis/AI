@@ -121,25 +121,23 @@ behavior this file does not already state.
 
 ## Step 6 — Report
 
-Open with one line:
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Keep the performance risk label on each finding:
 
-> **Performance review: No issues / Minor findings / Blocking issues found**
-
-Group findings by the section that produced them, and classify each:
-
-| Risk | Meaning |
+| Risk | Shared classification |
 | --- | --- |
-| **High** | Measurable degradation at moderate load — fix before merge |
-| **Medium** | Degrades under load or as data grows |
-| **Low** | Minor inefficiency |
+| **High** | Blockers: degradation at moderate load requiring correction before merge |
+| **Medium** | Suggestions: degradation under load or as data grows |
+| **Low** | Suggestions: minor inefficiency |
 
-Close with a per-section summary table.
+Use the shared verdict vocabulary, not a separate performance verdict. If a
+scale-dependent degradation must be corrected before merge, classify it as High
+and state the relevant scale rather than leaving a blocker under Medium.
 
 **Say what the finding costs and at what scale.** "This is slow" is not
 actionable; "this scans the whole collection on every page load, so it is fine
-at hundreds of rows and not at tens of thousands" is. And **name what you did
-not measure** — a review of code shape is not a benchmark, and reporting it as
-one overstates the evidence.
+at hundreds of rows and not at tens of thousands" is. Distinguish measured cost
+from code-shape inference; use the shared scope line to name unmeasured behavior.
 
 ## What breaks
 

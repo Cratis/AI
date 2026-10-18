@@ -158,21 +158,6 @@ When checking unused code, references, or naming, use semantic navigation if the
 
 ## Output format
 
-Start with a **summary**:
-> **Review result: ✅ Approved / ⚠️ Approved with comments / ❌ Changes requested**
-
-Then list issues grouped by file:
-
-```
-### <file path>
-
-**[BLOCKING]** … or **[SUGGESTION]** …
-> Line N: `problematic code`
-> Because: explanation
-> Fix:
-> ```
-> corrected code
-> ```
-```
-
-End with a checklist of passed / failed items so the developer knows what was verified.
+Read and use `.cratis/ai/rules/review-reports.md` when writing conclusions.
+Apply the domain-specific classification in the Report section of
+`.cratis/ai/skills/cratis-code-review/SKILL.md`.
