@@ -230,8 +230,8 @@ inside the command (`CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1 cratis …`) changes n
 
 The Bash guard is a no-op unless **both** target-repository opt-in conditions hold: the target is under
 `github.com/Cratis/`, and its `.github/workflows` contains a reusable Cratis/Workflows
-`verify-release-notes` or `verify-semver-label` caller (including the renamed
-`verify-release-intent` caller). Installing the corpus or `@cratis/pi` alone does not opt in a
+`verify-pull-request-policy` caller. The legacy `verify-release-notes`, `verify-semver-label` and
+`verify-release-intent` callers it replaced are still recognized. Installing the corpus or `@cratis/pi` alone does not opt in a
 consumer or personal repository. This scope applies to both Claude Code and Pi; the direct checker
 remains available explicitly in any repository. As in `gh`, an edit's PR URL takes priority over
 `--repo` / `-R`, then literal leading or inherited `GH_REPO`, then the current directory's `origin`.
@@ -258,14 +258,17 @@ node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.m
 node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file .ai-work/pr-body.md --pr 123 --strict
 ```
 
-The checker fetches both marked programs from Cratis/Workflows' `verify-release-notes.yml` at
-the immutable commit SHA in the repository's own release-notes caller. If there is no such caller,
+The checker fetches both marked programs (`release-notes` and `release-notes-drift`) from
+Cratis/Workflows' `verify-pull-request-policy.yml` at the ref in the repository's own policy caller,
+and ignores the other programs marked in that file. Without a policy caller it fetches them from
+`verify-release-notes.yml` at the ref in a legacy release-notes caller. If there is neither,
 it uses the reviewed pin `40125b4fcae388e62ed9471edfffd0e991422f0a`. Floating callers such as `@main`
 fetch the programs at that ref; if the fetch fails, they use the bundled programs from the reviewed
 pin with a warning, so body validation is never silently skipped. Programs receive only the proposed PR
 metadata and `PATH`, `HOME`, and `LANG`, not inherited credentials or Node runtime options.
 The exact programs are cached by workflow blob SHA under
-`${XDG_CACHE_HOME:-~/.cache}/cratis/release-notes/<ref>/<sha>.cjs`. Offline, the newest complete
+`${XDG_CACHE_HOME:-~/.cache}/cratis/verify-pull-request-policy/<ref>/<sha>.cjs` for a policy caller and
+`${XDG_CACHE_HOME:-~/.cache}/cratis/release-notes/<ref>/<sha>.cjs` otherwise. Offline, the newest complete
 cached copy for that same pin is used with a warning. With no cache it reports **unchecked** and
 exits **3**; the hook passes through with that warning. Successful checks are silent in hook mode;
 real warnings go to Pi's context or Claude Code's JSON `systemMessage` and `additionalContext`. Exit **0** means no violations; **1** means invalid notes or
