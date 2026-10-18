@@ -375,10 +375,10 @@ bodies still leave their owner non-executable.
 | Arithmetic or raw expression in a `produces` mapping | PLAY0268 | |
 | Template `` `${x}` `` or `$causedBy` in a projection | PLAY0268 | |
 | More than one `every`/`all` on one projection level | PLAY0268 | Chronicle keeps only the last |
-| `$eventContext.<path>` other than `eventSourceId` | blocked plan | binds, but execution refuses: "An event-context value other than the event source identity needs occurrence context that ESM v1 facts do not carry". `$context.occurred` in command `produces` is different and executes when the scenario has `given clock` |
-| Projection-level `remove via join` | blocked plan | binds, but `UnsupportedProjectionBlock` blocks the whole reference execution plan: no specification in the application runs |
-| `all` beside removals, children or nested on one level | blocked plan | binds; `UnsupportedProjectionBlock` |
-| `join`, `children` or `remove via join` inside `nested` | blocked plan | binds; `UnsupportedProjectionBlock` |
+| `$eventContext.<path>` other than `eventSourceId` | unsupported specs | binds, but execution refuses: "An event-context value other than the event source identity needs occurrence context that ESM v1 facts do not carry". `$context.occurred` in command `produces` is different and executes when the scenario has `given clock` |
+| Projection-level `remove via join` | unsupported specs | binds, but `UnsupportedProjectionBlock` marks only the specifications that reach the projection unsupported; the others run and `planIssues` lists the deferred issue |
+| `all` beside removals, children or nested on one level | unsupported specs | binds; `UnsupportedProjectionBlock` (scoped per specification, like the rows above) |
+| `join`, `children` or `remove via join` inside `nested` | unsupported specs | binds; `UnsupportedProjectionBlock` (scoped per specification, like the rows above) |
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
 | `generated` or `returns` on an older compiler | PLAY0268 | admitted from ESM v7, see above |
@@ -393,7 +393,8 @@ bodies still leave their owner non-executable.
 
 - Plain `produces` without `for` binds (PLAY0478, information) but means allocation in the
   ESM and "the identifier" in rendered Arc code. Always write `for` on a plain `produces <Name>`; inline `produces event` omits it.
-- A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`), so no specification in the application runs; Chronicle wires it as a child pull. See the blocked-plan rows above.
+- A projection-level (root) `remove via join` binds, but the reference execution plan refuses it (`UnsupportedProjectionBlock`): only specifications whose events reach that projection, or that supply, read, query or assert its read model, report unsupported, and the others run. Chronicle wires it as a child pull. See the unsupported-specs rows above.
+  Requires Screenplay 4.216.0 (`screenplay --version`); earlier compilers refuse the whole plan, so no specification runs.
 - V1 reports absent projection/children/nested targets
   with PLAY0514 and unknown removal/capture events with PLAY0166. An unmapped
   declared field can be found by opt-in `--check field-origins` (PLAY0534);

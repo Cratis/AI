@@ -237,9 +237,13 @@ canonical bytes. Event `description`, `documentation` and rename-only `id` are
 authoring metadata, not new ESM bytes or replacements for catalog identity.
 
 Binding is not the last gate before the reference runner. The runner needs an
-execution plan, and the plan is created only when every reachable capability is
-admitted. One refused construct blocks the whole plan, so no specification in
-the model runs, including specifications that never touch it.
+execution plan. An application-level refused construct blocks the whole plan, so no
+specification in the model runs. An unadmitted projection (for example
+`UnsupportedEventContext` or `UnsupportedProjectionBlock`) is scoped per specification:
+only specifications whose given, appended, produced or cascaded events reach it, or that
+supply, read, query or assert its read model, report unsupported; the others run and
+`planIssues` lists the deferred issue. Compilers older than the toolchain's pinned
+version block the whole plan for an unadmitted projection.
 
 What binds today, what the reference execution plan refuses, what is opaque, what is
 authorable but not executable, and what blocks binding. A bundled compiler can be older

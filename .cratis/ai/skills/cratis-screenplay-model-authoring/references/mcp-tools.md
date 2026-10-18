@@ -111,7 +111,7 @@ Continue with the same `proposalId` and returned `sourceRevision` as
 or reads the root with its persisted identities.
 
 The response includes `sourceRevision`, `outcome`, discovered/selected/executed/
-passed/failed/unsupported counts, `executableDiagnostics`, `planIssues`, and `page`
+passed/failed/unsupported counts, `executableDiagnostics`, `planIssues` (deferred projection issues stay listed even when the selected specifications pass), and `page`
 (plus `proposalId` for candidate runs). Counts cover the entire selection, not one
 page; unsupported cases are not executed. Outcomes are `passed`, `failed`,
 `unsupported`, or overall `unbound`; only `passed` has `isError: false`. An unbound
