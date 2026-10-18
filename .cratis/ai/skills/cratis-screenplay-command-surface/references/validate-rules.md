@@ -13,6 +13,7 @@
 | `matches "<regex>"` | Portable linear dialect; any substring unless anchored `^…$`; invalid syntax PLAY0367, refused constructs PLAY0699 |
 | `contains "<text>"` / `not contains "<text>"` | Ordinal substring presence/absence on scalar non-enum text |
 | `starts with "<text>"` / `ends with "<text>"` | Ordinal prefix/suffix; quoted literal operands, not conditions |
+| `decimals <= <n>` | `price decimals <= 2`; a `Decimal` property or concept only, `<n>` a whole number 0 to 28, trailing zeros do not count; ESM v29 (decision 0098) |
 | `all > <v>` / `all >= <v>` | `lines.quantity all > 0` |
 | `rule <Name>` | `orgNumber rule BeAValidOrganizationNumber` |
 | `checksum luhn|mod11|mod97` | String concept `validate checksum luhn`; validates supplied/stored values too |

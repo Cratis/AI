@@ -166,6 +166,25 @@ own.
 - `item` entries (`action`, `navigate to`, `dialog`) stay valid beside buttons. Use `button` to start a slice, and
   `item ... navigate to` to go to a screen.
 
+### Application-level buttons
+
+A layout's `navigation topbar` region takes the same `button` line once for the whole application, so an action stays at hand
+whichever page the user is on. An indented `authorize <Policy>` line under a button limits who sees it. A module's
+`navigation topbar extends|overrides|inherits` governs the buttons as it does the items. A button in `navigation sidebar` is
+`PLAY0741`. The slice rules above (`PLAY0761`-`PLAY0765`) apply unchanged (decision 0098).
+
+```screenplay
+layout AppShell
+  category application
+  topbar
+  navigation contributes Navigation
+  content
+  navigation topbar
+    item shop title "Shop" target Shop
+    button newProduct title "New product" slice Merchandising.Products.DraftProduct emphasis primary icon plus
+      authorize CanCurateCatalog
+```
+
 ⚠️ When a screen uses a `template`, put the `toolbar` inside a slot body (`body` above). Stage refuses a screen that
 mixes a top-level `template` directive with other top-level directives.
 

@@ -9,6 +9,11 @@ For `source api`, webhook, poll and other record sources, a first record of a ty
 
 This applies independently to each child identity in its parent's previous collection and each nested record: a missing/null previous nested value is new, and every child of a new parent is new. Expression guards still evaluate the mapped current record on first sight; maps and unguarded appends keep their meaning. These record fixtures are not valid for `source events`: use typed events instead (automations-and-translations [public event captures](../../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)).
 
+A capture **over events** carries a public event's list across the boundary two ways (decision 0098, no new ESM version): `lines = $.lines`
+copies the whole list into a list property of the same shape (matched by property name), and `children lines identified by sku` with an
+`append ... when added` makes one private event per element, so a repeated delivery appends nothing and one with an extra line appends only
+that line. `nested <object>` scopes into an object the same way.
+
 The complete model separates a new observation, an update and an unchanged repeat:
 
 ```screenplay
