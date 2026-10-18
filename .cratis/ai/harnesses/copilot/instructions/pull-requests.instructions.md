@@ -158,6 +158,8 @@ Do not open a pull request per task when the tasks belong to the same body of wo
 
 **Before consolidating open PRs, review each PR’s release intent and workflow effects.** Integration may trigger completion/publication behavior on an absorbed PR. Use supported non-release intent where appropriate. A direct request to consolidate the named pull requests authorizes the necessary relabeling and merge; it does not authorize unrelated notifications.
 
+Before a consolidation or a re-land of reverted work merges, prove it dropped nothing with `cratis-engineering-consolidation-guard`.
+
 Split into separate pull requests when the changes are genuinely unrelated, when one is urgent and the others are not, or when one is risky enough to want its own revert.
 
 ## Quality Gates

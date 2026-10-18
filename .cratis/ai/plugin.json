@@ -1,0 +1,21 @@
+{
+  "name": "cratis",
+  "description": "Cratis skills for building event-sourced and CQRS applications with Chronicle, Arc and Cratis Components",
+  "version": "1.0.0",
+  "author": {
+    "name": "Cratis",
+    "url": "https://www.cratis.io"
+  },
+  "homepage": "https://github.com/Cratis/AI",
+  "repository": "https://github.com/Cratis/AI",
+  "license": "MIT",
+  "keywords": [
+    "cratis",
+    "event-sourcing",
+    "cqrs",
+    "chronicle",
+    "arc",
+    "skills"
+  ],
+  "skills": "./skills"
+}

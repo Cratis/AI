@@ -11,6 +11,7 @@ import { checkCopilotInstructions } from '../Harness.Setup/copilot-instructions.
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
+import { pluginManifestPath, pluginManifestProblems } from './plugin-manifest.ts';
 import { loadProductSync, productSyncProblems, productSyncSummary } from './product-sync.ts';
 import { verifyPlayExamples } from './play/index.ts';
 import { summary as contractSummary, verifyContract } from './contract/index.ts';
@@ -111,12 +112,17 @@ if (!workflows.includes('publish.yml')) failures.push('The publish workflow is r
 const allowedWorkflows = ['publish.yml', 'verify-pull-request-policy.yml', 'product-drift.yml'];
 const unexpectedWorkflows = workflows.filter(name => !allowedWorkflows.includes(name));
 if (unexpectedWorkflows.length > 0) failures.push(`Only ${allowedWorkflows.join(', ')} are allowed; found ${unexpectedWorkflows.join(', ')}.`);
+const marketplaces: Array<{ path: string; document: unknown }> = [];
 for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/marketplace.json', '.agents/plugins/marketplace.json', '.github/plugin/marketplace.json']) {
     const document = JSON.parse(await readFile(join(root, marketplace), 'utf8'));
+    marketplaces.push({ path: marketplace, document });
     if (document.plugins?.length !== 1 || document.plugins[0]?.source?.path !== '.cratis/ai' || document.plugins[0]?.skills !== './skills') {
         failures.push(`${marketplace} must expose the canonical .cratis/ai/skills corpus.`);
     }
 }
+// The Copilot plugin manifest lets the corpus be submitted as an external plugin with source.path .cratis/ai.
+if (!await exists(join(root, pluginManifestPath))) failures.push(`${pluginManifestPath} is missing; the Copilot plugin needs a manifest at the plugin root.`);
+else failures.push(...pluginManifestProblems(JSON.parse(await readFile(join(root, pluginManifestPath), 'utf8')), marketplaces));
 const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'cratis-path-guidance', 'subagent', 'cratis-mcp'];
 for (const extension of requiredPiExtensions) {
     if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);

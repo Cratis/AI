@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-consolidation-guard",
+  "queries": [
+    { "query": "I'm folding PRs 631, 640 and 652 into one consolidation branch. How do I check none of their changes got lost in the merges?", "shouldTrigger": true },
+    { "query": "we reverted the live dashboard counters PR last week and now want to land it again. what should I check before merging the re-land?", "shouldTrigger": true },
+    { "query": "the consolidation build is green but I think a conflict resolution put a file back to its old content. how do I prove that?", "shouldTrigger": true },
+    { "query": "git range-diff says every commit matches but three spec files are gone after the merge. why didn't range-diff catch it?", "shouldTrigger": true },
+    { "query": "restoring commits from a deleted branch with cherry-pick, how do I verify all of them made it across?", "shouldTrigger": true },
+    { "query": "add a CI check so agents can't merge a consolidation branch that silently dropped a folded pull request's changes", "shouldTrigger": true },
+    { "query": "review this re-land branch before it merges: it reverts the revert of merge commit and then fixes one bug", "shouldTrigger": true },
+    { "query": "how many spec files should the combined branch have after merging these four PR branches? I want a ratchet", "shouldTrigger": true },
+    { "query": "a re-land silently lost some spec files and a later commit had to restore them. how do we stop that happening again?", "shouldTrigger": true },
+    { "query": "Merge origin/main into my feature branch and resolve the conflicts in the Program.cs file.", "shouldTrigger": false, "note": "ordinary merge of the base into a feature branch; plain git and git-commits rule" },
+    { "query": "Write the PR description for the consolidated pull request and pick the release label.", "shouldTrigger": false, "note": "pull-requests rule and cratis-release-notes" },
+    { "query": "Review this pull request for architecture, style and spec coverage issues.", "shouldTrigger": false, "note": "cratis-code-review" },
+    { "query": "Should we squash-merge or rebase this branch to get a cleaner history on main?", "shouldTrigger": false, "note": "git-commits rule: never rewrite history" },
+    { "query": "Plan the canary-before-promotion path and evidence tier for the next release.", "shouldTrigger": false, "note": "cratis-governed-release-methodology" },
+    { "query": "Our release action caught a 422 and reported success. How should that boundary fail?", "shouldTrigger": false, "note": "cratis-engineering-effect-boundaries" },
+    { "query": "Recover a commit that disappeared after another session checked out a different branch.", "shouldTrigger": false, "note": "git-commits rule: reflog recovery, not a consolidation check" },
+    { "query": "Write release notes for the version that re-introduces the dashboard counters feature.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Check whether hand-written slice code still matches its .play contract after a model change.", "shouldTrigger": false, "note": "cratis-application-slice-conformance" }
+  ]
+}
