@@ -244,6 +244,133 @@ for (const config of ['{', '{"mcpServers":{"screenplay":{"root":false}}}', '{"mc
     });
 }
 
+const frozenConfig = (extra: object = {}, root?: string) => JSON.stringify({
+    ...(root ? { mcpServers: { screenplay: { root } } } : {}),
+    modelFirst: { frozen: true, reason: 'generated evidence while migrating', ...extra },
+});
+
+test('a frozen committed model is not opted in, keeps its files as evidence and has no contract', t => {
+    const { write, accept, run } = fixture(t);
+    write('Screenplay/model.play');
+    write('.cratis/ai.json', frozenConfig());
+    accept('.');
+    const { status, report } = run();
+    assert.equal(status, 1);
+    assert.equal(report.optedIn, false);
+    assert.equal(report.reason, 'frozen-model');
+    assert.equal(report.frozen, true);
+    assert.equal(report.frozenReason, 'generated evidence while migrating');
+    assert.equal(report.contract, null);
+    assert.deepEqual(report.committed, ['Screenplay/model.play']);
+    assert.equal(report.modelRoot, 'Screenplay');
+});
+
+test('a frozen marker overrides a configured root', t => {
+    const { write, accept, run } = fixture(t);
+    write('Models/model.play');
+    write('.cratis/ai.json', frozenConfig({}, 'Models'));
+    accept('.');
+    const { status, report } = run();
+    assert.equal(status, 1);
+    assert.equal(report.optedIn, false);
+    assert.equal(report.reason, 'frozen-model');
+    assert.equal(report.rootSource, 'configuration');
+    assert.equal(report.contract, null);
+    assert.deepEqual(report.committed, ['Models/model.play']);
+});
+
+test('a frozen marker without a reason reports a null reason', t => {
+    const { write, run } = fixture(t);
+    write('.cratis/ai.json', JSON.stringify({ modelFirst: { frozen: true } }));
+    const { status, report } = run();
+    assert.equal(status, 1);
+    assert.equal(report.reason, 'frozen-model');
+    assert.equal(report.frozenReason, null);
+});
+
+for (const frozen of ['false', 'absent', 'null']) {
+    test(`frozen ${frozen} leaves the opt-in result unchanged`, t => {
+        const { write, accept, run } = fixture(t);
+        write('Screenplay/model.play');
+        const modelFirst = frozen === 'false' ? { frozen: false } : frozen === 'null' ? { frozen: null } : { reason: 'unused' };
+        write('.cratis/ai.json', JSON.stringify({ modelFirst }));
+        accept('.');
+        const { status, report } = run();
+        assert.equal(status, 0);
+        assert.equal(report.optedIn, true);
+        assert.equal(report.reason, 'committed-model');
+        assert.equal(report.contract, 'HEAD');
+        assert.equal(report.frozen, false);
+        assert.equal(report.frozenReason, null);
+    });
+}
+
+for (const frozen of ['"yes"', '1', '{}', '[]']) {
+    test(`a non-boolean frozen value ${frozen} fails with could-not-run`, t => {
+        const { write, run } = fixture(t);
+        write('.cratis/ai.json', `{"modelFirst":{"frozen":${frozen}}}`);
+        const result = run();
+        assert.equal(result.status, 2);
+        assert.match(result.report.error, /modelFirst\.frozen must be a boolean/);
+        assert.match(result.stderr, /could not run/);
+    });
+}
+
+for (const config of ['{"modelFirst":true}', '{"modelFirst":{"frozen":true,"reason":3}}', '{"process":[]}',
+    '{"process":{"decisions":{"path":""}}}', '{"process":{"decisions":{"path":"/abs"}}}', '{"process":{"decisions":{"path":"../out"}}}',
+    '{"process":{"agents":{"screenplay-modeler":"one.md"}}}', '{"process":{"agents":{"screenplay-modeler":["../x.md"]}}}',
+    '{"process":{"acceptance":{"meaning":""}}}']) {
+    test(`a malformed seam value fails with could-not-run: ${config}`, t => {
+        const { write, run } = fixture(t);
+        write('.cratis/ai.json', config);
+        const result = run();
+        assert.equal(result.status, 2);
+        assert.ok(result.report.error);
+    });
+}
+
+test('the resolved process block holds the defaults when nothing is configured', t => {
+    const { write, run } = fixture(t);
+    const expected = {
+        decisions: { path: 'decisions', id: null },
+        workItems: { path: null },
+        acceptance: { meaning: 'user', commit: 'user' },
+        agents: {},
+    };
+    assert.deepEqual(run().report.process, expected);
+    write('.cratis/ai.json', '{"process":{}}');
+    assert.deepEqual(run().report.process, expected);
+});
+
+test('the resolved process block reports configured values and fills the rest with defaults', t => {
+    const { write, run } = fixture(t);
+    write('.cratis/ai.json', JSON.stringify({
+        process: {
+            decisions: { path: 'Planning/Decisions', id: 'D<n>' },
+            workItems: { path: 'Planning/backlog' },
+            acceptance: { meaning: 'product owner' },
+            agents: { 'screenplay-modeler': ['Planning/ai/screenplay-modeler.addendum.md'] },
+        },
+    }));
+    const { status, report } = run();
+    assert.equal(status, 1);
+    assert.equal(report.reason, 'no-accepted-model');
+    assert.deepEqual(report.process, {
+        decisions: { path: 'Planning/Decisions', id: 'D<n>' },
+        workItems: { path: 'Planning/backlog' },
+        acceptance: { meaning: 'product owner', commit: 'user' },
+        agents: { 'screenplay-modeler': ['Planning/ai/screenplay-modeler.addendum.md'] },
+    });
+});
+
+test('the text output names the frozen verdict', t => {
+    const { repository, write } = fixture(t);
+    write('.cratis/ai.json', frozenConfig());
+    const result = spawnSync(process.execPath, [script], { cwd: repository, encoding: 'utf8', timeout: 20000 });
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stdout, /Model first: not opted in \(frozen-model\)/);
+});
+
 test('not a Git repository returns 2, not not-opted-in', t => {
     const { run } = fixture(t, false);
     assert.equal(run().status, 2);
@@ -262,5 +389,5 @@ test('invalid root arguments return 2', t => {
 test('the shipped self-test plants all verdicts and reports its count', () => {
     const result = spawnSync(process.execPath, [script, '--self-test'], { encoding: 'utf8', timeout: 30000 });
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /checked 19 fixtures\/verdicts; passed/);
+    assert.match(result.stdout, /checked 23 fixtures\/verdicts; passed/);
 });
