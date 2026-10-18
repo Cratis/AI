@@ -161,12 +161,14 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Reviewing or explaining a `.play` model | the **cratis-screenplay-model-review** skill |
 | Turning an existing system into a model | the **cratis-screenplay-legacy-extraction** skill |
 | Rendering or gap-filling an accepted model | the **cratis-screenplay-render-and-gap-fill** skill, then **cratis-stage-rendering-and-sandbox** for renderer facts |
+| Code, security, performance and repository-investigation review reports | `review-reports.md` |
 | Authoring or reviewing skills, rules, agents or prompts | `authoring-skills.md` |
 | Step-by-step recipes | `.cratis/ai/skills/` |
 
 ## Source-of-Truth Discipline
 
 - **Rules define invariants; skills define workflows.** A skill may refine how to apply a rule but must not contradict it. On conflict, follow the stricter invariant and fix the stale artifact.
+- The user's instructions take precedence over guidelines provided in a skill. This does not override safety rules or hooks; skills must still follow rules.
 - **Skills and rules are the authoritative answer.** If not answered there, ask. Don't infer Cratis behavior from package internals.
 - Only make high-confidence suggestions.
 - When a user asks how to get help, has a question not answered by the docs, or wants to discuss design, point them to the [Cratis Discord](https://discord.gg/kt4AMpV8WV); direct confirmed bugs to GitHub issues.
