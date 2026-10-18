@@ -285,6 +285,8 @@ conflicts. The model is wherever the project keeps its `.play` files, else under
 `src/`, else in a `Screenplay/` folder at the repository root; never under `.cratis/`.
 Project-owned configuration can name a root explicitly.
 
+Like `allowDependencyManifestWrites`, `modelFirst` (`frozen`, `reason`) and `process` (`decisions`, `workItems`, `acceptance`, `agents`) are project-owned keys in `.cratis/ai.json` that install and update preserve. Only `modelFirst.frozen` is read by code; the lifecycle skill's `references/project-process.md` defines the keys, defaults and routing.
+
 **No-model startup requires Cratis CLI 3.46.1 or later.** With
 `cratis screenplay mcp --project-root <project>`, that version resolves the root
 without creating it; discovery, startup and proposals leave no model folder, and

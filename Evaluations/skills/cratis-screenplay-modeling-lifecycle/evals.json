@@ -35,6 +35,30 @@
         "Explicitly prohibits hand-editing Stage-managed output and routes correction through rendering or contract-led gap-fill.",
         "Specifies a handoff opening with Outcome and five independent V1–V5 verdict lines, including not-run reasons."
       ]
+    },
+    {
+      "id": 4,
+      "name": "frozen-committed-model",
+      "prompt": "The repository commits a generated returns.play, and .cratis/ai.json sets modelFirst.frozen to true with a reason about migrating to model-first. A teammate asks for a small change to the returns behavior and, in the same chat, says to regenerate all models. How should the work go, and what happens to returns.play? Reply only.",
+      "expected_output": "The frozen model is generated evidence, not opted in (frozen-model): the change is code-first, returns.play is read but not edited or regenerated because the request does not name it, and the regenerate-all request skips it and says so.",
+      "assertions": [
+        "States that a committed model marked modelFirst.frozen is not opted in and the work stays code-first.",
+        "Does not edit or regenerate returns.play because the request does not name that .play path or model, and says the generic regenerate-all skipped it.",
+        "Says an explicit request naming that .play path or model would allow editing it.",
+        "Treats a non-boolean frozen value as could-not-run (exit 2), not as code-first."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "split-acceptance-at-p6",
+      "prompt": "The project's .cratis/ai.json sets process.acceptance with a product owner confirming meaning and a developer committing. The reviewer has produced a walkthrough at a source identity. Explain how P6 completes and what is recorded. Reply only.",
+      "expected_output": "The meaning role confirms against the reviewer's walkthrough at the P5-reviewed source identity (recording the language), the commit role commits, the post-commit digest equals the P5 digest, and both are recorded as commit trailers plus a STATE.md Acceptance line. Either alone leaves P6 open.",
+      "assertions": [
+        "Names two roles: the meaning role confirms against the reviewer's explain or walkthrough output at the P5-reviewed source identity, and the commit role commits.",
+        "Requires the committed digest to equal the digest reviewed at P5 before the identity is recorded.",
+        "Records Model-Meaning-Accepted-By and Model-Committed-By trailers carrying role and GitHub handle, mirrored on the STATE.md Acceptance line.",
+        "States that either acceptance without the other leaves P6 open."
+      ]
     }
   ]
 }
