@@ -9,9 +9,10 @@ import { parse } from 'yaml';
 
 const workflow = parse(readFileSync(new URL('../../.github/workflows/publish.yml', import.meta.url), 'utf8'));
 const release = workflow.jobs.release;
-const releaseCheck = release.steps.find((step: { name: string }) => step.name === 'Verify the GitHub release exists');
+const confirmation = workflow.jobs['release-confirmed'];
+const releaseCheck = confirmation.steps.find((step: { name: string }) => step.name === 'Verify the GitHub release exists');
 const publishingJobs = Object.entries(workflow.jobs)
-    .filter(([, job]) => (job as { if?: string }).if === "needs.release.outputs.publish == 'true'");
+    .filter(([name, job]) => name !== 'release-confirmed' && (job as { if?: string }).if === "needs.release.outputs.publish == 'true'");
 
 test('should pin the release action that rejects a version claimed by another commit', () => {
     const action = release.steps.find((step: { id?: string }) => step.id === 'release');
@@ -21,17 +22,21 @@ test('should pin the release action that rejects a version claimed by another co
     assert.equal(release.outputs.prerelease, '${{ steps.release.outputs.prerelease }}');
 });
 
-test('should confirm the GitHub release in the release job, before any publish job can start', () => {
-    const steps = release.steps as { id?: string }[];
-    assert.equal(steps.indexOf(releaseCheck), steps.findIndex(step => step.id === 'release') + 1);
-    assert.equal(releaseCheck.if, "steps.release.outputs.should-publish == 'true'");
+// release-action creates the GitHub release in its post stage, which runs after every step of the
+// release job. A check inside the release job runs before the release exists and always fails.
+test('should confirm the GitHub release in a job after the release job, before any publish job can start', () => {
+    assert.equal(release.steps.some((step: { name?: string }) => step.name === 'Verify the GitHub release exists'), false);
+    assert.equal(confirmation.needs, 'release');
+    assert.equal(confirmation.if, "needs.release.outputs.publish == 'true'");
+    assert.equal(releaseCheck.if, undefined);
     assert.deepEqual(releaseCheck.env, {
         GH_TOKEN: '${{ github.token }}',
-        VERSION: '${{ steps.release.outputs.version }}',
+        VERSION: '${{ needs.release.outputs.version }}',
     });
     assert.equal(releaseCheck['continue-on-error'], undefined);
+    assert.equal(confirmation['continue-on-error'], undefined);
     assert.ok(publishingJobs.length >= 5);
-    for (const [, job] of publishingJobs) assert.equal((job as { needs: string }).needs, 'release');
+    for (const [, job] of publishingJobs) assert.deepEqual((job as { needs: string[] }).needs, ['release', 'release-confirmed']);
 });
 
 for (const status of [0, 1, 4]) {
