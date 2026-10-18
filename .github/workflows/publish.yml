@@ -24,9 +24,13 @@ on:
         default: No release notes
         type: string
 
+# Keep up to 100 pending Publish runs in FIFO order with `queue: max` (Cratis/Direct#1517).
+# The default single pending slot drops the older pending release when a third merge arrives.
+# PR refs and the Screenplay-sync group keep non-publishing runs out of the main release queue.
+# Omit `cancel-in-progress`: GitHub rejects it together with `queue: max`; in-flight runs are not cancelled.
 concurrency:
   group: ${{ github.workflow }}-${{ (github.event_name == 'repository_dispatch' || github.event_name == 'schedule') && 'screenplay-sync' || github.ref }}
-  cancel-in-progress: false
+  queue: max
 
 permissions:
   contents: read
