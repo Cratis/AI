@@ -20,7 +20,7 @@ import { bundlePins, bundleTable, pinRestatements, pinSummary, scaffoldPins, sca
 import { danglingSkillReferences } from './skill-references.ts';
 import { modelFirstRestatements } from './model-first-restatements.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
-import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems } from './skill-authoring.ts';
+import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems, skillOverlapFindings } from './skill-authoring.ts';
 import type { AuthoringFinding } from './AuthoringFinding.ts';
 import { evaluationCoverageBaseline, evaluationCoverageFindings } from './evaluation-coverage.ts';
 import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
@@ -196,6 +196,12 @@ const loadedArtifacts = {
     cursorRule: await readFile(join(corpus, 'harnesses', 'cursor', 'rules', 'cratis.mdc'), 'utf8'),
 };
 authoringFindings.push(...alwaysOnFindings(referencingFiles[0].map(entry => ({ file: `.cratis/ai/${entry.path}`, content: entry.content })), undefined, loadedArtifacts));
+const overlapFindings = skillOverlapFindings(await Promise.all(corpusTextPaths.filter(path => /\/skills\/[^/]+\/SKILL\.md$/.test(path)).map(async path => ({
+    file: relative(root, path), content: await readFile(path, 'utf8'),
+}))));
+console.log(`Skill trigger overlap: ${skillDirectories.length} skills scanned, ${overlapFindings.length} warnings.`);
+for (const finding of overlapFindings) console.warn(`${finding.file}:${finding.line} [${finding.rule}] ${finding.matchedText}`);
+authoringFindings.push(...overlapFindings);
 for (const directory of skillDirectories) {
     const skillFile = join(corpus, 'skills', directory.name, 'SKILL.md');
     if (!await exists(skillFile)) {
