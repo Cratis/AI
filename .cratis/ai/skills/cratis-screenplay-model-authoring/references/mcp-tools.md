@@ -127,6 +127,32 @@ A folder is one application; a file selects only itself and its imports.
 
 ## Whole-source authoring
 
+Application notes already anchor before binding; Module, Feature and Slice
+identities materialize from the authoring hierarchy when every document parses
+and places. Binding keeps those IDs. Read `containerIdentities` in
+`open-workspace` / `workspace-state`: `complete`, `containers` (`address`,
+`reason`, `assigned`) and `documents` (`path`, `reason`). Reasons are `ambiguous`,
+`idCollision`, `incomplete`, `unparsed` and `unplaced`; incomplete documents stop
+all new assignments, not just their own. Fix parse/placement errors first.
+Notes tools refuse unavailable targets and descendants with the same reasons in
+all forms. Existing notes on ambiguous containers remain resolved with
+`ambiguous: true`; inspect them unfiltered or by existing `semanticId`.
+Unidentified members still need binding and substitute their own slice in
+`substitutions`, never silently promote to a feature/module. Details:
+[model notes](model-notes.md#anchors-and-independent-state).
+
+Requires Screenplay 4.213.0 (`screenplay --version`) for pre-binding container
+identities and reporting; upgrade older servers before relying on direct
+container anchoring.
+
+`propose-rename` and `propose-move` preserve assigned container identities and
+notes on unbound models, including before first binding. Manual `propose-ast` /
+`propose-source` renames need `semanticRenames`, removals need
+`retiredSemanticAddresses` and report `orphanedNotes`. Fix binding errors through
+MCP proposals so reopening does not require reconciliation after an external fix.
+Opening computes identities in memory only; even notes-only `apply` can persist
+them with notes under the same rollback journal.
+
 `propose-source` takes `expectedRevision`, `expectedCatalogRevision`, explicit
 `formatting` and `documents`. Default `validation: "Authoring"` accepts syntax-only
 models; `"Executable"` requires binding and never falls back. Default

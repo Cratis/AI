@@ -281,9 +281,14 @@ Requires Screenplay 4.89.0 or later (`screenplay --version`) for `identityMigrat
 
 ## Identity state (`.screenplay/identities.json`)
 
-- `apply` persists identities with the `.play` changes (probed: the file survives
-  restarts without `export-workspace`). `open-workspace` and read-only commands
-  never create it. Commit both.
+- `apply` persists identities with source or notes-only changes; they survive
+  restarts without `export-workspace`. `open-workspace` and read-only commands
+  never create the file. Commit identity state with the model and notes.
+- Containers anchor before binding when all documents parse and place; inspect
+  `containerIdentities` in `open-workspace` / `workspace-state`. Fix binding
+  through MCP proposals, not external edits after persisting a partial catalog.
+  Read [state and recovery](state-and-recovery.md) for the exact unbound reopen
+  exception and [model notes](model-notes.md) for targeting refusal reasons.
 - A model only ever edited as text has **no persisted identities** until the first
   `apply`. Whether a first apply is the intended initialization is not documented
   beyond "after the first apply, keep `.screenplay/identities.json`"; ask before
