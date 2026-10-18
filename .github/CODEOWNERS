@@ -7,7 +7,8 @@
 # Canonical instructions, rules, skills, agents, hooks, prompts and MCP configuration.
 /.cratis/ai/** @Cratis/core
 
-# Tracked native harness adapters (including symlinks).
+# Native harness adapter trees and entry points.
+# Symlink targets in the canonical corpus are covered by the corpus pattern above.
 /.claude/** @Cratis/core
 /.github/instructions @Cratis/core
 /.github/instructions/** @Cratis/core
