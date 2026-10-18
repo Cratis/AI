@@ -129,21 +129,18 @@ command's properties as well as grepping them.
 
 ## Step 7 — Report
 
-Open with one line:
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Keep the security risk label on each finding:
 
-> **Security review: No issues / Low-risk findings / Blocking issues found**
-
-Group findings by the section that produced them, and classify each:
-
-| Risk | Meaning |
+| Risk | Shared classification |
 | --- | --- |
-| **Critical** | Must be fixed before merge |
-| **Medium** | Should be fixed soon; state what makes it not-critical |
-| **Low** | Fix when convenient |
+| **Critical** | Blockers: exploitable exposure requiring correction before merge |
+| **Medium** | Suggestions: conditional exposure; state what makes it non-critical |
+| **Low** | Suggestions: defense-in-depth improvement |
 
-Close with a per-section summary table, and **name what you did not review** —
-the paths, the surfaces, and the axes out of scope. A security report listing
-only findings reads as a clean bill of health for everything it never opened.
+Use the shared verdict vocabulary, not a separate security verdict. If a
+conditional exposure must be corrected before merge, classify it as Critical
+and explain the exploit conditions rather than leaving a blocker under Medium.
 
 ## What breaks
 

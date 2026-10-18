@@ -169,28 +169,13 @@ degradations a reviewer can see without measuring:
 
 ## Step 7 — Report
 
-Open with one line:
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
 
-> **Review result: Approved / Approved with comments / Changes requested**
-
-Then, per file:
-
-```
-### <file path>
-
-**[BLOCKING]** Line N: `problematic code`
-Because: <the consequence, not the rule number>
-Fix:
-<corrected code>
-```
-
-Close with what passed and what must change. Two rules make the report usable:
-
-- **A blocking finding names a consequence.** "Violates the style guide" is not
-  a reason. "Throws on a recoverable path, so the caller sees a 500 instead of a
-  validation error" is.
-- **Say what you did not review.** A report listing only findings reads as if
-  everything was checked. Name the files, the paths, and the axes you skipped.
+Correctness regressions, broken contracts, and missing specification coverage
+that leaves changed behavior unverified belong in Blockers when they require
+correction before merge. Style preferences and maintainability improvements
+without such a consequence belong in Suggestions. Apply the shared verdict
+vocabulary to those findings.
 
 ## What breaks
 
