@@ -173,7 +173,7 @@ whichever page the user is on. An indented `authorize <Policy>` line under a but
 `navigation topbar extends|overrides|inherits` governs the buttons as it does the items. A button in `navigation sidebar` is
 `PLAY0741`. The slice rules above (`PLAY0761`-`PLAY0765`) apply unchanged (decision 0098).
 
-```screenplay
+```text
 layout AppShell
   category application
   topbar
