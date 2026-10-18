@@ -39,19 +39,36 @@ public record ProviderTierResolution(
             ? null
             : await eventStore.ReadModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)providerId);
 
-        return Enum.GetValues<ModelTier>().Select(tier =>
-        {
-            var resolution = provider is null
-                ? new TierModelResolved(tier, ModelName.NotSet, TierModelSource.Unsatisfied, $"AI provider {providerId} could not be found.")
-                : TierModelResolution.Explain(provider, tier);
+        return Enum.GetValues<ModelTier>().Select(tier => ProviderTierResolutions.Resolve(providerId, provider, tier)).ToArray();
+    }
 
-            return new ProviderTierResolution(
-                tier,
-                resolution.Model,
-                resolution.Source,
-                resolution.Reason,
-                provider?.ModelDiscoveryFailure ?? string.Empty,
-                provider?.ModelsDiscoveredAt ?? default);
-        }).ToArray();
+    /// <summary>
+    /// Previews a proposed mapping without recording it or probing the vendor.
+    /// Unset models derive from the recorded catalog, exactly as they would after applying the mapping.
+    /// </summary>
+    /// <param name="providerId">The provider whose mapping would change.</param>
+    /// <param name="eventStore">The event store the provider is read from.</param>
+    /// <param name="fast">The proposed Fast model, or null or an empty value to derive it.</param>
+    /// <param name="balanced">The proposed Balanced model, or null or an empty value to derive it.</param>
+    /// <param name="powerful">The proposed Powerful model, or null or an empty value to derive it.</param>
+    /// <param name="premier">The proposed Premier model, or null or an empty value to derive it.</param>
+    /// <returns>One resolution per tier using the proposed mapping, including refusals for an unknown provider.</returns>
+    public static async Task<IEnumerable<ProviderTierResolution>> PreviewProviderTierModels(
+        AIProviderId providerId,
+        IEventStore eventStore,
+        ModelName? fast = null,
+        ModelName? balanced = null,
+        ModelName? powerful = null,
+        ModelName? premier = null)
+    {
+        var provider = providerId == AIProviderId.NotSet
+            ? null
+            : await eventStore.ReadModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)providerId);
+        var proposed = provider is null ? null : provider with
+        {
+            TierModels = new(fast ?? ModelName.NotSet, balanced ?? ModelName.NotSet, powerful ?? ModelName.NotSet, premier ?? ModelName.NotSet)
+        };
+
+        return Enum.GetValues<ModelTier>().Select(tier => ProviderTierResolutions.Resolve(providerId, proposed, tier)).ToArray();
     }
 }

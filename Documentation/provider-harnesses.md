@@ -32,6 +32,40 @@ provider has not had its selection configured, while an empty list with `true` m
 deliberately disabled. An unconfigured provider's list can also materialize as empty.
 Do not expose `ConfiguredAIProvider` to a client: it contains the provider's secret.
 
+## Preview a tier change
+
+Before submitting `ConfigureAgent`, call `AgentTierPreview.PreviewAgentTier(agentId, tier)`
+with the configured agent's identity and proposed `ModelTier`. It returns one row for the
+agent's assigned provider, or one for **every member** of its assigned pool. Each row identifies
+`AgentId`, `ProviderId`, and `PoolId` (`NotSet` for a direct assignment), and carries a `Resolution`
+with the proposed `Tier`, resolved `Model`, `Source`, `Reason`, `ModelDiscoveryFailure`, and
+`ModelsDiscoveredAt`.
+
+Before submitting `SetAIProviderTierModels`, call
+`ProviderTierResolution.PreviewProviderTierModels(providerId, fast, balanced, powerful, premier)`.
+The four optional model arguments are scalar `ModelName` values rather than a nested mapping
+object, so clients can use Arc's generated query proxy. Omit a tier argument, pass `null` in C#,
+or pass an empty model value (`ModelName.NotSet` in C#) to clear that tier and derive it from the
+catalog. The query replaces the complete
+mapping **in the preview only** and returns one `ProviderTierResolution` for each of the four tiers.
+It does not merge unset entries with the old mapping. Use
+`ProviderTierResolution.ResolveTiersFor(providerId)` to inspect the current mapping instead.
+
+Both previews use the same model-resolution rules as runtime requests. `Source` is `Configured`,
+`Derived`, `Borrowed`, `SubscriptionAlias`, or `Unsatisfied`. Display `Reason` for borrowed and
+refused tiers; `Unsatisfied` has no usable model. Unknown agents, providers, missing pools, empty
+pools, and agents without an assignment produce explicit refusal rows rather than an empty preview.
+A missing provider in a pool remains visible alongside the other members.
+
+These are read-only snapshot queries: they append no events, never contact a vendor, and expose
+no credentials. They use the recorded catalog and report its last successful discovery time and
+last failure. A preview does not verify subscription entitlement, agent capability compatibility,
+harness support, quota, concurrency, or which pool member will be chosen. It previews a tier change
+on the agent's **current assignment**, not a simultaneous provider or pool reassignment. Refresh
+the preview after editing the proposed values and before applying; it does not reserve the observed
+configuration against concurrent changes. This package has no configuration dialog; consuming
+frontends should show the query results before executing the corresponding command.
+
 ## Upgrade from per-agent harnesses
 
 `ConfigureAgent` still accepts the optional `Harness` parameter (defaulting to Pi) in its original
