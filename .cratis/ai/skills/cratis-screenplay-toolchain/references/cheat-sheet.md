@@ -166,7 +166,7 @@ processing or runtime retention. See command-surface `references/compliance.md`.
 `subjectIsEventSourceId`, `observationState` (unstable on replay). `causation` and `tags` are
 collections (path below them: PLAY0297 E). Unknown member: PLAY0295/0296 W.
 `$eventSourceId` is the short form used in mappings. `occurred.Week` compiles but does not bind
-(PLAY0273: derived value). Any `$eventContext` path other than `eventSourceId` binds, but the execution plan refuses it ("An event-context value other than the event source identity needs occurrence context that ESM v1 facts do not carry"), so a model that must run uses `$context.occurred` in the command `produces` instead (it executes when the scenario has `given clock`). Catalogue: `Documentation/screenplay/projections/event-context.md`.
+(PLAY0273: derived value). Any `$eventContext` path other than `eventSourceId` binds, but the reference runner refuses it for the specifications that reach that projection ("An event-context value other than the event source identity needs occurrence context that ESM v1 facts do not carry"), so a model that must run uses `$context.occurred` in the command `produces` instead (it executes when the scenario has `given clock`). Catalogue: `Documentation/screenplay/projections/event-context.md`.
 
 ## PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
 - Header `projection Name => ReadModel`; variant group `projection Name` + `variant RM` /
@@ -180,7 +180,7 @@ collections (path below them: PLAY0297 E). Unknown member: PLAY0295/0296 W.
   property; the label is decoration; joins never create instances).
 - `children prop identified by k` + `from E key k` + `remove with E key k`; `nested prop` +
   `from` + `clear with E`.
-- Removal: `remove with Event`; `remove via join on Event` is compile-only and bind-only: at projection level it blocks the whole reference execution plan (`UnsupportedProjectionBlock`), so no specification runs.
+- Removal: `remove with Event`; `remove via join on Event` is compile-only and bind-only: at projection level it makes only the specifications that reach that projection unsupported (`UnsupportedProjectionBlock`); the others run (Screenplay 4.213.2 or later; earlier compilers refuse the whole plan).
 - Keys: only on `from` (a projection-level `key` routes nothing: PLAY0381 W).
 - One `every`/`all` block per level for the executable model (else PLAY0268).
 - Templates (`` `${a}` ``) and `$causedBy` parse but do not bind (PLAY0268).

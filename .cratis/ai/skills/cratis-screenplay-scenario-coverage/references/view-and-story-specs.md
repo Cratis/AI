@@ -144,8 +144,8 @@ not prove an entire list is empty: assert the unkeyed list query itself (an unke
   the command needs its own constraint, or the rule is `recorded` as target-enforced.
 - **Rebuild**: a view rebuilt from all facts must give the same rows. Mappings from
   `$eventContext.occurred` or other occurrence data cannot be executed:
-  the plan blocks every event-context path except the event source id
-  (`UnsupportedEventContext`). `given clock` does not change that; it supplies `$context.occurred`
+  the reference runner refuses every event-context path except the event source id
+  (`UnsupportedEventContext`), so specifications that reach that projection report unsupported. `given clock` does not change that; it supplies `$context.occurred`
   to command productions only. Record such projection cases as capability gaps (keep the
   mapping and the intended spec in design mode).
 - **Corrections and backdated facts**: a correction is a new fact; specify the view after it.

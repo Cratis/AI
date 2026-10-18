@@ -44,8 +44,8 @@ Binding is not plan admission. Read model-authoring's
 [language reference](../cratis-screenplay-model-authoring/references/language-reference.md)
 when distinguishing executable declarations, refused projection shapes and opaque
 code. Reached opaque code is **unsupported**, never passed; portable denial may
-still execute before it. Unsupported declarative constructs block the whole plan,
-not just the specifications that touch them.
+still execute before it. An unadmitted projection makes unsupported only the specifications that reach it
+(Screenplay 4.213.2 or later); other unsupported declarative constructs block the whole plan.
 
 Read [reactions and cascades](references/reactions-and-cascades.md) when testing
 ESM v6 actions; older compilers fail reaction/capture binding with PLAY0268.
