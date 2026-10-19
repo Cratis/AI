@@ -39,6 +39,29 @@ public record RecordProviderRateLimited(AIProviderId Provider, DateTimeOffset Un
 }
 
 /// <summary>
+/// Event raised when somebody lifts a provider's rate limit by hand - because the allowance is known to
+/// be back, or because the credential was replaced - so the provider is tried again right away. The
+/// moment the limit lifts is the event's own occurrence time.
+/// </summary>
+[EventType]
+public record AIProviderRateLimitCleared();
+
+/// <summary>
+/// Command for lifting the pause a provider was parked under after the vendor turned work away over its
+/// usage limit. If the limit is still real the next call is turned away again and the provider parks again.
+/// </summary>
+/// <param name="Provider">The provider to lift the pause of - its own identity resolves the event source.</param>
+[Command]
+public record ClearProviderRateLimit(AIProviderId Provider)
+{
+    /// <summary>
+    /// Handles the command by appending an <see cref="AIProviderRateLimitCleared"/> event.
+    /// </summary>
+    /// <returns>The event.</returns>
+    public AIProviderRateLimitCleared Handle() => new();
+}
+
+/// <summary>
 /// Recognizes a provider's own usage limit in what a worker reported back.
 /// </summary>
 /// <remarks>

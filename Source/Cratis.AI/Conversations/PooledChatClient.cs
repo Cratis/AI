@@ -252,7 +252,7 @@ public sealed class PooledChatClient(
                     recentProviderFailures,
                     $"No member of pool {role.PoolId} could serve this chat",
                     async (member, ct) => capacities.TryGetValue(member.ProviderId, out var capacity) && !capacity.CanStartWork
-                        ? PoolAttempt<(T Value, AIProviderId Provider)>.Skipped($"AI provider {member.ProviderId} has no capacity to start work")
+                        ? PoolAttempt<(T Value, AIProviderId Provider)>.Skipped($"AI provider {member.ProviderId} cannot start work: it {capacity.Explain()}")
                         : await Attempt(member.ProviderId, tier, call, holdSlot, ct),
                     cancellationToken);
 
@@ -335,7 +335,7 @@ public sealed class PooledChatClient(
         if (provider.RateLimitedUntil > timeProvider.GetUtcNow())
         {
             logger.ChatProviderRateLimited(providerId, provider.RateLimitedUntil);
-            return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is rate limited");
+            return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is paused until {provider.RateLimitedUntil.UtcDateTime:yyyy-MM-dd HH:mm} UTC because its vendor turned work away over its usage limit (it is tried again then; replacing its credential or clearing the pause in Settings > AI tries it at once)");
         }
 
         var slot = await providerConcurrencyGate.TryEnter(providerId, cancellationToken);

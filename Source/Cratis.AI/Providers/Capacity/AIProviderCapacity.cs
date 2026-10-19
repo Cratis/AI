@@ -42,6 +42,35 @@ public record AIProviderCapacity(
     string? Problem)
 {
     /// <summary>
+    /// Says in plain words why this provider cannot start work, or that it can.
+    /// </summary>
+    /// <returns>The reason - never including a credential.</returns>
+    public string Explain()
+    {
+        if (CanStartWork)
+        {
+            return "has capacity";
+        }
+
+        if (RateLimitedUntil is { } until)
+        {
+            return $"is paused until {until.UtcDateTime:yyyy-MM-dd HH:mm} UTC because its vendor turned work away over its usage limit " +
+                "(it is tried again then; replacing its credential or clearing the pause in Settings > AI tries it at once)";
+        }
+
+        var spent = Windows.Where(window => window.Remaining <= 0.02d).ToList();
+        if (spent.Count > 0)
+        {
+            var windows = string.Join(", ", spent.Select(window => $"{window.Name} window {window.UsedFraction:P0} used" + (window.ResetsAt is { } reset ? $" (resets {reset.UtcDateTime:yyyy-MM-dd HH:mm} UTC)" : string.Empty)));
+            return $"has no usage left: {windows}";
+        }
+
+        return AvailableAgainAt is { } again
+            ? $"is out of headroom ({Headroom:P0} left) until {again.UtcDateTime:yyyy-MM-dd HH:mm} UTC"
+            : $"is out of headroom ({Headroom:P0} left)";
+    }
+
+    /// <summary>
     /// Gets a configured provider's current capacity.
     /// </summary>
     /// <param name="providerId">The provider to ask about.</param>
