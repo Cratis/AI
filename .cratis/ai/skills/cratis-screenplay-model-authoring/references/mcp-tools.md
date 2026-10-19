@@ -319,7 +319,7 @@ with `view: "diagnostics"`, then `view: "repairs"` at the current revision.
 | `PLAY0166` | Declare a missing command-produced event in its slice. Infer known command-path types (retaining concepts) or `$context.occurred` as `DateTime`; refuse uncertain/conflicting shapes, imports, existing declarations, cross-file producers and parser-invalid workspaces. |
 | `PLAY0478` | Add `for <identifier>` to a plain production. Both models must be executable; refuse a version change or retargeting another production. This changes routing: accept only if the identifier, not allocation, is intended; `canFixAll: false`. |
 | `PLAY0471` | Remove a redundant event id only with unchanged executable model, catalog and comments. |
-| `PLAY0469` | Remove an inline same-source identifier property and mapping, retiring its semantic address. This changes the contract; `canFixAll` is false. Refuse other consumers, opaque impact, changed routing or comment loss. Plain contracts get guidance only. |
+| `PLAY0469` | Remove an inline same-source identifier property and mapping, retiring its semantic address. This changes the contract; `canFixAll` is false. Refuse other consumers, opaque impact, changed routing or comment loss. Plain contracts get guidance only. For a contract that may have been stored, use `propose-property` `remove` with `newGeneration: true` instead. |
 | `PLAY0479` | Migrate one optional type spelling, or all in a document, preserving syntax and trivia. Exclude `query Q => observable?`. |
 | `PLAY0563/0564` | Expand a one-line interaction alternative / turn a strict item `where` into one block-form `when`. Individual review, canonical formatting, no pinned evidence; refuse comment loss. Opaque non-item-condition text has no PLAY0564 repair. |
 | `PLAY0614` | Declare Translate direction only when exactly one inbound/outbound interpretation fits public metadata; never change event visibility to make a repair fit. |
@@ -362,9 +362,12 @@ Requires Screenplay 4.228.0 (`screenplay --version`) for `propose-inline-event`.
 `propose-inline-event` is the inverse: it folds a slice-level event with exactly one
 production into an inline event on that production, takes the same `subject`,
 revisions and `formatting: "CanonicalizeTouchedDocuments"`, and preserves executable
-bytes and identities. It refuses when the fold could change meaning (a conditional
-production, public or external event, cross-slice use, handlers, lost comments or any
-other reference to the event).
+bytes and identities. Use it to undo an extraction when the event has one producer and
+no other consumer. It refuses when the fold could change meaning: a conditional
+production (`when`), incomplete mappings, generations, an external origin or public
+event, cross-slice or cross-document use, opaque or handler text, comments that would
+be lost, or any reference other than the single production. Read the refusal and
+leave the event standalone; never work around it with text edits.
 
 Requires Screenplay 4.223.0 (`screenplay --version`) for `trace-lineage`.
 
