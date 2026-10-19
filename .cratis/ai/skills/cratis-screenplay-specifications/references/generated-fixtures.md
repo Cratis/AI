@@ -66,6 +66,10 @@ specification RegistersWithPinnedValues
   differences in response field order. An absent optional source yields `Null`; arrays compare in order.
 - `then returns` counts as a success outcome but does not relax event comparison: a command specification with
   no expected events still asserts that no facts were produced.
+- A command that a **reaction** invokes takes its generated values from `given generated <Command>.<property> = <value>` lines
+  before the `when` (ESM v30, decision 0098). Each invocation takes the next value pinned for that
+  command and property in authored order; two invocations need two lines. The property must be `generated`; the value is a
+  concrete literal.
 - If execution reaches generation without every generated value supplied, the run is `Unsupported(IdentityAllocation)` and
   the specification never passes; nothing is invented. A denial or validation failure happens before generation and
   keeps its own outcome.
