@@ -25,7 +25,7 @@
 - Formatting and recovery limits
 - Code attachments
 
-The standalone MCP server lists 44 tools (including the MCP-Apps visualization tool); `tools/list` is the authority for the installed server.
+The standalone MCP server lists 46 tools (including the MCP-Apps visualization tool); `tools/list` is the authority for the installed server.
 
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
 alone inside a project, where the CLI locates the model (the project's `.play` files, else
@@ -50,16 +50,24 @@ the [MCP loop](mcp-loop.md).
 | Group | Tools | Intent |
 | --- | --- | --- |
 | Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details` | Navigate logical hierarchy and inspect bounded details |
-| References and examples | `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `find-specification-obligations`, `find-modeling-smells`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
+| References and examples | `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `find-specification-obligations`, `find-modeling-smells`, `trace-lineage`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
 | Source and validation | `diagnostics`, `ui-profiles`, `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
-| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-move`, `propose-repair`, `propose-property`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
+| Planning | `propose-source`, `propose-ast`, `propose-rename`, `propose-move`, `propose-repair`, `propose-property`, `propose-number-enum-members`, `propose-extract-inline-event`, `propose-inline-event`, `propose`, `recommend-layout`, `expand-layout` | Produce validated, reviewable candidates without writing them |
 | Review | `read-proposal`, `discard-proposal` | Inspect exact changes, dropped comments and proposed attachments, or abandon a connection-local proposal |
 | Reference execution | `run-specifications` | Run the workspace or a retained proposal candidate read-only; not attached code or target tests |
 | Effects | `apply`, `recover-workspace` | Apply an accepted plan or explicitly recover an interrupted write |
 
-`propose-move` moves a slice to another feature, or a feature to another module or feature, keeping identities: copy the `target` and `newParent` `{kind, parts}` addresses from the identity inventory and pass `expectedRevision` and `expectedCatalogRevision`. It repairs qualified references and `depends on`, and refuses identity loss, capture, collisions, descendant destinations, inherited authorization or screen-interaction changes and glob imports; review `moveReport` (`identityMigrations`, `referenceRepairs`, `fragmentsMoved`). It does not rename events, change pins or move files, and declaration moves between slices are deferred. Use it for legacy re-slicing instead of retyping declarations. Its report document fields are plain strings, not nested identity objects.
+`propose-move` moves a slice to another feature, a feature to another module or feature, or a single command, event, read model, projection, query, reaction or capture to another slice, keeping identities: copy the `target` and `newParent` `{kind, parts}` addresses from the identity inventory (`newParent` is the destination slice for a declaration) and pass `expectedRevision` and `expectedCatalogRevision`. It repairs qualified references and `depends on`, and refuses identity loss, collisions, descendant destinations, inherited authorization or screen-interaction changes and glob imports; review `moveReport` (`identityMigrations`, `referenceRepairs`, `fragmentsMoved`, and `specificationsCarried` for a declaration). It does not rename events, change pins or move files. Use it for legacy re-slicing instead of retyping declarations. Its report document fields are plain strings, not nested identity objects.
+
+A declaration move follows these rules:
+
+- A specification that covers only the moved declaration moves with it. A specification covers a declaration when it is a matching specification of one of its `find-specification-obligations` obligations, or when its `when` step names it; a `given` or `then` reference alone is not coverage.
+- The move is refused when a specification also covers a declaration that stays, when an obligation the source slice met would no longer be met, on a name collision, for an inline declaration (such as an inline `produces event`), a declaration written in more than one fragment, a standalone specification, screen, constraint or module, and when an unqualified reference would resolve differently. Qualify that reference first.
+- Screen `execute`, `refresh` and `navigate to` targets that name the declaration are repaired, not moved.
+- Produced events never travel with a command: `produces` and a projection's `from` may name an event declared in another slice. Move the event with its own `propose-move` only when it should change slices.
+- Event names and pins stay untouched, and assigned identities follow the declaration.
 
 Requires Screenplay 4.211.0 (`screenplay --version`) for string conflict/move-report document fields and independent reference-edit batches; older servers can emit objects and refuse independent remove/add batches. Upgrade before relying on this contract.
 
@@ -346,6 +354,20 @@ its owning slice and makes an implicit identifier destination explicit. Metadata
 tags and identities survive; canonical ESM must stay byte-identical and every
 comment must survive exactly once. Extract before adding `generation`, not after
 making the document parser-invalid. This is a refactoring, not a diagnostic repair.
+
+`propose-inline-event` is the inverse: it folds a slice-level event with exactly one
+production into an inline event on that production, takes the same `subject`,
+revisions and `formatting: "CanonicalizeTouchedDocuments"`, and preserves executable
+bytes and identities. It refuses when the fold could change meaning (a conditional
+production, public or external event, cross-slice use, handlers, lost comments or any
+other reference to the event).
+
+`trace-lineage` takes a read-model property `address` and returns a paged tree
+(`limit`, `offset`) from the property through projection or reducer mappings, joins and
+child mappings to the event property, then to the producing command property or capture
+source. A broken hop is reported where the chain breaks, several sources appear as
+branches and code the model cannot see into is marked opaque. It is read-only and
+advisory.
 
 Requires Screenplay 4.153.0 or later (`screenplay --version`) for `propose-rename` to consult release-baseline mutability; before it, `propose-rename` pins the previous effective name without a baseline.
 
