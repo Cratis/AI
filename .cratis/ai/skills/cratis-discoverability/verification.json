@@ -1,0 +1,13 @@
+{
+  "skill": "cratis-discoverability",
+  "input": "Run the pre-publish discoverability check on a new blog post, a package README and the package metadata for a Cratis library.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "If a fix makes the page worse to read," },
+    { "kind": "skill-contains", "value": "Add no `HowTo` and" },
+    { "kind": "skill-contains", "value": "Do not name people in structured data." },
+    { "kind": "skill-contains", "value": "Apex `https://cratis.io/` links: the docs host is `https://www.cratis.io`." },
+    { "kind": "skill-contains", "value": "no logo-only or metaphor opener" },
+    { "kind": "skill-contains", "value": "Padding to a word count: there is no minimum length" }
+  ]
+}
