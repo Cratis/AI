@@ -39,9 +39,15 @@ ui profile Desktop
   root template AppShell
     option showFooter true
 
+  identity
+    name "Contoso CRM"
+    logo initials "CC"
+
   appearance
     color scheme dark
     accent "#4F46E5"
+    corners round
+    font inter
 
   new screens use template Sheet
 
@@ -67,7 +73,12 @@ ui profile Web
   needs a `content` slot, or no screen has a place in it.
 - `option <name> <value>`: a configurable item the shell exposes (an own shell exposes the properties of its `exposure for <Shell>`).
   The value is a bare word, a quoted string, a number, `true` or `false`. Set each name once.
-- `appearance`: `color scheme` is `light`, `dark` or `system`; `accent` is a quoted `#RGB`, `#RRGGBB` or `#RRGGBBAA`. One block per profile.
+- `identity`: what the application calls itself and the mark it wears. `name "<text>"` (the application's own name when left out),
+  `logo initials "<AB>"` (1-2 characters), `logo icon <icon>` (`box`, `layers`, `home`, `users`, `receipt`, `package`, `database` or `palette`) or
+  `logo image "<data:image/png|jpeg|svg+xml|webp;base64,...>"` (400 KB at most; the logo travels inside the document, never as a file beside it),
+  and `show name true|false`. One block per profile, each line once. Give each application its own `identity` so Studio and Stage draw its logo.
+- `appearance`: `color scheme` is `light`, `dark` or `system`; `accent` is a quoted `#RGB`, `#RRGGBB` or `#RRGGBBAA`; `corners` is `sharp`,
+  `default` or `round`; `font` is an id of Scene's font catalog (`inter`, `ibm-plex-sans`, `source-serif-4`, `system-ui`). One block per profile.
 - `new screens use template`: the template a new screen starts from in a designer. It is an authoring default, it changes no existing
   screen, and it has to be able to start a screen in a feature (not a layout or an application-scope root; a `scopes` list that leaves
   out `feature` is refused).
@@ -78,7 +89,7 @@ ui profile Web
 | Code | Severity | Cause | Fix |
 | --- | --- | --- | --- |
 | `PLAY0788` | Error | A `root template` or `new screens use template` line is malformed, or it pins a version on an own template | Write `[blueprint <B>] <Name> [version "<range>"]`; drop the version on an own template |
-| `PLAY0789` | Error | A malformed `appearance` line, a repeated line, or two `appearance` blocks | `color scheme <word>` / `accent "<colour>"`, each once, one block |
+| `PLAY0789` | Error | A malformed `identity` or `appearance` line, a repeated line, or two `identity` / `appearance` blocks | `color scheme <word>`, `accent "<colour>"`, `corners <word>`, `font <id>`, `name "<text>"`, `logo initials|icon|image <value>`, `show name <true|false>`, each once, one block each |
 | `PLAY0790` | Error | The template is not declared in the document (or the blueprint does not ship it) | Declare `layout <Name>` or `screen template <Name>`, or take it from a blueprint |
 | `PLAY0791` | Warning | The profile still selects its shell with the legacy `layout <Name>` line | Write `root template <Name>`; remove the `layout` line when a `root template` is present (the quick fix does either) |
 | `PLAY0792` | Error | The blueprint is not listed in the profile's `packages` (or not installed) | Add it under `packages` |
@@ -86,7 +97,7 @@ ui profile Web
 | `PLAY0794` | Error | The root template cannot be the shell: a dialog or ordinary screen template, a slot-fitting template, `scopes` without `application` | Choose a layout or an application-scope template |
 | `PLAY0795` | Error | The root template has no `content` slot | Add the line `content` to it |
 | `PLAY0796` | Warning | An `option` the shell does not expose | Use a name the shell exposes, or add the property to its `exposure` |
-| `PLAY0797` | Error | An invalid color scheme or accent | `light`, `dark` or `system`; a quoted hex colour |
+| `PLAY0797` | Error | An invalid color scheme, accent, corners or identity value | `light`, `dark` or `system`; a quoted hex colour; `sharp`, `default` or `round`; 1-2 initials, a listed icon, an image data URI of at most 400 KB |
 | `PLAY0798` | Error | More than one `root template` in one profile | Keep one |
 | `PLAY0799` | Error | The `new screens use template` default cannot start a screen in a feature | Name a feature-scope screen template |
 

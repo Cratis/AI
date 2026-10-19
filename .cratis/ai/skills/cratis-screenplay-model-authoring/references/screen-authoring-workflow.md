@@ -178,7 +178,7 @@ default (`applicableNewScreenTemplates`); pick from those instead of guessing. E
 `version`), `ShellOptionSyntax` (`add` to the root's `options`; `syntaxKind` is `Word`, `Text`, `Number` or `Flag`),
 `ProfileAppearanceSyntax` (`colorScheme`, `accent`) and `NewScreenTemplateSyntax` with `propose-ast`. A refusal is the answer:
 `PLAY0790` (a template nothing declares), `PLAY0792` (a blueprint the profile does not list), `PLAY0794` (a template that cannot
-be the shell), `PLAY0795` (no `content` slot), `PLAY0797` (a bad color scheme or accent), `PLAY0799` (a new screens default that
+be the shell), `PLAY0795` (no `content` slot), `PLAY0797` (a bad color scheme, accent, corners or identity value), `PLAY0799` (a new screens default that
 cannot start a screen). `PLAY0796` (an option the shell does not expose) and `PLAY0791` (the legacy `layout` line) are warnings:
 the proposal is accepted and `ui-profiles` shows them. Replay against the `ui-profile-root-positive` vector and its rejection
 vectors (`ui-profile-root-unknown`, `ui-profile-root-not-a-shell`, `ui-profile-root-invalid`) in `Cratis.Screenplay.CanonicalCorpus`.
