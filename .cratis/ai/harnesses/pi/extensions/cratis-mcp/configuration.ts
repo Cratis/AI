@@ -52,6 +52,8 @@ export function physicalRoot(project: string, root: string): string {
 export interface ProfileResolution {
     configuration: Record<string, unknown>;
     selected: Set<string>;
+    /** Profiles listed directly in `.cratis/ai.json`, before any `composes` expansion. */
+    explicit: Set<string>;
     nonApplicationSelection: boolean;
 }
 
@@ -96,7 +98,7 @@ export function resolveProfiles(project: string, corpus: string): ProfileResolut
         strings(profile.composes).forEach(child => select(child, false, applicationPath));
     };
     requested.forEach(id => select(id, true));
-    return { configuration, selected, nonApplicationSelection };
+    return { configuration, selected, explicit: new Set(requested), nonApplicationSelection };
 }
 
 /** Select only the shipped Screenplay descriptor, never project-supplied commands or environments. */

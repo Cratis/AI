@@ -36,7 +36,9 @@ managed corpus.
 ## MCP servers from the corpus
 
 The packaged `cratis-mcp` extension starts every stdio server declared in
-`mcp-servers.json` whose `profiles` intersect the resolved selected profiles (for
+`mcp-servers.json` whose `profiles` intersect the profiles listed explicitly in
+`.cratis/ai.json` (a profile reached only through another profile's `composes` does
+not start a server; Screenplay keeps its composed selection) (for
 example `codescene` for `cratis/codescene`, `playwright` for `cratis/playwright`).
 Each server gets its own connection, so one failing to start never stops the others,
 and its tools are namespaced by server id (`playwright_browser_navigate`). The

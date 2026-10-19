@@ -10,6 +10,7 @@ import type { ExtensionAPI, ExtensionContext, ToolDefinition } from '@earendil-w
 import { createServerBridge } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/ServerBridge.ts';
 import { StdioConnection } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/StdioConnection.ts';
 import { discoverServer, mapServerResult } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/serverProtocol.ts';
+import { selectedServer } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/configuration.ts';
 import { selectedCorpusServers } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/servers.ts';
 import type { CorpusServer } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/CorpusServer.ts';
 import { registerBridge } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/index.ts';
@@ -35,13 +36,27 @@ function serversFixture(servers: unknown[], configuration: unknown = { profiles:
 
 const ids = (fixture: ReturnType<typeof serversFixture>) => selectedCorpusServers(fixture.project, fixture.corpus).servers.map(server => server.id);
 
-test('only servers whose profiles are selected are loaded, including through composition', () => {
+test('only servers whose profiles are explicitly listed are loaded, never through composition', () => {
     const servers = [screenplay, playwright, codescene];
     assert.deepEqual(ids(serversFixture(servers, { profiles: ['cratis/playwright'] })), ['playwright']);
     assert.deepEqual(ids(serversFixture(servers, { profiles: ['cratis/playwright', 'cratis/codescene'] })), ['playwright', 'codescene']);
-    assert.deepEqual(ids(serversFixture(servers, { profiles: ['bundle'] })), ['playwright', 'codescene']);
+    assert.deepEqual(ids(serversFixture(servers, { profiles: ['bundle'] })), [], 'a profile reached only through composes never starts a generic server');
+    assert.deepEqual(ids(serversFixture(servers, { profiles: ['bundle', 'cratis/codescene'] })), ['codescene']);
     assert.deepEqual(ids(serversFixture(servers, { profiles: ['cratis/screenplay'] })), [], 'Screenplay keeps its own bridge path');
     assert.deepEqual(ids(serversFixture(servers, {})), []);
+});
+
+test('Screenplay reached through composition is still selected', () => {
+    const fixture = serversFixture([screenplay, playwright], { profiles: ['screenplay-bundle'] });
+    writeFileSync(join(fixture.corpus, 'profile-catalog.json'), JSON.stringify({
+        publicProfiles: [
+            { id: 'cratis/screenplay', languages: ['language-agnostic'] },
+            { id: 'cratis/playwright', languages: ['language-agnostic'] },
+            { id: 'screenplay-bundle', composes: ['cratis/screenplay', 'cratis/playwright'], languages: ['language-agnostic'] },
+        ], engineeringProfiles: [],
+    }));
+    assert.ok(selectedServer(fixture.project, fixture.corpus));
+    assert.deepEqual(ids(fixture), []);
 });
 
 test('command, args and literal env are carried verbatim', () => {

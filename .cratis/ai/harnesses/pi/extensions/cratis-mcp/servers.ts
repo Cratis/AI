@@ -31,7 +31,7 @@ function optOut(overrides: Record<string, unknown>, id: string): 'enabled' | 'di
     return override.enabled === false ? 'disabled' : 'mcpServers enabled must be a boolean';
 }
 
-/** Select every stdio server whose profiles intersect the resolved selection, except Screenplay which keeps its own path. */
+/** Select every stdio server whose profiles intersect the explicitly listed profiles (never composed ones), except Screenplay which keeps its own path. */
 export function selectedCorpusServers(project: string, corpus: string): ServerSelection {
     const selection: ServerSelection = { servers: [], messages: [] };
     const resolution = resolveProfiles(project, corpus);
@@ -57,7 +57,7 @@ export function selectedCorpusServers(project: string, corpus: string): ServerSe
     for (const entry of entries) {
         if (entry.id === 'screenplay') continue;
         // An entry without profiles can never be selected, so it is ignored like any other unselected entry.
-        if (!isSelected(entry, resolution.selected)) continue;
+        if (!isSelected(entry, resolution.explicit)) continue;
         const label = `MCP server '${String(entry.id)}'`;
         if (counts.get(entry.id)! > 1) {
             if (!reported.has(entry.id)) selection.messages.push(`${label} was skipped: the descriptor declares the id more than once.`);
