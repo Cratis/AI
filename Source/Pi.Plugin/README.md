@@ -33,6 +33,18 @@ yields to the managed installation to avoid duplicate resources and hooks. The P
 package manages only Pi; it neither configures other harnesses nor owns a local
 managed corpus.
 
+## MCP servers from the corpus
+
+The packaged `cratis-mcp` extension starts every stdio server declared in
+`mcp-servers.json` whose `profiles` intersect the resolved selected profiles (for
+example `codescene` for `cratis/codescene`, `playwright` for `cratis/playwright`).
+Each server gets its own connection, so one failing to start never stops the others,
+and its tools are namespaced by server id (`playwright_browser_navigate`). The
+`command`, `args` and optional literal `env` are used verbatim, without a shell. A
+malformed selected server is skipped with one notice; set
+`mcpServers.<id>.enabled` to `false` in `.cratis/ai.json` to opt a server out.
+`capabilities.json` beside the extension declares this behavior to the Cratis CLI.
+
 ## Screenplay MCP tools
 
 The packaged `cratis-mcp` extension starts the Screenplay MCP server
