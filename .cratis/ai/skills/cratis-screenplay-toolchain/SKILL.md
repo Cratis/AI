@@ -103,7 +103,7 @@ not the source identity.
 - **Executable** (binds, V3): `references/executable-subset.md`. Optional keyed lookups, unfiltered
   lists and lists narrowed by one `by` key (observable too) bind; caller-supplied equality
   filters on collections bind as ESM v14. Context `from`, single-result
-  filters, opaque `scoped to`/`performer` and a `by` block on a list query remain PLAY0268. Read
+  filters, opaque `scoped to` and a `by` block on a list query remain PLAY0268; a `performer` query is an opaque read left out of the executable model (PLAY0270; [version gate](references/executable-subset.md#code-attachments-what-binds-what-never-does)). Read
   read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
   Pending handlers beside unconditional productions bind as described commands (v23),
   but reached bodies are Unsupported; attached file/inline handlers refuse PLAY0800

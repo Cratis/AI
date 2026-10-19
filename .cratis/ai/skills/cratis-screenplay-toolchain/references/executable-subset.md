@@ -91,7 +91,7 @@ Requires Screenplay 4.141.0 or later (`screenplay --version`) to bind concept co
   equivalent inferred ESM bytes. Flat composite read-model keys bind as v27
   (see below). Collections and observable delivery bind.
   Caller-supplied equality filters on collections also bind as ESM v14; context
-  sources, single-result filters, scope, performer and a list-query `by` block remain blocked.
+  sources, single-result filters, scope and a list-query `by` block remain blocked; a `performer` query is an opaque read left out of the executable model.
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
   `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
   `subtract`, `set`, `clear`, variants, and the identifier mapped from the projection's key (`xId = $eventSourceId` only for an event-source key).
@@ -316,11 +316,13 @@ v22–v28 and [described handlers](../../cratis-screenplay-command-surface/refer
 for the result contract. Attached handlers remain unbound.
 
 Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
-code to an owner. Three kinds block binding (V3 blocked, no specification runs):
-the attached command `handler` (PLAY0800), the `file` constraint (PLAY0268, see below)
-and a query `performer` (PLAY0268)
-("uses delivery, filtering, scope, or implementation behavior outside the first ESM v1
-vertical"). Everything else binds as an **opaque requirement** that needs a target to
+code to an owner. Two kinds block binding (V3 blocked, no specification runs):
+the attached command `handler` (PLAY0800) and the `file` constraint (PLAY0268, see below).
+A query `performer` does not block: it is an opaque read, reported as information
+`PLAY0270` and left out of the executable model; a specification that reads it is left
+out, and every other specification still runs with `screenplay test`.
+Requires Screenplay 4.220.1 (`screenplay --version`); older versions refuse a performer
+query with PLAY0268 and leave the whole model unbound. Everything else binds as an **opaque requirement** that needs a target to
 execute: reducer transitions, rule predicates, command and concept code validation, policy
 predicates and reaction effects. Reaction effects bind only when the trigger has no
 `reads`; a trigger with `reads` plus a `file` or inline effect fails binding. Reaction
@@ -350,7 +352,7 @@ bodies still leave their owner non-executable.
   code validation is refused (STAGE-ESM-005). Opaque pure policies render.
 - The reference runner returns Unsupported for the opaque bodies that do bind (rule and
   policy predicates, code validation, reducer transitions); a specification that needs one
-  never passes. Attached handlers, file constraints and query performers (and reaction effects on a trigger with
+  never passes. Attached handlers and file constraints (and reaction effects on a trigger with
   `reads`) are different: they leave the whole model unbound, so no specification runs at
   all.
 
@@ -362,7 +364,7 @@ bodies still leave their owner non-executable.
 | Unquoted `import Other.Contract` | PLAY0268 | external contract import is not bound |
 | `pii` or `secret` on a concept | PLAY0268 | Older compilers refuse it outright. Current compilers admit v13 except enum/identity compliance and events mixing personal or explicitly subject-scoped secret values with explicit subject marks; see `compliance.md` in command-surface references |
 | `query` with a `by` block over a list, or `by ... from` context-derived arguments | PLAY0268 | a `by` block binds only on an optional single-instance query (v27). An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too |
-| Context `from`, single-result filters, `scoped to`, `performer` queries | PLAY0268 | Typed query context, filtering of single results, opaque scope and query implementation remain unadmitted; each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
+| Context `from`, single-result filters, `scoped to` | PLAY0268 | Typed query context, filtering of single results and opaque scope remain unadmitted; a `performer` query is not refused (PLAY0270 information, left out of the executable model); each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions only | PLAY0268 | conditions admit scalar equality (Uuid from v28) and numeric ordering, plus same-primitive command date comparisons from v26; property/concept text rules bind as v24 |
 | Date comparisons with mixed primitives, `$context` (including occurred), `today`, protected read paths, optional condition operands, concept rules or reaction `where` | PLAY0268 | v26 admits only command conditions and command/property literal validation rules |
 | Rule on a nested path (`lines.qty all > 0`) | PLAY0268 | put the rule on the nested value's concept |
