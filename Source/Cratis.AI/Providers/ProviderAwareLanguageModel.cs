@@ -286,7 +286,7 @@ public class ProviderAwareLanguageModel(
         // Out of headroom or rate limited: starting on it would only spend a call - or a whole worker
         // session - to be turned away. Skipped, not recorded as a failure: nothing was tried.
         logger.PoolMemberHasNoCapacity(capacity.Provider, capacity.Headroom, capacity.AvailableAgainAt);
-        return PoolAttempt<LanguageModelResult>.Skipped($"AI provider {capacity.Provider} has no capacity to start work");
+        return PoolAttempt<LanguageModelResult>.Skipped($"AI provider {capacity.Provider} cannot start work: it {capacity.Explain()}");
     }
 
     async Task<PoolAttempt<LanguageModelResult>> AttemptCompletion(string prompt, LanguageModelPurpose purpose, AIProviderPoolMember member, ModelTier tier, Effort effort, CancellationToken cancellationToken)

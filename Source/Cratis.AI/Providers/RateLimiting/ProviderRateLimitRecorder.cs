@@ -34,6 +34,12 @@ public class ProviderRateLimitRecorder(
     static readonly TimeSpan _longestStatedReset = TimeSpan.FromDays(31);
 
     /// <summary>
+    /// How short a pause ever is - a stated reset already in the past, or a moment away, still keeps the
+    /// provider alone for this long.
+    /// </summary>
+    static readonly TimeSpan _minimumPause = TimeSpan.FromMinutes(2);
+
+    /// <summary>
     /// Records the rate limit a failure indicated against its provider.
     /// </summary>
     /// <param name="providerId">The provider that turned the call away.</param>
@@ -45,18 +51,23 @@ public class ProviderRateLimitRecorder(
         {
             // Parked until the limit actually lifts, when that is known - a weekly window resetting
             // in three days is not worth retrying every hour, spending a call or a whole worker
-            // session each time. The stated reset in the failure itself wins; failing that, when the
-            // vendor's own windows said the provider would be available again; never shorter than
-            // the cooldown, which covers a limit nothing said anything about.
+            // session each time, and a five-hour window resetting in seven minutes is not worth
+            // parking for an hour. The stated reset in the failure itself wins; failing that, when the
+            // vendor's own windows said the provider would be available again; only when nothing
+            // says anything is the cooldown a guess.
             var now = timeProvider.GetUtcNow();
-            var cooldown = now.Add(options.Value.RateLimitCooldown);
             var availableAgain = ProviderRateLimit.ResetIndicatedBy(reason, now) ?? await AvailableAgainAt(providerId);
             if (availableAgain > now.Add(_longestStatedReset))
             {
                 availableAgain = null;
             }
 
-            var until = availableAgain > cooldown ? availableAgain.Value : cooldown;
+            var until = availableAgain is { } known ? known : now.Add(options.Value.RateLimitCooldown);
+            if (until < now.Add(_minimumPause))
+            {
+                until = now.Add(_minimumPause);
+            }
+
             providerCapacities.Forget(providerId);
 
             // Reported, never discarded - a dropped result here is the cooldown itself going missing,

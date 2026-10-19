@@ -9,6 +9,7 @@ using Cratis.AI.Providers.Codex;
 using Cratis.AI.Providers.Copilot;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.AI.Providers.RateLimiting;
+using Cratis.AI.Providers.Reconfiguring;
 using Cratis.AI.Providers.SettingConcurrency;
 using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
@@ -56,6 +57,12 @@ namespace Cratis.AI.Providers.Listing;
 [FromEvent<AIProviderUsageCredentialSet>]
 [FromEvent<AIProviderUsageCredentialCleared>]
 [FromEvent<AIProviderRateLimited>]
+[FromEvent<AIProviderRateLimitCleared>]
+[FromEvent<AnthropicProviderReconfigured>]
+[FromEvent<OpenAIProviderReconfigured>]
+[FromEvent<AzureOpenAIProviderReconfigured>]
+[FromEvent<OpenAICompatibleProviderReconfigured>]
+[FromEvent<ZAIProviderReconfigured>]
 [FromEvent<AIProviderHarnessesSet>]
 [RemovedWith<CratisAIRemoving.AIProviderRemoved>]
 public record AIProvider(
@@ -95,6 +102,12 @@ public record AIProvider(
     [SetValue<AIProviderUsageCredentialCleared>(false)]
     bool HasUsageCredential = false,
     [SetFrom<AIProviderRateLimited>(nameof(AIProviderRateLimited.Until))]
+    [SetFromContext<AIProviderRateLimitCleared>(nameof(EventContext.Occurred))]
+    [SetFromContext<AnthropicProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<OpenAIProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<AzureOpenAIProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<OpenAICompatibleProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<ZAIProviderReconfigured>(nameof(EventContext.Occurred))]
     DateTimeOffset? RateLimitedUntil = null,
     IReadOnlyList<Harness>? SupportedHarnesses = null,
     [SetValue<AIProviderHarnessesSet>(true)]

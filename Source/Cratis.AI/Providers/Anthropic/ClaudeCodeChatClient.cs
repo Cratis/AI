@@ -110,6 +110,7 @@ public sealed class ClaudeCodeChatClient(IClaudeCodeStreamingProcess process, AI
             string? responseId = null;
             ClaudeCodeStreamEvent? result = null;
             var streamedAnyText = false;
+            int? retriedStatus = null;
             var initialized = false;
             ChatFinishReason? stopReason = null;
 
@@ -117,6 +118,14 @@ public sealed class ClaudeCodeChatClient(IClaudeCodeStreamingProcess process, AI
             {
                 if (!ClaudeCodeStreamEvent.TryParse(line, out var parsed))
                 {
+                    continue;
+                }
+
+                if (parsed.IsRetry)
+                {
+                    // The CLI retries a failed API call before giving up and names the HTTP status it got; keep
+                    // it so the failure that follows says more than that the request failed.
+                    retriedStatus = parsed.HttpStatus ?? retriedStatus;
                     continue;
                 }
 
@@ -139,7 +148,11 @@ public sealed class ClaudeCodeChatClient(IClaudeCodeStreamingProcess process, AI
 
                 if (parsed.IsFailure)
                 {
-                    throw new ClaudeCodeConversationFailed(parsed.FailureReason!, kind: parsed.FailureKind);
+                    throw new ClaudeCodeConversationFailed(
+                        retriedStatus is not null && parsed.FailureKind != ClaudeCodeFailureKind.RateLimit
+                            ? ClaudeCodeFailureText.For(parsed.FailureKind, parsed.FailureCode, retriedStatus)
+                            : parsed.FailureReason!,
+                        kind: parsed.FailureKind);
                 }
 
                 if (parsed.HasStopReason) stopReason = parsed.FinishReason;
