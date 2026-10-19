@@ -220,5 +220,5 @@ queries are executable too (`ListOpenInvoices` in the backing example); caller-s
 Pass `by` and filters in query arguments; PLAY0468 reports unknown, repeated or
 missing required arguments. Optional filters may be omitted, supplied null is refused.
 Context-sourced/single-result filters, opaque `scoped to`, and a list-query
-`by` block remain PLAY0268; a `performer` query is an opaque read left out of the model (PLAY0270). Compiled coverage and renderer ceilings:
+`by` block remain PLAY0268; a `performer` query is an opaque read left out of the model (PLAY0270; [version gate](../../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does)). Compiled coverage and renderer ceilings:
 read-surface [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).

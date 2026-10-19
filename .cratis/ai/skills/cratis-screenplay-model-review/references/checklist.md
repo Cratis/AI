@@ -52,7 +52,7 @@ not why: a signal, so confirm the hidden reason before reporting. The fix names 
 change (`BerthReassigned`, `BerthLengthLimitRaised`), one event per reason, each with its own
 rules and consumers. A shared payload shape alone is not a defect: full generations repeat the
 prior shape on purpose and different facts may look alike. Screenplay 4.127.0 MCP
-`find-modeling-smells` reports advisory questions (SMELL001–SMELL006) for generic
+`find-modeling-smells` reports advisory questions (SMELL001–SMELL005; SMELL006 needs a newer server, see [MCP tools](../../cratis-screenplay-model-authoring/references/mcp-tools.md)) for generic
 names, duplicate shapes, wide flows and event properties nothing reads. It supplements the sweep, never changes
 a compiler verdict or proves a domain defect.
 
@@ -180,7 +180,7 @@ Nebulit (`provenance.md`).
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
 | H1 | Query shape follows the business view (list where people scan; lookup where they open one) | queries, screens | D |
-| H2 | Executable scope: a keyed `=> RM optional` query with `by` named like a read-model property, or a collection (`=> RM[]`, observable too) with caller-supplied `by` and/or equality filters. `from`, single-result filters, opaque `scoped to` and a list-query `by` block remain PLAY0268. A read model with several key parts binds as v27 (Requires Screenplay 4.204.0). The projection routes by the same identity (a `from` key or an event property, or `$eventSourceId`; `$eventSourceId` is not mandated). Filtered models: supported v14 equality filters render within the CLI bundle's ESM ceiling. Renderable scope only: Stage-specific identity/filter limits; keyed optional snapshot lookups and snapshot/observable collections render (Requires Stage 4.90.0 for snapshot lists; older renderers report `STAGE-ESM-010`). Check query concept-validation parity separately; primitive-argument targets answer absence instead of Validation | queries, projections | C (executable); C (render admission, renderable only) |
+| H2 | Executable scope: a keyed `=> RM optional` query with `by` named like a read-model property, or a collection (`=> RM[]`, observable too) with caller-supplied `by` and/or equality filters. `from`, single-result filters, opaque `scoped to` and a list-query `by` block remain PLAY0268; a `performer` query is an opaque read (PLAY0270) left out of the executable model ([version gate](../../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does)). A read model with several key parts binds as v27 (Requires Screenplay 4.204.0). The projection routes by the same identity (a `from` key or an event property, or `$eventSourceId`; `$eventSourceId` is not mandated). Filtered models: supported v14 equality filters render within the CLI bundle's ESM ceiling. Renderable scope only: Stage-specific identity/filter limits; keyed optional snapshot lookups and snapshot/observable collections render (Requires Stage 4.90.0 for snapshot lists; older renderers report `STAGE-ESM-010`). Check query concept-validation parity separately; primitive-argument targets answer absence instead of Validation | queries, projections | C (executable); C (render admission, renderable only) |
 | H3 | One builder per read model; projection `key` only on `from` | projections | C |
 | H4 | Screens show one actor's point of view; a form submits one command | screens, forms | D |
 

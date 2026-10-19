@@ -454,7 +454,7 @@ catalog identities; `executionAvailable` still requires whole-workspace binding.
 Source/stream `propose-rename` repairs bound route references. `propose-rename` also
 renames a composite stream-id part: it rewrites the part declaration and every
 `part = ...` mapping in command routes, specification routes, examples and redelivery
-locators, keeps part order, stored stream ids and catalog identities, and is refused
+locators, keeps part order and stored stream ids, and is refused
 when the new name collides with another part of the same stream. Use it instead of a
 hand-written `propose-ast` batch.
 Requires Screenplay 4.220.0 (`screenplay --version`) for part renames; older servers

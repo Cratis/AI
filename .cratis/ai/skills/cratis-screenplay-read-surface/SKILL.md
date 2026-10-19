@@ -85,7 +85,7 @@ is not the same thing. Rules and diagnostics:
 **Name the compiler and renderer.** Optional keyed queries and collection queries
 bind, including `observable`. Caller-supplied equality
 filters on collections bind as ESM v14; `from`, single-result filters, `scoped to`,
-and a `by` block on a list query (or on a non-optional single result) remain PLAY0268, each with its reason. A `performer` query is not refused: it is an opaque read (PLAY0270 information) left out of the executable model. Read
+and a `by` block on a list query (or on a non-optional single result) remain PLAY0268, each with its reason. A `performer` query is not refused: it is an opaque read (PLAY0270 information) left out of the executable model ([version gate](../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does)). Read
 [equality filters](references/equality-filters.md) for the admitted shape, a complete
 compiled specification model and the Stage/CLI ceilings. Keep a list the domain needs.
 
@@ -166,7 +166,7 @@ precondition. It takes a `file` reference or an inline block in a tagged fence
 (` ```csharp `, ` ```sql `), and is the query's counterpart to a command's
 `handler`. The parser accepts any registered inline language and does not reject
 a nonsensical one, so the choice is yours to get right. Performer code is opaque:
-Screenplay never runs it. It is reported as information `PLAY0270` and left out of the executable model; a specification that reads it is left out while every other specification still runs.
+Screenplay never runs it. It is reported as information `PLAY0270` and left out of the executable model; a specification that reads it is left out while every other specification still runs. Older compilers refuse it with PLAY0268: see the [version gate](../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does).
 
 A read model a performer composes needs no projection, and no event builds it.
 Specify it from state with `given readmodel`, then `when query <Query>` with the
