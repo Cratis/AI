@@ -272,7 +272,7 @@ Chronicle's constraints enforce **uniqueness only**; use one when two concurrent
 ## `policy` and `persona`
 
 A policy has **exactly one** `require` line (`PLAY0441`) **or** one implementation, never both (`PLAY0440`). Read [references/policy-persona-seed.md](references/policy-persona-seed.md) when
-declaring a policy, a persona, or a `seed` block.
+declaring a policy (including `require anonymous` for a deliberately public command or query), a persona, or a `seed` block.
 
 ## Event data subject
 
