@@ -6,7 +6,7 @@ applyTo: "**/*"
 
 ## The description is the release note
 
-**The PR description is published verbatim as the GitHub release. In repositories released by `cratis/release-action`, it also closes every issue written as `(#n)`; elsewhere, follow the repository's own release and issue-closing process.** Write the note the person upgrading should read, not a development write-up. The same contract applies to release notes typed into a manual workflow run or written straight into a release. Where it is installed, the `verify-release-notes` check enforces it on release-bound PRs into the default branch carrying `major`/`minor`/`patch` (it re-runs when the label is added); it warns on `no-release` and unlabelled PRs, which must still be written this way because any of them may become releasable. `release-action` does not run for a `no-release` PR, so `(#n)` closes nothing there. Editing the description re-runs the check. HTML comments are not shown on the release page and the check ignores them for headings, keywords and placeholders, and `release-action` removes them before publishing, so a `(#n)` only inside a comment closes nothing; the check fails it, so never put an issue reference in a comment. The template's own comment can stay: its `(#123)` examples are inline code, and the comment is not published.
+**The PR description is published verbatim as the GitHub release. In repositories released by `cratis/release-action`, it also closes every issue written as `(#n)`; elsewhere, follow the repository's own release and issue-closing process.** Write the note the person upgrading should read, not a development write-up. The same contract applies to release notes typed into a manual workflow run or written straight into a release. Where it is installed, the `policy / verify` check enforces it on release-bound PRs into the default branch carrying `major`/`minor`/`patch` (it re-runs when the label is added); it warns on `no-release` and unlabelled PRs, which must still be written this way because any of them may become releasable. `release-action` does not run for a `no-release` PR, so `(#n)` closes nothing there. Editing the description re-runs the check. HTML comments are not shown on the release page and the check ignores them for headings, keywords and placeholders, and `release-action` removes them before publishing, so a `(#n)` only inside a comment closes nothing; the check fails it, so never put an issue reference in a comment. The template's own comment can stay: its `(#123)` examples are inline code, and the comment is not published.
 
 ### Allowed shape
 
@@ -81,12 +81,12 @@ Arc can now construct Chronicle reactors and reducers through its own dependency
 
 ### Before you create or edit a PR
 
-1. Run `node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file <file> --label <intent>`. It runs the exact `verify-release-notes` rules plus the label and diff checks, and the Bash hook runs it on `gh pr create` and `gh pr edit`.
+1. Run `node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file <file> --label <intent>`. It runs the exact `policy / verify` release-note rules plus the label and diff checks, and the Bash hook runs it on `gh pr create` and `gh pr edit`.
 2. Read the body against the forbidden list and the issue table above; delete every hit and verify every issue number.
 3. Sections in order, none empty, at most one summary form; every bullet user-facing.
 4. Test plan, verification and review notes are in a PR comment.
 
-If `verify-release-notes` fails, fix it by editing the description, not by pushing code.
+If the release-note rules fail, fix the description, not the code.
 
 ## Commits
 
