@@ -120,7 +120,7 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
 
 - At most one `identifier` per command; never on an event property or read-model property (use `key`). At most one builder per read model (`PLAY0191`). Read `references/read-model-design.md` ("Identifier and key contract") for the exact rules.
 
-- A query's `by` goes on its own body line; `from`, single-result filters, scope, performer and a list-query `by` block remain `PLAY0268`; equality filters on collections bind as ESM v14. Read `references/read-model-design.md` ("Query binding") for the binding rules.
+- A query's `by` goes on its own body line; `from`, single-result filters, scope and a list-query `by` block remain `PLAY0268` (a `performer` query is an opaque read left out of the executable model, [version gate](../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does)); equality filters on collections bind as ESM v14. Read `references/read-model-design.md` ("Query binding") for the binding rules.
 
 - A `unique` constraint names a property the event declares directly; the constraint name is
   its identity (renaming starts an empty index).

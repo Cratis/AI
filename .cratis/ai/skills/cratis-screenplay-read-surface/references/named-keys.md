@@ -25,7 +25,7 @@ selection is:
    (case-sensitive). It first excludes collection-query `by` properties: if exactly
    one candidate remains, that is the identifier; otherwise it uses all `*Id`
    candidates and requires exactly one. An admitted list query here is a collection
-   query without context-derived `by`, filters, scope or performer.
+   query without context-derived `by`, filters or scope.
 
 A projection-only/queryless read model needs an explicit `key`: a lone `*Id`
 property alone does not infer identity. Never use the command's `identifier`
