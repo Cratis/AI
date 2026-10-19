@@ -133,7 +133,7 @@ chain per slice before handoff (`references/evidence-table-template.md`, "Tracea
    `cratis-screenplay-slice-design` for slices, `cratis-screenplay-streams-and-consistency` for
    identity and invariants). To move an already authored slice or feature to its right parent, use
    the MCP `propose-move` tool (identity-preserving; it refuses identity loss, collisions and
-   captures; it also moves a single declaration between slices) rather than retyping the declarations (`cratis-screenplay-model-authoring`):
+   name capture (a reference that would resolve to a different declaration); it also moves a single declaration between slices) rather than retyping the declarations (`cratis-screenplay-model-authoring`):
    - one StateChange per decision a person or system makes; events are facts experts recognise;
      consequences (counters, denormalised copies) become projections; an automation only when
      evidence shows a separate decision; no generic names (`Update/Edit/Save<Noun>`, `<Noun>Updated`): split by intent;
