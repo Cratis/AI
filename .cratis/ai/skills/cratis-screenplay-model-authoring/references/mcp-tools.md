@@ -25,7 +25,7 @@
 - Formatting and recovery limits
 - Code attachments
 
-The standalone MCP server lists 46 tools (including the MCP-Apps visualization tool); `tools/list` is the authority for the installed server.
+The standalone MCP server lists 46 tools from Screenplay 4.228.0 (including the MCP-Apps visualization tool); `tools/list` is the authority for the installed server, and the CLI-bundled MCP (`cratis screenplay mcp`) can be an older Screenplay that lacks newer tools.
 
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
 alone inside a project, where the CLI locates the model (the project's `.play` files, else
@@ -68,6 +68,8 @@ A declaration move follows these rules:
 - Screen `execute`, `refresh` and `navigate to` targets that name the declaration are repaired, not moved.
 - Slice-level events named by `produces` do not travel with a command, and a projection's `from` may name an event declared in another slice; move such an event with its own `propose-move` only when it should change slices. A command's inline events go with it.
 - Event names and pins stay untouched, and assigned identities follow the declaration.
+
+Requires Screenplay 4.230.0 (`screenplay --version`) for declaration moves; older servers move only slices and features.
 
 Requires Screenplay 4.211.0 (`screenplay --version`) for string conflict/move-report document fields and independent reference-edit batches; older servers can emit objects and refuse independent remove/add batches. Upgrade before relying on this contract.
 
@@ -355,12 +357,16 @@ tags and identities survive; canonical ESM must stay byte-identical and every
 comment must survive exactly once. Extract before adding `generation`, not after
 making the document parser-invalid. This is a refactoring, not a diagnostic repair.
 
+Requires Screenplay 4.228.0 (`screenplay --version`) for `propose-inline-event`.
+
 `propose-inline-event` is the inverse: it folds a slice-level event with exactly one
 production into an inline event on that production, takes the same `subject`,
 revisions and `formatting: "CanonicalizeTouchedDocuments"`, and preserves executable
 bytes and identities. It refuses when the fold could change meaning (a conditional
 production, public or external event, cross-slice use, handlers, lost comments or any
 other reference to the event).
+
+Requires Screenplay 4.223.0 (`screenplay --version`) for `trace-lineage`.
 
 `trace-lineage` takes a read-model property `address` and returns a paged tree
 (`limit`, `offset`) from the property through projection or reducer mappings, joins and

@@ -1,5 +1,12 @@
 # Policies, personas and seed
 
+## Contents
+
+- `policy` and `persona`
+- Anonymous policy
+- Policy negation
+- `seed`
+
 ## `policy` and `persona`
 
 ```screenplay
