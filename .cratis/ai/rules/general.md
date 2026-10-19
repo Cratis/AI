@@ -47,10 +47,8 @@ repository. Individual projects need extra context that does not belong here,
 such as product composition, approved environment names, directions for
 obtaining credentials, and other local conventions ("Product policy" above).
 
-- Read repository-owned documentation as the canonical project-specific context when it
-  exists.
-- Read repository-owned documentation only as the documented legacy fallback when
-  repository-owned documentation does not exist; never merge both contexts.
+- Project-specific context is the repository's own documentation plus
+  `.cratis/ai/rules/project.md`.
 - Project context may explain which approved secret mechanism or local setup to
   use, but it must never contain credential values, tokens, keys, passwords, or
   other secrets.
