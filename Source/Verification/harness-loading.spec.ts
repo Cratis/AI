@@ -44,7 +44,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
         // skills are the managed resources under test, so an operator's personal skills must not move the count.
         const repositoryRealPath = realpathSync(repositoryRoot);
         const repositorySkills = loader.getSkills().skills.filter(skill => realpathSync(skill.filePath).startsWith(repositoryRealPath));
-        assert.equal(repositorySkills.length, 106);
+        assert.equal(repositorySkills.length, 107);
         assert.equal(loader.getPrompts().prompts.length, 18);
         // A worktree nested under another checkout can also load that checkout's AGENTS.md.
         // Assert this repository's context is present exactly once, regardless of its ancestors.
@@ -64,7 +64,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
 
 test('every supported harness resolves the canonical skill corpus', () => {
     for (const path of ['.claude/skills', '.agents/skills', '.github/skills', '.cursor/skills', '.opencode/skills', '.pi/skills']) {
-        assert.equal(skillCount(join(repositoryRoot, path)), 106, path);
+        assert.equal(skillCount(join(repositoryRoot, path)), 107, path);
         assert.equal(realpathSync(join(repositoryRoot, path)), realpathSync(join(corpusRoot, 'skills')), path);
     }
 });
@@ -157,7 +157,7 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
                     instructions = readFileSync(join(corpus, 'rules/general.md'), 'utf8');
                 }
                 assert.match(instructions, /Go style, source and module files.*`go\.md`.*`go-engineering\.md`/, harness);
-                assert.match(instructions, /Read repository-owned documentation as the canonical project-specific context/, harness);
+                assert.match(instructions, /Project-specific context is the repository's own documentation plus\s+`\.cratis\/ai\/rules\/project\.md`/, harness);
                 assert.equal(readFileSync(join(project, 'README.md'), 'utf8'), projectContext, harness);
                 const actualSkills = readdirSync(join(project, skills)).sort();
                 assert.deepEqual(actualSkills, selectedSkillPaths(project).map(path => path.split('/').pop()).sort(), harness);

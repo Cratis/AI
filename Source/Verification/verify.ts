@@ -23,6 +23,7 @@ import { modelFirstRestatements } from './model-first-restatements.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
 import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems, skillOverlapFindings } from './skill-authoring.ts';
 import type { AuthoringFinding } from './AuthoringFinding.ts';
+import { alwaysOnHarnessBytes, alwaysOnInputs, alwaysOnSummary } from './always-on-budget.ts';
 import { evaluationCoverageBaseline, evaluationCoverageFindings } from './evaluation-coverage.ts';
 import { checkInstructionDependencies, instructionDependencyMessages } from './instruction-dependencies.ts';
 import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
@@ -201,12 +202,9 @@ const referencingFiles = await Promise.all(['rules', 'prompts', 'agents'].map(as
 }));
 failures.push(...danglingSkillReferences(referencingFiles.flat(), skillDirectories.map(entry => entry.name)));
 for (const entry of referencingFiles.flat()) authoringFindings.push(...instructionAuthoringFindings(`.cratis/ai/${entry.path}`, entry.content));
-const copilotAdapterNames = (await readdir(join(corpus, 'harnesses', 'copilot', 'instructions'))).filter(name => name.endsWith('.md'));
-const loadedArtifacts = {
-    copilotAdapters: await Promise.all(copilotAdapterNames.map(async name => ({ file: name, content: await readFile(join(corpus, 'harnesses', 'copilot', 'instructions', name), 'utf8') }))),
-    cursorRule: await readFile(join(corpus, 'harnesses', 'cursor', 'rules', 'cratis.mdc'), 'utf8'),
-};
-authoringFindings.push(...alwaysOnFindings(referencingFiles[0].map(entry => ({ file: `.cratis/ai/${entry.path}`, content: entry.content })), undefined, loadedArtifacts));
+const alwaysOn = await alwaysOnInputs(corpus);
+authoringFindings.push(...alwaysOnFindings(alwaysOn.entries, undefined, alwaysOn.loaded));
+console.log(alwaysOnSummary(alwaysOnHarnessBytes(alwaysOn.entries, alwaysOn.loaded)));
 const overlapFindings = skillOverlapFindings(await Promise.all(corpusTextPaths.filter(path => /\/skills\/[^/]+\/SKILL\.md$/.test(path)).map(async path => ({
     file: relative(root, path), content: await readFile(path, 'utf8'),
 }))));

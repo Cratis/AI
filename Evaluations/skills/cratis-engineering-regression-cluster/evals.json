@@ -1,0 +1,42 @@
+{
+  "skill_name": "cratis-engineering-regression-cluster",
+  "evals": [
+    {
+      "id": 1,
+      "name": "third-issue-on-one-surface",
+      "prompt": "A new issue reports that the owner filter on the backlog list hides items it should show. Two earlier issues on the same backlog list filters were fixed last month, each with its own spec. Plan the work before writing code. Reply only; do not run anything.",
+      "expected_output": "Count the earlier issues on the surface, recognize the third instance, name a failure class that covers all three (for example, filters are not exercised through the rendered list), choose one owning gate that covers every filter, prove it fails on the current bug before fixing, register the class, then fix the instance.",
+      "assertions": [
+        "Recognizes this as the third issue on one surface and stops fixing it as an isolated instance.",
+        "Names a failure class as a violated property that covers all three issues, not the new symptom.",
+        "Proposes one gate that covers every member of the class rather than a third per-bug specification.",
+        "Requires the gate to fail on the current broken instance before the fix is written.",
+        "Fixes the instance only after the gate is in place."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "choose-enforcement-kind",
+      "prompt": "Three regressions on the payments endpoint all came from handlers that forgot to check the tenant. Someone proposes adding a paragraph to the team's coding rules. Respond with what to do instead. Reply only.",
+      "expected_output": "Reject the prose-only fix, name the failure class, prefer the earliest gate that can catch it (an analyzer, lint rule, CI check, or a specification suite over every handler), make it required, and leave prose only for any judgment-shaped part.",
+      "assertions": [
+        "Explains that a prose rule alone does not enforce the class.",
+        "Orders enforcement kinds and prefers the earliest gate that can catch the class.",
+        "Covers every handler on the surface, not only the three that broke.",
+        "Makes the gate part of the required CI checks."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "register-the-class",
+      "prompt": "We added an interaction suite that now covers every list filter after a cluster of filter bugs. The repository has no failure-class table. How do we make sure the next failure is recognized as this class? Reply only.",
+      "expected_output": "Without a table, put the class name in the gate's failure message and the specification or check name, link the earlier issues to the class in the pull request comment, and confirm the gate failed before the fix and passes after.",
+      "assertions": [
+        "Puts the class name in the gate's failure message or the specification/check name when no table exists.",
+        "Mentions adding a row to a failure-class table or gate inventory when the repository keeps one.",
+        "Links the earlier issues to the class.",
+        "States that the gate must have failed before the fix and pass after it."
+      ]
+    }
+  ]
+}
