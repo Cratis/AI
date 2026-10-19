@@ -630,6 +630,13 @@
       ]
     },
     {
+      "id": "cratis/playwright",
+      "availableTargets": [],
+      "languages": [
+        "language-agnostic"
+      ]
+    },
+    {
       "id": "cratis/components",
       "availableTargets": [
         "cratis-components-accessibility",
