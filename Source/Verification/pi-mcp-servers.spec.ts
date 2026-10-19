@@ -106,12 +106,13 @@ test('any 1.x schema loads; another major loads nothing with one message', () =>
     assert.match(selection.messages[0], /schemaVersion/);
 });
 
-function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<string, 'ok' | 'exit' | 'hang'> = {}, deadline = 15_000) {
+function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<string, 'ok' | 'exit' | 'hang'> = {}, deadline = 15_000, timeout = 1000) {
     const children = new Map<string, ReturnType<typeof fakeChild>>();
     const registered = new Map<string, ToolDefinition>();
     const launched: CorpusServer[] = [];
     const notices: string[] = [];
     const requests: Array<Record<string, unknown>> = [];
+    const toolNames: Record<string, string[]> = {};
     let active = ['read'];
     const context = { cwd: fixture.project, hasUI: true, ui: { notify: (message: string) => notices.push(message) } } as unknown as ExtensionContext;
     const api = {
@@ -130,12 +131,12 @@ function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<s
             if (behaviors[server.id] === 'exit') { child.exit(); return; }
             if (behaviors[server.id] === 'hang') return;
             if (request.method === 'initialize') child.result(request, { protocolVersion: '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: server.id } });
-            if (request.method === 'tools/list') child.result(request, { tools: [{ name: 'browser-navigate', description: 'Go', inputSchema: { type: 'object' } }] });
+            if (request.method === 'tools/list') child.result(request, { tools: (toolNames[server.id] ?? ['browser-navigate']).map(name => ({ name, description: 'Go', inputSchema: { type: 'object' } })) });
             if (request.method === 'tools/call') child.result(request, { content: [{ type: 'text', text: `ran ${server.id}` }] });
         });
-        return new StdioConnection(child.child, 1000, server.id, true);
+        return new StdioConnection(child.child, timeout, server.id, true);
     }, deadline);
-    return { children, bridge, context, registered, launched, notices, requests, active: () => active };
+    return { setTools(names: Record<string, string[]>) { Object.assign(toolNames, names); }, children, bridge, context, registered, launched, notices, requests, active: () => active };
 }
 
 test('a selected server starts with its own connection and namespaced tools, and executes calls', async () => {
@@ -179,15 +180,30 @@ test('a crash of one server leaves the other usable', async () => {
     assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
 });
 
-test('a server that never answers initialize is abandoned at the deadline while the others become usable', async () => {
-    const run = harness(serversFixture([codescene, playwright]), { codescene: 'hang' }, 100);
+test('a server that never answers initialize is abandoned at the deadline while the others start in parallel', async () => {
+    const run = harness(serversFixture([codescene, playwright]), { codescene: 'hang' }, 150, 60_000);
     const started = Date.now();
     await run.bridge.refresh(run.context, true);
-    assert.ok(Date.now() - started < 900, 'session start is bounded by the per-server deadline');
+    assert.ok(Date.now() - started < 5000, 'session start is bounded by the per-server deadline, not the request timeout');
+    const order = run.requests.filter(request => request.method === 'initialize').map(request => request.server);
+    assert.deepEqual(order, ['codescene', 'playwright'], 'the second server initializes without waiting for the hung one');
+    assert.ok(run.requests.some(request => request.server === 'playwright' && request.method === 'tools/list'));
     assert.deepEqual([...run.registered.keys()], ['playwright_browser_navigate']);
     assert.match(run.notices.join('\n'), /'codescene' is unavailable: .*did not become ready/);
     const result = await run.registered.get('playwright_browser_navigate')!.execute('call', {}, undefined, undefined, run.context);
     assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
+});
+
+test('a tool-name collision is won by the earlier server in selection order, however readiness is ordered', async () => {
+    // 'a' + 'b_x' and 'a_b' + 'x' both namespace to a_b_x; the first selected server wins.
+    const first = { ...codescene, id: 'a_b' };
+    const second = { ...playwright, id: 'a' };
+    const fixture = serversFixture([{ ...first, profiles: ['cratis/codescene'] }, { ...second, profiles: ['cratis/playwright'] }]);
+    const run = harness(fixture);
+    run.setTools({ a_b: ['x'], a: ['b_x'] });
+    await run.bridge.refresh(run.context, true);
+    assert.equal(run.registered.get('a_b_x')!.label, 'a_b x');
+    assert.match(run.notices.join('\n'), /'a' tool 'b_x' was skipped/);
 });
 
 test('third-party server notifications are ignored and server requests are refused with -32601', async () => {
@@ -204,7 +220,6 @@ test('third-party server notifications are ignored and server requests are refus
 });
 
 test('oversized tools are skipped and unsupported or oversized images are replaced by a note', () => {
-    const big = 'x'.repeat(5000);
     assert.equal(mapServerResult({ content: [{ type: 'image', data: 'AAAA', mimeType: 'image/svg+xml' }] }, 'p').content[0].type, 'text');
     assert.equal(mapServerResult({ content: [{ type: 'image', data: 'x'.repeat(3 * 1024 * 1024), mimeType: 'image/png' }] }, 'p').content[0].type, 'text');
     assert.equal(mapServerResult({ content: [{ type: 'image', data: 'AAAA', mimeType: 'image/png' }] }, 'p').content[0].type, 'image');
