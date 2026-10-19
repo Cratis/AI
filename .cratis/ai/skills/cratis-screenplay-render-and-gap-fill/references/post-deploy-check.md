@@ -44,6 +44,9 @@ namespace is checked only when the request named it.
 | `3` | Chronicle refused or failed a read | Report it; no snapshot was built |
 | `4` | Authorization missing for a read | Ask the user for a context with read access; do not widen permissions yourself |
 
+Exit `4` for a refused read and exit `8` for an interrupted scan require Cratis CLI 3.89.1 or later
+(`cratis --version`). On an older CLI, treat any exit other than `0` and `7` as "not compared".
+
 A failed read is never an empty store.
 
 ## Report

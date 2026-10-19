@@ -61,7 +61,9 @@ declared reaction with no subscription.
 
 - "No matching appends within coverage" does not mean the command or reactor never ran. It is
   Informational: no attributed event shows that it ran inside the examined range.
-- Absence under partial coverage is Unknown, never drift. A missing production is drift only
+- Scanned absence under partial coverage is Unknown, never drift. Registry checks are the
+  exception: the event-type registry is read in full, so a declared event that is not registered
+  (`EventNotRegistered`) is drift whatever the coverage. A missing production is drift only
   with full coverage, an unambiguous producer mapping, another event attributed to that producer,
   and no unattributed appends of the expected type.
 - Presence is stronger than absence: an undeclared event that was appended is drift even under
@@ -78,4 +80,4 @@ State the verdict value, `Complete`, the event store, namespace and sequence, th
 against the captured tail, each Drift finding with its statement, and each Unknown reason. The
 post-deploy procedure and its exit codes are in
 [post-deploy check](../../cratis-screenplay-render-and-gap-fill/references/post-deploy-check.md).
-No MCP tool offers this comparison yet; use the CLI.
+Run the comparison through the CLI; no MCP tool offers it.
