@@ -84,7 +84,9 @@ When changing a description, run trigger evaluations before and after when autho
 
 ## 11. Always-on content
 
-Keep `general.md` to facts needed in every session, at most 200 lines. Warn above 24,000 bytes and above 91,000 combined bytes for rules without `paths`; line length alone can hide context bloat. Review globally applied Copilot instructions above 4,000 characters. These budgets leave room for source and task context, rather than promising a token count.
+Keep `general.md` to facts needed in every session, at most 200 lines. Warn above 24,000 bytes and above 91,000 combined bytes for rules without `paths`; line length alone can hide context bloat. Review globally applied Copilot instructions above 4,000 characters. These budgets leave room for source and task context, rather than promising a token count. The rule bytes each harness loads at session start are capped in this repository's `Source/Verification/always-on-budget.ts`, and verification fails above a cap: displace or demote text to an on-demand skill, or raise the cap in a reviewed change.
+
+Every proposed rule names its enforcement: analyzer-enforceable, CI-enforceable or judgment-shaped. The first two ship as the analyzer, lint or CI check, with at most a one-line pointer in prose; only judgment-shaped rules are written out, because prose does not enforce itself and costs context in every session that loads it.
 
 Use path-scoped rules for file-specific invariants and skills for particular operations. Hooks and CI enforce mechanical constraints; natural-language rules do not replace permission controls.
 
