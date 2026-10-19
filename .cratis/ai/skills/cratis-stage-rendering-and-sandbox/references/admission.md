@@ -214,8 +214,8 @@ Stage renders two projection forms; the restrictions differ.
   1. The identifier always equals the projection's effective key: the inline `key`, else the
      `from` block `key`, else the event source. An event-source key (default or
      `key $eventSourceId`) makes the identifier the event source; an event-property or literal
-     key makes it that key. Stage refuses a literal key (`STAGE-ESM-017`; scoped keys are an
-     event property or the event source). Never map `$eventSourceId` onto the identifier when the key is
+     key makes it that key. A literal key (`key "global"`) renders only at the root of a scope as
+     Chronicle's constant key; every other scoped key is an event property or the event source. Never map `$eventSourceId` onto the identifier when the key is
      something else (`from PaymentRecorded key invoiceId`): the runtime fails with "affected key
      disagrees with read-model identifier".
   2. Executable model. A flat-bound projection must map the identifier like any required
@@ -237,8 +237,10 @@ Stage renders two projection forms; the restrictions differ.
   the event source, drop the explicit key and the projection is scoped, which admits literals.
 - **Scoped:** every other projection, including a plain single `from E` with the default or
   `$eventSourceId` key. Forms: several distinct `from` blocks, `remove with`, root
-  `join ... on`, `children` with an identified element (one level, no children or joins
-  inside a child; `remove with` and `remove via join` inside a child are admitted), `nested`
+  `join ... on`, `children` with an identified element (one level, no children inside a child;
+  a `join` inside a child matches the element's own identity, so it names no `on` of its own and its
+  mappings count towards the element's required properties; `remove with` and `remove via join`
+  inside a child are admitted), `nested`
   over an optional composite property, and `every`/`all` with set-from-event-source mappings. Keys
   are an event property or the event source. The key establishes the identifier, so it must
   end up unmapped: a mapping onto it is refused unless it copies the key's own event
@@ -256,9 +258,24 @@ Stage renders two projection forms; the restrictions differ.
 - Refused in a scope (`STAGE-ESM-017`): composite keys; empty/literal `all` mappings;
   unmapped `all` properties outside that nullable subset; `every` with
   children included beside children or nested blocks; root `remove via join`; joins,
-  children or join removals inside `nested`; a `clear` inside `nested`; recursive children
-  and joins inside a child; duplicate event contracts among `from`, join or
+  children or join removals inside `nested`; a `clear` inside `nested`; recursive children;
+  duplicate event contracts among `from`, join or
   removal blocks; event or read-model property names that collide with Chronicle syntax.
+- Running totals: `add`, `subtract`, `increment` and `decrement` start from 0 where nothing was set. `add x by 0`
+  (or `subtract x by 0`) on a required plain whole number or decimal only makes the total exist and renders as nothing;
+  any other constant operand is refused (Chronicle's `Add` takes an event property), and so is a concept total at zero
+  (a never-set concept is null in Chronicle). An optional total (plain or concept) that is also cleared, or set from a
+  value that may be absent, is refused: Chronicle cannot add to a property it has set to null. The added event property
+  must be the total's type, a concept into the number it holds, a number into a concept, or a concept into another concept
+  of the same number (the target concept declares the conversion); a concept into an optional plain number is refused
+  (`STAGE-ESM-017`: Chronicle rejects the double conversion).
+- `$eventSourceId` in a mapping of a block keyed by an event property (`sku = $eventSourceId`) renders
+  when every command that produces the event addresses it with a value of the target's type (and no
+  reaction produces it under another type); the same mapping onto the key itself is always refused.
+- Events a state-view slice declares (a projection removes with an event no command of the slice produces) are generated
+  with the slice.
+- A command whose productions address different event sources (`for orderId`, `for productId`, ESM v30) renders; each
+  event goes to the source its own destination names.
 - A scope cannot also carry flat transitions.
 
 The example in [render-example.md](render-example.md) uses a scope (`from` plus `remove with`).
