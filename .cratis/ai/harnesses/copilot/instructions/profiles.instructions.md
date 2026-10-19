@@ -200,6 +200,7 @@ language policy always follows the consuming repository's `go.mod` minimum.
 | `cratis/content` | Release notes, social feed posts, voice review, content length, and developer marketing and distribution |
 | `cratis/review` | Code review, performance, security |
 | `cratis/codescene` | Opt-in CodeScene Code Health change gates, refactoring, debt prioritization and risk-based testing; requires an account and available MCP tools; each user registers the MCP server (see below) |
+| `cratis/playwright` | Opt-in Playwright browser automation MCP server declaration for exploratory checks; carries no skills or rules and each user registers the server (see below) |
 | `cratis/studio` | Studio MCP safety guidance |
 | `cratis/cli` | CLI operations |
 | `cratis/cli/terminal-workbench` | Human-operated terminal Workbench |
@@ -226,6 +227,27 @@ committed project files: `cs-mcp` over stdio (`brew install cs-mcp`), or
 CodeScene needs an account and OAuth `login`; without an account or available
 CodeScene tools, skip its steps and say so rather than blocking contributors.
 The MCP catalog has no install-hints field and does not install the executable.
+
+### Browser automation with Playwright
+
+Select `cratis/playwright` explicitly to declare the `playwright` stdio server
+(`npx -y @playwright/mcp@0.0.83 --headless --isolated`) in `mcp-servers.json`.
+The flags keep the browser headless and isolated: no persistent profile, so no
+personal cookies or logins are reused. The profile carries no skills or rules, and
+no other profile composes it.
+
+Today `cratis ai install` registers only Screenplay and Pi's `cratis-mcp` extension
+loads only Screenplay, so Playwright, like CodeScene, is not registered for you.
+Each user registers it in their own user-level MCP configuration, never in committed
+project files. For Claude Code:
+
+```bash
+claude mcp add --scope user playwright -- npx -y @playwright/mcp@0.0.83 --headless --isolated
+```
+
+Pi users register it through a Pi MCP adapter or extension of their choice. Use it
+for exploratory browser checks; repeatable checks stay in the repository's own
+Playwright tests. Without the server registered, skip browser steps and say so.
 
 ### Event modeling with Screenplay
 

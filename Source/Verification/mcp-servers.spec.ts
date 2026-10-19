@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 import { validateMcpServers } from './mcp-servers.ts';
 
-const profiles = new Set(['cratis/screenplay', 'cratis/codescene']);
+const profiles = new Set(['cratis/screenplay', 'cratis/codescene', 'cratis/playwright']);
 const server = {
     id: 'screenplay', profiles: ['cratis/screenplay'], transport: 'stdio',
     command: 'cratis', args: ['screenplay', 'mcp'],
@@ -37,6 +37,17 @@ test('CodeScene MCP is an opt-in stdio declaration with no arguments', () => {
     assert.equal(declared[0].command, 'cs-mcp');
     assert.deepEqual(declared[0].args, []);
     assert.match(declared[0].description, /account.*OAuth login/);
+});
+
+test('Playwright MCP is an opt-in, pinned, headless and isolated stdio declaration', () => {
+    const path = resolve(import.meta.dirname, '../../.cratis/ai/mcp-servers.json');
+    const value = JSON.parse(readFileSync(path, 'utf8')) as { servers: Array<typeof server> };
+    const declared = value.servers.filter(entry => entry.id === 'playwright');
+    assert.equal(declared.length, 1);
+    assert.deepEqual(declared[0].profiles, ['cratis/playwright']);
+    assert.equal(declared[0].transport, 'stdio');
+    assert.equal(declared[0].command, 'npx');
+    assert.deepEqual(declared[0].args, ['-y', '@playwright/mcp@0.0.83', '--headless', '--isolated']);
 });
 
 test('MCP catalogue validation detects planted invalid declarations', () => {
