@@ -11,6 +11,7 @@
 - Event routes
 - Redelivery locators
 - Operation and recovery intent
+- Givens without an event source
 
 ## Typed examples
 

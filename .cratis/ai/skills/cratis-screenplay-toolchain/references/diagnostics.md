@@ -8,8 +8,8 @@
 - Explicit enum member numbers
 - Reserved stored names and event pins
 - Named keys, production routes and observer filters
-- Projection event scope (PLAY0801)
 - Ambiguous match patterns (PLAY0803)
+- Projection event scope (PLAY0801)
 - Reducer instance identity (PLAY0690)
 - Caller identity, compliance and routes
 - Specification metadata, callers, cases and locators
