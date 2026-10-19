@@ -80,6 +80,9 @@ MCP can declare a missing produced event (`PLAY0166`), add explicit routing
 (`PLAY0478`), remove a redundant pin (`PLAY0471`), or remove an inline identifier
 copy (`PLAY0469`). The last **changes the event contract**, retires a property,
 refuses affected consumers/opaque implementations and is not fix-all. It does
-not establish that stored data is safe to migrate. Use
+not establish that stored data is safe to migrate; for a contract that may have been
+stored, `propose-property` `remove` with `newGeneration: true` extracts the event and
+drafts a new generation (a source draft, never deployment ready; requires Screenplay
+4.232.0, `screenplay --version`). Use
 `cratis-screenplay-model-authoring` for discovery, preview, extraction and rename.
 

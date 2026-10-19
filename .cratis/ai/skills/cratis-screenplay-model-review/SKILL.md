@@ -63,7 +63,10 @@ model's behalf.
    refused change needs a `then error` spec; each command missing from the table is investigated.
 5. **Lineage and completeness** (phase 3). Backward: every read-model field to an event field,
    `$eventSourceId`, literal or documented derivation, to a command input, `$context`, capture field
-   or literal, to the screen, reaction or integration that supplies it. AutoMap fills same-named
+   or literal, to the screen, reaction or integration that supplies it. Trace a field with the
+   `screenplay` MCP server's `trace-lineage` tool (paged tree, breaks, branches and opaque hops
+   are reported) rather than stitching `dependencies` calls; confirm each hop in the model.
+   Requires Screenplay 4.223.0 (`screenplay --version`); on older releases use `dependencies`. AutoMap fills same-named
    fields silently: count them. Forward: every event to a consumer or a terminal reason; every
    command input to an event field or a rule. Before calling data missing, search the model.
 6. **Phased checklist** (phases 4-10): ownership, event quality, events versus views, rules and

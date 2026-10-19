@@ -19,8 +19,11 @@ from silently changing the reviewed candidate.
   new timeline findings; evidence pinning is unsupported for this repair.
 - `PLAY0469` removes an inline identifier payload copy: it **changes the event
   contract**, refuses consumer/opaque impact, has no fix-all, and the catalog does
-  not prove events were persisted, so ask about stored contracts first.
-  No automatic generation-evolution repair ships.
+  not prove events were persisted, so ask about stored contracts first. For a
+  contract that may have been stored, use `propose-property` `remove` with
+  `newGeneration: true` instead: it drafts a new generation (see
+  [property planning](property-links.md#remove-from-an-inline-event)).
+  The repair itself never drafts a generation.
 - `PLAY0479`: migrate optionality spelling with `PreserveTrivia`; document scope
   migrates all occurrences together. Keep the `query Q => observable?` exception.
 - `PLAY0470` is repaired only from an author-supplied destination intent, never
