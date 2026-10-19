@@ -28,6 +28,7 @@ public class and_no_members_claude_token_is_accepted : given.a_pooled_chat_clien
     async Task Because() => _exception = await Catch.Exception(() => _client.GetResponseAsync([new(ChatRole.User, "hi")]));
 
     [Fact] void should_fail_as_unavailable() => _exception.ShouldBeOfExactType<AIChatClientUnavailable>();
+    [Fact] void should_carry_the_reason_on_its_own() => ((AIChatClientUnavailable)_exception).Reason.ShouldContain("authentication_failed");
     [Fact] void should_name_the_provider() => _exception.Message.ShouldContain(_provider.Value.ToString());
     [Fact] void should_name_the_vendor_type() => _exception.Message.ShouldContain("Anthropic");
     [Fact] void should_name_the_model() => _exception.Message.ShouldContain("model ");

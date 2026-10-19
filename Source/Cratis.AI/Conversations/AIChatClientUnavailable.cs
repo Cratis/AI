@@ -18,4 +18,10 @@ public class AIChatClientUnavailable(LanguageModelPurpose purpose, string reason
     /// Gets the purpose that could not be served.
     /// </summary>
     public LanguageModelPurpose Purpose { get; } = purpose;
+
+    /// <summary>
+    /// Gets why nothing could serve the call: which provider and model were tried and what each answered with.
+    /// Carries the vendor's failure code and HTTP status where there are any, never a credential or the vendor's own text.
+    /// </summary>
+    public string Reason { get; } = reason;
 }
