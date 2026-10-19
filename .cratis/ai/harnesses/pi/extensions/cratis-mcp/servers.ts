@@ -56,10 +56,9 @@ export function selectedCorpusServers(project: string, corpus: string): ServerSe
     const reported = new Set<unknown>();
     for (const entry of entries) {
         if (entry.id === 'screenplay') continue;
-        const hasProfiles = Array.isArray(entry.profiles) && entry.profiles.length > 0;
-        if (hasProfiles && !isSelected(entry, resolution.selected)) continue;
+        // An entry without profiles can never be selected, so it is ignored like any other unselected entry.
+        if (!isSelected(entry, resolution.selected)) continue;
         const label = `MCP server '${String(entry.id)}'`;
-        if (!hasProfiles) { selection.messages.push(`${label} was skipped: profiles are missing or empty.`); continue; }
         if (counts.get(entry.id)! > 1) {
             if (!reported.has(entry.id)) selection.messages.push(`${label} was skipped: the descriptor declares the id more than once.`);
             reported.add(entry.id);

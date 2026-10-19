@@ -53,5 +53,5 @@ export function startServer(project: string, server: CorpusServer, launch: typeo
         shell: false,
         stdio: ['pipe', 'pipe', 'pipe'],
         windowsHide: true,
-    }), 30_000, server.id);
+    }), 30_000, server.id, true);
 }

@@ -15,7 +15,7 @@ export class StdioConnection {
     private _termination?: ReturnType<typeof setTimeout>;
     private readonly _maximumBytes = 8 * 1024 * 1024;
 
-    constructor(private readonly _child: ChildProcessWithoutNullStreams, private readonly _timeout = 30_000, private readonly _label = 'Screenplay') {
+    constructor(private readonly _child: ChildProcessWithoutNullStreams, private readonly _timeout = 30_000, private readonly _label = 'Screenplay', private readonly _tolerant = false) {
         _child.stdout.on('data', this.receive);
         _child.stdout.on('end', this.ended);
         _child.stdout.on('error', this.streamFailed);
@@ -103,6 +103,13 @@ export class StdioConnection {
         try {
             const message: unknown = JSON.parse(line);
             if (!object(message) || message.jsonrpc !== '2.0') throw new Error();
+            if ('method' in message && this._tolerant) {
+                // Third-party servers may notify or ask; this client offers no capabilities, so refuse requests and ignore notifications.
+                if ('id' in message && typeof message.method === 'string') {
+                    this._child.stdin.write(this.encode({ jsonrpc: '2.0', id: message.id, error: { code: -32601, message: 'Method not found' } }));
+                }
+                return;
+            }
             if ('method' in message) {
                 // This pinned server does not send requests or changing tool lists.
                 throw new Error();

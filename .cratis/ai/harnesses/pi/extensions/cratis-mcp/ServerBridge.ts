@@ -9,13 +9,23 @@ import { discoverServer, mapServerResult } from './serverProtocol.ts';
 import { selectedCorpusServers } from './servers.ts';
 import type { StdioConnection } from './StdioConnection.ts';
 
+function withDeadline<T>(work: Promise<T>, milliseconds: number, id: string): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const expired = new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error(`MCP server '${id}' did not become ready within ${milliseconds} ms.`)), milliseconds);
+        timer.unref();
+    });
+    work.catch(() => { /* The deadline already reported the outcome; the disposed connection rejects the abandoned request. */ });
+    return Promise.race([work, expired]).finally(() => clearTimeout(timer));
+}
+
 /** Bridge every selected corpus server except Screenplay: one connection each, isolated failures, tools namespaced by server id. */
 export interface ServerBridge {
     refresh(context: ExtensionContext, newSession: boolean): Promise<void>;
     dispose(): void;
 }
 
-export function createServerBridge(pi: ExtensionAPI, corpus: string, connect: (project: string, server: CorpusServer) => StdioConnection = startServer): ServerBridge {
+export function createServerBridge(pi: ExtensionAPI, corpus: string, connect: (project: string, server: CorpusServer) => StdioConnection = startServer, deadlineMilliseconds = 15_000): ServerBridge {
     const connections = new Map<string, StdioConnection>();
     const registered = new Set<string>();
     const paused = new Set<string>();
@@ -39,7 +49,7 @@ export function createServerBridge(pi: ExtensionAPI, corpus: string, connect: (p
         const connection = connect(context.cwd, server);
         connections.set(server.id, connection);
         try {
-            const catalog = await discoverServer(connection, server.id);
+            const catalog = await withDeadline(discoverServer(connection, server.id), deadlineMilliseconds, server.id);
             if (connections.get(server.id) !== connection || connection.stopped) throw new Error(`MCP server '${server.id}' session ended during discovery.`);
             messages.push(...catalog.messages);
             const existing = new Set(pi.getAllTools().map(tool => tool.name));
@@ -85,7 +95,9 @@ export function createServerBridge(pi: ExtensionAPI, corpus: string, connect: (p
         selectionKey = key;
         const messages = [...selection.messages];
         const claimed = new Set<string>();
-        for (const server of selection.servers) messages.push(...await start(context, server, claimed));
+        // Servers start in parallel; a slow or hung one is abandoned at its own deadline and never delays the others.
+        const outcomes = await Promise.all(selection.servers.map(server => start(context, server, claimed)));
+        outcomes.forEach(outcome => messages.push(...outcome));
         claimed.forEach(name => registered.add(name));
         // Never re-enable a user-disabled tool. SDK allow/exclude restrictions still filter registration.
         const next = pi.getActiveTools().filter(name => !registered.has(name) || (claimed.has(name) && (!oldNames.has(name) || previouslyActive.has(name))));

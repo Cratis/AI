@@ -4,13 +4,16 @@
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import type { Writable } from 'node:stream';
 import test from 'node:test';
 import type { ExtensionAPI, ExtensionContext, ToolDefinition } from '@earendil-works/pi-coding-agent';
 import { createServerBridge } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/ServerBridge.ts';
 import { StdioConnection } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/StdioConnection.ts';
+import { discoverServer, mapServerResult } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/serverProtocol.ts';
 import { selectedCorpusServers } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/servers.ts';
 import type { CorpusServer } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/CorpusServer.ts';
-import { fakeChild, projectFixture } from './pi-mcp-helpers.ts';
+import { registerBridge } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/index.ts';
+import { fakeChild, projectFixture, tool } from './pi-mcp-helpers.ts';
 
 const playwright = { id: 'playwright', profiles: ['cratis/playwright'], transport: 'stdio', command: 'npx', args: ['-y', '@playwright/mcp@0.0.83'], description: 'Browser' };
 const codescene = { id: 'codescene', profiles: ['cratis/codescene'], transport: 'stdio', command: 'cs-mcp', args: [] };
@@ -55,7 +58,6 @@ test('every malformed selected server is skipped with one message and the others
         ['command', { command: undefined }],
         ['args', { args: 'a b' }],
         ['args', { args: undefined }],
-        ['profiles', { profiles: [] }],
         ['id', { id: 'bad id' }],
         ['env', { env: { KEY: 1 } }],
         ['env', { env: ['A=b'] }],
@@ -65,12 +67,12 @@ test('every malformed selected server is skipped with one message and the others
         const selection = selectedCorpusServers(fixture.project, fixture.corpus);
         assert.deepEqual(selection.servers.map(server => server.id), ['codescene'], reason);
         assert.equal(selection.messages.length, 1, reason);
-        assert.match(selection.messages[0], new RegExp(reason === 'id' ? 'id must match' : reason === 'profiles' ? 'profiles' : reason));
+        assert.match(selection.messages[0], new RegExp(reason === 'id' ? 'id must match' : reason));
     }
 });
 
 test('malformed servers that are not selected are ignored silently, unknown fields are ignored', () => {
-    const fixture = serversFixture([{ ...codescene, transport: 'http', command: '' }, { ...playwright, future: true }], { profiles: ['cratis/playwright'] });
+    const fixture = serversFixture([{ ...codescene, transport: 'http', command: '' }, { ...codescene, id: 'nothing', profiles: [] }, { ...codescene, id: 'missing', profiles: undefined }, { ...playwright, future: true }], { profiles: ['cratis/playwright'] });
     assert.deepEqual(selectedCorpusServers(fixture.project, fixture.corpus).messages, []);
     assert.deepEqual(ids(fixture), ['playwright']);
 });
@@ -104,7 +106,8 @@ test('any 1.x schema loads; another major loads nothing with one message', () =>
     assert.match(selection.messages[0], /schemaVersion/);
 });
 
-function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<string, 'ok' | 'exit'> = {}) {
+function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<string, 'ok' | 'exit' | 'hang'> = {}, deadline = 15_000) {
+    const children = new Map<string, ReturnType<typeof fakeChild>>();
     const registered = new Map<string, ToolDefinition>();
     const launched: CorpusServer[] = [];
     const notices: string[] = [];
@@ -121,16 +124,18 @@ function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<s
         assert.equal(project, fixture.project);
         launched.push(server);
         const child = fakeChild();
+        children.set(server.id, child);
         child.onRequest(request => {
             requests.push({ server: server.id, ...request });
             if (behaviors[server.id] === 'exit') { child.exit(); return; }
+            if (behaviors[server.id] === 'hang') return;
             if (request.method === 'initialize') child.result(request, { protocolVersion: '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: server.id } });
             if (request.method === 'tools/list') child.result(request, { tools: [{ name: 'browser-navigate', description: 'Go', inputSchema: { type: 'object' } }] });
             if (request.method === 'tools/call') child.result(request, { content: [{ type: 'text', text: `ran ${server.id}` }] });
         });
-        return new StdioConnection(child.child, 1000, server.id);
-    });
-    return { bridge, context, registered, launched, notices, requests, active: () => active };
+        return new StdioConnection(child.child, 1000, server.id, true);
+    }, deadline);
+    return { children, bridge, context, registered, launched, notices, requests, active: () => active };
 }
 
 test('a selected server starts with its own connection and namespaced tools, and executes calls', async () => {
@@ -167,10 +172,94 @@ test('a server that fails to start does not stop the others and is reported once
 test('a crash of one server leaves the other usable', async () => {
     const run = harness(serversFixture([playwright, codescene]));
     await run.bridge.refresh(run.context, true);
-    assert.deepEqual([...run.registered.keys()].sort(), ['codescene_browser_navigate', 'playwright_browser_navigate']);
-    const crashing = run.registered.get('codescene_browser_navigate')!;
-    run.bridge.dispose();
-    await assert.rejects(crashing.execute('call', {}, undefined, undefined, run.context), /unavailable/);
+    run.children.get('codescene')!.exit();
+    await new Promise(resolve => setImmediate(resolve));
+    await assert.rejects(run.registered.get('codescene_browser_navigate')!.execute('call', {}, undefined, undefined, run.context), /unavailable|exited|closed/);
+    const result = await run.registered.get('playwright_browser_navigate')!.execute('call', {}, undefined, undefined, run.context);
+    assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
+});
+
+test('a server that never answers initialize is abandoned at the deadline while the others become usable', async () => {
+    const run = harness(serversFixture([codescene, playwright]), { codescene: 'hang' }, 100);
+    const started = Date.now();
+    await run.bridge.refresh(run.context, true);
+    assert.ok(Date.now() - started < 900, 'session start is bounded by the per-server deadline');
+    assert.deepEqual([...run.registered.keys()], ['playwright_browser_navigate']);
+    assert.match(run.notices.join('\n'), /'codescene' is unavailable: .*did not become ready/);
+    const result = await run.registered.get('playwright_browser_navigate')!.execute('call', {}, undefined, undefined, run.context);
+    assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
+});
+
+test('third-party server notifications are ignored and server requests are refused with -32601', async () => {
+    const fixture = serversFixture([playwright], { profiles: ['cratis/playwright'] });
+    const run = harness(fixture);
+    await run.bridge.refresh(run.context, true);
+    const child = run.children.get('playwright')!;
+    (child.child.stdout as unknown as Writable).write(`${JSON.stringify({ jsonrpc: '2.0', method: 'notifications/message' })}\n`);
+    (child.child.stdout as unknown as Writable).write(`${JSON.stringify({ jsonrpc: '2.0', id: 'srv-1', method: 'roots/list' })}\n`);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(child.requests.at(-1), { jsonrpc: '2.0', id: 'srv-1', error: { code: -32601, message: 'Method not found' } });
+    const result = await run.registered.get('playwright_browser_navigate')!.execute('call', {}, undefined, undefined, run.context);
+    assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
+});
+
+test('oversized tools are skipped and unsupported or oversized images are replaced by a note', () => {
+    const big = 'x'.repeat(5000);
+    assert.equal(mapServerResult({ content: [{ type: 'image', data: 'AAAA', mimeType: 'image/svg+xml' }] }, 'p').content[0].type, 'text');
+    assert.equal(mapServerResult({ content: [{ type: 'image', data: 'x'.repeat(3 * 1024 * 1024), mimeType: 'image/png' }] }, 'p').content[0].type, 'text');
+    assert.equal(mapServerResult({ content: [{ type: 'image', data: 'AAAA', mimeType: 'image/png' }] }, 'p').content[0].type, 'image');
+});
+
+test('tools with an oversized description or schema are skipped with a message', async () => {
+    const child = fakeChild();
+    child.onRequest(request => {
+        if (request.method === 'initialize') child.result(request, { capabilities: { tools: {} } });
+        if (request.method === 'tools/list') child.result(request, { tools: [
+            { name: 'ok', inputSchema: { type: 'object' } },
+            { name: 'long', description: 'x'.repeat(5000), inputSchema: { type: 'object' } },
+            { name: 'wide', inputSchema: { type: 'object', properties: { a: { description: 'x'.repeat(70_000) } } } },
+        ] });
+    });
+    const catalog = await discoverServer(new StdioConnection(child.child, 1000, 'p', true), 'p');
+    assert.deepEqual(catalog.tools.map(tool => tool.nativeName), ['p_ok']);
+    assert.equal(catalog.messages.length, 2);
+});
+
+test('registerBridge runs Screenplay and a generic server side by side, each isolated', async () => {
+    const fixture = serversFixture([screenplay, playwright], { profiles: ['cratis/screenplay', 'cratis/playwright'] });
+    const registered = new Map<string, ToolDefinition>();
+    const handlers = new Map<string, Array<(event: Record<string, unknown>, context: ExtensionContext) => unknown>>();
+    let active = ['read'];
+    const context = { cwd: fixture.project, hasUI: true, ui: { notify() { /* not asserted */ } } } as unknown as ExtensionContext;
+    const api = {
+        registerTool(definition: ToolDefinition) { if (!registered.has(definition.name)) active.push(definition.name); registered.set(definition.name, definition); },
+        getActiveTools: () => [...active],
+        getAllTools: () => [...registered.values()],
+        setActiveTools(names: string[]) { active = names; },
+        on(name: string, handler: (event: Record<string, unknown>, context: ExtensionContext) => unknown) { handlers.set(name, [...(handlers.get(name) ?? []), handler]); },
+    } as unknown as ExtensionAPI;
+    const screenplayChild = fakeChild();
+    screenplayChild.onRequest(request => {
+        if (request.method === 'initialize') screenplayChild.result(request, { protocolVersion: '2025-06-18', capabilities: { tools: { listChanged: false } }, serverInfo: { name: 'cratis.screenplay' } });
+        if (request.method === 'tools/list') screenplayChild.result(request, { tools: [tool('diagnostics')] });
+        if (request.method === 'tools/call') screenplayChild.result(request, { content: [{ type: 'text', text: 'ran screenplay' }] });
+    });
+    const genericChild = fakeChild();
+    genericChild.onRequest(request => {
+        if (request.method === 'initialize') genericChild.result(request, { capabilities: { tools: {} } });
+        if (request.method === 'tools/list') genericChild.result(request, { tools: [{ name: 'navigate', inputSchema: { type: 'object' } }] });
+        if (request.method === 'tools/call') genericChild.result(request, { content: [{ type: 'text', text: 'ran playwright' }] });
+    });
+    registerBridge(api, fixture.corpus, () => new StdioConnection(screenplayChild.child, 1000), async () => true,
+        (_project, server) => { assert.equal(server.id, 'playwright'); return new StdioConnection(genericChild.child, 1000, server.id, true); });
+    for (const handler of handlers.get('session_start') ?? []) await handler({}, context);
+    assert.deepEqual([...registered.keys()].sort(), ['playwright_navigate', 'screenplay_diagnostics']);
+    assert.equal((await registered.get('screenplay_diagnostics')!.execute('c', {}, undefined, undefined, context)).content[0].type, 'text');
+    genericChild.exit();
+    await new Promise(resolve => setImmediate(resolve));
+    await assert.rejects(registered.get('playwright_navigate')!.execute('c', {}, undefined, undefined, context));
+    const survivor = await registered.get('screenplay_diagnostics')!.execute('c', {}, undefined, undefined, context);
+    assert.deepEqual(survivor.content, [{ type: 'text', text: 'ran screenplay' }]);
 });
 
 test('skip messages from the selection are surfaced when the context has a UI', async () => {

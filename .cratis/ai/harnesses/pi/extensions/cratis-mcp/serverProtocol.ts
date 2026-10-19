@@ -21,6 +21,10 @@ export interface ServerCatalog {
 const maximumTools = 128;
 const maximumPages = 8;
 const maximumNativeNameLength = 64;
+const maximumDescriptionLength = 4 * 1024;
+const maximumSchemaLength = 64 * 1024;
+const maximumImageLength = 2 * 1024 * 1024;
+const imageTypes = new Set(['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
 
 /** Initialize and list tools; tools that cannot be exposed safely are skipped with a message rather than failing the server. */
 export async function discoverServer(connection: StdioConnection, id: string): Promise<ServerCatalog> {
@@ -51,6 +55,10 @@ export async function discoverServer(connection: StdioConnection, id: string): P
             catalog.messages.push(`MCP server '${id}' has a tool with an invalid name or input schema; it was skipped.`);
             continue;
         }
+        if (JSON.stringify(tool.inputSchema).length > maximumSchemaLength || ((tool.description as string | undefined)?.length ?? 0) > maximumDescriptionLength) {
+            catalog.messages.push(`MCP server '${id}' tool '${name}' was skipped: its description or input schema is too large.`);
+            continue;
+        }
         const nativeName = `${id}_${name.replace(/[^A-Za-z0-9_]/g, '_')}`;
         if (nativeName.length > maximumNativeNameLength || names.has(nativeName)) {
             catalog.messages.push(`MCP server '${id}' tool '${name}' was skipped: its namespaced name is too long or not unique.`);
@@ -71,6 +79,7 @@ export function mapServerResult(result: unknown, id: string) {
     const content = result.content.map((part: unknown) => {
         if (object(part) && part.type === 'text' && typeof part.text === 'string') return { type: 'text' as const, text: part.text };
         if (object(part) && part.type === 'image' && typeof part.data === 'string' && typeof part.mimeType === 'string') {
+            if (!imageTypes.has(part.mimeType) || part.data.length > maximumImageLength) return { type: 'text' as const, text: `[image omitted: unsupported type or larger than ${maximumImageLength / 1024 / 1024} MiB]` };
             return { type: 'image' as const, data: part.data, mimeType: part.mimeType };
         }
         return { type: 'text' as const, text: `[unsupported ${object(part) ? String(part.type) : 'unknown'} content omitted]` };
