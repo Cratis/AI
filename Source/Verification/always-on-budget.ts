@@ -11,7 +11,7 @@ import { skillBody } from './skill-structure.ts';
  * A profile selection only removes profile-specific rules, so no selection loads more than these.
  * Exceeding one fails verification.
  */
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 116_734, copilot: 92_485, pi: 118_930, cursor: 23_143, 'codex-opencode': 22_850 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 116_428, copilot: 92_332, pi: 118_624, cursor: 22_990, 'codex-opencode': 22_697 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 
