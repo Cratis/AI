@@ -63,6 +63,23 @@ settings. Syntax remains `matches "^INV-[0-9]{6}$"` or `matches email`.
 
 `\s` includes U+00A0, U+FEFF and Unicode line/paragraph separators; it excludes
 U+0085. Dot excludes LF, CR, U+2028 and U+2029. `\w` excludes U+0130.
+### Write unambiguous patterns (PLAY0803)
+
+Requires Screenplay 4.218.2 or later (`screenplay --version`); older compilers do not warn.
+
+Generated clients run the pattern in a browser's backtracking engine, so an exponentially
+ambiguous pattern can hang a tab on a crafted value even though Screenplay's own automaton
+stays linear. The warning `PLAY0803` (`AmbiguousMatchPattern`) names the ambiguous
+subexpression and a simpler rewrite where one exists; C#, TypeScript, Monaco and VS Code
+report it identically. Very large patterns are not analyzed, so keep them small anyway.
+
+| Ambiguous | Write instead |
+| --- | --- |
+| `(a+)+$`, `(a*)*` | `a+`, `a*` (never quantify a group whose body already repeats) |
+| `(a\|a)*` | `a*` (alternatives must not match the same text) |
+
+Prefer a character class such as `[ab]*` over alternatives that overlap. Fix the pattern rather than suppressing the warning; validate with `--warnings-as-errors`.
+
 `matches email` is conservative, not RFC 5322: one `@`, nonempty local part without
 whitespace/`@`, and at least two nonempty domain parts without whitespace/`@`.
 A no-break space therefore fails email validation. Other bare names report PLAY0366.
