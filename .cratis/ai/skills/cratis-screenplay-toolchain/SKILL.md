@@ -65,7 +65,7 @@ superseded statement needs context; exceptions do not change the contract.
 | | Standalone `screenplay` | `cratis screenplay ...` |
 | --- | --- | --- |
 | Check root | `screenplay <root> --warnaserror --no-color` | `cratis screenplay validate <root> --warnings-as-errors -o json-compact` |
-| Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform` |
+| Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform`, `cratis screenplay conform-namespace` |
 | Declared gate | `screenplay <root> --print-gate`, `--format json`, `--no-gate-file` | `validate <root> --print-gate`, `--no-gate-file`; the same `screenplay.json` |
 | Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
 | MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
@@ -95,6 +95,8 @@ for MCP initialization, source identity and reporting. Without MCP, report
 `V2 not run: no MCP in this agent`. Report each verdict separately with tool,
 version, source identity and any blocking codes; MCP `modelRevision` is semantic,
 not the source identity.
+
+Read [observation comparison](references/observation-comparison.md) when asking whether a running namespace holds what the model declares, or when reading a `conform-namespace` verdict. It differs from model comparison (model versus model) and `conform` (model versus code).
 
 ## Subsets (write from the one your mode needs)
 

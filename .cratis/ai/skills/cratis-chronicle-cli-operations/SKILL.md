@@ -247,6 +247,10 @@ store gets replayed. A failed partition you have not yet explained is not a
 thing to clear: read it, fix the handler, then replay. Clearing it first
 destroys the evidence and the same failure returns on the next event.
 
+## Compare a namespace with its model
+
+`cratis screenplay conform-namespace` is read-only and sits outside the `chronicle` group and its guard: it reads the registry, observers and event metadata of one namespace and compares them with a `.play` model. Use it for a post-deploy check; the procedure and exit codes are in `cratis-screenplay-render-and-gap-fill` [post-deploy check](../cratis-screenplay-render-and-gap-fill/references/post-deploy-check.md). Its exit `4` is a refused read: obtain a context with read access, never widen permissions.
+
 ## What the CLI cannot do
 
 There is no `delete`, `purge`, `redact`, or `revise` command. Event redaction
