@@ -157,7 +157,7 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
                     instructions = readFileSync(join(corpus, 'rules/general.md'), 'utf8');
                 }
                 assert.match(instructions, /Go style, source and module files.*`go\.md`.*`go-engineering\.md`/, harness);
-                assert.match(instructions, /Read repository-owned documentation as the canonical project-specific context/, harness);
+                assert.match(instructions, /Project-specific context is the repository's own documentation plus\s+`\.cratis\/ai\/rules\/project\.md`/, harness);
                 assert.equal(readFileSync(join(project, 'README.md'), 'utf8'), projectContext, harness);
                 const actualSkills = readdirSync(join(project, skills)).sort();
                 assert.deepEqual(actualSkills, selectedSkillPaths(project).map(path => path.split('/').pop()).sort(), harness);
