@@ -52,8 +52,8 @@ not why: a signal, so confirm the hidden reason before reporting. The fix names 
 change (`BerthReassigned`, `BerthLengthLimitRaised`), one event per reason, each with its own
 rules and consumers. A shared payload shape alone is not a defect: full generations repeat the
 prior shape on purpose and different facts may look alike. Screenplay 4.127.0 MCP
-`find-modeling-smells` reports advisory questions (SMELL001–SMELL005) for generic
-names, duplicate shapes and wide flows. It supplements the sweep, never changes
+`find-modeling-smells` reports advisory questions (SMELL001–SMELL006) for generic
+names, duplicate shapes, wide flows and event properties nothing reads. It supplements the sweep, never changes
 a compiler verdict or proves a domain defect.
 
 ## Phase 2. Entity walk (5 checks, T1-T5; feeds F1-F3 and scenario coverage)
