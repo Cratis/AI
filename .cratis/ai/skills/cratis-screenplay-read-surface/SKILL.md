@@ -77,6 +77,11 @@ query ListInvoices => InvoiceListReadModel[]
   authorize IsAuthenticated
 ```
 
+A deliberately public query (no identity needed) uses a policy with `require anonymous`
+as its whole authorization, ideally in a separate public module; leaving `authorize` off
+is not the same thing. Rules and diagnostics:
+[anonymous policy](../cratis-screenplay-command-surface/references/policy-persona-seed.md#anonymous-policy).
+
 **Name the compiler and renderer.** Optional keyed queries and collection queries
 bind, including `observable`. Caller-supplied equality
 filters on collections bind as ESM v14; `from`, single-result filters, `scoped to`,
@@ -305,7 +310,7 @@ binding failures are errors.
 - [ ] `observable` is present exactly where the caller should see changes without
       asking again.
 - [ ] Every authorized query has a specification with `given caller`, including a
-      `then denied` case.
+      `then denied` case (a query authorized only by an anonymous policy may omit `given caller`).
 - [ ] Each read model has exactly one builder and every field traces to an event.
 - [ ] A reducer-built view's `by` type matches its events' event-source identity (`PLAY0690`).
 - [ ] No screen reference is left ambiguous or unresolved.
