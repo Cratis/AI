@@ -151,7 +151,9 @@ proved and keep other guarantees as target requirements; recovery cases are in
 - Descriptions are not rendered: a rule only in prose is unenforced; make it a rule layer, a
   spec or a recorded target requirement.
 - Prove projections with events (`given`/`when append`), not `given readmodel`; seed read models
-  only for performer-backed views or commands that decide on view state.
+  only for performer-backed views or commands that decide on view state. A query `performer` is an opaque read
+  (information `PLAY0270`, not `PLAY0268`): it is left out of the executable model, a spec that reads it is
+  left out too and the other specs still run, so mark it `gap` for the executable modes.
 - No contradiction between a family and single-transition specs of the same view.
 
 ### Quality checklist (adapted from the TrogonStack scenario checklist; `references/provenance.md`)

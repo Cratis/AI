@@ -3,7 +3,7 @@
 Compiler syntax: `cheat-sheet.md`. Negative capability claims depend on the tool you ran; name it in every verdict.
 
 1. Clean V1 is not executable: binding errors appear through MCP (V2), `render` or `cratis screenplay validate --executable` (bundled compiler, writes nothing). Neither `screenplay <folder>` nor plain `cratis screenplay validate` binds.
-2. The Screenplay samples validate clean but are not all executable; copying their idioms (context-filtered queries, enum/identity compliance, `today`, `reads`, `$causedBy`, templates, performers) can block V3. Caller-supplied collection equality filters bind; read read-surface `references/equality-filters.md`.
+2. The Screenplay samples validate clean but are not all executable; copying their idioms (context-filtered queries, enum/identity compliance, `today`, `reads`, `$causedBy`, templates) can block V3. Caller-supplied collection equality filters bind; read read-surface `references/equality-filters.md`.
 3. Know the target mode (design/executable/renderable) before writing; state it.
 4. Plain `produces` without `for` means allocation in the ESM but "the identifier" in rendered code. Always write `for <identifier>` on a plain `produces <Name>`; inline `produces event <Name>` omits `for` and defaults to the identifier (PLAY0478).
 5. PLAY0029 is a warning: a misspelled keyword (or `type` inside a slice) drops the construct silently. Use `--warnings-as-errors`.

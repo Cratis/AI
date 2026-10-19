@@ -39,7 +39,6 @@ Each binding refusal reports PLAY0268 with its query/filter and reason:
 | `filter ... from ...` or context-derived `by` | Typed query context sources are not admitted; a caller argument must not stand in for trusted context |
 | Filter on a single-result query | Equality filters are admitted only for collections |
 | `scoped to` | The named scope has no portable executable scope contract |
-| `performer` | Query implementation code is opaque, not a portable declarative lookup |
 | `by` block on a collection query | A composite lookup is admitted only for an optional single-instance query; narrow a list by composite-keyed read-model parts with equality filters instead |
 | Filter on a collection/composite property, missing property or mismatched nominal type | The v14 filter contract requires a same-named scalar primitive, concept or enum property with the same type |
 

@@ -24,7 +24,7 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | `then readmodel` / `then query` (keyed `ById`, `arguments`, `result`) | yes | yes | yes |
 | `then query` on an unfiltered list or a list narrowed by one `by` key (observable too) | yes | yes: no `arguments` for an unkeyed list, one `result` per row stating the read-model identifier, no `result` = empty list | snapshot and observable lists render |
 | Collection query with caller-supplied equality `filter`, including observable | yes | yes, ESM v14: same-named scalar property/type, AND with `by`; optional omission allowed, supplied null refused; PLAY0468 checks arguments; row order does not matter | yes on supported snapshot/observable collections; DateTime/filter parameter order refuse -010; independent Stage executor still refuses filtered assertions (-010) |
-| Context `from`, single-result filters, `scoped to`, `performer` or a list-query `by` block | yes | PLAY0268: query context, collection-only filtering, opaque scope/implementation or a multipart list lookup are unadmitted | no |
+| Context `from`, single-result filters, `scoped to` or a list-query `by` block | yes | PLAY0268: query context, collection-only filtering, opaque scope or a multipart list lookup are unadmitted | no |
 | `then no readmodel <RM> for "<key>"` | yes | yes | no |
 | `when query` -> `then result` / `then no result` | yes | yes | same as `then query`: only the query-only cases below |
 | `given clock` / `when clock`, `when trigger`, record-source `given`/`when capture` | yes | yes (standalone and any cratis whose compiler admits v6; an older bundle does not, see toolchain `references/executable-subset.md`) | no |
@@ -45,7 +45,8 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
 | Pending described command handlers (v23) | specify intent | binds; denial/validation execute, body-reaching specs Unsupported ImplementationBody; all-Unsupported is not green | STAGE-IMPL-002 even Stub mode |
 | Attached command handlers | spec them in design | blocked: PLAY0800, no spec runs (V3 blocked); permanent constrained-attachment requirement, gap-fill in code | no |
-| `file` constraints, query `performer`s | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
+| `file` constraints | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
+| Query `performer`s | spec them in design | opaque read: PLAY0270 information, left out of the executable model; a spec that reads it is left out, every other spec still runs | no |
 | Atomic reaction mode (v22) | declare for new models | failed batch adds no facts or view changes; earlier batches/commands remain; `then error` alone is insufficient | v22 STAGE-ESM-016; mode in admitted v23–v27 STAGE-ESM-043 |
 | Protected command reads (v25) | declare opt-in for eligible reads | absence Validation; matching intervening facts Conflict; race vectors are not a new spec construct | Cratis C# rendering in a new enough bundle (STAGE-ESM-044 before, or for unpreservable shapes); semantic Host/executor execute admitted reads, non-Error protected requirements STAGE-ESM-045; v25 pair admitted |
 
@@ -58,7 +59,7 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.101.0 for no-event specificatio
 
 ## Design mode
 Write the full intended behaviour, including scenarios the executable subset cannot run
-(filtered, scoped and performer-backed views; clock, trigger and capture scenarios when only a
+(filtered, scoped and performer-backed views, the last left out of the executable model rather than refused; clock, trigger and capture scenarios when only a
 older cratis bundle is available). Mark each such spec in the coverage matrix as
 `gap: <reason>` for the narrower modes so the verification and render phases know what will not execute.
 

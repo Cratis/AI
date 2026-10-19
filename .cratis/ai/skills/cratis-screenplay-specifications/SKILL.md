@@ -251,7 +251,8 @@ For command specifications:
 For view specifications:
 
 - [ ] A view a `performer` composes is specified with `given readmodel`,
-      `when query` and `then result` or `then no result`.
+      `when query` and `then result` or `then no result`; the reference runner leaves such a
+      spec out (`PLAY0270` information), so it is design intent, not executed proof.
 - [ ] `given readmodel` is a complete instance with its identifier.
 - [ ] `then readmodel` states the identifier and the properties that matter; add
       `exactly` only when extra properties must fail the assertion.
