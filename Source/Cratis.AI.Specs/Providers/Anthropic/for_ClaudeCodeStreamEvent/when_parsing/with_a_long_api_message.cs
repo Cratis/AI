@@ -8,6 +8,7 @@ namespace Cratis.AI.Providers.Anthropic.for_ClaudeCodeStreamEvent.when_parsing;
 public class with_a_long_api_message : Specification
 {
     ClaudeCodeStreamEvent _event = null!;
+    bool _recognized;
 
     void Because()
     {
@@ -18,8 +19,10 @@ public class with_a_long_api_message : Specification
             error = "invalid_request",
             message = new { content = new[] { new { type = "text", text = $"API Error: 400 {detail}" } } }
         });
-        ClaudeCodeStreamEvent.TryParse(line, out _event);
+        _recognized = ClaudeCodeStreamEvent.TryParse(line, out _event);
     }
+
+    [Fact] void should_recognize_the_failure() => _recognized.ShouldBeTrue();
 
     [Fact] void should_bound_the_details_to_two_hundred_characters() => _event.FailureReason!.Split("; the request or model was refused: ", StringSplitOptions.None)[1].Length.ShouldEqual(201);
     [Fact] void should_mark_truncation() => _event.FailureReason!.EndsWith("....", StringComparison.Ordinal).ShouldBeTrue();

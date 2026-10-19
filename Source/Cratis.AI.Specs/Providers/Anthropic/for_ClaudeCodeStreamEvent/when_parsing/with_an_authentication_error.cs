@@ -6,8 +6,11 @@ namespace Cratis.AI.Providers.Anthropic.for_ClaudeCodeStreamEvent.when_parsing;
 public class with_an_authentication_error : Specification
 {
     ClaudeCodeStreamEvent _event = null!;
+    bool _recognized;
 
-    void Because() => ClaudeCodeStreamEvent.TryParse("""{"type":"assistant","error":"authentication_failed","message":{"content":[{"type":"text","text":"API Error: 401 {\"error\":{\"type\":\"authentication_error\",\"message\":\"Invalid credential\"}}"}]}}""", out _event);
+    void Because() => _recognized = ClaudeCodeStreamEvent.TryParse("""{"type":"assistant","error":"authentication_failed","message":{"content":[{"type":"text","text":"API Error: 401 {\"error\":{\"type\":\"authentication_error\",\"message\":\"Invalid credential\"}}"}]}}""", out _event);
+
+    [Fact] void should_recognize_the_failure() => _recognized.ShouldBeTrue();
 
     [Fact] void should_classify_the_credential_refusal() => _event.FailureKind.ShouldEqual(ClaudeCodeFailureKind.Authentication);
     [Fact] void should_carry_the_vendor_code() => _event.FailureReason!.ShouldContain("authentication_failed");

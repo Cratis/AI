@@ -6,8 +6,11 @@ namespace Cratis.AI.Providers.Anthropic.for_ClaudeCodeStreamEvent.when_parsing;
 public class with_an_unsafe_error_code : Specification
 {
     ClaudeCodeStreamEvent _event = null!;
+    bool _recognized;
 
-    void Because() => ClaudeCodeStreamEvent.TryParse("""{"type":"assistant","error":"sk-ant-private-credential\nprivate diagnostic"}""", out _event);
+    void Because() => _recognized = ClaudeCodeStreamEvent.TryParse("""{"type":"assistant","error":"sk-ant-private-credential\nprivate diagnostic"}""", out _event);
+
+    [Fact] void should_recognize_the_failure() => _recognized.ShouldBeTrue();
 
     [Fact] void should_use_the_unknown_code() => _event.FailureReason!.ShouldContain("unknown");
     [Fact] void should_not_echo_the_untrusted_code() => _event.FailureReason!.Contains("private", StringComparison.Ordinal).ShouldBeFalse();

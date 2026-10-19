@@ -20,7 +20,7 @@ internal static partial class ClaudeCodeModelFailure
     internal static (string Reason, ClaudeCodeFailureKind Kind) Read(JsonElement body, JsonElement error)
     {
         var value = error.ValueKind == JsonValueKind.String ? error.GetString()! : string.Empty;
-        var code = value.Length is > 0 and <= 40 && value.All(character => character is >= 'a' and <= 'z' or '_') ? Redact(value) : "unknown";
+        var code = value.Length is > 0 and <= 40 && value.All(character => character is (>= 'a' and <= 'z') or '_') ? Redact(value) : "unknown";
         var (kind, hint) = code switch
         {
             "authentication_failed" => (ClaudeCodeFailureKind.Authentication, "the subscription credential was rejected; sign in again"),

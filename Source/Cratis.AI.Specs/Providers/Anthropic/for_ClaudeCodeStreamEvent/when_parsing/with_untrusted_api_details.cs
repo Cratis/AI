@@ -11,6 +11,7 @@ public class with_untrusted_api_details : Specification
     const string Bearer = "private-bearer-value";
     const string LongToken = "0123456789abcdef0123456789abcdef";
     ClaudeCodeStreamEvent _event = null!;
+    bool _recognized;
 
     void Because()
     {
@@ -26,8 +27,10 @@ public class with_untrusted_api_details : Specification
             error = "authentication_failed",
             message = new { content = new[] { new { type = "text", text = $"API Error: 401 {detail}" } } }
         });
-        ClaudeCodeStreamEvent.TryParse(line, out _event);
+        _recognized = ClaudeCodeStreamEvent.TryParse(line, out _event);
     }
+
+    [Fact] void should_recognize_the_failure() => _recognized.ShouldBeTrue();
 
     [Fact] void should_keep_the_useful_description() => _event.FailureReason!.ShouldContain("Please sign in.");
     [Fact] void should_redact_the_credential() => _event.FailureReason!.Contains(Credential, StringComparison.Ordinal).ShouldBeFalse();

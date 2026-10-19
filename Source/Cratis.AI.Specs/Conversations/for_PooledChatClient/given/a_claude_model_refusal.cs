@@ -39,7 +39,7 @@ public class a_claude_model_refusal : a_pooled_chat_client
 
     ClaudeCodeConversationFailed Refusal()
     {
-        ClaudeCodeStreamEvent.TryParse($$"""{"type":"assistant","error":"{{_code}}"}""", out var failure);
+        ClaudeCodeStreamEvent.TryParse($$"""{"type":"assistant","error":"{{_code}}"}""", out var failure).ShouldBeTrue();
         return new(failure.FailureReason!, kind: failure.FailureKind, functionInvocationAttempted: _functionInvocationAttempted);
     }
 
