@@ -319,7 +319,7 @@ with `view: "diagnostics"`, then `view: "repairs"` at the current revision.
 | `PLAY0166` | Declare a missing command-produced event in its slice. Infer known command-path types (retaining concepts) or `$context.occurred` as `DateTime`; refuse uncertain/conflicting shapes, imports, existing declarations, cross-file producers and parser-invalid workspaces. |
 | `PLAY0478` | Add `for <identifier>` to a plain production. Both models must be executable; refuse a version change or retargeting another production. This changes routing: accept only if the identifier, not allocation, is intended; `canFixAll: false`. |
 | `PLAY0471` | Remove a redundant event id only with unchanged executable model, catalog and comments. |
-| `PLAY0469` | Remove an inline same-source identifier property and mapping, retiring its semantic address. This changes the contract; `canFixAll` is false. Refuse other consumers, opaque impact, changed routing or comment loss. Plain contracts get guidance only. |
+| `PLAY0469` | Remove an inline same-source identifier property and mapping, retiring its semantic address. This changes the contract; `canFixAll` is false. Refuse other consumers, opaque impact, changed routing or comment loss. Plain contracts get guidance only. For a contract that may have been stored, use `propose-property` `remove` with `newGeneration: true` instead. |
 | `PLAY0479` | Migrate one optional type spelling, or all in a document, preserving syntax and trivia. Exclude `query Q => observable?`. |
 | `PLAY0563/0564` | Expand a one-line interaction alternative / turn a strict item `where` into one block-form `when`. Individual review, canonical formatting, no pinned evidence; refuse comment loss. Opaque non-item-condition text has no PLAY0564 repair. |
 | `PLAY0614` | Declare Translate direction only when exactly one inbound/outbound interpretation fits public metadata; never change event visibility to make a repair fit. |
@@ -362,9 +362,12 @@ Requires Screenplay 4.228.0 (`screenplay --version`) for `propose-inline-event`.
 `propose-inline-event` is the inverse: it folds a slice-level event with exactly one
 production into an inline event on that production, takes the same `subject`,
 revisions and `formatting: "CanonicalizeTouchedDocuments"`, and preserves executable
-bytes and identities. It refuses when the fold could change meaning (a conditional
-production, public or external event, cross-slice use, handlers, lost comments or any
-other reference to the event).
+bytes and identities. Use it to undo an extraction when the event has one producer and
+no other consumer. It refuses when the fold could change meaning: a conditional
+production (`when`), incomplete mappings, generations, an external origin or public
+event, cross-slice or cross-document use, opaque or handler text, comments that would
+be lost, or any reference other than the single production. Read the refusal and
+leave the event standalone; never work around it with text edits.
 
 Requires Screenplay 4.223.0 (`screenplay --version`) for `trace-lineage`.
 
@@ -448,7 +451,14 @@ correctness repair; PLAY0667–0670 require an author decision, with no automati
 
 Sources/streams and command/specification routes bind as ESM v8 and have
 catalog identities; `executionAvailable` still requires whole-workspace binding.
-Source/stream `propose-rename` repairs bound route references. Operations and
+Source/stream `propose-rename` repairs bound route references. `propose-rename` also
+renames a composite stream-id part: it rewrites the part declaration and every
+`part = ...` mapping in command routes, specification routes, examples and redelivery
+locators, keeps part order and stored stream ids, and is refused
+when the new name collides with another part of the same stream. Use it instead of a
+hand-written `propose-ast` batch.
+Requires Screenplay 4.220.0 (`screenplay --version`) for part renames; older servers
+cannot rename a part through `propose-rename`. Operations and
 exact numeric mode remain unadmitted. Check installed schemas, especially when
 the CLI bundle predates the standalone tool.
 
@@ -623,7 +633,12 @@ Upgrade before treating those rows as a coverage gate.
 `find-modeling-smells` asks information-level questions, never changes compilation
 or `--warnaserror`: SMELL001 generic event endings, SMELL002 generic command verbs,
 SMELL003 duplicate nonempty event shapes from different commands, SMELL004 event
-fan-out, SMELL005 read-model property fan-in. Optional scope/document and
+fan-out, SMELL005 read-model property fan-in (counts only the events that actually
+feed the property, not every known event through a projection `all` block), SMELL006
+an event property that no mapping, AutoMap, reaction, condition or specification
+reads (worded as a question: dead data or a missing reader?).
+Requires Screenplay 4.221.0 (`screenplay --version`) for SMELL006 and the corrected
+SMELL005 count; older servers over-report SMELL005 and never report SMELL006. Optional scope/document and
 `eventFanOutThreshold`/`propertyFanInThreshold` (default 5, integers 1–200) bound
 selection; equal to threshold is not flagged. Similar shape does not establish
 similar meaning: report a defect only with a domain consequence. No per-declaration

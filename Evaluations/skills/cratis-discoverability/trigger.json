@@ -1,0 +1,77 @@
+{
+  "skill": "cratis-discoverability",
+  "queries": [
+    {
+      "query": "I'm about to publish this blog post about projection rebuilds. Can you run the pre-publish check so people can find it in search and AI answers?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Is the title and meta description of this docs page good for SEO? The title is 82 characters.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write the NuGet description and PackageProjectUrl for our new Chronicle integration library so it can be found.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our package README starts with a logo and a theatre metaphor. Rewrite the opener so search engines and AI assistants understand what the product is.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check this landing page for discoverability: does it have a canonical, one h1, a definition above the fold and valid JSON-LD?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which JSON-LD types should a docs tutorial and a blog post get, and should I add FAQPage markup?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Make this concept page easier for AI assistants to quote. It opens with a long story before it says what the feature is.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We link to https://cratis.io/chronicle/ from the blog. Is that the right canonical form, and what else should I check before publishing?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Design an llms.txt and Markdown mirrors for the documentation site so assistants retrieve the right page.",
+      "shouldTrigger": false,
+      "note": "cratis-llm-friendly-documentation"
+    },
+    {
+      "query": "Plan our launch: channels, who replies in the threads and how we measure adoption.",
+      "shouldTrigger": false,
+      "note": "cratis-developer-marketing"
+    },
+    {
+      "query": "Should this tutorial be a tutorial or a how-to, and how do I make it teach like a tour?",
+      "shouldTrigger": false,
+      "note": "cratis-documentation-writing"
+    },
+    {
+      "query": "This draft sounds like a model wrote it. Make it sound human.",
+      "shouldTrigger": false,
+      "note": "cratis-writing-voice-and-cadence"
+    },
+    {
+      "query": "How long should this LinkedIn post be?",
+      "shouldTrigger": false,
+      "note": "cratis-content-length"
+    },
+    {
+      "query": "Write the release notes for version 15.2.0 with the migration steps.",
+      "shouldTrigger": false,
+      "note": "cratis-release-notes"
+    },
+    {
+      "query": "Explain how Chronicle projections rebuild a read model after an event type changes.",
+      "shouldTrigger": false,
+      "note": "product documentation question"
+    },
+    {
+      "query": "Draft a thread for X announcing the new Arc release with three standalone posts.",
+      "shouldTrigger": false,
+      "note": "cratis-social-feed-post"
+    }
+  ]
+}
