@@ -161,6 +161,7 @@ public sealed class PooledChatClient(
     static bool IsTransient(Exception exception) => exception switch
     {
         ClaudeCodeConversationFailed { FunctionInvocationAttempted: true } => false,
+        ClaudeCodeConversationFailed { Kind: ClaudeCodeFailureKind.ServerError } => true,
         ClientResultException clientResult => IsTransientStatus(clientResult.Status),
         HttpRequestException http => http.StatusCode is null || IsTransientStatus((int)http.StatusCode),
         TimeoutException => true,
@@ -382,6 +383,17 @@ public sealed class PooledChatClient(
             {
                 await rateLimitRecorder.Record(providerId, exception.Message);
                 return PoolAttempt<(T, AIProviderId)>.QuotaExhausted(exception.Message);
+            }
+
+            // A credential, plan or model refusal belongs to this member, not the whole pool.
+            // Never replay a Claude turn that may already have invoked a caller function.
+            if (exception is ClaudeCodeConversationFailed
+                {
+                    FunctionInvocationAttempted: false,
+                    Kind: ClaudeCodeFailureKind.Authentication or ClaudeCodeFailureKind.Billing or ClaudeCodeFailureKind.InvalidRequest
+                })
+            {
+                return PoolAttempt<(T, AIProviderId)>.Rejected(default, exception.Message);
             }
 
             if (!IsTransient(exception))

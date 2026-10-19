@@ -121,7 +121,7 @@ internal sealed record ClaudeCodeStreamEvent
                 "assistant" when body.TryGetProperty("error", out var error) && error.ValueKind != JsonValueKind.Null =>
                     error.ValueKind == JsonValueKind.String && error.GetString() == "rate_limit"
                         ? Failure("Claude Code's model request was rate limited (HTTP 429).", ClaudeCodeFailureKind.RateLimit)
-                        : Failure("Claude Code's model request failed.", ClaudeCodeFailureKind.ModelRequest),
+                        : ParseModelFailure(body, error),
                 "assistant" when body.TryGetProperty("message", out var message) && message.ValueKind == JsonValueKind.Object => ParseFinish(message),
                 "rate_limit_event" when body.TryGetProperty("rate_limit_info", out var limit) && limit.ValueKind == JsonValueKind.Object &&
                     limit.TryGetProperty("status", out var status) && status.ValueKind == JsonValueKind.String && status.GetString() == "rejected" => Failure("Claude Code's model request was rate limited (HTTP 429).", ClaudeCodeFailureKind.RateLimit),
@@ -143,6 +143,12 @@ internal sealed record ClaudeCodeStreamEvent
     }
 
     static ClaudeCodeStreamEvent Failure(string message, ClaudeCodeFailureKind kind) => new() { IsFailure = true, FailureReason = message, FailureKind = kind };
+
+    static ClaudeCodeStreamEvent ParseModelFailure(JsonElement body, JsonElement error)
+    {
+        var (reason, kind) = ClaudeCodeModelFailure.Read(body, error);
+        return Failure(reason, kind);
+    }
 
     static ClaudeCodeStreamEvent? ParseInit(JsonElement body)
     {

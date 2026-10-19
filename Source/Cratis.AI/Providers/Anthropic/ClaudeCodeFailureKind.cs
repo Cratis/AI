@@ -22,4 +22,24 @@ public enum ClaudeCodeFailureKind
     /// The vendor rejected a model API request.
     /// </summary>
     ModelRequest,
+
+    /// <summary>
+    /// The subscription credential was rejected.
+    /// </summary>
+    Authentication,
+
+    /// <summary>
+    /// The plan or credit is exhausted.
+    /// </summary>
+    Billing,
+
+    /// <summary>
+    /// The request or configured model was refused.
+    /// </summary>
+    InvalidRequest,
+
+    /// <summary>
+    /// The vendor could not serve the request.
+    /// </summary>
+    ServerError,
 }
