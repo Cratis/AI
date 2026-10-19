@@ -70,7 +70,7 @@ public record AIProviderCapacity(
             : $"is out of headroom ({Percent(Headroom)} left)";
     }
 
-    static string Percent(double fraction) => $"{Math.Round(fraction * 100).ToString(System.Globalization.CultureInfo.InvariantCulture)}%";
+    static string Percent(double fraction) => $"{Math.Round(fraction * 100, MidpointRounding.AwayFromZero).ToString(System.Globalization.CultureInfo.InvariantCulture)}%";
 
     /// <summary>
     /// Gets a configured provider's current capacity.
