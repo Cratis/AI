@@ -1,0 +1,42 @@
+{
+  "skill_name": "cratis-discoverability",
+  "evals": [
+    {
+      "id": 1,
+      "name": "readme-and-package-opener",
+      "prompt": "The README for the Cratis Orleans repository opens with a logo and the line \"The stage is set.\" The NuGet Description is empty and PackageProjectUrl is the GitHub repository. Tell me how to fix the discoverability of the README opener and the package metadata. Reply only; do not write files.",
+      "expected_output": "Open the README with a one-sentence plain definition and an H1 starting with Cratis. Give the package one description sentence equal to the README opener, naming the parent product, and point the project URL at the docs page on the canonical www host.",
+      "assertions": [
+        "Recommends opening the README with a one-sentence definition (what it is, for whom, what it does) in plain nouns instead of a logo-only or metaphor opener.",
+        "Recommends the H1 use the Cratis-prefixed product name.",
+        "Recommends a NuGet Description that is one sentence, equal to the README opener, and names the Cratis product it belongs to.",
+        "Recommends PackageProjectUrl point at the docs page under https://www.cratis.io rather than only at GitHub.",
+        "Does not invent a claim, number or URL the repository does not support."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "readability-beats-keywords",
+      "prompt": "A reviewer wants every heading on our reference page for the EventType attribute rewritten as a question such as \"What is the EventType attribute?\" with a 150-word intro and the product name repeated in each paragraph, because AI assistants like question headings. Advise. Reply only.",
+      "expected_output": "Decline: reference pages stay terse and findable by exact name. Question headings and intros belong on concept pages, not reference pages; readability wins over keywords.",
+      "assertions": [
+        "Declines rewriting reference-page headings as questions and adding a long intro.",
+        "Says question headings belong only where they read naturally, such as concept pages, FAQs or blog posts, not reference pages or tutorial steps.",
+        "Recommends the reference title be the exact name with its product and that the first sentence say what it is for.",
+        "States that a change which makes the page harder to read is dropped, and that repeating the product name to chase keywords is stuffing."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "structured-data-howto-faq",
+      "prompt": "Our docs tutorial template should emit HowTo markup, and the why-cratis page should get new FAQPage markup, with the founder named as author in the JSON-LD. Review the plan for discoverability. Reply only.",
+      "expected_output": "Do not add HowTo or new FAQPage markup; keep the visible Q&A. Use TechArticle with BreadcrumbList for the tutorial, reference the organization by @id, and do not name people in structured data.",
+      "assertions": [
+        "Says not to add HowTo markup.",
+        "Says not to add new FAQPage markup and to keep the visible question and answer text.",
+        "Recommends TechArticle (with BreadcrumbList) for a docs tutorial.",
+        "Says not to name the founder or any person in structured data and to reference the organization by @id instead."
+      ]
+    }
+  ]
+}
