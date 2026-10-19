@@ -62,7 +62,7 @@ for (const path of htmlFiles(root)) {
     const description = metas.find(tag => /name\s*=\s*["']description["']/i.test(tag));
     const descriptionText = description ? attr(description, 'content') ?? '' : '';
     if (!descriptionText) report('error', file, 'missing meta description');
-    else if (descriptionText.length < 50 || descriptionText.length > 170) report('warning', file, `meta description is ${descriptionText.length} characters (aim for 70-160)`);
+    else if (descriptionText.length < 60 || descriptionText.length > 160) report('warning', file, `meta description is ${descriptionText.length} characters (aim for 60-160)`);
     const canonical = tags(html, /<link\b[^>]*>/gi).find(tag => /rel\s*=\s*["']canonical["']/i.test(tag));
     const href = canonical ? attr(canonical, 'href') : undefined;
     if (!href) report('error', file, 'missing <link rel="canonical">');

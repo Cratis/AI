@@ -23,8 +23,11 @@ Read `references/page-checklist.md` for the full per-type checklist and the fiel
 
 ## Checks by content type
 
-- **Docs page.** The `description` is written by hand. Concept pages open with the definition
-  sentence and use it, trimmed, as the description. Tutorials and how-tos open with the outcome.
+- **Docs page.** The `description` is written by hand as one self-contained
+  definition or outcome sentence. Tutorials, getting-started pages and explanations follow
+  `writing-cratis-docs` (scenario first); the definition lives in the `description`, and one
+  definition sentence may follow the opening scenario where it reads naturally. `writing-cratis-docs`
+  wins on voice and structure. Product index pages open with the definition sentence.
   Reference pages stay terse: title is the exact name plus its product, no question headings, no
   intro. Titles are unique across the site and name the product ("Chronicle projections").
 - **Blog post.** The title states the topic in the words a reader would search. The intro gives the
@@ -34,7 +37,7 @@ Read `references/page-checklist.md` for the full per-type checklist and the fiel
 - **Landing page.** One primary term in the title, the `<h1>` or the first paragraph, and a
   one-sentence definition above the fold. Brand lines stay; pair them with a category term in the
   title and description. Respect the claim gate in `BRAND.md`, `MESSAGING.md` and `SITE.md`.
-- **README.** H1 is "Cratis <Product>". The first sentence defines the product in 15-35 plain
+- **README.** The H1 may be the product name ("Cratis <Product>"). The first sentence defines the product in 15-35 plain
   nouns, with no logo-only or metaphor opener. Links are absolute; link the docs page.
 - **Package metadata.** One sentence naming what the package is and which Cratis product it belongs
   to, identical to the README opener. `PackageProjectUrl` and `homepage` point at the docs page, not

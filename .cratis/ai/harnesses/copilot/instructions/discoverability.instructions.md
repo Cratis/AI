@@ -14,8 +14,9 @@ Readability comes first. If a change for search engines or AI assistants makes a
 
 ## Every page, post and README
 
-- **Define first.** Concept pages, landing pages, READMEs and package descriptions open with one self-contained sentence: "X is a <category> for <audience> that <does>." Tutorials and how-tos open with the outcome, then the scenario.
-- **Title and description are written by hand.** Title 50-60 characters with the distinguishing term first (docs and reference pages: 20-60). Description 120-155 characters, never over 160, and not a copy of the title or of another page's description.
+- **Define first, where a definition belongs.** Landing pages, product index pages, glossary entries, READMEs and package descriptions open with one self-contained sentence: "X is a <category> for <audience> that <does>."
+- **Docs tutorials, getting-started pages and explanations follow [writing-cratis-docs.md](./writing-cratis-docs.instructions.md)**: scenario first, pain before relief. Their answer-first, self-contained definition goes in the frontmatter `description`, which serves search and AI. Where it reads naturally, one definition sentence may follow the opening scenario. writing-cratis-docs wins on voice and structure.
+- **Title and description are written by hand.** Title with the distinguishing term first: 50-60 characters for blog and landing pages, 20-60 for docs and reference pages; a README H1 that is the product name is fine. Description is one sentence of 60-160 characters, never over 160, and not a copy of the title or of another page's description.
 - **Name things one way.** The first mention is the full name ("Cratis Chronicle"), later mentions may shorten it. Use the canonical names in the **cratis-discoverability** entity reference, and do not call the platform "Cratis.io".
 - **Links name their destination.** Link text says what is behind it. Outside the docs site, link docs with the absolute canonical host `https://www.cratis.io/...`, never the bare `cratis.io`.
 - **Images carry alt text.** Describe the content. Use an empty `alt=""` only for decoration.
