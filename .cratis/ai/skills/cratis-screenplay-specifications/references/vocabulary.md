@@ -54,6 +54,10 @@ The complete model with these specifications is in read-surface `references/name
 
 ## Parse and binding diagnostics
 
+A command or query authorized only by an anonymous policy may omit `given caller`;
+every other authorized specification needs one (PLAY0389). See
+[anonymous policy](../../cratis-screenplay-command-surface/references/policy-persona-seed.md#anonymous-policy).
+
 PLAY0358 is a syntax error; PLAY0388 also occurs at parse time for extra text
 after `then denied`. PLAY0350, PLAY0352, PLAY0388 for mixed outcomes, PLAY0389 and
 the one-rejection rule PLAY0273 occur only at binding. Source validation alone

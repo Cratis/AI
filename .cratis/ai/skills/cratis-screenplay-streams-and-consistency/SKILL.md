@@ -100,7 +100,9 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
 ## Rules
 **Compiler contracts** (diagnostics; capability per tool in the toolchain `references/executable-subset.md`)
 - `identifier` on an event property is PLAY0019; the source id is never payload by declaration.
-  Copying it as a payload value is PLAY0469 (information, warning for inline events).
+  Copying it as a payload value is PLAY0469 (information, warning for inline events);
+  for a possibly stored contract, retire it as an evolution draft with `propose-property`
+  `remove` + `newGeneration: true`, not by editing the event in place (model-authoring [property planning](../cratis-screenplay-model-authoring/references/property-links.md#remove-from-an-inline-event)).
 - In the executable model a production's `for` must resolve to the command's scalar identifier:
   one command writes one stream declaratively; described handlers bind v23 but
   their payload-only contract does not grant arbitrary destinations.
