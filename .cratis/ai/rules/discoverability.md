@@ -1,10 +1,14 @@
 ---
-applyTo: "**/*.{md,mdx,html,astro}"
+applyTo: "**/Documentation/**/*.md,**/Documentation/**/*.mdx,**/src/pages/**/*.astro,**/src/pages/**/*.md,**/src/pages/**/*.mdx,**/src/pages/**/*.html,**/src/content/**/*.md,**/src/content/**/*.mdx"
 paths:
-  - "**/*.md"
-  - "**/*.mdx"
-  - "**/*.html"
-  - "**/*.astro"
+  - "**/Documentation/**/*.md"
+  - "**/Documentation/**/*.mdx"
+  - "**/src/pages/**/*.astro"
+  - "**/src/pages/**/*.md"
+  - "**/src/pages/**/*.mdx"
+  - "**/src/pages/**/*.html"
+  - "**/src/content/**/*.md"
+  - "**/src/content/**/*.mdx"
 ---
 
 # Writing content that people and assistants can find
