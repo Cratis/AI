@@ -61,16 +61,14 @@ public record AIProviderCapacity(
         var spent = Windows.Where(window => window.Remaining <= 0.02d).ToList();
         if (spent.Count > 0)
         {
-            var windows = string.Join(", ", spent.Select(window => $"{window.Name} window {Percent(window.UsedFraction)} used" + (window.ResetsAt is { } reset ? $" (resets {reset.UtcDateTime:yyyy-MM-dd HH:mm} UTC)" : string.Empty)));
+            var windows = string.Join(", ", spent.Select(window => $"{window.Name} window {CapacityText.Percent(window.UsedFraction)} used" + (window.ResetsAt is { } reset ? $" (resets {reset.UtcDateTime:yyyy-MM-dd HH:mm} UTC)" : string.Empty)));
             return $"has no usage left: {windows}";
         }
 
         return AvailableAgainAt is { } again
-            ? $"is out of headroom ({Percent(Headroom)} left) until {again.UtcDateTime:yyyy-MM-dd HH:mm} UTC"
-            : $"is out of headroom ({Percent(Headroom)} left)";
+            ? $"is out of headroom ({CapacityText.Percent(Headroom)} left) until {again.UtcDateTime:yyyy-MM-dd HH:mm} UTC"
+            : $"is out of headroom ({CapacityText.Percent(Headroom)} left)";
     }
-
-    static string Percent(double fraction) => $"{Math.Round(fraction * 100, MidpointRounding.AwayFromZero).ToString(System.Globalization.CultureInfo.InvariantCulture)}%";
 
     /// <summary>
     /// Gets a configured provider's current capacity.
