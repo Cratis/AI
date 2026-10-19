@@ -131,7 +131,11 @@ proved and keep other guarantees as target requirements; recovery cases are in
 - One behaviour per spec; names read as sentences: `Reserving...`, `Rejecting...`, `Refusing...`
   (denial), `<View>LifecycleN<State>` for families.
 - `for` on every given, appended and expected event (plain `produces <Name>` too; inline `produces event` omits it), and on the `when` command where the
-  destination matters. A competing-claim given needs a *different* `for`.
+  destination matters. A competing-claim given needs a *different* `for`. A given without `for`
+  belongs to the event source the specification acts on; state `for` when the command appends to
+  several event sources or an assertion depends on the given's source, and never assert
+  `$eventSourceId` of a sourceless given. Read
+  [examples and routes](../cratis-screenplay-specifications/references/examples-and-routes.md#givens-without-an-event-source).
   Foreign event fixtures feeding a capture may omit `for`; supplied `for` is
   opaque source text, not the capture's content key.
 - Format rules belong on a `concept`: give each concept rule representative acceptance,
@@ -147,7 +151,9 @@ proved and keep other guarantees as target requirements; recovery cases are in
 - Descriptions are not rendered: a rule only in prose is unenforced; make it a rule layer, a
   spec or a recorded target requirement.
 - Prove projections with events (`given`/`when append`), not `given readmodel`; seed read models
-  only for performer-backed views or commands that decide on view state.
+  only for performer-backed views or commands that decide on view state. A query `performer` is an opaque read
+  (information `PLAY0270`, not `PLAY0268`): it is left out of the executable model, a spec that reads it is
+  left out too and the other specs still run, so mark it `gap` for the executable modes ([version gate](../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does)).
 - No contradiction between a family and single-transition specs of the same view.
 
 ### Quality checklist (adapted from the TrogonStack scenario checklist; `references/provenance.md`)
