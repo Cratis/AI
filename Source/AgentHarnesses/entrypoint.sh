@@ -1363,6 +1363,10 @@ run_claude_code() {
                         DIRECT_CALLBACK_TOKEN: $token
                     }
                 },
+                direct_approval: {
+                    command: "node",
+                    args: ["/usr/local/lib/direct-progress-mcp/headless-approval-mcp-server.mjs"]
+                },
                 sequential_thinking: {
                     command: "mcp-server-sequential-thinking",
                     args: []
@@ -1440,12 +1444,24 @@ run_claude_code() {
     # exception: a trapped signal makes it return immediately and the handler runs there and then.
     # The exit status travels through a file because the pipeline runs in the background job's own
     # subshell, where PIPESTATUS is not visible from here.
+    #
+    # --permission-prompt-tool: a cloned repository's .claude/settings.json may hold `ask` rules
+    # written for a person at a terminal (the Cratis corpus asks before `git push` and `gh pr`). In
+    # -p mode an `ask` rule wins over --dangerously-skip-permissions and, with nobody to answer, the
+    # call is denied - workers resolving merge conflicts and failing checks stopped there. The CLI
+    # hands those prompts to this tool instead (headless-approval-mcp-server.mjs), which approves
+    # them, the same decision --dangerously-skip-permissions already makes. `deny` rules and denying
+    # PreToolUse hooks are settled before any prompt, so they still refuse. Not `--setting-sources
+    # user`: verified on 2.1.280, leaving out the project source also stops the repository's
+    # CLAUDE.md and .claude/skills from loading, and drops its hooks (the PR-body guard, the Stop
+    # quality gate) with them.
     {
         /usr/bin/time -v -o "$TIME_FILE" -- claude -p \
             --input-format stream-json \
             --output-format stream-json \
             --verbose \
             --dangerously-skip-permissions \
+            --permission-prompt-tool mcp__direct_approval__approve_permission \
             --mcp-config "$MCP_CONFIG" \
             "${CLAUDE_PROFILE_ARGS[@]}" \
             "${MODEL_ARGS[@]}" < "$PIPE" |

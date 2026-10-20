@@ -645,6 +645,14 @@ the intended action and the permitted alternative; it does not loosen its own co
 Supply credentials through the environment, never echo them or place them in committed files.
 A missing or disabled hook is not evidence that a protected action is safe.
 
+The shipped `permissions.ask` rules (`git push`, `gh pr`) are for a person at a terminal. In
+`claude -p` an `ask` rule wins over `--dangerously-skip-permissions`, and with nobody to answer,
+the call is denied. A runner whose work includes pushing or opening pull requests answers those
+prompts with `--permission-prompt-tool` (an MCP tool that returns an allow decision); `deny` rules
+and denying hooks are settled first and still refuse. Do not drop the project settings with
+`--setting-sources user` instead: on Claude Code 2.1.280 that also stops the repository's
+`CLAUDE.md`, skills and hooks from loading.
+
 ## Method lineage
 
 | Idea | Used in | Credit |

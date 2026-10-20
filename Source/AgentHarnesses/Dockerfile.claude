@@ -7,6 +7,8 @@
 #   - The report_progress MCP server (progress-mcp-server.mjs) - lets the agent post a live
 #     plan/checklist back to whichever product dispatched it while it works; Claude-only because
 #     Pi 0.84.x has no MCP client of any kind
+#   - The approve_permission MCP server (headless-approval-mcp-server.mjs) - answers the permission
+#     prompts a repository's `ask` rules raise in a headless session (--permission-prompt-tool)
 #   - A handful of npm-distributed MCP servers wired into every session by entrypoint.sh's
 #     run_claude_code() (--mcp-config), Claude-only for the same reason as report_progress:
 #       - server-sequential-thinking - a step-by-step reasoning scratchpad for multi-step problems
@@ -46,8 +48,9 @@ EOF
 
 # The report_progress MCP server — installed as its own small package next to the script rather
 # than a global add-on, since it is this image's own tool rather than a CLI the agent invokes
-# directly; entrypoint.sh wires it into the Claude CLI session with --mcp-config.
-COPY progress-mcp-server.mjs package.json package-lock.json /usr/local/lib/direct-progress-mcp/
+# directly; entrypoint.sh wires it into the Claude CLI session with --mcp-config. The headless
+# approval server rides in the same package: it has the same single dependency.
+COPY progress-mcp-server.mjs headless-approval-mcp-server.mjs package.json package-lock.json /usr/local/lib/direct-progress-mcp/
 RUN cd /usr/local/lib/direct-progress-mcp && npm ci --omit=dev
 
 # The npm-distributed MCP servers above - installed globally as plain tools per the organization's
