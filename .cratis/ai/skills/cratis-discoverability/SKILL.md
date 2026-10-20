@@ -1,6 +1,6 @@
 ---
 name: cratis-discoverability
-description: Run the pre-publish check that makes Cratis content easy to find in search and AI answers without making it harder to read - a docs page, blog post, landing page, README or package metadata (title, description, opening definition, canonical links, entity names, alt text, structured data). Use when about to publish or review content for discoverability, SEO, AEO or GEO, or when writing package descriptions and README openers. Not for page voice and structure (cratis-documentation-writing), llms.txt design (cratis-llm-friendly-documentation), distribution plans (cratis-developer-marketing) or length decisions (cratis-content-length).
+description: Check Cratis content before publishing for search and AI answers without sacrificing readability. Use when reviewing discoverability, SEO, AEO or GEO; writing fact blocks or download claims; editing package/repo metadata; checking docs titles, descriptions or LLM export budgets; or reviewing founder/company JSON-LD and member profile indexing. Not for page voice and structure (cratis-documentation-writing), llms.txt design (cratis-llm-friendly-documentation), distribution plans (cratis-developer-marketing) or length decisions (cratis-content-length).
 license: MIT
 ---
 
@@ -13,13 +13,13 @@ drop the fix and say so.
 
 ## Procedure
 
-1. Name the content type: docs page, blog post, landing page, README or package metadata.
+1. Name the content type: docs page, blog post, landing page, README, package/repo metadata or member profile.
 2. Name the reader's one job and, for docs, the page type (tutorial, how-to, reference, explanation).
-3. Apply the checks for that type below. Fix the draft; do not annotate it.
+3. Apply the checks for that type below, including facts, adoption claims and privacy without waiting for a separate request. Fix the draft; do not annotate it.
 4. For a built site, run the checker and fix errors; warnings are judgment calls to report.
 5. Report what was changed, what was left alone and why.
 
-Read `references/page-checklist.md` for the full per-type checklist and the field lengths.
+Read `references/page-checklist.md` when checking a page, including docs lint baselines and LLM export budgets.
 
 ## Checks by content type
 
@@ -29,7 +29,9 @@ Read `references/page-checklist.md` for the full per-type checklist and the fiel
   definition sentence may follow the opening scenario where it reads naturally. `writing-cratis-docs`
   wins on voice and structure. Product index pages open with the definition sentence.
   Reference pages stay terse: title is the exact name plus its product, no question headings, no
-  intro. Titles are unique across the site and name the product ("Chronicle projections").
+  intro. Titles are unique across the site and name the product ("Chronicle projections"). Keep
+  description and duplicate-title lint baselines at 0; never raise a baseline to pass. Check
+  rendered titles and measure `llms.txt` / `llms-small.txt` bytes against the site budgets.
 - **Blog post.** The title states the topic in the words a reader would search. The intro gives the
   conclusion in two sentences. Show the named author and date, add `lastUpdated` only for real
   changes, link the owning docs pages with `https://www.cratis.io/...`, keep `description` apart
@@ -41,7 +43,19 @@ Read `references/page-checklist.md` for the full per-type checklist and the fiel
   nouns, with no logo-only or metaphor opener. Links are absolute; link the docs page.
 - **Package metadata.** One sentence naming what the package is and which Cratis product it belongs
   to, identical to the README opener. `PackageProjectUrl` and `homepage` point at the docs page, not
-  only at GitHub. Read `references/package-metadata.md` for the field map.
+  only at GitHub. Read `references/package-metadata.md` when editing package fields, GitHub About,
+  Docker Hub descriptions, analyzer help links, template messages or README footers. Check these
+  surfaces together; Authors and Company are `Cratis`.
+
+## Fact blocks and adoption claims
+
+For each entity page, assemble one sourced "at a glance" block from verifiable facts, with dates
+for counts. Read `references/facts-and-adoption.md` when selecting facts or calculating downloads:
+identify entry packages and continuation predecessors, exclude sub-packages and overlapping
+shared dependencies, round down to a stated threshold, and publish the month and registries.
+Downloads are never users or customers. Omit unsupported claims instead of inventing customers,
+user counts, benchmarks, certifications, prices or competitor comparisons. Keep shared guidance
+generic; do not copy private integration names, legal entity details or factual counts into it.
 
 ## Names
 
@@ -53,7 +67,10 @@ Do not invent a name, URL, maturity word or claim that the references do not sta
 
 Describe only what is visible on the page, one `@graph` per page, stable `@id`s. Add no `HowTo` and
 no new `FAQPage`. Read `references/structured-data.md` for the patterns and what each page type
-gets. Do not name people in structured data.
+gets. Use only public, owner-approved founder/company facts. Do not name other people in
+structured data; never add personal data or `Person` entities for community members. Member
+profiles are `noindex`; check profile and CV routes, rendered robots directives and JSON-LD.
+Without approved public founder facts, reference the organization by `@id` instead.
 
 ## Checking a built site
 

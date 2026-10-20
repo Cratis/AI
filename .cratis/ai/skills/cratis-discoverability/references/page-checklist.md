@@ -9,6 +9,7 @@
 - Landing pages
 - READMEs
 - Before publishing a site change
+- Docs-site guardrails
 
 ## Field targets
 
@@ -29,7 +30,7 @@ Lengths are targets, counted in characters including any site suffix.
 - [ ] Description written by hand; not the title, not another page's description.
 - [ ] The `description` answers what the page is or achieves in one self-contained sentence; the first paragraph does too on landing, index, glossary and README pages.
 - [ ] Canonical names; first mention uses the full "Cratis X" form.
-- [ ] Facts, numbers and comparisons carry a source or a date; nothing beyond the claim gate.
+- [ ] Facts, numbers and comparisons carry a source, and counts also carry a date; nothing beyond the claim gate.
 - [ ] Links have descriptive text. Root-relative inside the docs site, absolute
       `https://www.cratis.io/...` elsewhere.
 - [ ] Images have alt text (empty only when decorative) and sensible size.
@@ -86,3 +87,17 @@ Lengths are targets, counted in characters including any site suffix.
 - [ ] The content is in the raw HTML the server returns, not only rendered by JavaScript.
 - [ ] Internal links resolve; no apex `cratis.io` links.
 - [ ] A real HTTP 404 for unknown URLs; redirect stubs keep a canonical and stay out of the sitemap.
+
+## Docs-site guardrails
+
+- Keep missing-description and duplicate-title lint baselines at 0. Never raise a baseline to pass;
+  fix authored metadata or its generator and rerun the site's lint with no new exceptions.
+- Inspect rendered browser titles, not only frontmatter: retain the product name, add language
+  context for variants and distinguish repeated generic titles without changing page headings.
+- Measure UTF-8 bytes of `llms.txt` and `llms-small.txt`, including product/nested-product exports,
+  against the site's configured budgets. Keep `llms.txt` an index and `llms-small.txt` curated
+  starting points with one-line summaries, not a full inventory. Trim duplication and curation,
+  not human documentation or useful code examples. Do not raise budgets to hide growth.
+- Run the site's lint and enforced export-budget checks after its build; require exit 0 and
+  measured files within their limits. The built-site checker alone does not enforce these gates.
+  For export design, use **cratis-llm-friendly-documentation**.

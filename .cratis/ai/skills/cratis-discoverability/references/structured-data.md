@@ -13,8 +13,17 @@
 - Markup describes what is visible on the page, and every date is a real one.
 - Add no `HowTo`. Add no new `FAQPage`; keep the visible question and answer text. Use `QAPage` only
   for real user questions and answers.
-- Do not name people (`Person`, `author` name) in structured data unless the owner has approved it.
-  Reference the organization by `@id`.
+- Use only public, owner-approved founder/company facts that are visible on the page. Founder
+  `Person` nodes may be linked from the organization with stable `@id`s and public profile links;
+  do not infer roles, employment or relationships from contributor accounts. Without this approval,
+  reference the organization by `@id` instead of naming a person.
+- Never add personal data or `Person` entities for community members, even if a profile displays
+  them. Do not serialize job titles, email, location, interests or CV details into JSON-LD.
+  Member profile and CV pages must emit `noindex`; keep them out of the sitemap. Do not apply
+  this policy to the community home or join page. Check rendered robots metadata or the
+  `X-Robots-Tag` header; blocking crawling alone does not establish `noindex`.
+- Shared guidance stays generic: no private/unannounced integration names, legal entity details
+  or factual counts copied from source material.
 - Do not add `offers`, an address or contact data without approval (see `SITE.md`).
 - Validate with the schema.org validator or Google's Rich Results Test. Invalid markup is worse than
   none. Static sites hand-write `<script type="application/ld+json">`; Astro sites generate it in
@@ -31,6 +40,7 @@
 | Blog post | `BlogPosting` (`datePublished`, `dateModified`, `publisher`, `image`) |
 | Repository or sample code | `SoftwareSourceCode` |
 | Legal pages | `WebPage` |
+| Member profiles and CV pages | no `Person` or personal structured data; `noindex` |
 | 404 and app hosts | none |
 
 ## Pattern
