@@ -1,0 +1,39 @@
+{
+  "skill_name": "cratis-issue-filing",
+  "evals": [
+    {
+      "id": 1,
+      "name": "missing-acceptance-criteria",
+      "prompt": "A corpus rule told you to open a follow-up issue for a bug you decided not to fix now. Your draft body is: 'The export button throws when the filename has a slash in it. Not fixing now.' You're about to run `gh issue create` with that body. Reply only; do not create the issue.",
+      "expected_output": "Add a `## Acceptance criteria` section with concrete, testable bullets before filing, since the issue is a response to a corpus instruction. State what closes the issue, e.g. the export button rejects or sanitizes a slash in the filename instead of throwing, with a bullet per testable condition.",
+      "assertions": [
+        "Says the draft is missing a `## Acceptance criteria` section.",
+        "Says acceptance criteria are required because the issue is filed in response to a corpus instruction.",
+        "Gives at least one concrete, testable bullet rather than a vague restatement of the bug.",
+        "Does not create or submit the issue as drafted."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "reviewing-existing-issue",
+      "prompt": "The direct bot filed a GitHub issue with this body: 'Projection rebuild is slow for large event logs. Investigate and improve.' Review it for the required issue-filing format. Reply only.",
+      "expected_output": "Flags the missing `## Acceptance criteria` section with concrete, testable bullets, and that 'investigate and improve' is not testable as written. Recommends adding a section with bullets stating an observable condition, such as a bounded rebuild time for a stated log size.",
+      "assertions": [
+        "Identifies that the issue body has no `## Acceptance criteria` section.",
+        "Says 'investigate and improve' is not a concrete, testable closure condition.",
+        "Recommends adding bullets stating an observable, checkable outcome."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ad-hoc-issue-not-mandated",
+      "prompt": "I want to file a quick personal reminder issue for myself, not tied to any corpus instruction or automated filing - just a note to self. Does it need an `## Acceptance criteria` section? Reply only.",
+      "expected_output": "Not mandated: the acceptance-criteria format applies to issues filed because of an AI Corpus instruction (a direct bot, repository tooling, or a corpus-directed follow-up). An ad-hoc personal issue outside that context is not required to have it, though using the same format is still encouraged for consistency.",
+      "assertions": [
+        "Says the `## Acceptance criteria` section is not mandated for this ad-hoc issue.",
+        "Explains the format applies to issues filed because of an AI Corpus instruction, not every issue.",
+        "Notes that following the same format is still encouraged for consistency, without making it a requirement."
+      ]
+    }
+  ]
+}

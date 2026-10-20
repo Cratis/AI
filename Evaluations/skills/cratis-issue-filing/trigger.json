@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-issue-filing",
+  "queries": [
+    { "query": "A corpus rule says to open a follow-up issue for this edge case we're not fixing now. What should the issue body include?", "shouldTrigger": true },
+    { "query": "I'm about to file a GitHub issue because a corpus instruction told me to open one for this follow-up. What format should the body use?", "shouldTrigger": true },
+    { "query": "Review this draft issue body before I open it - does it have everything a filed issue needs?", "shouldTrigger": true },
+    { "query": "The direct bot just opened an issue but it has no acceptance criteria section. Is that compliant with our issue format?", "shouldTrigger": true },
+    { "query": "Our repository has a script that files GitHub issues automatically when a check fails. What should its generated issue body contain?", "shouldTrigger": true },
+    { "query": "I'm about to suggest opening a follow-up issue instead of leaving a work note in .ai-work/. What should go in the issue body?", "shouldTrigger": true },
+    { "query": "Check whether this GitHub issue I'm about to file has concrete, testable closure criteria.", "shouldTrigger": true },
+    { "query": "What's the required structure for an issue body when an agent opens one on behalf of the AI Corpus guidance?", "shouldTrigger": true },
+    { "query": "Someone filed an issue with just a title and a one-line description after a corpus rule told them to open one. What's missing from it?", "shouldTrigger": true },
+    { "query": "Should I assign myself to this unassigned issue before starting work on it?", "shouldTrigger": false, "note": "issue-assignment.md" },
+    { "query": "Write the pull request description for this merged work.", "shouldTrigger": false, "note": "pull-requests.md" },
+    { "query": "What labels should this PR carry: major, minor or patch?", "shouldTrigger": false, "note": "pull-requests.md" },
+    { "query": "Draft the release notes from the merged pull requests this week.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Record this decision about dropping the old auth middleware.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "The same screen broke a third time - should we fix the instance or chase down a gate?", "shouldTrigger": false, "note": "cratis-engineering-regression-cluster" },
+    { "query": "Review this publish step for partial-success handling.", "shouldTrigger": false, "note": "cratis-engineering-effect-boundaries" },
+    { "query": "Summarize what changed in this PR for the reviewer in the description.", "shouldTrigger": false, "note": "pull-requests.md" },
+    { "query": "Close this issue since the fix already merged.", "shouldTrigger": false, "note": "pull-requests.md issue-closing conventions" }
+  ]
+}
