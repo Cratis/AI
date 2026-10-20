@@ -169,8 +169,8 @@ internal sealed record ClaudeCodeStreamEvent
 
     // The CLI names what went wrong on the assistant message's error field, and carries the vendor's API error in the
     // message's text ("API Error: 400 {...}"). The code is read as an identifier. Of the text only the vendor's own
-    // error message inside that JSON is kept - a short, credential-free excerpt - so the person can see what it objected
-    // to; any other text is not trusted to be safe and is dropped.
+    // error message inside that JSON, or the CLI's own wording of a failure, is kept - a short, credential-free excerpt - so
+    // the person can see what it objected to; any other text is not trusted to be safe and is dropped.
     static ClaudeCodeStreamEvent ParseAssistantError(JsonElement body, JsonElement error)
     {
         var code = error.ValueKind == JsonValueKind.String ? ClaudeCodeFailureText.SafeCode(error.GetString()) : null;
@@ -193,12 +193,25 @@ internal sealed record ClaudeCodeStreamEvent
             return null;
         }
 
+        // The CLI words some failures itself, as a message from its own "<synthetic>" model ("There's an issue with the
+        // selected model ..."): that text is the CLI's, not the model's and not the user's, so it is safe to excerpt.
+        var synthetic = message.TryGetProperty("model", out var model) && model.ValueKind == JsonValueKind.String && model.GetString() == "<synthetic>";
         foreach (var part in content.EnumerateArray())
         {
-            if (part.ValueKind == JsonValueKind.Object && part.TryGetProperty("text", out var text) && text.ValueKind == JsonValueKind.String &&
-                VendorMessageIn(text.GetString()) is { } vendorMessage)
+            if (part.ValueKind != JsonValueKind.Object || !part.TryGetProperty("text", out var textElement) || textElement.ValueKind != JsonValueKind.String)
+            {
+                continue;
+            }
+
+            var text = textElement.GetString();
+            if (VendorMessageIn(text) is { } vendorMessage)
             {
                 return vendorMessage;
+            }
+
+            if (synthetic && !string.IsNullOrWhiteSpace(text))
+            {
+                return text;
             }
         }
 
